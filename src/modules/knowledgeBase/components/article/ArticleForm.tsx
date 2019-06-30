@@ -2,10 +2,12 @@ import {
   Button,
   ControlLabel,
   EditorCK,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { IArticle } from '../../types';
@@ -13,28 +15,11 @@ import { IArticle } from '../../types';
 type Props = {
   article: IArticle;
   currentCategoryId: string;
-
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          summary: string;
-          content: string;
-          status: string;
-          categoryIds: string[];
-        };
-      };
-    },
-    callback: () => void,
-    IArticle
-  ) => void;
-
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
-  status: string;
   content: string;
 };
 
@@ -45,64 +30,53 @@ class ArticleForm extends React.Component<Props, State> {
     const article = props.article || { content: '' };
 
     this.state = {
-      status: this.getCurrentStatus(),
       content: article.content
     };
   }
 
-  save = e => {
-    e.preventDefault();
+  generateDoc = (values: {
+    _id?: string;
+    title: string;
+    summary: string;
+    status: string;
+  }) => {
+    const { article, currentCategoryId } = this.props;
+    const finalValues = values;
 
-    this.props.save(
-      this.generateDoc(),
-      () => this.props.closeModal(),
-      this.props.article
-    );
-  };
-
-  getCurrentStatus() {
-    const { article } = this.props;
-    if (article == null) {
-      return 'draft';
+    if (article) {
+      finalValues._id = article._id;
     }
-    return article.status;
-  }
 
-  generateDoc() {
     return {
+      _id: finalValues._id,
       doc: {
-        doc: {
-          title: (document.getElementById(
-            'knowledgebase-article-title'
-          ) as HTMLInputElement).value,
-          summary: (document.getElementById(
-            'knowledgebase-article-summary'
-          ) as HTMLInputElement).value,
-          content: this.state.content,
-          status: this.state.status,
-          categoryIds: [this.props.currentCategoryId]
-        }
+        title: finalValues.title,
+        summary: finalValues.summary,
+        content: this.state.content,
+        status: finalValues.status,
+        categoryIds: [currentCategoryId]
       }
     };
-  }
+  };
 
   onChange = e => {
     this.setState({ content: e.editor.getData() });
   };
 
-  renderContent(article) {
-    const onChange = e => {
-      this.setState({ status: (e.target as HTMLInputElement).value });
-    };
+  renderContent = (formProps: IFormProps) => {
+    const { article, renderButton, closeModal } = this.props;
+    const { isSubmitted, values } = formProps;
+
+    const object = article || ({} as IArticle);
 
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
-          <ControlLabel>Title</ControlLabel>
+          <ControlLabel required={true}>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-article-title"
-            type="text"
-            defaultValue={article.title}
+            {...formProps}
+            name="title"
+            defaultValue={object.title}
             required={true}
             autoFocus={true}
           />
@@ -111,14 +85,14 @@ class ArticleForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Summary</ControlLabel>
           <FormControl
-            id="knowledgebase-article-summary"
-            type="text"
-            defaultValue={article.summary}
+            {...formProps}
+            name="summary"
+            defaultValue={object.summary}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Content</ControlLabel>
+          <ControlLabel required={true}>Content</ControlLabel>
           <EditorCK
             content={this.state.content}
             onChange={this.onChange}
@@ -127,13 +101,14 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Status</ControlLabel>
+          <ControlLabel required={true}>Status</ControlLabel>
           <FormControl
-            id="knowledgebase-article-status"
+            {...formProps}
+            name="status"
             componentClass="select"
             placeholder={__('select')}
-            onChange={onChange}
-            value={this.state.status}
+            defaultValue={object.status || 'draft'}
+            required={true}
           >
             {[{ value: 'draft' }, { value: 'publish' }].map(op => (
               <option key={op.value} value={op.value}>
@@ -142,14 +117,7 @@ class ArticleForm extends React.Component<Props, State> {
             ))}
           </FormControl>
         </FormGroup>
-      </React.Fragment>
-    );
-  }
 
-  render() {
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent(this.props.article || {})}
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -160,12 +128,20 @@ class ArticleForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'article',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: article
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

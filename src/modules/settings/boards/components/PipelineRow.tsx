@@ -1,16 +1,13 @@
 import { ActionButtons, Button, Tip } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import * as React from 'react';
 import { PipelineForm } from '../containers';
 import { PipelineRowContainer } from '../styles';
-import { IPipeline, IStage } from '../types';
+import { IPipeline } from '../types';
 
 type Props = {
   pipeline: IPipeline;
-  save: (
-    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
-    callback: () => void,
-    pipeline?: IPipeline
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (pipelineId: string) => void;
   type: string;
 };
@@ -48,15 +45,15 @@ class PipelineRow extends React.Component<Props, State> {
   }
 
   renderEditForm() {
-    const { save, type, pipeline } = this.props;
+    const { renderButton, type, pipeline } = this.props;
 
     const closeModal = () => this.setState({ showModal: false });
 
     return (
       <PipelineForm
         type={type}
-        boardId={pipeline.boardId}
-        save={save}
+        boardId={pipeline.boardId || ''}
+        renderButton={renderButton}
         pipeline={pipeline}
         closeModal={closeModal}
         show={this.state.showModal}

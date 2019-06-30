@@ -1,16 +1,15 @@
 import gql from 'graphql-tag';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { KnowledgeList } from '../../components';
 import { mutations, queries } from '../../graphql';
 import {
-  AddTopicsMutationResponse,
-  EditTopicsMutationResponse,
   RemoveTopicsMutation,
   TopicsQueryResponse,
-  TopicsTotalCountQueryResponse,
-  TopicVariables
+  TopicsTotalCountQueryResponse
 } from '../../types';
 
 type Props = {
@@ -23,8 +22,6 @@ type FinalProps = {
   topicsQuery: TopicsQueryResponse;
   topicsCountQuery: TopicsTotalCountQueryResponse;
 } & Props &
-  AddTopicsMutationResponse &
-  EditTopicsMutationResponse &
   RemoveTopicsMutation;
 
 const KnowledgeBaseContainer = (props: FinalProps) => {
@@ -33,8 +30,6 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     topicsQuery,
     topicsCountQuery,
     removeTopicsMutation,
-    addTopicsMutation,
-    editTopicsMutation,
     queryParams,
     articlesCount
   } = props;
@@ -57,39 +52,44 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
     });
   };
 
-  // create or update action
-  const save = ({ doc }, callback, object) => {
-    let mutation = addTopicsMutation;
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    const callBackResponse = () => {
+      topicsQuery.refetch();
+      topicsCountQuery.refetch();
 
-    // if edit mode
-    if (object) {
-      mutation = editTopicsMutation;
-      doc._id = object._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        // update queries
-        topicsQuery.refetch();
-        topicsCountQuery.refetch();
-
-        Alert.success(
-          `You successfully ${object ? 'updated' : 'added'} a knowledge base`
-        );
-
+      if (callback) {
         callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+      }
+    };
+
+    return (
+      <ButtonMutate
+        mutation={
+          object
+            ? mutations.knowledgeBaseTopicsEdit
+            : mutations.knowledgeBaseTopicsAdd
+        }
+        variables={values}
+        callback={callBackResponse}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
   };
 
   const extendedProps = {
     ...props,
     remove,
-    save,
+    renderButton,
     currentCategoryId,
     queryParams,
     articlesCount,
@@ -114,18 +114,6 @@ export default withProps<Props>(
       gql(queries.knowledgeBaseTopicsTotalCount),
       {
         name: 'topicsCountQuery'
-      }
-    ),
-    graphql<Props, EditTopicsMutationResponse, TopicVariables>(
-      gql(mutations.knowledgeBaseTopicsEdit),
-      {
-        name: 'editTopicsMutation'
-      }
-    ),
-    graphql<Props, AddTopicsMutationResponse, TopicVariables>(
-      gql(mutations.knowledgeBaseTopicsAdd),
-      {
-        name: 'addTopicsMutation'
       }
     ),
     graphql<Props, RemoveTopicsMutation, { _id: string }>(

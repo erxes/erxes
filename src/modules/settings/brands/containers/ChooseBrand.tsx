@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
-import { __, Alert } from 'modules/common/utils';
-import { withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import {
   AddIntegrationMutationResponse,
   EditIntegrationMutationResponse,

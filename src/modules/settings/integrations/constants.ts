@@ -670,11 +670,11 @@ export const INTEGRATIONS = [
     name: 'row-1',
     rows: [
       {
-        name: 'Facebook',
+        name: 'Facebook messenger',
         description: 'Connect to Facebook messages right from your Team Inbox',
         inMessenger: false,
         kind: 'facebook',
-        logo: '/images/integrations/facebook.png',
+        logo: '/images/integrations/fb-messenger.png',
         createModal: 'facebook'
       },
       {

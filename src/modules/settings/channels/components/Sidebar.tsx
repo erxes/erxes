@@ -6,6 +6,7 @@ import {
   ModalTrigger,
   Spinner
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
@@ -18,17 +19,7 @@ type Props = {
   channels: IChannel[];
   members: IUser[];
   remove: (channelId: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
   currentChannelId?: string;
   channelsTotalCount: number;
@@ -36,7 +27,13 @@ type Props = {
 
 class Sidebar extends React.Component<Props, {}> {
   renderItems = () => {
-    const { channels, members, remove, save, currentChannelId } = this.props;
+    const {
+      channels,
+      members,
+      remove,
+      currentChannelId,
+      renderButton
+    } = this.props;
 
     return channels.map(channel => (
       <ChannelRow
@@ -45,13 +42,13 @@ class Sidebar extends React.Component<Props, {}> {
         channel={channel}
         members={members}
         remove={remove}
-        save={save}
+        renderButton={renderButton}
       />
     ));
   };
 
   renderSidebarHeader() {
-    const { save, members } = this.props;
+    const { members, renderButton } = this.props;
     const { Header } = LeftSidebar;
 
     const addChannel = (
@@ -63,7 +60,7 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm {...props} save={save} members={members} />
+      <ChannelForm {...props} members={members} renderButton={renderButton} />
     );
 
     return (
@@ -88,10 +85,9 @@ class Sidebar extends React.Component<Props, {}> {
           <LoadMore all={channelsTotalCount} loading={loading} />
         </SidebarList>
         {loading && <Spinner />}
-        {!loading &&
-          channelsTotalCount === 0 && (
-            <EmptyState icon="sitemap" text="There is no channel" />
-          )}
+        {!loading && channelsTotalCount === 0 && (
+          <EmptyState icon="sitemap" text="There is no channel" />
+        )}
       </LeftSidebar>
     );
   }

@@ -3,6 +3,7 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { List } from '../../common/components';
@@ -16,9 +17,13 @@ import {
 } from '../styles';
 import Form from './Form';
 
-class EmailTemplateList extends React.Component<ICommonListProps> {
+type Props = {
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+} & ICommonListProps;
+
+class EmailTemplateList extends React.Component<Props> {
   renderForm = props => {
-    return <Form {...props} />;
+    return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
   removeTemplate = object => {

@@ -1,38 +1,30 @@
-import * as React from 'react';
-import { BrandForm, BrandRow } from '.';
 import {
   EmptyState,
   Icon,
   LoadMore,
   ModalTrigger,
   Spinner
-} from '../../../common/components';
-import { __ } from '../../../common/utils';
-import { Sidebar as LeftSidebar } from '../../../layout/components';
-import { HelperButtons, SidebarList as List } from '../../../layout/styles';
+} from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
+import * as React from 'react';
+import { BrandForm, BrandRow } from '.';
 import { IBrand } from '../types';
 
 type Props = {
   brands: IBrand[];
   remove: (brandId: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-      };
-    },
-    callback: () => void,
-    brand?: IBrand
-  ) => void;
   loading: boolean;
   currentBrandId?: string;
   brandsTotalCount: number;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Sidebar extends React.Component<Props, {}> {
   renderItems = () => {
-    const { brands, remove, save, currentBrandId } = this.props;
+    const { brands, remove, currentBrandId, renderButton } = this.props;
 
     return brands.map(brand => (
       <BrandRow
@@ -40,13 +32,12 @@ class Sidebar extends React.Component<Props, {}> {
         isActive={currentBrandId === brand._id}
         brand={brand}
         remove={remove}
-        save={save}
+        renderButton={renderButton}
       />
     ));
   };
 
   renderSidebarHeader() {
-    const { save } = this.props;
     const { Header } = LeftSidebar;
 
     const addBrand = (
@@ -57,7 +48,9 @@ class Sidebar extends React.Component<Props, {}> {
       </HelperButtons>
     );
 
-    const content = props => <BrandForm {...props} save={save} />;
+    const content = props => (
+      <BrandForm {...props} renderButton={this.props.renderButton} />
+    );
 
     return (
       <Header uppercase={true}>

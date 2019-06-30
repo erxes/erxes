@@ -19,7 +19,7 @@ function IntegrationFilter({ history, counts }: IProps) {
   };
 
   const data = (
-    <SidebarList>
+    <SidebarList capitalize={true}>
       {KIND_CHOICES.ALL_LIST.map((kind, index) => (
         <li key={index}>
           <a

@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { ICommonFormProps } from 'modules/settings/common/types';
 import {
   IUserGroup,
@@ -17,10 +18,11 @@ import { queries } from '../graphql';
 type Props = {
   channelsQuery: ChannelsQueryResponse;
   groupsQuery: UsersGroupsQueryResponse;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 const UserFormContainer = (props: Props & ICommonFormProps) => {
-  const { channelsQuery, groupsQuery } = props;
+  const { channelsQuery, groupsQuery, renderButton } = props;
 
   const object = props.object || ({} as IUser);
 
@@ -44,7 +46,8 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
     selectedChannels,
     selectedGroups,
     channels,
-    groups
+    groups,
+    renderButton
   };
 
   return <UserForm {...updatedProps} />;

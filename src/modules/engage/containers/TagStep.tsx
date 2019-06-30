@@ -1,13 +1,11 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { TagStep } from 'modules/engage/components/step';
 import { mutations } from 'modules/tags/graphql';
-import {
-  AddMutationResponse,
-  MutationVariables,
-  TagsQueryResponse
-} from 'modules/tags/types';
+import { TagsQueryResponse } from 'modules/tags/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
@@ -33,23 +31,10 @@ type Props = {
 type FinalProps = {
   tagsQuery: TagsQueryResponse;
   customerCountsQuery: CountQueryResponse;
-} & Props &
-  AddMutationResponse;
+} & Props;
 
 const TagStepContianer = (props: FinalProps) => {
-  const { tagsQuery, addMutation, customerCountsQuery } = props;
-
-  const tagAdd = ({ doc }) => {
-    addMutation({ variables: { ...doc } })
-      .then(() => {
-        tagsQuery.refetch();
-        customerCountsQuery.refetch();
-        Alert.success('You have successfully added a tag');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
+  const { tagsQuery, customerCountsQuery } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
     byTag: {}
@@ -58,15 +43,46 @@ const TagStepContianer = (props: FinalProps) => {
   const countValues = customerCounts.byTag || {};
   const customersCount = (ids: string[]) => sumCounts(ids, countValues);
 
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.add}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully added a tag`}
+      />
+    );
+  };
+
   const updatedProps = {
     ...props,
     tags: tagsQuery.tags || [],
     targetCount: countValues,
     customersCount,
-    tagAdd
+    renderButton
   };
 
   return <TagStep {...updatedProps} />;
+};
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.customerCounts),
+      variables: { only: 'byTag' }
+    },
+    {
+      query: gql(queries.tags),
+      variables: { type: 'customer' }
+    }
+  ];
 };
 
 export default withProps<Props>(
@@ -85,9 +101,6 @@ export default withProps<Props>(
           }
         }
       }
-    ),
-    graphql<Props, AddMutationResponse, MutationVariables>(gql(mutations.add), {
-      name: 'addMutation'
-    })
+    )
   )(TagStepContianer)
 );

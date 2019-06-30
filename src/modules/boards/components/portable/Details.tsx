@@ -1,9 +1,9 @@
-import { ItemIndicator } from 'modules/boards/styles/stage';
 import { renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
+import { IProduct } from 'modules/settings/productService/types';
 import * as React from 'react';
-import { IProduct } from '../../../settings/productService/types';
+import { ItemIndicator } from '../../styles/stage';
 
 type Props = {
   items: ICompany[] | ICustomer[] | IProduct[];

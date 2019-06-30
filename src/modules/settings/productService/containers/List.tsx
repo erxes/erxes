@@ -1,4 +1,6 @@
 import gql from 'graphql-tag';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
@@ -6,9 +8,6 @@ import { compose, graphql } from 'react-apollo';
 import { List } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  AddMutationResponse,
-  EditMutationResponse,
-  MutationVariables,
   ProductsCountQueryResponse,
   ProductsQueryResponse,
   RemoveMutationResponse
@@ -22,19 +21,11 @@ type FinalProps = {
   productsQuery: ProductsQueryResponse;
   productsCountQuery: ProductsCountQueryResponse;
 } & Props &
-  AddMutationResponse &
-  EditMutationResponse &
   RemoveMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      productsQuery,
-      productsCountQuery,
-      addMutation,
-      editMutation,
-      removeMutation
-    } = this.props;
+    const { productsQuery, productsCountQuery, removeMutation } = this.props;
 
     const products = productsQuery.products || [];
 
@@ -56,42 +47,32 @@ class ProductListContainer extends React.Component<FinalProps> {
       });
     };
 
-    // create or update action
-    const save = (doc, callback, product) => {
-      let mutation = addMutation;
-
-      // if edit mode
-      if (product) {
-        mutation = editMutation;
-        doc._id = product._id;
-      }
-
-      mutation({
-        variables: doc
-      })
-        .then(() => {
-          productsQuery.refetch();
-          productsCountQuery.refetch();
-
-          Alert.success(
-            __(
-              `You successfully ${
-                product ? 'updated' : 'added'
-              } a product and service.`
-            )
-          );
-
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={object ? mutations.productEdit : mutations.productAdd}
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries(this.props.queryParams)}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        />
+      );
     };
 
     const updatedProps = {
       ...this.props,
       products,
-      save,
+      renderButton,
       remove,
       loading: productsQuery.loading,
       productsCount: productsCountQuery.productsTotalCount || 0
@@ -101,8 +82,8 @@ class ProductListContainer extends React.Component<FinalProps> {
   }
 }
 
-const options = ({ queryParams }) => ({
-  refetchQueries: [
+const getRefetchQueries = queryParams => {
+  return [
     {
       query: gql(queries.products),
       variables: generatePaginationParams(queryParams)
@@ -114,7 +95,11 @@ const options = ({ queryParams }) => ({
     {
       query: gql(queries.productsCount)
     }
-  ]
+  ];
+};
+
+const options = ({ queryParams }) => ({
+  refetchQueries: getRefetchQueries(queryParams)
 });
 
 export default withProps<Props>(
@@ -131,20 +116,6 @@ export default withProps<Props>(
     graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
       name: 'productsCountQuery'
     }),
-    graphql<Props, AddMutationResponse, MutationVariables>(
-      gql(mutations.productAdd),
-      {
-        name: 'addMutation',
-        options
-      }
-    ),
-    graphql<Props, EditMutationResponse, MutationVariables>(
-      gql(mutations.productEdit),
-      {
-        name: 'editMutation',
-        options
-      }
-    ),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.productRemove),
       {

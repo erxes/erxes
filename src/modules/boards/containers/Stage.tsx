@@ -1,20 +1,18 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import {
-  IItem,
-  IItemParams,
-  IOptions,
-  IStage,
-  ItemsQueryResponse,
-  SaveItemMutation
-} from 'modules/boards/types';
 import { __, Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components/stage';
-import { queries } from '../graphql';
-import { IFilterParams } from '../types';
+import {
+  IFilterParams,
+  IItem,
+  IOptions,
+  IStage,
+  ItemsQueryResponse,
+  SaveItemMutation
+} from '../types';
 
 type WrapperProps = {
   stage: IStage;
@@ -82,29 +80,16 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       });
   };
 
-  // create item
-  addItem = (name: string, callback: () => void) => {
-    const { stage, onAddItem, addMutation, options } = this.props;
-
-    if (!stage) {
-      return null;
-    }
-
-    return addMutation({ variables: { name, stageId: stage._id } })
-      .then(({ data }) => {
-        Alert.success(options.texts.addSuccessText);
-
-        onAddItem(stage._id, data[options.mutationsName.addMutation]);
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
   render() {
-    const { index, length, stage, items, itemsQuery, options } = this.props;
+    const {
+      index,
+      length,
+      stage,
+      items,
+      itemsQuery,
+      options,
+      onAddItem
+    } = this.props;
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
 
     return (
@@ -116,7 +101,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         items={items}
         loadingItems={loadingItems}
         loadMore={this.loadMore}
-        addItem={this.addItem}
+        onAddItem={onAddItem}
       />
     );
   }
@@ -156,24 +141,7 @@ const withQuery = ({ options }) => {
             loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
           notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
         })
-      }),
-      // mutation
-      graphql<StageProps, SaveItemMutation, IItemParams>(
-        gql(options.mutations.addMutation),
-        {
-          name: 'addMutation',
-          options: ({ stage }) => ({
-            refetchQueries: [
-              {
-                query: gql(queries.stageDetail),
-                variables: {
-                  _id: stage && stage._id
-                }
-              }
-            ]
-          })
-        }
-      )
+      })
     )(StageContainer)
   );
 };

@@ -1,6 +1,8 @@
 import { UserCommonInfos } from 'modules/auth/components';
+import { IUser, IUserDetails, IUserDoc, IUserLinks } from 'modules/auth/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { ColumnTitle } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
@@ -14,6 +16,7 @@ type Props = {
   groups: any;
   selectedChannels: IChannel[];
   selectedGroups: IUserGroup[];
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
 type State = {
@@ -106,45 +109,51 @@ class UserForm extends React.Component<Props, State> {
     );
   }
 
-  getInputElementValue(id) {
-    return (document.getElementById(id) as HTMLInputElement).value;
-  }
-
-  generateDoc = () => {
+  generateDoc = (values: {} & IUser & IUserDetails & IUserLinks) => {
+    const { object } = this.props;
     const { selectedChannels, selectedGroups } = this.state;
+    const finalValues = values;
 
-    const doc = {
-      username: this.getInputElementValue('username'),
-      email: this.getInputElementValue('email'),
+    if (object) {
+      finalValues._id = object._id;
+    }
+
+    return {
+      _id: finalValues._id,
+      username: finalValues.username,
+      email: finalValues.email,
       details: {
         avatar: this.state.avatar,
-        shortName: this.getInputElementValue('shortName'),
-        position: this.getInputElementValue('position'),
-        fullName: this.getInputElementValue('fullName'),
-        location: this.getInputElementValue('user-location'),
-        description: this.getInputElementValue('description')
+        shortName: finalValues.shortName,
+        fullName: finalValues.fullName,
+        position: finalValues.position,
+        location: finalValues.location,
+        description: finalValues.description
       },
       channelIds: this.collectValues(selectedChannels),
       links: {
-        linkedIn: this.getInputElementValue('linkedin'),
-        twitter: this.getInputElementValue('twitter'),
-        facebook: this.getInputElementValue('facebook'),
-        youtube: this.getInputElementValue('youtube'),
-        github: this.getInputElementValue('github'),
-        website: this.getInputElementValue('website')
+        linkedIn: finalValues.linkedIn,
+        twitter: finalValues.twitter,
+        facebook: finalValues.facebook,
+        youtube: finalValues.youtube,
+        github: finalValues.github,
+        website: finalValues.website
       },
       groupIds: this.collectValues(selectedGroups)
     };
-    return { doc };
   };
 
-  renderContent = () => {
+  renderContent = (formProps: IFormProps) => {
     const { object } = this.props;
     const user = object || { details: {} };
 
     return (
       <div>
-        <UserCommonInfos user={user} onAvatarUpload={this.onAvatarUpload} />
+        <UserCommonInfos
+          user={user}
+          onAvatarUpload={this.onAvatarUpload}
+          formProps={formProps}
+        />
         <ColumnTitle>{__('Other')}</ColumnTitle>
 
         {this.renderChannels()}
@@ -157,8 +166,11 @@ class UserForm extends React.Component<Props, State> {
     return (
       <CommonForm
         {...this.props}
+        name="team member"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
+        renderButton={this.props.renderButton}
+        object={this.props.object}
       />
     );
   }

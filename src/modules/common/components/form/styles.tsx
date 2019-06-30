@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
@@ -21,16 +21,10 @@ const Label = styled.label`
   }
 `;
 
-// browser default form invalid styling
-const formInvalid = `
-  &.form-invalid {
-    border-bottom: 1px solid ${colors.colorCoreRed};
-  }
-`;
-
 const Formgroup = styled.div`
   margin-bottom: 20px;
   position: relative;
+
   > label {
     margin-right: ${dimensions.unitSpacing}px;
   }
@@ -42,14 +36,16 @@ const Formgroup = styled.div`
   }
 `;
 
-const Input = styledTS<{ round?: boolean }>(styled.input)`
-  ${formInvalid} display: block;
+const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
+  display: block;
   border: none;
   width: 100%;
   height: ${textInputHeight};
   padding: ${dimensions.unitSpacing}px 0;
   color: ${colors.textPrimary};
-  border-bottom: 1px solid ${colors.colorShadowGray};
+  border-bottom: 1px solid;
+  border-color:${props =>
+    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
   transition: all 0.3s ease;
 
@@ -76,9 +72,10 @@ const Input = styledTS<{ round?: boolean }>(styled.input)`
   }
 `;
 
-const SelectWrapper = styled.div`
-  ${formInvalid} overflow: hidden;
-  border-bottom: 1px solid ${colors.colorShadowGray};
+const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
+  overflow: hidden;
+  border-bottom: 1px solid ${props =>
+    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   width: 100%;
   height: ${textInputHeight};
   position: relative;
@@ -104,8 +101,6 @@ const SelectWrapper = styled.div`
 `;
 
 const Select = styled(Input.withComponent('select'))`
-  ${formInvalid}
-
   border: none;
   height: ${textInputHeight};
   padding: 0;
@@ -113,10 +108,9 @@ const Select = styled(Input.withComponent('select'))`
   -webkit-appearance: none;
 `;
 
-const TextArea = styledTS<{ maxHeight?: number }>(
-  styled(Input.withComponent('textarea'))
-)`
-  ${formInvalid}
+const TextArea = styledTS<{
+  maxHeight?: number;
+}>(styled(Input.withComponent('textarea')))`
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
@@ -135,7 +129,7 @@ const FormLabel = styled.label`
 `;
 
 const inputStyle = styled.input`
-  ${formInvalid} border: 0 !important;
+  border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
   clip-path: inset(50%) !important;
   height: 1px !important;
@@ -278,6 +272,17 @@ const Checkbox = styled(inputStyle)`
   }
 `;
 
+const Error = styled.label`
+  color: ${colors.colorCoreRed};
+  margin-top: ${dimensions.unitSpacing - 3}px;
+  display: block;
+  font-size: 12px;
+`;
+
+const FlexWrapper = styled.span`
+  flex: 1;
+`;
+
 export {
   Input,
   SelectWrapper,
@@ -287,5 +292,7 @@ export {
   Checkbox,
   FormLabel,
   Label,
-  Formgroup
+  Formgroup,
+  Error,
+  FlexWrapper
 };

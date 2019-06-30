@@ -16,13 +16,7 @@ import * as React from 'react';
 import Select from 'react-select-plus';
 import { GroupList } from '../containers';
 import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
-import {
-  IActions,
-  IModule,
-  IPermissionDocument,
-  IPermissionParams,
-  IUserGroup
-} from '../types';
+import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
 import PermissionForm from './PermissionForm';
 import {
   correctValue,
@@ -45,8 +39,8 @@ type commonProps = {
   users: IUser[];
   groups: IUserGroup[];
   permissions: IPermissionDocument[];
-  save: (doc: IPermissionParams, callback: () => void) => void;
   remove: (id: string) => void;
+  refetchQueries: any;
 };
 
 class PermissionList extends React.Component<Props> {
@@ -116,7 +110,7 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderForm = props => {
-    const { modules, actions, users, groups, save } = this.props;
+    const { modules, actions, users, groups, refetchQueries } = this.props;
 
     const extendedProps = {
       ...props,
@@ -124,14 +118,14 @@ class PermissionList extends React.Component<Props> {
       actions,
       users,
       groups,
-      save
+      refetchQueries
     };
 
     return <PermissionForm {...extendedProps} />;
   };
 
   renderActionBar() {
-    const { queryParams, modules, actions, groups, users } = this.props;
+    const { queryParams, modules, actions, users } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">

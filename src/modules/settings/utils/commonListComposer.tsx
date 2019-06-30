@@ -1,4 +1,6 @@
-import { confirm, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, confirm, withProps } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import { compose } from 'react-apollo';
@@ -10,11 +12,11 @@ interface IRemoveMutationVariables {
 function commonListComposer<ComponentProps>(options) {
   const {
     text,
-    name,
+    label,
+    stringEditMutation,
+    stringAddMutation,
     gqlListQuery,
     gqlTotalCountQuery,
-    gqlAddMutation,
-    gqlEditMutation,
     gqlRemoveMutation,
     ListComponent
   } = options;
@@ -33,18 +35,11 @@ function commonListComposer<ComponentProps>(options) {
   };
 
   const ListContainer = (props: Props) => {
-    const {
-      listQuery,
-      totalCountQuery,
-      addMutation,
-      editMutation,
-      removeMutation,
-      history
-    } = props;
+    const { listQuery, totalCountQuery, removeMutation, history } = props;
 
-    const totalCount = totalCountQuery[`${name}TotalCount`] || 0;
+    const totalCount = totalCountQuery[`${label}TotalCount`] || 0;
 
-    const objects = listQuery[name] || [];
+    const objects = listQuery[label] || [];
 
     // remove action
     const remove = id => {
@@ -65,33 +60,34 @@ function commonListComposer<ComponentProps>(options) {
       });
     };
 
-    // create or update action
-    const save = ({ doc }, callback, object) => {
-      let mutation = addMutation;
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      const afterMutate = () => {
+        listQuery.refetch();
+        totalCountQuery.refetch();
 
-      // if edit mode
-      if (object) {
-        mutation = editMutation;
-        doc._id = object._id;
-      }
-
-      mutation({
-        variables: doc
-      })
-        .then(() => {
-          // update queries
-          listQuery.refetch();
-          totalCountQuery.refetch();
-
-          Alert.success(
-            `You successfully ${object ? 'updated' : 'added'} a ${text}.`
-          );
-
+        if (callback) {
           callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+        }
+      };
+
+      return (
+        <ButtonMutate
+          mutation={object ? stringEditMutation : stringAddMutation}
+          variables={values}
+          callback={afterMutate}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        />
+      );
     };
 
     const updatedProps = {
@@ -99,33 +95,24 @@ function commonListComposer<ComponentProps>(options) {
       refetch: listQuery.refetch,
       objects,
       totalCount,
-      save,
       remove,
       history,
+      renderButton,
       loading: listQuery.loading
     };
 
     return <ListComponent {...updatedProps} />;
   };
 
-  const composeAttr = [
-    gqlListQuery,
-    gqlTotalCountQuery,
-    // mutations
-    gqlAddMutation,
-    gqlEditMutation
-  ];
+  const composeAttr = [gqlListQuery, gqlTotalCountQuery];
 
   if (gqlRemoveMutation) {
     composeAttr.push(gqlRemoveMutation);
   }
 
-  if (gqlAddMutation) {
-    return withProps<ComponentProps>(compose(...composeAttr)(ListContainer));
-  }
-
   return withProps<ComponentProps>(
     compose(
+      ...composeAttr,
       gqlListQuery,
       gqlTotalCountQuery
     )(ListContainer)

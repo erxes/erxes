@@ -1,4 +1,5 @@
 import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons } from 'modules/layout/styles';
@@ -15,22 +16,7 @@ type Props = {
   topics: ITopic[];
   articlesCount: number;
   refetch: () => void;
-
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          description: string;
-          brandId: string;
-          languageCode: string;
-          color: string;
-        };
-      };
-    },
-    callback: () => void,
-    object: any
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (knowledgeBaseId: string) => void;
 };
 
@@ -39,7 +25,7 @@ class KnowledgeList extends React.Component<Props> {
     const {
       topics,
       remove,
-      save,
+      renderButton,
       currentCategoryId,
       queryParams,
       articlesCount,
@@ -56,7 +42,7 @@ class KnowledgeList extends React.Component<Props> {
             queryParams={queryParams}
             articlesCount={articlesCount}
             remove={remove}
-            save={save}
+            renderButton={renderButton}
             refetchTopics={refetch}
           />
         ))}
@@ -66,7 +52,6 @@ class KnowledgeList extends React.Component<Props> {
 
   renderSidebarHeader() {
     const { Header } = Sidebar;
-    const { save } = this.props;
 
     const trigger = (
       <HelperButtons>
@@ -76,7 +61,9 @@ class KnowledgeList extends React.Component<Props> {
       </HelperButtons>
     );
 
-    const content = props => <KnowledgeForm {...props} save={save} />;
+    const content = props => (
+      <KnowledgeForm {...props} renderButton={this.props.renderButton} />
+    );
 
     return (
       <Header uppercase={true}>

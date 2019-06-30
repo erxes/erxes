@@ -1,71 +1,60 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Toggle from 'react-toggle';
 import { IFieldGroup } from '../types';
 
-type Doc = {
-  name: string;
-  description: string;
-  isVisible: boolean;
-};
-
 type Props = {
-  add: ({ doc }: { doc: Doc }) => void;
-  edit: ({ _id, doc }: { _id: string; doc: Doc }) => void;
-
   group?: IFieldGroup;
+  type: string;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
   isVisible: boolean;
-  action: (params: { _id?: string; doc: Doc }) => void;
 };
 
 class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    let action = props.add;
     let isVisible = true;
 
     if (props.group) {
-      action = props.edit;
       isVisible = props.group.isVisible;
     }
 
     this.state = {
-      isVisible,
-      action
+      isVisible
     };
   }
 
-  onSubmit = e => {
-    e.preventDefault();
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+  }) => {
+    const { group, type } = this.props;
+    const finalValues = values;
 
-    const { isVisible } = this.state;
-    const name = (document.getElementById('name') as HTMLInputElement).value;
-    const description = (document.getElementById(
-      'description-group'
-    ) as HTMLInputElement).value;
+    if (group) {
+      finalValues._id = group._id;
+    }
 
-    const doc = {
-      name,
-      description,
-      isVisible
+    return {
+      ...finalValues,
+      contentType: type,
+      isVisible: this.state.isVisible
     };
-
-    this.state.action(
-      this.props.group ? { _id: this.props.group._id, doc } : { doc }
-    );
-
-    this.props.closeModal();
   };
 
   visibleHandler = e => {
@@ -96,49 +85,56 @@ class PropertyGroupForm extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const { group = { name: '' } } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { group, closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
+
+    const object = group || ({} as IFieldGroup);
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
-            type="text"
-            id="name"
+            {...formProps}
+            name="name"
             autoFocus={true}
             required={true}
-            defaultValue={group.name || ''}
+            defaultValue={object.name}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel required={true}>Description</ControlLabel>
           <FormControl
-            type="text"
-            id="description-group"
+            {...formProps}
+            name="description"
             required={true}
-            defaultValue={group.name || ''}
+            defaultValue={object.description}
           />
         </FormGroup>
 
         {this.renderFieldVisible()}
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'property group',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: group
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
