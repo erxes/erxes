@@ -29,6 +29,7 @@
     "initProject": "ts-node ./src/commands/initProject.ts",
     "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts",
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
+    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
   },
   "lint-staged": {
