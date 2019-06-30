@@ -47,7 +47,7 @@ class NotificationSettings extends React.Component<Props> {
 
     // if no previous configuration found then default is checked
     if (!oldEntry) {
-      return true;
+      return false;
     }
 
     return oldEntry.isAllowed;
