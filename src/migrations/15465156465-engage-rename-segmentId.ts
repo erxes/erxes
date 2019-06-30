@@ -1,5 +1,5 @@
-import { connect } from '../src/db/connection';
-import { EngageMessages } from '../src/db/models';
+import { connect } from '../db/connection';
+import { EngageMessages } from '../db/models';
 
 /**
  * Rename engage's segmentId to segmentIds

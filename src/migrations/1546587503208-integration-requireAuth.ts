@@ -1,5 +1,5 @@
-import { connect } from '../src/db/connection';
-import { Integrations } from '../src/db/models';
+import { connect } from '../db/connection';
+import { Integrations } from '../db/models';
 
 /**
  * Updating messenger integration's require auth to true

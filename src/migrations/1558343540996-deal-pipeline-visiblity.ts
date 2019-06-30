@@ -1,5 +1,5 @@
-import { connect } from '../src/db/connection';
-import { Pipelines } from '../src/db/models';
+import { connect } from '../db/connection';
+import { Pipelines } from '../db/models';
 
 module.exports.up = async () => {
   await connect();

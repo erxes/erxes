@@ -1,5 +1,5 @@
-import { connect } from '../src/db/connection';
-import { Brands, Customers, Integrations, Segments } from '../src/db/models';
+import { connect } from '../db/connection';
+import { Brands, Customers, Integrations, Segments } from '../db/models';
 
 /**
  * Updates segment's condition with pairing brandId

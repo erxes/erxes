@@ -1,6 +1,6 @@
-import { moduleObjects } from '../src/data/permissions/actions/permission';
-import { connect } from '../src/db/connection';
-import { Permissions, Users, UsersGroups } from '../src/db/models';
+import { moduleObjects } from '../data/permissions/actions/permission';
+import { connect } from '../db/connection';
+import { Permissions, Users, UsersGroups } from '../db/models';
 
 /**
  * Updating existing user's user group and permissions

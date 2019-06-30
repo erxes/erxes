@@ -1,5 +1,5 @@
-import { connect } from '../src/db/connection';
-import { ActivityLogs } from '../src/db/models';
+import { connect } from '../db/connection';
+import { ActivityLogs } from '../db/models';
 
 /**
  * Rename coc field to contentType

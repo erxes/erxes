@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Boards, Pipelines, Stages } from '../src/db/models';
+import { Boards, Pipelines, Stages } from '../db/models';
 
 /**
  * Rename coc field to contentType

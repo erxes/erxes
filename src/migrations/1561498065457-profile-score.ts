@@ -1,5 +1,5 @@
-import { connect } from '../src/db/connection';
-import { Customers } from '../src/db/models';
+import { connect } from '../db/connection';
+import { Customers } from '../db/models';
 
 /**
  * Updating profile scores on customers
