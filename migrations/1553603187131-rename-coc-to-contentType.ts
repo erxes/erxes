@@ -1,23 +1,12 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
+import { connect } from '../src/db/connection';
 import { ActivityLogs } from '../src/db/models';
-
-dotenv.config();
 
 /**
  * Rename coc field to contentType
  *
  */
-module.exports.up = next => {
-  const { MONGO_URL = '' } = process.env;
+module.exports.up = async () => {
+  await connect();
 
-  mongoose.connect(
-    MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true },
-    async () => {
-      await ActivityLogs.updateMany({}, { $rename: { coc: 'contentType' } });
-
-      next();
-    },
-  );
+  return ActivityLogs.updateMany({}, { $rename: { coc: 'contentType' } });
 };

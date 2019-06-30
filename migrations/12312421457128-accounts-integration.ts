@@ -11,6 +11,10 @@ const options = {
 module.exports.up = async () => {
   const { MONGO_URL = '', INTEGRATIONS_DB_NAME = '' } = process.env;
 
+  if (!INTEGRATIONS_DB_NAME) {
+    return Promise.resolve('INTEGRATIONS_DB_NAME env not found');
+  }
+
   const apiMongoClient = await mongoose.createConnection(MONGO_URL, options);
 
   const apiAccounts = apiMongoClient.db.collection('accounts');

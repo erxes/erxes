@@ -1,32 +1,27 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
+import { connect } from '../src/db/connection';
 import { EngageMessages } from '../src/db/models';
-
-dotenv.config();
 
 /**
  * Rename engage's segmentId to segmentIds
  *
  */
-module.exports.up = next => {
-  const { MONGO_URL = '' } = process.env;
+module.exports.up = async () => {
+  await connect();
 
-  mongoose.connect(
-    MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true },
-    async () => {
-      await EngageMessages.find()
-        .cursor()
-        .eachAsync((e: any) => {
-          if (!e.segmentId) {
-            return;
-          }
+  await EngageMessages.find()
+    .cursor()
+    .eachAsync((e: any) => {
+      if (!e.segmentId) {
+        return;
+      }
 
-          e.segmentIds = [e.segmentId];
-          e.save();
-        });
+      if (e.segmentIds) {
+        return;
+      }
 
-      next();
-    },
-  );
+      e.segmentIds = [e.segmentId];
+      e.save();
+    });
+
+  return Promise.resolve('done');
 };

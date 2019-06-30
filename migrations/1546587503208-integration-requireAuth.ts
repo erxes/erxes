@@ -1,23 +1,12 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
+import { connect } from '../src/db/connection';
 import { Integrations } from '../src/db/models';
-
-dotenv.config();
 
 /**
  * Updating messenger integration's require auth to true
  *
  */
-module.exports.up = next => {
-  const { MONGO_URL = '' } = process.env;
+module.exports.up = async () => {
+  await connect();
 
-  mongoose.connect(
-    MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true },
-    async () => {
-      await Integrations.updateMany({ kind: 'messenger' }, { $set: { 'messengerData.requireAuth': true } });
-
-      next();
-    },
-  );
+  return Integrations.updateMany({ kind: 'messenger' }, { $set: { 'messengerData.requireAuth': true } });
 };

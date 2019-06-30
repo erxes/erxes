@@ -1,19 +1,10 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
+import { connect } from '../src/db/connection';
 import { Pipelines } from '../src/db/models';
 
-dotenv.config();
+module.exports.up = async () => {
+  await connect();
 
-module.exports.up = next => {
-  const { MONGO_URL = '' } = process.env;
+  await Pipelines.updateMany({}, { $set: { visibility: 'public' } });
 
-  mongoose.connect(
-    MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true },
-    async () => {
-      await Pipelines.updateMany({}, { $set: { visibility: 'public' } });
-
-      next();
-    },
-  );
+  return Promise.resolve('ok');
 };

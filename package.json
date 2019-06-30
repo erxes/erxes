@@ -29,7 +29,7 @@
     "initProject": "ts-node ./src/commands/initProject.ts",
     "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts",
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
-    "migrate": "NODE_ENV=command migrate --compiler='ts:./ts-node-compiler.js' up"
+    "migrate": "NODE_ENV=command migrate --compiler='ts:./ts-node-compiler.js' --store='./db-migrate-store.js' up"
   },
   "lint-staged": {
     "*.ts": [
