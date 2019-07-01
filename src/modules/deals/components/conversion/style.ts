@@ -87,6 +87,46 @@ const Result = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
+const Head = styled.div`
+  display: flex;
+  position: sticky;
+  background: ${colors.bgLight};
+
+  > span {
+    flex: 1;
+    text-transform: uppercase;
+    color: #aaaeb3;
+    padding: 13px 20px;
+    font-weight: bold;
+  }
+`;
+
+const Body = styled.div`
+  display: flex;
+  background: ${colors.colorWhite};
+  margin-bottom: 5px;
+
+  > span {
+    flex: 1;
+    padding: 10px 20px;
+  }
+`;
+
+const SubHead = styled(Head)`
+  margin: 0;
+  font-size: 12px;
+
+  > span {
+    padding: 10px 20px;
+    font-weight: 500;
+  }
+`;
+
+const Deals = styled.div`
+  overflow: hidden;
+  padding-left: 20px;
+`;
+
 export {
   Container,
   ContentBody,
@@ -98,5 +138,9 @@ export {
   Name,
   Values,
   Lost,
-  Result
+  Result,
+  Head,
+  Body,
+  SubHead,
+  Deals
 };

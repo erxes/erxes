@@ -79,7 +79,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const { loadingDeals } = this.state;
 
     if (dealsQuery.loading) {
-      return null;
+      return <Spinner objective={true} />;
     }
 
     const deals = dealsQuery.deals;

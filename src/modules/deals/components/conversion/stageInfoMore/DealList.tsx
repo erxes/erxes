@@ -1,7 +1,7 @@
-import { Table } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
+import { Deals, SubHead } from '../style';
 import DealItem from './DealItem';
 
 type Props = {
@@ -23,21 +23,15 @@ export default class DealList extends React.Component<Props> {
     ));
 
     return (
-      <tr>
-        <td colSpan={4}>
-          <Table>
-            <thead>
-              <tr>
-                <th>{__('Deal')}</th>
-                <th>{__('Value')}</th>
-                <th>{__('Current Stage')}</th>
-                <th>{__('Assigned')}</th>
-              </tr>
-            </thead>
-            <tbody>{contents}</tbody>
-          </Table>
-        </td>
-      </tr>
+      <Deals>
+        <SubHead>
+          <span>{__('Deal')}</span>
+          <span>{__('Value')}</span>
+          <span>{__('Current Stage')}</span>
+          <span>{__('Assigned')}</span>
+        </SubHead>
+        {contents}
+      </Deals>
     );
   }
 }

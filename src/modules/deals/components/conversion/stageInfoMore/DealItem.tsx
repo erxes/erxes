@@ -1,6 +1,7 @@
 import { __, getUserAvatar } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import { renderDealAmount } from 'modules/deals/utils';
+import { Body } from '../style';
 
 import * as React from 'react';
 
@@ -13,12 +14,12 @@ export default class DealItem extends React.PureComponent<Props> {
     const { deal } = this.props;
 
     return (
-      <tr>
-        <td>{deal.name}</td>
+      <Body>
+        <span>{deal.name}</span>
 
-        <td>{renderDealAmount(deal.amount) || 0}</td>
-        <td>{renderDealAmount(deal.amount)}</td>
-        <td>
+        <span>{renderDealAmount(deal.amount) || 0}</span>
+        <span>{renderDealAmount(deal.amount)}</span>
+        <span>
           {(deal.assignedUsers || []).map((user, index) => (
             <img
               key={index}
@@ -28,8 +29,8 @@ export default class DealItem extends React.PureComponent<Props> {
               style={{ marginLeft: '2px', borderRadius: '11px' }}
             />
           ))}
-        </td>
-      </tr>
+        </span>
+      </Body>
     );
   }
 }

@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Stage from '../../../containers/conversion/stageInfoMore/Stage';
 import { IStage } from '../../../types';
-import { Container, ContentBody, Result } from '../style';
+import { Container, ContentBody, Head } from '../style';
 
 type Props = {
   stages: IStage[];
@@ -19,32 +19,32 @@ class StageList extends React.Component<Props, {}> {
     }
 
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Stage')}</th>
-            <th>{__('Stayed')}</th>
-            <th>{__('In progress')}</th>
-            <th>{__('Lost')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stages.map(stage => (
-            <Stage
-              key={stage._id}
-              stage={stage}
-              deals={stage.deals || []}
-              queryParams={queryParams}
-              pipelineId={pipelineId}
-            />
-          ))}
-        </tbody>
-      </Table>
+      <>
+        <Head>
+          <span>{__('Stage')}</span>
+          <span>{__('Stayed')}</span>
+          <span>{__('In progress')}</span>
+          <span>{__('Lost')}</span>
+        </Head>
+        {stages.map(stage => (
+          <Stage
+            key={stage._id}
+            stage={stage}
+            deals={stage.deals || []}
+            queryParams={queryParams}
+            pipelineId={pipelineId}
+          />
+        ))}
+      </>
     );
   }
 
   render() {
-    return <Container>{this.renderContent()}</Container>;
+    return (
+      <Container>
+        <ContentBody>{this.renderContent()}</ContentBody>
+      </Container>
+    );
   }
 }
 
