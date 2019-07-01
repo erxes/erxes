@@ -3,7 +3,7 @@ import { LoadingContent } from 'modules/deals/styles/stage';
 import { IDeal, IStage } from 'modules/deals/types';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
-import { Body } from '../style';
+import { BodyRow, StageName } from '../style';
 import { DealList } from './';
 
 type Props = {
@@ -56,6 +56,14 @@ export default class Stage extends React.Component<Props, State> {
     );
   }
 
+  isCollabsible = () => {
+    if (this.props.stage.primaryDealsTotalCount === 0) {
+      return false;
+    }
+
+    return true;
+  };
+
   renderLostInfo() {
     const { stage } = this.props;
 
@@ -73,7 +81,7 @@ export default class Stage extends React.Component<Props, State> {
   }
 
   renderCollapsibleContent() {
-    if (this.props.stage.primaryDealsTotalCount === 0) {
+    if (!this.isCollabsible()) {
       return null;
     }
 
@@ -89,12 +97,14 @@ export default class Stage extends React.Component<Props, State> {
 
     return (
       <>
-        <Body onClick={this.toggleCollapse}>
-          <span>
-            {stage.name} ({stage.primaryDealsTotalCount})
-          </span>
+        <BodyRow
+          onClick={this.isCollabsible() ? this.toggleCollapse : undefined}
+        >
+          <StageName open={this.state.showCollapse}>
+            {stage.name} <label>({stage.primaryDealsTotalCount})</label>
+          </StageName>
           {this.renderLostInfo()}
-        </Body>
+        </BodyRow>
         {this.renderCollapsibleContent()}
       </>
     );

@@ -1,9 +1,9 @@
-import { EmptyState, Table } from 'modules/common/components';
+import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Stage from '../../../containers/conversion/stageInfoMore/Stage';
 import { IStage } from '../../../types';
-import { Container, ContentBody, Head } from '../style';
+import { Container, ContentBody, HeadRow, TableView } from '../style';
 
 type Props = {
   stages: IStage[];
@@ -19,13 +19,13 @@ class StageList extends React.Component<Props, {}> {
     }
 
     return (
-      <>
-        <Head>
+      <TableView>
+        <HeadRow>
           <span>{__('Stage')}</span>
           <span>{__('Stayed')}</span>
           <span>{__('In progress')}</span>
           <span>{__('Lost')}</span>
-        </Head>
+        </HeadRow>
         {stages.map(stage => (
           <Stage
             key={stage._id}
@@ -35,7 +35,7 @@ class StageList extends React.Component<Props, {}> {
             pipelineId={pipelineId}
           />
         ))}
-      </>
+      </TableView>
     );
   }
 

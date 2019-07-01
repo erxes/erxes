@@ -1,4 +1,4 @@
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import { MainContent } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -12,7 +12,7 @@ const Container = styled.div`
 const ContentBody = styled.div`
   height: 100%;
   padding: 0 4px;
-  margin: 0 4px;
+  margin-left: 5px;
   overflow-y: auto;
 `;
 
@@ -43,10 +43,10 @@ const Content = styled('div')`
 `;
 
 const Stayed = styled('div')`
-  border-left: 1px solid #ddd;
-  padding: 8px 20px;
+  border-left: 1px solid ${colors.borderPrimary};
+  padding: 9px ${dimensions.coreSpacing}px;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 18px;
   background: ${colors.bgLight};
   color: ${colors.colorCoreGray};
   flex-shrink: 0;
@@ -58,8 +58,8 @@ const Stayed = styled('div')`
 
 const Name = styled('div')`
   flex: 1;
-  padding: 8px 20px;
-  font-size: 15px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  font-size: 14px;
   flex-shrink: 0;
 `;
 
@@ -87,44 +87,73 @@ const Result = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
-const Head = styled.div`
+const TableView = styled.div`
+  border-radius: 3px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+  overflow: hidden;
+  background: ${colors.colorWhite};
+`;
+
+const BodyRow = styled.div`
   display: flex;
-  position: sticky;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
 
   > span {
     flex: 1;
+    padding: 12px ${dimensions.coreSpacing}px;
+    font-weight: 500;
+    border-bottom: 1px solid ${colors.borderPrimary};
+
+    label {
+      color: ${colors.colorCoreGray};
+      font-size: 85%;
+    }
+  }
+`;
+
+const HeadRow = styled(BodyRow)`
+  background: ${colors.bgLight};
+  position: sticky;
+  margin: 0;
+
+  > span {
     text-transform: uppercase;
-    color: #aaaeb3;
-    padding: 13px 20px;
+    color: ${colors.colorCoreLightGray};
     font-weight: bold;
   }
 `;
 
-const Body = styled.div`
-  display: flex;
-  background: ${colors.colorWhite};
-  margin-bottom: 5px;
+const StageName = styledTS<{ open?: boolean }>(styled.span)`
+  transition: all ease .3s;
+  border-right: 1px solid transparent;
 
-  > span {
-    flex: 1;
-    padding: 10px 20px;
+  ${props =>
+    props.open &&
+    css`
+      background: ${colors.bgLight};
+      border-color: ${colors.borderPrimary};
+      border-bottom: 1px solid transparent !important;
+    `};
+
+  &:hover {
+    cursor: pointer;
+    background: ${colors.bgLight};
   }
 `;
 
-const SubHead = styled(Head)`
+const SubHead = styled(HeadRow)`
   margin: 0;
   font-size: 12px;
 
   > span {
-    padding: 10px 20px;
+    padding: 10px ${dimensions.coreSpacing}px;
     font-weight: 500;
   }
 `;
 
 const Deals = styled.div`
   overflow: hidden;
-  padding-left: 20px;
+  border-bottom: 2px solid ${colors.borderPrimary};
 `;
 
 export {
@@ -139,8 +168,10 @@ export {
   Values,
   Lost,
   Result,
-  Head,
-  Body,
+  HeadRow,
+  BodyRow,
   SubHead,
-  Deals
+  Deals,
+  TableView,
+  StageName
 };
