@@ -5,7 +5,7 @@ export const LANGUAGES = [
   { label: 'Deustch', value: 'de' },
   { label: 'Korean', value: 'kr' },
   { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'ptbr' },
+  { label: 'Portuguese', value: 'ptBr' },
   { label: 'Japanese', value: 'jp' },
   { label: 'Russian', value: 'ru' },
   { label: 'Chinese', value: 'zh' }
