@@ -1,6 +1,10 @@
-.gitignore
 *.md
-scripts
 *.yml
-.git
-node_modules
+.env*
+.git*
+.snyk
+Dockerfile*
+client
+locales
+scripts
+server
