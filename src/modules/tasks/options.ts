@@ -36,7 +36,8 @@ const options = {
     updateSuccessText: 'You successfully updated a task',
     deleteSuccessText: 'You successfully deleted a task',
     copySuccessText: 'You successfully copied a task'
-  }
+  },
+  getExtraParams: (queryParams: any) => ({ priority: queryParams.priority })
 };
 
 export default options;

@@ -36,7 +36,8 @@ const options = {
     updateSuccessText: 'You successfully updated a deal',
     deleteSuccessText: 'You successfully deleted a deal',
     copySuccessText: 'You successfully copied a deal'
-  }
+  },
+  getExtraParams: (queryParams: any) => ({ productIds: queryParams.productIds })
 };
 
 export default options;
