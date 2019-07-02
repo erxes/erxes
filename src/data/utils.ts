@@ -424,7 +424,7 @@ interface IRequestParams {
  */
 export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
-  errorMessage: string,
+  errorMessage?: string,
 ) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DOMAIN = getEnv({ name: 'DOMAIN' });
