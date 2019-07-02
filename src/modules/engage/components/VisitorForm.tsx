@@ -19,7 +19,7 @@ import {
 } from 'modules/engage/types';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
 import MessengerForm from './MessengerForm';
 

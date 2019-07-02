@@ -8,7 +8,7 @@ import {
   IntegrationsQueryResponse,
   RemoveMutationResponse
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { MessengerList } from '../components';
 import { queries } from '../graphql';

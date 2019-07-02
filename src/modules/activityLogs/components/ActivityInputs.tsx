@@ -2,7 +2,7 @@ import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   contentType: string;
@@ -30,7 +30,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
   };
 
   renderTabContent() {
-    const { contentTypeId, contentType, toEmail, showEmail } = this.props;
+    const { contentTypeId, contentType, showEmail } = this.props;
     const { currentTab } = this.state;
 
     if (currentTab === 'newNote') {

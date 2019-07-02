@@ -4,7 +4,7 @@ import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 

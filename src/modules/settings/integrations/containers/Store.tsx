@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Home } from 'modules/settings/integrations/components/store';
 import { queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { IntegrationsCountQueryResponse } from '../types';

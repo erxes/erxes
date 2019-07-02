@@ -1,7 +1,7 @@
 import { ResponsivePie } from '@nivo/pie';
 import { EmptyState, Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { ChartWrapper, FlexItem, InsightTitle, LoaderWrapper } from '../styles';
 import { IPieChartData } from '../types';
 

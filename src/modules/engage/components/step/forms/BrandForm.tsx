@@ -1,7 +1,7 @@
 import { IButtonMutateProps } from 'modules/common/types';
 import { StepFormWrapper } from 'modules/engage/styles';
 import { BrandForm } from 'modules/settings/brands/components';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

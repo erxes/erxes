@@ -1,7 +1,7 @@
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
 const Calendar = asyncComponent(() =>

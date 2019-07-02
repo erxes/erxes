@@ -1,6 +1,6 @@
 import CKEditor from 'ckeditor4-react';
 import { colors } from 'modules/common/styles';
-import * as React from 'react';
+import React from 'react';
 
 CKEditor.editorUrl = '/ckeditor/ckeditor.js';
 

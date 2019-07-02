@@ -5,7 +5,7 @@ import { Alert } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { NoHeight } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };

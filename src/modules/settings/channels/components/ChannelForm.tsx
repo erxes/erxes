@@ -7,9 +7,8 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
+import React from 'react';
 import { IChannel } from '../types';
 
 type Props = {

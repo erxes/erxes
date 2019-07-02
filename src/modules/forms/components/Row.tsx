@@ -8,8 +8,8 @@ import {
   Tip
 } from 'modules/common/components';
 import { __, Alert, confirm } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IFormIntegration } from '../types';
 import { Manage } from './';

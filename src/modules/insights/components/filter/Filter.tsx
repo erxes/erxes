@@ -1,11 +1,10 @@
 import { Button, ControlLabel } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
-import * as Datetime from 'react-datetime';
+import moment from 'moment';
+import React from 'react';
+import Datetime from 'react-datetime';
 import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../../styles';
 import { IQueryParams } from '../../types';
-import { formatDate } from '../../utils';
 
 type Props = {
   content: React.ReactNode;

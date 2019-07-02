@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Bulk } from 'modules/common/components';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Alert, withProps } from '../../common/utils';
 import { TagsQueryResponse } from '../../tags/types';

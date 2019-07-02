@@ -15,7 +15,7 @@ import {
 import { Wrapper } from 'modules/layout/components';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import {
   AddMessageMutationVariables,
   IConversation,

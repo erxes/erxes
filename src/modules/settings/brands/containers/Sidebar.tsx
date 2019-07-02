@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';

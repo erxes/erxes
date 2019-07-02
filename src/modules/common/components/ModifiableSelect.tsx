@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { Button, FormControl, FormGroup, Icon } from '.';
 import { IFormProps } from '../types';

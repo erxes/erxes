@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { Tip } from 'modules/common/components';
-import { __, getUserAvatar } from 'modules/common/utils';
-import * as React from 'react';
+import { getUserAvatar } from 'modules/common/utils';
+import React from 'react';
 import { MemberImg, Members, More } from '../styles';
 
 type Props = {

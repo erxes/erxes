@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
 import Sidebar from './Sidebar';

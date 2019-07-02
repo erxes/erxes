@@ -4,15 +4,9 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
 import { IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { SelectBrand } from 'modules/settings/integrations/containers';
-import * as React from 'react';
+import React from 'react';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
 import { IResponseTemplate } from '../types';

@@ -1,16 +1,10 @@
-import { Button, Icon, Spinner } from 'modules/common/components';
+import { Icon, Spinner } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar, Wrapper } from 'modules/layout/components';
 import { FlexContent } from 'modules/layout/styles';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
-import {
-  ISegment,
-  ISegmentConditionDoc,
-  ISegmentDoc,
-  ISegmentField
-} from '../types';
+import React from 'react';
+import { ISegment, ISegmentDoc, ISegmentField } from '../types';
 import Form from './common/Form';
 import { ResultCount, SegmentResult } from './styles';
 

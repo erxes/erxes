@@ -1,6 +1,6 @@
 import { AddForm } from 'modules/boards/containers/portable';
 import { ModalTrigger } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import { IOptions } from '../../types';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 export default (props: Props) => {
   const { customerIds, options } = props;
 
-  const trigger = <a>{options.title}</a>;
+  const trigger = <a href="#title">{options.title}</a>;
 
   const content = formProps => (
     <AddForm

@@ -1,9 +1,8 @@
 import { Icon } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
-import * as React from 'react';
+import React from 'react';
 import Common from './Common';
 import { SegmentsForm } from './forms';
 

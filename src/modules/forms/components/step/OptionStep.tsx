@@ -7,7 +7,7 @@ import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { SelectBrand } from 'modules/settings/integrations/containers';
 import { IField } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 import { IBrand } from '../../../settings/brands/types';

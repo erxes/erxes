@@ -13,7 +13,7 @@ import {
 } from 'modules/common/components';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -178,7 +178,7 @@ class CustomersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a>{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
@@ -237,7 +237,7 @@ class CustomersList extends React.Component<IProps, State> {
               </Link>
             </li>
             <li>
-              <a onClick={exportCustomers.bind(this, bulk)}>
+              <a href="#export" onClick={exportCustomers.bind(this, bulk)}>
                 {__('Export customers')}
               </a>
             </li>

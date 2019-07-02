@@ -1,8 +1,8 @@
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, confirm, withProps } from 'modules/common/utils';
+import { confirm, withProps } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose } from 'react-apollo';
 
 interface IRemoveMutationVariables {

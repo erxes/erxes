@@ -4,7 +4,7 @@ import { __ } from 'modules/common/utils';
 import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
-import * as React from 'react';
+import React from 'react';
 import { Targets } from '..';
 
 type Props<Target, OnSubmit> = {

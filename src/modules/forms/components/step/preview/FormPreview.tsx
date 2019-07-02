@@ -1,5 +1,5 @@
 import { IField } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { FormFieldPreview } from './';
 import CommonPreview from './CommonPreview';
 

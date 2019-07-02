@@ -1,6 +1,6 @@
 import { Spinner } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';
 

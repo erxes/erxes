@@ -1,7 +1,7 @@
 import { BreadCrumb, Filter, Submenu } from 'modules/common/components';
 import { dimensions } from 'modules/common/styles';
 import { __, setTitle } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { IBreadCrumbItem, ISubMenuItem } from '../../common/types';
 

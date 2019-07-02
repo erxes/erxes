@@ -1,8 +1,8 @@
 import { IUser } from 'modules/auth/types';
-import { __, can } from 'modules/common/utils';
+import { can } from 'modules/common/utils';
 import { Header } from 'modules/layout/components';
 import { Contents } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { ConversationDetail } from '../containers/conversationDetail';
 import { Sidebar } from '../containers/leftSidebar';
 

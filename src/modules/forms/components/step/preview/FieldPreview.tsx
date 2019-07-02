@@ -1,5 +1,5 @@
 import { GenerateField } from 'modules/settings/properties/components';
-import * as React from 'react';
+import React from 'react';
 import { IField } from '../../../../settings/properties/types';
 import { FieldItem } from './styles';
 

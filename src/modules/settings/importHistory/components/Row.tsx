@@ -1,8 +1,8 @@
 import { Button, TextInfo, Tip } from 'modules/common/components';
 import { __, confirm } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 
 type Props = {
   history?: any;

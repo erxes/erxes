@@ -6,8 +6,8 @@ import {
   Tip
 } from 'modules/common/components';
 import { __, getUserAvatar } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { ArticleForm } from '../../containers';
 import { IArticle } from '../../types';
 import {

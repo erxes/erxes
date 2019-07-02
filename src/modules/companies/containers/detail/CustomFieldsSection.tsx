@@ -4,7 +4,7 @@ import { Sidebar } from 'modules/layout/components';
 import { GenerateCustomFields } from 'modules/settings/properties/components';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { FieldsGroupsQueryResponse } from '../../../settings/properties/types';

@@ -1,8 +1,8 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import { __, Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Stage } from '../components/stage';
 import {

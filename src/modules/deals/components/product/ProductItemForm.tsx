@@ -9,7 +9,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { ProductChooser } from '../../containers';
 import {

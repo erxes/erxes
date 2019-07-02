@@ -3,7 +3,7 @@ import { __, urlParser } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { CompanyChooser } from '../../containers';
 
@@ -29,7 +29,7 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
   };
 
   const companyTrigger = (
-    <a>
+    <a href="#add">
       <Icon icon="add" />
     </a>
   );
@@ -52,7 +52,7 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
           </Link>
           <span>{company.primaryName || 'N/A'}</span>
           <Tip text={company.website || ''}>
-            <a target="_blank" href={`//${company.website}`}>
+            <a href={`//${company.website}`}>
               {urlParser.extractRootDomain(company.website || '')}
             </a>
           </Tip>

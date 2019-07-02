@@ -6,7 +6,7 @@ import {
   Table
 } from 'modules/common/components';
 import { __, Alert, confirm } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import { PropertyForm, PropertyGroupForm } from '../containers';

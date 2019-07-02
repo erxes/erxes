@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { IUser } from '../../auth/types';
 import { IBrand } from '../../settings/brands/types';
 import { VisitorForm } from '../components';

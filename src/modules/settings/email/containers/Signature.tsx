@@ -4,7 +4,7 @@ import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as teamQueries } from 'modules/settings/team/graphql';
 import { UserDetailQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Spinner } from '../../../common/components';
 import { queries as brandQueries } from '../../brands/graphql';

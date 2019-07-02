@@ -1,7 +1,6 @@
 import { MainActionBar } from 'modules/boards/components';
 import { IBoard, IPipeline } from 'modules/boards/types';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   onSearch: (search: string) => void;

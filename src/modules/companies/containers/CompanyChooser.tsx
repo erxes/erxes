@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
-import { __, Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CompanyForm } from '.';
 import { mutations, queries } from '../graphql';

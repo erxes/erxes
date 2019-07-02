@@ -1,7 +1,7 @@
 import { Button, ModalTrigger } from 'modules/common/components';
 import { ICustomer } from 'modules/customers/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { IEngageMessageDoc } from '../types';
 import WidgetForm from './WidgetForm';

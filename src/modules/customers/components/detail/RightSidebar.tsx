@@ -7,7 +7,7 @@ import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
-import * as React from 'react';
+import React from 'react';
 
 export default class RightSidebar extends React.Component<{
   customer: ICustomer;

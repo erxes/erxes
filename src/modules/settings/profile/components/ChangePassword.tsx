@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   save: (

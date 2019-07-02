@@ -3,8 +3,8 @@ import { IDateColumn } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { getMonthTitle, getMonthYear } from 'modules/common/utils/calendar';
 import { DealColumn } from 'modules/deals/components';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import {

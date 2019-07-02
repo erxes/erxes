@@ -1,7 +1,7 @@
 import { Tip } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { __, getUserAvatar } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { IUser } from '../../../../auth/types';
 

@@ -3,7 +3,7 @@ import {
   HeadlineThreeButton,
   HeadlineTwoButton
 } from 'draft-js-buttons';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const HeadButton = styled.button`

@@ -21,7 +21,7 @@ import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
+import React from 'react';
 import { Overlay, Popover } from 'react-bootstrap';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';

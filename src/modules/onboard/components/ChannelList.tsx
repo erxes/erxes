@@ -1,6 +1,6 @@
 import { Chip } from 'modules/common/components';
 import { IChannel } from 'modules/settings/channels/types';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   channels: IChannel[];

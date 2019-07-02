@@ -8,7 +8,7 @@ import {
 } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IProduct } from '../types';
 import { Form } from './';
 

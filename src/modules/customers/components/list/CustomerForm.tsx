@@ -21,8 +21,8 @@ import {
 } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
-import * as validator from 'validator';
+import React from 'react';
+import validator from 'validator';
 import { ICustomer, ICustomerDoc } from '../../types';
 import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
 
