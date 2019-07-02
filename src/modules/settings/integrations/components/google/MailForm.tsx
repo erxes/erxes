@@ -104,12 +104,8 @@ class MailForm extends React.Component<Props, State> {
     };
   };
 
-  onClick = (name: string) => {
-    if (name === 'isBcc') {
-      this.setState({ isBcc: true });
-    } else {
-      this.setState({ isCc: true });
-    }
+  onClick = <T extends keyof State>(name: T) => {
+    this.setState(({ [name]: true } as unknown) as Pick<State, keyof State>);
   };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -141,12 +137,12 @@ class MailForm extends React.Component<Props, State> {
       uploadReader.onloadend = () => {
         const totalFileSize = this.state.totalFileSize + fileInfo.size;
 
-        if (totalFileSize > 10368000) {
+        if (totalFileSize > 5242880) {
           this.setState({
             isUploading: false
           });
 
-          return Alert.error('It`s size exceeds the limit 10mb');
+          return Alert.error('It`s size exceeds the limit 5mb');
         }
 
         const result = uploadReader.result;
