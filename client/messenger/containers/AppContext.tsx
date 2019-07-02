@@ -72,13 +72,18 @@ export class AppProvider extends React.Component<{}, IState> {
     let activeRoute = "conversationList";
 
     const { messengerData } = connection.data;
+    const { requireAuth, showChat } = messengerData;
 
     // if visitor did not give email or phone then ask
-    if (!this.isLoggedIn() && messengerData.requireAuth) {
+    if (!this.isLoggedIn() && requireAuth) {
       activeRoute = "accquireInformation";
     }
 
-    if (!messengerData.requireAuth && !getLocalStorageItem("hasNotified")) {
+    if (!requireAuth && !getLocalStorageItem("hasNotified")) {
+      activeRoute = "home";
+    }
+
+    if (!showChat) {
       activeRoute = "home";
     }
 
