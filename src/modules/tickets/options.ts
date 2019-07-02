@@ -36,7 +36,11 @@ const options = {
     updateSuccessText: 'You successfully updated a ticket',
     deleteSuccessText: 'You successfully deleted a ticket',
     copySuccessText: 'You successfully copied a ticket'
-  }
+  },
+  getExtraParams: (queryParams: any) => ({
+    priority: queryParams.priority,
+    source: queryParams.source
+  })
 };
 
 export default options;
