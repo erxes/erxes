@@ -33,20 +33,6 @@ class Status extends React.PureComponent<{ versions: ProjectVersions }> {
             - {ver.abbreviatedSha}{' '}
           </div>
         </Group>
-        <Group>
-          <span>
-            <Icon icon="wallclock" /> Last commit{' '}
-          </span>
-          <div>
-            <b>{__('Message')}</b> - {ver.lastCommitMessage}
-          </div>
-          <div>
-            <b>{__('User')}</b> - {ver.lastCommittedUser}
-          </div>
-          <div>
-            <b>{__('Date')}</b> - {ver.lastCommittedDate}
-          </div>
-        </Group>
       </Box>
     );
   }
