@@ -32,6 +32,7 @@ import { __ } from 'modules/common/utils';
 import { Contacts } from 'modules/companies/components';
 import { ICustomer } from 'modules/customers/types';
 import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
+import { MailForm } from 'modules/settings/integrations/containers/google';
 import { IConversation } from '../../../types';
 import ConversationDetails from './ConversationDetails';
 
@@ -188,7 +189,13 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { customer } = this.props;
     const { primaryPhone, primaryEmail } = customer;
 
-    const content = () => null;
+    const content = props => (
+      <MailForm
+        toEmail={primaryEmail}
+        refetchQueries={['activityLogsCustomer']}
+        closeModal={props.closeModal}
+      />
+    );
 
     return (
       <Actions>

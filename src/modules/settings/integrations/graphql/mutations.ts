@@ -10,6 +10,43 @@ const commonParams = `
   languageCode: $languageCode
 `;
 
+const sendGmailFields = `
+  $integrationId: String!,
+  $cocType: String!,
+  $cocId: String!,
+  $subject: String!,
+  $body: String!,
+  $toEmails: String!,
+  $cc: String,
+  $bcc: String,
+  $attachments: [gmailAttachmentData],
+  $headerId: String,
+  $references: String,
+  $threadId: String
+`;
+
+const sendGmailVariables = `
+  integrationId: $integrationId,
+  subject: $subject,
+  body: $body,
+  toEmails: $toEmails,
+  cc: $cc,
+  bcc: $bcc,
+  attachments: $attachments,
+  headerId: $headerId,
+  references: $references,
+  threadId: $threadId
+`;
+
+const integrationsSendGmail = ` 
+  mutation integrationsSendGmail(${sendGmailFields}) {
+    integrationsSendGmail(${sendGmailVariables}) {
+      status
+      statusText
+    }
+  }
+`;
+
 const integrationsCreateMessenger = `
   mutation integrationsCreateMessengerIntegration(${commonParamsDef}) {
     integrationsCreateMessengerIntegration(${commonParams}) {
@@ -123,5 +160,6 @@ export default {
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
-  removeAccount
+  removeAccount,
+  integrationsSendGmail
 };
