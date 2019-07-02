@@ -1,13 +1,13 @@
 {
-  "name": "erxes-widgets-api",
+  "name": "erxes-integrations",
   "version": "0.9.15",
-  "description": "GraphQL API for erxes widgets",
+  "description": "erxes integrations",
   "homepage": "https://erxes.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/erxes/erxes-widgets-api"
+    "url": "https://github.com/erxes/erxes-integrations"
   },
-  "bugs": "https://github.com/erxes/erxes-widgets-api/issues",
+  "bugs": "https://github.com/erxes/erxes-integrations/issues",
   "keywords": [
     "node",
     "express",
