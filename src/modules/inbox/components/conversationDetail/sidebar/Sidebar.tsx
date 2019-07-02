@@ -1,4 +1,10 @@
-import { Button, Icon, Tabs, TabTitle } from 'modules/common/components';
+import {
+  Button,
+  Icon,
+  ModalTrigger,
+  Tabs,
+  TabTitle
+} from 'modules/common/components';
 import { CompanyAssociate } from 'modules/companies/containers';
 import {
   DetailInfo,
@@ -193,9 +199,16 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <Actions>
-        <Button disabled={primaryEmail ? false : true} size="small">
-          {__('Email')}
-        </Button>
+        <ModalTrigger
+          title="Email"
+          trigger={
+            <Button disabled={primaryEmail ? false : true} size="small">
+              {__('Email')}
+            </Button>
+          }
+          size="lg"
+          content={content}
+        />
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"

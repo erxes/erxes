@@ -1,39 +1,26 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate, Spinner } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { MailForm } from '../../components/google';
-import {
-  IntegrationsQueryResponse,
-  SendGmailMutationResponse,
-  SendGmailMutationVariables
-} from '../../types';
+import { IntegrationsQueryResponse } from '../../types';
 
 type Props = {
-  refetchQueries: string[];
-  headerId?: string;
-  threadId?: string;
-  toEmail?: string;
-  subject?: string;
   integrationId?: string;
-  toEmails?: string[];
+  refetchQueries?: string[];
+  toEmail?: string;
   closeModal?: () => void;
 };
 
 type FinalProps = {
   gmailIntegrationsQuery: IntegrationsQueryResponse;
-} & Props &
-  SendGmailMutationResponse;
+} & Props;
 
 const MailFormContainer = (props: FinalProps) => {
-  const {
-    integrationsSendGmail,
-    headerId,
-    threadId,
-    gmailIntegrationsQuery
-  } = props;
+  const { gmailIntegrationsQuery, refetchQueries, toEmail, closeModal } = props;
 
   if (gmailIntegrationsQuery.loading) {
     return <Spinner objective={true} />;
@@ -41,39 +28,36 @@ const MailFormContainer = (props: FinalProps) => {
 
   const integrations = gmailIntegrationsQuery.integrations || [];
 
-  const send = (variables, callback: () => void) => {
-    integrationsSendGmail({
-      variables: {
-        ...variables,
-        headerId,
-        threadId
-      }
-    })
-      .then(() => {
-        if (callback) {
-          callback();
-        }
-        Alert.success('Your email has been sent!');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.integrationsSendGmail}
+        variables={values}
+        refetchQueries={refetchQueries}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage="You have successfully sent a email"
+      />
+    );
   };
 
-  return <MailForm {...props} send={send} integrations={integrations} />;
+  const updatedProps = {
+    renderButton,
+    integrations,
+    toEmail,
+    closeModal
+  };
+
+  return <MailForm {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SendGmailMutationResponse, SendGmailMutationVariables>(
-      gql(mutations.integrationsSendGmail),
-      {
-        name: 'integrationsSendGmail',
-        options: ({ refetchQueries }: { refetchQueries: string[] }) => ({
-          refetchQueries
-        })
-      }
-    ),
     graphql<Props, IntegrationsQueryResponse, { kind: string }>(
       gql(queries.integrations),
       {

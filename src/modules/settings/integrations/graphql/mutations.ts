@@ -11,31 +11,23 @@ const commonParams = `
 `;
 
 const sendGmailFields = `
-  $integrationId: String!,
-  $cocType: String!,
-  $cocId: String!,
+  $accountId: String!,
   $subject: String!,
   $body: String!,
-  $toEmails: String!,
+  $to: String!,
   $cc: String,
   $bcc: String,
   $attachments: [gmailAttachmentData],
-  $headerId: String,
-  $references: String,
-  $threadId: String
 `;
 
 const sendGmailVariables = `
-  integrationId: $integrationId,
+  accountId: $accountId,
   subject: $subject,
   body: $body,
-  toEmails: $toEmails,
+  to: $to,
   cc: $cc,
   bcc: $bcc,
   attachments: $attachments,
-  headerId: $headerId,
-  references: $references,
-  threadId: $threadId
 `;
 
 const integrationsSendGmail = ` 

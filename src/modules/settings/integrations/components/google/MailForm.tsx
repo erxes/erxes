@@ -1,17 +1,17 @@
-import { EditorState } from 'draft-js';
 import {
   Button,
+  ControlLabel,
+  EditorCK,
+  Form,
   FormControl,
+  FormGroup,
   Icon,
   Spinner,
   Tip
 } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
+import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { FileName } from 'modules/inbox/styles';
 import {
   IGmailAttachment,
@@ -32,23 +32,9 @@ import {
 type Props = {
   integrationId?: string;
   integrations: IIntegration[];
-  toEmail?: string;
-  toEmails?: string[];
-  subject?: string;
   closeModal?: () => void;
-
-  send: (
-    params: {
-      cc?: string;
-      bcc?: string;
-      toEmails?: string;
-      subject?: string;
-      body: string;
-      integrationId?: string;
-      attachments: IGmailAttachment[];
-    },
-    callback: () => void
-  ) => void;
+  toEmail?: string;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
@@ -61,11 +47,9 @@ type State = {
   isCc?: boolean;
   isBcc?: boolean;
   content: string;
-  editorState: EditorState;
   integrations: IIntegration[];
   attachments: IGmailAttachment[];
   totalFileSize: number;
-  isSending: boolean;
   isUploading: boolean;
 };
 
@@ -77,35 +61,47 @@ class MailForm extends React.Component<Props, State> {
       status: 'draft',
       isCc: false,
       isBcc: false,
-      isSending: false,
       isUploading: false,
       content: '',
       cc: '',
       bcc: '',
       toEmails: props.toEmail || '',
-      from: props.integrationId,
-      subject: props.subject || '',
+      from: '',
+      subject: '',
       attachments: [],
       totalFileSize: 0,
-      integrations: props.integrations,
-      editorState: createStateFromHTML(EditorState.createEmpty(), '')
+      integrations: props.integrations
     };
   }
 
-  getContent = editorState => {
-    return toHTML(editorState);
+  onEditorChange = e => {
+    this.setState({ content: e.editor.getData() });
   };
 
-  changeContent = editorState => {
-    this.setState({ editorState });
+  generateDoc = (values: {
+    to: string;
+    cc: string;
+    bcc: string;
+    subject: string;
+    from: string;
+  }) => {
+    const { content, attachments } = this.state;
+    const accountId = values.from;
+
+    return {
+      ...values,
+      attachments,
+      body: content,
+      accountId
+    };
   };
 
-  onChange = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  onClick = (name: 'isCc' | 'isBcc') => {
-    this.onChange(name, !this.state[name]);
+  onClick = (name: string) => {
+    if (name === 'isBcc') {
+      this.setState({ isBcc: true });
+    } else {
+      this.setState({ isCc: true });
+    }
   };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -172,54 +168,6 @@ class MailForm extends React.Component<Props, State> {
     }
   };
 
-  onAfterSend = () => {
-    this.discard();
-
-    const { closeModal } = this.props;
-
-    if (closeModal) {
-      closeModal();
-    }
-  };
-
-  onSend = () => {
-    const { subject, cc, bcc, toEmails, from, attachments } = this.state;
-
-    if (!toEmails) {
-      return Alert.error('Enter a receiver');
-    }
-
-    if (!from) {
-      return Alert.error('Select a sender');
-    }
-
-    if (!subject) {
-      return Alert.error('Your email has no subject');
-    }
-
-    const body = this.getContent(this.state.editorState);
-    const integrationId = from;
-
-    this.setState({ isSending: true });
-
-    this.props.send(
-      {
-        subject,
-        toEmails,
-        cc,
-        bcc,
-        body,
-        integrationId,
-        attachments
-      },
-      this.onAfterSend
-    );
-  };
-
-  discard = () => {
-    this.setState({ editorState: EditorState.createEmpty() });
-  };
-
   renderFromOption() {
     return this.props.integrations.map(i => (
       <option key={i._id} value={i._id}>
@@ -228,67 +176,29 @@ class MailForm extends React.Component<Props, State> {
     ));
   }
 
-  renderToEmails() {
-    const { toEmails = [] } = this.props;
-
-    const onChange = e =>
-      this.onChange('toEmails', (e.target as HTMLInputElement).value);
-
-    if (toEmails.length > 0) {
-      return (
-        <FormControl
-          componentClass="select"
-          onChange={onChange}
-          value={this.state.toEmails}
-        >
-          <option />
-          {toEmails.map((email, index) => (
-            <option key={index} value={email}>
-              {email}
-            </option>
-          ))}
-        </FormControl>
-      );
-    }
-
-    return (
-      <FormControl
-        type="text"
-        onChange={onChange}
-        value={this.state.toEmails}
-      />
-    );
-  }
-
-  renderCC() {
+  renderCC(formProps: IFormProps) {
     if (!this.state.isCc) {
       return null;
     }
 
-    const onChange = e =>
-      this.onChange('cc', (e.target as HTMLInputElement).value);
-
     return (
-      <ControlWrapper>
-        <span>Cc:</span>
-        <FormControl type="text" value={this.state.cc} onChange={onChange} />
-      </ControlWrapper>
+      <FormGroup>
+        <ControlLabel>Cc:</ControlLabel>
+        <FormControl {...formProps} name="cc" />
+      </FormGroup>
     );
   }
 
-  renderBCC() {
+  renderBCC(formProps: IFormProps) {
     if (!this.state.isBcc) {
       return null;
     }
 
-    const onChange = e =>
-      this.onChange('bcc', (e.target as HTMLInputElement).value);
-
     return (
-      <ControlWrapper>
-        <span>Bcc:</span>
-        <FormControl type="text" onChange={onChange} value={this.state.bcc} />
-      </ControlWrapper>
+      <FormGroup>
+        <ControlLabel>Bcc:</ControlLabel>
+        <FormControl {...formProps} name="bcc" />
+      </FormGroup>
     );
   }
 
@@ -335,10 +245,6 @@ class MailForm extends React.Component<Props, State> {
   renderCancelButton() {
     const { closeModal } = this.props;
 
-    if (!closeModal) {
-      return null;
-    }
-
     return (
       <Button
         btnStyle="danger"
@@ -351,25 +257,8 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  renderDiscardButton() {
-    if (!this.state.editorState.getCurrentContent().hasText()) {
-      return null;
-    }
-
-    return (
-      <Button
-        onClick={this.discard}
-        btnStyle="warning"
-        size="small"
-        icon="eraser-1"
-      >
-        Discard
-      </Button>
-    );
-  }
-
-  renderButtons() {
-    const { isSending } = this.state;
+  renderButtons(values, isSubmitted) {
+    const { renderButton } = this.props;
 
     return (
       <EditorFooter>
@@ -384,35 +273,30 @@ class MailForm extends React.Component<Props, State> {
           </label>
         </Tip>
         <div>
-          {this.renderDiscardButton()}
           {this.renderCancelButton()}
-          <Button
-            disabled={isSending}
-            onClick={this.onSend}
-            btnStyle="success"
-            size="small"
-            icon="send"
-          >
-            {isSending ? 'Sending' : 'Send'}
-          </Button>
+          {renderButton({
+            name: 'mailForm',
+            values: this.generateDoc(values),
+            isSubmitted
+          })}
         </div>
       </EditorFooter>
     );
   }
 
-  render() {
+  renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+
     const onClickIsCC = () => this.onClick('isCc');
     const onClickIsBCC = () => this.onClick('isBcc');
-    const formOnChange = e =>
-      this.onChange('from', (e.target as HTMLInputElement).value);
-    const textOnChange = e =>
-      this.onChange('subject', (e.target as HTMLInputElement).value);
 
     return (
       <>
         <ControlWrapper>
-          <span>To:</span>
-          {this.renderToEmails()}
+          <FormGroup>
+            <ControlLabel required={true}>To:</ControlLabel>
+            <FormControl {...formProps} name="to" required={true} />
+          </FormGroup>
 
           <LeftSection>
             <Resipients onClick={onClickIsCC} isActive={this.state.isCc}>
@@ -423,42 +307,47 @@ class MailForm extends React.Component<Props, State> {
             </Resipients>
           </LeftSection>
         </ControlWrapper>
-        {this.renderCC()}
-        {this.renderBCC()}
 
-        <ControlWrapper>
-          <span>From:</span>
+        {this.renderCC(formProps)}
+        {this.renderBCC(formProps)}
+
+        <FormGroup>
+          <ControlLabel required={true}>From:</ControlLabel>
           <FormControl
+            required={true}
             componentClass="select"
-            onChange={formOnChange}
-            value={this.state.from}
+            {...formProps}
+            name="from"
           >
             <option />
             {this.renderFromOption()}
           </FormControl>
-        </ControlWrapper>
+        </FormGroup>
 
-        <ControlWrapper>
-          <FormControl
-            type="text"
-            onChange={textOnChange}
-            placeholder="Subject"
-            value={this.state.subject}
-          />
-        </ControlWrapper>
+        <FormGroup>
+          <ControlLabel required={true}>Subject:</ControlLabel>
+          <FormControl {...formProps} name="subject" required={true} />
+        </FormGroup>
 
-        <MailEditorWrapper>
-          <ErxesEditor
-            handleFileInput={this.handleFileInput}
-            editorState={this.state.editorState}
-            onChange={this.changeContent}
-          />
-        </MailEditorWrapper>
+        <FormGroup>
+          <MailEditorWrapper>
+            <EditorCK
+              insertItems={EMAIL_CONTENT}
+              content={this.state.content}
+              onChange={this.onEditorChange}
+              height={300}
+            />
+          </MailEditorWrapper>
+        </FormGroup>
 
         {this.renderAttachments()}
-        {this.renderButtons()}
+        {this.renderButtons(values, isSubmitted)}
       </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
