@@ -42,6 +42,7 @@ export interface IMessengerData {
   timezone?: string;
   messages?: IMessageDataMessages;
   links?: ILink;
+  showChat?: boolean;
   requireAuth?: boolean;
   forceLogoutWhenResolve?: boolean;
 }
@@ -125,6 +126,7 @@ const messengerDataSchema = new Schema(
       youtube: String,
     },
     requireAuth: field({ type: Boolean, default: true }),
+    showChat: field({ type: Boolean, default: true }),
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
   },
   { _id: false },

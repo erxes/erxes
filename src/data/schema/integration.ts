@@ -64,6 +64,7 @@ export const types = `
     links: IntegrationLinks
     supporterIds: [String]
     requireAuth: Boolean
+    showChat: Boolean
     forceLogoutWhenResolve: Boolean
   }
 
