@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { Stages } from '../../../db/models';
 import { getNextMonth, getToday } from '../../utils';
 
-const contains = (values: string[] = [], empty = false) => {
+export const contains = (values: string[] = [], empty = false) => {
   if (empty) {
     return [];
   }
@@ -24,14 +24,13 @@ export const generateCommonFilters = async (args: any) => {
     assignedUserIds,
     customerIds,
     companyIds,
-    productIds,
   } = args;
-
-  const filter: any = {};
 
   const assignedToNoOne = value => {
     return value.length === 1 && value[0].length === 0;
   };
+
+  const filter: any = {};
 
   if (assignedUserIds) {
     // Filter by assigned to no one
@@ -46,10 +45,6 @@ export const generateCommonFilters = async (args: any) => {
 
   if (companyIds) {
     filter.companyIds = contains(companyIds);
-  }
-
-  if (productIds) {
-    filter['productsData.productId'] = contains(productIds);
   }
 
   if (nextDay) {
@@ -113,6 +108,43 @@ export const generateCommonFilters = async (args: any) => {
 
     filter.closeDate = dateSelector(date);
     filter.stageId = { $in: stageIds };
+  }
+
+  return filter;
+};
+
+export const generateDealCommonFilters = async (args: any, extraParams?: any) => {
+  const filter = await generateCommonFilters(args);
+  const { productIds } = extraParams || args;
+
+  if (productIds) {
+    filter['productsData.productId'] = contains(productIds);
+  }
+
+  return filter;
+};
+
+export const generateTicketCommonFilters = async (args: any, extraParams?: any) => {
+  const filter = await generateCommonFilters(args);
+  const { priority, source } = extraParams || args;
+
+  if (priority) {
+    filter.priority = priority;
+  }
+
+  if (source) {
+    filter.source = source;
+  }
+
+  return filter;
+};
+
+export const generateTaskCommonFilters = async (args: any, extraParams?: any) => {
+  const filter = await generateCommonFilters(args);
+  const { priority } = extraParams || args;
+
+  if (priority) {
+    filter.priority = priority;
   }
 
   return filter;

@@ -42,6 +42,7 @@ export const queries = `
     nextMonth: String
     noCloseDate: String
     overdue: String
+    priority: String
   ): [Task]
 `;
 
@@ -53,8 +54,8 @@ const commonParams = `
   customerIds: [String],
   closeDate: Date,
   description: String,
-  priority: String,
   order: Int,
+  priority: String,
 `;
 
 export const mutations = `
