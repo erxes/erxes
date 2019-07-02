@@ -43,7 +43,7 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
   };
 
   const renderName = company => {
-    return company.primaryName || company.website || 'N/A';
+    return company.primaryName || company.website || 'Unknown';
   };
 
   const updatedProps = {
