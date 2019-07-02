@@ -125,7 +125,7 @@ const getFilterParams = (
     nextMonth: queryParams.nextMonth,
     noCloseDate: queryParams.noCloseDate,
     overdue: queryParams.overdue,
-    extraParams: getExtraParams(queryParams)
+    ...getExtraParams(queryParams)
   };
 };
 

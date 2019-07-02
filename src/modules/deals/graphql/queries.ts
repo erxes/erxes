@@ -7,7 +7,7 @@ const commonParams = `
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
-  $extraParams: JSON
+  $productIds: [String]
 `;
 
 const commonParamDefs = `
@@ -19,7 +19,7 @@ const commonParamDefs = `
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
   overdue: $overdue,
-  extraParams: $extraParams
+  productIds: $productIds
 `;
 
 const dealFields = `

@@ -7,7 +7,7 @@ const commonParams = `
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
-  $extraParams: JSON,
+  $priority: String,
 `;
 
 const commonParamDefs = `
@@ -19,7 +19,7 @@ const commonParamDefs = `
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
   overdue: $overdue,
-  extraParams: $extraParams
+  priority: $priority
 `;
 
 const taskFields = `
