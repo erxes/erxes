@@ -15,7 +15,8 @@ import { crudMutationsOptions } from '../utils';
 
 type Props = {
   customers: ICustomer[];
-  emptyBulk: () => void;
+  emptyBulk?: () => void;
+  modalTrigger?: React.ReactNode;
 };
 
 type FinalProps = {
@@ -52,9 +53,12 @@ const WidgetContainer = (props: FinalProps) => {
     })
       .then(() => {
         callback();
-        emptyBulk();
 
         Alert.success(`You successfully added a engagement message`);
+
+        if (emptyBulk) {
+          emptyBulk();
+        }
       })
       .catch(error => {
         Alert.error(error.message);

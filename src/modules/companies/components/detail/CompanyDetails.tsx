@@ -32,7 +32,7 @@ class CompanyDetails extends React.Component<Props> {
           contentTypeId={company._id}
           contentType="company"
           toEmails={company.emails}
-          showEmail={true}
+          showEmail={false}
         />
         <ActivityLogs
           target={company.primaryName || ''}

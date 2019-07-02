@@ -10,6 +10,7 @@ type Props = {
   showEmail: boolean;
   toEmail?: string;
   toEmails?: string[];
+  extraTab?: React.ReactNode;
 };
 
 type State = {
@@ -47,17 +48,25 @@ class ActivityInputs extends React.PureComponent<Props, State> {
   }
 
   renderExtraTab() {
-    if (!this.props.showEmail) {
-      return null;
+    const { showEmail, extraTab } = this.props;
+    let tabEmail;
+
+    if (showEmail) {
+      tabEmail = (
+        <TabTitle
+          className={this.state.currentTab === 'email' ? 'active' : ''}
+          onClick={this.onChangeTab.bind(this, 'email')}
+        >
+          <Icon icon="email" /> {__('Email')}
+        </TabTitle>
+      );
     }
 
     return (
-      <TabTitle
-        className={this.state.currentTab === 'email' ? 'active' : ''}
-        onClick={this.onChangeTab.bind(this, 'email')}
-      >
-        <Icon icon="email" /> {__('Email')}
-      </TabTitle>
+      <>
+        {tabEmail}
+        {extraTab}
+      </>
     );
   }
 

@@ -12,24 +12,33 @@ type Props = {
   customers: ICustomer[];
   messengerKinds: any[];
   sentAsChoices: any[];
+  modalTrigger?: React.ReactNode;
   save: (doc: IEngageMessageDoc, closeModal: () => void) => void;
 };
 
 class Widget extends React.Component<Props> {
-  render() {
-    const trigger = (
+  getTrigger = () => {
+    const trigger = this.props.modalTrigger;
+
+    if (trigger) {
+      return trigger;
+    }
+
+    return (
       <Button btnStyle="success" size="small" icon="email">
         Message
       </Button>
     );
+  };
 
+  render() {
     const content = props => <WidgetForm {...this.props} {...props} />;
 
     return (
       <ModalTrigger
         size="lg"
         title="New message"
-        trigger={trigger}
+        trigger={this.getTrigger()}
         content={content}
         enforceFocus={false}
       />

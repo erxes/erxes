@@ -41,13 +41,7 @@ const dateFilterParams = [
   'noCloseDate'
 ];
 
-const commonParams = [
-  'companyIds',
-  'customerIds',
-  'assignedUserIds',
-  'productIds',
-  ...dateFilterParams
-];
+const defaultParams = ['id', 'pipelineId'];
 
 /*
  * Main board component
@@ -85,17 +79,21 @@ class Main extends React.Component<FinalProps> {
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
 
-    for (const param in params) {
-      if (commonParams.includes(param)) {
-        return true;
-      }
+    if (Object.keys(params).length > 2) {
+      return true;
     }
 
     return false;
   };
 
   clearFilter = () => {
-    routerUtils.removeParams(this.props.history, ...commonParams);
+    const params = generateQueryParams(this.props.history);
+
+    const remainedParams = Object.keys(params).filter(
+      key => !defaultParams.includes(key)
+    );
+
+    routerUtils.removeParams(this.props.history, ...remainedParams);
   };
 
   render() {
@@ -213,7 +211,6 @@ class Main extends React.Component<FinalProps> {
     const extendedProps = {
       ...props,
       type,
-      onSearch: this.onSearch,
       onDateFilterSelect: this.onDateFilterSelect,
       onClear: this.onClear,
       onSelect: this.onSelect,

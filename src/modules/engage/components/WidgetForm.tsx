@@ -239,6 +239,13 @@ class WidgetForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
+          <Button
+            btnStyle="simple"
+            icon="cancel-1"
+            onClick={this.props.closeModal}
+          >
+            Close
+          </Button>
           <Button type="submit" btnStyle="success" icon="send">
             Send
           </Button>
