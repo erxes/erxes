@@ -6,7 +6,9 @@ const commonParams = `
   $nextWeek: String,
   $nextMonth: String,
   $noCloseDate: String,
-  $overdue: String
+  $overdue: String,
+  $priority: String,
+  $source: String,
 `;
 
 const commonParamDefs = `
@@ -17,7 +19,9 @@ const commonParamDefs = `
   nextWeek: $nextWeek,
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
-  overdue: $overdue
+  overdue: $overdue,
+  priority: $priority,
+  source: $source
 `;
 
 const ticketFields = `

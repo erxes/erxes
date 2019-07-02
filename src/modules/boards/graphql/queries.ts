@@ -70,8 +70,8 @@ const stages = `
     $nextWeek: String,
     $nextMonth: String,
     $noCloseDate: String,
-    $overdue: String
-    $productIds: [String]
+    $overdue: String,
+    $extraParams: JSON
   ) {
     stages(
       pipelineId: $pipelineId, 
@@ -83,8 +83,8 @@ const stages = `
       nextWeek: $nextWeek,
       nextMonth: $nextMonth,
       noCloseDate: $noCloseDate,
-      overdue: $overdue
-      productIds: $productIds
+      overdue: $overdue,
+      extraParams: $extraParams
     ) {
       _id
       name
