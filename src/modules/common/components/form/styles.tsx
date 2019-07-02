@@ -70,6 +70,10 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
     outline: none;
     border-color: ${colors.colorSecondary};
   }
+
+  ::placeholder {
+    color: #aaa;
+  }
 `;
 
 const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
