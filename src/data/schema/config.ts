@@ -7,9 +7,6 @@ export const types = `
 
   type GitInfos {
     packageVersion: String
-    lastCommittedUser: String
-    lastCommittedDate: String
-    lastCommitMessage: String
     branch: String
     sha: String
     abbreviatedSha: String
