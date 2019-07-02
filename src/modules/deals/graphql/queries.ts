@@ -6,7 +6,7 @@ const commonParams = `
   $nextWeek: String,
   $nextMonth: String,
   $noCloseDate: String,
-  $overdue: String
+  $overdue: String,
   $productIds: [String]
 `;
 
@@ -18,7 +18,7 @@ const commonParamDefs = `
   nextWeek: $nextWeek,
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
-  overdue: $overdue
+  overdue: $overdue,
   productIds: $productIds
 `;
 

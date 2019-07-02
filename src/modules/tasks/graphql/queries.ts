@@ -6,7 +6,8 @@ const commonParams = `
   $nextWeek: String,
   $nextMonth: String,
   $noCloseDate: String,
-  $overdue: String
+  $overdue: String,
+  $priority: String,
 `;
 
 const commonParamDefs = `
@@ -17,7 +18,8 @@ const commonParamDefs = `
   nextWeek: $nextWeek,
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
-  overdue: $overdue
+  overdue: $overdue,
+  priority: $priority
 `;
 
 const taskFields = `
@@ -27,7 +29,7 @@ const taskFields = `
   pipeline {
     _id
     name
-}
+  }
   boardId
   companies {
     _id

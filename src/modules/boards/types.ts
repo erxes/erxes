@@ -31,6 +31,7 @@ export interface IOptions {
     deleteSuccessText: string;
     copySuccessText: string;
   };
+  getExtraParams: (queryParams: any) => any;
 }
 
 export interface IBoard {
@@ -170,5 +171,4 @@ export interface IFilterParams {
   nextMonth?: string;
   noCloseDate?: string;
   overdue?: string;
-  productIds?: string;
 }
