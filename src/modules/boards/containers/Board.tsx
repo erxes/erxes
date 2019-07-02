@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { EmptyState } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import { IOptions, PipelineDetailQueryResponse } from '../types';

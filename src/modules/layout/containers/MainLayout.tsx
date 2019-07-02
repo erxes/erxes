@@ -1,6 +1,6 @@
 import { AppConsumer, AppProvider } from 'appContext';
 import { IUser } from 'modules/auth/types';
-import * as React from 'react';
+import React from 'react';
 import { MainLayout } from '../components';
 
 type Props = {

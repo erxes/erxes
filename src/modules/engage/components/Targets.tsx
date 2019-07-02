@@ -1,6 +1,6 @@
-import { EmptyState, Icon } from 'modules/common/components';
+import { EmptyState } from 'modules/common/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { ListCounter, ListWrapper } from '../styles';
 import { TargetCount } from '../types';
 
@@ -68,7 +68,11 @@ class Targets<
 
       return (
         <ListCounter key={_id} chosen={selectedIds.includes(_id)}>
-          <a tabIndex={0} onClick={this.onClick.bind(this, name, _id)}>
+          <a
+            href="#counter"
+            tabIndex={0}
+            onClick={this.onClick.bind(this, name, _id)}
+          >
             {icons && icons[index]}
             {target.name}
             <SidebarCounter>{targetCount[_id] || 0}</SidebarCounter>

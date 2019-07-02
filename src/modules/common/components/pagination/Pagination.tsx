@@ -1,6 +1,6 @@
 import { Icon } from 'modules/common/components';
 import { router } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../types';
 import { difference, intersection, range, union } from '../../utils';
@@ -96,7 +96,7 @@ class Page extends React.Component<{
 
       return (
         <li className={className} onClick={this.onClick}>
-          <a href="">{page}</a>
+          <a href="#page">{page}</a>
         </li>
       );
     }
@@ -171,7 +171,7 @@ class Pagination extends React.Component<IPaginationProps> {
     return (
       <PaginationList>
         <li className={prevClass}>
-          <a href="" onClick={this.onPrev}>
+          <a href="#leftarrow" onClick={this.onPrev}>
             <Icon icon="leftarrow" />
           </a>
         </li>
@@ -186,7 +186,7 @@ class Pagination extends React.Component<IPaginationProps> {
         ))}
 
         <li className={nextClass}>
-          <a href="" onClick={this.onNext}>
+          <a href="#rightarrow" onClick={this.onNext}>
             <Icon icon="rightarrow" />
           </a>
         </li>

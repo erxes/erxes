@@ -1,7 +1,6 @@
-import _ from 'lodash';
 import { Button } from 'modules/common/components';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
-import * as React from 'react';
+import React from 'react';
 import { IConversation } from '../types';
 
 type Props = {

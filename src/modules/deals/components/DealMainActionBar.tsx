@@ -4,7 +4,7 @@ import { IBoard, IPipeline } from 'modules/boards/types';
 import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { SelectProducts } from 'modules/settings/productService/containers';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 type Props = {

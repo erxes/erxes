@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 function TagsSidebar() {

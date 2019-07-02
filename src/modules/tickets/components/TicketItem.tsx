@@ -4,8 +4,8 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { __, getUserAvatar } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { ITicket } from '../types';
 
@@ -107,6 +107,7 @@ export default class TicketItem extends React.PureComponent<
             <Right>
               {(item.assignedUsers || []).map((user, index) => (
                 <img
+                  alt="Avatar"
                   key={index}
                   src={getUserAvatar(user)}
                   width="22px"

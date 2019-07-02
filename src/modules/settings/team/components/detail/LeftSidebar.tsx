@@ -4,7 +4,7 @@ import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
 import { List } from './styles';
@@ -24,7 +24,7 @@ class LeftSidebar extends React.Component<Props> {
     }
 
     return (
-      <a href={link} target="_blank">
+      <a href={link}>
         <Icon icon={icon} />
       </a>
     );

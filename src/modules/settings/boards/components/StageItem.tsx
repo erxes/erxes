@@ -1,5 +1,5 @@
 import { Button, FormControl } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import { PROBABILITY } from '../constants';
 import { StageItemContainer } from '../styles';
 import { IStage } from '../types';

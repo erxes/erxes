@@ -11,7 +11,7 @@ import {
   RemoveChannelMutationVariables
 } from 'modules/settings/channels/types';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Channel } from '../components';

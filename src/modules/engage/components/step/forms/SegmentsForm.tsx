@@ -1,12 +1,7 @@
 import { IButtonMutateProps } from 'modules/common/types';
 import { Form } from 'modules/segments/components/common';
-import {
-  ISegment,
-  ISegmentDoc,
-  ISegmentField,
-  ISegmentWithConditionDoc
-} from 'modules/segments/types';
-import * as React from 'react';
+import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
+import React from 'react';
 
 type Props = {
   fields: ISegmentField[];

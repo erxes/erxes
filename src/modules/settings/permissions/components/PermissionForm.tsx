@@ -7,7 +7,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { __, Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { mutations } from '../graphql';

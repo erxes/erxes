@@ -2,8 +2,8 @@ import { Button, Icon } from 'modules/common/components';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, renderFullName } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { IUser } from '../../../auth/types';
 import {
   CUSTOMER_BASIC_INFO,

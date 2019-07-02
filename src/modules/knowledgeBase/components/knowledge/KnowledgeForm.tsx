@@ -17,11 +17,11 @@ import {
   ColorPicker,
   MarkdownWrapper
 } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
 
 type Props = {

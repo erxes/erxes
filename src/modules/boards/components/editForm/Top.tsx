@@ -12,10 +12,9 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import * as React from 'react';
-import * as Datetime from 'react-datetime';
+import React from 'react';
+import Datetime from 'react-datetime';
 import { Move } from '../../containers/editForm';
 import { IItem, IOptions } from '../../types';
 

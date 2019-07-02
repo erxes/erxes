@@ -88,13 +88,14 @@
   "scripts": {
     "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build && yarn generateVersion",
     "compress": "gzip -5 --keep -r build/static/js",
-    "test": "snyk test && react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject",
+    "test": "snyk test && react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
-    "postinstall": "opencollective postinstall"
+    "postinstall": "opencollective postinstall",
+    "generateVersion": "node commands/generateVersion.js"
   },
   "devDependencies": {
     "@types/draft-js": "^0.10.24",
@@ -104,12 +105,17 @@
     "@types/react-router": "^4.0.30",
     "@types/react-router-dom": "^4.3.0",
     "@types/styled-components": "^3.0.0",
+    "git-repo-info": "^2.1.0",
     "husky": "^0.14.3",
     "lint-staged": "^4.3.0",
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
-    "react-scripts-ts": "4.0.8",
+    "react-scripts": "^3.0.1",
     "snyk": "^1.108.2",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "tslint-react": "^4.0.0",
     "typescript": "^3.0.3"
   },
   "browserslist": [

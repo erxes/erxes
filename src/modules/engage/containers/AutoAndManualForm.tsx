@@ -3,7 +3,7 @@ import { IUser } from 'modules/auth/types';
 import { withProps } from 'modules/common/utils';
 import { AddMutationResponse } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import { AutoAndManualForm } from '../components';

@@ -1,4 +1,4 @@
-import * as Draft from 'draft-js';
+import Draft from 'draft-js';
 import { ContentState, EditorState, RichUtils } from 'draft-js';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import {
@@ -15,7 +15,7 @@ import { stateToHTML } from 'draft-js-export-html';
 import Editor from 'draft-js-plugins-editor';
 import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
 import Icon from 'modules/common/components/Icon';
-import * as React from 'react';
+import React from 'react';
 import HeadlinesButton from './HeadlinesButton';
 import { RichEditorControlsRoot, RichEditorRoot } from './styles';
 

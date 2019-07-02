@@ -10,7 +10,7 @@ import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { TaggerPopover } from 'modules/tags/components';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
 import { IFormIntegration } from '../types';

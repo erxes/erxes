@@ -1,6 +1,6 @@
 import { Button, FormControl, Icon, Tip } from 'modules/common/components';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
 import { ResponseTemplate } from 'modules/inbox/containers/conversationDetail';
 

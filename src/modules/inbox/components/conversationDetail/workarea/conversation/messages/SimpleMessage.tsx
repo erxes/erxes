@@ -5,9 +5,9 @@ import {
   TextDivider,
   Tip
 } from 'modules/common/components';
-import * as moment from 'moment';
-import * as React from 'react';
-import * as xss from 'xss';
+import moment from 'moment';
+import React from 'react';
+import xss from 'xss';
 import { IMessage } from '../../../../../types';
 import { MessageBody, MessageContent, MessageItem } from '../styles';
 

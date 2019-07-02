@@ -8,7 +8,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { ITag } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 import FormComponent from './Form';
 import Row from './Row';
 import Sidebar from './Sidebar';

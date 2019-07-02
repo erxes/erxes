@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import { ButtonMutate, Spinner } from 'modules/common/components';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { __, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Lead } from '../../components/lead';

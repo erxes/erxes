@@ -1,7 +1,6 @@
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IUser } from '../../auth/types';
 import { UsersQueryResponse } from '../../settings/team/types';
 import { CompanyForm } from '../components';

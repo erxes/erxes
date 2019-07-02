@@ -1,8 +1,8 @@
 import { ActivityContent, EmailContent } from 'modules/activityLogs/styles';
 import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import * as xss from 'xss';
+import React from 'react';
+import xss from 'xss';
 import ActivityRow from './ActivityRow';
 
 type Props = {

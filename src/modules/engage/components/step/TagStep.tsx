@@ -2,7 +2,7 @@ import { Icon } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { TagAdd, TargetCount } from 'modules/engage/types';
 import { ITag } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 import Common from './Common';
 import { TagsForm } from './forms';
 

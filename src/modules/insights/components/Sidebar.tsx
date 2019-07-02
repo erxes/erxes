@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { DEAL_INSIGHTS, INBOX_INSIGHTS, INSIGHT_TYPES } from '../constants';

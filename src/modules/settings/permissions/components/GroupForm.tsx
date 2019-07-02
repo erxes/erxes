@@ -6,9 +6,8 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IUserGroupDocument } from '../types';
 

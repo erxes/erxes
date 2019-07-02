@@ -6,7 +6,7 @@ import {
   IUserGroup,
   UsersGroupsQueryResponse
 } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';

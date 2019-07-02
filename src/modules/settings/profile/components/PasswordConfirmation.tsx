@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   onSuccess: (password: string, values: any[]) => void;

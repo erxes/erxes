@@ -3,8 +3,8 @@ import { Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { Supporters as SupporterComponent } from './';
 import {
   ErxesGreeting,
@@ -47,7 +47,7 @@ class TopBar extends React.Component<Props> {
     }
 
     return (
-      <a>
+      <a href="#icon">
         <Icon icon={icon} size={18} />
       </a>
     );

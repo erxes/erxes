@@ -3,7 +3,7 @@ import { Spinner } from 'modules/common/components';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/components/common';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IntegrationsQueryResponse, RemoveMutationResponse } from '../../types';
 import { integrationsListParams } from '../utils';

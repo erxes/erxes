@@ -4,10 +4,9 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { FlexItem } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
 import { MESSAGE_TYPES } from 'modules/engage/constants';
 import { SelectMessageType } from 'modules/engage/styles';
-import * as React from 'react';
+import React from 'react';
 import { BrandStep, SegmentStep, TagStep } from '../../containers';
 
 type Props = {

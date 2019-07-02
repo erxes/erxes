@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { IFormProps } from 'modules/common/types';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
-import * as React from 'react';
+import React from 'react';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
 import { IEmailTemplate } from '../types';

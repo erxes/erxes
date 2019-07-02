@@ -3,7 +3,7 @@ import { EmptyState, Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import options from '../../options';
 import { IDeal, IDealTotalAmount } from '../../types';

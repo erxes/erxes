@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { SidebarList as List } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 

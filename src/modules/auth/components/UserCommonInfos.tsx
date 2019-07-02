@@ -12,7 +12,7 @@ import {
 import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { timezones } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import { IUser } from '../types';
 
 type Props = {

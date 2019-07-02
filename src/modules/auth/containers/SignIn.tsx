@@ -1,6 +1,6 @@
 import apolloClient from 'apolloClient';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import { ButtonMutate } from '../../common/components';
 import { IButtonMutateProps, IRouterProps } from '../../common/types';

@@ -12,7 +12,7 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { ICommonFormProps } from 'modules/settings/common/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import { Description } from '../../styles';
 import { FlexRow, InviteOption, LinkButton, RemoveRow } from '../styles';
 import { IInvitationEntry } from '../types';

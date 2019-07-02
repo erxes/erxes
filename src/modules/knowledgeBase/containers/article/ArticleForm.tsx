@@ -1,9 +1,8 @@
 import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import * as React from 'react';
+import React from 'react';
 import { ArticleForm } from '../../components';
 import { mutations, queries } from '../../graphql';
 import { IArticle } from '../../types';

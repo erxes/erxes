@@ -9,7 +9,7 @@ import {
   SidebarFlexRow,
   SidebarList
 } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   customer: ICustomer;

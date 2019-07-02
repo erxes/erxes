@@ -1,6 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import QuickNavigation from '../containers/QuickNavigation';
 

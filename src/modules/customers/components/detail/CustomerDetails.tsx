@@ -4,7 +4,7 @@ import { Icon, TabTitle } from 'modules/common/components';
 import { __, renderFullName } from 'modules/common/utils';
 import { Widget } from 'modules/engage/containers';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';

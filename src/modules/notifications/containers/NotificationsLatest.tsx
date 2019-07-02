@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { NotificationsLatest } from '../components';
 import { mutations, queries } from '../graphql';

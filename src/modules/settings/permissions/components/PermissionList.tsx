@@ -12,7 +12,7 @@ import {
 } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { GroupList } from '../containers';
 import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';

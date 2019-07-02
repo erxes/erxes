@@ -1,5 +1,5 @@
 import { Icon, ImageWithPreview } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';
 import { readFile } from '../utils';
