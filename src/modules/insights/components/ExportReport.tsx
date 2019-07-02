@@ -1,5 +1,4 @@
 import { IUser } from 'modules/auth/types';
-import { FullContent } from 'modules/common/styles/main';
 import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
@@ -97,7 +96,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
         <InsightContent>
           <InsightTitle>{__('Export Report')}</InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Volume Report By Date',
@@ -117,7 +116,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                 'activity'
               )}
             </div>
-          </FullContent>
+          </FlexRow>
 
           <InsightTitle>
             <FlexRow>
@@ -136,7 +135,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             </FlexRow>
           </InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Duration of First Response Report',
@@ -160,7 +159,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                 </a>
               </Box>
             </div>
-          </FullContent>
+          </FlexRow>
 
           <InsightTitle>
             <FlexRow>
@@ -168,7 +167,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             </FlexRow>
           </InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Tag Report',
@@ -176,7 +175,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                 'tag'
               )}
             </div>
-          </FullContent>
+          </FlexRow>
         </InsightContent>
       </InsightWrapper>
     );
