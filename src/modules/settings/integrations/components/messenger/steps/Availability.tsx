@@ -6,7 +6,7 @@ import {
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { timezones } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { OnlineHours } from '.';

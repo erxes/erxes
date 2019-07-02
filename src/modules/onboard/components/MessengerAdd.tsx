@@ -12,9 +12,9 @@ import { LANGUAGES } from 'modules/settings/general/constants';
 import { InstallCode } from 'modules/settings/integrations/components';
 import { SelectBrand } from 'modules/settings/integrations/containers';
 import { IIntegration } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
-import * as RTG from 'react-transition-group';
+import RTG from 'react-transition-group';
 import { MessengerList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
 
@@ -76,7 +76,7 @@ class MessengerAdd extends React.Component<Props, State> {
         <Description>
           <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
           {__('messengers')}.
-          <a href="javascript:;" onClick={this.toggleMessengers}>
+          <a href="#toggle" onClick={this.toggleMessengers}>
             {showMessengers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
@@ -184,7 +184,9 @@ class MessengerAdd extends React.Component<Props, State> {
               isSubmitted
             })}
           </div>
-          <a onClick={this.goNext}>{__('Skip for now')} »</a>
+          <a href="#skip" onClick={this.goNext}>
+            {__('Skip for now')} »
+          </a>
         </Footer>
       </>
     );

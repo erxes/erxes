@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { GroupList } from '../components';

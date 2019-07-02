@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { ButtonMutate, Spinner } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Pipelines } from '../components';
 import { mutations, queries } from '../graphql';

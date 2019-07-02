@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { IFormProps } from 'modules/common/types';
 import { __, confirm } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Row } from '../styles';
 import { IAccount } from '../types';
 

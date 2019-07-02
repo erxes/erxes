@@ -1,6 +1,7 @@
+import { getEnv } from 'apolloClient';
 import CKEditor from 'ckeditor4-react';
 import { colors } from 'modules/common/styles';
-import * as React from 'react';
+import React from 'react';
 
 CKEditor.editorUrl = '/ckeditor/ckeditor.js';
 
@@ -10,6 +11,8 @@ type Props = {
   height?: number | string;
   insertItems?: any;
 };
+
+const { REACT_APP_API_URL } = getEnv();
 
 function EditorCK({ content, onChange, height, insertItems }: Props) {
   return (
@@ -74,7 +77,8 @@ function EditorCK({ content, onChange, height, insertItems }: Props) {
           showCommentButton: false,
           showUncommentButton: false,
           showFormatButton: false
-        }
+        },
+        filebrowserImageUploadUrl: `${REACT_APP_API_URL}/upload-file`
       }}
     />
   );

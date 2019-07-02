@@ -2,7 +2,7 @@ import { Button, FormControl, Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const List = styled.ul`

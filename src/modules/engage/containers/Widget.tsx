@@ -4,7 +4,7 @@ import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { AddMutationResponse, IEngageMessageDoc } from 'modules/engage/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';

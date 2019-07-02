@@ -1,5 +1,5 @@
 import { EmptyState, Spinner } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { Summary } from '.';
 import {
@@ -30,7 +30,7 @@ class TeamMembers extends React.Component<Props> {
 
         <InsightUserData>
           <UserProfile>
-            <a>
+            <a href="#img">
               <img
                 src={data.avatar || '/images/avatar-colored.svg'}
                 alt={data.fullName}

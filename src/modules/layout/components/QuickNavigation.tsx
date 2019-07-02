@@ -14,7 +14,7 @@ import {
   ChangePassword,
   NotificationSettings
 } from 'modules/settings/profile/containers';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
@@ -128,7 +128,7 @@ const QuickNavigation = ({
               title="Change Password"
               trigger={
                 <li>
-                  <a>{__('Change Password')}</a>
+                  <a href="#change-password">{__('Change Password')}</a>
                 </li>
               }
               content={passContent}
@@ -138,7 +138,7 @@ const QuickNavigation = ({
               title="Email signatures"
               trigger={
                 <li>
-                  <a>{__('Email signatures')}</a>
+                  <a href="email">{__('Email signatures')}</a>
                 </li>
               }
               content={signatureContent}
@@ -148,7 +148,7 @@ const QuickNavigation = ({
               title="Notification settings"
               trigger={
                 <li>
-                  <a>{__('Notification settings')}</a>
+                  <a href="#notif">{__('Notification settings')}</a>
                 </li>
               }
               content={notificationContent}
@@ -160,7 +160,7 @@ const QuickNavigation = ({
               dialogClassName="middle"
               trigger={
                 <li>
-                  <a>{__('Workflow')}</a>
+                  <a href="#flow">{__('Workflow')}</a>
                 </li>
               }
               content={workflowContent}

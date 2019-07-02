@@ -3,7 +3,7 @@ import { Sidebar, WorkArea } from 'modules/inbox/containers/conversationDetail';
 import { Sidebar as EmptySidebar } from 'modules/layout/components';
 import { MainContent } from 'modules/layout/styles';
 import { ContentBox } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { IConversation } from '../../types';
 
 type Props = {

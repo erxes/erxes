@@ -18,7 +18,7 @@ import { __ } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { UserInvitationForm } from '.';

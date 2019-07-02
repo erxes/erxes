@@ -1,5 +1,5 @@
 import { EmptyState, Tip } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import {
   ChartWrapper,
   FlexRow,
@@ -56,7 +56,6 @@ class PunchCard extends React.Component<Props> {
   }
 
   renderRows() {
-    const { data } = this.props;
     const html: any = [];
 
     for (const date of this.dates) {
@@ -89,12 +88,12 @@ class PunchCard extends React.Component<Props> {
   }
 
   renderDates() {
-    const { data, width } = this.props;
+    const { width } = this.props;
     const cellHeight = Math.floor((width - paddinLeftSize) / 24);
 
     const html: any = [];
 
-    this.dates.map(date => {
+    this.dates.forEach(date => {
       html.push(
         <PunchCell key={Math.random()} height={cellHeight}>
           {date}

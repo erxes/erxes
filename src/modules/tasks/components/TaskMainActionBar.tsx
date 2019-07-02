@@ -3,7 +3,7 @@ import { PRIORITIES } from 'modules/boards/constants';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 
 type Props = {

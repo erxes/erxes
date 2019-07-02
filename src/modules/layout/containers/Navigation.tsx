@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { UnreadConversationsTotalCountQueryResponse } from 'modules/inbox/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import { Navigation } from '../components';

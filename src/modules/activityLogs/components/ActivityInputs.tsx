@@ -2,7 +2,7 @@ import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   contentType: string;

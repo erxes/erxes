@@ -1,5 +1,5 @@
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import styled from 'styled-components';
 import { IDateColumn } from '../types';
 import { __ } from '../utils';

@@ -10,7 +10,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar as LeftSidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { ChannelForm } from '../containers';
 import { IChannel } from '../types';
 import { ChannelRow } from './';
@@ -53,7 +53,7 @@ class Sidebar extends React.Component<Props, {}> {
 
     const addChannel = (
       <HelperButtons>
-        <a>
+        <a href="#add">
           <Icon icon="add" />
         </a>
       </HelperButtons>

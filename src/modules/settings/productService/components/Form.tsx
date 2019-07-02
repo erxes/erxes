@@ -6,7 +6,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { TYPES } from '../constants';
 import { IProduct } from '../types';

@@ -1,6 +1,6 @@
 import { Icon, Label } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { NotificationsLatest } from '../containers';
 import { NotifButton, PopoverHeader } from './styles';

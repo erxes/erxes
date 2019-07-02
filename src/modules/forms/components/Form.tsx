@@ -17,7 +17,7 @@ import { Wrapper } from 'modules/layout/components';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
 
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 import {

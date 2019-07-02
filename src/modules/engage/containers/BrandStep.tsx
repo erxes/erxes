@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { mutations } from 'modules/settings/brands/graphql';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandStep } from '../components';
 import { queries } from '../graphql';

@@ -5,7 +5,7 @@ import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';

@@ -1,7 +1,7 @@
 import { FilterByParams, Icon } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
@@ -31,7 +31,7 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
         </Link>
 
         {router.getParam(history, 'tag') ? (
-          <a tabIndex={0} onClick={onClick}>
+          <a href="#cancel" tabIndex={0} onClick={onClick}>
             <Icon icon="cancel-1" />
           </a>
         ) : null}

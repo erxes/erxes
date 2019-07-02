@@ -6,7 +6,7 @@ import {
   ModalTrigger
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
 
@@ -128,7 +128,7 @@ class CommonChooser extends React.Component<Props, State> {
     const addTrigger = (
       <p>
         {__("Don't see the result you're looking for? ")}
-        <a>{__(`Create a new ${title}`)}</a>
+        <a href="#create">{__(`Create a new ${title}`)}</a>
       </p>
     );
 

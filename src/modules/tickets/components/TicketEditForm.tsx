@@ -5,7 +5,7 @@ import { IOptions } from 'modules/boards/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { IOption } from 'modules/common/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
 

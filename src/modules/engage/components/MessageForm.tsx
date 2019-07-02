@@ -1,6 +1,6 @@
 import { MESSAGE_KINDS } from 'modules/engage/constants';
 import { IBrand } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 import { AutoAndManualForm, VisitorForm } from '../containers';
 import { IEngageScheduleDate } from '../types';
 

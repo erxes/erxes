@@ -9,11 +9,11 @@ import {
 } from 'modules/activityLogs/styles';
 import { IUser } from 'modules/auth/types';
 import { NameCard, Tip } from 'modules/common/components';
-import { __, renderFullName } from 'modules/common/utils';
+import { renderFullName } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IChannel } from 'modules/settings/channels/types';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';

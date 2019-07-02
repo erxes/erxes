@@ -1,7 +1,7 @@
 import { Button, FilterableList, Icon } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { dateUnits, types } from 'modules/customers/constants';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ISegmentCondition } from '../types';
 import { Field, FieldType, PopoverList } from './styles';

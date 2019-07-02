@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Chip } from 'modules/common/components';
 import { router } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import styled from 'styled-components';
 import { IRouterProps } from '../../types';

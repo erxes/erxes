@@ -6,7 +6,7 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, Alert, generateRandomColorCode } from 'modules/common/utils';
+import { __, generateRandomColorCode } from 'modules/common/utils';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import {
   ISegment,
@@ -16,7 +16,7 @@ import {
   ISegmentField,
   ISegmentWithConditionDoc
 } from 'modules/segments/types';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { AddConditionButton, Conditions } from '..';
 import { ConditionWrapper, SegmentTitle, SegmentWrapper } from '../styles';

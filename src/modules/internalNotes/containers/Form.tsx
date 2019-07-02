@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { queries } from 'modules/activityLogs/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Form } from '../components';
 import { mutations } from '../graphql';

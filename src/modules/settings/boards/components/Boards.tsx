@@ -3,7 +3,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { BoardForm, BoardRow } from '.';
 import { IBoard } from '../types';
 
@@ -42,7 +42,7 @@ class Boards extends React.Component<Props, {}> {
 
     const addBoard = (
       <HelperButtons>
-        <a>
+        <a href="#add">
           <Icon icon="add" />
         </a>
       </HelperButtons>

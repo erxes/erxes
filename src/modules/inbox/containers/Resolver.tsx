@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Resolver } from '../components';
 import { mutations } from '../graphql';
@@ -23,14 +23,14 @@ const ResolverContainer = (props: FinalProps) => {
   const { changeStatusMutation, emptyBulk } = props;
 
   // change conversation status
-  const changeStatus = (conversationIds, status) => {
+  const changeStatus = (conversationIds: string[], status) => {
     changeStatusMutation({ variables: { _ids: conversationIds, status } })
       .then(() => {
         if (status === CONVERSATION_STATUSES.CLOSED) {
           Alert.success('The conversation has been resolved!');
 
           // clear saved messages from storage
-          conversationIds.map(c => {
+          conversationIds.forEach(c => {
             localStorage.removeItem(c);
           });
         } else {

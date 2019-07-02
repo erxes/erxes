@@ -1,13 +1,13 @@
 import gql from 'graphql-tag';
 import { ButtonMutate, Chooser } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { Form as ProductForm } from 'modules/settings/productService/components';
 import {
   mutations as productMutations,
   queries as productQueries
 } from 'modules/settings/productService/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IProduct, IProductDoc } from '../../../settings/productService/types';
 import { ProductAddMutationResponse, ProductsQueryResponse } from '../../types';

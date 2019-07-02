@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { GettingStart } from '../components';
 import { OnboardConsumer, OnboardProvider } from './OnboardContext';
 

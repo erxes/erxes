@@ -5,8 +5,8 @@ import PortableDeals from 'modules/deals/components/PortableDeals';
 import { Sidebar } from 'modules/layout/components/';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { List } from '../../styles';
 
 export default class RightSidebar extends React.Component<{

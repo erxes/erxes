@@ -1,7 +1,7 @@
 import { Button } from 'modules/common/components';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import BrandForm from 'modules/settings/brands/components/BrandForm';
-import * as React from 'react';
+import React from 'react';
 import {
   ControlLabel,
   FormControl,

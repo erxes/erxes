@@ -4,8 +4,8 @@ import {
 } from 'modules/boards/constants';
 import { Amount } from 'modules/boards/styles/stage';
 import { Tip } from 'modules/common/components';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { ItemDate } from './styles/common';
 import { IDraggableLocation, IItemMap } from './types';
 

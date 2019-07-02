@@ -3,7 +3,7 @@ import { __, renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { Contact } from 'modules/customers/styles';
 import { Sidebar } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 type Props = {

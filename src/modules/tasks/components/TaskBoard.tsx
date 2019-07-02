@@ -6,7 +6,7 @@ import {
 } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
 import { Header } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { TaskMainActionBar } from '.';
 import options from '../options';
 

@@ -2,8 +2,8 @@ import { EmptyState, Label } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { ICustomer } from '../../types';
 
 type Props = {

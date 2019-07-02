@@ -1,5 +1,5 @@
 import { colors } from 'modules/common/styles';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { ControlLabel, FormGroup, Icon, Spinner } from '.';
 import { Alert, readFile, uploadHandler } from '../utils';

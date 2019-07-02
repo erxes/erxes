@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { queries } from 'modules/settings/brands/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';

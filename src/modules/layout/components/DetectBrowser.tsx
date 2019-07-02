@@ -1,8 +1,8 @@
 import { dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import { AlertItem } from 'modules/common/utils/Alert/Alert';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
+import React from 'react';
+import RTG from 'react-transition-group';
 import styled from 'styled-components';
 import { Icon } from '../../common/components';
 

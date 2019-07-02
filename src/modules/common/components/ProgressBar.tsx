@@ -1,6 +1,6 @@
 import { colors } from 'modules/common/styles';
 import { stripe } from 'modules/common/utils/animations';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const ContentContainer = styled.div`

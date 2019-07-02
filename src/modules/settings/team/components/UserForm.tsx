@@ -1,11 +1,11 @@
 import { UserCommonInfos } from 'modules/auth/components';
-import { IUser, IUserDetails, IUserDoc, IUserLinks } from 'modules/auth/types';
+import { IUser, IUserDetails, IUserLinks } from 'modules/auth/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { ColumnTitle } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from '../../channels/types';
 import { Form as CommonForm } from '../../common/components';

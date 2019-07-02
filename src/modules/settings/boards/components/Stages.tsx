@@ -1,5 +1,5 @@
 import { Button, SortableList } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import { StageList } from '../styles';
 import { IStage } from '../types';
 import StageItem from './StageItem';
