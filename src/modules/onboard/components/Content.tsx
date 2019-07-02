@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
+import React from 'react';
+import RTG from 'react-transition-group';
 import { BrandAdd, Channel, MessengerAdd, UserAdd } from '../containers';
 
 type Props = {

@@ -13,9 +13,9 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
-import * as React from 'react';
+import React from 'react';
 import strip from 'strip';
-import * as xss from 'xss';
+import xss from 'xss';
 
 import {
   ResponseSuggestionItem,

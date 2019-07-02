@@ -21,8 +21,8 @@ import {
   lifecycleStateChoices
 } from 'modules/customers/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
-import * as validator from 'validator';
+import React from 'react';
+import validator from 'validator';
 import { IUser } from '../../../auth/types';
 import {
   COMPANY_BUSINESS_TYPES,

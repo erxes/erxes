@@ -2,7 +2,7 @@ import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SectionContainer } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions } from '../../types';
 
@@ -50,7 +50,7 @@ class Items extends React.Component<Props> {
     } = this.props;
 
     const trigger = (
-      <a>
+      <a href="#add">
         <Icon icon="add" />
       </a>
     );

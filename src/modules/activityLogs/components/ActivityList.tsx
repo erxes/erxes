@@ -1,6 +1,6 @@
 import { EmptyState } from 'modules/common/components';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { IUser } from '../../auth/types';
 import { ActivityTitle, Timeline } from '../styles';
 import ActivityLogProcessor from '../utils';

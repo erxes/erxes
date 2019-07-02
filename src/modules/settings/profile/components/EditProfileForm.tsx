@@ -4,7 +4,7 @@ import { Button, Form } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { PasswordConfirmation } from '.';
 

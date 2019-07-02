@@ -8,7 +8,7 @@ import { Calendar } from 'modules/common/components';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Header } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { DealMainActionBar } from '../';
 import { DealColumn } from '../../containers';

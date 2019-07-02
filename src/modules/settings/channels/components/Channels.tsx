@@ -8,7 +8,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import * as React from 'react';
+import React from 'react';
 import { ManageIntegrations, Sidebar } from '../containers';
 import { IChannel } from '../types';
 

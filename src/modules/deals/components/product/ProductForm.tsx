@@ -2,7 +2,7 @@ import { Button, EmptyState } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
+import React from 'react';
 import { ProductItemForm } from '../../containers';
 import { Add, FooterInfo, FormContainer } from '../../styles';
 import { IProductData } from '../../types';

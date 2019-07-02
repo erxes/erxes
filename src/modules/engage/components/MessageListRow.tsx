@@ -10,8 +10,8 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { EngageTitle, HelperText } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
 

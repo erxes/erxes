@@ -1,7 +1,7 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { IRouterProps } from 'modules/common/types';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 
 const Inbox = asyncComponent(() =>

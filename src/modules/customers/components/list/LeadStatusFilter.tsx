@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 
 import { DataWithLoader, Icon } from 'modules/common/components';
@@ -31,6 +31,7 @@ class LeadStatusFilter extends React.Component<IProps> {
             return (
               <li key={Math.random()}>
                 <a
+                  href="#active"
                   tabIndex={0}
                   className={
                     router.getParam(history, [paramKey]) === value
@@ -52,6 +53,7 @@ class LeadStatusFilter extends React.Component<IProps> {
 
   render() {
     const { Section } = Wrapper.Sidebar;
+    const { history } = this.props;
 
     const onClear = () => {
       router.setParams(history, { leadStatus: null });
@@ -62,7 +64,7 @@ class LeadStatusFilter extends React.Component<IProps> {
         <Section.Title>{__('Filter by lead status')}</Section.Title>
         <Section.QuickButtons>
           {router.getParam(history, 'leadStatus') ? (
-            <a tabIndex={0} onClick={onClear}>
+            <a href="#cancel" tabIndex={0} onClick={onClear}>
               <Icon icon="cancel-1" />
             </a>
           ) : null}

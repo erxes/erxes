@@ -8,7 +8,7 @@ import {
 } from 'modules/common/components';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';

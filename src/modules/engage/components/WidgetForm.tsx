@@ -12,7 +12,7 @@ import { ICustomer } from 'modules/customers/types';
 import { METHODS } from 'modules/engage/constants';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import * as React from 'react';
+import React from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import { Recipient, Recipients } from '../styles';
@@ -239,6 +239,13 @@ class WidgetForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
+          <Button
+            btnStyle="simple"
+            icon="cancel-1"
+            onClick={this.props.closeModal}
+          >
+            Close
+          </Button>
           <Button type="submit" btnStyle="success" icon="send">
             Send
           </Button>

@@ -14,10 +14,9 @@ import { menuContacts } from 'modules/common/utils/menus';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
-import { DataImporter } from 'modules/settings/importHistory/containers';
 import { ManageColumns } from 'modules/settings/properties/containers';
 import { TaggerPopover } from 'modules/tags/components';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -159,7 +158,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a>{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -266,7 +265,7 @@ class CompaniesList extends React.Component<IProps, State> {
               </Link>
             </li>
             <li>
-              <a onClick={exportCompanies.bind(this, bulk)}>
+              <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
                 {__('Export companies')}
               </a>
             </li>

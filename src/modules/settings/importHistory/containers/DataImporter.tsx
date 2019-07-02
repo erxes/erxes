@@ -1,6 +1,6 @@
 import { AppConsumer } from 'appContext';
 import { Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { DataImporter } from '../components';
 import { handleXlsUpload } from '../utils';
 

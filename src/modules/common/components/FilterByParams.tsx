@@ -1,7 +1,7 @@
 import { DataWithLoader, EmptyState, Icon } from 'modules/common/components';
 import { router } from 'modules/common/utils';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import styled from 'styled-components';
 import { IRouterProps } from '../types';
@@ -71,6 +71,7 @@ class FilterByParams extends React.Component<IProps, State> {
             return (
               <li key={field._id}>
                 <a
+                  href="#link"
                   tabIndex={0}
                   className={
                     router.getParam(history, [paramKey]) === field._id

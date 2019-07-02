@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
 import apolloClient from './apolloClient';

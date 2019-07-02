@@ -9,7 +9,7 @@ import {
   RULE_CONDITIONS,
   VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
-import * as React from 'react';
+import React from 'react';
 import { IConditionsRule } from '../../types';
 
 type Props = {

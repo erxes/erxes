@@ -3,7 +3,7 @@ import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from '../../styles';
 import { IQueryParams } from '../../types';

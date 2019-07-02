@@ -1,6 +1,6 @@
 import { Chip } from 'modules/common/components';
 import { IBrand } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   brands: IBrand[];

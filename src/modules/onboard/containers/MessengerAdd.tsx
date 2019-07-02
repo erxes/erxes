@@ -11,7 +11,7 @@ import {
   IIntegration,
   IntegrationsCountQueryResponse
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { MessengerAdd } from '../components';
 import { OnboardConsumer } from '../containers/OnboardContext';

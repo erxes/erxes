@@ -1,7 +1,7 @@
 import { Button, Form as CommonForm } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import { ICommonFormProps } from '../types';
 
 type Props = {

@@ -6,7 +6,7 @@ import {
   Tip
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   size?: string;

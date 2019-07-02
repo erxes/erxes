@@ -3,7 +3,7 @@ import { Spinner } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries as userQuery } from '../../team/graphql';
 import { PipelineForm } from '../components';

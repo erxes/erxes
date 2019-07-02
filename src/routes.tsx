@@ -3,7 +3,7 @@ import { MainBar } from 'modules/layout/components';
 import { MainLayout } from 'modules/layout/containers';
 import { MainWrapper } from 'modules/layout/styles';
 import { userConfirmation } from 'modules/settings/team/routes';
-import * as React from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';

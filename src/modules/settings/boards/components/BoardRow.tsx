@@ -1,6 +1,6 @@
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { BoardForm } from '.';
 import { ActionButtons } from '../../styles';

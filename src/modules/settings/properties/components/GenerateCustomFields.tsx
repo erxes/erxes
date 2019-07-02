@@ -1,7 +1,7 @@
 import { Button, EmptyState } from 'modules/common/components';
 import { __, Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { SidebarContent } from '../styles';
 import { IFieldGroup } from '../types';
 import GenerateField from './GenerateField';

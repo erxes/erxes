@@ -11,7 +11,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { InstallCode } from 'modules/settings/integrations/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IIntegration } from '../../types';
 

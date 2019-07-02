@@ -36,6 +36,15 @@ const options = {
     updateSuccessText: 'You successfully updated a deal',
     deleteSuccessText: 'You successfully deleted a deal',
     copySuccessText: 'You successfully copied a deal'
+  },
+  getExtraParams: (queryParams: any) => {
+    const productIds = queryParams.productIds;
+
+    if (!productIds || queryParams.productIds instanceof Array) {
+      return { productIds };
+    }
+
+    return { productIds: [productIds] };
   }
 };
 

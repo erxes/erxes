@@ -1,6 +1,6 @@
 import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { INotification } from '../types';
 import { NotificationRow } from './';

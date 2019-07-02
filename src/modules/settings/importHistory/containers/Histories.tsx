@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, router, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Histories } from '../components';

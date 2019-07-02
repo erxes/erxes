@@ -1,6 +1,6 @@
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { SelectContainer } from '../styles/common';
 import { IBoard, IPipeline, IStage } from '../types';

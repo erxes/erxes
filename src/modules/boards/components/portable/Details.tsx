@@ -2,7 +2,7 @@ import { renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
+import React from 'react';
 import { ItemIndicator } from '../../styles/stage';
 
 type Props = {

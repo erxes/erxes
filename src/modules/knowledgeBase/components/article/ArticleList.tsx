@@ -1,5 +1,5 @@
 import { DataWithLoader } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import { IArticle } from '../../types';
 import { ArticleRow } from './';
 

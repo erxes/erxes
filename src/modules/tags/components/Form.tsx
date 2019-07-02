@@ -7,9 +7,9 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, generateRandomColorCode } from 'modules/common/utils';
+import { generateRandomColorCode } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   tag?: ITag;

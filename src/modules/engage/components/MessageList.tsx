@@ -10,7 +10,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { TaggerPopover } from 'modules/tags/components';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { MessageListRow, Sidebar } from '../containers';

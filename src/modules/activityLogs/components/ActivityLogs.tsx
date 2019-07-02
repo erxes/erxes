@@ -5,7 +5,7 @@ import { DataWithLoader, Tabs, TabTitle } from 'modules/common/components';
 import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { hasAnyActivity } from 'modules/customers/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   activityLogs: IActivityLogForMonth[];

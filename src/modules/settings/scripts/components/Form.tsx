@@ -7,7 +7,7 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ITopic } from 'modules/knowledgeBase/types';
 import { IIntegration } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';

@@ -1,5 +1,5 @@
 import { Icon } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
 import { reorder } from '../utils';

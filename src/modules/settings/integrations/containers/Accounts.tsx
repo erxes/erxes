@@ -4,7 +4,7 @@ import { Spinner } from 'modules/common/components';
 import { IFormProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Accounts } from '../components';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';

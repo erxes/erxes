@@ -12,7 +12,7 @@ import {
 } from 'modules/boards/styles/stage';
 import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions, IStage } from '../../types';
@@ -133,7 +133,7 @@ export default class Stage extends React.Component<Props, {}> {
     if (loadingItems) {
       return (
         <LoadingContent>
-          <img src="/images/loading-content.gif" />
+          <img alt="Loading" src="/images/loading-content.gif" />
         </LoadingContent>
       );
     }

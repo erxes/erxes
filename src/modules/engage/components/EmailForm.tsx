@@ -9,7 +9,7 @@ import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { EditorContainer } from 'modules/engage/styles';
-import * as React from 'react';
+import React from 'react';
 import { IUser } from '../../auth/types';
 import { IEmailTemplate } from '../../settings/emailTemplates/types';
 import { IEngageEmail, IEngageScheduleDate } from '../types';

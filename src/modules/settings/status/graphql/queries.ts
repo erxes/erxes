@@ -1,8 +1,5 @@
 const commonFields = `
   packageVersion
-  lastCommittedUser
-  lastCommittedDate
-  lastCommitMessage
   branch
   sha
   abbreviatedSha

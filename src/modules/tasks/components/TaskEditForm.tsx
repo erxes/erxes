@@ -4,7 +4,7 @@ import { PRIORITIES } from 'modules/boards/constants';
 import { IOptions } from 'modules/boards/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
 import { IOption } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { ITask, ITaskParams } from '../types';
 

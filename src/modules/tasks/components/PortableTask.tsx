@@ -12,7 +12,7 @@ import { IOptions } from 'modules/boards/types';
 import { renderDate } from 'modules/boards/utils';
 import { ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { ITask } from '../types';
 
 type Props = {

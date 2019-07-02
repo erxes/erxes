@@ -1,6 +1,6 @@
 import { Icon, ProgressBar } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -104,7 +104,10 @@ class ImportIndicator extends React.Component<Props> {
       <>
         <b>[{this.props.percentage}%]</b> {__('Importing')}{' '}
         {this.renderType(contentType)} {__('data')}. {__('You can')}{' '}
-        <a onClick={this.cancelCurrentImport}>{__('cancel')}</a> anytime.
+        <a href="#cancel" onClick={this.cancelCurrentImport}>
+          {__('cancel')}
+        </a>{' '}
+        anytime.
       </>
     );
   }
@@ -120,7 +123,7 @@ class ImportIndicator extends React.Component<Props> {
   renderCloseButton = () => {
     if (this.isDone()) {
       return (
-        <a href="#" onClick={this.props.close}>
+        <a href="#cancel" onClick={this.props.close}>
           <Icon icon="cancel" />
         </a>
       );
