@@ -1,19 +1,22 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
 import { Modal } from 'react-bootstrap';
-import { IUserGroup, IUserGroupDocument } from '../types';
+import { IUserGroupDocument } from '../types';
 
 type Props = {
-  save: ({ doc: IUserGroup }, callback: () => void, object: any) => void;
   closeModal: () => void;
-  object: { _id: string } & IUserGroup;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  object: IUserGroupDocument;
+  refetch: any;
 };
 
 type State = {
@@ -29,37 +32,32 @@ class GroupForm extends React.Component<Props, State> {
     };
   }
 
-  generateDoc() {
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+  }) => {
+    const { object } = this.props;
+    const finalValues = values;
+
+    if (object) {
+      finalValues._id = object._id;
+    }
+
     return {
-      name: (document.getElementById('group-name') as HTMLInputElement).value,
-      description: (document.getElementById(
-        'group-description'
-      ) as HTMLInputElement).value,
+      ...finalValues,
       memberIds: this.state.selectedMembers
     };
-  }
-
-  save = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const doc = this.generateDoc();
-
-    if (!doc.name || doc.name.length === 0) {
-      return Alert.error('Please enter a group name');
-    }
-
-    if (!doc.description || doc.description.length === 0) {
-      return Alert.error('Please enter a group description');
-    }
-
-    this.props.save({ doc }, this.props.closeModal, this.props.object);
   };
 
-  renderContent() {
+  renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IUserGroupDocument);
-    const name = object.name || '';
-    const description = object.description || '';
     const self = this;
+    const { values, isSubmitted } = formProps;
+
+    if (object) {
+      values._id = object._id;
+    }
 
     const onChange = selectedMembers => {
       self.setState({ selectedMembers });
@@ -68,15 +66,24 @@ class GroupForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl id="group-name" defaultValue={name} autoFocus={true} />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Description</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
+            {...formProps}
+            name="name"
+            defaultValue={object.name}
+            autoFocus={true}
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Description</ControlLabel>
+          <FormControl
+            {...formProps}
             componentClass="textarea"
-            id="group-description"
-            defaultValue={description}
+            name="description"
+            defaultValue={object.description}
+            required={true}
           />
         </FormGroup>
 
@@ -90,14 +97,7 @@ class GroupForm extends React.Component<Props, State> {
             onSelect={onChange}
           />
         </FormGroup>
-      </>
-    );
-  }
 
-  render() {
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
         <Modal.Footer>
           <Button
             btnStyle="simple"
@@ -108,12 +108,20 @@ class GroupForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {this.props.renderButton({
+            name: 'user group',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: this.props.closeModal,
+            object: this.props.object
+          })}
         </Modal.Footer>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

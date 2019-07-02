@@ -65,7 +65,7 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom, conversation } = this.props;
+    const { attachmentPreview, scrollBottom } = this.props;
 
     return (
       <Wrapper isEmail={false}>

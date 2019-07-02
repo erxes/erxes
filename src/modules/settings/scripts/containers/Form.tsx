@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { Spinner } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
 import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
@@ -13,6 +14,7 @@ import { Form } from '../components';
 type Props = {
   integrationsQuery: IntegrationsQueryResponse;
   kbTopicsQuery: TopicsQueryResponse;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 const FormContainer = (props: Props & ICommonFormProps) => {

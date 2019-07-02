@@ -1,4 +1,6 @@
 import gql from 'graphql-tag';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import {
@@ -71,23 +73,38 @@ const SegmentStepContainer = (props: FinalProps) => {
     });
   };
 
-  const segmentAdd = ({ doc }) => {
-    segmentsAdd({ variables: { ...doc } })
-      .then(() => {
-        segmentsQuery.refetch();
-        customerCountsQuery.refetch();
-        Alert.success('You successfully added a segment');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    const callBackResponse = () => {
+      segmentsQuery.refetch();
+      customerCountsQuery.refetch();
+
+      if (callback) {
+        callback();
+      }
+    };
+
+    return (
+      <ButtonMutate
+        mutation={mutations.segmentsAdd}
+        variables={values}
+        callback={callBackResponse}
+        isSubmitted={isSubmitted}
+        btnSize="small"
+        type="submit"
+        successMessage={`You successfully added a segment`}
+      />
+    );
   };
 
   const updatedProps = {
     ...props,
     headSegments: headSegmentsQuery.segmentsGetHeads || [],
     segmentFields,
-    segmentAdd,
+    renderButton,
     segments: segmentsQuery.segments || [],
     targetCount: countValues,
     customersCount,

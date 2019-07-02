@@ -17,6 +17,7 @@ const SegmentWrapper = styled.div`
 const ConditionWrapper = styled.div`
   ${SelectWrapper} {
     padding-right: 20px;
+    margin-left: ${dimensions.unitSpacing}px;
   }
 
   ${SelectWrapper}, ${Input} {

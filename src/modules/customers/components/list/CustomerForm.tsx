@@ -1,8 +1,9 @@
-import { IUser } from 'modules/auth/types';
+import { IUser, IUserLinks } from 'modules/auth/types';
 import {
   AvatarUpload,
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   ModifiableSelect
@@ -13,22 +14,22 @@ import {
   FormWrapper,
   ModalFooter
 } from 'modules/common/styles/main';
-import { IQueryParams } from 'modules/common/types';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IQueryParams
+} from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
 import * as React from 'react';
+import * as validator from 'validator';
 import { ICustomer, ICustomerDoc } from '../../types';
-import {
-  leadStatusChoices,
-  lifecycleStateChoices,
-  regexEmail,
-  regexPhone
-} from '../../utils';
+import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
 
 type Props = {
   customer?: ICustomer;
-  action: (params: { doc: ICustomerDoc }) => void;
   closeModal: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams: IQueryParams;
 };
 
@@ -59,45 +60,34 @@ class CustomerForm extends React.Component<Props, State> {
     };
   }
 
-  getInputElementValue(id) {
-    return (document.getElementById(id) as HTMLInputElement).value;
-  }
+  generateDoc = (values: { _id: string } & ICustomerDoc & IUserLinks) => {
+    const { customer } = this.props;
+    const finalValues = values;
 
-  onSubmit = e => {
-    const { phones, emails, primaryPhone, primaryEmail, avatar } = this.state;
+    if (customer) {
+      finalValues._id = customer._id;
+    }
 
-    e.preventDefault();
+    return {
+      _id: finalValues._id,
+      ...this.state,
+      firstName: finalValues.firstName,
+      lastName: finalValues.lastName,
+      position: finalValues.position,
+      department: finalValues.department,
+      leadStatus: finalValues.leadStatus,
+      lifecycleState: finalValues.lifecycleState,
+      description: finalValues.description,
 
-    this.props.action({
-      doc: {
-        phones,
-        emails,
-        primaryPhone,
-        primaryEmail,
-        avatar,
-        ownerId: this.state.ownerId,
-        hasAuthority: this.state.hasAuthority,
-        doNotDisturb: this.state.doNotDisturb,
-        firstName: this.getInputElementValue('customer-firstname'),
-        lastName: this.getInputElementValue('customer-lastname'),
-        position: this.getInputElementValue('customer-position'),
-        department: this.getInputElementValue('customer-department'),
-        leadStatus: this.getInputElementValue('customer-leadStatus'),
-        lifecycleState: this.getInputElementValue('customer-lifecycleState'),
-        description: this.getInputElementValue('customer-description'),
-
-        links: {
-          linkedIn: this.getInputElementValue('customer-linkedin'),
-          twitter: this.getInputElementValue('customer-twitter'),
-          facebook: this.getInputElementValue('customer-facebook'),
-          github: this.getInputElementValue('customer-github'),
-          youtube: this.getInputElementValue('customer-youtube'),
-          website: this.getInputElementValue('customer-website')
-        }
+      links: {
+        linkedIn: finalValues.linkedIn,
+        twitter: finalValues.twitter,
+        facebook: finalValues.facebook,
+        github: finalValues.github,
+        youtube: finalValues.youtube,
+        website: finalValues.website
       }
-    });
-
-    this.props.closeModal();
+    };
   };
 
   onAvatarUpload = url => {
@@ -139,7 +129,7 @@ class CustomerForm extends React.Component<Props, State> {
   renderFormGroup = (label, props) => {
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <ControlLabel required={props.required && true}>{label}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
     );
@@ -157,14 +147,15 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ ownerId });
   };
 
-  render() {
-    const { closeModal } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
 
     return (
-      <form onSubmit={this.onSubmit}>
+      <>
         <AvatarUpload
           avatar={customer.avatar}
           onAvatarUpload={this.onAvatarUpload}
@@ -172,31 +163,36 @@ class CustomerForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('First Name', {
+              ...formProps,
               defaultValue: customer.firstName || '',
               autoFocus: true,
               required: true,
-              id: 'customer-firstname'
+              name: 'firstName'
             })}
 
             <FormGroup>
-              <ControlLabel>Email</ControlLabel>
+              <ControlLabel required={true}>Email</ControlLabel>
               <ModifiableSelect
                 value={primaryEmail}
+                type="email"
                 options={this.getEmailsOptions(customer)}
                 placeholder="Choose primary email"
                 buttonText="Add Email"
                 onChange={this.onEmailChange}
-                regex={regexEmail}
+                required={true}
+                checkFormat={validator.isEmail}
               />
             </FormGroup>
 
             {this.renderFormGroup('Position', {
-              id: 'customer-position',
+              ...formProps,
+              name: 'position',
               defaultValue: customer.position || ''
             })}
 
             {this.renderFormGroup('Lead Status', {
-              id: 'customer-leadStatus',
+              ...formProps,
+              name: 'leadStatus',
               componentClass: 'select',
               defaultValue: customer.leadStatus || '',
               options: leadStatusChoices(__)
@@ -216,9 +212,9 @@ class CustomerForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Description</ControlLabel>
               <FormControl
-                type="text"
+                {...formProps}
                 max={140}
-                id="customer-description"
+                name="description"
                 componentClass="textarea"
                 defaultValue={customer.description || ''}
               />
@@ -227,7 +223,8 @@ class CustomerForm extends React.Component<Props, State> {
 
           <FormColumn>
             {this.renderFormGroup('Last Name', {
-              id: 'customer-lastname',
+              ...formProps,
+              name: 'lastName',
               defaultValue: customer.lastName || ''
             })}
 
@@ -239,23 +236,27 @@ class CustomerForm extends React.Component<Props, State> {
                 placeholder="Choose primary phone"
                 buttonText="Add Phone"
                 onChange={this.onPhoneChange}
-                regex={regexPhone}
+                checkFormat={validator.isMobilePhone}
               />
             </FormGroup>
 
             {this.renderFormGroup('Department', {
-              id: 'customer-department',
+              ...formProps,
+              name: 'department',
               defaultValue: customer.department || ''
             })}
 
             {this.renderFormGroup('Lifecycle State', {
-              id: 'customer-lifecycleState',
+              ...formProps,
+              name: 'lifecycleState',
               componentClass: 'select',
               defaultValue: customer.lifecycleState || '',
               options: lifecycleStateChoices(__)
             })}
 
             {this.renderFormGroup('Has Authority', {
+              ...formProps,
+              name: 'hasAuthority',
               componentClass: 'radio',
               options: [
                 {
@@ -274,6 +275,8 @@ class CustomerForm extends React.Component<Props, State> {
             })}
 
             {this.renderFormGroup('Do not disturb', {
+              ...formProps,
+              name: 'doNotDisturb',
               componentClass: 'radio',
               options: [
                 {
@@ -296,34 +299,46 @@ class CustomerForm extends React.Component<Props, State> {
         <FormWrapper>
           <FormColumn>
             {this.renderFormGroup('LinkedIn', {
-              id: 'customer-linkedin',
-              defaultValue: links.linkedIn || ''
+              ...formProps,
+              name: 'linkedIn',
+              defaultValue: links.linkedIn || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Twitter', {
-              id: 'customer-twitter',
-              defaultValue: links.twitter || ''
+              ...formProps,
+              name: 'twitter',
+              defaultValue: links.twitter || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Facebook', {
-              id: 'customer-facebook',
-              defaultValue: links.facebook || ''
+              ...formProps,
+              name: 'facebook',
+              defaultValue: links.facebook || '',
+              type: 'url'
             })}
           </FormColumn>
           <FormColumn>
             {this.renderFormGroup('Github', {
-              id: 'customer-github',
-              defaultValue: links.github || ''
+              ...formProps,
+              name: 'github',
+              defaultValue: links.github || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Youtube', {
-              id: 'customer-youtube',
-              defaultValue: links.youtube || ''
+              ...formProps,
+              name: 'youtube',
+              defaultValue: links.youtube || '',
+              type: 'url'
             })}
 
             {this.renderFormGroup('Website', {
-              id: 'customer-website',
-              defaultValue: links.website || ''
+              ...formProps,
+              name: 'website',
+              defaultValue: links.website || '',
+              type: 'url'
             })}
           </FormColumn>
         </FormWrapper>
@@ -333,12 +348,20 @@ class CustomerForm extends React.Component<Props, State> {
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'customer',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: this.props.customer
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

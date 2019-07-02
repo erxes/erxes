@@ -1,10 +1,7 @@
 import { FormControl, Icon } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import {
-  CustomerCounts,
-  RadioContainer,
-  StepFormWrapper
-} from 'modules/engage/styles';
+import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import * as React from 'react';
@@ -16,7 +13,8 @@ type Props<Target, OnSubmit> = {
   targetIds: string[];
   messageType: string;
   targets: Target[];
-  onSubmit: OnSubmit;
+  onSubmit?: OnSubmit;
+  renderButton?: (props: IButtonMutateProps) => JSX.Element;
   targetCount: TargetCount;
   Form: any;
   formProps?: {
@@ -129,6 +127,7 @@ class Common<Target, OnSubmit> extends React.Component<
       targetCount,
       targetIds,
       name,
+      renderButton,
       Form,
       formProps,
       onSubmit,
@@ -137,7 +136,12 @@ class Common<Target, OnSubmit> extends React.Component<
 
     if (this.state.show) {
       return (
-        <Form {...formProps} save={onSubmit} afterSave={this.toggleForm} />
+        <Form
+          {...formProps}
+          renderButton={renderButton}
+          save={onSubmit}
+          afterSave={this.toggleForm}
+        />
       );
     }
 

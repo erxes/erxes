@@ -10,6 +10,18 @@ const rotate = keyframes`
 	}
 `;
 
+const wave = keyframes`
+  0%{
+    transform:translateY(0px)
+  }
+  28%{
+    transform:translateY(-5px)
+  }
+  44%{
+    transform:translateY(0px)
+  }
+`;
+
 const fadeIn = keyframes`
   0% {
     opacity: 0;
@@ -90,5 +102,6 @@ export {
   slideRight,
   shake,
   twinkling,
-  stripe
+  stripe,
+  wave
 };

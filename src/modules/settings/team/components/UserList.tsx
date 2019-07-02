@@ -13,8 +13,9 @@ import {
   Tip
 } from 'modules/common/components';
 import { Input } from 'modules/common/components/form/styles';
-import { router } from 'modules/common/utils';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { router } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import * as React from 'react';
@@ -35,6 +36,8 @@ type IProps = {
   changeStatus: (id: string) => void;
   resendInvitation: (email: string) => void;
   usersGroups: IUserGroup[];
+  refetchQueries: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type FinalProps = ICommonListProps &
@@ -75,17 +78,20 @@ class UserList extends React.Component<FinalProps, States> {
   };
 
   renderInvitationForm = props => {
+    const { usersGroups, refetchQueries, renderButton } = this.props;
+
     return (
       <UserInvitationForm
         closeModal={props.closeModal}
-        usersGroups={this.props.usersGroups}
-        save={this.props.save}
+        usersGroups={usersGroups}
+        refetchQueries={refetchQueries}
+        renderButton={renderButton}
       />
     );
   };
 
   renderForm = props => {
-    return <UserForm {...props} />;
+    return <UserForm {...props} renderButton={this.props.renderButton} />;
   };
 
   renderEditAction = (user: IUser) => {

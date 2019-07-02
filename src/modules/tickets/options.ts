@@ -7,7 +7,7 @@ const options = {
   PortableItem: PortableTicket,
   Item: TicketItem,
   type: 'ticket',
-  title: 'Tickets',
+  title: 'Ticket',
   queriesName: {
     itemsQuery: 'tickets',
     detailQuery: 'ticketDetail'

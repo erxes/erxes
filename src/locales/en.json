@@ -401,6 +401,7 @@
   "Edit response": "Edit response",
   "To send your message press Enter and Shift + Enter to add a new line": "To send your message press Enter and Shift + Enter to add a new line",
   "To send your note press Enter and Shift + Enter to add a new line": "To send your note press Enter and Shift + Enter to add a new line",
+  "Please enter an unit price. It should be a number": "Please enter an unit price. It should be a number",
   "Type to search": "Type to search",
   "Members": "Members",
   "Choose integrations": "Choose integrations",
@@ -846,5 +847,12 @@
   "Auto message description": "Send targeted email and chat to logged-in users based on their brand/tag/segment. You can set your time to send an email or chat in advance. Chat design can be snipped, badge and full message and it can be a text or video.",
   "Manual message description": "Send targeted email and chat to logged-in users based on their brand/tag/segment. An email or chat will be sent out immediately after you click save button. Chat design can be snipped, badge and full message and it can be a text or video.",
   "Visitor auto message description": "Send targeted chats to logged-out visitors on website based on their visiting page, activity, their country of residence and city. Chat design can be snipped, badge and full message and it can be a text or video.",
-  "Insert email template to content": "Insert email template to content"
+  "Required field": "Required field!",
+  "Invalid email format! Please enter a valid email address": "Invalid email format! Please enter a valid email address.",
+  "Invalid link": "Invalid link!",
+  "Maximum length is": "Maximum length is",
+  "characters": "characters!",
+  "Invalid number format! Please enter a valid number": "Invalid number format! Please enter a valid number.",
+  "Insert email template to content": "Insert email template to content",
+  "Congrats! You successfully sign in": "Congrats! You successfully sign in"
 }

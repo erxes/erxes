@@ -30,6 +30,8 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const removeIntegration = integration => {
     confirm().then(() => {
+      Alert.warning('Removing... Please wait!!!');
+
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
           Alert.success('Your integration is no longer in this channel');

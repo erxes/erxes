@@ -321,6 +321,7 @@ const Mask = styled.div`
     cursor: pointer;
   }
 `;
+
 const NoHeight = styled.div`
   height: auto;
 `;

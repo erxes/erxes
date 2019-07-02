@@ -1,17 +1,15 @@
 import gql from 'graphql-tag';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { UsersQueryResponse } from '../../team/types';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  AddChannelMutationResponse,
-  ChannelMutationVariables,
   ChannelsCountQueryResponse,
   ChannelsQueryResponse,
-  EditChannelMutationResponse,
-  EditChannelMutationVariables,
   RemoveChannelMutationResponse,
   RemoveChannelMutationVariables
 } from '../types';
@@ -26,8 +24,6 @@ type FinalProps = {
   usersQuery: UsersQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
 } & Props &
-  AddChannelMutationResponse &
-  EditChannelMutationResponse &
   RemoveChannelMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
@@ -35,9 +31,9 @@ const SidebarContainer = (props: FinalProps) => {
     usersQuery,
     channelsQuery,
     channelsCountQuery,
-    addMutation,
-    editMutation,
-    removeMutation
+    removeMutation,
+    queryParams,
+    currentChannelId
   } = props;
 
   const channels = channelsQuery.channels || [];
@@ -59,29 +55,26 @@ const SidebarContainer = (props: FinalProps) => {
     });
   };
 
-  // create or update action
-  const save = ({ doc }, callback, channel) => {
-    let mutation = addMutation;
-
-    // if edit mode
-    if (channel) {
-      mutation = editMutation;
-      doc._id = channel._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success(
-          `You successfully ${channel ? 'updated' : 'added'} a new channel.`
-        );
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.channelEdit : mutations.channelAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries(queryParams, currentChannelId)}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
   };
 
   const updatedProps = {
@@ -89,39 +82,37 @@ const SidebarContainer = (props: FinalProps) => {
     members,
     channels,
     channelsTotalCount,
-    save,
     remove,
+    renderButton,
     loading: channelsQuery.loading
   };
 
   return <Sidebar {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams, currentChannelId }: Props) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.channels),
-        variables: {
-          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-        }
-      },
-      {
-        query: gql(queries.channels),
-        variables: {}
-      },
-      {
-        query: gql(queries.integrationsCount),
-        variables: {}
-      },
-      {
-        query: gql(queries.channelDetail),
-        variables: { _id: currentChannelId || '' }
-      },
-      { query: gql(queries.channelsCount) },
-      { query: gql(queries.users) }
-    ]
-  };
+const getRefetchQueries = (queryParams, currentChannelId?: string) => {
+  return [
+    {
+      query: gql(queries.channels),
+      variables: {
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+      }
+    },
+    {
+      query: gql(queries.channels),
+      variables: {}
+    },
+    {
+      query: gql(queries.integrationsCount),
+      variables: {}
+    },
+    {
+      query: gql(queries.channelDetail),
+      variables: { _id: currentChannelId || '' }
+    },
+    { query: gql(queries.channelsCount) },
+    { query: gql(queries.users) }
+  ];
 };
 
 export default withProps<Props>(
@@ -147,27 +138,15 @@ export default withProps<Props>(
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
       name: 'channelsCountQuery'
     }),
-    graphql<Props, AddChannelMutationResponse, ChannelMutationVariables>(
-      gql(mutations.channelAdd),
-      {
-        name: 'addMutation',
-        options: commonOptions
-      }
-    ),
-    graphql<Props, EditChannelMutationResponse, EditChannelMutationVariables>(
-      gql(mutations.channelEdit),
-      {
-        name: 'editMutation',
-        options: commonOptions
-      }
-    ),
     graphql<
       Props,
       RemoveChannelMutationResponse,
       RemoveChannelMutationVariables
     >(gql(mutations.channelRemove), {
       name: 'removeMutation',
-      options: commonOptions
+      options: ({ queryParams, currentChannelId }: Props) => ({
+        refetchQueries: getRefetchQueries(queryParams, currentChannelId)
+      })
     })
   )(SidebarContainer)
 );

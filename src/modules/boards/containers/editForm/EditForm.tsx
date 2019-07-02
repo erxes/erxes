@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
-import { queries as boardQueries } from 'modules/boards/graphql';
 import { Spinner } from 'modules/common/components';
 import { Alert, confirm, renderWithProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { queries } from '../../graphql';
 import {
   DetailQueryResponse,
   IItem,
@@ -152,7 +152,8 @@ export default (props: IProps) => {
             return {
               variables: {
                 _id: itemId
-              }
+              },
+              fetchPolicy: 'network-only'
             };
           }
         }
@@ -167,7 +168,7 @@ export default (props: IProps) => {
           options: ({ stageId }: { stageId: string }) => ({
             refetchQueries: [
               {
-                query: gql(boardQueries.stageDetail),
+                query: gql(queries.stageDetail),
                 variables: { _id: stageId }
               }
             ]
@@ -191,7 +192,7 @@ export default (props: IProps) => {
                 variables: { _id: itemId }
               },
               {
-                query: gql(boardQueries.stageDetail),
+                query: gql(queries.stageDetail),
                 variables: { _id: stageId }
               }
             ]
@@ -205,7 +206,7 @@ export default (props: IProps) => {
           options: ({ stageId }: { stageId: string }) => ({
             refetchQueries: [
               {
-                query: gql(boardQueries.stageDetail),
+                query: gql(queries.stageDetail),
                 variables: { _id: stageId }
               }
             ]

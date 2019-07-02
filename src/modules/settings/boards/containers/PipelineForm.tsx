@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
-import { IUser } from 'modules/auth/types';
 import { Spinner } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
@@ -8,16 +8,12 @@ import { compose, graphql } from 'react-apollo';
 import { queries as userQuery } from '../../team/graphql';
 import { PipelineForm } from '../components';
 import { queries } from '../graphql';
-import { IPipeline, IStage, StagesQueryResponse } from '../types';
+import { IPipeline, StagesQueryResponse } from '../types';
 
 type Props = {
   pipeline?: IPipeline;
   boardId: string;
-  save: (
-    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
-    callback: () => void,
-    pipeline?: IPipeline
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   show: boolean;
   type: string;
@@ -30,14 +26,7 @@ type FinalProps = {
 
 class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      stagesQuery,
-      usersQuery,
-      boardId,
-      save,
-      closeModal,
-      pipeline
-    } = this.props;
+    const { stagesQuery, usersQuery, boardId, renderButton } = this.props;
 
     if ((stagesQuery && stagesQuery.loading) || usersQuery.loading) {
       return <Spinner />;
@@ -45,25 +34,13 @@ class PipelineFormContainer extends React.Component<FinalProps> {
 
     const stages = stagesQuery ? stagesQuery.stages : [];
     const members = usersQuery.users.filter(user => user.username) || [];
-    const memberIds = pipeline ? pipeline.memberIds || [] : [];
-
-    let selectedMembers: IUser[] = [];
-
-    if (pipeline) {
-      selectedMembers = members.filter(member =>
-        memberIds.includes(member._id)
-      );
-    }
 
     const extendedProps = {
       ...this.props,
       stages,
       boardId,
-      save,
-      closeModal,
-      pipeline,
-      members,
-      selectedMembers
+      renderButton,
+      members
     };
 
     return <PipelineForm {...extendedProps} />;

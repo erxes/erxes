@@ -1,19 +1,15 @@
 import gql from 'graphql-tag';
 import { STORAGE_BOARD_KEY } from 'modules/boards/constants';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Boards } from '../components';
 import { mutations, queries } from '../graphql';
-import {
-  AddBoardMutationResponse,
-  BoardsQueryResponse,
-  EditBoardMutationResponse,
-  RemoveBoardMutationResponse
-} from '../types';
+import { BoardsQueryResponse, RemoveBoardMutationResponse } from '../types';
 
 type Props = {
   history?: any;
@@ -25,20 +21,11 @@ type FinalProps = {
   boardsQuery: any;
 } & Props &
   IRouterProps &
-  AddBoardMutationResponse &
-  EditBoardMutationResponse &
   RemoveBoardMutationResponse;
 
 class BoardsContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      history,
-      boardsQuery,
-      addMutation,
-      editMutation,
-      removeMutation,
-      type
-    } = this.props;
+    const { history, boardsQuery, removeMutation, type } = this.props;
 
     const boards = boardsQuery.boards || [];
 
@@ -72,35 +59,32 @@ class BoardsContainer extends React.Component<FinalProps> {
       });
     };
 
-    // create or update action
-    const save = ({ doc }, callback, board) => {
-      let mutation = addMutation;
-
-      // if edit mode
-      if (board) {
-        mutation = editMutation;
-        doc._id = board._id;
-      }
-
-      mutation({
-        variables: doc
-      })
-        .then(() => {
-          Alert.success(
-            `You successfully ${board ? 'updated' : 'added'} a new board.`
-          );
-
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={object ? mutations.boardEdit : mutations.boardAdd}
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        />
+      );
     };
 
     const extendedProps = {
       ...this.props,
       boards,
-      save,
+      renderButton,
       remove,
       loading: boardsQuery.loading
     };
@@ -109,8 +93,12 @@ class BoardsContainer extends React.Component<FinalProps> {
   }
 }
 
+const getRefetchQueries = () => {
+  return ['boards', 'boardGetLast', 'pipelines'];
+};
+
 const generateOptions = () => ({
-  refetchQueries: ['boards', 'boardGetLast', 'pipelines']
+  refetchQueries: getRefetchQueries()
 });
 
 export default withProps<Props>(
@@ -120,14 +108,6 @@ export default withProps<Props>(
       options: ({ type }) => ({
         variables: { type }
       })
-    }),
-    graphql<Props, AddBoardMutationResponse, {}>(gql(mutations.boardAdd), {
-      name: 'addMutation',
-      options: generateOptions()
-    }),
-    graphql<Props, EditBoardMutationResponse, {}>(gql(mutations.boardEdit), {
-      name: 'editMutation',
-      options: generateOptions()
     }),
     graphql<Props, RemoveBoardMutationResponse, {}>(
       gql(mutations.boardRemove),

@@ -1,7 +1,7 @@
 export interface IPipeline {
   _id: string;
   name: string;
-  boardId?: string;
+  boardId: string;
   order?: number;
   visibility?: string;
   memberIds?: string[];
@@ -96,39 +96,6 @@ export type RemoveBoardMutationResponse = {
   removeMutation: (
     params: {
       variables: RemoveBoardMutationVariables;
-    }
-  ) => Promise<void>;
-};
-
-export type AddPipelineMutationVariables = {
-  name: string;
-  boardId: string;
-  stages: IStage;
-  visibility: string;
-  memberIds: string[];
-};
-
-export type AddPipelineMutationResponse = {
-  addPipelineMutation: (
-    params: {
-      variables: AddPipelineMutationVariables;
-    }
-  ) => Promise<void>;
-};
-
-export type EditPipelineMutationVariables = {
-  _id?: string;
-  name: string;
-  boardId: string;
-  stages: IStage;
-  visibility: string;
-  memberIds: string[];
-};
-
-export type EditPipelineMutationResponse = {
-  editPipelineMutation: (
-    params: {
-      variables: EditPipelineMutationVariables;
     }
   ) => Promise<void>;
 };

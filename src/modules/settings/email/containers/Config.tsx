@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
+import { ButtonMutate } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
-import { Alert, withProps } from 'modules/common/utils';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, withProps } from 'modules/common/utils';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
@@ -70,28 +73,37 @@ const ConfigContainer = (props: FinalProps) => {
     return null;
   }
 
-  const configEmail = (doc, callback) => {
-    configEmailMutation({
-      variables: doc
-    })
-      .then(() => {
-        Alert.success('You successfully updated an email appearance.');
-        refetch();
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={brandMutations.brandsConfigEmail}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully updated an ${name}`}
+      />
+    );
   };
 
   const updatedProps = {
     ...props,
     brand: brandDetailQuery.brandDetail,
-    configEmail,
-    defaultTemplate
+    defaultTemplate,
+    renderButton
   };
 
   return <Config {...updatedProps} />;
+};
+
+const getRefetchQueries = () => {
+  return [{ query: gql(brandQueries.brands) }];
 };
 
 export default withProps<Props>(

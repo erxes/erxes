@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Checkbox,
+  FlexWrapper,
   FormLabel,
   Input,
   Radio,
@@ -34,6 +35,8 @@ type Props = {
   rows?: number;
   inline?: boolean;
   className?: string;
+  errors?: any;
+  registerChild?: (child: any) => void;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -56,15 +59,22 @@ class FormControl extends React.Component<Props> {
     disabled: false
   };
 
+  componentDidMount() {
+    const { registerChild } = this.props;
+
+    if (registerChild) {
+      registerChild(this);
+    }
+  }
+
   render() {
     const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
+    const errorMessage = props.errors && props.errors[props.name || ''];
 
     // cancel custom browser default form validation error
     const onChange = e => {
-      e.target.classList.remove('form-invalid');
-
       if (props.onChange) {
         props.onChange(e);
       }
@@ -82,6 +92,7 @@ class FormControl extends React.Component<Props> {
         ? props.defaultChecked
         : props.checked,
       placeholder: props.placeholder,
+      hasError: errorMessage ? true : false,
       type: props.type,
       name: props.name,
       round: props.round,
@@ -97,23 +108,30 @@ class FormControl extends React.Component<Props> {
     if (elementType === 'select') {
       if (props.options) {
         return (
-          <SelectWrapper>
-            <Select {...attributes}>
-              {props.options.map((option, index) => {
-                return (
-                  <option key={index} value={option.value || ''}>
-                    {option.label || ''}
-                  </option>
-                );
-              })}
-            </Select>
-          </SelectWrapper>
+          <FlexWrapper>
+            <SelectWrapper hasError={errorMessage}>
+              <Select {...attributes}>
+                {props.options.map((option, index) => {
+                  return (
+                    <option key={index} value={option.value || ''}>
+                      {option.label || ''}
+                    </option>
+                  );
+                })}
+              </Select>
+            </SelectWrapper>
+            {errorMessage}
+          </FlexWrapper>
         );
       }
+
       return (
-        <SelectWrapper>
-          <Select {...attributes}>{childNode}</Select>
-        </SelectWrapper>
+        <FlexWrapper>
+          <SelectWrapper hasError={errorMessage}>
+            <Select {...attributes}>{childNode}</Select>
+          </SelectWrapper>
+          {errorMessage}
+        </FlexWrapper>
       );
     }
 
@@ -137,10 +155,20 @@ class FormControl extends React.Component<Props> {
     }
 
     if (elementType === 'textarea') {
-      return <Textarea {...props} />;
+      return (
+        <FlexWrapper>
+          <Textarea {...props} hasError={errorMessage} />
+          {errorMessage}
+        </FlexWrapper>
+      );
     }
 
-    return <Input {...attributes} />;
+    return (
+      <FlexWrapper>
+        <Input {...attributes} />
+        {errorMessage}
+      </FlexWrapper>
+    );
   }
 }
 

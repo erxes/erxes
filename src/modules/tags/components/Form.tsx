@@ -1,121 +1,88 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { Alert, generateRandomColorCode } from 'modules/common/utils';
-import { ITag, ITagSaveParams } from 'modules/tags/types';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __, generateRandomColorCode } from 'modules/common/utils';
+import { ITag } from 'modules/tags/types';
 import * as React from 'react';
 
 type Props = {
   tag?: ITag;
   type: string;
+  afterSave: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
-  save: (params: ITagSaveParams) => void;
-  modal?: boolean;
-  afterSave?: () => void;
 };
 
-type State = {
-  name: string;
-  colorCode: string;
-};
+class FormComponent extends React.Component<Props> {
+  generateDoc = (values: { _id?: string; name: string; colorCode: string }) => {
+    const { tag, type } = this.props;
+    const finalValues = values;
 
-class Form extends React.Component<Props, State> {
-  constructor(props, context) {
-    super(props, context);
+    if (tag) {
+      finalValues._id = tag._id;
+    }
 
-    const { tag } = props;
-
-    this.state = {
-      name: tag ? tag.name : '',
-      colorCode: tag ? tag.colorCode : generateRandomColorCode()
+    return {
+      _id: finalValues._id,
+      name: finalValues.name,
+      colorCode: finalValues.colorCode,
+      type
     };
-  }
-
-  submit = e => {
-    e.preventDefault();
-
-    const { modal = true, tag, type, save, closeModal, afterSave } = this.props;
-    const { name, colorCode } = this.state;
-
-    if (name.length === 0) {
-      return Alert.error('Please enter a tag name');
-    }
-
-    if (colorCode.length === 0) {
-      return Alert.error('Please choose a tag color code');
-    }
-
-    const params = { name, colorCode };
-
-    if (modal) {
-      return save({
-        tag,
-        doc: { ...params, type },
-        callback: () => closeModal && closeModal()
-      });
-    }
-
-    save({ doc: { ...params, type: 'customer' } });
-
-    if (afterSave) {
-      afterSave();
-    }
   };
 
-  handleName = e => {
-    this.setState({ name: e.target.value });
-  };
-
-  handleColorCode = e => {
-    this.setState({ colorCode: e.target.value });
-  };
-
-  render() {
-    const { name, colorCode } = this.state;
+  renderContent = (formProps: IFormProps) => {
+    const { tag, closeModal, afterSave, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
+    const object = tag || ({} as ITag);
 
     return (
-      <form onSubmit={this.submit}>
+      <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
-            type="text"
-            value={name}
-            onChange={this.handleName}
+            {...formProps}
+            name="name"
+            defaultValue={object.name}
             required={true}
-            id="name"
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Color code</ControlLabel>
           <FormControl
+            {...formProps}
             type="color"
-            value={colorCode}
-            onChange={this.handleColorCode}
-            id="colorCode"
+            name="colorCode"
+            defaultValue={object.colorCode || generateRandomColorCode()}
           />
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="cancel-1"
-          >
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'tag',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal || afterSave,
+            object: tag
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
-export default Form;
+export default FormComponent;

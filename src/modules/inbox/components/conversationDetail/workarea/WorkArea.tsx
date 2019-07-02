@@ -22,7 +22,9 @@ import {
   IMessage
 } from '../../../types';
 import Conversation from './conversation/Conversation';
+import ConvertTo from './ConvertTo';
 import Participators from './Participators';
+import TypingIndicator from './TypingIndicator';
 
 type Props = {
   queryParams?: any;
@@ -31,6 +33,7 @@ type Props = {
   currentConversation: IConversation;
   conversationMessages: IMessage[];
   loading: boolean;
+  typingInfo?: string;
   loadMoreMessages: () => void;
   addMessage: (
     {
@@ -81,7 +84,7 @@ export default class WorkArea extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages } = this.props;
+    const { conversationMessages, typingInfo } = this.props;
 
     const messageCount = conversationMessages.length;
     const prevMessageCount = prevProps.conversationMessages.length;
@@ -91,7 +94,7 @@ export default class WorkArea extends React.Component<Props, State> {
       current.scrollTop = current.scrollHeight - snapshot;
     }
 
-    if (prevMessageCount + 1 === messageCount) {
+    if (prevMessageCount + 1 === messageCount || typingInfo) {
       this.scrollBottom();
     }
 
@@ -122,7 +125,8 @@ export default class WorkArea extends React.Component<Props, State> {
       currentConversation,
       conversationMessages,
       addMessage,
-      loading
+      loading,
+      typingInfo
     } = this.props;
 
     const tags = currentConversation.tags || [];
@@ -157,6 +161,14 @@ export default class WorkArea extends React.Component<Props, State> {
       <BarItems>
         <Tagger targets={[currentConversation]} trigger={tagTrigger} />
 
+        <ConvertTo
+          customerIds={
+            currentConversation.customerId
+              ? [currentConversation.customerId]
+              : []
+          }
+        />
+
         <Resolver conversations={[currentConversation]} />
       </BarItems>
     );
@@ -182,6 +194,10 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
+    const typingIndicator = typingInfo ? (
+      <TypingIndicator>{typingInfo}</TypingIndicator>
+    ) : null;
+
     const content = (
       <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
@@ -195,11 +211,12 @@ export default class WorkArea extends React.Component<Props, State> {
     );
 
     return (
-      <React.Fragment>
+      <>
         {actionBar}
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>
+            {typingIndicator}
             <RespondBox
               showInternal={false}
               conversation={currentConversation}
@@ -208,7 +225,7 @@ export default class WorkArea extends React.Component<Props, State> {
             />
           </ContenFooter>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }

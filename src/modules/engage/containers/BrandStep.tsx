@@ -1,12 +1,10 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { mutations } from 'modules/settings/brands/graphql';
-import {
-  BrandAddMutationResponse,
-  BrandMutationVariables,
-  BrandsQueryResponse
-} from 'modules/settings/brands/types';
+import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandStep } from '../components';
@@ -33,23 +31,10 @@ type Props = {
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   customerCountsQuery: CountQueryResponse;
-} & Props &
-  BrandAddMutationResponse;
+} & Props;
 
 const BrandStepContianer = (props: FinalProps) => {
-  const { brandsQuery, addMutation, customerCountsQuery } = props;
-
-  const brandAdd = ({ doc }) => {
-    addMutation({ variables: { ...doc } })
-      .then(() => {
-        brandsQuery.refetch();
-        customerCountsQuery.refetch();
-        Alert.success('You successfully added a brand');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
+  const { brandsQuery, customerCountsQuery } = props;
 
   const customerCounts = customerCountsQuery.customerCounts || {
     byBrand: {}
@@ -58,15 +43,47 @@ const BrandStepContianer = (props: FinalProps) => {
   const countValues = customerCounts.byBrand || {};
   const customersCount = (ids: string[]) => sumCounts(ids, countValues);
 
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.brandAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
+  };
+
   const updatedProps = {
     ...props,
     brands: brandsQuery.brands || [],
     targetCount: countValues,
     customersCount,
-    brandAdd
+    renderButton
   };
 
   return <BrandStep {...updatedProps} />;
+};
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.customerCounts),
+      variables: { only: 'byBrand' }
+    },
+    { query: gql(queries.brands) }
+  ];
 };
 
 export default withProps<Props>(
@@ -83,12 +100,6 @@ export default withProps<Props>(
             only: 'byBrand'
           }
         }
-      }
-    ),
-    graphql<Props, BrandAddMutationResponse, BrandMutationVariables>(
-      gql(mutations.brandAdd),
-      {
-        name: 'addMutation'
       }
     )
   )(BrandStepContianer)
