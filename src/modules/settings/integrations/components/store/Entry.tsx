@@ -1,7 +1,7 @@
 import { Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
-import Gmail from 'modules/settings/integrations/containers/google/Form';
+import Gmail from 'modules/settings/integrations/containers/google/Gmail';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import KnowledgeBase from '../../containers/knowledgebase/Form';

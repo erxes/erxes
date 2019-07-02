@@ -1,42 +1,24 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import Gmail from 'modules/settings/integrations/components/google/Form';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { Alert } from 'modules/common/utils';
+import { Gmail } from 'modules/settings/integrations/components/google';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type?: string;
   closeModal: () => void;
 };
 
-type CreateGmailMutationVariables = {
-  name: string;
-  brandId: string;
-};
-
-type CreateIntegrationMutationResponse = {
-  saveMutation: (
-    params: {
-      variables: CreateGmailMutationVariables & {
-        accountId: string;
-        kind: string;
-        data: {
-          email: string;
-        };
-      };
-    }
-  ) => Promise<any>;
-};
-
-type FinalProps = {} & IRouterProps & Props & CreateIntegrationMutationResponse;
+type FinalProps = {} & IRouterProps & Props;
 
 type State = {
   email: string;
-  accountId?: string;
+  accountId: string;
 };
 
 class GmailContainer extends React.Component<FinalProps, State> {
@@ -76,63 +58,40 @@ class GmailContainer extends React.Component<FinalProps, State> {
     this.setState({ email: '' });
   };
 
-  onSave = (variables: CreateGmailMutationVariables, callback: () => void) => {
-    const { history, saveMutation } = this.props;
-    const { accountId, email } = this.state;
-
-    if (!accountId) {
-      return;
-    }
-
-    saveMutation({
-      variables: {
-        ...variables,
-        kind: 'gmail',
-        accountId,
-        data: { email }
-      }
-    })
-      .then(() => {
-        callback();
-        Alert.success('You successfully added a integration');
-        history.push('/settings/integrations');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+  renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.integrationsCreateExternalIntegration}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries('gmail')}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully added a ${name}`}
+      />
+    );
   };
 
   render() {
     const { closeModal } = this.props;
+    const { accountId, email } = this.state;
 
     const updatedProps = {
       closeModal,
-      email: this.state.email,
+      accountId,
+      email,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
-      onSave: this.onSave
+      renderButton: this.renderButton
     };
 
     return <Gmail {...updatedProps} />;
   }
 }
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(mutations.integrationsCreateExternalIntegration), {
-      name: 'saveMutation',
-      options: () => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.integrations)
-            },
-            {
-              query: gql(queries.integrationTotalCount)
-            }
-          ]
-        };
-      }
-    })
-  )(withRouter<FinalProps>(GmailContainer))
-);
+export default withRouter<FinalProps>(GmailContainer);

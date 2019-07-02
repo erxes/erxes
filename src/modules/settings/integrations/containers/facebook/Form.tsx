@@ -8,7 +8,7 @@ import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { withRouter } from 'react-router';
 import { IPages } from '../../types';
-import { integrationsListParams } from '../utils';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type?: string;
@@ -70,7 +70,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         mutation={mutations.integrationsCreateExternalIntegration}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={getRefetchQueries('facebook')}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}
@@ -93,24 +93,5 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     return <Facebook {...updatedProps} />;
   }
 }
-
-const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.integrations),
-      variables: {
-        ...integrationsListParams({}),
-        kind: 'facebook'
-      }
-    },
-    {
-      query: gql(queries.integrationTotalCount),
-      variables: {
-        ...integrationsListParams({}),
-        kind: 'facebook'
-      }
-    }
-  ];
-};
 
 export default withRouter<FinalProps>(FacebookContainer);

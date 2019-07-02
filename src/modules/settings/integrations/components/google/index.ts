@@ -1,4 +1,4 @@
-import Form from './Form';
+import Gmail from './Gmail';
 import MailForm from './MailForm';
 
-export { Form, MailForm };
+export { Gmail, MailForm };
