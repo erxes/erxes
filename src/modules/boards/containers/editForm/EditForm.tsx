@@ -73,9 +73,6 @@ class EditFormContainer extends React.Component<FinalProps> {
       .then(({ data }) => {
         Alert.success(options.texts.updateSuccessText);
 
-        // tslint:disable
-        console.log('data: ', data);
-
         callback();
 
         if (onUpdate) {

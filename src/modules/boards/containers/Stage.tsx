@@ -115,9 +115,6 @@ const getFilterParams = (
     return {};
   }
 
-  // tslint:disable
-  console.log('extraParams: ', getExtraParams(queryParams));
-
   return {
     search: queryParams.search,
     customerIds: queryParams.customerIds,

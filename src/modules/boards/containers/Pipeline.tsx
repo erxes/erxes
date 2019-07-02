@@ -155,25 +155,21 @@ export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
-      options: ({ pipeline, queryParams, options: { getExtraParams } }) => {
-        //tslint:disable
-        console.log('queryParams for stage: ', queryParams);
-        return {
-          variables: {
-            pipelineId: pipeline._id,
-            search: queryParams.search,
-            customerIds: queryParams.customerIds,
-            companyIds: queryParams.companyIds,
-            assignedUserIds: queryParams.assignedUserIds,
-            extraParams: getExtraParams(queryParams),
-            nextDay: queryParams.nextDay,
-            nextWeek: queryParams.nextWeek,
-            nextMonth: queryParams.nextMonth,
-            noCloseDate: queryParams.noCloseDate,
-            overdue: queryParams.overdue
-          }
-        };
-      }
+      options: ({ pipeline, queryParams, options: { getExtraParams } }) => ({
+        variables: {
+          pipelineId: pipeline._id,
+          search: queryParams.search,
+          customerIds: queryParams.customerIds,
+          companyIds: queryParams.companyIds,
+          assignedUserIds: queryParams.assignedUserIds,
+          extraParams: getExtraParams(queryParams),
+          nextDay: queryParams.nextDay,
+          nextWeek: queryParams.nextWeek,
+          nextMonth: queryParams.nextMonth,
+          noCloseDate: queryParams.noCloseDate,
+          overdue: queryParams.overdue
+        }
+      })
     })
   )(WithStatesQuery)
 );

@@ -32,9 +32,6 @@ const deals = () => {
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  // tslint:disable
-  console.log('queryParams: ', queryParams);
-
   return <DealBoard queryParams={queryParams} />;
 };
 
