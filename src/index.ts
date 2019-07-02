@@ -129,12 +129,16 @@ app.post('/upload-file', async (req, res) => {
   const form = new formidable.IncomingForm();
 
   form.parse(req, async (_error, _fields, response) => {
-    const status = await checkFile(response.file);
+    const file = response.file || response.upload;
+
+    // check file ====
+    const status = await checkFile(file);
 
     if (status === 'ok') {
       try {
-        const url = await uploadFile(response.file);
-        return res.end(url);
+        const result = await uploadFile(file, response.upload ? true : false);
+
+        return res.send(result);
       } catch (e) {
         return res.status(500).send(e.message);
       }
