@@ -17,6 +17,7 @@ const sendGmailFields = `
   $to: String!,
   $cc: String,
   $bcc: String,
+  $from: String!,
   $attachments: [gmailAttachmentData],
 `;
 
@@ -27,6 +28,7 @@ const sendGmailVariables = `
   to: $to,
   cc: $cc,
   bcc: $bcc,
+  from: $from,
   attachments: $attachments,
 `;
 

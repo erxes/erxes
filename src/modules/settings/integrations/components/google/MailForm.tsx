@@ -53,6 +53,10 @@ type State = {
   isUploading: boolean;
 };
 
+const formatStr = (str: string) => {
+  return str ? str.split(/[ ,]+/).join(', ') : '';
+};
+
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -86,13 +90,17 @@ class MailForm extends React.Component<Props, State> {
     from: string;
   }) => {
     const { content, attachments } = this.state;
-    const erxesApiId = values.from;
+    const { to, cc, bcc, from, subject } = values;
 
     return {
-      ...values,
+      to: formatStr(to),
+      cc: formatStr(cc),
+      bcc: formatStr(bcc),
+      subject,
+      from,
       attachments,
       textHtml: content,
-      erxesApiId
+      erxesApiId: from
     };
   };
 
@@ -287,6 +295,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
+    const { toEmails, isBcc, isCc, content } = this.state;
 
     const onClickIsCC = () => this.onClick('isCc');
     const onClickIsBCC = () => this.onClick('isBcc');
@@ -298,17 +307,17 @@ class MailForm extends React.Component<Props, State> {
             <ControlLabel required={true}>To:</ControlLabel>
             <FormControl
               {...formProps}
-              value={this.state.toEmails}
+              value={toEmails}
               name="to"
               required={true}
             />
           </FormGroup>
 
           <LeftSection>
-            <Resipients onClick={onClickIsCC} isActive={this.state.isCc}>
+            <Resipients onClick={onClickIsCC} isActive={isCc}>
               Cc
             </Resipients>
-            <Resipients onClick={onClickIsBCC} isActive={this.state.isBcc}>
+            <Resipients onClick={onClickIsBCC} isActive={isBcc}>
               Bcc
             </Resipients>
           </LeftSection>
@@ -339,7 +348,7 @@ class MailForm extends React.Component<Props, State> {
           <MailEditorWrapper>
             <EditorCK
               insertItems={EMAIL_CONTENT}
-              content={this.state.content}
+              content={content}
               onChange={this.onEditorChange}
               height={300}
             />
