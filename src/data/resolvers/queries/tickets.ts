@@ -1,14 +1,14 @@
 import { Tickets } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IListParams } from './boards';
-import { generateCommonFilters } from './utils';
+import { generateTicketCommonFilters } from './boardUtils';
 
 const ticketQueries = {
   /**
    * Tickets list
    */
   async tickets(_root, args: IListParams) {
-    const filter = await generateCommonFilters(args);
+    const filter = await generateTicketCommonFilters(args);
     const sort = { order: 1, createdAt: -1 };
 
     return Tickets.find(filter)

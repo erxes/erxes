@@ -1,7 +1,7 @@
 import { Deals } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IListParams } from './boards';
-import { generateCommonFilters } from './utils';
+import { generateDealCommonFilters } from './boardUtils';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -12,7 +12,7 @@ const dealQueries = {
    * Deals list
    */
   async deals(_root, args: IDealListParams) {
-    const filter = await generateCommonFilters(args);
+    const filter = await generateDealCommonFilters(args);
     const sort = { order: 1, createdAt: -1 };
 
     return Deals.find(filter)
@@ -25,7 +25,7 @@ const dealQueries = {
    *  Deal total amounts
    */
   async dealsTotalAmounts(_root, args: IDealListParams) {
-    const filter = await generateCommonFilters(args);
+    const filter = await generateDealCommonFilters(args);
 
     const dealCount = await Deals.find(filter).countDocuments();
     const amountList = await Deals.aggregate([

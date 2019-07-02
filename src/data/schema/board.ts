@@ -49,7 +49,7 @@ export const queries = `
     companyIds: [String],
     customerIds: [String],
     assignedUserIds: [String],
-    productIds: [String],
+    extraParams: JSON,
     nextDay: String,
     nextWeek: String,
     nextMonth: String,
