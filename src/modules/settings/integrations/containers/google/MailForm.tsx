@@ -36,8 +36,9 @@ const MailFormContainer = (props: FinalProps) => {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={mutations.integrationsSendGmail}
+        mutation={mutations.integrationSendMail}
         variables={values}
+        callback={callback}
         refetchQueries={refetchQueries}
         isSubmitted={isSubmitted}
         type="submit"

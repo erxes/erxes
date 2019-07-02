@@ -86,13 +86,13 @@ class MailForm extends React.Component<Props, State> {
     from: string;
   }) => {
     const { content, attachments } = this.state;
-    const accountId = values.from;
+    const erxesApiId = values.from;
 
     return {
       ...values,
       attachments,
-      body: content,
-      accountId
+      textHtml: content,
+      erxesApiId
     };
   };
 
@@ -258,7 +258,7 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderButtons(values, isSubmitted) {
-    const { renderButton } = this.props;
+    const { closeModal, renderButton } = this.props;
 
     return (
       <EditorFooter>
@@ -277,6 +277,7 @@ class MailForm extends React.Component<Props, State> {
           {renderButton({
             name: 'mailForm',
             values: this.generateDoc(values),
+            callback: closeModal,
             isSubmitted
           })}
         </div>
@@ -295,7 +296,12 @@ class MailForm extends React.Component<Props, State> {
         <ControlWrapper>
           <FormGroup>
             <ControlLabel required={true}>To:</ControlLabel>
-            <FormControl {...formProps} name="to" required={true} />
+            <FormControl
+              {...formProps}
+              value={this.state.toEmails}
+              name="to"
+              required={true}
+            />
           </FormGroup>
 
           <LeftSection>

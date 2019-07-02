@@ -11,9 +11,9 @@ const commonParams = `
 `;
 
 const sendGmailFields = `
-  $accountId: String!,
+  $erxesApiId: String!,
   $subject: String!,
-  $body: String!,
+  $textHtml: String!,
   $to: String!,
   $cc: String,
   $bcc: String,
@@ -21,21 +21,18 @@ const sendGmailFields = `
 `;
 
 const sendGmailVariables = `
-  accountId: $accountId,
+  erxesApiId: $erxesApiId,
   subject: $subject,
-  body: $body,
+  textHtml: $textHtml,
   to: $to,
   cc: $cc,
   bcc: $bcc,
   attachments: $attachments,
 `;
 
-const integrationsSendGmail = ` 
-  mutation integrationsSendGmail(${sendGmailFields}) {
-    integrationsSendGmail(${sendGmailVariables}) {
-      status
-      statusText
-    }
+const integrationSendMail = ` 
+  mutation integrationSendMail(${sendGmailFields}) {
+    integrationSendMail(${sendGmailVariables})
   }
 `;
 
@@ -153,5 +150,5 @@ export default {
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
   removeAccount,
-  integrationsSendGmail
+  integrationSendMail
 };
