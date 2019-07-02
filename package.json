@@ -68,7 +68,7 @@
     "file-type": "^10.4.0",
     "firebase-admin": "^7.2.0",
     "formidable": "^1.1.1",
-    "git-repo-info": "2.0.0",
+    "git-repo-info": "^2.1.0",
     "googleapis": "^33.0.0",
     "graphql": "^14.0.2",
     "graphql-redis-subscriptions": "^1.4.0",

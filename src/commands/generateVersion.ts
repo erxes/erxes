@@ -5,7 +5,7 @@ import * as path from 'path';
 const start = () => {
   const projectPath = process.cwd();
   const packageVersion = require(path.join(projectPath, 'package.json')).version;
-  const info = gitRepoInfo(projectPath);
+  const info = gitRepoInfo();
   const versionInfo = { packageVersion, ...info };
 
   fs.writeFile('./dist/private/version.json', JSON.stringify(versionInfo), () => {
