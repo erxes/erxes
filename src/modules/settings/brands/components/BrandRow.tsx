@@ -1,5 +1,5 @@
 import BrandForm from 'modules/settings/brands/components/BrandForm';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Icon, ModalTrigger, Tip } from '../../../common/components';
 import { __ } from '../../../common/utils';

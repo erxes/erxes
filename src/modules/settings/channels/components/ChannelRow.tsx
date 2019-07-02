@@ -3,7 +3,7 @@ import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChannelForm } from '../containers';
 import { IChannel } from '../types';

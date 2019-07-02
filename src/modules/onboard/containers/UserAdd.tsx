@@ -5,7 +5,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __, withProps } from 'modules/common/utils';
 import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
 import { queries as teamQueries } from 'modules/settings/team/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUserGroup } from '../../settings/permissions/types';
 import { UserAdd } from '../components';

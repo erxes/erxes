@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import * as React from 'react';
+import React from 'react';
 import { EmailForm, MessengerForm } from '../';
 import {
   IEngageEmail,

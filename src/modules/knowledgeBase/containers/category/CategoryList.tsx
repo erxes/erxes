@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CategoryList } from '../../components';
 import { mutations, queries } from '../../graphql';

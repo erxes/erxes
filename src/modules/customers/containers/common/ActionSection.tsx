@@ -10,7 +10,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';

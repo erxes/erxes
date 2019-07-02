@@ -1,9 +1,8 @@
 import { IUser } from 'modules/auth/types';
 import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { Welcome } from 'modules/onboard/containers';
 import { ImportIndicator } from 'modules/settings/importHistory/containers';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import { Navigation } from '../containers';
 import { Layout } from '../styles';

@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import { METHODS } from 'modules/engage/constants';
 import styledTS from 'styled-components-ts';
 
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Box = styledTS<{ selected: boolean }>(styled(BoxRoot))`

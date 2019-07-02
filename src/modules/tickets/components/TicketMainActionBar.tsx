@@ -4,7 +4,7 @@ import { IBoard, IPipeline } from 'modules/boards/types';
 import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 
 type Props = {

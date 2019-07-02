@@ -1,5 +1,5 @@
 import { IAttachmentPreview } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';

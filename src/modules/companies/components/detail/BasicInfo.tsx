@@ -20,7 +20,7 @@ import {
   SidebarFlexRow,
   SidebarList
 } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { CompaniesMerge } from '..';
 import { CompanyForm } from '../../containers';
@@ -46,7 +46,7 @@ class BasicInfo extends React.Component<Props> {
     }
 
     return (
-      <a href={link} target="_blank">
+      <a href={link}>
         <Icon icon={icon} />
       </a>
     );
@@ -110,7 +110,9 @@ class BasicInfo extends React.Component<Props> {
               />
             </li>
             <li>
-              <a onClick={onDelete}>{__('Delete')}</a>
+              <a href="#delete" onClick={onDelete}>
+                {__('Delete')}
+              </a>
             </li>
           </Dropdown.Menu>
         </Dropdown>

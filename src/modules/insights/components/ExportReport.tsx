@@ -4,7 +4,7 @@ import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { IBrand } from '../../settings/brands/types';
 import {
@@ -39,7 +39,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
     return (
       <Box onClick={exportReport.bind(this, { type })}>
-        <a>
+        <a href="#name">
           <img src={image} alt={name} />
           <span>{__(name)}</span>
         </a>
@@ -151,7 +151,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
               )}
 
               <Box onClick={this.exportWithUser}>
-                <a>
+                <a href="#img">
                   <img
                     src="/images/icons/erxes-16.svg"
                     alt="First Response Report by Operator"

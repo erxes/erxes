@@ -11,7 +11,7 @@ import {
   MESSENGER_KINDS,
   SENT_AS_CHOICES
 } from 'modules/engage/constants';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { MessengerPreview } from '../containers';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';

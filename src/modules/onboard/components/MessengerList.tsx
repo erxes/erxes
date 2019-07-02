@@ -1,7 +1,7 @@
 import { Chip, Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { InstallCode } from 'modules/settings/integrations/components';
 import { IMessengerApp } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   messengerApps: IMessengerApp[];

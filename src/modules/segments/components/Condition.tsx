@@ -3,7 +3,7 @@ import { Button, ControlLabel, FormControl } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { dateUnits, operators, types } from 'modules/customers/constants';
 import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { ISegmentCondition } from '../types';
 import { ConditionItem } from './styles';
 

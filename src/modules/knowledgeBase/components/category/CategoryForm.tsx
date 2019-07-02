@@ -8,7 +8,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { icons } from '../../icons.constant';
 import { ICategory } from '../../types';

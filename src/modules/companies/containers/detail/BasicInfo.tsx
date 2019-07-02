@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { BasicInfo } from 'modules/companies/components';
 import { mutations, queries } from 'modules/companies/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '../../../auth/types';

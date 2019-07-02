@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { IButtonMutateProps } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import { ChannelForm } from '../components';
 import { IChannel } from '../types';
 

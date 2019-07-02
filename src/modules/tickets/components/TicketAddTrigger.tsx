@@ -1,5 +1,5 @@
 import { AddTrigger } from 'modules/boards/components/portable';
-import * as React from 'react';
+import React from 'react';
 import options from '../options';
 
 type Props = {

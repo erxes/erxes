@@ -1,7 +1,7 @@
 import { Button } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {

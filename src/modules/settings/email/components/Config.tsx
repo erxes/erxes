@@ -8,7 +8,7 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../brands/types';
 
 type Props = {
@@ -62,7 +62,7 @@ class Config extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { type, template } = this.state;
-    const { renderButton, closeModal, defaultTemplate } = this.props;
+    const { renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
 
     const templateControl = (

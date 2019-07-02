@@ -9,7 +9,7 @@ import {
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IEmailSignatureWithBrand } from '../types';
 
 type Props = {

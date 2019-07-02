@@ -12,7 +12,7 @@ import {
   InfoDetail,
   InfoTitle
 } from 'modules/customers/styles';
-import * as React from 'react';
+import React from 'react';
 import { ICompany, ICompanyLinks } from '../../types';
 
 type Props = {
@@ -163,8 +163,6 @@ class CompaniesMerge extends React.Component<Props, State> {
   }
 
   renderLinks(data: ICompanyLinks, icon: string) {
-    const { selectedValues } = this.state;
-
     return COMPANY_LINKS.ALL.map(info => {
       const field = info.field;
       const value = data[field];

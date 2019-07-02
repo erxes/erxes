@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import { IntegrationsCountQueryResponse } from 'modules/settings/integrations/types';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';

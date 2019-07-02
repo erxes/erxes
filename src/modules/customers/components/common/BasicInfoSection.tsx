@@ -1,8 +1,7 @@
-import { __ } from 'modules/common/utils';
 import { Action } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { ActionSection } from '../../containers/common';
 import { DetailInfo, InfoSection } from './';
 

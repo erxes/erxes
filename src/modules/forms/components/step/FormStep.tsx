@@ -8,7 +8,7 @@ import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { ActionBar } from 'modules/layout/components';
 import { IField } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { FormPreview } from './preview';
 import { FlexColumn, FlexItem } from './style';
 

@@ -7,7 +7,7 @@ import {
 } from 'modules/common/components/editor/Editor';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 export const EditorActions = styled.div`

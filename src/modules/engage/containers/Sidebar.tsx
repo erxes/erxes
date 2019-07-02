@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { queries as tagQueries } from 'modules/tags/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { withProps } from '../../common/utils';

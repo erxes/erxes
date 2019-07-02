@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import { UserCounterContainer } from 'modules/boards/styles/item';
 import { Tip } from 'modules/common/components';
 import { getUserAvatar } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   users: IUser[];

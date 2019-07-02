@@ -5,7 +5,7 @@ import {
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { LANGUAGES } from 'modules/settings/general/constants';
-import * as React from 'react';
+import React from 'react';
 import Toggle from 'react-toggle';
 import { SelectBrand } from '../../../containers/';
 

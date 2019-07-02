@@ -1,5 +1,5 @@
 import { AppConsumer } from 'appContext';
-import * as React from 'react';
+import React from 'react';
 import { can } from '../utils';
 
 type Props = {

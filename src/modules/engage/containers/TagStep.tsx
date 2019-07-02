@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import { TagStep } from 'modules/engage/components/step';
 import { mutations } from 'modules/tags/graphql';
 import { TagsQueryResponse } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import { sumCounts } from '../utils';

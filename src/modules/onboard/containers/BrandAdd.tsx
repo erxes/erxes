@@ -4,7 +4,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
 import { BrandsCountQueryResponse } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandAdd } from '../components';
 import { OnboardConsumer } from '../containers/OnboardContext';
