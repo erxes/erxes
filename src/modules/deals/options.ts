@@ -37,7 +37,15 @@ const options = {
     deleteSuccessText: 'You successfully deleted a deal',
     copySuccessText: 'You successfully copied a deal'
   },
-  getExtraParams: (queryParams: any) => ({ productIds: queryParams.productIds })
+  getExtraParams: (queryParams: any) => {
+    const productIds = queryParams.productIds;
+
+    if (!productIds || queryParams.productIds instanceof Array) {
+      return { productIds };
+    }
+
+    return { productIds: [productIds] };
+  }
 };
 
 export default options;

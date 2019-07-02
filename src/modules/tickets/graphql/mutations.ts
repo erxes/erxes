@@ -47,6 +47,8 @@ const commonReturn = `
       avatar
     }
   }
+  priority
+  source
   modifiedAt
   modifiedBy
 `;
