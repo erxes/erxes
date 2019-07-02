@@ -144,6 +144,7 @@ class LogList extends React.Component<Props, State> {
             value={moment(start)}
             closeOnSelect={true}
             onChange={this.onDateChange.bind(this, 'start')}
+            inputProps={{ placeholder: `${__('Choose start date')}` }}
           />
         </FilterItem>
         <FilterItem>
@@ -153,6 +154,7 @@ class LogList extends React.Component<Props, State> {
             value={moment(end)}
             closeOnSelect={true}
             onChange={this.onDateChange.bind(this, 'end')}
+            inputProps={{ placeholder: `${__('Choose end date')}` }}
           />
         </FilterItem>
         <FilterItem>
