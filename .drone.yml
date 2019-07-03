@@ -16,11 +16,11 @@ pipeline:
         - develop
       event:
         - push
-        - tag
 
   build_tag:
     image: node:10.16.0-slim
     commands:
+      - yarn build
       - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz build
     when:
       event:
