@@ -57,6 +57,9 @@ export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 export interface IPipeline {
   _id: string;
   name: string;
+  visibility: string;
+  members?: IUser[];
+  memberIds?: string[];
 }
 
 export interface IStage {

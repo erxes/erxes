@@ -35,6 +35,16 @@ const boardDetail = `
       pipelines {
         _id
         name
+        visibility
+        memberIds
+        members {
+          _id
+          email
+          username
+          details {
+            fullName
+          }
+        }
       }
     }
   }
