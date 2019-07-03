@@ -2,8 +2,6 @@ pipeline:
   test:
     image: node:10.16.0-slim
     commands:
-      - apt-get update && apt-get install -y git
-      - git checkout $DRONE_COMMIT_BRANCH
       - node -v
       - npm -v
       - yarn --version
@@ -14,6 +12,8 @@ pipeline:
   build:
     image: node:10.16.0-slim
     commands:
+      - apt-get update && apt-get install -y git
+      - git checkout $DRONE_COMMIT_BRANCH
       - yarn build
     when:
       branch:
@@ -21,6 +21,14 @@ pipeline:
         - develop
       event:
         - push
+
+  build_tag:
+    image: node:10.16.0-slim
+    commands:
+      - yarn build
+      - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz dist .env.sample package.json yarn.lock
+    when:
+      event:
         - tag
 
   docker_publish:
@@ -55,3 +63,40 @@ pipeline:
     when:
       event:
         - tag
+
+  github_prerelease:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    prerelease: true
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    # draft: true
+
+  github_release:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    # draft: true
