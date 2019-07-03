@@ -1,20 +1,19 @@
-import accounts from './accounts';
 import activityLogs from './activityLogs';
+import boards from './boards';
 import brands from './brands';
 import channels from './channels';
 import companies from './companies';
 import configs from './configs';
 import conversations from './conversations';
 import customers from './customers';
+import dealInsights from './dealInsights';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
 import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fields';
 import forms from './forms';
 import importHistory from './importHistory';
-import dealInsights from './insights/dealInsights';
-import insightExport from './insights/insightExport';
-import insights from './insights/insights';
+import insights from './insights';
 import integrations from './integrations';
 import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
@@ -26,10 +25,11 @@ import responseTemplates from './responseTemplates';
 import scripts from './scripts';
 import segments from './segments';
 import tags from './tags';
+import tasks from './tasks';
+import tickets from './tickets';
 import users from './users';
 
 export default {
-  ...accounts,
   ...users,
   ...channels,
   ...brands,
@@ -47,11 +47,11 @@ export default {
   ...segments,
   ...conversations,
   ...insights,
-  ...insightExport,
   ...knowledgeBase,
   ...notifications,
   ...activityLogs,
   ...deals,
+  ...boards,
   ...dealInsights,
   ...products,
   ...configs,
@@ -60,4 +60,6 @@ export default {
   ...messengerApps,
   ...permissions,
   ...usersGroups,
+  ...tickets,
+  ...tasks,
 };

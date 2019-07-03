@@ -1,9 +1,8 @@
 import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../../../db/models';
+import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
-
-import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
-import { CONVERSATION_STATUSES, FACEBOOK_DATA_KINDS, INTEGRATION_KIND_CHOICES } from '../../constants';
-import { checkPermission, moduleRequireLogin } from '../../permissions';
+import { INTEGRATION_KIND_CHOICES } from '../../constants';
+import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
 
 interface ICountBy {
@@ -105,104 +104,6 @@ const conversationQueries = {
   },
 
   /**
-   * Get facebook feed messages
-   */
-  async conversationMessagesFacebook(
-    _root,
-    {
-      conversationId,
-      commentId,
-      postId,
-      limit,
-    }: {
-      conversationId: string;
-      commentId?: string;
-      postId?: string;
-      limit?: number;
-    },
-  ) {
-    const query: any = {
-      conversationId,
-    };
-
-    const sort = { 'facebookData.isPost': -1, 'facebookData.createdTime': -1 };
-
-    const result: { list: IMessageDocument[]; commentCount?: number } = {
-      list: [],
-    };
-
-    const conversation = await Conversations.findOne({ _id: conversationId });
-
-    if (!conversation || !conversation.facebookData || conversation.facebookData.kind !== FACEBOOK_DATA_KINDS.FEED) {
-      throw new Error('Bad conversation data');
-    }
-
-    // By default we are returning latest 3 comment with post
-    if (!commentId && !postId) {
-      query.$or = [{ 'facebookData.parentId': { $exists: false } }, { 'facebookData.isPost': true }];
-
-      limit = 4;
-    }
-
-    // Filter to retreive comment replies
-    if (commentId) {
-      query['facebookData.parentId'] = commentId;
-      limit = 1000;
-    }
-
-    // Filter to retreive post comments
-    if (postId) {
-      query['facebookData.postId'] = postId;
-      query['facebookData.parentId'] = { $exists: false };
-    }
-
-    result.list = await ConversationMessages.find(query)
-      .sort(sort)
-      .limit(limit || 4);
-
-    // Counting post comments only, excluding comment replies
-    const commentCount = await ConversationMessages.find({
-      conversationId: conversation._id,
-      $and: [
-        { 'facebookData.postId': conversation.facebookData.postId },
-        { isPost: { $exists: false } },
-        { 'facebookData.parentId': { $exists: false } },
-      ],
-    }).countDocuments();
-
-    result.commentCount = commentCount;
-
-    // Fetching the replies or comments
-    if (commentId || postId) {
-      return result;
-    }
-
-    const latestComment = await ConversationMessages.findOne({ conversationId }).sort({
-      'facebookData.createdTime': -1,
-    });
-
-    // Checking if the last comment was a reply
-    if (latestComment && latestComment.facebookData && latestComment.facebookData.parentId) {
-      const parentComment = await ConversationMessages.findOne({
-        conversationId,
-        'facebookData.commentId': latestComment.facebookData.parentId,
-      });
-
-      const msgIds = result.list.map(obj => {
-        return obj._id;
-      });
-
-      if (parentComment && !msgIds.includes(parentComment._id)) {
-        result.list.push(parentComment);
-      }
-
-      result.list.push(latestComment);
-    }
-
-    return result;
-  },
-
-  /**
    * Get conversation messages
    */
   async conversationMessages(
@@ -228,7 +129,9 @@ const conversationQueries = {
       return messages.reverse();
     }
 
-    return ConversationMessages.find(query).sort({ createdAt: 1 });
+    return ConversationMessages.find(query)
+      .sort({ createdAt: 1 })
+      .limit(50);
   },
 
   /**

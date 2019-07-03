@@ -11,8 +11,8 @@ export const types = `
 `;
 
 export const queries = `
-  responseTemplates(page: Int, perPage: Int): [ResponseTemplate]
-  responseTemplatesTotalCount: Int
+  responseTemplates(page: Int, perPage: Int, searchValue: String, brandId: String): [ResponseTemplate]
+  responseTemplatesTotalCount(searchValue: String, brandId: String): Int
 `;
 
 export const mutations = `

@@ -10,6 +10,8 @@ import {
   userFactory,
 } from '../db/factories';
 
+import './setup.ts';
+
 /*
  * Generated test data
  */

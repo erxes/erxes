@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { companyFactory, customerFactory, userFactory } from '../db/factories';
 import { Companies, Customers, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Companies mutations', () => {
   let _company;
   let _customer;

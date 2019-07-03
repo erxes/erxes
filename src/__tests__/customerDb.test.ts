@@ -6,10 +6,11 @@ import {
   fieldFactory,
   integrationFactory,
   internalNoteFactory,
-  userFactory,
 } from '../db/factories';
 import { ConversationMessages, Conversations, Customers, Deals, ImportHistory, InternalNotes } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
+
+import './setup.ts';
 
 describe('Customers model tests', () => {
   let _customer;
@@ -30,7 +31,7 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(14);
+    expect.assertions(12);
 
     // check duplication ===============
     try {
@@ -57,12 +58,6 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated phone');
     }
 
-    try {
-      await Customers.createCustomer({ twitterData: _customer.twitterData });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
-    }
-
     // Create without any error
     const doc = {
       primaryEmail: 'dombo@yahoo.com',
@@ -83,18 +78,6 @@ describe('Customers model tests', () => {
     expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
     expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
-
-    // Create customer with invalid email
-    const invalidEmailDoc = {
-      primaryEmail: 'dombo@blabla.mn',
-      emails: ['dombo@blabla.mn'],
-      firstName: 'firstName',
-      lastName: 'lastName',
-      primaryPhone: '1234567',
-      phones: ['1234567'],
-    };
-    const invalidEmailObj = await Customers.createCustomer(invalidEmailDoc);
-    expect(invalidEmailObj.hasValidEmail).toBeFalsy();
   });
 
   test('Create customer: with customer fields validation error', async () => {
@@ -118,7 +101,7 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer', async () => {
-    expect.assertions(7);
+    expect.assertions(5);
 
     const previousCustomer = await customerFactory({
       primaryEmail: 'dombo@yahoo.com',
@@ -139,11 +122,6 @@ describe('Customers model tests', () => {
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
-    // update invalid email address
-    await Customers.updateCustomer(previousCustomer._id, { primaryEmail: 'dombo@blabla.mn' });
-    expect(previousCustomer.hasValidEmail).toBeFalsy();
-    const validMailObj = await Customers.updateCustomer(previousCustomer._id, { primaryEmail: 'dombo1@yahoo.com' });
-    expect(validMailObj.hasValidEmail).toBeFalsy();
 
     // remove previous duplicated entry
     await Customers.deleteOne({ _id: previousCustomer._id });
@@ -245,7 +223,7 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers', async () => {
-    expect.assertions(23);
+    expect.assertions(20);
 
     const integration = await integrationFactory({});
 
@@ -275,15 +253,6 @@ describe('Customers model tests', () => {
     const mergedCompanyIds = Array.from(new Set(customer1.companyIds.concat(customer2.companyIds)));
 
     const mergedTagIds = Array.from(new Set(customer1.tagIds.concat(customer2.tagIds)));
-
-    // test duplication ============
-    try {
-      await Customers.mergeCustomers(customerIds, {
-        twitterData: _customer.twitterData,
-      });
-    } catch (e) {
-      expect(e.message).toBe('Duplicated twitter');
-    }
 
     try {
       await Customers.mergeCustomers(customerIds, {
@@ -316,12 +285,6 @@ describe('Customers model tests', () => {
       lastName: 'Test last name',
       primaryEmail: 'Test email',
       primaryPhone: 'Test phone',
-      facebookData: {
-        id: '1231312asd',
-      },
-      twitterData: {
-        id: 1234123,
-      },
       messengerData: {
         sessionCount: 6,
       },
@@ -334,13 +297,7 @@ describe('Customers model tests', () => {
 
     const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
 
-    if (
-      !mergedCustomer ||
-      !mergedCustomer.twitterData ||
-      !mergedCustomer.facebookData ||
-      !mergedCustomer.messengerData ||
-      !mergedCustomer.visitorContactInfo
-    ) {
+    if (!mergedCustomer || !mergedCustomer.messengerData || !mergedCustomer.visitorContactInfo) {
       throw new Error('Merged customer not found');
     }
 
@@ -349,9 +306,7 @@ describe('Customers model tests', () => {
     expect(mergedCustomer.lastName).toBe(doc.lastName);
     expect(mergedCustomer.primaryEmail).toBe(doc.primaryEmail);
     expect(mergedCustomer.primaryPhone).toBe(doc.primaryPhone);
-    expect(mergedCustomer.twitterData.toJSON()).toEqual(doc.twitterData);
     expect(mergedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
-    expect(mergedCustomer.facebookData.toJSON()).toEqual(doc.facebookData);
     expect(mergedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
     expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
     expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
@@ -395,97 +350,5 @@ describe('Customers model tests', () => {
       throw new Error('Deal not found');
     }
     expect(deal.customerIds).toContain(mergedCustomer._id);
-  });
-
-  test('bulkInsert', async () => {
-    await fieldFactory({
-      contentType: 'customer',
-      text: 'First referred site',
-      validation: '',
-    });
-
-    await fieldFactory({
-      contentType: 'customer',
-      text: 'Fax number',
-      validation: '',
-    });
-    const user = await userFactory({});
-
-    const fieldNames = ['primaryEmail', 'primaryPhone', 'First referred site', 'Fax number'];
-
-    const fieldValues = [
-      ['customer1email@yahoo.com', 'customer1phone', 'customer1property1', 'customer1property2'],
-      ['customer2email@yahoo.com', 'customer2phone', 'customer2property1', 'customer2property2'],
-    ];
-
-    const response = await Customers.bulkInsert(fieldNames, fieldValues, user);
-    const customers = await Customers.find({});
-
-    const history = await ImportHistory.findOne({ userId: user._id });
-
-    if (!history || !history.ids) {
-      throw new Error('History not found');
-    }
-
-    // Before each test we create 1 customer so it should be 3 total
-    expect(customers.length).toBe(3);
-    expect(response.length).toBe(0);
-    expect(history.success).toBe(2);
-    expect(history.total).toBe(2);
-    expect(history.ids.length).toBe(2);
-    expect(history.failed).toBe(0);
-  });
-
-  test('bulkInsert with errors', async () => {
-    const user = await userFactory({});
-    const badFieldNames = ['badColumn name1'];
-
-    let response = await Customers.bulkInsert(badFieldNames, [], user);
-    // We sent bad column name
-    expect(response.length).toBe(1);
-    expect(response[0]).toBe('Bad column name badColumn name1');
-
-    await fieldFactory({
-      contentType: 'customer',
-      text: 'Fax number',
-      validation: '',
-    });
-    const customer = await customerFactory({
-      emails: ['testCustomerEmail@gmail.com'],
-      primaryEmail: 'testCustomerEmail@gmail.com',
-    });
-
-    const fieldNames = ['primaryEmail', 'firstName', 'Fax number'];
-
-    const fieldValues: any = [
-      [customer.primaryEmail, 'Heyy', '12313'], // this one has duplicated email
-      ['newEmail@gmail.com', 'Ayyy', '12313'], // this one should be inserted
-      [customer.primaryEmail, '', ''], // this one has duplicated email too
-    ];
-
-    response = await Customers.bulkInsert(fieldNames, fieldValues, user);
-
-    expect(response.length).toBe(2);
-    expect(response[0]).toBe('Duplicated email at the row 1');
-    expect(response[1]).toBe('Duplicated email at the row 3');
-
-    const history = await ImportHistory.findOne({ userId: user._id });
-
-    if (!history || !history.ids) {
-      throw new Error('History not found');
-    }
-
-    expect(history.total).toBe(3);
-    expect(history.success).toBe(1);
-    expect(history.failed).toBe(2);
-    expect(history.ids.length).toBe(1);
-
-    process.env.MAX_IMPORT_SIZE = '2';
-
-    // Max import size error
-    response = await Customers.bulkInsert(fieldNames, fieldValues, user);
-
-    expect(response.length).toBe(1);
-    expect(response[0]).toBe(`You can only import max ${process.env.MAX_IMPORT_SIZE} at a time`);
   });
 });

@@ -1,5 +1,7 @@
 import { gql } from 'apollo-server-express';
 
+import { types as CommonTypes } from './common';
+
 import { mutations as UserMutations, queries as UserQueries, types as UserTypes } from './user';
 
 import { mutations as CompanyMutations, queries as CompanyQueries, types as CompanyTypes } from './company';
@@ -77,6 +79,8 @@ import {
 
 import { queries as ActivityLogQueries, types as ActivityLogTypes } from './activityLog';
 
+import { mutations as BoardMutations, queries as BoardQueries, types as BoardTypes } from './board';
+
 import { mutations as DealMutations, queries as DealQueries, types as DealTypes } from './deal';
 
 import { mutations as ProductMutations, queries as ProductQueries, types as ProductTypes } from './product';
@@ -95,12 +99,14 @@ import {
   types as MessengerAppTypes,
 } from './messengerApp';
 
-import { mutations as AccountMutations, queries as AccountQueries, types as AccountTypes } from './accounts';
+import { mutations as TicketMutations, queries as TicketQueries, types as TicketTypes } from './ticket';
+
+import { mutations as TaskMutations, queries as TaskQueries, types as TaskTypes } from './task';
 
 export const types = `
   scalar JSON
   scalar Date
-
+  ${CommonTypes}
   ${UserTypes}
   ${InternalNoteTypes}
   ${ActivityLogTypes}
@@ -121,14 +127,16 @@ export const types = `
   ${InsightTypes}
   ${KnowledgeBaseTypes}
   ${NotificationTypes}
+  ${BoardTypes}
   ${DealTypes}
   ${ProductTypes}
   ${ConfigTypes}
   ${FieldGroupTypes}
   ${ImportHistoryTypes}
   ${MessengerAppTypes}
-  ${AccountTypes}
   ${PermissionTypes}
+  ${TicketTypes}
+  ${TaskTypes}
 `;
 
 export const queries = `
@@ -136,6 +144,7 @@ export const queries = `
     ${UserQueries}
     ${ChannelQueries}
     ${BrandQueries}
+    ${BoardQueries}
     ${IntegrationQueries}
     ${ResponseTemplateQueries}
     ${ScriptQueries}
@@ -159,8 +168,9 @@ export const queries = `
     ${FieldGroupQueries}
     ${ImportHistoryQueries}
     ${MessengerAppQueries}
-    ${AccountQueries}
     ${PermissionQueries}
+    ${TicketQueries}
+    ${TaskQueries}
   }
 `;
 
@@ -171,6 +181,7 @@ export const mutations = `
     ${ConversationMutations}
     ${EngageMutations}
     ${TagMutations}
+    ${BoardMutations}
     ${BrandMutations}
     ${ResponseTemplateMutations}
     ${ScriptMutations}
@@ -190,8 +201,9 @@ export const mutations = `
     ${FieldGroupMutations}
     ${ImportHistoryMutations}
     ${MessengerAppMutations}
-    ${AccountMutations}
     ${PermissionMutations}
+    ${TicketMutations}
+    ${TaskMutations}
   }
 `;
 
@@ -200,9 +212,11 @@ export const subscriptions = `
     conversationChanged(_id: String!): ConversationChangedResponse
     conversationMessageInserted(_id: String!): ConversationMessage
     conversationClientMessageInserted(userId: String!): ConversationMessage
+    conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
     conversationAdminMessageInserted(customerId: String!): ConversationMessage
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
     activityLogsChanged: Boolean
+    importHistoryChanged(_id: String!): ImportHistory
   }
 `;
 

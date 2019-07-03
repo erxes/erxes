@@ -5,6 +5,7 @@ export const types = `
     value: String,
     dateUnit: String,
     type: String,
+    brandId: String
   }
 
   type Segment {

@@ -1,13 +1,16 @@
 import { EngageMessages, Tags } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission, requireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { paginate } from '../../utils';
 
 interface IListArgs {
   kind?: string;
   status?: string;
   tag?: string;
   ids?: string[];
+  brandIds?: string[];
+  segmentIds?: string[];
+  tagIds?: string[];
   page?: number;
   perPage?: number;
 }
@@ -117,9 +120,21 @@ const countsByTag = async ({
 /*
  * List filter
  */
-const listQuery = ({ kind, status, tag, ids }: IListArgs, user: IUserDocument): any => {
+const listQuery = ({ segmentIds, brandIds, tagIds, kind, status, tag, ids }: IListArgs, user: IUserDocument): any => {
   if (ids) {
     return EngageMessages.find({ _id: { $in: ids } });
+  }
+
+  if (segmentIds) {
+    return EngageMessages.find({ segmentIds: { $in: segmentIds } });
+  }
+
+  if (brandIds) {
+    return EngageMessages.find({ brandIds: { $in: brandIds } });
+  }
+
+  if (tagIds) {
+    return EngageMessages.find({ tagIds: { $in: tagIds } });
   }
 
   let query: any = {};

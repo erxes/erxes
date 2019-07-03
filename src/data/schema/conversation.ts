@@ -8,84 +8,6 @@ export const types = `
     pageId: String
   }
 
-  type ConversationMessageFacebookData {
-    postId: String
-    commentId: String
-    parentId: String
-
-    isPost: Boolean
-    reactions: JSON
-    likeCount: Int
-    commentCount: Int
-
-    messageId: String
-    item: String
-    photo: String
-    video: String
-    photos: [String]
-    link: String
-    createdTime: String
-
-    senderId: String
-    senderName: String
-  }
-
-  type TwitterData {
-    id: Float
-    id_str: String
-    created_at: Date
-    isDirectMessage: Boolean
-
-    entities: JSON
-    extended_entities: JSON
-    extended_tweet: JSON
-
-    sender_id: Float
-    sender_id_str: String
-    recipient_id: Float
-    recipient_id_str: String
-
-    in_reply_to_status_id: Float
-    in_reply_to_status_id_str: String
-    in_reply_to_user_id: Float
-    in_reply_to_user_id_str: String
-    in_reply_to_screen_name: String
-    is_quote_status: Boolean
-    favorited: Boolean
-    retweeted: Boolean
-    quote_count: Float
-    reply_count: Float
-    retweet_count: Float
-    favorite_count: Float
-  }
-
-  type ConversationGmailData {
-    messageId: String
-  }
-
-  type ConversationMessageGmailAttachmentData {
-    filename: String
-    mimeType: String
-    size: Int
-    attachmentId: String
-  }
-
-  type ConversationMessageGmailData {
-    messageId: String
-    headerId: String
-    threadId: String
-    reply: String
-    references: String
-    from: String
-    to: String
-    cc: String
-    bcc: String
-    subject: String
-    textPlain: String
-    textHtml: String
-    attachments: [ConversationMessageGmailAttachmentData]
-  }
-
   type Conversation {
     _id: String!
     content: String
@@ -102,9 +24,6 @@ export const types = `
     messageCount: Int
     number: Int
     tagIds: [String]
-    twitterData: TwitterData
-    facebookData: ConversationFacebookData
-    gmailData: ConversationGmailData
 
     messages: [ConversationMessage]
     tags: [Tag]
@@ -148,9 +67,6 @@ export const types = `
     engageData: EngageData
     formWidgetData: JSON
     messengerAppData: JSON
-    twitterData: TwitterData
-    facebookData: ConversationMessageFacebookData
-    gmailData: ConversationMessageGmailData
     user: User
     customer: Customer
   }
@@ -158,6 +74,11 @@ export const types = `
   type ConversationChangedResponse {
     conversationId: String!
     type: String!
+  }
+
+  type ConversationClientTypingStatusChangedResponse {
+    conversationId: String!
+    text: String
   }
 
   input ConversationMessageParams {
@@ -169,11 +90,6 @@ export const types = `
     userId: String,
     createdAt: Date,
     isCustomerRead: Boolean,
-  }
-
-  type ConversationMessagesFacebookResponse {
-    list: [ConversationMessage]
-    commentCount: Int
   }
 
   input AttachmentInput {
@@ -214,11 +130,6 @@ export const queries = `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
-  conversationMessagesFacebook(
-    conversationId: String
-    commentId: String
-    postId: String limit: Int
-  ): ConversationMessagesFacebookResponse
 `;
 
 export const mutations = `
@@ -228,29 +139,10 @@ export const mutations = `
     mentionedUserIds: [String],
     internal: Boolean,
     attachments: [AttachmentInput],
-    tweetReplyToId: String,
-    tweetReplyToScreenName: String,
-    commentReplyToId: String
   ): ConversationMessage
-
-  conversationsTweet(
-    integrationId: String,
-    text: String,
-  ): JSON
-
-  conversationsRetweet(
-    integrationId: String,
-    id: String,
-  ): JSON
-
-  conversationsFavorite(
-    integrationId: String,
-    id: String,
-  ): JSON
 
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
-  conversationPublishClientMessage(_id: String!): String
 `;

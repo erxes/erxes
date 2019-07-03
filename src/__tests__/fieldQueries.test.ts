@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { fieldFactory, fieldGroupFactory } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
 
+import './setup.ts';
+
 describe('fieldQueries', () => {
   afterEach(async () => {
     // Clearing test data

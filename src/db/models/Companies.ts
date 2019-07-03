@@ -1,9 +1,9 @@
 import { Model, model } from 'mongoose';
-import { Customers, Deals, Fields, InternalNotes } from './';
+import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
-import { COMPANY_BASIC_INFOS, STATUSES } from './definitions/constants';
+import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
-import { bulkInsert } from './utils';
+import Tickets from './Tickets';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
@@ -81,11 +81,16 @@ export const loadClass = () => {
       // clean custom field values
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
-      return Companies.create({
+      const company = await Companies.create({
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
       });
+
+      // create log
+      await ActivityLogs.createCompanyLog(company);
+
+      return company;
     }
 
     /**
@@ -202,24 +207,12 @@ export const loadClass = () => {
       // Removing modules associated with current companies
       await InternalNotes.changeCompany(company._id, companyIds);
       await Deals.changeCompany(company._id, companyIds);
+      await Tickets.changeCompany(company._id, companyIds);
+
+      // create log
+      await ActivityLogs.createCompanyLog(company);
 
       return company;
-    }
-
-    /**
-     * Imports customers with basic fields and custom properties
-     */
-    public static async bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument) {
-      const params = {
-        fieldNames,
-        fieldValues,
-        user,
-        basicInfos: COMPANY_BASIC_INFOS,
-        contentType: 'company',
-        create: (doc, userObj) => this.createCompany(doc, userObj),
-      };
-
-      return bulkInsert(params);
     }
   }
 

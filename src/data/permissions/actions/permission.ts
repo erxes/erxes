@@ -154,7 +154,6 @@ export const moduleObjects = {
           'dealPipelinesRemove',
           'dealStagesAdd',
           'dealStagesEdit',
-          'dealStagesChange',
           'dealStagesUpdateOrder',
           'dealStagesRemove',
           'dealsAdd',
@@ -200,10 +199,6 @@ export const moduleObjects = {
         description: 'Edit deal stage',
       },
       {
-        name: 'dealStagesChange',
-        description: 'Change deal stages',
-      },
-      {
         name: 'dealStagesUpdateOrder',
         description: 'Update stage order',
       },
@@ -226,6 +221,182 @@ export const moduleObjects = {
       {
         name: 'dealsRemove',
         description: 'Remove deal',
+      },
+    ],
+  },
+  tickets: {
+    name: 'tickets',
+    description: 'Tickets',
+    actions: [
+      {
+        name: 'ticketsAll',
+        description: 'All',
+        use: [
+          'showTickets',
+          'ticketBoardsAdd',
+          'ticketBoardsEdit',
+          'ticketBoardsRemove',
+          'ticketPipelinesAdd',
+          'ticketPipelinesEdit',
+          'ticketPipelinesUpdateOrder',
+          'ticketPipelinesRemove',
+          'ticketStagesAdd',
+          'ticketStagesEdit',
+          'ticketStagesUpdateOrder',
+          'ticketStagesRemove',
+          'ticketsAdd',
+          'ticketsEdit',
+          'ticketsRemove',
+          'ticketsUpdateOrder',
+        ],
+      },
+      {
+        name: 'showTickets',
+        description: 'Show tickets',
+      },
+      {
+        name: 'ticketBoardsAdd',
+        description: 'Add ticket board',
+      },
+      {
+        name: 'ticketBoardsRemove',
+        description: 'Remove ticket board',
+      },
+      {
+        name: 'ticketPipelinesAdd',
+        description: 'Add ticket pipeline',
+      },
+      {
+        name: 'ticketPipelinesEdit',
+        description: 'Edit ticket pipeline',
+      },
+      {
+        name: 'ticketPipelinesRemove',
+        description: 'Remove ticket pipeline',
+      },
+      {
+        name: 'ticketPipelinesUpdateOrder',
+        description: 'Update pipeline order',
+      },
+      {
+        name: 'ticketStagesAdd',
+        description: 'Add ticket stage',
+      },
+      {
+        name: 'ticketStagesEdit',
+        description: 'Edit ticket stage',
+      },
+      {
+        name: 'ticketStagesUpdateOrder',
+        description: 'Update stage order',
+      },
+      {
+        name: 'ticketStagesRemove',
+        description: 'Remove ticket stage',
+      },
+      {
+        name: 'ticketsAdd',
+        description: 'Add ticket',
+      },
+      {
+        name: 'ticketsEdit',
+        description: 'Edit ticket',
+      },
+      {
+        name: 'ticketsUpdateOrder',
+        description: 'Update ticket order',
+      },
+      {
+        name: 'ticketsRemove',
+        description: 'Remove ticket',
+      },
+    ],
+  },
+  tasks: {
+    name: 'tasks',
+    description: 'Tasks',
+    actions: [
+      {
+        name: 'tasksAll',
+        description: 'All',
+        use: [
+          'showTasks',
+          'taskBoardsAdd',
+          'taskBoardsEdit',
+          'taskBoardsRemove',
+          'taskPipelinesAdd',
+          'taskPipelinesEdit',
+          'taskPipelinesUpdateOrder',
+          'taskPipelinesRemove',
+          'taskStagesAdd',
+          'taskStagesEdit',
+          'taskStagesUpdateOrder',
+          'taskStagesRemove',
+          'tasksAdd',
+          'tasksEdit',
+          'tasksRemove',
+          'tasksUpdateOrder',
+        ],
+      },
+      {
+        name: 'showTasks',
+        description: 'Show tasks',
+      },
+      {
+        name: 'taskBoardsAdd',
+        description: 'Add task board',
+      },
+      {
+        name: 'taskBoardsRemove',
+        description: 'Remove task board',
+      },
+      {
+        name: 'taskPipelinesAdd',
+        description: 'Add task pipeline',
+      },
+      {
+        name: 'taskPipelinesEdit',
+        description: 'Edit task pipeline',
+      },
+      {
+        name: 'taskPipelinesRemove',
+        description: 'Remove task pipeline',
+      },
+      {
+        name: 'taskPipelinesUpdateOrder',
+        description: 'Update pipeline order',
+      },
+      {
+        name: 'taskStagesAdd',
+        description: 'Add task stage',
+      },
+      {
+        name: 'taskStagesEdit',
+        description: 'Edit task stage',
+      },
+      {
+        name: 'taskStagesUpdateOrder',
+        description: 'Update stage order',
+      },
+      {
+        name: 'taskStagesRemove',
+        description: 'Remove task stage',
+      },
+      {
+        name: 'tasksAdd',
+        description: 'Add task',
+      },
+      {
+        name: 'tasksEdit',
+        description: 'Edit task',
+      },
+      {
+        name: 'tasksUpdateOrder',
+        description: 'Update task order',
+      },
+      {
+        name: 'tasksRemove',
+        description: 'Remove task',
       },
     ],
   },
@@ -559,10 +730,6 @@ export const moduleObjects = {
           'integrationsSaveMessengerConfigs',
           'integrationsCreateFormIntegration',
           'integrationsEditFormIntegration',
-          'integrationsCreateTwitterIntegration',
-          'integrationsCreateFacebookIntegration',
-          'integrationsCreateGmailIntegration',
-          'integrationsSendGmail',
           'integrationsRemove',
         ],
       },
@@ -593,22 +760,6 @@ export const moduleObjects = {
       {
         name: 'integrationsEditFormIntegration',
         description: 'Edit form integration',
-      },
-      {
-        name: 'integrationsCreateTwitterIntegration',
-        description: 'Create twitter integration',
-      },
-      {
-        name: 'integrationsCreateFacebookIntegration',
-        description: 'Create facebook integration',
-      },
-      {
-        name: 'integrationsCreateGmailIntegration',
-        description: 'Create gmail integration',
-      },
-      {
-        name: 'integrationsSendGmail',
-        description: 'Send gmail',
       },
       {
         name: 'integrationsRemove',
@@ -651,25 +802,6 @@ export const moduleObjects = {
       {
         name: 'showFieldsGroups',
         description: 'Show fields groups',
-      },
-    ],
-  },
-  accounts: {
-    name: 'accounts',
-    description: 'Accounts',
-    actions: [
-      {
-        name: 'accountsAll',
-        description: 'All',
-        use: ['manageAccounts', 'showAccounts'],
-      },
-      {
-        name: 'manageAccounts',
-        description: 'Manage accounts',
-      },
-      {
-        name: 'showAccounts',
-        description: 'Show accounts',
       },
     ],
   },

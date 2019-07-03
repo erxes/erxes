@@ -1,6 +1,6 @@
 import { Products } from '../../../db/models';
-import { checkPermission, requireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { paginate } from '../../utils';
 
 const productQueries = {
   /**
@@ -8,12 +8,21 @@ const productQueries = {
    */
   products(
     _root,
-    { type, searchValue, ...pagintationArgs }: { type: string; searchValue: string; page: number; perPage: number },
+    {
+      type,
+      searchValue,
+      ids,
+      ...pagintationArgs
+    }: { ids: string[]; type: string; searchValue: string; page: number; perPage: number },
   ) {
     const filter: any = {};
 
     if (type) {
       filter.type = type;
+    }
+
+    if (ids) {
+      filter._id = { $in: ids };
     }
 
     // search =========

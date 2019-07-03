@@ -1,8 +1,10 @@
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as moment from 'moment';
 import { userFactory, usersGroupFactory } from '../db/factories';
 import { Users } from '../db/models';
+
+import './setup.ts';
 
 beforeAll(() => {
   Users.collection.createIndex({ email: 1 }, { unique: true });
@@ -128,6 +130,36 @@ describe('User db utils', () => {
     expect(userObj._id).toBeDefined();
     expect(userObj.groupIds).toEqual([group._id]);
     expect(userObj.registrationToken).toBeDefined();
+    expect(userObj.registrationTokenExpires).toBeDefined();
+  });
+
+  test('resendInvitation', async () => {
+    const email = '123@gmail.com';
+    const group = await usersGroupFactory();
+    const token = await Users.createUserWithConfirmation({ email, groupId: group._id });
+    const newToken = await Users.resendInvitation({ email });
+
+    const user = await Users.findOne({ email }).lean();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    expect(user.registrationToken).not.toBe(token);
+    expect(user.registrationToken).toBe(newToken);
+    expect(user.registrationTokenExpires).toBeDefined();
+  });
+
+  test('resendInvitation: invalid', async () => {
+    expect.assertions(1);
+
+    const user = await userFactory({});
+
+    try {
+      await Users.resendInvitation({ email: user.email || 'invalid' });
+    } catch (e) {
+      expect(e.message).toBe('Invalid request');
+    }
   });
 
   test('updateOnBoardSeen', async () => {
@@ -180,7 +212,7 @@ describe('User db utils', () => {
     expect(result.details.fullName).toBe('fullname');
     expect(result.username).toBe('username');
 
-    await Users.remove({ _id: userObj._id });
+    await Users.deleteMany({ _id: userObj._id });
 
     userObj = await userFactory({
       email,

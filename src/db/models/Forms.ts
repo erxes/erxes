@@ -8,7 +8,7 @@ export interface IFormModel extends Model<IFormDocument> {
   generateCode(): string;
   createForm(doc: IForm, createdUserId?: string): Promise<IFormDocument>;
 
-  updateForm(_id, { title, description, buttonText, themeColor, callout }: IForm): Promise<IFormDocument>;
+  updateForm(_id, { title, description, buttonText, themeColor, callout, rules }: IForm): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
   duplicate(_id: string): Promise<IFormDocument>;
@@ -51,10 +51,10 @@ export const loadClass = () => {
     /**
      * Updates a form document
      */
-    public static async updateForm(_id: string, { title, description, buttonText, themeColor, callout }: IForm) {
+    public static async updateForm(_id: string, { title, description, buttonText, themeColor, callout, rules }: IForm) {
       await Forms.updateOne(
         { _id },
-        { $set: { title, description, buttonText, themeColor, callout } },
+        { $set: { title, description, buttonText, themeColor, callout, rules } },
         { runValidators: true },
       );
 

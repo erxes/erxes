@@ -1,34 +1,26 @@
 import { Model, model } from 'mongoose';
 import { validateEmail } from '../../data/utils';
-import { Conversations, Deals, EngageMessages, Fields, InternalNotes } from './';
-import { CUSTOMER_BASIC_INFOS, STATUSES } from './definitions/constants';
-import { customerSchema, ICustomer, ICustomerDocument, IFacebookData, ITwitterData } from './definitions/customers';
+import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes, Tickets } from './';
+import { STATUSES } from './definitions/constants';
+import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
-import { bulkInsert } from './utils';
 
 interface ICustomerFieldsInput {
-  twitterData?: ITwitterData;
-  facebookData?: IFacebookData;
   primaryEmail?: string;
   primaryPhone?: string;
 }
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
-
   createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
-
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
-
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
-
   updateCompanies(_id: string, companyIds: string[]): Promise<ICustomerDocument>;
   removeCustomer(customerId: string): void;
-
   mergeCustomers(customerIds: string[], customerFields: ICustomer): Promise<ICustomerDocument>;
-
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
+  updateProfileScore(customerId: string, save: boolean): never;
 }
 
 export const loadClass = () => {
@@ -43,30 +35,6 @@ export const loadClass = () => {
       // Adding exclude operator to the query
       if (idsToExclude) {
         query._id = idsToExclude instanceof Array ? { $nin: idsToExclude } : { $ne: idsToExclude };
-      }
-
-      // Checking if customer has twitter data
-      if (customerFields.twitterData) {
-        previousEntry = await Customers.find({
-          ...query,
-          ['twitterData.id']: customerFields.twitterData.id,
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated twitter');
-        }
-      }
-
-      // Checking if customer has facebook data
-      if (customerFields.facebookData) {
-        previousEntry = await Customers.find({
-          ...query,
-          ['facebookData.id']: customerFields.facebookData.id,
-        });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated facebook');
-        }
       }
 
       if (customerFields.primaryEmail) {
@@ -133,11 +101,19 @@ export const loadClass = () => {
         doc.hasValidEmail = true;
       }
 
-      return Customers.create({
+      const customer = await Customers.create({
         createdAt: new Date(),
         modifiedAt: new Date(),
         ...doc,
       });
+
+      // calculateProfileScore
+      await Customers.updateProfileScore(customer._id, true);
+
+      // create log
+      await ActivityLogs.createCustomerLog(customer);
+
+      return customer;
     }
 
     /*
@@ -156,6 +132,9 @@ export const loadClass = () => {
         const isValid = await validateEmail(doc.primaryEmail);
         doc.hasValidEmail = isValid;
       }
+
+      // calculateProfileScore
+      await Customers.updateProfileScore(_id, true);
 
       await Customers.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
 
@@ -199,6 +178,50 @@ export const loadClass = () => {
       return Customers.findOne({ _id });
     }
 
+    /**
+     * Update customer profile score
+     */
+    public static async updateProfileScore(customerId: string, save: boolean) {
+      let score = 0;
+
+      const nullValues = ['', null];
+      const customer = await Customers.findOne({ _id: customerId });
+
+      if (!customer) {
+        return 0;
+      }
+
+      if (!nullValues.includes(customer.firstName || '')) {
+        score += 10;
+      }
+
+      if (!nullValues.includes(customer.lastName || '')) {
+        score += 5;
+      }
+
+      if (!nullValues.includes(customer.primaryEmail || '')) {
+        score += 15;
+      }
+
+      if (!nullValues.includes(customer.primaryPhone || '')) {
+        score += 10;
+      }
+
+      if (customer.visitorContactInfo != null) {
+        score += 5;
+      }
+
+      if (!save) {
+        return {
+          updateOne: {
+            filter: { _id: customerId },
+            update: { $set: { profileScore: score } },
+          },
+        };
+      }
+
+      await Customers.updateOne({ _id: customerId }, { $set: { profileScore: score } });
+    }
     /**
      * Removes customer
      */
@@ -282,24 +305,12 @@ export const loadClass = () => {
       await EngageMessages.changeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);
       await Deals.changeCustomer(customer._id, customerIds);
+      await Tickets.changeCustomer(customer._id, customerIds);
+
+      // create log
+      await ActivityLogs.createCustomerLog(customer);
 
       return customer;
-    }
-
-    /**
-     * Imports customers with basic fields and custom properties
-     */
-    public static async bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument) {
-      const params = {
-        fieldNames,
-        fieldValues,
-        user,
-        basicInfos: CUSTOMER_BASIC_INFOS,
-        contentType: 'customer',
-        create: this.createCustomer,
-      };
-
-      return bulkInsert(params);
     }
   }
 

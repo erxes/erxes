@@ -3,18 +3,18 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  EmailTemplates,
   EngageMessages,
   Integrations,
   Segments,
   Users,
 } from '../../../db/models';
+import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { EMAIL_CONTENT_PLACEHOLDER, INTEGRATION_KIND_CHOICES, MESSAGE_KINDS, METHODS } from '../../constants';
+import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../../constants';
+import QueryBuilder from '../../modules/segments/queryBuilder';
 import { createTransporter, getEnv } from '../../utils';
-import QueryBuilder from '../queries/segmentQueryBuilder';
 
 /**
  * Dynamic content tags
@@ -30,7 +30,12 @@ export const replaceKeys = ({
 }): string => {
   let result = content;
 
-  const customerName = `${customer.firstName} + ${customer.lastName}`;
+  let customerName = customer.firstName || customer.lastName || 'Customer';
+
+  if (customer.firstName && customer.lastName) {
+    customerName = `${customer.firstName} ${customer.lastName}`;
+  }
+
   const details = user.details ? user.details.toJSON() : {};
 
   // replace customer fields
@@ -50,20 +55,46 @@ export const replaceKeys = ({
  */
 const findCustomers = async ({
   customerIds,
-  segmentId,
+  segmentIds = [],
+  tagIds = [],
+  brandIds = [],
 }: {
   customerIds: string[];
-  segmentId?: string;
+  segmentIds?: string[];
+  tagIds?: string[];
+  brandIds?: string[];
 }): Promise<ICustomerDocument[]> => {
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
+  const doNotDisturbQuery = [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }];
 
-  if (segmentId) {
-    const segment = await Segments.findOne({ _id: segmentId });
-    customerQuery = await QueryBuilder.segments(segment);
+  if (tagIds.length > 0) {
+    customerQuery = { $or: doNotDisturbQuery, tagIds: { $in: tagIds || [] } };
   }
 
-  return Customers.find({ ...customerQuery, $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }] });
+  if (brandIds.length > 0) {
+    const integrationIds = await Integrations.find({ brandId: { $in: brandIds } }).distinct('_id');
+
+    customerQuery = { $or: doNotDisturbQuery, integrationId: { $in: integrationIds } };
+  }
+
+  if (segmentIds.length > 0) {
+    const segmentQueries: any = [];
+
+    const segments = await Segments.find({ _id: { $in: segmentIds } });
+
+    for (const segment of segments) {
+      const filter = await QueryBuilder.segments(segment);
+
+      filter.$or = doNotDisturbQuery;
+
+      segmentQueries.push(filter);
+    }
+
+    customerQuery = { $or: segmentQueries };
+  }
+
+  return Customers.find(customerQuery);
 };
 
 const executeSendViaEmail = async (
@@ -106,13 +137,13 @@ const executeSendViaEmail = async (
  * Send via email
  */
 const sendViaEmail = async (message: IEngageMessageDocument) => {
-  const { fromUserId, segmentId, customerIds = [] } = message;
+  const { fromUserId, tagIds, brandIds, segmentIds, customerIds = [] } = message;
 
   if (!message.email) {
     return;
   }
 
-  const { templateId, subject, content, attachments = [] } = message.email.toJSON();
+  const { subject, content, attachments = [] } = message.email.toJSON();
 
   const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET' });
   const AWS_ENDPOINT = getEnv({ name: 'AWS_ENDPOINT' });
@@ -128,30 +159,19 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
     throw new Error(`email not found with ${userEmail}`);
   }
 
-  const template = await EmailTemplates.findOne({ _id: templateId });
-
   // find matched customers
-  const customers = await findCustomers({ customerIds, segmentId });
+  const customers = await findCustomers({ customerIds, segmentIds, tagIds, brandIds });
 
   // save matched customer ids
   EngageMessages.setCustomerIds(message._id, customers);
 
   for (const customer of customers) {
-    // replace keys in subject
-    const replacedSubject = replaceKeys({ content: subject, customer, user });
-
-    // replace keys such as {{ customer.name }} in content
     let replacedContent = replaceKeys({ content, customer, user });
-
-    // if sender choosed some template then use it
-    if (template) {
-      replacedContent = template.content.replace(EMAIL_CONTENT_PLACEHOLDER, replacedContent);
-    }
 
     // Add unsubscribe link ========
     const unSubscribeUrl = `${AWS_ENDPOINT}/unsubscribe/?cid=${customer._id}`;
 
-    replacedContent += `<div style="padding: 10px"> <a style="text-decoration: underline;color: #0068a5;" rel="noopener" target="_blank" href="${unSubscribeUrl}">Unsubscribe</a> </div>`;
+    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">If you want to use service like this click <a style="text-decoration: underline; color: #ccc;" href="https://erxes.io" target="_blank">here</a> to read more. Also you can opt out from our email subscription <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unSubscribeUrl}">here</a>.  <br>© 2019 erxes inc Growth Marketing Platform </div>`;
 
     const mailMessageId = Random.id();
 
@@ -163,7 +183,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
       userEmail,
       attachments,
       customer,
-      replacedSubject,
+      subject,
       replacedContent,
       AWS_SES_CONFIG_SET,
       message._id,
@@ -176,7 +196,7 @@ const sendViaEmail = async (message: IEngageMessageDocument) => {
  * Send via messenger
  */
 const sendViaMessenger = async (message: IEngageMessageDocument) => {
-  const { fromUserId, segmentId, customerIds = [] } = message;
+  const { fromUserId, tagIds, brandIds, segmentIds, customerIds = [] } = message;
 
   if (!message.messenger) {
     return;
@@ -201,7 +221,7 @@ const sendViaMessenger = async (message: IEngageMessageDocument) => {
   }
 
   // find matched customers
-  const customers = await findCustomers({ customerIds, segmentId });
+  const customers = await findCustomers({ customerIds, segmentIds, tagIds, brandIds });
 
   // save matched customer ids
   EngageMessages.setCustomerIds(message._id, customers);

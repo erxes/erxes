@@ -1,8 +1,10 @@
 import * as faker from 'faker';
-import { TAG_TYPES } from '../data/constants';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations } from '../db/models';
+import { TAG_TYPES } from '../db/models/definitions/constants';
+
+import './setup.ts';
 
 describe('integrationQueries', () => {
   const qryIntegrations = `
@@ -33,8 +35,6 @@ describe('integrationQueries', () => {
         formId
         formData
         messengerData
-        twitterData
-        facebookData
         uiOptions
 
         brand { _id }
@@ -99,26 +99,10 @@ describe('integrationQueries', () => {
   test('Integrations filtered by kind', async () => {
     await integrationFactory({ kind: 'messenger' });
     await integrationFactory({ kind: 'form' });
-    await integrationFactory({ kind: 'twitter' });
-    await integrationFactory({ kind: 'facebook' });
 
     // messenger ========================
     let responses = await graphqlRequest(qryIntegrations, 'integrations', {
       kind: 'messenger',
-    });
-
-    expect(responses.length).toBe(1);
-
-    // facebook =====================
-    responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      kind: 'facebook',
-    });
-
-    expect(responses.length).toBe(1);
-
-    // twitter ======================
-    responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      kind: 'twitter',
     });
 
     expect(responses.length).toBe(1);
@@ -132,10 +116,10 @@ describe('integrationQueries', () => {
   });
 
   test('Integrations filtered by channel', async () => {
-    const integration1 = await integrationFactory({ kind: 'twitter' });
-    const integration2 = await integrationFactory({ kind: 'twitter' });
+    const integration1 = await integrationFactory({ kind: 'facebook' });
+    const integration2 = await integrationFactory({ kind: 'facebook' });
 
-    await integrationFactory({ kind: 'twitter' });
+    await integrationFactory({ kind: 'facebook' });
 
     const integrationIds = [integration1._id, integration2._id];
 
@@ -195,8 +179,6 @@ describe('integrationQueries', () => {
   test('Get total count of integrations by kind', async () => {
     await integrationFactory({ kind: 'messenger' });
     await integrationFactory({ kind: 'form' });
-    await integrationFactory({ kind: 'twitter' });
-    await integrationFactory({ kind: 'facebook' });
 
     // messenger =========================
     let response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
@@ -207,16 +189,6 @@ describe('integrationQueries', () => {
     response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
     expect(response.byKind.form).toBe(1);
-
-    // facebook ==========================
-    response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
-
-    expect(response.byKind.twitter).toBe(1);
-
-    // twitter ===========================
-    response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
-
-    expect(response.byKind.facebook).toBe(1);
   });
 
   test('Get total count of integrations by channel', async () => {
@@ -244,26 +216,5 @@ describe('integrationQueries', () => {
     const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
     expect(response.byBrand[brand._id]).toBe(2);
-  });
-
-  test('Integration get facebook apps list', async () => {
-    process.env.FACEBOOK = JSON.stringify([
-      {
-        id: 'id',
-        name: 'name',
-        accessToken: 'access_token',
-      },
-    ]);
-
-    const qry = `
-      query integrationFacebookAppsList {
-        integrationFacebookAppsList
-      }
-    `;
-
-    const [response] = await graphqlRequest(qry, 'integrationFacebookAppsList');
-
-    expect(response.id).toBe('id');
-    expect(response.name).toBe('name');
   });
 });

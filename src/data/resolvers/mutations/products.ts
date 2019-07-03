@@ -1,6 +1,6 @@
 import { Products } from '../../../db/models';
 import { IProduct } from '../../../db/models/definitions/deals';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 interface IProductsEdit extends IProduct {
   _id: string;

@@ -1,10 +1,21 @@
 import * as Random from 'meteor-random';
-import { customerFactory, engageMessageFactory, segmentFactory, userFactory } from '../db/factories';
-import { Customers, EngageMessages, Segments, Users } from '../db/models';
+import {
+  brandFactory,
+  customerFactory,
+  engageMessageFactory,
+  segmentFactory,
+  tagsFactory,
+  userFactory,
+} from '../db/factories';
+import { Brands, Customers, EngageMessages, Segments, Tags, Users } from '../db/models';
+
+import './setup.ts';
 
 describe('engage messages model tests', () => {
   let _user;
   let _segment;
+  let _brand;
+  let _tag;
   let _message;
   let _customer;
   let _customer2;
@@ -12,6 +23,8 @@ describe('engage messages model tests', () => {
   beforeEach(async () => {
     _user = await userFactory({});
     _segment = await segmentFactory({});
+    _brand = await brandFactory({});
+    _tag = await tagsFactory({});
     _message = await engageMessageFactory({ kind: 'auto' });
     _customer = await customerFactory({});
     _customer2 = await customerFactory({});
@@ -21,6 +34,8 @@ describe('engage messages model tests', () => {
     await Users.deleteMany({});
     await Segments.deleteMany({});
     await EngageMessages.deleteMany({});
+    await Brands.deleteMany({});
+    await Tags.deleteMany({});
     await Customers.deleteMany({});
   });
 
@@ -29,7 +44,9 @@ describe('engage messages model tests', () => {
       kind: 'manual',
       title: 'Message test',
       fromUserId: _user._id,
-      segmentId: _segment._id,
+      segmentIds: [_segment._id],
+      brandIds: [_brand._id],
+      tagIds: [_tag._id],
       isLive: true,
       isDraft: false,
     };
@@ -38,7 +55,9 @@ describe('engage messages model tests', () => {
     expect(message.kind).toEqual(doc.kind);
     expect(message.title).toEqual(doc.title);
     expect(message.fromUserId).toEqual(_user._id);
-    expect(message.segmentId).toEqual(_segment._id);
+    expect(message.segmentIds).toEqual(expect.arrayContaining(doc.segmentIds));
+    expect(message.brandIds).toEqual(expect.arrayContaining(doc.brandIds));
+    expect(message.tagIds).toEqual(expect.arrayContaining(doc.tagIds));
     expect(message.isLive).toEqual(doc.isLive);
     expect(message.isDraft).toEqual(doc.isDraft);
   });
@@ -47,12 +66,16 @@ describe('engage messages model tests', () => {
     const message = await EngageMessages.updateEngageMessage(_message._id, {
       title: 'Message test updated',
       fromUserId: _user._id,
-      segmentId: _segment._id,
+      segmentIds: [_segment._id],
+      brandIds: [_brand._id],
+      tagIds: [_tag._id],
     });
 
     expect(message.title).toEqual('Message test updated');
     expect(message.fromUserId).toEqual(_user._id);
-    expect(message.segmentId).toEqual(_segment._id);
+    expect(message.segmentIds).toEqual(expect.arrayContaining([_segment._id]));
+    expect(message.brandIds).toEqual(expect.arrayContaining([_brand._id]));
+    expect(message.tagIds).toEqual(expect.arrayContaining([_tag._id]));
   });
 
   test('update messages: can not update manual message', async () => {

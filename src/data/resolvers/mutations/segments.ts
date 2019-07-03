@@ -1,6 +1,6 @@
 import { Segments } from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 
 interface ISegmentsEdit extends ISegment {
   _id: string;

@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { responseTemplateFactory } from '../db/factories';
 import { ResponseTemplates } from '../db/models';
 
+import './setup.ts';
+
 describe('responseTemplateQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -15,8 +17,8 @@ describe('responseTemplateQueries', () => {
     await responseTemplateFactory();
 
     const qry = `
-      query responseTemplates($page: Int $perPage: Int) {
-        responseTemplates(page: $page perPage: $perPage) {
+      query responseTemplates($page: Int, $perPage: Int, $searchValue: String, $brandId: String) {
+        responseTemplates(page: $page, perPage: $perPage, searchValue: $searchValue, brandId: $brandId) {
           _id
           name
           brandId

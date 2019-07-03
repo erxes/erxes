@@ -1,6 +1,9 @@
-.git
-.gitignore
 *.md
 *.yml
-scripts
+.env*
+.git*
+.prettierrc
 .snyk
+Dockerfile*
+google_cred.json.sample
+scripts

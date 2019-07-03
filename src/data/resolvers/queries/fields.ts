@@ -1,6 +1,6 @@
-import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
-import { Companies, Customers, Fields, FieldsGroups } from '../../../db/models';
-import { checkPermission, requireLogin } from '../../permissions';
+import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES, INTEGRATION_KIND_CHOICES } from '../../../data/constants';
+import { Brands, Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 
 interface IFieldsQuery {
   contentType: string;
@@ -58,13 +58,50 @@ const fieldQueries = {
     };
 
     let schema: any = Companies.schema;
+    let fields: Array<{ _id: number; name: string; label?: string; brandName?: string; brandId?: string }> = [];
 
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
+      const messengerIntegrations = await Integrations.find({ kind: INTEGRATION_KIND_CHOICES.MESSENGER });
+
+      // generate messengerData.customData fields
+      for (const integration of messengerIntegrations) {
+        const brand = await Brands.findOne({ _id: integration.brandId });
+
+        const lastCustomers = await Customers.find({
+          integrationId: integration._id,
+          $and: [
+            { 'messengerData.customData': { $exists: true } },
+            { 'messengerData.customData': { $ne: null } },
+            { 'messengerData.customData': { $ne: {} } },
+          ],
+        })
+          .sort({ createdAt: -1 })
+          .limit(1);
+
+        if (brand && integration && lastCustomers.length > 0) {
+          const [lastCustomer] = lastCustomers;
+
+          if (lastCustomer.messengerData) {
+            const customDataFields = Object.keys(lastCustomer.messengerData.customData || {});
+
+            for (const customDataField of customDataFields) {
+              fields.push({
+                _id: Math.random(),
+                name: `messengerData.customData.${customDataField}`,
+                label: customDataField,
+                brandName: brand.name,
+                brandId: brand._id,
+              });
+            }
+          }
+        }
+      }
+
       schema = Customers.schema;
     }
 
     // generate list using customer or company schema
-    let fields = generateFieldsFromSchema(schema, '');
+    fields = [...fields, ...generateFieldsFromSchema(schema, '')];
 
     schema.eachPath(name => {
       const path = schema.paths[name];

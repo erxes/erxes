@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { notificationConfigurationFactory, notificationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('notificationsQueries', () => {
   const commonParamDefs = `
     $limit: Int,

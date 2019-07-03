@@ -5,6 +5,7 @@ import mongoose = require('mongoose');
 import resolvers from '../data/resolvers';
 import typeDefs from '../data/schema';
 import { getEnv } from '../data/utils';
+import { debugDb } from '../debuggers';
 import { userFactory } from './factories';
 
 dotenv.config();
@@ -19,20 +20,20 @@ mongoose.Promise = global.Promise;
 mongoose.connection
   .on('connected', () => {
     if (NODE_ENV !== 'test') {
-      console.log(`Connected to the database: ${MONGO_URL}`);
+      debugDb(`Connected to the database: ${MONGO_URL}`);
     }
   })
   .on('disconnected', () => {
-    console.log(`Disconnected from the database: ${MONGO_URL}`);
+    debugDb(`Disconnected from the database: ${MONGO_URL}`);
   })
   .on('error', error => {
-    console.log(`Database connection error: ${MONGO_URL}`, error);
+    debugDb(`Database connection error: ${MONGO_URL}`, error);
   });
 
-export function connect() {
+export function connect(URL?: string, poolSize?: number) {
   return mongoose.connect(
-    MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true, poolSize: 100, autoReconnect: true },
+    URL || MONGO_URL,
+    { useNewUrlParser: true, useCreateIndex: true, poolSize: poolSize || 100, autoReconnect: true },
   );
 }
 

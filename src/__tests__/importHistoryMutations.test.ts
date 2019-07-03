@@ -1,6 +1,10 @@
+import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import { customerFactory, importHistoryFactory, userFactory } from '../db/factories';
-import { Customers, ImportHistory, Users } from '../db/models';
+import { ImportHistory, Users } from '../db/models';
+import * as workerUtils from '../workers/utils';
+
+import './setup.ts';
 
 describe('Import history mutations', () => {
   let _user;
@@ -31,9 +35,18 @@ describe('Import history mutations', () => {
       ids: [customer._id],
     });
 
+    const mock = sinon.stub(workerUtils, 'createWorkers').callsFake();
+
     await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id }, context);
 
-    expect(await ImportHistory.findOne({ _id: importHistory._id })).toBeNull();
-    expect(await Customers.findOne({ _id: customer._id })).toBeNull();
+    const historyObj = await ImportHistory.findOne({ _id: importHistory._id });
+
+    if (!historyObj) {
+      throw new Error('History not found');
+    }
+
+    expect(historyObj.status).toBe('Removing');
+
+    mock.restore();
   });
 });

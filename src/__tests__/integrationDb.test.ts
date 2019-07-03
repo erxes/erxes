@@ -1,8 +1,5 @@
 import * as faker from 'faker';
-import * as sinon from 'sinon';
-import { FORM_LOAD_TYPES, KIND_CHOICES, MESSENGER_DATA_AVAILABILITY } from '../data/constants';
 import {
-  accountFactory,
   brandFactory,
   conversationFactory,
   conversationMessageFactory,
@@ -12,7 +9,9 @@ import {
   userFactory,
 } from '../db/factories';
 import { Brands, ConversationMessages, Fields, Forms, Integrations, Users } from '../db/models';
-import * as facebookTracker from '../trackers/facebookTracker';
+import { FORM_LOAD_TYPES, KIND_CHOICES, MESSENGER_DATA_AVAILABILITY } from '../db/models/definitions/constants';
+
+import './setup.ts';
 
 describe('messenger integration model add method', () => {
   let _brand;
@@ -413,99 +412,5 @@ describe('save integration messenger configurations test', () => {
     expect(integration.messengerData.messages.en.welcome).toEqual(messengerData.messages.en.welcome);
     expect(integration.messengerData.messages.en.away).toEqual(messengerData.messages.en.away);
     expect(integration.messengerData.messages.en.thank).toEqual(messengerData.messages.en.thank);
-  });
-});
-
-describe('social integration test', () => {
-  let _brand;
-
-  beforeEach(async () => {
-    _brand = await brandFactory({});
-  });
-
-  afterEach(async () => {
-    await Brands.deleteMany({});
-    await Integrations.deleteMany({});
-  });
-
-  test('create twitter integration', async () => {
-    const account = await accountFactory({});
-    expect.assertions(4);
-
-    const doc = {
-      name: 'name',
-      brandId: _brand._id,
-      twitterData: {
-        profileId: '123312',
-        accountId: account._id,
-      },
-    };
-
-    const integration = await Integrations.createTwitterIntegration(doc);
-
-    if (!integration || !integration.twitterData) {
-      throw new Error('Integration not found');
-    }
-
-    expect(integration.name).toBe(doc.name);
-    expect(integration.brandId).toBe(doc.brandId);
-    expect(integration.kind).toBe(KIND_CHOICES.TWITTER);
-    expect(integration.twitterData.toJSON()).toEqual(doc.twitterData);
-  });
-
-  test('create facebook integration', async () => {
-    const account = await accountFactory({});
-    const doc = {
-      name: 'name',
-      brandId: _brand._id,
-      facebookData: {
-        accountId: account._id,
-        pageIds: ['1'],
-      },
-    };
-
-    process.env.FACEBOOK_APP_ID = '123321';
-    process.env.DOMAIN = 'qwqwe';
-
-    sinon.stub(facebookTracker, 'getPageInfo').callsFake(() => {
-      return { id: '456', access_token: '123' };
-    });
-
-    sinon.stub(facebookTracker, 'subscribePage').callsFake(() => {
-      return { success: true };
-    });
-
-    const integration = await Integrations.createFacebookIntegration(doc);
-
-    if (!integration || !integration.facebookData) {
-      throw new Error('Integration not found');
-    }
-
-    expect(integration.name).toBe(doc.name);
-    expect(integration.brandId).toBe(doc.brandId);
-    expect(integration.kind).toBe(KIND_CHOICES.FACEBOOK);
-    expect(integration.facebookData.toJSON()).toEqual(doc.facebookData);
-  });
-
-  test('create gmail integration', async () => {
-    const doc = {
-      name: 'name',
-      brandId: _brand._id,
-      gmailData: {
-        email: 'test@gmail.com',
-        accountId: 'accountId',
-      },
-    };
-
-    const integration = await Integrations.createGmailIntegration(doc);
-    if (!integration || !integration.gmailData) {
-      throw new Error('Integration not found');
-    }
-
-    expect(integration.name).toBe(doc.name);
-    expect(integration.gmailData.toJSON()).toEqual(doc.gmailData);
-
-    const prevEntry = await Integrations.createGmailIntegration(doc);
-    expect(integration._id).toBe(prevEntry._id);
   });
 });

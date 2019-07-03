@@ -2,6 +2,8 @@ import { customerFactory, fieldFactory, fieldGroupFactory, formFactory, userFact
 import { Customers, Fields, FieldsGroups, Forms } from '../db/models';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../db/models/definitions/constants';
 
+import './setup.ts';
+
 /**
  * Field related tests
  */

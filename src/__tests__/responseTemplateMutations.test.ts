@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { responseTemplateFactory, userFactory } from '../db/factories';
 import { ResponseTemplates, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Response template mutations', () => {
   let _responseTemplate;
   let _user;

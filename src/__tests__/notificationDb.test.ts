@@ -1,6 +1,8 @@
-import { NOTIFICATION_TYPES } from '../data/constants';
 import { notificationConfigurationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
+
+import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
+import './setup.ts';
 
 describe('Notification model tests', () => {
   let _user;
@@ -15,16 +17,6 @@ describe('Notification model tests', () => {
     Notifications.deleteMany({});
     NotificationConfigurations.deleteMany({});
     Users.deleteMany({});
-  });
-
-  test(`check whether Error('createdUser must be supplied') is being thrown as intended`, async () => {
-    expect.assertions(1);
-
-    try {
-      await Notifications.createNotification({});
-    } catch (e) {
-      expect(e.message).toBe('createdUser must be supplied');
-    }
   });
 
   test('check for error in model creation', async () => {
@@ -116,21 +108,6 @@ describe('Notification model tests', () => {
 });
 
 describe('NotificationConfiguration model tests', async () => {
-  test(`check whether Error('user must be supplied') is being thrown as intended`, async () => {
-    expect.assertions(1);
-
-    const doc = {
-      notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
-      isAllowed: true,
-    };
-
-    try {
-      await NotificationConfigurations.createOrUpdateConfiguration(doc);
-    } catch (e) {
-      expect(e.message).toBe('user must be supplied');
-    }
-  });
-
   test('test if model methods are working correctly', async () => {
     // creating new notification configuration ==========
     const user = await userFactory({});

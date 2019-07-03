@@ -14,8 +14,7 @@ export default {
   getIntegrationData(customer: ICustomerDocument) {
     return {
       messenger: customer.messengerData || {},
-      twitter: customer.twitterData || {},
-      facebook: customer.facebookData || {},
+      // TODO: Add other integration data
     };
   },
 

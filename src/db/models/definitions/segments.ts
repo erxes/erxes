@@ -7,6 +7,7 @@ export interface ICondition {
   operator: string;
   type: string;
   value?: string;
+  brandId?: string;
   dateUnit?: string;
 }
 
@@ -40,6 +41,11 @@ const conditionSchema = new Schema(
     }),
 
     dateUnit: field({
+      type: String,
+      optional: true,
+    }),
+
+    brandId: field({
       type: String,
       optional: true,
     }),

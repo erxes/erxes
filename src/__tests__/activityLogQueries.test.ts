@@ -1,9 +1,10 @@
 import * as faker from 'faker';
-import { ACTIVITY_ACTIONS, ACTIVITY_TYPES } from '../data/constants';
 import { graphqlRequest } from '../db/connection';
 import { activityLogFactory } from '../db/factories';
 import { ActivityLogs } from '../db/models';
-import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
+import { ACTIVITY_ACTIONS, ACTIVITY_CONTENT_TYPES, ACTIVITY_TYPES } from '../db/models/definitions/constants';
+
+import './setup.ts';
 
 describe('activityLogQueries', () => {
   const commonParamDefs = `

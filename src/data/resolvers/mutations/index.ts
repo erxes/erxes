@@ -1,4 +1,4 @@
-import accounts from './accounts';
+import boards from './boards';
 import brands from './brands';
 import channels from './channels';
 import companies from './companies';
@@ -22,11 +22,12 @@ import responseTemplates from './responseTemplates';
 import scripts from './scripts';
 import segments from './segments';
 import tags from './tags';
+import tasks from './tasks';
+import tickets from './tickets';
 import users from './users';
 
 export default {
   ...users,
-  ...accounts,
   ...conversations,
   ...tags,
   ...engages,
@@ -45,6 +46,7 @@ export default {
   ...notifications,
   ...knowledgeBase,
   ...deals,
+  ...boards,
   ...products,
   ...configs,
   ...fieldsgroups,
@@ -52,4 +54,6 @@ export default {
   ...messengerApps,
   ...permissions,
   ...usersGroups,
+  ...tickets,
+  ...tasks,
 };

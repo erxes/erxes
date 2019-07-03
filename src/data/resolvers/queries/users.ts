@@ -1,17 +1,19 @@
 import { Conversations, Users } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission, requireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { paginate } from '../../utils';
 
 interface IListArgs {
   page?: number;
   perPage?: number;
   searchValue?: string;
   isActive?: boolean;
+  ids?: string[];
+  status?: string;
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  const { searchValue, isActive } = params;
+  const { searchValue, isActive, ids, status } = params;
 
   const selector: any = {
     isActive,
@@ -28,6 +30,14 @@ const queryBuilder = async (params: IListArgs) => {
 
   if (isActive === undefined || isActive === null) {
     selector.isActive = true;
+  }
+
+  if (ids) {
+    selector._id = { $in: ids };
+  }
+
+  if (status) {
+    selector.registrationToken = { $exists: false, $eq: null };
   }
 
   return selector;

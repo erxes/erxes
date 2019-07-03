@@ -39,8 +39,6 @@ export const types = `
     visitorContactInfo: JSON
     customFieldsData: JSON
     messengerData: JSON
-    twitterData: JSON
-    facebookData: JSON
     ownerId: String
     position: String
     department: String
@@ -68,20 +66,21 @@ export const types = `
 `;
 
 const queryParams = `
-  page: Int,
-  perPage: Int,
-  segment: String,
-  tag: String,
-  ids: [String],
-  searchValue: String,
-  brand: String,
-  integration: String,
-  form: String,
-  startDate: String,
-  endDate: String,
-  lifecycleState: String,
-  leadStatus: String,
-  sortField: String,
+  page: Int
+  perPage: Int
+  segment: String
+  type: String 
+  tag: String
+  ids: [String]
+  searchValue: String
+  brand: String
+  integration: String
+  form: String
+  startDate: String
+  endDate: String
+  lifecycleState: String
+  leadStatus: String
+  sortField: String
   sortDirection: Int
 `;
 
@@ -91,7 +90,6 @@ export const queries = `
   customerCounts(${queryParams}, byFakeSegment: JSON, only: String): JSON
   customerDetail(_id: String!): Customer
   customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
-  customersExport(${queryParams}): String
 `;
 
 const fields = `

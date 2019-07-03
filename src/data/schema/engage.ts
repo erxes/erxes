@@ -2,7 +2,9 @@ export const types = `
   type EngageMessage {
     _id: String!
     kind: String
-    segmentId: String
+    tagIds: [String]
+    segmentIds: [String]
+    brandIds: [String]
     customerIds: [String]
     title: String
     fromUserId: String
@@ -13,7 +15,6 @@ export const types = `
     createdDate: Date
     type: String
     messengerReceivedCustomerIds: [String]
-    tagIds: [String]
     stats: JSON
     brand: Brand
 
@@ -22,7 +23,9 @@ export const types = `
     deliveryReports: JSON
 
     scheduleDate: EngageScheduleDate
-    segment: Segment
+    segments: [Segment]
+    tags: [Tag]
+    brands: [Brand]
     fromUser: User
     getTags: [Tag]
   }
@@ -41,19 +44,11 @@ export const types = `
     time: Date,
   }
 
-  input EngageMessageMessengerRule {
-    _id : String!,
-    kind: String!,
-    text: String!,
-    condition: String!,
-    value: String,
-  }
-
   input EngageMessageEmail {
-    templateId: String,
+    content: String,
     subject: String!,
-    content: String!,
     attachments: [JSON]
+    templateId: String
   }
 
   input EngageMessageMessenger {
@@ -61,13 +56,16 @@ export const types = `
     kind: String,
     sentAs: String,
     content: String,
-    rules: [EngageMessageMessengerRule],
+    rules: [InputRule],
   }
 `;
 
 const listParams = `
   kind: String
   status: String
+  segmentIds: [String]
+  brandIds: [String]
+  tagIds: [String]
   tag: String
   ids: [String]
   page: Int
@@ -91,9 +89,10 @@ const commonParams = `
   stopDate: Date,
   scheduleDate: Date,
   type: String
-  segmentId: String,
-  customerIds: [String],
+  segmentIds: [String],
   tagIds: [String],
+  brandIds: [String],
+  customerIds: [String],
   email: EngageMessageEmail,
   scheduleDate: EngageScheduleDateInput,
   messenger: EngageMessageMessenger,

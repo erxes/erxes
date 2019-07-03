@@ -1,7 +1,7 @@
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../../../db/models';
 
-import { checkPermission, requireLogin } from '../../permissions';
-import { paginate } from './utils';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { paginate } from '../../utils';
 
 /* Articles list & total count helper */
 const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {

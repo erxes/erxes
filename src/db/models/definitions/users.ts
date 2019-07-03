@@ -47,6 +47,7 @@ export interface IUser {
   links?: ILink;
   isActive?: boolean;
   groupIds?: string[];
+  deviceTokens?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -54,7 +55,6 @@ export interface IUserDocument extends IUser, Document {
   emailSignatures?: IEmailSignatureDocument[];
   details?: IDetailDocument;
   links?: ILinkDocument;
-  groupIds?: string[];
 }
 
 // Mongoose schemas ===============================
@@ -105,7 +105,7 @@ export const userSchema = new Schema({
   email: field({
     type: String,
     unique: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/, 'Please fill a valid email address'],
   }),
   getNotificationByEmail: field({ type: Boolean }),
   emailSignatures: field({ type: [emailSignatureSchema] }),
@@ -114,4 +114,5 @@ export const userSchema = new Schema({
   links: field({ type: linkSchema, default: {} }),
   isActive: field({ type: Boolean, default: true }),
   groupIds: field({ type: [String] }),
+  deviceTokens: field({ type: [String], default: [] }),
 });

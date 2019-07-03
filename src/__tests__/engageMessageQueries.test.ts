@@ -1,6 +1,8 @@
 import { graphqlRequest } from '../db/connection';
-import { engageMessageFactory, tagsFactory, userFactory } from '../db/factories';
-import { EngageMessages, Tags, Users } from '../db/models';
+import { brandFactory, engageMessageFactory, segmentFactory, tagsFactory, userFactory } from '../db/factories';
+import { Brands, EngageMessages, Segments, Tags, Users } from '../db/models';
+
+import './setup.ts';
 
 describe('engageQueries', () => {
   const qryEngageMessages = `
@@ -8,17 +10,25 @@ describe('engageQueries', () => {
       $kind: String
       $status: String
       $tag: String
+      $tagIds: [String]
+      $segmentIds: [String]
+      $brandIds: [String]
       $ids: [String]
     ) {
       engageMessages(
         kind: $kind
         status: $status
         tag: $tag
+        tagIds: $tagIds
+        segmentIds: $segmentIds
+        brandIds: $brandIds
         ids: $ids
       ) {
         _id
         kind
-        segmentId
+        segmentIds
+        brandIds
+        tagIds
         customerIds
         title
         fromUserId
@@ -28,13 +38,12 @@ describe('engageQueries', () => {
         stopDate
         createdDate
         messengerReceivedCustomerIds
-        tagIds
 
         email
         messenger
         deliveryReports
 
-        segment { _id }
+        segments { _id }
         fromUser { _id }
         getTags { _id }
       }
@@ -52,6 +61,8 @@ describe('engageQueries', () => {
     await EngageMessages.deleteMany({});
     await Users.deleteMany({});
     await Tags.deleteMany({});
+    await Brands.deleteMany({});
+    await Segments.deleteMany({});
   });
 
   test('Engage messages filtered by ids', async () => {
@@ -66,6 +77,36 @@ describe('engageQueries', () => {
     const responses = await graphqlRequest(qryEngageMessages, 'engageMessages', { ids });
 
     expect(responses.length).toBe(3);
+  });
+
+  test('Engage messages filtered by tagIds', async () => {
+    const tag = await tagsFactory();
+
+    await engageMessageFactory({ tagIds: [tag._id] });
+
+    const responses = await graphqlRequest(qryEngageMessages, 'engageMessages', { tagIds: [tag._id] });
+
+    expect(responses.length).toBe(1);
+  });
+
+  test('Engage messages filtered by brandIds', async () => {
+    const brand = await brandFactory();
+
+    await engageMessageFactory({ brandIds: [brand._id] });
+
+    const responses = await graphqlRequest(qryEngageMessages, 'engageMessages', { brandIds: [brand._id] });
+
+    expect(responses.length).toBe(1);
+  });
+
+  test('Engage messages filtered by segmentIds', async () => {
+    const segment = await segmentFactory();
+
+    await engageMessageFactory({ segmentIds: [segment._id] });
+
+    const responses = await graphqlRequest(qryEngageMessages, 'engageMessages', { segmentIds: [segment._id] });
+
+    expect(responses.length).toBe(1);
   });
 
   test('Engage messages filtered by kind', async () => {

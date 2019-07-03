@@ -1,6 +1,6 @@
 import { Channels, Users } from '../../../db/models';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission, requireLogin } from '../../permissions';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { authCookieOptions, getEnv } from '../../utils';
 
 interface IUsersEdit extends IUser {
@@ -9,11 +9,29 @@ interface IUsersEdit extends IUser {
   _id: string;
 }
 
+const sendInvitationEmail = ({ email, token }: { email: string; token: string }) => {
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
+
+  utils.sendEmail({
+    toEmails: [email],
+    title: 'Team member invitation',
+    template: {
+      name: 'userInvitation',
+      data: {
+        content: confirmationUrl,
+        domain: MAIN_APP_DOMAIN,
+      },
+      isCustom: true,
+    },
+  });
+};
+
 const userMutations = {
   /*
    * Login
    */
-  async login(_root, args: { email: string; password: string }, { res }) {
+  async login(_root, args: { email: string; password: string; deviceToken?: string }, { res }) {
     const response = await Users.login(args);
 
     const { token } = response;
@@ -23,12 +41,9 @@ const userMutations = {
     return 'loggedIn';
   },
 
-  async logout(_root, _args, { user, res }) {
-    const response = await Users.logout(user);
-
+  async logout(_root, _args, { res }) {
     res.clearCookie('auth-token');
-
-    return response;
+    return 'loggedout';
   },
 
   /*
@@ -150,22 +165,19 @@ const userMutations = {
 
       const token = await Users.createUserWithConfirmation(entry);
 
-      const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-      const confirmationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
-
-      utils.sendEmail({
-        toEmails: [entry.email],
-        title: 'Team member invitation',
-        template: {
-          name: 'userInvitation',
-          data: {
-            content: confirmationUrl,
-            domain: MAIN_APP_DOMAIN,
-          },
-          isCustom: true,
-        },
-      });
+      sendInvitationEmail({ email: entry.email, token });
     }
+  },
+
+  /*
+   * Resend invitation
+   */
+  async usersResendInvitation(_root, { email }: { email: string }) {
+    const token = await Users.resendInvitation({ email });
+
+    sendInvitationEmail({ email, token });
+
+    return token;
   },
 
   /*
@@ -214,6 +226,7 @@ requireLogin(userMutations, 'usersConfigEmailSignatures');
 
 checkPermission(userMutations, 'usersEdit', 'usersEdit');
 checkPermission(userMutations, 'usersInvite', 'usersInvite');
+checkPermission(userMutations, 'usersResendInvitation', 'usersInvite');
 checkPermission(userMutations, 'usersSetActiveStatus', 'usersSetActiveStatus');
 
 export default userMutations;

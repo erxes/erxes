@@ -1,6 +1,8 @@
 import { customerFactory, userFactory } from '../db/factories';
 import { Customers, ImportHistory, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('Import history model test', () => {
   afterEach(async () => {
     // Clearing test data
@@ -54,9 +56,6 @@ describe('Import history model test', () => {
 
     await ImportHistory.removeHistory(importHistory._id);
 
-    expect(await Customers.findOne({ _id: customer._id })).toBeNull();
-    expect(await Customers.findOne({ _id: customer1._id })).toBeNull();
-    expect(await Customers.findOne({ _id: customer2._id })).toBeNull();
     expect(await ImportHistory.findOne({ _id: importHistory._id })).toBeNull();
   });
 });

@@ -1,10 +1,10 @@
-import { createSchedule, updateOrRemoveSchedule } from '../../../cronJobs/engages';
 import { EngageMessages, Users } from '../../../db/models';
+import { METHODS } from '../../../db/models/definitions/constants';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { awsRequests } from '../../../trackers/engageTracker';
-import { MESSAGE_KINDS, METHODS } from '../../constants';
-import { checkPermission } from '../../permissions';
-import { getEnv } from '../../utils';
+import { MESSAGE_KINDS } from '../../constants';
+import { checkPermission } from '../../permissions/wrappers';
+import { fetchCronsApi, getEnv } from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -49,7 +49,7 @@ const engageMutations = {
   async engageMessageEdit(_root, { _id, ...doc }: IEngageMessageEdit) {
     await EngageMessages.updateEngageMessage(_id, doc);
 
-    updateOrRemoveSchedule({ _id }, true);
+    await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });
 
     return EngageMessages.findOne({ _id });
   },
@@ -57,8 +57,8 @@ const engageMutations = {
   /**
    * Remove message
    */
-  engageMessageRemove(_root, { _id }: { _id: string }) {
-    updateOrRemoveSchedule({ _id });
+  async engageMessageRemove(_root, { _id }: { _id: string }) {
+    await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id } });
 
     return EngageMessages.removeEngageMessage(_id);
   },
@@ -72,7 +72,11 @@ const engageMutations = {
     const { kind } = engageMessage;
 
     if (kind === MESSAGE_KINDS.AUTO || kind === MESSAGE_KINDS.VISITOR_AUTO) {
-      createSchedule(engageMessage);
+      await fetchCronsApi({
+        path: '/create-schedule',
+        method: 'POST',
+        body: { message: JSON.stringify(engageMessage) },
+      });
     }
 
     return engageMessage;

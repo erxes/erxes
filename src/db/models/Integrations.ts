@@ -1,18 +1,13 @@
 import { Model, model } from 'mongoose';
 import 'mongoose-type-email';
-import { Accounts, ConversationMessages, Conversations, Customers, Forms } from '.';
-import { KIND_CHOICES } from '../../data/constants';
-import { getEnv } from '../../data/utils';
-import { getPageInfo, subscribePage } from '../../trackers/facebookTracker';
+import { ConversationMessages, Conversations, Customers, Forms } from '.';
+import { KIND_CHOICES } from './definitions/constants';
 import {
-  IFacebookData,
   IFormData,
-  IGmailData,
   IIntegration,
   IIntegrationDocument,
   IMessengerData,
   integrationSchema,
-  ITwitterData,
   IUiOptions,
 } from './definitions/integrations';
 
@@ -22,49 +17,23 @@ export interface IMessengerIntegration {
   languageCode: string;
 }
 
-interface IGmailParams {
+export interface IExternalIntegrationParams {
+  kind: string;
   name: string;
   brandId: string;
-  gmailData: IGmailData;
+  accountId: string;
 }
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   generateFormDoc(mainDoc: IIntegration, formData: IFormData): IIntegration;
   createIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
-
-  createTwitterIntegration({
-    name,
-    brandId,
-    twitterData,
-  }: {
-    name: string;
-    brandId: string;
-    twitterData: ITwitterData;
-  }): Promise<IIntegrationDocument>;
-
-  createFacebookIntegration({
-    name,
-    brandId,
-    facebookData,
-  }: {
-    name: string;
-    brandId: string;
-    facebookData: IFacebookData;
-  }): Promise<IIntegrationDocument>;
-
-  createGmailIntegration(params: IGmailParams): Promise<IIntegrationDocument>;
-
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
-
   saveMessengerAppearanceData(_id: string, doc: IUiOptions): Promise<IIntegrationDocument>;
-
   saveMessengerConfigs(_id: string, messengerData: IMessengerData): Promise<IIntegrationDocument>;
-
   createFormIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
-
   updateFormIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
-
+  createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
 }
 
@@ -96,69 +65,6 @@ export const loadClass = () => {
       return this.createIntegration({
         ...doc,
         kind: KIND_CHOICES.MESSENGER,
-      });
-    }
-
-    /**
-     * Create twitter integration
-     */
-    public static async createTwitterIntegration({
-      name,
-      brandId,
-      twitterData,
-    }: {
-      name: string;
-      brandId: string;
-      twitterData: ITwitterData;
-    }) {
-      return this.createIntegration({
-        name,
-        brandId,
-        kind: KIND_CHOICES.TWITTER,
-        twitterData,
-      });
-    }
-
-    /**
-     * Create facebook integration
-     */
-    public static async createFacebookIntegration({
-      name,
-      brandId,
-      facebookData,
-    }: {
-      name: string;
-      brandId: string;
-      facebookData: IFacebookData;
-    }) {
-      getEnv({ name: 'FACEBOOK_APP_ID' });
-      getEnv({ name: 'DOMAIN' });
-
-      const { pageIds, accountId } = facebookData;
-
-      const account = await Accounts.findOne({ _id: accountId });
-
-      if (!account) {
-        throw new Error('Account not found');
-      }
-
-      for (const pageId of pageIds) {
-        const pageInfo = await getPageInfo(pageId, account.token);
-
-        const pageToken = pageInfo.access_token;
-
-        const res = await subscribePage(pageId, pageToken);
-
-        if (res.success !== true) {
-          throw new Error('Couldnt subscribe page');
-        }
-      }
-
-      return this.createIntegration({
-        name,
-        brandId,
-        kind: KIND_CHOICES.FACEBOOK,
-        facebookData,
       });
     }
 
@@ -202,7 +108,14 @@ export const loadClass = () => {
         throw new Error('formData must be supplied');
       }
 
-      return Integrations.create(doc);
+      return Integrations.createIntegration(doc);
+    }
+
+    /**
+     * Create external integrations like facebook, twitter integration
+     */
+    public static createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument> {
+      return Integrations.createIntegration(doc);
     }
 
     /**
@@ -249,24 +162,6 @@ export const loadClass = () => {
       }
 
       return Integrations.deleteMany({ _id });
-    }
-
-    public static async createGmailIntegration({ name, brandId, gmailData }: IGmailParams) {
-      const prevEntry = await Integrations.findOne({
-        gmailData: { $exists: true },
-        'gmailData.email': gmailData.email,
-      });
-
-      if (prevEntry) {
-        return prevEntry;
-      }
-
-      return this.createIntegration({
-        name,
-        brandId,
-        kind: KIND_CHOICES.GMAIL,
-        gmailData,
-      });
     }
   }
 

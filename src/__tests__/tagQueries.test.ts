@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { tagsFactory } from '../db/factories';
 import { Tags } from '../db/models';
 
+import './setup.ts';
+
 describe('tagQueries', () => {
   afterEach(async () => {
     // Clearing test data

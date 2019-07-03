@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { conversationFactory, userFactory } from '../db/factories';
 import { Conversations, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('userQueries', () => {
   afterEach(async () => {
     // Clearing test data

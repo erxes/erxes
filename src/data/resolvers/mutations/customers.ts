@@ -2,7 +2,7 @@ import { Customers } from '../../../db/models';
 
 import { ICustomer } from '../../../db/models/definitions/customers';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { checkPermission } from '../../permissions';
+import { checkPermission } from '../../permissions/wrappers';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;

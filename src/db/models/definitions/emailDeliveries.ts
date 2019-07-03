@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { EMAIL_TYPES } from './constants';
 
 interface IAttachmentParams {
   data: string;
@@ -52,7 +51,7 @@ export const emailDeliverySchema = new Schema({
   fromEmail: field({ type: String }),
   userId: field({ type: String }),
 
-  type: { type: String, enum: EMAIL_TYPES.ALL, default: EMAIL_TYPES.GMAIL },
+  type: { type: String },
 
   createdAt: field({ type: Date, default: Date.now }),
 });

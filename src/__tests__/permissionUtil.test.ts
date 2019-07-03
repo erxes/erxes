@@ -2,10 +2,13 @@ import { can, registerModule } from '../data/permissions/utils';
 import { permissionFactory, userFactory, usersGroupFactory } from '../db/factories';
 import { Permissions, Users, UsersGroups } from '../db/models';
 
+import { IUserDocument } from '../db/models/definitions/users';
+import './setup.ts';
+
 describe('Test permission utils', () => {
-  let _user;
-  let _user2;
-  let _user3;
+  let _user: IUserDocument;
+  let _user2: IUserDocument;
+  let _user3: IUserDocument;
 
   const moduleObj = {
     name: 'testModule',
@@ -56,9 +59,9 @@ describe('Test permission utils', () => {
 
   afterEach(async () => {
     // Clearing test data
-    await Users.remove({});
-    await Permissions.remove({});
-    await UsersGroups.remove({});
+    await Users.deleteMany({});
+    await Permissions.deleteMany({});
+    await UsersGroups.deleteMany({});
   });
 
   test('Register module check duplicated module', async () => {
@@ -87,32 +90,20 @@ describe('Test permission utils', () => {
     }
   });
 
-  test('Check permission userId required', async () => {
-    const checkPermission = await can('action');
-
-    expect(checkPermission).toEqual(false);
-  });
-
-  test('Check permission user not found', async () => {
-    const checkPermission = await can('action', 'fakeId');
-
-    expect(checkPermission).toEqual(false);
-  });
-
   test('Check permission is owner', async () => {
-    const checkPermission = await can('action', _user._id);
+    const checkPermission = await can('action', _user);
 
     expect(checkPermission).toEqual(true);
   });
 
   test('Check permission', async () => {
-    const checkPermission = await can('action1', _user2._id);
+    const checkPermission = await can('action1', _user2);
 
     expect(checkPermission).toEqual(true);
   });
 
   test('Check permission', async () => {
-    const checkPermission = await can('action3', _user3._id);
+    const checkPermission = await can('action3', _user3);
 
     expect(checkPermission).toEqual(true);
   });

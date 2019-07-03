@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import QueryBuilder from '../data/resolvers/queries/segmentQueryBuilder';
+import QueryBuilder from '../data/modules/segments/queryBuilder';
 import { ActivityLogs, Customers, Segments } from '../db/models';
 
 /**
@@ -29,10 +29,6 @@ export const createActivityLogsFromSegments = async () => {
  * │    └──────────────────── minute (0 - 59)
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
-schedule.scheduleJob('* 45 23 * *', () => {
+schedule.scheduleJob('0 45 23 * * *', () => {
   createActivityLogsFromSegments();
 });
-
-export default {
-  createActivityLogsFromSegments,
-};

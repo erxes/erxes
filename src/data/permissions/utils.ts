@@ -1,5 +1,6 @@
 import { Permissions, Users } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
+import { get, set } from '../../redisClient';
 
 export interface IModulesMap {
   name: string;
@@ -78,17 +79,8 @@ export const registerModule = (modules: any): void => {
   }
 };
 
-export const can = async (action: string, userId: string = ''): Promise<boolean> => {
-  if (!userId) {
-    return false;
-  }
-
-  const user = await Users.findOne({ _id: userId }).select({
-    isOwner: 1,
-    groupIds: 1,
-  });
-
-  if (!user) {
+export const can = async (action: string, user: IUserDocument): Promise<boolean> => {
+  if (!user || !user._id) {
     return false;
   }
 
@@ -96,7 +88,7 @@ export const can = async (action: string, userId: string = ''): Promise<boolean>
     return true;
   }
 
-  const actionMap: IActionMap = await userAllowedActions(user);
+  const actionMap: IActionMap = await getUserAllowedActions(user);
 
   return actionMap[action] === true;
 };
@@ -104,6 +96,41 @@ export const can = async (action: string, userId: string = ''): Promise<boolean>
 interface IActionMap {
   [key: string]: boolean;
 }
+
+const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
+
+/*
+ * Get given users permission map from redis or database
+ */
+export const getUserAllowedActions = async (user: IUserDocument): Promise<IActionMap> => {
+  const key = getKey(user);
+  const permissionCache = await get(key);
+
+  let actionMap: IActionMap;
+
+  if (permissionCache) {
+    actionMap = JSON.parse(permissionCache);
+  } else {
+    actionMap = await userAllowedActions(user);
+
+    set(key, JSON.stringify(actionMap));
+  }
+
+  return actionMap;
+};
+
+/*
+ * Reset permissions map for all users
+ */
+export const resetPermissionsCache = async () => {
+  const users = await Users.find({});
+
+  for (const user of users) {
+    const key = getKey(user);
+
+    set(key, '');
+  }
+};
 
 export const userAllowedActions = async (user: IUserDocument): Promise<IActionMap> => {
   const userPermissions = await Permissions.find({ userId: user._id });

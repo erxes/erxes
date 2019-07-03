@@ -1,6 +1,6 @@
 import { withFilter } from 'apollo-server-express';
 import { Channels, Conversations, Integrations } from '../../../db/models';
-import pubsub from './pubsub';
+import { graphqlPubsub } from '../../../pubsub';
 
 export default {
   /*
@@ -8,7 +8,7 @@ export default {
    */
   conversationChanged: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationChanged'),
+      () => graphqlPubsub.asyncIterator('conversationChanged'),
       // filter by conversationId
       (payload, variables) => {
         return payload.conversationChanged.conversationId === variables._id;
@@ -21,10 +21,22 @@ export default {
    */
   conversationMessageInserted: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationMessageInserted'),
+      () => graphqlPubsub.asyncIterator('conversationMessageInserted'),
       // filter by conversationId
       (payload, variables) => {
         return payload.conversationMessageInserted.conversationId === variables._id;
+      },
+    ),
+  },
+
+  /*
+   * Admin is listening for this subscription to show typing notification
+   */
+  conversationClientTypingStatusChanged: {
+    subscribe: withFilter(
+      () => graphqlPubsub.asyncIterator('conversationClientTypingStatusChanged'),
+      async (payload, variables) => {
+        return payload.conversationClientTypingStatusChanged.conversationId === variables._id;
       },
     ),
   },
@@ -34,9 +46,10 @@ export default {
    */
   conversationClientMessageInserted: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationClientMessageInserted'),
+      () => graphqlPubsub.asyncIterator('conversationClientMessageInserted'),
       async (payload, variables) => {
         const message = payload.conversationClientMessageInserted;
+
         const conversation = await Conversations.findOne({ _id: message.conversationId }, { integrationId: 1 });
 
         if (!conversation) {
@@ -64,7 +77,7 @@ export default {
    */
   conversationAdminMessageInserted: {
     subscribe: withFilter(
-      () => pubsub.asyncIterator('conversationAdminMessageInserted'),
+      () => graphqlPubsub.asyncIterator('conversationAdminMessageInserted'),
       // filter by conversationId
       (payload, variables) => {
         return payload.conversationAdminMessageInserted.customerId === variables.customerId;

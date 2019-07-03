@@ -1,6 +1,6 @@
-import { ACTIVITY_PERFORMER_TYPES } from '../../data/constants';
 import { Users } from '../../db/models';
 import { IActivityLogDocument } from '../../db/models/definitions/activityLogs';
+import { ACTIVITY_PERFORMER_TYPES } from '../../db/models/definitions/constants';
 
 /*
  * Placeholder object for ActivityLog resolver (used with graphql)

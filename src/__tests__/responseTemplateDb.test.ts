@@ -1,6 +1,8 @@
 import { responseTemplateFactory } from '../db/factories';
 import { ResponseTemplates } from '../db/models';
 
+import './setup.ts';
+
 describe('Response template db', () => {
   let _responseTemplate;
 

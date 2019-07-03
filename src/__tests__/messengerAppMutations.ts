@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { formFactory, messengerAppFactory, userFactory } from '../db/factories';
 import { MessengerApps, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('mutations', () => {
   let _user;
   let context;
@@ -17,31 +19,6 @@ describe('mutations', () => {
     // Clearing test data
     await MessengerApps.deleteMany({});
     await Users.deleteMany({});
-  });
-
-  test('Add google meet', async () => {
-    const args = {
-      name: 'google meet',
-      accountId: Math.random().toString(),
-    };
-
-    const mutation = `
-      mutation messengerAppsAddGoogleMeet($name: String!, $accountId: String!) {
-        messengerAppsAddGoogleMeet(name: $name, accountId: $accountId) {
-          name
-          kind
-          showInInbox
-          accountId
-        }
-      }
-    `;
-
-    const app = await graphqlRequest(mutation, 'messengerAppsAddGoogleMeet', args, context);
-
-    expect(app.kind).toBe('googleMeet');
-    expect(app.showInInbox).toBe(true);
-    expect(app.name).toBe(args.name);
-    expect(app.accountId).toBe(args.accountId);
   });
 
   test('Add knowledgebase', async () => {

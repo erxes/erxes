@@ -3,6 +3,8 @@ import { Companies, Customers, Deals, InternalNotes } from '../db/models';
 import { ICompany, ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
+import './setup.ts';
+
 const check = (companyObj: ICompanyDocument, doc: ICompany) => {
   expect(companyObj.createdAt).toBeDefined();
   expect(companyObj.modifiedAt).toBeDefined();

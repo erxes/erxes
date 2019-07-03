@@ -1,6 +1,8 @@
 import { emailTemplateFactory } from '../db/factories';
 import { EmailTemplates } from '../db/models';
 
+import './setup.ts';
+
 describe('Email template db', () => {
   let _emailTemplate;
 

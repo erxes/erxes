@@ -1,23 +1,15 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
-import {
-  ACTIVITY_CONTENT_TYPES,
-  CONVERSATION_STATUSES,
-  KIND_CHOICES,
-  NOTIFICATION_TYPES,
-} from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { facebookReply, IFacebookReply } from '../../../trackers/facebook';
-import { sendGmail } from '../../../trackers/gmail';
-import { favorite, retweet, tweet, tweetReply } from '../../../trackers/twitter';
-import { IMailParams } from '../../../trackers/types';
-import { checkPermission, requireLogin } from '../../permissions';
-import utils from '../../utils';
-import { pubsub } from '../subscriptions';
+import { debugExternalApi } from '../../../debuggers';
+import { graphqlPubsub } from '../../../pubsub';
+import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import utils, { fetchIntegrationApi } from '../../utils';
 
 interface IConversationMessageAdd {
   conversationId: string;
@@ -25,15 +17,16 @@ interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
-  tweetReplyToId?: string;
-  tweetReplyToScreenName?: string;
-  commentReplyToId?: string;
 }
 
 /**
  * conversation notrification receiver ids
  */
-export const conversationNotifReceivers = (conversation: IConversationDocument, currentUserId: string): string[] => {
+export const conversationNotifReceivers = (
+  conversation: IConversationDocument,
+  currentUserId: string,
+  exclude: boolean = true,
+): string[] => {
   let userIds: string[] = [];
 
   // assigned user can get notifications
@@ -47,7 +40,9 @@ export const conversationNotifReceivers = (conversation: IConversationDocument, 
   }
 
   // exclude current user
-  userIds = _.without(userIds, currentUserId);
+  if (exclude) {
+    userIds = _.without(userIds, currentUserId);
+  }
 
   return userIds;
 };
@@ -58,7 +53,7 @@ export const conversationNotifReceivers = (conversation: IConversationDocument, 
  */
 export const publishConversationsChanged = (_ids: string[], type: string): string[] => {
   for (const _id of _ids) {
-    pubsub.publish('conversationChanged', {
+    graphqlPubsub.publish('conversationChanged', {
       conversationChanged: { conversationId: _id, type },
     });
   }
@@ -74,7 +69,7 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
     return;
   }
 
-  pubsub.publish('conversationMessageInserted', {
+  graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
 
@@ -84,39 +79,20 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
     const extendedMessage = message.toJSON();
     extendedMessage.customerId = customerId;
 
-    pubsub.publish('conversationAdminMessageInserted', {
+    graphqlPubsub.publish('conversationAdminMessageInserted', {
       conversationAdminMessageInserted: extendedMessage,
     });
   }
 };
-/**
- * Publish conversation client message inserted
- */
+
 export const publishClientMessage = (message: IMessageDocument) => {
   // notifying to total unread count
-  pubsub.publish('conversationClientMessageInserted', {
+  graphqlPubsub.publish('conversationClientMessageInserted', {
     conversationClientMessageInserted: message,
   });
 };
 
 const conversationMutations = {
-  /**
-   * Calling this mutation from widget api run new message subscription
-   */
-  async conversationPublishClientMessage(_root, { _id }: { _id: string }) {
-    const message = await ConversationMessages.findOne({ _id });
-
-    if (!message) {
-      throw new Error('Message not found');
-    }
-
-    // notifying to conversationd detail
-    publishMessage(message);
-
-    // notifying to total unread count
-    publishClientMessage(message);
-  },
-
   /**
    * Create new message in conversation
    */
@@ -149,6 +125,14 @@ const conversationMutations = {
       receivers: conversationNotifReceivers(conversation, user._id),
     });
 
+    // send mobile notification ======
+    utils.sendMobileNotification({
+      title,
+      body: strip(doc.content),
+      receivers: conversationNotifReceivers(conversation, user._id, false),
+      customerId: conversation.customerId,
+    });
+
     // do not send internal message to third service integrations
     if (doc.internal) {
       const messageObj = await ConversationMessages.addMessage(doc, user._id);
@@ -160,18 +144,6 @@ const conversationMutations = {
     }
 
     const kind = integration.kind;
-
-    // send reply to twitter
-    if (kind === KIND_CHOICES.TWITTER) {
-      await tweetReply({
-        conversation,
-        text: strip(doc.content),
-        toId: doc.tweetReplyToId,
-        toScreenName: doc.tweetReplyToScreenName,
-      });
-
-      return null;
-    }
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
 
@@ -189,53 +161,26 @@ const conversationMutations = {
       });
     }
 
-    if (kind === KIND_CHOICES.GMAIL) {
-      const firstMessage = await ConversationMessages.findOne({ conversationId: conversation._id }).sort({
-        createdAt: 1,
-      });
-
-      if (firstMessage && firstMessage.gmailData) {
-        const gmailData = firstMessage.gmailData;
-
-        const args: IMailParams = {
-          integrationId: integration._id,
-          cocType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-          cocId: conversation.customerId || '',
-          subject: `Re: ${gmailData.subject}`,
-          body: doc.content,
-          toEmails: gmailData.from,
-          cc: gmailData.cc || '',
-          bcc: gmailData.bcc || '',
-          headerId: gmailData.headerId,
-          threadId: gmailData.threadId,
-        };
-
-        await sendGmail(args, user);
-      }
-
-      return null;
-    }
-
     const message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
-      const msg: IFacebookReply = {
-        text: strip(doc.content),
-      };
-
-      // attaching parent comment id if replied to comment
-      if (doc.commentReplyToId) {
-        msg.commentId = doc.commentReplyToId;
-      }
-
-      // attaching attachment if sent
-      if (doc.attachments.length > 0) {
-        msg.attachment = doc.attachments[0];
-      }
-
-      // when facebook kind is feed, assign commentId in extraData
-      await facebookReply(conversation, msg, message);
+      fetchIntegrationApi({
+        path: '/facebook/reply',
+        method: 'POST',
+        body: {
+          conversationId: conversation._id,
+          integrationId: integration._id,
+          content: strip(doc.content),
+          attachments: doc.attachments || [],
+        },
+      })
+        .then(response => {
+          debugExternalApi(response);
+        })
+        .catch(e => {
+          debugExternalApi(e.message);
+        });
     }
 
     const dbMessage = await ConversationMessages.findOne({
@@ -246,27 +191,6 @@ const conversationMutations = {
     publishMessage(dbMessage, conversation.customerId);
 
     return dbMessage;
-  },
-
-  /**
-   * Tweet
-   */
-  async conversationsTweet(_root, doc: { integrationId: string; text: string }) {
-    return tweet(doc);
-  },
-
-  /**
-   * Retweet
-   */
-  async conversationsRetweet(_root, doc: { integrationId: string; id: string }) {
-    return retweet(doc);
-  },
-
-  /**
-   * Favorite
-   */
-  async conversationsFavorite(_root, doc: { integrationId: string; id: string }) {
-    return favorite(doc);
   },
 
   /**

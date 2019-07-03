@@ -1,5 +1,7 @@
 import { Configs } from '../db/models';
 
+import './setup.ts';
+
 describe('Test configs model', () => {
   afterEach(async () => {
     // Clearing test data

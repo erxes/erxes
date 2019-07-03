@@ -2,6 +2,8 @@ import { graphqlRequest } from '../db/connection';
 import { userFactory } from '../db/factories';
 import { Scripts, Users } from '../db/models';
 
+import './setup.ts';
+
 describe('scriptMutations', () => {
   let _user;
   let context;

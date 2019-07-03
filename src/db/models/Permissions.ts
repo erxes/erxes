@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { Users } from '.';
 import { actionsMap, IActionsMap } from '../../data/permissions/utils';
 import {
   IPermission,
@@ -16,8 +17,9 @@ export interface IPermissionModel extends Model<IPermissionDocument> {
 }
 
 export interface IUserGroupModel extends Model<IUserGroupDocument> {
-  createGroup(doc: IUserGroup): Promise<IUserGroupDocument>;
-  updateGroup(_id: string, doc: IUserGroup): Promise<IUserGroupDocument>;
+  generateDocs(groupId: string, memberIds?: string[]): Array<{ userId: string; groupId: string }>;
+  createGroup(doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
+  updateGroup(_id: string, doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
   removeGroup(_id: string): Promise<IUserGroupDocument>;
 }
 
@@ -101,7 +103,7 @@ export const permissionLoadClass = () => {
         throw new Error('Permission not found');
       }
 
-      return Permissions.remove({ _id: { $in: ids } });
+      return Permissions.deleteMany({ _id: { $in: ids } });
     }
   }
 
@@ -114,20 +116,26 @@ export const userGroupLoadClass = () => {
   class UserGroup {
     /**
      * Create a group
-     * @param  {Object} doc
-     * @return {Promise} Newly created group object
      */
-    public static async createGroup(doc: IUserGroup) {
-      return UsersGroups.create(doc);
+    public static async createGroup(doc: IUserGroup, memberIds?: string[]) {
+      const group = await UsersGroups.create(doc);
+
+      await Users.updateMany({ _id: { $in: memberIds || [] } }, { $push: { groupIds: group._id } });
+
+      return group;
     }
 
     /**
      * Update Group
-     * @param  {Object} doc
-     * @return {Promise} updated group object
      */
-    public static async updateGroup(_id: string, doc: IUserGroup) {
+    public static async updateGroup(_id: string, doc: IUserGroup, memberIds?: string[]) {
+      // remove groupId from old members
+      await Users.updateMany({ groupIds: { $in: [_id] } }, { $pull: { groupIds: { $in: [_id] } } });
+
       await UsersGroups.update({ _id }, { $set: doc });
+
+      // add groupId to new members
+      await Users.updateMany({ _id: { $in: memberIds || [] } }, { $push: { groupIds: _id } });
 
       return UsersGroups.findOne({ _id });
     }

@@ -4,6 +4,8 @@ import { graphqlRequest } from '../db/connection';
 import { customerFactory, formFactory, integrationFactory, segmentFactory, tagsFactory } from '../db/factories';
 import { Customers, Segments, Tags } from '../db/models';
 
+import './setup.ts';
+
 const count = response => {
   return Object.keys(response).length;
 };
@@ -58,8 +60,6 @@ describe('customerQueries', () => {
         visitorContactInfo
         customFieldsData
         messengerData
-        twitterData
-        facebookData
         ownerId
         position
         department
@@ -123,9 +123,9 @@ describe('customerQueries', () => {
 
   test('Customers', async () => {
     const integration = await integrationFactory();
-    await customerFactory({ integrationId: integration._id });
-    await customerFactory({});
-    await customerFactory({});
+    await customerFactory({ integrationId: integration._id }, true);
+    await customerFactory({}, true);
+    await customerFactory({}, true);
 
     const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCustomers, 'customers', args);
@@ -134,13 +134,13 @@ describe('customerQueries', () => {
   });
 
   test('Customers filtered by ids', async () => {
-    const customer1 = await customerFactory({});
-    const customer2 = await customerFactory({});
-    const customer3 = await customerFactory({});
+    const customer1 = await customerFactory({}, true);
+    const customer2 = await customerFactory({}, true);
+    const customer3 = await customerFactory({}, true);
 
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({});
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({}, true);
 
     const ids = [customer1._id, customer2._id, customer3._id];
 
@@ -152,10 +152,10 @@ describe('customerQueries', () => {
   test('Customers filtered by tag', async () => {
     const tag = await tagsFactory({});
 
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({ tagIds: tag._id });
-    await customerFactory({ tagIds: tag._id });
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({ tagIds: [tag._id] }, true);
+    await customerFactory({ tagIds: [tag._id] }, true);
 
     const tagResponse = await Tags.findOne({}, '_id');
 
@@ -167,10 +167,10 @@ describe('customerQueries', () => {
   });
 
   test('Customers filtered by leadStatus', async () => {
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({ leadStatus: 'new' });
-    await customerFactory({ leadStatus: 'new' });
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({ leadStatus: 'new' }, true);
+    await customerFactory({ leadStatus: 'new' }, true);
 
     const responses = await graphqlRequest(qryCustomers, 'customers', {
       leadStatus: 'new',
@@ -180,10 +180,10 @@ describe('customerQueries', () => {
   });
 
   test('Customers filtered by lifecycleState', async () => {
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({ lifecycleState: 'subscriber' });
-    await customerFactory({ lifecycleState: 'subscriber' });
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({ lifecycleState: 'subscriber' }, true);
+    await customerFactory({ lifecycleState: 'subscriber' }, true);
 
     const responses = await graphqlRequest(qryCustomers, 'customers', {
       lifecycleState: 'subscriber',
@@ -193,8 +193,8 @@ describe('customerQueries', () => {
   });
 
   test('Customers filtered by segment', async () => {
-    await customerFactory({ firstName });
-    await customerFactory({});
+    await customerFactory({ firstName }, true);
+    await customerFactory({}, true);
 
     const args = {
       contentType: 'customer',
@@ -218,10 +218,10 @@ describe('customerQueries', () => {
   });
 
   test('Customers filtered by search value', async () => {
-    await customerFactory({ firstName });
-    await customerFactory({ lastName });
-    await customerFactory({ primaryPhone, phones: [primaryPhone] });
-    await customerFactory({ primaryEmail, emails: [primaryEmail] });
+    await customerFactory({ firstName }, true);
+    await customerFactory({ lastName }, true);
+    await customerFactory({ primaryPhone, phones: [primaryPhone] }, true);
+    await customerFactory({ primaryEmail, emails: [primaryEmail] }, true);
 
     // customers by firstName ==============
     let responses = await graphqlRequest(qryCustomers, 'customers', {
@@ -257,10 +257,10 @@ describe('customerQueries', () => {
   });
 
   test('Main customers', async () => {
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({});
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({}, true);
 
     const args = { page: 1, perPage: 3 };
     const responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
@@ -270,8 +270,8 @@ describe('customerQueries', () => {
   });
 
   test('Count customers', async () => {
-    await customerFactory({});
-    await customerFactory({});
+    await customerFactory({}, true);
+    await customerFactory({}, true);
 
     // Creating test data
     await segmentFactory({ contentType: 'customer' });
@@ -284,8 +284,8 @@ describe('customerQueries', () => {
   });
 
   test('Customer count by tag', async () => {
-    await customerFactory({});
-    await customerFactory({});
+    await customerFactory({}, true);
+    await customerFactory({}, true);
 
     await tagsFactory({ type: 'company' });
     await tagsFactory({ type: 'customer' });
@@ -298,8 +298,8 @@ describe('customerQueries', () => {
   });
 
   test('Customer count by segment', async () => {
-    await customerFactory({});
-    await customerFactory({});
+    await customerFactory({}, true);
+    await customerFactory({}, true);
 
     await segmentFactory({ contentType: 'customer' });
     await segmentFactory({ contentType: 'company' });
@@ -312,7 +312,7 @@ describe('customerQueries', () => {
   });
 
   test('Customer count by fake segment', async () => {
-    await customerFactory({ lastName });
+    await customerFactory({ lastName }, true);
 
     const byFakeSegment = {
       contentType: 'customer',
@@ -334,10 +334,10 @@ describe('customerQueries', () => {
   });
 
   test('Customer count by leadStatus', async () => {
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({ leadStatus: 'new' });
-    await customerFactory({ leadStatus: 'new' });
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({ leadStatus: 'new' }, true);
+    await customerFactory({ leadStatus: 'new' }, true);
 
     const response = await graphqlRequest(qryCount, 'customerCounts', {
       only: 'byLeadStatus',
@@ -348,10 +348,10 @@ describe('customerQueries', () => {
   });
 
   test('Customer count by lifecycleState', async () => {
-    await customerFactory({});
-    await customerFactory({});
-    await customerFactory({ lifecycleState: 'subscriber' });
-    await customerFactory({ lifecycleState: 'subscriber' });
+    await customerFactory({}, true);
+    await customerFactory({}, true);
+    await customerFactory({ lifecycleState: 'subscriber' }, true);
+    await customerFactory({ lifecycleState: 'subscriber' }, true);
 
     const response = await graphqlRequest(qryCount, 'customerCounts', {
       only: 'byLifecycleState',
@@ -362,7 +362,7 @@ describe('customerQueries', () => {
   });
 
   test('Customer detail', async () => {
-    const customer = await customerFactory({});
+    const customer = await customerFactory({}, true);
 
     const qry = `
       query customerDetail($_id: String!) {
@@ -380,11 +380,11 @@ describe('customerQueries', () => {
   });
 
   test('Customer filtered by submitted form', async () => {
-    const customer = await customerFactory({});
+    const customer = await customerFactory({}, true);
     let submissions = [{ customerId: customer._id, submittedAt: new Date() }];
     const form = await formFactory({ submissions });
 
-    const testCustomer = await customerFactory({});
+    const testCustomer = await customerFactory({}, true);
 
     submissions = [
       { customerId: testCustomer._id, submittedAt: new Date() },
@@ -407,9 +407,9 @@ describe('customerQueries', () => {
   });
 
   test('Customer filtered by submitted form with startDate and endDate', async () => {
-    const customer = await customerFactory({});
-    const customer1 = await customerFactory({});
-    const customer2 = await customerFactory({});
+    const customer = await customerFactory({}, true);
+    const customer1 = await customerFactory({}, true);
+    const customer2 = await customerFactory({}, true);
 
     const startDate = '2018-04-03 10:00';
     const endDate = '2018-04-03 18:00';
@@ -464,8 +464,8 @@ describe('customerQueries', () => {
   test('Customer filtered by default selector', async () => {
     const integration = await integrationFactory({});
     await Customers.createCustomer({ integrationId: integration._id });
-    await customerFactory({});
-    await customerFactory({});
+    await customerFactory({}, true);
+    await customerFactory({}, true);
 
     const responses = await graphqlRequest(qryCustomersMain, 'customersMain', {});
 

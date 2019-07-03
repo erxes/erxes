@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
+import { IRule, ruleSchema } from './common';
 import { MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
 
 export interface IScheduleDate {
@@ -12,21 +13,13 @@ export interface IScheduleDate {
 interface IScheduleDateDocument extends IScheduleDate, Document {}
 
 export interface IEmail {
-  templateId?: string;
   attachments?: any;
   subject?: string;
   content?: string;
+  templateId?: string;
 }
 
 export interface IEmailDocument extends IEmail, Document {}
-
-interface IRule extends Document {
-  _id: string;
-  kind: string;
-  text: string;
-  condition: string;
-  value: string;
-}
 
 export interface IMessenger {
   brandId?: string;
@@ -53,7 +46,9 @@ interface IStatsDocument extends IStats, Document {}
 
 export interface IEngageMessage {
   kind?: string;
-  segmentId?: string;
+  segmentIds?: string[];
+  brandIds?: string[];
+  tagIds?: string[];
   customerIds?: string[];
   title?: string;
   fromUserId?: string;
@@ -61,7 +56,6 @@ export interface IEngageMessage {
   isDraft?: boolean;
   isLive?: boolean;
   stopDate?: Date;
-  tagIds?: string[];
   messengerReceivedCustomerIds?: string[];
   email?: IEmail;
   scheduleDate?: IScheduleDate;
@@ -93,31 +87,10 @@ const scheduleDateSchema = new Schema(
 
 const emailSchema = new Schema(
   {
-    templateId: field({
-      type: String,
-      optional: true,
-    }),
-    attachments: field({ type: Object }),
+    attachments: field({ type: Object, optional: true }),
     subject: field({ type: String }),
     content: field({ type: String }),
-  },
-  { _id: false },
-);
-
-const ruleSchema = new Schema(
-  {
-    _id: field({ type: String }),
-
-    // browserLanguage, currentUrl, etc ...
-    kind: field({ type: String }),
-
-    // Browser language, Current url etc ...
-    text: field({ type: String }),
-
-    // is, isNot, startsWith
-    condition: field({ type: String }),
-
-    value: field({ type: String }),
+    templateId: field({ type: String, optional: true }),
   },
   { _id: false },
 );
@@ -156,8 +129,13 @@ const statsSchema = new Schema(
 export const engageMessageSchema = new Schema({
   _id: field({ pkey: true }),
   kind: field({ type: String }),
-  segmentId: field({
-    type: String,
+  segmentId: field({ type: String, optional: true }), // TODO Remove
+  segmentIds: field({
+    type: [String],
+    optional: true,
+  }),
+  brandIds: field({
+    type: [String],
     optional: true,
   }),
   customerIds: field({ type: [String] }),
@@ -171,7 +149,7 @@ export const engageMessageSchema = new Schema({
   isLive: field({ type: Boolean }),
   stopDate: field({ type: Date }),
   createdDate: field({ type: Date }),
-  tagIds: field({ type: [String] }),
+  tagIds: field({ type: [String], optional: true }),
   messengerReceivedCustomerIds: field({ type: [String] }),
 
   email: field({ type: emailSchema }),

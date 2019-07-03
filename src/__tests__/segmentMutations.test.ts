@@ -3,6 +3,8 @@ import { graphqlRequest } from '../db/connection';
 import { segmentFactory, userFactory } from '../db/factories';
 import { Segments, Users } from '../db/models';
 
+import './setup.ts';
+
 const toJSON = value => {
   return JSON.stringify(value, Object.keys(value).sort());
 };
@@ -61,6 +63,7 @@ describe('Segments mutations', () => {
           value: faker.random.word(),
           dateUnit: faker.random.word(),
           type: faker.random.word(),
+          brandId: faker.random.word(),
         },
       ],
     };
@@ -107,6 +110,7 @@ describe('Segments mutations', () => {
           value: faker.random.word(),
           operator: faker.random.word(),
           field: faker.random.word(),
+          brandId: faker.random.word(),
         },
       ],
     };

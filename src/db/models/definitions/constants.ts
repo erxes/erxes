@@ -1,21 +1,10 @@
-export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
-export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
-
-export const LANGUAGE_CHOICES = ['', 'mn', 'en'];
+export const LANGUAGE_CHOICES = ['', 'mn', 'en', 'fr', 'de', 'kr', 'es', 'ptBr', 'jp', 'ru', 'zh'];
 
 export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',
   CLOSED: 'closed',
   ALL: ['new', 'open', 'closed'],
-};
-
-export const INTEGRATION_KIND_CHOICES = {
-  MESSENGER: 'messenger',
-  FORM: 'form',
-  TWITTER: 'twitter',
-  FACEBOOK: 'facebook',
-  ALL: ['messenger', 'form', 'twitter', 'facebook'],
 };
 
 export const TAG_TYPES = {
@@ -25,12 +14,6 @@ export const TAG_TYPES = {
   COMPANY: 'company',
   INTEGRATION: 'integration',
   ALL: ['conversation', 'customer', 'engageMessage', 'company', 'integration'],
-};
-
-export const FACEBOOK_DATA_KINDS = {
-  FEED: 'feed',
-  MESSENGER: 'messenger',
-  ALL: ['feed', 'messenger'],
 };
 
 export const MESSENGER_KINDS = {
@@ -45,13 +28,6 @@ export const SENT_AS_CHOICES = {
   SNIPPET: 'snippet',
   FULL_MESSAGE: 'fullMessage',
   ALL: ['badge', 'snippet', 'fullMessage'],
-};
-
-export const MESSAGE_KINDS = {
-  AUTO: 'auto',
-  VISITOR_AUTO: 'visitorAuto',
-  MANUAL: 'manual',
-  ALL: ['auto', 'visitorAuto', 'manual'],
 };
 
 export const METHODS = {
@@ -80,73 +56,8 @@ export const FORM_SUCCESS_ACTIONS = {
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
-  TWITTER: 'twitter',
   FACEBOOK: 'facebook',
-  GMAIL: 'gmail',
-  ALL: ['messenger', 'form', 'twitter', 'facebook', 'gmail'],
-};
-
-// module constants
-export const NOTIFICATION_TYPES = {
-  CHANNEL_MEMBERS_CHANGE: 'channelMembersChange',
-  CONVERSATION_ADD_MESSAGE: 'conversationAddMessage',
-  CONVERSATION_ASSIGNEE_CHANGE: 'conversationAssigneeChange',
-  CONVERSATION_STATE_CHANGE: 'conversationStateChange',
-  ALL: ['channelMembersChange', 'conversationAddMessage', 'conversationAssigneeChange', 'conversationStateChange'],
-};
-
-export const NOTIFICATION_MODULES = [
-  {
-    name: 'conversations',
-    description: 'Conversations',
-    types: [
-      {
-        name: 'conversationStateChange',
-        text: 'State change',
-      },
-      {
-        name: 'conversationAssigneeChange',
-        text: 'Assignee change',
-      },
-      {
-        name: 'conversationAddMessage',
-        text: 'Add message',
-      },
-    ],
-  },
-
-  {
-    name: 'channels',
-    description: 'Channels',
-    types: [
-      {
-        name: 'channelMembersChange',
-        text: 'Members change',
-      },
-    ],
-  },
-];
-
-export const FORM_FIELDS = {
-  TYPES: {
-    INPUT: 'input',
-    TEXT_AREA: 'textarea',
-    RADIO: 'radio',
-    CHECK: 'check',
-    SELECT: 'select',
-    DIVIDER: 'divider',
-    EMAIL: 'email',
-    FIRST_NAME: 'firstName',
-    LAST_NAME: 'lastName',
-    ALL: ['input', 'textarea', 'radio', 'check', 'select', 'divider', 'email', 'firstName', 'lastName'],
-  },
-  VALIDATION: {
-    BLANK: '',
-    NUMBER: 'number',
-    DATE: 'date',
-    EMAIL: 'email',
-    ALL: ['', 'number', 'date', 'email'],
-  },
+  ALL: ['messenger', 'form', 'facebook'],
 };
 
 // messenger data availability constants
@@ -156,19 +67,15 @@ export const MESSENGER_DATA_AVAILABILITY = {
   ALL: ['manual', 'auto'],
 };
 
-export const FIELD_CONTENT_TYPES = {
-  FORM: 'form',
-  CUSTOMER: 'customer',
-  COMPANY: 'company',
-  ALL: ['form', 'customer', 'company'],
-};
-
 export const ACTIVITY_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   USER: 'user',
   DEAL: 'deal',
-  ALL: ['customer', 'company', 'user', 'deal'],
+  TICKET: 'ticket',
+  TASK: 'task',
+
+  ALL: ['customer', 'company', 'user', 'deal', 'ticket', 'task'],
 };
 
 export const PUBLISH_STATUSES = {
@@ -185,8 +92,10 @@ export const ACTIVITY_TYPES = {
   SEGMENT: 'segment',
   DEAL: 'deal',
   EMAIL: 'email',
+  TICKET: 'ticket',
+  TASK: 'task',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'email'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'email', 'ticket', 'task'],
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -212,6 +121,12 @@ export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
   ALL: ['product', 'service'],
+};
+
+export const PIPELINE_VISIBLITIES = {
+  PUBLIC: 'public',
+  PRIVATE: 'private',
+  ALL: ['public', 'private'],
 };
 
 export const FIELDS_GROUPS_CONTENT_TYPES = {
@@ -242,21 +157,6 @@ export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
   'customer',
   'evangelist',
   'other',
-];
-
-export const CUSTOMER_BASIC_INFOS = [
-  'firstName',
-  'lastName',
-  'primaryEmail',
-  'primaryPhone',
-  'ownerId',
-  'position',
-  'department',
-  'leadStatus',
-  'lifecycleState',
-  'hasAuthority',
-  'description',
-  'doNotDisturb',
 ];
 
 export const COMPANY_LEAD_STATUS_TYPES = [
@@ -354,23 +254,6 @@ export const COMPANY_INDUSTRY_TYPES = [
   'TV / Movies / Music',
 ];
 
-export const COMPANY_BASIC_INFOS = [
-  'primaryName',
-  'names',
-  'size',
-  'industry',
-  'website',
-  'plan',
-  'primaryPhone',
-  'primaryEmail',
-  'leadStatus',
-  'lifecycleState',
-  'businessType',
-  'description',
-  'employees',
-  'doNotDisturb',
-];
-
 export const PROBABILITY = {
   TEN: '10%',
   TWENTY: '20%',
@@ -392,8 +275,59 @@ export const STATUSES = {
   ALL: ['Active', 'Deleted'],
 };
 
-export const EMAIL_TYPES = {
-  GMAIL: 'gmail',
-  OTHER: 'other',
-  ALL: ['gmail', 'other'],
+export const BOARD_TYPES = {
+  DEAL: 'deal',
+  TICKET: 'ticket',
+  TASK: 'task',
+  ALL: ['deal', 'ticket', 'task'],
+};
+
+// module constants
+export const NOTIFICATION_TYPES = {
+  CHANNEL_MEMBERS_CHANGE: 'channelMembersChange',
+  CONVERSATION_ADD_MESSAGE: 'conversationAddMessage',
+  CONVERSATION_ASSIGNEE_CHANGE: 'conversationAssigneeChange',
+  CONVERSATION_STATE_CHANGE: 'conversationStateChange',
+  DEAL_ADD: 'dealAdd',
+  DEAL_REMOVE_ASSIGN: 'dealRemoveAssign',
+  DEAL_EDIT: 'dealEdit',
+  DEAL_CHANGE: 'dealChange',
+  DEAL_DUE_DATE: 'dealDueDate',
+  DEAL_DELETE: 'dealDelete',
+  TICKET_ADD: 'ticketAdd',
+  TICKET_REMOVE_ASSIGN: 'ticketRemoveAssign',
+  TICKET_EDIT: 'ticketEdit',
+  TICKET_CHANGE: 'ticketChange',
+  TICKET_DUE_DATE: 'ticketDueDate',
+  TICKET_DELETE: 'ticketDelete',
+  TASK_ADD: 'taskAdd',
+  TASK_REMOVE_ASSIGN: 'taskRemoveAssign',
+  TASK_EDIT: 'taskEdit',
+  TASK_CHANGE: 'taskChange',
+  TASK_DUE_DATE: 'taskDueDate',
+  TASK_DELETE: 'taskDelete',
+  ALL: [
+    'channelMembersChange',
+    'conversationAddMessage',
+    'conversationAssigneeChange',
+    'conversationStateChange',
+    'dealAdd',
+    'dealRemoveAssign',
+    'dealEdit',
+    'dealChange',
+    'dealDueDate',
+    'dealDelete',
+    'ticketAdd',
+    'ticketRemoveAssign',
+    'ticketEdit',
+    'ticketChange',
+    'ticketDueDate',
+    'ticketDelete',
+    'taskAdd',
+    'taskRemoveAssign',
+    'taskEdit',
+    'taskChange',
+    'taskDueDate',
+    'taskDelete',
+  ],
 };

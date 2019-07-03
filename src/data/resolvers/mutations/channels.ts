@@ -1,8 +1,8 @@
 import { Channels } from '../../../db/models';
 import { IChannel, IChannelDocument } from '../../../db/models/definitions/channels';
+import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { NOTIFICATION_TYPES } from '../../constants';
-import { moduleCheckPermission } from '../../permissions';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 import utils from '../../utils';
 
 interface IChannelsEdit extends IChannel {
@@ -20,7 +20,7 @@ export const sendChannelNotifications = async (channel: IChannelDocument) => {
     notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
     title: content,
     content,
-    link: `/inbox/${channel._id}`,
+    link: `/inbox?channelId=${channel._id}`,
 
     // exclude current user
     receivers: (channel.memberIds || []).filter(id => id !== channel.userId),

@@ -1,5 +1,4 @@
 import * as toBeType from 'jest-tobetype';
-import { PUBLISH_STATUSES } from '../data/constants';
 import {
   brandFactory,
   knowledgeBaseArticleFactory,
@@ -8,6 +7,9 @@ import {
   userFactory,
 } from '../db/factories';
 import { Brands, KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Users } from '../db/models';
+import { PUBLISH_STATUSES } from '../db/models/definitions/constants';
+
+import './setup.ts';
 
 expect.extend(toBeType);
 

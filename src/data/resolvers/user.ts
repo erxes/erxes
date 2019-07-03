@@ -1,5 +1,5 @@
 import { IUserDocument } from '../../db/models/definitions/users';
-import { userAllowedActions } from '../permissions/utils';
+import { getUserAllowedActions } from '../permissions/utils';
 
 export default {
   status(user: IUserDocument) {
@@ -11,6 +11,6 @@ export default {
   },
 
   async permissionActions(user: IUserDocument) {
-    return userAllowedActions(user);
+    return getUserAllowedActions(user);
   },
 };

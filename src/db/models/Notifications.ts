@@ -34,10 +34,6 @@ export const loadNotificationClass = () => {
      * Create a notification
      */
     public static async createNotification(doc: INotification, createdUser?: IUserDocument | string) {
-      if (!createdUser) {
-        throw new Error('createdUser must be supplied');
-      }
-
       // if receiver is configured to get this notification
       const config = await NotificationConfigurations.findOne({
         user: doc.receiver,
@@ -90,10 +86,6 @@ export const loadNotificationConfigClass = () => {
       { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
       user?: IUserDocument | string,
     ) {
-      if (!user) {
-        throw new Error('user must be supplied');
-      }
-
       const selector: any = { user, notifType };
 
       const oldOne = await NotificationConfigurations.findOne(selector);

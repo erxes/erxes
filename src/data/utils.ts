@@ -1,19 +1,23 @@
 import * as AWS from 'aws-sdk';
 import * as EmailValidator from 'email-deep-validator';
 import * as fileType from 'file-type';
+import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
-import { Companies, Customers, Notifications, Users } from '../db/models';
-import { IUserDocument } from '../db/models/definitions/users';
-import { can } from './permissions/utils';
+import { Customers, Notifications, Users } from '../db/models';
+import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
 
 /*
  * Check that given file is not harmful
  */
 export const checkFile = async file => {
+  if (!file) {
+    throw new Error('Invalid file');
+  }
+
   const { size } = file;
 
   // 20mb
@@ -49,20 +53,56 @@ export const checkFile = async file => {
   return 'ok';
 };
 
-/*
- * Save binary data to amazon s3
+/**
+ * Create AWS instance
  */
-export const uploadFile = async (file: { name: string; path: string }): Promise<string> => {
+const createAWS = () => {
   const AWS_ACCESS_KEY_ID = getEnv({ name: 'AWS_ACCESS_KEY_ID' });
   const AWS_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SECRET_ACCESS_KEY' });
   const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
-  const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
+
+  if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
+    throw new Error('AWS credentials are not configured');
+  }
 
   // initialize s3
-  const s3 = new AWS.S3({
+  return new AWS.S3({
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   });
+};
+
+/**
+ * Create Google Cloud Storage instance
+ */
+const createGCS = () => {
+  const GOOGLE_APPLICATION_CREDENTIALS = getEnv({ name: 'GOOGLE_APPLICATION_CREDENTIALS' });
+  const GOOGLE_PROJECT_ID = getEnv({ name: 'GOOGLE_PROJECT_ID' });
+  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+
+  if (!GOOGLE_PROJECT_ID || !GOOGLE_APPLICATION_CREDENTIALS || !BUCKET) {
+    throw new Error('Google Cloud Storage credentials are not configured');
+  }
+
+  const Storage = require('@google-cloud/storage').Storage;
+
+  // initializing Google Cloud Storage
+  return new Storage({
+    projectId: GOOGLE_PROJECT_ID,
+    keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
+  });
+};
+
+/*
+ * Save binary data to amazon s3
+ */
+export const uploadFileAWS = async (file: { name: string; path: string }): Promise<string> => {
+  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
+  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+
+  // initialize s3
+  const s3 = createAWS();
 
   // generate unique name
   const fileName = `${AWS_PREFIX}${Math.random()}${file.name}`;
@@ -77,7 +117,7 @@ export const uploadFile = async (file: { name: string; path: string }): Promise<
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: buffer,
-        ACL: 'public-read',
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined,
       },
       (err, res) => {
         if (err) {
@@ -89,7 +129,112 @@ export const uploadFile = async (file: { name: string; path: string }): Promise<
     );
   });
 
-  return response.Location;
+  return IS_PUBLIC === 'true' ? response.Location : fileName;
+};
+
+/*
+ * Save file to google cloud storage
+ */
+export const uploadFileGCS = async (file: { name: string; path: string; type: string }): Promise<string> => {
+  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+
+  // initialize GCS
+  const storage = createGCS();
+
+  // select bucket
+  const bucket = storage.bucket(BUCKET);
+
+  // generate unique name
+  const fileName = `${Math.random()}${file.name}`;
+
+  bucket.file(fileName);
+
+  const response: any = await new Promise((resolve, reject) => {
+    bucket.upload(
+      file.path,
+      {
+        metadata: { contentType: file.type },
+        public: IS_PUBLIC === 'true',
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (res) {
+          return resolve(res);
+        }
+      },
+    );
+  });
+
+  const { metadata, name } = response;
+
+  return IS_PUBLIC === 'true' ? metadata.mediaLink : name;
+};
+
+/**
+ * Read file from GCS, AWS
+ */
+export const readFileRequest = async (key: string): Promise<any> => {
+  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+
+  if (UPLOAD_SERVICE_TYPE === 'GCS') {
+    const GCS_BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+    const storage = createGCS();
+
+    const bucket = storage.bucket(GCS_BUCKET);
+
+    const file = bucket.file(key);
+
+    // get a file buffer
+    const [contents] = await file.download({});
+
+    return contents;
+  }
+
+  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const s3 = createAWS();
+
+  return new Promise((resolve, reject) => {
+    s3.getObject(
+      {
+        Bucket: AWS_BUCKET,
+        Key: key,
+      },
+      (error, response) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve(response.Body);
+      },
+    );
+  });
+};
+
+/*
+ * Save binary data to amazon s3
+ */
+export const uploadFile = async (file, fromEditor = false): Promise<any> => {
+  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+
+  const nameOrLink = UPLOAD_SERVICE_TYPE === 'AWS' ? await uploadFileAWS(file) : await uploadFileGCS(file);
+
+  if (fromEditor) {
+    const editorResult = { fileName: file.name, uploaded: 1, url: nameOrLink };
+
+    if (IS_PUBLIC !== 'true') {
+      editorResult.url = `${DOMAIN}/read-file?key=${nameOrLink}`;
+    }
+
+    return editorResult;
+  }
+
+  return nameOrLink;
 };
 
 /**
@@ -178,7 +323,7 @@ export const sendEmail = async ({
   try {
     transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
   } catch (e) {
-    return console.log(e.message); // eslint-disable-line
+    return debugEmail(e.message);
   }
 
   const { isCustom, data, name } = template;
@@ -199,8 +344,8 @@ export const sendEmail = async ({
     };
 
     return transporter.sendMail(mailOptions, (error, info) => {
-      console.log(error); // eslint-disable-line
-      console.log(info); // eslint-disable-line
+      debugEmail(error);
+      debugEmail(info);
     });
   });
 };
@@ -213,19 +358,13 @@ export const sendNotification = async ({
   receivers,
   ...doc
 }: {
-  createdUser: string;
+  createdUser?: string;
   receivers: string[];
   title: string;
   content: string;
   notifType: string;
   link: string;
 }) => {
-  const createdUserObj = await Users.findOne({ _id: createdUser });
-
-  if (!createdUserObj) {
-    throw new Error('Created user not found');
-  }
-
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 
@@ -241,7 +380,7 @@ export const sendNotification = async ({
   // loop through receiver ids
   for (const receiverId of receivers) {
     try {
-      // send notification
+      // send web and mobile notification
       await Notifications.createNotification({ ...doc, receiver: receiverId }, createdUser);
     } catch (e) {
       // Any other error is serious
@@ -264,81 +403,6 @@ export const sendNotification = async ({
 };
 
 /**
- * Receives and saves xls file in private/xlsImports folder
- * and imports customers to the database
- */
-export const importXlsFile = async (file: any, type: string, { user }: { user: IUserDocument }) => {
-  return new Promise(async (resolve, reject) => {
-    if (!(await can('importXlsFile', user._id))) {
-      return reject('Permission denied!');
-    }
-
-    const readStream = fs.createReadStream(file.path);
-
-    // Directory to save file
-    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
-
-    // Converting pipe into promise
-    const pipe = stream =>
-      new Promise((resolver, rejecter) => {
-        stream.on('finish', resolver);
-        stream.on('error', rejecter);
-      });
-
-    // Creating streams
-    const writeStream = fs.createWriteStream(downloadDir);
-    const streamObj = readStream.pipe(writeStream);
-
-    pipe(streamObj)
-      .then(async () => {
-        // After finished saving instantly create and load workbook from xls
-        const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
-
-        // Deleting file after read
-        fs.unlink(downloadDir, () => {
-          return true;
-        });
-
-        const usedRange = workbook.sheet(0).usedRange();
-
-        if (!usedRange) {
-          return reject(['Invalid file']);
-        }
-
-        const usedSheets = usedRange.value();
-
-        // Getting columns
-        const fieldNames = usedSheets[0];
-
-        let collection;
-
-        // Removing column
-        usedSheets.shift();
-
-        switch (type) {
-          case 'customers':
-            collection = Customers;
-            break;
-
-          case 'companies':
-            collection = Companies;
-            break;
-
-          default:
-            reject(['Invalid import type']);
-        }
-
-        const response = await collection.bulkInsert(fieldNames, usedSheets, user);
-
-        resolve(response);
-      })
-      .catch(e => {
-        reject(e);
-      });
-  });
-};
-
-/**
  * Creates blank workbook
  */
 export const createXlsFile = async () => {
@@ -351,31 +415,117 @@ export const createXlsFile = async () => {
 /**
  * Generates downloadable xls file on the url
  */
-export const generateXlsx = async (workbook: any, name: string): Promise<string> => {
-  // Url to download xls file
-  const url = `xlsTemplateOutputs/${name}.xlsx`;
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-  // Saving xls workbook to the directory
-  await workbook.toFileAsync(`${__dirname}/../private/${url}`);
-
-  return `${DOMAIN}/static/${url}`;
+export const generateXlsx = async (workbook: any): Promise<string> => {
+  return workbook.outputAsync();
 };
+
+interface IRequestParams {
+  url?: string;
+  path?: string;
+  method: string;
+  headers?: { [key: string]: string };
+  params?: { [key: string]: string };
+  body?: { [key: string]: string };
+  form?: { [key: string]: string };
+}
+
 /**
  * Sends post request to specific url
  */
-export const sendPostRequest = (url: string, params: { [key: string]: string }) =>
-  requestify.request(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: { ...params },
-  });
+export const sendRequest = async (
+  { url, method, headers, form, body, params }: IRequestParams,
+  errorMessage?: string,
+) => {
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (NODE_ENV === 'test') {
+    return;
+  }
+
+  debugExternalApi(`
+    Sending request to
+    url: ${url}
+    method: ${method}
+    body: ${JSON.stringify(body)}
+    params: ${JSON.stringify(params)}
+  `);
+
+  try {
+    const response = await requestify.request(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', origin: DOMAIN, ...(headers || {}) },
+      form,
+      body,
+      params,
+    });
+
+    const responseBody = response.getBody();
+
+    debugExternalApi(`
+      Success from : ${url}
+      responseBody: ${JSON.stringify(responseBody)}
+    `);
+
+    return responseBody;
+  } catch (e) {
+    if (e.code === 'ECONNREFUSED') {
+      debugExternalApi(errorMessage);
+      throw new Error(errorMessage);
+    } else {
+      debugExternalApi(`Error occurred : ${e.body}`);
+      throw new Error(e.body);
+    }
+  }
+};
+
+/**
+ * Send request to integrations api
+ */
+export const fetchIntegrationApi = ({ path, method, body, params }: IRequestParams) => {
+  const INTEGRATIONS_API_DOMAIN = getEnv({ name: 'INTEGRATIONS_API_DOMAIN' });
+
+  return sendRequest(
+    { url: `${INTEGRATIONS_API_DOMAIN}${path}`, method, body, params },
+    'Failed to connect integration api. Check INTEGRATIONS_API_DOMAIN env or integration api is not running',
+  );
+};
+
+/**
+ * Send request to crons api
+ */
+export const fetchCronsApi = ({ path, method, body, params }: IRequestParams) => {
+  const CRONS_API_DOMAIN = getEnv({ name: 'CRONS_API_DOMAIN' });
+
+  return sendRequest(
+    { url: `${CRONS_API_DOMAIN}${path}`, method, body, params },
+    'Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
+  );
+};
+
+/**
+ * Send request to workers api
+ */
+export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) => {
+  const WORKERS_API_DOMAIN = getEnv({ name: 'WORKERS_API_DOMAIN' });
+
+  return sendRequest(
+    { url: `${WORKERS_API_DOMAIN}${path}`, method, body, params },
+    'Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
+  );
+};
 
 /**
  * Validates email using MX record resolver
  * @param email as String
  */
 export const validateEmail = async email => {
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+  if (NODE_ENV === 'test') {
+    return true;
+  }
+
   const emailValidator = new EmailValidator();
   const { validDomain, validMailbox } = await emailValidator.verify(email);
 
@@ -417,16 +567,104 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
   }
 
   if (!value) {
-    console.log(`Missing environment variable configuration for ${name}`);
+    debugBase(`Missing environment variable configuration for ${name}`);
   }
 
   return value || '';
+};
+
+/**
+ * Send notification to mobile device from inbox conversations
+ * @param {string} - title
+ * @param {string} - body
+ * @param {string} - customerId
+ * @param {array} - receivers
+ */
+export const sendMobileNotification = async ({
+  receivers,
+  title,
+  body,
+  customerId,
+}: {
+  receivers: string[];
+  customerId?: string;
+  title: string;
+  body: string;
+}): Promise<void> => {
+  if (!admin.apps.length) {
+    return;
+  }
+
+  const transporter = admin.messaging();
+  const tokens: string[] = [];
+
+  if (receivers) {
+    tokens.push(...(await Users.find({ _id: { $in: receivers } }).distinct('deviceTokens')));
+  }
+
+  if (customerId) {
+    tokens.push(...(await Customers.findOne({ _id: customerId }).distinct('deviceTokens')));
+  }
+
+  if (tokens.length > 0) {
+    // send notification
+    for (const token of tokens) {
+      await transporter.send({ token, notification: { title, body } });
+    }
+  }
+};
+
+export const paginate = (collection, params: { page?: number; perPage?: number }) => {
+  const { page = 0, perPage = 0 } = params || {};
+
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
+
+  return collection.limit(_limit).skip((_page - 1) * _limit);
+};
+
+/*
+ * Converts given value to date or if value in valid date
+ * then returns default value
+ */
+export const fixDate = (value, defaultValue = new Date()): Date => {
+  const date = new Date(value);
+
+  if (!isNaN(date.getTime())) {
+    return date;
+  }
+
+  return defaultValue;
+};
+
+export const getDate = (date: Date, day: number): Date => {
+  const currentDate = new Date();
+
+  date.setDate(currentDate.getDate() + day + 1);
+  date.setHours(0, 0, 0, 0);
+
+  return date;
+};
+
+export const getToday = (date: Date): Date => {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
+};
+
+export const getNextMonth = (date: Date): { start: number; end: number } => {
+  const today = getToday(date);
+
+  const month = (new Date().getMonth() + 1) % 12;
+  const start = today.setMonth(month, 1);
+  const end = today.setMonth(month + 1, 0);
+
+  return { start, end };
 };
 
 export default {
   sendEmail,
   validateEmail,
   sendNotification,
+  sendMobileNotification,
   readFile,
   createTransporter,
 };
