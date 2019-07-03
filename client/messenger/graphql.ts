@@ -177,6 +177,12 @@ const saveBrowserInfo = `
   }
 `;
 
+const sendTypingInfo = `
+  mutation sendTypingInfo($conversationId: String!  $text: String) {
+    sendTypingInfo(conversationId: $conversationId text: $text)
+  }
+`;
+
 // faq
 
 const faqFields = `
@@ -280,6 +286,7 @@ export default {
   allConversations,
   connect,
   saveBrowserInfo,
+  sendTypingInfo,
   readConversationMessages,
   messengerSupportersQuery,
   getFaqCategoryQuery,

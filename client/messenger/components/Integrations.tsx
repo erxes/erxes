@@ -6,6 +6,7 @@ import { IntegrationItem } from "./";
 type Props = {
   formCode: string;
   brandCode: string;
+  hideConversations: boolean;
 };
 
 export default class Integrations extends React.PureComponent<Props> {
@@ -22,12 +23,23 @@ export default class Integrations extends React.PureComponent<Props> {
       </IntegrationItem>
     );
   }
+
+  renderConversations() {
+    if (this.props.hideConversations) {
+      return null;
+    }
+
+    return (
+      <IntegrationItem title="Recent conversations">
+        <ConversationList />
+      </IntegrationItem>
+    );
+  }
+
   render() {
     return (
       <>
-        <IntegrationItem title="Recent conversations">
-          <ConversationList />
-        </IntegrationItem>
+        {this.renderConversations()}
         {this.renderLead()}
       </>
     );

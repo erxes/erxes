@@ -16,6 +16,7 @@ const container = (props: Props) => {
         isAttachingFile,
         activeConversation,
         sendMessage,
+        sendTypingInfo,
         sendFile,
         readMessages
       }) => {
@@ -24,6 +25,7 @@ const container = (props: Props) => {
             {...props}
             isAttachingFile={isAttachingFile}
             conversationId={activeConversation}
+            sendTypingInfo={sendTypingInfo}
             sendMessage={message => {
               if (!message.trim()) {
                 return;

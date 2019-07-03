@@ -1,7 +1,7 @@
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
-import { __ } from "../../utils";
+import { __, readFile } from "../../utils";
 import { IKbCategory } from "../types";
 
 type Props = {
@@ -25,7 +25,7 @@ function ItemMeta({ category }: Props) {
         <img
           alt={details.fullName}
           key={details.fullName}
-          src={details.avatar}
+          src={readFile(details.avatar)}
         />
       );
     });

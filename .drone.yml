@@ -1,35 +1,29 @@
 pipeline:
-  install:
-    image: node:8-slim
+  test:
+    image: node:10.16.0-slim
     commands:
+      - apt-get update && apt-get install -y git
+      - git checkout $DRONE_COMMIT_BRANCH
       - node -v
       - npm -v
       - yarn --version
-      - yarn config set cache-folder .yarn-cache
       - yarn install
-
-  linting:
-    image: node:8-slim
-    commands:
       - yarn lint
-
-  typescript:
-    image: node:8-slim
-    commands:
       - yarn tsc
 
   build:
-    image: node:8-slim
+    image: node:10.16.0-slim
     commands:
       - yarn build
-      - mkdir prod
-      - cp -a dist prod
-      - cp -a node_modules prod
-      - cp package.json prod
-      - cp -a static prod
-      - cp .env.sample prod/.env
+    when:
+      branch:
+        - master
+        - develop
+      event:
+        - push
+        - tag
 
-  docker:
+  docker_publish:
     image: plugins/docker
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
@@ -39,8 +33,70 @@ pipeline:
       - source: docker_hub_password
         target: docker_password
     tags:
-      - ${DRONE_BRANCH}-latest
+      - ${DRONE_BRANCH}
     when:
-      branch: [master, develop]
-      event: push
-      status: success
+      branch:
+        - master
+        - develop
+      event:
+        - push
+
+  docker_publish_tag:
+    image: plugins/docker
+    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    dockerfile: Dockerfile
+    secrets:
+      - source: docker_hub_username
+        target: docker_username
+      - source: docker_hub_password
+        target: docker_password
+    tags:
+      - ${DRONE_TAG}
+    when:
+      event:
+        - tag
+
+  build_github_release_assets:
+    image: node:10.16.0-slim
+    commands:
+      - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz dist .env.sample package.json yarn.lock
+    when:
+      event:
+        - tag
+
+  github_prerelease:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    prerelease: true
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    # draft: true
+
+  github_release:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    # draft: true

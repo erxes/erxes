@@ -102,6 +102,8 @@ export interface IIntegrationMessengerData {
   availabilityMethod: string;
   isOnline: boolean;
   requireAuth: boolean;
+  showChat: boolean;
+  forceLogoutWhenResolve: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
   messages?: IIntegrationMessengerDataMessagesItem;
@@ -165,4 +167,12 @@ export interface IDealInput {
   customerEmail?: string;
   description?: string;
   productsData: IDealProductInput;
+}
+
+export interface IRule {
+  _id: string;
+  kind?: string;
+  text: string;
+  condition: string;
+  value: string;
 }

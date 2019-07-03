@@ -20,6 +20,11 @@ class App extends React.Component<Props> {
 
     window.addEventListener("message", event => {
       if (event.data.fromPublisher) {
+        // receive sendingBrowserInfo command from publisher
+        if (event.data.message === "sendingBrowserInfo") {
+          this.props.init();
+        }
+
         // receive show popup command from publisher
         if (event.data.action === "showPopup") {
           this.props.showPopup();

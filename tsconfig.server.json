@@ -8,5 +8,5 @@
         "outDir": "dist",
         "strict": true
     },
-    "include": ["server"],
+    "include": ["server/*.ts"],
 }

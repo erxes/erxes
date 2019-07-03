@@ -2,7 +2,7 @@ import * as classNames from "classnames";
 import * as React from "react";
 import { defaultAvatar } from "../../../icons/Icons";
 import { IUser, IUserDetails } from "../../../types";
-import { __ } from "../../../utils";
+import { __, readFile } from "../../../utils";
 
 type Props = {
   users: IUser[];
@@ -33,7 +33,7 @@ class Supporters extends React.Component<Props> {
         <div className="avatar">
           <img
             key={user._id}
-            src={this.getAvatar(details.avatar)}
+            src={readFile(this.getAvatar(details.avatar))}
             style={{ borderColor: color }}
             alt={details.fullName}
           />
