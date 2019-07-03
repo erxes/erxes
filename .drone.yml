@@ -2,6 +2,8 @@ pipeline:
   test:
     image: node:10.16.0-slim
     commands:
+      - apt-get update && apt-get install -y git
+      - git checkout $DRONE_COMMIT_BRANCH
       - node -v
       - npm -v
       - yarn --version
