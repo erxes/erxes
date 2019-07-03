@@ -26,10 +26,12 @@ pipeline:
     image: erxes/runner:latest
     commands:
       - apt-get update && apt-get install -y git
+      - git branch
       - ls -a
       - yarn build
       - ls -a
       - pwd
+      - cat dist/private/version.json
     when:
       branch:
         - drone-test
