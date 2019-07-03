@@ -1,4 +1,4 @@
-## [0.9.16](https://github.com/erxes/erxes-api/compare/0.9.13...0.9.16) (2019-07-03)
+## [0.9.16](https://github.com/erxes/erxes-api/compare/0.9.15...0.9.16) (2019-07-03)
 
 
 ### Bug Fixes
