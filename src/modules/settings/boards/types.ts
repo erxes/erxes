@@ -1,10 +1,13 @@
+import { IUser } from 'modules/auth/types';
+
 export interface IPipeline {
   _id: string;
   name: string;
   boardId: string;
+  visibility: string;
   order?: number;
-  visibility?: string;
   memberIds?: string[];
+  members?: IUser[];
   createdAt?: Date;
 }
 
