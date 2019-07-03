@@ -1,16 +1,51 @@
-import { HeaderDescription, Table } from 'modules/common/components';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import React from 'react';
+import {
+  ControlLabel,
+  HeaderDescription,
+  Table
+} from 'modules/common/components';
+import { Input } from 'modules/common/components/form/styles';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import { FlexItem, FlexRow } from 'modules/insights/styles';
+import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
+import { FilterContainer } from 'modules/settings/team/styles';
+import * as React from 'react';
+import { withRouter } from 'react-router';
 import { List, RowActions } from '../../common/components';
 import { ICommonListProps } from '../../common/types';
 import { Form } from '../components';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  queryParams: any;
+  history: any;
 } & ICommonListProps;
 
-class ResponseTemplateList extends React.Component<Props> {
+type States = {
+  searchValue: string;
+};
+
+type FinalProps = Props & IRouterProps;
+
+class ResponseTemplateList extends React.Component<FinalProps, States> {
+  constructor(props) {
+    super(props);
+
+    const {
+      queryParams: { searchValue }
+    } = props;
+
+    this.state = {
+      searchValue: searchValue || ''
+    };
+  }
+
+  onChange = (e: React.FormEvent) => {
+    const { value } = e.currentTarget as HTMLInputElement;
+
+    this.setState({ searchValue: value });
+  };
+
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -32,6 +67,50 @@ class ResponseTemplateList extends React.Component<Props> {
         </tr>
       );
     });
+  };
+
+  handleKeyDown = (e: React.KeyboardEvent<Element>) => {
+    if (e.key === 'Enter') {
+      const { value, name } = e.currentTarget as HTMLInputElement;
+
+      router.setParams(this.props.history, { [name]: value });
+    }
+  };
+
+  onSelect = (values: string[] | string, name: string) => {
+    router.setParams(this.props.history, { [name]: values });
+  };
+
+  renderFilter = () => {
+    const { brandId } = this.props.queryParams;
+
+    return (
+      <FilterContainer>
+        <FlexRow>
+          <FlexItem>
+            <ControlLabel>Search</ControlLabel>
+            <Input
+              placeholder="Search"
+              name="searchValue"
+              onChange={this.onChange}
+              value={this.state.searchValue}
+              onKeyDown={this.handleKeyDown}
+            />
+          </FlexItem>
+
+          <FlexItem>
+            <ControlLabel>Brand</ControlLabel>
+            <SelectBrands
+              label="Brand"
+              value={brandId}
+              onSelect={this.onSelect}
+              name="brandId"
+              multi={false}
+            />
+          </FlexItem>
+        </FlexRow>
+      </FilterContainer>
+    );
   };
 
   renderContent = props => {
@@ -65,6 +144,7 @@ class ResponseTemplateList extends React.Component<Props> {
             description={`Make things easy for your team members and add in ready made response templates. Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle.`}
           />
         }
+        renderFilter={this.renderFilter}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}
@@ -75,4 +155,4 @@ class ResponseTemplateList extends React.Component<Props> {
   }
 }
 
-export default ResponseTemplateList;
+export default withRouter<FinalProps>(ResponseTemplateList);

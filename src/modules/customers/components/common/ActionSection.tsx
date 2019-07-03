@@ -78,7 +78,7 @@ class ActionSection extends React.Component<Props> {
           cus.lastName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
-          'N/A'
+          'Unknown'
       }));
     };
 

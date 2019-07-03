@@ -50,7 +50,7 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
           <Link to={`/contacts/companies/details/${company._id}`}>
             <Icon icon="logout-2" />
           </Link>
-          <span>{company.primaryName || 'N/A'}</span>
+          <span>{company.primaryName || 'Unknown'}</span>
           <Tip text={company.website || ''}>
             <a href={`//${company.website}`}>
               {urlParser.extractRootDomain(company.website || '')}

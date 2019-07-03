@@ -18,7 +18,7 @@ class CompanyDetails extends React.Component<Props> {
   render() {
     const { company, taggerRefetchQueries } = this.props;
 
-    const title = company.primaryName || 'N/A';
+    const title = company.primaryName || 'Unknown';
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
