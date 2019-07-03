@@ -26,7 +26,7 @@ pipeline:
     image: node:10.16.0-slim
     commands:
       - yarn build
-      - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz dist .env.sample package.json yarn.lock
+      - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz dist static .env.sample package.json yarn.lock
     when:
       event:
         - tag

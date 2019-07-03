@@ -5,3 +5,4 @@
 
 * **drone:** workaround for wrong version information showing on version.json ([ea0aa9f](https://github.com/erxes/erxes-widgets/commit/ea0aa9f))
 
+
