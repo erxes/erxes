@@ -25,7 +25,7 @@ pipeline:
   build:
     image: erxes/runner:latest
     commands:
-      - git branch
+      - apt-get update && apt-get install -y git
       - ls -a
       - yarn build
       - ls -a
