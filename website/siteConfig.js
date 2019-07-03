@@ -27,6 +27,7 @@ const siteConfig = {
   tagline: 'Documentation',
   url: 'https://docs.erxes.io', // Your website URL
   baseUrl: '/', // Base URL for your project */
+  editUrl: 'https://github.com/erxes/docs/edit/master/docs/',
   cname: 'docs.erxes.io',
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
