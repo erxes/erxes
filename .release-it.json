@@ -8,7 +8,7 @@
   "github": {
     "release": true,
     "releaseName": "Release ${version}",
-    "draft": true
+    "draft": false
   },
   "npm": {
     "publish": false
