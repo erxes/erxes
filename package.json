@@ -1,6 +1,6 @@
 {
   "name": "erxes-api",
-  "version": "0.9.15",
+  "version": "0.9.16",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-api",
@@ -31,7 +31,8 @@
     "engageSubscriptions": "ts-node ./src/commands/engageSubscriptions.ts",
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
+    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
+    "release": "release-it"
   },
   "lint-staged": {
     "*.ts": [
@@ -73,7 +74,7 @@
     "graphql": "^14.0.2",
     "graphql-redis-subscriptions": "^1.4.0",
     "graphql-tools": "^4.0.3",
-    "handlebars": "^4.0.10",
+    "handlebars": "^4.0.14",
     "ioredis": "^3.2.2",
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
@@ -97,6 +98,7 @@
     "kerberos": "^1.0.0"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^1.1.0",
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
@@ -120,6 +122,7 @@
     "migrate": "^1.6.2",
     "ora": "^3.4.0",
     "prettier": "^1.14.2",
+    "release-it": "^12.3.0",
     "sinon": "^7.2.2",
     "ts-jest": "^22.0.0",
     "ts-node": "8.0.3",
