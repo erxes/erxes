@@ -18,6 +18,7 @@ export const types = `
     boardId: String!
     visibility: String!
     memberIds: [String]
+    members: [User]
     ${commonTypes}
   }
 

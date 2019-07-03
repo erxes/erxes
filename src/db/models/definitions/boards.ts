@@ -21,6 +21,8 @@ export interface IBoardDocument extends IBoard, Document {
 export interface IPipeline extends ICommonFields {
   name?: string;
   boardId?: string;
+  visibility?: string;
+  memberIds?: string[];
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
