@@ -30,7 +30,8 @@
     "lint": "tslint 'client/**/*.@(ts|tsx)'",
     "format": "prettier --write 'client/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
-    "start": "node dist"
+    "start": "node dist",
+    "release": "release-it"
   },
   "lint-staged": {
     "*.@(ts|tsx)": [
