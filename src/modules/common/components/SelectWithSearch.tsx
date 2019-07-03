@@ -91,9 +91,9 @@ class SelectWithSearch extends React.Component<
     };
 
     const selectSingle = (option: IOption) => {
-      onSelect(option.value, name);
+      onSelect(option ? option.value : '', name);
 
-      this.setState({ selectedOptions: [option] });
+      this.setState({ selectedOptions: option ? [option] : [] });
     };
 
     const onChange = multi ? selectMultiple : selectSingle;
