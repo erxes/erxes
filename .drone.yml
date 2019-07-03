@@ -18,6 +18,51 @@ pipeline:
         - push
         - tag
 
+  build_tag:
+    image: node:10.16.0-slim
+    commands:
+      - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz build
+    when:
+      event:
+        - tag
+
+  github_prerelease:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    prerelease: true
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    # draft: true
+
+  github_release:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+    # draft: true
+
   docker_publish:
     image: plugins/docker
     repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
