@@ -3,7 +3,7 @@ import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../common/styles';
-import { lighten } from '../common/styles/color';
+import { lighten, rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
   height: 50px;
@@ -15,11 +15,12 @@ const UserHelper = styled.div`
   }
 `;
 
-const Layout = styled.main`
-  height: 100%;
+const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
+  height: ${props => (props.isSqueezed ? 'calc(100% - 36px)' : '100%')};
   display: flex;
   flex: 1;
   max-width: 100%;
+  position: relative;
 `;
 
 const MainWrapper = styled.div`
@@ -71,6 +72,7 @@ const ContentHeader = styledTS<{ background: string }>(styled.div)`
   border-bottom: 1px solid ${colors.borderPrimary};
   display: flex;
   justify-content: space-between;
+  z-index: 2;
 `;
 
 const ContenFooter = styled.div`
@@ -81,6 +83,8 @@ const ContenFooter = styled.div`
 `;
 
 const BarItems = styled.div`
+  white-space: nowrap;
+
   .dropdown-menu {
     min-width: 200px;
   }
@@ -244,7 +248,7 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   }
 `;
 
-const SidebarList = styled.ul`
+const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
@@ -268,6 +272,7 @@ const SidebarList = styled.ul`
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
+    text-transform: ${props => (props.capitalize ? 'capitalize' : 'normal')};
     outline: 0;
     position: relative;
     border-left: 2px solid transparent;
@@ -389,7 +394,7 @@ const Authlayout = styled.div`
 
   @media (max-width: 768px) {
     overflow: auto;
-    padding-bottom: ${dimensions.coreSpacing * 2}px;
+    padding-bottom: ${dimensions.coreSpacing * 5}px;
   }
 `;
 
@@ -479,6 +484,34 @@ const SectionBodyItem = styled.div`
   }
 `;
 
+const MobileRecommend = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 12px;
+  background: linear-gradient(
+    to right,
+    ${colors.colorSecondary},
+    ${colors.colorCoreTeal}
+  );
+  color: ${colors.colorWhite};
+  transition: all ease 0.3s;
+  padding: 15px ${dimensions.coreSpacing}px;
+  box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
+`;
+
+const CenterContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  > a {
+    border: 1px solid ${colors.colorWhite};
+    color: ${colors.colorWhite};
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -487,6 +520,7 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
+  CenterContent,
   HeaderItems,
   BarItems,
   SideContent,
@@ -512,5 +546,6 @@ export {
   AuthDescription,
   SectionContainer,
   SectionBody,
-  SectionBodyItem
+  SectionBodyItem,
+  MobileRecommend
 };

@@ -6,8 +6,8 @@ import {
   SidebarCounter,
   SidebarList
 } from 'modules/layout/styles';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { ICustomer } from '../../../../customers/types';
 import { IBrand } from '../../../../settings/brands/types';
 import { IIntegration } from '../../../../settings/integrations/types';
@@ -72,10 +72,7 @@ class ConversationDetails extends React.Component<Props> {
               {__('Integration')}
               <SidebarCounter>
                 {integration.kind}
-                <IntegrationIcon
-                  integration={integration}
-                  facebookData={conversation.facebookData}
-                />
+                <IntegrationIcon integration={integration} />
               </SidebarCounter>
             </li>
             <li>

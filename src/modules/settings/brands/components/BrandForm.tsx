@@ -1,59 +1,66 @@
-import * as React from 'react';
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
-} from '../../../common/components';
-import { ModalFooter } from '../../../common/styles/main';
+} from 'modules/common/components';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import React from 'react';
 import { IBrand } from '../types';
 
 type Props = {
   brand?: IBrand;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-      };
-    },
-    callback: () => void,
-    brand?: IBrand
-  ) => void;
-  closeModal: () => void;
+  closeModal?: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  afterSave?: () => void;
+  modal?: boolean;
 };
 
-class BrandForm extends React.Component<Props, {}> {
-  save = e => {
-    e.preventDefault();
+class BrandForm extends React.Component<Props> {
+  renderFooter(formProps: IFormProps) {
+    const { brand, closeModal, renderButton, afterSave } = this.props;
+    const { values, isSubmitted } = formProps;
 
-    const { save, brand, closeModal } = this.props;
-    save(this.generateDoc(), () => closeModal(), brand);
-  };
+    if (brand) {
+      values._id = brand._id;
+    }
 
-  generateDoc = () => {
-    return {
-      doc: {
-        name: (document.getElementById('brand-name') as HTMLInputElement).value,
-        description: (document.getElementById(
-          'brand-description'
-        ) as HTMLInputElement).value
-      }
-    };
-  };
+    return (
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          type="button"
+          icon="cancel-1"
+          onClick={closeModal}
+        >
+          Cancel
+        </Button>
 
-  renderContent() {
+        {renderButton({
+          name: 'brand',
+          values,
+          isSubmitted,
+          callback: closeModal || afterSave,
+          object: brand
+        })}
+      </ModalFooter>
+    );
+  }
+
+  renderContent = (formProps: IFormProps) => {
     const object = this.props.brand || ({} as IBrand);
 
     return (
-      <div>
+      <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
-            id="brand-name"
+            {...formProps}
+            name="name"
             defaultValue={object.name}
-            type="text"
             required={true}
           />
         </FormGroup>
@@ -62,36 +69,21 @@ class BrandForm extends React.Component<Props, {}> {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="brand-description"
+            {...formProps}
+            name="description"
             componentClass="textarea"
             rows={5}
             defaultValue={object.description}
           />
         </FormGroup>
-      </div>
+
+        {this.renderFooter({ ...formProps })}
+      </>
     );
-  }
+  };
 
   render() {
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="cancel-1"
-            onClick={this.props.closeModal}
-          >
-            Cancel
-          </Button>
-
-          <Button btnStyle="success" icon="checked-1" type="submit">
-            Save
-          </Button>
-        </ModalFooter>
-      </form>
-    );
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

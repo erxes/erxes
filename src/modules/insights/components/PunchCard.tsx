@@ -1,5 +1,5 @@
-import { Tip } from 'modules/common/components';
-import * as React from 'react';
+import { EmptyState, Tip } from 'modules/common/components';
+import React from 'react';
 import {
   ChartWrapper,
   FlexRow,
@@ -19,17 +19,25 @@ type Props = {
 const paddinLeftSize = 120;
 
 class PunchCard extends React.Component<Props> {
-  renderCells(day: number) {
+  private dates: any[];
+
+  constructor(props) {
+    super(props);
+
+    this.dates = Array.from(new Set(props.data.map(data => data.date))).sort();
+  }
+
+  renderCells(date: string) {
     const { data, width } = this.props;
     const max = Math.max.apply(Math, data.map(o => o.count));
 
+    const cellHeight = Math.floor((width - paddinLeftSize) / 24);
     const row: any = [];
 
     for (let i = 0; i < 24; i++) {
       const obj = (data.find(
-        o => o.day === day && o.hour === i
+        o => o.date === date && o.hour === i
       ) as IPunchCardData) || { count: 0 };
-      const cellHeight = Math.floor((width - paddinLeftSize) / 24);
 
       row.push(
         <PunchCell key={Math.random()} height={cellHeight}>
@@ -50,9 +58,9 @@ class PunchCard extends React.Component<Props> {
   renderRows() {
     const html: any = [];
 
-    for (let i = 0; i < 7; i++) {
+    for (const date of this.dates) {
       html.push(
-        <FlexRow key={Math.random()}>{this.renderCells(i + 1)}</FlexRow>
+        <FlexRow key={Math.random()}>{this.renderCells(date)}</FlexRow>
       );
     }
 
@@ -67,7 +75,7 @@ class PunchCard extends React.Component<Props> {
     for (let i = 0; i < 24; i++) {
       html.push(
         <PunchCell key={Math.random()} height={cellHeight}>
-          {i}
+          {i}h
         </PunchCell>
       );
     }
@@ -80,20 +88,12 @@ class PunchCard extends React.Component<Props> {
   }
 
   renderDates() {
-    const { data, width } = this.props;
+    const { width } = this.props;
     const cellHeight = Math.floor((width - paddinLeftSize) / 24);
-
-    const dates: string[] = [];
-
-    data.map(obj => {
-      if (!dates.includes(obj.date)) {
-        dates.push(obj.date);
-      }
-    });
 
     const html: any = [];
 
-    dates.sort().map(date => {
+    this.dates.forEach(date => {
       html.push(
         <PunchCell key={Math.random()} height={cellHeight}>
           {date}
@@ -105,6 +105,14 @@ class PunchCard extends React.Component<Props> {
   }
 
   render() {
+    if (this.props.data.length === 0) {
+      return (
+        <ChartWrapper>
+          <EmptyState text="There is no data" size="full" icon="piechart" />
+        </ChartWrapper>
+      );
+    }
+
     return (
       <ChartWrapper>
         <PunchCardWrapper paddingLeft={paddinLeftSize}>

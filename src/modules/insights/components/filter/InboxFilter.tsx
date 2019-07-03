@@ -1,12 +1,13 @@
-import { Button, ControlLabel } from 'modules/common/components';
+import { ControlLabel } from 'modules/common/components';
 import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from '../../styles';
 import { IQueryParams } from '../../types';
+import { formatDate } from '../../utils';
 import { integrationOptions, selectOptions } from '../../utils';
 import Filter from './Filter';
 
@@ -43,13 +44,15 @@ class InboxFilter extends React.Component<Props, States> {
     this.setState({ brandIds: brands.map(el => el.value) });
   };
 
-  onApplyClick = () => {
+  onApplyClick = ({ startDate, endDate }) => {
     const { history } = this.props;
     const { integrationIds, brandIds } = this.state;
 
     router.setParams(history, {
       integrationIds: (integrationIds || []).join(','),
-      brandIds: (brandIds || []).join(',')
+      brandIds: (brandIds || []).join(','),
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate)
     });
   };
 
@@ -70,7 +73,7 @@ class InboxFilter extends React.Component<Props, States> {
           value={this.state.integrationIds || []}
           onChange={this.onTypeChange}
           optionRenderer={options}
-          options={integrationOptions([__('All'), ...integrations])}
+          options={integrationOptions([...integrations])}
           multi={true}
         />
       </FlexItem>
@@ -95,7 +98,7 @@ class InboxFilter extends React.Component<Props, States> {
           value={this.state.brandIds || []}
           onChange={this.onBrandChange}
           optionRenderer={options}
-          options={selectOptions([{ _id: '', name: __('All') }, ...brands])}
+          options={selectOptions([...brands])}
           multi={true}
         />
       </FlexItem>
@@ -112,18 +115,12 @@ class InboxFilter extends React.Component<Props, States> {
       </>
     );
 
-    const applyBtn = (
-      <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
-        Apply
-      </Button>
-    );
-
     return (
       <Filter
         queryParams={queryParams}
         history={history}
         content={content}
-        applyBtn={applyBtn}
+        onApplyClick={this.onApplyClick}
       />
     );
   }

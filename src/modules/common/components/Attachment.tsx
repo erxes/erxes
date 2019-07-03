@@ -1,7 +1,8 @@
 import { Icon, ImageWithPreview } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';
+import { readFile } from '../utils';
 
 const sizing = 30;
 
@@ -92,7 +93,11 @@ class Attachment extends React.Component<Props> {
         <FileWrapper key="wrapper">
           <Icon icon={icon} /> <span>{name}</span>
         </FileWrapper>
-        <Overlay key="overlay" href={this.props.attachment.url} target="_blank">
+        <Overlay
+          key="overlay"
+          href={readFile(this.props.attachment.url)}
+          target="_blank"
+        >
           <div>
             <Icon icon="download" />
           </div>

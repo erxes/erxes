@@ -1,5 +1,5 @@
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import strip from 'strip';
 
 import { withCurrentUser } from 'modules/auth/containers';
@@ -108,7 +108,6 @@ class ConversationItem extends React.Component<Props> {
 
     const isIdle =
       integration.kind !== 'form' &&
-      integration.kind !== 'gmail' &&
       conversation.status !== 'closed' &&
       idleTime >= 1;
 
@@ -127,12 +126,7 @@ class ConversationItem extends React.Component<Props> {
                 <NameCard.Avatar
                   size={40}
                   customer={customer}
-                  icon={
-                    <IntegrationIcon
-                      integration={integration}
-                      facebookData={conversation.facebookData}
-                    />
-                  }
+                  icon={<IntegrationIcon integration={integration} />}
                 />
               )}
               <FlexContent>

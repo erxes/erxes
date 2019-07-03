@@ -1,8 +1,9 @@
-import { Spinner } from 'modules/common/components';
-import * as React from 'react';
+import { EmptyState, Spinner } from 'modules/common/components';
+import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { Summary } from '.';
 import {
+  ChartWrapper,
   FullName,
   InsightUserData,
   LoaderWrapper,
@@ -29,7 +30,7 @@ class TeamMembers extends React.Component<Props> {
 
         <InsightUserData>
           <UserProfile>
-            <a>
+            <a href="#img">
               <img
                 src={data.avatar || '/images/avatar-colored.svg'}
                 alt={data.fullName}
@@ -55,6 +56,14 @@ class TeamMembers extends React.Component<Props> {
         <LoaderWrapper>
           <Spinner objective={true} />
         </LoaderWrapper>
+      );
+    }
+
+    if (datas.length === 0) {
+      return (
+        <ChartWrapper>
+          <EmptyState text="There is no data" size="full" icon="piechart" />
+        </ChartWrapper>
       );
     }
 

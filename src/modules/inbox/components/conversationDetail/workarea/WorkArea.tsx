@@ -1,7 +1,7 @@
 import { Button, Icon, Label, Tags } from 'modules/common/components';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { IAttachmentPreview } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, getUserAvatar } from 'modules/common/utils';
 import { AssignBoxPopover } from 'modules/inbox/components';
 import { Resolver, Tagger } from 'modules/inbox/containers';
 import { RespondBox } from 'modules/inbox/containers/conversationDetail';
@@ -15,14 +15,16 @@ import {
 import { Wrapper } from 'modules/layout/components';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import {
   AddMessageMutationVariables,
   IConversation,
   IMessage
 } from '../../../types';
 import Conversation from './conversation/Conversation';
+import ConvertTo from './ConvertTo';
 import Participators from './Participators';
+import TypingIndicator from './TypingIndicator';
 
 type Props = {
   queryParams?: any;
@@ -31,6 +33,7 @@ type Props = {
   currentConversation: IConversation;
   conversationMessages: IMessage[];
   loading: boolean;
+  typingInfo?: string;
   loadMoreMessages: () => void;
   addMessage: (
     {
@@ -81,14 +84,7 @@ export default class WorkArea extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages, currentConversation } = this.props;
-
-    const twitterData = currentConversation.twitterData;
-    const isTweet = twitterData && !twitterData.isDirectMessage;
-
-    if (isTweet) {
-      return null;
-    }
+    const { conversationMessages, typingInfo } = this.props;
 
     const messageCount = conversationMessages.length;
     const prevMessageCount = prevProps.conversationMessages.length;
@@ -98,7 +94,7 @@ export default class WorkArea extends React.Component<Props, State> {
       current.scrollTop = current.scrollHeight - snapshot;
     }
 
-    if (prevMessageCount + 1 === messageCount) {
+    if (prevMessageCount + 1 === messageCount || typingInfo) {
       this.scrollBottom();
     }
 
@@ -129,14 +125,13 @@ export default class WorkArea extends React.Component<Props, State> {
       currentConversation,
       conversationMessages,
       addMessage,
-      loading
+      loading,
+      typingInfo
     } = this.props;
 
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
-    const forceInternal =
-      currentConversation.gmailData || currentConversation.twitterData;
 
     const tagTrigger = (
       <PopoverButton>
@@ -152,13 +147,7 @@ export default class WorkArea extends React.Component<Props, State> {
     const assignTrigger = (
       <AssignTrigger>
         {assignedUser && assignedUser._id ? (
-          <AvatarImg
-            src={
-              assignedUser.details
-                ? assignedUser.details.avatar
-                : '/images/avatar-colored.svg'
-            }
-          />
+          <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
           <Button btnStyle="simple" size="small">
             Member
@@ -171,6 +160,14 @@ export default class WorkArea extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         <Tagger targets={[currentConversation]} trigger={tagTrigger} />
+
+        <ConvertTo
+          customerIds={
+            currentConversation.customerId
+              ? [currentConversation.customerId]
+              : []
+          }
+        />
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>
@@ -197,6 +194,10 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
+    const typingIndicator = typingInfo ? (
+      <TypingIndicator>{typingInfo}</TypingIndicator>
+    ) : null;
+
     const content = (
       <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
@@ -210,20 +211,21 @@ export default class WorkArea extends React.Component<Props, State> {
     );
 
     return (
-      <React.Fragment>
+      <>
         {actionBar}
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>
+            {typingIndicator}
             <RespondBox
-              showInternal={forceInternal ? true : false}
+              showInternal={false}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}
             />
           </ContenFooter>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }

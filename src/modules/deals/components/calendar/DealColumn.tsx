@@ -1,12 +1,13 @@
+import { AddNew } from 'modules/boards/styles/stage';
 import { EmptyState, Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { AddNew } from 'modules/deals/styles/stage';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import options from '../../options';
 import { IDeal, IDealTotalAmount } from '../../types';
-import { Deal } from '../portable';
+import Deal from '../PortableDeal';
 
 type Props = {
   deals: IDeal[];
@@ -81,7 +82,13 @@ class DealColumn extends React.Component<Props, {}> {
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (
-      <Deal key={index} deal={deal} onRemove={onRemove} onUpdate={onUpdate} />
+      <Deal
+        options={options}
+        key={index}
+        item={deal}
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+      />
     ));
 
     return <ContentBody>{contents}</ContentBody>;

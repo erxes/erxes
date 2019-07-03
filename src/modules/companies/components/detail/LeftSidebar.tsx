@@ -5,7 +5,7 @@ import {
 import { ICompany } from 'modules/companies/types';
 import { TaggerSection } from 'modules/customers/components/common';
 import { Sidebar } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   company: ICompany;

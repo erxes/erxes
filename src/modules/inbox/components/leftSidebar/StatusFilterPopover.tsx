@@ -6,7 +6,7 @@ import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 type Props = {
@@ -57,7 +57,6 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
   renderSingleFilter = (
     paramName: string,
     paramValue: string,
-    countName: string,
     text: string,
     count: number
   ) => {
@@ -72,6 +71,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     return (
       <li>
         <a
+          href="#link"
           className={
             router.getParam(history, [paramName]) === paramValue ? 'active' : ''
           }
@@ -101,14 +101,12 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
           {this.renderSingleFilter(
             'unassigned',
             'true',
-            'unassiged',
             'Unassigned',
             counts.unassigned
           )}
           {this.renderSingleFilter(
             'participating',
             'true',
-            'participating',
             'Participating',
             counts.participating
           )}
@@ -116,7 +114,6 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
           {this.renderSingleFilter(
             'status',
             'closed',
-            'resolved',
             'Resolved',
             counts.resolved
           )}

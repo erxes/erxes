@@ -2,7 +2,7 @@ import { Button, Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { INotification } from 'modules/notifications/types';
-import * as React from 'react';
+import React from 'react';
 import { NotificationRow } from './';
 import { NotifList } from './styles';
 
@@ -78,7 +78,10 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={[{ title: __('Notifications') }]} />
+          <Wrapper.Header
+            title={__('Notifications')}
+            breadcrumb={[{ title: __('Notifications') }]}
+          />
         }
         actionBar={actionBar}
         content={content}

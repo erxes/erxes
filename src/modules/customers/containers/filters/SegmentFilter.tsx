@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import Segments from 'modules/segments/containers/Filter';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { queries as customerQueries } from '../../graphql';

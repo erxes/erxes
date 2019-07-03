@@ -6,9 +6,10 @@ import MessageList from './MessageList';
 import MessageListRow from './MessageListRow';
 import MessengerForm from './MessengerForm';
 import MessengerPreview from './MessengerPreview';
-import Segments from './Segments';
-import SegmentsForm from './SegmentsForm';
 import Sidebar from './Sidebar';
+import { BrandStep, SegmentStep, TagStep } from './step';
+import SegmentsForm from './step/forms/SegmentsForm';
+import Targets from './Targets';
 import VisitorForm from './VisitorForm';
 import Widget from './Widget';
 
@@ -21,9 +22,12 @@ export {
   MessengerPreview,
   Sidebar,
   AutoAndManualForm,
-  Segments,
+  Targets,
   SegmentsForm,
   MessengerForm,
   EmailForm,
-  EmailStatistics
+  EmailStatistics,
+  SegmentStep,
+  BrandStep,
+  TagStep
 };

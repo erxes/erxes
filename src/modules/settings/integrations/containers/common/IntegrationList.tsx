@@ -3,7 +3,7 @@ import { Spinner } from 'modules/common/components';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { IntegrationList } from 'modules/settings/integrations/components/common';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IntegrationsQueryResponse, RemoveMutationResponse } from '../../types';
 import { integrationsListParams } from '../utils';
@@ -28,15 +28,17 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const integrations = integrationsQuery.integrations || [];
 
-  const removeIntegration = (integration, callback) => {
+  const removeIntegration = integration => {
     confirm().then(() => {
+      Alert.warning('Removing... Please wait!!!');
+
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
           Alert.success('Your integration is no longer in this channel');
         })
 
         .catch(error => {
-          Alert.error(error.reason);
+          Alert.error(error.message);
         });
     });
   };

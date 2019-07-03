@@ -1,23 +1,22 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ITopic } from 'modules/knowledgeBase/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { Options } from '../../styles';
 import { IIntegration, ISelectMessengerApps } from '../../types';
 
 type Props = {
-  save: (
-    params: { name: string; integrationId: string; topicId: string },
-    callback: () => void
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   integrations: IIntegration[];
   topics: ITopic[];
   closeModal: () => void;
@@ -40,15 +39,13 @@ class KnowledgeBase extends React.Component<Props, State> {
     };
   }
 
-  generateDoc() {
-    const { selectedMessengerId, selectedTopicId } = this.state;
-
+  generateDoc = (values: { name: string }) => {
     return {
-      name: (document.getElementById('name') as HTMLInputElement).value,
-      integrationId: selectedMessengerId,
-      topicId: selectedTopicId
+      name: values.name,
+      integrationId: this.state.selectedMessengerId,
+      topicId: this.state.selectedTopicId
     };
-  }
+  };
 
   generateIntegrationsParams = integrations => {
     return integrations.map(integration => ({
@@ -68,12 +65,6 @@ class KnowledgeBase extends React.Component<Props, State> {
     this.setState({ selectedTopicId: obj ? obj.value : '' });
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
-
-    this.props.save(this.generateDoc(), this.props.closeModal);
-  };
-
   renderOption = option => {
     return (
       <Options>
@@ -83,11 +74,12 @@ class KnowledgeBase extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const { integrations, topics, closeModal } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { integrations, topics, closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <>
         <Info>
           {__(
             'You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.'
@@ -95,13 +87,11 @@ class KnowledgeBase extends React.Component<Props, State> {
         </Info>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-
-          <FormControl id="name" type="text" required={true} />
+          <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Messenger integration</ControlLabel>
-
           <Select
             value={this.state.selectedMessenger}
             options={this.generateIntegrationsParams(integrations)}
@@ -112,7 +102,6 @@ class KnowledgeBase extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Knowledge base</ControlLabel>
-
           <Select
             value={this.state.selectedKb}
             options={this.generateIntegrationsParams(topics)}
@@ -130,12 +119,20 @@ class KnowledgeBase extends React.Component<Props, State> {
           >
             Cancel
           </Button>
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+
+          {renderButton({
+            name: 'knowledge base',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

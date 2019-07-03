@@ -1,7 +1,8 @@
 import { DropdownToggle, Icon, ModalTrigger } from 'modules/common/components';
 import { DropIcon } from 'modules/common/styles/main';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { CategoryForm, CategoryList, KnowledgeForm } from '../../containers';
 import { ITopic } from '../../types';
@@ -18,22 +19,8 @@ type Props = {
   topic: ITopic;
   articlesCount: number;
   remove: (knowledgeBaseId: string) => void;
-
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          description: string;
-          brandId: string;
-          languageCode: string;
-          color: string;
-        };
-      };
-    },
-    callback: () => void,
-    object: any
-  ) => void;
+  refetchTopics: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
@@ -83,17 +70,26 @@ class KnowledgeRow extends React.Component<Props, State> {
   }
 
   renderManage() {
-    const { topic, save, remove } = this.props;
+    const { topic, renderButton, remove, refetchTopics } = this.props;
 
     const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
     const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
 
     const content = props => (
-      <KnowledgeForm {...props} save={save} topic={topic} remove={remove} />
+      <KnowledgeForm
+        {...props}
+        renderButton={renderButton}
+        topic={topic}
+        remove={remove}
+      />
     );
 
     const categoryContent = props => (
-      <CategoryForm {...props} topicIds={topic._id} />
+      <CategoryForm
+        {...props}
+        topicIds={topic._id}
+        refetchTopics={refetchTopics}
+      />
     );
 
     return (
@@ -127,7 +123,7 @@ class KnowledgeRow extends React.Component<Props, State> {
       <KnowledgeBaseRow key={topic._id}>
         <SectionHead>
           <SectionTitle onClick={this.toggle}>
-            {topic.title}
+            {topic.title} ({topic.categories.length})
             <span>{topic.description}</span>
           </SectionTitle>
           {this.renderManage()}

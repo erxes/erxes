@@ -1,35 +1,38 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import * as React from 'react';
+import { IFormProps } from 'modules/common/types';
+import React from 'react';
 
 type Props = {
-  onSuccess: (password: string) => void;
+  onSuccess: (password: string, values: any[]) => void;
   closeModal: () => void;
+  formProps: IFormProps;
 };
 
 class PasswordConfirmation extends React.Component<Props> {
-  submit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const password = (document.getElementById('password') as HTMLInputElement)
-      .value;
-
-    this.props.onSuccess(password);
-
+  submit = values => {
+    this.props.onSuccess(values.password, this.props.formProps.values);
     this.props.closeModal();
   };
 
-  render() {
+  renderContent = formProps => {
     return (
-      <form onSubmit={this.submit}>
+      <>
         <FormGroup>
           <ControlLabel>Enter your password to Confirm</ControlLabel>
-          <FormControl autoFocus={true} id="password" type="password" />
+          <FormControl
+            autoFocus={true}
+            type="password"
+            name="password"
+            required={true}
+            {...formProps}
+          />
         </FormGroup>
         <ModalFooter>
           <Button
@@ -39,12 +42,16 @@ class PasswordConfirmation extends React.Component<Props> {
           >
             Cancel
           </Button>
-          <Button btnStyle="success" icon="checked-1" onClick={this.submit}>
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} onSubmit={this.submit} />;
   }
 }
 

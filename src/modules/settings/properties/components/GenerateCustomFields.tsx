@@ -1,7 +1,7 @@
 import { Button, EmptyState } from 'modules/common/components';
 import { __, Alert } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { SidebarContent } from '../styles';
 import { IFieldGroup } from '../types';
 import GenerateField from './GenerateField';
@@ -101,8 +101,8 @@ class GenerateGroup extends React.Component<Props, State> {
     const { fieldGroup } = this.props;
     const { data } = this.state;
 
-    if (!fieldGroup) {
-      return <EmptyState icon="information" text="Empty" size="small" />;
+    if (fieldGroup.fields.length === 0) {
+      return <EmptyState icon="folder" text="Empty" size="small" />;
     }
 
     return (
@@ -174,7 +174,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
       return (
         <Section>
           <Title>{__('Contact information')}</Title>
-          <EmptyState icon="clipboard-1" text="Empty" size="small" />
+          <EmptyState icon="folder" text="Empty" size="small" />
         </Section>
       );
     }

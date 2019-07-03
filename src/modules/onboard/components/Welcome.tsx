@@ -1,7 +1,7 @@
 import { FormControl } from 'modules/common/components';
 import { Button } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
@@ -79,7 +79,9 @@ class Welcome extends React.PureComponent<IProps, State> {
               >
                 {__("Don't show again")}
               </FormControl>
-              <a onClick={this.onClose}>{__('Close')} »</a>
+              <a href="#close" onClick={this.onClose}>
+                {__('Close')} »
+              </a>
             </ModalBottom>
           </WelcomeWrapper>
         </Modal.Body>

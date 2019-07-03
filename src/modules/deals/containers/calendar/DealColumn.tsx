@@ -3,8 +3,8 @@ import { IDateColumn } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { getMonthTitle, getMonthYear } from 'modules/common/utils/calendar';
 import { DealColumn } from 'modules/deals/components';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import {
@@ -38,8 +38,8 @@ class DealColumnContainer extends React.Component<FinalProps> {
     const { fetchMore } = dealsQuery;
 
     // Update calendar after stage updated
-    if (localStorage.getItem('dealCalendarCacheInvalidated') === 'true') {
-      localStorage.setItem('dealCalendarCacheInvalidated', 'false');
+    if (localStorage.getItem('cacheInvalidated') === 'true') {
+      localStorage.setItem('cacheInvalidated', 'false');
 
       dealsQuery.refetch();
       dealsTotalAmountsQuery.refetch();
@@ -99,7 +99,21 @@ type Props = {
   updatedAt: string;
   pipelineId: string;
   date: IDateColumn;
+  queryParams: any;
   onColumnUpdated: (date: IDateColumn) => void;
+};
+
+const getCommonParams = queryParams => {
+  if (!queryParams) {
+    return {};
+  }
+
+  return {
+    customerIds: queryParams.customerIds,
+    companyIds: queryParams.companyIds,
+    assignedUserIds: queryParams.assignedUserIds,
+    productIds: queryParams.productIds
+  };
 };
 
 export default withProps<Props>(
@@ -108,10 +122,15 @@ export default withProps<Props>(
       gql(queries.deals),
       {
         name: 'dealsQuery',
-        options: ({ date, pipelineId }: Props) => {
+        options: ({ date, pipelineId, queryParams }: Props) => {
           return {
             notifyOnNetworkStatusChange: true,
-            variables: { skip: 0, date, pipelineId }
+            variables: {
+              skip: 0,
+              date,
+              pipelineId,
+              ...getCommonParams(queryParams)
+            }
           };
         }
       }
@@ -120,8 +139,12 @@ export default withProps<Props>(
       gql(queries.dealsTotalAmounts),
       {
         name: 'dealsTotalAmountsQuery',
-        options: ({ date, pipelineId }: Props) => ({
-          variables: { date, pipelineId }
+        options: ({ date, pipelineId, queryParams }: Props) => ({
+          variables: {
+            date,
+            pipelineId,
+            ...getCommonParams(queryParams)
+          }
         })
       }
     )

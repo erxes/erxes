@@ -1,3 +1,4 @@
+import { Button as DealButton } from 'modules/boards/styles/item';
 import {
   Button,
   ControlLabel,
@@ -8,17 +9,16 @@ import {
 import { __ } from 'modules/common/utils';
 import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { ProductChooser } from '../../containers';
-import { Button as DealButton } from '../../styles/deal';
 import {
   ContentColumn,
   ContentRow,
   ItemText,
   ProductItem,
   TotalAmount
-} from '../../styles/product';
+} from '../../styles';
 import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 

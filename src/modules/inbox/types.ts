@@ -3,73 +3,6 @@ import { ICustomer } from '../customers/types';
 import { IIntegration } from '../settings/integrations/types';
 import { ITag } from '../tags/types';
 
-export interface ITwitterData {
-  id: number;
-  id_str: string;
-  created_at?: string;
-  isDirectMessage?: boolean;
-
-  // media content
-  entities?: any;
-  extended_entities?: any;
-  extended_tweet?: any;
-
-  // direct message
-  sender_id?: number;
-  sender_id_str?: string;
-  recipient_id?: number;
-  recipient_id_str?: string;
-
-  // timeline
-  in_reply_to_status_id?: number;
-  in_reply_to_status_id_str?: string;
-  in_reply_to_user_id?: number;
-  in_reply_to_user_id_str?: string;
-  in_reply_to_screen_name?: string;
-  is_quote_status?: boolean;
-  favorited?: boolean;
-  retweeted?: boolean;
-  quote_count?: number;
-  reply_count?: number;
-  retweet_count?: number;
-  favorite_count?: number;
-}
-
-export interface IConversationFacebookData {
-  kind?: string;
-  senderName: string;
-  senderId: string;
-  recipientId?: string;
-
-  // when wall post
-  postId?: string;
-
-  pageId?: string;
-}
-
-export interface IGmailAttachment {
-  filename?: string;
-  mimeType?: string;
-  size: number;
-  attachmentId: string;
-}
-
-export interface IConversationGmailData {
-  messageId?: string;
-  headerId?: string;
-  from?: string;
-  to?: string;
-  cc?: string;
-  bcc?: string;
-  reply?: string;
-  references?: string;
-  threadId?: string;
-  subject?: string;
-  textPlain?: string;
-  textHtml?: string;
-  attachments?: IGmailAttachment[];
-}
-
 export interface IConversation {
   _id: string;
   content?: string;
@@ -90,9 +23,6 @@ export interface IConversation {
 
   // number of total conversations
   number?: number;
-  twitterData?: ITwitterData;
-  facebookData?: IConversationFacebookData;
-  gmailData?: IConversationGmailData;
 
   integration: IIntegration;
   customer: ICustomer;
@@ -101,39 +31,6 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
-}
-
-export interface IFbUser {
-  id: string;
-  name: string;
-}
-
-export interface IReactions {
-  like?: IFbUser[];
-  love?: IFbUser[];
-  wow?: IFbUser[];
-  haha?: IFbUser[];
-  sad?: IFbUser[];
-  angry?: IFbUser[];
-}
-
-export interface IMessageFacebookData {
-  postId?: string;
-  commentId?: string;
-  parentId?: string;
-  isPost?: boolean;
-  reactions?: IReactions;
-  likeCount?: number;
-  commentCount?: number;
-  messageId?: string;
-  item?: string;
-  photo?: string;
-  video?: string;
-  photos?: string[];
-  link?: string;
-  createdTime: string;
-  senderId: string;
-  senderName: string;
 }
 
 interface IEngageDataRules {
@@ -166,9 +63,6 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
-  facebookData?: IMessageFacebookData;
-  twitterData?: ITwitterData;
-  gmailData?: IConversationGmailData;
 
   _id: string;
   user?: IUser;
@@ -190,71 +84,12 @@ export type ReplyMutationResponse = {
   ) => Promise<any>;
 };
 
-export type ExecuteAppMutationVariables = {
-  _id: string;
-  conversationId: string;
-};
-
-export type ExecuteAppMutationResponse = {
-  executeAppMutation: (
-    doc: { variables: ExecuteAppMutationVariables }
-  ) => Promise<any>;
-};
-
-export type ReplyTweetMutationResponse = {
-  replyTweetMutation: (
-    doc: {
-      variables: AddMessageMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-export type FavoriteTweetMutationVariables = {
-  integrationId: string;
-  id: string;
-};
-
-export type FavoriteTweetMutationResponse = {
-  favoriteTweetMutation: (
-    doc: { variables: FavoriteTweetMutationVariables }
-  ) => Promise<any>;
-};
-
-export type RetweetMutationVariables = {
-  integrationId: string;
-  id: string;
-};
-
-export type RetweetMutationResponse = {
-  retweetMutation: (
-    doc: {
-      variables: RetweetMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-export type TweetMutationVariables = {
-  integrationId: string;
-  text: string;
-};
-
-export type TweetMutationResponse = {
-  tweetMutation: (
-    doc: {
-      variables: TweetMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
 export type AddMessageMutationVariables = {
   conversationId: string;
   content: string;
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
-  tweetReplyToId?: string;
-  tweetReplyToScreenName?: string;
-  commentReplyToId?: string;
 };
 
 export type AddMessageMutationResponse = {
@@ -355,11 +190,4 @@ export type UnreadConversationsTotalCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
   subscribeToMore: (variables) => void;
-};
-
-export type FacebookMessagesQueryResponse = {
-  conversationMessagesFacebook: { list: IMessage[]; commentCount?: number };
-  loading: boolean;
-  refetch: () => void;
-  fetchMore: (variables) => void;
 };

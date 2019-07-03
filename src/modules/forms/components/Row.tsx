@@ -8,8 +8,8 @@ import {
   Tip
 } from 'modules/common/components';
 import { __, Alert, confirm } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IFormIntegration } from '../types';
 import { Manage } from './';
@@ -106,9 +106,12 @@ class Row extends React.Component<Props, {}> {
         <td>{form.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>
         <td>
-          <Link to={`/customers?form=${integration.formId}`}>
-            {form.contactsGathered || 0}
-          </Link>
+          {form.contactsGathered || 0}{' '}
+          <Tip text={__('View')}>
+            <Link to={`/contacts/customers/all?form=${integration.formId}`}>
+              <Icon icon="eye" />
+            </Link>
+          </Tip>
         </td>
         <td>{moment(form.createdDate).format('ll')}</td>
         <td>

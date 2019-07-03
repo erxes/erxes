@@ -2,8 +2,8 @@ import { Button, Icon } from 'modules/common/components';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, renderFullName } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { IUser } from '../../../auth/types';
 import {
   CUSTOMER_BASIC_INFO,
@@ -15,9 +15,7 @@ import {
   ICustomer,
   ICustomerDoc,
   ICustomerLinks,
-  IFacebookData,
   IMessengerData,
-  ITwitterData,
   IVisitorContact
 } from '../../types';
 
@@ -135,10 +133,6 @@ class CustomersMerge extends React.Component<Props, State> {
 
   renderValue(field: string, value: any) {
     switch (field) {
-      case 'facebookData':
-        return this.renderFacebookData(value);
-      case 'twitterData':
-        return this.renderTwitterData(value);
       case 'messengerData':
         return this.renderMessengerData(value);
       case 'visitorContactInfo':
@@ -153,22 +147,6 @@ class CustomersMerge extends React.Component<Props, State> {
     }
   }
 
-  renderFacebookData(data: IFacebookData) {
-    return (
-      <div>
-        <InfoDetail>
-          <a
-            target="_blank"
-            href={`http://facebook.com/${data.id}`}
-            rel="noopener noreferrer"
-          >
-            [view]
-          </a>
-        </InfoDetail>
-      </div>
-    );
-  }
-
   renderMessengerData(data: IMessengerData) {
     return (
       <Info>
@@ -176,17 +154,6 @@ class CustomersMerge extends React.Component<Props, State> {
         <InfoDetail>{moment(data.lastSeenAt).format('lll')}</InfoDetail>
         <InfoTitle>{__('Session count')}:</InfoTitle>
         <InfoDetail>{data.sessionCount}</InfoDetail>
-      </Info>
-    );
-  }
-
-  renderTwitterData(data: ITwitterData) {
-    return (
-      <Info>
-        <InfoTitle>{__('Name')}: </InfoTitle>
-        <InfoDetail>{data.name}</InfoDetail>
-        <InfoTitle>{__('Screen name')}: </InfoTitle>
-        <InfoDetail>{data.screen_name}</InfoDetail>
       </Info>
     );
   }

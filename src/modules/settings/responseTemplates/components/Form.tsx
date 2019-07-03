@@ -1,28 +1,22 @@
-import { EditorState } from 'draft-js';
 import {
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import { IBrand } from '../../brands/types';
+import { IFormProps } from 'modules/common/types';
+import { SelectBrand } from 'modules/settings/integrations/containers';
+import React from 'react';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
 import { IResponseTemplate } from '../types';
 
 type Props = {
   object?: IResponseTemplate;
-  brands: IBrand[];
 };
 
 type State = {
-  editorState: EditorState;
+  content: string;
 };
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
@@ -32,78 +26,63 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = props.object || {};
 
     this.state = {
-      editorState: createStateFromHTML(
-        EditorState.createEmpty(),
-        object.content || ''
-      )
+      content: object.content || ''
     };
   }
 
-  getContent = editorState => {
-    return toHTML(editorState);
+  onChange = e => {
+    this.setState({ content: e.editor.getData() });
   };
 
-  onChange = editorState => {
-    this.setState({ editorState });
-  };
+  generateDoc = (values: { _id?: string; name: string; brandId: string }) => {
+    const { object } = this.props;
+    const finalValues = values;
 
-  generateDoc = () => {
+    if (object) {
+      finalValues._id = object._id;
+    }
+
     return {
-      doc: {
-        brandId: (document.getElementById(
-          'template-brand-id'
-        ) as HTMLInputElement).value,
-        name: (document.getElementById('template-name') as HTMLInputElement)
-          .value,
-        content: this.getContent(this.state.editorState)
-      }
+      _id: finalValues._id,
+      brandId: finalValues.brandId,
+      name: finalValues.name,
+      content: this.state.content
     };
   };
 
-  renderContent = () => {
-    const { brands } = this.props;
+  renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IResponseTemplate);
 
-    const props = {
-      editorState: this.state.editorState,
-      onChange: this.onChange,
-      defaultValue: object.content
-    };
-
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
-          <ControlLabel>Brand</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            placeholder={__('Select Brand')}
+          <SelectBrand
+            formProps={formProps}
+            isRequired={true}
             defaultValue={object.brandId}
-            id="template-brand-id"
-          >
-            {brands.map(brand => (
-              <option key={brand._id} value={brand._id}>
-                {brand.name}
-              </option>
-            ))}
-          </FormControl>
+          />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
-            id="template-name"
+            {...formProps}
+            name="name"
             defaultValue={object.name}
-            type="text"
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Content</ControlLabel>
-          <ErxesEditor bordered={true} {...props} />
+
+          <EditorCK
+            content={object.content}
+            onChange={this.onChange}
+            height={300}
+          />
         </FormGroup>
-      </React.Fragment>
+      </>
     );
   };
 
@@ -111,8 +90,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
+        name="response template"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
+        object={this.props.object}
       />
     );
   }

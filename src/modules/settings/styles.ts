@@ -130,6 +130,7 @@ const MarkdownWrapper = styled.div`
     border: none;
     background: none;
     margin: 0;
+    padding: 20px;
   }
 `;
 
@@ -248,7 +249,6 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 
 const Description = styled.div`
   color: ${colors.colorCoreGray};
-  padding: ${dimensions.coreSpacing}px 0;
   font-size: 12px;
 `;
 

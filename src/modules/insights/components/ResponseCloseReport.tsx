@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
   InsightContent,
@@ -31,13 +31,6 @@ class ResponseCloseReport extends React.Component<Props> {
         {time ? <span>({time})</span> : null}
       </InsightTitle>
     );
-  }
-
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Response Close Report') }
-    ];
   }
 
   renderCharts() {
@@ -84,7 +77,7 @@ class ResponseCloseReport extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('Response Close Report')}
             submenu={menuInbox}
           />
         }

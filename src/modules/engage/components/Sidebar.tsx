@@ -3,7 +3,7 @@ import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { ITag } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { MESSAGE_KIND_FILTERS, statusFilters } from '../constants';
 

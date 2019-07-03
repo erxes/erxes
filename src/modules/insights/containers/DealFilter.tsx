@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
-import { queries as dealQueries } from 'modules/deals/graphql';
+import { queries as boardQueries } from 'modules/boards/graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse
-} from 'modules/deals/types';
-import * as React from 'react';
+  BoardsQueryResponse,
+  IPipeline
+} from 'modules/boards/types';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealFilter } from '../components';
 import { IQueryParams } from '../types';
@@ -32,35 +33,41 @@ const DealFilterContainer = (props: FinalProps) => {
 
   const boardId = queryParams.boardId;
 
-  const lastBoard = boardGetLastQuery && boardGetLastQuery.dealBoardGetLast;
-  const currentBoard = boardDetailQuery && boardDetailQuery.dealBoardDetail;
+  const lastBoard = boardGetLastQuery && boardGetLastQuery.boardGetLast;
+  const currentBoard = boardDetailQuery && boardDetailQuery.boardDetail;
 
-  let pipelines;
+  let pipelines: IPipeline[] = [];
 
   if (!boardId && lastBoard) {
-    pipelines = lastBoard.pipelines;
+    pipelines = lastBoard.pipelines || [];
   } else if (currentBoard) {
-    pipelines = currentBoard.pipelines;
+    pipelines = currentBoard.pipelines || [];
   }
 
   const extendedProps = {
     ...props,
-    boards: boardsQuery.dealBoards || [],
-    pipelines: (currentBoard && currentBoard.pipelines) || []
+    boards: boardsQuery.boards || [],
+    pipelines
   };
 
   return <DealFilter {...extendedProps} />;
 };
 
 export default compose(
-  graphql<Props, BoardsQueryResponse>(gql(dealQueries.boards), {
-    name: 'boardsQuery'
+  graphql<Props, BoardsQueryResponse>(gql(boardQueries.boards), {
+    name: 'boardsQuery',
+    options: () => ({
+      variables: { type: 'deal' }
+    })
   }),
-  graphql<Props, BoardsGetLastQueryResponse>(gql(dealQueries.boardGetLast), {
-    name: 'boardGetLastQuery'
+  graphql<Props, BoardsGetLastQueryResponse>(gql(boardQueries.boardGetLast), {
+    name: 'boardGetLastQuery',
+    options: () => ({
+      variables: { type: 'deal' }
+    })
   }),
   graphql<Props, BoardDetailQueryResponse, { _id: string }>(
-    gql(dealQueries.boardDetail),
+    gql(boardQueries.boardDetail),
     {
       name: 'boardDetailQuery',
       skip: ({ queryParams }) => !queryParams.boardId,

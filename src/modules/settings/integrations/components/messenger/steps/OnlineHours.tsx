@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { days, hours } from 'modules/settings/integrations/constants';
 import { FlexRow } from 'modules/settings/integrations/styles';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '../../../types';
 

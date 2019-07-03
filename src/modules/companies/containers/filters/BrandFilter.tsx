@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { BrandFilter } from 'modules/customers/components';
 import { queries } from 'modules/settings/brands/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';

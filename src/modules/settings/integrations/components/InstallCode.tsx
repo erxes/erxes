@@ -1,15 +1,17 @@
 import { getEnv } from 'apolloClient';
-import { Button, EmptyState } from 'modules/common/components';
+import { Button, EmptyState, Info } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { IIntegration } from 'modules/settings/integrations/types';
 import { MarkdownWrapper } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 
 type Props = {
   integration: IIntegration;
   closeModal: () => void;
+  positivButton?: React.ReactNode;
 };
 
 type State = {
@@ -69,14 +71,24 @@ class InstallCode extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { code, copied } = this.state;
     return (
       <>
+        <Info>
+          {__(
+            'Paste the code below before the body tag on every page you want erxes chat to appear'
+          )}
+        </Info>
         <MarkdownWrapper>
-          <ReactMarkdown source={this.state.code} />
-          {this.state.code ? (
-            <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
-              <Button size="small" btnStyle="success" icon="copy">
-                {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+          <ReactMarkdown source={code} />
+          {code ? (
+            <CopyToClipboard text={code} onCopy={this.onCopy}>
+              <Button
+                size="small"
+                btnStyle={copied ? 'primary' : 'success'}
+                icon="copy"
+              >
+                {copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
@@ -92,6 +104,7 @@ class InstallCode extends React.PureComponent<Props, State> {
           >
             Close
           </Button>
+          {this.props.positivButton}
         </ModalFooter>
       </>
     );

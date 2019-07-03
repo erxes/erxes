@@ -1,4 +1,5 @@
 import Chart from './Chart';
+import ConversationReport from './ConversationReport';
 import DealVolumeReport from './DealVolumeReport';
 import ExportReport from './ExportReport';
 import DealFilter from './filter/DealFilter';
@@ -31,5 +32,6 @@ export {
   FirstResponse,
   ExportReport,
   ResponseCloseReport,
-  DealVolumeReport
+  DealVolumeReport,
+  ConversationReport
 };

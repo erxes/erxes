@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
@@ -24,6 +24,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
     max-height: 260px;
     margin: 0 auto 20px auto;
     max-width: 60%;
+    width: fit-content;
   }
 
   span {

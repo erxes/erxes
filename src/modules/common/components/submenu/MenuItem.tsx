@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors } from '../../styles';
@@ -33,7 +33,7 @@ function MenuItem({ to, title, children, ...props }: Props) {
 
   return (
     <Item>
-      <NavLink {...props} {...linkProps} activeClassName="active">
+      <NavLink {...props} {...linkProps} exact={true}>
         {children}
       </NavLink>
     </Item>

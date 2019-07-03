@@ -3,10 +3,11 @@ import {
   FormControl,
   FormGroup
 } from 'modules/common/components';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ITopic } from 'modules/knowledgeBase/types';
 import { IIntegration } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { Form as CommonForm } from '../../common/components';
 import { ICommonFormProps } from '../../common/types';
@@ -17,13 +18,11 @@ type Props = {
   forms: IIntegration[];
   messengers: IIntegration[];
   kbTopics: ITopic[];
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
-  name: string;
-  messengerId?: string;
   leads?: Array<{ value: string; label: string }>;
-  kbTopicId?: string;
 };
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
@@ -33,38 +32,34 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = (props.object || {}) as IScript;
 
     this.state = {
-      name: object.name || '',
-      messengerId: object.messengerId,
-      leads: this.generateLeadOptions(object.leads || []),
-      kbTopicId: object.kbTopicId
+      leads: this.generateLeadOptions(object.leads || [])
     };
   }
 
-  generateDoc = () => {
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    messengerId: string;
+    kbTopicId: string;
+  }) => {
+    const { object } = this.props;
+    const finalValues = values;
+
+    if (object) {
+      finalValues._id = object._id;
+    }
+
     return {
-      doc: {
-        ...this.state,
-        leadIds: (this.state.leads || []).map(lead => lead.value)
-      }
+      _id: finalValues._id,
+      name: finalValues.name,
+      messengerId: finalValues.messengerId,
+      kbTopicId: finalValues.kbTopicId,
+      leadIds: (this.state.leads || []).map(lead => lead.value)
     };
   };
 
   onChangeLeads = leads => {
     this.setState({ leads });
-  };
-
-  onNameChange = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ name: (e.currentTarget as HTMLInputElement).value });
-  };
-
-  onMessengerChange = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({
-      messengerId: (e.currentTarget as HTMLSelectElement).value
-    });
-  };
-
-  onTopicChange = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ kbTopicId: (e.currentTarget as HTMLSelectElement).value });
   };
 
   generateLeadOptions = (leads: IIntegration[]) => {
@@ -74,31 +69,32 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     }));
   };
 
-  renderContent = () => {
+  renderContent = (formProps: IFormProps) => {
     const { forms, messengers, kbTopics } = this.props;
+    const object = this.props.object || ({} as IScript);
 
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
-            id="template-name"
-            value={this.state.name}
-            onChange={this.onNameChange}
-            type="text"
+            {...formProps}
+            name="name"
+            defaultValue={object.name || ''}
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messenger</ControlLabel>
+          <ControlLabel required={true}>Messenger</ControlLabel>
 
           <FormControl
+            {...formProps}
+            name="messengerId"
             componentClass="select"
             placeholder={__('Select messenger')}
-            value={this.state.messengerId}
-            id="messenger-id"
-            onChange={this.onMessengerChange}
+            defaultValue={object.messengerId}
+            required={true}
           >
             <option />
             {messengers.map(integration => (
@@ -122,14 +118,15 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Knowledgebase topic</ControlLabel>
+          <ControlLabel required={true}>Knowledgebase topic</ControlLabel>
 
           <FormControl
+            {...formProps}
+            name="kbTopicId"
             componentClass="select"
             placeholder={__('Select topic')}
-            value={this.state.kbTopicId}
-            onChange={this.onTopicChange}
-            id="topicId"
+            defaultValue={object.kbTopicId}
+            required={true}
           >
             <option />
             {kbTopics.map(topic => (
@@ -147,8 +144,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
+        name="response template"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
+        object={this.props.object}
       />
     );
   }

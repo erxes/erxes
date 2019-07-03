@@ -1,14 +1,14 @@
-import client from 'apolloClient';
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import queryString from 'query-string';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { ExportReport } from '../components';
 import { queries } from '../graphql';
-import { ExportArgs, IQueryParams } from '../types';
+import { IQueryParams } from '../types';
 
 type Props = {
   history: any;
@@ -21,19 +21,15 @@ class ExportReportContainer extends React.Component<Props> {
   render() {
     const { history, brandsQuery, queryParams, usersQuery } = this.props;
 
-    const exportReport = (args: ExportArgs) => {
-      const { queryName, type, userId } = args;
-      client
-        .query({
-          query: gql(queries[queryName]),
-          variables: { ...queryParams, type, userId }
-        })
-        .then(({ data }: any) => {
-          window.open(data[queryName], '_blank');
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+    const { REACT_APP_API_URL } = getEnv();
+
+    const exportReport = (args: { type: string; userId?: string }) => {
+      const stringified = queryString.stringify({ ...queryParams, ...args });
+
+      window.open(
+        `${REACT_APP_API_URL}/insights-export?${stringified}`,
+        '_blank'
+      );
     };
 
     const extendedProps = {

@@ -6,7 +6,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ActionBar, Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
@@ -43,8 +43,11 @@ class List extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    this.props.save('dealCurrency', this.state.currencies);
-    this.props.save('dealUOM', this.state.uom);
+    const { currencies, uom, language } = this.state;
+
+    this.props.save('dealCurrency', currencies);
+    this.props.save('dealUOM', uom);
+    this.props.changeLanguage(language);
   };
 
   onCurrenciesChange = currencies => {
@@ -56,8 +59,7 @@ class List extends React.Component<Props, State> {
   };
 
   onLanguageChange = language => {
-    this.setState({ language });
-    this.props.changeLanguage(language.value);
+    this.setState({ language: language.value });
   };
 
   render() {
@@ -127,7 +129,9 @@ class List extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('General')} breadcrumb={breadcrumb} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

@@ -3,18 +3,7 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { List } from '../components';
-
-const commonParamsDef = `
-  $brandId: String!,
-  $name: String!,
-  $content: String,
-`;
-
-const commonParams = `
-  brandId: $brandId,
-  name: $name,
-  content: $content,
-`;
+import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -22,82 +11,48 @@ type Props = {
 
 export default commonListComposer<Props>({
   text: 'response template',
+  label: 'responseTemplates',
+  stringEditMutation: mutations.responseTemplatesEdit,
+  stringAddMutation: mutations.responseTemplatesAdd,
 
-  name: 'responseTemplates',
-
-  gqlListQuery: graphql(
-    gql`
-      query responseTemplates($page: Int, $perPage: Int) {
-        responseTemplates(page: $page, perPage: $perPage) {
-          _id
-          name
-          brandId
-          brand {
-            _id
-            name
-          }
-          content
+  gqlListQuery: graphql(gql(queries.responseTemplates), {
+    name: 'listQuery',
+    options: ({ queryParams }: { queryParams: any }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          searchValue: queryParams.searchValue,
+          brandId: queryParams.brandId,
+          ...generatePaginationParams(queryParams)
         }
-      }
-    `,
-    {
-      name: 'listQuery',
-      options: ({ queryParams }: { queryParams: any }) => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: generatePaginationParams(queryParams)
-        };
-      }
+      };
     }
-  ),
+  }),
 
-  gqlTotalCountQuery: graphql(
-    gql`
-      query totalResponseTemplatesCount {
-        responseTemplatesTotalCount
-      }
-    `,
-    {
-      name: 'totalCountQuery'
-    }
-  ),
-
-  gqlAddMutation: graphql(
-    gql`
-      mutation responseTemplatesAdd(${commonParamsDef}) {
-        responseTemplatesAdd(${commonParams}) {
-          _id
+  gqlTotalCountQuery: graphql(gql(queries.responseTemplatesTotalCount), {
+    name: 'totalCountQuery',
+    options: ({ queryParams }: { queryParams: any }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          searchValue: queryParams.searchValue,
+          brandId: queryParams.brandId
         }
-      }
-    `,
-    {
-      name: 'addMutation'
+      };
     }
-  ),
+  }),
 
-  gqlEditMutation: graphql(
-    gql`
-      mutation responseTemplatesEdit($_id: String!, ${commonParamsDef}) {
-        responseTemplatesEdit(_id: $_id, ${commonParams}) {
-          _id
-        }
-      }
-    `,
-    {
-      name: 'editMutation'
-    }
-  ),
+  gqlAddMutation: graphql(gql(mutations.responseTemplatesAdd), {
+    name: 'addMutation'
+  }),
 
-  gqlRemoveMutation: graphql(
-    gql`
-      mutation responseTemplatesRemove($_id: String!) {
-        responseTemplatesRemove(_id: $_id)
-      }
-    `,
-    {
-      name: 'removeMutation'
-    }
-  ),
+  gqlEditMutation: graphql(gql(mutations.responseTemplatesEdit), {
+    name: 'editMutation'
+  }),
+
+  gqlRemoveMutation: graphql(gql(mutations.responseTemplatesRemove), {
+    name: 'removeMutation'
+  }),
 
   ListComponent: List
 });

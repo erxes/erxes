@@ -6,8 +6,9 @@ import {
   TextInfo,
   Tip
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IProduct } from '../types';
 import { Form } from './';
 
@@ -23,7 +24,7 @@ type Doc = {
 type Props = {
   product: IProduct;
   remove: (productId: string) => void;
-  save: (doc: Doc, callback: () => void, product?: IProduct) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Row extends React.Component<Props> {
@@ -38,7 +39,7 @@ class Row extends React.Component<Props> {
   };
 
   renderEditAction = () => {
-    const { product, save } = this.props;
+    const { product, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -48,7 +49,9 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
-    const content = props => <Form {...props} product={product} save={save} />;
+    const content = props => (
+      <Form {...props} product={product} renderButton={renderButton} />
+    );
 
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />

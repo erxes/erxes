@@ -1,5 +1,9 @@
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { IUser } from 'modules/auth/types';
+import { queries as userQueries } from 'modules/settings/team/graphql';
+import { UsersQueryResponse } from 'modules/settings/team/types';
+import React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { GroupList } from '../components';
 import { mutations, queries } from '../graphql';
@@ -13,14 +17,18 @@ import {
 
 type Props = {
   queryParams: any;
+  users: IUser[];
 };
 
 const commonOptions = () => ({
   refetchQueries: [{ query: gql(queries.usersGroups) }]
 });
 
-export default commonListComposer({
-  name: 'usersGroups',
+const MainGroupList = commonListComposer<Props>({
+  label: 'usersGroups',
+  text: 'user group',
+  stringEditMutation: mutations.usersGroupsEdit,
+  stringAddMutation: mutations.usersGroupsAdd,
 
   gqlListQuery: graphql<Props, UsersGroupsQueryResponse>(
     gql(queries.usersGroups),
@@ -30,8 +38,7 @@ export default commonListComposer({
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
-            page: queryParams.page,
-            perPage: queryParams.perPage || 20
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           }
         };
       }
@@ -71,3 +78,27 @@ export default commonListComposer({
 
   ListComponent: GroupList
 });
+
+type FinalProps = {
+  usersQuery: UsersQueryResponse;
+} & Props;
+
+class GroupListWithUsers extends React.Component<FinalProps> {
+  render() {
+    const { usersQuery } = this.props;
+    const users = usersQuery.users;
+
+    const updatedProps = {
+      ...this.props,
+      users
+    };
+
+    return <MainGroupList {...updatedProps} />;
+  }
+}
+
+export default compose(
+  graphql<Props, UsersQueryResponse>(gql(userQueries.users), {
+    name: 'usersQuery'
+  })
+)(GroupListWithUsers);

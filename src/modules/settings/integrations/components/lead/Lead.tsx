@@ -1,22 +1,21 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   Info
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import * as React from 'react';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import React from 'react';
 import Select from 'react-select-plus';
-import { __ } from '../../../../common/utils';
 import { Options } from '../../styles';
 import { IIntegration, ISelectMessengerApps } from '../../types';
 
 type Props = {
-  save: (
-    params: { name: string; integrationId: string; formId: string },
-    callback: () => void
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   integrations: IIntegration[];
   leads: IIntegration[];
   closeModal: () => void;
@@ -39,20 +38,14 @@ class Lead extends React.Component<Props, State> {
     };
   }
 
-  generateDoc() {
+  generateDoc = (values: { name: string }) => {
     const { selectedMessengerId, selectedFormId } = this.state;
 
     return {
-      name: (document.getElementById('name') as HTMLInputElement).value,
+      name: values.name,
       integrationId: selectedMessengerId,
       formId: selectedFormId
     };
-  }
-
-  handleSubmit = e => {
-    e.preventDefault();
-
-    this.props.save(this.generateDoc(), this.props.closeModal);
   };
 
   generateIntegrationsParams = integrations => {
@@ -83,11 +76,12 @@ class Lead extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const { closeModal, integrations, leads } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { closeModal, integrations, leads, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <>
         <Info>
           {__(
             'Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.'
@@ -95,13 +89,16 @@ class Lead extends React.Component<Props, State> {
         </Info>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-
-          <FormControl id="name" type="text" required={true} autoFocus={true} />
+          <FormControl
+            {...formProps}
+            name="name"
+            required={true}
+            autoFocus={true}
+          />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Messenger integration</ControlLabel>
-
           <Select
             name="messengerIntegration"
             value={this.state.selectedMessenger}
@@ -113,7 +110,6 @@ class Lead extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Lead</ControlLabel>
-
           <Select
             name="leadIntegration"
             value={this.state.selectedLead}
@@ -132,12 +128,20 @@ class Lead extends React.Component<Props, State> {
           >
             Cancel
           </Button>
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+
+          {renderButton({
+            name: 'lead integration',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

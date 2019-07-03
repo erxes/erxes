@@ -2,7 +2,7 @@ import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { INSIGHT_TYPES } from '../constants';
 import { DealFilter } from '../containers';
 import {
@@ -47,6 +47,21 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.loading.main && !this.props.loading.main) {
+      this.calculateWidth();
+    }
+  }
+
+  componentDidMount() {
+    this.calculateWidth();
+  }
+
+  calculateWidth() {
+    const width = this.wrapper.clientWidth;
+    this.setState({ width });
+  }
+
   renderTitle(title: string, time?: string) {
     return (
       <InsightTitle>
@@ -56,20 +71,16 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     );
   }
 
-  renderTrend(name, loading, trend) {
-    const innerRef = node => {
-      this.wrapper = node;
-    };
-
+  renderTrend(name, loading, data) {
     return (
-      <InsightRow innerRef={innerRef}>
+      <InsightRow>
         {this.renderTitle(name)}
-        <Chart loading={loading.main} height={360} data={trend} />
+        <Chart loading={loading.main} height={360} data={data} />
       </InsightRow>
     );
   }
 
-  renderPunchCard(loading, punch, width) {
+  renderPunchCard(loading, data, width) {
     let content = (
       <LoaderWrapper>
         <Spinner objective={true} />
@@ -77,7 +88,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     );
 
     if (!loading.punch) {
-      content = <PunchCard data={punch} width={width} />;
+      content = <PunchCard data={data} width={width} />;
     }
 
     return (
@@ -86,13 +97,6 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
         {content}
       </InsightRow>
     );
-  }
-
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/deal/insights' },
-      { title: __('Volume Report') }
-    ];
   }
 
   renderTeamMembers() {
@@ -118,8 +122,12 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
 
     const width = this.state.width;
 
+    const innerRef = node => {
+      this.wrapper = node;
+    };
+
     return (
-      <InsightContent>
+      <InsightContent innerRef={innerRef}>
         <InsightRow>
           {this.renderTitle('Volume summary')}
           <Summary loading={loading.main} data={summary} />
@@ -148,12 +156,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuDeal}
-          />
-        }
+        header={<Wrapper.Header title={__('Insights')} submenu={menuDeal} />}
         leftSidebar={<Sidebar type={INSIGHT_TYPES.DEAL} />}
         content={this.renderContent()}
       />

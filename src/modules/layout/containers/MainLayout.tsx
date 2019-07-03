@@ -1,6 +1,6 @@
 import { AppConsumer, AppProvider } from 'appContext';
 import { IUser } from 'modules/auth/types';
-import * as React from 'react';
+import React from 'react';
 import { MainLayout } from '../components';
 
 type Props = {
@@ -10,8 +10,15 @@ type Props = {
 
 const container = (props: Props) => (
   <AppProvider currentUser={props.currentUser}>
-    <AppConsumer>{() => <MainLayout {...props} />}</AppConsumer>
+    <AppConsumer>
+      {({ isShownIndicator, closeLoadingBar }) => (
+        <MainLayout
+          {...props}
+          isShownIndicator={isShownIndicator}
+          closeLoadingBar={closeLoadingBar}
+        />
+      )}
+    </AppConsumer>
   </AppProvider>
 );
-
 export default container;

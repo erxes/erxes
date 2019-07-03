@@ -1,36 +1,25 @@
-import { IUser } from 'modules/auth/types';
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import Select from 'react-select-plus';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { SelectTeamMembers } from 'modules/settings/team/containers';
+import React from 'react';
 import { IChannel } from '../types';
 
 type Props = {
   channel?: IChannel;
-  members: IUser[];
-  selectedMembers: IUser[];
+  selectedMembers: string[];
   closeModal: () => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
-  selectedMembers: IUser[];
+  selectedMembers: string[];
 };
 
 class ChannelForm extends React.Component<Props, State> {
@@ -38,46 +27,33 @@ class ChannelForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMembers: this.generateMembersParams(props.selectedMembers)
+      selectedMembers: props.selectedMembers || []
     };
   }
 
-  save = e => {
-    e.preventDefault();
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    description: string;
+  }) => {
+    const { channel } = this.props;
+    const finalValues = values;
 
-    const { save, channel, closeModal } = this.props;
+    if (channel) {
+      finalValues._id = channel._id;
+    }
 
-    save(this.generateDoc(), () => closeModal(), channel);
-  };
-
-  collectValues = items => {
-    return items.map(item => item.value);
-  };
-
-  generateMembersParams = members => {
-    return members.map(member => ({
-      value: member._id,
-      label: (member.details && member.details.fullName) || ''
-    }));
-  };
-
-  generateDoc = () => {
     return {
-      doc: {
-        name: (document.getElementById('channel-name') as HTMLInputElement)
-          .value,
-        description: (document.getElementById(
-          'channel-description'
-        ) as HTMLInputElement).value,
-        memberIds: this.collectValues(this.state.selectedMembers)
-      }
+      ...finalValues,
+      memberIds: this.state.selectedMembers
     };
   };
 
-  renderContent() {
-    const { members, channel } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { closeModal, channel, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
-    const object = channel || { name: '', description: '' };
+    const object = channel || ({} as IChannel);
     const self = this;
 
     const onChange = items => {
@@ -85,14 +61,14 @@ class ChannelForm extends React.Component<Props, State> {
     };
 
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
-            id="channel-name"
+            {...formProps}
+            name="name"
             defaultValue={object.name}
-            type="text"
             required={true}
           />
         </FormGroup>
@@ -101,7 +77,8 @@ class ChannelForm extends React.Component<Props, State> {
           <ControlLabel>Description</ControlLabel>
 
           <FormControl
-            id="channel-description"
+            {...formProps}
+            name="description"
             componentClass="textarea"
             rows={5}
             defaultValue={object.description}
@@ -111,24 +88,13 @@ class ChannelForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Members</ControlLabel>
 
-          <Select
-            placeholder={__('Choose members')}
-            onChange={onChange}
+          <SelectTeamMembers
+            label="Choose members"
+            name="selectedMembers"
             value={self.state.selectedMembers}
-            options={self.generateMembersParams(members)}
-            multi={true}
+            onSelect={onChange}
           />
         </FormGroup>
-      </React.Fragment>
-    );
-  }
-
-  render() {
-    const { closeModal } = this.props;
-
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent()}
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -139,12 +105,20 @@ class ChannelForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" icon="checked-1" type="submit">
-            Save
-          </Button>
+          {renderButton({
+            name: 'channel',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: channel
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

@@ -11,9 +11,9 @@ import {
   SortHandler,
   Table
 } from 'modules/common/components';
+import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
-import { TableHeadContent } from 'modules/customers/styles';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -56,7 +56,7 @@ interface IProps extends IRouterProps {
   ) => Promise<void>;
   queryParams: any;
   exportCustomers: (bulk: string[]) => void;
-  handleXlsUpload: (e: React.FormEvent<HTMLInputElement>) => void;
+  responseId: string;
 }
 
 type State = {
@@ -115,10 +115,7 @@ class CustomersList extends React.Component<IProps, State> {
             </th>
             {columnsConfig.map(({ name, label }) => (
               <th key={name}>
-                <TableHeadContent>
-                  <SortHandler sortField={name} />
-                  {__(label)}
-                </TableHeadContent>
+                <SortHandler sortField={name} label={__(label)} />
               </th>
             ))}
             <th>{__('Tags')}</th>
@@ -172,8 +169,7 @@ class CustomersList extends React.Component<IProps, State> {
       location,
       history,
       queryParams,
-      exportCustomers,
-      handleXlsUpload
+      exportCustomers
     } = this.props;
 
     const addTrigger = (
@@ -182,7 +178,7 @@ class CustomersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a>{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
@@ -241,26 +237,17 @@ class CustomersList extends React.Component<IProps, State> {
               </Link>
             </li>
             <li>
-              <a onClick={exportCustomers.bind(this, bulk)}>
+              <a href="#export" onClick={exportCustomers.bind(this, bulk)}>
                 {__('Export customers')}
-              </a>
-            </li>
-            <li>
-              <a>
-                <label style={{ fontWeight: 'normal' }}>
-                  {__('Import customers')}
-                  <input
-                    type="file"
-                    onChange={handleXlsUpload}
-                    style={{ display: 'none' }}
-                    accept=".xlsx, .xls"
-                  />
-                </label>
               </a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
-
+        <Link to="/settings/importHistories?type=customer">
+          <Button btnStyle="primary" size="small" icon="login-1">
+            {__('Go to import')}
+          </Button>
+        </Link>
         <ModalTrigger
           title="New customer"
           trigger={addTrigger}
@@ -335,12 +322,14 @@ class CustomersList extends React.Component<IProps, State> {
       <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
     );
 
-    const breadcrumb = [{ title: __(`Customers`) + ` (${totalCount})` }];
-
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+          <Wrapper.Header
+            title={__(`Customers`) + ` (${totalCount})`}
+            queryParams={queryParams}
+            submenu={menuContacts}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

@@ -1,7 +1,8 @@
 import { ActivityContent, EmailContent } from 'modules/activityLogs/styles';
 import { Icon } from 'modules/common/components';
-import * as React from 'react';
-import * as xss from 'xss';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import xss from 'xss';
 import ActivityRow from './ActivityRow';
 
 type Props = {
@@ -10,46 +11,94 @@ type Props = {
 
 const ActivityItem = (props: Props) => {
   const { data } = props;
+  const { action, content, caption } = data;
+
   let isInternalNote = false;
 
-  if (data.action === 'internal_note-create') {
+  if (action === 'internal_note-create') {
     isInternalNote = true;
   }
 
-  if (data.action === 'email-send') {
-    const content = JSON.parse(data.content);
+  if (action.includes('merge')) {
+    const ids = content.split(',');
+    const type = action.includes('customer') ? 'customers' : 'companies';
 
     return (
       <ActivityRow
-        data={data}
+        data={caption}
         body={
           <>
-            <p>{content.subject}</p>
-            <div>
-              {data.caption}
-              <Icon icon="rightarrow" /> To: <span>{content.toEmails}</span>
-              {content.cc && <span>Cc: {content.cc}</span>}
-              {content.bcc && <span>Bcc: {content.bcc}</span>}
-            </div>
+            {__('Merged')}
+
+            {ids.map((id: string, index: number) => {
+              return (
+                <a
+                  style={{ display: 'inline-block', padding: '0px 3px' }}
+                  key={id}
+                  href={`/${type}/details/${id}`}
+                  target="__blank"
+                >
+                  {index + 1},
+                </a>
+              );
+            })}
+
+            {type}
           </>
         }
-        content={
-          <EmailContent
-            dangerouslySetInnerHTML={{ __html: xss(content.body) }}
-          />
-        }
+        content={''}
       />
     );
+  }
+
+  if (action === 'email-send') {
+    try {
+      const parsedContent = JSON.parse(content);
+
+      return (
+        <ActivityRow
+          data={data}
+          body={
+            <>
+              <p>{parsedContent.subject}</p>
+              <div>
+                {caption}
+                <Icon icon="rightarrow" /> To:{' '}
+                <span>{parsedContent.toEmails}</span>
+                {parsedContent.cc && <span>Cc: {parsedContent.cc}</span>}
+                {parsedContent.bcc && <span>Bcc: {parsedContent.bcc}</span>}
+              </div>
+            </>
+          }
+          content={
+            <EmailContent
+              dangerouslySetInnerHTML={{ __html: xss(parsedContent.body) }}
+            />
+          }
+        />
+      );
+      // means email from customer or company detail
+    } catch (e) {
+      return (
+        <ActivityRow
+          data={data}
+          body={caption}
+          content={
+            <EmailContent dangerouslySetInnerHTML={{ __html: xss(content) }} />
+          }
+        />
+      );
+    }
   }
 
   return (
     <ActivityRow
       data={data}
-      body={data.caption}
+      body={caption}
       content={
         <ActivityContent
           isInternalNote={isInternalNote}
-          dangerouslySetInnerHTML={{ __html: xss(data.content) }}
+          dangerouslySetInnerHTML={{ __html: xss(content) }}
         />
       }
     />

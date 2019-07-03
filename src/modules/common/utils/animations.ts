@@ -10,6 +10,18 @@ const rotate = keyframes`
 	}
 `;
 
+const wave = keyframes`
+  0%{
+    transform:translateY(0px)
+  }
+  28%{
+    transform:translateY(-5px)
+  }
+  44%{
+    transform:translateY(0px)
+  }
+`;
+
 const fadeIn = keyframes`
   0% {
     opacity: 0;
@@ -73,4 +85,23 @@ const twinkling = keyframes`
   }
 `;
 
-export { rotate, fadeIn, slideDown, slideLeft, slideRight, shake, twinkling };
+const stripe = keyframes`
+  from {
+    background-position: 16px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+`;
+
+export {
+  rotate,
+  fadeIn,
+  slideDown,
+  slideLeft,
+  slideRight,
+  shake,
+  twinkling,
+  stripe,
+  wave
+};

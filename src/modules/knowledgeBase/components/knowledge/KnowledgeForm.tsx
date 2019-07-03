@@ -3,44 +3,31 @@ import {
   Button,
   ControlLabel,
   EmptyState,
+  Form,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import colors from 'modules/common/styles/colors';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
+import { SelectBrand } from 'modules/settings/integrations/containers';
 import {
   ColorPick,
   ColorPicker,
   MarkdownWrapper
 } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
-import SelectBrand from '../SelectBrand';
 
 type Props = {
   topic: ITopic;
   brands: IBrand[];
-
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          description: string;
-          brandId: string;
-          languageCode: string;
-          color: string;
-        };
-      };
-    },
-    callback: () => void,
-    topic: ITopic
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove?: (knowledgeBaseId: string) => void;
   closeModal: () => void;
 };
@@ -58,7 +45,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${REACT_APP_CDN_HOST}/build/knowledgeBaseWidget.bundle.js";
+        script.src = "${REACT_APP_CDN_HOST}/build/knowledgebaseWidget.bundle.js";
         script.async = true;
         var entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
@@ -102,16 +89,6 @@ class KnowledgeForm extends React.Component<Props, State> {
     this.setState({ color: e.hex });
   };
 
-  save = e => {
-    e.preventDefault();
-
-    this.props.save(
-      this.generateDoc(),
-      () => this.props.closeModal(),
-      this.props.topic
-    );
-  };
-
   remove = () => {
     const { remove, topic } = this.props;
 
@@ -153,34 +130,33 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
-  generateDoc() {
+  generateDoc = (values: {
+    _id?: string;
+    title: string;
+    description: string;
+    brandId: string;
+    languageCode: string;
+  }) => {
     const { topic } = this.props;
+    const finalValues = values;
+
+    if (topic) {
+      finalValues._id = topic._id;
+    }
 
     return {
-      ...topic,
+      _id: finalValues._id,
       doc: {
-        doc: {
-          title: (document.getElementById(
-            'knowledgebase-title'
-          ) as HTMLInputElement).value,
-          description: (document.getElementById(
-            'knowledgebase-description'
-          ) as HTMLInputElement).value,
-          brandId: (document.getElementById('selectBrand') as HTMLInputElement)
-            .value,
-          languageCode: (document.getElementById(
-            'languageCode'
-          ) as HTMLInputElement).value,
-          color: this.state.color
-        }
+        brandId: finalValues.brandId,
+        description: finalValues.description,
+        languageCode: finalValues.languageCode,
+        title: finalValues.title,
+        color: this.state.color
       }
     };
-  }
+  };
 
-  renderContent(
-    topic = { title: '', description: '', languageCode: '', brand: { _id: '' } }
-  ) {
-    const { brands } = this.props;
+  renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
@@ -193,10 +169,10 @@ class KnowledgeForm extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Title</ControlLabel>
+          <ControlLabel required={true}>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-title"
-            type="text"
+            {...formProps}
+            name="title"
             defaultValue={topic.title}
             required={true}
           />
@@ -205,16 +181,17 @@ class KnowledgeForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
-            id="knowledgebase-description"
-            type="text"
+            {...formProps}
+            name="description"
             defaultValue={topic.description}
           />
         </FormGroup>
 
         <FormGroup>
           <SelectBrand
-            brands={brands}
+            isRequired={true}
             defaultValue={brandId}
+            formProps={formProps}
             onChange={this.handleBrandChange}
           />
         </FormGroup>
@@ -242,9 +219,10 @@ class KnowledgeForm extends React.Component<Props, State> {
           <ControlLabel>Language</ControlLabel>
 
           <FormControl
+            {...formProps}
             componentClass="select"
             defaultValue={topic.languageCode || 'en'}
-            id="languageCode"
+            name="languageCode"
           >
             <option />
             <option value="mn">Монгол</option>
@@ -257,18 +235,20 @@ class KnowledgeForm extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const { topic, closeModal } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { topic, closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
-      <form onSubmit={this.save}>
-        {this.renderContent(
+      <>
+        {this.renderFormContent(
           topic || {
             title: '',
             description: '',
             languageCode: '',
             brand: { _id: '' }
-          }
+          },
+          { ...formProps }
         )}
         <ModalFooter>
           <Button
@@ -289,12 +269,20 @@ class KnowledgeForm extends React.Component<Props, State> {
               Delete
             </Button>
           )}
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'knowledge base',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: topic
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

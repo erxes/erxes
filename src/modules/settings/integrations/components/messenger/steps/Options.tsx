@@ -4,22 +4,28 @@ import {
   FormGroup
 } from 'modules/common/components';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
-import * as React from 'react';
+import React from 'react';
 import Toggle from 'react-toggle';
-import { SelectBrand } from '../..';
+import { SelectBrand } from '../../../containers/';
 
 type Props = {
   onChange: (
-    name: 'brandId' | 'languageCode' | 'notifyCustomer' | 'requireAuth',
+    name:
+      | 'brandId'
+      | 'languageCode'
+      | 'notifyCustomer'
+      | 'requireAuth'
+      | 'showChat'
+      | 'forceLogoutWhenResolve',
     value: string
   ) => void;
   brandId?: string;
-  brands?: IBrand[];
   languageCode: string;
   notifyCustomer?: boolean;
-  requireAuth: boolean;
+  requireAuth?: boolean;
+  showChat?: boolean;
+  forceLogoutWhenResolve?: boolean;
 };
 
 type State = {
@@ -46,10 +52,18 @@ class Options extends React.Component<Props, State> {
       );
 
     const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
+
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
+
     const requireAuthChange = e =>
       this.onChangeFunction('requireAuth', e.target.checked);
+
+    const showChatChange = e =>
+      this.onChangeFunction('showChat', e.target.checked);
+
+    const forceLogoutWhenResolveChange = e =>
+      this.onChangeFunction('forceLogoutWhenResolve', e.target.checked);
 
     return (
       <FlexItem>
@@ -73,8 +87,8 @@ class Options extends React.Component<Props, State> {
           </FormGroup>
 
           <SelectBrand
-            brands={this.props.brands || []}
             defaultValue={this.props.brandId}
+            isRequired={true}
             onChange={brandOnChange}
           />
 
@@ -85,6 +99,36 @@ class Options extends React.Component<Props, State> {
                 className="wide"
                 checked={this.props.requireAuth}
                 onChange={requireAuthChange}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Show chat</ControlLabel>
+            <div>
+              <Toggle
+                className="wide"
+                checked={this.props.showChat}
+                onChange={showChatChange}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Force logout when resolve</ControlLabel>
+            <div>
+              <Toggle
+                className="wide"
+                checked={this.props.forceLogoutWhenResolve}
+                onChange={forceLogoutWhenResolveChange}
                 icons={{
                   checked: <span>Yes</span>,
                   unchecked: <span>No</span>

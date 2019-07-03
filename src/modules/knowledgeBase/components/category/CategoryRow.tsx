@@ -1,6 +1,6 @@
 import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { CategoryForm } from '../../containers';
 import { ICategory } from '../../types';

@@ -1,6 +1,6 @@
 import { EmptyState, LoadMore } from 'modules/common/components';
 import { ConversationItem } from 'modules/inbox/containers/leftSidebar';
-import * as React from 'react';
+import React from 'react';
 import { IConversation } from '../../types';
 import { ConversationItems } from './styles';
 

@@ -50,6 +50,12 @@ const usersInvite = `
   }
 `;
 
+const usersResendInvitation = `
+  mutation usersResendInvitation($email: String!) {
+    usersResendInvitation(email: $email)
+  }
+`;
+
 const usersSetActiveStatus = `
   mutation usersSetActiveStatus($_id: String!) {
     usersSetActiveStatus(_id: $_id) {
@@ -70,6 +76,7 @@ export default {
   usersEditProfile,
   usersEdit,
   usersInvite,
+  usersResendInvitation,
   usersConfirmInvitation,
   usersSetActiveStatus
 };

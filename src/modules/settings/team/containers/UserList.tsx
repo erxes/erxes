@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { IButtonMutateProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import {
@@ -8,7 +9,7 @@ import {
 } from 'modules/settings/common/types';
 import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import { UserList } from '../components';
@@ -18,6 +19,7 @@ type Props = ICommonListProps &
   ICommonFormProps & {
     statusChangedMutation: any;
     listQuery: any;
+    renderButton: (props: IButtonMutateProps) => JSX.Element;
   };
 
 class UserListContainer extends React.Component<
@@ -56,12 +58,36 @@ class UserListContainer extends React.Component<
       });
   };
 
+  resendInvitation(email: string) {
+    client
+      .mutate({
+        mutation: gql(mutations.usersResendInvitation),
+        variables: { email }
+      })
+      .then(() => {
+        Alert.success('Successfully resent the invitation');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  }
+
+  getRefetchQueries = () => {
+    return [
+      { query: gql(queries.users), options },
+      { query: gql(queries.usersTotalCount), options }
+    ];
+  };
+
   render() {
     return (
       <UserList
         {...this.props}
         usersGroups={this.state.usersGroups}
         changeStatus={this.changeStatus}
+        resendInvitation={this.resendInvitation}
+        refetchQueries={this.getRefetchQueries()}
+        renderButton={this.props.renderButton}
       />
     );
   }
@@ -79,8 +105,9 @@ const options = ({ queryParams }: { queryParams: any }) => {
 
 export default commonListComposer<{ queryParams: any; history: any }>({
   text: 'team member',
-
-  name: 'users',
+  label: 'users',
+  stringAddMutation: mutations.usersInvite,
+  stringEditMutation: mutations.usersEdit,
 
   gqlListQuery: graphql(gql(queries.users), {
     name: 'listQuery',

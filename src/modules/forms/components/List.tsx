@@ -10,7 +10,7 @@ import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';
 import { TaggerPopover } from 'modules/tags/components';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
 import { IFormIntegration } from '../types';
@@ -134,7 +134,12 @@ class List extends React.Component<Props, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Leads') }]} />}
+        header={
+          <Wrapper.Header
+            title={__('Leads')}
+            breadcrumb={[{ title: __('Leads') }]}
+          />
+        }
         leftSidebar={sidebar}
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

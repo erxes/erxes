@@ -1,8 +1,10 @@
-import { Button, FilterableList } from 'modules/common/components';
-import { dateUnits, operators, types } from 'modules/customers/constants';
-import * as React from 'react';
+import { Button, FilterableList, Icon } from 'modules/common/components';
+import { __ } from 'modules/common/utils';
+import { dateUnits, types } from 'modules/customers/constants';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ISegmentCondition } from '../types';
+import { Field, FieldType, PopoverList } from './styles';
 
 type Props = {
   fields: any[];
@@ -14,6 +16,7 @@ class AddConditionButton extends React.Component<Props> {
 
   addCondition = (items, id: string) => {
     const [type] = Object.keys(types);
+    const field = items.find(item => item._id === id);
 
     this.props.addCondition({
       _id: Math.random().toString(),
@@ -21,20 +24,136 @@ class AddConditionButton extends React.Component<Props> {
       value: '',
       operator: '',
       dateUnit: dateUnits.days,
-      type
+      type,
+      brandId: field.brandId
     });
 
     this.overlayTrigger.hide();
   };
 
-  renderPopover() {
+  renderItem(data, index: number) {
     return (
-      <Popover id="condition-popover" title="Select a field">
+      <div key={index}>
         <FilterableList
-          items={this.props.fields}
+          items={data}
           onClick={this.addCondition}
           showCheckmark={false}
         />
+      </div>
+    );
+  }
+
+  renderBrandList(items, title: string) {
+    const data = Object.keys(items);
+
+    return (
+      <Field>
+        <h3 className="popover-title">{title}</h3>
+        {data.map((key, index) => this.renderItem(items[key], index))}
+      </Field>
+    );
+  }
+
+  renderMessengerDataFields(items) {
+    const groupedFields = items.reduce((total, item) => {
+      const key = item.brandName;
+
+      total[key] = total[key] || [];
+      total[key].push(item);
+
+      return total;
+    }, {});
+
+    return (
+      <Field>
+        <h3 className="popover-title">{__('Select brand')}</h3>
+        {Object.keys(groupedFields).map((key, index) => {
+          let title = key;
+
+          if (key === 'undefined') {
+            title = __('Others');
+          }
+
+          return (
+            <PopoverList key={index}>
+              <FieldType>{title}</FieldType>
+              {this.renderBrandList({ [key]: groupedFields[key] }, title)}
+            </PopoverList>
+          );
+        })}
+      </Field>
+    );
+  }
+
+  renderFields(type: string, title: string) {
+    const { fields } = this.props;
+
+    let items = fields.filter(
+      field =>
+        field._id.indexOf('links') &&
+        field._id.indexOf('customFieldsData') &&
+        field._id.indexOf('messengerData')
+    );
+
+    if (type === 'customer-field-data') {
+      items = fields.filter(field => field._id.includes('customFieldsData'));
+    }
+
+    if (type === 'other-properties') {
+      items = fields.filter(field =>
+        ['links'].some(e => field._id.includes(e))
+      );
+    }
+
+    if (type === 'messenger-data') {
+      items = fields.filter(field => field._id.includes('messengerData'));
+
+      return this.renderMessengerDataFields(items);
+    }
+
+    return (
+      <Field>
+        <h3 className="popover-title">{title}</h3>
+        <FilterableList
+          items={items}
+          onClick={this.addCondition}
+          showCheckmark={false}
+        />
+      </Field>
+    );
+  }
+
+  renderFieldType(type: string, title: string, icon: string) {
+    return (
+      <PopoverList>
+        <FieldType>
+          {__(title)}
+          <Icon icon={icon} />
+        </FieldType>
+        {this.renderFields(type, title)}
+      </PopoverList>
+    );
+  }
+
+  renderPopover() {
+    return (
+      <Popover id="condition-popover" title="Select a field">
+        {this.renderFieldType('basic-info', 'Basic Info', 'information')}
+        {this.renderFieldType(
+          'messenger-data',
+          'Messenger data',
+          'speech-bubble-2'
+        )}
+        {this.renderFieldType(
+          'customer-field-data',
+          'Customer field data',
+          'user-1'
+        )}
+        {this.renderFieldType(
+          'other-properties',
+          'Other properties',
+          'settings-3'
+        )}
       </Popover>
     );
   }

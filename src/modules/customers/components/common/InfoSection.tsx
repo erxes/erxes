@@ -4,7 +4,7 @@ import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { renderFullName } from 'modules/common/utils';
 import { CustomerForm } from 'modules/customers/containers';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 import { Name } from '../../styles';
 
 type Props = {
@@ -26,7 +26,7 @@ class InfoSection extends React.Component<Props> {
     }
 
     return (
-      <a href={link} target="_blank">
+      <a href={link}>
         <Icon icon={icon} />
       </a>
     );

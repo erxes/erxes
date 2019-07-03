@@ -1,10 +1,10 @@
-import client from 'apolloClient';
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert, uploadHandler, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import queryString from 'query-string';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Bulk } from '../../common/components';
@@ -23,6 +23,8 @@ import {
 
 type Props = {
   queryParams: any;
+  showImportBar: () => void;
+  type?: string;
 };
 
 type FinalProps = {
@@ -35,6 +37,7 @@ type FinalProps = {
 
 type State = {
   loading: boolean;
+  responseId: string;
 };
 
 class CustomerListContainer extends React.Component<FinalProps, State> {
@@ -42,7 +45,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
+      responseId: ''
     };
   }
 
@@ -88,13 +92,16 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         .then((result: any) => {
           callback();
           Alert.success('You successfully merged a customer');
-          history.push(`/customers/details/${result.data.customersMerge._id}`);
+          history.push(
+            `/contacts/customers/details/${result.data.customersMerge._id}`
+          );
         })
         .catch(e => {
           Alert.error(e.message);
         });
 
     const exportCustomers = bulk => {
+      const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
 
       // queryParams page parameter needs convert to int.
@@ -106,50 +113,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         queryParams.ids = bulk.map(customer => customer._id);
       }
 
-      this.setState({ loading: true });
-
-      client
-        .query({
-          query: gql(queries.customersExport),
-          variables: { ...queryParams }
-        })
-        .then(({ data }: any) => {
-          this.setState({ loading: false });
-          window.open(data.customersExport, '_blank');
-        })
-        .catch(error => {
-          this.setState({ loading: false });
-          Alert.error(error.message);
-        });
-    };
-
-    const handleXlsUpload = e => {
-      const xlsFile = e.target.files;
-
-      const { REACT_APP_API_URL } = getEnv();
-
-      uploadHandler({
-        files: xlsFile,
-        extraFormData: [{ key: 'type', value: 'customers' }],
-        url: `${REACT_APP_API_URL}/import-file`,
-        responseType: 'json',
-        beforeUpload: () => {
-          this.setState({ loading: true });
-        },
-
-        afterUpload: ({ response }) => {
-          if (response.length === 0) {
-            customersMainQuery.refetch();
-            Alert.success('All customers imported successfully');
-          } else {
-            Alert.error(response[0]);
-          }
-
-          this.setState({ loading: false });
-        }
+      const stringified = queryString.stringify({
+        ...queryParams,
+        type: 'customers'
       });
-
-      e.target.value = null;
+      window.open(`${REACT_APP_API_URL}/coc-export?${stringified}`, '_blank');
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
@@ -163,11 +131,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customers: list,
       totalCount,
       exportCustomers,
-      handleXlsUpload,
       integrations: KIND_CHOICES.ALL_LIST,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,
       mergeCustomers,
+      responseId: this.state.responseId,
       removeCustomers
     };
 
@@ -183,7 +151,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => {
+const generateParams = ({ queryParams, type }) => {
   return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
@@ -198,6 +166,7 @@ const generateParams = ({ queryParams }) => {
     leadStatus: queryParams.leadStatus,
     lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
+    type,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
@@ -210,8 +179,8 @@ export default withProps<Props>(
       gql(queries.customersMain),
       {
         name: 'customersMainQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams })
+        options: ({ queryParams, type }) => ({
+          variables: generateParams({ queryParams, type })
         })
       }
     ),
@@ -221,7 +190,6 @@ export default withProps<Props>(
         name: 'customersListConfigQuery'
       }
     ),
-
     // mutations
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.customersRemove),

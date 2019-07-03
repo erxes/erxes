@@ -5,9 +5,9 @@ import {
   ModalTrigger,
   Tip
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import { __, getUserAvatar } from 'modules/common/utils';
+import moment from 'moment';
+import React from 'react';
 import { ArticleForm } from '../../containers';
 import { IArticle } from '../../types';
 import {
@@ -27,13 +27,16 @@ type Props = {
   remove: (articleId: string) => void;
 };
 
-class ArticleRow extends React.Component<Props> {
-  remove = () => {
-    this.props.remove(this.props.article._id);
+const ArticleRow = (props: Props) => {
+  const { article } = props;
+  const user = article.createdUser;
+
+  const remove = () => {
+    return props.remove(props.article._id);
   };
 
-  renderEditAction = editTrigger => {
-    const { article, queryParams, currentCategoryId, topicIds } = this.props;
+  const renderEditAction = editTrigger => {
+    const { queryParams, currentCategoryId, topicIds } = props;
 
     const editButton = (
       <Button btnStyle="link">
@@ -43,10 +46,10 @@ class ArticleRow extends React.Component<Props> {
       </Button>
     );
 
-    const content = props => (
+    const content = contentProps => (
       <ArticleForm
-        {...props}
-        article={article}
+        {...contentProps}
+        article={props.article}
         queryParams={queryParams}
         currentCategoryId={currentCategoryId}
         topicIds={topicIds}
@@ -59,56 +62,48 @@ class ArticleRow extends React.Component<Props> {
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
         content={content}
+        enforceFocus={false}
       />
     );
   };
 
-  render() {
-    const { article } = this.props;
-    const user = article.createdUser;
+  const title = (
+    <ArticleTitle>
+      {article.title}
+      {article.status === 'draft' && (
+        <Label lblStyle="simple">{article.status}</Label>
+      )}
+    </ArticleTitle>
+  );
 
-    const title = (
-      <ArticleTitle>
-        {article.title}
-        {article.status === 'draft' && (
-          <Label lblStyle="simple">{article.status}</Label>
-        )}
-      </ArticleTitle>
-    );
-
-    return (
-      <RowArticle>
-        <ArticleColumn>
-          {this.renderEditAction(title)}
-          <p>{article.summary}</p>
-          <ArticleMeta>
-            <img
-              alt={(user.details && user.details.fullName) || 'author'}
-              src={
-                (article.createdUser.details &&
-                  article.createdUser.details.avatar) ||
-                '/images/avatar-colored.svg'
-              }
-            />
-            {__('Written By')}
-            <AuthorName>
-              {(user.details && user.details.fullName) ||
-                user.username ||
-                user.email}
-            </AuthorName>
-            <Icon icon="wallclock" /> {__('Created')}{' '}
-            {moment(article.createdDate).format('ll')}
-          </ArticleMeta>
-        </ArticleColumn>
-        <ActionButtons>
-          {this.renderEditAction('')}
-          <Tip text={__('Delete')}>
-            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
-          </Tip>
-        </ActionButtons>
-      </RowArticle>
-    );
-  }
-}
+  return (
+    <RowArticle>
+      <ArticleColumn>
+        {renderEditAction(title)}
+        <p>{article.summary}</p>
+        <ArticleMeta>
+          <img
+            alt={(user.details && user.details.fullName) || 'author'}
+            src={getUserAvatar(user)}
+          />
+          {__('Written By')}
+          <AuthorName>
+            {(user.details && user.details.fullName) ||
+              user.username ||
+              user.email}
+          </AuthorName>
+          <Icon icon="wallclock" /> {__('Created')}{' '}
+          {moment(article.createdDate).format('ll')}
+        </ArticleMeta>
+      </ArticleColumn>
+      <ActionButtons>
+        {renderEditAction('')}
+        <Tip text={__('Delete')}>
+          <Button btnStyle="link" onClick={remove} icon="cancel-1" />
+        </Tip>
+      </ActionButtons>
+    </RowArticle>
+  );
+};
 
 export default ArticleRow;

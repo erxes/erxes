@@ -1,31 +1,37 @@
+import { IUser } from 'modules/auth/types';
 import {
-  ActionButtons,
   Button,
   DataWithLoader,
   Icon,
+  LoadMore,
   ModalTrigger,
-  Pagination,
-  Table,
   Tip
 } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
-import * as React from 'react';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import { Sidebar } from 'modules/layout/components';
+import { HelperButtons, SidebarList } from 'modules/layout/styles';
+import { MemberAvatars } from 'modules/settings/channels/components';
+import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
+import React from 'react';
+import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IUserGroup, IUserGroupDocument } from '../types';
 import GroupForm from './GroupForm';
 
-type Props = {
+interface IProps extends IRouterProps {
+  queryParams: any;
+  refetch: any;
   totalCount: number;
   loading: boolean;
+  users: IUser[];
   objects: IUserGroupDocument[];
-  save: (doc: IUserGroup, callback: () => void, object: any) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (id: string) => void;
-};
+}
 
-class GroupList extends React.Component<Props> {
-  renderFormTrigger(trigger: React.ReactNode, object) {
+class GroupList extends React.Component<IProps> {
+  renderFormTrigger(trigger: React.ReactNode, object?: IUserGroup) {
     const content = props => this.renderForm({ ...props, object });
 
     return (
@@ -34,14 +40,25 @@ class GroupList extends React.Component<Props> {
   }
 
   renderForm = props => {
-    const { save } = this.props;
+    const { refetch, renderButton } = this.props;
 
-    const extendedProps = { ...props, save };
+    const extendedProps = { ...props, refetch };
 
-    return <GroupForm {...extendedProps} />;
+    return <GroupForm {...extendedProps} renderButton={renderButton} />;
   };
 
-  renderEditActions(object: IUserGroupDocument) {
+  isActive = (id: string) => {
+    const { queryParams } = this.props;
+    const currentGroup = queryParams.groupId || '';
+
+    return currentGroup === id;
+  };
+
+  clearGroupFilter = () => {
+    router.setParams(this.props.history, { groupId: null });
+  };
+
+  renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')}>
@@ -53,7 +70,7 @@ class GroupList extends React.Component<Props> {
     return this.renderFormTrigger(trigger, object);
   }
 
-  renderRemoveActions(object: IUserGroupDocument) {
+  renderRemoveAction(object: IUserGroupDocument) {
     const { remove } = this.props;
 
     return (
@@ -66,83 +83,78 @@ class GroupList extends React.Component<Props> {
   }
 
   renderObjects(objects: IUserGroupDocument[]) {
+    const allMembers = this.props.users || [];
+
     return objects.map(object => (
-      <tr key={object._id}>
-        <td>{object.name}</td>
-        <td>{object.description}</td>
-        <td>
-          <ActionButtons>
-            {this.renderEditActions(object)}
-            {this.renderRemoveActions(object)}
-          </ActionButtons>
-        </td>
-      </tr>
+      <SidebarListItem key={object._id} isActive={this.isActive(object._id)}>
+        <Link to={`?groupId=${object._id}`}>
+          {object.name}
+          <MemberAvatars
+            selectedMemberIds={object.memberIds || []}
+            allMembers={allMembers}
+          />
+        </Link>
+        <ActionButtons>
+          {this.renderEditAction(object)}
+          {this.renderRemoveAction(object)}
+        </ActionButtons>
+      </SidebarListItem>
     ));
   }
 
   renderContent() {
     const { objects } = this.props;
 
-    return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
-        <thead>
-          <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderObjects(objects)}</tbody>
-      </Table>
-    );
+    return this.renderObjects(objects);
   }
 
-  renderActionBar() {
+  renderSidebarHeader() {
+    const { Header } = Sidebar;
+
     const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
-        New Group
-      </Button>
+      <a href="#add">
+        <Tip text={__('Create group')}>
+          <Icon icon="add" />
+        </Tip>
+      </a>
     );
 
-    const rightActionBar = (
-      <BarItems>
-        {this.renderFormTrigger(trigger, null)}
-        <Link to="/settings/permissions">
-          <Button type="success" size="small" icon="user-2">
-            Permissions
-          </Button>
-        </Link>
-      </BarItems>
-    );
+    return (
+      <Header uppercase={true}>
+        {__('User groups')}
 
-    return <Wrapper.ActionBar right={rightActionBar} />;
+        <HelperButtons>
+          {this.renderFormTrigger(trigger)}
+          {router.getParam(this.props.history, 'groupId') && (
+            <a href="#cancel" tabIndex={0} onClick={this.clearGroupFilter}>
+              <Tip text={__('Clear filter')}>
+                <Icon icon="cancel-1" />
+              </Tip>
+            </a>
+          )}
+        </HelperButtons>
+      </Header>
+    );
   }
 
   render() {
     const { totalCount, loading } = this.props;
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Users groups') }
-    ];
-
     return (
-      <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
-        actionBar={this.renderActionBar()}
-        footer={<Pagination count={totalCount} />}
-        content={
+      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
+        <SidebarList>
           <DataWithLoader
             data={this.renderContent()}
             loading={loading}
             count={totalCount}
-            emptyText="There is no data."
+            emptyText="There is no group"
             emptyImage="/images/actions/26.svg"
           />
-        }
-      />
+          <LoadMore all={totalCount} loading={loading} />
+        </SidebarList>
+      </Sidebar>
     );
   }
 }
 
-export default GroupList;
+export default withRouter<IProps>(GroupList);

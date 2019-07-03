@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
 import { IMessagesItem } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import {
   ErxesAvatar,
   ErxesDate,

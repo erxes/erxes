@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { GreetingContent, TopBar, WidgetContent } from './';
 import { Launcher, WidgetPreviewStyled } from './styles';
 

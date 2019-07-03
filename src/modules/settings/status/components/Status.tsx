@@ -1,12 +1,11 @@
 import { HeaderDescription, Icon } from 'modules/common/components';
-import { FullContent, MiddleContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { Box, Group, Title } from '../styles';
 import { ProjectVersions, Version } from '../types';
 
-class Status extends React.Component<{ versions: ProjectVersions }> {
+class Status extends React.PureComponent<{ versions: ProjectVersions }> {
   renderData(title: string, version?: Version) {
     const ver = version || ({} as Version);
 
@@ -32,20 +31,6 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
               {__('Abbreviated')} {__('Sha')}
             </b>{' '}
             - {ver.abbreviatedSha}{' '}
-          </div>
-        </Group>
-        <Group>
-          <span>
-            <Icon icon="wallclock" /> Last commit{' '}
-          </span>
-          <div>
-            <b>{__('Message')}</b> - {ver.lastCommitMessage}
-          </div>
-          <div>
-            <b>{__('User')}</b> - {ver.lastCommittedUser}
-          </div>
-          <div>
-            <b>{__('Date')}</b> - {ver.lastCommittedDate}
           </div>
         </Group>
       </Box>
@@ -81,7 +66,9 @@ class Status extends React.Component<{ versions: ProjectVersions }> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('System status')} breadcrumb={breadcrumb} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

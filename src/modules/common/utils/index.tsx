@@ -1,11 +1,11 @@
+import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
-import { IUser } from 'modules/auth/types';
-import * as React from 'react';
+import { IUser, IUserDoc } from 'modules/auth/types';
+import React from 'react';
 import Alert from './Alert';
 import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
 import router from './router';
-import { searchCompany, searchCustomer, searchUser } from './searchers';
 import toggleCheckBoxes from './toggleCheckBoxes';
 import uploadHandler from './uploadHandler';
 import urlParser from './urlParser';
@@ -15,7 +15,7 @@ export const renderFullName = data => {
     return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
-  return data.primaryEmail || data.primaryPhone || 'N/A';
+  return data.primaryEmail || data.primaryPhone || 'Unknown';
 };
 
 export const setTitle = (title: string, force: boolean) => {
@@ -58,14 +58,13 @@ export const generateRandomColorCode = () => {
     .slice(2, 8)}`;
 };
 
-export const isTimeStamp = value => {
-  if (typeof value === 'string') {
-    value = parseInt(value, 10);
-  }
+const isNumeric = n => {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+};
 
-  return (
-    Number.isInteger(value) && value > 1000000000 && value <= 999999999999999
-  );
+export const isTimeStamp = timestamp => {
+  const newTimestamp = new Date(timestamp).getTime();
+  return isNumeric(newTimestamp);
 };
 
 // Create an array with "stop" numbers, starting from "start"
@@ -95,10 +94,7 @@ export {
   confirm,
   toggleCheckBoxes,
   urlParser,
-  colorParser,
-  searchCompany,
-  searchUser,
-  searchCustomer
+  colorParser
 };
 
 export const can = (actionName: string, currentUser: IUser): boolean => {
@@ -129,6 +125,31 @@ export const __ = (key: string, options?: any) => {
   return translation.toString();
 };
 
+/**
+ * Request to get file's URL for view and download
+ * @param {String} - value
+ * @return {String} - URL
+ */
+export const readFile = (value: string): string => {
+  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
+    return value;
+  }
+
+  const { REACT_APP_API_URL } = getEnv();
+
+  return `${REACT_APP_API_URL}/read-file?key=${value}`;
+};
+
+export const getUserAvatar = (user: IUserDoc) => {
+  const { details = {} } = user;
+
+  if (!details.avatar) {
+    return '/images/avatar-colored.svg';
+  }
+
+  return readFile(details.avatar);
+};
+
 export function withProps<IProps>(
   Wrapped: new (props: IProps) => React.Component<IProps>
 ) {
@@ -138,3 +159,21 @@ export function withProps<IProps>(
     }
   };
 }
+
+export function renderWithProps<Props>(
+  props: Props,
+  Wrapped: new (props: Props) => React.Component<Props>
+) {
+  return <Wrapped {...props} />;
+}
+
+export const isValidDate = date => {
+  const parsedDate = Date.parse(date);
+
+  // Checking if it is date
+  if (isNaN(date) && !isNaN(parsedDate)) {
+    return true;
+  }
+
+  return false;
+};

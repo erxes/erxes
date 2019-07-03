@@ -1,7 +1,7 @@
 import { Tip } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import { __, getUserAvatar } from 'modules/common/utils';
+import React from 'react';
 import styled from 'styled-components';
 import { IUser } from '../../../../auth/types';
 
@@ -40,13 +40,7 @@ type Props = {
 };
 
 class Participators extends React.Component<Props, { toggle: boolean }> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      toggle: true
-    };
-  }
+  state = { toggle: true };
 
   toggleParticipator = () => {
     this.setState({ toggle: !this.state.toggle });
@@ -59,10 +53,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
 
     const Trigger = user => (
       <Tip key={user._id} placement="top" text={user.details.fullName || ''}>
-        <ParticipatorImg
-          key={user._id}
-          src={user.details.avatar || '/images/avatar-colored.svg'}
-        />
+        <ParticipatorImg key={user._id} src={getUserAvatar(user)} />
       </Tip>
     );
 

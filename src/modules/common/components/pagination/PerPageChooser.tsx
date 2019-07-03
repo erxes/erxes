@@ -1,7 +1,7 @@
 import { DropdownToggle, Icon } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Option, PerPageButton } from './styles';
@@ -17,7 +17,9 @@ const PerPageChooser = ({ history }: IRouterProps) => {
   const renderOption = n => {
     return (
       <Option>
-        <a onClick={onClick.bind(null, n)}>{n}</a>
+        <a href="#number" onClick={onClick.bind(null, n)}>
+          {n}
+        </a>
       </Option>
     );
   };

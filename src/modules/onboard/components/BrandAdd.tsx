@@ -1,19 +1,21 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   Icon
 } from 'modules/common/components';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
+import React from 'react';
+import RTG from 'react-transition-group';
 import { BrandList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   brandsTotalCount: number;
-  save: (name: string, callback: () => void) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   changeStep: () => void;
 };
 
@@ -24,33 +26,19 @@ class BrandAdd extends React.Component<
   constructor(props: Props) {
     super(props);
 
-    this.state = { showBrands: true, brandName: '' };
+    this.state = {
+      showBrands: true,
+      brandName: ''
+    };
   }
-
-  clearInput() {
-    this.setState({ brandName: '' });
-  }
-
-  toggleBrands = () => {
-    this.setState({ showBrands: !this.state.showBrands });
-  };
-
-  save = e => {
-    e.preventDefault();
-    const { save } = this.props;
-
-    save(this.state.brandName, this.clearInput.bind(this));
-  };
-
-  next = e => {
-    e.preventDefault();
-    const { changeStep, save } = this.props;
-    save(this.state.brandName, changeStep);
-  };
 
   handleInput = e => {
     e.preventDefault();
     this.setState({ brandName: e.target.value });
+  };
+
+  toggleBrands = () => {
+    this.setState({ showBrands: !this.state.showBrands });
   };
 
   renderOtherBrands = () => {
@@ -67,8 +55,8 @@ class BrandAdd extends React.Component<
         <Description>
           <Icon icon="checked-1" /> {__('You already have')}{' '}
           <b>{brandsTotalCount}</b> {__('brands')}.{' '}
-          <a href="javascript:;" onClick={this.toggleBrands}>
-            {showBrands ? __('Show') : __('Hide')} ›
+          <a href="#toggle" onClick={this.toggleBrands}>
+            {showBrands ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -85,53 +73,53 @@ class BrandAdd extends React.Component<
     );
   };
 
-  renderContent() {
-    const { brandName } = this.state;
+  renderFormContent = (formProps: IFormProps) => {
+    const { changeStep, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Brand Name</ControlLabel>
-
-          <FormControl
-            value={brandName}
-            onChange={this.handleInput}
-            type="text"
-            required={true}
-          />
-        </FormGroup>
-
-        {this.renderOtherBrands()}
-      </>
-    );
-  }
-
-  render() {
-    const { changeStep } = this.props;
-
-    return (
-      <form onSubmit={this.save}>
         <TopContent>
           <h2>{__(`Let's create your brand`)}</h2>
-          {this.renderContent()}
+
+          <FormGroup>
+            <ControlLabel required={true}>Brand Name</ControlLabel>
+
+            <FormControl
+              {...formProps}
+              name="name"
+              value={this.state.brandName}
+              onChange={this.handleInput}
+              autoFocus={true}
+              required={true}
+            />
+          </FormGroup>
+
+          {this.renderOtherBrands()}
         </TopContent>
         <Footer>
           <div>
             <Button btnStyle="link" disabled={true}>
               Previous
             </Button>
-            <Button
-              btnStyle="success"
-              disabled={!this.state.brandName}
-              onClick={this.next}
-            >
-              {__('Next')} <Icon icon="rightarrow-2" />
-            </Button>
+
+            {renderButton({
+              name: 'brand',
+              values,
+              callback: changeStep,
+              isSubmitted
+            })}
           </div>
-          <a onClick={changeStep}>{__('Skip for now')} »</a>
+          <a href="#skip" onClick={changeStep}>
+            {__('Skip for now')} »
+          </a>
         </Footer>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderFormContent} />;
   }
 }
 

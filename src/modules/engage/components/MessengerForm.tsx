@@ -1,16 +1,20 @@
 import { IUser } from 'modules/auth/types';
 import {
   ControlLabel,
+  EditorCK,
   FormControl,
   FormGroup
 } from 'modules/common/components';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { MESSENGER_KINDS, SENT_AS_CHOICES } from 'modules/engage/constants';
-import * as React from 'react';
+import {
+  EMAIL_CONTENT,
+  MESSENGER_KINDS,
+  SENT_AS_CHOICES
+} from 'modules/engage/constants';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { MessengerPreview } from '../containers';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
-import Editor from './Editor';
 import Scheduler from './Scheduler';
 
 type Props = {
@@ -102,6 +106,10 @@ class MessengerForm extends React.Component<Props, State> {
     );
   }
 
+  onEditorChange = e => {
+    this.props.onChange('content', e.editor.getData());
+  };
+
   render() {
     const onChangeFrom = e =>
       this.changeFromUserId((e.target as HTMLInputElement).value);
@@ -112,12 +120,15 @@ class MessengerForm extends React.Component<Props, State> {
 
     return (
       <FlexItem>
-        <FlexPad overflow="auto" direction="column">
+        <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>Message:</ControlLabel>
-            <Editor
-              onChange={this.props.onChange}
-              defaultValue={this.props.content}
+
+            <EditorCK
+              content={this.props.content}
+              onChange={this.onEditorChange}
+              insertItems={EMAIL_CONTENT}
+              height={300}
             />
           </FormGroup>
 
@@ -174,7 +185,7 @@ class MessengerForm extends React.Component<Props, State> {
           {this.renderScheduler()}
         </FlexPad>
 
-        <FlexItem overflow="auto">
+        <FlexItem overflow="auto" count="2">
           <MessengerPreview
             sentAs={this.state.messenger.sentAs}
             content={this.props.content}

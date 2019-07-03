@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealVolumeReport } from '../components';
 import { queries } from '../graphql';
@@ -7,7 +7,6 @@ import {
   DealMainQueryResponse,
   DealPunchCardQueryResponse,
   DealTeamMemberResponse,
-  IChartParams,
   IDealParams,
   IQueryParams
 } from '../types';
@@ -38,7 +37,7 @@ const DealVolumeReportContainer = (props: FinalProps) => {
   let teamMembers;
 
   if (status) {
-    teamMembers = insightsByTeamMemberQuery.dealInsightsByTeamMember;
+    teamMembers = insightsByTeamMemberQuery.dealInsightsByTeamMember || [];
   }
 
   const extendedProps = {
@@ -60,45 +59,28 @@ const DealVolumeReportContainer = (props: FinalProps) => {
   return <DealVolumeReport {...extendedProps} />;
 };
 
+const options = ({ queryParams, status }: IDealParams) => ({
+  fetchPolicy: 'network-only',
+  variables: {
+    boardId: queryParams.boardId,
+    pipelineIds: queryParams.pipelineIds,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    status
+  }
+});
+
 export default compose(
   graphql(gql(queries.dealInsightsByTeamMember), {
     name: 'insightsByTeamMemberQuery',
-    options: ({ queryParams, status }: IDealParams) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        boardId: queryParams.boardId,
-        pipelineIds: queryParams.pipelineIds,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate,
-        status
-      }
-    })
+    options
   }),
   graphql(gql(queries.dealInsightsPunchCard), {
     name: 'punchCardQuery',
-    options: ({ queryParams, status }: IDealParams) => ({
-      fetchPolicy: 'network-only',
-      variables: {
-        boardId: queryParams.boardId,
-        pipelineIds: queryParams.pipelineIds,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate,
-        status
-      }
-    })
+    options
   }),
   graphql(gql(queries.dealInsightsMain), {
     name: 'mainQuery',
-    options: ({ queryParams, status }: IDealParams) => ({
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        boardId: queryParams.boardId,
-        pipelineIds: queryParams.pipelineIds,
-        startDate: queryParams.startDate,
-        endDate: queryParams.endDate,
-        status
-      }
-    })
+    options
   })
 )(DealVolumeReportContainer);

@@ -1,7 +1,8 @@
 import { fadeIn, slideDown } from 'modules/common/utils/animations';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import { readFile } from '../utils';
 
 const PreviewWrapper = styled.div`
   position: fixed;
@@ -59,13 +60,7 @@ type State = {
 };
 
 class ImageWithPreview extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      visible: false
-    };
-  }
+  state = { visible: false };
 
   toggleImage = () => {
     this.setState({ visible: !this.state.visible });
@@ -90,11 +85,16 @@ class ImageWithPreview extends React.Component<Props, State> {
 
     return (
       <div>
-        <Image {...this.props} onLoad={onLoad} onClick={this.toggleImage} />
+        <Image
+          {...this.props}
+          src={readFile(src || '')}
+          onLoad={onLoad}
+          onClick={this.toggleImage}
+        />
         {this.state.visible && (
           <PreviewPortal>
             <PreviewWrapper onClick={this.toggleImage}>
-              <img alt={alt} src={src} />
+              <img alt={alt} src={readFile(src || '')} />
             </PreviewWrapper>
           </PreviewPortal>
         )}

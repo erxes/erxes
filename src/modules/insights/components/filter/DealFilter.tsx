@@ -1,14 +1,13 @@
-import { Button, ControlLabel } from 'modules/common/components';
+import { IBoard, IPipeline } from 'modules/boards/types';
+import { ControlLabel } from 'modules/common/components';
 import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import { IBoard, IPipeline } from 'modules/deals/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from '../../styles';
 import { IQueryParams } from '../../types';
 import { selectOptions } from '../../utils';
 import Filter from './Filter';
-
 type Props = {
   queryParams: IQueryParams;
   history: any;
@@ -48,13 +47,15 @@ class DealFilter extends React.Component<Props, States> {
     });
   };
 
-  onApplyClick = () => {
+  onApplyClick = ({ startDate, endDate }) => {
     const { history } = this.props;
     const { pipelineIds, boardId } = this.state;
 
     router.setParams(history, {
       pipelineIds: (pipelineIds || []).join(','),
-      boardId
+      boardId,
+      startDate,
+      endDate
     });
   };
 
@@ -76,7 +77,7 @@ class DealFilter extends React.Component<Props, States> {
           value={this.state.pipelineIds || []}
           onChange={this.onPipelineChange}
           optionRenderer={options}
-          options={selectOptions([{ _id: '', name: __('All') }, ...pipelines])}
+          options={selectOptions([...pipelines])}
           multi={true}
         />
       </FlexItem>
@@ -117,18 +118,12 @@ class DealFilter extends React.Component<Props, States> {
       </>
     );
 
-    const applyBtn = (
-      <Button btnStyle="success" icon="apply" onClick={this.onApplyClick}>
-        Apply
-      </Button>
-    );
-
     return (
       <Filter
         queryParams={queryParams}
         history={history}
         content={content}
-        applyBtn={applyBtn}
+        onApplyClick={this.onApplyClick}
       />
     );
   }

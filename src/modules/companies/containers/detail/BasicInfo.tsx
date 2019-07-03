@@ -1,8 +1,9 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { BasicInfo } from 'modules/companies/components';
-import { mutations } from 'modules/companies/graphql';
-import * as React from 'react';
+import { mutations, queries } from 'modules/companies/graphql';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '../../../auth/types';
@@ -33,7 +34,7 @@ const BasicInfoContainer = (props: FinalProps) => {
     companiesRemove({ variables: { companyIds: [_id] } })
       .then(() => {
         Alert.success('You successfully deleted a company');
-        history.push('/companies');
+        history.push('/contacts/companies');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -49,17 +50,41 @@ const BasicInfoContainer = (props: FinalProps) => {
     })
       .then(response => {
         Alert.success('You successfully merged companies');
-        history.push(`/companies/details/${response.data.companiesMerge._id}`);
+        history.push(
+          `/contacts/companies/details/${response.data.companiesMerge._id}`
+        );
       })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
+  const searchCompany = (
+    searchValue: string,
+    callback: (data?: any) => void
+  ) => {
+    client
+      .query({
+        query: gql(queries.companies),
+        variables: { searchValue, page: 1, perPage: 10 }
+      })
+      .then(
+        (response: any): void => {
+          if (typeof callback === 'function') {
+            callback(response.data.companies);
+          }
+        }
+      )
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
     remove,
-    merge
+    merge,
+    searchCompany
   };
 
   return <BasicInfo {...updatedProps} />;

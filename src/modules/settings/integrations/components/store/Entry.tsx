@@ -1,13 +1,10 @@
 import { Icon, ModalTrigger } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
-import Gmail from 'modules/settings/integrations/containers/google/Gmail';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Meet } from '../../containers/google';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
-import Twitter from '../../containers/twitter/Form';
 import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
@@ -19,9 +16,7 @@ type Props = {
   totalCount: {
     messenger: number;
     form: number;
-    twitter: number;
     facebook: number;
-    gmail: number;
   };
 };
 
@@ -42,14 +37,12 @@ class Entry extends React.Component<Props> {
   };
 
   renderCreate(createUrl, createModal) {
-    const { queryParams } = this.props;
-
     if (!createUrl && !createModal) {
       return null;
     }
 
     if (createModal === 'facebook') {
-      const trigger = <a>+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <Facebook {...props} />;
 
@@ -63,7 +56,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'lead') {
-      const trigger = <a>+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <Lead {...props} />;
 
@@ -73,51 +66,13 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'knowledgeBase') {
-      const trigger = <a>+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <KnowledgeBase {...props} />;
 
       return (
         <ModalTrigger
           title="Add knowledge base"
-          trigger={trigger}
-          content={content}
-        />
-      );
-    }
-
-    if (createModal === 'twitter') {
-      const trigger = <a>+ {__('Add')}</a>;
-
-      const content = props => <Twitter {...props} queryParams={queryParams} />;
-
-      return (
-        <ModalTrigger
-          title="Add Twitter profile"
-          trigger={trigger}
-          content={content}
-        />
-      );
-    }
-
-    if (createModal === 'gmail') {
-      const trigger = <a>+ {__('Add')}</a>;
-
-      const content = props => <Gmail {...props} queryParams={queryParams} />;
-
-      return (
-        <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
-      );
-    }
-
-    if (createModal === 'googleMeet') {
-      const trigger = <a>+ {__('Add')}</a>;
-
-      const content = props => <Meet {...props} queryParams={queryParams} />;
-
-      return (
-        <ModalTrigger
-          title="Add google meet"
           trigger={trigger}
           content={content}
         />

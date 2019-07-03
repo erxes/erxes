@@ -5,13 +5,13 @@ import {
   Tags,
   TextInfo
 } from 'modules/common/components';
-import { isTimeStamp } from 'modules/common/utils';
+import { isTimeStamp, isValidDate } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
 import { Date } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 
 type Props = {
   customer: ICustomer;
@@ -34,7 +34,7 @@ function formatValue(value) {
     );
   }
 
-  if (moment(value, moment.ISO_8601, false).isValid() || isTimeStamp(value)) {
+  if (isValidDate(value) || isTimeStamp(value)) {
     return <Date>{moment(value).format('lll')}</Date>;
   }
 
@@ -90,12 +90,12 @@ function CustomerRow({
   };
 
   const onTrClick = () => {
-    history.push(`/customers/details/${customer._id}`);
+    history.push(`/contacts/customers/details/${customer._id}`);
   };
 
   return (
     <tr onClick={onTrClick}>
-      <td onClick={onClick}>
+      <td style={{ width: '50px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}
           componentClass="checkbox"

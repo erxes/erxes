@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { UsersQueryResponse } from '../../settings/team/types';
@@ -85,9 +85,10 @@ function withSaveAndEdit<IComponentProps>(Component) {
     };
 
     const email = message.email || {
-      templateId: '',
       subject: '',
-      attachments: []
+      attachments: [],
+      content: '',
+      templateId: ''
     };
 
     const scheduleDate = message.scheduleDate || {
@@ -112,9 +113,10 @@ function withSaveAndEdit<IComponentProps>(Component) {
           rules: messenger.rules
         },
         email: {
-          templateId: email.templateId,
           subject: email.subject,
-          attachments: email.attachments
+          attachments: email.attachments,
+          content: email.content,
+          templateId: email.templateId
         },
         scheduleDate: {
           type: scheduleDate.type,

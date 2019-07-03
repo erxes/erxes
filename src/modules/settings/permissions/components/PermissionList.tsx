@@ -3,27 +3,20 @@ import {
   ActionButtons,
   Button,
   DataWithLoader,
-  FormControl,
   Icon,
   ModalTrigger,
   Pagination,
   Table,
+  TextInfo,
   Tip
 } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
 import Select from 'react-select-plus';
-import { FilterItem, FilterWrapper } from '../styles';
-import {
-  IActions,
-  IModule,
-  IPermissionDocument,
-  IPermissionParams,
-  IUserGroup
-} from '../types';
+import { GroupList } from '../containers';
+import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
+import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
 import PermissionForm from './PermissionForm';
 import {
   correctValue,
@@ -46,8 +39,8 @@ type commonProps = {
   users: IUser[];
   groups: IUserGroup[];
   permissions: IPermissionDocument[];
-  save: (doc: IPermissionParams, callback: () => void) => void;
   remove: (id: string) => void;
+  refetchQueries: any;
 };
 
 class PermissionList extends React.Component<Props> {
@@ -71,16 +64,18 @@ class PermissionList extends React.Component<Props> {
 
       return (
         <tr key={object._id}>
-          <td>{object.module}</td>
+          <td>
+            <Capitalize>{object.module}</Capitalize>
+          </td>
           <td>{permissionAction.map(action => action.label)}</td>
           <td>{object.user ? object.user.email : ''}</td>
           <td>{object.group ? object.group.name : ''}</td>
           <td>
-            <FormControl
-              componentClass="checkbox"
-              disabled={true}
-              defaultChecked={object.allowed}
-            />
+            {object.allowed ? (
+              <TextInfo textStyle="success">{__('Allowed')}</TextInfo>
+            ) : (
+              <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
+            )}
           </td>
           <td>
             <ActionButtons>
@@ -115,7 +110,7 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderForm = props => {
-    const { modules, actions, users, groups, save } = this.props;
+    const { modules, actions, users, groups, refetchQueries } = this.props;
 
     const extendedProps = {
       ...props,
@@ -123,35 +118,30 @@ class PermissionList extends React.Component<Props> {
       actions,
       users,
       groups,
-      save
+      refetchQueries
     };
 
     return <PermissionForm {...extendedProps} />;
   };
 
   renderActionBar() {
-    const { queryParams, modules, actions, groups, users } = this.props;
+    const { queryParams, modules, actions, users } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">
-        New Permission
+        New permission
       </Button>
     );
 
     const actionBarRight = (
-      <BarItems>
+      <NotWrappable>
         <ModalTrigger
-          title="New Permission"
-          size={'lg'}
+          title="New permission"
+          size="lg"
           trigger={trigger}
           content={this.renderForm}
         />
-        <Link to="/settings/users/groups">
-          <Button type="success" size="small" icon="users">
-            User groups
-          </Button>
-        </Link>
-      </BarItems>
+      </NotWrappable>
     );
 
     const actionBarLeft = (
@@ -175,15 +165,6 @@ class PermissionList extends React.Component<Props> {
         </FilterItem>
         <FilterItem>
           <Select
-            placeholder={__('Choose group')}
-            options={generateListParams(groups)}
-            onChange={this.setFilter.bind(this, 'groupId')}
-            value={queryParams.groupId}
-          />
-        </FilterItem>
-
-        <FilterItem>
-          <Select
             placeholder={__('Choose user')}
             options={generateListParams(users)}
             onChange={this.setFilter.bind(this, 'userId')}
@@ -197,24 +178,27 @@ class PermissionList extends React.Component<Props> {
   }
 
   render() {
-    const { isLoading, totalCount } = this.props;
+    const { isLoading, totalCount, queryParams } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
-      { title: 'Permissions' }
+      { title: __('Permissions') }
     ];
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('Permissions')} breadcrumb={breadcrumb} />
+        }
         actionBar={this.renderActionBar()}
+        leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={this.renderContent()}
             loading={isLoading}
             count={totalCount}
-            emptyText="There is no data."
+            emptyText="There is no permissions in this group"
             emptyImage="/images/actions/11.svg"
           />
         }

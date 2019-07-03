@@ -3,14 +3,12 @@ import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { PermissionList } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  IPermissionParams,
   PermissionActionsQueryResponse,
-  PermissionAddMutationResponse,
   PermissionModulesQueryResponse,
   PermissionRemoveMutationResponse,
   PermissionsQueryResponse,
@@ -32,8 +30,7 @@ const List = (props: FinalProps) => {
     usersQuery,
     usersGroupsQuery,
     totalCountQuery,
-    removeMutation,
-    addMutation
+    removeMutation
   } = props;
 
   // remove action
@@ -43,35 +40,12 @@ const List = (props: FinalProps) => {
         variables: { ids: [id] }
       })
         .then(() => {
-          // update queries
-          permissionsQuery.refetch();
-          totalCountQuery.refetch();
-
-          Alert.success('Successfully deleted.');
+          Alert.success('You successfully deleted a permission.');
         })
         .catch(error => {
           Alert.error(error.message);
         });
     });
-  };
-
-  // create action
-  const save = (doc: IPermissionParams, callback) => {
-    addMutation({
-      variables: doc
-    })
-      .then(() => {
-        // update queries
-        permissionsQuery.refetch();
-        totalCountQuery.refetch();
-
-        Alert.success('Congrats');
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
   };
 
   const isLoading =
@@ -86,7 +60,6 @@ const List = (props: FinalProps) => {
     ...props,
     queryParams,
     history,
-    save,
     remove,
     totalCount: totalCountQuery.permissionsTotalCount || 0,
     modules: modulesQuery.permissionModules || [],
@@ -94,7 +67,8 @@ const List = (props: FinalProps) => {
     permissions: permissionsQuery.permissions || [],
     users: usersQuery.users || [],
     groups: usersGroupsQuery.usersGroups || [],
-    isLoading
+    isLoading,
+    refetchQueries: commonOptions(queryParams)
   };
 
   return <PermissionList {...updatedProps} />;
@@ -109,8 +83,22 @@ type Props = {
   usersQuery: UsersQueryResponse;
   usersGroupsQuery: UsersGroupsQueryResponse;
   totalCountQuery: PermissionTotalCountQueryResponse;
-  addMutation: (params: { variables: IPermissionParams }) => Promise<any>;
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
+};
+
+const commonOptions = queryParams => {
+  const variables = {
+    module: queryParams.module,
+    action: queryParams.action,
+    userId: queryParams.userId,
+    groupId: queryParams.groupId,
+    ...generatePaginationParams(queryParams)
+  };
+
+  return [
+    { query: gql(queries.permissions), variables },
+    { query: gql(queries.totalCount), variables }
+  ];
 };
 
 export default compose(
@@ -153,13 +141,13 @@ export default compose(
   }),
 
   // mutations
-  graphql<{}, PermissionAddMutationResponse>(gql(mutations.permissionAdd), {
-    name: 'addMutation'
-  }),
-  graphql<{}, PermissionRemoveMutationResponse>(
+  graphql<Props, PermissionRemoveMutationResponse>(
     gql(mutations.permissionRemove),
     {
-      name: 'removeMutation'
+      name: 'removeMutation',
+      options: ({ queryParams }) => ({
+        refetchQueries: commonOptions(queryParams)
+      })
     }
   )
 )(List);

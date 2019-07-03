@@ -1,147 +1,91 @@
-import { FormControl, Icon } from 'modules/common/components';
-import { FlexItem } from 'modules/common/components/step/styles';
-import { colors, dimensions } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
+import { Icon } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
+import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
-import * as React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { Segments, SegmentsForm } from '..';
-
-const RadioContainer = styled.div`
-  border-bottom: 1px dotted ${colors.borderPrimary};
-
-  > * {
-    padding: ${dimensions.coreSpacing}px;
-  }
-`;
-
-const SegmentContainer = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
-const CustomerCounts = styled.div`
-  text-align: center;
-
-  > i {
-    color: ${colors.colorCoreLightGray};
-  }
-`;
-
-const Show = styledTS<{ show: boolean }>(styled.div)`
-  display: ${props => (props.show ? 'block' : 'none')};
-`;
+import React from 'react';
+import Common from './Common';
+import { SegmentsForm } from './forms';
 
 type Props = {
-  onChange: (name: 'segmentId', value: string) => void;
+  messageType: string;
+  targetCount: TargetCount;
+  segmentIds: string[];
   segments: ISegment[];
   headSegments: ISegment[];
   segmentFields: ISegmentField[];
-  segmentAdd: (params: { doc: ISegmentDoc }) => void;
-  counts: any;
+  customersCount: (ids: string[]) => number;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   count: (segment: ISegmentDoc) => void;
-  segmentId: string;
+  onChange: (name: string, value: string[]) => void;
+  renderContent: (
+    {
+      actionSelector,
+      selectedComponent,
+      customerCounts
+    }: {
+      actionSelector: React.ReactNode;
+      selectedComponent: React.ReactNode;
+      customerCounts: React.ReactNode;
+    }
+  ) => React.ReactNode;
 };
 
-type State = {
-  segmentId: string;
-  createSegment: boolean;
-};
+const SegmentStep = (props: Props) => {
+  const {
+    renderButton,
+    onChange,
+    segments,
+    segmentIds,
+    targetCount,
+    customersCount,
+    messageType,
+    renderContent,
+    segmentFields,
+    headSegments,
+    count
+  } = props;
 
-class SegmentStep extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      segmentId: props.segmentId || '',
-      createSegment: false
-    };
-  }
-
-  createSegment = createSegment => {
-    this.setState({ createSegment });
-
-    if (createSegment === true) {
-      this.changeSegment('');
-    }
+  const formProps = {
+    fields: segmentFields,
+    headSegments,
+    count
   };
 
-  changeSegment = segmentId => {
-    this.setState({ segmentId });
-    this.props.onChange('segmentId', segmentId);
-  };
+  const orderedSegments: ISegment[] = [];
+  const icons: React.ReactNode[] = [];
 
-  renderSegments(show) {
-    if (!show) {
-      return (
-        <SegmentContainer>
-          <Segments
-            segments={this.props.segments}
-            changeSegments={this.changeSegment}
-            counts={this.props.counts}
-            defaultValue={this.state.segmentId}
-          />
-        </SegmentContainer>
-      );
+  segments.forEach(segment => {
+    if (!segment.subOf) {
+      orderedSegments.push(segment, ...segment.getSubSegments);
     }
+  });
 
-    return null;
-  }
-
-  render() {
-    const show = this.state.createSegment;
-    const onChange = () => this.createSegment(false);
-    const onChangeSegment = () => this.createSegment(true);
-
-    return (
-      <FlexItem>
-        <FlexItem direction="column" overflow="auto">
-          <RadioContainer>
-            <FormControl
-              componentClass="radio"
-              onChange={onChange}
-              name="createSegment"
-              value={false}
-              checked={this.state.createSegment === false}
-            >
-              {__('Choose segment')}
-            </FormControl>
-
-            <FormControl
-              componentClass="radio"
-              onChange={onChangeSegment}
-              name="createSegment"
-              checked={this.state.createSegment === true}
-              value={true}
-            >
-              {__('Create segment')}
-            </FormControl>
-          </RadioContainer>
-
-          {this.renderSegments(show)}
-
-          <Show show={show}>
-            <SegmentsForm
-              fields={this.props.segmentFields}
-              create={this.props.segmentAdd}
-              headSegments={this.props.headSegments}
-              count={this.props.count}
-              createSegment={this.createSegment}
-            />
-          </Show>
-        </FlexItem>
-
-        <FlexItem direction="column" v="center" h="center">
-          <CustomerCounts>
-            <Icon icon="users" size={50} />
-            <p>
-              {this.props.counts[this.state.segmentId] || 0} {__('customers')}
-            </p>
-          </CustomerCounts>
-        </FlexItem>
-      </FlexItem>
+  orderedSegments.forEach(segment => {
+    icons.push(
+      <>
+        {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+        <Icon icon="piechart icon" style={{ color: segment.color }} />
+      </>
     );
-  }
-}
+  });
+
+  return (
+    <Common<ISegment, IButtonMutateProps>
+      name="segmentIds"
+      label="Create a segment"
+      targetIds={segmentIds}
+      messageType={messageType}
+      targets={orderedSegments}
+      targetCount={targetCount}
+      customersCount={customersCount}
+      onChange={onChange}
+      renderButton={renderButton}
+      Form={SegmentsForm}
+      content={renderContent}
+      formProps={formProps}
+      icons={icons}
+    />
+  );
+};
 
 export default SegmentStep;

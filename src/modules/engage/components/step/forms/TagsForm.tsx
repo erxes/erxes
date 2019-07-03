@@ -1,0 +1,23 @@
+import { IButtonMutateProps } from 'modules/common/types';
+import { StepFormWrapper } from 'modules/engage/styles';
+import { Form as TagForm } from 'modules/tags/components';
+import React from 'react';
+
+type Props = {
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  afterSave: () => void;
+};
+
+const Form = ({ renderButton, afterSave }: Props) => {
+  return (
+    <StepFormWrapper>
+      <TagForm
+        type="customer"
+        renderButton={renderButton}
+        afterSave={afterSave}
+      />
+    </StepFormWrapper>
+  );
+};
+
+export default Form;

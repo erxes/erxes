@@ -1,7 +1,7 @@
 import { Button, ModalTrigger, Pagination } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { ArticleForm, ArticleList, KnowledgeList } from '../containers';
 import { ICategory } from '../types';
 
@@ -18,12 +18,24 @@ class KnowledgeBase extends React.Component<Props> {
       firstTopic: { title: '' }
     };
     const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
+    const list = [{ title: __('Knowledge base'), link: '/knowledgeBase' }];
+    const categoryLink = `/knowledgeBase?id=${currentCategory._id}`;
 
-    return [
-      { title: __('Knowledge base'), link: '/knowledgeBase' },
-      { title: `${currentKnowledgeBase.title || 'No Category'}` },
-      { title: `${currentCategory.title || ''}` }
-    ];
+    if (currentKnowledgeBase.title) {
+      list.push({
+        title: currentKnowledgeBase.title,
+        link: currentCategory ? categoryLink : ''
+      });
+    }
+
+    if (currentCategory.title) {
+      list.push({
+        title: currentCategory.title,
+        link: categoryLink
+      });
+    }
+
+    return list;
   }
 
   render() {
@@ -50,12 +62,18 @@ class KnowledgeBase extends React.Component<Props> {
         trigger={trigger}
         size="lg"
         content={content}
+        enforceFocus={false}
       />
     );
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={this.breadcrumb()} />}
+        header={
+          <Wrapper.Header
+            title={`${currentCategory.title || ''}`}
+            breadcrumb={this.breadcrumb()}
+          />
+        }
         leftSidebar={
           <KnowledgeList
             currentCategoryId={currentCategory._id}

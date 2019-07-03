@@ -4,7 +4,7 @@ import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 
 interface IProps extends IRouterProps {
@@ -19,10 +19,11 @@ function IntegrationFilter({ history, counts }: IProps) {
   };
 
   const data = (
-    <SidebarList>
+    <SidebarList capitalize={true}>
       {KIND_CHOICES.ALL_LIST.map((kind, index) => (
         <li key={index}>
           <a
+            href="#active"
             tabIndex={0}
             className={
               router.getParam(history, 'integrationType') === kind

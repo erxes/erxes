@@ -9,11 +9,11 @@ import {
 } from 'modules/activityLogs/styles';
 import { IUser } from 'modules/auth/types';
 import { NameCard, Tip } from 'modules/common/components';
-import { __, renderFullName } from 'modules/common/utils';
+import { renderFullName } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IChannel } from 'modules/settings/channels/types';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';
@@ -51,7 +51,11 @@ class UserDetails extends React.Component<Props> {
                   <strong> conversation </strong>
                 </Link>
                 with{' '}
-                <Link to={`/customers/details/${conversation.customer._id}`}>
+                <Link
+                  to={`/contacts/customers/details/${
+                    conversation.customer._id
+                  }`}
+                >
                   <strong>{renderFullName(conversation.customer)}</strong>
                 </Link>
               </div>
@@ -72,10 +76,9 @@ class UserDetails extends React.Component<Props> {
     const { user, channels, renderEditForm } = this.props;
     const { details = {} } = user;
 
-    const breadcrumb = [
-      { title: 'Users', link: '/settings/team' },
-      { title: details.fullName || 'N/A' }
-    ];
+    const title = details.fullName || 'Unknown';
+
+    const breadcrumb = [{ title: 'Users', link: '/settings/team' }, { title }];
 
     const content = (
       <>
@@ -96,7 +99,7 @@ class UserDetails extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         leftSidebar={
           <LeftSidebar
             user={user}

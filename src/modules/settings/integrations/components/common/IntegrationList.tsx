@@ -11,7 +11,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { InstallCode } from 'modules/settings/integrations/components';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IIntegration } from '../../types';
 
@@ -24,20 +24,12 @@ class IntegrationList extends React.Component<Props> {
   getTypeName(integration) {
     const kind = integration.kind;
 
-    if (kind === KIND_CHOICES.TWITTER) {
-      return 'twitter';
-    }
-
     if (kind === KIND_CHOICES.FACEBOOK) {
       return 'facebook';
     }
 
     if (kind === KIND_CHOICES.FORM) {
       return 'form';
-    }
-
-    if (kind === KIND_CHOICES.GMAIL) {
-      return 'gmail';
     }
 
     return 'default';
@@ -98,15 +90,9 @@ class IntegrationList extends React.Component<Props> {
   }
 
   renderRow(integration) {
-    const twitterData = (integration || {}).twitterData || {};
-
     return (
       <tr key={integration._id}>
-        <td>
-          {integration.name}
-          {integration.kind === 'twitter' &&
-            ` (${twitterData.info && twitterData.info.screen_name})`}
-        </td>
+        <td>{integration.name}</td>
         <td>
           <Label className={`label-${this.getTypeName(integration)}`}>
             {integration.kind}

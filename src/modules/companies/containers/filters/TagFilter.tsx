@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { CountsByTag } from 'modules/common/components';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { TagsQueryResponse } from '../../../tags/types';

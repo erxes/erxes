@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import parse from 'ua-parser-js';
 
 type Props = {
@@ -38,6 +38,7 @@ class DevicePropertiesSection extends React.Component<Props> {
 
     return (
       <img
+        alt="Flag"
         style={{ marginBottom: '2px' }}
         src={`https://www.countryflags.io/${countryCode}/shiny/16.png`}
       />

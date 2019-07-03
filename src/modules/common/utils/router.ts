@@ -67,6 +67,20 @@ const refetchIfUpdated = (history: any, query: any) => {
   }
 };
 
+/**
+ * Replace specific param
+ * @param {Object} history
+ * @param {Object} params - Updated params
+ * @query {Object} query
+ */
+const replaceParam = (history: any, params: any, query: any) => {
+  Object.assign(params, query);
+
+  const stringified = queryString.stringify(params);
+
+  return history.push(`${window.location.pathname}?${stringified}`);
+};
+
 export const generatePaginationParams = (queryParams: {
   page?: string;
   perPage?: string;
@@ -80,6 +94,7 @@ export const generatePaginationParams = (queryParams: {
 export default {
   setParams,
   getParam,
+  replaceParam,
   removeParams,
   refetchIfUpdated
 };

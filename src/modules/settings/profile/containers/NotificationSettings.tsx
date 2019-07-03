@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
   GetNotificationByEmailMutationResponse,

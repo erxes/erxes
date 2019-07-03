@@ -1,5 +1,5 @@
 import { Button, NameCard } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import { IMessage } from '../../../../../types';
 import { AppMessageBox, CallButton, FlexItem, UserInfo } from '../styles';
 
@@ -22,7 +22,7 @@ export default class AppMessage extends React.Component<Props, {}> {
           </UserInfo>
           <CallButton>
             <h5>Meeting Ready</h5>
-            <a href={messengerAppData.hangoutLink} target="_blank">
+            <a href={messengerAppData.hangoutLink}>
               <Button>Join Call</Button>
             </a>
           </CallButton>

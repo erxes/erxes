@@ -1,37 +1,36 @@
 import {
   Button,
   ControlLabel,
+  Form,
   FormControl,
   FormGroup,
   Icon
 } from 'modules/common/components';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
-import { SelectBrand } from 'modules/settings/integrations/components';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
+import { InstallCode } from 'modules/settings/integrations/components';
+import { SelectBrand } from 'modules/settings/integrations/containers';
+import { IIntegration } from 'modules/settings/integrations/types';
+import React from 'react';
+import { Modal } from 'react-bootstrap';
+import RTG from 'react-transition-group';
 import { MessengerList } from '../containers';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
-  brands: IBrand[];
   totalCount: number;
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode: string;
-    },
-    callback: () => void
-  ) => void;
+  integration?: IIntegration;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   changeStep: (increase: boolean) => void;
+  showInstallCode: boolean;
+  closeInstallCodeModal: () => void;
 };
 
 type State = {
   name: string;
   language: string;
-  brand: string;
+  brandId: string;
   showMessengers: boolean;
 };
 
@@ -39,47 +38,23 @@ class MessengerAdd extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { showMessengers: true, name: '', brand: '', language: '' };
+    this.state = { showMessengers: true, name: '', brandId: '', language: '' };
   }
 
-  clearInput() {
-    this.setState({ name: '' });
-  }
+  changeStep = () => {
+    return this.props.changeStep(true);
+  };
 
   toggleMessengers = () => {
     this.setState({ showMessengers: !this.state.showMessengers });
   };
 
   goNext = () => {
+    if (this.props.closeInstallCodeModal) {
+      this.props.closeInstallCodeModal();
+    }
+
     this.props.changeStep(true);
-  };
-
-  save = e => {
-    e.preventDefault();
-    const { name, brand, language } = this.state;
-
-    this.props.save(
-      {
-        name,
-        brandId: brand,
-        languageCode: language
-      },
-      this.clearInput.bind(this)
-    );
-  };
-
-  saveNext = e => {
-    e.preventDefault();
-    const { name, brand, language } = this.state;
-
-    this.props.save(
-      {
-        name,
-        brandId: brand,
-        languageCode: language
-      },
-      this.goNext
-    );
   };
 
   handleChange = <T extends keyof State>(name: T, e) => {
@@ -101,8 +76,8 @@ class MessengerAdd extends React.Component<Props, State> {
         <Description>
           <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
           {__('messengers')}.
-          <a href="javascript:;" onClick={this.toggleMessengers}>
-            {showMessengers ? __('Show') : __('Hide')} ›
+          <a href="#toggle" onClick={this.toggleMessengers}>
+            {showMessengers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -119,29 +94,51 @@ class MessengerAdd extends React.Component<Props, State> {
     );
   };
 
-  renderContent() {
-    const { name } = this.state;
+  renderInstallCode() {
+    const { integration, closeInstallCodeModal, showInstallCode } = this.props;
 
+    return (
+      <Modal show={showInstallCode} onHide={closeInstallCodeModal}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>{__('Install code')}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <InstallCode
+            integration={integration || ({} as IIntegration)}
+            closeModal={closeInstallCodeModal}
+            positivButton={
+              <Button btnStyle="success" onClick={this.goNext}>
+                {__('Next')} <Icon icon="rightarrow-2" />
+              </Button>
+            }
+          />
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
+  renderFormContent = (formProps: IFormProps) => {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Messenger name</ControlLabel>
+          <ControlLabel required={true}>Messenger name</ControlLabel>
 
           <FormControl
-            value={name}
-            onChange={this.handleChange.bind(this, 'name')}
-            type="text"
+            {...formProps}
+            name="name"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messenger Language</ControlLabel>
+          <ControlLabel required={true}>Messenger Language</ControlLabel>
 
           <FormControl
+            {...formProps}
             componentClass="select"
-            id="languageCode"
-            onChange={this.handleChange.bind(this, 'language')}
+            name="languageCode"
+            required={true}
           >
             <option />
             {LANGUAGES.map((item, index) => (
@@ -153,21 +150,25 @@ class MessengerAdd extends React.Component<Props, State> {
         </FormGroup>
 
         <SelectBrand
-          brands={this.props.brands || []}
-          onChange={this.handleChange.bind(this, 'brand')}
+          isRequired={true}
+          creatable={false}
+          formProps={formProps}
         />
 
         {this.renderOtherMessengers()}
       </>
     );
-  }
+  };
 
-  render() {
+  renderContent = (formProps: IFormProps) => {
+    const { renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
+
     return (
-      <form onSubmit={this.save}>
+      <>
         <TopContent>
           <h2>{__('Start messaging now!')}</h2>
-          {this.renderContent()}
+          {this.renderFormContent({ ...formProps })}
         </TopContent>
         <Footer>
           <div>
@@ -177,13 +178,26 @@ class MessengerAdd extends React.Component<Props, State> {
             >
               Previous
             </Button>
-            <Button btnStyle="success" onClick={this.saveNext}>
-              {__('Next')} <Icon icon="rightarrow-2" />
-            </Button>
+            {renderButton({
+              name: 'app',
+              values,
+              isSubmitted
+            })}
           </div>
-          <a onClick={this.goNext}>{__('Skip for now')} »</a>
+          <a href="#skip" onClick={this.goNext}>
+            {__('Skip for now')} »
+          </a>
         </Footer>
-      </form>
+      </>
+    );
+  };
+
+  render() {
+    return (
+      <>
+        <Form renderContent={this.renderContent} />
+        {this.renderInstallCode()}
+      </>
     );
   }
 }

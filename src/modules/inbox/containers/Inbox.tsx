@@ -1,8 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { IUser } from 'modules/auth/types';
 import { can, router as routerUtils } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import { Empty, Inbox } from '../components';
 import { queries } from '../graphql';

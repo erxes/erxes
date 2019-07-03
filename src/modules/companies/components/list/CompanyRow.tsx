@@ -2,8 +2,8 @@ import _ from 'lodash';
 import { FormControl, NameCard, Tags } from 'modules/common/components';
 import { isTimeStamp, urlParser } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';
 
@@ -25,7 +25,11 @@ function createLinkFromUrl(url) {
     window.open(url);
   };
 
-  return <a onClick={onClick}>{urlParser.extractRootDomain(url)}</a>;
+  return (
+    <a href="#link" onClick={onClick}>
+      {urlParser.extractRootDomain(url)}
+    </a>
+  );
 }
 
 function formatValue(value) {
@@ -82,7 +86,7 @@ function CompanyRow({
   };
 
   const onTrClick = () => {
-    history.push(`companies/details/${company._id}`);
+    history.push(`/contacts/companies/details/${company._id}`);
   };
 
   return (

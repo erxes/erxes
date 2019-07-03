@@ -4,7 +4,7 @@ import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
+import React from 'react';
 import { IProductData } from '../types';
 import ProductForm from './product/ProductForm';
 
@@ -44,7 +44,7 @@ function ProductSection({
           title="New Product & Service"
           size="lg"
           trigger={
-            <a>
+            <a href="#add">
               <Icon icon="add" />
             </a>
           }

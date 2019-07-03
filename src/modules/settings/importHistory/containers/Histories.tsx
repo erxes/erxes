@@ -1,7 +1,9 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, router, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Histories } from '../components';
@@ -10,6 +12,9 @@ import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 
 type Props = {
   queryParams: any;
+  showLoadingBar: (isRemovingImport: boolean) => void;
+  closeLoadingBar: () => void;
+  isDoneIndicatorAction: boolean;
 };
 
 type FinalProps = {
@@ -31,8 +36,20 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     };
   }
 
+  componentDidUpdate(prevProps: FinalProps) {
+    if (this.props.isDoneIndicatorAction !== prevProps.isDoneIndicatorAction) {
+      this.props.historiesQuery.refetch();
+    }
+  }
+
   render() {
-    const { historiesQuery, history, importHistoriesRemove } = this.props;
+    const {
+      historiesQuery,
+      history,
+      importHistoriesRemove,
+      showLoadingBar,
+      closeLoadingBar
+    } = this.props;
 
     if (!router.getParam(history, 'type')) {
       router.setParams(history, { type: 'customer' }, true);
@@ -41,33 +58,47 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const currentType = router.getParam(history, 'type');
 
     const removeHistory = historyId => {
-      this.setState({ loading: true });
+      // reset top indicator
+      closeLoadingBar();
+
+      localStorage.setItem('erxes_import_data', historyId);
+      localStorage.setItem('erxes_import_data_type', 'remove');
+
+      showLoadingBar(true);
 
       importHistoriesRemove({
         variables: { _id: historyId }
       })
         .then(() => {
-          Alert.success('You successfully removed all customers');
-          this.setState({ loading: false });
+          historiesQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
+          closeLoadingBar();
         });
     };
 
+    const histories = historiesQuery.importHistories || {};
+
     const updatedProps = {
       ...this.props,
-      histories: historiesQuery.importHistories || [],
+      histories: histories.list || [],
       loading: historiesQuery.loading || this.state.loading,
       removeHistory,
-      currentType
+      currentType,
+      totalCount: histories.count || 0
     };
 
     return <Histories {...updatedProps} />;
   }
 }
 
-export default withProps<Props>(
+const historiesListParams = queryParams => ({
+  ...generatePaginationParams(queryParams),
+  type: queryParams.type || 'customer'
+});
+
+const HistoriesWithProps = withProps<Props>(
   compose(
     graphql<Props, ImportHistoriesQueryResponse, { type: string }>(
       gql(queries.histories),
@@ -75,9 +106,7 @@ export default withProps<Props>(
         name: 'historiesQuery',
         options: ({ queryParams }) => ({
           fetchPolicy: 'network-only',
-          variables: {
-            type: queryParams.type || 'customer'
-          }
+          variables: historiesListParams(queryParams)
         })
       }
     ),
@@ -92,3 +121,20 @@ export default withProps<Props>(
     )
   )(withRouter<FinalProps>(HistoriesContainer))
 );
+
+const WithConsumer = props => {
+  return (
+    <AppConsumer>
+      {({ showLoadingBar, closeLoadingBar, isDoneIndicatorAction }) => (
+        <HistoriesWithProps
+          {...props}
+          showLoadingBar={showLoadingBar}
+          closeLoadingBar={closeLoadingBar}
+          isDoneIndicatorAction={isDoneIndicatorAction}
+        />
+      )}
+    </AppConsumer>
+  );
+};
+
+export default WithConsumer;

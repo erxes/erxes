@@ -4,7 +4,7 @@ import { fromJS } from 'immutable';
 import { IAttachmentPreview } from 'modules/common/types';
 import { RespondBox } from 'modules/inbox/components/conversationDetail';
 import { queries } from 'modules/inbox/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';
@@ -73,9 +73,6 @@ const RespondBoxContainer = (props: FinalProps) => {
           isCustomerRead: false,
           fromBot: false,
           formWidgetData: null,
-          twitterData: null,
-          facebookData: null,
-          gmailData: null,
           user: null,
           customer: null
         }
@@ -118,7 +115,14 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<Props, ResponseTemplatesQueryResponse>(
       gql(queries.responseTemplateList),
       {
-        name: 'responseTemplatesQuery'
+        name: 'responseTemplatesQuery',
+        options: () => {
+          return {
+            variables: {
+              perPage: 200
+            }
+          };
+        }
       }
     )
   )(RespondBoxContainer)

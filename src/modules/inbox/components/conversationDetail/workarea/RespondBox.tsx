@@ -1,11 +1,8 @@
 import { Button, FormControl, Icon, Tip } from 'modules/common/components';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
-import * as React from 'react';
+import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
+import React from 'react';
 
-import {
-  MessengerApp,
-  ResponseTemplate
-} from 'modules/inbox/containers/conversationDetail';
+import { ResponseTemplate } from 'modules/inbox/containers/conversationDetail';
 
 import {
   Attachment,
@@ -65,6 +62,33 @@ class RespondBox extends React.Component<Props, State> {
     };
   }
 
+  isContentWritten() {
+    const { content } = this.state;
+
+    // draftjs empty content
+    if (content === '<p><br></p>' || content === '') {
+      return false;
+    }
+
+    return true;
+  }
+
+  shouldComponentUpdate(nextProps: Props) {
+    if (this.props.conversation._id !== nextProps.conversation._id) {
+      if (this.isContentWritten()) {
+        localStorage.setItem(this.props.conversation._id, this.state.content);
+      } else {
+        // if clear content
+        localStorage.removeItem(this.props.conversation._id);
+      }
+
+      // clear previous content
+      this.setState({ content: '' });
+    }
+
+    return true;
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { sending, content } = this.state;
 
@@ -86,6 +110,10 @@ class RespondBox extends React.Component<Props, State> {
       });
     }
   }
+
+  getUnsendMessage = (id: string) => {
+    return localStorage.getItem(id) || '';
+  };
 
   // save editor current content to state
   onEditorContentChange = (content: string) => {
@@ -136,11 +164,6 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
-  // on shift + enter press in editor
-  onShifEnter = () => {
-    this.addMessage();
-  };
-
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
@@ -178,7 +201,7 @@ class RespondBox extends React.Component<Props, State> {
     return text.replace(/&nbsp;/g, ' ');
   }
 
-  addMessage() {
+  addMessage = () => {
     const { conversation, sendMessage } = this.props;
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
     const message = {
@@ -206,7 +229,7 @@ class RespondBox extends React.Component<Props, State> {
         });
       });
     }
-  }
+  };
 
   toggleForm = () => {
     this.setState({
@@ -224,7 +247,9 @@ class RespondBox extends React.Component<Props, State> {
               <AttachmentThumb>
                 {attachment.type.startsWith('image') && (
                   <PreviewImg
-                    style={{ backgroundImage: `url('${attachment.url}')` }}
+                    style={{
+                      backgroundImage: `url(${readFile(attachment.url)})`
+                    }}
                   />
                 )}
               </AttachmentThumb>
@@ -280,8 +305,6 @@ class RespondBox extends React.Component<Props, State> {
           </label>
         </Tip>
 
-        <MessengerApp conversation={conversation} />
-
         <ResponseTemplate
           brandId={integration.brandId}
           attachments={this.state.attachments}
@@ -318,10 +341,12 @@ class RespondBox extends React.Component<Props, State> {
           isInactive={this.state.isInactive}
         >
           <Editor
+            currentConversation={conversation._id}
+            defaultContent={this.getUnsendMessage(conversation._id)}
             key={this.state.editorKey}
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
-            onShifEnter={this.onShifEnter}
+            onAddMessage={this.addMessage}
             placeholder={placeholder}
             mentions={this.props.teamMembers}
             showMentions={isInternal}

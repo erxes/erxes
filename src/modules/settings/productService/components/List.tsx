@@ -6,9 +6,10 @@ import {
   Pagination,
   Table
 } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { IProduct } from '../types';
 import { Form, Row } from './';
 
@@ -25,21 +26,26 @@ type Props = {
   products: IProduct[];
   productsCount: number;
   remove: (productId: string) => void;
-  save: (doc: Doc, callback: () => void, product?: IProduct) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
 };
 
 class List extends React.Component<Props> {
   renderRow = () => {
-    const { products, remove, save } = this.props;
+    const { products, remove, renderButton } = this.props;
 
     return products.map(product => (
-      <Row key={product._id} product={product} remove={remove} save={save} />
+      <Row
+        key={product._id}
+        product={product}
+        remove={remove}
+        renderButton={renderButton}
+      />
     ));
   };
 
   render() {
-    const { save, productsCount, loading } = this.props;
+    const { productsCount, loading, renderButton } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -52,7 +58,9 @@ class List extends React.Component<Props> {
       </Button>
     );
 
-    const modalContent = props => <Form {...props} save={save} />;
+    const modalContent = props => (
+      <Form {...props} renderButton={renderButton} />
+    );
 
     const actionBarRight = (
       <ModalTrigger
@@ -79,7 +87,12 @@ class List extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={__('Product & Service')}
+            breadcrumb={breadcrumb}
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

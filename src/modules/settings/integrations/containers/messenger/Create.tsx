@@ -3,9 +3,11 @@ import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { Form } from 'modules/settings/integrations/components/messenger';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
+
 import {
   IMessengerData,
   IUiOptions,
@@ -14,7 +16,7 @@ import {
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
@@ -67,7 +69,6 @@ const CreateMessenger = (props: FinalProps) => {
           variables: { _id: integrationId, messengerData }
         });
       })
-
       .then(({ data }) => {
         const integrationId = data.integrationsSaveMessengerConfigs._id;
 
@@ -75,7 +76,6 @@ const CreateMessenger = (props: FinalProps) => {
           variables: { _id: integrationId, uiOptions }
         });
       })
-
       .then(() => {
         Alert.success('You successfully added an integration');
         history.push('/settings/integrations?refetch=true');
@@ -113,7 +113,7 @@ export default withProps<Props>(
     graphql<Props, UsersQueryResponse>(gql(queries.users), {
       name: 'usersQuery'
     }),
-    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
+    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
       name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

@@ -1,13 +1,12 @@
 import gql from 'graphql-tag';
+import { ButtonMutate } from 'modules/common/components';
+import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { Sidebar } from '../components';
 import { mutations, queries } from '../graphql';
 import {
-  BrandAddMutationResponse,
-  BrandEditMutationResponse,
-  BrandMutationVariables,
   BrandRemoveMutationResponse,
   BrandRemoveMutationVariables,
   BrandsCountQueryResponse,
@@ -23,17 +22,15 @@ type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   brandsCountQuery: BrandsCountQueryResponse;
 } & Props &
-  BrandAddMutationResponse &
-  BrandEditMutationResponse &
   BrandRemoveMutationResponse;
 
 const SidebarContainer = (props: ChildProps<FinalProps>) => {
   const {
     brandsQuery,
     brandsCountQuery,
-    addMutation,
-    editMutation,
-    removeMutation
+    removeMutation,
+    queryParams,
+    currentBrandId
   } = props;
 
   const brands = brandsQuery.brands || [];
@@ -46,8 +43,6 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         variables: { _id: brandId }
       })
         .then(() => {
-          brandsQuery.refetch();
-
           Alert.success('You successfully deleted a brand.');
         })
         .catch(error => {
@@ -56,37 +51,33 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
     });
   };
 
-  // create or update action
-  const save = ({ doc }, callback, brand) => {
-    let mutation = addMutation;
-    // if edit mode
-    if (brand) {
-      mutation = editMutation;
-      doc._id = brand._id;
-    }
-
-    mutation({
-      variables: doc
-    })
-      .then(() => {
-        brandsQuery.refetch();
-
-        Alert.success(
-          `You successfully ${brand ? 'updated' : 'added'} a brand.`
-        );
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.brandEdit : mutations.brandAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries(queryParams, currentBrandId)}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
   };
 
   const updatedProps = {
     ...props,
+    renderButton,
     brands,
     brandsTotalCount,
-    save,
     remove,
     loading: brandsQuery.loading
   };
@@ -94,30 +85,26 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
   return <Sidebar {...updatedProps} />;
 };
 
-const commonOptions = ({ queryParams, currentBrandId }: Props) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.brands),
-        variables: {
-          perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
-        }
-      },
-      {
-        query: gql(queries.brands),
-        variables: {}
-      },
-      {
-        query: gql(queries.integrationsCount),
-        variables: {}
-      },
-      {
-        query: gql(queries.brandDetail),
-        variables: { _id: currentBrandId || '' }
-      },
-      { query: gql(queries.brandsCount) }
-    ]
-  };
+const getRefetchQueries = (queryParams, currentBrandId?: string) => {
+  return [
+    {
+      query: gql(queries.brands),
+      variables: {
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+      }
+    },
+    {
+      query: gql(queries.brands)
+    },
+    {
+      query: gql(queries.integrationsCount)
+    },
+    {
+      query: gql(queries.brandDetail),
+      variables: { _id: currentBrandId || '' }
+    },
+    { query: gql(queries.brandsCount) }
+  ];
 };
 
 export default withProps<Props>(
@@ -137,25 +124,13 @@ export default withProps<Props>(
     graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
       name: 'brandsCountQuery'
     }),
-    graphql<Props, BrandAddMutationResponse, BrandMutationVariables>(
-      gql(mutations.brandAdd),
-      {
-        name: 'addMutation',
-        options: commonOptions
-      }
-    ),
-    graphql<Props, BrandEditMutationResponse, BrandMutationVariables>(
-      gql(mutations.brandEdit),
-      {
-        name: 'editMutation',
-        options: commonOptions
-      }
-    ),
     graphql<Props, BrandRemoveMutationResponse, BrandRemoveMutationVariables>(
       gql(mutations.brandRemove),
       {
         name: 'removeMutation',
-        options: commonOptions
+        options: ({ queryParams, currentBrandId }: Props) => ({
+          refetchQueries: getRefetchQueries(queryParams, currentBrandId)
+        })
       }
     )
   )(SidebarContainer)

@@ -8,7 +8,7 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { PropertyForm, PropertyGroupForm } from '../containers';
 import { PropertyList } from '../styles';
@@ -141,7 +141,9 @@ class Properties extends React.Component<Props> {
             right={this.renderActionBar()}
           />
         }
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
+        }
         leftSidebar={<Sidebar title="Properties" currentType={currentType} />}
         content={this.renderProperties()}
       />

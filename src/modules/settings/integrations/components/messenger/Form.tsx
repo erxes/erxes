@@ -8,6 +8,7 @@ import {
 import { __, Alert } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { IBrand } from 'modules/settings/brands/types';
+import { LANGUAGES } from 'modules/settings/general/constants';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import {
   IIntegration,
@@ -15,9 +16,8 @@ import {
   IMessengerData,
   IUiOptions
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { LANGUAGES } from '../../constants';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
@@ -57,7 +57,9 @@ type State = {
   youtube: string;
   messages: IMessages;
   isStepActive?: boolean;
-  requireAuth: boolean;
+  requireAuth?: boolean;
+  showChat?: boolean;
+  forceLogoutWhenResolve?: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -80,6 +82,8 @@ class CreateMessenger extends React.Component<Props, State> {
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth ? true : false,
+      showChat: configData.showChat ? true : false,
+      forceLogoutWhenResolve: configData.forceLogoutWhenResolve ? true : false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
       isOnline: configData.isOnline || false,
@@ -135,7 +139,9 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook,
       twitter,
       youtube,
-      requireAuth
+      requireAuth,
+      showChat,
+      forceLogoutWhenResolve
     } = this.state;
 
     if (!languageCode) {
@@ -169,6 +175,8 @@ class CreateMessenger extends React.Component<Props, State> {
         supporterIds: this.state.supporterIds,
         messages,
         requireAuth,
+        showChat,
+        forceLogoutWhenResolve,
         links
       },
       uiOptions: {
@@ -232,7 +240,9 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube,
       messages,
       isStepActive,
-      requireAuth
+      requireAuth,
+      showChat,
+      forceLogoutWhenResolve
     } = this.state;
 
     const message = messages[languageCode];
@@ -248,7 +258,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Messenger')} breadcrumb={breadcrumb} />
 
         <TitleContainer>
           <div>{__('Title')}</div>
@@ -268,11 +278,12 @@ class CreateMessenger extends React.Component<Props, State> {
             >
               <Options
                 onChange={this.onChange}
-                brands={this.props.brands}
                 brandId={brandId}
                 notifyCustomer={notifyCustomer}
                 languageCode={languageCode}
                 requireAuth={requireAuth}
+                showChat={showChat}
+                forceLogoutWhenResolve={forceLogoutWhenResolve}
               />
             </Step>
 

@@ -4,17 +4,18 @@ import {
   Icon,
   ModalTrigger
 } from 'modules/common/components';
-import { __, Alert, confirm, searchCustomer } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import { CustomersMerge, TargetMerge } from 'modules/customers/components';
 import { CustomerForm } from 'modules/customers/containers';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 
 type Props = {
   customer: ICustomer;
   remove: () => void;
   merge: (doc: { ids: string[]; data: ICustomer }) => void;
+  searchCustomer: (value: string, callback: (objects: any[]) => void) => void;
   isSmall?: boolean;
 };
 
@@ -50,7 +51,7 @@ class ActionSection extends React.Component<Props> {
       <li>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a>{__('Edit')}</a>}
+          trigger={<a href="#edit">{__('Edit')}</a>}
           size="lg"
           content={customerForm}
         />
@@ -59,7 +60,7 @@ class ActionSection extends React.Component<Props> {
   }
 
   render() {
-    const { customer, merge, remove } = this.props;
+    const { customer, merge, remove, searchCustomer } = this.props;
 
     const onClick = () =>
       confirm()
@@ -77,7 +78,7 @@ class ActionSection extends React.Component<Props> {
           cus.lastName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
-          'N/A'
+          'Unknown'
       }));
     };
 
@@ -96,7 +97,9 @@ class ActionSection extends React.Component<Props> {
             />
           </li>
           <li>
-            <a onClick={onClick}>{__('Delete')}</a>
+            <a href="#delete" onClick={onClick}>
+              {__('Delete')}
+            </a>
           </li>
         </Dropdown.Menu>
       </Dropdown>

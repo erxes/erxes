@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { IntegrationFilter } from '../../components';
@@ -14,18 +14,15 @@ class IntegrationFilterContainer extends React.Component<Props> {
   render() {
     const { customersCountQuery } = this.props;
 
-    let counts = {};
-    let loading = false;
-
-    if (customersCountQuery) {
-      counts = customersCountQuery.customerCounts || { byIntegrationType: {} };
-      loading = customersCountQuery.loading || false;
-    }
+    const counts = (customersCountQuery
+      ? customersCountQuery.customerCounts
+      : null) || { byIntegrationType: {} };
 
     const updatedProps = {
       ...this.props,
-      loading,
-      counts
+      loading:
+        (customersCountQuery ? customersCountQuery.loading : null) || false,
+      counts: counts.byIntegrationType
     };
 
     return <IntegrationFilter {...updatedProps} />;

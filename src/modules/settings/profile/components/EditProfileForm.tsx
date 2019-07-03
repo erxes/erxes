@@ -1,11 +1,10 @@
 import { UserCommonInfos } from 'modules/auth/components';
 import { IUser, IUserDoc } from 'modules/auth/types';
-import { Button } from 'modules/common/components';
+import { Button, Form } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Alert } from 'modules/common/utils';
-import { regexEmail } from 'modules/customers/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { PasswordConfirmation } from '.';
 
@@ -36,10 +35,6 @@ class EditProfile extends React.Component<Props, State> {
     };
   }
 
-  getInputElementValue(id) {
-    return (document.getElementById(id) as HTMLInputElement).value;
-  }
-
   closeConfirm = () => {
     this.setState({ isShowPasswordPopup: false });
   };
@@ -49,26 +44,26 @@ class EditProfile extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
-  handleSubmit = password => {
+  handleSubmit = (password: string, values: any) => {
     this.props.save(
       {
-        username: this.getInputElementValue('username'),
-        email: this.getInputElementValue('email'),
+        username: values.username,
+        email: values.email,
         details: {
           avatar: this.state.avatar,
-          shortName: this.getInputElementValue('shortName'),
-          fullName: this.getInputElementValue('fullName'),
-          position: this.getInputElementValue('position'),
-          location: this.getInputElementValue('user-location'),
-          description: this.getInputElementValue('description')
+          shortName: values.shortName,
+          fullName: values.fullName,
+          position: values.position,
+          location: values.userLocation,
+          description: values.description
         },
         links: {
-          linkedIn: this.getInputElementValue('linkedin'),
-          twitter: this.getInputElementValue('twitter'),
-          facebook: this.getInputElementValue('facebook'),
-          youtube: this.getInputElementValue('youtube'),
-          github: this.getInputElementValue('github'),
-          website: this.getInputElementValue('website')
+          linkedIn: values.linkedin,
+          twitter: values.twitter,
+          facebook: values.facebook,
+          youtube: values.youtube,
+          github: values.github,
+          website: values.website
         },
         password
       },
@@ -80,23 +75,15 @@ class EditProfile extends React.Component<Props, State> {
     this.setState({ avatar: url });
   };
 
-  onSuccess = password => {
-    return this.handleSubmit(password);
-  };
-
-  isValidEmail = () => {
-    return regexEmail.test(this.getInputElementValue('email'));
+  onSuccess = (password: string, values: any[]) => {
+    return this.handleSubmit(password, values);
   };
 
   showConfirm = () => {
-    if (!this.isValidEmail()) {
-      return Alert.error('Invalid email');
-    }
-
     return this.setState({ isShowPasswordPopup: true });
   };
 
-  renderPasswordConfirmationModal() {
+  renderPasswordConfirmationModal(formProps: IFormProps) {
     return (
       <Modal show={this.state.isShowPasswordPopup} onHide={this.closeConfirm}>
         <Modal.Header closeButton={true}>
@@ -104,6 +91,7 @@ class EditProfile extends React.Component<Props, State> {
         </Modal.Header>
         <Modal.Body>
           <PasswordConfirmation
+            formProps={formProps}
             onSuccess={this.onSuccess}
             closeModal={this.closeConfirm}
           />
@@ -112,35 +100,37 @@ class EditProfile extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  renderContent = formProps => {
     return (
-      <React.Fragment>
+      <>
         <UserCommonInfos
+          formProps={formProps}
           user={this.props.currentUser}
           onAvatarUpload={this.onAvatarUpload}
         />
 
-        {this.renderPasswordConfirmationModal()}
+        {this.renderPasswordConfirmationModal(formProps)}
 
         <ModalFooter>
           <Button
             btnStyle="simple"
-            type="button"
             onClick={this.props.closeModal}
             icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            onClick={this.showConfirm}
-          >
+          <Button type="submit" btnStyle="success" icon="checked-1">
             Save
           </Button>
         </ModalFooter>
-      </React.Fragment>
+      </>
+    );
+  };
+
+  render() {
+    return (
+      <Form renderContent={this.renderContent} onSubmit={this.showConfirm} />
     );
   }
 }

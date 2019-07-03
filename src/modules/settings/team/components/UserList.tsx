@@ -13,22 +13,31 @@ import {
   Tip
 } from 'modules/common/components';
 import { Input } from 'modules/common/components/form/styles';
-import { router } from 'modules/common/utils';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { router } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { UserInvitationForm } from '.';
 import { List } from '../../common/components';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
-import { ButtonContainer, FilterContainer, UserAvatar } from '../styles';
+import {
+  AlignedTd,
+  ButtonContainer,
+  FilterContainer,
+  UserAvatar
+} from '../styles';
 
 type IProps = {
   changeStatus: (id: string) => void;
+  resendInvitation: (email: string) => void;
   usersGroups: IUserGroup[];
+  refetchQueries: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type FinalProps = ICommonListProps &
@@ -69,30 +78,28 @@ class UserList extends React.Component<FinalProps, States> {
   };
 
   renderInvitationForm = props => {
+    const { usersGroups, refetchQueries, renderButton } = this.props;
+
     return (
       <UserInvitationForm
         closeModal={props.closeModal}
-        usersGroups={this.props.usersGroups}
-        save={this.props.save}
+        usersGroups={usersGroups}
+        refetchQueries={refetchQueries}
+        renderButton={renderButton}
       />
     );
   };
 
   renderForm = props => {
-    return <UserForm {...props} />;
+    return <UserForm {...props} renderButton={this.props.renderButton} />;
   };
 
   renderEditAction = (user: IUser) => {
     const { currentUser } = this.props;
-
-    if (user._id === currentUser._id) {
-      return null;
-    }
-
     const { save } = this.props;
 
     const editTrigger = (
-      <Button btnStyle="link">
+      <Button btnStyle="link" disabled={user._id === currentUser._id}>
         <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
@@ -113,16 +120,28 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  visibleHandler = (user: IUser) => {
-    const { changeStatus } = this.props;
+  renderResendInvitation(user: IUser) {
+    const onClick = () => {
+      this.props.resendInvitation(user.email);
+    };
 
-    return changeStatus(user._id);
-  };
+    if (user.status !== 'Pending Invitation') {
+      return null;
+    }
+
+    return (
+      <Button btnStyle="link" onClick={onClick}>
+        <Tip text={__('Resend')}>
+          <Icon icon="reload" />
+        </Tip>
+      </Button>
+    );
+  }
 
   renderRows({ objects }: { objects: IUser[] }) {
     return objects.map(object => {
       const onClick = () => this.onAvatarClick(object);
-      const onChange = () => this.visibleHandler(object);
+      const onChange = () => this.props.changeStatus(object._id);
 
       return (
         <tr key={object._id}>
@@ -137,7 +156,7 @@ class UserList extends React.Component<FinalProps, States> {
             </TextInfo>
           </td>
           <td>{object.email}</td>
-          <td>
+          <AlignedTd>
             <Toggle
               defaultChecked={object.isActive}
               icons={{
@@ -146,10 +165,12 @@ class UserList extends React.Component<FinalProps, States> {
               }}
               onChange={onChange}
             />
-          </td>
-          <td>
-            <ActionButtons>{this.renderEditAction(object)}</ActionButtons>
-          </td>
+
+            <ActionButtons>
+              {this.renderResendInvitation(object)}
+              {this.renderEditAction(object)}
+            </ActionButtons>
+          </AlignedTd>
         </tr>
       );
     });
@@ -231,8 +252,7 @@ class UserList extends React.Component<FinalProps, States> {
             <th>{__('Full name')}</th>
             <th>{__('Invitation status')}</th>
             <th>{__('Email')}</th>
-            <th>{__('Status')}</th>
-            <th />
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -250,11 +270,12 @@ class UserList extends React.Component<FinalProps, States> {
   render() {
     return (
       <List
-        title="Invite team members"
+        formTitle="Invite team members"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Team members') }
         ]}
+        title={__('Team members')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/21.svg"

@@ -1,30 +1,31 @@
-import { Button } from 'modules/common/components';
+import { Button, Form as CommonForm } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
-import * as React from 'react';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import React from 'react';
 import { ICommonFormProps } from '../types';
 
 type Props = {
-  generateDoc: () => any;
-  renderContent(): any;
+  renderButton?: (props: IButtonMutateProps) => JSX.Element;
+  generateDoc: (values: any) => any;
+  object?: any;
+  name?: string;
+  renderContent(formProps: IFormProps): any;
 };
 
 class Form extends React.Component<Props & ICommonFormProps> {
-  save = e => {
-    e.preventDefault();
-
-    this.props.save(
-      this.props.generateDoc(),
-      this.props.closeModal,
-      this.props.object
-    );
-  };
-
-  render() {
-    const { renderContent, closeModal } = this.props;
+  renderFormContent = (formProps: IFormProps) => {
+    const {
+      renderContent,
+      renderButton,
+      closeModal,
+      object,
+      name
+    } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
-      <form onSubmit={this.save}>
-        {renderContent()}
+      <>
+        {renderContent({ ...formProps })}
 
         <ModalFooter>
           <Button
@@ -36,12 +37,21 @@ class Form extends React.Component<Props & ICommonFormProps> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton &&
+            renderButton({
+              name: name || '',
+              values: this.props.generateDoc(values),
+              isSubmitted,
+              callback: closeModal,
+              object
+            })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <CommonForm renderContent={this.renderFormContent} />;
   }
 }
 

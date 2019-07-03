@@ -1,11 +1,7 @@
 import { Label, Tip, WithPermission } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
-import {
-  STORAGE_BOARD_KEY,
-  STORAGE_PIPELINE_KEY
-} from 'modules/deals/constants';
-import * as React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -15,7 +11,7 @@ const LeftNavigation = styled.aside`
   z-index: 10;
   flex-shrink: 0;
   overflow: hidden;
-  position: fixed;
+  position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
@@ -138,15 +134,6 @@ class Navigation extends React.Component<{
   render() {
     const { unreadConversationsCount } = this.props;
 
-    let dealsLink = '/deals/board';
-
-    const lastBoardId = localStorage.getItem(STORAGE_BOARD_KEY);
-    const lastPipelineId = localStorage.getItem(STORAGE_PIPELINE_KEY);
-
-    if (lastBoardId && lastPipelineId) {
-      dealsLink = `/deals/board?id=${lastBoardId}&pipelineId=${lastPipelineId}`;
-    }
-
     return (
       <LeftNavigation>
         <NavLink to="/">
@@ -167,22 +154,15 @@ class Navigation extends React.Component<{
           </WithPermission>
           <WithPermission action="showDeals">
             <Tip placement="right" text={__('Deal').toString()}>
-              <NavLink to={dealsLink}>
+              <NavLink to="/deal">
                 <NavIcon className="icon-piggy-bank" />
               </NavLink>
             </Tip>
           </WithPermission>
           <WithPermission action="showCustomers">
-            <Tip placement="right" text={__('Customers').toString()}>
-              <NavLink to="/customers">
+            <Tip placement="right" text={__('Contacts').toString()}>
+              <NavLink to="/contacts">
                 <NavIcon className="icon-users" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showCompanies">
-            <Tip placement="right" text={__('Companies').toString()}>
-              <NavLink to="/companies">
-                <NavIcon className="icon-briefcase" />
               </NavLink>
             </Tip>
           </WithPermission>
@@ -203,7 +183,7 @@ class Navigation extends React.Component<{
           <WithPermission action="showKnowledgeBase">
             <Tip placement="right" text={__('Knowledge Base').toString()}>
               <NavLink to="/knowledgeBase">
-                <NavIcon className="icon-clipboard" />
+                <NavIcon className="icon-book" />
               </NavLink>
             </Tip>
             <WithPermission action="showIntegrations">

@@ -4,7 +4,7 @@ import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
@@ -18,9 +18,12 @@ class CompanyDetails extends React.Component<Props> {
   render() {
     const { company, taggerRefetchQueries } = this.props;
 
+    const title = company.primaryName || 'Unknown';
+
     const breadcrumb = [
-      { title: __('Companies'), link: '/companies' },
-      { title: company.primaryName || 'N/A' }
+      { title: __('Contacts'), link: '/contacts' },
+      { title: __('Companies'), link: '/contacts/companies' },
+      { title }
     ];
 
     const content = (
@@ -29,7 +32,7 @@ class CompanyDetails extends React.Component<Props> {
           contentTypeId={company._id}
           contentType="company"
           toEmails={company.emails}
-          showEmail={true}
+          showEmail={false}
         />
         <ActivityLogs
           target={company.primaryName || ''}
@@ -45,7 +48,7 @@ class CompanyDetails extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         leftSidebar={
           <LeftSidebar
             {...this.props}

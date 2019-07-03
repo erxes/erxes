@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
   InsightContent,
@@ -76,19 +76,12 @@ class FirstResponse extends React.Component<Props> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('First Response Report') }
-    ];
-  }
-
   render() {
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('First Response Report')}
             submenu={menuInbox}
           />
         }

@@ -2,13 +2,6 @@ import { IForm, IFormIntegration } from 'modules/forms/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
-export interface IGoogleCredentials {
-  access_token: string;
-  scope: string;
-  token_type: string;
-  expiry_date: number;
-}
-
 export interface IMessengerApp {
   _id: string;
   name: string;
@@ -18,11 +11,6 @@ export interface ILink {
   twitter?: string;
   facebook?: string;
   youtube?: string;
-}
-
-export interface IFacebookApp {
-  id: string;
-  name: string;
 }
 
 export interface IPages {
@@ -64,6 +52,8 @@ export interface IMessengerData {
   isOnline?: boolean;
   timezone?: string;
   requireAuth?: boolean;
+  showChat?: boolean;
+  forceLogoutWhenResolve?: boolean;
   onlineHours?: IOnlineHour[];
   links?: ILink;
 }
@@ -88,17 +78,6 @@ export interface IFormData {
   redirectUrl?: string;
 }
 
-export interface ITwitterData {
-  info?: any;
-  token?: string;
-  tokenSecret?: string;
-}
-
-export interface IFacebookData {
-  appId: string;
-  pageIds: string[];
-}
-
 export interface IIntegration {
   _id: string;
   kind: string;
@@ -113,7 +92,6 @@ export interface IIntegration {
   createUrl: string;
   createModal: string;
   messengerData?: IMessengerData;
-  facebookData?: IFacebookData;
   uiOptions?: IUiOptions;
   formData?: IFormData;
   brand: IBrand;
@@ -152,20 +130,12 @@ export type IntegrationDetailQueryResponse = {
   refetch: () => void;
 };
 
-export type FacebookAppsListQueryResponse = {
-  integrationFacebookAppsList: IFacebookApp[];
-  refetch: () => void;
-  loading: boolean;
-};
-
 type By = { [key: string]: number };
 
 export type ByKind = {
   messenger: number;
   form: number;
-  twitter: number;
   facebook: number;
-  gmail: number;
 };
 
 type IntegrationsCount = {
@@ -193,17 +163,11 @@ export type FormIntegrationDetailQueryResponse = {
 };
 
 export type AccountsQueryResponse = {
-  accounts: IAccount[];
+  integrationsFetchApi: IAccount[];
   loading: boolean;
   refetch: () => void;
+  error?: Error;
 };
-
-export interface IGmailAttachment {
-  filename?: string;
-  mimeType?: string;
-  size?: number;
-  data?: string;
-}
 
 // mutation types
 export type SaveMessengerMutationVariables = {
@@ -232,21 +196,6 @@ export type SaveMessengerConfigsMutationResponse = {
   ) => any;
 };
 
-export type TwitterAuthParams = {
-  oauth_token: string;
-  oauth_verifier: string;
-};
-
-export type GmailAuthParams = {
-  code: string;
-};
-
-export type SaveTwitterMutationResponse = {
-  saveMutation: (
-    params: { variables: { brandId: string; accountId: string } }
-  ) => Promise<any>;
-};
-
 export type EditMessengerMutationVariables = {
   _id: string;
   name: string;
@@ -260,54 +209,6 @@ export type EditMessengerMutationResponse = {
       variables: EditMessengerMutationVariables;
     }
   ) => any;
-};
-
-export type CreateGmailMutationVariables = {
-  name: string;
-  brandId: string;
-  accountId: string;
-};
-
-export type CreateGmailMutationResponse = {
-  saveMutation: (
-    params: {
-      variables: CreateGmailMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-export type SendGmailMutationVariables = {
-  cc?: string;
-  bcc?: string;
-  toEmails?: string;
-  subject?: string;
-  body: string;
-  integrationId?: string;
-};
-
-export type SendGmailMutationResponse = {
-  integrationsSendGmail: (
-    params: {
-      variables: SendGmailMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-export type CreateFacebookMutationVariables = {
-  name: string;
-  brandId: string;
-  pageIds: string[];
-};
-
-export type MessengerAppsAddGoogleMeetMutationVariables = {
-  name: string;
-  accountId: string;
-};
-
-export type MessengerAppsAddGoogleMeetMutationResponse = {
-  saveMutation: (
-    params: { variables: MessengerAppsAddGoogleMeetMutationVariables }
-  ) => Promise<any>;
 };
 
 export type MessengerAppsAddLeadMutationVariables = {
@@ -334,14 +235,6 @@ export type MessengerAppsAddKnowledgebaseMutationResponse = {
   ) => Promise<any>;
 };
 
-export type CreateFacebookMutationResponse = {
-  saveMutation: (
-    params: {
-      variables: CreateFacebookMutationVariables & { accountId: string };
-    }
-  ) => Promise<any>;
-};
-
 export type AddIntegrationMutationVariables = {
   formData: IFormData;
   brandId: string;
@@ -365,12 +258,6 @@ export type EditIntegrationMutationVariables = {
   name: string;
   languageCode: string;
   formId: string;
-};
-
-export type LinkTwitterMutationResponse = {
-  accountsAddTwitter: (
-    { queryParams }: { queryParams: TwitterAuthParams }
-  ) => Promise<any>;
 };
 
 export type EditIntegrationMutationResponse = {

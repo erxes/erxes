@@ -3,7 +3,7 @@ import { MainBar } from 'modules/layout/components';
 import { MainLayout } from 'modules/layout/containers';
 import { MainWrapper } from 'modules/layout/styles';
 import { userConfirmation } from 'modules/settings/team/routes';
-import * as React from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
@@ -21,6 +21,8 @@ import OnboardRoutes from './modules/onboard/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
+import TaskRoutes from './modules/tasks/routes';
+import TicketRoutes from './modules/tickets/routes';
 
 const renderRoutes = currentUser => {
   if (currentUser) {
@@ -42,6 +44,8 @@ const renderRoutes = currentUser => {
             <TagsRoutes />
             <NotificationRoutes />
             <DealsRoutes />
+            <TicketRoutes />
+            <TaskRoutes />
           </MainWrapper>
         </MainLayout>
       </>

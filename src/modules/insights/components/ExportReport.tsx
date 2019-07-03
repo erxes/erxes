@@ -1,10 +1,9 @@
 import { IUser } from 'modules/auth/types';
-import { FullContent } from 'modules/common/styles/main';
 import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { IBrand } from '../../settings/brands/types';
 import {
@@ -15,7 +14,7 @@ import {
   InsightTitle,
   InsightWrapper
 } from '../styles';
-import { ExportArgs, IQueryParams } from '../types';
+import { IQueryParams } from '../types';
 import { OptionsType } from '../utils';
 import { InboxFilter, Sidebar } from './';
 
@@ -24,7 +23,7 @@ type Props = {
   users: IUser[];
   queryParams: IQueryParams;
   history: any;
-  exportReport: (args: ExportArgs) => void;
+  exportReport: (args: { type: string; userId?: string }) => void;
 };
 
 class ExportReport extends React.Component<Props, { userId: string }> {
@@ -34,12 +33,12 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     this.state = { userId: '' };
   }
 
-  renderBox(name: string, image: string, queryName: string, type?: string) {
+  renderBox(name: string, image: string, type: string) {
     const { exportReport } = this.props;
 
     return (
-      <Box onClick={exportReport.bind(this, { queryName, type })}>
-        <a>
+      <Box onClick={exportReport.bind(this, { type })}>
+        <a href="#name">
           <img src={image} alt={name} />
           <span>{__(name)}</span>
         </a>
@@ -73,7 +72,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     if (!userId) {
       Alert.error('Choose user');
     } else {
-      exportReport({ queryName: 'insightFirstResponseReportExport', userId });
+      exportReport({ type: 'firstResponseDuration', userId });
     }
   };
 
@@ -97,28 +96,27 @@ class ExportReport extends React.Component<Props, { userId: string }> {
         <InsightContent>
           <InsightTitle>{__('Export Report')}</InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Volume Report By Date',
-                '/images/icons/erxes-14.svg',
-                'insightVolumeReportExport'
+                '/images/icons/erxes-21.svg',
+                'volumeByDate'
               )}
 
               {this.renderBox(
                 'Volume Report By Time',
                 '/images/icons/erxes-14.svg',
-                'insightVolumeReportExport',
-                'time'
+                'volumeByTime'
               )}
 
               {this.renderBox(
-                'Operator Activiy Report',
+                'Operator Activity Report',
                 '/images/icons/erxes-16.svg',
-                'insightActivityReportExport'
+                'activity'
               )}
             </div>
-          </FullContent>
+          </FlexRow>
 
           <InsightTitle>
             <FlexRow>
@@ -137,23 +135,22 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             </FlexRow>
           </InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Duration of First Response Report',
-                '/images/icons/erxes-17.svg',
-                'insightFirstResponseReportExport'
+                '/images/icons/erxes-06.svg',
+                'firstResponseDuration'
               )}
 
               {this.renderBox(
                 'First Response Report by Operators',
-                '/images/icons/erxes-18.svg',
-                'insightFirstResponseReportExport',
-                'operator'
+                '/images/icons/erxes-15.svg',
+                'firstResponseOperators'
               )}
 
               <Box onClick={this.exportWithUser}>
-                <a>
+                <a href="#img">
                   <img
                     src="/images/icons/erxes-16.svg"
                     alt="First Response Report by Operator"
@@ -162,7 +159,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                 </a>
               </Box>
             </div>
-          </FullContent>
+          </FlexRow>
 
           <InsightTitle>
             <FlexRow>
@@ -170,35 +167,25 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             </FlexRow>
           </InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Tag Report',
-                '/images/icons/erxes-17.svg',
-                'insightTagReportExport'
+                '/images/icons/erxes-18.svg',
+                'tag'
               )}
             </div>
-          </FullContent>
+          </FlexRow>
         </InsightContent>
       </InsightWrapper>
     );
-  }
-
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('Export Report') }
-    ];
   }
 
   render() {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
-            submenu={menuInbox}
-          />
+          <Wrapper.Header title={__('Export Report')} submenu={menuInbox} />
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}

@@ -34,11 +34,6 @@ export interface IPieChartData {
   value: number;
 }
 
-export interface InsightData {
-  integration: IPieChartData[];
-  tag: IPieChartData[];
-}
-
 export interface IPunchCardData {
   count: number;
   day: number;
@@ -63,6 +58,30 @@ export type DealPunchCardQueryResponse = {
 
 export type SummaryDataQueryResponse = {
   insightsSummaryData: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationCustomerAvgQueryResponse = {
+  insightsConversationCustomerAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationInternalAvgQueryResponse = {
+  insightsConversationInternalAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationOverallAvgQueryResponse = {
+  insightsConversationOverallAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationSummaryDataQueryResponse = {
+  insightsConversationSummary: {
+    avg: SummaryData[];
+    trend: IChartParams[];
+    teamMembers: IChartParams[];
+  };
   loading: boolean;
 };
 
@@ -92,8 +111,13 @@ export type SummaryQueryResponse = {
   loading: boolean;
 };
 
-export type PieChartQueryResponse = {
-  insights: { tag: IPieChartData[]; integration: IPieChartData[] };
+export type IntegrationChartQueryResponse = {
+  insightsIntegrations: IPieChartData[];
+  loading: boolean;
+};
+
+export type TagChartQueryResponse = {
+  insightsTags: IPieChartData[];
   loading: boolean;
 };
 
@@ -119,10 +143,4 @@ export type ResponseCloseQueryResponse = {
 export type VolumeReportExportQueryResponse = {
   insightVolumeReportExport: string;
   loading: boolean;
-};
-
-export type ExportArgs = {
-  queryName: string;
-  type?: string;
-  userId?: string;
 };

@@ -80,16 +80,12 @@ export const CUSTOMER_BASIC_INFO = {
 
 export const CUSTOMER_DATAS = {
   messengerData: 'Messenger Data',
-  twitterData: 'Twitter Data',
-  facebookData: 'Facebook Data',
   visitorContactInfo: 'Visitor contact info',
   owner: 'Owner',
   links: 'Links',
 
   ALL: [
     { field: 'messengerData', label: 'Messenger Data' },
-    { field: 'twitterData', label: 'Twitter Data' },
-    { field: 'facebookData', label: 'Facebook Data' },
     { field: 'visitorContactInfo', label: 'Visitor contact info' },
     { field: 'owner', label: 'Owner' },
     { field: 'links', label: 'Links' }
@@ -98,13 +94,10 @@ export const CUSTOMER_DATAS = {
 
 export const LEAD_STATUS_TYPES = {
   new: 'New',
-  open: 'Open',
   inProgress: 'In Progress',
-  openDeal: 'Open Deal',
-  unqualified: 'Unqualified',
   attemptedToContact: 'Attempted to contact',
-  connected: 'Connected',
-  badTiming: 'Bad Timing'
+  badTiming: 'Bad Timing',
+  unqualified: 'Unqualified'
 };
 
 export const LIFECYCLE_STATE_TYPES = {

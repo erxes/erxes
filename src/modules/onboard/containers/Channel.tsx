@@ -11,7 +11,7 @@ import {
   RemoveChannelMutationVariables
 } from 'modules/settings/channels/types';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Channel } from '../components';
@@ -91,6 +91,9 @@ const SidebarContainer = (props: FinalProps) => {
 
         setTimeout(() => {
           history.push('/');
+          Alert.info(
+            "Hooray and Congratulations! You've completed the initial setup!"
+          );
         }, 800);
       })
       .catch(error => {

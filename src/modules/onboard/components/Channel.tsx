@@ -8,10 +8,10 @@ import {
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IChannel } from 'modules/settings/channels/types';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import * as RTG from 'react-transition-group';
+import RTG from 'react-transition-group';
 import { IIntegration } from '../types';
 import { ChannelList } from './';
 import { Description, Footer, TopContent } from './styles';
@@ -117,8 +117,8 @@ class ChannelForm extends React.Component<Props, State> {
         <Description>
           <Icon icon="checked-1" /> {__('You already have')}{' '}
           <b>{channelsTotalCount}</b> {__('channels')}.{' '}
-          <a href="javascript:;" onClick={this.toggleChannels}>
-            {showChannels ? __('Show') : __('Hide')} ›
+          <a href="#toggle" onClick={this.toggleChannels}>
+            {showChannels ? __('Hide') : __('Show')} ›
           </a>
         </Description>
 
@@ -136,8 +136,7 @@ class ChannelForm extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { members, integrations, channels, remove } = this.props;
-    const { showChannels } = this.state;
+    const { members, integrations } = this.props;
 
     const self = this;
 
@@ -152,18 +151,19 @@ class ChannelForm extends React.Component<Props, State> {
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Name</ControlLabel>
+          <ControlLabel required={true}>Name</ControlLabel>
 
           <FormControl
             value={this.state.channelName}
             onChange={this.handleInput}
             type="text"
+            autoFocus={true}
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Users</ControlLabel>
+          <ControlLabel required={true}>Users</ControlLabel>
 
           <Select
             placeholder={__('Choose members')}
@@ -175,7 +175,7 @@ class ChannelForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Messengers</ControlLabel>
+          <ControlLabel required={true}>Messengers</ControlLabel>
 
           <Select
             placeholder={__('Choose messengers')}
@@ -210,10 +210,10 @@ class ChannelForm extends React.Component<Props, State> {
               disabled={this.isFilledValues()}
               onClick={this.save}
             >
-              {__('Finish')} <Icon icon="rightarrow-2" />
+              {__('Finish')} <Icon icon="checked" />
             </Button>
           </div>
-          <Link to="/inbox">{__('Go to Inbox')} »</Link>
+          <Link to="/inbox/index">{__('Go to Inbox')} »</Link>
         </Footer>
       </form>
     );

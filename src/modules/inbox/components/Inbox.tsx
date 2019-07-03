@@ -1,8 +1,8 @@
 import { IUser } from 'modules/auth/types';
-import { __, can } from 'modules/common/utils';
+import { can } from 'modules/common/utils';
 import { Header } from 'modules/layout/components';
 import { Contents } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { ConversationDetail } from '../containers/conversationDetail';
 import { Sidebar } from '../containers/leftSidebar';
 
@@ -13,21 +13,18 @@ type Props = {
 };
 
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
-  const breadcrumb = [{ title: __('Inbox') }];
-
-  const menuInbox = [{ title: 'Inbox', link: '/inbox' }];
+  const menuInbox = [
+    { title: 'Inbox', link: '/inbox/index' },
+    { title: 'Ticket', link: '/inbox/ticket' }
+  ];
 
   if (can('showInsights', currentUser)) {
-    menuInbox.push({ title: 'Insights', link: '/insights' });
+    menuInbox.push({ title: 'Insights', link: '/inbox/insights' });
   }
 
   return (
     <Contents>
-      <Header
-        queryParams={queryParams}
-        breadcrumb={breadcrumb}
-        submenu={menuInbox}
-      />
+      <Header title={'Inbox'} queryParams={queryParams} submenu={menuInbox} />
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}
