@@ -76,7 +76,7 @@ class UserDetails extends React.Component<Props> {
     const { user, channels, renderEditForm } = this.props;
     const { details = {} } = user;
 
-    const title = details.fullName || 'N/A';
+    const title = details.fullName || 'Unknown';
 
     const breadcrumb = [{ title: 'Users', link: '/settings/team' }, { title }];
 
