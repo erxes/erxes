@@ -57,7 +57,7 @@ export default class {
     this.queryData = activities;
 
     this.currentUser = user;
-    this.target = target || 'N/A';
+    this.target = target || 'Unknown';
   }
 
   /**
