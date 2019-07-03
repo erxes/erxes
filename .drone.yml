@@ -1,70 +1,75 @@
 pipeline:
-  ping:
-    image: mongo:3.6
-    commands:
-      - sleep 15
-      - mongo --host mongo
+  # ping:
+  #   image: mongo:3.6
+  #   commands:
+  #     - sleep 15
+  #     - mongo --host mongo
 
   test:
     image: erxes/runner:latest
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
     commands:
+      - pwd
+      - ls -a
       - node -v
       - npm -v
       - yarn --version
       - yarn install
-      - yarn lint
-      - yarn tsc
-      - mkdir src/private/xlsTemplateOutputs
-      - yarn test
+      # - yarn lint
+      # - yarn tsc
+      # - mkdir src/private/xlsTemplateOutputs
+      # - yarn test
+      - ls -a
 
   build:
     image: erxes/runner:latest
     commands:
+      - git branch
+      - ls -a
       - yarn build
+      - ls -a
+      - pwd
     when:
       branch:
-        - master
-        - develop
-      event:
-        - push
-        - tag
+        - drone-test
+      # event:
+      #   - push
+      #   - tag
 
-  docker_publish:
-    image: plugins/docker
-    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
-    dockerfile: Dockerfile
-    secrets:
-      - source: docker_hub_username
-        target: docker_username
-      - source: docker_hub_password
-        target: docker_password
-    tags:
-      - ${DRONE_BRANCH}
-    when:
-      branch:
-        - master
-        - develop
-      event:
-        - push
+  # docker_publish:
+  #   image: plugins/docker
+  #   repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+  #   dockerfile: Dockerfile
+  #   secrets:
+  #     - source: docker_hub_username
+  #       target: docker_username
+  #     - source: docker_hub_password
+  #       target: docker_password
+  #   tags:
+  #     - ${DRONE_BRANCH}
+  #   when:
+  #     branch:
+  #       - drone-test
+  #     event:
+  #       - push
 
-  docker_publish_tag:
-    image: plugins/docker
-    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
-    dockerfile: Dockerfile
-    secrets:
-      - source: docker_hub_username
-        target: docker_username
-      - source: docker_hub_password
-        target: docker_password
-    tags:
-      - ${DRONE_TAG}
-    when:
-      event:
-        - tag
+  # docker_publish_tag:
+  #   image: plugins/docker
+  #   repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+  #   dockerfile: Dockerfile
+  #   secrets:
+  #     - source: docker_hub_username
+  #       target: docker_username
+  #     - source: docker_hub_password
+  #       target: docker_password
+  #   tags:
+  #     - ${DRONE_TAG}
+  #   when:
+  #     event:
+  #       - tag
 
-services:
-  mongo:
-    image: mongo:3.6
-    command: [--smallfiles]
+# services:
+#   mongo:
+#     image: mongo:3.6
+#     command: [--smallfiles]
