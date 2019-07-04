@@ -680,6 +680,7 @@ export const boardFactory = (params: IBoardFactoryInput = {}) => {
 interface IPipelineFactoryInput {
   boardId?: string;
   type?: string;
+  bgColor?: string;
 }
 
 export const pipelineFactory = (params: IPipelineFactoryInput = {}) => {
@@ -688,6 +689,7 @@ export const pipelineFactory = (params: IPipelineFactoryInput = {}) => {
     boardId: params.boardId || faker.random.word(),
     type: params.type || BOARD_TYPES.DEAL,
     visibility: 'public',
+    bgColor: params.bgColor || 'fff',
   });
 
   return pipeline.save();
