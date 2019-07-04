@@ -3,10 +3,7 @@ import {
   STORAGE_PIPELINE_KEY
 } from 'modules/boards/constants';
 import { Amount } from 'modules/boards/styles/stage';
-import { Tip } from 'modules/common/components';
-import moment from 'moment';
 import React from 'react';
-import { ItemDate } from './styles/common';
 import { IDraggableLocation, IItemMap } from './types';
 
 type Options = {
@@ -116,18 +113,6 @@ export const renderAmount = amount => {
         </li>
       ))}
     </Amount>
-  );
-};
-
-export const renderDate = (date, format = 'YYYY-MM-DD') => {
-  if (!date) {
-    return null;
-  }
-
-  return (
-    <Tip text={moment(date).format(format)}>
-      <ItemDate>{moment(date).format('lll')}</ItemDate>
-    </Tip>
   );
 };
 
