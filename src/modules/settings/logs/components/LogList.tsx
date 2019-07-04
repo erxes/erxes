@@ -7,9 +7,9 @@ import {
 } from 'modules/common/components';
 import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
-import * as moment from 'moment';
+import moment from 'moment';
 import * as React from 'react';
-import * as Datetime from 'react-datetime';
+import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import { FilterItem, FilterWrapper } from '../styles';
 import { ILog } from '../types';
