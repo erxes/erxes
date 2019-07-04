@@ -24,7 +24,11 @@ function CustomerSection({ name, customers, onSelect }: Props) {
 
   const mailTo = email => {
     if (email) {
-      return <a href={`mailto:${email}`}>{email}</a>;
+      return (
+        <a target="_parent" href={`mailto:${email}`} rel="noopener noreferrer">
+          {email}
+        </a>
+      );
     }
     return null;
   };
@@ -72,9 +76,9 @@ function CustomerSection({ name, customers, onSelect }: Props) {
           title="Associate"
           size="lg"
           trigger={
-            <a href="#add">
+            <button>
               <Icon icon="add" />
-            </a>
+            </button>
           }
           content={customerChooser}
         />
