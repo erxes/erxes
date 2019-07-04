@@ -72,7 +72,8 @@
     "subscriptions-transport-ws": "0.8.3",
     "ua-parser-js": "^0.7.17",
     "validator": "^10.11.0",
-    "xss": "^1.0.3"
+    "xss": "^1.0.3",
+    "snyk": "^1.189.0"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,json,css}": [
@@ -96,7 +97,9 @@
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "postinstall": "opencollective postinstall",
     "generateVersion": "node commands/generateVersion.js",
-    "release": "release-it"
+    "release": "release-it",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",
@@ -114,7 +117,6 @@
     "prettier": "^1.8.2",
     "react-scripts": "^3.0.1",
     "release-it": "^12.3.0",
-    "snyk": "^1.108.2",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
@@ -126,5 +128,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "snyk": true
 }
