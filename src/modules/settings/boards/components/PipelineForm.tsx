@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { IPipeline, IStage } from 'modules/boards/types';
 import {
   Button,
   ControlLabel,
@@ -12,7 +13,6 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
-import { IPipeline, IStage } from '../types';
 import { Stages } from './';
 
 type Props = {

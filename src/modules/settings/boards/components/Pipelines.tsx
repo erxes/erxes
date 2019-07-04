@@ -1,3 +1,4 @@
+import { IPipeline } from 'modules/boards/types';
 import { collectOrders } from 'modules/boards/utils';
 import {
   Button,
@@ -12,7 +13,6 @@ import React from 'react';
 import { PipelineRow } from '.';
 import { PipelineForm } from '../containers';
 import { PipelineContainer } from '../styles';
-import { IPipeline } from '../types';
 
 type Props = {
   type: string;

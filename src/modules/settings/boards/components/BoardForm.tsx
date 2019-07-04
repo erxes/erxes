@@ -1,3 +1,4 @@
+import { IBoard } from 'modules/boards/types';
 import {
   Button,
   ControlLabel,
@@ -8,7 +9,6 @@ import {
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { IBoard } from '../types';
 
 type Props = {
   board: IBoard;

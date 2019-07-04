@@ -57,6 +57,7 @@ export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 export interface IPipeline {
   _id: string;
   name: string;
+  boardId: string;
   visibility: string;
   members?: IUser[];
   memberIds?: string[];
@@ -64,8 +65,9 @@ export interface IPipeline {
 
 export interface IStage {
   _id: string;
-  name?: string;
-  type?: string;
+  name: string;
+  type: string;
+  probability: string;
   index?: number;
   itemId?: string;
   amount?: any;
@@ -117,6 +119,7 @@ export interface IItemMap {
 export type BoardsQueryResponse = {
   boards: IBoard[];
   loading: boolean;
+  refetch: () => void;
 };
 
 export type PipelinesQueryResponse = {
