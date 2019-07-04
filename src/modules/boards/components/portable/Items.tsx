@@ -50,9 +50,9 @@ class Items extends React.Component<Props> {
     } = this.props;
 
     const trigger = (
-      <a href="#add">
+      <button>
         <Icon icon="add" />
-      </a>
+      </button>
     );
 
     const content = props => (

@@ -42,9 +42,9 @@ class Boards extends React.Component<Props, {}> {
 
     const addBoard = (
       <HelperButtons>
-        <a href="#add">
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 

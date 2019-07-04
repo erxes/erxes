@@ -116,7 +116,7 @@ const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
 
-  button {
+  > button {
     width: 100%;
     margin-bottom: 5px;
     margin-left: 0;
@@ -177,8 +177,12 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   text-align: right;
   position: relative;
 
-  &:first-child:before {
-    display: none;
+  &:first-child {
+    flex: unset;
+
+    &:before {
+      display: none;
+    }
   }
 
   &:before {
@@ -193,11 +197,12 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     position: absolute;
   }
 
-  a {
+  span {
     position: relative;
     z-index: 10;
     cursor: pointer;
     background: ${colors.bgLight};
+    display: inline-block;
   }
 
   i {

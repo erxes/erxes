@@ -30,12 +30,11 @@ class TeamMembers extends React.Component<Props> {
 
         <InsightUserData>
           <UserProfile>
-            <a href="#img">
-              <img
-                src={data.avatar || '/images/avatar-colored.svg'}
-                alt={data.fullName}
-              />
-            </a>
+            <img
+              src={data.avatar || '/images/avatar-colored.svg'}
+              alt={data.fullName}
+            />
+
             <FullName>{data.fullName}</FullName>
 
             {userData.time ? (
