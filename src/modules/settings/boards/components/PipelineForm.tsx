@@ -36,22 +36,14 @@ class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { pipeline, stages, members } = this.props;
-
-    const memberIds = pipeline ? pipeline.memberIds || [] : [];
-
-    let selectedMembers: IUser[] = [];
-
-    if (pipeline) {
-      selectedMembers = members.filter(member =>
-        memberIds.includes(member._id)
-      );
-    }
+    const { pipeline, stages } = this.props;
 
     this.state = {
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
-      selectedMembers: this.generateMembersParams(selectedMembers)
+      selectedMembers: this.generateMembersParams(
+        pipeline ? pipeline.members : []
+      )
     };
   }
 
@@ -72,7 +64,10 @@ class PipelineForm extends React.Component<Props, State> {
   generateMembersParams = members => {
     return members.map(member => ({
       value: member._id,
-      label: (member.details && member.details.fullName) || member.email || ''
+      label:
+        (member.details && member.details.fullName) ||
+        member.email ||
+        member.username
     }));
   };
 

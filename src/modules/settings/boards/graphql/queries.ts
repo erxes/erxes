@@ -24,6 +24,14 @@ const pipelines = `
       boardId
       visibility
       memberIds
+      members {
+        _id
+        email
+        username
+        details {
+          fullName
+        }
+      }
     }
   }
 `;
