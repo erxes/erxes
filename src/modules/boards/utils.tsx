@@ -119,3 +119,11 @@ export const renderAmount = amount => {
 export const invalidateCache = () => {
   localStorage.setItem('cacheInvalidated', 'true');
 };
+
+export const toArray = (item: string | string[] = []) => {
+  if (item instanceof Array) {
+    return item;
+  }
+
+  return [item];
+};

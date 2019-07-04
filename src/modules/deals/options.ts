@@ -1,3 +1,4 @@
+import { toArray } from 'modules/boards/utils';
 import { DealEditForm, PortableDeal } from './components';
 import { DealItem } from './containers/';
 import { mutations, queries } from './graphql';
@@ -38,13 +39,15 @@ const options = {
     copySuccessText: 'You successfully copied a deal'
   },
   getExtraParams: (queryParams: any) => {
+    const extraParams: any = {};
+
     const productIds = queryParams.productIds;
 
-    if (!productIds || queryParams.productIds instanceof Array) {
-      return { productIds };
+    if (productIds) {
+      extraParams.productIds = toArray(productIds);
     }
 
-    return { productIds: [productIds] };
+    return extraParams;
   }
 };
 
