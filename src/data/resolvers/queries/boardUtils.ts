@@ -129,11 +129,11 @@ export const generateTicketCommonFilters = async (args: any, extraParams?: any) 
   const { priority, source } = extraParams || args;
 
   if (priority) {
-    filter.priority = priority;
+    filter.priority = contains(priority);
   }
 
   if (source) {
-    filter.source = source;
+    filter.source = contains(source);
   }
 
   return filter;
@@ -144,7 +144,7 @@ export const generateTaskCommonFilters = async (args: any, extraParams?: any) =>
   const { priority } = extraParams || args;
 
   if (priority) {
-    filter.priority = priority;
+    filter.priority = contains(priority);
   }
 
   return filter;

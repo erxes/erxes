@@ -43,8 +43,8 @@ export const queries = `
     nextMonth: String
     noCloseDate: String
     overdue: String
-    priority: String
-    source: String
+    priority: [String]
+    source: [String]
   ): [Ticket]
 `;
 
