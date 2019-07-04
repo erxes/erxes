@@ -87,6 +87,7 @@ export interface IItem {
   customers: ICustomer[];
   pipeline: IPipeline;
   stage?: IStage;
+  priority?: string;
 }
 
 export interface IDraggableLocation {

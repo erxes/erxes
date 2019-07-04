@@ -4,6 +4,7 @@ import {
 } from 'modules/boards/constants';
 import { Amount } from 'modules/boards/styles/stage';
 import React from 'react';
+import PriorityIndicator from './components/editForm/PriorityIndicator';
 import { IDraggableLocation, IItemMap } from './types';
 
 type Options = {
@@ -126,4 +127,12 @@ export const toArray = (item: string | string[] = []) => {
   }
 
   return [item];
+};
+
+export const renderPriority = (priority?: string) => {
+  if (!priority) {
+    return null;
+  }
+
+  return <PriorityIndicator value={priority} />;
 };
