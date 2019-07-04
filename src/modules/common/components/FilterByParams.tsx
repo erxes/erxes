@@ -71,7 +71,7 @@ class FilterByParams extends React.Component<IProps, State> {
             return (
               <li key={field._id}>
                 <a
-                  href="#link"
+                  href="#param"
                   tabIndex={0}
                   className={
                     router.getParam(history, [paramKey]) === field._id

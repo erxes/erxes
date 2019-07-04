@@ -22,7 +22,11 @@ export default class AppMessage extends React.Component<Props, {}> {
           </UserInfo>
           <CallButton>
             <h5>Meeting Ready</h5>
-            <a href={messengerAppData.hangoutLink}>
+            <a
+              href={messengerAppData.hangoutLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button>Join Call</Button>
             </a>
           </CallButton>

@@ -32,7 +32,7 @@ class LifecycleStateFilter extends React.Component<IProps> {
             return (
               <li key={Math.random()}>
                 <a
-                  href="#active"
+                  href="#filter"
                   tabIndex={0}
                   className={
                     router.getParam(history, [paramKey]) === value
