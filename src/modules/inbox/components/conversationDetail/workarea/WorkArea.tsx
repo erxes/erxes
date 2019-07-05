@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { Button, Icon, Label, Tags } from 'modules/common/components';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import { IAttachmentPreview } from 'modules/common/types';
@@ -23,12 +24,14 @@ import {
 } from '../../../types';
 import Conversation from './conversation/Conversation';
 import ConvertTo from './ConvertTo';
+import IntegrationBox from './IntegrationBox';
 import Participators from './Participators';
 import TypingIndicator from './TypingIndicator';
 
 type Props = {
   queryParams?: any;
   title?: string;
+  currentUser: IUser;
   currentConversationId?: string;
   currentConversation: IConversation;
   conversationMessages: IMessage[];
@@ -126,9 +129,12 @@ export default class WorkArea extends React.Component<Props, State> {
       conversationMessages,
       addMessage,
       loading,
-      typingInfo
+      typingInfo,
+      currentUser
     } = this.props;
 
+    const { integration } = currentConversation;
+    const { kind } = integration;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
@@ -210,9 +216,23 @@ export default class WorkArea extends React.Component<Props, State> {
       </ConversationWrapper>
     );
 
+    const renderContentsations =
+      kind === 'gmail' ? (
+        <IntegrationBox
+          email={currentUser.email}
+          conversationId={currentConversation._id}
+        />
+      ) : (
+        <ContentBox>{content}</ContentBox>
+      );
+
     return (
       <>
         {actionBar}
+        <IntegrationBox
+          email={currentUser.email}
+          conversationId={currentConversation._id}
+        />
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>

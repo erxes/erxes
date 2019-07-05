@@ -326,6 +326,11 @@ const NoHeight = styled.div`
   height: auto;
 `;
 
+const IFrameBox = styled.iframe`
+  height: 100%;
+  width: 100%;
+`;
+
 export {
   PopoverButton,
   ConversationWrapper,
@@ -354,5 +359,6 @@ export {
   AssignTrigger,
   Mask,
   MaskWrapper,
-  NoHeight
+  NoHeight,
+  IFrameBox
 };

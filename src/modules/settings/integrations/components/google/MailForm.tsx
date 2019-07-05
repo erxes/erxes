@@ -7,7 +7,8 @@ import {
   FormGroup,
   Icon,
   Spinner,
-  Tip
+  Tip,
+  Uploader
 } from 'modules/common/components';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
@@ -48,7 +49,7 @@ type State = {
   isBcc?: boolean;
   content: string;
   integrations: IIntegration[];
-  attachments: IGmailAttachment[];
+  attachments: any[];
   totalFileSize: number;
   isUploading: boolean;
 };
@@ -78,10 +79,6 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  onEditorChange = e => {
-    this.setState({ content: e.editor.getData() });
-  };
-
   generateDoc = (values: {
     to: string;
     cc: string;
@@ -104,8 +101,16 @@ class MailForm extends React.Component<Props, State> {
     };
   };
 
+  onEditorChange = e => {
+    this.setState({ content: e.editor.getData() });
+  };
+
   onClick = <T extends keyof State>(name: T) => {
     this.setState(({ [name]: true } as unknown) as Pick<State, keyof State>);
+  };
+
+  onChangeAttachment = attachments => {
+    this.setState({ attachments });
   };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -266,16 +271,6 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <EditorFooter>
-        <Tip text={__('Attach file')}>
-          <label>
-            <Icon icon="attach" />
-            <input
-              type="file"
-              onChange={this.handleFileInput}
-              multiple={true}
-            />
-          </label>
-        </Tip>
         <div>
           {this.renderCancelButton()}
           {renderButton({
@@ -338,6 +333,14 @@ class MailForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>Subject:</ControlLabel>
           <FormControl {...formProps} name="subject" required={true} />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Attachments: </ControlLabel>
+          <Uploader
+            defaultFileList={this.state.attachments || []}
+            onChange={this.onChangeAttachment}
+          />
         </FormGroup>
 
         <FormGroup>

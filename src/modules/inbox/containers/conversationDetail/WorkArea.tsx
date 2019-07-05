@@ -297,6 +297,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
             conversationId: currentId,
             limit: integration.kind === 'messenger' ? limit : 0
           },
+          skip: integration.kind === 'gmail',
           fetchPolicy: 'network-only'
         };
       }
@@ -305,7 +306,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       gql(queries.conversationMessagesTotalCount),
       {
         name: 'messagesTotalCountQuery',
-        options: ({ currentId }) => ({
+        options: ({ currentId, currentConversation }) => ({
           variables: { conversationId: currentId },
           fetchPolicy: 'network-only'
         })
