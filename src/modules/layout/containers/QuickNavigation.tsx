@@ -3,7 +3,7 @@ import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
-import { QuickNavigation } from '../components';
+import QuickNavigation from '../components/QuickNavigation';
 
 const QuickNavigationContainer = props => {
   const logout = () => {

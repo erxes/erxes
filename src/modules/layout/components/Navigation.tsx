@@ -1,4 +1,6 @@
-import { Label, Tip, WithPermission } from 'modules/common/components';
+import Label from 'modules/common/components/Label';
+import Tip from 'modules/common/components/Tip';
+import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
 import React from 'react';

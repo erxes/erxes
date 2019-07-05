@@ -1,5 +1,5 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import { TicketItem } from 'modules/tickets/components/';
+import TicketItem from 'modules/tickets/components/TicketItem';
 import React from 'react';
 import { ITicket } from '../types';
 

@@ -1,4 +1,4 @@
-import { MainActionBar } from 'modules/boards/components';
+import MainActionBar from 'modules/boards/components/MainActionBar';
 import { PRIORITIES } from 'modules/boards/constants';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import { IOption } from 'modules/common/types';

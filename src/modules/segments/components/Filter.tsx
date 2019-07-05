@@ -1,8 +1,6 @@
-import {
-  DataWithLoader,
-  DropdownToggle,
-  Icon
-} from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';

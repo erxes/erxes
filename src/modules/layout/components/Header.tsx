@@ -1,4 +1,6 @@
-import { BreadCrumb, Filter, Submenu } from 'modules/common/components';
+import BreadCrumb from 'modules/common/components/breadcrumb/BreadCrumb';
+import Filter from 'modules/common/components/filter/Filter';
+import Submenu from 'modules/common/components/submenu/Submenu';
 import { dimensions } from 'modules/common/styles';
 import { __, setTitle } from 'modules/common/utils';
 import React from 'react';

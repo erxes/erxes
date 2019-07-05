@@ -1,11 +1,12 @@
-import { Board, MainActionBar } from 'modules/boards/containers';
+import Board from 'modules/boards/containers/Board';
+import MainActionBar from 'modules/boards/containers/MainActionBar';
 import {
   BoardContainer,
   BoardContent,
   ScrolledContent
 } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
-import { Header } from 'modules/layout/components';
+import Header from 'modules/layout/components/Header';
 import React from 'react';
 import { TaskMainActionBar } from '.';
 import options from '../options';

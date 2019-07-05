@@ -1,4 +1,5 @@
-import { FilterableList, Spinner } from 'modules/common/components';
+import FilterableList from 'modules/common/components/filterableList/FilterableList';
+import Spinner from 'modules/common/components/Spinner';
 import { __ } from 'modules/common/utils';
 import { ITag, ITagTypes } from 'modules/tags/types';
 import React from 'react';

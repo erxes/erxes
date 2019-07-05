@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Col, Grid } from 'react-bootstrap';

@@ -1,4 +1,4 @@
-import { Chip } from 'modules/common/components';
+import Chip from 'modules/common/components/Chip';
 import { IChannel } from 'modules/settings/channels/types';
 import React from 'react';
 

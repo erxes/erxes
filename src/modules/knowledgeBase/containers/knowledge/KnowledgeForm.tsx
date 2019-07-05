@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { queries } from 'modules/settings/brands/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';
-import { KnowledgeForm } from '../../components';
+import KnowledgeForm from '../../components/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
 
 type Props = {

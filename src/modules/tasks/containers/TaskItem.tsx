@@ -1,6 +1,6 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import React from 'react';
-import { TaskItem } from '../components/';
+import TaskItem from '../components/TaskItem';
 import { ITask } from '../types';
 
 type Props = {

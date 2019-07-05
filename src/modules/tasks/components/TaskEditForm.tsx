@@ -1,9 +1,10 @@
 import { IUser } from 'modules/auth/types';
-import { EditForm } from 'modules/boards/components/editForm';
-import { PriorityIndicator } from 'modules/boards/components/editForm';
+import EditForm from 'modules/boards/components/editForm/EditForm';
+import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
 import { PRIORITIES } from 'modules/boards/constants';
 import { IOptions } from 'modules/boards/types';
-import { ControlLabel, FormGroup } from 'modules/common/components';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import React from 'react';
 import Select from 'react-select-plus';

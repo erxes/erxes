@@ -1,5 +1,5 @@
 import { ContentState, EditorState, getDefaultKeyBinding } from 'draft-js';
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import {
   createStateFromHTML,
   ErxesEditor,

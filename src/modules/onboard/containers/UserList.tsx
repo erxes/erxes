@@ -4,7 +4,7 @@ import { queries as teamQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { UserList } from '../components';
+import UserList from '../components/UserList';
 import { mutations } from '../graphql';
 import {
   UserStatusChangeMutationResponse,

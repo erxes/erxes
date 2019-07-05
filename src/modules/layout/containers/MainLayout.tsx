@@ -1,7 +1,7 @@
 import { AppConsumer, AppProvider } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import React from 'react';
-import { MainLayout } from '../components';
+import MainLayout from '../components/MainLayout';
 
 type Props = {
   currentUser?: IUser;

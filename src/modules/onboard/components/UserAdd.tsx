@@ -1,10 +1,8 @@
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  Icon
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
@@ -17,7 +15,7 @@ import {
   RemoveRow
 } from '../../settings/team/styles';
 import { IInvitationEntry } from '../../settings/team/types';
-import { UserList } from '../containers';
+import UserList from '../containers/UserList';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {

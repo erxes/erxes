@@ -1,7 +1,9 @@
-import { Icon, Spinner } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Sidebar, Wrapper } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
 import { ISegment, ISegmentDoc, ISegmentField } from '../types';

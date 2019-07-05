@@ -1,5 +1,7 @@
 import debounce from 'lodash/debounce';
-import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import { dateUnits, operators, types } from 'modules/customers/constants';
 import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';

@@ -66,6 +66,7 @@
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.19.1",
     "scriptjs": "^2.5.8",
+    "source-map-explorer": "^2.0.1",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
@@ -96,7 +97,8 @@
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "postinstall": "opencollective postinstall",
     "generateVersion": "node commands/generateVersion.js",
-    "release": "release-it"
+    "release": "release-it",
+    "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",

@@ -4,7 +4,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { withProps } from '../../common/utils';
-import { Widget } from '../components';
+import Widget from '../components/Widget';
 import { queries } from '../graphql';
 import { NotificationsCountQueryResponse } from '../types';
 

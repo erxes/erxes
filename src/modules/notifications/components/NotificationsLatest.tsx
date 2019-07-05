@@ -1,9 +1,9 @@
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INotification } from '../types';
-import { NotificationRow } from './';
+import NotificationRow from './NotificationRow';
 import {
   NotificationList,
   NotificationSeeAll,
