@@ -2,7 +2,7 @@ import { Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { INSIGHT_TYPES } from '../constants';
 import { DealFilter } from '../containers';
 import {

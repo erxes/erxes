@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DealVolumeReport } from '../components';
 import { queries } from '../graphql';
@@ -7,7 +7,6 @@ import {
   DealMainQueryResponse,
   DealPunchCardQueryResponse,
   DealTeamMemberResponse,
-  IChartParams,
   IDealParams,
   IQueryParams
 } from '../types';

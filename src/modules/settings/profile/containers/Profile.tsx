@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { UserDetailForm } from 'modules/settings/team/containers';
 import { mutations, queries } from 'modules/settings/team/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser, IUserDoc } from '../../../auth/types';
 import { EditProfileForm } from '../components';

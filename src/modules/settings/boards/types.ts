@@ -1,67 +1,3 @@
-export interface IPipeline {
-  _id: string;
-  name: string;
-  boardId: string;
-  order?: number;
-  visibility?: string;
-  memberIds?: string[];
-  createdAt?: Date;
-}
-
-export interface IBoard {
-  _id: string;
-  name: string;
-  order: number;
-  createdAt: Date;
-  pipelines: IPipeline;
-}
-
-export interface IStage {
-  _id: string;
-  name: string;
-  probability?: string;
-  pipelineId: string;
-  amount?: JSON;
-  order?: number;
-  createdAt?: Date;
-}
-
-export interface IOrder {
-  _id: string;
-  order: number;
-}
-
-// queries
-export type BoardsQueryResponse = {
-  boards: IBoard[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type BoardsGetLastQueryResponse = {
-  boardGetLast: IBoard;
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type BoardsDetailQueryResponse = {
-  boardDetail: IBoard;
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type PipelineQueryResponse = {
-  pipelines: IPipeline[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type StagesQueryResponse = {
-  stages: IStage[];
-  loading: boolean;
-  refetch: () => void;
-};
-
 // mutations
 export type AddBoardMutationVariables = {
   name: string;
@@ -113,7 +49,10 @@ export type RemovePipelineMutationResponse = {
 };
 
 export type UpdateOrderPipelineMutationVariables = {
-  orders: IOrder;
+  orders: {
+    _id: string;
+    order: number;
+  };
 };
 
 export type UpdateOrderPipelineMutationResponse = {

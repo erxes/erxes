@@ -16,7 +16,7 @@ import {
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { TopicsQueryResponse } from '../../../../knowledgeBase/types';

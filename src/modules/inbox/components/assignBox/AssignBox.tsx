@@ -1,7 +1,7 @@
 import { FilterableList } from 'modules/common/components';
 import { __, getUserAvatar } from 'modules/common/utils';
 import Alert from 'modules/common/utils/Alert';
-import * as React from 'react';
+import React from 'react';
 import { IUser } from '../../../auth/types';
 import { IConversation } from '../../types';
 

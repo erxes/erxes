@@ -1,8 +1,8 @@
 import { Icon } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { SegmentAdd, TargetCount } from 'modules/engage/types';
+import { IButtonMutateProps } from 'modules/common/types';
+import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
-import * as React from 'react';
+import React from 'react';
 import Common from './Common';
 import { SegmentsForm } from './forms';
 
@@ -14,7 +14,7 @@ type Props = {
   headSegments: ISegment[];
   segmentFields: ISegmentField[];
   customersCount: (ids: string[]) => number;
-  segmentAdd: SegmentAdd;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   count: (segment: ISegmentDoc) => void;
   onChange: (name: string, value: string[]) => void;
   renderContent: (
@@ -32,7 +32,7 @@ type Props = {
 
 const SegmentStep = (props: Props) => {
   const {
-    segmentAdd,
+    renderButton,
     onChange,
     segments,
     segmentIds,
@@ -70,7 +70,7 @@ const SegmentStep = (props: Props) => {
   });
 
   return (
-    <Common<ISegment, SegmentAdd>
+    <Common<ISegment, IButtonMutateProps>
       name="segmentIds"
       label="Create a segment"
       targetIds={segmentIds}
@@ -79,7 +79,7 @@ const SegmentStep = (props: Props) => {
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      onSubmit={segmentAdd}
+      renderButton={renderButton}
       Form={SegmentsForm}
       content={renderContent}
       formProps={formProps}

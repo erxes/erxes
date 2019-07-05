@@ -1,7 +1,7 @@
 import { FilterableList, Spinner } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { ITag, ITagTypes } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   type: ITagTypes | string;

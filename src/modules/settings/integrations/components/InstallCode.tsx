@@ -4,9 +4,9 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IIntegration } from 'modules/settings/integrations/types';
 import { MarkdownWrapper } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 
 type Props = {
   integration: IIntegration;

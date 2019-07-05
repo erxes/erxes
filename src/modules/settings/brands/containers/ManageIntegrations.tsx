@@ -5,7 +5,7 @@ import { ManageIntegrations } from 'modules/settings/integrations/containers/com
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import { IIntegration } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import { BrandsManageIntegrationsMutationResponse, IBrandDoc } from '../types';

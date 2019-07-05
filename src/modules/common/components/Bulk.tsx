@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { toggleCheckBoxes } from '../utils';
 
 export interface IBulkContentProps {

@@ -1,7 +1,7 @@
 import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { CalloutPreview, FormPreview, SuccessPreview } from './preview';
 import {
   CarouselInner,

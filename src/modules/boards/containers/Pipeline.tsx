@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { EmptyState, Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
@@ -40,42 +40,13 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
   }
 
   getQueryParams = (queryParams, nextProps: Props) => {
-    const {
-      search,
-      assignedUserIds,
-      customerIds,
-      productIds,
-      companyIds,
-      nextDay,
-      nextWeek,
-      nextMonth,
-      noCloseDate,
-      overdue
-    } = queryParams;
+    const nextQueryParams = nextProps.queryParams;
 
-    const nextSearch = nextProps.queryParams.search;
-    const nextAssignedUserIds = nextProps.queryParams.assignedUserIds;
-    const nextCustomerIds = nextProps.queryParams.customerIds;
-    const nextProductIds = nextProps.queryParams.productIds;
-    const nextCompanyIds = nextProps.queryParams.companyIds;
-    const nextPropNextDay = nextProps.queryParams.nextDay;
-    const nextPropNextWeek = nextProps.queryParams.nextWeek;
-    const nextPropNextMonth = nextProps.queryParams.nextMonth;
-    const nextNoCloseDate = nextProps.queryParams.noCloseDate;
-    const nextOverdue = nextProps.queryParams.overdue;
+    if (queryParams !== nextQueryParams) {
+      return true;
+    }
 
-    return (
-      search !== nextSearch ||
-      assignedUserIds !== nextAssignedUserIds ||
-      customerIds !== nextCustomerIds ||
-      companyIds !== nextCompanyIds ||
-      productIds !== nextProductIds ||
-      nextDay !== nextPropNextDay ||
-      noCloseDate !== nextNoCloseDate ||
-      nextWeek !== nextPropNextWeek ||
-      nextMonth !== nextPropNextMonth ||
-      overdue !== nextOverdue
-    );
+    return false;
   };
 
   countStages(obj) {
@@ -184,14 +155,14 @@ export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
-      options: ({ pipeline, queryParams }) => ({
+      options: ({ pipeline, queryParams, options: { getExtraParams } }) => ({
         variables: {
           pipelineId: pipeline._id,
           search: queryParams.search,
           customerIds: queryParams.customerIds,
           companyIds: queryParams.companyIds,
           assignedUserIds: queryParams.assignedUserIds,
-          productIds: queryParams.productIds,
+          extraParams: getExtraParams(queryParams),
           nextDay: queryParams.nextDay,
           nextWeek: queryParams.nextWeek,
           nextMonth: queryParams.nextMonth,

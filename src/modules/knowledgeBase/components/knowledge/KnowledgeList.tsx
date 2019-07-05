@@ -3,7 +3,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { HelperButtons } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { KnowledgeForm } from '../../containers';
 import { ITopic } from '../../types';
 import { KnowledgeRow } from './';
@@ -55,9 +55,9 @@ class KnowledgeList extends React.Component<Props> {
 
     const trigger = (
       <HelperButtons>
-        <a>
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 

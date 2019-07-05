@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
@@ -69,6 +69,10 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
   &:focus {
     outline: none;
     border-color: ${colors.colorSecondary};
+  }
+
+  ::placeholder {
+    color: #aaa;
   }
 `;
 

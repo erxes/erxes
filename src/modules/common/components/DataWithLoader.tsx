@@ -1,5 +1,5 @@
 import { EmptyState, Spinner } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   data: any;

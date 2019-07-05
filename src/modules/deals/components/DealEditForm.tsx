@@ -6,7 +6,7 @@ import { ControlLabel } from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { ProductSection } from 'modules/deals/components';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
+import React from 'react';
 import { IDeal, IDealParams } from '../types';
 
 type Props = {

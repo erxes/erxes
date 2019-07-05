@@ -17,7 +17,7 @@ import {
   TemplateContent,
   TemplateTitle
 } from 'modules/inbox/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import strip from 'strip';

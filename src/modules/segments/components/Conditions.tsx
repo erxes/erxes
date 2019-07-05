@@ -1,6 +1,6 @@
 import { Button } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegmentCondition } from '../types';
 import Condition from './Condition';

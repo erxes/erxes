@@ -2,9 +2,9 @@ import { getEnv } from 'apolloClient';
 import { Button, EmptyState } from 'modules/common/components';
 import { ModalFooter } from 'modules/common/styles/main';
 import { MarkdownWrapper } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { IFormIntegration } from '../types';
 
 type Props = {

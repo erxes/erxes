@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
 import { SidebarList } from 'modules/layout/styles';
 import { Tagger } from 'modules/tags/containers';
-import * as React from 'react';
+import React from 'react';
 import { Collapse } from 'react-bootstrap';
 
 type Props = {
@@ -59,7 +59,7 @@ class TaggerSection extends React.Component<Props, State> {
     const tags = data.getTags || [];
 
     const quickButtons = (
-      <a tabIndex={0} onClick={this.toggleTagger}>
+      <a href="#settings" tabIndex={0} onClick={this.toggleTagger}>
         <Icon icon="settings" />
       </a>
     );

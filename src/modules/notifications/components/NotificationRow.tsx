@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import { IUser } from 'modules/auth/types';
 import { NameCard } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { withRouter } from 'react-router';
 import { INotification } from '../types';
 

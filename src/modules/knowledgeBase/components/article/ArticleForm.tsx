@@ -9,7 +9,7 @@ import {
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IArticle } from '../../types';
 
 type Props = {

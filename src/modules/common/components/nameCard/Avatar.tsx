@@ -1,7 +1,7 @@
 import { colors } from 'modules/common/styles';
 import { readFile } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';

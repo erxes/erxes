@@ -1,3 +1,4 @@
+import { toArray } from 'modules/boards/utils';
 import { DealEditForm, PortableDeal } from './components';
 import { DealItem } from './containers/';
 import { mutations, queries } from './graphql';
@@ -36,6 +37,17 @@ const options = {
     updateSuccessText: 'You successfully updated a deal',
     deleteSuccessText: 'You successfully deleted a deal',
     copySuccessText: 'You successfully copied a deal'
+  },
+  getExtraParams: (queryParams: any) => {
+    const extraParams: any = {};
+
+    const productIds = queryParams.productIds;
+
+    if (productIds) {
+      extraParams.productIds = toArray(productIds);
+    }
+
+    return extraParams;
   }
 };
 

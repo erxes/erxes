@@ -1,6 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { ResponseReport, VolumeReport } from '../components';
@@ -98,7 +98,7 @@ class VolumenAndResponseReportContainer extends React.Component<
           endDate: queryParams.endDate
         }
       })
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         loading = this.state.loading;
         loading[queryName] = false;
 

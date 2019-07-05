@@ -1,5 +1,5 @@
 import { FullContent, MiddleContent } from 'modules/common/styles/main';
-import * as React from 'react';
+import React from 'react';
 import { Contents } from '../styles';
 import ActionBar from './ActionBar';
 import Header from './Header';

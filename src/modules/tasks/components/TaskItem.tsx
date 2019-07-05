@@ -3,9 +3,10 @@ import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
+import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { ITask } from '../types';
 
@@ -87,7 +88,10 @@ export default class TaskItem extends React.PureComponent<
         {...provided.dragHandleProps}
       >
         <Content onClick={this.toggleForm}>
-          <h5>{item.name}</h5>
+          <h5>
+            {renderPriority(item.priority)}
+            {item.name}
+          </h5>
 
           {customers.map((customer, index) => (
             <div key={index}>
@@ -107,6 +111,7 @@ export default class TaskItem extends React.PureComponent<
             <Right>
               {(item.assignedUsers || []).map((user, index) => (
                 <img
+                  alt="Avatar"
                   key={index}
                   src={getUserAvatar(user)}
                   width="22px"

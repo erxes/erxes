@@ -1,8 +1,11 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { Route } from 'react-router-dom';
-import Store from './containers/Store';
+
+const Store = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings Store" */ './containers/Store')
+);
 
 const CreateMessenger = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateMessenger" */ './containers/messenger/Create')

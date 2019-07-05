@@ -1,9 +1,8 @@
-import { withCurrentUser } from 'modules/auth/containers';
-import { MainBar } from 'modules/layout/components';
-import { MainLayout } from 'modules/layout/containers';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import { MainWrapper } from 'modules/layout/styles';
 import { userConfirmation } from 'modules/settings/team/routes';
-import * as React from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
@@ -23,6 +22,14 @@ import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
 import TaskRoutes from './modules/tasks/routes';
 import TicketRoutes from './modules/tickets/routes';
+
+const MainLayout = asyncComponent(() =>
+  import(/* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout')
+);
+
+const MainBar = asyncComponent(() =>
+  import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
+);
 
 const renderRoutes = currentUser => {
   if (currentUser) {

@@ -1,7 +1,7 @@
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 import {
   ActionButtons,
   Button,

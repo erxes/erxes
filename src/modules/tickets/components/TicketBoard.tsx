@@ -7,7 +7,7 @@ import {
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import options from '../options';
 import { TicketMainActionBar } from './';
 

@@ -20,13 +20,26 @@ export default commonListComposer<Props>({
     options: ({ queryParams }: { queryParams: any }) => {
       return {
         notifyOnNetworkStatusChange: true,
-        variables: generatePaginationParams(queryParams)
+        variables: {
+          searchValue: queryParams.searchValue,
+          brandId: queryParams.brandId,
+          ...generatePaginationParams(queryParams)
+        }
       };
     }
   }),
 
   gqlTotalCountQuery: graphql(gql(queries.responseTemplatesTotalCount), {
-    name: 'totalCountQuery'
+    name: 'totalCountQuery',
+    options: ({ queryParams }: { queryParams: any }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          searchValue: queryParams.searchValue,
+          brandId: queryParams.brandId
+        }
+      };
+    }
   }),
 
   gqlAddMutation: graphql(gql(mutations.responseTemplatesAdd), {

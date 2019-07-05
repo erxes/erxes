@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IUser } from '../auth/types';
 
@@ -57,7 +57,7 @@ export default class {
     this.queryData = activities;
 
     this.currentUser = user;
-    this.target = target || 'N/A';
+    this.target = target || 'Unknown';
   }
 
   /**

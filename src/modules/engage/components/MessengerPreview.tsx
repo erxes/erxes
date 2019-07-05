@@ -1,8 +1,8 @@
 import { IUser } from 'modules/auth/types';
 import { NameCard } from 'modules/common/components';
-import * as React from 'react';
+import React from 'react';
 import strip from 'strip';
-import * as xss from 'xss';
+import xss from 'xss';
 import {
   LauncherContainer,
   PreviewContent,

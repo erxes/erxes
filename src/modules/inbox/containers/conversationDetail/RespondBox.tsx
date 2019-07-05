@@ -4,7 +4,7 @@ import { fromJS } from 'immutable';
 import { IAttachmentPreview } from 'modules/common/types';
 import { RespondBox } from 'modules/inbox/components/conversationDetail';
 import { queries } from 'modules/inbox/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';

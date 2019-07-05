@@ -89,6 +89,17 @@ export const HeaderLabel = styled.span`
   color: ${colors.colorCoreGray};
 `;
 
+export const HeaderVisibility = styled(HeaderButton)`
+  background: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  border-radius: 5px;
+
+  > i {
+    font-size: 13px;
+    margin: 0 5px 0 0;
+  }
+`;
+
 export const HeaderLink = styled(HeaderButton)`
   padding: 0;
   margin-left: 10px;

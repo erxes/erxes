@@ -78,7 +78,7 @@ const replaceParam = (history: any, params: any, query: any) => {
 
   const stringified = queryString.stringify(params);
 
-  return history.push(`${location.pathname}?${stringified}`);
+  return history.push(`${window.location.pathname}?${stringified}`);
 };
 
 export const generatePaginationParams = (queryParams: {

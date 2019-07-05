@@ -8,7 +8,7 @@ import { __, renderFullName } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { Sidebar } from 'modules/layout/components';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { CustomerChooser } from '../../containers';
 
@@ -25,7 +25,7 @@ function CustomerSection({ name, customers, onSelect }: Props) {
   const mailTo = email => {
     if (email) {
       return (
-        <a target="_blank" href={`mailto:${email}`}>
+        <a target="_parent" href={`mailto:${email}`} rel="noopener noreferrer">
           {email}
         </a>
       );
@@ -76,9 +76,9 @@ function CustomerSection({ name, customers, onSelect }: Props) {
           title="Associate"
           size="lg"
           trigger={
-            <a>
+            <button>
               <Icon icon="add" />
-            </a>
+            </button>
           }
           content={customerChooser}
         />

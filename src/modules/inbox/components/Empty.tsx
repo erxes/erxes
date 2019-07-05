@@ -3,7 +3,7 @@ import { EmptyState } from 'modules/common/components';
 import { __, can } from 'modules/common/utils';
 import { Sidebar } from 'modules/inbox/containers/leftSidebar';
 import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   queryParams?: any;

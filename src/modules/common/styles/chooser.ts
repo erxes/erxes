@@ -23,8 +23,8 @@ const Column = styled.div`
   ul {
     height: 40vh;
     overflow: auto;
-    padding: 0;
-    margin: 0;
+    padding: 0 10px 0 0;
+    margin: 20px 0 0 0;
     list-style-type: none;
 
     li {
@@ -111,7 +111,9 @@ const Footer = styled.div`
     display: block;
     text-align: left;
 
-    a {
+    a,
+    span {
+      color: ${colors.linkPrimary};
       cursor: pointer;
     }
   }

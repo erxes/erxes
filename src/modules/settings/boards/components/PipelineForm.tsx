@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { IPipeline, IStage } from 'modules/boards/types';
 import {
   Button,
   ControlLabel,
@@ -8,11 +9,10 @@ import {
 } from 'modules/common/components';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
-import { IPipeline, IStage } from '../types';
 import { Stages } from './';
 
 type Props = {
@@ -36,22 +36,14 @@ class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { pipeline, stages, members } = this.props;
-
-    const memberIds = pipeline ? pipeline.memberIds || [] : [];
-
-    let selectedMembers: IUser[] = [];
-
-    if (pipeline) {
-      selectedMembers = members.filter(member =>
-        memberIds.includes(member._id)
-      );
-    }
+    const { pipeline, stages } = this.props;
 
     this.state = {
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
-      selectedMembers: this.generateMembersParams(selectedMembers)
+      selectedMembers: this.generateMembersParams(
+        pipeline ? pipeline.members : []
+      )
     };
   }
 
@@ -72,7 +64,10 @@ class PipelineForm extends React.Component<Props, State> {
   generateMembersParams = members => {
     return members.map(member => ({
       value: member._id,
-      label: (member.details && member.details.fullName) || member.email || ''
+      label:
+        (member.details && member.details.fullName) ||
+        member.email ||
+        member.username
     }));
   };
 

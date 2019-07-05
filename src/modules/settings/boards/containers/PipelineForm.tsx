@@ -1,14 +1,15 @@
 import gql from 'graphql-tag';
+import { StagesQueryResponse } from 'modules/boards/types';
+import { IPipeline } from 'modules/boards/types';
 import { Spinner } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries as userQuery } from '../../team/graphql';
 import { PipelineForm } from '../components';
 import { queries } from '../graphql';
-import { IPipeline, StagesQueryResponse } from '../types';
 
 type Props = {
   pipeline?: IPipeline;

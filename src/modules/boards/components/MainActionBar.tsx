@@ -19,9 +19,10 @@ import {
 import { __ } from 'modules/common/utils';
 import { SelectCompanies } from 'modules/companies/containers';
 import { SelectCustomers } from 'modules/customers/containers/common';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
+import React from 'react';
 import { Overlay, Popover } from 'react-bootstrap';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -30,6 +31,7 @@ import {
   HeaderItems,
   HeaderLabel,
   HeaderLink,
+  HeaderVisibility,
   PageHeader
 } from '../styles/header';
 import { IBoard, IPipeline } from '../types';
@@ -287,6 +289,33 @@ class MainActionBar extends React.Component<Props, State> {
     );
   }
 
+  renderVisibility() {
+    const { currentPipeline } = this.props;
+
+    if (!currentPipeline) {
+      return null;
+    }
+
+    if (currentPipeline.visibility === 'public') {
+      return (
+        <HeaderVisibility>
+          <Icon icon="earthgrid" /> Public
+        </HeaderVisibility>
+      );
+    }
+
+    const members = currentPipeline.members || [];
+
+    return (
+      <>
+        <HeaderVisibility>
+          <Icon icon="user" /> Private
+        </HeaderVisibility>
+        <Participators participatedUsers={members} limit={3} />
+      </>
+    );
+  }
+
   render() {
     const {
       currentBoard,
@@ -331,6 +360,7 @@ class MainActionBar extends React.Component<Props, State> {
             </Link>
           </Tip>
         </HeaderLink>
+        {this.renderVisibility()}
       </HeaderItems>
     );
 

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { Chooser } from 'modules/common/components';
-import { __, Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CompanyForm } from '.';
 import { mutations, queries } from '../graphql';
@@ -43,7 +43,7 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
   };
 
   const renderName = company => {
-    return company.primaryName || company.website || 'N/A';
+    return company.primaryName || company.website || 'Unknown';
   };
 
   const updatedProps = {

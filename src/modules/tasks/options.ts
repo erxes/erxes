@@ -1,3 +1,4 @@
+import { toArray } from 'modules/boards/utils';
 import { PortableTask, TaskEditForm } from 'modules/tasks/components';
 import { TaskItem } from './containers';
 import { mutations, queries } from './graphql';
@@ -36,6 +37,16 @@ const options = {
     updateSuccessText: 'You successfully updated a task',
     deleteSuccessText: 'You successfully deleted a task',
     copySuccessText: 'You successfully copied a task'
+  },
+  getExtraParams: (queryParams: any) => {
+    const { priority } = queryParams;
+    const extraParams: any = {};
+
+    if (priority) {
+      extraParams.priority = toArray(priority);
+    }
+
+    return extraParams;
   }
 };
 

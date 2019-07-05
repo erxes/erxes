@@ -1,6 +1,6 @@
 import { Label } from 'modules/common/components';
 import { colors, dimensions } from 'modules/common/styles';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { ITag } from '../../tags/types';
@@ -37,15 +37,14 @@ function Tags({ tags, limit }: Props) {
           <span>{tag.name}</span>
         </Label>
       ))}
-      {limit &&
-        length - limit > 0 && (
-          <Label
-            style={{ backgroundColor: colors.colorCoreLightGray }}
-            ignoreTrans={true}
-          >
-            <span>{`+${length - limit}`}</span>
-          </Label>
-        )}
+      {limit && length - limit > 0 && (
+        <Label
+          style={{ backgroundColor: colors.colorCoreLightGray }}
+          ignoreTrans={true}
+        >
+          <span>{`+${length - limit}`}</span>
+        </Label>
+      )}
     </TagList>
   );
 }

@@ -1,9 +1,8 @@
 import { Icon } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import { lighten } from 'modules/common/styles/color';
-import { __ } from 'modules/common/utils';
 import { rotate } from 'modules/common/utils/animations';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const ImportButton = styled.label`

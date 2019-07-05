@@ -9,7 +9,7 @@ import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { uploadHandler } from 'modules/common/utils';
 import { ActionBar } from 'modules/layout/components';
-import * as React from 'react';
+import React from 'react';
 import { CalloutPreview } from './preview';
 import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from './style';
 

@@ -13,7 +13,7 @@ import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
 import { MemberAvatars } from 'modules/settings/channels/components';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IUserGroup, IUserGroupDocument } from '../types';
@@ -112,7 +112,7 @@ class GroupList extends React.Component<IProps> {
     const { Header } = Sidebar;
 
     const trigger = (
-      <a>
+      <a href="#add">
         <Tip text={__('Create group')}>
           <Icon icon="add" />
         </Tip>
@@ -126,7 +126,7 @@ class GroupList extends React.Component<IProps> {
         <HelperButtons>
           {this.renderFormTrigger(trigger)}
           {router.getParam(this.props.history, 'groupId') && (
-            <a tabIndex={0} onClick={this.clearGroupFilter}>
+            <a href="#cancel" tabIndex={0} onClick={this.clearGroupFilter}>
               <Tip text={__('Clear filter')}>
                 <Icon icon="cancel-1" />
               </Tip>

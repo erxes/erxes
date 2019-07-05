@@ -1,13 +1,12 @@
 import {
   ControlLabel,
   FormControl,
-  FormGroup,
-  Icon
+  FormGroup
 } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { SCHEDULE_TYPES } from 'modules/engage/constants';
-import * as React from 'react';
-import * as Datetime from 'react-datetime';
+import React from 'react';
+import Datetime from 'react-datetime';
 import { DateTimePicker, SelectMonth } from '../styles';
 import { IEngageScheduleDate } from '../types';
 

@@ -31,6 +31,7 @@ export interface IOptions {
     deleteSuccessText: string;
     copySuccessText: string;
   };
+  getExtraParams: (queryParams: any) => any;
 }
 
 export interface IBoard {
@@ -56,12 +57,17 @@ export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 export interface IPipeline {
   _id: string;
   name: string;
+  boardId: string;
+  visibility: string;
+  members?: IUser[];
+  memberIds?: string[];
 }
 
 export interface IStage {
   _id: string;
-  name?: string;
-  type?: string;
+  name: string;
+  type: string;
+  probability: string;
   index?: number;
   itemId?: string;
   amount?: any;
@@ -81,6 +87,7 @@ export interface IItem {
   customers: ICustomer[];
   pipeline: IPipeline;
   stage?: IStage;
+  priority?: string;
 }
 
 export interface IDraggableLocation {
@@ -113,6 +120,7 @@ export interface IItemMap {
 export type BoardsQueryResponse = {
   boards: IBoard[];
   loading: boolean;
+  refetch: () => void;
 };
 
 export type PipelinesQueryResponse = {
@@ -170,5 +178,4 @@ export interface IFilterParams {
   nextMonth?: string;
   noCloseDate?: string;
   overdue?: string;
-  productIds?: string;
 }

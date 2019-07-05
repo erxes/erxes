@@ -1,6 +1,6 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { DealItem } from 'modules/deals/components/';
-import * as React from 'react';
+import React from 'react';
 import { IDeal } from '../types';
 
 type Props = {

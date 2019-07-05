@@ -10,8 +10,8 @@ import { FlexItem } from 'modules/companies/styles';
 import { Date } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 
 type Props = {
   customer: ICustomer;

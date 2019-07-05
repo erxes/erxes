@@ -1,3 +1,4 @@
+import { toArray } from 'modules/boards/utils';
 import { PortableTicket, TicketEditForm } from 'modules/tickets/components';
 import { TicketItem } from './containers/';
 import { mutations, queries } from './graphql';
@@ -36,6 +37,20 @@ const options = {
     updateSuccessText: 'You successfully updated a ticket',
     deleteSuccessText: 'You successfully deleted a ticket',
     copySuccessText: 'You successfully copied a ticket'
+  },
+  getExtraParams: (queryParams: any) => {
+    const { priority, source } = queryParams;
+    const extraParams: any = {};
+
+    if (priority) {
+      extraParams.priority = toArray(priority);
+    }
+
+    if (source) {
+      extraParams.source = toArray(source);
+    }
+
+    return extraParams;
   }
 };
 

@@ -2,7 +2,7 @@ import { DropdownToggle, Icon, ModalTrigger } from 'modules/common/components';
 import { DropIcon } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { CategoryForm, CategoryList, KnowledgeForm } from '../../containers';
 import { ITopic } from '../../types';
