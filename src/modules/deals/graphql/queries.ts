@@ -64,12 +64,12 @@ const dealFields = `
 
 const dealsTotalAmounts = `
   query dealsTotalAmounts(
-    $date: ItemDate 
+    $date: ItemDate
     $pipelineId: String
     ${commonParams}
   ) {
     dealsTotalAmounts(
-      date: $date 
+      date: $date
       pipelineId: $pipelineId
       ${commonParamDefs}
     ) {
@@ -78,6 +78,7 @@ const dealsTotalAmounts = `
       dealAmounts {
         _id
         currency
+        type
         amount
       }
     }
@@ -95,7 +96,7 @@ const deals = `
   ) {
     deals(
       pipelineId: $pipelineId,
-      stageId: $stageId, 
+      stageId: $stageId,
       date: $date,
       skip: $skip,
       search: $search

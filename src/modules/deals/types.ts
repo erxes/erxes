@@ -9,6 +9,7 @@ export interface IDealTotalAmount {
     {
       _id: string;
       amount: number;
+      type: string;
       currency: string;
     }
   ];
