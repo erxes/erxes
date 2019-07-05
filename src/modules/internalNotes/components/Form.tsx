@@ -1,17 +1,10 @@
-import { ContentState, EditorState, getDefaultKeyBinding } from 'draft-js';
-import { Button } from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
+import { Button, EditorCK } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 
 export const EditorActions = styled.div`
-  padding: 0 20px 10px 20px;
+  padding: 0 15px 40px 20px;
   position: absolute;
   color: ${colors.colorCoreGray};
   bottom: 0;
@@ -20,77 +13,37 @@ export const EditorActions = styled.div`
 
 const EditorWrapper = styled.div`
   position: relative;
-
-  .RichEditor-editor .public-DraftEditor-content {
-    min-height: 130px;
-    padding-bottom: 40px;
-  }
 `;
 
-class Form extends React.PureComponent<
-  { create: (content: string) => void },
-  { editorState: EditorState }
-> {
+type Prop = {
+  create: (content: string, callback: () => void) => void;
+};
+
+type State = {
+  content: string;
+};
+
+class Form extends React.PureComponent<Prop, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      editorState: createStateFromHTML(EditorState.createEmpty(), '')
+      content: ''
     };
   }
 
-  getContent = editorState => {
-    return toHTML(editorState);
-  };
-
-  onChangeContent = editorState => {
-    this.setState({ editorState });
-  };
-
-  hasText() {
-    return this.state.editorState.getCurrentContent().hasText();
-  }
-
   clearContent = () => {
-    const state = this.state.editorState;
-
-    const editorState = EditorState.push(
-      state,
-      ContentState.createFromText(''),
-      'insert-characters'
-    );
-
-    this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });
-  };
-
-  keyBindingFn = e => {
-    // handle new line
-    if (e.key === 'Enter' && e.shiftKey) {
-      return getDefaultKeyBinding(e);
-    }
-
-    // handle enter  in editor
-    if (e.key === 'Enter') {
-      if (this.hasText()) {
-        this.onSend();
-
-        return null;
-      }
-
-      return null;
-    }
-
-    return getDefaultKeyBinding(e);
+    this.setState({ content: '' });
   };
 
   onSend = () => {
-    this.props.create(this.getContent(this.state.editorState));
-
-    this.clearContent();
+    this.props.create(this.state.content, () => {
+      this.clearContent();
+    });
   };
 
   renderFooter() {
-    if (!this.hasText()) {
+    if (!this.state.content) {
       return null;
     }
 
@@ -116,17 +69,21 @@ class Form extends React.PureComponent<
     );
   }
 
-  render() {
-    const props = {
-      editorState: this.state.editorState,
-      onChange: this.onChangeContent,
-      keyBindingFn: this.keyBindingFn,
-      placeholder: __('Write your note here')
-    };
+  onEditorChange = e => {
+    this.setState({
+      content: e.editor.getData()
+    });
+  };
 
+  render() {
     return (
       <EditorWrapper>
-        <ErxesEditor {...props} />
+        <EditorCK
+          content={this.state.content}
+          onChange={this.onEditorChange}
+          height={150}
+        />
+
         {this.renderFooter()}
       </EditorWrapper>
     );
