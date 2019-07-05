@@ -1,5 +1,5 @@
 import { IBoard, IPipeline } from 'modules/boards/types';
-import { ControlLabel } from 'modules/common/components';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import React from 'react';

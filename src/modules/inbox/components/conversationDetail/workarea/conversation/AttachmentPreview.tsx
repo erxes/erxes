@@ -1,4 +1,4 @@
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { colors } from 'modules/common/styles';
 import { IAttachmentPreview } from 'modules/common/types';
 import React from 'react';

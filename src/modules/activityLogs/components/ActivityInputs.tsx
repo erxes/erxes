@@ -1,4 +1,5 @@
-import { Icon, Tabs, TabTitle } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from 'modules/common/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
 import { WhiteBoxRoot } from 'modules/layout/styles';

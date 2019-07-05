@@ -1,8 +1,8 @@
 import { IUser } from 'modules/auth/types';
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { __, can } from 'modules/common/utils';
-import { Sidebar } from 'modules/inbox/containers/leftSidebar';
-import { Wrapper } from 'modules/layout/components';
+import Sidebar from 'modules/inbox/containers/leftSidebar/Sidebar';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 
 type Props = {

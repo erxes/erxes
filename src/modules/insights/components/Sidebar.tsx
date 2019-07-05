@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { NavLink } from 'react-router-dom';

@@ -1,10 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import { can } from 'modules/common/utils';
-import { Header } from 'modules/layout/components';
+import Header from 'modules/layout/components/Header';
 import { Contents } from 'modules/layout/styles';
 import React from 'react';
-import { ConversationDetail } from '../containers/conversationDetail';
-import { Sidebar } from '../containers/leftSidebar';
+import ConversationDetail from '../containers/conversationDetail/ConversationDetail';
+import Sidebar from '../containers/leftSidebar/Sidebar';
 
 type Props = {
   queryParams: any;

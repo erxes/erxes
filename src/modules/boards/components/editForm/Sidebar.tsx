@@ -1,7 +1,7 @@
-import { Button } from 'modules/common/components';
-import { CompanySection } from 'modules/companies/components';
+import Button from 'modules/common/components/Button';
+import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICompany } from 'modules/companies/types';
-import { CustomerSection } from 'modules/customers/components/common';
+import CustomerSection from 'modules/customers/components/common/CustomerSection';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { RightContent } from '../../styles/item';

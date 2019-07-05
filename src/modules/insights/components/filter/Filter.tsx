@@ -1,4 +1,5 @@
-import { Button, ControlLabel } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import moment from 'moment';
 import React from 'react';

@@ -1,14 +1,15 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import { IUser } from 'modules/auth/types';
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import { Alert } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { FlexContent, FormFooter, Left } from '../../styles/item';
 import { IItem, IItemParams, IOptions } from '../../types';
-import { Sidebar, Top } from './';
+import Sidebar from './Sidebar';
+import Top from './Top';
 
 type Props = {
   options: IOptions;

@@ -1,4 +1,4 @@
-import { FilterableList } from 'modules/common/components';
+import FilterableList from 'modules/common/components/filterableList/FilterableList';
 import { __, getUserAvatar } from 'modules/common/utils';
 import Alert from 'modules/common/utils/Alert';
 import React from 'react';

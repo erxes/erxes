@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IBrand } from '../../settings/brands/types';
@@ -16,7 +16,8 @@ import {
 } from '../styles';
 import { IQueryParams } from '../types';
 import { OptionsType } from '../utils';
-import { InboxFilter, Sidebar } from './';
+import InboxFilter from './filter/InboxFilter';
+import Sidebar from './Sidebar';
 
 type Props = {
   brands: IBrand[];

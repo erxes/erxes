@@ -1,4 +1,4 @@
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import moment from 'moment';
 import React from 'react';
 import { IUser } from '../../auth/types';

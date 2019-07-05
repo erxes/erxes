@@ -1,5 +1,5 @@
-import { AddForm } from 'modules/boards/containers/portable';
-import { ModalTrigger } from 'modules/common/components';
+import AddForm from 'modules/boards/containers/portable/AddForm';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import React from 'react';
 import { IOptions } from '../../types';
 

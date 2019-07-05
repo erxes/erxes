@@ -1,4 +1,5 @@
-import { EmptyState, Tip } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Tip from 'modules/common/components/Tip';
 import React from 'react';
 import {
   ChartWrapper,

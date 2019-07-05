@@ -5,7 +5,7 @@ import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ActivityLogQueryResponse } from '../../customers/types';
-import { ActivityLogs } from '../components';
+import ActivityLogs from '../components/ActivityLogs';
 import { queries, subscriptions } from '../graphql';
 
 type Props = {

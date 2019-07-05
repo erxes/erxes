@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
 import AttachmentPreview from './AttachmentPreview';
-import { Message } from './messages';
+import Message from './messages/Message';
 
 type Props = {
   conversation: IConversation;

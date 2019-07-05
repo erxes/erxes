@@ -4,7 +4,7 @@ import { IOptions, IPipeline, StagesQueryResponse } from 'modules/boards/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { Move } from '../../components/editForm';
+import Move from '../../components/editForm/Move';
 import { IItem } from '../../types';
 
 type Props = {

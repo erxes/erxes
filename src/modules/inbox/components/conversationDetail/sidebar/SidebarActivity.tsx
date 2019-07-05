@@ -1,10 +1,10 @@
-import { ActivityList } from 'modules/activityLogs/components';
+import ActivityList from 'modules/activityLogs/components/ActivityList';
 import { IUser } from 'modules/auth/types';
-import { DataWithLoader } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { hasAnyActivity } from 'modules/customers/utils';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
+import NoteForm from 'modules/internalNotes/containers/Form';
 import React from 'react';
 import { ActivityLogContent, NoteFormContainer } from './styles';
 

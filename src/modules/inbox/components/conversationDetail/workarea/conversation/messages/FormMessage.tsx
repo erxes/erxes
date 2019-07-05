@@ -1,4 +1,4 @@
-import { Table } from 'modules/common/components';
+import Table from 'modules/common/components/table';
 import moment from 'moment';
 import React from 'react';
 import { IMessage } from '../../../../../types';

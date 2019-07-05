@@ -1,4 +1,5 @@
-import { ControlLabel, FormGroup } from 'modules/common/components';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
