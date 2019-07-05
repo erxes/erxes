@@ -82,6 +82,8 @@ class Form extends React.PureComponent<Prop, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}
+          removeButtons="Source,NewPage,Preview,Indent,Outdent,CreateDiv,Anchor,Styles,Font,Maximize,Strike,Table"
+          toolbarCanCollapse={true}
         />
 
         {this.renderFooter()}
