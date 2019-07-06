@@ -35,7 +35,11 @@ export default class Stage extends React.Component<Props, State> {
     this.props.loadMore();
   };
 
-  renderDealList() {
+  calculatePercent = (a: number, b: number) => {
+    return (b * 100) / a;
+  };
+
+  renderDealList = () => {
     const { stage, deals, loadingDeals } = this.props;
 
     if (loadingDeals) {
@@ -54,7 +58,7 @@ export default class Stage extends React.Component<Props, State> {
         deals={deals}
       />
     );
-  }
+  };
 
   isCollabsible = () => {
     if (this.props.stage.primaryDealsTotalCount === 0) {
@@ -64,23 +68,30 @@ export default class Stage extends React.Component<Props, State> {
     return true;
   };
 
-  renderLostInfo() {
+  renderLostInfo = () => {
     const { stage } = this.props;
 
+    const primary = stage.primaryDealsTotalCount || 1;
     const stayed = stage.stayedDealsTotalCount || 0;
     const inProcess = stage.inProcessDealsTotalCount || 0;
     const lost = (stage.primaryDealsTotalCount || 0) - inProcess - stayed;
 
     return (
       <>
-        <span>{stayed}</span>
-        <span>{inProcess}</span>
-        <span>{lost}</span>
+        <span>
+          {stayed} / {this.calculatePercent(primary, stayed)}%
+        </span>
+        <span>
+          {inProcess} / {this.calculatePercent(primary, inProcess)}%
+        </span>
+        <span>
+          {lost} / {this.calculatePercent(primary, lost)}%
+        </span>
       </>
     );
-  }
+  };
 
-  renderCollapsibleContent() {
+  renderCollapsibleContent = () => {
     if (!this.isCollabsible()) {
       return null;
     }
@@ -90,7 +101,7 @@ export default class Stage extends React.Component<Props, State> {
         <div>{this.renderDealList()}</div>
       </Collapse>
     );
-  }
+  };
 
   render() {
     const { stage } = this.props;
