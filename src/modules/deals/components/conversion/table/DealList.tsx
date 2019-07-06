@@ -37,12 +37,7 @@ export default class DealList extends React.Component<Props> {
         {contents}
         {this.props.hasMore && (
           <CenterContent>
-            <Button
-              size="small"
-              btnStyle="primary"
-              icon="checked-1"
-              onClick={this.props.loadMore}
-            >
+            <Button size="small" btnStyle="link" onClick={this.props.loadMore}>
               Load More
             </Button>
           </CenterContent>
