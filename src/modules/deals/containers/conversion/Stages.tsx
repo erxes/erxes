@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
-// import { StageList } from '../../../components/conversion';
-// import { StageList as StageListWithDeals } from '../../../components/conversion/stageInfoMore';
 import { queries } from 'modules/boards/graphql';
 import { StagesQueryResponse } from 'modules/boards/types';
 import { Spinner } from 'modules/common/components';
 import { withProps } from 'modules/common/utils';
+import List from 'modules/deals/components/conversion/list/List';
+import Table from 'modules/deals/components/conversion/table/Table';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
@@ -20,19 +20,22 @@ type FinalProps = {
 
 class DealStagesContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, type } = this.props;
+    const { stagesQuery, type, pipelineId } = this.props;
+    if (localStorage.getItem('cacheInvalidated') === 'true') {
+      stagesQuery.refetch({ pipelineId });
+    }
 
     if (stagesQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    // const stages = stagesQuery.dealStages || [];
+    const stages = stagesQuery.stages || [];
 
     if (type === 'more') {
-      return <div>sdads</div>;
+      return <Table {...this.props} stages={stages} />;
     }
 
-    return <div>sdads</div>;
+    return <List stages={stages} />;
   }
 }
 
@@ -42,7 +45,7 @@ export default withProps<Props>(
       name: 'stagesQuery',
       options: ({ pipelineId, queryParams }) => ({
         variables: {
-          type: 'notLost',
+          isLost: true,
           pipelineId,
           search: queryParams.search,
           customerIds: queryParams.customerIds,

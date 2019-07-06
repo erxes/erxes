@@ -71,6 +71,7 @@ const pipelineDetail = `
 
 const stages = `
   query stages(
+    $isLost: Boolean,
     $pipelineId: String!, 
     $search: String,
     $customerIds: [String],
@@ -84,6 +85,7 @@ const stages = `
     $extraParams: JSON
   ) {
     stages(
+      isLost: $isLost,
       pipelineId: $pipelineId, 
       search: $search,
       customerIds: $customerIds,
@@ -101,6 +103,10 @@ const stages = `
       order
       amount
       itemsTotalCount
+      stageInfo
+      primaryDealsTotalCount
+      stayedDealsTotalCount
+      inProcessDealsTotalCount
     }
   }
 `;
