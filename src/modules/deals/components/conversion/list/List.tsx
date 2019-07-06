@@ -13,13 +13,6 @@ class List extends React.Component<Props, {}> {
     return 100 - ((index + 1) * (100 / lenght)) / 1.5;
   };
 
-  // generateAvarageAmount = () => {
-  //   const { stages } = this.props;
-  //   const count = stages.reduce((memo, target) => {
-  //     return memo.amount || 0 + target.amount || 0;
-  //   }, 0);
-  // };
-
   renderContent() {
     const { stages } = this.props;
     if (stages.length === 0) {
@@ -63,7 +56,7 @@ class List extends React.Component<Props, {}> {
 
       return (
         <>
-          <Result>Winrate: {avarage}%</Result>
+          <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>
           <Result>Avarage won deal value: $$$</Result>
         </>
       );

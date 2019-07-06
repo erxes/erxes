@@ -38,7 +38,7 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   calculatePercent = (a: number, b: number) => {
-    return (b * 100) / a;
+    return parseInt(`${(b * 100) / a}`, 10);
   };
 
   renderDealList = () => {
