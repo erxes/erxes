@@ -9,5 +9,5 @@ export type InternalNotesAddMutationResponse = {
     params: {
       variables: InternalNotesAddMutationVariables;
     }
-  ) => void;
+  ) => Promise<any>;
 };

@@ -24,7 +24,7 @@ const Right = styled.div`
 const Footer = styled.div`
   padding-top: 8px;
   margin-top: 8px;
-  border-top: 1px dotted #eee;
+  border-top: 1px dotted ${colors.borderPrimary};
   font-size: 11px;
 
   ul {
