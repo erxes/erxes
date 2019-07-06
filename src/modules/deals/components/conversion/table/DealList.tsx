@@ -1,3 +1,5 @@
+import { Button } from 'modules/common/components';
+import { CenterContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
@@ -9,6 +11,8 @@ type Props = {
   listType?: string;
   stageId: string;
   deals: IDeal[];
+  hasMore: boolean;
+  loadMore: () => void;
 };
 
 export default class DealList extends React.Component<Props> {
@@ -31,6 +35,18 @@ export default class DealList extends React.Component<Props> {
           <span>{__('Assigned')}</span>
         </SubHead>
         {contents}
+        {this.props.hasMore && (
+          <CenterContent>
+            <Button
+              size="small"
+              btnStyle="primary"
+              icon="checked-1"
+              onClick={this.props.loadMore}
+            >
+              Load More
+            </Button>
+          </CenterContent>
+        )}
       </Deals>
     );
   }

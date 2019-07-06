@@ -10,6 +10,7 @@ type Props = {
   stage: IStage;
   deals: IDeal[];
   loadMore: () => void;
+  hasMore: boolean;
   loadingDeals: boolean;
 };
 
@@ -20,6 +21,7 @@ type State = {
 export default class Stage extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
     this.state = {
       showCollapse: false
     };
@@ -40,7 +42,7 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   renderDealList = () => {
-    const { stage, deals, loadingDeals } = this.props;
+    const { stage, deals, loadingDeals, hasMore } = this.props;
 
     if (loadingDeals) {
       return (
@@ -52,6 +54,8 @@ export default class Stage extends React.Component<Props, State> {
 
     return (
       <DealList
+        hasMore={hasMore}
+        loadMore={this.loadMore}
         listId={stage._id}
         listType="DEAL"
         stageId={stage._id}

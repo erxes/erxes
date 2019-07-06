@@ -77,10 +77,10 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   itemsTotalCount: number;
-  primaryDealsTotalCount?: number;
-  inProcessDealsTotalCount?: number;
-  stayedDealsTotalCount?: number;
-  stageInfo?: IStageInfo;
+  primaryDealsTotalCount: number;
+  inProcessDealsTotalCount: number;
+  stayedDealsTotalCount: number;
+  stageInfo: IStageInfo;
 }
 
 export interface IItem {

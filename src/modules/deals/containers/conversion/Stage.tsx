@@ -27,7 +27,9 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { loadingDeals: false };
+    this.state = {
+      loadingDeals: false
+    };
   }
 
   loadMore = () => {
@@ -36,9 +38,9 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const deals = dealsQuery.deals;
 
     const loading = dealsQuery.loading || dealsQuery.loading;
-    const hasMore = stage.itemsTotalCount > deals.length;
+    const hasMore = stage.primaryDealsTotalCount > deals.length;
 
-    if (deals.length === stage.itemsTotalCount) {
+    if (deals.length === stage.primaryDealsTotalCount) {
       return;
     }
     if (!loading && hasMore) {
@@ -46,7 +48,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
 
       dealsQuery.fetchMore({
         variables: {
-          stageId: stage._id,
+          primaryStageId: stage._id,
           skip: deals.length,
           ...getFilterParams(queryParams)
         },
@@ -66,14 +68,16 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
               fetchedDeals.push(deal);
             }
           }
+
           return {
             ...prev,
-            deals: [...fetchedDeals, ...prevDeals]
+            deals: [...prevDeals, ...fetchedDeals]
           };
         }
       });
     }
   };
+
   render() {
     const { stage, dealsQuery } = this.props;
     const { loadingDeals } = this.state;
@@ -90,8 +94,11 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
 
     const deals = dealsQuery.deals;
 
+    const hasMore = stage.primaryDealsTotalCount > deals.length;
+
     return (
       <Stage
+        hasMore={hasMore}
         stage={stage}
         deals={deals}
         loadMore={this.loadMore}
