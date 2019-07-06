@@ -42,6 +42,7 @@ const boardDetail = `
           email
           username
           details {
+            avatar
             fullName
           }
         }

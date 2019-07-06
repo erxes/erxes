@@ -3,10 +3,8 @@ import {
   STORAGE_PIPELINE_KEY
 } from 'modules/boards/constants';
 import { Amount } from 'modules/boards/styles/stage';
-import { Tip } from 'modules/common/components';
-import moment from 'moment';
 import React from 'react';
-import { ItemDate } from './styles/common';
+import PriorityIndicator from './components/editForm/PriorityIndicator';
 import { IDraggableLocation, IItemMap } from './types';
 
 type Options = {
@@ -119,18 +117,22 @@ export const renderAmount = amount => {
   );
 };
 
-export const renderDate = (date, format = 'YYYY-MM-DD') => {
-  if (!date) {
+export const invalidateCache = () => {
+  localStorage.setItem('cacheInvalidated', 'true');
+};
+
+export const toArray = (item: string | string[] = []) => {
+  if (item instanceof Array) {
+    return item;
+  }
+
+  return [item];
+};
+
+export const renderPriority = (priority?: string) => {
+  if (!priority) {
     return null;
   }
 
-  return (
-    <Tip text={moment(date).format(format)}>
-      <ItemDate>{moment(date).format('lll')}</ItemDate>
-    </Tip>
-  );
-};
-
-export const invalidateCache = () => {
-  localStorage.setItem('cacheInvalidated', 'true');
+  return <PriorityIndicator value={priority} />;
 };

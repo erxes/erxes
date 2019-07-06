@@ -3,6 +3,7 @@ import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
+import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
 import moment from 'moment';
 import React from 'react';
@@ -87,7 +88,10 @@ export default class TaskItem extends React.PureComponent<
         {...provided.dragHandleProps}
       >
         <Content onClick={this.toggleForm}>
-          <h5>{item.name}</h5>
+          <h5>
+            {renderPriority(item.priority)}
+            {item.name}
+          </h5>
 
           {customers.map((customer, index) => (
             <div key={index}>

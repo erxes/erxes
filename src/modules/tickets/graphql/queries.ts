@@ -7,8 +7,8 @@ const commonParams = `
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
-  $priority: String,
-  $source: String,
+  $priority: [String],
+  $source: [String],
 `;
 
 const commonParamDefs = `

@@ -55,9 +55,9 @@ class KnowledgeList extends React.Component<Props> {
 
     const trigger = (
       <HelperButtons>
-        <a href="#add">
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 
