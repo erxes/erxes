@@ -40,20 +40,19 @@ class Form extends React.PureComponent<Prop, State> {
 
   onSend = () => {
     const { content } = this.state;
-    const { users } = this.props;
+    const { users = [] } = this.props;
 
     const mentionedUserIds: any = [];
 
     const userIds = content.split(/"/);
-    if (users) {
-      for (const user of users) {
-        const founded = userIds.find(id => {
-          return id === user._id;
-        });
 
-        if (founded) {
-          mentionedUserIds.push(founded);
-        }
+    for (const user of users) {
+      const founded = userIds.find(id => {
+        return id === user._id;
+      });
+
+      if (founded) {
+        mentionedUserIds.push(founded);
       }
     }
 
