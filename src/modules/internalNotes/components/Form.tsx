@@ -45,7 +45,7 @@ class Form extends React.PureComponent<Prop, State> {
 
     const mentionedUserIds = getMentionedUserIds(users, content);
 
-    this.props.create(this.state.content, mentionedUserIds, () => {
+    this.props.create(content, mentionedUserIds, () => {
       this.clearContent();
     });
   };
