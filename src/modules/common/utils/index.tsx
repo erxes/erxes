@@ -87,6 +87,12 @@ export const difference = (array1: any[], array2: any[]) => {
   return array1.filter(n => !array2.includes(n));
 };
 
+// Make unique arrya
+
+export const unique = (value, index, self) => {
+  return self.indexOf(value) === index;
+};
+
 export {
   Alert,
   uploadHandler,
@@ -176,4 +182,22 @@ export const isValidDate = date => {
   }
 
   return false;
+};
+
+export const getMentionedUserIds = (users: IUser[], content: string) => {
+  let mentionedUserIds: any = [];
+
+  const userIds = content.split(/"/);
+
+  for (const user of users) {
+    for (const id of userIds) {
+      if (id === user._id) {
+        mentionedUserIds.push(id);
+      }
+    }
+  }
+
+  mentionedUserIds = mentionedUserIds.filter(unique);
+
+  return mentionedUserIds;
 };

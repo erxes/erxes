@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { Button, EditorCK } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
+import { getMentionedUserIds } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -42,19 +43,7 @@ class Form extends React.PureComponent<Prop, State> {
     const { content } = this.state;
     const { users = [] } = this.props;
 
-    const mentionedUserIds: any = [];
-
-    const userIds = content.split(/"/);
-
-    for (const user of users) {
-      const founded = userIds.find(id => {
-        return id === user._id;
-      });
-
-      if (founded) {
-        mentionedUserIds.push(founded);
-      }
-    }
+    const mentionedUserIds = getMentionedUserIds(users, content);
 
     this.props.create(this.state.content, mentionedUserIds, () => {
       this.clearContent();
