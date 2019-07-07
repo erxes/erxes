@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { Button, EditorCK } from 'modules/common/components';
 import { colors } from 'modules/common/styles';
 import React from 'react';
@@ -16,7 +17,8 @@ const EditorWrapper = styled.div`
 `;
 
 type Prop = {
-  create: (content: string, callback: () => void) => void;
+  users?: IUser[];
+  create: (content: string, mentionedUserIds, callback: () => void) => void;
 };
 
 type State = {
@@ -37,7 +39,25 @@ class Form extends React.PureComponent<Prop, State> {
   };
 
   onSend = () => {
-    this.props.create(this.state.content, () => {
+    const { content } = this.state;
+    const { users } = this.props;
+
+    const mentionedUserIds: any = [];
+
+    const userIds = content.split(/"/);
+    if (users) {
+      for (const user of users) {
+        const founded = userIds.find(id => {
+          return id === user._id;
+        });
+
+        if (founded) {
+          mentionedUserIds.push(founded);
+        }
+      }
+    }
+
+    this.props.create(this.state.content, mentionedUserIds, () => {
       this.clearContent();
     });
   };
@@ -76,9 +96,12 @@ class Form extends React.PureComponent<Prop, State> {
   };
 
   render() {
+    const { users } = this.props;
+
     return (
       <EditorWrapper>
         <EditorCK
+          users={users || []}
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}

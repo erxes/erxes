@@ -1,5 +1,6 @@
 import { getEnv } from 'apolloClient';
 import CKEditor from 'ckeditor4-react';
+import { IUser } from 'modules/auth/types';
 import { colors } from 'modules/common/styles';
 import React from 'react';
 
@@ -12,9 +13,12 @@ type Props = {
   insertItems?: any;
   removeButtons?: string;
   toolbarCanCollapse?: boolean;
+  users?: IUser[];
 };
 
 const { REACT_APP_API_URL } = getEnv();
+
+let usersMentions: any = [];
 
 function EditorCK({
   content,
@@ -22,8 +26,23 @@ function EditorCK({
   height,
   insertItems,
   removeButtons,
-  toolbarCanCollapse
+  toolbarCanCollapse,
+  users
 }: Props) {
+  usersMentions = [];
+
+  if (users) {
+    for (const user of users) {
+      if (user.details && user.details.fullName) {
+        usersMentions.push({
+          id: user._id,
+          avatar: user.details.avatar || '/images/avatar.svg',
+          fullName: user.details.fullName
+        });
+      }
+    }
+  }
+
   return (
     <CKEditor
       data={content}
@@ -79,6 +98,18 @@ function EditorCK({
           { name: 'colors', items: ['TextColor', 'BGColor'] },
           { name: 'tools', items: ['Maximize'] }
         ],
+        mentions: [
+          {
+            feed: dataFeed,
+            itemTemplate:
+              '<li data-id="{id}">' +
+              '<img class="editor-avatar" src="{avatar}"' +
+              '<strong>{fullName}</strong>' +
+              '</li>',
+            outputTemplate: '<a id="{id}">@{fullName}</a><span>&nbsp;</span>',
+            minChars: 0
+          }
+        ],
         removeButtons,
         codemirror: {
           enableCodeFormatting: false,
@@ -96,3 +127,20 @@ function EditorCK({
 }
 
 export default EditorCK;
+
+function dataFeed(opts, callback) {
+  if (usersMentions.length > 1) {
+    const matchProperty = 'fullName';
+    let data = usersMentions.filter(item => {
+      return item[matchProperty].indexOf(opts.query.toLowerCase()) === 0;
+    });
+
+    data = usersMentions.sort((a, b) => {
+      return a[matchProperty].localeCompare(b[matchProperty], undefined, {
+        sensitivity: 'accent'
+      });
+    });
+
+    callback(data);
+  }
+}
