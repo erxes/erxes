@@ -72,7 +72,7 @@ const pipelineDetail = `
 
 const stages = `
   query stages(
-    $isLost: Boolean,
+    $isNotLost: Boolean,
     $pipelineId: String!, 
     $search: String,
     $customerIds: [String],
@@ -86,7 +86,7 @@ const stages = `
     $extraParams: JSON
   ) {
     stages(
-      isLost: $isLost,
+      isNotLost: $isNotLost,
       pipelineId: $pipelineId, 
       search: $search,
       customerIds: $customerIds,

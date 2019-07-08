@@ -45,7 +45,7 @@ export default withProps<Props>(
       name: 'stagesQuery',
       options: ({ pipelineId, queryParams }) => ({
         variables: {
-          isLost: true,
+          isNotLost: true,
           pipelineId,
           search: queryParams.search,
           customerIds: queryParams.customerIds,
