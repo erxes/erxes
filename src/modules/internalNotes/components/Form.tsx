@@ -1,4 +1,6 @@
-import { Button, EditorCK } from 'modules/common/components';
+import { Button } from 'modules/common/components';
+import { getMentionedUserIds } from 'modules/common/components/EditorCK';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { colors } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';
@@ -16,7 +18,7 @@ const EditorWrapper = styled.div`
 `;
 
 type Prop = {
-  create: (content: string, callback: () => void) => void;
+  create: (content: string, mentionedUserIds, callback: () => void) => void;
 };
 
 type State = {
@@ -37,7 +39,11 @@ class Form extends React.PureComponent<Prop, State> {
   };
 
   onSend = () => {
-    this.props.create(this.state.content, () => {
+    const { content } = this.state;
+
+    const mentionedUserIds = getMentionedUserIds(content);
+
+    this.props.create(content, mentionedUserIds, () => {
       this.clearContent();
     });
   };
@@ -79,6 +85,7 @@ class Form extends React.PureComponent<Prop, State> {
     return (
       <EditorWrapper>
         <EditorCK
+          showMentions={true}
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}
