@@ -61,6 +61,7 @@ export interface IPipeline {
   visibility: string;
   members?: IUser[];
   memberIds?: string[];
+  bgColor?: string;
 }
 
 interface IStageComparisonInfo {

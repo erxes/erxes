@@ -66,6 +66,7 @@ const pipelineDetail = `
     pipelineDetail(_id: $_id) {
       _id
       name
+      bgColor
     }
   }
 `;

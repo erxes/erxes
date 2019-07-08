@@ -36,7 +36,8 @@ const commonPipelineParamsDef = `
   $stages: JSON,
   $type: String!,
   $visibility: String!,
-  $memberIds: [String]
+  $memberIds: [String],
+  $bgColor: String,
 `;
 
 const commonPipelineParams = `
@@ -45,7 +46,8 @@ const commonPipelineParams = `
   stages: $stages,
   type: $type,
   visibility: $visibility,
-  memberIds: $memberIds
+  memberIds: $memberIds,
+  bgColor: $bgColor
 `;
 
 const pipelineAdd = `
