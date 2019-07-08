@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { COLORS } from 'modules/boards/constants';
 import { IPipeline, IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
