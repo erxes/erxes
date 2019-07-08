@@ -77,9 +77,11 @@ const dealsTotalAmounts = `
       dealCount
       dealAmounts {
         _id
-        currency
         type
-        amount
+        currencies {
+          currency
+          amount
+        }
       }
     }
   }
