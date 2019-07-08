@@ -1,20 +1,14 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { MainContent } from 'modules/layout/styles';
+import { Divider } from 'modules/settings/main/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Container = styled.div`
+const FixedContent = styled.div`
   position: relative;
-  height: 100%;
-  overflow: auto;
   padding-top: 10px;
-`;
-
-const ContentBody = styled.div`
-  height: 100%;
-  padding: 0 4px;
-  margin-left: 5px;
-  overflow-y: auto;
+  width: 900px;
+  margin: 0 auto;
 `;
 
 const DealContent = styled(MainContent)`
@@ -179,9 +173,13 @@ const CenterButton = styled.div`
   margin: 10px;
 `;
 
+const ViewDivider = styled(Divider)`
+  margin: ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing * 1.5}px;
+  padding: 0;
+`;
+
 export {
-  Container,
-  ContentBody,
+  FixedContent,
   DealContent,
   StageWrap,
   StageContainer,
@@ -197,5 +195,6 @@ export {
   Deals,
   TableView,
   StageName,
-  CenterButton
+  CenterButton,
+  ViewDivider
 };

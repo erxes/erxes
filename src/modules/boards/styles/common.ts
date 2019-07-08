@@ -18,6 +18,7 @@ export const BoardContainer = styled(Contents)`
 
 export const BoardContent = styled(MainContent)`
   margin: 0;
+  background-color: ${colors.colorSecondary};
 `;
 
 export const ScrolledContent = styled(ContentBox)`

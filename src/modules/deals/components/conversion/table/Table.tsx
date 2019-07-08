@@ -3,7 +3,7 @@ import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import Stage from 'modules/deals/containers/conversion/Stage';
 import * as React from 'react';
-import { Container, ContentBody, HeadRow, TableView } from '../style';
+import { HeadRow, TableView } from '../style';
 
 type Props = {
   stages: IStage[];
@@ -12,8 +12,9 @@ type Props = {
 };
 
 class Table extends React.Component<Props, {}> {
-  renderContent() {
+  render() {
     const { stages, queryParams, pipelineId } = this.props;
+
     if (stages.length === 0) {
       return <EmptyState image="/images/actions/18.svg" text="No data" />;
     }
@@ -35,14 +36,6 @@ class Table extends React.Component<Props, {}> {
           />
         ))}
       </TableView>
-    );
-  }
-
-  render() {
-    return (
-      <Container>
-        <ContentBody>{this.renderContent()}</ContentBody>
-      </Container>
     );
   }
 }
