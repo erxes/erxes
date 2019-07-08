@@ -51,7 +51,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = this.props.object || ({} as IEmailTemplate);
 
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
@@ -72,7 +72,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             height={460}
           />
         </FormGroup>
-      </React.Fragment>
+      </>
     );
   };
 

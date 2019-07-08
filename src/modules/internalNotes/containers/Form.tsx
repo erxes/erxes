@@ -20,13 +20,16 @@ const FormContainer = (props: FinalProps) => {
   const { contentType, contentTypeId, internalNotesAdd } = props;
 
   // create internalNote
-  const create = content => {
+  const create = (content: string, mentionedUserIds, callback: () => void) => {
     internalNotesAdd({
       variables: {
         contentType,
         contentTypeId,
+        mentionedUserIds,
         content
       }
+    }).then(() => {
+      callback();
     });
   };
 

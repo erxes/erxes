@@ -17,6 +17,7 @@ type Props = {
       | 'notifyCustomer'
       | 'requireAuth'
       | 'showChat'
+      | 'showLauncher'
       | 'forceLogoutWhenResolve',
     value: string
   ) => void;
@@ -25,6 +26,7 @@ type Props = {
   notifyCustomer?: boolean;
   requireAuth?: boolean;
   showChat?: boolean;
+  showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
 };
 
@@ -61,6 +63,9 @@ class Options extends React.Component<Props, State> {
 
     const showChatChange = e =>
       this.onChangeFunction('showChat', e.target.checked);
+
+    const showLauncherChange = e =>
+      this.onChangeFunction('showLauncher', e.target.checked);
 
     const forceLogoutWhenResolveChange = e =>
       this.onChangeFunction('forceLogoutWhenResolve', e.target.checked);
@@ -114,6 +119,21 @@ class Options extends React.Component<Props, State> {
                 className="wide"
                 checked={this.props.showChat}
                 onChange={showChatChange}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Show launcher</ControlLabel>
+            <div>
+              <Toggle
+                className="wide"
+                checked={this.props.showLauncher}
+                onChange={showLauncherChange}
                 icons={{
                   checked: <span>Yes</span>,
                   unchecked: <span>No</span>

@@ -18,12 +18,19 @@ export const BoardContainer = styled(Contents)`
 
 export const BoardContent = styled(MainContent)`
   margin: 0;
-  background: #6569df;
+  background-color: ${colors.colorSecondary};
 `;
 
 export const ScrolledContent = styled(ContentBox)`
   padding: 4px 0 8px;
   margin: 6px 10px 4px 5px;
+`;
+
+export const RootBack = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  background-color: ${colors.colorSecondary};
 `;
 
 // IItem list

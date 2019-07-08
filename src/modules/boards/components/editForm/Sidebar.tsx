@@ -6,6 +6,7 @@ import { CustomerSection } from 'modules/customers/components/common';
 import { ICustomer } from 'modules/customers/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
+import { Watch } from '../../containers/editForm/';
 import { RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 type Props = {
@@ -73,6 +74,8 @@ class Sidebar extends React.Component<Props> {
           customers={customers}
           onSelect={cmrsChange}
         />
+
+        <Watch item={item} options={options} />
 
         <Button icon="checked-1" onClick={copyItem}>
           Copy

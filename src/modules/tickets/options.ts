@@ -1,3 +1,4 @@
+import { toArray } from 'modules/boards/utils';
 import { PortableTicket, TicketEditForm } from 'modules/tickets/components';
 import { TicketItem } from './containers/';
 import { mutations, queries } from './graphql';
@@ -17,7 +18,8 @@ const options = {
     editMutation: 'ticketsEdit',
     removeMutation: 'ticketsRemove',
     changeMutation: 'ticketsChange',
-    updateOrderMutation: 'ticketsUpdateOrder'
+    updateOrderMutation: 'ticketsUpdateOrder',
+    watchMutation: 'ticketsWatch'
   },
   queries: {
     itemsQuery: queries.tickets,
@@ -28,19 +30,31 @@ const options = {
     editMutation: mutations.ticketsEdit,
     removeMutation: mutations.ticketsRemove,
     changeMutation: mutations.ticketsChange,
-    updateOrderMutation: mutations.ticketsUpdateOrder
+    updateOrderMutation: mutations.ticketsUpdateOrder,
+    watchMutation: mutations.ticketsWatch
   },
   texts: {
     addText: 'Add a ticket',
     addSuccessText: 'You successfully added a ticket',
     updateSuccessText: 'You successfully updated a ticket',
     deleteSuccessText: 'You successfully deleted a ticket',
-    copySuccessText: 'You successfully copied a ticket'
+    copySuccessText: 'You successfully copied a ticket',
+    changeSuccessText: 'You successfully changed a ticket'
   },
-  getExtraParams: (queryParams: any) => ({
-    priority: queryParams.priority,
-    source: queryParams.source
-  })
+  getExtraParams: (queryParams: any) => {
+    const { priority, source } = queryParams;
+    const extraParams: any = {};
+
+    if (priority) {
+      extraParams.priority = toArray(priority);
+    }
+
+    if (source) {
+      extraParams.source = toArray(source);
+    }
+
+    return extraParams;
+  }
 };
 
 export default options;

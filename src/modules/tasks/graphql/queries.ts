@@ -7,7 +7,7 @@ const commonParams = `
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
-  $priority: String,
+  $priority: [String],
 `;
 
 const commonParamDefs = `
@@ -56,6 +56,7 @@ const taskFields = `
   stage {
     probability
   }
+  isWatched
   modifiedAt
   modifiedBy
 `;
