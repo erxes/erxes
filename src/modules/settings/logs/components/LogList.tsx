@@ -41,15 +41,20 @@ class LogList extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const qp = props.queryParams;
+    const qp = props.queryParams || {
+      start: '',
+      end: '',
+      action: '',
+      userId: ''
+    };
 
     this.onClick = this.onClick.bind(this);
 
     this.state = {
-      start: qp && qp.start ? qp.start : '',
-      end: qp && qp.end ? qp.end : '',
-      action: qp && qp.action ? qp.action : '',
-      userId: qp && qp.userId ? qp.userId : ''
+      start: qp.start,
+      end: qp.end,
+      action: qp.action,
+      userId: qp.userId
     };
   }
 
@@ -96,10 +101,12 @@ class LogList extends React.Component<Props, State> {
     const { logs } = this.props;
     const rows: any[] = [];
 
-    if (logs) {
-      for (const log of logs) {
-        rows.push(<LogRow log={log} key={log._id} />);
-      }
+    if (!logs) {
+      return rows;
+    }
+
+    for (const log of logs) {
+      rows.push(<LogRow log={log} key={log._id} />);
     }
 
     return rows;
