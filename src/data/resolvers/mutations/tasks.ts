@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITask } from '../../../db/models/definitions/tasks';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
-import { itemsChange, manageNotifications, sendNotifications } from '../boardUtils';
+import { itemsChange, manageNotifications, notifiedUserIds, sendNotifications } from '../boardUtils';
 
 interface ITasksEdit extends ITask {
   _id: string;
@@ -15,21 +15,10 @@ const taskMutations = {
    * Create new task
    */
   async tasksAdd(_root, doc: ITask, { user }: { user: IUserDocument }) {
-    const task = await Tasks.createTask({
+    return Tasks.createTask({
       ...doc,
       modifiedBy: user._id,
     });
-
-    await sendNotifications(
-      task.stageId || '',
-      user,
-      NOTIFICATION_TYPES.TASK_ADD,
-      task.assignedUserIds || [],
-      `'{userName}' invited you to the '${task.name}'.`,
-      'task',
-    );
-
-    return task;
   },
 
   /**
@@ -67,7 +56,7 @@ const taskMutations = {
       task.stageId || '',
       user,
       NOTIFICATION_TYPES.TASK_CHANGE,
-      task.assignedUserIds || [],
+      await notifiedUserIds(task),
       content,
       'task',
     );
@@ -96,12 +85,25 @@ const taskMutations = {
       task.stageId || '',
       user,
       NOTIFICATION_TYPES.TASK_DELETE,
-      task.assignedUserIds || [],
+      await notifiedUserIds(task),
       `'{userName}' deleted task: '${task.name}'`,
       'task',
     );
 
     return Tasks.removeTask(_id);
+  },
+
+  /**
+   * Watch task
+   */
+  async tasksWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: { user: IUserDocument }) {
+    const task = await Tasks.findOne({ _id });
+
+    if (!task) {
+      throw new Error('Task not found');
+    }
+
+    return Tasks.watchTask(_id, isAdd, user._id);
   },
 };
 
@@ -109,5 +111,6 @@ checkPermission(taskMutations, 'tasksAdd', 'tasksAdd');
 checkPermission(taskMutations, 'tasksEdit', 'tasksEdit');
 checkPermission(taskMutations, 'tasksUpdateOrder', 'tasksUpdateOrder');
 checkPermission(taskMutations, 'tasksRemove', 'tasksRemove');
+checkPermission(taskMutations, 'tasksWatch', 'tasksWatch');
 
 export default taskMutations;

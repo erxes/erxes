@@ -73,6 +73,25 @@ const boardMutations = {
   },
 
   /**
+   * Watch pipeline
+   */
+  async pipelinesWatch(
+    _root,
+    { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string },
+    { user }: { user: IUserDocument },
+  ) {
+    await checkPermission(type, user, 'pipelinesWatch');
+
+    const pipeline = await Pipelines.findOne({ _id });
+
+    if (!pipeline) {
+      throw new Error('Pipeline not found');
+    }
+
+    return Pipelines.watchPipeline(_id, isAdd, user._id);
+  },
+
+  /**
    * Remove pipeline
    */
   async pipelinesRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {

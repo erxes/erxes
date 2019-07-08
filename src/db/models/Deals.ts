@@ -1,8 +1,8 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
+import { changeCompany, changeCustomer, updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
-import { changeCompany, changeCustomer, updateOrder } from './utils';
 
 export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
@@ -10,6 +10,7 @@ export interface IDealModel extends Model<IDealDocument> {
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<IDealDocument[]>;
   removeDeal(_id: string): void;
+  watchDeal(_id: string, isAdd: boolean, userId: string): void;
   changeCustomer(newCustomerId: string, oldCustomerIds: string[]): Promise<IDealDocument>;
   changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<IDealDocument>;
 }
@@ -73,6 +74,13 @@ export const loadDealClass = () => {
       }
 
       return deal.remove();
+    }
+
+    /**
+     * Watch deal
+     */
+    public static async watchDeal(_id: string, isAdd: boolean, userId: string) {
+      return watchItem(Deals, _id, isAdd, userId);
     }
 
     /**

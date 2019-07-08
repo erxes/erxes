@@ -1,5 +1,6 @@
 import { Companies, Customers, Pipelines, Products, Stages, Users } from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
+import { IUserDocument } from '../../db/models/definitions/users';
 import { boardId } from './boardUtils';
 
 export default {
@@ -66,7 +67,17 @@ export default {
     return boardId(deal);
   },
 
-  async stage(deal: IDealDocument) {
+  stage(deal: IDealDocument) {
     return Stages.findOne({ _id: deal.stageId });
+  },
+
+  isWatched(deal: IDealDocument, _args, { user }: { user: IUserDocument }) {
+    const watchedUserIds = deal.watchedUserIds || [];
+
+    if (watchedUserIds.includes(user._id)) {
+      return true;
+    }
+
+    return false;
   },
 };

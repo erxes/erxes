@@ -142,4 +142,23 @@ describe('Test tasks mutations', () => {
 
     expect(await Tasks.findOne({ _id: task._id })).toBe(null);
   });
+
+  test('Watch task', async () => {
+    const mutation = `
+      mutation tasksWatch($_id: String!, $isAdd: Boolean!) {
+        tasksWatch(_id: $_id, isAdd: $isAdd) {
+          _id
+          isWatched
+        }
+      }
+    `;
+
+    const watchAddTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: true }, context);
+
+    expect(watchAddTask.isWatched).toBe(true);
+
+    const watchRemoveTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: false }, context);
+
+    expect(watchRemoveTask.isWatched).toBe(false);
+  });
 });

@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
-import { itemsChange, manageNotifications, sendNotifications } from '../boardUtils';
+import { itemsChange, manageNotifications, notifiedUserIds, sendNotifications } from '../boardUtils';
 
 interface ITicketsEdit extends ITicket {
   _id: string;
@@ -15,21 +15,10 @@ const ticketMutations = {
    * Create new ticket
    */
   async ticketsAdd(_root, doc: ITicket, { user }: { user: IUserDocument }) {
-    const ticket = await Tickets.createTicket({
+    return Tickets.createTicket({
       ...doc,
       modifiedBy: user._id,
     });
-
-    await sendNotifications(
-      ticket.stageId || '',
-      user,
-      NOTIFICATION_TYPES.TICKET_ADD,
-      ticket.assignedUserIds || [],
-      `'{userName}' invited you to the '${ticket.name}'.`,
-      'ticket',
-    );
-
-    return ticket;
   },
 
   /**
@@ -67,7 +56,7 @@ const ticketMutations = {
       ticket.stageId || '',
       user,
       NOTIFICATION_TYPES.TICKET_CHANGE,
-      ticket.assignedUserIds || [],
+      await notifiedUserIds(ticket),
       content,
       'ticket',
     );
@@ -96,12 +85,25 @@ const ticketMutations = {
       ticket.stageId || '',
       user,
       NOTIFICATION_TYPES.TICKET_DELETE,
-      ticket.assignedUserIds || [],
+      await notifiedUserIds(ticket),
       `'{userName}' deleted ticket: '${ticket.name}'`,
       'ticket',
     );
 
     return Tickets.removeTicket(_id);
+  },
+
+  /**
+   * Watch ticket
+   */
+  async ticketsWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: { user: IUserDocument }) {
+    const ticket = await Tickets.findOne({ _id });
+
+    if (!ticket) {
+      throw new Error('Ticket not found');
+    }
+
+    return Tickets.watchTicket(_id, isAdd, user._id);
   },
 };
 
@@ -109,5 +111,6 @@ checkPermission(ticketMutations, 'ticketsAdd', 'ticketsAdd');
 checkPermission(ticketMutations, 'ticketsEdit', 'ticketsEdit');
 checkPermission(ticketMutations, 'ticketsUpdateOrder', 'ticketsUpdateOrder');
 checkPermission(ticketMutations, 'ticketsRemove', 'ticketsRemove');
+checkPermission(ticketMutations, 'ticketsWatch', 'ticketsWatch');
 
 export default ticketMutations;
