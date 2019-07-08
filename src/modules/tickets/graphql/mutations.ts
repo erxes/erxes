@@ -93,10 +93,20 @@ const ticketsUpdateOrder = `
   }
 `;
 
+const ticketsWatch = `
+  mutation ticketsWatch($_id: String!, $isAdd: Boolean!) {
+    ticketsWatch(_id: $_id, isAdd: $isAdd) {
+      _id
+      isWatched
+    }
+  }
+`;
+
 export default {
   ticketsAdd,
   ticketsEdit,
   ticketsRemove,
   ticketsChange,
-  ticketsUpdateOrder
+  ticketsUpdateOrder,
+  ticketsWatch
 };

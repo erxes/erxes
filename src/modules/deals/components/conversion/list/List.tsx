@@ -1,7 +1,7 @@
 import { IStage } from 'modules/boards/types';
 import { EmptyState } from 'modules/common/components';
 import * as React from 'react';
-import { Container, ContentBody, Result } from '../style';
+import { Result } from '../style';
 import Stage from './Stage';
 
 type Props = {
@@ -10,30 +10,8 @@ type Props = {
 
 class List extends React.Component<Props, {}> {
   calcSpace = (lenght: number, index: number) => {
-    return 100 - ((index + 1) * (100 / lenght)) / 1.5;
+    return 100 - (index * (100 / lenght)) / 1.5;
   };
-
-  renderContent() {
-    const { stages } = this.props;
-    if (stages.length === 0) {
-      return <EmptyState image="/images/actions/18.svg" text="No data" />;
-    }
-
-    const contents = stages.map((stage: IStage, index: number) => (
-      <Stage
-        spacing={this.calcSpace(stages.length, index)}
-        key={index}
-        stage={stage}
-      />
-    ));
-
-    return (
-      <ContentBody>
-        {contents}
-        {this.renderFooter()}
-      </ContentBody>
-    );
-  }
 
   renderFooter() {
     const { stages } = this.props;
@@ -57,7 +35,26 @@ class List extends React.Component<Props, {}> {
   }
 
   render() {
-    return <Container>{this.renderContent()}</Container>;
+    const { stages } = this.props;
+
+    if (stages.length === 0) {
+      return <EmptyState image="/images/actions/18.svg" text="No data" />;
+    }
+
+    const contents = stages.map((stage: IStage, index: number) => (
+      <Stage
+        spacing={this.calcSpace(stages.length, index)}
+        key={index}
+        stage={stage}
+      />
+    ));
+
+    return (
+      <>
+        {contents}
+        {this.renderFooter()}
+      </>
+    );
   }
 }
 

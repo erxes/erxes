@@ -1,9 +1,5 @@
 import { Board, MainActionBar } from 'modules/boards/containers';
-import {
-  BoardContainer,
-  BoardContent,
-  ScrolledContent
-} from 'modules/boards/styles/common';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import { Header } from 'modules/layout/components';
@@ -31,9 +27,7 @@ class TicketBoard extends React.Component<Props> {
         <Header title={__('Ticket')} submenu={menuInbox} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
-          <ScrolledContent transparent={true}>
-            {this.renderContent()}
-          </ScrolledContent>
+          {this.renderContent()}
         </BoardContent>
       </BoardContainer>
     );

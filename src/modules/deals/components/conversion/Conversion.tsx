@@ -1,13 +1,13 @@
 import { MainActionBar } from 'modules/boards/containers';
 import { BoardContainer, ScrolledContent } from 'modules/boards/styles/common';
-import { FlexItem } from 'modules/common/components/step/styles';
+
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import Stages from 'modules/deals/containers/conversion/Stages';
 import { Header } from 'modules/layout/components';
 import * as React from 'react';
 import { DealMainActionBar } from '../';
-import { DealContent } from './style';
+import { DealContent, FixedContent, ViewDivider } from './style';
 
 type Props = {
   queryParams: any;
@@ -24,22 +24,21 @@ class ConversionView extends React.Component<Props> {
         <DealContent transparent={true}>
           <MainActionBar type="deal" component={DealMainActionBar} />
           <ScrolledContent transparent={true}>
-            <FlexItem>
-              <FlexItem direction="column">
-                <Stages
-                  type="brief"
-                  pipelineId={pipelineId}
-                  queryParams={queryParams}
-                />
-              </FlexItem>
-              <FlexItem direction="column">
-                <Stages
-                  type="more"
-                  pipelineId={pipelineId}
-                  queryParams={queryParams}
-                />
-              </FlexItem>
-            </FlexItem>
+            <FixedContent>
+              <Stages
+                type="brief"
+                pipelineId={pipelineId}
+                queryParams={queryParams}
+              />
+
+              <ViewDivider />
+
+              <Stages
+                type="more"
+                pipelineId={pipelineId}
+                queryParams={queryParams}
+              />
+            </FixedContent>
           </ScrolledContent>
         </DealContent>
       </BoardContainer>

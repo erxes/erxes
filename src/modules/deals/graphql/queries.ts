@@ -59,6 +59,7 @@ const dealFields = `
     probability
     name
   }
+  isWatched
   modifiedAt
   modifiedBy
 `;

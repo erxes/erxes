@@ -26,12 +26,12 @@ import React from 'react';
 import { Overlay, Popover } from 'react-bootstrap';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import PipelineWatch from '../containers/PipelineWatch';
 import {
   HeaderButton,
   HeaderItems,
   HeaderLabel,
   HeaderLink,
-  HeaderVisibility,
   PageHeader
 } from '../styles/header';
 import { IBoard, IPipeline } from '../types';
@@ -298,9 +298,9 @@ class MainActionBar extends React.Component<Props, State> {
 
     if (currentPipeline.visibility === 'public') {
       return (
-        <HeaderVisibility>
+        <HeaderButton>
           <Icon icon="earthgrid" /> Public
-        </HeaderVisibility>
+        </HeaderButton>
       );
     }
 
@@ -308,9 +308,9 @@ class MainActionBar extends React.Component<Props, State> {
 
     return (
       <>
-        <HeaderVisibility>
+        <HeaderButton>
           <Icon icon="user" /> Private
-        </HeaderVisibility>
+        </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
       </>
     );
@@ -333,7 +333,7 @@ class MainActionBar extends React.Component<Props, State> {
         </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
-            <HeaderButton>
+            <HeaderButton rightIconed={true}>
               {(currentBoard && currentBoard.name) || __('Choose board')}
               <Icon icon="downarrow" />
             </HeaderButton>
@@ -345,7 +345,7 @@ class MainActionBar extends React.Component<Props, State> {
         </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
-            <HeaderButton>
+            <HeaderButton rightIconed={true}>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
               <Icon icon="downarrow" />
@@ -360,6 +360,11 @@ class MainActionBar extends React.Component<Props, State> {
             </Link>
           </Tip>
         </HeaderLink>
+
+        {currentPipeline ? (
+          <PipelineWatch pipeline={currentPipeline} type={type} />
+        ) : null}
+
         {this.renderVisibility()}
       </HeaderItems>
     );
