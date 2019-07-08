@@ -16,7 +16,7 @@ class List extends React.Component<Props, {}> {
   renderContent() {
     const { stages } = this.props;
     if (stages.length === 0) {
-      return <EmptyState icon="piggy-bank" text="No deal" />;
+      return <EmptyState image="/images/actions/18.svg" text="No data" />;
     }
 
     const contents = stages.map((stage: IStage, index: number) => (
@@ -45,15 +45,13 @@ class List extends React.Component<Props, {}> {
     const firstStage: IStage = stages[0] || {};
     const lastStage: IStage = stages.slice(-1)[0] || {};
 
-    const firstStagePrimaryDealsTotalCount =
+    const firstStageInitialDealsTotalCount =
       firstStage.initialDealsTotalCount || 1;
 
-    const lastStagePrimaryDealsTotalCount =
-      lastStage.initialDealsTotalCount || 0;
+    const lastStageItemsTotalCount = lastStage.itemsTotalCount || 0;
 
     const avarage =
-      (lastStagePrimaryDealsTotalCount * 100) /
-      firstStagePrimaryDealsTotalCount;
+      (lastStageItemsTotalCount * 100) / firstStageInitialDealsTotalCount;
 
     return <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>;
   }
