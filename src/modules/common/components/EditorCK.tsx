@@ -18,20 +18,33 @@ type Props = {
 
 const { REACT_APP_API_URL } = getEnv();
 
-let usersMentions: any = [];
+let usersMentions: Array<{ id: string; avatar: string; fullName: string }> = [];
 
-function dataFeed(opts, callback) {
-  if (usersMentions.length > 1) {
-    const matchProperty = 'fullName';
-    const query = opts.query.toLowerCase();
-
-    const data = usersMentions.filter(item => {
-      return item[matchProperty].toLowerCase().indexOf(query) >= 0;
-    });
-
-    callback(data);
+const mentionDataFeed = (opts, callback) => {
+  if (usersMentions.length <= 1) {
+    return;
   }
-}
+
+  const matchProperty = 'fullName';
+  const query = opts.query.toLowerCase();
+
+  const data = usersMentions.filter(
+    item => item[matchProperty].toLowerCase().indexOf(query) >= 0
+  );
+
+  callback(data);
+};
+
+export const getMentionedUserIds = (content: string) => {
+  const re = new RegExp('mentioned-user-id="(?<name>.+?)"', 'g');
+  const mentionedUserIds: string[] = (content.match(re) || []).map(m =>
+    m.replace(re, '$1')
+  );
+
+  return mentionedUserIds.filter((value, index, self) => {
+    return self.indexOf(value) === index;
+  });
+};
 
 function EditorCK({
   content,
@@ -113,13 +126,14 @@ function EditorCK({
         ],
         mentions: [
           {
-            feed: dataFeed,
+            feed: mentionDataFeed,
             itemTemplate:
               '<li data-id="{id}">' +
               '<img class="editor-avatar" src="{avatar}"' +
               '<strong>{fullName}</strong>' +
               '</li>',
-            outputTemplate: '<a id="{id}">@{fullName}</a><span>&nbsp;</span>',
+            outputTemplate:
+              '<a mentioned-user-id="{id}">@{fullName}</a><span>&nbsp;</span>',
             minChars: 0
           }
         ],

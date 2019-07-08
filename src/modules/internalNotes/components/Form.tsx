@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import { Button, EditorCK } from 'modules/common/components';
+import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { colors } from 'modules/common/styles';
-import { getMentionedUserIds } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -41,9 +41,8 @@ class Form extends React.PureComponent<Prop, State> {
 
   onSend = () => {
     const { content } = this.state;
-    const { users = [] } = this.props;
 
-    const mentionedUserIds = getMentionedUserIds(users, content);
+    const mentionedUserIds = getMentionedUserIds(content);
 
     this.props.create(content, mentionedUserIds, () => {
       this.clearContent();
