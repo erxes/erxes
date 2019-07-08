@@ -1,0 +1,64 @@
+import { IStage } from 'modules/boards/types';
+import { EmptyState } from 'modules/common/components';
+import * as React from 'react';
+import { Container, ContentBody, Result } from '../style';
+import Stage from './Stage';
+
+type Props = {
+  stages: IStage[];
+};
+
+class List extends React.Component<Props, {}> {
+  calcSpace = (lenght: number, index: number) => {
+    return 100 - ((index + 1) * (100 / lenght)) / 1.5;
+  };
+
+  renderContent() {
+    const { stages } = this.props;
+    if (stages.length === 0) {
+      return <EmptyState image="/images/actions/18.svg" text="No data" />;
+    }
+
+    const contents = stages.map((stage: IStage, index: number) => (
+      <Stage
+        spacing={this.calcSpace(stages.length, index)}
+        key={index}
+        stage={stage}
+      />
+    ));
+
+    return (
+      <ContentBody>
+        {contents}
+        {this.renderFooter()}
+      </ContentBody>
+    );
+  }
+
+  renderFooter() {
+    const { stages } = this.props;
+
+    if (stages.length === 0) {
+      return;
+    }
+
+    const firstStage: IStage = stages[0] || {};
+    const lastStage: IStage = stages.slice(-1)[0] || {};
+
+    const firstStageInitialDealsTotalCount =
+      firstStage.initialDealsTotalCount || 1;
+
+    const lastStageItemsTotalCount = lastStage.itemsTotalCount || 0;
+
+    const avarage =
+      (lastStageItemsTotalCount * 100) / firstStageInitialDealsTotalCount;
+
+    return <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>;
+  }
+
+  render() {
+    return <Container>{this.renderContent()}</Container>;
+  }
+}
+
+export default List;

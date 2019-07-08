@@ -90,10 +90,20 @@ const tasksUpdateOrder = `
   }
 `;
 
+const tasksWatch = `
+  mutation tasksWatch($_id: String!, $isAdd: Boolean!) {
+    tasksWatch(_id: $_id, isAdd: $isAdd) {
+      _id
+      isWatched
+    }
+  }
+`;
+
 export default {
   tasksAdd,
   tasksEdit,
   tasksRemove,
   tasksChange,
-  tasksUpdateOrder
+  tasksUpdateOrder,
+  tasksWatch
 };

@@ -15,6 +15,7 @@ export interface IOptions {
     removeMutation: string;
     changeMutation: string;
     updateOrderMutation: string;
+    watchMutation: string;
   };
   queries: { itemsQuery: string; detailQuery: string };
   mutations: {
@@ -23,6 +24,7 @@ export interface IOptions {
     removeMutation: string;
     changeMutation: string;
     updateOrderMutation: string;
+    watchMutation: string;
   };
   texts: {
     addText: string;
@@ -30,6 +32,7 @@ export interface IOptions {
     updateSuccessText: string;
     deleteSuccessText: string;
     copySuccessText: string;
+    changeSuccessText: string;
   };
   getExtraParams: (queryParams: any) => any;
 }
@@ -61,6 +64,12 @@ export interface IPipeline {
   visibility: string;
   members?: IUser[];
   memberIds?: string[];
+  isWatched: boolean;
+}
+
+interface IStageComparisonInfo {
+  count: number;
+  percent: number;
 }
 
 export interface IStage {
@@ -72,6 +81,10 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   itemsTotalCount: number;
+  initialDealsTotalCount: number;
+  inProcessDealsTotalCount: number;
+  stayedDealsTotalCount: number;
+  compareNextStage: IStageComparisonInfo;
 }
 
 export interface IItem {
@@ -87,6 +100,7 @@ export interface IItem {
   customers: ICustomer[];
   pipeline: IPipeline;
   stage?: IStage;
+  isWatched?: boolean;
   priority?: string;
 }
 
@@ -150,7 +164,15 @@ export type PipelineDetailQueryResponse = {
   loading: boolean;
 };
 
+export type WatchVariables = {
+  _id: string;
+  isAdd: boolean;
+  type?: string;
+};
+
 export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
+
+export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
 
 export type RemoveVariables = {
   _id: string;

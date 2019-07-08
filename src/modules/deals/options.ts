@@ -18,7 +18,8 @@ const options = {
     editMutation: 'dealsEdit',
     removeMutation: 'dealsRemove',
     changeMutation: 'dealsChange',
-    updateOrderMutation: 'dealsUpdateOrder'
+    updateOrderMutation: 'dealsUpdateOrder',
+    watchMutation: 'dealsWatch'
   },
   queries: {
     itemsQuery: queries.deals,
@@ -29,13 +30,15 @@ const options = {
     editMutation: mutations.dealsEdit,
     removeMutation: mutations.dealsRemove,
     changeMutation: mutations.dealsChange,
-    updateOrderMutation: mutations.dealsUpdateOrder
+    updateOrderMutation: mutations.dealsUpdateOrder,
+    watchMutation: mutations.dealsWatch
   },
   texts: {
     addText: 'Add a deal',
     addSuccessText: 'You successfully added a deal',
     updateSuccessText: 'You successfully updated a deal',
     deleteSuccessText: 'You successfully deleted a deal',
+    changeSuccessText: 'You successfully changed a deal',
     copySuccessText: 'You successfully copied a deal'
   },
   getExtraParams: (queryParams: any) => {

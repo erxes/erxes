@@ -8,14 +8,17 @@ const FilterBox = styled.div`
   max-height: 400px;
   overflow-y: auto;
   overflow-x: hidden;
+
   h4 {
     text-align: center;
     font-size: 16px;
     font-weight: 600;
   }
+
   .Select {
     margin-bottom: 10px;
   }
+
   .date-form input {
     display: block;
     border: none;

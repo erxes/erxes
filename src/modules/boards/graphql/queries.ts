@@ -37,6 +37,7 @@ const boardDetail = `
         name
         visibility
         memberIds
+        isWatched
         members {
           _id
           email
@@ -66,12 +67,14 @@ const pipelineDetail = `
     pipelineDetail(_id: $_id) {
       _id
       name
+      isWatched
     }
   }
 `;
 
 const stages = `
   query stages(
+    $isNotLost: Boolean,
     $pipelineId: String!, 
     $search: String,
     $customerIds: [String],
@@ -85,6 +88,7 @@ const stages = `
     $extraParams: JSON
   ) {
     stages(
+      isNotLost: $isNotLost,
       pipelineId: $pipelineId, 
       search: $search,
       customerIds: $customerIds,
@@ -102,6 +106,10 @@ const stages = `
       order
       amount
       itemsTotalCount
+      compareNextStage
+      initialDealsTotalCount
+      stayedDealsTotalCount
+      inProcessDealsTotalCount
     }
   }
 `;
