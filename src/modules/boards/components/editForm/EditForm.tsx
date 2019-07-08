@@ -148,7 +148,6 @@ class EditForm extends React.Component<Props, State> {
         <FlexContent>
           <Left>
             <ActivityInputs
-              users={users}
               contentTypeId={item._id}
               contentType={options.type}
               showEmail={false}
