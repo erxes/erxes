@@ -38,9 +38,9 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const deals = dealsQuery.deals;
 
     const loading = dealsQuery.loading || dealsQuery.loading;
-    const hasMore = stage.primaryDealsTotalCount > deals.length;
+    const hasMore = stage.initialDealsTotalCount > deals.length;
 
-    if (deals.length === stage.primaryDealsTotalCount) {
+    if (deals.length === stage.initialDealsTotalCount) {
       return;
     }
     if (!loading && hasMore) {
@@ -94,7 +94,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
 
     const deals = dealsQuery.deals;
 
-    const hasMore = stage.primaryDealsTotalCount > deals.length;
+    const hasMore = stage.initialDealsTotalCount > deals.length;
 
     return (
       <Stage

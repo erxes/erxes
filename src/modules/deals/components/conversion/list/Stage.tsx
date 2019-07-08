@@ -45,7 +45,7 @@ class Stage extends React.Component<Props> {
             <Name>{stage.name}</Name>
             <Stayed>
               {stage.itemsTotalCount} /{' '}
-              <span>{stage.primaryDealsTotalCount}</span>
+              <span>{stage.initialDealsTotalCount}</span>
             </Stayed>
           </Content>
           {this.renderLostInfo(stage.stageInfo)}

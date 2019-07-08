@@ -65,7 +65,7 @@ export default class Stage extends React.Component<Props, State> {
   };
 
   isCollabsible = () => {
-    if (this.props.stage.primaryDealsTotalCount === 0) {
+    if (this.props.stage.initialDealsTotalCount === 0) {
       return false;
     }
 
@@ -75,10 +75,10 @@ export default class Stage extends React.Component<Props, State> {
   renderLostInfo = () => {
     const { stage } = this.props;
 
-    const primary = stage.primaryDealsTotalCount || 1;
+    const primary = stage.initialDealsTotalCount || 1;
     const stayed = stage.stayedDealsTotalCount || 0;
     const inProcess = stage.inProcessDealsTotalCount || 0;
-    const lost = (stage.primaryDealsTotalCount || 0) - inProcess - stayed;
+    const lost = (stage.initialDealsTotalCount || 0) - inProcess - stayed;
 
     return (
       <>
@@ -116,7 +116,7 @@ export default class Stage extends React.Component<Props, State> {
           onClick={this.isCollabsible() ? this.toggleCollapse : undefined}
         >
           <StageName open={this.state.showCollapse}>
-            {stage.name} <label>({stage.primaryDealsTotalCount})</label>
+            {stage.name} <label>({stage.initialDealsTotalCount})</label>
           </StageName>
           {this.renderLostInfo()}
         </BodyRow>

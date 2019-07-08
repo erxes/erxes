@@ -105,7 +105,7 @@ const stages = `
       amount
       itemsTotalCount
       stageInfo
-      primaryDealsTotalCount
+      initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
     }

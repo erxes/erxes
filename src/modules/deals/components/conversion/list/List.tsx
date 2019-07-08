@@ -45,10 +45,10 @@ class List extends React.Component<Props, {}> {
       const lastStage: IStage = stages.slice(-1)[0] || {};
 
       const firstStagePrimaryDealsTotalCount =
-        firstStage.primaryDealsTotalCount || 1;
+        firstStage.initialDealsTotalCount || 1;
 
       const lastStagePrimaryDealsTotalCount =
-        lastStage.primaryDealsTotalCount || 0;
+        lastStage.initialDealsTotalCount || 0;
 
       const avarage =
         (lastStagePrimaryDealsTotalCount * 100) /

@@ -77,7 +77,7 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   itemsTotalCount: number;
-  primaryDealsTotalCount: number;
+  initialDealsTotalCount: number;
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   stageInfo: IStageInfo;
