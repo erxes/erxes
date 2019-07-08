@@ -72,7 +72,7 @@ const Header = styled.div`
   border-radius: 3px 3px 0 0;
 
   h4 {
-    margin: 0 0 5px;
+    margin: 0;
     font-size: 14px;
     font-weight: bold;
 
@@ -90,9 +90,9 @@ const HeaderAmount = styled.div`
 
 const Amount = styled.ul`
   list-style: none;
-  margin: 0;
+  margin: 5px 0 0;
   overflow: hidden;
-  padding: 0;
+  padding: 0 !important;
   max-width: 230px;
   font-size: 12px;
   display: inline-block;

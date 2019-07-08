@@ -56,6 +56,7 @@ const taskFields = `
   stage {
     probability
   }
+  isWatched
   modifiedAt
   modifiedBy
 `;

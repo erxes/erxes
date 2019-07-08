@@ -1,0 +1,33 @@
+import { WatchIndicator } from 'modules/boards/styles/item';
+import { IItem } from 'modules/boards/types';
+import { Button, Icon } from 'modules/common/components';
+import * as React from 'react';
+
+type IProps = {
+  item: IItem;
+  onChangeWatch: (isAdd: boolean) => void;
+};
+
+class Watch extends React.Component<IProps> {
+  render() {
+    const {
+      onChangeWatch,
+      item: { isWatched }
+    } = this.props;
+
+    const onClick = () => onChangeWatch(!isWatched);
+
+    return (
+      <Button icon="eye" onClick={onClick}>
+        Watch
+        {isWatched && (
+          <WatchIndicator>
+            <Icon icon="check" />
+          </WatchIndicator>
+        )}
+      </Button>
+    );
+  }
+}
+
+export default Watch;

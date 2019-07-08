@@ -37,6 +37,7 @@ const boardDetail = `
         name
         visibility
         memberIds
+        isWatched
         members {
           _id
           email
@@ -66,6 +67,7 @@ const pipelineDetail = `
     pipelineDetail(_id: $_id) {
       _id
       name
+      isWatched
     }
   }
 `;
