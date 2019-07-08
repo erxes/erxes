@@ -89,6 +89,38 @@ const PopoverContent = styled.div`
   height: 420px;
 `;
 
+const CreatedUser = styled.span`
+  font-weight: 600;
+  padding-left: ${dimensions.unitSpacing}px;
+
+  span {
+    padding-left: ${dimensions.unitSpacing - 5}px;
+    font-weight: normal;
+  }
+`;
+
+const CreatedDate = styled.div`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+  text-align: right;
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
+`;
+
+const Content = styled.div`
+  background: ${colors.bgMain};
+  padding: 5px ${dimensions.unitSpacing}px;
+  border-radius: 3px;
+
+  > p {
+    margin: 0;
+  }
+`;
+
 export {
   NotifList,
   NotificationList,
@@ -96,5 +128,9 @@ export {
   NotificationSeeAll,
   NotifButton,
   PopoverHeader,
-  PopoverContent
+  PopoverContent,
+  CreatedUser,
+  FlexRow,
+  CreatedDate,
+  Content
 };

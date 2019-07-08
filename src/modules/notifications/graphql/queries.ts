@@ -4,6 +4,7 @@ const notificationFields = `
   title
   link
   content
+  action
   createdUser {
     _id
     username
@@ -14,7 +15,6 @@ const notificationFields = `
     }
     email
   }
-
   receiver
   date
   isRead

@@ -6,6 +6,7 @@ export interface INotification {
   title: string;
   link: string;
   content: string;
+  action: string;
   createdUser: IUser;
   receiver: string;
   date: Date;
