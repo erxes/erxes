@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { CountsByTag } from 'modules/common/components';
+import CountsByTag from 'modules/common/components/CountsByTag';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import React from 'react';

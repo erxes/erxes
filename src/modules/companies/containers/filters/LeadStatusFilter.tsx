@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { LeadStatusFilter } from 'modules/customers/components';
+import LeadStatusFilter from 'modules/customers/components/list/LeadStatusFilter';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';

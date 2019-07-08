@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { LifecycleStateFilter } from 'modules/customers/components';
+import LifecycleStateFilter from 'modules/customers/components/list/LifecycleStateFilter';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
