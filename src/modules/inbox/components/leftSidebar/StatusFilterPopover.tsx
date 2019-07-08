@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Icon, Spinner } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import Spinner from 'modules/common/components/Spinner';
 import { __, Alert, router } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';

@@ -1,7 +1,7 @@
-import { SortableList } from 'modules/common/components';
+import SortableList from 'modules/common/components/SortableList';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import { FieldPreview } from './';
+import FieldPreview from './FieldPreview';
 
 type Props = {
   fields?: IField[];

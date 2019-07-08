@@ -1,6 +1,6 @@
 import { IButtonMutateProps } from 'modules/common/types';
 import { StepFormWrapper } from 'modules/engage/styles';
-import { Form as TagForm } from 'modules/tags/components';
+import TagForm from 'modules/tags/components/Form';
 import React from 'react';
 
 type Props = {

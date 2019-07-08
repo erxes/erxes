@@ -1,17 +1,17 @@
-import { MainActionBar } from 'modules/boards/containers';
+import MainActionBar from 'modules/boards/containers/MainActionBar';
 import {
   BoardContainer,
   BoardContent,
   ScrolledContent
 } from 'modules/boards/styles/common';
-import { Calendar } from 'modules/common/components';
+import Calendar from 'modules/common/components/Calendar';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Header } from 'modules/layout/components';
+import Header from 'modules/layout/components/Header';
 import React from 'react';
 import styled from 'styled-components';
-import { DealMainActionBar } from '../';
-import { DealColumn } from '../../containers';
+import DealColumn from '../../containers/calendar/DealColumn';
+import DealMainActionBar from '../DealMainActionBar';
 
 type Props = {
   queryParams: any;

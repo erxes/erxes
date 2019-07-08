@@ -1,5 +1,5 @@
 import { IButtonMutateProps } from 'modules/common/types';
-import { Form } from 'modules/segments/components/common';
+import Form from 'modules/segments/components/common/Form';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import React from 'react';
 

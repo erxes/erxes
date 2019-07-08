@@ -1,5 +1,5 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import { DealItem } from 'modules/deals/components/';
+import DealItem from 'modules/deals/components/DealItem';
 import React from 'react';
 import { IDeal } from '../types';
 

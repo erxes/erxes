@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { ResponseTemplate } from 'modules/inbox/components/conversationDetail';
+import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/ResponseTemplate';
 import { mutations, queries } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';

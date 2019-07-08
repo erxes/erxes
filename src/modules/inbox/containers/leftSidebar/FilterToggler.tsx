@@ -1,4 +1,4 @@
-import { FilterToggler as DumbToggler } from 'modules/inbox/components/leftSidebar';
+import DumbToggler from 'modules/inbox/components/leftSidebar/FilterToggler';
 import React from 'react';
 import { getConfig, setConfig } from '../../utils';
 

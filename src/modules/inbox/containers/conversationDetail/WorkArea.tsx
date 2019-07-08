@@ -1,6 +1,6 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { WorkArea as DumbWorkArea } from 'modules/inbox/components/conversationDetail';
+import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';

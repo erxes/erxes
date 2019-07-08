@@ -1,11 +1,9 @@
-import {
-  Button,
-  CountsByTag,
-  DataWithLoader,
-  FormControl,
-  Pagination,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import CountsByTag from 'modules/common/components/CountsByTag';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import FormControl from 'modules/common/components/form/Control';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { BarItems } from 'modules/layout/styles';

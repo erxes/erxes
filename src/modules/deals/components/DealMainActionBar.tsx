@@ -1,9 +1,9 @@
-import { MainActionBar } from 'modules/boards/components';
+import MainActionBar from 'modules/boards/components/MainActionBar';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { SelectProducts } from 'modules/settings/productService/containers';
+import SelectProducts from 'modules/settings/productService/containers/SelectProducts';
 import React from 'react';
 import { Link } from 'react-router-dom';
 

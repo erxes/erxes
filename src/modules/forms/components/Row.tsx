@@ -1,18 +1,16 @@
-import {
-  ActionButtons,
-  Button,
-  FormControl,
-  Icon,
-  ModalTrigger,
-  Tags,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tags from 'modules/common/components/Tags';
+import Tip from 'modules/common/components/Tip';
 import { __, Alert, confirm } from 'modules/common/utils';
 import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IFormIntegration } from '../types';
-import { Manage } from './';
+import Manage from './Manage';
 
 type Props = {
   integration: IFormIntegration;

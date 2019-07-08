@@ -1,8 +1,12 @@
-import { Icon, Tabs, TabTitle } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import { CalloutPreview, FormPreview, SuccessPreview } from './preview';
+import CalloutPreview from './preview/CalloutPreview';
+import FormPreview from './preview/FormPreview';
+import SuccessPreview from './preview/SuccessPreview';
 import {
   CarouselInner,
   CarouselSteps,

@@ -1,10 +1,7 @@
-import {
-  Button,
-  ConditionsRule,
-  FormControl,
-  Step,
-  Steps
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
@@ -13,7 +10,7 @@ import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { IFormIntegration } from 'modules/forms/types';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
 

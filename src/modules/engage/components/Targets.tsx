@@ -1,4 +1,4 @@
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { ListCounter, ListWrapper } from '../styles';

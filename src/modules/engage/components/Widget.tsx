@@ -1,4 +1,5 @@
-import { Button, ModalTrigger } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ICustomer } from 'modules/customers/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';

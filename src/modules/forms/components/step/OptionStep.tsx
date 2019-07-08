@@ -1,17 +1,15 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { SelectBrand } from 'modules/settings/integrations/containers';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 import { IBrand } from '../../../settings/brands/types';
-import { FormPreview } from './preview';
+import FormPreview from './preview/FormPreview';
 import { BackgroundSelector, ColorPicker, FlexItem, Picker } from './style';
 
 type Props = {

@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import { EmailStatistics } from '../components';
+import EmailStatistics from '../components/EmailStatistics';
 import { queries } from '../graphql';
 import { EngageMessageDetailQueryResponse } from '../types';
 

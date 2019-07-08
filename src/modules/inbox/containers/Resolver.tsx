@@ -3,7 +3,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Resolver } from '../components';
+import Resolver from '../components/Resolver';
 import { mutations } from '../graphql';
 import {
   ChangeStatusMutationResponse,

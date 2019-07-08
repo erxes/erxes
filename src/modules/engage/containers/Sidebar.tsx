@@ -6,7 +6,7 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { withProps } from '../../common/utils';
 import { TagsQueryResponse } from '../../tags/types';
-import { Sidebar } from '../components';
+import Sidebar from '../components/Sidebar';
 import { queries } from '../graphql';
 import { CountQueryResponse, TagCountQueryResponse } from '../types';
 

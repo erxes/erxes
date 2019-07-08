@@ -1,4 +1,4 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { BoxRoot, FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';

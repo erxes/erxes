@@ -1,11 +1,12 @@
 import { IUser } from 'modules/auth/types';
-import { FormControl, Step, Steps } from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
@@ -17,7 +18,8 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from '../types';
-import { ChannelStep, MessageStep } from './step';
+import ChannelStep from './step/ChannelStep';
+import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
 
 type Props = {

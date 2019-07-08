@@ -1,7 +1,7 @@
 import { AppConsumer } from 'appContext';
-import { Bulk } from 'modules/common/components';
+import Bulk from 'modules/common/components/Bulk';
 import { IBulkContentProps } from 'modules/common/components/Bulk';
-import { Sidebar as DumbSidebar } from 'modules/inbox/components/leftSidebar';
+import DumbSidebar from 'modules/inbox/components/leftSidebar/Sidebar';
 import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { withRouter } from 'react-router';

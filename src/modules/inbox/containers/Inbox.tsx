@@ -3,7 +3,8 @@ import gql from 'graphql-tag';
 import { can, router as routerUtils } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { Empty, Inbox } from '../components';
+import Empty from '../components/Empty';
+import Inbox from '../components/Inbox';
 import { queries } from '../graphql';
 import {
   ConvesationsQueryVariables,
