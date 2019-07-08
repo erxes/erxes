@@ -263,7 +263,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     return (
       <HeaderLink>
-        <Tip text={__('Filter')}>
+        <Tip text={__('Filter')} placement="bottom">
           <FilterBtn active={hasFilter}>
             <Button
               btnStyle={hasFilter ? 'success' : 'link'}
@@ -368,14 +368,12 @@ class MainActionBar extends React.Component<Props, State> {
       <HeaderItems>
         {middleContent && middleContent()}
 
-        <div style={{ display: 'inline-block' }}>
-          <FormControl
-            defaultValue={queryParams.search}
-            placeholder={__('Search ...')}
-            onKeyPress={this.onSearch}
-            autoFocus={true}
-          />
-        </div>
+        <FormControl
+          defaultValue={queryParams.search}
+          placeholder={__('Search ...')}
+          onKeyPress={this.onSearch}
+          autoFocus={true}
+        />
 
         {this.renderFilter()}
 
