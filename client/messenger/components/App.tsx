@@ -4,6 +4,7 @@ import { Launcher, Messenger } from "../containers";
 
 type Props = {
   isMessengerVisible: boolean;
+  showLauncher: boolean;
   saveBrowserInfo: () => void;
 };
 
@@ -12,6 +13,16 @@ export default class App extends React.Component<Props> {
     // call save browser info mutation
     this.props.saveBrowserInfo();
   }
+
+  renderLauncher = () => {
+    const { showLauncher } = this.props;
+
+    if (!showLauncher) {
+      return null;
+    }
+
+    return <Launcher />;
+  };
 
   render() {
     const { isMessengerVisible } = this.props;
@@ -28,7 +39,8 @@ export default class App extends React.Component<Props> {
             <Messenger />
           </div>
         </RTG.CSSTransition>
-        <Launcher />
+
+        {this.renderLauncher()}
       </div>
     );
   }
