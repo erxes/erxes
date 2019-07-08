@@ -37,6 +37,7 @@ const boardDetail = `
         name
         visibility
         memberIds
+        isWatched
         members {
           _id
           email
@@ -67,6 +68,7 @@ const pipelineDetail = `
       _id
       name
       bgColor
+      isWatched
     }
   }
 `;

@@ -4,6 +4,7 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
+import { Icon } from 'modules/common/components';
 import { __, getUserAvatar } from 'modules/common/utils';
 import moment from 'moment';
 import React from 'react';
@@ -57,7 +58,12 @@ export default class DealItem extends React.PureComponent<
     }
 
     return (
-      <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
+      <Modal
+        enforceFocus={false}
+        bsSize="lg"
+        show={true}
+        onHide={this.toggleForm}
+      >
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit deal')}</Modal.Title>
         </Modal.Header>
@@ -130,7 +136,7 @@ export default class DealItem extends React.PureComponent<
           </PriceContainer>
 
           <Footer>
-            {__('Last updated')}:
+            {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
             <Right>{this.renderDate(item.modifiedAt)}</Right>
           </Footer>
         </Content>

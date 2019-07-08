@@ -1,12 +1,13 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { BarItems } from 'modules/layout/styles';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 // header
 export const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 10px 20px 6px;
+  padding: 10px ${dimensions.coreSpacing}px 6px;
   background: ${colors.colorWhite};
   min-height: 50px;
 `;
@@ -18,6 +19,7 @@ export const ButtonGroup = styled.div`
   border: 1px solid ${colors.bgActive};
 
   a {
+    padding: 7px ${dimensions.coreSpacing}px;
     padding: 6px 20px;
     display: inline-block;
     color: ${colors.colorCoreGray};
@@ -53,21 +55,34 @@ export const HeaderItems = styled(BarItems)`
   }
 `;
 
-export const HeaderButton = styled.div`
+export const HeaderButton = styledTS<{
+  hasBackground?: boolean;
+  rightIconed?: boolean;
+  isActive?: boolean;
+}>(styled.div)`
   padding: 0 12px;
   line-height: 32px;
   height: 34px;
   border-radius: 4px;
   transition: background 0.3s ease;
+  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
   font-size: 14px;
   font-weight: 500;
   display: inline-block;
   vertical-align: middle;
 
   > i {
-    font-size: 8px;
-    color: ${colors.colorCoreGray};
-    margin-left: 8px;
+    font-size: ${props => (props.rightIconed ? '8px' : '14px')};
+    color: ${props =>
+      props.isActive ? colors.colorSecondary : colors.colorCoreGray};
+    margin-right: 5px;
+
+    ${props =>
+      props.rightIconed &&
+      css`
+        margin-right: 0;
+        margin-left: 8px;
+      `};
   }
 
   &:hover {
@@ -83,20 +98,9 @@ export const HeaderButton = styled.div`
 export const HeaderLabel = styled.span`
   font-size: 10px;
   text-transform: uppercase;
-  margin-right: -18px;
+  margin-right: -10px;
   font-weight: 500;
   color: ${colors.colorCoreGray};
-`;
-
-export const HeaderVisibility = styled(HeaderButton)`
-  background: rgba(0, 0, 0, 0.04);
-  cursor: pointer;
-  border-radius: 5px;
-
-  > i {
-    font-size: 13px;
-    margin: 0 5px 0 0;
-  }
 `;
 
 export const HeaderLink = styled(HeaderButton)`
@@ -106,6 +110,7 @@ export const HeaderLink = styled(HeaderButton)`
   background: rgba(0, 0, 0, 0.04);
   border-radius: 17px;
   line-height: 21px;
+
   a {
     color: ${colors.colorCoreGray};
     padding: 0 11px;
