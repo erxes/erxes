@@ -4,7 +4,7 @@ import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import { ScrolledContent, RootBack } from '../styles/common';
+import { RootBack, ScrolledContent } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 
