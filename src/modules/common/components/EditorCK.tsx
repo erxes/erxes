@@ -20,6 +20,19 @@ const { REACT_APP_API_URL } = getEnv();
 
 let usersMentions: any = [];
 
+function dataFeed(opts, callback) {
+  if (usersMentions.length > 1) {
+    const matchProperty = 'fullName';
+    const query = opts.query.toLowerCase();
+
+    const data = usersMentions.filter(item => {
+      return item[matchProperty].toLowerCase().indexOf(query) >= 0;
+    });
+
+    callback(data);
+  }
+}
+
 function EditorCK({
   content,
   onChange,
@@ -127,20 +140,3 @@ function EditorCK({
 }
 
 export default EditorCK;
-
-function dataFeed(opts, callback) {
-  if (usersMentions.length > 1) {
-    const matchProperty = 'fullName';
-    let data = usersMentions.filter(item => {
-      return item[matchProperty].indexOf(opts.query.toLowerCase()) === 0;
-    });
-
-    data = usersMentions.sort((a, b) => {
-      return a[matchProperty].localeCompare(b[matchProperty], undefined, {
-        sensitivity: 'accent'
-      });
-    });
-
-    callback(data);
-  }
-}
