@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
-import { Button, EditorCK } from 'modules/common/components';
+import { Button } from 'modules/common/components';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { colors } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';
@@ -83,12 +84,10 @@ class Form extends React.PureComponent<Prop, State> {
   };
 
   render() {
-    const { users } = this.props;
-
     return (
       <EditorWrapper>
         <EditorCK
-          users={users || []}
+          showMentions={true}
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}

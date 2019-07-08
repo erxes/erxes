@@ -1,39 +1,12 @@
 import { getEnv } from 'apolloClient';
 import CKEditor from 'ckeditor4-react';
-import { IUser } from 'modules/auth/types';
 import { colors } from 'modules/common/styles';
 import React from 'react';
+import { IEditorProps } from '../types';
 
 CKEditor.editorUrl = '/ckeditor/ckeditor.js';
 
-type Props = {
-  content: string;
-  onChange: (evt: any) => void;
-  height?: number | string;
-  insertItems?: any;
-  removeButtons?: string;
-  toolbarCanCollapse?: boolean;
-  users?: IUser[];
-};
-
 const { REACT_APP_API_URL } = getEnv();
-
-let usersMentions: Array<{ id: string; avatar: string; fullName: string }> = [];
-
-const mentionDataFeed = (opts, callback) => {
-  if (usersMentions.length <= 1) {
-    return;
-  }
-
-  const matchProperty = 'fullName';
-  const query = opts.query.toLowerCase();
-
-  const data = usersMentions.filter(
-    item => item[matchProperty].toLowerCase().indexOf(query) >= 0
-  );
-
-  callback(data);
-};
 
 export const getMentionedUserIds = (content: string) => {
   const re = new RegExp('mentioned-user-id="(?<name>.+?)"', 'g');
@@ -53,21 +26,22 @@ function EditorCK({
   insertItems,
   removeButtons,
   toolbarCanCollapse,
-  users
-}: Props) {
-  usersMentions = [];
-
-  if (users) {
-    for (const user of users) {
-      if (user.details && user.details.fullName) {
-        usersMentions.push({
-          id: user._id,
-          avatar: user.details.avatar || '/images/avatar.svg',
-          fullName: user.details.fullName
-        });
-      }
+  mentionUsers = []
+}: IEditorProps) {
+  const mentionDataFeed = (opts, callback) => {
+    if (mentionUsers.length <= 1) {
+      return;
     }
-  }
+
+    const matchProperty = 'fullName';
+    const query = opts.query.toLowerCase();
+
+    const data = mentionUsers.filter(
+      item => item[matchProperty].toLowerCase().indexOf(query) >= 0
+    );
+
+    callback(data);
+  };
 
   return (
     <CKEditor

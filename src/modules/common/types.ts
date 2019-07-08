@@ -70,3 +70,19 @@ export type IButtonMutateProps = {
   size?: string;
   object?: any;
 };
+
+export type IMentionUser = {
+  id: string;
+  avatar: string;
+  fullName: string;
+};
+
+export type IEditorProps = {
+  content: string;
+  onChange: (evt: any) => void;
+  height?: number | string;
+  insertItems?: any;
+  removeButtons?: string;
+  toolbarCanCollapse?: boolean;
+  mentionUsers?: IMentionUser[];
+};

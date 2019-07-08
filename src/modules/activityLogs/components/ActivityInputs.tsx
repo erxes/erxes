@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import { Icon, Tabs, TabTitle } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { Form as NoteForm } from 'modules/internalNotes/containers';
@@ -12,7 +11,6 @@ type Props = {
   toEmail?: string;
   toEmails?: string[];
   extraTab?: React.ReactNode;
-  users?: IUser[];
 };
 
 type State = {
@@ -33,16 +31,12 @@ class ActivityInputs extends React.PureComponent<Props, State> {
   };
 
   renderTabContent() {
-    const { contentTypeId, contentType, showEmail, users } = this.props;
+    const { contentTypeId, contentType, showEmail } = this.props;
     const { currentTab } = this.state;
 
     if (currentTab === 'newNote') {
       return (
-        <NoteForm
-          contentType={contentType}
-          contentTypeId={contentTypeId}
-          users={users}
-        />
+        <NoteForm contentType={contentType} contentTypeId={contentTypeId} />
       );
     }
 
@@ -78,6 +72,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
 
   render() {
     const { currentTab } = this.state;
+
     return (
       <WhiteBoxRoot>
         <Tabs>
