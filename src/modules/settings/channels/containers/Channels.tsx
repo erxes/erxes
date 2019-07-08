@@ -6,7 +6,8 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IntegrationsCountQueryResponse } from '../../integrations/types';
-import { Channels as DumbChannels, Empty } from '../components';
+import DumbChannels from '../components/Channels';
+import Empty from '../components/Empty';
 import { queries } from '../graphql';
 import {
   ChannelDetailQueryResponse,

@@ -6,7 +6,8 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';
-import { Brands as DumbBrands, Empty } from '../components';
+import DumbBrands from '../components/Brands';
+import Empty from '../components/Empty';
 import { queries } from '../graphql';
 import { BrandDetailQueryResponse, BrandsGetLastQueryResponse } from '../types';
 

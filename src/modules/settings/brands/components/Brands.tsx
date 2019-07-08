@@ -1,15 +1,14 @@
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
-import {
-  Button,
-  DataWithLoader,
-  HeaderDescription,
-  ModalTrigger,
-  Pagination
-} from '../../../common/components';
 import { __ } from '../../../common/utils';
-import { Wrapper } from '../../../layout/components';
-import { IntegrationList } from '../../integrations/containers/common';
-import { ManageIntegrations, Sidebar } from '../containers';
+import Wrapper from '../../../layout/components/Wrapper';
+import IntegrationList from '../../integrations/containers/common/IntegrationList';
+import ManageIntegrations from '../containers/ManageIntegrations';
+import Sidebar from '../containers/Sidebar';
 import { IBrand } from '../types';
 
 type Props = {

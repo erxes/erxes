@@ -1,11 +1,9 @@
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '../../../common/components';
 import { ModalFooter } from '../../../common/styles/main';
 import { __ } from '../../../common/utils';
 import { IBrand, IChooseBrand } from '../types';

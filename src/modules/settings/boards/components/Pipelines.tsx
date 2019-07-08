@@ -1,18 +1,16 @@
 import { IPipeline } from 'modules/boards/types';
 import { collectOrders } from 'modules/boards/utils';
-import {
-  Button,
-  EmptyState,
-  HeaderDescription,
-  SortableList
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import SortableList from 'modules/common/components/SortableList';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { PipelineRow } from '.';
-import { PipelineForm } from '../containers';
+import PipelineForm from '../containers/PipelineForm';
 import { PipelineContainer } from '../styles';
+import PipelineRow from './PipelineRow';
 
 type Props = {
   type: string;

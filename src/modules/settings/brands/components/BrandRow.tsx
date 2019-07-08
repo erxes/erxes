@@ -1,7 +1,10 @@
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import BrandForm from 'modules/settings/brands/components/BrandForm';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Icon, ModalTrigger, Tip } from '../../../common/components';
 import { __ } from '../../../common/utils';
 import { ActionButtons, SidebarListItem } from '../../styles';
 import { IBrand } from '../types';

@@ -1,8 +1,10 @@
 import { IPipeline } from 'modules/boards/types';
-import { ActionButtons, Button, Tip } from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
-import { PipelineForm } from '../containers';
+import PipelineForm from '../containers/PipelineForm';
 import { PipelineRowContainer } from '../styles';
 
 type Props = {

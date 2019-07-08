@@ -1,5 +1,6 @@
 import { IStage } from 'modules/boards/types';
-import { Button, SortableList } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import SortableList from 'modules/common/components/SortableList';
 import React from 'react';
 import { StageList } from '../styles';
 import StageItem from './StageItem';
