@@ -15,7 +15,7 @@ class Table extends React.Component<Props, {}> {
   renderContent() {
     const { stages, queryParams, pipelineId } = this.props;
     if (stages.length === 0) {
-      return <EmptyState icon="piggy-bank" text="No deal" />;
+      return <EmptyState image="/images/actions/18.svg" text="No data" />;
     }
 
     return (

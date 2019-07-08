@@ -7,6 +7,7 @@ const Container = styled.div`
   position: relative;
   height: 100%;
   overflow: auto;
+  padding-top: 10px;
 `;
 
 const ContentBody = styled.div`
@@ -52,7 +53,7 @@ const Stayed = styled('div')`
   flex-shrink: 0;
 
   span {
-    color: ${colors.textSecondary};
+    color: ${colors.colorCoreDarkGray};
   }
 `;
 
@@ -66,7 +67,7 @@ const Name = styled('div')`
 const Values = styled('div')`
   text-align: right;
   padding: 6px 10px 0 10px;
-  font-weight: 500;
+  font-weight: bold;
   color: ${colors.colorCoreGreen};
 
   i {
@@ -123,25 +124,42 @@ const HeadRow = styled(BodyRow)`
   }
 `;
 
-const StageName = styledTS<{ open?: boolean }>(styled.span)`
+const StageName = styledTS<{ open?: boolean; isCollabsible?: boolean }>(
+  styled.span
+)`
   transition: all ease .3s;
   border-right: 1px solid transparent;
 
   ${props =>
     props.open &&
     css`
-      background: ${colors.bgLight};
+      font-weight: bold !important;
+      background: ${colors.bgActive};
       border-color: ${colors.borderPrimary};
-      border-bottom: 1px solid transparent !important;
+      border-top: 2px solid ${colors.colorCoreTeal};
+      border-bottom: 2px solid transparent !important;
+    `};
+  
+  ${props =>
+    props.isCollabsible &&
+    css`
+      &:hover {
+        cursor: pointer;
+        background: ${colors.bgActive};
+      }
     `};
 
-  &:hover {
-    cursor: pointer;
-    background: ${colors.bgLight};
+  > i {
+    margin-left: 5px;
+    color: ${colors.colorSecondary};
+    transition: all ease 0.3s;
+    display: inline-block;
+    transform: ${props => props.open && 'rotate(180deg)'};
   }
 `;
 
 const SubHead = styled(HeadRow)`
+  background: ${colors.bgActive};
   margin: 0;
   font-size: 12px;
 
@@ -153,7 +171,12 @@ const SubHead = styled(HeadRow)`
 
 const Deals = styled.div`
   overflow: hidden;
-  border-bottom: 2px solid ${colors.borderPrimary};
+  border-bottom: 3px solid ${colors.bgActive};
+`;
+
+const CenterButton = styled.div`
+  text-align: center;
+  margin: 10px;
 `;
 
 export {
@@ -173,5 +196,6 @@ export {
   SubHead,
   Deals,
   TableView,
-  StageName
+  StageName,
+  CenterButton
 };

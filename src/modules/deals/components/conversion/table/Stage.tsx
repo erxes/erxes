@@ -1,5 +1,5 @@
-import { LoadingContent } from 'modules/boards/styles/stage';
 import { IStage } from 'modules/boards/types';
+import { Icon, Spinner } from 'modules/common/components';
 import * as React from 'react';
 import { Collapse } from 'react-bootstrap';
 import { IDeal } from '../../../types';
@@ -45,11 +45,7 @@ export default class Stage extends React.Component<Props, State> {
     const { stage, deals, loadingDeals, hasMore } = this.props;
 
     if (loadingDeals) {
-      return (
-        <LoadingContent>
-          <img src="/images/loading-content.gif" alt="Loading" />
-        </LoadingContent>
-      );
+      return <Spinner />;
     }
 
     return (
@@ -109,14 +105,17 @@ export default class Stage extends React.Component<Props, State> {
 
   render() {
     const { stage } = this.props;
+    const isCollabsible = this.isCollabsible();
 
     return (
       <>
-        <BodyRow
-          onClick={this.isCollabsible() ? this.toggleCollapse : undefined}
-        >
-          <StageName open={this.state.showCollapse}>
+        <BodyRow onClick={isCollabsible ? this.toggleCollapse : undefined}>
+          <StageName
+            open={this.state.showCollapse}
+            isCollabsible={isCollabsible}
+          >
             {stage.name} <label>({stage.initialDealsTotalCount})</label>
+            {isCollabsible && <Icon icon="downarrow" size={10} />}
           </StageName>
           {this.renderLostInfo()}
         </BodyRow>

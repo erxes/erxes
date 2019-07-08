@@ -1,9 +1,8 @@
 import { Button } from 'modules/common/components';
-import { CenterContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';
-import { Deals, SubHead } from '../style';
+import { CenterButton, Deals, SubHead } from '../style';
 import DealItem from './DealItem';
 
 type Props = {
@@ -36,11 +35,16 @@ export default class DealList extends React.Component<Props> {
         </SubHead>
         {contents}
         {this.props.hasMore && (
-          <CenterContent>
-            <Button size="small" btnStyle="link" onClick={this.props.loadMore}>
+          <CenterButton>
+            <Button
+              size="small"
+              btnStyle="success"
+              icon="refresh"
+              onClick={this.props.loadMore}
+            >
               Load More
             </Button>
-          </CenterContent>
+          </CenterButton>
         )}
       </Deals>
     );
