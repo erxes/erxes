@@ -1,4 +1,6 @@
-import { Button, FormControl, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';

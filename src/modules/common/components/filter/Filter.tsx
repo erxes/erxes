@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Chip } from 'modules/common/components';
+import Chip from 'modules/common/components/Chip';
 import { router } from 'modules/common/utils';
 import React from 'react';
 import { withRouter } from 'react-router';

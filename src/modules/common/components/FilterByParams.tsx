@@ -1,4 +1,6 @@
-import { DataWithLoader, EmptyState, Icon } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import { router } from 'modules/common/utils';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';

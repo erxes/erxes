@@ -1,21 +1,19 @@
 import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
-import {
-  ActionButtons,
-  Button,
-  ControlLabel,
-  HeaderDescription,
-  Icon,
-  ModalTrigger,
-  NameCard,
-  Table,
-  TextInfo,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import ControlLabel from 'modules/common/components/form/Label';
 import { Input } from 'modules/common/components/form/styles';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Table from 'modules/common/components/table';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';

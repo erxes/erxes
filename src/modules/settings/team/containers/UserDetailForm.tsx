@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';

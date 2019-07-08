@@ -1,6 +1,7 @@
 import { UserCommonInfos } from 'modules/auth/components';
 import { IUser, IUserDetails, IUserLinks } from 'modules/auth/types';
-import { ControlLabel, FormGroup } from 'modules/common/components';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ColumnTitle } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';

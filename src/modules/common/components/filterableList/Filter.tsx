@@ -1,4 +1,4 @@
-import { FormControl } from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 

@@ -1,4 +1,4 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';

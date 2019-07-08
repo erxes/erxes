@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { ICommonFormProps } from 'modules/settings/common/types';
 import {

@@ -1,5 +1,7 @@
 import { IUser } from 'modules/auth/types';
-import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { Sidebar } from 'modules/layout/components';
