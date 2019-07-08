@@ -124,6 +124,7 @@ export const loadBoardClass = () => {
 };
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
+  getPipeline(_id: string): Promise<IPipelineDocument>;
   createPipeline(doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
@@ -132,6 +133,19 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
 
 export const loadPipelineClass = () => {
   class Pipeline {
+    /*
+     * Get a pipeline
+     */
+    public static async getPipeline(_id: string) {
+      const pipeline = await Pipelines.findOne({ _id });
+
+      if (!pipeline) {
+        throw new Error('Pipeline not found');
+      }
+
+      return pipeline;
+    }
+
     /**
      * Create a pipeline
      */
@@ -191,6 +205,7 @@ export const loadPipelineClass = () => {
 };
 
 export interface IStageModel extends Model<IStageDocument> {
+  getStage(_id: string): Promise<IStageDocument>;
   createStage(doc: IStage): Promise<IStageDocument>;
   updateStage(_id: string, doc: IStage): Promise<IStageDocument>;
   changeStage(_id: string, pipelineId: string): Promise<IStageDocument>;
@@ -200,6 +215,19 @@ export interface IStageModel extends Model<IStageDocument> {
 
 export const loadStageClass = () => {
   class Stage {
+    /*
+     * Get a stage
+     */
+    public static async getStage(_id: string) {
+      const stage = await Stages.findOne({ _id });
+
+      if (!stage) {
+        throw new Error('Stage not found');
+      }
+
+      return stage;
+    }
+
     /**
      * Create a stage
      */

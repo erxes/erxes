@@ -274,6 +274,7 @@ interface IInternalNoteFactoryInput {
   contentType?: string;
   contentTypeId?: string;
   content?: string;
+  mentionedUserIds?: string[];
 }
 
 export const internalNoteFactory = (params: IInternalNoteFactoryInput) => {

@@ -5,6 +5,7 @@ import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
 import { changeCompany, changeCustomer, updateOrder } from './utils';
 
 export interface IDealModel extends Model<IDealDocument> {
+  getDeal(_id: string): Promise<IDealDocument>;
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<IDealDocument[]>;
@@ -15,6 +16,16 @@ export interface IDealModel extends Model<IDealDocument> {
 
 export const loadDealClass = () => {
   class Deal {
+    public static async getDeal(_id: string) {
+      const deal = await Deals.findOne({ _id });
+
+      if (!deal) {
+        throw new Error('Deal not found');
+      }
+
+      return deal;
+    }
+
     /**
      * Create a deal
      */

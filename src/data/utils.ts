@@ -381,6 +381,7 @@ export const sendNotification = async ({
   for (const receiverId of receivers) {
     try {
       // send web and mobile notification
+
       await Notifications.createNotification({ ...doc, receiver: receiverId }, createdUser);
     } catch (e) {
       // Any other error is serious
