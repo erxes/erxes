@@ -12,6 +12,7 @@ import {
   IOptions,
   IPipeline
 } from '../types';
+import { invalidateCache } from '../utils';
 import { collectOrders, reorder, reorderItemMap } from '../utils';
 
 type Props = {
@@ -132,6 +133,8 @@ export class PipelineProvider extends React.Component<Props, State> {
     this.setState({
       itemMap
     });
+
+    invalidateCache();
 
     // save orders to database
     return this.saveItemOrders(itemMap, [

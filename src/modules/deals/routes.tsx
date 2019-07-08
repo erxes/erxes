@@ -12,6 +12,10 @@ const DealBoard = asyncComponent(() =>
   import(/* webpackChunkName: "DealBoard" */ './components/DealBoard')
 );
 
+const Conversation = asyncComponent(() =>
+  import(/* webpackChunkName: "Conversion" */ './components/conversion/Conversion')
+);
+
 const deals = () => {
   let dealsLink = '/deal/board';
 
@@ -41,6 +45,12 @@ const calendar = ({ location }) => {
   return <Calendar queryParams={queryParams} />;
 };
 
+const conversion = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Conversation queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -52,12 +62,17 @@ const routes = () => {
         path="/deal/board"
         component={boards}
       />
-
       <Route
         key="deals/calendar"
         exact={true}
         path="/deal/calendar"
         component={calendar}
+      />
+      <Route
+        key="deals/conversion"
+        exact={true}
+        path="/deal/conversion"
+        component={conversion}
       />
     </React.Fragment>
   );
