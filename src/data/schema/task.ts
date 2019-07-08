@@ -42,7 +42,7 @@ export const queries = `
     nextMonth: String
     noCloseDate: String
     overdue: String
-    priority: String
+    priority: [String]
   ): [Task]
 `;
 

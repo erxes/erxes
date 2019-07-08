@@ -18,6 +18,8 @@ export const types = `
     boardId: String!
     visibility: String!
     memberIds: [String]
+    members: [User]
+    bgColor: String
     ${commonTypes}
   }
 
@@ -70,7 +72,8 @@ const pipelineParams = `
   type: String!,
   stages: JSON,
   visibility: String!,
-  memberIds: [String]
+  memberIds: [String],
+  bgColor: String
 `;
 
 export const mutations = `

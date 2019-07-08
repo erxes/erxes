@@ -21,6 +21,9 @@ export interface IBoardDocument extends IBoard, Document {
 export interface IPipeline extends ICommonFields {
   name?: string;
   boardId?: string;
+  visibility?: string;
+  memberIds?: string[];
+  bgColor?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -77,6 +80,7 @@ export const pipelineSchema = new Schema({
     default: PIPELINE_VISIBLITIES.PUBLIC,
   }),
   memberIds: field({ type: [String] }),
+  bgColor: field({ type: String }),
   ...commonFieldsSchema,
 });
 

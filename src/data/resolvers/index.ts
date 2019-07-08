@@ -21,6 +21,7 @@ import KnowledgeBaseTopic from './knowledgeBaseTopic';
 import Mutation from './mutations';
 import Notification from './notification';
 import Permission from './permission';
+import Pipeline from './pipeline';
 import Query from './queries';
 import ResponseTemplate from './responseTemplate';
 import Script from './script';
@@ -72,6 +73,7 @@ const resolvers: any = {
   Ticket,
   Task,
   UsersGroup,
+  Pipeline,
 };
 
 export default resolvers;
