@@ -155,6 +155,7 @@ describe('mutations', () => {
       availabilityMethod: 'auto',
       requireAuth: false,
       showChat: false,
+      showLauncher: false,
       forceLogoutWhenResolve: false,
       onlineHours: [
         {

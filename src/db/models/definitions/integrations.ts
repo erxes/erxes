@@ -43,6 +43,7 @@ export interface IMessengerData {
   messages?: IMessageDataMessages;
   links?: ILink;
   showChat?: boolean;
+  showLauncher?: boolean;
   requireAuth?: boolean;
   forceLogoutWhenResolve?: boolean;
 }
@@ -127,6 +128,7 @@ const messengerDataSchema = new Schema(
     },
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
+    showLauncher: field({ type: Boolean, default: true }),
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
   },
   { _id: false },

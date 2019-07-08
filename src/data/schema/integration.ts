@@ -65,6 +65,7 @@ export const types = `
     supporterIds: [String]
     requireAuth: Boolean
     showChat: Boolean
+    showLauncher: Boolean
     forceLogoutWhenResolve: Boolean
   }
 
