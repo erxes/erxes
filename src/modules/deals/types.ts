@@ -5,14 +5,14 @@ import { IProduct, IProductDoc } from '../settings/productService/types';
 export interface IDealTotalAmount {
   _id: string;
   dealCount: number;
-  dealAmounts: [
+  totalForType: [
     {
       _id: string;
-      type: string;
+      name: string;
       currencies: [
         {
           amount: number;
-          currency: string;
+          name: string;
         }
       ];
     }

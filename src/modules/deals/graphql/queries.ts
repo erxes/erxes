@@ -75,11 +75,11 @@ const dealsTotalAmounts = `
     ) {
       _id
       dealCount
-      dealAmounts {
+      totalForType {
         _id
-        type
+        name
         currencies {
-          currency
+          name
           amount
         }
       }

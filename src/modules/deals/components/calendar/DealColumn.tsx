@@ -93,27 +93,32 @@ class DealColumn extends React.Component<Props, {}> {
     return <ContentBody>{contents}</ContentBody>;
   }
 
-  renderPerAmount(currencies) {
-    return currencies.map((
-      currency // tslint:disable-next-line: jsx-key
-    ) => (
+  renderAmount(currencies: [{ name: string; amount: number }]) {
+    return currencies.map((total, index) => (
       <>
-        {currency.amount.toLocaleString()} <span>{currency.currency}, </span>
+        {total.amount.toLocaleString()}{' '}
+        <span>
+          {total.name}
+          {index < currencies.length - 1 && ', '}
+        </span>
       </>
     ));
   }
 
   renderTotalAmount() {
     const { dealTotalAmounts } = this.props;
-    const totals = dealTotalAmounts.dealAmounts || [];
+    const totalForType = dealTotalAmounts.totalForType || [];
 
-    const content = totals.map(type => (
-      <li key={type._id}>
-        <span>{type.type}: </span>
-        {this.renderPerAmount(type.currencies)}
-      </li>
-    ));
-    return <Amount>{content}</Amount>;
+    return (
+      <Amount>
+        {totalForType.map(type => (
+          <li key={type._id}>
+            <span>{type.name}: </span>
+            {this.renderAmount(type.currencies)}
+          </li>
+        ))}
+      </Amount>
+    );
   }
 
   renderFooter() {
