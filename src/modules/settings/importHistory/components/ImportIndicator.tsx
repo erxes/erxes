@@ -1,4 +1,5 @@
-import { Icon, ProgressBar } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ProgressBar from 'modules/common/components/ProgressBar';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';

@@ -1,13 +1,11 @@
-import {
-  ControlLabel,
-  EditorCK,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import React from 'react';
-import { Form as CommonForm } from '../../common/components';
+import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 import { IEmailTemplate } from '../types';
 

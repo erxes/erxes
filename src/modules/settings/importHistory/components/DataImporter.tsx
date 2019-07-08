@@ -1,4 +1,4 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { lighten } from 'modules/common/styles/color';
 import { rotate } from 'modules/common/utils/animations';

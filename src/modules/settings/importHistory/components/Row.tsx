@@ -1,4 +1,6 @@
-import { Button, TextInfo, Tip } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 import { __, confirm } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
 import moment from 'moment';

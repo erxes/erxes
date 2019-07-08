@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
@@ -11,7 +11,7 @@ import {
   BrandDetailQueryResponse,
   BrandsConfigEmailMutationResponse
 } from '../../brands/types';
-import { Config } from '../components';
+import Config from '../components/Config';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
 <p>You received following messages at <strong>{{brandName}}</strong>:</p>

@@ -1,11 +1,10 @@
-import {
-  Button,
-  ControlLabel,
-  FormGroup,
-  HeaderDescription
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
-import { ActionBar, Wrapper } from 'modules/layout/components';
+import ActionBar from 'modules/layout/components/ActionBar';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';

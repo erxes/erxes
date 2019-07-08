@@ -1,12 +1,10 @@
-import {
-  Button,
-  ControlLabel,
-  EditorCK,
-  EmptyState,
-  FormControl,
-  FormGroup,
-  Info
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import React from 'react';
