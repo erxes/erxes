@@ -57,6 +57,7 @@ const dealFields = `
   }
   stage {
     probability
+    name
   }
   modifiedAt
   modifiedBy
@@ -86,6 +87,7 @@ const dealsTotalAmounts = `
 
 const deals = `
   query deals(
+    $initialStageId: String,
     $pipelineId: String,
     $stageId: String,
     $date: ItemDate,
@@ -95,6 +97,7 @@ const deals = `
   ) {
     deals(
       pipelineId: $pipelineId,
+      initialStageId: $initialStageId,
       stageId: $stageId, 
       date: $date,
       skip: $skip,

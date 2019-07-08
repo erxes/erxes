@@ -14,19 +14,15 @@ export const PageHeader = styled.div`
 export const ButtonGroup = styled.div`
   display: inline-block;
   border-radius: 18px;
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid ${colors.borderPrimary};
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid ${colors.bgActive};
 
   a {
-    padding: 7px 20px;
+    padding: 6px 20px;
     display: inline-block;
     color: ${colors.colorCoreGray};
     font-weight: 500;
     border-radius: 17px;
-
-    i {
-      margin-right: 5px;
-    }
 
     &.active {
       color: ${colors.colorCoreDarkGray};
@@ -49,6 +45,9 @@ export const ButtonGroup = styled.div`
 `;
 
 export const HeaderItems = styled(BarItems)`
+  display: flex;
+  align-items: center;
+
   > * + * {
     margin-left: ${dimensions.coreSpacing}px;
   }
