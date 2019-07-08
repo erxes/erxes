@@ -63,6 +63,11 @@ export interface IPipeline {
   memberIds?: string[];
 }
 
+interface IStageComparisonInfo {
+  count: number;
+  percent: number;
+}
+
 export interface IStage {
   _id: string;
   name: string;
@@ -72,6 +77,10 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   itemsTotalCount: number;
+  initialDealsTotalCount: number;
+  inProcessDealsTotalCount: number;
+  stayedDealsTotalCount: number;
+  compareNextStage: IStageComparisonInfo;
 }
 
 export interface IItem {

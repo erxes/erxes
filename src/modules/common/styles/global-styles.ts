@@ -823,6 +823,16 @@ a:hover {
     stroke-dashoffset: -100;
   }
 }
+
+/* ckEditor */
+  .editor-avatar {
+    width: 25px;
+    margin-right: 4px;
+    border-radius: 11px;
+  }
+  .editor-id {
+    display: none;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;
