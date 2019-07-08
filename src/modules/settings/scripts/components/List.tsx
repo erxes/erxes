@@ -1,17 +1,16 @@
-import {
-  Button,
-  HeaderDescription,
-  Icon,
-  ModalTrigger,
-  Table,
-  Tip
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { List, RowActions } from '../../common/components';
+import List from '../../common/components/List';
+import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';
-import { Form } from '../containers';
+import Form from '../containers/Form';
 import InstallCode from './InstallCode';
 
 type Props = {

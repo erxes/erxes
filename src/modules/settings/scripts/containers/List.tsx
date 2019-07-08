@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
-import { List } from '../components';
+import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
 type Props = {

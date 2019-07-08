@@ -1,12 +1,13 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Spinner } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../brands/types';
-import { SelectBrand } from '../components';
+import SelectBrand from '../components/SelectBrand';
 
 type Props = {
   onChange: () => void;

@@ -1,12 +1,14 @@
 import { IUser } from 'modules/auth/types';
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   Preview,
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __, Alert } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';

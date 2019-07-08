@@ -1,10 +1,8 @@
-import {
-  Button,
-  FormControl,
-  Icon,
-  Label,
-  Tip
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import Tip from 'modules/common/components/Tip';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';

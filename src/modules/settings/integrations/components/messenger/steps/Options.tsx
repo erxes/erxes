@@ -1,13 +1,11 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import React from 'react';
 import Toggle from 'react-toggle';
-import { SelectBrand } from '../../../containers/';
+import SelectBrand from '../../../containers/SelectBrand';
 
 type Props = {
   onChange: (

@@ -1,26 +1,16 @@
-import {
-  Button,
-  DataWithLoader,
-  HeaderDescription,
-  ModalTrigger,
-  Pagination,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IProduct } from '../types';
-import { Form, Row } from './';
-
-type Doc = {
-  type: string;
-  _id?: string;
-  name?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
-};
+import Form from './Form';
+import Row from './Row';
 
 type Props = {
   products: IProduct[];

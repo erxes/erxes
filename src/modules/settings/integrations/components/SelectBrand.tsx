@@ -1,13 +1,11 @@
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import BrandForm from 'modules/settings/brands/components/BrandForm';
 import React from 'react';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  ModalTrigger
-} from '../../../common/components';
 import { __ } from '../../../common/utils';
 import { IBrand } from '../../brands/types';
 import { Row } from '../styles';

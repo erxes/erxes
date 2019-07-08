@@ -1,11 +1,9 @@
-import {
-  ActionButtons,
-  Button,
-  EmptyState,
-  Label,
-  Table,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import Label from 'modules/common/components/Label';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IMessengerApp } from '../types';

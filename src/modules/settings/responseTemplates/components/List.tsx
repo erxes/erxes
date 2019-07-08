@@ -1,9 +1,7 @@
-import {
-  ControlLabel,
-  HeaderDescription,
-  Table
-} from 'modules/common/components';
+import ControlLabel from 'modules/common/components/form/Label';
 import { Input } from 'modules/common/components/form/styles';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Table from 'modules/common/components/table';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
@@ -11,9 +9,10 @@ import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import { FilterContainer } from 'modules/settings/team/styles';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import { List, RowActions } from '../../common/components';
+import List from '../../common/components/List';
+import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';
-import { Form } from '../components';
+import Form from '../components/Form';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

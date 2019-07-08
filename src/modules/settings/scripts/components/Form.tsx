@@ -1,15 +1,13 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ITopic } from 'modules/knowledgeBase/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { Form as CommonForm } from '../../common/components';
+import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 import { IScript } from '../types';
 
