@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
@@ -19,7 +18,6 @@ const EditorWrapper = styled.div`
 `;
 
 type Prop = {
-  users?: IUser[];
   create: (content: string, mentionedUserIds, callback: () => void) => void;
 };
 

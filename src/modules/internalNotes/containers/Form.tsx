@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import { queries } from 'modules/activityLogs/graphql';
-import { IUser } from 'modules/auth/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Form } from '../components';
@@ -11,7 +10,6 @@ import {
 } from '../types';
 
 type Props = {
-  users: IUser[];
   contentType: string;
   contentTypeId: string;
 };
@@ -19,7 +17,7 @@ type Props = {
 type FinalProps = Props & InternalNotesAddMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
-  const { contentType, contentTypeId, internalNotesAdd, users } = props;
+  const { contentType, contentTypeId, internalNotesAdd } = props;
 
   // create internalNote
   const create = (content: string, mentionedUserIds, callback: () => void) => {
@@ -35,7 +33,7 @@ const FormContainer = (props: FinalProps) => {
     });
   };
 
-  return <Form create={create} users={users} />;
+  return <Form create={create} />;
 };
 
 export default compose(
