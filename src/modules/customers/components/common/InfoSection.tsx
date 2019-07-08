@@ -1,8 +1,10 @@
 import { AvatarWrapper } from 'modules/activityLogs/styles';
-import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { renderFullName } from 'modules/common/utils';
-import { CustomerForm } from 'modules/customers/containers';
+import CustomerForm from 'modules/customers/containers/CustomerForm';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { Name } from '../../styles';

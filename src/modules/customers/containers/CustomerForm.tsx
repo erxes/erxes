@@ -1,8 +1,8 @@
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IQueryParams } from 'modules/common/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { CustomerForm } from '../components';
+import CustomerForm from '../components/list/CustomerForm';
 import { mutations } from '../graphql';
 
 type Props = {

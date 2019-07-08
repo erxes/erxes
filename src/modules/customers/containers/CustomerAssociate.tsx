@@ -4,7 +4,7 @@ import { mutations as companyMutations } from 'modules/companies/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { ICompany } from '../../companies/types';
-import { CustomerSection } from '../components/common';
+import CustomerSection from '../components/common/CustomerSection';
 import {
   CompaniesEditCustomersMutationResponse,
   CompaniesEditCustomersMutationVariables

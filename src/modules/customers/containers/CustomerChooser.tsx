@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { Chooser } from 'modules/common/components';
+import Chooser from 'modules/common/components/Chooser';
 import { Alert, renderFullName, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';

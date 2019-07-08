@@ -1,12 +1,11 @@
-import {
-  Button,
-  DropdownToggle,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __, Alert, confirm } from 'modules/common/utils';
-import { CustomersMerge, TargetMerge } from 'modules/customers/components';
-import { CustomerForm } from 'modules/customers/containers';
+import TargetMerge from 'modules/customers/components/common/TargetMerge';
+import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
+import CustomerForm from 'modules/customers/containers/CustomerForm';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';

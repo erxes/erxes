@@ -4,7 +4,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';
-import { BrandFilter } from '../../components';
+import BrandFilter from '../../components/list/BrandFilter';
 import { queries as customerQueries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 

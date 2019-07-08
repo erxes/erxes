@@ -1,9 +1,10 @@
 import { Action } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
-import { ActionSection } from '../../containers/common';
-import { DetailInfo, InfoSection } from './';
+import ActionSection from '../../containers/common/ActionSection';
+import DetailInfo from './DetailInfo';
+import InfoSection from './InfoSection';
 
 type Props = {
   customer: ICustomer;

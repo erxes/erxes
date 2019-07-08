@@ -1,16 +1,14 @@
-import {
-  EmptyState,
-  Icon,
-  ModalTrigger,
-  Spinner
-} from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Spinner from 'modules/common/components/Spinner';
 import { __, renderFullName } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CustomerChooser } from '../../containers';
+import CustomerChooser from '../../containers/CustomerChooser';
 
 type Props = {
   name: string;

@@ -1,8 +1,9 @@
-import { EmptyState, Icon } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarList } from 'modules/layout/styles';
-import { Tagger } from 'modules/tags/containers';
+import Tagger from 'modules/tags/containers/Tagger';
 import React from 'react';
 import { Collapse } from 'react-bootstrap';
 

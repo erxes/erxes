@@ -1,6 +1,7 @@
-import { EmptyState, Label } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Label from 'modules/common/components/Label';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import moment from 'moment';
 import React from 'react';

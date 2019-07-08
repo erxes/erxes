@@ -1,7 +1,7 @@
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import parse from 'ua-parser-js';
