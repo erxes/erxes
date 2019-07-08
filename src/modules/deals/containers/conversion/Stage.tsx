@@ -48,7 +48,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
 
       dealsQuery.fetchMore({
         variables: {
-          primaryStageId: stage._id,
+          initialStageId: stage._id,
           skip: deals.length,
           ...getFilterParams(queryParams)
         },
@@ -133,7 +133,7 @@ export default withProps<Props>(
       name: 'dealsQuery',
       options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
-          primaryStageId: stage._id,
+          initialStageId: stage._id,
           pipelineId,
           ...getFilterParams(queryParams)
         }

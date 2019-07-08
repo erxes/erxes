@@ -87,7 +87,7 @@ const dealsTotalAmounts = `
 
 const deals = `
   query deals(
-    $primaryStageId: String,
+    $initialStageId: String,
     $pipelineId: String,
     $stageId: String,
     $date: ItemDate,
@@ -97,7 +97,7 @@ const deals = `
   ) {
     deals(
       pipelineId: $pipelineId,
-      primaryStageId: $primaryStageId,
+      initialStageId: $initialStageId,
       stageId: $stageId, 
       date: $date,
       skip: $skip,
