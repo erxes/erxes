@@ -35,14 +35,14 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
   loadMore = () => {
     const { stage, dealsQuery, queryParams } = this.props;
 
-    const deals = dealsQuery.deals;
-
+    const deals = dealsQuery.deals || [];
     const loading = dealsQuery.loading || dealsQuery.loading;
     const hasMore = stage.initialDealsTotalCount > deals.length;
 
     if (deals.length === stage.initialDealsTotalCount) {
       return;
     }
+
     if (!loading && hasMore) {
       this.setState({ loadingDeals: true });
 
@@ -60,7 +60,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
           }
 
           const prevDeals = prev.deals || [];
-          const prevDealIds = prevDeals.map(m => m._id);
+          const prevDealIds = prevDeals.map((deal: IDeal) => deal._id);
           const fetchedDeals: IDeal[] = [];
 
           for (const deal of fetchMoreResult.deals) {

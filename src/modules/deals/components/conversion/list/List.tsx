@@ -55,12 +55,7 @@ class List extends React.Component<Props, {}> {
       (lastStagePrimaryDealsTotalCount * 100) /
       firstStagePrimaryDealsTotalCount;
 
-    return (
-      <>
-        <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>
-        <Result>Avarage won deal value: $$$</Result>
-      </>
-    );
+    return <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>;
   }
 
   render() {
