@@ -1,5 +1,6 @@
 import { Companies, Customers, Pipelines, Stages, Users } from '../../db/models';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
+import { IUserDocument } from '../../db/models/definitions/users';
 import { boardId } from './boardUtils';
 
 export default {
@@ -29,7 +30,17 @@ export default {
     return boardId(ticket);
   },
 
-  async stage(ticket: ITicketDocument) {
+  stage(ticket: ITicketDocument) {
     return Stages.findOne({ _id: ticket.stageId });
+  },
+
+  isWatched(ticket: ITicketDocument, _args, { user }: { user: IUserDocument }) {
+    const watchedUserIds = ticket.watchedUserIds || [];
+
+    if (watchedUserIds.includes(user._id)) {
+      return true;
+    }
+
+    return false;
   },
 };

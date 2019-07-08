@@ -142,4 +142,23 @@ describe('Test deals mutations', () => {
 
     expect(await Deals.findOne({ _id: deal._id })).toBe(null);
   });
+
+  test('Watch deal', async () => {
+    const mutation = `
+      mutation dealsWatch($_id: String!, $isAdd: Boolean!) {
+        dealsWatch(_id: $_id, isAdd: $isAdd) {
+          _id
+          isWatched
+        }
+      }
+    `;
+
+    const watchAddDeal = await graphqlRequest(mutation, 'dealsWatch', { _id: deal._id, isAdd: true }, context);
+
+    expect(watchAddDeal.isWatched).toBe(true);
+
+    const watchRemoveDeal = await graphqlRequest(mutation, 'dealsWatch', { _id: deal._id, isAdd: false }, context);
+
+    expect(watchRemoveDeal.isWatched).toBe(false);
+  });
 });

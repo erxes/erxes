@@ -20,6 +20,7 @@ export const types = `
     memberIds: [String]
     members: [User]
     bgColor: String
+    isWatched: Boolean
     ${commonTypes}
   }
 
@@ -89,6 +90,7 @@ export const mutations = `
   pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
   pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
   pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
+  pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
   pipelinesRemove(_id: String!): JSON
 
   stagesUpdateOrder(orders: [OrderItem]): [Stage]

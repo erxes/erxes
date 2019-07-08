@@ -1,11 +1,30 @@
 import { Boards, Pipelines, Stages } from '../../db/models';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
-import { IDealDocument } from '../../db/models/definitions/deals';
-import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { can } from '../permissions/utils';
 import { checkLogin } from '../permissions/wrappers';
 import utils from '../utils';
+
+export const notifiedUserIds = async (item: any) => {
+  const userIds: string[] = [];
+
+  if (item.assignedUserIds) {
+    userIds.concat(item.assignedUserIds);
+  }
+
+  if (item.watchedUserIds) {
+    userIds.concat(item.watchedUserIds);
+  }
+
+  const stage = await Stages.getStage(item.stageId || '');
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+
+  if (pipeline.watchedUserIds) {
+    userIds.concat(pipeline.watchedUserIds);
+  }
+
+  return userIds;
+};
 
 /**
  * Send notification to all members of this content except the sender
@@ -14,7 +33,7 @@ export const sendNotifications = async (
   stageId: string,
   user: IUserDocument,
   type: string,
-  assignedUsers: string[],
+  userIds: string[],
   content: string,
   contentType: string,
 ) => {
@@ -38,23 +57,19 @@ export const sendNotifications = async (
     link: `/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
 
     // exclude current user
-    receivers: (assignedUsers || []).filter(id => id !== user._id),
+    receivers: userIds.filter(id => id !== user._id),
   });
 };
 
-export const manageNotifications = async (
-  collection: any,
-  item: IDealDocument | ITicketDocument,
-  user: IUserDocument,
-  type: string,
-) => {
+export const manageNotifications = async (collection: any, item: any, user: IUserDocument, type: string) => {
   const { _id } = item;
   const oldItem = await collection.findOne({ _id });
-  const oldAssignedUserIds = oldItem ? oldItem.assignedUserIds || [] : [];
-  const assignedUserIds = item.assignedUserIds || [];
+
+  const oldUserIds = await notifiedUserIds(oldItem);
+  const userIds = await notifiedUserIds(item);
 
   // new assignee users
-  const newUserIds = assignedUserIds.filter(userId => oldAssignedUserIds.indexOf(userId) < 0);
+  const newUserIds = userIds.filter(userId => oldUserIds.indexOf(userId) < 0);
 
   if (newUserIds.length > 0) {
     await sendNotifications(
@@ -68,7 +83,7 @@ export const manageNotifications = async (
   }
 
   // remove from assignee users
-  const removedUserIds = oldAssignedUserIds.filter(userId => assignedUserIds.indexOf(userId) < 0);
+  const removedUserIds = oldUserIds.filter(userId => userIds.indexOf(userId) < 0);
 
   if (removedUserIds.length > 0) {
     await sendNotifications(
@@ -87,19 +102,14 @@ export const manageNotifications = async (
       item.stageId || '',
       user,
       NOTIFICATION_TYPES[`${type.toUpperCase()}_EDIT`],
-      assignedUserIds,
+      userIds,
       `'{userName}' edited your ${type} '${item.name}'`,
       type,
     );
   }
 };
 
-export const itemsChange = async (
-  collection: any,
-  item: IDealDocument | ITicketDocument,
-  type: string,
-  destinationStageId: string,
-) => {
+export const itemsChange = async (collection: any, item: any, type: string, destinationStageId: string) => {
   const oldItem = await collection.findOne({ _id: item._id });
   const oldStageId = oldItem ? oldItem.stageId || '' : '';
 
@@ -118,7 +128,7 @@ export const itemsChange = async (
   return content;
 };
 
-export const boardId = async (item: IDealDocument | ITicketDocument) => {
+export const boardId = async (item: any) => {
   const stage = await Stages.findOne({ _id: item.stageId });
 
   if (!stage) {

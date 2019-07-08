@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { Deals, Tasks, Tickets } from './';
+import { updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
   IBoard,
@@ -12,7 +13,6 @@ import {
   stageSchema,
 } from './definitions/boards';
 import { BOARD_TYPES } from './definitions/constants';
-import { updateOrder } from './utils';
 
 export interface IOrderInput {
   _id: string;
@@ -128,6 +128,7 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
   createPipeline(doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
+  watchPipeline(_id: string, isAdd: boolean, userId: string): void;
   removePipeline(_id: string): void;
 }
 
@@ -196,6 +197,10 @@ export const loadPipelineClass = () => {
       }
 
       return Pipelines.deleteOne({ _id });
+    }
+
+    public static async watchPipeline(_id: string, isAdd: boolean, userId: string) {
+      return watchItem(Pipelines, _id, isAdd, userId);
     }
   }
 

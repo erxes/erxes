@@ -206,6 +206,35 @@ describe('Test boards mutations', () => {
     expect(updatedPipelineToOrder.order).toBe(9);
   });
 
+  test('Watch pipeline', async () => {
+    const mutation = `
+      mutation pipelinesWatch($_id: String!, $isAdd: Boolean, $type: String!) {
+        pipelinesWatch(_id: $_id, isAdd: $isAdd, type: $type) {
+          _id
+          isWatched
+        }
+      }
+    `;
+
+    const watchAddPipeline = await graphqlRequest(
+      mutation,
+      'pipelinesWatch',
+      { _id: pipeline._id, isAdd: true, type: 'deal' },
+      context,
+    );
+
+    expect(watchAddPipeline.isWatched).toBe(true);
+
+    const watchRemovePipeline = await graphqlRequest(
+      mutation,
+      'pipelinesWatch',
+      { _id: pipeline._id, isAdd: false, type: 'deal' },
+      context,
+    );
+
+    expect(watchRemovePipeline.isWatched).toBe(false);
+  });
+
   test('Remove pipeline', async () => {
     // disconnect stages connected to pipeline
     await Stages.updateMany({}, { $set: { pipelineId: 'fakePipelineId' } });
