@@ -104,7 +104,7 @@ const stages = `
       order
       amount
       itemsTotalCount
-      stageInfo
+      compareNextStage
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount

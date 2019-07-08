@@ -63,7 +63,7 @@ export interface IPipeline {
   memberIds?: string[];
 }
 
-interface IStageInfo {
+interface IStageComparisonInfo {
   count: number;
   percent: number;
 }
@@ -80,7 +80,7 @@ export interface IStage {
   initialDealsTotalCount: number;
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
-  stageInfo: IStageInfo;
+  compareNextStage: IStageComparisonInfo;
 }
 
 export interface IItem {
