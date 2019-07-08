@@ -2,19 +2,22 @@ import { getEnv } from 'apolloClient';
 import CKEditor from 'ckeditor4-react';
 import { colors } from 'modules/common/styles';
 import React from 'react';
+import { IEditorProps } from '../types';
 
 CKEditor.editorUrl = '/ckeditor/ckeditor.js';
 
-type Props = {
-  content: string;
-  onChange: (evt: any) => void;
-  height?: number | string;
-  insertItems?: any;
-  removeButtons?: string;
-  toolbarCanCollapse?: boolean;
-};
-
 const { REACT_APP_API_URL } = getEnv();
+
+export const getMentionedUserIds = (content: string) => {
+  const re = new RegExp('mentioned-user-id="(?<name>.+?)"', 'g');
+  const mentionedUserIds: string[] = (content.match(re) || []).map(m =>
+    m.replace(re, '$1')
+  );
+
+  return mentionedUserIds.filter((value, index, self) => {
+    return self.indexOf(value) === index;
+  });
+};
 
 function EditorCK({
   content,
@@ -22,8 +25,24 @@ function EditorCK({
   height,
   insertItems,
   removeButtons,
-  toolbarCanCollapse
-}: Props) {
+  toolbarCanCollapse,
+  mentionUsers = []
+}: IEditorProps) {
+  const mentionDataFeed = (opts, callback) => {
+    if (mentionUsers.length <= 1) {
+      return;
+    }
+
+    const matchProperty = 'fullName';
+    const query = opts.query.toLowerCase();
+
+    const data = mentionUsers.filter(
+      item => item[matchProperty].toLowerCase().indexOf(query) >= 0
+    );
+
+    callback(data);
+  };
+
   return (
     <CKEditor
       data={content}
@@ -78,6 +97,19 @@ function EditorCK({
           { name: 'others', items: [insertItems ? 'strinsert' : '-'] },
           { name: 'colors', items: ['TextColor', 'BGColor'] },
           { name: 'tools', items: ['Maximize'] }
+        ],
+        mentions: [
+          {
+            feed: mentionDataFeed,
+            itemTemplate:
+              '<li data-id="{id}">' +
+              '<img class="editor-avatar" src="{avatar}"' +
+              '<strong>{fullName}</strong>' +
+              '</li>',
+            outputTemplate:
+              '<a mentioned-user-id="{id}">@{fullName}</a><span>&nbsp;</span>',
+            minChars: 0
+          }
         ],
         removeButtons,
         codemirror: {

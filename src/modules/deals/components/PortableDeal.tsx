@@ -5,6 +5,7 @@ import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
+import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
@@ -115,7 +116,8 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
         </PriceContainer>
 
         <Footer>
-          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
+          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
+          <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </ItemContainer>
     );

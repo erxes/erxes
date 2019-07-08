@@ -5,10 +5,13 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import { BlockPicker } from 'react-color';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
 import Stages from './Stages';
@@ -28,6 +31,7 @@ type State = {
   stages: IStage[];
   visibility: string;
   selectedMembers: IUser[];
+  backgroundColor: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -41,7 +45,8 @@ class PipelineForm extends React.Component<Props, State> {
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMembers: this.generateMembersParams(
         pipeline ? pipeline.members : []
-      )
+      ),
+      backgroundColor: (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
     };
   }
 
@@ -73,6 +78,10 @@ class PipelineForm extends React.Component<Props, State> {
     return items.map(item => item.value);
   };
 
+  onColorChange = e => {
+    this.setState({ backgroundColor: e.hex });
+  };
+
   generateDoc = (values: {
     _id?: string;
     name: string;
@@ -90,7 +99,8 @@ class PipelineForm extends React.Component<Props, State> {
       type,
       boardId: pipeline ? pipeline.boardId : boardId,
       stages: this.state.stages.filter(el => el.name),
-      memberIds: this.collectValues(this.state.selectedMembers)
+      memberIds: this.collectValues(this.state.selectedMembers),
+      bgColor: this.state.backgroundColor
     };
   };
 
@@ -124,6 +134,17 @@ class PipelineForm extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
 
+    const popoverTop = (
+      <Popover id="color-picker">
+        <BlockPicker
+          width="266px"
+          color={this.state.backgroundColor}
+          onChange={this.onColorChange}
+          colors={COLORS}
+        />
+      </Popover>
+    );
+
     return (
       <>
         <Modal.Header closeButton={true}>
@@ -145,12 +166,29 @@ class PipelineForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
+            <ControlLabel>Background</ControlLabel>
+            <div>
+              <OverlayTrigger
+                trigger="click"
+                rootClose={true}
+                placement="bottom"
+                overlay={popoverTop}
+              >
+                <ColorPick>
+                  <ColorPicker
+                    style={{ backgroundColor: this.state.backgroundColor }}
+                  />
+                </ColorPick>
+              </OverlayTrigger>
+            </div>
+          </FormGroup>
+
+          <FormGroup>
             <ControlLabel required={true}>Visibility</ControlLabel>
             <FormControl
               {...formProps}
               name="visibility"
               componentClass="select"
-              defaultValue={object.visibility}
               value={this.state.visibility}
               onChange={this.onChangeVisibility}
             >
@@ -197,7 +235,12 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal show={show} onHide={closeModal} dialogClassName="transform">
+      <Modal
+        show={show}
+        onHide={closeModal}
+        enforceFocus={false}
+        dialogClassName="transform"
+      >
         <Form renderContent={this.renderContent} />
       </Modal>
     );

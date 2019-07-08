@@ -66,17 +66,19 @@ const LogoContainer = styled.div`
   }
 `;
 
-const ColorPick = styledTS<{ full?: boolean }>(styled.div)`
-  border-radius: 4px;
-  display: ${props => (props.full ? 'block' : 'inline-block')};
+const ColorPick = styled.div`
+  border-radius: 50%;
+  display: inline-block;
   padding: 5px;
   border: 1px solid ${colors.borderPrimary};
   cursor: pointer;
+  margin-top: ${dimensions.unitSpacing}px;
 `;
 
-const ColorPicker = styledTS<{ full?: boolean }>(styled.div)`
-  width: ${props => (props.full ? '100%' : '80px')};
-  height: 15px;
+const ColorPicker = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
 `;
 
 const WidgetApperance = styled.div`

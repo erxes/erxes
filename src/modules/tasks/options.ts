@@ -18,7 +18,8 @@ const options = {
     editMutation: 'tasksEdit',
     removeMutation: 'tasksRemove',
     changeMutation: 'tasksChange',
-    updateOrderMutation: 'tasksUpdateOrder'
+    updateOrderMutation: 'tasksUpdateOrder',
+    watchMutation: 'tasksWatch'
   },
   queries: {
     itemsQuery: queries.tasks,
@@ -29,14 +30,16 @@ const options = {
     editMutation: mutations.tasksEdit,
     removeMutation: mutations.tasksRemove,
     changeMutation: mutations.tasksChange,
-    updateOrderMutation: mutations.tasksUpdateOrder
+    updateOrderMutation: mutations.tasksUpdateOrder,
+    watchMutation: mutations.tasksWatch
   },
   texts: {
     addText: 'Add a task',
     addSuccessText: 'You successfully added a task',
     updateSuccessText: 'You successfully updated a task',
     deleteSuccessText: 'You successfully deleted a task',
-    copySuccessText: 'You successfully copied a task'
+    copySuccessText: 'You successfully copied a task',
+    changeSuccessText: 'You successfully changed a ticket'
   },
   getExtraParams: (queryParams: any) => {
     const { priority } = queryParams;
