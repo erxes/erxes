@@ -65,7 +65,7 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
-          requireRead: false,
+          requireRead: queryParams.requireRead ? true : false,
           title: queryParams.title
         }
       })
