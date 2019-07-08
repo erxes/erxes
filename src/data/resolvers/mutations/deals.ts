@@ -4,6 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { itemsChange, manageNotifications, notifiedUserIds, sendNotifications } from '../boardUtils';
 
 interface IDealsEdit extends IDeal {
@@ -30,22 +31,45 @@ const dealMutations = {
       'deal',
     );
 
+    await putCreateLog(
+      {
+        type: 'deal',
+        newData: JSON.stringify(doc),
+        object: deal,
+        description: `${deal.name} has been created`,
+      },
+      user,
+    );
+
     return deal;
   },
 
   /**
    * Edit deal
    */
-  async dealsEdit(_root, { _id, ...doc }: IDealsEdit, { user }) {
-    const deal = await Deals.updateDeal(_id, {
+  async dealsEdit(_root, { _id, ...doc }: IDealsEdit, { user }: { user: IUserDocument }) {
+    const deal = await Deals.findOne({ _id });
+    const updated = await Deals.updateDeal(_id, {
       ...doc,
       modifiedAt: new Date(),
       modifiedBy: user._id,
     });
 
-    await manageNotifications(Deals, deal, user, 'deal');
+    await manageNotifications(Deals, updated, user, 'deal');
 
-    return deal;
+    if (deal) {
+      await putUpdateLog(
+        {
+          type: 'deal',
+          object: deal,
+          newData: JSON.stringify(doc),
+          description: `${deal.name} has been edited`,
+        },
+        user,
+      );
+    }
+
+    return updated;
   },
 
   /**
@@ -102,7 +126,18 @@ const dealMutations = {
       'deal',
     );
 
-    return Deals.removeDeal(_id);
+    const removed = await Deals.removeDeal(_id);
+
+    await putDeleteLog(
+      {
+        type: 'deal',
+        object: deal,
+        description: `${deal.name} has been removed`,
+      },
+      user,
+    );
+
+    return removed;
   },
 
   /**

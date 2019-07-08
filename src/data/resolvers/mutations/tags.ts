@@ -1,6 +1,8 @@
 import { Tags } from '../../../db/models';
 import { ITag } from '../../../db/models/definitions/tags';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { publishConversationsChanged } from './conversations';
 
 interface ITagsEdit extends ITag {
@@ -11,22 +13,65 @@ const tagMutations = {
   /**
    * Create new tag
    */
-  tagsAdd(_root, doc: ITag) {
-    return Tags.createTag(doc);
+  async tagsAdd(_root, doc: ITag, { user }: { user: IUserDocument }) {
+    const tag = await Tags.createTag(doc);
+
+    if (tag) {
+      await putCreateLog(
+        {
+          type: 'tag',
+          newData: JSON.stringify(tag),
+          object: tag,
+          description: `${tag.name} has been created`,
+        },
+        user,
+      );
+    }
+
+    return tag;
   },
 
   /**
    * Edit tag
    */
-  tagsEdit(_root, { _id, ...doc }: ITagsEdit) {
-    return Tags.updateTag(_id, doc);
+  async tagsEdit(_root, { _id, ...doc }: ITagsEdit, { user }: { user: IUserDocument }) {
+    const tag = await Tags.findOne({ _id });
+    const updated = await Tags.updateTag(_id, doc);
+
+    if (tag) {
+      await putUpdateLog(
+        {
+          type: 'tag',
+          object: tag,
+          newData: JSON.stringify(doc),
+          description: `${tag.name} has been edited`,
+        },
+        user,
+      );
+    }
+
+    return updated;
   },
 
   /**
    * Remove tag
    */
-  tagsRemove(_root, { ids }: { ids: string[] }) {
-    return Tags.removeTag(ids);
+  async tagsRemove(_root, { ids }: { ids: string[] }, { user }: { user: IUserDocument }) {
+    const tags = await Tags.find({ _id: { $in: ids } });
+    const removed = await Tags.removeTag(ids);
+
+    for (const tag of tags) {
+      await putDeleteLog(
+        {
+          type: 'tag',
+          object: tag,
+          description: `${tag.name} has been removed`,
+        },
+        user,
+      );
+    }
+
+    return removed;
   },
 
   /**

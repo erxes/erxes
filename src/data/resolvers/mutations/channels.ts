@@ -3,7 +3,7 @@ import { IChannel, IChannelDocument } from '../../../db/models/definitions/chann
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleCheckPermission } from '../../permissions/wrappers';
-import utils from '../../utils';
+import utils, { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IChannelsEdit extends IChannel {
   _id: string;
@@ -36,21 +36,58 @@ const channelMutations = {
 
     await sendChannelNotifications(channel);
 
+    await putCreateLog(
+      {
+        type: 'channel',
+        newData: JSON.stringify(doc),
+        object: channel,
+        description: `${doc.name} has been created`,
+      },
+      user,
+    );
+
     return channel;
   },
 
   /**
    * Update channel data
    */
-  async channelsEdit(_root, { _id, ...doc }: IChannelsEdit) {
-    return Channels.updateChannel(_id, doc);
+  async channelsEdit(_root, { _id, ...doc }: IChannelsEdit, { user }: { user: IUserDocument }) {
+    const channel = await Channels.findOne({ _id });
+    const updated = await Channels.updateChannel(_id, doc);
+
+    if (channel) {
+      await putUpdateLog(
+        {
+          type: 'channel',
+          object: channel,
+          newData: JSON.stringify(doc),
+          description: `${channel.name} has been updated`,
+        },
+        user,
+      );
+    }
+
+    return updated;
   },
 
   /**
    * Remove a channel
    */
-  channelsRemove(_root, { _id }: { _id: string }) {
-    return Channels.removeChannel(_id);
+  async channelsRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+    const channel = await Channels.findOne({ _id });
+    const removed = await Channels.removeChannel(_id);
+
+    if (channel && removed) {
+      await putDeleteLog(
+        {
+          type: 'channel',
+          object: channel,
+          description: `${channel.name} has been removed`,
+        },
+        user,
+      );
+    }
   },
 };
 

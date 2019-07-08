@@ -3,6 +3,7 @@ import { Customers } from '../../../db/models';
 import { ICustomer } from '../../../db/models/definitions/customers';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -15,14 +16,39 @@ const customerMutations = {
   async customersAdd(_root, doc: ICustomer, { user }: { user: IUserDocument }) {
     const customer = await Customers.createCustomer(doc, user);
 
+    await putCreateLog(
+      {
+        type: 'customer',
+        newData: JSON.stringify(doc),
+        object: customer,
+        description: `${customer.firstName} has been created`,
+      },
+      user,
+    );
+
     return customer;
   },
 
   /**
    * Update customer
    */
-  async customersEdit(_root, { _id, ...doc }: ICustomersEdit) {
-    return Customers.updateCustomer(_id, doc);
+  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: { user: IUserDocument }) {
+    const customer = await Customers.findOne({ _id });
+    const updated = await Customers.updateCustomer(_id, doc);
+
+    if (customer) {
+      await putUpdateLog(
+        {
+          type: 'customer',
+          object: customer,
+          newData: JSON.stringify(doc),
+          description: `${customer.firstName} has been updated`,
+        },
+        user,
+      );
+    }
+
+    return updated;
   },
 
   /**
@@ -42,10 +68,22 @@ const customerMutations = {
   /**
    * Remove customers
    */
-  async customersRemove(_root, { customerIds }: { customerIds: string[] }) {
+  async customersRemove(_root, { customerIds }: { customerIds: string[] }, { user }: { user: IUserDocument }) {
     for (const customerId of customerIds) {
       // Removing every customer and modules associated with
-      await Customers.removeCustomer(customerId);
+      const customer = await Customers.findOne({ _id: customerId });
+      const removed = await Customers.removeCustomer(customerId);
+
+      if (customer && removed) {
+        await putDeleteLog(
+          {
+            type: 'customer',
+            object: customer,
+            description: `${customer.firstName} has been deleted`,
+          },
+          user,
+        );
+      }
     }
 
     return customerIds;

@@ -1,12 +1,14 @@
 import { ImportHistory } from '../../../db/models';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
-import { fetchWorkersApi } from '../../utils';
+import { fetchWorkersApi, putDeleteLog } from '../../utils';
 
 const importHistoryMutations = {
   /**
-   * Remove a history
+   * Removes a history
+   * @param {string} param1._id ImportHistory id
    */
-  async importHistoriesRemove(_root, { _id }: { _id: string }) {
+  async importHistoriesRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
     const importHistory = await ImportHistory.findOne({ _id });
 
     if (!importHistory) {
@@ -24,6 +26,15 @@ const importHistoryMutations = {
         importHistoryId: importHistory._id,
       },
     });
+
+    await putDeleteLog(
+      {
+        type: 'importHistory',
+        object: importHistory,
+        description: `${importHistory._id}-${importHistory.date} has been removed`,
+      },
+      user,
+    );
 
     return ImportHistory.findOne({ _id: importHistory._id });
   },

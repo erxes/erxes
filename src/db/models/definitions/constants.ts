@@ -94,8 +94,9 @@ export const ACTIVITY_TYPES = {
   EMAIL: 'email',
   TICKET: 'ticket',
   TASK: 'task',
+  BRAND: 'brand',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'email', 'ticket', 'task'],
+  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'email', 'ticket', 'task', 'brand'],
 };
 
 export const ACTIVITY_ACTIONS = {

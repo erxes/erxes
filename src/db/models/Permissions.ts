@@ -12,7 +12,7 @@ import {
 } from './definitions/permissions';
 
 export interface IPermissionModel extends Model<IPermissionDocument> {
-  createPermission(doc: IPermissionParams): Promise<IPermissionDocument>;
+  createPermission(doc: IPermissionParams): Promise<IPermissionDocument[]>;
   removePermission(ids: string[]): Promise<IPermissionDocument>;
 }
 
