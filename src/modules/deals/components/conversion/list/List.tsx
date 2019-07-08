@@ -40,27 +40,27 @@ class List extends React.Component<Props, {}> {
 
     if (stages.length === 0) {
       return;
-    } else {
-      const firstStage: IStage = stages[0] || {};
-      const lastStage: IStage = stages.slice(-1)[0] || {};
-
-      const firstStagePrimaryDealsTotalCount =
-        firstStage.initialDealsTotalCount || 1;
-
-      const lastStagePrimaryDealsTotalCount =
-        lastStage.initialDealsTotalCount || 0;
-
-      const avarage =
-        (lastStagePrimaryDealsTotalCount * 100) /
-        firstStagePrimaryDealsTotalCount;
-
-      return (
-        <>
-          <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>
-          <Result>Avarage won deal value: $$$</Result>
-        </>
-      );
     }
+
+    const firstStage: IStage = stages[0] || {};
+    const lastStage: IStage = stages.slice(-1)[0] || {};
+
+    const firstStagePrimaryDealsTotalCount =
+      firstStage.initialDealsTotalCount || 1;
+
+    const lastStagePrimaryDealsTotalCount =
+      lastStage.initialDealsTotalCount || 0;
+
+    const avarage =
+      (lastStagePrimaryDealsTotalCount * 100) /
+      firstStagePrimaryDealsTotalCount;
+
+    return (
+      <>
+        <Result>Winrate: {parseInt(`${avarage}`, 10)}%</Result>
+        <Result>Avarage won deal value: $$$</Result>
+      </>
+    );
   }
 
   render() {
