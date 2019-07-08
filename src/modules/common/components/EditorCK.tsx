@@ -10,11 +10,20 @@ type Props = {
   onChange: (evt: any) => void;
   height?: number | string;
   insertItems?: any;
+  removeButtons?: string;
+  toolbarCanCollapse?: boolean;
 };
 
 const { REACT_APP_API_URL } = getEnv();
 
-function EditorCK({ content, onChange, height, insertItems }: Props) {
+function EditorCK({
+  content,
+  onChange,
+  height,
+  insertItems,
+  removeButtons,
+  toolbarCanCollapse
+}: Props) {
   return (
     <CKEditor
       data={content}
@@ -70,6 +79,7 @@ function EditorCK({ content, onChange, height, insertItems }: Props) {
           { name: 'colors', items: ['TextColor', 'BGColor'] },
           { name: 'tools', items: ['Maximize'] }
         ],
+        removeButtons,
         codemirror: {
           enableCodeFormatting: false,
           enableCodeFolding: false,
@@ -78,6 +88,7 @@ function EditorCK({ content, onChange, height, insertItems }: Props) {
           showUncommentButton: false,
           showFormatButton: false
         },
+        toolbarCanCollapse,
         filebrowserImageUploadUrl: `${REACT_APP_API_URL}/upload-file`
       }}
     />
