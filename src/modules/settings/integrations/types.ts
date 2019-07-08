@@ -53,6 +53,7 @@ export interface IMessengerData {
   timezone?: string;
   requireAuth?: boolean;
   showChat?: boolean;
+  showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
   onlineHours?: IOnlineHour[];
   links?: ILink;
