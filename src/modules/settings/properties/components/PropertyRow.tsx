@@ -1,15 +1,14 @@
-import {
-  ActionButtons,
-  Button,
-  EmptyState,
-  ModalTrigger,
-  Table
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Table from 'modules/common/components/table';
 import { __, Alert, confirm } from 'modules/common/utils';
 import React from 'react';
 import { Collapse } from 'react-bootstrap';
 import Toggle from 'react-toggle';
-import { PropertyForm, PropertyGroupForm } from '../containers';
+import PropertyForm from '../containers/PropertyForm';
+import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { CollapseRow, DropIcon, FieldType } from '../styles';
 import { IField, IFieldGroup } from '../types';
 

@@ -5,7 +5,7 @@ import { UsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
-import { GroupList } from '../components';
+import GroupList from '../components/GroupList';
 import { mutations, queries } from '../graphql';
 import {
   UsersGroupsAddMutation,

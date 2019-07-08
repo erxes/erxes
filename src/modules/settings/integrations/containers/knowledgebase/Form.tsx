@@ -9,7 +9,7 @@ import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
-import KnowledgeBase from '../../components/knowledgebase/KnowledgeBase';
+import KnowledgeBase from '../../components/knowledgebase/knowledgeBase';
 import { mutations } from '../../graphql';
 import { IntegrationsQueryResponse } from '../../types';
 import { integrationsListParams } from '../utils';

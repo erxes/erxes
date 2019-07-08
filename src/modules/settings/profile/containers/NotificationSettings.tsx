@@ -11,7 +11,7 @@ import {
   SaveNotificationConfigMutationResponse,
   SaveNotificationConfigMutationVariables
 } from '../../../notifications/types';
-import { NotificationSettings } from '../components';
+import NotificationSettings from '../components/NotificationSettings';
 
 type Props = {
   notificationModulesQuery: NotificationModulesQueryResponse;

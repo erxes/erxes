@@ -1,4 +1,6 @@
-import { Button, FormControl, SortableList } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import SortableList from 'modules/common/components/SortableList';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import React from 'react';
