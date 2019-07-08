@@ -9,7 +9,7 @@ import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from '../../channels/types';
-import { Form as CommonForm } from '../../common/components';
+import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {

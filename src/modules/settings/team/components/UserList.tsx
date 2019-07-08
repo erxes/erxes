@@ -20,7 +20,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
 import { UserInvitationForm } from '.';
-import { List } from '../../common/components';
+import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { UserForm } from '../containers';
 import {
