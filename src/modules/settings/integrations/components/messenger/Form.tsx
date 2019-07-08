@@ -59,6 +59,7 @@ type State = {
   isStepActive?: boolean;
   requireAuth?: boolean;
   showChat?: boolean;
+  showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
 };
 
@@ -83,6 +84,7 @@ class CreateMessenger extends React.Component<Props, State> {
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth ? true : false,
       showChat: configData.showChat ? true : false,
+      showLauncher: configData.showLauncher ? true : false,
       forceLogoutWhenResolve: configData.forceLogoutWhenResolve ? true : false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -141,6 +143,7 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube,
       requireAuth,
       showChat,
+      showLauncher,
       forceLogoutWhenResolve
     } = this.state;
 
@@ -176,6 +179,7 @@ class CreateMessenger extends React.Component<Props, State> {
         messages,
         requireAuth,
         showChat,
+        showLauncher,
         forceLogoutWhenResolve,
         links
       },
@@ -242,6 +246,7 @@ class CreateMessenger extends React.Component<Props, State> {
       isStepActive,
       requireAuth,
       showChat,
+      showLauncher,
       forceLogoutWhenResolve
     } = this.state;
 
@@ -283,6 +288,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 languageCode={languageCode}
                 requireAuth={requireAuth}
                 showChat={showChat}
+                showLauncher={showLauncher}
                 forceLogoutWhenResolve={forceLogoutWhenResolve}
               />
             </Step>
