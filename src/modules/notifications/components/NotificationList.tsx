@@ -1,8 +1,10 @@
 import { Button, Pagination } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 import { Wrapper } from 'modules/layout/components';
 import { INotification } from 'modules/notifications/types';
 import React from 'react';
+import { withRouter } from 'react-router';
+import { IRouterProps } from '../../common/types';
 import { NotificationRow } from './';
 import { NotifList } from './styles';
 
@@ -10,13 +12,16 @@ type Props = {
   notifications: INotification[];
   markAsRead: (notificationIds?: string[]) => void;
   count: number;
-};
+} & IRouterProps;
 
-class NotificationList extends React.Component<Props, { bulk: string[] }> {
+class NotificationList extends React.Component<
+  Props,
+  { bulk: string[]; filterByUnread: boolean }
+> {
   constructor(props) {
     super(props);
 
-    this.state = { bulk: [] };
+    this.state = { bulk: [], filterByUnread: false };
   }
 
   markAllRead = isPageRead => {
@@ -37,6 +42,44 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
     this.setState({ bulk: [] });
   };
 
+  filterByUnread = () => {
+    const { filterByUnread } = this.state;
+
+    this.setState({ filterByUnread: !filterByUnread }, () => {
+      router.setParams(this.props.history, { requireRead: filterByUnread });
+    });
+  };
+
+  actionBarLeft = () => {
+    if (!this.state.filterByUnread) {
+      return (
+        <div>
+          <Button
+            btnStyle="primary"
+            size="small"
+            onClick={this.filterByUnread}
+            icon="filter"
+          >
+            Filter by Unread
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <Button
+          btnStyle="success"
+          size="small"
+          onClick={this.filterByUnread}
+          icon="filter"
+        >
+          See all
+        </Button>
+      </div>
+    );
+  };
+
   render() {
     const { notifications, count, markAsRead } = this.props;
 
@@ -50,6 +93,19 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
           />
         ))}
       </NotifList>
+    );
+
+    const actionBarLeft = (
+      <div>
+        <Button
+          btnStyle="primary"
+          size="small"
+          onClick={this.filterByUnread}
+          icon="filter"
+        >
+          {this.state.filterByUnread ? 'See all' : 'Filter by Unread'}
+        </Button>
+      </div>
     );
 
     const actionBarRight = (
@@ -73,7 +129,9 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
       </div>
     );
 
-    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+    const actionBar = (
+      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+    );
 
     return (
       <Wrapper
@@ -92,4 +150,4 @@ class NotificationList extends React.Component<Props, { bulk: string[] }> {
   }
 }
 
-export default NotificationList;
+export default withRouter<Props>(NotificationList);

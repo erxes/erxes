@@ -65,8 +65,7 @@ class NotificationRow extends React.Component<IProps> {
     const { notification } = this.props;
     const { isRead, createdUser } = notification;
     const classes = classNames({ unread: !isRead });
-    // tslint:disable-next-line:no-console
-    console.log(notification);
+
     return (
       <li className={classes} onClick={this.markAsRead}>
         <div>
