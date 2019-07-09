@@ -2,6 +2,11 @@ import { ActivityInputs } from 'modules/activityLogs/components';
 import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
 import { Button } from 'modules/common/components';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from 'modules/common/components';
 import { Alert } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
@@ -130,6 +135,9 @@ class EditForm extends React.Component<Props, State> {
       companies
     } = this.state;
 
+    const descriptionOnChange = e =>
+      this.onChangeField('description', (e.target as HTMLInputElement).value);
+
     return (
       <>
         <Top
@@ -138,7 +146,6 @@ class EditForm extends React.Component<Props, State> {
           description={description}
           closeDate={closeDate}
           amount={amount}
-          assignedUserIds={assignedUserIds}
           users={users}
           stageId={stageId}
           item={item}
@@ -147,6 +154,14 @@ class EditForm extends React.Component<Props, State> {
 
         <FlexContent>
           <Left>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                componentClass="textarea"
+                defaultValue={description}
+                onChange={descriptionOnChange}
+              />
+            </FormGroup>
             <ActivityInputs
               contentTypeId={item._id}
               contentType={options.type}
@@ -164,6 +179,7 @@ class EditForm extends React.Component<Props, State> {
             options={options}
             customers={customers}
             companies={companies}
+            assignedUserIds={assignedUserIds}
             item={item}
             sidebar={sidebar}
             onChangeField={this.onChangeField}
