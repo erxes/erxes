@@ -15,7 +15,6 @@ pipeline:
       - yarn --version
       - yarn install
       - yarn lint
-      - yarn tsc
       - mkdir src/private/xlsTemplateOutputs
       - yarn test
 
@@ -36,10 +35,45 @@ pipeline:
     image: erxes/runner:latest
     commands:
       - yarn build
-      - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz dist initialData src .env.sample package.json yarn.lock
+      - tar -zcf ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz dist src .env.sample package.json yarn.lock db-migrate-store.js
     when:
       event:
         - tag
+
+  github_prerelease:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    prerelease: true
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
+
+  github_release:
+    image: plugins/github-release
+    secrets: [ github_token ]
+    files:
+      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
+    checksum:
+      - sha256
+    when:
+      event:
+        - tag
+      ref:
+        include:
+          - "refs/tags/*"
+        exclude:
+          - "refs/tags/*rc*"
+          - "refs/tags/*alpha*"
+          - "refs/tags/*beta*"
 
   docker_publish:
     image: plugins/docker
@@ -73,43 +107,6 @@ pipeline:
     when:
       event:
         - tag
-
-  github_prerelease:
-    image: plugins/github-release
-    secrets: [ github_token ]
-    prerelease: true
-    files:
-      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
-    checksum:
-      - sha256
-    when:
-      event:
-        - tag
-      ref:
-        include:
-          - "refs/tags/*rc*"
-          - "refs/tags/*alpha*"
-          - "refs/tags/*beta*"
-    # draft: true
-
-  github_release:
-    image: plugins/github-release
-    secrets: [ github_token ]
-    files:
-      - ${DRONE_REPO_NAME}_${DRONE_TAG}.tar.gz
-    checksum:
-      - sha256
-    when:
-      event:
-        - tag
-      ref:
-        include:
-          - "refs/tags/*"
-        exclude:
-          - "refs/tags/*rc*"
-          - "refs/tags/*alpha*"
-          - "refs/tags/*beta*"
-    # draft: true
 
 services:
   mongo:
