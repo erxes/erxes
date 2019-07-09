@@ -20,9 +20,9 @@ import {
 } from 'modules/layout/styles';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
-import { CompaniesMerge } from '..';
 import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
+import CompaniesMerge from '../detail/CompaniesMerge';
 
 type Props = {
   company: ICompany;

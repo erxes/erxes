@@ -15,7 +15,6 @@ import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { CustomersMerge } from '..';
 import { IRouterProps } from '../../../common/types';
 import { __, Alert, confirm, router } from '../../../common/utils';
 import Widget from '../../../engage/containers/Widget';
@@ -26,6 +25,7 @@ import { IConfigColumn } from '../../../settings/properties/types';
 import TaggerPopover from '../../../tags/components/TaggerPopover';
 import CustomerForm from '../../containers/CustomerForm';
 import { ICustomer } from '../../types';
+import CustomersMerge from '../detail/CustomersMerge';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 

@@ -4,7 +4,7 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
 import moment from 'moment';
 import React from 'react';

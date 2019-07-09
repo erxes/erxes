@@ -9,7 +9,7 @@ import colors from 'modules/common/styles/colors';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
-import { SelectBrand } from 'modules/settings/integrations/containers';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import {
   ColorPick,
   ColorPicker,

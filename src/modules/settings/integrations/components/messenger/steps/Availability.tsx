@@ -7,8 +7,8 @@ import { timezones } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
-import { OnlineHours } from '.';
 import { IOnlineHour } from '../../../types';
+import OnlineHours from './OnlineHours';
 
 type Props = {
   onChange: (

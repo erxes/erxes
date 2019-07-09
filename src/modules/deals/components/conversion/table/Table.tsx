@@ -1,5 +1,5 @@
 import { IStage } from 'modules/boards/types';
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import Stage from 'modules/deals/containers/conversion/Stage';
 import * as React from 'react';

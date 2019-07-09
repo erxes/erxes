@@ -4,8 +4,8 @@ import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
 import React from 'react';
-import { TaskMainActionBar } from '.';
 import options from '../options';
+import TaskMainActionBar from './TaskMainActionBar';
 
 type Props = {
   queryParams: any;

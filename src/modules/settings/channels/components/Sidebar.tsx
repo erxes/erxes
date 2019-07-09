@@ -11,7 +11,7 @@ import { HelperButtons, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
-import { ChannelRow } from './';
+import ChannelRow from './ChannelRow';
 
 type Props = {
   channels: IChannel[];

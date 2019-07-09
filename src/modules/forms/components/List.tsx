@@ -5,14 +5,14 @@ import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
-import { TaggerPopover } from 'modules/tags/components';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
 import { IFormIntegration } from '../types';
-import { Row } from './';
+import Row from './Row';
 
 type Props = {
   integrations: IFormIntegration[];

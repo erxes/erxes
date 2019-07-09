@@ -19,16 +19,16 @@ import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
-import { UserInvitationForm } from '.';
 import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
-import { UserForm } from '../containers';
+import UserForm from '../containers/UserForm';
 import {
   AlignedTd,
   ButtonContainer,
   FilterContainer,
   UserAvatar
 } from '../styles';
+import UserInvitationForm from './UserInvitationForm';
 
 type IProps = {
   changeStatus: (id: string) => void;

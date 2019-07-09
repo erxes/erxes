@@ -1,4 +1,4 @@
-import { UserCommonInfos } from 'modules/auth/components';
+import UserCommonInfos from 'modules/auth/components/UserCommonInfos';
 import { IUser, IUserDetails, IUserLinks } from 'modules/auth/types';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';

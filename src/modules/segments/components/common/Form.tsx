@@ -16,7 +16,8 @@ import {
 } from 'modules/segments/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AddConditionButton, Conditions } from '..';
+import AddConditionButton from '../AddConditionButton';
+import Conditions from '../Conditions';
 import { ConditionWrapper, SegmentTitle, SegmentWrapper } from '../styles';
 
 type Props = {

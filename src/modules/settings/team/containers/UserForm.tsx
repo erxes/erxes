@@ -12,7 +12,7 @@ import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';
 import { ChannelsQueryResponse, IChannel } from '../../channels/types';
 import { queries as usersGroupsQueries } from '../../permissions/graphql';
-import { UserForm } from '../components';
+import UserForm from '../components/UserForm';
 import { queries } from '../graphql';
 
 type Props = {

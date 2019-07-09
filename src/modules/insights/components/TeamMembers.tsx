@@ -2,7 +2,6 @@ import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { Summary } from '.';
 import {
   ChartWrapper,
   FullName,
@@ -13,6 +12,7 @@ import {
 import { IChartParams } from '../types';
 import { convertTime } from '../utils';
 import Chart from './Chart';
+import Summary from './Summary';
 
 type Props = {
   datas: IChartParams[];

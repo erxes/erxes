@@ -11,7 +11,8 @@ import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { MessageListRow, Sidebar } from '../containers';
+import MessageListRow from '../containers/MessageListRow';
+import Sidebar from '../containers/Sidebar';
 import { MessageDescription } from '../styles';
 import { IEngageMessage } from '../types';
 

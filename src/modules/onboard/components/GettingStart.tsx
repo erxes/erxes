@@ -5,7 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import RTG from 'react-transition-group';
 import { STEPS } from '../constants';
-import { Content } from './';
+import Content from './Content';
 import {
   ContentContainer,
   Header,

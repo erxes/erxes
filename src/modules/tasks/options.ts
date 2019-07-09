@@ -1,6 +1,7 @@
 import { toArray } from 'modules/boards/utils';
-import { PortableTask, TaskEditForm } from 'modules/tasks/components';
-import { TaskItem } from './containers';
+import PortableTask from 'modules/tasks/components/PortableTask';
+import TaskEditForm from 'modules/tasks/components/TaskEditForm';
+import TaskItem from './containers/TaskItem';
 import { mutations, queries } from './graphql';
 
 const options = {

@@ -6,7 +6,7 @@ import { menuInbox } from 'modules/common/utils/menus';
 import Header from 'modules/layout/components/Header';
 import React from 'react';
 import options from '../options';
-import { TicketMainActionBar } from './';
+import TicketMainActionBar from './TicketMainActionBar';
 
 type Props = {
   queryParams: any;

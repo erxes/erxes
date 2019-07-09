@@ -3,7 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
-import { BoardSelect } from '../../containers';
+import BoardSelect from '../../containers/BoardSelect';
 import {
   AddContainer,
   FormFooter,

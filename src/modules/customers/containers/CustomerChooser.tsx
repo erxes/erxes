@@ -3,7 +3,7 @@ import Chooser from 'modules/common/components/Chooser';
 import { Alert, renderFullName, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { CustomerForm } from '../containers';
+import CustomerForm from '../containers/CustomerForm';
 import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,

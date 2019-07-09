@@ -10,7 +10,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBrand } from '../../brands/types';
-import { Config } from '../containers';
+import Config from '../containers/Config';
 
 type Props = {
   brands: IBrand[];
