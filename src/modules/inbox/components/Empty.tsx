@@ -12,7 +12,7 @@ type Props = {
 
 function Empty({ queryParams, currentUser }: Props) {
   const menuInbox = [
-    { title: 'Inbox', link: '/inbox/index' },
+    { title: 'Team Inbox', link: '/inbox/index' },
     { title: 'Ticket', link: '/inbox/ticket' }
   ];
 
@@ -32,7 +32,7 @@ function Empty({ queryParams, currentUser }: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Inbox')}
+          title={__('Team Inbox')}
           queryParams={queryParams}
           submenu={menuInbox}
         />
