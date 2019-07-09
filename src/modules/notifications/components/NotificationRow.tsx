@@ -18,13 +18,13 @@ interface IProps extends IRouterProps {
 
 class NotificationRow extends React.Component<IProps> {
   markAsRead = () => {
-    const { history, notification, markAsRead } = this.props;
+    const { notification, markAsRead } = this.props;
 
     if (!notification.isRead) {
       markAsRead([notification._id]);
     }
 
-    history.replace(notification.link);
+    window.location.replace(notification.link);
   };
 
   getTitle = (title, user) => {
