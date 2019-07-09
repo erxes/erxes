@@ -21,7 +21,7 @@ class NotificationList extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { bulk: [], filterByUnread: false };
+    this.state = { bulk: [], filterByUnread: true };
   }
 
   markAllRead = isPageRead => {
@@ -50,36 +50,6 @@ class NotificationList extends React.Component<
     });
   };
 
-  actionBarLeft = () => {
-    if (!this.state.filterByUnread) {
-      return (
-        <div>
-          <Button
-            btnStyle="primary"
-            size="small"
-            onClick={this.filterByUnread}
-            icon="filter"
-          >
-            Filter by Unread
-          </Button>
-        </div>
-      );
-    }
-
-    return (
-      <div>
-        <Button
-          btnStyle="success"
-          size="small"
-          onClick={this.filterByUnread}
-          icon="filter"
-        >
-          See all
-        </Button>
-      </div>
-    );
-  };
-
   render() {
     const { notifications, count, markAsRead } = this.props;
 
@@ -103,7 +73,7 @@ class NotificationList extends React.Component<
           onClick={this.filterByUnread}
           icon="filter"
         >
-          {this.state.filterByUnread ? 'See all' : 'Filter by Unread'}
+          {this.state.filterByUnread ? 'Filter by Unread' : 'See all'}
         </Button>
       </div>
     );

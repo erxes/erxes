@@ -4,7 +4,6 @@ import { INotification } from 'modules/notifications/types';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-// import { darken } from '../styles/color';
 
 const RoundedBackground = styledTS<{ icon: string }>(styled.span)`
   width: 18px;
@@ -57,8 +56,6 @@ class NotificationIcon extends React.PureComponent<Props> {
   }
 
   render() {
-    const { notification } = this.props;
-
     return (
       <RoundedBackground icon={this.getIcon()}>
         <Icon icon={this.getIcon()} />

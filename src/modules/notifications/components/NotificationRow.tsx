@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import { IUser } from 'modules/auth/types';
-import { Icon } from 'modules/common/components';
 import { NameCard } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import moment from 'moment';
@@ -25,7 +24,7 @@ class NotificationRow extends React.Component<IProps> {
       markAsRead([notification._id]);
     }
 
-    history.push(notification.link);
+    history.replace(notification.link);
   };
 
   getTitle = (title, user) => {

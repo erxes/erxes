@@ -37,7 +37,20 @@ const NotifList = styled.ul`
 
     &.unread {
       background: ${colors.bgUnread};
+      padding-left: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+      &:before {
+        content: '';
+        height: 15%;
+        width: ${dimensions.unitSpacing + 5}px;
+        top:  ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+        left: ${dimensions.unitSpacing}px;
+        position: absolute;
+        background: url('/images/blue-dot.png') no-repeat;
+        background-size: contain;
+      }
     }
+  }
 
     &:hover,
     &:focus {
