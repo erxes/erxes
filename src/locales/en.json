@@ -854,5 +854,15 @@
   "characters": "characters!",
   "Invalid number format! Please enter a valid number": "Invalid number format! Please enter a valid number.",
   "Insert email template to content": "Insert email template to content",
-  "Congrats! You successfully sign in": "Congrats! You successfully sign in"
+  "Congrats! You successfully sign in": "Congrats! You successfully sign in",
+  "Logs": "Logs",
+  "There are no logs recorded": "There are no logs recorded",
+  "Module": "Module",
+  "Old data": "Old data",
+  "New data": "New data",
+  "Create": "Create",
+  "Update": "Update",
+  "Changes": "Changes",
+  "Choose start date": "Choose start date",
+  "Choose end date": "Choose end date"
 }

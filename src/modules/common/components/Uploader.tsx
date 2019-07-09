@@ -39,6 +39,7 @@ const UploadBtn = styled.div`
 type Props = {
   defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
+  multiple?: boolean;
 };
 
 type State = {
@@ -119,6 +120,7 @@ class Uploader extends React.Component<Props, State> {
 
   render() {
     const { loading, attachments } = this.state;
+    const { multiple = true } = this.props;
 
     return (
       <>
@@ -127,7 +129,11 @@ class Uploader extends React.Component<Props, State> {
           {loading && (
             <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
           )}
-          <input type="file" multiple={true} onChange={this.handleFileInput} />
+          <input
+            type="file"
+            multiple={multiple}
+            onChange={this.handleFileInput}
+          />
         </UploadBtn>
       </>
     );

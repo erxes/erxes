@@ -71,12 +71,13 @@ export default withProps<Props>(
     }),
     graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
       name: 'removeMutation',
-      options: ({ queryParams, kind }) => {
+      options: ({ queryParams, variables, kind }) => {
         return {
           refetchQueries: [
             {
               query: gql(queries.integrations),
               variables: {
+                ...variables,
                 ...integrationsListParams(queryParams || {}),
                 kind
               }
