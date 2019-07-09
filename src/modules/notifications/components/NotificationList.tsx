@@ -60,6 +60,7 @@ class NotificationList extends React.Component<
             notification={notif}
             key={key}
             markAsRead={markAsRead}
+            isList={true}
           />
         ))}
       </NotifList>

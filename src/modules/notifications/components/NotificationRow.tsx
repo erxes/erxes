@@ -8,12 +8,19 @@ import { withRouter } from 'react-router';
 import xss from 'xss';
 import { INotification } from '../types';
 import { NotificationIcon } from './';
-import { Content, CreatedDate, CreatedUser, FlexRow } from './styles';
+import {
+  AvatarSection,
+  Content,
+  CreatedDate,
+  CreatedUser,
+  InfoSection
+} from './styles';
 
 interface IProps extends IRouterProps {
   notification: INotification;
   markAsRead: (notificationIds?: string[]) => void;
   createdUser?: IUser;
+  isList?: boolean;
 }
 
 class NotificationRow extends React.Component<IProps> {
@@ -67,29 +74,31 @@ class NotificationRow extends React.Component<IProps> {
   }
 
   render() {
-    const { notification } = this.props;
+    const { notification, isList } = this.props;
     const { isRead, createdUser } = notification;
     const classes = classNames({ unread: !isRead });
 
     return (
       <li className={classes} onClick={this.markAsRead}>
-        <FlexRow>
+        <AvatarSection>
           <NameCard.Avatar
             user={createdUser}
             size={30}
             icon={<NotificationIcon notification={notification} />}
           />
+        </AvatarSection>
+        <InfoSection>
           <CreatedUser>
             {createdUser.details
               ? createdUser.details.fullName
               : createdUser.username || createdUser.email}
             {this.renderAction(notification)}
           </CreatedUser>
-        </FlexRow>
-        {this.renderContent(notification.content, notification.notifType)}
-        <CreatedDate>
-          {moment(notification.date).format('DD MMM YYYY, HH:mm')}
-        </CreatedDate>
+          {this.renderContent(notification.content, notification.notifType)}
+          <CreatedDate isList={isList}>
+            {moment(notification.date).format('DD MMM YYYY, HH:mm')}
+          </CreatedDate>
+        </InfoSection>
       </li>
     );
   }
