@@ -37,6 +37,7 @@ export interface ITopic {
   brandId?: string;
   categoryIds?: string[];
   color?: string;
+  backgroundImage?: string;
   languageCode?: string;
 }
 
@@ -92,6 +93,7 @@ export const topicSchema = new Schema({
   }),
 
   color: field({ type: String, optional: true }),
+  backgroundImage: field({ type: String, optional: true }),
 
   languageCode: field({
     type: String,
