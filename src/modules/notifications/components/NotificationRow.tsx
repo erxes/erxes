@@ -11,6 +11,7 @@ import NotificationIcon from './NotificationIcon';
 import {
   AvatarSection,
   Content,
+  ConversationContent,
   CreatedDate,
   CreatedUser,
   InfoSection
@@ -54,22 +55,13 @@ class NotificationRow extends React.Component<IProps> {
 
   renderContent(content: string, type: string) {
     if (!type.includes('conversation')) {
-      return null;
-    }
-
-    return <Content dangerouslySetInnerHTML={{ __html: xss(content) }} />;
-  }
-
-  renderAction(notification: INotification) {
-    if (notification.notifType.includes('conversation')) {
-      return <span>{notification.action}</span>;
+      return <b> {content}</b>;
     }
 
     return (
-      <span>
-        {notification.action}
-        <b> {notification.content}</b>
-      </span>
+      <ConversationContent>
+        <Content dangerouslySetInnerHTML={{ __html: xss(content) }} />
+      </ConversationContent>
     );
   }
 
@@ -92,9 +84,11 @@ class NotificationRow extends React.Component<IProps> {
             {createdUser.details
               ? createdUser.details.fullName
               : createdUser.username || createdUser.email}
-            {this.renderAction(notification)}
+            <span>
+              {notification.action}
+              {this.renderContent(notification.content, notification.notifType)}
+            </span>
           </CreatedUser>
-          {this.renderContent(notification.content, notification.notifType)}
           <CreatedDate isList={isList}>
             {moment(notification.date).format('DD MMM YYYY, HH:mm')}
           </CreatedDate>
