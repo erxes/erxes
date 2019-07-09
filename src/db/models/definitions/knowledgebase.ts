@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { LANGUAGE_CHOICES, PUBLISH_STATUSES } from './constants';
+import { PUBLISH_STATUSES } from './constants';
 
 interface ICommonFields {
   createdBy: string;
@@ -37,6 +37,7 @@ export interface ITopic {
   brandId?: string;
   categoryIds?: string[];
   color?: string;
+  backgroundImage?: string;
   languageCode?: string;
 }
 
@@ -92,10 +93,10 @@ export const topicSchema = new Schema({
   }),
 
   color: field({ type: String, optional: true }),
+  backgroundImage: field({ type: String, optional: true }),
 
   languageCode: field({
     type: String,
-    enum: LANGUAGE_CHOICES,
     optional: true,
   }),
 
