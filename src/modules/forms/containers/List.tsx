@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
-import { Bulk } from 'modules/common/components';
+import Bulk from 'modules/common/components/Bulk';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Alert, withProps } from '../../common/utils';
 import { TagsQueryResponse } from '../../tags/types';
-import { List } from '../components';
+import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   CountQueryResponse,

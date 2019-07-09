@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { KnowledgeBase as KnowledgeBaseComponent } from '../components';
+import KnowledgeBaseComponent from '../components/KnowledgeBase';
 import { queries } from '../graphql';
 import {
   ArticlesTotalCountQueryResponse,

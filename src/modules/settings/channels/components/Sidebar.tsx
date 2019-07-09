@@ -1,19 +1,17 @@
 import { IUser } from 'modules/auth/types';
-import {
-  EmptyState,
-  Icon,
-  LoadMore,
-  ModalTrigger,
-  Spinner
-} from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import LoadMore from 'modules/common/components/LoadMore';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import LeftSidebar from 'modules/layout/components/Sidebar';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
 import React from 'react';
-import { ChannelForm } from '../containers';
+import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
-import { ChannelRow } from './';
+import ChannelRow from './ChannelRow';
 
 type Props = {
   channels: IChannel[];

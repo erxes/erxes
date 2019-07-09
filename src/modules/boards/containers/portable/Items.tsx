@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Items } from '../../components/portable/';
+import Items from '../../components/portable/Items';
 import { IOptions, ItemsQueryResponse } from '../../types';
 
 type IProps = {

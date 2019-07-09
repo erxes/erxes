@@ -1,9 +1,7 @@
-import {
-  AvatarUpload,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import AvatarUpload from 'modules/common/components/AvatarUpload';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import {
   ColumnTitle,
   FormColumn,

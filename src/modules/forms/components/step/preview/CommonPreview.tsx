@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import {
   LauncherContainer,
   WebPreview,

@@ -1,16 +1,14 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { timezones } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from 'react-toggle';
-import { OnlineHours } from '.';
 import { IOnlineHour } from '../../../types';
+import OnlineHours from './OnlineHours';
 
 type Props = {
   onChange: (

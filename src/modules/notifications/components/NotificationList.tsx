@@ -1,9 +1,10 @@
-import { Button, Pagination } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { INotification } from 'modules/notifications/types';
 import React from 'react';
-import { NotificationRow } from './';
+import NotificationRow from './NotificationRow';
 import { NotifList } from './styles';
 
 type Props = {

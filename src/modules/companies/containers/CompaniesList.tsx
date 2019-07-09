@@ -1,6 +1,6 @@
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Bulk } from 'modules/common/components';
+import Bulk from 'modules/common/components/Bulk';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import queryString from 'query-string';
@@ -9,7 +9,7 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/types';
-import { CompaniesList } from '../components';
+import CompaniesList from '../components/list/CompaniesList';
 import { mutations, queries } from '../graphql';
 import {
   ListConfigQueryResponse,

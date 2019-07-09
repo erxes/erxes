@@ -1,6 +1,6 @@
-import { BasicInfoSection } from 'modules/customers/components/common';
-import { CustomFieldsSection } from 'modules/customers/containers/common';
-import { Sidebar } from 'modules/layout/components';
+import BasicInfoSection from 'modules/customers/components/common/BasicInfoSection';
+import CustomFieldsSection from 'modules/customers/containers/common/CustomFieldsSection';
+import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 
 import { ICustomer } from 'modules/customers/types';

@@ -1,8 +1,9 @@
-import { Icon, Label } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { NotificationsLatest } from '../containers';
+import NotificationsLatest from '../containers/NotificationsLatest';
 import { NotifButton, PopoverHeader } from './styles';
 
 class Widget extends React.Component<

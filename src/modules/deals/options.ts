@@ -1,6 +1,7 @@
 import { toArray } from 'modules/boards/utils';
-import { DealEditForm, PortableDeal } from './components';
-import { DealItem } from './containers/';
+import DealEditForm from './components/DealEditForm';
+import PortableDeal from './components/PortableDeal';
+import DealItem from './containers/DealItem';
 import { mutations, queries } from './graphql';
 
 const options = {

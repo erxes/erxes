@@ -1,10 +1,11 @@
-import { Icon, Tip } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import RTG from 'react-transition-group';
 import { STEPS } from '../constants';
-import { Content } from './';
+import Content from './Content';
 import {
   ContentContainer,
   Header,

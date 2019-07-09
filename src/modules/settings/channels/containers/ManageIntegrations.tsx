@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { ManageIntegrations } from 'modules/settings/integrations/containers/common';
+import ManageIntegrations from 'modules/settings/integrations/containers/common/ManageIntegrations';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import React from 'react';

@@ -1,4 +1,5 @@
-import { Icon, ImageWithPreview } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ImageWithPreview from 'modules/common/components/ImageWithPreview';
 import React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';

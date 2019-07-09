@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Icon } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
@@ -13,7 +14,7 @@ import {
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { MessengerAdd } from '../components';
+import MessengerAdd from '../components/MessengerAdd';
 import { OnboardConsumer } from '../containers/OnboardContext';
 import { queries } from '../graphql';
 

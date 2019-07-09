@@ -1,6 +1,6 @@
 import { IButtonMutateProps } from 'modules/common/types';
 import { StepFormWrapper } from 'modules/engage/styles';
-import { BrandForm } from 'modules/settings/brands/components';
+import BrandForm from 'modules/settings/brands/components/BrandForm';
 import React from 'react';
 
 type Props = {

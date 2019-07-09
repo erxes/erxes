@@ -1,4 +1,5 @@
-import { Icon, Spinner } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import Spinner from 'modules/common/components/Spinner';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';

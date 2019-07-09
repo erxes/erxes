@@ -1,12 +1,12 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { UserDetailForm } from 'modules/settings/team/containers';
+import UserDetailForm from 'modules/settings/team/containers/UserDetailForm';
 import { mutations, queries } from 'modules/settings/team/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser, IUserDoc } from '../../../auth/types';
-import { EditProfileForm } from '../components';
+import EditProfileForm from '../components/EditProfileForm';
 import { EditProfileMutationResponse } from '../types';
 
 type Props = {

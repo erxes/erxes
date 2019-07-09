@@ -1,21 +1,22 @@
 import { IUser } from 'modules/auth/types';
-import { Button, DateFilter, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DateFilter from 'modules/common/components/DateFilter';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { Resolver, Tagger } from 'modules/inbox/containers';
-import {
-  ConversationList,
-  FilterList,
-  FilterToggler
-} from 'modules/inbox/containers/leftSidebar';
+import ConversationList from 'modules/inbox/containers/leftSidebar/ConversationList';
+import FilterList from 'modules/inbox/containers/leftSidebar/FilterList';
+import FilterToggler from 'modules/inbox/containers/leftSidebar/FilterToggler';
+import Resolver from 'modules/inbox/containers/Resolver';
+import Tagger from 'modules/inbox/containers/Tagger';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { TAG_TYPES } from 'modules/tags/constants';
 import React from 'react';
 import RTG from 'react-transition-group';
 import { IConversation } from '../../types';
 import AssignBoxPopover from '../assignBox/AssignBoxPopover';
-import { StatusFilterPopover } from './';
+import StatusFilterPopover from './StatusFilterPopover';
 import {
   AdditionalSidebar,
   DropdownWrapper,

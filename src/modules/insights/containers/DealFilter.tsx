@@ -8,7 +8,7 @@ import {
 } from 'modules/boards/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { DealFilter } from '../components';
+import DealFilter from '../components/filter/DealFilter';
 import { IQueryParams } from '../types';
 
 type Props = {

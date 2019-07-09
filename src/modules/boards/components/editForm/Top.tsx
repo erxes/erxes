@@ -4,14 +4,12 @@ import {
   HeaderContentSmall,
   HeaderRow
 } from 'modules/boards/styles/item';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import React from 'react';
 import Datetime from 'react-datetime';
-import { Move } from '../../containers/editForm';
+import Move from '../../containers/editForm/Move';
 import { IItem, IOptions } from '../../types';
 
 type Props = {

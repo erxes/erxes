@@ -1,10 +1,10 @@
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { INSIGHT_TYPES } from '../constants';
-import { DealFilter } from '../containers';
+import DealFilter from '../containers/DealFilter';
 import {
   InsightContent,
   InsightRow,
@@ -18,7 +18,11 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, PunchCard, Sidebar, Summary, TeamMembers } from './';
+import Chart from './Chart';
+import PunchCard from './PunchCard';
+import Sidebar from './Sidebar';
+import Summary from './Summary';
+import TeamMembers from './TeamMembers';
 
 type loadingType = {
   main: boolean;

@@ -1,8 +1,9 @@
-import { Button } from 'modules/common/components';
-import { ControlLabel, FormGroup } from 'modules/common/components';
-import { CompanySection } from 'modules/companies/components';
+import Button from 'modules/common/components/Button';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICompany } from 'modules/companies/types';
-import { CustomerSection } from 'modules/customers/components/common';
+import CustomerSection from 'modules/customers/components/common/CustomerSection';
 import { ICustomer } from 'modules/customers/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';

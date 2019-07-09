@@ -1,6 +1,6 @@
-import { IntegrationIcon } from 'modules/common/components';
+import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import {
   SectionBody,
   SidebarCounter,

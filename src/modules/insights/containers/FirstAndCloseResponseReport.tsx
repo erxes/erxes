@@ -2,7 +2,8 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
-import { FirstResponse, ResponseCloseReport } from '../components';
+import FirstResponse from '../components/FirstResponse';
+import ResponseCloseReport from '../components/ResponseCloseReport';
 import { queries } from '../graphql';
 import {
   FirstResponseQueryResponse,

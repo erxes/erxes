@@ -1,4 +1,4 @@
-import { TaggerPopover } from 'modules/tags/components';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { refetchSidebarConversationsOptions } from '../utils';
 

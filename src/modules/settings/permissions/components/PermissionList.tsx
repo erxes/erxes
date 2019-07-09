@@ -1,20 +1,18 @@
 import { IUser } from 'modules/auth/types';
-import {
-  ActionButtons,
-  Button,
-  DataWithLoader,
-  Icon,
-  ModalTrigger,
-  Pagination,
-  Table,
-  TextInfo,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Select from 'react-select-plus';
-import { GroupList } from '../containers';
+import GroupList from '../containers/GroupList';
 import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
 import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
 import PermissionForm from './PermissionForm';

@@ -1,4 +1,5 @@
-import { EmptyState, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';

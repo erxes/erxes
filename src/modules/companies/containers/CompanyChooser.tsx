@@ -1,9 +1,8 @@
 import gql from 'graphql-tag';
-import { Chooser } from 'modules/common/components';
+import Chooser from 'modules/common/components/Chooser';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { CompanyForm } from '.';
 import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
@@ -11,6 +10,7 @@ import {
   ICompany,
   ICompanyDoc
 } from '../types';
+import CompanyForm from './CompanyForm';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;

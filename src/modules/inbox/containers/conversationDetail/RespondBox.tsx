@@ -2,7 +2,7 @@ import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
 import { IAttachmentPreview } from 'modules/common/types';
-import { RespondBox } from 'modules/inbox/components/conversationDetail';
+import RespondBox from 'modules/inbox/components/conversationDetail/workarea/RespondBox';
 import { queries } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';

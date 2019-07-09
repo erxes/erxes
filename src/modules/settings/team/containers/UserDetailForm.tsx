@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { ChannelsQueryResponse } from '../../channels/types';
-import { UserDetailForm } from '../components';
+import UserDetailForm from '../components/detail/UserDetailForm';
 import { queries } from '../graphql';
 import {
   UserConverationsQueryResponse,

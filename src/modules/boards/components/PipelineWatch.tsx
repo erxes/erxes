@@ -1,5 +1,5 @@
 import { IPipeline } from 'modules/boards/types';
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 import { HeaderButton } from '../styles/header';
 

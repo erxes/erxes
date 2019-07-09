@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { HistoryDetail } from '../components';
+import HistoryDetail from '../components/HistoryDetail';
 import { queries, subscriptions } from '../graphql';
 import { ImportHistoryDetailQueryResponse } from '../types';
 

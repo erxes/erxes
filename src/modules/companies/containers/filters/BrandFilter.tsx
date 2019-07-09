@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { BrandFilter } from 'modules/customers/components';
+import BrandFilter from 'modules/customers/components/list/BrandFilter';
 import { queries } from 'modules/settings/brands/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
