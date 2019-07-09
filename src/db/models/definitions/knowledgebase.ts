@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import { LANGUAGE_CHOICES, PUBLISH_STATUSES } from './constants';
+import { PUBLISH_STATUSES } from './constants';
 
 interface ICommonFields {
   createdBy: string;
@@ -95,7 +95,6 @@ export const topicSchema = new Schema({
 
   languageCode: field({
     type: String,
-    enum: LANGUAGE_CHOICES,
     optional: true,
   }),
 

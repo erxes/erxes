@@ -1,5 +1,3 @@
-export const LANGUAGE_CHOICES = ['', 'mn', 'en', 'fr', 'de', 'kr', 'es', 'ptBr', 'jp', 'ru', 'zh'];
-
 export const CONVERSATION_STATUSES = {
   NEW: 'new',
   OPEN: 'open',

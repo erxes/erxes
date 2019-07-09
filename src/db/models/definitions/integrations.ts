@@ -1,12 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import {
-  FORM_LOAD_TYPES,
-  FORM_SUCCESS_ACTIONS,
-  KIND_CHOICES,
-  LANGUAGE_CHOICES,
-  MESSENGER_DATA_AVAILABILITY,
-} from './constants';
+import { FORM_LOAD_TYPES, FORM_SUCCESS_ACTIONS, KIND_CHOICES, MESSENGER_DATA_AVAILABILITY } from './constants';
 
 export interface ILink {
   twitter?: string;
@@ -206,7 +200,6 @@ export const integrationSchema = new Schema({
 
   languageCode: field({
     type: String,
-    enum: LANGUAGE_CHOICES,
     optional: true,
   }),
   tagIds: field({ type: [String], optional: true }),
