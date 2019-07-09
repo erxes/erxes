@@ -67,25 +67,23 @@ class NotificationRow extends React.Component<IProps> {
 
     return (
       <li className={classes} onClick={this.markAsRead}>
-        <div>
-          <FlexRow>
-            <NameCard.Avatar
-              user={createdUser}
-              size={30}
-              icon={<NotificationIcon notification={notification} />}
-            />
-            <CreatedUser>
-              {createdUser.details
-                ? createdUser.details.fullName
-                : createdUser.username || createdUser.email}
-              {this.renderAction(notification)}
-            </CreatedUser>
-          </FlexRow>
-          {this.renderContent(notification.content, notification.notifType)}
-          <CreatedDate>
-            {moment(notification.date).format('DD MMM YYYY, HH:mm')}
-          </CreatedDate>
-        </div>
+        <FlexRow>
+          <NameCard.Avatar
+            user={createdUser}
+            size={30}
+            icon={<NotificationIcon notification={notification} />}
+          />
+          <CreatedUser>
+            {createdUser.details
+              ? createdUser.details.fullName
+              : createdUser.username || createdUser.email}
+            {this.renderAction(notification)}
+          </CreatedUser>
+        </FlexRow>
+        {this.renderContent(notification.content, notification.notifType)}
+        <CreatedDate>
+          {moment(notification.date).format('DD MMM YYYY, HH:mm')}
+        </CreatedDate>
       </li>
     );
   }
