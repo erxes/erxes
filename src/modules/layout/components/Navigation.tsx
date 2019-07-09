@@ -129,7 +129,7 @@ class Navigation extends React.Component<{
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __('Inbox').toString());
+      setBadge(unreadCount, __('Team Inbox').toString());
     }
   }
 
@@ -143,7 +143,7 @@ class Navigation extends React.Component<{
         </NavLink>
         <Nav>
           <WithPermission action="showConversations">
-            <Tip placement="right" text={__('Inbox').toString()}>
+            <Tip placement="right" text={__('Conversation').toString()}>
               <NavLink to="/inbox">
                 <NavIcon className="icon-chat" />
                 {unreadConversationsCount !== 0 && (
@@ -155,7 +155,7 @@ class Navigation extends React.Component<{
             </Tip>
           </WithPermission>
           <WithPermission action="showDeals">
-            <Tip placement="right" text={__('Deal').toString()}>
+            <Tip placement="right" text={__('Sales').toString()}>
               <NavLink to="/deal">
                 <NavIcon className="icon-piggy-bank" />
               </NavLink>

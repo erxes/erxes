@@ -26,7 +26,7 @@ class DealBoard extends React.Component<Props> {
   render() {
     return (
       <BoardContainer>
-        <Header title={__('Deal')} submenu={menuDeal} />
+        <Header title={__('Sales')} submenu={menuDeal} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}

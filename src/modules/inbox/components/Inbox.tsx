@@ -14,7 +14,7 @@ type Props = {
 
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
   const menuInbox = [
-    { title: 'Inbox', link: '/inbox/index' },
+    { title: 'Team Inbox', link: '/inbox/index' },
     { title: 'Ticket', link: '/inbox/ticket' }
   ];
 
@@ -24,7 +24,11 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
 
   return (
     <Contents>
-      <Header title={'Inbox'} queryParams={queryParams} submenu={menuInbox} />
+      <Header
+        title={'Conversation'}
+        queryParams={queryParams}
+        submenu={menuInbox}
+      />
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}

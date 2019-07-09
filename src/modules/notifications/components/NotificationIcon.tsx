@@ -15,8 +15,8 @@ const RoundedBackground = styledTS<{ icon: string }>(styled.span)`
   border: 1px solid ${colors.colorWhite};
   background: ${props =>
     (props.icon === 'chat' && colors.colorPrimary) ||
-    (props.icon === 'piggy-bank' && colors.colorCoreTeal) ||
-    (props.icon === 'creditcard' && colors.colorLightBlue) ||
+    (props.icon === 'piggy-bank' && colors.colorCoreBlue) ||
+    (props.icon === 'creditcard' && colors.colorCoreTeal) ||
     (props.icon === 'clipboard' && colors.colorCoreRed) ||
     colors.colorCoreGreen};
 
