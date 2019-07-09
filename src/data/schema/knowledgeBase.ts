@@ -49,6 +49,7 @@ export const types = `
     categories: [KnowledgeBaseCategory]
     brand: Brand
     color: String
+    backgroundImage: String
     languageCode: String
     createdBy: String
     createdDate: Date
@@ -62,6 +63,7 @@ export const types = `
     categoryIds: [String]
     brandId: String!
     color: String
+    backgroundImage: String
     languageCode: String
   }
 `;
