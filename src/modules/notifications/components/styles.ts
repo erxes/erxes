@@ -1,5 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const NotificationWrapper = styled.div`
   position: relative;
@@ -21,23 +22,46 @@ const NotificationSeeAll = styled.div`
   }
 `;
 
+const AvatarSection = styled.div`
+  margin-right: ${dimensions.unitSpacing + 5}px;
+  position: relative;
+`;
+
+const Content = styled.div`
+  background: ${colors.bgMain};
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
+  border-radius: 3px;
+  margin: ${dimensions.unitSpacing - 5}px 0;
+  display: inline-block;
+
+  > p {
+    margin: 0;
+  }
+`;
+
 const NotifList = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
 
   li {
-    padding: ${dimensions.coreSpacing}px;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
     border-bottom: 1px solid ${colors.bgActive};
     position: relative;
+    display: flex;
 
     &:last-child {
       border: none;
     }
 
     &.unread {
-      background: ${colors.bgUnread};
+      background: #edf2fa;
+
+      ${Content} {
+        background: ${colors.colorWhite};
+      }
     }
+  }
 
     &:hover,
     &:focus {
@@ -49,10 +73,10 @@ const NotifList = styled.ul`
 
 const NotificationList = styled(NotifList)`
   max-height: 420px !important;
+`;
 
-  li {
-    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  }
+const ConversationContent = styled.div`
+  margin-bottom: -${dimensions.coreSpacing}px;
 `;
 
 const NotifButton = styled.div`
@@ -89,6 +113,33 @@ const PopoverContent = styled.div`
   height: 420px;
 `;
 
+const CreatedUser = styled.div`
+  font-weight: 600;
+
+  span {
+    padding-left: ${dimensions.unitSpacing - 5}px;
+    font-weight: normal;
+  }
+`;
+
+const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+
+  ${props =>
+    props.isList &&
+    css`
+      position: absolute;
+      right: 0;
+      top: 5px;
+    `}
+`;
+
+const InfoSection = styled.div`
+  position: relative;
+  flex: 1;
+`;
+
 export {
   NotifList,
   NotificationList,
@@ -96,5 +147,11 @@ export {
   NotificationSeeAll,
   NotifButton,
   PopoverHeader,
-  PopoverContent
+  PopoverContent,
+  CreatedUser,
+  CreatedDate,
+  Content,
+  AvatarSection,
+  InfoSection,
+  ConversationContent
 };
