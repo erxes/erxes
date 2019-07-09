@@ -5,6 +5,7 @@ export const types = `
     title: String
     link: String
     content: String
+    action: String
     createdUser: User
     receiver: String
     date: Date

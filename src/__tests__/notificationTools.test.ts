@@ -46,10 +46,11 @@ describe('testings helper methods', () => {
 
     const doc = {
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
-      createdUser: _user._id,
+      createdUser: _user,
       title: 'new Notification title',
       content: 'new Notification content',
       link: 'new Notification link',
+      action: 'action',
       receivers: [_user._id, _user2._id, _user3._id],
     };
 
@@ -59,7 +60,7 @@ describe('testings helper methods', () => {
     expect(notifications.length).toEqual(0);
 
     // Send notifications when there is config allowing it ====================
-    await NotificationConfigurations.updateMany({}, { isAllowed: true }, { multi: true });
+    await NotificationConfigurations.updateMany({}, { $set: { isAllowed: true } }, { multi: true });
 
     await utils.sendNotification(doc);
 
@@ -68,7 +69,7 @@ describe('testings helper methods', () => {
     expect(notifications.length).toEqual(3);
 
     expect(notifications[0].notifType).toEqual(doc.notifType);
-    expect(notifications[0].createdUser).toEqual(doc.createdUser);
+    expect(notifications[0].createdUser).toBe(doc.createdUser._id);
     expect(notifications[0].title).toEqual(doc.title);
     expect(notifications[0].content).toEqual(doc.content);
     expect(notifications[0].link).toEqual(doc.link);
@@ -86,18 +87,19 @@ describe('testings helper methods', () => {
       throw new Error('Couldnt create channel');
     }
 
-    const content = `You have invited to '${channel.name}' channel.`;
+    const content = `${channel.name} channel`;
 
     const spySendNotification = jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
 
-    await sendChannelNotifications(channel);
+    await sendChannelNotifications(channel, 'invited', _user);
 
     expect(utils.sendNotification).toBeCalledWith({
-      createdUser: channel.userId,
+      createdUser: _user,
+      action: 'invited you to the',
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
-      title: content,
+      title: `Channel updated`,
       content,
-      link: `/inbox?channelId=${channel._id}`,
+      link: `/inbox/index?channelId=${channel._id}`,
       receivers: channel && channel.memberIds ? channel.memberIds.filter(id => id !== channel.userId) : null,
     });
 

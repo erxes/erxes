@@ -5,7 +5,8 @@ import { IDeal } from '../../../db/models/definitions/deals';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
-import { itemsChange, manageNotifications, notifiedUserIds, sendNotifications } from '../boardUtils';
+import { itemsChange, sendNotifications } from '../boardUtils';
+import { checkUserIds } from './notifications';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -22,14 +23,14 @@ const dealMutations = {
       modifiedBy: user._id,
     });
 
-    await sendNotifications(
-      deal.stageId || '',
+    await sendNotifications({
+      item: deal,
       user,
-      NOTIFICATION_TYPES.DEAL_ADD,
-      deal.assignedUserIds || [],
-      `'{userName}' invited you to the '${deal.name}'.`,
-      'deal',
-    );
+      type: NOTIFICATION_TYPES.DEAL_ADD,
+      action: 'invited you to the deal',
+      content: `'${deal.name}'.`,
+      contentType: 'deal',
+    });
 
     await putCreateLog(
       {
@@ -47,29 +48,44 @@ const dealMutations = {
   /**
    * Edit deal
    */
-  async dealsEdit(_root, { _id, ...doc }: IDealsEdit, { user }: { user: IUserDocument }) {
-    const deal = await Deals.findOne({ _id });
-    const updated = await Deals.updateDeal(_id, {
+  async dealsEdit(_root, { _id, ...doc }: IDealsEdit, { user }) {
+    const oldDeal = await Deals.findOne({ _id });
+
+    if (!oldDeal) {
+      throw new Error('Deal not found');
+    }
+
+    const updatedDeal = await Deals.updateDeal(_id, {
       ...doc,
       modifiedAt: new Date(),
       modifiedBy: user._id,
     });
 
-    await manageNotifications(Deals, updated, user, 'deal');
+    const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds || [], doc.assignedUserIds || []);
 
-    if (deal) {
+    await sendNotifications({
+      item: updatedDeal,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_EDIT,
+      invitedUsers: addedUserIds,
+      removedUsers: removedUserIds,
+      action: `has updated deal`,
+      content: `${updatedDeal.name}`,
+      contentType: 'deal',
+    });
+
+    if (updatedDeal) {
       await putUpdateLog(
         {
           type: 'deal',
-          object: deal,
+          object: updatedDeal,
           newData: JSON.stringify(doc),
-          description: `${deal.name} has been edited`,
+          description: `${updatedDeal.name} has been edited`,
         },
         user,
       );
     }
-
-    return updated;
+    return updatedDeal;
   },
 
   /**
@@ -80,22 +96,28 @@ const dealMutations = {
     { _id, destinationStageId }: { _id: string; destinationStageId: string },
     { user }: { user: IUserDocument },
   ) {
-    const deal = await Deals.updateDeal(_id, {
+    const deal = await Deals.findOne({ _id });
+
+    if (!deal) {
+      throw new Error('Deal not found');
+    }
+
+    await Deals.updateDeal(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
     });
 
-    const content = await itemsChange(Deals, deal, 'deal', destinationStageId);
+    const { content, action } = await itemsChange(Deals, deal, 'deal', destinationStageId);
 
-    await sendNotifications(
-      deal.stageId || '',
+    await sendNotifications({
+      item: deal,
       user,
-      NOTIFICATION_TYPES.DEAL_CHANGE,
-      await notifiedUserIds(deal),
+      type: NOTIFICATION_TYPES.DEAL_CHANGE,
       content,
-      'deal',
-    );
+      action,
+      contentType: 'deal',
+    });
 
     return deal;
   },
@@ -117,16 +139,16 @@ const dealMutations = {
       throw new Error('Deal not found');
     }
 
-    await sendNotifications(
-      deal.stageId || '',
+    await sendNotifications({
+      item: deal,
       user,
-      NOTIFICATION_TYPES.DEAL_DELETE,
-      await notifiedUserIds(deal),
-      `'{userName}' deleted deal: '${deal.name}'`,
-      'deal',
-    );
+      type: NOTIFICATION_TYPES.DEAL_DELETE,
+      action: `deleted deal:`,
+      content: `'${deal.name}'`,
+      contentType: 'deal',
+    });
 
-    const removed = await Deals.removeDeal(_id);
+    const removed = deal.remove();
 
     await putDeleteLog(
       {

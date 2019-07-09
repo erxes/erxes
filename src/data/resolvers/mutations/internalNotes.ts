@@ -20,13 +20,12 @@ const internalNoteMutations = {
         const stage = await Stages.getStage(deal.stageId || '');
         const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
 
-        const title = `${user.details ? user.details.fullName : 'Someone'} mentioned you in "${deal.name}" deal`;
-
         utils.sendNotification({
-          createdUser: user._id,
+          createdUser: user,
           notifType: NOTIFICATION_TYPES.DEAL_EDIT,
-          title,
-          content: title,
+          title: `Deal Updated`,
+          content: ` "${deal.name}" deal`,
+          action: `mentioned you in`,
           link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
           receivers: args.mentionedUserIds || [],
         });

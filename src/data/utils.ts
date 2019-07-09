@@ -8,7 +8,7 @@ import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
-import { IUserDocument } from '../db/models/definitions/users';
+import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
 
 /*
@@ -352,20 +352,27 @@ export const sendEmail = async ({
 };
 
 /**
+ * Returns user's name or email
+ */
+export const getUserDetail = (user: IUser) => {
+  return (user.details && user.details.fullName) || user.email;
+};
+
+/**
  * Send a notification
  */
-export const sendNotification = async ({
-  createdUser,
-  receivers,
-  ...doc
-}: {
-  createdUser?: string;
+export const sendNotification = async (doc: {
+  createdUser: IUserDocument;
   receivers: string[];
   title: string;
   content: string;
   notifType: string;
   link: string;
+  action: string;
 }) => {
+  const { createdUser, receivers, title, content, notifType, action } = doc;
+  let link = doc.link;
+
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 
@@ -382,8 +389,10 @@ export const sendNotification = async ({
   for (const receiverId of receivers) {
     try {
       // send web and mobile notification
-
-      await Notifications.createNotification({ ...doc, receiver: receiverId }, createdUser);
+      await Notifications.createNotification(
+        { link, title, content, notifType, receiver: receiverId, action },
+        createdUser._id,
+      );
     } catch (e) {
       // Any other error is serious
       if (e.message !== 'Configuration does not exist') {
@@ -392,16 +401,24 @@ export const sendNotification = async ({
     }
   }
 
-  return sendEmail({
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+
+  link = `${MAIN_APP_DOMAIN}${link}`;
+
+  await sendEmail({
     toEmails,
     title: 'Notification',
     template: {
       name: 'notification',
       data: {
-        notification: doc,
+        notification: { ...doc, link },
+        action,
+        userName: getUserDetail(createdUser),
       },
     },
   });
+
+  return true;
 };
 
 /**
