@@ -1,18 +1,14 @@
 import { IUser } from 'modules/auth/types';
 import {
-  FlexContent,
   HeaderContent,
   HeaderContentSmall,
-  HeaderRow,
-  Left,
-  RightContent
+  HeaderRow
 } from 'modules/boards/styles/item';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from 'modules/common/components';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Datetime from 'react-datetime';
 import { Move } from '../../containers/editForm';
@@ -25,10 +21,9 @@ type Props = {
   description: string;
   closeDate: Date;
   stageId: string;
-  assignedUserIds: string[];
   users: IUser[];
   onChangeField: (
-    name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds',
+    name: 'stageId' | 'name' | 'closeDate' | 'description',
     value: any
   ) => void;
   amount?: () => React.ReactNode;
@@ -53,24 +48,12 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const {
-      name,
-      description,
-      closeDate,
-      assignedUserIds,
-      onChangeField,
-      amount
-    } = this.props;
+    const { name, closeDate, onChangeField, amount } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
 
     const dateOnChange = date => onChangeField('closeDate', date);
-
-    const descriptionOnChange = e =>
-      onChangeField('description', (e.target as HTMLInputElement).value);
-
-    const userOnChange = usrs => onChangeField('assignedUserIds', usrs);
 
     return (
       <React.Fragment>
@@ -105,30 +88,6 @@ class Top extends React.Component<Props> {
             </FormGroup>
           </HeaderContentSmall>
         </HeaderRow>
-
-        <FlexContent>
-          <Left>
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                componentClass="textarea"
-                defaultValue={description}
-                onChange={descriptionOnChange}
-              />
-            </FormGroup>
-          </Left>
-          <RightContent>
-            <FormGroup>
-              <ControlLabel>Assigned to</ControlLabel>
-              <SelectTeamMembers
-                label="Choose users"
-                name="assignedUserIds"
-                value={assignedUserIds}
-                onSelect={userOnChange}
-              />
-            </FormGroup>
-          </RightContent>
-        </FlexContent>
       </React.Fragment>
     );
   }
