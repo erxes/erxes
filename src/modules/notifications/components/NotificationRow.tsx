@@ -24,7 +24,7 @@ class NotificationRow extends React.Component<IProps> {
       markAsRead([notification._id]);
     }
 
-    window.location.replace(notification.link);
+    this.props.history.push({ pathname: notification.link });
   };
 
   getTitle = (title, user) => {
