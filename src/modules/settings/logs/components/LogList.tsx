@@ -1,12 +1,10 @@
 import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  DataWithLoader,
-  Pagination,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import moment from 'moment';
 import * as React from 'react';
 import Datetime from 'react-datetime';
