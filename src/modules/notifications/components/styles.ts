@@ -21,6 +21,12 @@ const NotificationSeeAll = styled.div`
   }
 `;
 
+const FlexRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
+`;
+
 const NotifList = styled.ul`
   margin: 0;
   padding: 0;
@@ -39,11 +45,10 @@ const NotifList = styled.ul`
       background: ${colors.bgUnread};
       padding-left: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
-      &:before {
+      ${FlexRow}::before {
         content: '';
         height: ${dimensions.unitSpacing + 3}px;
         width: ${dimensions.unitSpacing + 3}px;
-        top:  ${dimensions.coreSpacing}%;
         left: ${dimensions.unitSpacing}px;
         background: ${colors.colorCoreBlue};
         border-radius: 50%;
@@ -116,12 +121,6 @@ const CreatedDate = styled.div`
   font-size: 11px;
   color: ${colors.colorCoreGray};
   text-align: right;
-`;
-
-const FlexRow = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 const Content = styled.div`
