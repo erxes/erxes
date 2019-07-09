@@ -56,6 +56,9 @@ const StageList = styled.div`
 `;
 
 const StageItemContainer = styled(PipelineRowContainer)`
+  background-color: #fff;
+  margin-bottom: 10px;
+  padding: 5px 20px 10px;
   align-items: center;
 
   > *:not(button) {

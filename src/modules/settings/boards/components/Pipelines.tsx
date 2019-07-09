@@ -24,6 +24,7 @@ type Props = {
 type State = {
   showModal: boolean;
   pipelines: IPipeline[];
+  isDragDisabled: boolean;
 };
 
 class Pipelines extends React.Component<Props, State> {
@@ -32,7 +33,8 @@ class Pipelines extends React.Component<Props, State> {
 
     this.state = {
       showModal: false,
-      pipelines: props.pipelines
+      pipelines: props.pipelines,
+      isDragDisabled: false
     };
   }
 
@@ -70,6 +72,12 @@ class Pipelines extends React.Component<Props, State> {
     this.props.updateOrder(collectOrders(pipelines));
   };
 
+  onTogglePopup = () => {
+    const { isDragDisabled } = this.state;
+
+    this.setState({ isDragDisabled: !isDragDisabled });
+  };
+
   renderRows() {
     const { renderButton, type } = this.props;
 
@@ -81,6 +89,7 @@ class Pipelines extends React.Component<Props, State> {
           renderButton={renderButton}
           remove={this.props.remove}
           type={type}
+          onTogglePopup={this.onTogglePopup}
         />
       );
     };
@@ -92,6 +101,7 @@ class Pipelines extends React.Component<Props, State> {
         fields={pipelines}
         child={child}
         onChangeFields={this.onChangePipelines}
+        isDragDisabled={this.state.isDragDisabled}
       />
     );
   }
