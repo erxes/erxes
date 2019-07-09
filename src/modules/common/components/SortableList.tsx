@@ -10,6 +10,7 @@ type Props = {
   onChangeFields: (reorderedFields: any) => void;
   isModal?: boolean;
   showDragHandler?: boolean | true;
+  isDragDisabled?: boolean;
 };
 
 class SortableList extends React.Component<Props> {
@@ -47,10 +48,15 @@ class SortableList extends React.Component<Props> {
   }
 
   renderField(field, index) {
-    const { child, isModal } = this.props;
+    const { child, isModal, isDragDisabled } = this.props;
 
     return (
-      <Draggable draggableId={field._id} index={index} key={index}>
+      <Draggable
+        draggableId={field._id}
+        index={index}
+        key={index}
+        isDragDisabled={isDragDisabled}
+      >
         {(provided, snapshot) => (
           <>
             <SortItem
