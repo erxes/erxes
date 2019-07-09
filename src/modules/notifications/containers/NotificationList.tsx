@@ -74,9 +74,9 @@ export default withProps<Props>(
       gql(queries.notificationCounts),
       {
         name: 'notificationCountQuery',
-        options: () => ({
+        options: ({ queryParams }) => ({
           variables: {
-            requireRead: false
+            requireRead: queryParams.requireRead === 'true' ? true : false
           }
         })
       }
