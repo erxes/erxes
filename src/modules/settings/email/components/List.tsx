@@ -1,18 +1,16 @@
-import {
-  ActionButtons,
-  Button,
-  HeaderDescription,
-  Icon,
-  Label,
-  ModalTrigger,
-  Table,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBrand } from '../../brands/types';
-import { Config } from '../containers';
+import Config from '../containers/Config';
 
 type Props = {
   brands: IBrand[];

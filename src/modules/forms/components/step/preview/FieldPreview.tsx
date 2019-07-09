@@ -1,4 +1,4 @@
-import { GenerateField } from 'modules/settings/properties/components';
+import GenerateField from 'modules/settings/properties/components/GenerateField';
 import React from 'react';
 import { IField } from '../../../../settings/properties/types';
 import { FieldItem } from './styles';

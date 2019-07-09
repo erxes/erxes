@@ -1,16 +1,11 @@
-import { Button, Icon, Tabs, TabTitle } from 'modules/common/components';
-import { CompanyAssociate } from 'modules/companies/containers';
-import {
-  DetailInfo,
-  DevicePropertiesSection,
-  InfoSection,
-  MessengerSection,
-  TaggerSection
-} from 'modules/customers/components/common';
-import { ActionSection } from 'modules/customers/containers/common';
-import { CustomFieldsSection } from 'modules/customers/containers/common';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import CompanyAssociate from 'modules/companies/containers/CompanyAssociate';
+import ActionSection from 'modules/customers/containers/common/ActionSection';
+import CustomFieldsSection from 'modules/customers/containers/common/CustomFieldsSection';
 import PortableDeals from 'modules/deals/components/PortableDeals';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
@@ -23,9 +18,14 @@ import {
 } from './styles';
 
 import { __ } from 'modules/common/utils';
-import { Contacts } from 'modules/companies/components';
+import Contacts from 'modules/companies/components/detail/Contacts';
+import DetailInfo from 'modules/customers/components/common/DetailInfo';
+import DevicePropertiesSection from 'modules/customers/components/common/DevicePropertiesSection';
+import InfoSection from 'modules/customers/components/common/InfoSection';
+import MessengerSection from 'modules/customers/components/common/MessengerSection';
+import TaggerSection from 'modules/customers/components/common/TaggerSection';
 import { ICustomer } from 'modules/customers/types';
-import { SidebarActivity } from 'modules/inbox/containers/conversationDetail';
+import SidebarActivity from 'modules/inbox/containers/conversationDetail/SidebarActivity';
 import { IConversation } from '../../../types';
 import ConversationDetails from './ConversationDetails';
 

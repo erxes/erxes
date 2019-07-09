@@ -1,4 +1,6 @@
-import { Button, DropdownToggle, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import DealAddTrigger from 'modules/deals/components/DealAddTrigger';
 import TaskAddTrigger from 'modules/tasks/components/TaskAddTrigger';

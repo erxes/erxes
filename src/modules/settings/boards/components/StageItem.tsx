@@ -1,5 +1,6 @@
 import { IStage } from 'modules/boards/types';
-import { Button, FormControl } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
 import React from 'react';
 import { PROBABILITY } from '../constants';
 import { StageItemContainer } from '../styles';

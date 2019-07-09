@@ -1,4 +1,4 @@
-import { TextInfo } from 'modules/common/components';
+import TextInfo from 'modules/common/components/TextInfo';
 import moment from 'moment';
 import * as React from 'react';
 import { ILog } from '../types';

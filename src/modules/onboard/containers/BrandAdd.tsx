@@ -1,12 +1,13 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Icon } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
 import { BrandsCountQueryResponse } from 'modules/settings/brands/types';
 import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { BrandAdd } from '../components';
+import BrandAdd from '../components/BrandAdd';
 import { OnboardConsumer } from '../containers/OnboardContext';
 
 type Props = { changeStep: () => void };

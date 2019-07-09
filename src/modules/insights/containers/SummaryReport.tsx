@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
-import { SummaryReport } from '../components';
+import SummaryReport from '../components/SummaryReport';
 import { queries } from '../graphql';
 import { IParams, IQueryParams, SummaryQueryResponse } from '../types';
 

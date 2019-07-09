@@ -1,9 +1,10 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
-import { Icon, TabTitle } from 'modules/common/components';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
+import Icon from 'modules/common/components/Icon';
+import { TabTitle } from 'modules/common/components/tabs';
 import { __, renderFullName } from 'modules/common/utils';
-import { Widget } from 'modules/engage/containers';
-import { Wrapper } from 'modules/layout/components';
+import Widget from 'modules/engage/containers/Widget';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';

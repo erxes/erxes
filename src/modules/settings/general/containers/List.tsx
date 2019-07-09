@@ -1,10 +1,10 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { List } from '../components';
+import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   ConfigDetailQueryResponse,

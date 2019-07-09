@@ -1,6 +1,7 @@
 import { WatchIndicator } from 'modules/boards/styles/item';
 import { IItem } from 'modules/boards/types';
-import { Button, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 
 type IProps = {

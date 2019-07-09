@@ -1,11 +1,9 @@
 import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  ButtonMutate,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __, Alert } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';

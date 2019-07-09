@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { Chip } from 'modules/common/components';
+import Chip from 'modules/common/components/Chip';
 import React from 'react';
 
 type Props = {

@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { colors } from 'modules/common/styles';

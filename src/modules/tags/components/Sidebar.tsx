@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { NavLink } from 'react-router-dom';

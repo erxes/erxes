@@ -1,13 +1,13 @@
 import classNames from 'classnames';
 import { IUser } from 'modules/auth/types';
-import { NameCard } from 'modules/common/components';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import { IRouterProps } from 'modules/common/types';
 import moment from 'moment';
 import React from 'react';
 import { withRouter } from 'react-router';
 import xss from 'xss';
 import { INotification } from '../types';
-import { NotificationIcon } from './';
+import NotificationIcon from './NotificationIcon';
 import {
   AvatarSection,
   Content,

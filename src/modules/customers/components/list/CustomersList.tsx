@@ -1,33 +1,31 @@
 import gql from 'graphql-tag';
-import {
-  Button,
-  DataWithLoader,
-  DateFilter,
-  DropdownToggle,
-  FormControl,
-  Icon,
-  ModalTrigger,
-  Pagination,
-  SortHandler,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DateFilter from 'modules/common/components/DateFilter';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import SortHandler from 'modules/common/components/SortHandler';
+import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { CustomersMerge } from '..';
 import { IRouterProps } from '../../../common/types';
 import { __, Alert, confirm, router } from '../../../common/utils';
-import { Widget } from '../../../engage/containers';
-import { Wrapper } from '../../../layout/components';
+import Widget from '../../../engage/containers/Widget';
+import Wrapper from '../../../layout/components/Wrapper';
 import { BarItems } from '../../../layout/styles';
-import { ManageColumns } from '../../../settings/properties/containers';
+import ManageColumns from '../../../settings/properties/containers/ManageColumns';
 import { IConfigColumn } from '../../../settings/properties/types';
-import { TaggerPopover } from '../../../tags/components';
-import { CustomerForm } from '../../containers';
+import TaggerPopover from '../../../tags/components/TaggerPopover';
+import CustomerForm from '../../containers/CustomerForm';
 import { ICustomer } from '../../types';
+import CustomersMerge from '../detail/CustomersMerge';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 

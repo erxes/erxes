@@ -1,11 +1,12 @@
-import { FormControl, Icon } from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import React from 'react';
-import { Targets } from '..';
+import Targets from '../Targets';
 
 type Props<Target, OnSubmit> = {
   name: string;

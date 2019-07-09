@@ -1,10 +1,10 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { TagAdd, TargetCount } from 'modules/engage/types';
 import { ITag } from 'modules/tags/types';
 import React from 'react';
 import Common from './Common';
-import { TagsForm } from './forms';
+import TagsForm from './forms/TagsForm';
 
 type Props = {
   tagIds: string[];

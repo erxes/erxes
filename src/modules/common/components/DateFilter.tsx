@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
-import { Button, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
 import { __, Alert, router } from 'modules/common/utils';
 import { PopoverButton } from 'modules/inbox/styles';
 import moment from 'moment';

@@ -1,8 +1,11 @@
 import { colors } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';
-import { ControlLabel, FormGroup, Icon, Spinner } from '.';
 import { Alert, readFile, uploadHandler } from '../utils';
+import FormGroup from './form/Group';
+import ControlLabel from './form/Label';
+import Icon from './Icon';
+import Spinner from './Spinner';
 
 const Avatar = styled.div`
   width: 100px;

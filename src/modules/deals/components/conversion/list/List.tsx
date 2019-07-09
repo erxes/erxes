@@ -1,5 +1,5 @@
 import { IStage } from 'modules/boards/types';
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import * as React from 'react';
 import { Result } from '../style';
 import Stage from './Stage';

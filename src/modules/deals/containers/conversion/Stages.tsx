@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { queries } from 'modules/boards/graphql';
 import { StagesQueryResponse } from 'modules/boards/types';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import List from 'modules/deals/components/conversion/list/List';
 import Table from 'modules/deals/components/conversion/table/Table';

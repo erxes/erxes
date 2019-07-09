@@ -1,4 +1,4 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { router } from 'modules/common/utils';
 import React from 'react';
 import { withRouter } from 'react-router';

@@ -1,10 +1,7 @@
 import { IUser } from 'modules/auth/types';
-import {
-  ConditionsRule,
-  FormControl,
-  Step,
-  Steps
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
@@ -17,7 +14,7 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from 'modules/engage/types';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
 import { IBreadCrumbItem, IConditionsRule } from '../../common/types';

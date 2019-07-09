@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
-import { EmptyState, Spinner } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { CustomerDetails } from '../components';
+import CustomerDetails from '../components/detail/CustomerDetails';
 import { queries } from '../graphql';
 import { CustomerDetailQueryResponse } from '../types';
 

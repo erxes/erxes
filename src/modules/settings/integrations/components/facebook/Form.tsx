@@ -1,14 +1,13 @@
-import {
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  Spinner
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Spinner from 'modules/common/components/Spinner';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import { Accounts, SelectBrand } from '../../containers/';
+import Accounts from '../../containers/Accounts';
+import SelectBrand from '../../containers/SelectBrand';
 import { IPages } from '../../types';
 
 type Props = {

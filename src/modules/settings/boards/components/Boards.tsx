@@ -1,11 +1,14 @@
 import { IBoard } from 'modules/boards/types';
-import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
-import { BoardForm, BoardRow } from '.';
+import BoardForm from './BoardForm';
+import BoardRow from './BoardRow';
 
 type Props = {
   currentBoardId?: string;

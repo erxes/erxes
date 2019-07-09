@@ -1,10 +1,8 @@
 import _ from 'lodash';
-import {
-  FormControl,
-  NameCard,
-  Tags,
-  TextInfo
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
+import TextInfo from 'modules/common/components/TextInfo';
 import { isTimeStamp, isValidDate } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
 import { Date } from 'modules/customers/styles';

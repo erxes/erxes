@@ -1,4 +1,4 @@
-import { Tip } from 'modules/common/components';
+import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
