@@ -33,22 +33,22 @@ type Props = {
 
 class NotificationIcon extends React.PureComponent<Props> {
   getIcon() {
-    const { notification } = this.props;
+    const { notifType } = this.props.notification;
     let icon = 'repeat-1';
 
-    if (notification.notifType.includes('conversation')) {
+    if (notifType.includes('conversation')) {
       icon = 'chat';
     }
 
-    if (notification.notifType.includes('deal')) {
+    if (notifType.includes('deal')) {
       icon = 'piggy-bank';
     }
 
-    if (notification.notifType.includes('ticket')) {
+    if (notifType.includes('ticket')) {
       icon = 'creditcard';
     }
 
-    if (notification.notifType.includes('task')) {
+    if (notifType.includes('task')) {
       icon = 'clipboard';
     }
 
