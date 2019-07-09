@@ -29,9 +29,9 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
   };
 
   const companyTrigger = (
-    <a href="#add">
+    <button>
       <Icon icon="add" />
-    </a>
+    </button>
   );
 
   const quickButtons = (

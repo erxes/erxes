@@ -26,7 +26,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
         return (
           <li key={brand._id}>
             <a
-              href="#active"
+              href="#filter"
               tabIndex={0}
               className={
                 router.getParam(history, 'brand') === brand._id ? 'active' : ''

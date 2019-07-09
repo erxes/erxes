@@ -1,3 +1,4 @@
+import { IBoard } from 'modules/boards/types';
 import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -5,7 +6,6 @@ import { Sidebar } from 'modules/layout/components';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { BoardForm, BoardRow } from '.';
-import { IBoard } from '../types';
 
 type Props = {
   currentBoardId?: string;
@@ -42,9 +42,9 @@ class Boards extends React.Component<Props, {}> {
 
     const addBoard = (
       <HelperButtons>
-        <a href="#add">
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 

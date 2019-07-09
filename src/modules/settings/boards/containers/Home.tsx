@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { BoardsGetLastQueryResponse } from 'modules/boards/types';
 import { Spinner } from 'modules/common/components';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
@@ -7,7 +8,7 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Home } from '../components';
 import { queries } from '../graphql';
-import { BoardsGetLastQueryResponse } from '../types';
+
 type HomeContainerProps = {
   history?: any;
   boardId: string;

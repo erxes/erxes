@@ -1,14 +1,15 @@
+import { IPipeline } from 'modules/boards/types';
 import { ActionButtons, Button, Tip } from 'modules/common/components';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import { PipelineForm } from '../containers';
 import { PipelineRowContainer } from '../styles';
-import { IPipeline } from '../types';
 
 type Props = {
   pipeline: IPipeline;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (pipelineId: string) => void;
+  onTogglePopup: () => void;
   type: string;
 };
 
@@ -30,7 +31,11 @@ class PipelineRow extends React.Component<Props, State> {
 
     const onClick = () => remove(pipeline._id);
 
-    const edit = () => this.setState({ showModal: true });
+    const edit = () => {
+      this.setState({ showModal: true });
+
+      this.props.onTogglePopup();
+    };
 
     return (
       <ActionButtons>
@@ -47,7 +52,11 @@ class PipelineRow extends React.Component<Props, State> {
   renderEditForm() {
     const { renderButton, type, pipeline } = this.props;
 
-    const closeModal = () => this.setState({ showModal: false });
+    const closeModal = () => {
+      this.setState({ showModal: false });
+
+      this.props.onTogglePopup();
+    };
 
     return (
       <PipelineForm

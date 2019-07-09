@@ -42,9 +42,9 @@ class Sidebar extends React.Component<Props, {}> {
 
     const addBrand = (
       <HelperButtons>
-        <a href="#add">
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 

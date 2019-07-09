@@ -1,9 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import { EditForm } from 'modules/boards/components/editForm';
+import { PriorityIndicator } from 'modules/boards/components/editForm';
 import { PRIORITIES } from 'modules/boards/constants';
 import { IOptions } from 'modules/boards/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
-import { IOption } from 'modules/common/types';
+import { ISelectedOption } from 'modules/common/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ITask, ITaskParams } from '../types';
@@ -42,8 +43,16 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
     const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
 
-    const onChangePriority = (option: IOption) =>
+    const onChangePriority = (option: ISelectedOption) =>
       this.onChangeField('priority', option ? option.value : '');
+
+    const priorityValueRenderer = (
+      option: ISelectedOption
+    ): React.ReactNode => (
+      <>
+        <PriorityIndicator value={option.value} /> {option.label}
+      </>
+    );
 
     return (
       <>
@@ -54,6 +63,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
             value={priority}
             options={priorityValues}
             onChange={onChangePriority}
+            optionRenderer={priorityValueRenderer}
+            valueRenderer={priorityValueRenderer}
           />
         </FormGroup>
       </>

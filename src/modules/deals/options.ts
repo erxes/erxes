@@ -1,3 +1,4 @@
+import { toArray } from 'modules/boards/utils';
 import { DealEditForm, PortableDeal } from './components';
 import { DealItem } from './containers/';
 import { mutations, queries } from './graphql';
@@ -17,7 +18,8 @@ const options = {
     editMutation: 'dealsEdit',
     removeMutation: 'dealsRemove',
     changeMutation: 'dealsChange',
-    updateOrderMutation: 'dealsUpdateOrder'
+    updateOrderMutation: 'dealsUpdateOrder',
+    watchMutation: 'dealsWatch'
   },
   queries: {
     itemsQuery: queries.deals,
@@ -28,23 +30,27 @@ const options = {
     editMutation: mutations.dealsEdit,
     removeMutation: mutations.dealsRemove,
     changeMutation: mutations.dealsChange,
-    updateOrderMutation: mutations.dealsUpdateOrder
+    updateOrderMutation: mutations.dealsUpdateOrder,
+    watchMutation: mutations.dealsWatch
   },
   texts: {
     addText: 'Add a deal',
     addSuccessText: 'You successfully added a deal',
     updateSuccessText: 'You successfully updated a deal',
     deleteSuccessText: 'You successfully deleted a deal',
+    changeSuccessText: 'You successfully changed a deal',
     copySuccessText: 'You successfully copied a deal'
   },
   getExtraParams: (queryParams: any) => {
+    const extraParams: any = {};
+
     const productIds = queryParams.productIds;
 
-    if (!productIds || queryParams.productIds instanceof Array) {
-      return { productIds };
+    if (productIds) {
+      extraParams.productIds = toArray(productIds);
     }
 
-    return { productIds: [productIds] };
+    return extraParams;
   }
 };
 

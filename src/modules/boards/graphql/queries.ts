@@ -35,6 +35,18 @@ const boardDetail = `
       pipelines {
         _id
         name
+        visibility
+        memberIds
+        isWatched
+        members {
+          _id
+          email
+          username
+          details {
+            avatar
+            fullName
+          }
+        }
       }
     }
   }
@@ -55,12 +67,15 @@ const pipelineDetail = `
     pipelineDetail(_id: $_id) {
       _id
       name
+      bgColor
+      isWatched
     }
   }
 `;
 
 const stages = `
   query stages(
+    $isNotLost: Boolean,
     $pipelineId: String!, 
     $search: String,
     $customerIds: [String],
@@ -74,6 +89,7 @@ const stages = `
     $extraParams: JSON
   ) {
     stages(
+      isNotLost: $isNotLost,
       pipelineId: $pipelineId, 
       search: $search,
       customerIds: $customerIds,
@@ -91,6 +107,10 @@ const stages = `
       order
       amount
       itemsTotalCount
+      compareNextStage
+      initialDealsTotalCount
+      stayedDealsTotalCount
+      inProcessDealsTotalCount
     }
   }
 `;

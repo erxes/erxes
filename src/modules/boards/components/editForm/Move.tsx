@@ -74,9 +74,9 @@ class Move extends React.Component<Props, State> {
           const item = (
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name}>
-                <a href="#check" onClick={onClick}>
+                <span onClick={onClick}>
                   <Icon icon="checked-1" />
-                </a>
+                </span>
               </Tip>
             </StageItem>
           );

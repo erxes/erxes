@@ -1,8 +1,8 @@
+import { IStage } from 'modules/boards/types';
 import { Button, FormControl } from 'modules/common/components';
 import React from 'react';
 import { PROBABILITY } from '../constants';
 import { StageItemContainer } from '../styles';
-import { IStage } from '../types';
 
 type Props = {
   stage: IStage;

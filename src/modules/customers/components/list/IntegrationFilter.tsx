@@ -23,7 +23,7 @@ function IntegrationFilter({ history, counts }: IProps) {
       {KIND_CHOICES.ALL_LIST.map((kind, index) => (
         <li key={index}>
           <a
-            href="#active"
+            href="#filter"
             tabIndex={0}
             className={
               router.getParam(history, 'integrationType') === kind

@@ -1,7 +1,7 @@
-import { Button, SortableList } from 'modules/common/components';
+import { IStage } from 'modules/boards/types';
+import { Button } from 'modules/common/components';
 import React from 'react';
 import { StageList } from '../styles';
-import { IStage } from '../types';
 import StageItem from './StageItem';
 
 type Props = {
@@ -55,23 +55,17 @@ class Stages extends React.Component<Props, {}> {
   };
 
   render() {
-    const child = stage => (
-      <StageItem
-        stage={stage}
-        onChange={this.onChange}
-        remove={this.remove}
-        onKeyPress={this.onStageInputKeyPress}
-      />
-    );
-
     return (
       <StageList>
-        <SortableList
-          fields={this.props.stages}
-          child={child}
-          onChangeFields={this.props.onChangeStages}
-          isModal={true}
-        />
+        {this.props.stages.map((stage: IStage) => (
+          <StageItem
+            key={stage._id}
+            stage={stage}
+            onChange={this.onChange}
+            remove={this.remove}
+            onKeyPress={this.onStageInputKeyPress}
+          />
+        ))}
         <Button onClick={this.add} btnStyle="success" size="small" icon="add">
           Add stage
         </Button>

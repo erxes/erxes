@@ -44,9 +44,9 @@ function ProductSection({
           title="New Product & Service"
           size="lg"
           trigger={
-            <a href="#add">
+            <button>
               <Icon icon="add" />
-            </a>
+            </button>
           }
           content={content}
         />

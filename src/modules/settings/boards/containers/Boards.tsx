@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { STORAGE_BOARD_KEY } from 'modules/boards/constants';
+import { BoardsQueryResponse } from 'modules/boards/types';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import { ButtonMutate } from 'modules/common/components';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
@@ -9,7 +10,7 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { Boards } from '../components';
 import { mutations, queries } from '../graphql';
-import { BoardsQueryResponse, RemoveBoardMutationResponse } from '../types';
+import { RemoveBoardMutationResponse } from '../types';
 
 type Props = {
   history?: any;

@@ -26,7 +26,7 @@ class InfoSection extends React.Component<Props> {
     }
 
     return (
-      <a href={link}>
+      <a target="_blank" href={link} rel="noopener noreferrer">
         <Icon icon={icon} />
       </a>
     );

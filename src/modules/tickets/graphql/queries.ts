@@ -7,8 +7,8 @@ const commonParams = `
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
-  $priority: String,
-  $source: String,
+  $priority: [String],
+  $source: [String],
 `;
 
 const commonParamDefs = `
@@ -31,7 +31,7 @@ const ticketFields = `
   pipeline {
     _id
     name
-}
+  }
   boardId
   companies {
     _id
@@ -59,6 +59,7 @@ const ticketFields = `
   stage {
     probability
   }
+  isWatched
   modifiedAt
   modifiedBy
 `;

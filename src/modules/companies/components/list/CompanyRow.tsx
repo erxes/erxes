@@ -26,7 +26,7 @@ function createLinkFromUrl(url) {
   };
 
   return (
-    <a href="#link" onClick={onClick}>
+    <a href="#website" onClick={onClick}>
       {urlParser.extractRootDomain(url)}
     </a>
   );

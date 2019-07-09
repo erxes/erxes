@@ -171,7 +171,7 @@ class Pagination extends React.Component<IPaginationProps> {
     return (
       <PaginationList>
         <li className={prevClass}>
-          <a href="#leftarrow" onClick={this.onPrev}>
+          <a href="#prev" onClick={this.onPrev}>
             <Icon icon="leftarrow" />
           </a>
         </li>
@@ -186,7 +186,7 @@ class Pagination extends React.Component<IPaginationProps> {
         ))}
 
         <li className={nextClass}>
-          <a href="#rightarrow" onClick={this.onNext}>
+          <a href="#next" onClick={this.onNext}>
             <Icon icon="rightarrow" />
           </a>
         </li>

@@ -5,11 +5,16 @@ import {
   EmptyState,
   Form,
   FormControl,
-  FormGroup
+  FormGroup,
+  Uploader
 } from 'modules/common/components';
 import colors from 'modules/common/styles/colors';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { SelectBrand } from 'modules/settings/integrations/containers';
 import {
@@ -36,6 +41,7 @@ type State = {
   copied: boolean;
   code: string;
   color: string;
+  backgroundImage: string;
 };
 
 class KnowledgeForm extends React.Component<Props, State> {
@@ -71,22 +77,31 @@ class KnowledgeForm extends React.Component<Props, State> {
 
     let code = '';
     let color = colors.colorPrimary;
+    let backgroundImage = '';
+
+    const { topic } = props;
 
     // showed install code automatically in edit mode
-    if (props.topic) {
-      code = KnowledgeForm.getInstallCode(props.topic._id);
-      color = props.topic.color;
+    if (topic) {
+      code = KnowledgeForm.getInstallCode(topic._id);
+      color = topic.color;
+      backgroundImage = topic.backgroundImage;
     }
 
     this.state = {
       copied: false,
       code,
-      color
+      color,
+      backgroundImage
     };
   }
 
   onColorChange = e => {
     this.setState({ color: e.hex });
+  };
+
+  onBackgroundImageChange = ([file]: IAttachment[]) => {
+    this.setState({ backgroundImage: file ? file.url : '' });
   };
 
   remove = () => {
@@ -118,9 +133,9 @@ class KnowledgeForm extends React.Component<Props, State> {
           </MarkdownWrapper>
         </FormGroup>
       );
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   handleBrandChange = () => {
@@ -138,6 +153,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     languageCode: string;
   }) => {
     const { topic } = this.props;
+    const { color, backgroundImage } = this.state;
     const finalValues = values;
 
     if (topic) {
@@ -151,18 +167,20 @@ class KnowledgeForm extends React.Component<Props, State> {
         description: finalValues.description,
         languageCode: finalValues.languageCode,
         title: finalValues.title,
-        color: this.state.color
+        color,
+        backgroundImage
       }
     };
   };
 
   renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
+    const { color, backgroundImage } = this.state;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker color={this.state.color} onChange={this.onColorChange} />
+        <ChromePicker color={color} onChange={this.onColorChange} />
       </Popover>
     );
 
@@ -205,14 +223,30 @@ class KnowledgeForm extends React.Component<Props, State> {
               placement="bottom"
               overlay={popoverTop}
             >
-              <ColorPick full={true}>
-                <ColorPicker
-                  style={{ backgroundColor: this.state.color }}
-                  full={true}
-                />
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: color }} />
               </ColorPick>
             </OverlayTrigger>
           </div>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Background image: </ControlLabel>
+          <Uploader
+            multiple={false}
+            defaultFileList={
+              backgroundImage
+                ? [
+                    {
+                      name: 'backgroundImage',
+                      url: backgroundImage,
+                      type: 'img'
+                    }
+                  ]
+                : []
+            }
+            onChange={this.onBackgroundImageChange}
+          />
         </FormGroup>
 
         <FormGroup>

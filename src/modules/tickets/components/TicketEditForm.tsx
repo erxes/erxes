@@ -1,10 +1,14 @@
 import { IUser } from 'modules/auth/types';
-import { EditForm } from 'modules/boards/components/editForm';
+import {
+  EditForm,
+  PriorityIndicator
+} from 'modules/boards/components/editForm';
 import { PRIORITIES } from 'modules/boards/constants';
 import { IOptions } from 'modules/boards/types';
 import { ControlLabel, FormGroup } from 'modules/common/components';
-import { IOption } from 'modules/common/types';
+import { ISelectedOption } from 'modules/common/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
@@ -53,10 +57,22 @@ export default class TicketEditForm extends React.Component<Props, State> {
       value: 'other'
     });
 
-    const onChangePriority = (option: IOption) =>
+    const onChangePriority = (option: ISelectedOption) =>
       this.onChangeField('priority', option ? option.value : '');
-    const onChangeSource = (option: IOption) =>
+    const onChangeSource = (option: ISelectedOption) =>
       this.onChangeField('source', option ? option.value : '');
+
+    const priorityValueRenderer = (
+      option: ISelectedOption
+    ): React.ReactNode => (
+      <>
+        <PriorityIndicator value={option.value} /> {option.label}
+      </>
+    );
+
+    const sourceValueRenderer = (option: ISelectedOption): React.ReactNode => (
+      <Capitalize>{option.label}</Capitalize>
+    );
 
     return (
       <>
@@ -67,6 +83,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
             value={priority}
             options={priorityValues}
             onChange={onChangePriority}
+            optionRenderer={priorityValueRenderer}
+            valueRenderer={priorityValueRenderer}
           />
         </FormGroup>
         <FormGroup>
@@ -76,6 +94,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
             value={source}
             options={sourceValues}
             onChange={onChangeSource}
+            optionRenderer={sourceValueRenderer}
+            valueRenderer={sourceValueRenderer}
           />
         </FormGroup>
       </>

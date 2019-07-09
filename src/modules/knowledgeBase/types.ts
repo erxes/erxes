@@ -21,6 +21,7 @@ export interface ITopic {
   categories: ICategory[];
   brand: IBrand;
   color: string;
+  backgroundImage: string;
   languageCode: string;
   createdBy: string;
   createdDate: Date;

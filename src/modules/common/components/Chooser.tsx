@@ -128,12 +128,12 @@ class CommonChooser extends React.Component<Props, State> {
     const addTrigger = (
       <p>
         {__("Don't see the result you're looking for? ")}
-        <a href="#create">{__(`Create a new ${title}`)}</a>
+        <span>{__(`Create a new ${title}`)}</span>
       </p>
     );
 
     return (
-      <div>
+      <>
         <Columns>
           <Column>
             <FormControl
@@ -187,7 +187,7 @@ class CommonChooser extends React.Component<Props, State> {
             </div>
           </Footer>
         </ModalFooter>
-      </div>
+      </>
     );
   }
 }

@@ -1,8 +1,11 @@
 import { SelectContainer } from 'modules/boards/styles/common';
 import { colors } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius } from './common';
+
+const buttonColor = '#0a1e3c';
 
 const FlexContent = styled.div`
   display: flex;
@@ -10,7 +13,6 @@ const FlexContent = styled.div`
 
 const PriceContainer = styled.div`
   overflow: auto;
-  margin-top: 5px;
 
   ul {
     float: left;
@@ -24,11 +26,15 @@ const Right = styled.div`
 const Footer = styled.div`
   padding-top: 8px;
   margin-top: 8px;
-  border-top: 1px dotted #eee;
+  border-top: 1px dotted ${colors.borderPrimary};
   font-size: 11px;
 
   ul {
     float: left;
+  }
+
+  > i {
+    padding: 3px;
   }
 `;
 
@@ -112,32 +118,51 @@ const Left = styled.div`
   }
 `;
 
+const WatchIndicator = styled.span`
+  position: absolute;
+  background: ${colors.colorCoreGreen};
+  right: 5px;
+  top: 5px;
+  bottom: 5px;
+  display: flex;
+  align-items: center;
+  border-radius: ${borderRadius};
+  padding: 3px;
+
+  > i {
+    color: ${colors.colorWhite};
+    margin: 0 5px;
+    font-size: 10px;
+  }
+`;
+
 const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
 
-  button {
+  > button {
     width: 100%;
     margin-bottom: 5px;
     margin-left: 0;
-    padding: 15px 20px;
-    background: ${colors.colorWhite};
+    padding: 8px 40px 8px 20px;
+    background: ${rgba(buttonColor, 0.04)};
     color: ${colors.textPrimary};
     text-align: left;
-    border-radius: 0;
+    border-radius: ${borderRadius};
     text-transform: none;
-    font-weight: 500;
     font-size: 13px;
-    box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
+    box-shadow: none;
+    position: relative;
 
-    i {
-      color: ${colors.colorPrimary};
+    > i {
+      color: ${colors.textPrimary};
       margin-right: 5px;
     }
 
     &:hover {
-      color: ${colors.textPrimary};
-      box-shadow: 0 0 12px 1px rgba(190, 190, 190, 0.7);
+      color: ${colors.colorCoreDarkGray};
+      background: ${rgba(buttonColor, 0.08)};
+      box-shadow: none;
     }
   }
 `;
@@ -177,8 +202,12 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   text-align: right;
   position: relative;
 
-  &:first-child:before {
-    display: none;
+  &:first-child {
+    flex: unset;
+
+    &:before {
+      display: none;
+    }
   }
 
   &:before {
@@ -193,11 +222,12 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     position: absolute;
   }
 
-  a {
+  span {
     position: relative;
     z-index: 10;
     cursor: pointer;
     background: ${colors.bgLight};
+    display: inline-block;
   }
 
   i {
@@ -254,7 +284,7 @@ const Status = styled.div`
     border-radius: ${borderRadius};
     padding: 1px 4px;
     font-size: 10px;
-    color: #fff;
+    color: ${colors.colorWhite};
     float: left;
   }
 `;
@@ -311,5 +341,6 @@ export {
   UserCounterContainer,
   PriceContainer,
   Right,
-  Footer
+  Footer,
+  WatchIndicator
 };

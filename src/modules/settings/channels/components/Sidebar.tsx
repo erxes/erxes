@@ -53,9 +53,9 @@ class Sidebar extends React.Component<Props, {}> {
 
     const addChannel = (
       <HelperButtons>
-        <a href="#add">
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 
