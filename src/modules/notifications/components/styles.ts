@@ -41,13 +41,13 @@ const NotifList = styled.ul`
 
       &:before {
         content: '';
-        height: 15%;
-        width: ${dimensions.unitSpacing + 5}px;
-        top:  ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+        height: ${dimensions.unitSpacing + 3}px;
+        width: ${dimensions.unitSpacing + 3}px;
+        top:  ${dimensions.coreSpacing}%;
         left: ${dimensions.unitSpacing}px;
+        background: ${colors.colorCoreBlue};
+        border-radius: 50%;
         position: absolute;
-        background: url('/images/blue-dot.png') no-repeat;
-        background-size: contain;
       }
     }
   }
