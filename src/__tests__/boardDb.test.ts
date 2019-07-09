@@ -95,7 +95,8 @@ describe('Test board model', () => {
         name: pipeline.name,
         boardId: pipeline.boardId,
         userId: user._id,
-        type: 'deal',
+        type: pipeline.type,
+        bgColor: pipeline.bgColor,
       },
       [stage.toJSON()],
     );
@@ -110,31 +111,36 @@ describe('Test board model', () => {
     expect(createdPipeline._id).toEqual(stageToPipeline.pipelineId);
     expect(createdPipeline.name).toEqual(pipeline.name);
     expect(createdPipeline.type).toEqual(pipeline.type);
+    expect(createdPipeline.bgColor).toEqual(pipeline.bgColor);
     expect(createdPipeline.boardId).toEqual(board._id);
     expect(createdPipeline.createdAt).toEqual(pipeline.createdAt);
     expect(createdPipeline.userId).toEqual(user._id);
   });
 
   test('Update pipeline', async () => {
-    const pipelineName = 'Update pipeline name';
+    const args = {
+      name: 'deal pipeline',
+      type: 'deal',
+      boardId: board._id,
+      stages: [stage.toJSON()],
+      visibility: 'public',
+      bgColor: 'bbb',
+    };
 
     const pipelineObj = await pipelineFactory({});
 
     const stageObj = await stageFactory({ pipelineId: pipelineObj._id });
     const testStage = await stageFactory({ pipelineId: pipelineObj._id });
 
-    const updatedPipeline = await Pipelines.updatePipeline(
-      pipelineObj._id,
-      {
-        name: pipelineName,
-        userId: user._id,
-        type: 'deal',
-      },
-      [stageObj.toJSON()],
-    );
+    const updatedPipeline = await Pipelines.updatePipeline(pipelineObj._id, args, [stageObj.toJSON()]);
 
     expect(updatedPipeline).toBeDefined();
-    expect(updatedPipeline.name).toEqual(pipelineName);
+    expect(updatedPipeline._id).toEqual(pipelineObj._id);
+    expect(updatedPipeline.name).toEqual(args.name);
+    expect(updatedPipeline.type).toEqual(args.type);
+    expect(updatedPipeline.visibility).toEqual(args.visibility);
+    expect(updatedPipeline.boardId).toEqual(board._id);
+    expect(updatedPipeline.bgColor).toEqual(args.bgColor);
 
     const stages = await Stages.find({ _id: testStage._id });
     expect(stages.length).toEqual(0);

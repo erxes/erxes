@@ -1,14 +1,15 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
+import { changeCompany, changeCustomer, updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { ITask, ITaskDocument, taskSchema } from './definitions/tasks';
-import { changeCompany, changeCustomer, updateOrder } from './utils';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   createTask(doc: ITask): Promise<ITaskDocument>;
   updateTask(_id: string, doc: ITask): Promise<ITaskDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<ITaskDocument[]>;
   removeTask(_id: string): void;
+  watchTask(_id: string, isAdd: boolean, userId: string): void;
   changeCustomer(newCustomerId: string, oldCustomerIds: string[]): Promise<ITaskDocument>;
   changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<ITaskDocument>;
 }
@@ -62,6 +63,13 @@ export const loadTaskClass = () => {
       }
 
       return task.remove();
+    }
+
+    /**
+     * Watch task
+     */
+    public static async watchTask(_id: string, isAdd: boolean, userId: string) {
+      return watchItem(Tasks, _id, isAdd, userId);
     }
 
     /**

@@ -1,12 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from '../utils';
-import {
-  FORM_LOAD_TYPES,
-  FORM_SUCCESS_ACTIONS,
-  KIND_CHOICES,
-  LANGUAGE_CHOICES,
-  MESSENGER_DATA_AVAILABILITY,
-} from './constants';
+import { FORM_LOAD_TYPES, FORM_SUCCESS_ACTIONS, KIND_CHOICES, MESSENGER_DATA_AVAILABILITY } from './constants';
 
 export interface ILink {
   twitter?: string;
@@ -43,6 +37,7 @@ export interface IMessengerData {
   messages?: IMessageDataMessages;
   links?: ILink;
   showChat?: boolean;
+  showLauncher?: boolean;
   requireAuth?: boolean;
   forceLogoutWhenResolve?: boolean;
 }
@@ -127,6 +122,7 @@ const messengerDataSchema = new Schema(
     },
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
+    showLauncher: field({ type: Boolean, default: true }),
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
   },
   { _id: false },
@@ -204,7 +200,6 @@ export const integrationSchema = new Schema({
 
   languageCode: field({
     type: String,
-    enum: LANGUAGE_CHOICES,
     optional: true,
   }),
   tagIds: field({ type: [String], optional: true }),

@@ -17,6 +17,7 @@ describe('Test boards mutations', () => {
     $stages: JSON,
     $type: String!
     $visibility: String!
+    $bgColor: String
   `;
 
   const commonPipelineParams = `
@@ -25,6 +26,7 @@ describe('Test boards mutations', () => {
     stages: $stages
     type: $type
     visibility: $visibility
+    bgColor: $bgColor
   `;
 
   beforeEach(async () => {
@@ -103,6 +105,7 @@ describe('Test boards mutations', () => {
       boardId: board._id,
       stages: [stage.toJSON()],
       visibility: 'public',
+      bgColor: 'aaa',
     };
 
     const mutation = `
@@ -112,6 +115,7 @@ describe('Test boards mutations', () => {
           name
           type
           boardId
+          bgColor
           visibility
         }
       }
@@ -131,6 +135,7 @@ describe('Test boards mutations', () => {
     expect(createdPipeline.type).toEqual(args.type);
     expect(createdPipeline.visibility).toEqual(args.visibility);
     expect(createdPipeline.boardId).toEqual(board._id);
+    expect(createdPipeline.bgColor).toEqual(args.bgColor);
   });
 
   test('Update pipeline', async () => {
@@ -141,6 +146,7 @@ describe('Test boards mutations', () => {
       boardId: board._id,
       stages: [stage.toJSON()],
       visibility: 'public',
+      bgColor: 'bbb',
     };
 
     const mutation = `
@@ -151,6 +157,7 @@ describe('Test boards mutations', () => {
           type
           boardId
           visibility
+          bgColor
         }
       }
     `;
@@ -169,6 +176,7 @@ describe('Test boards mutations', () => {
     expect(updatedPipeline.type).toEqual(args.type);
     expect(updatedPipeline.visibility).toEqual(args.visibility);
     expect(updatedPipeline.boardId).toEqual(board._id);
+    expect(updatedPipeline.bgColor).toEqual(args.bgColor);
   });
 
   test('Pipeline update orders', async () => {
@@ -196,6 +204,35 @@ describe('Test boards mutations', () => {
 
     expect(updatedPipeline.order).toBe(3);
     expect(updatedPipelineToOrder.order).toBe(9);
+  });
+
+  test('Watch pipeline', async () => {
+    const mutation = `
+      mutation pipelinesWatch($_id: String!, $isAdd: Boolean, $type: String!) {
+        pipelinesWatch(_id: $_id, isAdd: $isAdd, type: $type) {
+          _id
+          isWatched
+        }
+      }
+    `;
+
+    const watchAddPipeline = await graphqlRequest(
+      mutation,
+      'pipelinesWatch',
+      { _id: pipeline._id, isAdd: true, type: 'deal' },
+      context,
+    );
+
+    expect(watchAddPipeline.isWatched).toBe(true);
+
+    const watchRemovePipeline = await graphqlRequest(
+      mutation,
+      'pipelinesWatch',
+      { _id: pipeline._id, isAdd: false, type: 'deal' },
+      context,
+    );
+
+    expect(watchRemovePipeline.isWatched).toBe(false);
   });
 
   test('Remove pipeline', async () => {

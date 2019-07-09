@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { Deals, Tasks, Tickets } from './';
+import { updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
   IBoard,
@@ -12,7 +13,6 @@ import {
   stageSchema,
 } from './definitions/boards';
 import { BOARD_TYPES } from './definitions/constants';
-import { updateOrder } from './utils';
 
 export interface IOrderInput {
   _id: string;
@@ -124,14 +124,29 @@ export const loadBoardClass = () => {
 };
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
+  getPipeline(_id: string): Promise<IPipelineDocument>;
   createPipeline(doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
+  watchPipeline(_id: string, isAdd: boolean, userId: string): void;
   removePipeline(_id: string): void;
 }
 
 export const loadPipelineClass = () => {
   class Pipeline {
+    /*
+     * Get a pipeline
+     */
+    public static async getPipeline(_id: string) {
+      const pipeline = await Pipelines.findOne({ _id });
+
+      if (!pipeline) {
+        throw new Error('Pipeline not found');
+      }
+
+      return pipeline;
+    }
+
     /**
      * Create a pipeline
      */
@@ -183,6 +198,10 @@ export const loadPipelineClass = () => {
 
       return Pipelines.deleteOne({ _id });
     }
+
+    public static async watchPipeline(_id: string, isAdd: boolean, userId: string) {
+      return watchItem(Pipelines, _id, isAdd, userId);
+    }
   }
 
   pipelineSchema.loadClass(Pipeline);
@@ -191,6 +210,7 @@ export const loadPipelineClass = () => {
 };
 
 export interface IStageModel extends Model<IStageDocument> {
+  getStage(_id: string): Promise<IStageDocument>;
   createStage(doc: IStage): Promise<IStageDocument>;
   updateStage(_id: string, doc: IStage): Promise<IStageDocument>;
   changeStage(_id: string, pipelineId: string): Promise<IStageDocument>;
@@ -200,6 +220,19 @@ export interface IStageModel extends Model<IStageDocument> {
 
 export const loadStageClass = () => {
   class Stage {
+    /*
+     * Get a stage
+     */
+    public static async getStage(_id: string) {
+      const stage = await Stages.findOne({ _id });
+
+      if (!stage) {
+        throw new Error('Stage not found');
+      }
+
+      return stage;
+    }
+
     /**
      * Create a stage
      */

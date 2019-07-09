@@ -1,5 +1,6 @@
 import { Companies, Customers, Pipelines, Stages, Users } from '../../db/models';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
+import { IUserDocument } from '../../db/models/definitions/users';
 import { boardId } from './boardUtils';
 
 export default {
@@ -29,7 +30,17 @@ export default {
     return boardId(task);
   },
 
-  async stage(task: ITaskDocument) {
+  stage(task: ITaskDocument) {
     return Stages.findOne({ _id: task.stageId });
+  },
+
+  isWatched(task: ITaskDocument, _args, { user }: { user: IUserDocument }) {
+    const watchedUserIds = task.watchedUserIds || [];
+
+    if (watchedUserIds.includes(user._id)) {
+      return true;
+    }
+
+    return false;
   },
 };

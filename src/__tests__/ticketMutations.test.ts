@@ -142,4 +142,28 @@ describe('Test tickets mutations', () => {
 
     expect(await Tickets.findOne({ _id: ticket._id })).toBe(null);
   });
+
+  test('Watch ticket', async () => {
+    const mutation = `
+      mutation ticketsWatch($_id: String!, $isAdd: Boolean!) {
+        ticketsWatch(_id: $_id, isAdd: $isAdd) {
+          _id
+          isWatched
+        }
+      }
+    `;
+
+    const watchAddTicket = await graphqlRequest(mutation, 'ticketsWatch', { _id: ticket._id, isAdd: true }, context);
+
+    expect(watchAddTicket.isWatched).toBe(true);
+
+    const watchRemoveTicket = await graphqlRequest(
+      mutation,
+      'ticketsWatch',
+      { _id: ticket._id, isAdd: false },
+      context,
+    );
+
+    expect(watchRemoveTicket.isWatched).toBe(false);
+  });
 });

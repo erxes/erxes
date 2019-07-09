@@ -13,7 +13,8 @@ import {
   generateResponseData,
   getConversationReportLookup,
   getConversationSelector,
-  getConversationSelectoryByMsg,
+  getConversationSelectorByMsg,
+  getConversationSelectorToMsg,
   getFilterSelector,
   getMessageSelector,
   getSummaryData,
@@ -404,7 +405,7 @@ const insightQueries = {
       createdAt: { $gte: start, $lte: end },
     };
 
-    const conversationSelector = await getConversationSelectoryByMsg(integrationIds, brandIds);
+    const conversationSelector = await getConversationSelectorByMsg(integrationIds, brandIds);
 
     const lookupHelper = await getConversationReportLookup();
 
@@ -498,7 +499,7 @@ const insightQueries = {
       createdAt: { $gte: start, $lte: end },
     };
 
-    const conversationSelector = await getConversationSelectoryByMsg(integrationIds, brandIds);
+    const conversationSelector = await getConversationSelectorByMsg(integrationIds, brandIds);
 
     const lookupHelper = await getConversationReportLookup();
 
@@ -545,9 +546,10 @@ const insightQueries = {
       createdAt: { $gte: start, $lte: end },
     };
 
-    const conversationSelector = await getConversationSelectoryByMsg(integrationIds, brandIds);
+    const conversationSelector = await getConversationSelectorByMsg(integrationIds, brandIds);
 
     const lookupHelper = await getConversationReportLookup();
+    lookupHelper.lookupPrevMsg.$lookup.pipeline[1].$project.sizeMentionedIds = { $size: '$mentionedUserIds' };
 
     const insightAggregateInternal = await ConversationMessages.aggregate([
       {
@@ -592,7 +594,7 @@ const insightQueries = {
       createdAt: { $gte: start, $lte: end },
     };
 
-    const conversationSelector = await getConversationSelectoryByMsg(integrationIds, brandIds);
+    const conversationSelector = await getConversationSelectorByMsg(integrationIds, brandIds);
 
     const lookupHelper = await getConversationReportLookup();
 
@@ -623,10 +625,71 @@ const insightQueries = {
       },
     ]);
 
+    // all duration average
+    const conversationMatch = await getConversationSelectorToMsg(integrationIds, brandIds);
+
+    const insightAggregateDurationAvg = await Conversations.aggregate([
+      {
+        $match: {
+          $and: [conversationMatch, messageSelector],
+        },
+      },
+      {
+        $lookup: {
+          from: 'conversation_messages',
+          let: { checkConversation: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$conversationId', '$$checkConversation'] },
+              },
+            },
+            {
+              $project: { createdAt: 1 },
+            },
+          ],
+          as: 'allMsgs',
+        },
+      },
+      {
+        $addFields: {
+          firstMsg: { $slice: ['$allMsgs', 1] },
+          lastMsg: { $slice: ['$allMsgs', -1] },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          createdAt: 1,
+          firstMsg: 1,
+          lastMsg: 1,
+        },
+      },
+      { $unwind: '$firstMsg' },
+      { $unwind: '$lastMsg' },
+      {
+        $addFields: {
+          diffSec: {
+            $divide: [{ $subtract: ['$lastMsg.createdAt', '$firstMsg.createdAt'] }, 1000],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '',
+          avgSecond: { $avg: '$diffSec' },
+        },
+      },
+    ]);
+
     return [
       {
         title: 'Overall average',
         count: insightAggregateAllAvg.length ? insightAggregateAllAvg[0].avgSecond : 0,
+      },
+      {
+        title: 'Summary duration average',
+        count: insightAggregateDurationAvg.length ? insightAggregateDurationAvg[0].avgSecond : 0,
       },
     ];
   },

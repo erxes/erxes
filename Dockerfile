@@ -1,5 +1,6 @@
 FROM erxes/runner:latest
 WORKDIR /erxes-api/
+RUN chown -R node:node /erxes-api
 COPY --chown=node:node . /erxes-api
 USER node
 EXPOSE 3300

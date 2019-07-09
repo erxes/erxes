@@ -19,6 +19,7 @@ export const types = `
     companies: [Company]
     customers: [Customer]
     assignedUsers: [User]
+    isWatched: Boolean
     stage: Stage
     pipeline: Pipeline
     modifiedAt: Date
@@ -43,8 +44,8 @@ export const queries = `
     nextMonth: String
     noCloseDate: String
     overdue: String
-    priority: String
-    source: String
+    priority: [String]
+    source: [String]
   ): [Ticket]
 `;
 
@@ -67,4 +68,5 @@ export const mutations = `
   ticketsChange( _id: String!, destinationStageId: String): Ticket
   ticketsUpdateOrder(stageId: String!, orders: [OrderItem]): [Ticket]
   ticketsRemove(_id: String!): Ticket
+  ticketsWatch(_id: String, isAdd: Boolean): Ticket
 `;

@@ -1,6 +1,7 @@
 import { Boards, Pipelines, Stages } from '../../../db/models';
 import { IBoard, IOrderInput, IPipeline, IStageDocument } from '../../../db/models/definitions/boards';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { checkPermission } from '../boardUtils';
 
 interface IBoardsEdit extends IBoard {
@@ -21,8 +22,19 @@ const boardMutations = {
    */
   async boardsAdd(_root, doc: IBoard, { user }: { user: IUserDocument }) {
     await checkPermission(doc.type, user, 'boardsAdd');
+    const board = await Boards.createBoard({ userId: user._id, ...doc });
 
-    return Boards.createBoard({ userId: user._id, ...doc });
+    await putCreateLog(
+      {
+        type: 'board',
+        newData: JSON.stringify(doc),
+        description: `${doc.name} has been created`,
+        object: board,
+      },
+      user,
+    );
+
+    return board;
   },
 
   /**
@@ -31,7 +43,22 @@ const boardMutations = {
   async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user }: { user: IUserDocument }) {
     await checkPermission(doc.type, user, 'boardsEdit');
 
-    return Boards.updateBoard(_id, doc);
+    const board = await Boards.findOne({ _id });
+    const updated = await Boards.updateBoard(_id, doc);
+
+    if (board) {
+      await putUpdateLog(
+        {
+          type: 'board',
+          newData: JSON.stringify(doc),
+          description: `${doc.name} has been edited`,
+          object: board,
+        },
+        user,
+      );
+    }
+
+    return updated;
   },
 
   /**
@@ -44,7 +71,18 @@ const boardMutations = {
       await checkPermission(board.type, user, 'boardsRemove');
     }
 
-    return Boards.removeBoard(_id);
+    const removed = await Boards.removeBoard(_id);
+
+    if (board && removed) {
+      await putDeleteLog(
+        {
+          type: 'board',
+          object: board,
+          description: `${board.name} has been removed`,
+        },
+        user,
+      );
+    }
   },
 
   /**
@@ -70,6 +108,25 @@ const boardMutations = {
    */
   async pipelinesUpdateOrder(_root, { orders }: { orders: IOrderInput[] }) {
     return Pipelines.updateOrder(orders);
+  },
+
+  /**
+   * Watch pipeline
+   */
+  async pipelinesWatch(
+    _root,
+    { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string },
+    { user }: { user: IUserDocument },
+  ) {
+    await checkPermission(type, user, 'pipelinesWatch');
+
+    const pipeline = await Pipelines.findOne({ _id });
+
+    if (!pipeline) {
+      throw new Error('Pipeline not found');
+    }
+
+    return Pipelines.watchPipeline(_id, isAdd, user._id);
   },
 
   /**

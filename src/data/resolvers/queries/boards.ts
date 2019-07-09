@@ -56,8 +56,16 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  stages(_root, { pipelineId }: { pipelineId: string }) {
-    return Stages.find({ pipelineId }).sort({ order: 1, createdAt: -1 });
+  stages(_root, { pipelineId, isNotLost }: { pipelineId: string; isNotLost: boolean }) {
+    const filter: any = {};
+
+    filter.pipelineId = pipelineId;
+
+    if (isNotLost) {
+      filter.probability = { $ne: 'Lost' };
+    }
+
+    return Stages.find(filter).sort({ order: 1, createdAt: -1 });
   },
 
   /**

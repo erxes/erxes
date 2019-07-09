@@ -65,7 +65,10 @@ describe('Test permissions model', () => {
 
     expect(permission.length).toEqual(8);
     const per = permission.find(p => p.groupId === _group._id && p.action === 'action');
-    expect(per.module).toEqual(doc.module);
+
+    if (per) {
+      expect(per.module).toEqual(doc.module);
+    }
   });
 
   test('Remove permission not found', async () => {

@@ -151,6 +151,7 @@ export const moduleObjects = {
           'dealPipelinesAdd',
           'dealPipelinesEdit',
           'dealPipelinesUpdateOrder',
+          'dealPipelinesWatch',
           'dealPipelinesRemove',
           'dealStagesAdd',
           'dealStagesEdit',
@@ -160,6 +161,7 @@ export const moduleObjects = {
           'dealsEdit',
           'dealsRemove',
           'dealsUpdateOrder',
+          'dealsWatch',
         ],
       },
       {
@@ -189,6 +191,10 @@ export const moduleObjects = {
       {
         name: 'dealPipelinesUpdateOrder',
         description: 'Update pipeline order',
+      },
+      {
+        name: 'dealPipelinesWatch',
+        description: 'Deal pipeline watch',
       },
       {
         name: 'dealStagesAdd',
@@ -222,6 +228,10 @@ export const moduleObjects = {
         name: 'dealsRemove',
         description: 'Remove deal',
       },
+      {
+        name: 'dealsWatch',
+        description: 'Watch deal',
+      },
     ],
   },
   tickets: {
@@ -239,6 +249,7 @@ export const moduleObjects = {
           'ticketPipelinesAdd',
           'ticketPipelinesEdit',
           'ticketPipelinesUpdateOrder',
+          'ticketPipelinesWatch',
           'ticketPipelinesRemove',
           'ticketStagesAdd',
           'ticketStagesEdit',
@@ -248,6 +259,7 @@ export const moduleObjects = {
           'ticketsEdit',
           'ticketsRemove',
           'ticketsUpdateOrder',
+          'ticketsWatch',
         ],
       },
       {
@@ -273,6 +285,10 @@ export const moduleObjects = {
       {
         name: 'ticketPipelinesRemove',
         description: 'Remove ticket pipeline',
+      },
+      {
+        name: 'ticketPipelinesWatch',
+        description: 'Ticket pipeline watch',
       },
       {
         name: 'ticketPipelinesUpdateOrder',
@@ -310,6 +326,10 @@ export const moduleObjects = {
         name: 'ticketsRemove',
         description: 'Remove ticket',
       },
+      {
+        name: 'ticketsWatch',
+        description: 'Watch ticket',
+      },
     ],
   },
   tasks: {
@@ -327,6 +347,7 @@ export const moduleObjects = {
           'taskPipelinesAdd',
           'taskPipelinesEdit',
           'taskPipelinesUpdateOrder',
+          'taskPipelinesWatch',
           'taskPipelinesRemove',
           'taskStagesAdd',
           'taskStagesEdit',
@@ -336,6 +357,7 @@ export const moduleObjects = {
           'tasksEdit',
           'tasksRemove',
           'tasksUpdateOrder',
+          'tasksWatch',
         ],
       },
       {
@@ -361,6 +383,10 @@ export const moduleObjects = {
       {
         name: 'taskPipelinesRemove',
         description: 'Remove task pipeline',
+      },
+      {
+        name: 'taskPipelinesWatch',
+        description: 'Task pipeline watch',
       },
       {
         name: 'taskPipelinesUpdateOrder',
@@ -397,6 +423,10 @@ export const moduleObjects = {
       {
         name: 'tasksRemove',
         description: 'Remove task',
+      },
+      {
+        name: 'tasksWatch',
+        description: 'Watch task',
       },
     ],
   },

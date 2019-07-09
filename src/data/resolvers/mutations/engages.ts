@@ -1,10 +1,11 @@
 import { EngageMessages, Users } from '../../../db/models';
 import { METHODS } from '../../../db/models/definitions/constants';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { awsRequests } from '../../../trackers/engageTracker';
 import { MESSAGE_KINDS } from '../../constants';
 import { checkPermission } from '../../permissions/wrappers';
-import { fetchCronsApi, getEnv } from '../../utils';
+import { fetchCronsApi, getEnv, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -15,7 +16,7 @@ const engageMutations = {
   /**
    * Create new message
    */
-  async engageMessageAdd(_root, doc: IEngageMessage) {
+  async engageMessageAdd(_root, doc: IEngageMessage, { user }: { user: IUserDocument }) {
     const { method, fromUserId } = doc;
 
     if (method === METHODS.EMAIL) {
@@ -23,12 +24,12 @@ const engageMutations = {
       getEnv({ name: 'AWS_SES_CONFIG_SET' });
       getEnv({ name: 'AWS_ENDPOINT' });
 
-      const user = await Users.findOne({ _id: fromUserId });
+      const fromUser = await Users.findOne({ _id: fromUserId });
 
       const { VerifiedEmailAddresses = [] } = await awsRequests.getVerifiedEmails();
 
       // If verified creates engagemessage
-      if (user && !VerifiedEmailAddresses.includes(user.email)) {
+      if (fromUser && !VerifiedEmailAddresses.includes(fromUser.email)) {
         throw new Error('Email not verified');
       }
     }
@@ -40,16 +41,41 @@ const engageMutations = {
       await send(engageMessage);
     }
 
+    if (engageMessage) {
+      await putCreateLog(
+        {
+          type: 'engage',
+          newData: JSON.stringify(doc),
+          object: engageMessage,
+          description: `${engageMessage.title} has been created`,
+        },
+        user,
+      );
+    }
+
     return engageMessage;
   },
 
   /**
    * Edit message
    */
-  async engageMessageEdit(_root, { _id, ...doc }: IEngageMessageEdit) {
-    await EngageMessages.updateEngageMessage(_id, doc);
+  async engageMessageEdit(_root, { _id, ...doc }: IEngageMessageEdit, { user }: { user: IUserDocument }) {
+    const engageMessage = await EngageMessages.findOne({ _id });
+    const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
     await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });
+
+    if (engageMessage) {
+      await putUpdateLog(
+        {
+          type: 'engage',
+          object: engageMessage,
+          newData: JSON.stringify(updated),
+          description: `${engageMessage.title} has been edited`,
+        },
+        user,
+      );
+    }
 
     return EngageMessages.findOne({ _id });
   },
@@ -57,10 +83,25 @@ const engageMutations = {
   /**
    * Remove message
    */
-  async engageMessageRemove(_root, { _id }: { _id: string }) {
+  async engageMessageRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+    const engageMessage = await EngageMessages.findOne({ _id });
+
     await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id } });
 
-    return EngageMessages.removeEngageMessage(_id);
+    const removed = await EngageMessages.removeEngageMessage(_id);
+
+    if (engageMessage) {
+      await putDeleteLog(
+        {
+          type: 'engage',
+          object: engageMessage,
+          description: `${engageMessage.title} has been removed`,
+        },
+        user,
+      );
+    }
+
+    return removed;
   },
 
   /**

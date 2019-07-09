@@ -18,6 +18,7 @@ export const types = `
     companies: [Company]
     customers: [Customer]
     assignedUsers: [User]
+    isWatched: Boolean
     stage: Stage
     pipeline: Pipeline
     modifiedAt: Date
@@ -42,7 +43,7 @@ export const queries = `
     nextMonth: String
     noCloseDate: String
     overdue: String
-    priority: String
+    priority: [String]
   ): [Task]
 `;
 
@@ -64,4 +65,5 @@ export const mutations = `
   tasksChange( _id: String!, destinationStageId: String): Task
   tasksUpdateOrder(stageId: String!, orders: [OrderItem]): [Task]
   tasksRemove(_id: String!): Task
+  tasksWatch(_id: String, isAdd: Boolean): Task
 `;

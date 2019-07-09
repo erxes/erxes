@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.13.1
+version: v1.13.5
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   'npm:chownr:20180731':
@@ -12,4 +12,167 @@ ignore:
     - bcrypt > node-pre-gyp > tar > chownr:
         reason: Development only
         expires: '2018-12-13T02:45:09.866Z'
+  SNYK-JS-AXIOS-174505:
+    - '@google-cloud/pubsub > google-gax > google-auto-auth > google-auth-library > gcp-metadata > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.953Z'
+    - '@google-cloud/pubsub > google-auto-auth > gcp-metadata > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-auto-auth > google-auth-library > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-gax > google-auto-auth > gcp-metadata > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-auto-auth > google-auth-library > gtoken > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-auto-auth > google-auth-library > gcp-metadata > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-gax > google-auto-auth > google-auth-library > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > @google-cloud/common > google-auto-auth > gcp-metadata > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > @google-cloud/common > google-auto-auth > google-auth-library > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > google-auto-auth > google-auth-library > gtoken > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > @google-cloud/common > google-auto-auth > google-auth-library > gtoken > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > @google-cloud/common > google-auto-auth > google-auth-library > gcp-metadata > axios':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - googleapis > google-auth-library > axios:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - googleapis > googleapis-common > google-auth-library > gcp-metadata > axios:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - googleapis > googleapis-common > google-auth-library > gtoken > axios:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - googleapis > google-auth-library > gtoken > axios:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - googleapis > googleapis-common > google-auth-library > axios:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - googleapis > google-auth-library > gcp-metadata > axios:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - googleapis > googleapis-common > axios:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+  SNYK-JS-SETVALUE-450213:
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > extglob > expand-brackets > snapdragon > base > cache-base > union-value > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > nanomatch > snapdragon > base > cache-base > union-value > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > extglob > snapdragon > base > cache-base > union-value > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > braces > snapdragon > base > cache-base > union-value > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > snapdragon > base > cache-base > union-value > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.954Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > extglob > expand-brackets > snapdragon > base > cache-base > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > nanomatch > snapdragon > base > cache-base > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > extglob > snapdragon > base > cache-base > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > snapdragon > base > cache-base > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > braces > snapdragon > base > cache-base > set-value':
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+  SNYK-JS-MIXINDEEP-450212:
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > snapdragon > base > mixin-deep':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > braces > snapdragon > base > mixin-deep':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > extglob > snapdragon > base > mixin-deep':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > nanomatch > snapdragon > base > mixin-deep':
+        reason: None given
+        expires: '2019-08-08T03:54:50.955Z'
+    - '@google-cloud/pubsub > google-gax > globby > fast-glob > micromatch > extglob > expand-brackets > snapdragon > base > mixin-deep':
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+  SNYK-JS-JQUERY-174006:
+    - requestify > jquery:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+  SNYK-JS-LODASH-450202:
+    - '@google-cloud/pubsub > google-gax > google-auto-auth > async > lodash':
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - xlsx-populate > lodash:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - apollo-server-express > apollo-server-core > lodash:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - '@google-cloud/storage > async > lodash':
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - mongoose > async > lodash:
+        reason: None given
+        expires: '2019-08-08T03:54:50.956Z'
+    - '@google-cloud/pubsub > google-auto-auth > async > lodash':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - firebase-admin > @google-cloud/storage > async > lodash:
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - apollo-server-express > apollo-server-core > apollo-engine-reporting > lodash:
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - '@google-cloud/pubsub > google-gax > lodash':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - '@google-cloud/pubsub > @google-cloud/common > split-array-stream > async > lodash':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - '@google-cloud/pubsub > @google-cloud/common > google-auto-auth > async > lodash':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+  SNYK-JS-LODASHMERGE-173732:
+    - '@google-cloud/pubsub > lodash.merge':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > lodash.merge':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - firebase-admin > @google-cloud/firestore > lodash.merge:
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+  SNYK-JS-LODASHMERGE-173733:
+    - '@google-cloud/pubsub > lodash.merge':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > lodash.merge':
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
+    - firebase-admin > @google-cloud/firestore > lodash.merge:
+        reason: None given
+        expires: '2019-08-08T03:54:50.957Z'
 patch: {}

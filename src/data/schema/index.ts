@@ -103,6 +103,8 @@ import { mutations as TicketMutations, queries as TicketQueries, types as Ticket
 
 import { mutations as TaskMutations, queries as TaskQueries, types as TaskTypes } from './task';
 
+import { queries as LogQueries, types as LogTypes } from './log';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -137,6 +139,7 @@ export const types = `
   ${PermissionTypes}
   ${TicketTypes}
   ${TaskTypes}
+  ${LogTypes}
 `;
 
 export const queries = `
@@ -171,6 +174,7 @@ export const queries = `
     ${PermissionQueries}
     ${TicketQueries}
     ${TaskQueries}
+    ${LogQueries}
   }
 `;
 

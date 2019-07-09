@@ -532,11 +532,10 @@ export const timeIntervalBranches = () => {
  * @param conversationSelector
  * @param messageSelector
  */
-export const getConversationSelectoryByMsg = async (
+export const getConversationSelectorToMsg = async (
   integrationIds: string,
   brandIds: string,
   conversationSelector: any = {},
-  messageSelector: any = {},
 ): Promise<any> => {
   const filterSelector: IFilterSelector = { integration: {} };
   if (integrationIds) {
@@ -550,12 +549,21 @@ export const getConversationSelectoryByMsg = async (
   if (Object.keys(filterSelector.integration).length > 0) {
     const integrationIdsList = await Integrations.find(filterSelector.integration).select('_id');
     conversationSelector.integrationId = { $in: integrationIdsList.map(row => row._id) };
-
-    const conversationIds = await Conversations.find(conversationSelector).select('_id');
-
-    const rawConversationIds = await conversationIds.map(obj => obj._id);
-    messageSelector.conversationId = { $in: rawConversationIds };
   }
+  return { ...conversationSelector };
+};
+
+export const getConversationSelectorByMsg = async (
+  integrationIds: string,
+  brandIds: string,
+  conversationSelector: any = {},
+  messageSelector: any = {},
+): Promise<any> => {
+  const conversationFinder = await getConversationSelectorToMsg(integrationIds, brandIds, conversationSelector);
+  const conversationIds = await Conversations.find(conversationFinder).select('_id');
+
+  const rawConversationIds = await conversationIds.map(obj => obj._id);
+  messageSelector.conversationId = { $in: rawConversationIds };
 
   return { ...messageSelector };
 };
