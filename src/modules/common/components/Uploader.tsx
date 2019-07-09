@@ -1,18 +1,38 @@
-import { Spinner } from 'modules/common/components';
+import { Icon, Spinner } from 'modules/common/components';
 import { Alert, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { IAttachment } from '../types';
 
-const Attachment = styled.div`
+const List = styled.div`
   margin: 10px 0;
+`;
 
-  img {
-    display: inline-block;
-    width: 35px;
-    height: 35px;
-    margin: 0 5px 5px 0;
+const Item = styled.div`
+  margin: 5px 0;
+
+  a {
+    float: left;
+    width: 95%;
+    overflow: hidden;
+    padding-right: 5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
+
+  span {
+    i {
+      color: red;
+    }
+
+    &:hover {
+      cursor: hand;
+    }
+  }
+`;
+
+const UploadBtn = styled.div`
+  position: relative;
 `;
 
 type Props = {
@@ -23,7 +43,6 @@ type Props = {
 type State = {
   attachments: IAttachment[];
   loading: boolean;
-  attachmentPreviewStyle: any;
 };
 
 class Uploader extends React.Component<Props, State> {
@@ -34,8 +53,7 @@ class Uploader extends React.Component<Props, State> {
 
     this.state = {
       attachments: defaultFileList || [],
-      loading: false,
-      attachmentPreviewStyle: {}
+      loading: false
     };
   }
 
@@ -47,8 +65,7 @@ class Uploader extends React.Component<Props, State> {
 
       beforeUpload: () => {
         this.setState({
-          loading: true,
-          attachmentPreviewStyle: { opacity: '0.2' }
+          loading: true
         });
       },
 
@@ -69,8 +86,7 @@ class Uploader extends React.Component<Props, State> {
 
         this.setState({
           loading: false,
-          attachments,
-          attachmentPreviewStyle: { opacity: '1' }
+          attachments
         });
       }
     });
@@ -88,23 +104,31 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
+  renderItem = (item: IAttachment) => (
+    <Item key={item.url}>
+      <a rel="noopener noreferrer" target="_blank" href={item.url}>
+        {item.name}
+      </a>
+
+      <span onClick={this.removeAttachment}>
+        <Icon icon="cancel-1" />
+      </span>
+    </Item>
+  );
+
   render() {
-    const { loading, attachments, attachmentPreviewStyle } = this.state;
+    const { loading, attachments } = this.state;
 
     return (
-      <Attachment>
-        {attachments.map((event, index) => (
-          <img
-            key={index}
-            alt="attachment"
-            src="/images/attach.svg"
-            style={attachmentPreviewStyle}
-            onClick={this.removeAttachment}
-          />
-        ))}
-        {loading && <Spinner />}
-        <input type="file" multiple={true} onChange={this.handleFileInput} />
-      </Attachment>
+      <>
+        <List>{attachments.map(item => this.renderItem(item))}</List>
+        <UploadBtn>
+          {loading && (
+            <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
+          )}
+          <input type="file" multiple={true} onChange={this.handleFileInput} />
+        </UploadBtn>
+      </>
     );
   }
 }

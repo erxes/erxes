@@ -1,7 +1,8 @@
 import { MainActionBar } from 'modules/boards/components';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
-import { Icon } from 'modules/common/components';
+
+import { Icon, Tip } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import { SelectProducts } from 'modules/settings/productService/containers';
 import React from 'react';
@@ -30,7 +31,9 @@ const DealMainActionBar = (props: Props) => {
   // get selected type from URL
   const viewType = window.location.href.includes('calendar')
     ? 'calendar'
-    : 'board';
+    : window.location.href.includes('board')
+    ? 'board'
+    : 'conversion';
 
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
@@ -47,20 +50,31 @@ const DealMainActionBar = (props: Props) => {
 
     const boardLink = onFilterClick('board');
     const calendarLink = onFilterClick('calendar');
+    const conversionlink = onFilterClick('conversion');
 
     return (
       <ButtonGroup>
-        <Link to={boardLink} className={viewType === 'board' ? 'active' : ''}>
-          <Icon icon="layout" />
-          {__('Board')}
-        </Link>
-        <Link
-          to={calendarLink}
-          className={viewType === 'calendar' ? 'active' : ''}
-        >
-          <Icon icon="calendar" />
-          {__('Calendar')}
-        </Link>
+        <Tip text={__('Board')} placement="bottom">
+          <Link to={boardLink} className={viewType === 'board' ? 'active' : ''}>
+            <Icon icon="layout" />
+          </Link>
+        </Tip>
+        <Tip text={__('Calendar')} placement="bottom">
+          <Link
+            to={calendarLink}
+            className={viewType === 'calendar' ? 'active' : ''}
+          >
+            <Icon icon="calendar" />
+          </Link>
+        </Tip>
+        <Tip text={__('Conversion')} placement="bottom">
+          <Link
+            to={conversionlink}
+            className={viewType === 'conversion' ? 'active' : ''}
+          >
+            <Icon icon="circular" />
+          </Link>
+        </Tip>
       </ButtonGroup>
     );
   };

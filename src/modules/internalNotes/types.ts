@@ -2,6 +2,7 @@ export type InternalNotesAddMutationVariables = {
   contentType: string;
   contentTypeId: string;
   content: string;
+  mentionedUserIds: string[];
 };
 
 export type InternalNotesAddMutationResponse = {
@@ -9,5 +10,5 @@ export type InternalNotesAddMutationResponse = {
     params: {
       variables: InternalNotesAddMutationVariables;
     }
-  ) => void;
+  ) => Promise<any>;
 };

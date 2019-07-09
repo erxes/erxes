@@ -31,7 +31,7 @@ const ticketFields = `
   pipeline {
     _id
     name
-}
+  }
   boardId
   companies {
     _id
@@ -59,6 +59,7 @@ const ticketFields = `
   stage {
     probability
   }
+  isWatched
   modifiedAt
   modifiedBy
 `;
