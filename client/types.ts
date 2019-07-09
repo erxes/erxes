@@ -103,6 +103,7 @@ export interface IIntegrationMessengerData {
   isOnline: boolean;
   requireAuth: boolean;
   showChat: boolean;
+  showLauncher: boolean;
   forceLogoutWhenResolve: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;

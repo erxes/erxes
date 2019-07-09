@@ -5,10 +5,11 @@ import { AppConsumer, AppProvider } from "./AppContext";
 const container = () => (
   <AppProvider>
     <AppConsumer>
-      {({ isMessengerVisible, saveBrowserInfo }) => (
+      {({ isMessengerVisible, saveBrowserInfo, getMessengerData }) => (
         <App
           isMessengerVisible={isMessengerVisible}
           saveBrowserInfo={saveBrowserInfo}
+          showLauncher={getMessengerData().showLauncher}
         />
       )}
     </AppConsumer>
