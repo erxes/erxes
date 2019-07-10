@@ -1,5 +1,5 @@
 ---
-id: support-guide
+id: support
 title: How to setup customer support settings?
 sidebar_label: Customer support
 ---
@@ -81,7 +81,7 @@ Integration is a way of communicating with customers who are emerging into the o
 ---
 
 ## Created integration appearance
-Analyze how many percentage of your customers engage through messenger, form, and social accounts from the following features: Team Inbox and Customers 
+Analyze how many percentage of your customers engage through messenger, form, and social accounts from the following features: Team Inbox and Customers
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-9.png" style="width:150px;height:180px;" />
@@ -120,7 +120,7 @@ Add in ready made response templates. Manage and edit your response templates ac
 
 ---
 
-## Appearance of created response template  
+## Appearance of created response template
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-13.png" style="width:650px;height:680px;"/>
@@ -133,7 +133,7 @@ Add in ready made response templates. Manage and edit your response templates ac
 ---
 
 ## Setup tag
-Tag means to categorize things into one abstract group. In other words, organizations can create and classify their own abstract categories. It can also classify every messages that is not restricted to clients. 
+Tag means to categorize things into one abstract group. In other words, organizations can create and classify their own abstract categories. It can also classify every messages that is not restricted to clients.
 
 + Please follow the steps for setup: Certain Features ->Tags > Add Tag
 
@@ -148,13 +148,13 @@ Tag means to categorize things into one abstract group. In other words, organiza
 </div>
 
 <aside class="notice">
-  *Created tags will be used in Team Inbox, Customers, Companies. Leads and Engage features 
+  *Created tags will be used in Team Inbox, Customers, Companies. Leads and Engage features
 </aside>
 
 ---
 
 ## How to add tag
-Click Add Tag on the top right corner of the certain feature you may want to add tag. You may create tags for each features 
+Click Add Tag on the top right corner of the certain feature you may want to add tag. You may create tags for each features
 
 + Please follow the steps for setup: Certain Features ->Tags > Add Tag
 
@@ -189,7 +189,7 @@ Click Add Tag on the top right corner of the certain feature you may want to add
 4. Leads
 5. Engage
 
-## Setup segment 
+## Setup segment
 Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.
 
 + Please follow the steps for setup: Certain Features ->Segment > Add Segment

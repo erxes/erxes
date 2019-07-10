@@ -48,7 +48,7 @@ const siteConfig = {
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     {
-      doc: 'overview',
+      doc: 'overview/overview',
       label: 'Docs'
     },
     {
@@ -105,13 +105,13 @@ const siteConfig = {
   docsSideNavCollapsible: true,
   // Open Graph and Twitter card images.
   ogImage: 'img/erxes.png',
-  twitterImage: 'img/erxes.png'
+  twitterImage: 'img/erxes.png',
 
   // Show documentation's last contributor's name.
   // enableUpdateBy: true,
 
   // Show documentation's last update time.
-  // enableUpdateTime: true,
+  enableUpdateTime: true,
 
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...

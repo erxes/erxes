@@ -1,41 +1,50 @@
 {
   "docs": {
-    "Overview": ["overview", "architecture-overview", "deployment-overview", "integrations-overview"],
-    "Installation Guide": ["installation/ubuntu", "installation/docker", "installation/kubernetes"],
+    "Overview": [
+      "overview/getting-started",
+      "overview/overview",
+      "overview/architecture-overview",
+      "overview/deployment-overview",
+      "overview/integrations-overview"
+    ],
     "User's Guide": [
-      "getting-started",
-      "signing-in",
-      "initial-setup",
-      "sales",
-      "deal",
-      "support-guide",
-      "leads/leads",
-      "engage/engage",
-      "general-settings",
-      "insights",
-      "team-inbox",
-      "knowledge-base",
-      "mobile-apps",
-      "contacts",
-      "marketing",
-      "notification"
+      "user/subscription-getting-started",
+      "user/initial-setup",
+      "user/general-settings",
+      "user/signing-in",
+      "user/team-inbox",
+      "user/contacts",
+      "user/deal",
+      "user/engage",
+      "user/insights",
+      "user/knowledge-base",
+      "user/leads",
+      "user/marketing",
+      "user/mobile-apps",
+      "user/notification",
+      "user/sales",
+      "user/support"
+    ],
+    "Installation Guide": [
+      "installation/docker",
+      "installation/kubernetes",
+      "installation/ubuntu"
     ],
     "Administrator's guide": [
-      "administration/environment-variables",
-      "administration/file-upload",
-      "administration/initial-data",
-      "administration/integrations",
-      "administration/migration",
-      "administration/permissions"
+      "administrator/environment-variables",
+      "administrator/initial-data",
+      "administrator/file-upload",
+      "administrator/integrations",
+      "administrator/migration"
     ],
     "Developer's guide": [
-      "push-notifications",
-      "sdk/android-sdk",
-      "sdk/ios-sdk",
-      "coding-standarts",
-      "contributing",
-      "extend",
-      "graphql-api"
+      "developer/graphql-api",
+      "developer/coding-standards",
+      "developer/contributing",
+      "developer/push-notifications",
+      "developer/android-sdk",
+      "developer/ios-sdk",
+      "developer/extend"
     ]
   }
 }

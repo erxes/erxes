@@ -8,7 +8,7 @@ class Footer extends React.Component {
 	return (
 		<footer className="footer">
 			<hr/>
-			<p> © Copyright {year} <a className="footerLink" href={urlLink} target="_blank">Erxes Inc</a> </p>
+			<p> © Copyright {year} <a className="footerLink" href={urlLink} target="_blank">erxes Inc</a> </p>
 		</footer>
 	);
   }

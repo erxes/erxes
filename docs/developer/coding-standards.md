@@ -1,13 +1,13 @@
 ---
-id: coding-standarts
-title: Coding standarts
+id: Coding standards
+title: Coding standards
 ---
 ## Common rules
   - We are following [https://github.com/felixge/node-style-guide](https://github.com/felixge/node-style-guide)
   - We are using [https://github.com/prettier/prettier](prettier) code formatter
   - File names must be in camel case
   ```javascript
-  
+
   // right
   knowledgeBaseArticles
 
@@ -16,7 +16,7 @@ title: Coding standarts
 
   // wrong
   KnowldegBase_articles
-  ``` 
+  ```
 
 ## Comments
 
@@ -124,7 +124,7 @@ title: Coding standarts
   #### Commit message
   - Write meaningful message
   - Pattern must be {Verb base form} {object}
- 
+
   ```javascript
   // right
   Add loader to sidebar
@@ -138,14 +138,14 @@ title: Coding standarts
 
 ## Graphql
  #### Naming queries
- ```javascript 
+ ```javascript
  {model name camel case}{action name}
  ```
  - List query (brands, conversations, etc...)
  - Detail query (brandDetail, conversationDetail, etc...)
 
  #### Naming mutations
- ```javascript 
+ ```javascript
  {model name camel case}{plural}{action name}
  ```
  - Create mutation (brandsAdd, channelsAdd, etc...)
@@ -154,7 +154,7 @@ title: Coding standarts
 
  #### Requirements
  - Mutations must be easily testable. Write utils functions in associated models
- ```javascript 
+ ```javascript
  class Conversation {
    static createConversation() {
     // ...
