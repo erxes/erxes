@@ -1,5 +1,5 @@
 import { renderAmount } from 'modules/boards/utils';
-import { Tip } from 'modules/common/components';
+import Tip from 'modules/common/components/Tip';
 import { getUserAvatar } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';

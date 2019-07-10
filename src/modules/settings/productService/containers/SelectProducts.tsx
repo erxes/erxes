@@ -1,4 +1,4 @@
-import { SelectWithSearch } from 'modules/common/components';
+import SelectWithSearch from 'modules/common/components/SelectWithSearch';
 import { IOption, IQueryParams } from 'modules/common/types';
 import React from 'react';
 import { queries } from '../graphql';

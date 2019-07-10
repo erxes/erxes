@@ -1,6 +1,7 @@
-import { FilterByParams, Icon } from 'modules/common/components';
+import FilterByParams from 'modules/common/components/FilterByParams';
+import Icon from 'modules/common/components/Icon';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';

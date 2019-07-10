@@ -12,7 +12,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { Form } from '../components';
+import Form from '../components/Form';
 import { mutations } from '../graphql';
 import { AddFormMutationResponse, AddFormMutationVariables } from '../types';
 

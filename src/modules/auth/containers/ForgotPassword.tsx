@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { ForgotPassword } from '../components';
+import ForgotPassword from '../components/ForgotPassword';
 import { mutations } from '../graphql';
 import {
   ForgotPasswordMutationResponse,

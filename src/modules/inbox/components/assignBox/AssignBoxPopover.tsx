@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import { AssignBox } from 'modules/inbox/containers';
+import AssignBox from 'modules/inbox/containers/AssignBox';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { IConversation } from '../../types';

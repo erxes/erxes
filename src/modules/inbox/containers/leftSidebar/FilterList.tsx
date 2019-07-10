@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { FilterByParams, Spinner } from 'modules/common/components';
+import FilterByParams from 'modules/common/components/FilterByParams';
+import Spinner from 'modules/common/components/Spinner';
 import { Alert } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { NoHeight } from 'modules/inbox/styles';

@@ -1,16 +1,14 @@
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tags from 'modules/common/components/Tags';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
 import React from 'react';
-import {
-  ActionButtons,
-  Button,
-  Icon,
-  ModalTrigger,
-  Tags,
-  TextInfo,
-  Tip
-} from '../../common/components';
 import Form from './Form';
 
 type Props = {

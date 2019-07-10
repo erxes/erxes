@@ -1,5 +1,5 @@
-import { FormControl } from 'modules/common/components';
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';

@@ -1,15 +1,13 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { ActionBar } from 'modules/layout/components';
+import ActionBar from 'modules/layout/components/ActionBar';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import { FormPreview } from './preview';
+import FormPreview from './preview/FormPreview';
 import { FlexColumn, FlexItem } from './style';
 
 type Props = {

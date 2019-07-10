@@ -1,10 +1,10 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
 import React from 'react';
 import Common from './Common';
-import { SegmentsForm } from './forms';
+import SegmentsForm from './forms/SegmentsForm';
 
 type Props = {
   messageType: string;

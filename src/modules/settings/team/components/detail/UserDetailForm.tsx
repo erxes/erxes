@@ -1,5 +1,5 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import {
   ActivityDate,
   ActivityRow,
@@ -8,9 +8,10 @@ import {
   FlexContent
 } from 'modules/activityLogs/styles';
 import { IUser } from 'modules/auth/types';
-import { NameCard, Tip } from 'modules/common/components';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tip from 'modules/common/components/Tip';
 import { renderFullName } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IChannel } from 'modules/settings/channels/types';
 import moment from 'moment';
 import React from 'react';

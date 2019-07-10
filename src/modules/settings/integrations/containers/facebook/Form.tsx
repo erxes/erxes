@@ -1,6 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';

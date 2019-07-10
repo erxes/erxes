@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { colors } from 'modules/common/styles';
@@ -89,7 +89,12 @@ class Form extends React.PureComponent<Prop, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}
-          removeButtons="Source,NewPage,Preview,Indent,Outdent,CreateDiv,Anchor,Styles,Font,Maximize,Strike,Table"
+          toolbar={[
+            { name: 'insert', items: ['Image', 'EmojiPanel'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+            { name: 'basicstyles', items: ['Bold', 'Italic'] },
+            { name: 'links', items: ['Link', 'Unlink'] }
+          ]}
           toolbarCanCollapse={true}
         />
 

@@ -1,4 +1,4 @@
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import * as React from 'react';

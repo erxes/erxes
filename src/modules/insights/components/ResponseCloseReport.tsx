@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
@@ -11,7 +11,10 @@ import {
 } from '../styles';
 import { IChartParams, IQueryParams } from '../types';
 import { convertTime } from '../utils';
-import { Chart, InboxFilter, Sidebar, TeamMembers } from './';
+import Chart from './Chart';
+import InboxFilter from './filter/InboxFilter';
+import Sidebar from './Sidebar';
+import TeamMembers from './TeamMembers';
 
 type Props = {
   brands: IBrand[];
@@ -81,7 +84,7 @@ class ResponseCloseReport extends React.Component<Props> {
             submenu={menuInbox}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

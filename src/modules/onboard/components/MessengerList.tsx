@@ -1,5 +1,8 @@
-import { Chip, Icon, ModalTrigger, Tip } from 'modules/common/components';
-import { InstallCode } from 'modules/settings/integrations/components';
+import Chip from 'modules/common/components/Chip';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { IMessengerApp } from 'modules/settings/integrations/types';
 import React from 'react';
 

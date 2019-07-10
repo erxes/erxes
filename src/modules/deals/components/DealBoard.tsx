@@ -1,14 +1,11 @@
-import { Board, MainActionBar } from 'modules/boards/containers';
-import {
-  BoardContainer,
-  BoardContent,
-  ScrolledContent
-} from 'modules/boards/styles/common';
+import Board from 'modules/boards/containers/Board';
+import MainActionBar from 'modules/boards/containers/MainActionBar';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
-import { Header } from 'modules/layout/components';
+import Header from 'modules/layout/components/Header';
 import React from 'react';
-import { DealMainActionBar } from '../components';
+import DealMainActionBar from '../components/DealMainActionBar';
 import options from '../options';
 
 type Props = {
@@ -29,12 +26,10 @@ class DealBoard extends React.Component<Props> {
   render() {
     return (
       <BoardContainer>
-        <Header title={__('Deal')} submenu={menuDeal} />
+        <Header title={__('Sales')} submenu={menuDeal} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
-          <ScrolledContent transparent={true}>
-            {this.renderContent()}
-          </ScrolledContent>
+          {this.renderContent()}
         </BoardContent>
       </BoardContainer>
     );

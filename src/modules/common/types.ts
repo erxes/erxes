@@ -85,4 +85,5 @@ export type IEditorProps = {
   removeButtons?: string;
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
+  toolbar?: any[];
 };

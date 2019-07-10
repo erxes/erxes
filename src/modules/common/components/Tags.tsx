@@ -1,4 +1,4 @@
-import { Label } from 'modules/common/components';
+import Label from 'modules/common/components/Label';
 import { colors, dimensions } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';

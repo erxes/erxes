@@ -1,8 +1,8 @@
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
-import { CustomerAssociate } from 'modules/customers/containers';
+import CustomerAssociate from 'modules/customers/containers/CustomerAssociate';
 import PortableDeals from 'modules/deals/components/PortableDeals';
-import { Sidebar } from 'modules/layout/components/';
+import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import moment from 'moment';

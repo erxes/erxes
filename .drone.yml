@@ -42,7 +42,6 @@ pipeline:
           - "refs/tags/*rc*"
           - "refs/tags/*alpha*"
           - "refs/tags/*beta*"
-    # draft: true
 
   github_release:
     image: plugins/github-release
@@ -61,7 +60,6 @@ pipeline:
           - "refs/tags/*rc*"
           - "refs/tags/*alpha*"
           - "refs/tags/*beta*"
-    # draft: true
 
   docker_publish:
     image: plugins/docker

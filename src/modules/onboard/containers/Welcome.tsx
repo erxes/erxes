@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { Welcome } from '../components';
+import Welcome from '../components/Welcome';
 import { mutations } from '../graphql';
 import { UserSeenOnboardMutationResponse } from '../types';
 

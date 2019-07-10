@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IStage } from 'modules/boards/types';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import Stage from 'modules/deals/components/conversion/table/Stage';
 import { queries } from 'modules/deals/graphql';

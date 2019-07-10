@@ -1,5 +1,7 @@
 import _ from 'lodash';
-import { FormControl, NameCard, Tags } from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
 import { isTimeStamp, urlParser } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
 import moment from 'moment';

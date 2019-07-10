@@ -1,7 +1,8 @@
-import { ActivityList } from 'modules/activityLogs/components';
+import ActivityList from 'modules/activityLogs/components/ActivityList';
 import { IActivityLogForMonth } from 'modules/activityLogs/types';
 import { IUser } from 'modules/auth/types';
-import { DataWithLoader, Tabs, TabTitle } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ActivityContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { hasAnyActivity } from 'modules/customers/utils';

@@ -49,10 +49,6 @@ export const ButtonGroup = styled.div`
 export const HeaderItems = styled(BarItems)`
   display: flex;
   align-items: center;
-
-  > * + * {
-    margin-left: ${dimensions.coreSpacing}px;
-  }
 `;
 
 export const HeaderButton = styledTS<{
@@ -98,7 +94,7 @@ export const HeaderButton = styledTS<{
 export const HeaderLabel = styled.span`
   font-size: 10px;
   text-transform: uppercase;
-  margin-right: -10px;
+  margin-right: -5px;
   font-weight: 500;
   color: ${colors.colorCoreGray};
 `;

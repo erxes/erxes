@@ -1,12 +1,12 @@
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { IFormProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Accounts } from '../components';
+import Accounts from '../components/Accounts';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {

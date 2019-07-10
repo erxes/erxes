@@ -64,6 +64,7 @@ export interface IPipeline {
   visibility: string;
   members?: IUser[];
   memberIds?: string[];
+  bgColor?: string;
   isWatched: boolean;
 }
 
