@@ -1,6 +1,6 @@
 ---
 id: subscription-getting-started
-title: Subscription getting  Started
+title: Subscription getting started
 ---
 
 <!--Content-->
@@ -89,7 +89,7 @@ title: Subscription getting  Started
 3. Create your **Password**
 
 <aside class="notice">Insert your Full Name
-Insert your Email Address 
+Insert your Email Address
 Create your Password</aside>
 
 ---

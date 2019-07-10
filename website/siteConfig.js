@@ -23,7 +23,7 @@ const users = [
 ];
 
 const siteConfig = {
-  title: 'Erxes', // Title for your website.
+  title: 'erxes', // Title for your website.
   tagline: 'Documentation',
   url: 'https://docs.erxes.io', // Your website URL
   baseUrl: '/', // Base URL for your project */
@@ -109,7 +109,7 @@ const siteConfig = {
   twitterImage: 'img/erxes.png',
 
   // Show documentation's last contributor's name.
-  // enableUpdateBy: true,
+  enableUpdateBy: true,
 
   // Show documentation's last update time.
   enableUpdateTime: true,

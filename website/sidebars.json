@@ -7,6 +7,11 @@
       "overview/deployment-overview",
       "overview/integrations-overview"
     ],
+    "Installation Guide": [
+      "installation/docker",
+      "installation/kubernetes",
+      "installation/ubuntu"
+    ],
     "User's Guide": [
       "user/subscription-getting-started",
       "user/initial-setup",
@@ -24,11 +29,6 @@
       "user/notification",
       "user/sales",
       "user/support"
-    ],
-    "Installation Guide": [
-      "installation/docker",
-      "installation/kubernetes",
-      "installation/ubuntu"
     ],
     "Administrator's guide": [
       "administrator/environment-variables",
