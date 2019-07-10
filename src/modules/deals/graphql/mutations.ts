@@ -8,6 +8,7 @@ const commonVariables = `
   $description: String,
   $assignedUserIds: [String],
   $order: Int,
+  $attachments: [AttachmentInput]
 `;
 
 const commonParams = `
@@ -19,7 +20,8 @@ const commonParams = `
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
-  order: $order
+  order: $order,
+  attachments: $attachments
 `;
 
 const commonReturn = `
