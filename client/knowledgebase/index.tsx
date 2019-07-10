@@ -8,15 +8,7 @@ import { connection } from "./connection";
 import { KnowledgeBase } from "./containers";
 import "./sass/style.scss";
 
-window.addEventListener("message", event => {
-  const data = event.data;
-
-  if (!(data.fromPublisher && data.setting)) {
-    return;
-  }
-
-  connection.setting = event.data.setting;
-
+const render = () => {
   // render root react component
   ReactDOM.render(
     <ApolloProvider client={client}>
@@ -25,4 +17,23 @@ window.addEventListener("message", event => {
 
     document.getElementById("root")
   );
-});
+};
+
+const settings = (window as any).knowledgebaseSettings;
+
+if (settings) {
+  connection.setting = settings;
+  render();
+} else {
+  window.addEventListener("message", event => {
+    const data = event.data;
+
+    if (!(data.fromPublisher && data.setting)) {
+      return;
+    }
+
+    connection.setting = event.data.setting;
+
+    render();
+  });
+}

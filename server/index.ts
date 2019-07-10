@@ -46,7 +46,11 @@ app.get("/form", (req, res) => {
 });
 
 app.get("/knowledgebase", (req, res) => {
-  res.render("widget", { type: "knowledgebase", env: getEnv() });
+  res.render("widget", {
+    type: "knowledgebase",
+    env: getEnv(),
+    kbTopicId: req.query.topicId
+  });
 });
 
 app.get("/test", (req, res) => {
