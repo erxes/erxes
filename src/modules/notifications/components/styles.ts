@@ -56,6 +56,7 @@ const NotifList = styled.ul`
 
     &.unread {
       background: #edf2fa;
+      border-color: #e3e9f3;
 
       ${Content} {
         background: ${colors.colorWhite};
@@ -113,8 +114,9 @@ const PopoverContent = styled.div`
   height: 420px;
 `;
 
-const CreatedUser = styled.div`
+const CreatedUser = styledTS<{ isList?: boolean }>(styled.div)`
   font-weight: 600;
+  max-width: ${props => props.isList && '80%'};
 
   span {
     padding-left: ${dimensions.unitSpacing - 5}px;
@@ -125,6 +127,7 @@ const CreatedUser = styled.div`
 const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
   font-size: 11px;
   color: ${colors.colorCoreGray};
+  padding-top: 3px;
 
   ${props =>
     props.isList &&

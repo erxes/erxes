@@ -32,7 +32,7 @@ function IntegrationFilter({ history, counts }: IProps) {
             }
             onClick={onClick.bind(null, kind)}
           >
-            {kind}
+            {kind === 'facebook' ? 'facebook messenger' : kind}
             <SidebarCounter>{counts[kind]}</SidebarCounter>
           </a>
         </li>

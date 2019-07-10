@@ -80,7 +80,7 @@ class NotificationRow extends React.Component<IProps> {
           />
         </AvatarSection>
         <InfoSection>
-          <CreatedUser>
+          <CreatedUser isList={isList}>
             {createdUser.details
               ? createdUser.details.fullName
               : createdUser.username || createdUser.email}
