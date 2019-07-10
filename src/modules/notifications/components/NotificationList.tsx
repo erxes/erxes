@@ -1,4 +1,6 @@
 import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import { FormControl } from 'modules/common/components/form';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -12,13 +14,16 @@ import { NotifList } from './styles';
 type Props = {
   notifications: INotification[];
   markAsRead: (notificationIds?: string[]) => void;
+  loading: boolean;
   count: number;
 } & IRouterProps;
 
-class NotificationList extends React.Component<
-  Props,
-  { bulk: string[]; filterByUnread: boolean }
-> {
+type State = {
+  bulk: string[];
+  filterByUnread: boolean;
+};
+
+class NotificationList extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -52,7 +57,7 @@ class NotificationList extends React.Component<
   };
 
   render() {
-    const { notifications, count, markAsRead } = this.props;
+    const { notifications, count, markAsRead, loading } = this.props;
 
     const content = (
       <NotifList>
@@ -68,16 +73,13 @@ class NotificationList extends React.Component<
     );
 
     const actionBarLeft = (
-      <div>
-        <Button
-          btnStyle="primary"
-          size="small"
-          onClick={this.filterByUnread}
-          icon="filter"
-        >
-          {this.state.filterByUnread ? 'Filter by Unread' : 'See all'}
-        </Button>
-      </div>
+      <FormControl
+        id="isFilter"
+        componentClass="checkbox"
+        onClick={this.filterByUnread}
+      >
+        {__('Show unread')}
+      </FormControl>
     );
 
     const actionBarRight = (
@@ -114,7 +116,15 @@ class NotificationList extends React.Component<
           />
         }
         actionBar={actionBar}
-        content={content}
+        content={
+          <DataWithLoader
+            data={content}
+            loading={loading}
+            count={count}
+            emptyText="Looks like you are all caught up!"
+            emptyImage="/images/actions/17.svg"
+          />
+        }
         center={true}
         footer={<Pagination count={count} />}
       />
