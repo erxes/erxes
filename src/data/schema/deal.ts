@@ -28,16 +28,21 @@ export const types = `
     ${commonTypes}
   }
 
-  type DealTotalAmount {
-    _id: String
-    currency: String
+  type DealTotalCurrency {
     amount: Float
+    name: String
+  }
+
+  type TotalForType {
+    _id: String
+    name: String
+    currencies: [DealTotalCurrency]
   }
 
   type DealTotalAmounts {
     _id: String
     dealCount: Int
-    dealAmounts: [DealTotalAmount]
+    totalForType: [TotalForType]
   }
 `;
 
@@ -61,8 +66,8 @@ export const queries = `
     overdue: String
   ): [Deal]
   dealsTotalAmounts(
-    date: ItemDate 
-    pipelineId: String 
+    date: ItemDate
+    pipelineId: String
     customerIds: [String]
     companyIds: [String]
     assignedUserIds: [String]
