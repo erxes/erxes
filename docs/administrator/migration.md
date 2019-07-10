@@ -3,8 +3,8 @@ id: migration
 title: Migration
 ---
 
-To run database migrations from console you must enter the command below
+If upgrading erxes version requires database migration, you have to run following command:
 
 ```
-yarn migrate up
+yarn migrate
 ```
