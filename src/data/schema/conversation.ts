@@ -95,7 +95,7 @@ export const types = `
   input AttachmentInput {
     url: String!
     name: String!
-    type: String!
+    type: String
     size: Float
   }
 `;

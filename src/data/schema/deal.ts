@@ -24,6 +24,7 @@ export const types = `
     modifiedAt: Date
     modifiedBy: String
     stage: Stage
+    attachments: [Attachment]
     isWatched: Boolean
     ${commonTypes}
   }
@@ -85,6 +86,7 @@ const commonParams = `
   stageId: String,
   assignedUserIds: [String],
   companyIds: [String],
+  attachments: [AttachmentInput],
   customerIds: [String],
   closeDate: Date,
   description: String,
