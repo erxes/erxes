@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
@@ -17,6 +18,7 @@ type Props = {
   history: any;
   queryParams: any;
   isLoading: boolean;
+  errorMessage?: string;
 } & commonProps;
 
 type State = {
@@ -193,24 +195,37 @@ class LogList extends React.Component<Props, State> {
   }
 
   render() {
-    const { isLoading, count } = this.props;
+    const { isLoading, count, errorMessage } = this.props;
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
       { title: __('Logs') }
     ];
+    const emptyImage = '/images/actions/21.svg';
+    let actionBar = this.renderActionBar();
+    let footer = <Pagination count={count} />;
+    let emptyMessage = __('There are no logs recorded');
+    let data = this.renderContent();
+
+    // show EmptyState when viewLogs permission is not granted
+    if (errorMessage && errorMessage.indexOf('Permission required') !== -1) {
+      actionBar = <div />;
+      footer = <div />;
+      emptyMessage = __('Permission denied');
+      data = <EmptyState text={emptyMessage} image={emptyImage} />;
+    }
 
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Logs')} breadcrumb={breadcrumb} />}
-        actionBar={this.renderActionBar()}
-        footer={<Pagination count={count} />}
+        actionBar={actionBar}
+        footer={footer}
         content={
           <DataWithLoader
-            data={this.renderContent()}
+            data={data}
             loading={isLoading}
             count={count}
-            emptyText="There are no logs recorded"
-            emptyImage="/images/actions/11.svg"
+            emptyText={emptyMessage}
+            emptyImage={emptyImage}
           />
         }
       />

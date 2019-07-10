@@ -864,5 +864,6 @@
   "Update": "Update",
   "Changes": "Changes",
   "Choose start date": "Choose start date",
-  "Choose end date": "Choose end date"
+  "Choose end date": "Choose end date",
+  "Permission denied": "Permission denied"
 }
