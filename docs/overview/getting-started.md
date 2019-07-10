@@ -38,9 +38,9 @@ title: Getting  Started
 
 ### Administrator's guide
 
+- <a href="../administrator/creating-first-user">Creating first user</a>
 - <a href="../administrator/environment-variables">Environment Variables</a>
 - <a href="../administrator/file-upload">File Upload</a>
-- <a href="../administrator/initial-data">Load Initial Data</a>
 - <a href="../administrator/integrations">Integrations</a>
 - <a href="../administrator/migration">Migration</a>
 

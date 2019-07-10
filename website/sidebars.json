@@ -31,8 +31,8 @@
       "user/support"
     ],
     "Administrator's guide": [
+      "administrator/creating-first-user",
       "administrator/environment-variables",
-      "administrator/initial-data",
       "administrator/file-upload",
       "administrator/integrations",
       "administrator/migration"
