@@ -78,7 +78,7 @@ class NotificationList extends React.Component<Props, State> {
         componentClass="checkbox"
         onClick={this.filterByUnread}
       >
-        {__('Filter by Unread')}
+        {__('Show unread')}
       </FormControl>
     );
 
