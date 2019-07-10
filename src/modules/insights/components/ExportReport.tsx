@@ -188,7 +188,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
         header={
           <Wrapper.Header title={__('Export Report')} submenu={menuInbox} />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

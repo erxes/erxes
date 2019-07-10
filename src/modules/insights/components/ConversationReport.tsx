@@ -104,7 +104,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
             submenu={menuInbox}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

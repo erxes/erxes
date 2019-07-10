@@ -161,7 +161,12 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Insights')} submenu={menuDeal} />}
-        leftSidebar={<Sidebar type={INSIGHT_TYPES.DEAL} />}
+        leftSidebar={
+          <Sidebar
+            queryParams={this.props.queryParams}
+            type={INSIGHT_TYPES.DEAL}
+          />
+        }
         content={this.renderContent()}
       />
     );
