@@ -29,6 +29,7 @@ const siteConfig = {
   baseUrl: '/', // Base URL for your project */
   editUrl: 'https://github.com/erxes/docs/edit/master/docs/',
   cname: 'docs.erxes.io',
+  scrollToTop: true,
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
@@ -48,7 +49,7 @@ const siteConfig = {
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     {
-      doc: 'overview/overview',
+      doc: 'overview/getting-started',
       label: 'Docs'
     },
     {
