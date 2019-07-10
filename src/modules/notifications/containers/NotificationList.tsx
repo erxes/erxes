@@ -47,7 +47,8 @@ class NotificationListContainer extends React.Component<FinalProps> {
 
       markAsRead,
       notifications: notificationsQuery.notifications || [],
-      count: notificationCountQuery.notificationCounts || 0
+      count: notificationCountQuery.notificationCounts || 0,
+      loading: notificationsQuery.loading
     };
 
     return <NotificationList {...updatedProps} />;
