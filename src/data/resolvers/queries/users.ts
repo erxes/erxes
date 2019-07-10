@@ -55,6 +55,15 @@ const userQueries = {
   },
 
   /**
+   * All users
+   */
+  allUsers() {
+    const sort = { username: 1 };
+
+    return Users.find().sort(sort);
+  },
+
+  /**
    * Get one user
    */
   userDetail(_root, { _id }: { _id: string }) {
