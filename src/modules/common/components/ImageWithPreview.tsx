@@ -16,7 +16,7 @@ const PreviewWrapper = styled.div`
   justify-content: center;
   align-items: center;
   transition: all 0.3s;
-  z-index: 100;
+  z-index: 50000;
   animation-name: ${fadeIn};
   animation-duration: 0.3s;
   animation-timing-function: ease;
@@ -84,7 +84,7 @@ class ImageWithPreview extends React.Component<Props, State> {
     const { src, alt, onLoad } = this.props;
 
     return (
-      <div>
+      <>
         <Image
           {...this.props}
           src={readFile(src || '')}
@@ -98,7 +98,7 @@ class ImageWithPreview extends React.Component<Props, State> {
             </PreviewWrapper>
           </PreviewPortal>
         )}
-      </div>
+      </>
     );
   }
 }

@@ -1,39 +1,50 @@
-import Icon from 'modules/common/components/Icon';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
+import { rgba } from '../styles/color';
+import colors from '../styles/colors';
 import { IAttachment } from '../types';
+import Attachment from './Attachment';
+import Spinner from './Spinner';
 
 const List = styled.div`
   margin: 10px 0;
 `;
 
 const Item = styled.div`
-  margin: 5px 0;
+  margin-bottom: 10px;
+`;
 
-  a {
-    float: left;
-    width: 95%;
-    overflow: hidden;
-    padding-right: 5px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
+const Delete = styled.span`
+  text-decoration: underline;
 
-  span {
-    i {
-      color: red;
-    }
-
-    &:hover {
-      cursor: hand;
-    }
+  &:hover {
+    color: ${colors.colorCoreBlack};
+    cursor: pointer;
   }
 `;
 
 const UploadBtn = styled.div`
   position: relative;
+  margin-top: 10px;
+
+  label {
+    padding: 10px;
+    background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    display: inline-block;
+
+    &:hover {
+      background: ${rgba(colors.colorCoreDarkBlue, 0.1)};
+      cursor: pointer;
+    }
+  }
+
+  input[type='file'] {
+    display: none;
+  }
 `;
 
 type Props = {
@@ -94,10 +105,8 @@ class Uploader extends React.Component<Props, State> {
     });
   };
 
-  removeAttachment = e => {
+  removeAttachment = (index: number) => {
     const attachments = [...this.state.attachments];
-
-    const index = attachments.indexOf(e);
 
     attachments.splice(index, 1);
 
@@ -106,17 +115,16 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
-  renderItem = (item: IAttachment) => (
-    <Item key={item.url}>
-      <a rel="noopener noreferrer" target="_blank" href={item.url}>
-        {item.name}
-      </a>
+  renderItem = (item: IAttachment, index: number) => {
+    const removeAttachment = () => this.removeAttachment(index);
+    const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
 
-      <span onClick={this.removeAttachment}>
-        <Icon icon="cancel-1" />
-      </span>
-    </Item>
-  );
+    return (
+      <Item key={item.url}>
+        <Attachment attachment={item} additionalItem={remove} />
+      </Item>
+    );
+  };
 
   render() {
     const { loading, attachments } = this.state;
@@ -124,16 +132,21 @@ class Uploader extends React.Component<Props, State> {
 
     return (
       <>
-        <List>{attachments.map(item => this.renderItem(item))}</List>
+        <List>
+          {attachments.map((item, index) => this.renderItem(item, index))}
+        </List>
         <UploadBtn>
+          <label>
+            Upload an attachment
+            <input
+              type="file"
+              multiple={multiple}
+              onChange={this.handleFileInput}
+            />
+          </label>
           {loading && (
             <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
           )}
-          <input
-            type="file"
-            multiple={multiple}
-            onChange={this.handleFileInput}
-          />
         </UploadBtn>
       </>
     );

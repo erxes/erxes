@@ -89,7 +89,7 @@
     "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
     "start": "react-scripts start",
-    "build": "react-scripts build && yarn generateVersion",
+    "build": "yarn generateVersion && react-scripts build",
     "compress": "gzip -5 --keep -r build/static/js",
     "test": "snyk test && react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
