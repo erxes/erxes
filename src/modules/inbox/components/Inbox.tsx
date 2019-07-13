@@ -1,10 +1,10 @@
 import { IUser } from 'modules/auth/types';
-import { __, can } from 'modules/common/utils';
-import { Header } from 'modules/layout/components';
+import { can } from 'modules/common/utils';
+import Header from 'modules/layout/components/Header';
 import { Contents } from 'modules/layout/styles';
-import * as React from 'react';
-import { ConversationDetail } from '../containers/conversationDetail';
-import { Sidebar } from '../containers/leftSidebar';
+import React from 'react';
+import ConversationDetail from '../containers/conversationDetail/ConversationDetail';
+import Sidebar from '../containers/leftSidebar/Sidebar';
 
 type Props = {
   queryParams: any;
@@ -14,7 +14,7 @@ type Props = {
 
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
   const menuInbox = [
-    { title: 'Inbox', link: '/inbox/index' },
+    { title: 'Team Inbox', link: '/inbox/index' },
     { title: 'Ticket', link: '/inbox/ticket' }
   ];
 
@@ -24,7 +24,11 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
 
   return (
     <Contents>
-      <Header title={'Inbox'} queryParams={queryParams} submenu={menuInbox} />
+      <Header
+        title={'Conversation'}
+        queryParams={queryParams}
+        submenu={menuInbox}
+      />
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}

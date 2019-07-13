@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Route } from 'react-router-dom';
 import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
@@ -8,6 +8,7 @@ import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
+import LogRoutes from './logs/routes';
 import MainRoutes from './main/routes';
 import PermissionRoutes from './permissions/routes';
 import ProductService from './productService/routes';
@@ -37,6 +38,7 @@ const routes = () => (
     <ImportHistory key="ImportHistory" />
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
+    <LogRoutes key="LogRoutes" />
   </React.Fragment>
 );
 

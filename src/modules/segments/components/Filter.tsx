@@ -1,12 +1,10 @@
-import {
-  DataWithLoader,
-  DropdownToggle,
-  Icon
-} from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
@@ -30,7 +28,7 @@ class Segments extends React.Component<Props> {
     }
 
     return (
-      <a tabIndex={0} onClick={removeSegment}>
+      <a href="#cancel" tabIndex={0} onClick={removeSegment}>
         <Icon icon="cancel-1" />
       </a>
     );
@@ -49,7 +47,7 @@ class Segments extends React.Component<Props> {
           style={{ verticalAlign: 'top', float: 'left' }}
         >
           <DropdownToggle bsRole="toggle">
-            <a>
+            <a href="#settings">
               <Icon icon="settings" />
             </a>
           </DropdownToggle>
@@ -78,7 +76,7 @@ class Segments extends React.Component<Props> {
   }
 
   renderData() {
-    const { counts, segments, currentSegment, setSegment } = this.props;
+    const { counts, segments, currentSegment } = this.props;
     const orderedSegments: ISegment[] = [];
 
     segments.forEach(segment => {
@@ -95,6 +93,7 @@ class Segments extends React.Component<Props> {
             className={segment.subOf ? 'child-segment' : ''}
           >
             <a
+              href="#active"
               tabIndex={0}
               className={currentSegment === segment._id ? 'active' : ''}
               onClick={this.onSegmentClick.bind(this, segment._id)}

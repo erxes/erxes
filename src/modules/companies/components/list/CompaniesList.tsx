@@ -1,31 +1,28 @@
-import {
-  Button,
-  DataWithLoader,
-  DropdownToggle,
-  FormControl,
-  Icon,
-  ModalTrigger,
-  Pagination,
-  SortHandler,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import SortHandler from 'modules/common/components/SortHandler';
+import Table from 'modules/common/components/table';
 import { __, Alert, confirm, router } from 'modules/common/utils';
 import { menuContacts } from 'modules/common/utils/menus';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
-import { DataImporter } from 'modules/settings/importHistory/containers';
-import { ManageColumns } from 'modules/settings/properties/containers';
-import { TaggerPopover } from 'modules/tags/components';
-import * as React from 'react';
+import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { CompaniesMerge } from '..';
 import { IRouterProps } from '../../../common/types';
 import { IConfigColumn } from '../../../settings/properties/types';
-import { CompanyForm } from '../../containers';
+import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
+import CompaniesMerge from '../detail/CompaniesMerge';
 import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
 
@@ -159,7 +156,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a>{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -266,7 +263,7 @@ class CompaniesList extends React.Component<IProps, State> {
               </Link>
             </li>
             <li>
-              <a onClick={exportCompanies.bind(this, bulk)}>
+              <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
                 {__('Export companies')}
               </a>
             </li>

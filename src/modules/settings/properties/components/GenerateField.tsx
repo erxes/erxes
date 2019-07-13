@@ -1,10 +1,8 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
-import * as moment from 'moment';
-import * as React from 'react';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import moment from 'moment';
+import React from 'react';
 import { SelectInput } from '../styles';
 import { IField } from '../types';
 

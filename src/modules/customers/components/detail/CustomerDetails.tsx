@@ -1,8 +1,11 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
+import Icon from 'modules/common/components/Icon';
+import { TabTitle } from 'modules/common/components/tabs';
 import { __, renderFullName } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Widget from 'modules/engage/containers/Widget';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
@@ -13,6 +16,16 @@ type Props = {
 };
 
 class CustomerDetails extends React.Component<Props> {
+  renderExtraTab = () => {
+    const trigger = (
+      <TabTitle>
+        <Icon icon="speech-bubble-3" /> {__('Chat message')}
+      </TabTitle>
+    );
+
+    return <Widget customers={[this.props.customer]} modalTrigger={trigger} />;
+  };
+
   render() {
     const { customer, taggerRefetchQueries } = this.props;
 
@@ -28,7 +41,8 @@ class CustomerDetails extends React.Component<Props> {
           contentTypeId={customer._id}
           contentType="customer"
           toEmail={customer.primaryEmail}
-          showEmail={true}
+          showEmail={false}
+          extraTab={this.renderExtraTab()}
         />
         <ActivityLogs
           target={customer.firstName}

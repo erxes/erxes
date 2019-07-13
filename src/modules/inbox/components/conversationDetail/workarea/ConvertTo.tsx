@@ -1,9 +1,11 @@
-import { Button, DropdownToggle, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import DealAddTrigger from 'modules/deals/components/DealAddTrigger';
 import TaskAddTrigger from 'modules/tasks/components/TaskAddTrigger';
 import TicketAddTrigger from 'modules/tickets/components/TicketAddTrigger';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import styled from 'styled-components';
 

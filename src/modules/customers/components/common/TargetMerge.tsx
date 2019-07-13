@@ -1,7 +1,8 @@
-import { EmptyState, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 
 type Props = {
@@ -87,7 +88,7 @@ class TargetMergeModal extends React.Component<Props, State> {
     return (
       <ModalTrigger
         title={__('Merge')}
-        trigger={<a>{__('Merge')}</a>}
+        trigger={<a href="#merge">{__('Merge')}</a>}
         size="lg"
         content={modalContent}
       />

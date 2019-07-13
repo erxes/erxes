@@ -35,6 +35,18 @@ const boardDetail = `
       pipelines {
         _id
         name
+        visibility
+        memberIds
+        isWatched
+        members {
+          _id
+          email
+          username
+          details {
+            avatar
+            fullName
+          }
+        }
       }
     }
   }
@@ -55,12 +67,15 @@ const pipelineDetail = `
     pipelineDetail(_id: $_id) {
       _id
       name
+      bgColor
+      isWatched
     }
   }
 `;
 
 const stages = `
   query stages(
+    $isNotLost: Boolean,
     $pipelineId: String!, 
     $search: String,
     $customerIds: [String],
@@ -70,10 +85,11 @@ const stages = `
     $nextWeek: String,
     $nextMonth: String,
     $noCloseDate: String,
-    $overdue: String
-    $productIds: [String]
+    $overdue: String,
+    $extraParams: JSON
   ) {
     stages(
+      isNotLost: $isNotLost,
       pipelineId: $pipelineId, 
       search: $search,
       customerIds: $customerIds,
@@ -83,14 +99,18 @@ const stages = `
       nextWeek: $nextWeek,
       nextMonth: $nextMonth,
       noCloseDate: $noCloseDate,
-      overdue: $overdue
-      productIds: $productIds
+      overdue: $overdue,
+      extraParams: $extraParams
     ) {
       _id
       name
       order
       amount
       itemsTotalCount
+      compareNextStage
+      initialDealsTotalCount
+      stayedDealsTotalCount
+      inProcessDealsTotalCount
     }
   }
 `;

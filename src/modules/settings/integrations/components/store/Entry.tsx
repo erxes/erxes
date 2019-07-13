@@ -1,7 +1,8 @@
-import { Icon, ModalTrigger } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
@@ -37,14 +38,12 @@ class Entry extends React.Component<Props> {
   };
 
   renderCreate(createUrl, createModal) {
-    const { queryParams } = this.props;
-
     if (!createUrl && !createModal) {
       return null;
     }
 
     if (createModal === 'facebook') {
-      const trigger = <a>+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <Facebook {...props} />;
 
@@ -58,7 +57,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'lead') {
-      const trigger = <a>+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <Lead {...props} />;
 
@@ -68,7 +67,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'knowledgeBase') {
-      const trigger = <a>+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <KnowledgeBase {...props} />;
 

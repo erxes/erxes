@@ -1,14 +1,15 @@
-import { UserCommonInfos } from 'modules/auth/components';
-import { IUser, IUserDetails, IUserDoc, IUserLinks } from 'modules/auth/types';
-import { ControlLabel, FormGroup } from 'modules/common/components';
+import UserCommonInfos from 'modules/auth/components/UserCommonInfos';
+import { IUser, IUserDetails, IUserLinks } from 'modules/auth/types';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ColumnTitle } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from '../../channels/types';
-import { Form as CommonForm } from '../../common/components';
+import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {

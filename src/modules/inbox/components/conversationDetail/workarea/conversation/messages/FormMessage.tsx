@@ -1,6 +1,6 @@
-import { Table } from 'modules/common/components';
-import * as moment from 'moment';
-import * as React from 'react';
+import Table from 'modules/common/components/table';
+import moment from 'moment';
+import React from 'react';
 import { IMessage } from '../../../../../types';
 import { FormTable } from '../styles';
 

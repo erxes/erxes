@@ -1,6 +1,8 @@
-import { Button, ControlLabel, FormControl } from 'modules/common/components';
-import { __, Alert } from 'modules/common/utils';
-import * as React from 'react';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
+import { Alert } from 'modules/common/utils';
+import React from 'react';
 import {
   AddContainer,
   FormFooter,

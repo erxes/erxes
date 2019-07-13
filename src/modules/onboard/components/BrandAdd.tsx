@@ -1,16 +1,14 @@
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  Icon
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
-import { BrandList } from '../containers';
+import React from 'react';
+import RTG from 'react-transition-group';
+import BrandList from '../containers/BrandList';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
@@ -55,7 +53,7 @@ class BrandAdd extends React.Component<
         <Description>
           <Icon icon="checked-1" /> {__('You already have')}{' '}
           <b>{brandsTotalCount}</b> {__('brands')}.{' '}
-          <a href="javascript:;" onClick={this.toggleBrands}>
+          <a href="#toggle" onClick={this.toggleBrands}>
             {showBrands ? __('Hide') : __('Show')} ›
           </a>
         </Description>
@@ -110,7 +108,9 @@ class BrandAdd extends React.Component<
               isSubmitted
             })}
           </div>
-          <a onClick={changeStep}>{__('Skip for now')} »</a>
+          <a href="#skip" onClick={changeStep}>
+            {__('Skip for now')} »
+          </a>
         </Footer>
       </>
     );

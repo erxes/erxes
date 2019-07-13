@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
+import { RootBack, ScrolledContent } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 
@@ -25,7 +26,6 @@ const WithPipelinesQuery = (props: FinalProps) => {
         image="/images/actions/18.svg"
         text="Oh boy, looks like you need to get a head start on your board"
         size="small"
-        light={true}
       />
     );
   }
@@ -37,12 +37,16 @@ const WithPipelinesQuery = (props: FinalProps) => {
   const pipeline = pipelineDetailQuery.pipelineDetail;
 
   return (
-    <Pipeline
-      options={options}
-      pipeline={pipeline}
-      key={pipeline._id}
-      queryParams={queryParams}
-    />
+    <RootBack style={{ backgroundColor: pipeline.bgColor }}>
+      <ScrolledContent transparent={true}>
+        <Pipeline
+          options={options}
+          pipeline={pipeline}
+          key={pipeline._id}
+          queryParams={queryParams}
+        />
+      </ScrolledContent>
+    </RootBack>
   );
 };
 

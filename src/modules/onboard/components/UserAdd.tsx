@@ -1,14 +1,12 @@
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  Icon
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
+import React from 'react';
+import RTG from 'react-transition-group';
 import { IUserGroup } from '../../settings/permissions/types';
 import {
   FlexRow,
@@ -17,7 +15,7 @@ import {
   RemoveRow
 } from '../../settings/team/styles';
 import { IInvitationEntry } from '../../settings/team/types';
-import { UserList } from '../containers';
+import UserList from '../containers/UserList';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
@@ -125,7 +123,7 @@ class UserAdd extends React.Component<Props, State> {
         <Description>
           <Icon icon="checked-1" /> {__('There is another')}{' '}
           <b>{usersTotalCount}</b> {__('users')}.{' '}
-          <a href="javascript:;" onClick={this.toggleUsers}>
+          <a href="#toggle" onClick={this.toggleUsers}>
             {showUsers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
@@ -215,7 +213,9 @@ class UserAdd extends React.Component<Props, State> {
               callback: this.changeStep
             })}
           </div>
-          <a onClick={changeStep.bind(null, true)}>{__('Skip for now')} »</a>
+          <a href="#skip" onClick={changeStep.bind(null, true)}>
+            {__('Skip for now')} »
+          </a>
         </Footer>
       </>
     );

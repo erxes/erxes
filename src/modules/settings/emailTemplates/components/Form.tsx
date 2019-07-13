@@ -1,13 +1,11 @@
-import {
-  ControlLabel,
-  EditorCK,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
-import * as React from 'react';
-import { Form as CommonForm } from '../../common/components';
+import React from 'react';
+import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 import { IEmailTemplate } from '../types';
 
@@ -51,7 +49,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = this.props.object || ({} as IEmailTemplate);
 
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
@@ -72,7 +70,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             height={460}
           />
         </FormGroup>
-      </React.Fragment>
+      </>
     );
   };
 

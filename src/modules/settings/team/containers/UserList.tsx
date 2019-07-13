@@ -9,10 +9,10 @@ import {
 } from 'modules/settings/common/types';
 import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
-import { UserList } from '../components';
+import UserList from '../components/UserList';
 import { mutations, queries } from '../graphql';
 
 type Props = ICommonListProps &

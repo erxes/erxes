@@ -1,6 +1,6 @@
 import { IBreadCrumbItem } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IEngageMessageDoc } from '../types';
 
 type Props = {

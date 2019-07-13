@@ -1,8 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
-import { Button, FormControl, FormGroup, Icon } from '.';
 import { IFormProps } from '../types';
 import { __, Alert } from '../utils';
+import Button from './Button';
+import FormControl from './form/Control';
+import FormGroup from './form/Group';
+import Icon from './Icon';
 
 type OptionProps = {
   option: any;

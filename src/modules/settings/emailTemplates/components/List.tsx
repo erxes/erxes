@@ -1,12 +1,10 @@
-import {
-  HeaderDescription,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import { List } from '../../common/components';
+import React from 'react';
+import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
 import {
   Actions,
@@ -39,6 +37,7 @@ class EmailTemplateList extends React.Component<Props> {
 
     return (
       <ModalTrigger
+        enforceFocus={false}
         title="Edit"
         size="lg"
         trigger={

@@ -1,6 +1,6 @@
 import { dimensions } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const MainDescription = styled.div`

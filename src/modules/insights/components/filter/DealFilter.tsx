@@ -1,8 +1,8 @@
 import { IBoard, IPipeline } from 'modules/boards/types';
-import { ControlLabel } from 'modules/common/components';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from '../../styles';
 import { IQueryParams } from '../../types';

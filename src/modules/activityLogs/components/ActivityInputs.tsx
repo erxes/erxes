@@ -1,8 +1,9 @@
-import { Icon, Tabs, TabTitle } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from 'modules/common/utils';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
+import NoteForm from 'modules/internalNotes/containers/Form';
 import { WhiteBoxRoot } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   contentType: string;
@@ -10,6 +11,7 @@ type Props = {
   showEmail: boolean;
   toEmail?: string;
   toEmails?: string[];
+  extraTab?: React.ReactNode;
 };
 
 type State = {
@@ -30,7 +32,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
   };
 
   renderTabContent() {
-    const { contentTypeId, contentType, toEmail, showEmail } = this.props;
+    const { contentTypeId, contentType, showEmail } = this.props;
     const { currentTab } = this.state;
 
     if (currentTab === 'newNote') {
@@ -47,17 +49,25 @@ class ActivityInputs extends React.PureComponent<Props, State> {
   }
 
   renderExtraTab() {
-    if (!this.props.showEmail) {
-      return null;
+    const { showEmail, extraTab } = this.props;
+    let tabEmail;
+
+    if (showEmail) {
+      tabEmail = (
+        <TabTitle
+          className={this.state.currentTab === 'email' ? 'active' : ''}
+          onClick={this.onChangeTab.bind(this, 'email')}
+        >
+          <Icon icon="email" /> {__('Email')}
+        </TabTitle>
+      );
     }
 
     return (
-      <TabTitle
-        className={this.state.currentTab === 'email' ? 'active' : ''}
-        onClick={this.onChangeTab.bind(this, 'email')}
-      >
-        <Icon icon="email" /> {__('Email')}
-      </TabTitle>
+      <>
+        {tabEmail}
+        {extraTab}
+      </>
     );
   }
 

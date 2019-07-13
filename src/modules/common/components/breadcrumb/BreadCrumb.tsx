@@ -1,5 +1,5 @@
 import { IBreadCrumbItem } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { dimensions } from '../../styles';
 import BreadCrumbItem from './BreadCrumbItem';

@@ -1,6 +1,6 @@
 import { IFormProps } from 'modules/common/types';
-import * as React from 'react';
-import * as validator from 'validator';
+import React from 'react';
+import validator from 'validator';
 import { __ } from '../../utils';
 import { Error } from './styles';
 

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
-import { ResponseTemplate } from 'modules/inbox/components/conversationDetail';
+import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/ResponseTemplate';
 import { mutations, queries } from 'modules/inbox/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { BrandsQueryResponse } from '../../../settings/brands/types';

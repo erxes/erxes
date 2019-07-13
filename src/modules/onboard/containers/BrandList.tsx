@@ -7,9 +7,9 @@ import {
   BrandsCountQueryResponse,
   BrandsQueryResponse
 } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { BrandList } from '../components';
+import BrandList from '../components/BrandList';
 
 type Props = {
   brandCount: number;

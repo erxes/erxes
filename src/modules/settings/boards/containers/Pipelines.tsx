@@ -1,13 +1,14 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Spinner } from 'modules/common/components';
+import { PipelinesQueryResponse } from 'modules/boards/types';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Pipelines } from '../components';
+import Pipelines from '../components/Pipelines';
 import { mutations, queries } from '../graphql';
 import {
-  PipelineQueryResponse,
   RemovePipelineMutationResponse,
   RemovePipelineMutationVariables,
   UpdateOrderPipelineMutationResponse,
@@ -20,7 +21,7 @@ type Props = {
 };
 
 type FinalProps = {
-  pipelinesQuery: PipelineQueryResponse;
+  pipelinesQuery: PipelinesQueryResponse;
 } & Props &
   RemovePipelineMutationResponse &
   UpdateOrderPipelineMutationResponse;
@@ -47,7 +48,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           variables: { _id: pipelineId }
         })
           .then(() => {
-            pipelinesQuery.refetch();
+            pipelinesQuery.refetch({ boardId });
 
             const msg = `${__(`You successfully deleted a`)} ${__(
               'pipeline'
@@ -113,7 +114,7 @@ const getRefetchQueries = (boardId: string) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, PipelineQueryResponse, { boardId: string }>(
+    graphql<Props, PipelinesQueryResponse, { boardId: string }>(
       gql(queries.pipelines),
       {
         name: 'pipelinesQuery',

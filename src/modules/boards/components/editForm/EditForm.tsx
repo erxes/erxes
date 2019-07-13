@@ -1,14 +1,21 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import { IUser } from 'modules/auth/types';
-import { Button } from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import Uploader from 'modules/common/components/Uploader';
+import { IAttachment } from 'modules/common/types';
+import { Alert, extractAttachment } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
-import { FlexContent, FormFooter, Left } from '../../styles/item';
+import React from 'react';
+import { FlexContent, FormFooter, Left, TitleRow } from '../../styles/item';
 import { IItem, IItemParams, IOptions } from '../../types';
-import { Sidebar, Top } from './';
+import Sidebar from './Sidebar';
+import Top from './Top';
 
 type Props = {
   options: IOptions;
@@ -32,6 +39,7 @@ type State = {
   assignedUserIds: string[];
   customers: ICustomer[];
   companies: ICompany[];
+  attachments: IAttachment[];
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -48,12 +56,17 @@ class EditForm extends React.Component<Props, State> {
       customers: item.customers || [],
       closeDate: item.closeDate,
       description: item.description || '',
+      attachments: extractAttachment(item.attachments),
       assignedUserIds: (item.assignedUsers || []).map(user => user._id)
     };
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
+  };
+
+  onChangeAttachment = (attachments: IAttachment[]) => {
+    this.setState({ attachments });
   };
 
   save = () => {
@@ -64,7 +77,8 @@ class EditForm extends React.Component<Props, State> {
       customers,
       closeDate,
       stageId,
-      assignedUserIds
+      assignedUserIds,
+      attachments
     } = this.state;
 
     const { closeModal, saveItem, extraFields, extraFieldsCheck } = this.props;
@@ -85,6 +99,7 @@ class EditForm extends React.Component<Props, State> {
       description,
       stageId,
       assignedUserIds,
+      attachments,
       ...extraFields
     };
 
@@ -127,8 +142,12 @@ class EditForm extends React.Component<Props, State> {
       closeDate,
       assignedUserIds,
       customers,
-      companies
+      companies,
+      attachments
     } = this.state;
+
+    const descriptionOnChange = e =>
+      this.onChangeField('description', (e.target as HTMLInputElement).value);
 
     return (
       <>
@@ -138,7 +157,6 @@ class EditForm extends React.Component<Props, State> {
           description={description}
           closeDate={closeDate}
           amount={amount}
-          assignedUserIds={assignedUserIds}
           users={users}
           stageId={stageId}
           item={item}
@@ -147,11 +165,36 @@ class EditForm extends React.Component<Props, State> {
 
         <FlexContent>
           <Left>
+            <FormGroup>
+              <TitleRow>
+                <ControlLabel>
+                  <Icon icon="attach" />
+                  Attachments
+                </ControlLabel>
+              </TitleRow>
+
+              <Uploader
+                defaultFileList={attachments}
+                onChange={this.onChangeAttachment}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+
+              <FormControl
+                componentClass="textarea"
+                defaultValue={description}
+                onChange={descriptionOnChange}
+              />
+            </FormGroup>
+
             <ActivityInputs
               contentTypeId={item._id}
               contentType={options.type}
               showEmail={false}
             />
+
             <ActivityLogs
               target={item.name}
               contentId={item._id}
@@ -164,6 +207,7 @@ class EditForm extends React.Component<Props, State> {
             options={options}
             customers={customers}
             companies={companies}
+            assignedUserIds={assignedUserIds}
             item={item}
             sidebar={sidebar}
             onChangeField={this.onChangeField}

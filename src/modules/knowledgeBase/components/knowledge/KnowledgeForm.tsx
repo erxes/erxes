@@ -1,27 +1,30 @@
 import { getEnv } from 'apolloClient';
-import {
-  Button,
-  ControlLabel,
-  EmptyState,
-  Form,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
 import colors from 'modules/common/styles/colors';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
-import { SelectBrand } from 'modules/settings/integrations/containers';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import {
   ColorPick,
   ColorPicker,
   MarkdownWrapper
 } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ChromePicker } from 'react-color';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
 
 type Props = {
@@ -36,6 +39,7 @@ type State = {
   copied: boolean;
   code: string;
   color: string;
+  backgroundImage: string;
 };
 
 class KnowledgeForm extends React.Component<Props, State> {
@@ -71,22 +75,31 @@ class KnowledgeForm extends React.Component<Props, State> {
 
     let code = '';
     let color = colors.colorPrimary;
+    let backgroundImage = '';
+
+    const { topic } = props;
 
     // showed install code automatically in edit mode
-    if (props.topic) {
-      code = KnowledgeForm.getInstallCode(props.topic._id);
-      color = props.topic.color;
+    if (topic) {
+      code = KnowledgeForm.getInstallCode(topic._id);
+      color = topic.color;
+      backgroundImage = topic.backgroundImage;
     }
 
     this.state = {
       copied: false,
       code,
-      color
+      color,
+      backgroundImage
     };
   }
 
   onColorChange = e => {
     this.setState({ color: e.hex });
+  };
+
+  onBackgroundImageChange = ([file]: IAttachment[]) => {
+    this.setState({ backgroundImage: file ? file.url : '' });
   };
 
   remove = () => {
@@ -118,9 +131,9 @@ class KnowledgeForm extends React.Component<Props, State> {
           </MarkdownWrapper>
         </FormGroup>
       );
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   handleBrandChange = () => {
@@ -138,6 +151,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     languageCode: string;
   }) => {
     const { topic } = this.props;
+    const { color, backgroundImage } = this.state;
     const finalValues = values;
 
     if (topic) {
@@ -151,18 +165,20 @@ class KnowledgeForm extends React.Component<Props, State> {
         description: finalValues.description,
         languageCode: finalValues.languageCode,
         title: finalValues.title,
-        color: this.state.color
+        color,
+        backgroundImage
       }
     };
   };
 
   renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
+    const { color, backgroundImage } = this.state;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker color={this.state.color} onChange={this.onColorChange} />
+        <ChromePicker color={color} onChange={this.onColorChange} />
       </Popover>
     );
 
@@ -205,14 +221,30 @@ class KnowledgeForm extends React.Component<Props, State> {
               placement="bottom"
               overlay={popoverTop}
             >
-              <ColorPick full={true}>
-                <ColorPicker
-                  style={{ backgroundColor: this.state.color }}
-                  full={true}
-                />
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: color }} />
               </ColorPick>
             </OverlayTrigger>
           </div>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Background image: </ControlLabel>
+          <Uploader
+            multiple={false}
+            defaultFileList={
+              backgroundImage
+                ? [
+                    {
+                      name: 'backgroundImage',
+                      url: backgroundImage,
+                      type: 'img'
+                    }
+                  ]
+                : []
+            }
+            onChange={this.onBackgroundImageChange}
+          />
         </FormGroup>
 
         <FormGroup>

@@ -1,5 +1,5 @@
-import { EmptyState } from 'modules/common/components';
-import * as React from 'react';
+import EmptyState from 'modules/common/components/EmptyState';
+import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { DropZone, EmptyContainer, Wrapper } from '../../styles/common';
 import { IItem, IOptions } from '../../types';

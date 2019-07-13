@@ -1,6 +1,6 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import { TicketItem } from 'modules/tickets/components/';
-import * as React from 'react';
+import TicketItem from 'modules/tickets/components/TicketItem';
+import React from 'react';
 import { ITicket } from '../types';
 
 type Props = {

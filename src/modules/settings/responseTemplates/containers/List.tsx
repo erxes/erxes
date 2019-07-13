@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
-import { List } from '../components';
+import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
 type Props = {
@@ -20,13 +20,26 @@ export default commonListComposer<Props>({
     options: ({ queryParams }: { queryParams: any }) => {
       return {
         notifyOnNetworkStatusChange: true,
-        variables: generatePaginationParams(queryParams)
+        variables: {
+          searchValue: queryParams.searchValue,
+          brandId: queryParams.brandId,
+          ...generatePaginationParams(queryParams)
+        }
       };
     }
   }),
 
   gqlTotalCountQuery: graphql(gql(queries.responseTemplatesTotalCount), {
-    name: 'totalCountQuery'
+    name: 'totalCountQuery',
+    options: ({ queryParams }: { queryParams: any }) => {
+      return {
+        notifyOnNetworkStatusChange: true,
+        variables: {
+          searchValue: queryParams.searchValue,
+          brandId: queryParams.brandId
+        }
+      };
+    }
   }),
 
   gqlAddMutation: graphql(gql(mutations.responseTemplatesAdd), {

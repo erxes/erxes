@@ -1,10 +1,8 @@
-import {
-  Button,
-  EmptyState,
-  FormControl,
-  Icon,
-  Tip
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import { __, Alert } from 'modules/common/utils';
 import {
   InlineColumn,
@@ -17,7 +15,7 @@ import {
   TemplateContent,
   TemplateTitle
 } from 'modules/inbox/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import strip from 'strip';

@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { SegmentsList } from '../components';
+import SegmentsList from '../components/SegmentsList';
 import { mutations, queries } from '../graphql';
 import { RemoveMutationResponse, SegmentsQueryResponse } from '../types';
 

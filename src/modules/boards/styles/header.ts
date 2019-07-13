@@ -1,12 +1,13 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { BarItems } from 'modules/layout/styles';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 // header
 export const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 10px 20px 6px;
+  padding: 10px ${dimensions.coreSpacing}px 6px;
   background: ${colors.colorWhite};
   min-height: 50px;
 `;
@@ -14,19 +15,16 @@ export const PageHeader = styled.div`
 export const ButtonGroup = styled.div`
   display: inline-block;
   border-radius: 18px;
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid ${colors.borderPrimary};
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid ${colors.bgActive};
 
   a {
-    padding: 7px 20px;
+    padding: 7px ${dimensions.coreSpacing}px;
+    padding: 6px 20px;
     display: inline-block;
     color: ${colors.colorCoreGray};
     font-weight: 500;
     border-radius: 17px;
-
-    i {
-      margin-right: 5px;
-    }
 
     &.active {
       color: ${colors.colorCoreDarkGray};
@@ -49,26 +47,38 @@ export const ButtonGroup = styled.div`
 `;
 
 export const HeaderItems = styled(BarItems)`
-  > * + * {
-    margin-left: ${dimensions.coreSpacing}px;
-  }
+  display: flex;
+  align-items: center;
 `;
 
-export const HeaderButton = styled.div`
+export const HeaderButton = styledTS<{
+  hasBackground?: boolean;
+  rightIconed?: boolean;
+  isActive?: boolean;
+}>(styled.div)`
   padding: 0 12px;
   line-height: 32px;
   height: 34px;
   border-radius: 4px;
   transition: background 0.3s ease;
+  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
   font-size: 14px;
   font-weight: 500;
   display: inline-block;
   vertical-align: middle;
 
   > i {
-    font-size: 8px;
-    color: ${colors.colorCoreGray};
-    margin-left: 8px;
+    font-size: ${props => (props.rightIconed ? '8px' : '14px')};
+    color: ${props =>
+      props.isActive ? colors.colorSecondary : colors.colorCoreGray};
+    margin-right: 5px;
+
+    ${props =>
+      props.rightIconed &&
+      css`
+        margin-right: 0;
+        margin-left: 8px;
+      `};
   }
 
   &:hover {
@@ -84,7 +94,7 @@ export const HeaderButton = styled.div`
 export const HeaderLabel = styled.span`
   font-size: 10px;
   text-transform: uppercase;
-  margin-right: -18px;
+  margin-right: -5px;
   font-weight: 500;
   color: ${colors.colorCoreGray};
 `;
@@ -96,6 +106,7 @@ export const HeaderLink = styled(HeaderButton)`
   background: rgba(0, 0, 0, 0.04);
   border-radius: 17px;
   line-height: 21px;
+
   a {
     color: ${colors.colorCoreGray};
     padding: 0 11px;

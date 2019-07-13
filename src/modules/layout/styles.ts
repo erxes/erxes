@@ -227,7 +227,7 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     props.isSidebarOpen ? `${dimensions.unitSpacing}px` : '15px'};
   color: ${colors.colorCoreLightGray};
 
-  a {
+  a, button {
     float: left;
     color: ${colors.colorCoreLightGray};
     text-transform: none;
@@ -236,6 +236,9 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     font-size: ${typography.fontSizeHeading8}px;
     font-weight: ${typography.fontWeightLight};
     outline: 0;
+    padding: 0;
+    border: none;
+    background: none;
 
     > i {
       font-size: 14px;

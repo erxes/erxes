@@ -1,17 +1,17 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
   BrandDetailQueryResponse,
   BrandsConfigEmailMutationResponse
 } from '../../brands/types';
-import { Config } from '../components';
+import Config from '../components/Config';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
 <p>You received following messages at <strong>{{brandName}}</strong>:</p>
@@ -67,7 +67,7 @@ type FinalProps = {
   BrandsConfigEmailMutationResponse;
 
 const ConfigContainer = (props: FinalProps) => {
-  const { brandDetailQuery, configEmailMutation, refetch } = props;
+  const { brandDetailQuery } = props;
 
   if (brandDetailQuery.loading) {
     return null;

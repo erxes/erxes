@@ -1,7 +1,9 @@
-import { BreadCrumb, Filter, Submenu } from 'modules/common/components';
+import BreadCrumb from 'modules/common/components/breadcrumb/BreadCrumb';
+import Filter from 'modules/common/components/filter/Filter';
+import Submenu from 'modules/common/components/submenu/Submenu';
 import { dimensions } from 'modules/common/styles';
 import { __, setTitle } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { IBreadCrumbItem, ISubMenuItem } from '../../common/types';
 
@@ -28,7 +30,7 @@ class Header extends React.Component<Props> {
 
     setTitle(
       title,
-      title === `${__('Inbox')}` && document.title.startsWith('(1)')
+      title === `${__('Team Inbox')}` && document.title.startsWith('(1)')
     );
   }
 

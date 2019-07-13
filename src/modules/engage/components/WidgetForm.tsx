@@ -1,18 +1,16 @@
-import {
-  Button,
-  ControlLabel,
-  EditorCK,
-  FormControl,
-  FormGroup,
-  Uploader
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { METHODS } from 'modules/engage/constants';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import * as React from 'react';
+import React from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import { Recipient, Recipients } from '../styles';
@@ -239,6 +237,13 @@ class WidgetForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
+          <Button
+            btnStyle="simple"
+            icon="cancel-1"
+            onClick={this.props.closeModal}
+          >
+            Close
+          </Button>
           <Button type="submit" btnStyle="success" icon="send">
             Send
           </Button>

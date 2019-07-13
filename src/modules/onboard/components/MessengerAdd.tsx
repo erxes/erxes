@@ -1,21 +1,19 @@
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  Icon
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { LANGUAGES } from 'modules/settings/general/constants';
-import { InstallCode } from 'modules/settings/integrations/components';
-import { SelectBrand } from 'modules/settings/integrations/containers';
+import InstallCode from 'modules/settings/integrations/components/InstallCode';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IIntegration } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
-import * as RTG from 'react-transition-group';
-import { MessengerList } from '../containers';
+import RTG from 'react-transition-group';
+import MessengerList from '../containers/MessengerList';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
@@ -76,7 +74,7 @@ class MessengerAdd extends React.Component<Props, State> {
         <Description>
           <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
           {__('messengers')}.
-          <a href="javascript:;" onClick={this.toggleMessengers}>
+          <a href="#toggle" onClick={this.toggleMessengers}>
             {showMessengers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
@@ -184,7 +182,9 @@ class MessengerAdd extends React.Component<Props, State> {
               isSubmitted
             })}
           </div>
-          <a onClick={this.goNext}>{__('Skip for now')} »</a>
+          <a href="#skip" onClick={this.goNext}>
+            {__('Skip for now')} »
+          </a>
         </Footer>
       </>
     );

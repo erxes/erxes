@@ -1,8 +1,8 @@
-import * as moment from 'moment';
-import * as React from 'react';
+import moment from 'moment';
+import React from 'react';
 import styled from 'styled-components';
-import { Tip } from '.';
 import { colors } from '../styles';
+import Tip from './Tip';
 
 type Props = {
   text: string;

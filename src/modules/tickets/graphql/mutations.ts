@@ -7,6 +7,7 @@ const commonVariables = `
   $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
+  $attachments: [AttachmentInput],
   $priority: String,
   $source: String,
 `;
@@ -21,7 +22,8 @@ const commonParams = `
   assignedUserIds: $assignedUserIds,
   order: $order,
   priority: $priority,
-  source: $source
+  source: $source,
+  attachments: $attachments
 `;
 
 const commonReturn = `
@@ -47,6 +49,8 @@ const commonReturn = `
       avatar
     }
   }
+  priority
+  source
   modifiedAt
   modifiedBy
 `;
@@ -91,10 +95,20 @@ const ticketsUpdateOrder = `
   }
 `;
 
+const ticketsWatch = `
+  mutation ticketsWatch($_id: String!, $isAdd: Boolean!) {
+    ticketsWatch(_id: $_id, isAdd: $isAdd) {
+      _id
+      isWatched
+    }
+  }
+`;
+
 export default {
   ticketsAdd,
   ticketsEdit,
   ticketsRemove,
   ticketsChange,
-  ticketsUpdateOrder
+  ticketsUpdateOrder,
+  ticketsWatch
 };

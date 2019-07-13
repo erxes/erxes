@@ -1,9 +1,7 @@
-import {
-  AvatarUpload,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import AvatarUpload from 'modules/common/components/AvatarUpload';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import {
   ColumnTitle,
   FormColumn,
@@ -12,7 +10,7 @@ import {
 import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { timezones } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import { IUser } from '../types';
 
 type Props = {

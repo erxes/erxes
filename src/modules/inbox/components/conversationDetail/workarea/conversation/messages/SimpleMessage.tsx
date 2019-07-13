@@ -1,13 +1,11 @@
 import classNames from 'classnames';
-import {
-  Attachment,
-  NameCard,
-  TextDivider,
-  Tip
-} from 'modules/common/components';
-import * as moment from 'moment';
-import * as React from 'react';
-import * as xss from 'xss';
+import Attachment from 'modules/common/components/Attachment';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import TextDivider from 'modules/common/components/TextDivider';
+import Tip from 'modules/common/components/Tip';
+import moment from 'moment';
+import React from 'react';
+import xss from 'xss';
 import { IMessage } from '../../../../../types';
 import { MessageBody, MessageContent, MessageItem } from '../styles';
 
