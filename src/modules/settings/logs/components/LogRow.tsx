@@ -5,9 +5,22 @@ import { ILog } from '../types';
 
 type Props = {
   log: ILog;
+  changeState: (logId: string) => void;
 };
 
 class LogRow extends React.Component<Props> {
+  constructor(props) {
+    super(props);
+
+    this.changeParentState = this.changeParentState.bind(this);
+  }
+
+  changeParentState() {
+    const { log, changeState } = this.props;
+
+    changeState(log._id);
+  }
+
   render() {
     const { log } = this.props;
     let actionClass = '';
@@ -27,7 +40,7 @@ class LogRow extends React.Component<Props> {
     }
 
     return (
-      <tr key={log._id}>
+      <tr key={log._id} onClick={this.changeParentState}>
         <td>{moment(log.createdAt).format('YYYY-MM-DD HH:mm')}</td>
         <td>{log.unicode}</td>
         <td>{log.type ? log.type : ''}</td>
