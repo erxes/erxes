@@ -64,7 +64,7 @@
     "jest": "22.0.4",
     "lint-staged": "^3.6.0",
     "prettier": "^1.13.7",
-    "release-it": "^12.3.0",
+    "release-it": "^12.3.3",
     "ts-jest": "22.0.4",
     "ts-node": "^7.0.0",
     "ts-node-dev": "^1.0.0-pre.32",
