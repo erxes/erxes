@@ -12,7 +12,6 @@ import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import { FilterItem, FilterWrapper } from '../styles';
 import { ILog } from '../types';
-import LogModal from './LogModal';
 import LogRow from './LogRow';
 
 type Props = {
@@ -29,8 +28,6 @@ type State = {
   page?: string;
   perPage?: string;
   userId?: string;
-  showModal?: boolean;
-  logId?: string;
 };
 
 type commonProps = {
@@ -52,17 +49,12 @@ class LogList extends React.Component<Props, State> {
     };
 
     this.onClick = this.onClick.bind(this);
-    this.changeState = this.changeState.bind(this);
-    this.renderModal = this.renderModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
 
     this.state = {
       start: qp.start,
       end: qp.end,
       action: qp.action,
-      userId: qp.userId,
-      showModal: false,
-      logId: ''
+      userId: qp.userId
     };
   }
 
@@ -93,14 +85,6 @@ class LogList extends React.Component<Props, State> {
     this.setState(filter);
   }
 
-  changeState(logId: string) {
-    this.setState({ logId, showModal: !this.state.showModal });
-  }
-
-  closeModal() {
-    this.setState({ showModal: false });
-  }
-
   onClick() {
     const { history } = this.props;
     const { start, end, action, userId } = this.state;
@@ -113,31 +97,6 @@ class LogList extends React.Component<Props, State> {
     });
   }
 
-  renderModal() {
-    const { showModal, logId } = this.state;
-
-    if (logId) {
-      const log = this.props.logs.find(l => l._id === logId) || {
-        oldData: '',
-        newData: '',
-        action: ''
-      };
-
-      return (
-        <LogModal
-          oldData={log.oldData}
-          newData={log.newData}
-          changeState={this.changeState}
-          closeModal={this.closeModal}
-          showModal={showModal}
-          action={log.action}
-        />
-      );
-    }
-
-    return null;
-  }
-
   renderObjects() {
     const { logs } = this.props;
     const rows: JSX.Element[] = [];
@@ -147,9 +106,7 @@ class LogList extends React.Component<Props, State> {
     }
 
     for (const log of logs) {
-      rows.push(
-        <LogRow log={log} key={log._id} changeState={this.changeState} />
-      );
+      rows.push(<LogRow log={log} key={log._id} />);
     }
 
     return rows;
@@ -157,21 +114,19 @@ class LogList extends React.Component<Props, State> {
 
   renderContent() {
     return (
-      <React.Fragment>
-        {this.renderModal()}
-        <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
-          <thead>
-            <tr>
-              <th>{__('Date')}</th>
-              <th>{__('Created by')}</th>
-              <th>{__('Module')}</th>
-              <th>{__('Action')}</th>
-              <th>{__('Description')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderObjects()}</tbody>
-        </Table>
-      </React.Fragment>
+      <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
+        <thead>
+          <tr>
+            <th>{__('Date')}</th>
+            <th>{__('Created by')}</th>
+            <th>{__('Module')}</th>
+            <th>{__('Action')}</th>
+            <th>{__('Description')}</th>
+            <th>{__('Changes')}</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderObjects()}</tbody>
+      </Table>
     );
   }
 
