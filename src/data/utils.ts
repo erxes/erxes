@@ -358,10 +358,7 @@ export const getUserDetail = (user: IUser) => {
   return (user.details && user.details.fullName) || user.email;
 };
 
-/**
- * Send a notification
- */
-export const sendNotification = async (doc: {
+export interface ISendNotification {
   createdUser: IUserDocument;
   receivers: string[];
   title: string;
@@ -369,7 +366,12 @@ export const sendNotification = async (doc: {
   notifType: string;
   link: string;
   action: string;
-}) => {
+}
+
+/**
+ * Send a notification
+ */
+export const sendNotification = async (doc: ISendNotification) => {
   const { createdUser, receivers, title, content, notifType, action } = doc;
   let link = doc.link;
 

@@ -1,7 +1,8 @@
 import { graphqlRequest } from '../db/connection';
-import { internalNoteFactory, userFactory } from '../db/factories';
-import { InternalNotes, Users } from '../db/models';
+import { customerFactory, internalNoteFactory, notificationConfigurationFactory, userFactory } from '../db/factories';
+import { InternalNotes, Notifications, Users } from '../db/models';
 
+import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('InternalNotes mutations', () => {
@@ -24,19 +25,33 @@ describe('InternalNotes mutations', () => {
   });
 
   test('Add internal note', async () => {
-    const { contentType, contentTypeId, content } = _internalNote;
-    const args = { contentType, contentTypeId, content };
+    const customer = await customerFactory({});
+    const user = await userFactory({});
+    await notificationConfigurationFactory({ isAllowed: true, user, notifType: NOTIFICATION_TYPES.CUSTOMER_MENTION });
+
+    if (!user || !user.details) {
+      throw new Error('User not found');
+    }
+
+    const args = {
+      contentType: 'customer',
+      contentTypeId: customer._id,
+      content: `@${user.details.fullName}`,
+      mentionedUserIds: user._id,
+    };
 
     const mutation = `
       mutation internalNotesAdd(
         $contentType: String!
         $contentTypeId: String
         $content: String
+        $mentionedUserIds: [String]
       ) {
         internalNotesAdd(
           contentType: $contentType
           contentTypeId: $contentTypeId
           content: $content
+          mentionedUserIds: $mentionedUserIds
         ) {
           contentType
           contentTypeId
@@ -46,6 +61,14 @@ describe('InternalNotes mutations', () => {
     `;
 
     const internalNote = await graphqlRequest(mutation, 'internalNotesAdd', args, context);
+
+    const notification = await Notifications.findOne({ receiver: user._id });
+
+    if (!notification) {
+      throw new Error('Notification not found');
+    }
+
+    expect(notification).toBeDefined();
 
     expect(internalNote.contentType).toBe(args.contentType);
     expect(internalNote.contentTypeId).toBe(args.contentTypeId);

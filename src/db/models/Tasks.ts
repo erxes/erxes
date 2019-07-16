@@ -6,6 +6,7 @@ import { ITask, ITaskDocument, taskSchema } from './definitions/tasks';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   createTask(doc: ITask): Promise<ITaskDocument>;
+  getTask(_id: string): Promise<ITaskDocument>;
   updateTask(_id: string, doc: ITask): Promise<ITaskDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<ITaskDocument[]>;
   watchTask(_id: string, isAdd: boolean, userId: string): void;
@@ -15,6 +16,19 @@ export interface ITaskModel extends Model<ITaskDocument> {
 
 export const loadTaskClass = () => {
   class Task {
+    /**
+     * Retreives Task
+     */
+    public static async getTask(_id: string) {
+      const task = await Tasks.findOne({ _id });
+
+      if (!task) {
+        throw new Error('Task not found');
+      }
+
+      return task;
+    }
+
     /**
      * Create a Task
      */

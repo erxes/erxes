@@ -13,6 +13,8 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
     idsToExclude?: string[] | string,
   ): never;
 
+  getCompany(_id: string): Promise<ICompanyDocument>;
+
   createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
 
   updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
@@ -65,6 +67,19 @@ export const loadClass = () => {
           throw new Error('Duplicated name');
         }
       }
+    }
+
+    /**
+     * Retreives company
+     */
+    public static async getCompany(_id: string) {
+      const company = await Companies.findOne({ _id });
+
+      if (!company) {
+        throw new Error('Company not found');
+      }
+
+      return company;
     }
 
     /**

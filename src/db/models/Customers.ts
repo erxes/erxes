@@ -12,6 +12,7 @@ interface ICustomerFieldsInput {
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
+  getCustomer(_id: string): Promise<ICustomerDocument>;
   createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
@@ -80,6 +81,19 @@ export const loadClass = () => {
           throw new Error('Duplicated phone');
         }
       }
+    }
+
+    /**
+     * Retreives customer
+     */
+    public static async getCustomer(_id: string) {
+      const customer = await Customers.findOne({ _id });
+
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+
+      return customer;
     }
 
     /**

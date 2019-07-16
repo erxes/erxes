@@ -305,6 +305,8 @@ export const NOTIFICATION_TYPES = {
   TASK_CHANGE: 'taskChange',
   TASK_DUE_DATE: 'taskDueDate',
   TASK_DELETE: 'taskDelete',
+  CUSTOMER_MENTION: 'customerMention',
+  COMPANY_MENTION: 'companyMention',
   ALL: [
     'channelMembersChange',
     'conversationAddMessage',
@@ -328,5 +330,7 @@ export const NOTIFICATION_TYPES = {
     'taskChange',
     'taskDueDate',
     'taskDelete',
+    'customerMention',
+    'companyMention',
   ],
 };
