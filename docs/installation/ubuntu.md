@@ -1,6 +1,6 @@
 ---
 id: ubuntu
-title: Installing on Ubuntu 16.04 LTS
+title: Ubuntu 16.04/18.04 LTS
 ---
 
 ## Prerequisites

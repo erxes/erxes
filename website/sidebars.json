@@ -10,7 +10,8 @@
     "Installation Guide": [
       "installation/docker",
       "installation/kubernetes",
-      "installation/ubuntu"
+      "installation/ubuntu",
+      "installation/upgrade"
     ],
     "User's Guide": [
       "user/subscription-getting-started",
