@@ -1,5 +1,4 @@
 import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
 import DateFilter from 'modules/common/components/DateFilter';
 import Icon from 'modules/common/components/Icon';
