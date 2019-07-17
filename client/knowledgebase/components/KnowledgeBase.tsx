@@ -1,4 +1,5 @@
 import * as React from "react";
+import { readFile } from "../../utils";
 import {
   ArticleDetail,
   Articles,
@@ -10,6 +11,7 @@ import {
 type Props = {
   activeRoute: string;
   color: string;
+  backgroundImage?: string;
 };
 
 export default class KnowledgeBase extends React.Component<Props> {
@@ -36,11 +38,16 @@ export default class KnowledgeBase extends React.Component<Props> {
   }
 
   render() {
-    const { color } = this.props;
+    const { color, backgroundImage } = this.props;
+
+    const style = backgroundImage
+      ? { backgroundImage: `url(${readFile(backgroundImage)})` }
+      : {};
 
     return (
-      <div className="erxes-widget-container">
+      <div className="erxes-widget-container" style={style}>
         <SearchBar color={color} />
+
         <div className="erxes-widget-kb">
           <div className="erxes-content">
             <div className="erxes-knowledge-container">

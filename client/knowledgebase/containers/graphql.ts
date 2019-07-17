@@ -67,6 +67,7 @@ const getKbTopicQuery = `
       title
       description
       color
+      backgroundImage
       languageCode
       categories {
         _id

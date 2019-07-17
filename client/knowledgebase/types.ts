@@ -35,6 +35,7 @@ export interface IKbTopic extends ICommonFields {
   brandId: string;
   categoryIds: string[];
   color: string;
+  backgroundImage: string;
   languageCode?: string;
 
   categories: IKbCategory[];
