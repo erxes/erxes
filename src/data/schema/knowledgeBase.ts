@@ -5,6 +5,8 @@ export const types = `
     summary: String
     content: String
     status: String
+    reactionChoices: [String]
+    reactionCounts: JSON
     createdBy: String
     createdUser: User
     createdDate: Date
@@ -17,6 +19,7 @@ export const types = `
     summary: String
     content: String!
     status: String!
+    reactionChoices: [String]
     categoryIds: [String]
   }
 
