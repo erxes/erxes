@@ -1,9 +1,9 @@
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 import Attachment from 'modules/common/components/Attachment';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import TextDivider from 'modules/common/components/TextDivider';
 import Tip from 'modules/common/components/Tip';
-import moment from 'moment';
 import React from 'react';
 import xss from 'xss';
 import { IMessage } from '../../../../../types';
@@ -80,8 +80,8 @@ export default class SimpleMessage extends React.Component<Props, {}> {
           <MessageContent staff={isStaff} internal={message.internal}>
             {this.renderContent(hasAttachment)}
           </MessageContent>
-          <Tip text={moment(messageDate).format('lll')}>
-            <footer>{moment(messageDate).format('LT')}</footer>
+          <Tip text={dayjs(messageDate).format('lll')}>
+            <footer>{dayjs(messageDate).format('LT')}</footer>
           </Tip>
         </MessageBody>
       </MessageItem>

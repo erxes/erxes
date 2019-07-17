@@ -1,10 +1,11 @@
+import dayjs from 'dayjs';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __, getUserAvatar } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
 import { IArticle } from '../../types';
@@ -16,6 +17,8 @@ import {
   AuthorName,
   RowArticle
 } from './styles';
+
+dayjs.extend(LocalizedFormat);
 
 type Props = {
   article: IArticle;
@@ -91,7 +94,7 @@ const ArticleRow = (props: Props) => {
               user.email}
           </AuthorName>
           <Icon icon="wallclock" /> {__('Created')}{' '}
-          {moment(article.createdDate).format('ll')}
+          {dayjs(article.createdDate).format('ll')}
         </ArticleMeta>
       </ArticleColumn>
       <ActionButtons>

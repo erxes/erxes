@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
@@ -6,7 +7,6 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import { __, Alert, confirm } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IFormIntegration } from '../types';
@@ -111,7 +111,7 @@ class Row extends React.Component<Props, {}> {
             </Link>
           </Tip>
         </td>
-        <td>{moment(form.createdDate).format('ll')}</td>
+        <td>{dayjs(form.createdDate).format('ll')}</td>
         <td>
           <div key={createdUser._id}>
             {createdUser.details && createdUser.details.fullName}

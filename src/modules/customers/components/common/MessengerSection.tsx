@@ -1,9 +1,9 @@
+import dayjs from 'dayjs';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import moment from 'moment';
 import React from 'react';
 import { ICustomer } from '../../types';
 
@@ -39,7 +39,7 @@ class MessengerSection extends React.Component<Props> {
         <li>
           {__('Last online')}
           <SidebarCounter>
-            {moment(messengerData.lastSeenAt).format('lll')}
+            {dayjs(messengerData.lastSeenAt).format('lll')}
           </SidebarCounter>
         </li>
         <li>

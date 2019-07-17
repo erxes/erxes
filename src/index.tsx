@@ -1,3 +1,6 @@
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
@@ -9,6 +12,9 @@ import 'erxes-icon/css/erxes.min.css';
 import 'modules/common/styles/global-styles.ts';
 import 'react-datetime/css/react-datetime.css';
 import 'react-toggle/style.css';
+
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
 
 const target = document.querySelector('#root');
 

@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
@@ -5,7 +6,6 @@ import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { ITask } from '../types';
@@ -37,7 +37,7 @@ export default class TaskItem extends React.PureComponent<
       return null;
     }
 
-    return <ItemDate>{moment(date).format('MMM D, h:mm a')}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
   toggleForm = () => {

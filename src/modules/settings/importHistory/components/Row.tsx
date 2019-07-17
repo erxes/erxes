@@ -1,9 +1,9 @@
+import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import { __, confirm } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
-import moment from 'moment';
 import React from 'react';
 
 type Props = {
@@ -34,7 +34,7 @@ function HistoryRow({ history, removeHistory, onClick }: Props) {
       )}
       {withClick(<TextInfo textStyle="danger">{history.failed || 1}</TextInfo>)}
       {withClick(<TextInfo>{history.total || 1}</TextInfo>)}
-      {withClick(<Date>{moment(history.date).format('lll')}</Date>)}
+      {withClick(<Date>{dayjs(history.date).format('lll')}</Date>)}
       <td>{details.fullName || '-'}</td>
       <td>
         <Tip text={__('Remove contacts')}>

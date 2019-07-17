@@ -1,9 +1,9 @@
+import dayjs from 'dayjs';
 import gql from 'graphql-tag';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __, Alert, router } from 'modules/common/utils';
 import { PopoverButton } from 'modules/inbox/styles';
-import moment from 'moment';
 import React from 'react';
 import { withApollo } from 'react-apollo';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -63,11 +63,11 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     };
 
     if (startDate) {
-      state.startDate = moment(startDate).toDate();
+      state.startDate = dayjs(startDate).toDate();
     }
 
     if (endDate) {
-      state.endDate = moment(endDate).toDate();
+      state.endDate = dayjs(endDate).toDate();
     }
 
     this.state = state;
@@ -115,8 +115,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
   filterByDate = () => {
     const { startDate, endDate } = this.state;
 
-    const formattedStartDate = moment(startDate).format(format);
-    const formattedEndDate = moment(endDate).format(format);
+    const formattedStartDate = dayjs(startDate).format(format);
+    const formattedEndDate = dayjs(endDate).format(format);
 
     router.setParams(this.props.history, {
       startDate: formattedStartDate,

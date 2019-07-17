@@ -1,9 +1,9 @@
+import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, renderFullName } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import { IUser } from '../../../auth/types';
 import {
@@ -152,7 +152,7 @@ class CustomersMerge extends React.Component<Props, State> {
     return (
       <Info>
         <InfoTitle>{__('Last seen at')}:</InfoTitle>
-        <InfoDetail>{moment(data.lastSeenAt).format('lll')}</InfoDetail>
+        <InfoDetail>{dayjs(data.lastSeenAt).format('lll')}</InfoDetail>
         <InfoTitle>{__('Session count')}:</InfoTitle>
         <InfoDetail>{data.sessionCount}</InfoDetail>
       </Info>

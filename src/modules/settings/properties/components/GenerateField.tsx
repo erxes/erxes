@@ -1,7 +1,7 @@
+import dayjs from 'dayjs';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import moment from 'moment';
 import React from 'react';
 import { SelectInput } from '../styles';
 import { IField } from '../types';
@@ -81,7 +81,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.type = 'date';
 
       if (value) {
-        attrs.value = moment(value).format('YYYY-MM-DD');
+        attrs.value = dayjs(value).format('YYYY-MM-DD');
       }
     }
 
