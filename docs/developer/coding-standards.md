@@ -1,5 +1,5 @@
 ---
-id: Coding standards
+id: coding-standards
 title: Coding standards
 ---
 ## Common rules
