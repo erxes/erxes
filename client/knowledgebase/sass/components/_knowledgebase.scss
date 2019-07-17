@@ -58,6 +58,8 @@
   &.detail {
     padding: 50px 60px;
     cursor: auto;
+    position: relative;
+
     h1 {
       color: lightten($black, 30%);
       font-size: 30px;

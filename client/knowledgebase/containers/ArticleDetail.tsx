@@ -5,8 +5,12 @@ import { AppConsumer } from "./AppContext";
 const ArticleDetailContainer = () => {
   return (
     <AppConsumer>
-      {({ goToArticles, activeArticle }) => (
-        <ArticleDetail goToArticles={goToArticles} article={activeArticle} />
+      {({ goToArticles, activeArticle, incReactionCount }) => (
+        <ArticleDetail
+          goToArticles={goToArticles}
+          article={activeArticle}
+          incReactionCount={incReactionCount}
+        />
       )}
     </AppConsumer>
   );

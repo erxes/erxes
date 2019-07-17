@@ -13,6 +13,7 @@ export interface IKbArticle extends ICommonFields {
   summary: string;
   content: string;
   status: string;
+  reactionChoices?: string[];
   author: IUser;
 }
 
