@@ -5,10 +5,14 @@ import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { articleReactions } from 'modules/knowledgeBase/icons.constant';
+import { FlexContent } from 'modules/layout/styles';
 import React from 'react';
+import Select from 'react-select-plus';
 import { IArticle } from '../../types';
+import { Item, ReactionItem } from './styles';
 
 type Props = {
   article: IArticle;
@@ -19,6 +23,7 @@ type Props = {
 
 type State = {
   content: string;
+  reactionChoices: string[];
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -28,7 +33,8 @@ class ArticleForm extends React.Component<Props, State> {
     const article = props.article || { content: '' };
 
     this.state = {
-      content: article.content
+      content: article.content,
+      reactionChoices: article.reactionChoices || []
     };
   }
 
@@ -39,6 +45,8 @@ class ArticleForm extends React.Component<Props, State> {
     status: string;
   }) => {
     const { article, currentCategoryId } = this.props;
+    const { content, reactionChoices } = this.state;
+
     const finalValues = values;
 
     if (article) {
@@ -50,7 +58,8 @@ class ArticleForm extends React.Component<Props, State> {
       doc: {
         title: finalValues.title,
         summary: finalValues.summary,
-        content: this.state.content,
+        content,
+        reactionChoices,
         status: finalValues.status,
         categoryIds: [currentCategoryId]
       }
@@ -61,8 +70,23 @@ class ArticleForm extends React.Component<Props, State> {
     this.setState({ content: e.editor.getData() });
   };
 
+  onChangeReactions = (options: IOption[]) => {
+    this.setState({ reactionChoices: options.map(option => option.value) });
+  };
+
+  renderOption = option => {
+    return (
+      <ReactionItem>
+        <img src={option.value} alt={option.label} />
+        {option.label}
+      </ReactionItem>
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
+    const { reactionChoices, content } = this.state;
+
     const { isSubmitted, values } = formProps;
 
     const object = article || ({} as IArticle);
@@ -89,31 +113,43 @@ class ArticleForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FlexContent>
+          <Item count={4}>
+            <FormGroup>
+              <ControlLabel required={true}>Reactions</ControlLabel>
+              <Select
+                multi={true}
+                value={reactionChoices}
+                options={articleReactions}
+                onChange={this.onChangeReactions}
+                optionRenderer={this.renderOption}
+                valueRenderer={this.renderOption}
+              />
+            </FormGroup>
+          </Item>
+          <Item count={2}>
+            <FormGroup>
+              <ControlLabel required={true}>Status</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="status"
+                componentClass="select"
+                placeholder={__('select')}
+                defaultValue={object.status || 'draft'}
+                required={true}
+              >
+                {[{ value: 'draft' }, { value: 'publish' }].map(op => (
+                  <option key={op.value} value={op.value}>
+                    {op.value}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </Item>
+        </FlexContent>
         <FormGroup>
           <ControlLabel required={true}>Content</ControlLabel>
-          <EditorCK
-            content={this.state.content}
-            onChange={this.onChange}
-            height={300}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Status</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="status"
-            componentClass="select"
-            placeholder={__('select')}
-            defaultValue={object.status || 'draft'}
-            required={true}
-          >
-            {[{ value: 'draft' }, { value: 'publish' }].map(op => (
-              <option key={op.value} value={op.value}>
-                {op.value}
-              </option>
-            ))}
-          </FormControl>
+          <EditorCK content={content} onChange={this.onChange} height={300} />
         </FormGroup>
 
         <ModalFooter>

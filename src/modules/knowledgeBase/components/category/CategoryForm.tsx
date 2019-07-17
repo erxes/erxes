@@ -105,7 +105,6 @@ class CategoryForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Icon</ControlLabel>
           <Select
             isRequired={true}
-            name="form-field-name"
             value={this.state.selectedIcon}
             options={icons}
             onChange={this.onChangeIcon}
@@ -113,6 +112,7 @@ class CategoryForm extends React.Component<Props, State> {
             valueRenderer={this.renderOption}
           />
         </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
