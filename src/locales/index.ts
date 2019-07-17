@@ -6,12 +6,12 @@ const es = require('./es.json');
 const kr = require('./kr.json');
 const ptBr = require('./pt-br.json');
 const fr = require('./fr.json');
-const jp = require('./jp.json');
+const ja = require('./ja.json');
 const ru = require('./ru.json');
 const zh = require('./zh.json');
 const np = require('./np.json');
 const vn = require('./vn.json');
 
-const languages: any = { en, mn, de, es, kr, ptBr, fr, zh, jp, ru, np, vn };
+const languages: any = { en, mn, de, es, kr, ptBr, fr, zh, ja, ru, np, vn };
 
 export default languages;

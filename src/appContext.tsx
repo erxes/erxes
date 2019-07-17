@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import T from 'i18n-react';
 import translations from 'locales';
 import { IUser } from 'modules/auth/types';
@@ -119,7 +120,10 @@ export class AppProvider extends React.Component<
   }
 
   setLocale = (currentLanguage: string): void => {
-    moment.locale(currentLanguage);
+    import(`dayjs/locale/${currentLanguage}`).then(() => {
+      dayjs.locale(currentLanguage);
+    });
+
     T.setTexts(translations[currentLanguage]);
   };
 

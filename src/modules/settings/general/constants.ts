@@ -6,7 +6,7 @@ export const LANGUAGES = [
   { label: 'Korean', value: 'kr' },
   { label: 'Spanish', value: 'es' },
   { label: 'Portuguese', value: 'ptBr' },
-  { label: 'Japanese', value: 'jp' },
+  { label: 'Japanese', value: 'ja' },
   { label: 'Russian', value: 'ru' },
   { label: 'Chinese', value: 'zh' },
   { label: 'Hindi', value: 'np' },
