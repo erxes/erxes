@@ -831,11 +831,14 @@
   "Logs": "Үйлдлийн түүх",
   "There are no logs recorded": "Үйлдлийн түүх хараахан бүртгэгдээгүй байна",
   "Module": "Модуль",
-  "Old data": "Хуучин мэдээлэл",
-  "New data": "Шинэ мэдээлэл",
+  "Unchanged fields": "Өөрчлөгдөөгүй талбарууд",
+  "Changed fields": "Өөрчлөгдсөн талбарууд",
   "Create": "Үүсгэх",
   "Update": "Засах",
   "Changes": "Өөрчлөлтүүд",
   "Choose start date": "Эхлэх огноо сонгоно уу",
-  "Choose end date": "Дуусах огноо сонгоно уу"
+  "Choose end date": "Дуусах огноо сонгоно уу",
+  "Permission denied": "Хандах эрх хүрэхгүй байна",
+  "Old data": "Хуучин мэдээлэл",
+  "New data": "Шинэ мэдээлэл"
 }

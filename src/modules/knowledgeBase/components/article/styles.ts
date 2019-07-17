@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 import { ActionButtons } from '../../styles';
 
@@ -64,7 +65,46 @@ const ArticleMeta = styled.div`
 const AuthorName = styled.span`
   font-weight: 500;
   color: ${colors.colorCoreDarkGray};
-  margin: 0 20px 0 5px;
+  margin: 0 ${dimensions.coreSpacing}px 0 5px;
+`;
+
+const ReactionCounts = styled.div`
+  margin: 0 ${dimensions.coreSpacing}px;
+  display: flex;
+
+  > span {
+    margin-right: ${dimensions.unitSpacing}px;
+    font-weight: 500;
+  }
+`;
+
+const ReactionCount = styled.span`
+  display: flex;
+  align-items: center;
+
+  img {
+    width: 16px;
+    margin-right: ${dimensions.unitSpacing / 2}px;
+    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+    height: 16px;
+    padding: 1px;
+  }
+`;
+
+const ReactionItem = styled(ReactionCount)`
+  margin-left: -8px;
+
+  img {
+    marign-right: ${dimensions.unitSpacing}px;
+    box-shadow: none;
+    padding: 0;
+  }
+`;
+
+const Item = styled(FlexItem)`
+  &:last-of-type {
+    margin-left: ${dimensions.coreSpacing}px;
+  }
 `;
 
 export {
@@ -73,5 +113,9 @@ export {
   ArticleTitle,
   ArticleColumn,
   ArticleMeta,
-  AuthorName
+  AuthorName,
+  ReactionCounts,
+  ReactionCount,
+  ReactionItem,
+  Item
 };

@@ -25,6 +25,7 @@ function EditorCK({
   height,
   insertItems,
   removeButtons,
+  toolbar,
   toolbarCanCollapse,
   mentionUsers = []
 }: IEditorProps) {
@@ -55,7 +56,7 @@ function EditorCK({
         extraPlugins: 'codemirror,strinsert',
         strinsert: insertItems,
         autoGrowOnStartup: true,
-        toolbar: [
+        toolbar: toolbar || [
           {
             name: 'document',
             groups: ['mode', 'document', 'doctools'],

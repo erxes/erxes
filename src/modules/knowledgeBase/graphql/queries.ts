@@ -107,6 +107,8 @@ const knowledgeBaseArticles = `
       summary
       content
       status
+      reactionChoices
+      reactionCounts
       createdBy
       createdUser {
         _id

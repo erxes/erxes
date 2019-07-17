@@ -21,6 +21,7 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
   flex: 1;
   max-width: 100%;
   position: relative;
+  overflow: hidden;
 `;
 
 const MainWrapper = styled.div`

@@ -14,8 +14,8 @@ type FinalProps = {
 
 const List = (props: FinalProps) => {
   const { history, queryParams, usersQuery, logsQuery } = props;
-
   const isLoading = logsQuery.loading || usersQuery.loading;
+  const errorMessage = logsQuery.error && logsQuery.error.message;
 
   const updatedProps = {
     ...props,
@@ -24,8 +24,9 @@ const List = (props: FinalProps) => {
     users: usersQuery.users || [],
     isLoading,
     refetchQueries: commonOptions(queryParams),
-    logs: isLoading ? [] : logsQuery.logs.logs,
-    count: isLoading ? 0 : logsQuery.logs.totalCount
+    logs: isLoading || errorMessage ? [] : logsQuery.logs.logs,
+    count: isLoading || errorMessage ? 0 : logsQuery.logs.totalCount,
+    errorMessage
   };
 
   return <LogList {...updatedProps} />;

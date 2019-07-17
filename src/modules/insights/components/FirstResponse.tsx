@@ -89,7 +89,7 @@ class FirstResponse extends React.Component<Props> {
             submenu={menuInbox}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

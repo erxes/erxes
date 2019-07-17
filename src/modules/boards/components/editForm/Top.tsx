@@ -2,11 +2,13 @@ import { IUser } from 'modules/auth/types';
 import {
   HeaderContent,
   HeaderContentSmall,
-  HeaderRow
+  HeaderRow,
+  TitleRow
 } from 'modules/boards/styles/item';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Datetime from 'react-datetime';
 import Move from '../../containers/editForm/Move';
@@ -57,12 +59,14 @@ class Top extends React.Component<Props> {
       <React.Fragment>
         <HeaderRow>
           <HeaderContent>
-            <ControlLabel>Name</ControlLabel>
-            <FormControl
-              defaultValue={name}
-              required={true}
-              onChange={nameOnChange}
-            />
+            <TitleRow>
+              <Icon icon="creditcard" />
+              <FormControl
+                defaultValue={name}
+                required={true}
+                onChange={nameOnChange}
+              />
+            </TitleRow>
           </HeaderContent>
 
           {amount && amount()}

@@ -102,7 +102,7 @@ class SummaryReport extends React.Component<Props, { width: number }> {
         header={
           <Wrapper.Header title={__('Response Report')} submenu={menuInbox} />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

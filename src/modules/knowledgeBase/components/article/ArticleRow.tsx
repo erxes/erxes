@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
@@ -15,10 +14,10 @@ import {
   ArticleMeta,
   ArticleTitle,
   AuthorName,
+  ReactionCount,
+  ReactionCounts,
   RowArticle
 } from './styles';
-
-dayjs.extend(LocalizedFormat);
 
 type Props = {
   article: IArticle;
@@ -34,6 +33,16 @@ const ArticleRow = (props: Props) => {
 
   const remove = () => {
     return props.remove(props.article._id);
+  };
+
+  const renderReactions = () => {
+    const reactions = Object.entries(props.article.reactionCounts || {});
+
+    return reactions.map(([key, value]) => (
+      <ReactionCount key={key}>
+        <img src={key} alt="reaction" /> {value}
+      </ReactionCount>
+    ));
   };
 
   const renderEditAction = editTrigger => {
@@ -94,7 +103,8 @@ const ArticleRow = (props: Props) => {
               user.email}
           </AuthorName>
           <Icon icon="wallclock" /> {__('Created')}{' '}
-          {dayjs(article.createdDate).format('ll')}
+          {moment(article.createdDate).format('ll')}
+          <ReactionCounts>{renderReactions()}</ReactionCounts>
         </ArticleMeta>
       </ArticleColumn>
       <ActionButtons>

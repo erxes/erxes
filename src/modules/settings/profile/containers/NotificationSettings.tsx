@@ -59,7 +59,7 @@ const NotificationSettingsContainer = (props: Props) => {
   let getNotificationByEmail = currentUser.getNotificationByEmail;
 
   if (getNotificationByEmail === undefined || getNotificationByEmail === null) {
-    getNotificationByEmail = true;
+    getNotificationByEmail = false;
   }
 
   const updatedProps = {

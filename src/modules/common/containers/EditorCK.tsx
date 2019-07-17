@@ -3,7 +3,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import { queries } from '../../settings/team/graphql';
-import { UsersQueryResponse } from '../../settings/team/types';
+import { AllUsersQueryResponse } from '../../settings/team/types';
 import EditorCK from '../components/EditorCK';
 import { IEditorProps, IMentionUser } from '../types';
 
@@ -12,7 +12,7 @@ type Props = {
 } & IEditorProps;
 
 type FinalProps = {
-  usersQuery: UsersQueryResponse;
+  usersQuery: AllUsersQueryResponse;
 } & Props;
 
 const EditorContainer = (props: FinalProps) => {
@@ -22,7 +22,7 @@ const EditorContainer = (props: FinalProps) => {
     return null;
   }
 
-  const users = usersQuery.users || [];
+  const users = usersQuery.allUsers || [];
 
   const mentionUsers: IMentionUser[] = [];
 
@@ -41,7 +41,7 @@ const EditorContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, UsersQueryResponse>(gql(queries.users), {
+    graphql<Props, AllUsersQueryResponse>(gql(queries.allUsers), {
       name: 'usersQuery'
     })
   )(EditorContainer)

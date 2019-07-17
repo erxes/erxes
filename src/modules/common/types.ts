@@ -8,6 +8,7 @@ export interface IAttachment {
   name: string;
   type: string;
   url: string;
+  size?: number;
 }
 
 export type IAttachmentPreview = {
@@ -85,4 +86,5 @@ export type IEditorProps = {
   removeButtons?: string;
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
+  toolbar?: any[];
 };
