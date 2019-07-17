@@ -109,12 +109,17 @@ a:hover {
 
 .modal-body {
   padding: 40px 40px 30px 40px;
+  overflow: auto;
 }
 
 .modal-footer {
   padding: 0;
   margin-top: 40px;
   border: none;
+}
+
+.wide-modal {
+  width: 90%;
 }
 
 .close {

@@ -60,27 +60,36 @@ const dealFields = `
     name
   }
   isWatched
+  attachments {
+    name
+    url
+    type
+    size
+  }
   modifiedAt
   modifiedBy
 `;
 
 const dealsTotalAmounts = `
   query dealsTotalAmounts(
-    $date: ItemDate 
+    $date: ItemDate
     $pipelineId: String
     ${commonParams}
   ) {
     dealsTotalAmounts(
-      date: $date 
+      date: $date
       pipelineId: $pipelineId
       ${commonParamDefs}
     ) {
       _id
       dealCount
-      dealAmounts {
+      totalForType {
         _id
-        currency
-        amount
+        name
+        currencies {
+          name
+          amount
+        }
       }
     }
   }
@@ -99,7 +108,7 @@ const deals = `
     deals(
       pipelineId: $pipelineId,
       initialStageId: $initialStageId,
-      stageId: $stageId, 
+      stageId: $stageId,
       date: $date,
       skip: $skip,
       search: $search

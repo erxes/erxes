@@ -57,6 +57,12 @@ const taskFields = `
     probability
   }
   isWatched
+  attachments {
+    name
+    url
+    type
+    size
+  }
   modifiedAt
   modifiedBy
 `;

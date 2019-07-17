@@ -2,6 +2,7 @@ import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import React from 'react';
+import { IAttachment } from '../types';
 import Alert from './Alert';
 import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
@@ -176,4 +177,13 @@ export const isValidDate = date => {
   }
 
   return false;
+};
+
+export const extractAttachment = (attachments: IAttachment[]) => {
+  return attachments.map(file => ({
+    name: file.name,
+    type: file.type,
+    url: file.url,
+    size: file.size
+  }));
 };

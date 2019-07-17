@@ -19,4 +19,5 @@ export interface ILogList {
 export type LogsQueryResponse = {
   logs: ILogList;
   loading: boolean;
+  error: Error;
 };

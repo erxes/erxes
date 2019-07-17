@@ -858,11 +858,14 @@
   "Logs": "Logs",
   "There are no logs recorded": "There are no logs recorded",
   "Module": "Module",
-  "Old data": "Old data",
-  "New data": "New data",
+  "Unchanged fields": "Unchanged fields",
+  "Changed fields": "Changed fields",
   "Create": "Create",
   "Update": "Update",
   "Changes": "Changes",
   "Choose start date": "Choose start date",
-  "Choose end date": "Choose end date"
+  "Choose end date": "Choose end date",
+  "Permission denied": "Permission denied",
+  "Old data": "Old data",
+  "New data": "New data"
 }

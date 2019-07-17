@@ -46,6 +46,25 @@ const HeaderContent = styled.div`
   flex: 1;
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+
+  i {
+    margin-right: 10px;
+  }
+
+  label {
+    font-size: 15px;
+    text-transform: initial;
+  }
+
+  input {
+    font-weight: bold;
+  }
+`;
+
 const HeaderContentSmall = styled.div`
   text-align: right;
   margin-left: 20px;
@@ -321,6 +340,7 @@ export {
   SpaceContent,
   FooterContent,
   HeaderRow,
+  TitleRow,
   HeaderContent,
   HeaderContentSmall,
   Button,

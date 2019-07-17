@@ -7,7 +7,8 @@ const commonVariables = `
   $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
-  $priority: String
+  $priority: String,
+  $attachments: [AttachmentInput]
 `;
 
 const commonParams = `
@@ -20,6 +21,7 @@ const commonParams = `
   assignedUserIds: $assignedUserIds,
   order: $order,
   priority: $priority,
+  attachments: $attachments
 `;
 
 const commonReturn = `
