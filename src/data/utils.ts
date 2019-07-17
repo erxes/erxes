@@ -61,6 +61,8 @@ const createAWS = () => {
   const AWS_ACCESS_KEY_ID = getEnv({ name: 'AWS_ACCESS_KEY_ID' });
   const AWS_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SECRET_ACCESS_KEY' });
   const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = getEnv({ name: 'AWS_COMPATIBLE_SERVICE_ENDPOINT' });
+  const AWS_FORCE_PATH_STYLE = getEnv({ name: 'AWS_FORCE_PATH_STYLE' }) === 'true';
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
@@ -70,6 +72,8 @@ const createAWS = () => {
   return new AWS.S3({
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    endpoint: AWS_COMPATIBLE_SERVICE_ENDPOINT,
+    s3ForcePathStyle: AWS_FORCE_PATH_STYLE
   });
 };
 
