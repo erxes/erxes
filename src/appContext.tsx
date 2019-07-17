@@ -80,9 +80,11 @@ export class AppProvider extends React.Component<
   }
 
   setLocale = (currentLanguage: string): void => {
-    import(`dayjs/locale/${currentLanguage}`).then(() => {
-      dayjs.locale(currentLanguage);
-    });
+    if (currentLanguage !== 'mn') {
+      import(`dayjs/locale/${currentLanguage}`).then(() => {
+        dayjs.locale(currentLanguage);
+      });
+    }
 
     import(`./locales/${currentLanguage}.json`).then(data => {
       const translations = data.default;
@@ -94,10 +96,7 @@ export class AppProvider extends React.Component<
     const currentLanguage = languageCode || 'en';
 
     localStorage.setItem('currentLanguage', currentLanguage);
-
-    this.setLocale(currentLanguage);
-
-    this.setState({ currentLanguage });
+    window.location.reload();
   };
 
   public render() {

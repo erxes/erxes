@@ -7,9 +7,13 @@ import { PopoverButton } from 'modules/inbox/styles';
 import React from 'react';
 import { withApollo } from 'react-apollo';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import Datetime from 'react-datetime';
 import styled from 'styled-components';
 import { dimensions } from '../styles';
+import asyncComponent from './AsyncComponent';
+
+const Datetime = asyncComponent(() =>
+  import(/* webpackChunkName: "Datetime" */ 'react-datetime')
+);
 
 const FlexRow = styled.div`
   display: flex;

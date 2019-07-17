@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
@@ -5,7 +6,6 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import moment from 'moment';
 import * as React from 'react';
 import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
@@ -146,7 +146,7 @@ class LogList extends React.Component<Props, State> {
           <Datetime
             dateFormat="YYYY/MM/DD"
             timeFormat="HH:mm"
-            value={moment(start)}
+            value={dayjs(start).toDate()}
             closeOnSelect={true}
             onChange={this.onDateChange.bind(this, 'start')}
             inputProps={{ placeholder: `${__('Choose start date')}` }}
@@ -156,7 +156,7 @@ class LogList extends React.Component<Props, State> {
           <Datetime
             dateFormat="YYYY/MM/DD"
             timeFormat="HH:mm"
-            value={moment(end)}
+            value={dayjs(end).toDate()}
             closeOnSelect={true}
             onChange={this.onDateChange.bind(this, 'end')}
             inputProps={{ placeholder: `${__('Choose end date')}` }}

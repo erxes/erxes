@@ -5,12 +5,12 @@ export const LANGUAGES = [
   { label: 'Deustch', value: 'de' },
   { label: 'Korean', value: 'kr' },
   { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'ptBr' },
+  { label: 'Portuguese', value: 'pt-br' },
   { label: 'Japanese', value: 'ja' },
   { label: 'Russian', value: 'ru' },
-  { label: 'Chinese', value: 'zh' },
-  { label: 'Hindi', value: 'np' },
-  { label: 'Vietnam', value: 'vn' }
+  { label: 'Chinese', value: 'zh-cn' },
+  { label: 'Hindi', value: 'hi' },
+  { label: 'Vietnam', value: 'vi' }
 ];
 
 export const CURRENCIES = [
