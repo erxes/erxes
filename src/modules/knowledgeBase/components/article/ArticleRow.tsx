@@ -103,7 +103,7 @@ const ArticleRow = (props: Props) => {
               user.email}
           </AuthorName>
           <Icon icon="wallclock" /> {__('Created')}{' '}
-          {moment(article.createdDate).format('ll')}
+          {dayjs(article.createdDate).format('ll')}
           <ReactionCounts>{renderReactions()}</ReactionCounts>
         </ArticleMeta>
       </ArticleColumn>

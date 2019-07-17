@@ -90,7 +90,7 @@ class NotificationRow extends React.Component<IProps> {
             </span>
           </CreatedUser>
           <CreatedDate isList={isList}>
-            {moment(notification.date).format('DD MMM YYYY, HH:mm')}
+            {dayjs(notification.date).format('DD MMM YYYY, HH:mm')}
           </CreatedDate>
         </InfoSection>
       </li>
