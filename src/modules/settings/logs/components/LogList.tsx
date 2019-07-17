@@ -99,7 +99,7 @@ class LogList extends React.Component<Props, State> {
 
   renderObjects() {
     const { logs } = this.props;
-    const rows: any[] = [];
+    const rows: JSX.Element[] = [];
 
     if (!logs) {
       return rows;
@@ -122,6 +122,7 @@ class LogList extends React.Component<Props, State> {
             <th>{__('Module')}</th>
             <th>{__('Action')}</th>
             <th>{__('Description')}</th>
+            <th>{__('Changes')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
