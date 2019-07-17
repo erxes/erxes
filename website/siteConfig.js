@@ -29,6 +29,8 @@ const siteConfig = {
   baseUrl: '/', // Base URL for your project */
   editUrl: 'https://github.com/erxes/docs/edit/master/docs/',
   cname: 'docs.erxes.io',
+  gaTrackingId: "UA-87254317-8",
+  gaGtag: true,
   scrollToTop: true,
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
