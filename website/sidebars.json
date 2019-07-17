@@ -44,8 +44,7 @@
       "developer/contributing",
       "developer/push-notifications",
       "developer/android-sdk",
-      "developer/ios-sdk",
-      "developer/extend"
+      "developer/ios-sdk"
     ]
   }
 }
