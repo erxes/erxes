@@ -3,13 +3,15 @@ id: ubuntu
 title: Ubuntu 16.04/18.04 LTS
 ---
 
+Manual installation on Ubuntu 16.04/18.04 LTS.
+
 ## Prerequisites
 
-There are a couple of pre-reqs for running erxes. This page outlines how to quickly install the things needed on an Ubuntu 16.04 server.
+There are a couple of pre-reqs for running erxes. This page outlines how to quickly install the things needed on an Ubuntu 16.04/18.04 server.
 
 ### Install MongoDB v3.6.x
 
-```shell
+```sh
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
 
 echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
@@ -25,7 +27,7 @@ Official MongoDB documentation: https://docs.mongodb.com/v3.6/tutorial/install-m
 
 ### Install Redis
 
-```shell
+```sh
 sudo apt-get update
 
 sudo apt-get install redis-server
@@ -35,16 +37,16 @@ sudo systemctl start redis-server
 
 ### Install Nginx
 
-```shell
+```sh
 sudo apt-get install -y nginx
 ```
 Serve static content + reverse proxy
 
 
-### Install Node.js v8.x
+### Install Node.js v10.x
 
-```shell
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+```sh
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
 sudo apt-get install -y nodejs
 ```
@@ -52,7 +54,7 @@ sudo apt-get install -y nodejs
 **Optional**: install build tools
 To compile and install native addons from npm you may also need to install build tools:
 
-```shell
+```sh
 sudo apt-get install -y build-essential
 ```
 
@@ -60,7 +62,7 @@ Official Node.js documentation: https://nodejs.org/en/download/package-manager/
 
 ### Install Yarn package manager
 
-```shell
+```sh
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
@@ -77,7 +79,7 @@ Official Yarn package manager documentation: https://yarnpkg.com/lang/en/docs/in
 
 ### Prepare clean directory
 
-```shell
+```sh
 mkdir ~/erxes.io
 
 cd ~/erxes.io
@@ -88,28 +90,28 @@ cd ~/erxes.io
 - erxes
 
 Download latest [release](https://github.com/erxes/erxes/releases) source code. (zip or tar.gz)
-```shell
+```sh
 curl -JLO https://github.com/erxes/erxes/archive/0.9.15.tar.gz
 ```
 
 - erxes-api
 
 Download latest [release](https://github.com/erxes/erxes-api/releases) source code. (zip or tar.gz)
-```shell
+```sh
 curl -JLO https://github.com/erxes/erxes-api/archive/0.9.15.tar.gz
 ```
 
 - erxes-widgets
 
 Download latest [release](https://github.com/erxes/erxes-widgets/releases) source code. (zip or tar.gz)
-```shell
+```sh
 curl -JLO https://github.com/erxes/erxes-widgets/archive/0.9.15.tar.gz
 ```
 
 - erxes-widgets-api
 
 Download latest [release](https://github.com/erxes/erxes-widgets-api/releases) source code. (zip or tar.gz)
-```shell
+```sh
 curl -JLO https://github.com/erxes/erxes-widgets-api/archive/0.9.15.tar.gz
 ```
 
@@ -117,7 +119,7 @@ _**Notes:** Always download same version releases from all repo._
 
 ### Extract source code
 
-```shell
+```sh
 tar -zxvf erxes-0.9.15.tar.gz
 
 tar -zxvf erxes-api-0.9.15.tar.gz
@@ -130,22 +132,22 @@ tar -zxvf erxes-widgets-api-0.9.15.tar.gz
 ### Install dependencies
 
 - erxes
-```shell
+```sh
 cd ~/erxes.io/erxes-0.9.15 && yarn install
 ```
 
 - erxes-api
-```shell
+```sh
 cd ~/erxes.io/erxes-api-0.9.15 && yarn install
 ```
 
 - erxes-widgets
-```shell
+```sh
 cd ~/erxes.io/erxes-widgets-0.9.15 && yarn install
 ```
 
 - erxes-widgets-api
-```shell
+```sh
 cd ~/erxes.io/erxes-widgets-api-0.9.15 && yarn install
 ```
 
@@ -154,17 +156,17 @@ cd ~/erxes.io/erxes-widgets-api-0.9.15 && yarn install
 ## Configuration
 
 Copy all settings from `.env.sample` file and configure it on your own. Do it on all reposotiries.
-```Shell
+```sh
 cp .env.sample .env
 ```
 
 Following command will create default admin account
 
-```shell
+```sh
 cd ~/erxes.io/erxes-api-0.9.15 && yarn initProject`
 ```
 with following credentials
-```shell
+```sh
 username: admin@erxes.io
 password: erxes
 ```
@@ -260,7 +262,7 @@ erxes is [CreateReactApp](https://github.com/facebook/create-react-app) frontend
 ### Systemd
 MongoDB, Nginx, Redis systemd service files will be already created by default. To make sure it's enabled on boot run following commands.
 
-```shell
+```sh
 sudo systemctl enable mongod
 sudo systemctl enable nginx
 sudo systemctl enable redis-server
