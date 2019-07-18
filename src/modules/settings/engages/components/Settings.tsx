@@ -12,7 +12,7 @@ import { ContentBox } from '../../styles';
 
 type Props = {
   ses: any;
-  save: (secretAccessKey: string, accessKeyId: string) => void;
+  save: (secretAccessKey: string, accessKeyId: string, region: string) => void;
 };
 
 type State = {};
@@ -31,8 +31,10 @@ class List extends React.Component<Props, State> {
     const accessKeyId = (document.getElementById(
       'accessKeyId'
     ) as HTMLInputElement).value;
+    const region = (document.getElementById('region') as HTMLInputElement)
+      .value;
 
-    this.props.save(secretAccessKey, accessKeyId);
+    this.props.save(secretAccessKey, accessKeyId, region);
   };
 
   render() {
@@ -73,6 +75,10 @@ class List extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>AWS-SES Secret access key</ControlLabel>
           <FormControl id="secretAccessKey" type="password" />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>AWS-SES Region</ControlLabel>
+          <FormControl id="region" />
         </FormGroup>
       </ContentBox>
     );

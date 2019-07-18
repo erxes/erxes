@@ -15,9 +15,9 @@ class SettingsContainer extends React.Component<FinalProps> {
     const { engagesConfigDetailQuery, engagesConfigSaveMutation } = this.props;
 
     // create or update action
-    const save = (secretAccessKey, accessKeyId) => {
+    const save = (secretAccessKey, accessKeyId, region) => {
       engagesConfigSaveMutation({
-        variables: { secretAccessKey, accessKeyId }
+        variables: { secretAccessKey, accessKeyId, region }
       })
         .then(() => {
           Alert.success('You successfully updated general settings');
@@ -31,9 +31,6 @@ class SettingsContainer extends React.Component<FinalProps> {
       save,
       ses: engagesConfigDetailQuery.engagesConfigDetail || {}
     };
-
-    //tslint:disable
-    console.log(engagesConfigDetailQuery);
 
     return <Settings {...updatedProps} />;
   }

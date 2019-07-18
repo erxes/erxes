@@ -1,6 +1,10 @@
 const engagesConfigDetail = `
   query engagesConfigDetail {
-    engagesConfigDetail
+    engagesConfigDetail {
+      accessKeyId
+      secretAccessKey
+      region
+    }
   }
 `;
 
