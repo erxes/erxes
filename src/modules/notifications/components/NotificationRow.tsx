@@ -1,8 +1,8 @@
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { IRouterProps } from 'modules/common/types';
-import moment from 'moment';
 import React from 'react';
 import { withRouter } from 'react-router';
 import xss from 'xss';
@@ -90,7 +90,7 @@ class NotificationRow extends React.Component<IProps> {
             </span>
           </CreatedUser>
           <CreatedDate isList={isList}>
-            {moment(notification.date).format('DD MMM YYYY, HH:mm')}
+            {dayjs(notification.date).format('DD MMM YYYY, HH:mm')}
           </CreatedDate>
         </InfoSection>
       </li>

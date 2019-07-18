@@ -1,9 +1,9 @@
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
-import moment from 'moment';
 import React from 'react';
 import {
   ErxesGreeting,
@@ -129,7 +129,7 @@ class TopBar extends React.Component<Props> {
       <>
         <ErxesGreeting>
           <Links>
-            <span>{moment(new Date()).format('lll')}</span>
+            <span>{dayjs(new Date()).format('lll')}</span>
             <Socials>
               {this.renderLink(facebook, 'facebook')}
               {this.renderLink(twitter, 'twitter')}

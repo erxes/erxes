@@ -842,6 +842,10 @@ a:hover {
   .editor-id {
     display: none;
   }
+
+  .rdt {
+    display: block !important;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;

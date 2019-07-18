@@ -3,14 +3,14 @@ export const LANGUAGES = [
   { label: 'English', value: 'en' },
   { label: 'French', value: 'fr' },
   { label: 'Deustch', value: 'de' },
-  { label: 'Korean', value: 'kr' },
+  { label: 'Korean', value: 'ko' },
   { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'ptBr' },
-  { label: 'Japanese', value: 'jp' },
+  { label: 'Portuguese', value: 'pt-br' },
+  { label: 'Japanese', value: 'ja' },
   { label: 'Russian', value: 'ru' },
-  { label: 'Chinese', value: 'zh' },
-  { label: 'Hindi', value: 'np' },
-  { label: 'Vietnam', value: 'vn' }
+  { label: 'Chinese', value: 'zh-cn' },
+  { label: 'Hindi', value: 'hi' },
+  { label: 'Vietnam', value: 'vi' }
 ];
 
 export const CURRENCIES = [

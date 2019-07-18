@@ -1,10 +1,10 @@
+import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __, getUserAvatar } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
 import { IArticle } from '../../types';
@@ -103,7 +103,7 @@ const ArticleRow = (props: Props) => {
               user.email}
           </AuthorName>
           <Icon icon="wallclock" /> {__('Created')}{' '}
-          {moment(article.createdDate).format('ll')}
+          {dayjs(article.createdDate).format('ll')}
           <ReactionCounts>{renderReactions()}</ReactionCounts>
         </ArticleMeta>
       </ArticleColumn>

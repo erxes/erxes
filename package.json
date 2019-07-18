@@ -16,6 +16,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@nivo/line": "0.35.0",
     "@nivo/pie": "0.35.0",
     "add-graphql-subscriptions": "^1.0.1",
@@ -33,6 +34,7 @@
     "classnames": "^2.2.5",
     "color": "^3.0.0",
     "crypto": "^1.0.1",
+    "dayjs": "^1.8.15",
     "draft-js": "^0.10.5",
     "draft-js-anchor-plugin": "^2.0.2",
     "draft-js-buttons": "^2.0.1",
@@ -47,7 +49,6 @@
     "graphql-tag": "^2.6.1",
     "i18n-react": "^0.6.4",
     "juice": "^5.2.0",
-    "moment": "^2.22.1",
     "query-string": "^5.0.0",
     "react": "^16.4.2",
     "react-apollo": "^2.1.11",
@@ -55,7 +56,6 @@
     "react-bootstrap": "^0.31.3",
     "react-color": "^2.14.1",
     "react-copy-to-clipboard": "^5.0.1",
-    "react-datetime": "^2.11.1",
     "react-dom": "^16.3.2",
     "react-markdown": "^3.3.0",
     "react-router": "^4.2.0",
@@ -99,6 +99,7 @@
     "release": "release-it"
   },
   "devDependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@release-it/conventional-changelog": "^1.1.0",
     "@types/draft-js": "^0.10.24",
     "@types/node": "^10.9.4",

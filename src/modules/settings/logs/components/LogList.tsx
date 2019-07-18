@@ -1,3 +1,5 @@
+import Datetime from '@nateradebaugh/react-datetime';
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
@@ -6,9 +8,7 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import moment from 'moment';
 import * as React from 'react';
-import Datetime from 'react-datetime';
 import Select from 'react-select-plus';
 import { FilterItem, FilterWrapper } from '../styles';
 import { ILog } from '../types';
@@ -67,16 +67,10 @@ class LogList extends React.Component<Props, State> {
   }
 
   onDateChange(type: string, date) {
-    const format = 'YYYY-MM-DD HH:mm';
     const filter = { ...this.state };
 
-    // valid moment object
-    if (date && date.format) {
-      if (type === 'start') {
-        filter.start = date.format(format);
-      } else if (type === 'end') {
-        filter.end = date.format(format);
-      }
+    if (date) {
+      filter[type] = dayjs(date).format('YYYY-MM-DD HH:mm');
     } else {
       filter.start = '';
       filter.end = '';
@@ -149,7 +143,7 @@ class LogList extends React.Component<Props, State> {
           <Datetime
             dateFormat="YYYY/MM/DD"
             timeFormat="HH:mm"
-            value={moment(start)}
+            value={start}
             closeOnSelect={true}
             onChange={this.onDateChange.bind(this, 'start')}
             inputProps={{ placeholder: `${__('Choose start date')}` }}
@@ -159,7 +153,7 @@ class LogList extends React.Component<Props, State> {
           <Datetime
             dateFormat="YYYY/MM/DD"
             timeFormat="HH:mm"
-            value={moment(end)}
+            value={end}
             closeOnSelect={true}
             onChange={this.onDateChange.bind(this, 'end')}
             inputProps={{ placeholder: `${__('Choose end date')}` }}

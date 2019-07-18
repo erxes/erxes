@@ -1,6 +1,6 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import { FormControl } from 'modules/common/components/form';
+import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
