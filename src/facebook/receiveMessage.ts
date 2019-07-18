@@ -102,6 +102,7 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
     // save on integrations db
     await ConversationMessages.create({
       conversationId: conversation._id,
+      mid: message.mid,
       timestamp,
       content: text,
     });
