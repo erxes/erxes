@@ -180,7 +180,12 @@ class EditForm extends React.Component<Props, State> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>Description</ControlLabel>
+              <TitleRow>
+                <ControlLabel>
+                  <Icon icon="alignleft" />
+                  Description
+                </ControlLabel>
+              </TitleRow>
 
               <FormControl
                 componentClass="textarea"

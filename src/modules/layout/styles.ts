@@ -143,7 +143,7 @@ const SidebarHeader = styledTS<{
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: ${props => (props.bold ? 'bold' : 'normal')};
+  font-weight: ${props => (props.bold ? 'bold' : '500')};
   display: flex;
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;

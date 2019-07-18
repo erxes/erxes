@@ -26,6 +26,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
         image="/images/actions/18.svg"
         text="Oh boy, looks like you need to get a head start on your board"
         size="small"
+        light={true}
       />
     );
   }

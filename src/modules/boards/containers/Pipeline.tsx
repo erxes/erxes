@@ -70,6 +70,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
           image="/images/actions/8.svg"
           text="No stage in this pipeline"
           size="small"
+          light={true}
         />
       );
     }

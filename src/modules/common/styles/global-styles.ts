@@ -109,7 +109,6 @@ a:hover {
 
 .modal-body {
   padding: 40px 40px 30px 40px;
-  overflow: auto;
 }
 
 .modal-footer {
