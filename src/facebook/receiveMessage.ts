@@ -2,7 +2,7 @@ import { Activity } from 'botbuilder';
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import Integrations from '../models/Integrations';
 import { fetchMainApi } from '../utils';
-import { Conversations, Customers } from './models';
+import { ConversationMessages, Conversations, Customers } from './models';
 
 interface IChannelData {
   sender: { id: string };
@@ -13,10 +13,13 @@ interface IChannelData {
     type: string;
     payload: { url: string };
   }>;
+  message: {
+    mid: string;
+  };
 }
 
 const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
-  const { recipient, sender, timestamp, text, attachments } = activity.channelData as IChannelData;
+  const { recipient, sender, timestamp, text, attachments, message } = activity.channelData as IChannelData;
   const integration = await Integrations.findOne({ facebookPageIds: { $in: [recipient.id] } });
 
   if (!integration) {
@@ -90,25 +93,39 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
     });
   }
 
-  // save message on api
-  await fetchMainApi({
-    path: '/integrations-api',
-    method: 'POST',
-    body: {
-      action: 'create-conversation-message',
-      payload: JSON.stringify({
-        content: text,
-        attachments: (attachments || [])
-          .filter(att => att.type !== 'fallback')
-          .map(att => ({
-            type: att.type,
-            url: att.payload ? att.payload.url : '',
-          })),
-        conversationId: conversation.erxesApiId,
-        customerId: customer.erxesApiId,
-      }),
-    },
+  // get conversation message
+  const conversationMessage = await ConversationMessages.findOne({
+    mid: message.mid,
   });
+
+  if (!conversationMessage) {
+    // save on integrations db
+    await ConversationMessages.create({
+      conversationId: conversation._id,
+      timestamp,
+      content: text,
+    });
+
+    // save message on api
+    await fetchMainApi({
+      path: '/integrations-api',
+      method: 'POST',
+      body: {
+        action: 'create-conversation-message',
+        payload: JSON.stringify({
+          content: text,
+          attachments: (attachments || [])
+            .filter(att => att.type !== 'fallback')
+            .map(att => ({
+              type: att.type,
+              url: att.payload ? att.payload.url : '',
+            })),
+          conversationId: conversation.erxesApiId,
+          customerId: customer.erxesApiId,
+        }),
+      },
+    });
+  }
 };
 
 export default receiveMessage;

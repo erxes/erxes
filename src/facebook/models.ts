@@ -15,7 +15,7 @@ export interface ICustomerDocument extends ICustomer, Document {}
 
 export const customerSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: String,
+  userId: { type: String, index: true },
   erxesApiId: String,
   firstName: String,
   lastName: String,
@@ -40,12 +40,30 @@ export const conversationSchema = new Schema({
   _id: field({ pkey: true }),
   erxesApiId: String,
   timestamp: Date,
-  senderId: String,
-  recipientId: String,
+  senderId: { type: String, index: true },
+  recipientId: { type: String, index: true },
   content: String,
 });
 
 export interface IConversationModel extends Model<IConversationDocument> {}
+
+// conversation message ===========================
+export interface IConversationMessage {
+  mid: string;
+  conversationId: string;
+  content: string;
+}
+
+export interface IConversationMessageDocument extends IConversationMessage, Document {}
+
+export const conversationMessageSchema = new Schema({
+  _id: field({ pkey: true }),
+  mid: { type: String, index: true },
+  conversationId: String,
+  content: String,
+});
+
+export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
 
 // tslint:disable-next-line
 export const Customers = model<ICustomerDocument, ICustomerModel>('customers_facebook', customerSchema);
@@ -54,4 +72,10 @@ export const Customers = model<ICustomerDocument, ICustomerModel>('customers_fac
 export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_facebook',
   conversationSchema,
+);
+
+// tslint:disable-next-line
+export const ConversationMessages = model<IConversationMessageDocument, IConversationMessageModel>(
+  'conversation_messages_facebook',
+  conversationMessageSchema,
 );
