@@ -3,7 +3,7 @@ export const LANGUAGES = [
   { label: 'English', value: 'en' },
   { label: 'French', value: 'fr' },
   { label: 'Deustch', value: 'de' },
-  { label: 'Korean', value: 'kr' },
+  { label: 'Korean', value: 'ko' },
   { label: 'Spanish', value: 'es' },
   { label: 'Portuguese', value: 'pt-br' },
   { label: 'Japanese', value: 'ja' },
