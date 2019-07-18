@@ -2,19 +2,10 @@
 
 exports[`TextDivider component snapshot matches 1`] = `
 <div
-  className="sc-keFjpB kXdFqZ"
+  className="sc-bdVaJa iNPmzh"
 >
   <span>
     today
-    <footer
-      onBlur={[Function]}
-      onClick={null}
-      onFocus={[Function]}
-      onMouseOut={[Function]}
-      onMouseOver={[Function]}
-    >
-      9:55 PM
-    </footer>
   </span>
 </div>
 `;
