@@ -12,7 +12,7 @@ import { dimensions } from '../styles';
 import asyncComponent from './AsyncComponent';
 
 const Datetime = asyncComponent(() =>
-  import(/* webpackChunkName: "Datetime" */ 'react-datetime')
+  import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
 );
 
 const FlexRow = styled.div`
@@ -158,13 +158,13 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
     const onChangeStart = date => {
       if (typeof date !== 'string') {
-        this.onDateChange('startDate', date.toDate());
+        this.onDateChange('startDate', date);
       }
     };
 
     const onChangeEnd = date => {
       if (typeof date !== 'string') {
-        this.onDateChange('endDate', date.toDate());
+        this.onDateChange('endDate', date);
       }
     };
 

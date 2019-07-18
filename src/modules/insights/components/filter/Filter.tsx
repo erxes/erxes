@@ -1,9 +1,9 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import Datetime from 'react-datetime';
 import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../../styles';
 import { IQueryParams } from '../../types';
 
