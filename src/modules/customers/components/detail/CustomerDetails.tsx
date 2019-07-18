@@ -16,14 +16,45 @@ type Props = {
 };
 
 class CustomerDetails extends React.Component<Props> {
-  renderExtraTab = () => {
-    const trigger = (
+  renderEmailTab = () => {
+    const { customer } = this.props;
+
+    if (!customer.primaryEmail) {
+      return null;
+    }
+
+    const triggerEmail = (
       <TabTitle>
-        <Icon icon="speech-bubble-3" /> {__('Chat message')}
+        <Icon icon="email-4" /> {__('New email')}
       </TabTitle>
     );
 
-    return <Widget customers={[this.props.customer]} modalTrigger={trigger} />;
+    return (
+      <Widget
+        customers={[this.props.customer]}
+        modalTrigger={triggerEmail}
+        channelType="email"
+      />
+    );
+  };
+
+  renderExtraTabs = () => {
+    const triggerMessenger = (
+      <TabTitle>
+        <Icon icon="speech-bubble-3" /> {__('Send message')}
+      </TabTitle>
+    );
+
+    return (
+      <>
+        <Widget
+          customers={[this.props.customer]}
+          modalTrigger={triggerMessenger}
+          channelType="messenger"
+        />
+        {this.renderEmailTab()}
+      </>
+    );
   };
 
   render() {
@@ -42,7 +73,7 @@ class CustomerDetails extends React.Component<Props> {
           contentType="customer"
           toEmail={customer.primaryEmail}
           showEmail={false}
-          extraTab={this.renderExtraTab()}
+          extraTabs={this.renderExtraTabs()}
         />
         <ActivityLogs
           target={customer.firstName}

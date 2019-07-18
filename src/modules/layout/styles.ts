@@ -358,9 +358,15 @@ const FlexContent = styled.div`
   min-height: 100%;
 `;
 
-const FlexItem = styledTS<{ count?: number }>(styled.div)`
+const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
   flex: ${props => (props.count ? props.count : 1)};
   position: relative;
+
+  ${props =>
+    props.hasSpace &&
+    css`
+      margin-left: ${dimensions.coreSpacing}px;
+    `};
 `;
 
 const FlexRightItem = styled.div`

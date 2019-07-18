@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
@@ -7,12 +8,14 @@ import Uploader from 'modules/common/components/Uploader';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { METHODS } from 'modules/engage/constants';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
+import { METHODS } from 'modules/engage/constants';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
+import MessengerPreview from '../containers/MessengerPreview';
 import { Recipient, Recipients } from '../styles';
 import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
 
@@ -24,19 +27,27 @@ type Props = {
   sentAsChoices: any[];
   save: (doc: IEngageMessageDoc, closeModal: () => void) => void;
   closeModal: () => void;
+  channelType?: string;
+  currentUser: IUser;
 };
 
 type State = {
   content: string;
   channel: string;
   attachments: IAttachment[];
+  sentAs: string;
 };
 
 class WidgetForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { content: '', channel: 'email', attachments: [] };
+    this.state = {
+      content: '',
+      channel: props.channelType || 'email',
+      attachments: [],
+      sentAs: 'snippet'
+    };
   }
 
   save = e => {
@@ -86,6 +97,14 @@ class WidgetForm extends React.Component<Props, State> {
     this.setState({ content: this.findTemplate(e.target.value) });
   };
 
+  onEditorChange = e => {
+    this.onChangeCommon('content', e.editor.getData());
+  };
+
+  onSentAsChange = e => {
+    this.onChangeCommon('sentAs', e.target.value);
+  };
+
   findTemplate = id => {
     const template = this.props.emailTemplates.find(t => t._id === id);
 
@@ -96,14 +115,15 @@ class WidgetForm extends React.Component<Props, State> {
     return '';
   };
 
-  renderCustomers() {
+  renderReceivers() {
     return (
       <FormGroup>
-        <ControlLabel>To:</ControlLabel>
+        <ControlLabel>Sending to:</ControlLabel>
         <Recipients>
           {this.props.customers.map(customer => (
             <Recipient key={customer._id}>
-              <strong>{customer.firstName}</strong> {customer.primaryEmail}
+              <strong>{customer.firstName}</strong>{' '}
+              {customer.primaryEmail || 'Unknown'}
             </Recipient>
           ))}
         </Recipients>
@@ -111,9 +131,115 @@ class WidgetForm extends React.Component<Props, State> {
     );
   }
 
-  renderEmailContent() {
-    if (this.state.channel !== 'email') {
+  renderChannelType() {
+    if (this.props.channelType) {
       return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>Channel:</ControlLabel>
+
+        <FormControl
+          componentClass="select"
+          onChange={this.onChannelChange}
+          defaultValue={this.state.channel}
+        >
+          <option value="email">{__('Email')}</option>
+          <option value="messenger">{__('Messenger')}</option>
+        </FormControl>
+      </FormGroup>
+    );
+  }
+
+  renderFormContent() {
+    const editor = (options?) => (
+      <FormGroup>
+        <ControlLabel>Message:</ControlLabel>
+        <EditorCK
+          {...options}
+          content={this.state.content}
+          onChange={this.onEditorChange}
+          insertItems={EMAIL_CONTENT}
+        />
+      </FormGroup>
+    );
+
+    if (this.state.channel === 'messenger') {
+      const options = {
+        toolbar: [
+          { items: ['Image', 'EmojiPanel'] },
+          { items: ['NumberedList', 'BulletedList'] },
+          { items: ['Bold', 'Italic', 'Underline'] },
+          { items: ['Link', 'Unlink'] },
+          { items: ['strinsert'] }
+        ]
+      };
+
+      return (
+        <FlexContent>
+          <FlexItem>
+            <FormGroup>
+              <ControlLabel>Brand:</ControlLabel>
+
+              <FormControl id="brandId" componentClass="select">
+                <option />
+                {this.props.brands.map((b, index) => (
+                  <option key={`brand-${index}`} value={b._id}>
+                    {b.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <div>
+              <FlexContent>
+                <FlexItem>
+                  <FormGroup>
+                    <ControlLabel>Messenger kind:</ControlLabel>
+
+                    <FormControl id="messengerKind" componentClass="select">
+                      <option />
+                      {this.props.messengerKinds.map((t, index) => (
+                        <option key={`messengerKind-${index}`} value={t.value}>
+                          {t.text}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                </FlexItem>
+                <FlexItem hasSpace={true}>
+                  <FormGroup>
+                    <ControlLabel>Sent as:</ControlLabel>
+
+                    <FormControl
+                      id="sentAs"
+                      defaultValue={this.state.sentAs}
+                      componentClass="select"
+                      onChange={this.onSentAsChange}
+                    >
+                      {this.props.sentAsChoices.map((t, index) => (
+                        <option key={`sentAs-${index}`} value={t.value}>
+                          {t.text}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                </FlexItem>
+              </FlexContent>
+            </div>
+
+            {editor(options)}
+          </FlexItem>
+
+          <FlexItem>
+            <MessengerPreview
+              sentAs={this.state.sentAs}
+              content={this.state.content}
+              fromUserId={this.props.currentUser._id}
+            />
+          </FlexItem>
+        </FlexContent>
+      );
     }
 
     const { attachments } = this.state;
@@ -143,6 +269,9 @@ class WidgetForm extends React.Component<Props, State> {
             ))}
           </FormControl>
         </FormGroup>
+
+        {editor({ height: 300 })}
+
         <FormGroup>
           <ControlLabel>Attachments:</ControlLabel>
           <Uploader defaultFileList={attachments} onChange={onChange} />
@@ -151,90 +280,23 @@ class WidgetForm extends React.Component<Props, State> {
     );
   }
 
-  renderMessengerContent() {
-    if (this.state.channel !== 'messenger') {
-      return null;
-    }
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Brand:</ControlLabel>
-
-          <FormControl id="brandId" componentClass="select">
-            <option />
-            {this.props.brands.map((b, index) => (
-              <option key={`brand-${index}`} value={b._id}>
-                {b.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Messenger kind:</ControlLabel>
-
-          <FormControl id="messengerKind" componentClass="select">
-            <option />
-            {this.props.messengerKinds.map((t, index) => (
-              <option key={`messengerKind-${index}`} value={t.value}>
-                {t.text}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Sent as:</ControlLabel>
-
-          <FormControl id="sentAs" componentClass="select">
-            <option />
-            {this.props.sentAsChoices.map((t, index) => (
-              <option key={`sentAs-${index}`} value={t.value}>
-                {t.text}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      </>
-    );
-  }
-
-  onEditorChange = e => {
-    this.onChangeCommon('content', e.editor.getData());
-  };
-
   render() {
     return (
       <form onSubmit={this.save}>
-        {this.renderCustomers()}
+        {this.renderReceivers()}
+        {this.renderChannelType()}
 
         <FormGroup>
-          <ControlLabel>Channel:</ControlLabel>
-
-          <FormControl componentClass="select" onChange={this.onChannelChange}>
-            <option value="email">{__('Email')}</option>
-            <option value="messenger">{__('Messenger')}</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Title:</ControlLabel>
-          <FormControl id="title" type="text" required={true} />
-        </FormGroup>
-
-        {this.renderEmailContent()}
-        {this.renderMessengerContent()}
-
-        <FormGroup>
-          <ControlLabel>Content:</ControlLabel>
-          <EditorCK
-            content={this.state.content}
-            onChange={this.onEditorChange}
-            insertItems={EMAIL_CONTENT}
-            height={320}
+          <ControlLabel required={true}>Title:</ControlLabel>
+          <FormControl
+            autoFocus={true}
+            id="title"
+            type="text"
+            required={true}
           />
         </FormGroup>
+
+        {this.renderFormContent()}
 
         <ModalFooter>
           <Button
