@@ -347,11 +347,16 @@ a:hover {
 /* select  */
 
 .Select-control {
+  height: 34px;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid ${colors.borderDarker};
   box-shadow: none;
   background: none;
+}
+
+.Select-input {
+  height: 33px;
 }
 
 .Select-control:hover {

@@ -14,6 +14,8 @@ import {
   ArticleMeta,
   ArticleTitle,
   AuthorName,
+  ReactionCount,
+  ReactionCounts,
   RowArticle
 } from './styles';
 
@@ -31,6 +33,16 @@ const ArticleRow = (props: Props) => {
 
   const remove = () => {
     return props.remove(props.article._id);
+  };
+
+  const renderReactions = () => {
+    const reactions = Object.entries(props.article.reactionCounts || {});
+
+    return reactions.map(([key, value]) => (
+      <ReactionCount key={key}>
+        <img src={key} alt="reaction" /> {value}
+      </ReactionCount>
+    ));
   };
 
   const renderEditAction = editTrigger => {
@@ -92,6 +104,7 @@ const ArticleRow = (props: Props) => {
           </AuthorName>
           <Icon icon="wallclock" /> {__('Created')}{' '}
           {moment(article.createdDate).format('ll')}
+          <ReactionCounts>{renderReactions()}</ReactionCounts>
         </ArticleMeta>
       </ArticleColumn>
       <ActionButtons>
