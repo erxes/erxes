@@ -14,6 +14,10 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   padding-top: ${dimensions.coreSpacing}px;
+
+  @media (max-width: 1170px) {
+    flex-direction: column;
+  }
 `;
 
 const RowTitle = styled.h3`

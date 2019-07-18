@@ -10,6 +10,7 @@ import styled from 'styled-components';
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
   background: ${colors.colorPrimaryDark};
+  box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
   z-index: 10;
   flex-shrink: 0;
   overflow: hidden;
