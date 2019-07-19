@@ -8,11 +8,11 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { articleReactions } from 'modules/knowledgeBase/icons.constant';
-import { FlexContent } from 'modules/layout/styles';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IArticle } from '../../types';
-import { Item, ReactionItem } from './styles';
+import { ReactionItem } from './styles';
 
 type Props = {
   article: IArticle;
@@ -114,7 +114,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FlexContent>
-          <Item count={4}>
+          <FlexItem count={4}>
             <FormGroup>
               <ControlLabel required={true}>Reactions</ControlLabel>
               <Select
@@ -126,8 +126,8 @@ class ArticleForm extends React.Component<Props, State> {
                 valueRenderer={this.renderOption}
               />
             </FormGroup>
-          </Item>
-          <Item count={2}>
+          </FlexItem>
+          <FlexItem count={2} hasSpace={true}>
             <FormGroup>
               <ControlLabel required={true}>Status</ControlLabel>
               <FormControl
@@ -145,7 +145,7 @@ class ArticleForm extends React.Component<Props, State> {
                 ))}
               </FormControl>
             </FormGroup>
-          </Item>
+          </FlexItem>
         </FlexContent>
         <FormGroup>
           <ControlLabel required={true}>Content</ControlLabel>

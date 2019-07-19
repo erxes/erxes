@@ -39,7 +39,7 @@ html.cke_copyformatting_active {
 	clip: rect(1px, 1px, 1px, 1px);
 	padding: 0;
 	border: 0;
-	height: 1px;
-	width: 1px;
+	height: 0;
+	width: 0;
 	overflow: hidden;
 }

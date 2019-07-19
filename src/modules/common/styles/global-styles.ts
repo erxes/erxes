@@ -108,12 +108,12 @@ a:hover {
 }
 
 .modal-body {
-  padding: 40px 40px 30px 40px;
+  padding: 30px 40px;
 }
 
 .modal-footer {
   padding: 0;
-  margin-top: 40px;
+  margin-top: 30px;
   border: none;
 }
 

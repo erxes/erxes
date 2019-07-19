@@ -17,6 +17,7 @@ type Props = {
   customers: ICustomer[];
   emptyBulk?: () => void;
   modalTrigger?: React.ReactNode;
+  channelType?: string;
 };
 
 type FinalProps = {

@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ICustomer } from 'modules/customers/types';
@@ -14,6 +15,7 @@ type Props = {
   messengerKinds: any[];
   sentAsChoices: any[];
   modalTrigger?: React.ReactNode;
+  currentUser: IUser;
   save: (doc: IEngageMessageDoc, closeModal: () => void) => void;
 };
 
@@ -38,7 +40,7 @@ class Widget extends React.Component<Props> {
     return (
       <ModalTrigger
         size="lg"
-        title="New message"
+        title="Quick message"
         trigger={this.getTrigger()}
         content={content}
         enforceFocus={false}

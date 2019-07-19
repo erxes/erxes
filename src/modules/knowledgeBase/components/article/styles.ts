@@ -1,5 +1,4 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 import { ActionButtons } from '../../styles';
 
@@ -101,12 +100,6 @@ const ReactionItem = styled(ReactionCount)`
   }
 `;
 
-const Item = styled(FlexItem)`
-  &:last-of-type {
-    margin-left: ${dimensions.coreSpacing}px;
-  }
-`;
-
 export {
   ActionButtons,
   RowArticle,
@@ -116,6 +109,5 @@ export {
   AuthorName,
   ReactionCounts,
   ReactionCount,
-  ReactionItem,
-  Item
+  ReactionItem
 };
