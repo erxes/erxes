@@ -135,6 +135,10 @@ const Recipient = styled.div`
   font-size: 13px;
 `;
 
+const Half = styled.div`
+  width: 50%;
+`;
+
 const StepContent = styled.div`
   display: flex;
 `;
@@ -281,6 +285,7 @@ export {
   ListCounter,
   Recipients,
   Recipient,
+  Half,
   StepContent,
   FlexItemCentered,
   Box,

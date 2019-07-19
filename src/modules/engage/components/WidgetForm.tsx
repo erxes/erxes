@@ -16,7 +16,7 @@ import React from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import MessengerPreview from '../containers/MessengerPreview';
-import { Recipient, Recipients } from '../styles';
+import { Half, Recipient, Recipients } from '../styles';
 import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
 
 type Props = {
@@ -137,32 +137,31 @@ class WidgetForm extends React.Component<Props, State> {
     }
 
     return (
-      <FormGroup>
-        <ControlLabel>Channel:</ControlLabel>
+      <Half>
+        <FormGroup>
+          <ControlLabel>Channel:</ControlLabel>
 
-        <FormControl
-          componentClass="select"
-          onChange={this.onChannelChange}
-          defaultValue={this.state.channel}
-        >
-          <option value="email">{__('Email')}</option>
-          <option value="messenger">{__('Messenger')}</option>
-        </FormControl>
-      </FormGroup>
+          <FormControl
+            componentClass="select"
+            onChange={this.onChannelChange}
+            defaultValue={this.state.channel}
+          >
+            <option value="email">{__('Email')}</option>
+            <option value="messenger">{__('Messenger')}</option>
+          </FormControl>
+        </FormGroup>
+      </Half>
     );
   }
 
   renderFormContent() {
     const editor = (options?) => (
-      <FormGroup>
-        <ControlLabel>Message:</ControlLabel>
-        <EditorCK
-          {...options}
-          content={this.state.content}
-          onChange={this.onEditorChange}
-          insertItems={EMAIL_CONTENT}
-        />
-      </FormGroup>
+      <EditorCK
+        {...options}
+        content={this.state.content}
+        onChange={this.onEditorChange}
+        insertItems={EMAIL_CONTENT}
+      />
     );
 
     if (this.state.channel === 'messenger') {
@@ -248,29 +247,31 @@ class WidgetForm extends React.Component<Props, State> {
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Email subject:</ControlLabel>
-          <FormControl id="emailSubject" type="text" required={true} />
-        </FormGroup>
+        <Half>
+          <FormGroup>
+            <ControlLabel>Email subject:</ControlLabel>
+            <FormControl id="emailSubject" type="text" required={true} />
+          </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Email templates:</ControlLabel>
-          <p>{__('Insert email template to content')}</p>
-          <FormControl
-            id="emailTemplateId"
-            componentClass="select"
-            onChange={this.templateChange}
-          >
-            <option />
-            {this.props.emailTemplates.map(t => (
-              <option key={t._id} value={t._id}>
-                {t.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
+          <FormGroup>
+            <ControlLabel>Email templates:</ControlLabel>
+            <p>{__('Insert email template to content')}</p>
+            <FormControl
+              id="emailTemplateId"
+              componentClass="select"
+              onChange={this.templateChange}
+            >
+              <option />
+              {this.props.emailTemplates.map(t => (
+                <option key={t._id} value={t._id}>
+                  {t.name}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+        </Half>
 
-        {editor({ height: 300 })}
+        <FormGroup>{editor({ height: 300 })}</FormGroup>
 
         <FormGroup>
           <ControlLabel>Attachments:</ControlLabel>
@@ -286,15 +287,17 @@ class WidgetForm extends React.Component<Props, State> {
         {this.renderReceivers()}
         {this.renderChannelType()}
 
-        <FormGroup>
-          <ControlLabel required={true}>Title:</ControlLabel>
-          <FormControl
-            autoFocus={true}
-            id="title"
-            type="text"
-            required={true}
-          />
-        </FormGroup>
+        <Half>
+          <FormGroup>
+            <ControlLabel required={true}>Title:</ControlLabel>
+            <FormControl
+              autoFocus={true}
+              id="title"
+              type="text"
+              required={true}
+            />
+          </FormGroup>
+        </Half>
 
         {this.renderFormContent()}
 
