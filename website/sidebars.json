@@ -39,9 +39,9 @@
       "administrator/migration"
     ],
     "Developer's guide": [
-      "developer/graphql-api",
-      "developer/coding-standards",
+      "developer/developer",
       "developer/contributing",
+      "developer/graphql-api",
       "developer/push-notifications",
       "developer/android-sdk",
       "developer/ios-sdk"
