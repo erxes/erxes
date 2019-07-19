@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Attachment component snapshot matches 1`] = `
+<div
+  className="sc-kVrTmx fGemGn"
+>
+  <div
+    className="sc-ekkqgF dbCVbu"
+  >
+    <i
+      className="icon-clipboard-1 sc-bwzfXH hpxbGw"
+      icon="clipboard-1"
+    />
+     
+    <span>
+      string
+    </span>
+  </div>
+  <a
+    className="sc-jWojfa elbyvp"
+    href="undefined/read-file?key=string"
+    target="_blank"
+  >
+    <div>
+      <i
+        className="icon-download sc-bwzfXH hpxbGw"
+        icon="download"
+      />
+    </div>
+  </a>
+</div>
+`;
