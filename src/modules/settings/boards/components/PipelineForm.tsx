@@ -12,7 +12,7 @@ import { __ } from 'modules/common/utils';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
-import { BlockPicker } from 'react-color';
+import BlockPicker from 'react-color/lib/Block';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
 import Stages from './Stages';
