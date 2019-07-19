@@ -99,7 +99,6 @@
     "release": "release-it"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@release-it/conventional-changelog": "^1.1.0",
     "@types/draft-js": "^0.10.24",
     "@types/node": "^10.9.4",
