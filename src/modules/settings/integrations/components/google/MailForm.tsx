@@ -8,7 +8,7 @@ import Spinner from 'modules/common/components/Spinner';
 import Uploader from 'modules/common/components/Uploader';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { FileName } from 'modules/inbox/styles';
 import {
@@ -30,6 +30,9 @@ import {
 type Props = {
   integrationId?: string;
   integrations: IIntegration[];
+  headerId?: string;
+  threadId?: string;
+  subject?: string;
   closeModal?: () => void;
   toEmail?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -83,10 +86,13 @@ class MailForm extends React.Component<Props, State> {
     subject: string;
     from: string;
   }) => {
+    const { headerId, threadId } = this.props;
     const { content, attachments } = this.state;
     const { to, cc, bcc, from, subject } = values;
 
     return {
+      headerId,
+      threadId,
       to: formatStr(to),
       cc: formatStr(cc),
       bcc: formatStr(bcc),

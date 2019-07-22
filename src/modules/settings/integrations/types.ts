@@ -194,6 +194,8 @@ export type SendGmailMutationVariables = {
   cc?: string;
   bcc?: string;
   toEmails?: string;
+  headerId?: string;
+  threadId?: string;
   subject?: string;
   body: string;
   integrationId?: string;

@@ -86,7 +86,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'gmail') {
-      const trigger = <a>+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <Gmail {...props} />;
 

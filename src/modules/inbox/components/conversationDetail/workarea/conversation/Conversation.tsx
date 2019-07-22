@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
+import GmailConversation from '../gmail/GmailConversation';
 import AttachmentPreview from './AttachmentPreview';
 import Message from './messages/Message';
 
@@ -56,6 +57,17 @@ class Conversation extends React.Component<Props, {}> {
 
     if (!conversation) {
       return null;
+    }
+
+    const { kind } = conversation.integration;
+
+    if (kind === 'gmail') {
+      return (
+        <GmailConversation
+          conversation={conversation}
+          conversationMessages={conversationMessages}
+        />
+      );
     }
 
     const messages = (conversationMessages || []).slice();

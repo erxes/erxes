@@ -12,6 +12,8 @@ const commonParams = `
 
 const sendGmailFields = `
   $erxesApiId: String!,
+  $headerId: String,
+  $threadId: String,
   $subject: String!,
   $textHtml: String!,
   $to: String!,
@@ -23,6 +25,8 @@ const sendGmailFields = `
 
 const sendGmailVariables = `
   erxesApiId: $erxesApiId,
+  headerId: $headerId,
+  threadId: $threadId,
   subject: $subject,
   textHtml: $textHtml,
   to: $to,

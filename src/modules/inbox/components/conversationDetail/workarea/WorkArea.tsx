@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import Icon from 'modules/common/components/Icon';
@@ -34,7 +33,6 @@ import TypingIndicator from './TypingIndicator';
 type Props = {
   queryParams?: any;
   title?: string;
-  currentUser: IUser;
   currentConversationId?: string;
   currentConversation: IConversation;
   conversationMessages: IMessage[];
@@ -132,12 +130,9 @@ export default class WorkArea extends React.Component<Props, State> {
       conversationMessages,
       addMessage,
       loading,
-      typingInfo,
-      currentUser
+      typingInfo
     } = this.props;
 
-    const { integration } = currentConversation;
-    const { kind } = integration;
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];

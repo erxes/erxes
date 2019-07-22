@@ -12,7 +12,10 @@ import { IntegrationsQueryResponse } from '../../types';
 type Props = {
   integrationId?: string;
   refetchQueries?: string[];
+  headerId?: string;
+  threadId?: string;
   toEmail?: string;
+  subject?: string;
   closeModal?: () => void;
 };
 
@@ -21,7 +24,15 @@ type FinalProps = {
 } & Props;
 
 const MailFormContainer = (props: FinalProps) => {
-  const { gmailIntegrationsQuery, refetchQueries, toEmail, closeModal } = props;
+  const {
+    headerId,
+    threadId,
+    subject,
+    gmailIntegrationsQuery,
+    refetchQueries,
+    toEmail,
+    closeModal
+  } = props;
 
   if (gmailIntegrationsQuery.loading) {
     return <Spinner objective={true} />;
@@ -52,7 +63,10 @@ const MailFormContainer = (props: FinalProps) => {
     renderButton,
     integrations,
     toEmail,
-    closeModal
+    closeModal,
+    headerId,
+    threadId,
+    subject
   };
 
   return <MailForm {...updatedProps} />;

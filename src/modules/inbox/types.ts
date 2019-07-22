@@ -40,6 +40,29 @@ interface IEngageDataRules {
   value?: string;
 }
 
+export interface IGmailData {
+  messageId?: string;
+  headerId?: string;
+  from?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+  reply?: string;
+  references?: string;
+  threadId?: string;
+  subject?: string;
+  textPlain?: string;
+  textHtml?: string;
+  attachments?: IGmailAttachment[];
+}
+
+export interface IGmailAttachment {
+  filename?: string;
+  mimeType?: string;
+  size: number;
+  attachmentId: string;
+}
+
 export interface IEngageData {
   messageId: string;
   brandId: string;
