@@ -1,7 +1,9 @@
-import { ControlLabel, FormGroup, Icon } from 'modules/common/components';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { CalloutPreview } from './preview';
 import { Box, BoxRow, FlexItem } from './style';
 

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { Alert, withProps } from '../../common/utils';
-import { BoardSelect } from '../components';
+import BoardSelect from '../components/BoardSelect';
 import { queries } from '../graphql';
 import {
   BoardsQueryResponse,

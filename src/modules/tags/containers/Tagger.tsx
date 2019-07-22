@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Tagger } from '../components';
+import Tagger from '../components/Tagger';
 import {
   ITagTypes,
   TagMutationResponse,

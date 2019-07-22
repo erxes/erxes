@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
 import {
   AddMutationResponse,
@@ -10,9 +10,9 @@ import {
   SegmentsQueryResponse
 } from 'modules/segments/types';
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { SegmentStep } from '../components';
+import SegmentStep from '../components/step/SegmentStep';
 import { mutations, queries } from '../graphql';
 import { sumCounts } from '../utils';
 
@@ -45,7 +45,6 @@ const SegmentStepContainer = (props: FinalProps) => {
   const {
     segmentsQuery,
     headSegmentsQuery,
-    segmentsAdd,
     customerCountsQuery,
     combinedFieldsQuery
   } = props;

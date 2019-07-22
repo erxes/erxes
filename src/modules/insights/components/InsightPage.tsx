@@ -1,8 +1,8 @@
 import { FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { menuDeal, menuInbox } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { DEAL_INSIGHTS, INBOX_INSIGHTS, INSIGHT_TYPES } from '../constants';
 import { Box, BoxContainer } from '../styles';

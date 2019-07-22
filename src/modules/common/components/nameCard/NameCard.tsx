@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
@@ -74,11 +74,11 @@ class NameCard extends React.Component<Props> {
     }
 
     if (singleLine) {
-      return customer.firstName || customer.primaryEmail || 'N/A';
+      return customer.firstName || customer.primaryEmail || 'Unknown';
     }
 
     if (!singleLine) {
-      return secondLine || customer.primaryEmail || 'N/A';
+      return secondLine || customer.primaryEmail || 'Unknown';
     }
 
     return null;

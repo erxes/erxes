@@ -1,14 +1,9 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import { PropertyGroupForm } from '../components';
+import React from 'react';
+import PropertyGroupForm from '../components/PropertyGroupForm';
 import { mutations, queries } from '../graphql';
-import {
-  FieldsGroupsEditMutationResponse,
-  FieldsGroupsMutationVariables
-} from '../types';
 
 type Props = {
   queryParams: any;

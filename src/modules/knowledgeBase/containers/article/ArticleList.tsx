@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { ArticleList } from '../../components';
+import ArticleList from '../../components/article/ArticleList';
 import { mutations, queries } from '../../graphql';
 import {
   ArticlesQueryResponse,

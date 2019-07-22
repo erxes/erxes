@@ -3,10 +3,10 @@ import gql from 'graphql-tag';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
-import { ExportReport } from '../components';
+import ExportReport from '../components/ExportReport';
 import { queries } from '../graphql';
 import { IQueryParams } from '../types';
 

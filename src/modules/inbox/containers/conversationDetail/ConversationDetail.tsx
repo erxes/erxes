@@ -1,9 +1,9 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { ConversationDetail } from 'modules/inbox/components/conversationDetail';
+import ConversationDetail from 'modules/inbox/components/conversationDetail/ConversationDetail';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import {

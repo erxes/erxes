@@ -1,12 +1,10 @@
-import {
-  ActionButtons,
-  Button,
-  Icon,
-  ModalTrigger,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   size?: string;

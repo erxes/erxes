@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { KnowledgeList } from '../../components';
+import KnowledgeList from '../../components/knowledge/KnowledgeList';
 import { mutations, queries } from '../../graphql';
 import {
   RemoveTopicsMutation,

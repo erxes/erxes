@@ -1,8 +1,10 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionContainer } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions } from '../../types';
 
@@ -50,9 +52,9 @@ class Items extends React.Component<Props> {
     } = this.props;
 
     const trigger = (
-      <a>
+      <button>
         <Icon icon="add" />
-      </a>
+      </button>
     );
 
     const content = props => (

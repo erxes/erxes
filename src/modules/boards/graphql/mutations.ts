@@ -6,6 +6,16 @@ const stagesUpdateOrder = `
   }
 `;
 
+const pipelinesWatch = `
+  mutation pipelinesWatch($_id: String!, $isAdd: Boolean, $type: String!) {
+    pipelinesWatch(_id: $_id, isAdd: $isAdd, type: $type) {
+      _id
+      isWatched
+    }
+  }
+`;
+
 export default {
-  stagesUpdateOrder
+  stagesUpdateOrder,
+  pipelinesWatch
 };

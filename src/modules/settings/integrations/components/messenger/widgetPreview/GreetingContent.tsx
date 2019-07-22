@@ -1,7 +1,7 @@
-import { Icon } from 'modules/common/components';
+import dayjs from 'dayjs';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { ContentBox, ErxesContent, LeftSide, RightSide } from './styles';
 
 function GreetingContent() {
@@ -26,7 +26,7 @@ function GreetingContent() {
               <img key="1" src="/images/avatar-colored.svg" alt="avatar" />
             </LeftSide>
             <RightSide>
-              <div>{moment(new Date()).format('LT')}</div>
+              <div>{dayjs(new Date()).format('LT')}</div>
               <span>{__('User')}</span>
               <p>{__('We need your help!')}</p>
             </RightSide>

@@ -1,7 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { slideDown } from 'modules/common/utils/animations';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

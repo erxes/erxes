@@ -2,10 +2,10 @@ import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { Properties } from '../components';
+import Properties from '../components/Properties';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 import { mutations, queries } from '../graphql';
 import {

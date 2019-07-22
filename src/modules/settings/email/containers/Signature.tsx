@@ -4,12 +4,12 @@ import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as teamQueries } from 'modules/settings/team/graphql';
 import { UserDetailQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Spinner } from '../../../common/components';
+import Spinner from '../../../common/components/Spinner';
 import { queries as brandQueries } from '../../brands/graphql';
 import { BrandsQueryResponse } from '../../brands/types';
-import { Signature } from '../components';
+import Signature from '../components/Signature';
 import {
   IEmailSignature,
   IEmailSignatureWithBrand,

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import { Alert, renderWithProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { AddForm } from '../../components/portable';
+import AddForm from '../../components/portable/AddForm';
 import { queries } from '../../graphql';
 import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 

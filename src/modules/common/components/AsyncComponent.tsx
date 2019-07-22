@@ -1,4 +1,5 @@
-import * as React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import React from 'react';
 
 export default function asyncComponent(importComponent: any) {
   class AsyncComponent extends React.Component<any, { component: any }> {
@@ -19,7 +20,7 @@ export default function asyncComponent(importComponent: any) {
     render() {
       const Comp = this.state.component;
 
-      return Comp ? <Comp {...this.props} /> : null;
+      return Comp ? <Comp {...this.props} /> : <Spinner objective={true} />;
     }
   }
 

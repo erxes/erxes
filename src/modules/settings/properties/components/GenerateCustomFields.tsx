@@ -1,7 +1,8 @@
-import { Button, EmptyState } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import { __, Alert } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
-import * as React from 'react';
+import Sidebar from 'modules/layout/components/Sidebar';
+import React from 'react';
 import { SidebarContent } from '../styles';
 import { IFieldGroup } from '../types';
 import GenerateField from './GenerateField';

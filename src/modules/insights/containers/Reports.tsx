@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 
 type Props = {

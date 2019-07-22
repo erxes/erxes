@@ -1,8 +1,7 @@
-import { Button, FormControl, Icon, Tip } from 'modules/common/components';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
-import { ResponseTemplate } from 'modules/inbox/containers/conversationDetail';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
 
 import {
   Attachment,
@@ -16,12 +15,20 @@ import {
   RespondBoxStyled
 } from 'modules/inbox/styles';
 
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
-import Editor from './Editor';
+
+const Editor = asyncComponent(() =>
+  import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor')
+);
 
 type Props = {
   conversation: IConversation;

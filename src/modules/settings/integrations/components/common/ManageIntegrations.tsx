@@ -1,17 +1,15 @@
-import {
-  Button,
-  FormControl,
-  Icon,
-  Label,
-  Tip
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import Tip from 'modules/common/components/Tip';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IBrandDoc } from 'modules/settings/brands/types';
 import { IChannelDoc } from 'modules/settings/channels/types';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import { BrandName, IntegrationName } from '../../styles';
 import { IIntegration } from '../../types';
 

@@ -1,7 +1,8 @@
 import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
 import { IUser, IUserDoc } from 'modules/auth/types';
-import * as React from 'react';
+import React from 'react';
+import { IAttachment } from '../types';
 import Alert from './Alert';
 import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
@@ -15,7 +16,7 @@ export const renderFullName = data => {
     return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
-  return data.primaryEmail || data.primaryPhone || 'N/A';
+  return data.primaryEmail || data.primaryPhone || 'Unknown';
 };
 
 export const setTitle = (title: string, force: boolean) => {
@@ -176,4 +177,13 @@ export const isValidDate = date => {
   }
 
   return false;
+};
+
+export const extractAttachment = (attachments: IAttachment[]) => {
+  return attachments.map(file => ({
+    name: file.name,
+    type: file.type,
+    url: file.url,
+    size: file.size
+  }));
 };

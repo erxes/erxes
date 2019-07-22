@@ -1,4 +1,4 @@
-import * as color from 'color';
+import color from 'color';
 
 // Convert a hex value into RGB
 function rgb(hex) {

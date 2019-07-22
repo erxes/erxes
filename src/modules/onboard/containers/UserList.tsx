@@ -2,9 +2,9 @@ import gql from 'graphql-tag';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as teamQueries } from 'modules/settings/team/graphql';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { UserList } from '../components';
+import UserList from '../components/UserList';
 import { mutations } from '../graphql';
 import {
   UserStatusChangeMutationResponse,

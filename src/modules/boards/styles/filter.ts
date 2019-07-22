@@ -1,6 +1,6 @@
 import { colors } from 'modules/common/styles';
 import { lighten } from 'modules/common/styles/color';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 const FilterBox = styled.div`
   padding: 10px 20px 0 20px;
@@ -8,14 +8,17 @@ const FilterBox = styled.div`
   max-height: 400px;
   overflow-y: auto;
   overflow-x: hidden;
+
   h4 {
     text-align: center;
     font-size: 16px;
     font-weight: 600;
   }
+
   .Select {
     margin-bottom: 10px;
   }
+
   .date-form input {
     display: block;
     border: none;

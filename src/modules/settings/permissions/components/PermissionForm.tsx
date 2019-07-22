@@ -1,13 +1,11 @@
 import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  ButtonMutate,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __, Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { mutations } from '../graphql';
@@ -63,16 +61,12 @@ class PermissionForm extends React.Component<Props, State> {
       return Alert.error('Please select the module!');
     }
 
-    if (selectedActions.length === 0) {
+    if (!this.hasItems(selectedActions)) {
       return Alert.error('Please select at least one action!');
     }
 
-    if (selectedGroups.length === 0) {
-      return Alert.error('Please select at least one group!');
-    }
-
-    if (selectedUsers.length === 0) {
-      return Alert.error('Please select at least one user!');
+    if (!this.hasItems(selectedGroups) && !this.hasItems(selectedUsers)) {
+      return Alert.error('Please select at least one group or user!');
     }
 
     return this.setState({ isSubmitted: true });

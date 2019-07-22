@@ -1,19 +1,11 @@
-import {
-  ControlLabel,
-  EditorCK,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
-import {
-  createStateFromHTML,
-  ErxesEditor,
-  toHTML
-} from 'modules/common/components/editor/Editor';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { SelectBrand } from 'modules/settings/integrations/containers';
-import * as React from 'react';
-import { Form as CommonForm } from '../../common/components';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
+import React from 'react';
+import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 import { IResponseTemplate } from '../types';
 

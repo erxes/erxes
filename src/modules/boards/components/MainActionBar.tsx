@@ -8,23 +8,23 @@ import {
   FilterItem,
   RemoveFilter
 } from 'modules/boards/styles/filter';
-import {
-  Button,
-  DropdownToggle,
-  EmptyState,
-  FormControl,
-  Icon,
-  Tip
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { SelectCompanies } from 'modules/companies/containers';
-import { SelectCustomers } from 'modules/customers/containers/common';
+import SelectCompanies from 'modules/companies/containers/SelectCompanies';
+import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import { PopoverHeader } from 'modules/notifications/components/styles';
-import { SelectTeamMembers } from 'modules/settings/team/containers';
-import * as React from 'react';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React from 'react';
 import { Overlay, Popover } from 'react-bootstrap';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import PipelineWatch from '../containers/PipelineWatch';
 import {
   HeaderButton,
   HeaderItems,
@@ -261,7 +261,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     return (
       <HeaderLink>
-        <Tip text={__('Filter')}>
+        <Tip text={__('Filter')} placement="bottom">
           <FilterBtn active={hasFilter}>
             <Button
               btnStyle={hasFilter ? 'success' : 'link'}
@@ -287,6 +287,33 @@ class MainActionBar extends React.Component<Props, State> {
     );
   }
 
+  renderVisibility() {
+    const { currentPipeline } = this.props;
+
+    if (!currentPipeline) {
+      return null;
+    }
+
+    if (currentPipeline.visibility === 'public') {
+      return (
+        <HeaderButton>
+          <Icon icon="earthgrid" /> Public
+        </HeaderButton>
+      );
+    }
+
+    const members = currentPipeline.members || [];
+
+    return (
+      <>
+        <HeaderButton>
+          <Icon icon="user" /> Private
+        </HeaderButton>
+        <Participators participatedUsers={members} limit={3} />
+      </>
+    );
+  }
+
   render() {
     const {
       currentBoard,
@@ -304,7 +331,7 @@ class MainActionBar extends React.Component<Props, State> {
         </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
-            <HeaderButton>
+            <HeaderButton rightIconed={true}>
               {(currentBoard && currentBoard.name) || __('Choose board')}
               <Icon icon="downarrow" />
             </HeaderButton>
@@ -316,7 +343,7 @@ class MainActionBar extends React.Component<Props, State> {
         </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
-            <HeaderButton>
+            <HeaderButton rightIconed={true}>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
               <Icon icon="downarrow" />
@@ -331,6 +358,12 @@ class MainActionBar extends React.Component<Props, State> {
             </Link>
           </Tip>
         </HeaderLink>
+
+        {currentPipeline ? (
+          <PipelineWatch pipeline={currentPipeline} type={type} />
+        ) : null}
+
+        {this.renderVisibility()}
       </HeaderItems>
     );
 
@@ -338,14 +371,12 @@ class MainActionBar extends React.Component<Props, State> {
       <HeaderItems>
         {middleContent && middleContent()}
 
-        <div style={{ display: 'inline-block' }}>
-          <FormControl
-            defaultValue={queryParams.search}
-            placeholder={__('Search ...')}
-            onKeyPress={this.onSearch}
-            autoFocus={true}
-          />
-        </div>
+        <FormControl
+          defaultValue={queryParams.search}
+          placeholder={__('Search ...')}
+          onKeyPress={this.onSearch}
+          autoFocus={true}
+        />
 
         {this.renderFilter()}
 

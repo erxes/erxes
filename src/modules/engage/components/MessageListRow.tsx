@@ -1,17 +1,15 @@
-import {
-  ActionButtons,
-  Button,
-  FormControl,
-  Icon,
-  Label,
-  NameCard,
-  Tags,
-  Tip
-} from 'modules/common/components';
+import dayjs from 'dayjs';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
-import * as moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { EngageTitle, HelperText } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
 
@@ -173,7 +171,7 @@ class Row extends React.Component<Props> {
 
         <td>
           <Icon icon="calendar" />{' '}
-          {moment(message.createdDate).format('DD MMM YYYY')}
+          {dayjs(message.createdDate).format('DD MMM YYYY')}
         </td>
 
         <td>

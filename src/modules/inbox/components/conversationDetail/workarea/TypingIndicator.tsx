@@ -1,7 +1,6 @@
 import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
 import { wave } from 'modules/common/utils/animations';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`

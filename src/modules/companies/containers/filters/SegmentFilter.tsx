@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import Segments from 'modules/segments/containers/Filter';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';

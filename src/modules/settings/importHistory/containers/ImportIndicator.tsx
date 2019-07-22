@@ -1,9 +1,9 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { ImportIndicator } from '../components';
+import ImportIndicator from '../components/ImportIndicator';
 import { mutations, queries, subscriptions } from '../graphql';
 import {
   CancelMutationResponse,

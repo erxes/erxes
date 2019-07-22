@@ -1,7 +1,8 @@
-import { HeaderDescription, Icon } from 'modules/common/components';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { Box, Group, Title } from '../styles';
 import { ProjectVersions, Version } from '../types';
 
@@ -31,20 +32,6 @@ class Status extends React.PureComponent<{ versions: ProjectVersions }> {
               {__('Abbreviated')} {__('Sha')}
             </b>{' '}
             - {ver.abbreviatedSha}{' '}
-          </div>
-        </Group>
-        <Group>
-          <span>
-            <Icon icon="wallclock" /> Last commit{' '}
-          </span>
-          <div>
-            <b>{__('Message')}</b> - {ver.lastCommitMessage}
-          </div>
-          <div>
-            <b>{__('User')}</b> - {ver.lastCommittedUser}
-          </div>
-          <div>
-            <b>{__('Date')}</b> - {ver.lastCommittedDate}
           </div>
         </Group>
       </Box>

@@ -2,8 +2,8 @@ import client from 'apolloClient';
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import * as React from 'react';
-import { QuickNavigation } from '../components';
+import React from 'react';
+import QuickNavigation from '../components/QuickNavigation';
 
 const QuickNavigationContainer = props => {
   const logout = () => {

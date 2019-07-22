@@ -15,6 +15,7 @@ const knowledgeBaseTopics = `
         icon
       }
       color
+      backgroundImage
       languageCode
       createdBy
       createdDate
@@ -106,6 +107,8 @@ const knowledgeBaseArticles = `
       summary
       content
       status
+      reactionChoices
+      reactionCounts
       createdBy
       createdUser {
         _id

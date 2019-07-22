@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
 import {
@@ -12,6 +12,7 @@ import {
   IOptions,
   IPipeline
 } from '../types';
+import { invalidateCache } from '../utils';
 import { collectOrders, reorder, reorderItemMap } from '../utils';
 
 type Props = {
@@ -132,6 +133,8 @@ export class PipelineProvider extends React.Component<Props, State> {
     this.setState({
       itemMap
     });
+
+    invalidateCache();
 
     // save orders to database
     return this.saveItemOrders(itemMap, [

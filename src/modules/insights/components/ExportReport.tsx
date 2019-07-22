@@ -1,10 +1,9 @@
 import { IUser } from 'modules/auth/types';
-import { FullContent } from 'modules/common/styles/main';
 import { ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import Select from 'react-select-plus';
 import { IBrand } from '../../settings/brands/types';
 import {
@@ -17,7 +16,8 @@ import {
 } from '../styles';
 import { IQueryParams } from '../types';
 import { OptionsType } from '../utils';
-import { InboxFilter, Sidebar } from './';
+import InboxFilter from './filter/InboxFilter';
+import Sidebar from './Sidebar';
 
 type Props = {
   brands: IBrand[];
@@ -39,7 +39,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
     return (
       <Box onClick={exportReport.bind(this, { type })}>
-        <a>
+        <a href="#name">
           <img src={image} alt={name} />
           <span>{__(name)}</span>
         </a>
@@ -97,7 +97,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
         <InsightContent>
           <InsightTitle>{__('Export Report')}</InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Volume Report By Date',
@@ -117,7 +117,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                 'activity'
               )}
             </div>
-          </FullContent>
+          </FlexRow>
 
           <InsightTitle>
             <FlexRow>
@@ -136,7 +136,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             </FlexRow>
           </InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Duration of First Response Report',
@@ -151,7 +151,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
               )}
 
               <Box onClick={this.exportWithUser}>
-                <a>
+                <a href="#img">
                   <img
                     src="/images/icons/erxes-16.svg"
                     alt="First Response Report by Operator"
@@ -160,7 +160,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                 </a>
               </Box>
             </div>
-          </FullContent>
+          </FlexRow>
 
           <InsightTitle>
             <FlexRow>
@@ -168,7 +168,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
             </FlexRow>
           </InsightTitle>
 
-          <FullContent center={true}>
+          <FlexRow>
             <div>
               {this.renderBox(
                 'Tag Report',
@@ -176,7 +176,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                 'tag'
               )}
             </div>
-          </FullContent>
+          </FlexRow>
         </InsightContent>
       </InsightWrapper>
     );
@@ -188,7 +188,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
         header={
           <Wrapper.Header title={__('Export Report')} submenu={menuInbox} />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

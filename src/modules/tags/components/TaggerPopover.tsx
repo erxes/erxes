@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { Tagger } from '../containers';
+import Tagger from '../containers/Tagger';
 
 type Props = {
   type: string;

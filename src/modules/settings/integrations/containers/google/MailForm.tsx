@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Spinner } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { MailForm } from '../../components/google';
+import MailForm from '../../components/google/MailForm';
 import { IntegrationsQueryResponse } from '../../types';
 
 type Props = {

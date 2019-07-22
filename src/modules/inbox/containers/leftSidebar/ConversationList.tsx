@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import { ConversationList } from 'modules/inbox/components/leftSidebar';
+import ConversationList from 'modules/inbox/components/leftSidebar/ConversationList';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
   ConversationsQueryResponse,

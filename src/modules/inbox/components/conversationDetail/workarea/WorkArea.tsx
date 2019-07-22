@@ -1,11 +1,15 @@
 import { IUser } from 'modules/auth/types';
-import { Button, Icon, Label, Tags } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import Tags from 'modules/common/components/Tags';
 import { IAttachmentPreview } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
-import { AssignBoxPopover } from 'modules/inbox/components';
-import { Resolver, Tagger } from 'modules/inbox/containers';
-import { RespondBox } from 'modules/inbox/containers/conversationDetail';
+import AssignBoxPopover from 'modules/inbox/components/assignBox/AssignBoxPopover';
+import RespondBox from 'modules/inbox/containers/conversationDetail/RespondBox';
+import Resolver from 'modules/inbox/containers/Resolver';
+import Tagger from 'modules/inbox/containers/Tagger';
 import {
   ActionBarLeft,
   AssignText,
@@ -13,10 +17,10 @@ import {
   ConversationWrapper,
   PopoverButton
 } from 'modules/inbox/styles';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import {
   AddMessageMutationVariables,
   IConversation,
@@ -24,7 +28,6 @@ import {
 } from '../../../types';
 import Conversation from './conversation/Conversation';
 import ConvertTo from './ConvertTo';
-import IntegrationBox from './IntegrationBox';
 import Participators from './Participators';
 import TypingIndicator from './TypingIndicator';
 
@@ -216,23 +219,9 @@ export default class WorkArea extends React.Component<Props, State> {
       </ConversationWrapper>
     );
 
-    const renderContentsations =
-      kind === 'gmail' ? (
-        <IntegrationBox
-          email={currentUser.email}
-          conversationId={currentConversation._id}
-        />
-      ) : (
-        <ContentBox>{content}</ContentBox>
-      );
-
     return (
       <>
         {actionBar}
-        <IntegrationBox
-          email={currentUser.email}
-          conversationId={currentConversation._id}
-        />
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>

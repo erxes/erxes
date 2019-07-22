@@ -1,15 +1,13 @@
-import {
-  ControlLabel,
-  EditorCK,
-  FormControl,
-  FormGroup,
-  Uploader
-} from 'modules/common/components';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import Uploader from 'modules/common/components/Uploader';
 import { __ } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { EditorContainer } from 'modules/engage/styles';
-import * as React from 'react';
+import React from 'react';
 import { IUser } from '../../auth/types';
 import { IEmailTemplate } from '../../settings/emailTemplates/types';
 import { IEngageEmail, IEngageScheduleDate } from '../types';

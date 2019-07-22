@@ -1,19 +1,18 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { CountQueryResponse as CompanyCountQueryResponse } from '../../companies/types';
 import { CountQueryResponse as CustomerCountQueryResponse } from '../../customers/types';
 import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
-import { SegmentsForm } from '../components';
+import SegmentsForm from '../components/SegmentsForm';
 import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
-  AddMutationVariables,
   EditMutationResponse,
   HeadSegmentsQueryResponse,
   ISegmentDoc,
