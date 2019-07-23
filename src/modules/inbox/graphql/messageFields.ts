@@ -51,4 +51,24 @@ export default `
       colorCode
     }
   }
+  gmailData {
+    messageId
+    headerId
+    from
+    to
+    cc
+    bcc
+    reply
+    references
+    threadId
+    subject
+    textPlain
+    textHtml
+    attachments {
+      size
+      filename
+      mimeType
+      attachmentId
+    }
+  }
 `;
