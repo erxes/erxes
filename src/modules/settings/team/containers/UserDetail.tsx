@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
 import { IUserDoc } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { UserDetailForm, UserForm } from '.';
 import { mutations, queries } from '../graphql';
 import { EditMutationResponse } from '../types';
+import UserDetailForm from './UserDetailForm';
+import UserForm from './UserForm';
 
 type Props = {
   _id: string;

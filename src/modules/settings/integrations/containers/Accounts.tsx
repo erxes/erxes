@@ -1,11 +1,12 @@
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
+import { IFormProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Accounts } from '../components';
+import Accounts from '../components/Accounts';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
+  formProps: IFormProps;
 };
 
 type FinalProps = {
@@ -44,7 +46,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { fetchApiQuery, onSelect } = this.props;
+    const { fetchApiQuery, onSelect, formProps } = this.props;
 
     if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
@@ -62,6 +64,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
         removeAccount={this.removeAccount}
         onSelect={onSelect}
         accounts={accounts}
+        formProps={formProps}
       />
     );
   }

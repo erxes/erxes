@@ -1,8 +1,8 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { WorkArea as DumbWorkArea } from 'modules/inbox/components/conversationDetail';
+import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';
@@ -33,17 +33,19 @@ type FinalProps = {
 
 type State = {
   loadingMessages: boolean;
+  typingInfo?: string;
 };
 
 class WorkArea extends React.Component<FinalProps, State> {
-  private prevSubscription;
+  private prevMessageInsertedSubscription;
+  private prevTypingInfoSubscription;
 
   constructor(props) {
     super(props);
 
-    this.state = { loadingMessages: false };
+    this.state = { loadingMessages: false, typingInfo: '' };
 
-    this.prevSubscription = null;
+    this.prevMessageInsertedSubscription = null;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -52,14 +54,21 @@ class WorkArea extends React.Component<FinalProps, State> {
     const { currentId, currentConversation, messagesQuery } = nextProps;
 
     // It is first time or subsequent conversation change
-    if (!this.prevSubscription || currentId !== this.props.currentId) {
+    if (
+      !this.prevMessageInsertedSubscription ||
+      currentId !== this.props.currentId
+    ) {
       // Unsubscribe previous subscription ==========
-      if (this.prevSubscription) {
-        this.prevSubscription();
+      if (this.prevMessageInsertedSubscription) {
+        this.prevMessageInsertedSubscription();
+      }
+
+      if (this.prevTypingInfoSubscription) {
+        this.prevTypingInfoSubscription();
       }
 
       // Start new subscriptions =============
-      this.prevSubscription = messagesQuery.subscribeToMore({
+      this.prevMessageInsertedSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
@@ -100,6 +109,23 @@ class WorkArea extends React.Component<FinalProps, State> {
           };
 
           return next;
+        }
+      });
+
+      this.prevTypingInfoSubscription = messagesQuery.subscribeToMore({
+        document: gql(subscriptions.conversationClientTypingStatusChanged),
+        variables: { _id: currentId },
+        updateQuery: (
+          prev,
+          {
+            subscriptionData: {
+              data: { conversationClientTypingStatusChanged }
+            }
+          }
+        ) => {
+          this.setState({
+            typingInfo: conversationClientTypingStatusChanged.text
+          });
         }
       });
     }
@@ -181,12 +207,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   loadMoreMessages = () => {
-    const {
-      currentId,
-      currentConversation,
-      messagesTotalCountQuery,
-      messagesQuery
-    } = this.props;
+    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
     const conversationMessages = messagesQuery.conversationMessages || [];
 
@@ -237,7 +258,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { loadingMessages } = this.state;
+    const { loadingMessages, typingInfo } = this.state;
     const { messagesQuery } = this.props;
     const conversationMessages = messagesQuery.conversationMessages || [];
 
@@ -246,7 +267,8 @@ class WorkArea extends React.Component<FinalProps, State> {
       conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
-      loading: messagesQuery.loading || loadingMessages
+      loading: messagesQuery.loading || loadingMessages,
+      typingInfo
     };
 
     return <DumbWorkArea {...updatedProps} />;

@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { getUserAvatar } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import {
   ErxesStaffProfile,
   ErxesSupporters,

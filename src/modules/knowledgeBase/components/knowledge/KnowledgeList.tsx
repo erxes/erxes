@@ -1,11 +1,14 @@
-import { DataWithLoader, Icon, ModalTrigger } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { HelperButtons } from 'modules/layout/styles';
-import * as React from 'react';
-import { KnowledgeForm } from '../../containers';
+import React from 'react';
+import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
-import { KnowledgeRow } from './';
+import KnowledgeRow from './KnowledgeRow';
 
 type Props = {
   queryParams: any;
@@ -15,22 +18,7 @@ type Props = {
   topics: ITopic[];
   articlesCount: number;
   refetch: () => void;
-
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          description: string;
-          brandId: string;
-          languageCode: string;
-          color: string;
-        };
-      };
-    },
-    callback: () => void,
-    object: any
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (knowledgeBaseId: string) => void;
 };
 
@@ -39,7 +27,7 @@ class KnowledgeList extends React.Component<Props> {
     const {
       topics,
       remove,
-      save,
+      renderButton,
       currentCategoryId,
       queryParams,
       articlesCount,
@@ -56,7 +44,7 @@ class KnowledgeList extends React.Component<Props> {
             queryParams={queryParams}
             articlesCount={articlesCount}
             remove={remove}
-            save={save}
+            renderButton={renderButton}
             refetchTopics={refetch}
           />
         ))}
@@ -66,17 +54,18 @@ class KnowledgeList extends React.Component<Props> {
 
   renderSidebarHeader() {
     const { Header } = Sidebar;
-    const { save } = this.props;
 
     const trigger = (
       <HelperButtons>
-        <a>
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 
-    const content = props => <KnowledgeForm {...props} save={save} />;
+    const content = props => (
+      <KnowledgeForm {...props} renderButton={this.props.renderButton} />
+    );
 
     return (
       <Header uppercase={true}>

@@ -7,6 +7,8 @@ export interface IArticle {
   summary: string;
   content: string;
   status: string;
+  reactionChoices: string[];
+  reactionCounts: any;
   createdBy: string;
   createdUser: IUser;
   createdDate: Date;
@@ -21,6 +23,7 @@ export interface ITopic {
   categories: ICategory[];
   brand: IBrand;
   color: string;
+  backgroundImage: string;
   languageCode: string;
   createdBy: string;
   createdDate: Date;

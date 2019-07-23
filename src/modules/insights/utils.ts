@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 
 export type OptionsType = {
@@ -44,6 +45,6 @@ export function convertTime(second?: number) {
   );
 }
 
-export function formatDate(date) {
-  return date.format('YYYY-MM-DD HH:mm');
+export function formatDate(date: string): string {
+  return dayjs(date).format('YYYY-MM-DD HH:mm');
 }

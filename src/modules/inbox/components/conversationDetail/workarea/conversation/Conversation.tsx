@@ -1,10 +1,10 @@
 import { IAttachmentPreview } from 'modules/common/types';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
 import AttachmentPreview from './AttachmentPreview';
-import { Message } from './messages';
+import Message from './messages/Message';
 
 type Props = {
   conversation: IConversation;
@@ -65,7 +65,7 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom, conversation } = this.props;
+    const { attachmentPreview, scrollBottom } = this.props;
 
     return (
       <Wrapper isEmail={false}>

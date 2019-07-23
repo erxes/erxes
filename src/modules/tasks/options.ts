@@ -1,5 +1,7 @@
-import { PortableTask, TaskEditForm } from 'modules/tasks/components';
-import { TaskItem } from './containers';
+import { toArray } from 'modules/boards/utils';
+import PortableTask from 'modules/tasks/components/PortableTask';
+import TaskEditForm from 'modules/tasks/components/TaskEditForm';
+import TaskItem from './containers/TaskItem';
 import { mutations, queries } from './graphql';
 
 const options = {
@@ -7,7 +9,7 @@ const options = {
   PortableItem: PortableTask,
   Item: TaskItem,
   type: 'task',
-  title: 'Tasks',
+  title: 'Task',
   queriesName: {
     itemsQuery: 'tasks',
     detailQuery: 'taskDetail'
@@ -17,7 +19,8 @@ const options = {
     editMutation: 'tasksEdit',
     removeMutation: 'tasksRemove',
     changeMutation: 'tasksChange',
-    updateOrderMutation: 'tasksUpdateOrder'
+    updateOrderMutation: 'tasksUpdateOrder',
+    watchMutation: 'tasksWatch'
   },
   queries: {
     itemsQuery: queries.tasks,
@@ -28,14 +31,26 @@ const options = {
     editMutation: mutations.tasksEdit,
     removeMutation: mutations.tasksRemove,
     changeMutation: mutations.tasksChange,
-    updateOrderMutation: mutations.tasksUpdateOrder
+    updateOrderMutation: mutations.tasksUpdateOrder,
+    watchMutation: mutations.tasksWatch
   },
   texts: {
     addText: 'Add a task',
     addSuccessText: 'You successfully added a task',
     updateSuccessText: 'You successfully updated a task',
     deleteSuccessText: 'You successfully deleted a task',
-    copySuccessText: 'You successfully copied a task'
+    copySuccessText: 'You successfully copied a task',
+    changeSuccessText: 'You successfully changed a ticket'
+  },
+  getExtraParams: (queryParams: any) => {
+    const { priority } = queryParams;
+    const extraParams: any = {};
+
+    if (priority) {
+      extraParams.priority = toArray(priority);
+    }
+
+    return extraParams;
   }
 };
 

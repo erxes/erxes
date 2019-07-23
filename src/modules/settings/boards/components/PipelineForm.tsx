@@ -1,17 +1,21 @@
 import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import { COLORS } from 'modules/boards/constants';
+import { IPipeline, IStage } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { colors } from 'modules/common/styles';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import { Modal } from 'react-bootstrap';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import React from 'react';
+import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import BlockPicker from 'react-color/lib/Block';
 import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
-import { IPipeline, IStage } from '../types';
-import { Stages } from './';
+import Stages from './Stages';
 
 type Props = {
   type: string;
@@ -20,42 +24,30 @@ type Props = {
   pipeline?: IPipeline;
   stages?: IStage[];
   members: IUser[];
-  save: (
-    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
-    callback: () => void,
-    pipeline?: IPipeline
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
-  name: string;
   stages: IStage[];
   visibility: string;
   selectedMembers: IUser[];
+  backgroundColor: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { pipeline, stages, members } = this.props;
-
-    const memberIds = pipeline ? pipeline.memberIds || [] : [];
-
-    let selectedMembers: IUser[] = [];
-
-    if (pipeline) {
-      selectedMembers = members.filter(member =>
-        memberIds.includes(member._id)
-      );
-    }
+    const { pipeline, stages } = this.props;
 
     this.state = {
-      name: pipeline ? pipeline.name : '',
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
-      selectedMembers: this.generateMembersParams(selectedMembers)
+      selectedMembers: this.generateMembersParams(
+        pipeline ? pipeline.members : []
+      ),
+      backgroundColor: (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
     };
   }
 
@@ -73,14 +65,13 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ selectedMembers: items });
   };
 
-  onChangeName = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ name: (e.currentTarget as HTMLInputElement).value });
-  };
-
   generateMembersParams = members => {
     return members.map(member => ({
       value: member._id,
-      label: (member.details && member.details.fullName) || member.email || ''
+      label:
+        (member.details && member.details.fullName) ||
+        member.email ||
+        member.username
     }));
   };
 
@@ -88,28 +79,30 @@ class PipelineForm extends React.Component<Props, State> {
     return items.map(item => item.value);
   };
 
-  generateDoc = () => {
-    const { pipeline, type } = this.props;
-    const { name, stages, visibility, selectedMembers } = this.state;
-
-    return {
-      doc: {
-        name,
-        type,
-        boardId: pipeline ? pipeline.boardId : this.props.boardId,
-        stages: stages.filter(el => el.name),
-        visibility,
-        memberIds: this.collectValues(selectedMembers)
-      }
-    };
+  onColorChange = e => {
+    this.setState({ backgroundColor: e.hex });
   };
 
-  save = e => {
-    e.preventDefault();
+  generateDoc = (values: {
+    _id?: string;
+    name: string;
+    visibility: string;
+  }) => {
+    const { pipeline, type, boardId } = this.props;
+    const finalValues = values;
 
-    const { save, pipeline, closeModal } = this.props;
+    if (pipeline) {
+      finalValues._id = pipeline._id;
+    }
 
-    save(this.generateDoc(), () => closeModal(), pipeline);
+    return {
+      ...finalValues,
+      type,
+      boardId: pipeline ? pipeline.boardId : boardId,
+      stages: this.state.stages.filter(el => el.name),
+      memberIds: this.collectValues(this.state.selectedMembers),
+      bgColor: this.state.backgroundColor
+    };
   };
 
   renderSelectMembers() {
@@ -137,79 +130,119 @@ class PipelineForm extends React.Component<Props, State> {
     );
   }
 
-  renderContent() {
-    const { stages, visibility, name } = this.state;
+  renderContent = (formProps: IFormProps) => {
+    const { pipeline, renderButton, closeModal } = this.props;
+    const { values, isSubmitted } = formProps;
+    const object = pipeline || ({} as IPipeline);
+
+    const popoverTop = (
+      <Popover id="color-picker">
+        <BlockPicker
+          width="266px"
+          color={this.state.backgroundColor}
+          onChange={this.onColorChange}
+          colors={COLORS}
+        />
+      </Popover>
+    );
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>
+            {pipeline ? 'Edit pipeline' : 'Add pipeline'}
+          </Modal.Title>
+        </Modal.Header>
 
-          <FormControl
-            defaultValue={name}
-            type="text"
-            onChange={this.onChangeName}
-            autoFocus={true}
-            required={true}
+        <Modal.Body>
+          <FormGroup>
+            <ControlLabel required={true}>Name</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="name"
+              defaultValue={object.name}
+              autoFocus={true}
+              required={true}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Background</ControlLabel>
+            <div>
+              <OverlayTrigger
+                trigger="click"
+                rootClose={true}
+                placement="bottom"
+                overlay={popoverTop}
+              >
+                <ColorPick>
+                  <ColorPicker
+                    style={{ backgroundColor: this.state.backgroundColor }}
+                  />
+                </ColorPick>
+              </OverlayTrigger>
+            </div>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel required={true}>Visibility</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="visibility"
+              componentClass="select"
+              value={this.state.visibility}
+              onChange={this.onChangeVisibility}
+            >
+              <option value="public">{__('Public')}</option>
+              <option value="private">{__('Private')}</option>
+            </FormControl>
+          </FormGroup>
+          {this.renderSelectMembers()}
+
+          <Stages
+            type={this.props.type}
+            stages={this.state.stages}
+            onChangeStages={this.onChangeStages}
           />
-        </FormGroup>
 
-        <ControlLabel required={true}>Visibility</ControlLabel>
-        <FormGroup>
-          <FormControl
-            componentClass="select"
-            value={visibility}
-            onChange={this.onChangeVisibility}
-          >
-            <option value="public">{__('Public')}</option>
-            <option value="private">{__('Private')}</option>
-          </FormControl>
-        </FormGroup>
-        {this.renderSelectMembers()}
+          <Modal.Footer>
+            <Button
+              btnStyle="simple"
+              type="button"
+              icon="cancel-1"
+              onClick={closeModal}
+            >
+              Cancel
+            </Button>
 
-        <Stages
-          type={this.props.type}
-          stages={stages}
-          onChangeStages={this.onChangeStages}
-        />
+            {renderButton({
+              name: 'pipeline',
+              values: this.generateDoc(values),
+              isSubmitted,
+              callback: closeModal,
+              object: pipeline
+            })}
+          </Modal.Footer>
+        </Modal.Body>
       </>
     );
-  }
+  };
 
   render() {
-    const { pipeline, show, closeModal } = this.props;
+    const { show, closeModal } = this.props;
 
     if (!show) {
       return null;
     }
 
     return (
-      <Modal show={show} onHide={closeModal} dialogClassName="transform">
-        <form onSubmit={this.save}>
-          <Modal.Header closeButton={true}>
-            <Modal.Title>
-              {pipeline ? 'Edit pipeline' : 'Add pipeline'}
-            </Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body>
-            {this.renderContent()}
-            <Modal.Footer>
-              <Button
-                btnStyle="simple"
-                type="button"
-                icon="cancel-1"
-                onClick={closeModal}
-              >
-                Cancel
-              </Button>
-
-              <Button btnStyle="success" icon="checked-1" type="submit">
-                Save
-              </Button>
-            </Modal.Footer>
-          </Modal.Body>
-        </form>
+      <Modal
+        show={show}
+        onHide={closeModal}
+        enforceFocus={false}
+        dialogClassName="transform"
+      >
+        <Form renderContent={this.renderContent} />
       </Modal>
     );
   }

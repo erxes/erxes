@@ -1,9 +1,8 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { lighten } from 'modules/common/styles/color';
-import { __ } from 'modules/common/utils';
 import { rotate } from 'modules/common/utils/animations';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const ImportButton = styled.label`
@@ -39,8 +38,8 @@ const ImportLoader = styled.i`
   height: 14px;
   animation: ${rotate} 0.75s linear infinite;
   border: 1px solid ${colors.borderDarker};
-  border-top-color: ${colors.colorPrimary};
-  border-right-color: ${colors.colorPrimary};
+  border-top-color: ${colors.colorSecondary};
+  border-right-color: ${colors.colorSecondary};
   border-radius: 100%;
 `;
 

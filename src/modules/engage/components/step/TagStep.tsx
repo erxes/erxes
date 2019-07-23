@@ -1,9 +1,10 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import { IButtonMutateProps } from 'modules/common/types';
 import { TagAdd, TargetCount } from 'modules/engage/types';
 import { ITag } from 'modules/tags/types';
-import * as React from 'react';
+import React from 'react';
 import Common from './Common';
-import { TagsForm } from './forms';
+import TagsForm from './forms/TagsForm';
 
 type Props = {
   tagIds: string[];
@@ -12,7 +13,7 @@ type Props = {
   targetCount: TargetCount;
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;
-  tagAdd: TagAdd;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   renderContent: (
     {
       actionSelector,
@@ -28,14 +29,14 @@ type Props = {
 
 const TagStep = (props: Props) => {
   const {
-    tagAdd,
     onChange,
     tags,
     tagIds,
     targetCount,
     customersCount,
     messageType,
-    renderContent
+    renderContent,
+    renderButton
   } = props;
 
   const icons: React.ReactNode[] = [];
@@ -54,9 +55,9 @@ const TagStep = (props: Props) => {
       targetCount={targetCount}
       customersCount={customersCount}
       onChange={onChange}
-      onSubmit={tagAdd}
       Form={TagsForm}
       content={renderContent}
+      renderButton={renderButton}
       icons={icons}
     />
   );

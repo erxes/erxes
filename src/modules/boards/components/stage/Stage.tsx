@@ -10,14 +10,16 @@ import {
   StageFooter,
   StageRoot
 } from 'modules/boards/styles/stage';
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import { AddForm } from '../../containers/portable';
 import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
-import { AddForm } from './';
 
 type Props = {
   loadingItems: boolean;
@@ -25,7 +27,7 @@ type Props = {
   stage: IStage;
   length: number;
   items: IItem[];
-  addItem: (name: string, callback: () => void) => void;
+  onAddItem: (stageId: string, item: IItem) => void;
   loadMore: () => void;
   options: IOptions;
 };
@@ -74,7 +76,7 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddItemTrigger() {
-    const { addItem, options } = this.props;
+    const { options, stage, onAddItem } = this.props;
     const addText = options.texts.addText;
 
     const trigger = (
@@ -86,7 +88,14 @@ export default class Stage extends React.Component<Props, {}> {
       </StageFooter>
     );
 
-    const content = props => <AddForm {...props} add={addItem} />;
+    const formProps = {
+      options,
+      showSelect: false,
+      callback: (item: IItem) => onAddItem(stage._id, item),
+      stageId: stage._id
+    };
+
+    const content = props => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
@@ -126,7 +135,7 @@ export default class Stage extends React.Component<Props, {}> {
     if (loadingItems) {
       return (
         <LoadingContent>
-          <img src="/images/loading-content.gif" />
+          <img alt="Loading" src="/images/loading-content.gif" />
         </LoadingContent>
       );
     }

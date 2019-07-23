@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
 import { PageHeader } from 'modules/boards/styles/header';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
@@ -41,13 +41,7 @@ const dateFilterParams = [
   'noCloseDate'
 ];
 
-const commonParams = [
-  'companyIds',
-  'customerIds',
-  'assignedUserIds',
-  'productIds',
-  ...dateFilterParams
-];
+const defaultParams = ['id', 'pipelineId'];
 
 /*
  * Main board component
@@ -85,17 +79,21 @@ class Main extends React.Component<FinalProps> {
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
 
-    for (const param in params) {
-      if (commonParams.includes(param)) {
-        return true;
-      }
+    if (Object.keys(params).length > 2) {
+      return true;
     }
 
     return false;
   };
 
   clearFilter = () => {
-    routerUtils.removeParams(this.props.history, ...commonParams);
+    const params = generateQueryParams(this.props.history);
+
+    const remainedParams = Object.keys(params).filter(
+      key => !defaultParams.includes(key)
+    );
+
+    routerUtils.removeParams(this.props.history, ...remainedParams);
   };
 
   render() {
@@ -191,11 +189,8 @@ class Main extends React.Component<FinalProps> {
       return null;
     }
 
-    if (!currentBoard) {
-      return null;
-    }
+    const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
-    const pipelines = currentBoard.pipelines || [];
     const currentPipeline = pipelineId
       ? pipelines.find(pipe => pipe._id === pipelineId)
       : pipelines[0];
@@ -213,7 +208,6 @@ class Main extends React.Component<FinalProps> {
     const extendedProps = {
       ...props,
       type,
-      onSearch: this.onSearch,
       onDateFilterSelect: this.onDateFilterSelect,
       onClear: this.onClear,
       onSelect: this.onSelect,

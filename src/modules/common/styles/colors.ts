@@ -9,6 +9,7 @@ const colorCoreTeal = '#63D2D6';
 const colorCoreYellow = '#F7CE53';
 const colorCoreGreen = '#3CCC38';
 const colorCoreBlue = '#3B85F4';
+const colorCoreDarkBlue = '#0a1e41';
 const colorCoreBlack = '#393C40';
 const colorCoreGray = '#888';
 const colorCoreLightGray = '#AAAEB3';
@@ -23,7 +24,7 @@ const colorWhite = '#FFF';
 
 // backgrounds
 const bgMain = '#EDF1F5';
-const bgDark = rgba('#000', 0.95);
+const bgDark = rgba(colorBlack, 0.95);
 const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
 const bgUnread = '#F7F8FC';
@@ -40,7 +41,6 @@ const borderDarker = '#DEE4E7';
 // Text colors
 const textPrimary = '#444';
 const textSecondary = rgba(textPrimary, 0.8);
-const textOverlay = '#FFF';
 
 // Shadow colors
 const shadowPrimary = rgba(colorShadowGray, 0.7);
@@ -71,6 +71,7 @@ export default {
   colorLightGray,
   colorLightBlue,
   colorCoreDarkGray,
+  colorCoreDarkBlue,
 
   bgMain,
   bgDark,
@@ -87,7 +88,6 @@ export default {
 
   textPrimary,
   textSecondary,
-  textOverlay,
 
   shadowPrimary,
   darkShadow,

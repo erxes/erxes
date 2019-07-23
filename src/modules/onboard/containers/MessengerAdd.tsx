@@ -1,5 +1,8 @@
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Icon from 'modules/common/components/Icon';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   mutations,
@@ -7,13 +10,11 @@ import {
 } from 'modules/settings/integrations/graphql';
 import {
   IIntegration,
-  IntegrationsCountQueryResponse,
-  SaveMessengerMutationResponse,
-  SaveMessengerMutationVariables
+  IntegrationsCountQueryResponse
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { MessengerAdd } from '../components';
+import MessengerAdd from '../components/MessengerAdd';
 import { OnboardConsumer } from '../containers/OnboardContext';
 import { queries } from '../graphql';
 
@@ -21,7 +22,7 @@ type Props = {
   brandsQuery: BrandsQueryResponse;
   totalCountQuery: IntegrationsCountQueryResponse;
   changeStep: (increase: boolean) => void;
-} & SaveMessengerMutationResponse;
+};
 
 type State = {
   integration: IIntegration;
@@ -40,7 +41,7 @@ class MessengerAddContainer extends React.Component<Props, State> {
   };
 
   render() {
-    const { brandsQuery, saveMessengerMutation, totalCountQuery } = this.props;
+    const { brandsQuery, totalCountQuery } = this.props;
     const { isVisibleCodeModal, integration } = this.state;
 
     let totalCount = 0;
@@ -51,37 +52,43 @@ class MessengerAddContainer extends React.Component<Props, State> {
 
     const brands = brandsQuery.brands || [];
 
-    const save = (doc, callback: () => void) => {
-      const { brandId, languageCode } = doc;
-
-      if (!languageCode) {
-        return Alert.error('Set language');
-      }
-
-      if (!brandId) {
-        return Alert.error('Choose a brand');
-      }
-
-      saveMessengerMutation({
-        variables: doc
-      })
-        .then(({ data }) => {
-          Alert.success('You successfully saved an app');
-          this.setState({
-            integration: data.integrationsCreateMessengerIntegration,
-            isVisibleCodeModal: true
-          });
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
+      const callBackResponse = data => {
+        this.setState({
+          integration: data.integrationsCreateMessengerIntegration,
+          isVisibleCodeModal: true
         });
+
+        if (callback) {
+          callback();
+        }
+      };
+
+      return (
+        <ButtonMutate
+          mutation={mutations.integrationsCreateMessenger}
+          variables={values}
+          callback={callBackResponse}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          disabled={!values}
+          type="submit"
+          successMessage={`You successfully added an ${name}`}
+        >
+          {__('Continue')} <Icon icon="rightarrow-2" />
+        </ButtonMutate>
+      );
     };
 
     const updatedProps = {
       ...this.props,
       brands,
-      save,
+      renderButton,
       integration,
       totalCount,
       showInstallCode: isVisibleCodeModal,
@@ -92,28 +99,21 @@ class MessengerAddContainer extends React.Component<Props, State> {
   }
 }
 
-const WithQuery = compose(
-  graphql<SaveMessengerMutationResponse, SaveMessengerMutationVariables>(
-    gql(mutations.integrationsCreateMessenger),
+const getRefetchQueries = () => {
+  return [
     {
-      name: 'saveMessengerMutation',
-      options: () => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.integrations),
-              variables: {
-                kind: 'messenger'
-              }
-            },
-            {
-              query: gql(integrationQuery.integrationTotalCount)
-            }
-          ]
-        };
+      query: gql(queries.integrations),
+      variables: {
+        kind: 'messenger'
       }
+    },
+    {
+      query: gql(integrationQuery.integrationTotalCount)
     }
-  ),
+  ];
+};
+
+const WithQuery = compose(
   graphql<BrandsQueryResponse>(gql(integrationQuery.brands), {
     name: 'brandsQuery',
     options: () => ({

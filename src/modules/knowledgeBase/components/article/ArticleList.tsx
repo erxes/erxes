@@ -1,7 +1,7 @@
-import { DataWithLoader } from 'modules/common/components';
-import * as React from 'react';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import React from 'react';
 import { IArticle } from '../../types';
-import { ArticleRow } from './';
+import ArticleRow from './ArticleRow';
 
 type Props = {
   articles: IArticle[];

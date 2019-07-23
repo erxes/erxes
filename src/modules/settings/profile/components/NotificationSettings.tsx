@@ -1,5 +1,5 @@
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import Toggle from 'react-toggle';
 import {
   NotificationConfig,
@@ -47,7 +47,7 @@ class NotificationSettings extends React.Component<Props> {
 
     // if no previous configuration found then default is checked
     if (!oldEntry) {
-      return true;
+      return false;
     }
 
     return oldEntry.isAllowed;

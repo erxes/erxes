@@ -1,7 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
-import { Button, FormControl, FormGroup, Icon } from '.';
+import { IFormProps } from '../types';
 import { __, Alert } from '../utils';
+import Button from './Button';
+import FormControl from './form/Control';
+import FormGroup from './form/Group';
+import Icon from './Icon';
 
 type OptionProps = {
   option: any;
@@ -40,8 +44,11 @@ type Props = {
   value?: string;
   placeholder?: string;
   buttonText?: string;
-  regex?: RegExp;
+  checkFormat?: (value: string | number) => boolean;
   adding?: boolean;
+  formProps?: IFormProps;
+  type?: string;
+  required?: boolean;
 };
 
 type State = {
@@ -79,10 +86,6 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     return <span>{selectedOption}</span>;
   };
 
-  isValid(regex: RegExp) {
-    return regex.test(this.state.inputValue);
-  }
-
   saveValue() {
     const { options, selectedOption, inputValue } = this.state;
     const { onChange } = this.props;
@@ -105,10 +108,10 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   }
 
   handleSave = () => {
-    const { regex } = this.props;
+    const { checkFormat } = this.props;
 
-    if (regex) {
-      if (this.isValid(regex)) {
+    if (checkFormat) {
+      if (checkFormat(this.state.inputValue)) {
         return this.saveValue();
       }
 
@@ -165,7 +168,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   };
 
   renderInput = () => {
-    const { buttonText, placeholder } = this.props;
+    const { buttonText, placeholder, type, required } = this.props;
 
     if (this.state.adding) {
       const onPress = e => {
@@ -179,10 +182,12 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
         <React.Fragment>
           <FormGroup>
             <FormControl
+              type={type}
               autoFocus={true}
               onKeyPress={onPress}
               placeholder={placeholder}
               onChange={this.handleInputChange}
+              required={required}
             />
           </FormGroup>
           <Button

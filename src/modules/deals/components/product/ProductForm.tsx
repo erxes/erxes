@@ -1,9 +1,10 @@
-import { Button, EmptyState } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
-import { ProductItemForm } from '../../containers';
+import React from 'react';
+import ProductItemForm from '../../containers/product/ProductItemForm';
 import { Add, FooterInfo, FormContainer } from '../../styles';
 import { IProductData } from '../../types';
 
@@ -132,6 +133,12 @@ class ProductForm extends React.Component<Props, State> {
       for (const data of productsData) {
         if (!data.product) {
           return Alert.error('Please choose a product');
+        }
+
+        if (!data.unitPrice) {
+          return Alert.error(
+            'Please enter an unit price. It should be a number'
+          );
         }
 
         if (!data.currency) {

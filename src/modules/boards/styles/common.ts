@@ -18,12 +18,19 @@ export const BoardContainer = styled(Contents)`
 
 export const BoardContent = styled(MainContent)`
   margin: 0;
-  background: #6569df;
+  background-color: ${colors.colorSecondary};
 `;
 
 export const ScrolledContent = styled(ContentBox)`
   padding: 4px 0 8px;
   margin: 6px 10px 4px 5px;
+`;
+
+export const RootBack = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  background-color: ${colors.colorSecondary};
 `;
 
 // IItem list
@@ -56,7 +63,7 @@ export const SelectContainer = styled.div`
   background: ${colors.colorWhite};
 `;
 
-export const Date = styled.span`
+export const ItemDate = styled.span`
   font-size: 11px;
   color: rgb(136, 136, 136);
   z-index: 10;

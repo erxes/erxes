@@ -1,20 +1,20 @@
-import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
-import * as React from 'react';
+import { IBoard } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { IButtonMutateProps } from 'modules/common/types';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { BoardForm } from '.';
 import { ActionButtons } from '../../styles';
 import { BoardItem } from '../styles';
-import { IBoard } from '../types';
+import BoardForm from './BoardForm';
 
 type Props = {
   type: string;
   board: IBoard;
   remove: (boardId: string) => void;
-  save: (
-    params: { doc: { name: string } },
-    callback: () => void,
-    brand: IBoard
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   isActive: boolean;
 };
 
@@ -28,7 +28,7 @@ class BoardRow extends React.Component<Props, {}> {
   };
 
   renderEditAction() {
-    const { board, save, type } = this.props;
+    const { board, renderButton, type } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -39,7 +39,12 @@ class BoardRow extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <BoardForm {...props} board={board} save={save} type={type} />
+      <BoardForm
+        {...props}
+        board={board}
+        renderButton={renderButton}
+        type={type}
+      />
     );
 
     return (

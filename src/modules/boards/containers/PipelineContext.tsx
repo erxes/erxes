@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
 import { mutations, queries } from '../graphql';
 import {
@@ -12,6 +12,7 @@ import {
   IOptions,
   IPipeline
 } from '../types';
+import { invalidateCache } from '../utils';
 import { collectOrders, reorder, reorderItemMap } from '../utils';
 
 type Props = {
@@ -126,17 +127,14 @@ export class PipelineProvider extends React.Component<Props, State> {
       destination
     });
 
-    const itemId = result.draggableId;
-
     // update item to database
-    this.itemChange(itemId, destination.droppableId);
-
-    const item = itemMap[destination.droppableId].find(d => d._id === itemId);
-    item.modifiedAt = new Date();
+    this.itemChange(result.draggableId, destination.droppableId);
 
     this.setState({
       itemMap
     });
+
+    invalidateCache();
 
     // save orders to database
     return this.saveItemOrders(itemMap, [
@@ -145,7 +143,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     ]);
   };
 
-  itemChange = (itemId: string, destinationStageId?: string) => {
+  itemChange = (itemId: string, destinationStageId: string) => {
     const { options } = this.props;
 
     client
@@ -182,10 +180,6 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
-
-      if (orders.length === 0) {
-        continue;
-      }
 
       client
         .mutate({

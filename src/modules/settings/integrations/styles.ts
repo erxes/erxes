@@ -46,6 +46,7 @@ const Row = styled.div`
   > button {
     flex-shrink: 0;
     margin-left: 10px;
+    align-self: baseline;
   }
 `;
 

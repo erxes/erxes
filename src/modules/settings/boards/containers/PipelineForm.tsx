@@ -1,22 +1,20 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import { StagesQueryResponse } from 'modules/boards/types';
+import { IPipeline } from 'modules/boards/types';
+import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries as userQuery } from '../../team/graphql';
-import { PipelineForm } from '../components';
+import PipelineForm from '../components/PipelineForm';
 import { queries } from '../graphql';
-import { IPipeline, IStage, StagesQueryResponse } from '../types';
 
 type Props = {
   pipeline?: IPipeline;
   boardId: string;
-  save: (
-    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
-    callback: () => void,
-    pipeline?: IPipeline
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   show: boolean;
   type: string;
@@ -29,7 +27,7 @@ type FinalProps = {
 
 class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, usersQuery, boardId, save } = this.props;
+    const { stagesQuery, usersQuery, boardId, renderButton } = this.props;
 
     if ((stagesQuery && stagesQuery.loading) || usersQuery.loading) {
       return <Spinner />;
@@ -42,7 +40,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       ...this.props,
       stages,
       boardId,
-      save,
+      renderButton,
       members
     };
 

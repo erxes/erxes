@@ -1,22 +1,17 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import { IUser } from 'modules/auth/types';
 import {
-  FlexContent,
   HeaderContent,
   HeaderContentSmall,
   HeaderRow,
-  Left,
-  RightContent
+  TitleRow
 } from 'modules/boards/styles/item';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import * as React from 'react';
-import * as Datetime from 'react-datetime';
-import { Move } from '../../containers/editForm';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import React from 'react';
+import Move from '../../containers/editForm/Move';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
@@ -26,10 +21,9 @@ type Props = {
   description: string;
   closeDate: Date;
   stageId: string;
-  assignedUserIds: string[];
   users: IUser[];
   onChangeField: (
-    name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds',
+    name: 'stageId' | 'name' | 'closeDate' | 'description',
     value: any
   ) => void;
   amount?: () => React.ReactNode;
@@ -54,35 +48,25 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const {
-      name,
-      description,
-      closeDate,
-      assignedUserIds,
-      onChangeField,
-      amount
-    } = this.props;
+    const { name, closeDate, onChangeField, amount } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
 
     const dateOnChange = date => onChangeField('closeDate', date);
 
-    const descriptionOnChange = e =>
-      onChangeField('description', (e.target as HTMLInputElement).value);
-
-    const userOnChange = usrs => onChangeField('assignedUserIds', usrs);
-
     return (
       <React.Fragment>
         <HeaderRow>
           <HeaderContent>
-            <ControlLabel>Name</ControlLabel>
-            <FormControl
-              defaultValue={name}
-              required={true}
-              onChange={nameOnChange}
-            />
+            <TitleRow>
+              <Icon icon="creditcard" />
+              <FormControl
+                defaultValue={name}
+                required={true}
+                onChange={nameOnChange}
+              />
+            </TitleRow>
           </HeaderContent>
 
           {amount && amount()}
@@ -106,30 +90,6 @@ class Top extends React.Component<Props> {
             </FormGroup>
           </HeaderContentSmall>
         </HeaderRow>
-
-        <FlexContent>
-          <Left>
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                componentClass="textarea"
-                defaultValue={description}
-                onChange={descriptionOnChange}
-              />
-            </FormGroup>
-          </Left>
-          <RightContent>
-            <FormGroup>
-              <ControlLabel>Assigned to</ControlLabel>
-              <SelectTeamMembers
-                label="Choose users"
-                name="assignedUserIds"
-                value={assignedUserIds}
-                onSelect={userOnChange}
-              />
-            </FormGroup>
-          </RightContent>
-        </FlexContent>
       </React.Fragment>
     );
   }

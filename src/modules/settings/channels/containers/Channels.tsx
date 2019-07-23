@@ -2,11 +2,12 @@ import gql from 'graphql-tag';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IntegrationsCountQueryResponse } from '../../integrations/types';
-import { Channels as DumbChannels, Empty } from '../components';
+import DumbChannels from '../components/Channels';
+import Empty from '../components/Empty';
 import { queries } from '../graphql';
 import {
   ChannelDetailQueryResponse,

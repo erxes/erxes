@@ -1,11 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { Welcome } from 'modules/onboard/containers';
-import { ImportIndicator } from 'modules/settings/importHistory/containers';
-import * as React from 'react';
+import Welcome from 'modules/onboard/containers/Welcome';
+import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
+import React from 'react';
 import { withRouter } from 'react-router';
-import { Navigation } from '../containers';
+import Navigation from '../containers/Navigation';
 import { Layout } from '../styles';
 import DetectBrowser from './DetectBrowser';
 
@@ -23,20 +22,6 @@ class MainLayout extends React.Component<IProps> {
     if (history.location.pathname !== '/reset-password' && !currentUser) {
       history.push('/sign-in');
     }
-
-    // browser default form validation event listener
-    document.addEventListener(
-      'invalid',
-      (() => {
-        return e => {
-          // prevent the browser from showing default error hint
-          e.preventDefault();
-
-          e.target.classList.add('form-invalid');
-        };
-      })(),
-      true
-    );
   }
 
   getLastImport = () => {

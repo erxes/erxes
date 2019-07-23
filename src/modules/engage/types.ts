@@ -167,9 +167,6 @@ export type AddMutationResponse = {
   ) => Promise<any>;
 };
 
-export type BrandAdd = (
-  params: { doc: { name: string; description: string } }
-) => void;
 export type TagAdd = (
   params: { doc: { name: string; description: string } }
 ) => void;

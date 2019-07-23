@@ -1,41 +1,29 @@
-import {
-  Button,
-  ControlLabel,
-  EditorCK,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import { articleReactions } from 'modules/knowledgeBase/icons.constant';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
+import React from 'react';
+import Select from 'react-select-plus';
 import { IArticle } from '../../types';
+import { ReactionItem } from './styles';
 
 type Props = {
   article: IArticle;
   currentCategoryId: string;
-
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          summary: string;
-          content: string;
-          status: string;
-          categoryIds: string[];
-        };
-      };
-    },
-    callback: () => void,
-    IArticle
-  ) => void;
-
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
-  status: string;
   content: string;
+  reactionChoices: string[];
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -45,64 +33,72 @@ class ArticleForm extends React.Component<Props, State> {
     const article = props.article || { content: '' };
 
     this.state = {
-      status: this.getCurrentStatus(),
-      content: article.content
+      content: article.content,
+      reactionChoices: article.reactionChoices || []
     };
   }
 
-  save = e => {
-    e.preventDefault();
+  generateDoc = (values: {
+    _id?: string;
+    title: string;
+    summary: string;
+    status: string;
+  }) => {
+    const { article, currentCategoryId } = this.props;
+    const { content, reactionChoices } = this.state;
 
-    this.props.save(
-      this.generateDoc(),
-      () => this.props.closeModal(),
-      this.props.article
-    );
-  };
+    const finalValues = values;
 
-  getCurrentStatus() {
-    const { article } = this.props;
-    if (article == null) {
-      return 'draft';
+    if (article) {
+      finalValues._id = article._id;
     }
-    return article.status;
-  }
 
-  generateDoc() {
     return {
+      _id: finalValues._id,
       doc: {
-        doc: {
-          title: (document.getElementById(
-            'knowledgebase-article-title'
-          ) as HTMLInputElement).value,
-          summary: (document.getElementById(
-            'knowledgebase-article-summary'
-          ) as HTMLInputElement).value,
-          content: this.state.content,
-          status: this.state.status,
-          categoryIds: [this.props.currentCategoryId]
-        }
+        title: finalValues.title,
+        summary: finalValues.summary,
+        content,
+        reactionChoices,
+        status: finalValues.status,
+        categoryIds: [currentCategoryId]
       }
     };
-  }
+  };
 
   onChange = e => {
     this.setState({ content: e.editor.getData() });
   };
 
-  renderContent(article) {
-    const onChange = e => {
-      this.setState({ status: (e.target as HTMLInputElement).value });
-    };
+  onChangeReactions = (options: IOption[]) => {
+    this.setState({ reactionChoices: options.map(option => option.value) });
+  };
+
+  renderOption = option => {
+    return (
+      <ReactionItem>
+        <img src={option.value} alt={option.label} />
+        {option.label}
+      </ReactionItem>
+    );
+  };
+
+  renderContent = (formProps: IFormProps) => {
+    const { article, renderButton, closeModal } = this.props;
+    const { reactionChoices, content } = this.state;
+
+    const { isSubmitted, values } = formProps;
+
+    const object = article || ({} as IArticle);
 
     return (
-      <React.Fragment>
+      <>
         <FormGroup>
-          <ControlLabel>Title</ControlLabel>
+          <ControlLabel required={true}>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-article-title"
-            type="text"
-            defaultValue={article.title}
+            {...formProps}
+            name="title"
+            defaultValue={object.title}
             required={true}
             autoFocus={true}
           />
@@ -111,45 +107,51 @@ class ArticleForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Summary</ControlLabel>
           <FormControl
-            id="knowledgebase-article-summary"
-            type="text"
-            defaultValue={article.summary}
+            {...formProps}
+            name="summary"
+            defaultValue={object.summary}
           />
         </FormGroup>
 
+        <FlexContent>
+          <FlexItem count={4}>
+            <FormGroup>
+              <ControlLabel required={true}>Reactions</ControlLabel>
+              <Select
+                multi={true}
+                value={reactionChoices}
+                options={articleReactions}
+                onChange={this.onChangeReactions}
+                optionRenderer={this.renderOption}
+                valueRenderer={this.renderOption}
+              />
+            </FormGroup>
+          </FlexItem>
+          <FlexItem count={2} hasSpace={true}>
+            <FormGroup>
+              <ControlLabel required={true}>Status</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="status"
+                componentClass="select"
+                placeholder={__('select')}
+                defaultValue={object.status || 'draft'}
+                required={true}
+              >
+                {[{ value: 'draft' }, { value: 'publish' }].map(op => (
+                  <option key={op.value} value={op.value}>
+                    {op.value}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
         <FormGroup>
-          <ControlLabel>Content</ControlLabel>
-          <EditorCK
-            content={this.state.content}
-            onChange={this.onChange}
-            height={300}
-          />
+          <ControlLabel required={true}>Content</ControlLabel>
+          <EditorCK content={content} onChange={this.onChange} height={300} />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Status</ControlLabel>
-          <FormControl
-            id="knowledgebase-article-status"
-            componentClass="select"
-            placeholder={__('select')}
-            onChange={onChange}
-            value={this.state.status}
-          >
-            {[{ value: 'draft' }, { value: 'publish' }].map(op => (
-              <option key={op.value} value={op.value}>
-                {op.value}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      </React.Fragment>
-    );
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.save}>
-        {this.renderContent(this.props.article || {})}
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -160,12 +162,20 @@ class ArticleForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'article',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: article
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

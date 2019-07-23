@@ -1,6 +1,7 @@
-import { ControlLabel, FormGroup } from 'modules/common/components';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { SelectContainer } from '../styles/common';
 import { IBoard, IPipeline, IStage } from '../types';
@@ -31,6 +32,7 @@ class BoardSelect extends React.Component<Props> {
   renderSelect(placeholder, value, onChange, options) {
     return (
       <Select
+        isRequired={true}
         placeholder={placeholder}
         value={value}
         onChange={onChange}

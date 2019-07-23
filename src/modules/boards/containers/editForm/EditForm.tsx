@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
-import { queries as boardQueries } from 'modules/boards/graphql';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, renderWithProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
-import { UsersQueryResponse } from 'modules/settings/team/types';
-import * as React from 'react';
+import { AllUsersQueryResponse } from 'modules/settings/team/types';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import { queries } from '../../graphql';
 import {
   DetailQueryResponse,
   IItem,
@@ -28,7 +28,7 @@ type IProps = {
 
 type FinalProps = {
   detailQuery: DetailQueryResponse;
-  usersQuery: UsersQueryResponse;
+  usersQuery: AllUsersQueryResponse;
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
@@ -116,7 +116,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const users = usersQuery.users;
+    const users = usersQuery.allUsers;
     const item = detailQuery[options.queriesName.detailQuery];
 
     if (!item) {
@@ -152,12 +152,13 @@ export default (props: IProps) => {
             return {
               variables: {
                 _id: itemId
-              }
+              },
+              fetchPolicy: 'network-only'
             };
           }
         }
       ),
-      graphql<IProps, UsersQueryResponse>(gql(userQueries.usersForSelector), {
+      graphql<IProps, AllUsersQueryResponse>(gql(userQueries.allUsers), {
         name: 'usersQuery'
       }),
       graphql<IProps, SaveMutation, IItemParams>(
@@ -167,7 +168,7 @@ export default (props: IProps) => {
           options: ({ stageId }: { stageId: string }) => ({
             refetchQueries: [
               {
-                query: gql(boardQueries.stageDetail),
+                query: gql(queries.stageDetail),
                 variables: { _id: stageId }
               }
             ]
@@ -191,7 +192,7 @@ export default (props: IProps) => {
                 variables: { _id: itemId }
               },
               {
-                query: gql(boardQueries.stageDetail),
+                query: gql(queries.stageDetail),
                 variables: { _id: stageId }
               }
             ]
@@ -205,7 +206,7 @@ export default (props: IProps) => {
           options: ({ stageId }: { stageId: string }) => ({
             refetchQueries: [
               {
-                query: gql(boardQueries.stageDetail),
+                query: gql(queries.stageDetail),
                 variables: { _id: stageId }
               }
             ]

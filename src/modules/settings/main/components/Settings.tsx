@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Box,
@@ -70,6 +70,11 @@ class Settings extends React.PureComponent {
               'Status',
               '/images/icons/erxes-06.svg',
               '/settings/status'
+            )}
+            {this.renderBox(
+              'Logs',
+              '/images/icons/erxes-14.svg',
+              '/settings/logs'
             )}
           </div>
         </Row>

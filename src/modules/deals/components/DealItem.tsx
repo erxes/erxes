@@ -1,12 +1,13 @@
-import { EditForm } from 'modules/boards/containers/editForm';
-import { Date, ItemContainer } from 'modules/boards/styles/common';
+import dayjs from 'dayjs';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
+import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
-import * as moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IDeal } from '../types';
 
@@ -37,7 +38,7 @@ export default class DealItem extends React.PureComponent<
       return null;
     }
 
-    return <Date>{moment(date).format('MMM D, h:mm a')}</Date>;
+    return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
   toggleForm = () => {
@@ -57,7 +58,12 @@ export default class DealItem extends React.PureComponent<
     }
 
     return (
-      <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
+      <Modal
+        enforceFocus={false}
+        bsSize="lg"
+        show={true}
+        onHide={this.toggleForm}
+      >
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit deal')}</Modal.Title>
         </Modal.Header>
@@ -118,6 +124,7 @@ export default class DealItem extends React.PureComponent<
             <Right>
               {(item.assignedUsers || []).map((user, index) => (
                 <img
+                  alt="Avatar"
                   key={index}
                   src={getUserAvatar(user)}
                   width="22px"
@@ -129,7 +136,7 @@ export default class DealItem extends React.PureComponent<
           </PriceContainer>
 
           <Footer>
-            {__('Last updated')}:
+            {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
             <Right>{this.renderDate(item.modifiedAt)}</Right>
           </Footer>
         </Content>

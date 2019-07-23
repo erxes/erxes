@@ -1,5 +1,5 @@
-import { PortableItems } from 'modules/boards/containers';
-import * as React from 'react';
+import PortableItems from 'modules/boards/containers/portable/Items';
+import React from 'react';
 import options from '../options';
 
 type IProps = {

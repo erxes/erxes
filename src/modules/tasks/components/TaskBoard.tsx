@@ -1,14 +1,11 @@
-import { Board, MainActionBar } from 'modules/boards/containers';
-import {
-  BoardContainer,
-  BoardContent,
-  ScrolledContent
-} from 'modules/boards/styles/common';
+import Board from 'modules/boards/containers/Board';
+import MainActionBar from 'modules/boards/containers/MainActionBar';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
-import { Header } from 'modules/layout/components';
-import * as React from 'react';
-import { TaskMainActionBar } from '.';
+import Header from 'modules/layout/components/Header';
+import React from 'react';
 import options from '../options';
+import TaskMainActionBar from './TaskMainActionBar';
 
 type Props = {
   queryParams: any;
@@ -32,9 +29,7 @@ class TaskBoard extends React.Component<Props> {
         <Header title={__('Task')} breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
-          <ScrolledContent transparent={true}>
-            {this.renderContent()}
-          </ScrolledContent>
+          {this.renderContent()}
         </BoardContent>
       </BoardContainer>
     );

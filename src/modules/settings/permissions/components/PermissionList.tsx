@@ -1,28 +1,20 @@
 import { IUser } from 'modules/auth/types';
-import {
-  ActionButtons,
-  Button,
-  DataWithLoader,
-  Icon,
-  ModalTrigger,
-  Pagination,
-  Table,
-  TextInfo,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import Select from 'react-select-plus';
-import { GroupList } from '../containers';
+import GroupList from '../containers/GroupList';
 import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
-import {
-  IActions,
-  IModule,
-  IPermissionDocument,
-  IPermissionParams,
-  IUserGroup
-} from '../types';
+import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
 import PermissionForm from './PermissionForm';
 import {
   correctValue,
@@ -45,8 +37,8 @@ type commonProps = {
   users: IUser[];
   groups: IUserGroup[];
   permissions: IPermissionDocument[];
-  save: (doc: IPermissionParams, callback: () => void) => void;
   remove: (id: string) => void;
+  refetchQueries: any;
 };
 
 class PermissionList extends React.Component<Props> {
@@ -116,7 +108,7 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderForm = props => {
-    const { modules, actions, users, groups, save } = this.props;
+    const { modules, actions, users, groups, refetchQueries } = this.props;
 
     const extendedProps = {
       ...props,
@@ -124,14 +116,14 @@ class PermissionList extends React.Component<Props> {
       actions,
       users,
       groups,
-      save
+      refetchQueries
     };
 
     return <PermissionForm {...extendedProps} />;
   };
 
   renderActionBar() {
-    const { queryParams, modules, actions, groups, users } = this.props;
+    const { queryParams, modules, actions, users } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">

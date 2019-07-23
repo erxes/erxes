@@ -1,6 +1,6 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IIntegration } from '../../settings/integrations/types';

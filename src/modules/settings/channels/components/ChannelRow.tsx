@@ -1,10 +1,14 @@
 import { IUser } from 'modules/auth/types';
-import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChannelForm } from '../containers';
+import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
 import MemberAvatars from './MemberAvatars';
 
@@ -12,18 +16,8 @@ type Props = {
   channel: IChannel;
   members: IUser[];
   remove: (id: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
   isActive: boolean;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class ChannelRow extends React.Component<Props, {}> {
@@ -33,7 +27,7 @@ class ChannelRow extends React.Component<Props, {}> {
   };
 
   renderEditAction = () => {
-    const { channel, save, members } = this.props;
+    const { channel, members, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -44,7 +38,12 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm {...props} save={save} members={members} channel={channel} />
+      <ChannelForm
+        {...props}
+        members={members}
+        channel={channel}
+        renderButton={renderButton}
+      />
     );
 
     return (

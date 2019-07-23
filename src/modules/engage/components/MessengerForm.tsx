@@ -1,19 +1,17 @@
 import { IUser } from 'modules/auth/types';
-import {
-  ControlLabel,
-  EditorCK,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import {
   EMAIL_CONTENT,
   MESSENGER_KINDS,
   SENT_AS_CHOICES
 } from 'modules/engage/constants';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
-import { MessengerPreview } from '../containers';
+import MessengerPreview from '../containers/MessengerPreview';
 import { IEngageMessenger, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
 

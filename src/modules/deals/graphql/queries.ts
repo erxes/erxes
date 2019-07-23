@@ -6,7 +6,7 @@ const commonParams = `
   $nextWeek: String,
   $nextMonth: String,
   $noCloseDate: String,
-  $overdue: String
+  $overdue: String,
   $productIds: [String]
 `;
 
@@ -18,7 +18,7 @@ const commonParamDefs = `
   nextWeek: $nextWeek,
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
-  overdue: $overdue
+  overdue: $overdue,
   productIds: $productIds
 `;
 
@@ -57,6 +57,14 @@ const dealFields = `
   }
   stage {
     probability
+    name
+  }
+  isWatched
+  attachments {
+    name
+    url
+    type
+    size
   }
   modifiedAt
   modifiedBy
@@ -64,21 +72,24 @@ const dealFields = `
 
 const dealsTotalAmounts = `
   query dealsTotalAmounts(
-    $date: ItemDate 
+    $date: ItemDate
     $pipelineId: String
     ${commonParams}
   ) {
     dealsTotalAmounts(
-      date: $date 
+      date: $date
       pipelineId: $pipelineId
       ${commonParamDefs}
     ) {
       _id
       dealCount
-      dealAmounts {
+      totalForType {
         _id
-        currency
-        amount
+        name
+        currencies {
+          name
+          amount
+        }
       }
     }
   }
@@ -86,6 +97,7 @@ const dealsTotalAmounts = `
 
 const deals = `
   query deals(
+    $initialStageId: String,
     $pipelineId: String,
     $stageId: String,
     $date: ItemDate,
@@ -95,7 +107,8 @@ const deals = `
   ) {
     deals(
       pipelineId: $pipelineId,
-      stageId: $stageId, 
+      initialStageId: $initialStageId,
+      stageId: $stageId,
       date: $date,
       skip: $skip,
       search: $search

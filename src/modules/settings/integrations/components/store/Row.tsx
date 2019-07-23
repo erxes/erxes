@@ -1,7 +1,8 @@
-import { Pagination } from 'modules/common/components';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import { __ } from 'modules/common/utils';
-import { IntegrationList } from 'modules/settings/integrations/containers/common';
-import * as React from 'react';
+import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
+import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
+import React from 'react';
 import { Collapse } from 'react-bootstrap';
 import StoreEntry from '../../containers/StoreEntry';
 import Entry from './Entry';
@@ -13,7 +14,6 @@ type Props = {
   totalCount: {
     messenger: number;
     form: number;
-    facebook: number;
   };
   queryParams: any;
 };
@@ -81,7 +81,7 @@ class Row extends React.Component<Props, State> {
   }
 
   isMessengerApp(kind: string | null) {
-    if (kind === 'lead' || kind === 'googleMeet' || kind === 'knowledgebase') {
+    if (kind === 'lead' || kind === 'knowledgebase') {
       return true;
     }
 
@@ -110,6 +110,10 @@ class Row extends React.Component<Props, State> {
   renderList() {
     const { queryParams, totalCount } = this.props;
     const { kind } = this.state;
+
+    if (this.isMessengerApp(kind)) {
+      return <MessengerAppList kind={kind} queryParams={queryParams} />;
+    }
 
     return (
       <>

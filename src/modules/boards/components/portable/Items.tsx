@@ -1,27 +1,28 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionContainer } from 'modules/layout/styles';
-import * as React from 'react';
-import { AddItem } from '.';
-import { IItem, IItemParams, IOptions } from '../../types';
+import React from 'react';
+import { AddForm } from '../../containers/portable';
+import { IItem, IOptions } from '../../types';
 
 type Props = {
   options: IOptions;
   items: IItem[];
   customerIds?: string[];
   companyIds?: string[];
-  saveItem: (doc: IItemParams, callback: () => void, item?: IItem) => void;
   onChangeItems: () => void;
   isOpen?: boolean;
 };
 
-class PortableItems extends React.Component<Props> {
+class Items extends React.Component<Props> {
   renderItems = () => {
     const { onChangeItems, items, options } = this.props;
 
     if (items.length === 0) {
-      return <EmptyState icon="piggy-bank" text={`No ${options.type}`} />;
+      return <EmptyState icon="folder" text={`No ${options.type}`} />;
     }
 
     const PortableItem = options.PortableItem;
@@ -42,19 +43,25 @@ class PortableItems extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { saveItem, customerIds, companyIds, isOpen, options } = this.props;
+    const {
+      customerIds,
+      companyIds,
+      isOpen,
+      options,
+      onChangeItems
+    } = this.props;
 
     const trigger = (
-      <a>
+      <button>
         <Icon icon="add" />
-      </a>
+      </button>
     );
 
     const content = props => (
-      <AddItem
+      <AddForm
         options={options}
         {...props}
-        saveItem={saveItem}
+        callback={onChangeItems}
         customerIds={customerIds}
         companyIds={companyIds}
         showSelect={true}
@@ -81,4 +88,4 @@ class PortableItems extends React.Component<Props> {
   }
 }
 
-export default PortableItems;
+export default Items;

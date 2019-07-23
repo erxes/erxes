@@ -1,8 +1,9 @@
-import * as React from 'react';
+import React from 'react';
 import { TextArea } from './styles';
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
+  hasError?: boolean;
   maxHeight?: number;
 };
 

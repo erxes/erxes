@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
-import * as RTG from 'react-transition-group';
+import RTG from 'react-transition-group';
 
 type Props = {
   title: string;

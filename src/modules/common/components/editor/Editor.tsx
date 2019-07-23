@@ -1,6 +1,7 @@
-import * as Draft from 'draft-js';
+import Draft from 'draft-js';
 import { ContentState, EditorState, RichUtils } from 'draft-js';
 import createLinkPlugin from 'draft-js-anchor-plugin';
+import 'draft-js-anchor-plugin/lib/plugin.css';
 import {
   BlockquoteButton,
   BoldButton,
@@ -11,11 +12,13 @@ import {
   UnorderedListButton
 } from 'draft-js-buttons';
 import createEmojiPlugin from 'draft-js-emoji-plugin';
+import 'draft-js-emoji-plugin/lib/plugin.css';
 import { stateToHTML } from 'draft-js-export-html';
 import Editor from 'draft-js-plugins-editor';
 import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
+import 'draft-js-static-toolbar-plugin/lib/plugin.css';
 import Icon from 'modules/common/components/Icon';
-import * as React from 'react';
+import React from 'react';
 import HeadlinesButton from './HeadlinesButton';
 import { RichEditorControlsRoot, RichEditorRoot } from './styles';
 

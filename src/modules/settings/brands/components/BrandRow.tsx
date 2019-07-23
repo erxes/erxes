@@ -1,7 +1,10 @@
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import BrandForm from 'modules/settings/brands/components/BrandForm';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Icon, ModalTrigger, Tip } from '../../../common/components';
 import { __ } from '../../../common/utils';
 import { ActionButtons, SidebarListItem } from '../../styles';
 import { IBrand } from '../types';
@@ -9,17 +12,8 @@ import { IBrand } from '../types';
 type Props = {
   brand: IBrand;
   remove: (id: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-      };
-    },
-    callback: () => void,
-    brand?: IBrand
-  ) => void;
   isActive: boolean;
+  renderButton: (props: any) => JSX.Element;
 };
 
 class BrandRow extends React.Component<Props> {
@@ -29,7 +23,7 @@ class BrandRow extends React.Component<Props> {
   };
 
   renderEditAction = () => {
-    const { brand, save } = this.props;
+    const { brand, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -39,7 +33,9 @@ class BrandRow extends React.Component<Props> {
       </Button>
     );
 
-    const content = props => <BrandForm {...props} brand={brand} save={save} />;
+    const content = props => (
+      <BrandForm {...props} brand={brand} renderButton={renderButton} />
+    );
 
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />

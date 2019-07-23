@@ -1,20 +1,20 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Spinner
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Spinner from 'modules/common/components/Spinner';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import { Accounts, SelectBrand } from '../../containers/';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import React from 'react';
+import Accounts from '../../containers/Accounts';
+import SelectBrand from '../../containers/SelectBrand';
 import { IPages } from '../../types';
 
 type Props = {
-  onSave: (params: any, callback: () => void) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   onAccountSelect: (accountId?: string) => void;
   pages: IPages[];
+  accountId?: string;
   onRemoveAccount: (accountId: string) => void;
   closeModal: () => void;
 };
@@ -44,23 +44,22 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     return values;
   }
 
-  handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  generateDoc = (values: {
+    messengerName: string;
+    brandId: string;
+    accountId: string;
+  }) => {
+    const { accountId } = this.props;
 
-    const doc = {
-      name: (document.getElementById('name') as HTMLInputElement).value,
-      brandId: (document.getElementById('selectBrand') as HTMLInputElement)
-        .value,
+    return {
+      name: values.messengerName,
+      brandId: values.brandId,
+      kind: 'facebook',
+      accountId: accountId ? accountId : values.accountId,
       data: {
         pageIds: this.collectCheckboxValues('pages')
       }
     };
-
-    this.setState({ loading: true });
-
-    this.props.onSave(doc, () => {
-      this.setState({ loading: false }, () => this.props.closeModal());
-    });
   };
 
   renderPages() {
@@ -90,36 +89,44 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     );
   }
 
-  render() {
-    const { onRemoveAccount, onAccountSelect } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { onRemoveAccount, onAccountSelect, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <>
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-
-          <FormControl id="name" type="text" required={true} />
+          <FormControl {...formProps} name="messengerName" required={true} />
         </FormGroup>
 
-        <SelectBrand isRequired={true} />
+        <SelectBrand isRequired={true} formProps={formProps} />
 
         <Accounts
           kind="facebook"
           addLink="fblogin"
           onSelect={onAccountSelect}
           onRemove={onRemoveAccount}
+          formProps={formProps}
         />
 
         {this.renderPages()}
 
         <ModalFooter>
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'integration',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: this.props.closeModal
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

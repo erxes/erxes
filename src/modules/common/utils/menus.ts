@@ -1,11 +1,11 @@
 const menuInbox = [
-  { title: 'Inbox', link: '/inbox/index' },
+  { title: 'Team Inbox', link: '/inbox/index' },
   { title: 'Ticket', link: '/inbox/ticket/board' },
   { title: 'Insights', link: '/inbox/insights' }
 ];
 
 const menuDeal = [
-  { title: 'Deal', link: '/deal/board' },
+  { title: 'Sales pipeline', link: '/deal/board' },
   { title: 'Insights', link: '/deal/insights' }
 ];
 

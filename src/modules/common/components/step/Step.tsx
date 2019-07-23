@@ -1,6 +1,7 @@
-import { Button, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import {
   FullStep,
   ShortStep,

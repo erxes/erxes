@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import { ICategory } from '../../types';
-import { CategoryRow } from './';
+import CategoryRow from './CategoryRow';
 import { Categories } from './styles';
 
 type Props = {

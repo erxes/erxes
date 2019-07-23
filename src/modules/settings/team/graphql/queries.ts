@@ -100,9 +100,9 @@ const users = `
   }
 `;
 
-const usersForSelector = `
-  query users {
-    users {
+const allUsers = `
+  query allUsers {
+    allUsers {
       _id
       email
       username
@@ -126,5 +126,5 @@ export default {
   userConversations,
   users,
   usersTotalCount,
-  usersForSelector
+  allUsers
 };

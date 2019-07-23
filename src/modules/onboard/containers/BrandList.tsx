@@ -2,16 +2,14 @@ import gql from 'graphql-tag';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
 import {
-  BrandAddMutationResponse,
-  BrandEditMutationResponse,
   BrandRemoveMutationResponse,
   BrandRemoveMutationVariables,
   BrandsCountQueryResponse,
   BrandsQueryResponse
 } from 'modules/settings/brands/types';
-import * as React from 'react';
+import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { BrandList } from '../components';
+import BrandList from '../components/BrandList';
 
 type Props = {
   brandCount: number;
@@ -21,8 +19,6 @@ type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   brandsCountQuery: BrandsCountQueryResponse;
 } & Props &
-  BrandAddMutationResponse &
-  BrandEditMutationResponse &
   BrandRemoveMutationResponse;
 
 const BrandListContainer = (props: ChildProps<FinalProps>) => {

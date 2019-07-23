@@ -1,6 +1,6 @@
 import { ISubMenuItem } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import MenuItem from './MenuItem';
 

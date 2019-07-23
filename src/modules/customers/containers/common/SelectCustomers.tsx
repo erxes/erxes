@@ -1,8 +1,8 @@
-import { SelectWithSearch } from 'modules/common/components';
+import SelectWithSearch from 'modules/common/components/SelectWithSearch';
 import { IOption, IQueryParams } from 'modules/common/types';
 import { queries } from 'modules/customers/graphql';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 
 function generateCustomerOptions(array: ICustomer[] = []): IOption[] {
   return array.map(item => {

@@ -1,9 +1,114 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.13.1
+version: v1.13.5
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   'npm:chownr:20180731':
     - node-pre-gyp > tar > chownr:
         reason: Development only
         expires: '2018-12-13T02:42:59.479Z'
+  SNYK-JS-JSYAML-173999:
+    - emotion > babel-plugin-emotion > babel-plugin-macros > cosmiconfig > js-yaml:
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+  SNYK-JS-JSYAML-174129:
+    - emotion > babel-plugin-emotion > babel-plugin-macros > cosmiconfig > js-yaml:
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+  SNYK-JS-LODASH-450202:
+    - '@babel/core > @babel/traverse > @babel/generator > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - source-map-explorer > lodash:
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - react-color > reactcss > lodash:
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/traverse > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/generator > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/traverse > @babel/generator > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/generator > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/traverse > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.606Z'
+    - '@babel/core > @babel/helpers > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - juice > web-resource-inliner > async > lodash:
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/template > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - react-color > lodash:
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/template > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/traverse > @babel/helper-split-export-declaration > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > @babel/generator > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/traverse > @babel/helper-function-name > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - emotion > babel-plugin-emotion > @babel/helper-module-imports > @babel/types > lodash:
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > @babel/helper-function-name > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/traverse > @babel/helper-function-name > @babel/helper-get-function-arity > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > @babel/helper-split-export-declaration > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/traverse > @babel/helper-function-name > @babel/template > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > @babel/generator > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > @babel/helper-function-name > @babel/helper-get-function-arity > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.607Z'
+    - '@babel/core > @babel/helpers > @babel/traverse > @babel/helper-function-name > @babel/template > @babel/types > lodash':
+        reason: None given
+        expires: '2019-08-08T03:49:55.608Z'
+  SNYK-JS-LODASHMERGE-173732:
+    - juice > cheerio > lodash.merge:
+        reason: None given
+        expires: '2019-08-08T03:49:55.608Z'
+  SNYK-JS-LODASHMERGE-173733:
+    - juice > cheerio > lodash.merge:
+        reason: None given
+        expires: '2019-08-08T03:49:55.608Z'
+  SNYK-JS-LODASHMERGEWITH-174136:
+    - sanitize-html > lodash.mergewith:
+        reason: None given
+        expires: '2019-08-08T03:49:55.608Z'
 patch: {}

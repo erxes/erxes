@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import debounce from 'lodash/debounce';
 import { Avatar, SelectOption, SelectValue } from 'modules/boards/styles/item';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Select from 'react-select-plus';
 import { IOption } from '../types';
@@ -91,9 +91,9 @@ class SelectWithSearch extends React.Component<
     };
 
     const selectSingle = (option: IOption) => {
-      onSelect(option.value, name);
+      onSelect(option ? option.value : '', name);
 
-      this.setState({ selectedOptions: [option] });
+      this.setState({ selectedOptions: option ? [option] : [] });
     };
 
     const onChange = multi ? selectMultiple : selectSingle;

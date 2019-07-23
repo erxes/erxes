@@ -1,20 +1,18 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
+import { compose, graphql } from 'react-apollo';
+import Stage from '../components/stage/Stage';
 import {
+  IFilterParams,
   IItem,
-  IItemParams,
   IOptions,
   IStage,
   ItemsQueryResponse,
   SaveItemMutation
-} from 'modules/boards/types';
-import { __, Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { Stage } from '../components/stage';
-import { queries } from '../graphql';
-import { IFilterParams } from '../types';
+} from '../types';
 
 type WrapperProps = {
   stage: IStage;
@@ -68,7 +66,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         variables: {
           stageId: stage._id,
           skip: items.length,
-          ...getFilterParams(queryParams)
+          ...getFilterParams(queryParams, options.getExtraParams)
         }
       })
       .then(({ data }: any) => {
@@ -82,29 +80,16 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       });
   };
 
-  // create item
-  addItem = (name: string, callback: () => void) => {
-    const { stage, onAddItem, addMutation, options } = this.props;
-
-    if (!stage) {
-      return null;
-    }
-
-    return addMutation({ variables: { name, stageId: stage._id } })
-      .then(({ data }) => {
-        Alert.success(options.texts.addSuccessText);
-
-        onAddItem(stage._id, data[options.mutationsName.addMutation]);
-
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
   render() {
-    const { index, length, stage, items, itemsQuery, options } = this.props;
+    const {
+      index,
+      length,
+      stage,
+      items,
+      itemsQuery,
+      options,
+      onAddItem
+    } = this.props;
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
 
     return (
@@ -116,13 +101,16 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         items={items}
         loadingItems={loadingItems}
         loadMore={this.loadMore}
-        addItem={this.addItem}
+        onAddItem={onAddItem}
       />
     );
   }
 }
 
-const getFilterParams = (queryParams: IFilterParams) => {
+const getFilterParams = (
+  queryParams: IFilterParams,
+  getExtraParams: (queryParams) => any
+) => {
   if (!queryParams) {
     return {};
   }
@@ -137,7 +125,7 @@ const getFilterParams = (queryParams: IFilterParams) => {
     nextMonth: queryParams.nextMonth,
     noCloseDate: queryParams.noCloseDate,
     overdue: queryParams.overdue,
-    productIds: queryParams.productIds
+    ...getExtraParams(queryParams)
   };
 };
 
@@ -150,30 +138,13 @@ const withQuery = ({ options }) => {
         options: ({ stage, queryParams, loadingState }) => ({
           variables: {
             stageId: stage._id,
-            ...getFilterParams(queryParams)
+            ...getFilterParams(queryParams, options.getExtraParams)
           },
           fetchPolicy:
             loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
           notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
         })
-      }),
-      // mutation
-      graphql<StageProps, SaveItemMutation, IItemParams>(
-        gql(options.mutations.addMutation),
-        {
-          name: 'addMutation',
-          options: ({ stage }) => ({
-            refetchQueries: [
-              {
-                query: gql(queries.stageDetail),
-                variables: {
-                  _id: stage && stage._id
-                }
-              }
-            ]
-          })
-        }
-      )
+      })
     )(StageContainer)
   );
 };

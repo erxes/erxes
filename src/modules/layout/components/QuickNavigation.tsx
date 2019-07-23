@@ -1,20 +1,16 @@
 import { IUser } from 'modules/auth/types';
-import {
-  DropdownToggle,
-  Icon,
-  ModalTrigger,
-  NameCard,
-  Tip
-} from 'modules/common/components';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import { Widget } from 'modules/notifications/containers';
-import { Signature } from 'modules/settings/email/containers';
-import {
-  ChangePassword,
-  NotificationSettings
-} from 'modules/settings/profile/containers';
-import * as React from 'react';
+import Widget from 'modules/notifications/containers/Widget';
+import Signature from 'modules/settings/email/containers/Signature';
+import ChangePassword from 'modules/settings/profile/containers/ChangePassword';
+import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
+import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
@@ -128,7 +124,7 @@ const QuickNavigation = ({
               title="Change Password"
               trigger={
                 <li>
-                  <a>{__('Change Password')}</a>
+                  <a href="#change-password">{__('Change Password')}</a>
                 </li>
               }
               content={passContent}
@@ -138,7 +134,7 @@ const QuickNavigation = ({
               title="Email signatures"
               trigger={
                 <li>
-                  <a>{__('Email signatures')}</a>
+                  <a href="email">{__('Email signatures')}</a>
                 </li>
               }
               content={signatureContent}
@@ -148,7 +144,7 @@ const QuickNavigation = ({
               title="Notification settings"
               trigger={
                 <li>
-                  <a>{__('Notification settings')}</a>
+                  <a href="#notif">{__('Notification settings')}</a>
                 </li>
               }
               content={notificationContent}
@@ -160,7 +156,7 @@ const QuickNavigation = ({
               dialogClassName="middle"
               trigger={
                 <li>
-                  <a>{__('Workflow')}</a>
+                  <a href="#flow">{__('Workflow')}</a>
                 </li>
               }
               content={workflowContent}

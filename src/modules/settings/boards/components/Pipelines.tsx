@@ -1,26 +1,21 @@
+import { IPipeline } from 'modules/boards/types';
 import { collectOrders } from 'modules/boards/utils';
-import {
-  Button,
-  EmptyState,
-  HeaderDescription,
-  SortableList
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import SortableList from 'modules/common/components/SortableList';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
-import { PipelineRow } from '.';
-import { PipelineForm } from '../containers';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import PipelineForm from '../containers/PipelineForm';
 import { PipelineContainer } from '../styles';
-import { IPipeline, IStage } from '../types';
+import PipelineRow from './PipelineRow';
 
 type Props = {
   type: string;
   pipelines: IPipeline[];
-  save: (
-    params: { doc: { name: string; boardId?: string; stages: IStage[] } },
-    callback: () => void,
-    pipeline?: IPipeline
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
   remove: (pipelineId: string) => void;
   boardId: string;
@@ -29,6 +24,7 @@ type Props = {
 type State = {
   showModal: boolean;
   pipelines: IPipeline[];
+  isDragDisabled: boolean;
 };
 
 class Pipelines extends React.Component<Props, State> {
@@ -37,7 +33,8 @@ class Pipelines extends React.Component<Props, State> {
 
     this.state = {
       showModal: false,
-      pipelines: props.pipelines
+      pipelines: props.pipelines,
+      isDragDisabled: false
     };
   }
 
@@ -48,7 +45,7 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderAddForm = () => {
-    const { boardId, save, type } = this.props;
+    const { boardId, renderButton, type } = this.props;
 
     const closeModal = () => this.setState({ showModal: false });
 
@@ -56,9 +53,9 @@ class Pipelines extends React.Component<Props, State> {
       <PipelineForm
         type={type}
         boardId={boardId}
-        save={save}
-        closeModal={closeModal}
+        renderButton={renderButton}
         show={this.state.showModal}
+        closeModal={closeModal}
       />
     );
   };
@@ -75,17 +72,24 @@ class Pipelines extends React.Component<Props, State> {
     this.props.updateOrder(collectOrders(pipelines));
   };
 
+  onTogglePopup = () => {
+    const { isDragDisabled } = this.state;
+
+    this.setState({ isDragDisabled: !isDragDisabled });
+  };
+
   renderRows() {
-    const { save, type } = this.props;
+    const { renderButton, type } = this.props;
 
     const child = pipeline => {
       return (
         <PipelineRow
           key={pipeline._id}
           pipeline={pipeline}
-          save={save}
+          renderButton={renderButton}
           remove={this.props.remove}
           type={type}
+          onTogglePopup={this.onTogglePopup}
         />
       );
     };
@@ -97,6 +101,7 @@ class Pipelines extends React.Component<Props, State> {
         fields={pipelines}
         child={child}
         onChangeFields={this.onChangePipelines}
+        isDragDisabled={this.state.isDragDisabled}
       />
     );
   }
@@ -152,6 +157,7 @@ class Pipelines extends React.Component<Props, State> {
           }
           right={this.renderButton()}
         />
+
         {this.renderContent()}
         {this.renderAddForm()}
       </React.Fragment>

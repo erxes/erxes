@@ -1,28 +1,19 @@
 import { IUser } from 'modules/auth/types';
-import * as React from 'react';
-import { ChannelForm } from '../components';
+import { IButtonMutateProps } from 'modules/common/types';
+import React from 'react';
+import ChannelForm from '../components/ChannelForm';
 import { IChannel } from '../types';
 
 type Props = {
   channel?: IChannel;
   members: IUser[];
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
   closeModal: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading?: boolean;
 };
 
 const ChannelFormContainer = (props: Props) => {
-  const { channel, save, members } = props;
+  const { channel, members, renderButton } = props;
 
   let selectedMembers: string[] = [];
 
@@ -35,8 +26,8 @@ const ChannelFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     channel,
-    save,
-    selectedMembers
+    selectedMembers,
+    renderButton
   };
 
   return <ChannelForm {...updatedProps} />;

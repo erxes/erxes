@@ -1,15 +1,14 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { __, Alert } from 'modules/common/utils';
-import { withProps } from 'modules/common/utils';
+import Spinner from 'modules/common/components/Spinner';
+import { Alert, withProps } from 'modules/common/utils';
 import {
   AddIntegrationMutationResponse,
   EditIntegrationMutationResponse,
   IIntegration
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { ChooseBrand } from '../components';
+import ChooseBrand from '../components/ChooseBrand';
 import { mutations, queries } from '../graphql';
 import { BrandsQueryResponse, IChooseBrand } from '../types';
 
