@@ -5,10 +5,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
 import AttachmentPreview from './AttachmentPreview';
-
-const Message = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Message" */ './messages/Message')
-);
+import Message from './messages/Message';
 
 type Props = {
   conversation: IConversation;

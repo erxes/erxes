@@ -19,6 +19,7 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
@@ -26,10 +27,6 @@ import { AddMessageMutationVariables, IConversation } from '../../../types';
 
 const Editor = asyncComponent(() =>
   import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor')
-);
-
-const ResponseTemplate = asyncComponent(() =>
-  import(/* webpackChunkName: "Inbox-ResponseTemplate" */ 'modules/inbox/containers/conversationDetail/ResponseTemplate')
 );
 
 type Props = {
