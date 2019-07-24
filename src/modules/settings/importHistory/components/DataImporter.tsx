@@ -52,7 +52,7 @@ type Props = {
 function DataImporter({ uploadXls, uploading, text }: Props) {
   return (
     <ImportButton>
-      {uploading ? <ImportLoader /> : <Icon icon="download-1" />}
+      {uploading ? <ImportLoader /> : <Icon icon="import" />}
       {text}
       <input
         type="file"

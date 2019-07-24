@@ -145,7 +145,7 @@ const SidebarCollapse = styled.a`
   position: absolute;
   top: ${dimensions.unitSpacing}px;
   right: ${dimensions.coreSpacing}px;
-  font-size: 15px;
+  font-size: 14px;
 
   &:hover {
     cursor: pointer;

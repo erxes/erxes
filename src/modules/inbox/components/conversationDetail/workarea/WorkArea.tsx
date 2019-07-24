@@ -144,7 +144,7 @@ export default class WorkArea extends React.Component<Props, State> {
         ) : (
           <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon="downarrow" />
+        <Icon icon="angle-down" />
       </PopoverButton>
     );
 
@@ -155,9 +155,9 @@ export default class WorkArea extends React.Component<Props, State> {
         ) : (
           <Button btnStyle="simple" size="small">
             Member
+            <Icon icon="angle-down" />
           </Button>
         )}
-        <Icon icon="downarrow" />
       </AssignTrigger>
     );
 

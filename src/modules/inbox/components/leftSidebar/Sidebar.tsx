@@ -59,7 +59,7 @@ class LeftSidebar extends React.Component<Props, State> {
   renderTrigger(text: string) {
     return (
       <PopoverButton>
-        {__(text)} <Icon icon="downarrow" />
+        {__(text)} <Icon icon="angle-down" />
       </PopoverButton>
     );
   }

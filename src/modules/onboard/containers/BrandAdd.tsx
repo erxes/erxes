@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/brands/graphql';
@@ -34,9 +33,10 @@ const BrandAddContainer = (props: ChildProps<FinalProps>) => {
         isSubmitted={isSubmitted}
         disabled={!values}
         type="submit"
+        icon="arrow-right"
         successMessage={`You successfully added a ${name}`}
       >
-        {__('Next')} <Icon icon="rightarrow-2" />
+        {__('Next')}
       </ButtonMutate>
     );
   };

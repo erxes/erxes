@@ -333,7 +333,7 @@ class MainActionBar extends React.Component<Props, State> {
           <DropdownToggle bsRole="toggle">
             <HeaderButton rightIconed={true}>
               {(currentBoard && currentBoard.name) || __('Choose board')}
-              <Icon icon="downarrow" />
+              <Icon icon="angle-down" />
             </HeaderButton>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
@@ -346,7 +346,7 @@ class MainActionBar extends React.Component<Props, State> {
             <HeaderButton rightIconed={true}>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
-              <Icon icon="downarrow" />
+              <Icon icon="angle-down" />
             </HeaderButton>
           </DropdownToggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>

@@ -69,7 +69,7 @@ export const HeaderButton = styledTS<{
   vertical-align: middle;
 
   > i {
-    font-size: ${props => (props.rightIconed ? '8px' : '14px')};
+    font-size: 14px;
     color: ${props =>
       props.isActive ? colors.colorSecondary : colors.colorCoreGray};
     margin-right: 5px;
@@ -78,7 +78,7 @@ export const HeaderButton = styledTS<{
       props.rightIconed &&
       css`
         margin-right: 0;
-        margin-left: 8px;
+        margin-left: 5px;
       `};
   }
 

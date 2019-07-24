@@ -24,7 +24,7 @@ const UserInfo = styled.div`
 
   span {
     float: none;
-    margin: 0 10px;
+    margin: 0 5px 0 10px;
   }
 `;
 
@@ -102,7 +102,7 @@ const QuickNavigation = ({
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon icon="downarrow" size={10} />
+                <Icon icon="angle-down" />
               </UserInfo>
             </UserHelper>
           </DropdownToggle>
@@ -134,7 +134,7 @@ const QuickNavigation = ({
               title="Email signatures"
               trigger={
                 <li>
-                  <a href="email">{__('Email signatures')}</a>
+                  <a href="#email">{__('Email signatures')}</a>
                 </li>
               }
               content={signatureContent}
