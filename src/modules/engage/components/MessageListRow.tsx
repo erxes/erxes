@@ -14,7 +14,7 @@ import { EngageTitle, HelperText } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
 
 type Props = {
-  message: IEngageMessage;
+  message: any;
 
   // TODO: add types
   edit: () => void;
@@ -124,8 +124,7 @@ class Row extends React.Component<Props> {
     const { isChecked, message, remove } = this.props;
     const { stats = { send: '' }, brand = { name: '' } } = message;
 
-    const deliveryReports = Object.values(message.deliveryReports || {});
-    const totalCount = deliveryReports.length;
+    const totalCount = stats.total || 0;
 
     if (totalCount === stats.send) {
       status = <Label lblStyle="success">Sent</Label>;
