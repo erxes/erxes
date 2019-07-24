@@ -1,8 +1,6 @@
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 
-import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
-
 import {
   Attachment,
   AttachmentIndicator,
@@ -28,6 +26,10 @@ import { AddMessageMutationVariables, IConversation } from '../../../types';
 
 const Editor = asyncComponent(() =>
   import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor')
+);
+
+const ResponseTemplate = asyncComponent(() =>
+  import(/* webpackChunkName: "Inbox-ResponseTemplate" */ 'modules/inbox/containers/conversationDetail/ResponseTemplate')
 );
 
 type Props = {

@@ -1,10 +1,17 @@
 import { IUser } from 'modules/auth/types';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import { can } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
 import { Contents } from 'modules/layout/styles';
 import React from 'react';
-import ConversationDetail from '../containers/conversationDetail/ConversationDetail';
-import Sidebar from '../containers/leftSidebar/Sidebar';
+
+const Sidebar = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar" */ '../containers/leftSidebar/Sidebar')
+);
+
+const ConversationDetail = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-ConversationDetail" */ '../containers/conversationDetail/ConversationDetail')
+);
 
 type Props = {
   queryParams: any;

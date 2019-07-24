@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -7,8 +8,6 @@ import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
-import Signature from 'modules/settings/email/containers/Signature';
-import ChangePassword from 'modules/settings/profile/containers/ChangePassword';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
@@ -16,6 +15,14 @@ import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { UserHelper } from '../styles';
+
+const Signature = asyncComponent(() =>
+  import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
+);
+
+const ChangePassword = asyncComponent(() =>
+  import(/* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword')
+);
 
 const UserInfo = styled.div`
   display: flex;
