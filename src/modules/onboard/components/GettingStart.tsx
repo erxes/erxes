@@ -30,7 +30,7 @@ class GettingStart extends React.PureComponent<Props> {
     return (
       <Tip text={__(information)}>
         <span>
-          <Icon icon="information" />
+          <Icon icon="info-circle" />
         </span>
       </Tip>
     );

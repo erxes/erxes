@@ -217,7 +217,7 @@ class CustomersList extends React.Component<IProps, State> {
         <Dropdown id="dropdown-engage" pullRight={true}>
           <DropdownToggle bsRole="toggle">
             <Button btnStyle="simple" size="small">
-              {__('Customize ')} <Icon icon="downarrow" />
+              {__('Customize ')} <Icon icon="angle-down" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>
@@ -242,7 +242,7 @@ class CustomersList extends React.Component<IProps, State> {
           </Dropdown.Menu>
         </Dropdown>
         <Link to="/settings/importHistories?type=customer">
-          <Button btnStyle="primary" size="small" icon="login-1">
+          <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
         </Link>
@@ -266,7 +266,7 @@ class CustomersList extends React.Component<IProps, State> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="downarrow">
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );

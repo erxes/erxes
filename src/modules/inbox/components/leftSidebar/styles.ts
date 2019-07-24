@@ -227,7 +227,6 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
   i {
     margin-left: 5px;
     margin-right: 0;
-    font-size: 10px;
     display: inline-block;
     transition: all ease 0.3s;
     transform: ${props => props.isOpen && 'rotate(180deg)'};

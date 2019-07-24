@@ -182,7 +182,7 @@ class EditForm extends React.Component<Props, State> {
             <FormGroup>
               <TitleRow>
                 <ControlLabel>
-                  <Icon icon="alignleft" />
+                  <Icon icon="align-left-justify" />
                   Description
                 </ControlLabel>
               </TitleRow>

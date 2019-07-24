@@ -27,7 +27,7 @@ class Stage extends React.Component<Props> {
         <Values>
           <Lost>Lost: {lost}</Lost>
           <span>
-            {percent}% <Icon icon="downarrow" />
+            {percent}% <Icon icon="angle-down" />
           </span>
         </Values>
       );

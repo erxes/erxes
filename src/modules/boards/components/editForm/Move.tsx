@@ -122,7 +122,7 @@ class Move extends React.Component<Props, State> {
       <MoveContainer>
         <MoveFormContainer>
           <PipelineName onClick={this.toggleForm}>
-            {pipeline && pipeline.name} <Icon icon="downarrow" size={10} />
+            {pipeline && pipeline.name} <Icon icon="angle-down" />
           </PipelineName>
 
           {this.renderBoardSelect()}

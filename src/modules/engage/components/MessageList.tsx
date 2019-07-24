@@ -39,8 +39,8 @@ class List extends React.Component<Props> {
     const { bulk, emptyBulk } = this.props;
 
     const tagButton = (
-      <Button btnStyle="simple" size="small">
-        {__('Tag')} <Icon icon="downarrow" />
+      <Button btnStyle="simple" size="small" icon="tag-alt">
+        {__('Tag')}
       </Button>
     );
 
@@ -73,7 +73,7 @@ class List extends React.Component<Props> {
       <Dropdown id="dropdown-engage" pullRight={true}>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
-            {__('New message')} <Icon icon="downarrow" />
+            {__('New message')} <Icon icon="angle-down" />
           </Button>
         </DropdownToggle>
 

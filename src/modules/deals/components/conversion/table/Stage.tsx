@@ -116,7 +116,7 @@ export default class Stage extends React.Component<Props, State> {
             isCollabsible={isCollabsible}
           >
             {stage.name} <label>({stage.initialDealsTotalCount})</label>
-            {isCollabsible && <Icon icon="downarrow" size={10} />}
+            {isCollabsible && <Icon icon="angle-down" />}
           </StageName>
           {this.renderLostInfo()}
         </BodyRow>
