@@ -1,4 +1,3 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
 import { IAttachmentPreview } from 'modules/common/types';
 import React from 'react';
 import styled from 'styled-components';
