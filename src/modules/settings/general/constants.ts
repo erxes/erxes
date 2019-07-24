@@ -1,6 +1,6 @@
 export const LANGUAGES = [
-  { label: 'Mongolian', value: 'mn' },
   { label: 'English', value: 'en' },
+  { label: 'Mongolian', value: 'mn' },
   { label: 'French', value: 'fr' },
   { label: 'Deustch', value: 'de' },
   { label: 'Korean', value: 'ko' },
