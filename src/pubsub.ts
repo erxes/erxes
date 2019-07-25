@@ -4,15 +4,11 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
 import * as path from 'path';
 import { ActivityLogs, Conversations } from './db/models';
+import { debugBase } from './debuggers';
 import { get, redisOptions, set } from './redisClient';
 
 // load environment variables
 dotenv.config();
-
-interface IPubSub {
-  asyncIterator: <T>(trigger: string, options?: any) => AsyncIterator<T>;
-  publish(trigger: string, payload: any, options?: any): any;
-}
 
 interface IPubsubMessage {
   action: string;
@@ -56,7 +52,7 @@ const configGooglePubsub = (): IGoogleOptions => {
   };
 };
 
-const createPubsubInstance = (): IPubSub => {
+const createPubsubInstance = () => {
   let pubsub;
 
   if (NODE_ENV === 'test' || NODE_ENV === 'command' || PROCESS_NAME === 'crons') {
@@ -73,15 +69,9 @@ const createPubsubInstance = (): IPubSub => {
 
     const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
 
-    const googlePubsub = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
-
-    googlePubsub.subscribe('widgetNotification', message => {
-      publishMessage(message);
-    });
-
-    pubsub = googlePubsub;
+    pubsub = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
   } else {
-    const redisPubSub = new RedisPubSub({
+    pubsub = new RedisPubSub({
       connectionListener: error => {
         if (error) {
           console.error(error);
@@ -90,15 +80,27 @@ const createPubsubInstance = (): IPubSub => {
       publisher: new Redis(redisOptions),
       subscriber: new Redis(redisOptions),
     });
-
-    redisPubSub.subscribe('widgetNotification', message => {
-      return publishMessage(message);
-    });
-
-    pubsub = redisPubSub;
   }
 
   return pubsub;
+};
+
+export const initSubscribe = async () => {
+  const isSubscribed = await get('isErxesApiSubscribed');
+
+  if (isSubscribed !== 'true') {
+    debugBase('Subscribing .....');
+    set('isErxesApiSubscribed', 'true');
+
+    graphqlPubsub.subscribe('widgetNotification', message => {
+      return publishMessage(message);
+    });
+  }
+};
+
+export const unsubscribe = async () => {
+  debugBase('Unsubscribing .....');
+  await set('isErxesApiSubscribed', 'false');
 };
 
 const publishMessage = async ({ action, data }: IPubsubMessage) => {

@@ -6,6 +6,7 @@ import * as express from 'express';
 import * as formidable from 'formidable';
 import * as fs from 'fs';
 import { createServer } from 'http';
+import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as request from 'request';
 import apolloServer from './apolloClient';
@@ -17,11 +18,17 @@ import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
+import { initSubscribe, unsubscribe } from './pubsub';
 import { initRedis } from './redisClient';
 import { init } from './startup';
 
 // load environment variables
 dotenv.config();
+
+// connect to redis server
+initRedis(() => {
+  initSubscribe();
+});
 
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
 const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
@@ -45,9 +52,6 @@ fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
 
 // connect to mongo database
 connect();
-
-// connect to redis server
-initRedis();
 
 const app = express();
 
@@ -213,4 +217,31 @@ httpServer.listen(PORT, () => {
 
   // execute startup actions
   init(app);
+});
+
+// GRACEFULL SHUTDOWN
+process.stdin.resume(); // so the program will not close instantly
+
+// If the Node process ends, close the Mongoose connection
+(['SIGINT', 'SIGKILL', 'SIGTERM', 'SIGQUIT'] as NodeJS.Signals[]).forEach(sig => {
+  try {
+    process.on(sig, () => {
+      unsubscribe();
+
+      // Stops the server from accepting new connections and finishes existing connections.
+      httpServer.close((error: Error) => {
+        if (error) {
+          console.error(error.message);
+          process.exit(1);
+        }
+
+        mongoose.connection.close(() => {
+          console.log('Mongoose connection disconnected');
+          process.exit(0);
+        });
+      });
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
 });
