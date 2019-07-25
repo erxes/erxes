@@ -14,6 +14,8 @@ import {
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import { IConversation } from '../../../types';
 
 const CompanyAssociate = asyncComponent(() =>
@@ -30,14 +32,6 @@ const CustomFieldsSection = asyncComponent(() =>
 
 const PortableDeals = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals')
-);
-
-const PortableTasks = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks')
-);
-
-const PortableTickets = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets')
 );
 
 const Contacts = asyncComponent(() =>
