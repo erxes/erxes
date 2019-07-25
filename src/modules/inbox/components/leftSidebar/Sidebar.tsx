@@ -1,10 +1,8 @@
 import { IUser } from 'modules/auth/types';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
-import DateFilter from 'modules/common/components/DateFilter';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import ConversationList from 'modules/inbox/containers/leftSidebar/ConversationList';
-import FilterList from 'modules/inbox/containers/leftSidebar/FilterList';
 import FilterToggler from 'modules/inbox/containers/leftSidebar/FilterToggler';
 import Resolver from 'modules/inbox/containers/Resolver';
 import Tagger from 'modules/inbox/containers/Tagger';
@@ -15,7 +13,6 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import React from 'react';
 import RTG from 'react-transition-group';
 import { IConversation } from '../../types';
-import AssignBoxPopover from '../assignBox/AssignBoxPopover';
 import StatusFilterPopover from './StatusFilterPopover';
 import {
   AdditionalSidebar,
@@ -24,6 +21,22 @@ import {
   RightItems,
   SidebarActions
 } from './styles';
+
+const DateFilter = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter')
+);
+
+const AssignBoxPopover = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover')
+);
+
+const ConversationList = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-ConversationList" */ 'modules/inbox/containers/leftSidebar/ConversationList')
+);
+
+const FilterList = asyncComponent(() =>
+  import(/* webpackChunkName: "Inbox-FilterList" */ 'modules/inbox/containers/leftSidebar/FilterList')
+);
 
 type Integrations = {
   _id: string;

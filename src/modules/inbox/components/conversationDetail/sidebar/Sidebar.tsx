@@ -1,13 +1,7 @@
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import CompanyAssociate from 'modules/companies/containers/CompanyAssociate';
-import ActionSection from 'modules/customers/containers/common/ActionSection';
-import CustomFieldsSection from 'modules/customers/containers/common/CustomFieldsSection';
-import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
-import PortableTasks from 'modules/tasks/components/PortableTasks';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 import {
   Actions,
@@ -17,17 +11,66 @@ import {
   TabContent
 } from './styles';
 
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import { __ } from 'modules/common/utils';
-import Contacts from 'modules/companies/components/detail/Contacts';
-import DetailInfo from 'modules/customers/components/common/DetailInfo';
-import DevicePropertiesSection from 'modules/customers/components/common/DevicePropertiesSection';
-import InfoSection from 'modules/customers/components/common/InfoSection';
-import MessengerSection from 'modules/customers/components/common/MessengerSection';
-import TaggerSection from 'modules/customers/components/common/TaggerSection';
 import { ICustomer } from 'modules/customers/types';
-import SidebarActivity from 'modules/inbox/containers/conversationDetail/SidebarActivity';
 import { IConversation } from '../../../types';
-import ConversationDetails from './ConversationDetails';
+
+const CompanyAssociate = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-CompanyAssociate" */ 'modules/companies/containers/CompanyAssociate')
+);
+
+const ActionSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/components/common/ActionSection')
+);
+
+const CustomFieldsSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ 'modules/customers/containers/common/CustomFieldsSection')
+);
+
+const PortableDeals = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals')
+);
+
+const PortableTasks = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks')
+);
+
+const PortableTickets = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets')
+);
+
+const Contacts = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-Contacts" */ 'modules/companies/components/detail/Contacts')
+);
+
+const DetailInfo = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/DetailInfo')
+);
+
+const InfoSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/InfoSection')
+);
+
+const DevicePropertiesSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ 'modules/customers/components/common/DevicePropertiesSection')
+);
+
+const MessengerSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-MessengerSection" */ 'modules/customers/components/common/MessengerSection')
+);
+
+const TaggerSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ 'modules/customers/components/common/TaggerSection')
+);
+
+const SidebarActivity = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ 'modules/inbox/containers/conversationDetail/SidebarActivity')
+);
+
+const ConversationDetails = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails')
+);
 
 type BoxProps = {
   title: string;

@@ -1,8 +1,6 @@
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 
-import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
-
 import {
   Attachment,
   AttachmentIndicator,
@@ -21,6 +19,7 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';

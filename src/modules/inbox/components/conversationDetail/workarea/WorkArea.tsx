@@ -1,3 +1,4 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
 import Icon from 'modules/common/components/Icon';
@@ -26,9 +27,15 @@ import {
   IMessage
 } from '../../../types';
 import Conversation from './conversation/Conversation';
-import ConvertTo from './ConvertTo';
-import Participators from './Participators';
 import TypingIndicator from './TypingIndicator';
+
+const Participators = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Participators" */ './Participators')
+);
+
+const ConvertTo = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-ConvertTo" */ './ConvertTo')
+);
 
 type Props = {
   queryParams?: any;
