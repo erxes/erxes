@@ -27,7 +27,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { addLink } = this.props;
 
     const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/${addLink}`;
+    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}`;
 
     window.location.replace(url);
   };
