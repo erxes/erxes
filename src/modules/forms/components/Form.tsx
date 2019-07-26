@@ -17,6 +17,7 @@ import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { ImportLoader } from 'modules/common/components/ButtonMutate';
 import {
   CallOut,
   ChooseType,
@@ -30,7 +31,7 @@ type Props = {
   integration?: IFormIntegration;
   fields: IField[];
   loading?: boolean;
-
+  isButtonLoading: boolean;
   save: (
     params: {
       name: string;
@@ -177,6 +178,8 @@ class Form extends React.Component<Props, State> {
   };
 
   renderSaveButton = () => {
+    const { isButtonLoading } = this.props;
+
     const cancelButton = (
       <Link to="/forms">
         <Button btnStyle="simple" size="small" icon="cancel-1">
@@ -189,11 +192,13 @@ class Form extends React.Component<Props, State> {
       <Button.Group>
         {cancelButton}
         <Button
+          disabled={isButtonLoading}
           btnStyle="success"
           size="small"
-          icon="checked-1"
+          icon={isButtonLoading ? undefined : 'checked-1'}
           onClick={this.handleSubmit}
         >
+          {isButtonLoading && <ImportLoader />}
           Save
         </Button>
       </Button.Group>
