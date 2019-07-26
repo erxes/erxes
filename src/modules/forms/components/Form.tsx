@@ -252,6 +252,7 @@ class Form extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderSaveButton()}
         </TitleContainer>
         <Steps active={activeStep || 1}>
           <Step img="/images/icons/erxes-04.svg" title="Type">
@@ -320,7 +321,7 @@ class Form extends React.Component<Props, State> {
           <Step
             img="/images/icons/erxes-19.svg"
             title="Full Preview"
-            nextButton={this.renderSaveButton()}
+            noButton={true}
           >
             <FullPreviewStep
               onChange={this.onChange}

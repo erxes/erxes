@@ -20,7 +20,7 @@ type Props = {
   title?: string;
   children?: React.ReactNode;
   next?: (stepNumber: number) => void;
-  nextButton?: React.ReactNode;
+  noButton?: boolean;
   save?: (name: string, e: React.MouseEvent) => void;
   message?: any;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -111,7 +111,7 @@ class Step extends React.Component<Props> {
       img,
       title,
       children,
-      nextButton,
+      noButton,
       onClick
     } = this.props;
 
@@ -132,7 +132,7 @@ class Step extends React.Component<Props> {
 
               <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
             </StepHeader>
-            {nextButton || this.renderButton()}
+            {noButton || this.renderButton()}
           </StepHeaderContainer>
 
           <StepContent>{children}</StepContent>
