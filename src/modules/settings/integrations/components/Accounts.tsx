@@ -45,7 +45,11 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const { accountId } = this.state;
 
     if (!accountId || accountId === '') {
-      return <Button onClick={onAdd}>Add Account</Button>;
+      return (
+        <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
+          Add Account
+        </Button>
+      );
     }
 
     return (
