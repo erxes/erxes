@@ -14,6 +14,7 @@ type Props = {
   refetchQueries?: string[];
   headerId?: string;
   threadId?: string;
+  references?: string;
   toEmail?: string;
   subject?: string;
   closeModal?: () => void;

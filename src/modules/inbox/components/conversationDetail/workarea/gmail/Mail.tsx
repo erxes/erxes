@@ -43,13 +43,20 @@ class Mail extends React.PureComponent<Props, {}> {
     });
   }
 
-  renderMailForm(gmailData: IGmailData) {
+  renderMailForm(message: IMessage) {
     const { integrationId } = this.props;
-    const subject = gmailData.subject;
+    const { gmailData } = message;
+
+    if (!gmailData) {
+      return null;
+    }
+
+    const { subject } = gmailData;
 
     const content = props => (
       <MailForm
         toEmail={gmailData.from}
+        references={gmailData.references}
         integrationId={integrationId}
         refetchQueries={['detailQuery']}
         headerId={gmailData.headerId}

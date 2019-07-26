@@ -22,12 +22,8 @@ class GmailConversation extends React.Component<Props, {}> {
     return messages.map(message => {
       if (message.internal) {
         return (
-          <EmailItem>
-            <SimpleMessage
-              message={message}
-              isStaff={!message.customerId}
-              key={message._id}
-            />
+          <EmailItem key={message._id}>
+            <SimpleMessage message={message} isStaff={!message.customerId} />
           </EmailItem>
         );
       }

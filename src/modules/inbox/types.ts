@@ -86,6 +86,7 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
+  gmailData?: IGmailData;
 
   _id: string;
   user?: IUser;

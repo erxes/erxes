@@ -15,7 +15,7 @@ import {
   IGmailAttachment,
   IIntegration
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import {
   AttachmentContainer,
   Attachments,
@@ -33,8 +33,9 @@ type Props = {
   headerId?: string;
   threadId?: string;
   subject?: string;
-  closeModal?: () => void;
+  references?: string;
   toEmail?: string;
+  closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -72,7 +73,7 @@ class MailForm extends React.Component<Props, State> {
       bcc: '',
       toEmails: props.toEmail || '',
       from: '',
-      subject: '',
+      subject: props.subject || '',
       attachments: [],
       totalFileSize: 0,
       integrations: props.integrations
@@ -86,7 +87,7 @@ class MailForm extends React.Component<Props, State> {
     subject: string;
     from: string;
   }) => {
-    const { headerId, threadId } = this.props;
+    const { headerId, threadId, references } = this.props;
     const { content, attachments } = this.state;
     const { to, cc, bcc, from, subject } = values;
 
@@ -100,7 +101,8 @@ class MailForm extends React.Component<Props, State> {
       from,
       attachments,
       textHtml: content,
-      erxesApiId: from
+      erxesApiId: from,
+      references
     };
   };
 
@@ -289,7 +291,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { toEmails, isBcc, isCc, content } = this.state;
+    const { toEmails, isBcc, isCc, content, subject } = this.state;
 
     const onClickIsCC = () => this.onClick('isCc');
     const onClickIsBCC = () => this.onClick('isBcc');
@@ -324,6 +326,7 @@ class MailForm extends React.Component<Props, State> {
           <ControlLabel required={true}>From:</ControlLabel>
           <FormControl
             required={true}
+            defaultValue={this.props.integrationId || ''}
             componentClass="select"
             {...formProps}
             name="from"
@@ -335,7 +338,13 @@ class MailForm extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Subject:</ControlLabel>
-          <FormControl {...formProps} name="subject" required={true} />
+          <FormControl
+            {...formProps}
+            name="subject"
+            required={true}
+            defaultValue={subject}
+            disabled={(subject && true) || false}
+          />
         </FormGroup>
 
         <FormGroup>
