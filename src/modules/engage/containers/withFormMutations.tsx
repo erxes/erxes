@@ -28,107 +28,123 @@ type FinalProps = {
   WithFormEditMutationResponse;
 
 function withSaveAndEdit<IComponentProps>(Component) {
-  const Container = (props: FinalProps) => {
-    const {
-      history,
-      kind,
-      messageId,
-      usersQuery,
-      engageMessageDetailQuery,
-      addMutation,
-      editMutation
-    } = props;
+  class Container extends React.Component<FinalProps, { isLoading: boolean }> {
+    constructor(props: FinalProps) {
+      super(props);
 
-    const message = engageMessageDetailQuery.engageMessageDetail || {};
-    const users = usersQuery.users || [];
-    const verifiedUsers = users.filter(user => user.username) || [];
+      this.state = {
+        isLoading: false
+      };
+    }
 
-    const doMutation = (mutation, variables, msg) => {
-      mutation({
-        variables
-      })
-        .then(() => {
-          Alert.success(msg);
-
-          history.push('/engage');
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
-    // save
-    const save = doc => {
-      doc.kind = message.kind ? message.kind : kind;
-
-      if (messageId) {
-        return doMutation(
-          editMutation,
-          { ...doc, _id: messageId },
-          `You successfully updated a engagement message`
-        );
-      }
-
-      return doMutation(
+    render() {
+      const {
+        history,
+        kind,
+        messageId,
+        usersQuery,
+        engageMessageDetailQuery,
         addMutation,
-        doc,
-        `You successfully added a engagement message`
-      );
-    };
+        editMutation
+      } = this.props;
 
-    const messenger = message.messenger || {
-      brandId: '',
-      kind: '',
-      content: '',
-      sentAs: '',
-      rules: []
-    };
+      const message = engageMessageDetailQuery.engageMessageDetail || {};
+      const users = usersQuery.users || [];
+      const verifiedUsers = users.filter(user => user.username) || [];
 
-    const email = message.email || {
-      subject: '',
-      attachments: [],
-      content: '',
-      templateId: ''
-    };
+      const doMutation = (mutation, variables, msg) => {
+        this.setState({ isLoading: true });
 
-    const scheduleDate = message.scheduleDate || {
-      type: '',
-      month: '',
-      day: '',
-      time: ''
-    };
+        mutation({
+          variables
+        })
+          .then(() => {
+            Alert.success(msg);
+            history.push('/engage');
 
-    const updatedProps = {
-      ...props,
-      save,
-      users: verifiedUsers,
-      message: {
-        ...message,
-        // excluding __type auto fields
-        messenger: {
-          brandId: messenger.brandId,
-          kind: messenger.kind,
-          content: messenger.content,
-          sentAs: messenger.sentAs,
-          rules: messenger.rules
-        },
-        email: {
-          subject: email.subject,
-          attachments: email.attachments,
-          content: email.content,
-          templateId: email.templateId
-        },
-        scheduleDate: {
-          type: scheduleDate.type,
-          month: scheduleDate.month,
-          day: scheduleDate.day,
-          time: scheduleDate.time
+            this.setState({ isLoading: false });
+          })
+          .catch(error => {
+            Alert.error(error.message);
+
+            this.setState({ isLoading: false });
+          });
+      };
+
+      // save
+      const save = doc => {
+        doc.kind = message.kind ? message.kind : kind;
+
+        if (messageId) {
+          return doMutation(
+            editMutation,
+            { ...doc, _id: messageId },
+            `You successfully updated a engagement message`
+          );
         }
-      }
-    };
 
-    return <Component {...updatedProps} />;
-  };
+        return doMutation(
+          addMutation,
+          doc,
+          `You successfully added a engagement message`
+        );
+      };
+
+      const messenger = message.messenger || {
+        brandId: '',
+        kind: '',
+        content: '',
+        sentAs: '',
+        rules: []
+      };
+
+      const email = message.email || {
+        subject: '',
+        attachments: [],
+        content: '',
+        templateId: ''
+      };
+
+      const scheduleDate = message.scheduleDate || {
+        type: '',
+        month: '',
+        day: '',
+        time: ''
+      };
+
+      const updatedProps = {
+        ...this.props,
+        save,
+        users: verifiedUsers,
+        isMutationLoading: this.state.isLoading,
+        message: {
+          ...message,
+          // excluding __type auto fields
+          messenger: {
+            brandId: messenger.brandId,
+            kind: messenger.kind,
+            content: messenger.content,
+            sentAs: messenger.sentAs,
+            rules: messenger.rules
+          },
+          email: {
+            subject: email.subject,
+            attachments: email.attachments,
+            content: email.content,
+            templateId: email.templateId
+          },
+          scheduleDate: {
+            type: scheduleDate.type,
+            month: scheduleDate.month,
+            day: scheduleDate.day,
+            time: scheduleDate.time
+          }
+        }
+      };
+
+      return <Component {...updatedProps} />;
+    }
+  }
 
   return withProps<IComponentProps>(
     compose(

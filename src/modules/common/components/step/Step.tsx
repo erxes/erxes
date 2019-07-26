@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import { ImportLoader } from '../ButtonMutate';
 import {
   FullStep,
   ShortStep,
@@ -20,24 +21,27 @@ type Props = {
   title?: string;
   children?: React.ReactNode;
   next?: (stepNumber: number) => void;
-  nextButton?: React.ReactNode;
+  noButton?: boolean;
   save?: (name: string, e: React.MouseEvent) => void;
   message?: any;
+  isMutationLoading?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 class Step extends React.Component<Props> {
   renderButton() {
-    const { save, next, message } = this.props;
+    const { save, next, message, isMutationLoading } = this.props;
 
     if (save && Object.keys(message).length !== 0) {
       return (
         <Button
+          disabled={isMutationLoading}
           btnStyle="success"
           size="small"
-          icon="checked-1"
+          icon={isMutationLoading ? undefined : 'checked-1'}
           onClick={save.bind(this, 'save')}
         >
+          {isMutationLoading && <ImportLoader />}
           Save
         </Button>
       );
@@ -111,7 +115,7 @@ class Step extends React.Component<Props> {
       img,
       title,
       children,
-      nextButton,
+      noButton,
       onClick
     } = this.props;
 
@@ -132,7 +136,7 @@ class Step extends React.Component<Props> {
 
               <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
             </StepHeader>
-            {nextButton || this.renderButton()}
+            {noButton || this.renderButton()}
           </StepHeaderContainer>
 
           <StepContent>{children}</StepContent>
