@@ -85,17 +85,19 @@ const createPubsubInstance = () => {
   return pubsub;
 };
 
-export const initSubscribe = async () => {
-  const isSubscribed = await get('isErxesApiSubscribed');
+export const initSubscribe = () => {
+  setTimeout(async () => {
+    const isSubscribed = await get('isErxesApiSubscribed');
 
-  if (isSubscribed !== 'true') {
-    debugBase('Subscribing .....');
-    set('isErxesApiSubscribed', 'true');
+    if (isSubscribed !== 'true') {
+      debugBase('Subscribing .....');
+      set('isErxesApiSubscribed', 'true');
 
-    graphqlPubsub.subscribe('widgetNotification', message => {
-      return publishMessage(message);
-    });
-  }
+      graphqlPubsub.subscribe('widgetNotification', message => {
+        return publishMessage(message);
+      });
+    }
+  }, 1000 * Math.floor(Math.random() * 6) + 1);
 };
 
 export const unsubscribe = async () => {
