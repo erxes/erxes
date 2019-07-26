@@ -24,24 +24,24 @@ type Props = {
   noButton?: boolean;
   save?: (name: string, e: React.MouseEvent) => void;
   message?: any;
-  isButtonLoading?: boolean;
+  isMutationLoading?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 class Step extends React.Component<Props> {
   renderButton() {
-    const { save, next, message, isButtonLoading } = this.props;
+    const { save, next, message, isMutationLoading } = this.props;
 
     if (save && Object.keys(message).length !== 0) {
       return (
         <Button
-          disabled={isButtonLoading}
+          disabled={isMutationLoading}
           btnStyle="success"
           size="small"
-          icon={isButtonLoading ? undefined : 'checked-1'}
+          icon={isMutationLoading ? undefined : 'checked-1'}
           onClick={save.bind(this, 'save')}
         >
-          {isButtonLoading && <ImportLoader />}
+          {isMutationLoading && <ImportLoader />}
           Save
         </Button>
       );

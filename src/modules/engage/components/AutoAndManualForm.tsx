@@ -28,7 +28,7 @@ type Props = {
   users: IUser[];
   templates: IEmailTemplate[];
   kind: string;
-  isButtonLoading: boolean;
+  isMutationLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
@@ -137,7 +137,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderTitle, breadcrumbs, isButtonLoading } = this.props;
+    const { renderTitle, breadcrumbs, isMutationLoading } = this.props;
 
     const {
       activeStep,
@@ -196,7 +196,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
               this,
               this.props.kind === 'manual' ? 'live' : 'draft'
             )}
-            isButtonLoading={isButtonLoading}
+            isMutationLoading={isMutationLoading}
             message={this.props.message}
           >
             <MessageStep

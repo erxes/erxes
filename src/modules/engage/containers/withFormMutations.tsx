@@ -116,7 +116,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         ...this.props,
         save,
         users: verifiedUsers,
-        isButtonLoading: this.state.isLoading,
+        isMutationLoading: this.state.isLoading,
         message: {
           ...message,
           // excluding __type auto fields
