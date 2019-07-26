@@ -43,9 +43,8 @@ class Mail extends React.PureComponent<Props, {}> {
     });
   }
 
-  renderMailForm(message: IMessage) {
+  renderMailForm(gmailData: IGmailData) {
     const { integrationId } = this.props;
-    const { gmailData } = message;
 
     if (!gmailData) {
       return null;
@@ -92,34 +91,25 @@ class Mail extends React.PureComponent<Props, {}> {
     );
   }
 
-  render() {
-    const { message } = this.props;
-
-    const gmailData = message.gmailData || {};
-    const attachments = message.attachments || [];
-
-    if (!message) {
-      return null;
-    }
-
-    // all style inlined
-    const mailContent = juice(gmailData.textHtml || gmailData.textPlain || '');
+  renderGmailMessage = (email, message) => {
+    const attachments = email.attachments || [];
+    const mailContent = juice(email.textHtml || email.textPlain || '');
 
     return (
-      <EmailItem>
-        <Subject>{gmailData.subject}</Subject>
+      <EmailItem key={email.messageId}>
+        <Subject>{email.subject}</Subject>
         <Meta>
           <Avatar customer={message.customer} size={32} />
           <Details>
-            <strong>{gmailData.from}</strong>
-            {this.renderAddress('To:', gmailData.to)}
-            {this.renderAddress('Cc:', gmailData.cc)}
-            {this.renderAddress('Bc:', gmailData.bcc)}
+            <strong>{email.from}</strong>
+            {this.renderAddress('To:', email.to)}
+            {this.renderAddress('Cc:', email.cc)}
+            {this.renderAddress('Bc:', email.bcc)}
           </Details>
           <RightSide>
             {attachments.length > 0 && <Icon icon="attach" />}
             <Date>{dayjs(message.createdAt).format('lll')}</Date>
-            {this.renderMailForm(message)}
+            {this.renderMailForm(email)}
           </RightSide>
         </Meta>
         <Content
@@ -129,6 +119,18 @@ class Mail extends React.PureComponent<Props, {}> {
         <div className="clearfix" />
       </EmailItem>
     );
+  };
+
+  render() {
+    const { message } = this.props;
+
+    if (!message) {
+      return null;
+    }
+
+    const gmailData = message.gmailData || [];
+
+    return gmailData.map(email => this.renderGmailMessage(email, message));
   }
 }
 
