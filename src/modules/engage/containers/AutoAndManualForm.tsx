@@ -21,7 +21,7 @@ type Props = {
 type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   users: IUser[];
-  isMutationLoading: boolean;
+  isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
 } & Props &
   AddMutationResponse;

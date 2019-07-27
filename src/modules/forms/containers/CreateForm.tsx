@@ -93,7 +93,7 @@ class CreateFormContainer extends React.Component<
       ...this.props,
       fields: [],
       save,
-      isMutationLoading: this.state.isLoading
+      isActionLoading: this.state.isLoading
     };
 
     return <Form {...updatedProps} />;

@@ -274,6 +274,7 @@ class CreateMessenger extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderButtons()}
         </TitleContainer>
 
         <Row>
@@ -342,7 +343,7 @@ class CreateMessenger extends React.Component<Props, State> {
               img="/images/icons/erxes-04.svg"
               title="Appearance"
               onClick={this.onStepClick.bind(null, 'appearance')}
-              nextButton={this.renderButtons()}
+              noButton={true}
             >
               <Appearance
                 onChange={this.onChange}

@@ -31,7 +31,7 @@ type Props = {
   integration?: IFormIntegration;
   fields: IField[];
   loading?: boolean;
-  isMutationLoading: boolean;
+  isActionLoading: boolean;
   save: (
     params: {
       name: string;
@@ -178,7 +178,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderSaveButton = () => {
-    const { isMutationLoading } = this.props;
+    const { isActionLoading } = this.props;
 
     const cancelButton = (
       <Link to="/forms">
@@ -192,13 +192,13 @@ class Form extends React.Component<Props, State> {
       <Button.Group>
         {cancelButton}
         <Button
-          disabled={isMutationLoading}
+          disabled={isActionLoading}
           btnStyle="success"
           size="small"
-          icon={isMutationLoading ? undefined : 'checked-1'}
+          icon={isActionLoading ? undefined : 'checked-1'}
           onClick={this.handleSubmit}
         >
-          {isMutationLoading && <ImportLoader />}
+          {isActionLoading && <ImportLoader />}
           Save
         </Button>
       </Button.Group>
