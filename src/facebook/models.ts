@@ -15,7 +15,7 @@ export interface ICustomerDocument extends ICustomer, Document {}
 
 export const customerSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: { type: String, index: true },
+  userId: { type: String, unique: true },
   erxesApiId: String,
   firstName: String,
   lastName: String,
@@ -45,6 +45,8 @@ export const conversationSchema = new Schema({
   content: String,
 });
 
+conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });
+
 export interface IConversationModel extends Model<IConversationDocument> {}
 
 // conversation message ===========================
@@ -58,7 +60,7 @@ export interface IConversationMessageDocument extends IConversationMessage, Docu
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
-  mid: { type: String, index: true },
+  mid: { type: String, unique: true },
   conversationId: String,
   content: String,
 });

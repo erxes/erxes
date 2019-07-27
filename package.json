@@ -19,7 +19,7 @@
   "scripts": {
     "start": "node dist",
     "dev": "DEBUG=erxes-integrations:* node_modules/.bin/ts-node-dev --respawn src",
-    "test": "NODE_ENV=test jest --runInBand --forceExit",
+    "test": "NODE_ENV=test jest --forceExit",
     "build": "tsc -p tsconfig.prod.json",
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
