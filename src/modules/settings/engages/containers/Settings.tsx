@@ -1,35 +1,51 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Settings from '../components/Settings';
 import { mutations, queries } from '../graphql';
+import {
+  EngageConfigQueryResponse,
+  EngagesConfigSaveMutationResponse,
+  IEngageConfig
+} from '../types';
 
 type FinalProps = {
-  engagesConfigDetailQuery: any;
-  engagesConfigSaveMutation: any;
-};
+  engagesConfigDetailQuery: EngageConfigQueryResponse;
+} & EngagesConfigSaveMutationResponse;
 
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
-    const { engagesConfigDetailQuery, engagesConfigSaveMutation } = this.props;
+    const { engagesConfigDetailQuery } = this.props;
 
-    // create or update action
-    const save = (secretAccessKey, accessKeyId, region) => {
-      engagesConfigSaveMutation({
-        variables: { secretAccessKey, accessKeyId, region }
-      })
-        .then(() => {
-          Alert.success('You successfully updated general settings');
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+    if (engagesConfigDetailQuery.loading) {
+      return <Spinner />;
+    }
+
+    const renderButton = ({
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={mutations.engagesConfigSave}
+          variables={values}
+          callback={callback}
+          refetchQueries={'engagesConfigDetail'}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully updated engages config`}
+        />
+      );
     };
 
     const updatedProps = {
-      save,
-      ses: engagesConfigDetailQuery.engagesConfigDetail || {}
+      renderButton,
+      engagesConfigDetail: engagesConfigDetailQuery.engagesConfigDetail || {}
     };
 
     return <Settings {...updatedProps} />;
@@ -38,11 +54,17 @@ class SettingsContainer extends React.Component<FinalProps> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}>(gql(queries.engagesConfigDetail), {
-      name: 'engagesConfigDetailQuery'
-    }),
-    graphql<{}>(gql(mutations.engagesConfigSave), {
-      name: 'engagesConfigSaveMutation'
-    })
+    graphql<{}, EngageConfigQueryResponse, {}>(
+      gql(queries.engagesConfigDetail),
+      {
+        name: 'engagesConfigDetailQuery'
+      }
+    ),
+    graphql<IEngageConfig, EngagesConfigSaveMutationResponse, IEngageConfig>(
+      gql(mutations.engagesConfigSave),
+      {
+        name: 'engagesConfigSave'
+      }
+    )
   )(SettingsContainer)
 );
