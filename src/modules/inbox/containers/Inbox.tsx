@@ -22,6 +22,44 @@ interface IProps extends IRouteProps {
   loading: boolean;
 }
 
+interface IInboxRefetchController {
+  notifyConsumersOfManagementAction: () => void;
+  refetchRequired: string;
+}
+
+const InboxManagementActionContext = React.createContext(
+  {} as IInboxRefetchController
+);
+
+export const InboxManagementActionConsumer =
+  InboxManagementActionContext.Consumer;
+
+class WithRefetchHandling extends React.Component<
+  any,
+  IInboxRefetchController
+> {
+  constructor(props) {
+    super(props);
+
+    const notifHandler = () => {
+      this.setState({ refetchRequired: new Date().toISOString() });
+    };
+
+    this.state = {
+      notifyConsumersOfManagementAction: notifHandler,
+      refetchRequired: ''
+    };
+  }
+
+  public render() {
+    return (
+      <InboxManagementActionContext.Provider value={this.state}>
+        {this.props.children}
+      </InboxManagementActionContext.Provider>
+    );
+  }
+}
+
 class WithCurrentId extends React.Component<IProps> {
   componentWillReceiveProps(nextProps: IProps) {
     const { conversationsGetLast, loading, history, queryParams } = nextProps;
@@ -50,11 +88,13 @@ class WithCurrentId extends React.Component<IProps> {
           }
 
           return (
-            <Inbox
-              queryParams={queryParams}
-              currentConversationId={_id}
-              currentUser={currentUser}
-            />
+            <WithRefetchHandling>
+              <Inbox
+                queryParams={queryParams}
+                currentConversationId={_id}
+                currentUser={currentUser}
+              />
+            </WithRefetchHandling>
           );
         }}
       </AppConsumer>
