@@ -5,9 +5,10 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
-import Uploader from 'modules/common/components/Uploader';
+import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __, Alert } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { FileName } from 'modules/inbox/styles';
 import {
@@ -90,15 +91,6 @@ class MailForm extends React.Component<Props, State> {
     const { content, attachments } = this.state;
     const { to, cc, bcc, from, subject } = values;
 
-    const files = attachments.map(attachment => {
-      return {
-        filename: attachment.name,
-        size: attachment.size,
-        mimeType: attachment.type,
-        url: attachment.url
-      };
-    });
-
     return {
       headerId,
       threadId,
@@ -107,7 +99,7 @@ class MailForm extends React.Component<Props, State> {
       bcc: formatStr(bcc),
       subject,
       from,
-      attachments: files,
+      attachments,
       textHtml: content,
       erxesApiId: from,
       references
@@ -122,10 +114,6 @@ class MailForm extends React.Component<Props, State> {
     this.setState(({ [name]: true } as unknown) as Pick<State, keyof State>);
   };
 
-  onChangeAttachment = attachments => {
-    this.setState({ attachments });
-  };
-
   onRemoveAttach = (attachment: IGmailAttachment) => {
     const { attachments } = this.state;
 
@@ -134,6 +122,66 @@ class MailForm extends React.Component<Props, State> {
         item => item.filename !== attachment.filename
       )
     });
+  };
+
+  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+
+    if (!files) {
+      return;
+    }
+
+    if (files.length === 0) {
+      return;
+    }
+
+    this.setState({ isUploading: true });
+
+    let j = 0;
+
+    // tslint:disable-next-line
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      const uploadReader = new FileReader();
+      const fileInfo = {
+        filename: file.name,
+        size: file.size,
+        mimeType: file.type
+      };
+
+      uploadReader.onloadend = () => {
+        const totalFileSize = this.state.totalFileSize + fileInfo.size;
+
+        if (totalFileSize > 5184000) {
+          this.setState({ isUploading: false });
+
+          return Alert.error('It`s size exceeds the limit 5mb');
+        }
+
+        const result = uploadReader.result;
+
+        if (result) {
+          const dataStr = result.toString();
+          const data = dataStr.substr(dataStr.indexOf(',') + 1);
+
+          const fileData = Object.assign({ data }, fileInfo);
+
+          this.setState({
+            attachments: [...this.state.attachments, fileData],
+            totalFileSize
+          });
+
+          j++;
+
+          if (j === files.length) {
+            this.setState({ isUploading: false });
+          }
+        }
+      };
+
+      uploadReader.readAsDataURL(file);
+    }
   };
 
   renderFromOption() {
@@ -220,6 +268,16 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <EditorFooter>
+        <Tip text={__('Attach file')}>
+          <label>
+            <Icon icon="attach" />
+            <input
+              type="file"
+              onChange={this.handleFileInput}
+              multiple={true}
+            />
+          </label>
+        </Tip>
         <div>
           {this.renderCancelButton()}
           {renderButton({
@@ -286,14 +344,6 @@ class MailForm extends React.Component<Props, State> {
             required={true}
             defaultValue={subject}
             disabled={(subject && true) || false}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Attachments: </ControlLabel>
-          <Uploader
-            defaultFileList={this.state.attachments || []}
-            onChange={this.onChangeAttachment}
           />
         </FormGroup>
 

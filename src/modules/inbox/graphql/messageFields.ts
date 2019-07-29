@@ -69,6 +69,7 @@ export default `
       filename
       mimeType
       attachmentId
+      data
     }
   }
 `;

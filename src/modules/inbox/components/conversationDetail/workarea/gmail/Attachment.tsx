@@ -15,6 +15,7 @@ import {
 
 type Props = {
   attachments: IGmailAttachment[];
+  integrationId: string;
   messageId: string;
 };
 
@@ -40,26 +41,26 @@ class Attachments extends React.PureComponent<Props, {}> {
     return <Icon icon="doc-inv" size={size} />;
   }
 
-  createLink(attachmentId: string) {
+  createLink(attachmentId: string, filename: string) {
     const { REACT_APP_API_URL } = getEnv();
-    const { messageId } = this.props;
+    const { messageId, integrationId } = this.props;
 
-    return `${REACT_APP_API_URL}/read-gmail-attachment?message=${messageId}&attach=${attachmentId}`;
+    return `${REACT_APP_API_URL}/read-gmail-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}`;
   }
 
   renderAttach(attachment: IGmailAttachment) {
-    const type = attachment.mimeType || '';
+    const { size, attachmentId, mimeType = '', filename = '' } = attachment;
 
     return (
-      <AttachmentItem key={attachment.filename}>
-        <FileIcon>{this.getIcon(type, 32)}</FileIcon>
+      <AttachmentItem key={filename}>
+        <FileIcon>{this.getIcon(mimeType, 32)}</FileIcon>
         <FileInfo>
-          {this.getIcon(type, 14)}
-          <FileName>{attachment.filename}</FileName>
-          <span>{this.formatSize(attachment.size)}</span>
+          {this.getIcon(mimeType, 14)}
+          <FileName>{filename}</FileName>
+          <span>{this.formatSize(size)}</span>
           <Tip text={__('Download')}>
             <Download
-              href={this.createLink(attachment.attachmentId)}
+              href={this.createLink(attachmentId, filename)}
               target="_blank"
             >
               <Icon icon="download" />

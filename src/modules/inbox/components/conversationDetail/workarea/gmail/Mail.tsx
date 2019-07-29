@@ -93,7 +93,14 @@ class Mail extends React.PureComponent<Props, {}> {
     );
   }
 
-  renderGmailMessage = (email, message) => {
+  renderGmailMessage = (message: IMessage) => {
+    const { integrationId } = this.props;
+    const email = message.gmailData;
+
+    if (!email) {
+      return null;
+    }
+
     const attachments = email.attachments || [];
     const mailContent = juice(email.textHtml || email.textPlain || '');
 
@@ -118,6 +125,7 @@ class Mail extends React.PureComponent<Props, {}> {
           dangerouslySetInnerHTML={{ __html: this.cleanHtml(mailContent) }}
         />
         <Attachments
+          integrationId={integrationId}
           attachments={attachments}
           messageId={email.messageId || ''}
         />
@@ -133,9 +141,7 @@ class Mail extends React.PureComponent<Props, {}> {
       return null;
     }
 
-    const gmailData: any = message.gmailData || [];
-
-    return gmailData.map(email => this.renderGmailMessage(email, message));
+    return this.renderGmailMessage(message);
   }
 }
 

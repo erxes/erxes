@@ -61,6 +61,7 @@ export interface IGmailAttachment {
   mimeType?: string;
   size: number;
   attachmentId: string;
+  data?: string;
 }
 
 export interface IEngageData {
