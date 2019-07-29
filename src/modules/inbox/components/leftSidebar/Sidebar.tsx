@@ -13,6 +13,7 @@ import { TAG_TYPES } from 'modules/tags/constants';
 import React from 'react';
 import RTG from 'react-transition-group';
 import { InboxManagementActionConsumer } from '../../containers/Inbox';
+import { StatusFilterPopover } from '../../containers/leftSidebar';
 import { IConversation } from '../../types';
 import {
   AdditionalSidebar,
