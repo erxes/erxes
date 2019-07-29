@@ -20,7 +20,7 @@ export default function asyncComponent(importComponent: any) {
     render() {
       const Comp = this.state.component;
 
-      return Comp ? <Comp {...this.props} /> : <Spinner objective={true} />;
+      return Comp ? <Comp {...this.props} /> : <Spinner />;
     }
   }
 

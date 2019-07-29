@@ -64,7 +64,7 @@ class List extends React.Component<Props, {}> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="downarrow">
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );

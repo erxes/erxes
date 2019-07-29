@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
@@ -78,9 +77,10 @@ class MessengerAddContainer extends React.Component<Props, State> {
           isSubmitted={isSubmitted}
           disabled={!values}
           type="submit"
+          icon="arrow-right"
           successMessage={`You successfully added an ${name}`}
         >
-          {__('Continue')} <Icon icon="rightarrow-2" />
+          {__('Continue')}
         </ButtonMutate>
       );
     };

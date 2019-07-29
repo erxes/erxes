@@ -97,7 +97,8 @@ class Properties extends React.Component<Props> {
       >
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
-            {__('Add Group & Field ')} <Icon icon="downarrow" />
+            {__('Add Group & Field ')}
+            <Icon icon="angle-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

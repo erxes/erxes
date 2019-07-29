@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
+import CURRENCIES from 'modules/common/constants/currencies';
 import { __ } from 'modules/common/utils';
 import ActionBar from 'modules/layout/components/ActionBar';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -9,7 +10,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
-import { CURRENCIES, LANGUAGES, MEASUREMENTS } from '../constants';
+import { LANGUAGES, MEASUREMENTS } from '../constants';
 
 type Props = {
   currentLanguage: string;

@@ -208,7 +208,7 @@ class ChannelForm extends React.Component<Props, State> {
               disabled={this.isFilledValues()}
               onClick={this.save}
             >
-              {__('Finish')} <Icon icon="checked" />
+              {__('Finish')} <Icon icon="check-1" />
             </Button>
           </div>
           <Link to="/inbox/index">{__('Go to Inbox')} »</Link>

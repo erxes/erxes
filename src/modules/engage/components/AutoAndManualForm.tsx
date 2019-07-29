@@ -28,6 +28,7 @@ type Props = {
   users: IUser[];
   templates: IEmailTemplate[];
   kind: string;
+  isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
@@ -136,7 +137,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderTitle, breadcrumbs } = this.props;
+    const { renderTitle, breadcrumbs, isActionLoading } = this.props;
 
     const {
       activeStep,
@@ -195,6 +196,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
               this,
               this.props.kind === 'manual' ? 'live' : 'draft'
             )}
+            isActionLoading={isActionLoading}
             message={this.props.message}
           >
             <MessageStep

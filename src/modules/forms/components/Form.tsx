@@ -17,6 +17,7 @@ import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { ImportLoader } from 'modules/common/components/ButtonMutate';
 import {
   CallOut,
   ChooseType,
@@ -30,7 +31,7 @@ type Props = {
   integration?: IFormIntegration;
   fields: IField[];
   loading?: boolean;
-
+  isActionLoading: boolean;
   save: (
     params: {
       name: string;
@@ -177,6 +178,8 @@ class Form extends React.Component<Props, State> {
   };
 
   renderSaveButton = () => {
+    const { isActionLoading } = this.props;
+
     const cancelButton = (
       <Link to="/forms">
         <Button btnStyle="simple" size="small" icon="cancel-1">
@@ -189,11 +192,13 @@ class Form extends React.Component<Props, State> {
       <Button.Group>
         {cancelButton}
         <Button
+          disabled={isActionLoading}
           btnStyle="success"
           size="small"
-          icon="checked-1"
+          icon={isActionLoading ? undefined : 'checked-1'}
           onClick={this.handleSubmit}
         >
+          {isActionLoading && <ImportLoader />}
           Save
         </Button>
       </Button.Group>
@@ -247,6 +252,7 @@ class Form extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderSaveButton()}
         </TitleContainer>
         <Steps active={activeStep || 1}>
           <Step img="/images/icons/erxes-04.svg" title="Type">
@@ -315,7 +321,7 @@ class Form extends React.Component<Props, State> {
           <Step
             img="/images/icons/erxes-19.svg"
             title="Full Preview"
-            nextButton={this.renderSaveButton()}
+            noButton={true}
           >
             <FullPreviewStep
               onChange={this.onChange}

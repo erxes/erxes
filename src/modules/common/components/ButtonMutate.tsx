@@ -7,7 +7,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Button from '../components/Button';
 
-const ImportLoader = styled.i`
+export const ImportLoader = styled.i`
   width: 13px;
   height: 13px;
   animation: ${rotate} 0.75s linear infinite;
@@ -55,17 +55,6 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
     if (prevProps.isSubmitted !== this.props.isSubmitted) {
       this.mutate();
     }
-  };
-
-  checkIsLoading = (
-    elementLoading?: React.ReactNode,
-    element?: React.ReactNode
-  ) => {
-    if (this.state.isLoading) {
-      return elementLoading;
-    }
-
-    return element;
   };
 
   mutate = () => {

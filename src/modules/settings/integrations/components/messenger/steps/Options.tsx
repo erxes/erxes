@@ -44,6 +44,33 @@ class Options extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
+  renderToggle({
+    label,
+    onChange,
+    checked
+  }: {
+    label: string;
+    checked?: boolean;
+    onChange: (e: React.FormEvent) => void;
+  }) {
+    return (
+      <FormGroup>
+        <ControlLabel>{label}</ControlLabel>
+        <div>
+          <Toggle
+            className="wide"
+            checked={checked}
+            onChange={onChange}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
+        </div>
+      </FormGroup>
+    );
+  }
+
   render() {
     const languageOnChange = e =>
       this.onInputChange(
@@ -80,7 +107,6 @@ class Options extends React.Component<Props, State> {
               defaultValue={this.props.languageCode}
               onChange={languageOnChange}
             >
-              <option />
               {LANGUAGES.map((item, index) => (
                 <option key={index} value={item.value}>
                   {item.label}
@@ -95,80 +121,35 @@ class Options extends React.Component<Props, State> {
             onChange={brandOnChange}
           />
 
-          <FormGroup>
-            <ControlLabel>Require Authentication</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.requireAuth}
-                onChange={requireAuthChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Require Authentication',
+            checked: this.props.requireAuth,
+            onChange: requireAuthChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Show chat</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.showChat}
-                onChange={showChatChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Show chat',
+            checked: this.props.showChat,
+            onChange: showChatChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Show launcher</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.showLauncher}
-                onChange={showLauncherChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Show launcher',
+            checked: this.props.showLauncher,
+            onChange: showLauncherChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Force logout when resolve</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.forceLogoutWhenResolve}
-                onChange={forceLogoutWhenResolveChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Force logout when resolve',
+            checked: this.props.forceLogoutWhenResolve,
+            onChange: forceLogoutWhenResolveChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Notify customer</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.notifyCustomer}
-                onChange={notifyCustomerChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Notify customer',
+            checked: this.props.notifyCustomer,
+            onChange: notifyCustomerChange
+          })}
         </LeftItem>
       </FlexItem>
     );
