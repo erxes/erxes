@@ -36,11 +36,14 @@ const Uploading = styled.div`
 `;
 
 const ControlWrapper = styled.div`
-  display: flex;
+  position: relative;
 `;
 
 const LeftSection = styled.div`
-  padding: 5px 10px 0 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 5px 10px 0 0;
 `;
 
 const MailEditorWrapper = styled.div`

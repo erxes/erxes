@@ -1,4 +1,4 @@
-import { IConversation, IMessage } from 'modules/inbox/types';
+import { IConversation, IGmailData, IMessage } from 'modules/inbox/types';
 import React from 'react';
 import SimpleMessage from '../conversation/messages/SimpleMessage';
 import Mail from './Mail';

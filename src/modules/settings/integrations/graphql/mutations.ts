@@ -16,6 +16,7 @@ const sendGmailFields = `
   $threadId: String,
   $subject: String!,
   $textHtml: String!,
+  $references: String
   $to: String!,
   $cc: String,
   $bcc: String,
@@ -28,6 +29,7 @@ const sendGmailVariables = `
   headerId: $headerId,
   threadId: $threadId,
   subject: $subject,
+  references: $references,
   textHtml: $textHtml,
   to: $to,
   cc: $cc,

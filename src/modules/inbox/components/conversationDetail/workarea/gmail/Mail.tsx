@@ -65,14 +65,16 @@ class Mail extends React.PureComponent<Props, {}> {
       />
     );
 
+    const trigger = (
+      <Button icon="reply" btnStyle="simple" size="small">
+        Reply
+      </Button>
+    );
+
     return (
       <ModalTrigger
         title={`Replying: ${subject}`}
-        trigger={
-          <Button icon="reply" btnStyle="simple" size="small">
-            Reply
-          </Button>
-        }
+        trigger={trigger}
         size="lg"
         content={content}
       />
@@ -115,7 +117,10 @@ class Mail extends React.PureComponent<Props, {}> {
         <Content
           dangerouslySetInnerHTML={{ __html: this.cleanHtml(mailContent) }}
         />
-        <Attachments attachments={attachments} messageId={message._id || ''} />
+        <Attachments
+          attachments={attachments}
+          messageId={email.messageId || ''}
+        />
         <div className="clearfix" />
       </EmailItem>
     );

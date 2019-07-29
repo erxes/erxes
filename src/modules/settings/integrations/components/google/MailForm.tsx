@@ -8,7 +8,7 @@ import Spinner from 'modules/common/components/Spinner';
 import Uploader from 'modules/common/components/Uploader';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { FileName } from 'modules/inbox/styles';
 import {
@@ -91,6 +91,15 @@ class MailForm extends React.Component<Props, State> {
     const { content, attachments } = this.state;
     const { to, cc, bcc, from, subject } = values;
 
+    const files = attachments.map(attachment => {
+      return {
+        filename: attachment.name,
+        size: attachment.size,
+        mimeType: attachment.type,
+        url: attachment.url
+      };
+    });
+
     return {
       headerId,
       threadId,
@@ -99,7 +108,7 @@ class MailForm extends React.Component<Props, State> {
       bcc: formatStr(bcc),
       subject,
       from,
-      attachments,
+      attachments: files,
       textHtml: content,
       erxesApiId: from,
       references
@@ -118,68 +127,14 @@ class MailForm extends React.Component<Props, State> {
     this.setState({ attachments });
   };
 
-  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
+  onRemoveAttach = (attachment: IGmailAttachment) => {
+    const { attachments } = this.state;
 
-    if (!files) {
-      return;
-    }
-
-    if (files.length === 0) {
-      return;
-    }
-
-    this.setState({ isUploading: true });
-
-    let j = 0;
-
-    // tslint:disable-next-line
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      const uploadReader = new FileReader();
-      const fileInfo = {
-        filename: file.name,
-        size: file.size,
-        mimeType: file.type
-      };
-
-      uploadReader.onloadend = () => {
-        const totalFileSize = this.state.totalFileSize + fileInfo.size;
-
-        if (totalFileSize > 5242880) {
-          this.setState({
-            isUploading: false
-          });
-
-          return Alert.error('It`s size exceeds the limit 5mb');
-        }
-
-        const result = uploadReader.result;
-
-        if (result) {
-          const dataStr = result.toString();
-          const data = dataStr.substr(dataStr.indexOf(',') + 1);
-
-          const fileData = Object.assign({ data }, fileInfo);
-
-          this.setState({
-            attachments: [...this.state.attachments, fileData],
-            totalFileSize
-          });
-
-          j++;
-
-          if (j === files.length) {
-            this.setState({
-              isUploading: false
-            });
-          }
-        }
-      };
-
-      uploadReader.readAsDataURL(file);
-    }
+    this.setState({
+      attachments: attachments.filter(
+        item => item.filename !== attachment.filename
+      )
+    });
   };
 
   renderFromOption() {
@@ -215,16 +170,6 @@ class MailForm extends React.Component<Props, State> {
       </FormGroup>
     );
   }
-
-  onRemoveAttach = (attachment: IGmailAttachment) => {
-    const { attachments } = this.state;
-
-    this.setState({
-      attachments: attachments.filter(
-        item => item.filename !== attachment.filename
-      )
-    });
-  };
 
   renderAttachments() {
     const { attachments, isUploading } = this.state;
@@ -297,27 +242,25 @@ class MailForm extends React.Component<Props, State> {
     const onClickIsBCC = () => this.onClick('isBcc');
 
     return (
-      <>
-        <ControlWrapper>
-          <FormGroup>
-            <ControlLabel required={true}>To:</ControlLabel>
-            <FormControl
-              {...formProps}
-              value={toEmails}
-              name="to"
-              required={true}
-            />
-          </FormGroup>
+      <ControlWrapper>
+        <FormGroup>
+          <ControlLabel required={true}>To:</ControlLabel>
+          <FormControl
+            {...formProps}
+            defaultValue={toEmails}
+            name="to"
+            required={true}
+          />
+        </FormGroup>
 
-          <LeftSection>
-            <Resipients onClick={onClickIsCC} isActive={isCc}>
-              Cc
-            </Resipients>
-            <Resipients onClick={onClickIsBCC} isActive={isBcc}>
-              Bcc
-            </Resipients>
-          </LeftSection>
-        </ControlWrapper>
+        <LeftSection>
+          <Resipients onClick={onClickIsCC} isActive={isCc}>
+            Cc
+          </Resipients>
+          <Resipients onClick={onClickIsBCC} isActive={isBcc}>
+            Bcc
+          </Resipients>
+        </LeftSection>
 
         {this.renderCC(formProps)}
         {this.renderBCC(formProps)}
@@ -368,7 +311,7 @@ class MailForm extends React.Component<Props, State> {
 
         {this.renderAttachments()}
         {this.renderButtons(values, isSubmitted)}
-      </>
+      </ControlWrapper>
     );
   };
 
