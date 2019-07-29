@@ -65,6 +65,29 @@ class NotificationRow extends React.Component<IProps> {
     );
   }
 
+  renderCreatedUser() {
+    const { notification, isList } = this.props;
+    const { createdUser } = notification;
+
+    let name = 'system';
+
+    if (createdUser) {
+      name = createdUser.details
+        ? createdUser.details.fullName || ''
+        : createdUser.username || createdUser.email;
+    }
+
+    return (
+      <CreatedUser isList={isList}>
+        {name}
+        <span>
+          {notification.action}
+          {this.renderContent(notification.content, notification.notifType)}
+        </span>
+      </CreatedUser>
+    );
+  }
+
   render() {
     const { notification, isList } = this.props;
     const { isRead, createdUser } = notification;
@@ -80,15 +103,7 @@ class NotificationRow extends React.Component<IProps> {
           />
         </AvatarSection>
         <InfoSection>
-          <CreatedUser isList={isList}>
-            {createdUser.details
-              ? createdUser.details.fullName
-              : createdUser.username || createdUser.email}
-            <span>
-              {notification.action}
-              {this.renderContent(notification.content, notification.notifType)}
-            </span>
-          </CreatedUser>
+          {this.renderCreatedUser()}
           <CreatedDate isList={isList}>
             {dayjs(notification.date).format('DD MMM YYYY, HH:mm')}
           </CreatedDate>
