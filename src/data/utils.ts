@@ -10,6 +10,7 @@ import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
+import { graphqlPubsub } from '../pubsub';
 
 /*
  * Check that given file is not harmful
@@ -407,6 +408,8 @@ export const sendNotification = async (doc: ISendNotification) => {
         { link, title, content, notifType, receiver: receiverId, action },
         createdUser._id,
       );
+
+      graphqlPubsub.publish('notificationInserted');
     } catch (e) {
       // Any other error is serious
       if (e.message !== 'Configuration does not exist') {
