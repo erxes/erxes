@@ -21,7 +21,7 @@ import {
 import Attachments from './Attachment';
 
 type Props = {
-  message: any;
+  message: IMessage;
   integrationId: string;
   staff?: boolean;
 };
@@ -133,7 +133,7 @@ class Mail extends React.PureComponent<Props, {}> {
       return null;
     }
 
-    const gmailData = message.gmailData || [];
+    const gmailData: any = message.gmailData || [];
 
     return gmailData.map(email => this.renderGmailMessage(email, message));
   }
