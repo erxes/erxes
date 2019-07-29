@@ -56,7 +56,7 @@ const DealMainActionBar = (props: Props) => {
       <ButtonGroup>
         <Tip text={__('Board')} placement="bottom">
           <Link to={boardLink} className={viewType === 'board' ? 'active' : ''}>
-            <Icon icon="layout" />
+            <Icon icon="window-section" />
           </Link>
         </Tip>
         <Tip text={__('Calendar')} placement="bottom">
@@ -64,7 +64,7 @@ const DealMainActionBar = (props: Props) => {
             to={calendarLink}
             className={viewType === 'calendar' ? 'active' : ''}
           >
-            <Icon icon="calendar" />
+            <Icon icon="calender" />
           </Link>
         </Tip>
         <Tip text={__('Conversion')} placement="bottom">
@@ -72,7 +72,7 @@ const DealMainActionBar = (props: Props) => {
             to={conversionlink}
             className={viewType === 'conversion' ? 'active' : ''}
           >
-            <Icon icon="circular" />
+            <Icon icon="process" />
           </Link>
         </Tip>
       </ButtonGroup>

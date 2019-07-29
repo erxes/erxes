@@ -28,7 +28,11 @@ class SelectBrand extends React.Component<Props, {}> {
       return;
     }
 
-    const trigger = <Button>Create brand</Button>;
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon="add">
+        Create brand
+      </Button>
+    );
 
     const content = props => (
       <BrandForm {...props} renderButton={renderButton} />

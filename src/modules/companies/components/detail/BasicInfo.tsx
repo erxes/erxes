@@ -93,8 +93,9 @@ class BasicInfo extends React.Component<Props> {
       <Action>
         <Dropdown id="dropdown-engage">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="simple" size="medium" icon="downarrow">
+            <Button btnStyle="simple" size="medium">
               {__('Action')}
+              <Icon icon="angle-down" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>

@@ -1,10 +1,10 @@
+import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __, getUserAvatar } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import ArticleForm from '../../containers/article/ArticleForm';
 import { IArticle } from '../../types';
@@ -14,6 +14,8 @@ import {
   ArticleMeta,
   ArticleTitle,
   AuthorName,
+  ReactionCount,
+  ReactionCounts,
   RowArticle
 } from './styles';
 
@@ -31,6 +33,16 @@ const ArticleRow = (props: Props) => {
 
   const remove = () => {
     return props.remove(props.article._id);
+  };
+
+  const renderReactions = () => {
+    const reactions = Object.entries(props.article.reactionCounts || {});
+
+    return reactions.map(([key, value]) => (
+      <ReactionCount key={key}>
+        <img src={key} alt="reaction" /> {value}
+      </ReactionCount>
+    ));
   };
 
   const renderEditAction = editTrigger => {
@@ -91,7 +103,8 @@ const ArticleRow = (props: Props) => {
               user.email}
           </AuthorName>
           <Icon icon="wallclock" /> {__('Created')}{' '}
-          {moment(article.createdDate).format('ll')}
+          {dayjs(article.createdDate).format('ll')}
+          <ReactionCounts>{renderReactions()}</ReactionCounts>
         </ArticleMeta>
       </ArticleColumn>
       <ActionButtons>

@@ -134,7 +134,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       >
         <PopoverButton onClick={this.onClick}>
           {__('Status')}
-          <Icon icon="downarrow" />
+          <Icon icon="angle-down" />
         </PopoverButton>
       </OverlayTrigger>
     );

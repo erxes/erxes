@@ -16,6 +16,7 @@ type Props = {
   isRequired?: boolean;
   formProps: IFormProps;
 };
+
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
 } & Props;
@@ -34,12 +35,19 @@ const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
     isSubmitted,
     callback
   }: IButtonMutateProps) => {
+    const callBackResponse = () => {
+      brandsQuery.refetch();
+
+      if (callback) {
+        callback();
+      }
+    };
+
     return (
       <ButtonMutate
         mutation={brandMutations.brandAdd}
         variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries()}
+        callback={callBackResponse}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}

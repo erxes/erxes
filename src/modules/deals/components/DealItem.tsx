@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
@@ -6,7 +7,6 @@ import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IDeal } from '../types';
@@ -38,7 +38,7 @@ export default class DealItem extends React.PureComponent<
       return null;
     }
 
-    return <ItemDate>{moment(date).format('MMM D, h:mm a')}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
   toggleForm = () => {

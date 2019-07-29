@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Details from 'modules/boards/components/portable/Details';
 import UserCounter from 'modules/boards/components/portable/UserCounter';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
@@ -10,7 +11,6 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import {
   Footer,
@@ -61,8 +61,8 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
     }
 
     return (
-      <Tip text={moment(date).format(format)}>
-        <ItemDate>{moment(date).format('lll')}</ItemDate>
+      <Tip text={dayjs(date).format(format)}>
+        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
       </Tip>
     );
   };

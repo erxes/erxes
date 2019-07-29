@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React from 'react';
 import strip from 'strip';
 
@@ -148,7 +148,7 @@ class ConversationItem extends React.Component<Props> {
         </RowContent>
 
         <SmallText>
-          {moment(updatedAt || createdAt).fromNow()}
+          {dayjs(updatedAt || createdAt).fromNow()}
 
           {assignedUser && (
             <AssigneeWrapper>

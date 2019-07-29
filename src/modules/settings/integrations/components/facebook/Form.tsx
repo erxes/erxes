@@ -44,11 +44,18 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     return values;
   }
 
-  generateDoc = (values: { name: string; brandId: string }) => {
+  generateDoc = (values: {
+    messengerName: string;
+    brandId: string;
+    accountId: string;
+  }) => {
+    const { accountId } = this.props;
+
     return {
-      ...values,
+      name: values.messengerName,
+      brandId: values.brandId,
       kind: 'facebook',
-      accountId: this.props.accountId,
+      accountId: accountId ? accountId : values.accountId,
       data: {
         pageIds: this.collectCheckboxValues('pages')
       }
@@ -91,7 +98,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name="name" required={true} />
+          <FormControl {...formProps} name="messengerName" required={true} />
         </FormGroup>
 
         <SelectBrand isRequired={true} formProps={formProps} />

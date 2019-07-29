@@ -1,7 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, withProps } from 'modules/common/utils';
 import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
@@ -58,9 +57,10 @@ class UserAddContainer extends React.Component<
           isSubmitted={isSubmitted}
           disabled={!values}
           type="submit"
+          icon="arrow-right"
           successMessage={`You successfully invited a ${name}`}
         >
-          {__('Next')} <Icon icon="rightarrow-2" />
+          {__('Next')}
         </ButtonMutate>
       );
     };

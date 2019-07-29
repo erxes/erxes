@@ -1,3 +1,4 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import { IUser } from 'modules/auth/types';
 import {
   HeaderContent,
@@ -10,7 +11,6 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
-import Datetime from 'react-datetime';
 import Move from '../../containers/editForm/Move';
 import { IItem, IOptions } from '../../types';
 

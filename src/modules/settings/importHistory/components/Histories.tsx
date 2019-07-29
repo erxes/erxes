@@ -64,7 +64,12 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     return (
       <BarItems>
-        <Button btnStyle="primary" size="small" icon="download-1" href={url}>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="folder-download"
+          href={url}
+        >
           {__('Download template')}
         </Button>
         <DataImporter

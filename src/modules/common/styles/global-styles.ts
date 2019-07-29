@@ -108,13 +108,17 @@ a:hover {
 }
 
 .modal-body {
-  padding: 40px 40px 30px 40px;
+  padding: 30px 40px;
 }
 
 .modal-footer {
   padding: 0;
-  margin-top: 40px;
+  margin-top: 30px;
   border: none;
+}
+
+.wide-modal {
+  width: 90%;
 }
 
 .close {
@@ -343,11 +347,16 @@ a:hover {
 /* select  */
 
 .Select-control {
+  height: 34px;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid ${colors.borderDarker};
   box-shadow: none;
   background: none;
+}
+
+.Select-input {
+  height: 33px;
 }
 
 .Select-control:hover {
@@ -832,6 +841,10 @@ a:hover {
   }
   .editor-id {
     display: none;
+  }
+
+  .rdt {
+    display: block !important;
   }
 `;
 

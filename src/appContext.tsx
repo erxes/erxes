@@ -1,46 +1,7 @@
+import dayjs from 'dayjs';
 import T from 'i18n-react';
-import translations from 'locales';
 import { IUser } from 'modules/auth/types';
-import moment from 'moment';
 import React from 'react';
-
-moment.defineLocale('mn', {
-  relativeTime: {
-    future: '%s',
-    past: '%s',
-    ss: '$dс',
-    s: 'саяхан',
-    m: 'м',
-    mm: '%dм',
-    h: '1ц',
-    hh: '%dц',
-    d: '1ө',
-    dd: '%dө',
-    M: '1с',
-    MM: '%dс',
-    y: '1ж',
-    yy: '%dж'
-  }
-});
-
-moment.updateLocale('en', {
-  relativeTime: {
-    future: '%s',
-    past: '%s',
-    s: '%ds',
-    ss: '%ds',
-    m: 'm',
-    mm: '%dm',
-    h: 'h',
-    hh: '%dh',
-    d: 'd',
-    dd: '%dd',
-    M: 'm',
-    MM: '%dm',
-    y: 'y',
-    yy: '%dy'
-  }
-});
 
 interface IState {
   currentUser?: IUser;
@@ -119,18 +80,25 @@ export class AppProvider extends React.Component<
   }
 
   setLocale = (currentLanguage: string): void => {
-    moment.locale(currentLanguage);
-    T.setTexts(translations[currentLanguage]);
+    if (currentLanguage !== 'mn') {
+      import(`dayjs/locale/${currentLanguage}`)
+        .then(() => dayjs.locale(currentLanguage))
+        .catch(_ => dayjs.locale('en'));
+    }
+
+    import(`./locales/${currentLanguage}.json`)
+      .then(data => {
+        const translations = data.default;
+        T.setTexts(translations);
+      })
+      .catch(e => console.log(e)); // tslint:disable-line
   };
 
   changeLanguage = (languageCode): void => {
     const currentLanguage = languageCode || 'en';
 
     localStorage.setItem('currentLanguage', currentLanguage);
-
-    this.setLocale(currentLanguage);
-
-    this.setState({ currentLanguage });
+    window.location.reload();
   };
 
   public render() {

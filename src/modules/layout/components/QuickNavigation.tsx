@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -7,8 +8,6 @@ import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
-import Signature from 'modules/settings/email/containers/Signature';
-import ChangePassword from 'modules/settings/profile/containers/ChangePassword';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
@@ -17,6 +16,14 @@ import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { UserHelper } from '../styles';
 
+const Signature = asyncComponent(() =>
+  import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
+);
+
+const ChangePassword = asyncComponent(() =>
+  import(/* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword')
+);
+
 const UserInfo = styled.div`
   display: flex;
   flex-direction: row;
@@ -24,7 +31,7 @@ const UserInfo = styled.div`
 
   span {
     float: none;
-    margin: 0 10px;
+    margin: 0 5px 0 10px;
   }
 `;
 
@@ -102,7 +109,7 @@ const QuickNavigation = ({
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon icon="downarrow" size={10} />
+                <Icon icon="angle-down" />
               </UserInfo>
             </UserHelper>
           </DropdownToggle>
@@ -134,7 +141,7 @@ const QuickNavigation = ({
               title="Email signatures"
               trigger={
                 <li>
-                  <a href="email">{__('Email signatures')}</a>
+                  <a href="#email">{__('Email signatures')}</a>
                 </li>
               }
               content={signatureContent}

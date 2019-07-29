@@ -21,7 +21,7 @@ class SignIn extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="email"
-            placeholder={__('Username or email')}
+            placeholder={__('registered@email.com')}
             required={true}
           />
         </FormGroup>

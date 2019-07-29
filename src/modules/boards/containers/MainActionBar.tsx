@@ -189,11 +189,8 @@ class Main extends React.Component<FinalProps> {
       return null;
     }
 
-    if (!currentBoard) {
-      return null;
-    }
+    const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
-    const pipelines = currentBoard.pipelines || [];
     const currentPipeline = pipelineId
       ? pipelines.find(pipe => pipe._id === pipelineId)
       : pipelines[0];
