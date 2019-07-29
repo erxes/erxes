@@ -46,7 +46,7 @@ class NotificationRow extends React.Component<IProps> {
       return title.replace('{userName}', '');
     }
 
-    if (!(user.details && user.details.fullName)) {
+    if (!user.details || user.details.fullName) {
       return title.replace('{userName}', user.email);
     }
 
