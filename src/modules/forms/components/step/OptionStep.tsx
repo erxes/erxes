@@ -48,6 +48,7 @@ class OptionStep extends React.Component<Props, {}> {
 
     return (
       <BackgroundSelector
+        key={value}
         selected={this.props.theme === value}
         onClick={onClick}
       >
