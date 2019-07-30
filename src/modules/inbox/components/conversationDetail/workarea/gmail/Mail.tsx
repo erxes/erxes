@@ -18,6 +18,7 @@ import {
   Subject
 } from './style';
 
+import { extractEmail } from 'modules/inbox/utils';
 import Attachments from './Attachment';
 
 type Props = {
@@ -50,16 +51,24 @@ class Mail extends React.PureComponent<Props, {}> {
       return null;
     }
 
-    const { subject } = gmailData;
+    const { subject, references, headerId, threadId } = gmailData;
+
+    const cc = extractEmail(gmailData.cc);
+    const bcc = extractEmail(gmailData.bcc);
+    const to = extractEmail(gmailData.to);
 
     const content = props => (
       <MailForm
-        toEmail={gmailData.from}
-        references={gmailData.references}
+        to={to}
+        fromEmail={gmailData.from}
+        integrationEmail={gmailData.integrationEmail}
+        cc={cc}
+        bcc={bcc}
+        references={references}
         integrationId={integrationId}
         refetchQueries={['detailQuery']}
-        headerId={gmailData.headerId}
-        threadId={gmailData.threadId}
+        headerId={headerId}
+        threadId={threadId}
         closeModal={props.closeModal}
         subject={subject}
       />

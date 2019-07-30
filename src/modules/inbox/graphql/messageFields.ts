@@ -64,6 +64,7 @@ export default `
     subject
     textPlain
     textHtml
+    integrationEmail
     attachments {
       size
       filename

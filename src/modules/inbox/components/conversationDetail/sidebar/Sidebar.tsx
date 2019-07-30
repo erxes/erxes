@@ -223,7 +223,7 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     const content = props => (
       <MailForm
-        toEmail={primaryEmail}
+        fromEmail={primaryEmail}
         refetchQueries={['activityLogsCustomer']}
         closeModal={props.closeModal}
       />

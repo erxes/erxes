@@ -26,3 +26,7 @@ export const getRefetchQueries = (kind: string) => {
     }
   ];
 };
+
+export const formatStr = (str: string) => {
+  return str ? str.split(/[ ,]+/).join(', ') : '';
+};

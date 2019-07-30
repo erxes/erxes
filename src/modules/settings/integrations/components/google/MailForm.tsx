@@ -16,6 +16,7 @@ import {
   IIntegration
 } from 'modules/settings/integrations/types';
 import React from 'react';
+import { formatStr } from '../../containers/utils';
 import {
   AttachmentContainer,
   Attachments,
@@ -34,16 +35,20 @@ type Props = {
   threadId?: string;
   subject?: string;
   references?: string;
-  toEmail?: string;
+  fromEmail?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+  integrationEmail?: string;
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
   status?: string;
-  cc?: string;
-  bcc?: string;
-  toEmails?: string;
+  cc?: any;
+  bcc?: any;
+  fromEmail?: string;
   from?: string;
   subject?: string;
   isCc?: boolean;
@@ -55,23 +60,22 @@ type State = {
   isUploading: boolean;
 };
 
-const formatStr = (str: string) => {
-  return str ? str.split(/[ ,]+/).join(', ') : '';
-};
-
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { cc, bcc } = props;
+
     this.state = {
+      fromEmail: props.fromEmail || '',
+      cc: cc || '',
+      bcc: bcc || '',
+      isCc: cc ? cc.length > 0 : false,
+      isBcc: bcc ? bcc.length > 0 : false,
+
       status: 'draft',
-      isCc: false,
-      isBcc: false,
       isUploading: false,
       content: '',
-      cc: '',
-      bcc: '',
-      toEmails: props.toEmail || '',
       from: '',
       subject: props.subject || '',
       attachments: [],
@@ -91,7 +95,7 @@ class MailForm extends React.Component<Props, State> {
     const { content, attachments } = this.state;
     const { to, cc, bcc, from, subject } = values;
 
-    return {
+    const doc = {
       headerId,
       threadId,
       to: formatStr(to),
@@ -104,6 +108,8 @@ class MailForm extends React.Component<Props, State> {
       erxesApiId: from,
       references
     };
+
+    return doc;
   };
 
   onEditorChange = e => {
@@ -122,6 +128,34 @@ class MailForm extends React.Component<Props, State> {
         item => item.filename !== attachment.filename
       )
     });
+  };
+
+  getEmailSender = (fromEmail?: string) => {
+    const { to = '', integrationEmail } = this.props;
+
+    if (!integrationEmail || !fromEmail) {
+      return '';
+    }
+
+    let receiver;
+
+    // Prevent send email to itself
+    if (integrationEmail === fromEmail) {
+      receiver = to;
+    } else {
+      let toEmails;
+
+      // Exclude integration email from [to]
+      if (to.includes(integrationEmail)) {
+        toEmails = to.split(' ').filter(email => email !== integrationEmail);
+      } else {
+        toEmails = to;
+      }
+
+      receiver = toEmails + ' ' + fromEmail;
+    }
+
+    return receiver;
   };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -193,27 +227,31 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderCC(formProps: IFormProps) {
-    if (!this.state.isCc) {
+    const { cc, isCc } = this.state;
+
+    if (!isCc) {
       return null;
     }
 
     return (
       <FormGroup>
         <ControlLabel>Cc:</ControlLabel>
-        <FormControl {...formProps} name="cc" />
+        <FormControl {...formProps} name="cc" defaultValue={cc} />
       </FormGroup>
     );
   }
 
   renderBCC(formProps: IFormProps) {
-    if (!this.state.isBcc) {
+    const { bcc, isBcc } = this.state;
+
+    if (!isBcc) {
       return null;
     }
 
     return (
       <FormGroup>
         <ControlLabel>Bcc:</ControlLabel>
-        <FormControl {...formProps} name="bcc" />
+        <FormControl {...formProps} name="bcc" defaultValue={bcc} />
       </FormGroup>
     );
   }
@@ -293,7 +331,10 @@ class MailForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { toEmails, isBcc, isCc, content, subject } = this.state;
+    const { integrationId } = this.props;
+    const { fromEmail, isBcc, isCc, content, subject } = this.state;
+
+    const sender = this.getEmailSender(fromEmail);
 
     const onClickIsCC = () => this.onClick('isCc');
     const onClickIsBCC = () => this.onClick('isBcc');
@@ -304,7 +345,7 @@ class MailForm extends React.Component<Props, State> {
           <ControlLabel required={true}>To:</ControlLabel>
           <FormControl
             {...formProps}
-            defaultValue={toEmails}
+            defaultValue={sender}
             name="to"
             required={true}
           />
@@ -326,7 +367,7 @@ class MailForm extends React.Component<Props, State> {
           <ControlLabel required={true}>From:</ControlLabel>
           <FormControl
             required={true}
-            defaultValue={this.props.integrationId || ''}
+            defaultValue={integrationId || ''}
             componentClass="select"
             {...formProps}
             name="from"

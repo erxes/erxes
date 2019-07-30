@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -15,8 +15,12 @@ type Props = {
   headerId?: string;
   threadId?: string;
   references?: string;
-  toEmail?: string;
+  fromEmail?: string;
+  to?: any;
+  cc?: any;
+  bcc?: any;
   subject?: string;
+  integrationEmail?: string;
   closeModal?: () => void;
 };
 
@@ -27,11 +31,16 @@ type FinalProps = {
 const MailFormContainer = (props: FinalProps) => {
   const {
     headerId,
+    integrationId,
     threadId,
     subject,
     gmailIntegrationsQuery,
     refetchQueries,
-    toEmail,
+    fromEmail,
+    to,
+    cc,
+    bcc,
+    integrationEmail,
     closeModal
   } = props;
 
@@ -56,18 +65,25 @@ const MailFormContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage="You have successfully sent a email"
-      />
+      >
+        {__('Send')}
+      </ButtonMutate>
     );
   };
 
   const updatedProps = {
     renderButton,
     integrations,
-    toEmail,
+    integrationId,
+    fromEmail,
+    cc,
+    bcc,
+    to,
     closeModal,
     headerId,
     threadId,
-    subject
+    subject,
+    integrationEmail
   };
 
   return <MailForm {...updatedProps} />;

@@ -41,6 +41,7 @@ interface IEngageDataRules {
 }
 
 export interface IGmailData {
+  integrationEmail: string;
   messageId?: string;
   headerId?: string;
   from?: string;
