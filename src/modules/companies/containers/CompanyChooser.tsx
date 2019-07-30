@@ -46,6 +46,9 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
     return company.primaryName || company.website || 'Unknown';
   };
 
+  const datas = data.relCompanies
+    ? data.relCompanies
+    : companiesQuery.companies;
   const updatedProps = {
     ...props,
     data: {
@@ -59,7 +62,7 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
     renderForm: formProps => <CompanyForm {...formProps} action={addCompany} />,
     renderName,
     add: addCompany,
-    datas: companiesQuery.companies || []
+    datas: datas || []
   };
 
   return <Chooser {...updatedProps} />;
@@ -90,7 +93,12 @@ const WithQuery = withProps<Props>(
 );
 
 type WrapperProps = {
-  data: { _id?: string; name: string; companies: ICompany[] };
+  data: {
+    _id?: string;
+    name: string;
+    companies: ICompany[];
+    relCompanies: ICompany[];
+  };
   onSelect: (datas: ICompany[]) => void;
   closeModal: () => void;
 };

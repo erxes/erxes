@@ -1,3 +1,4 @@
+import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -13,10 +14,18 @@ import CustomerChooser from '../../containers/CustomerChooser';
 type Props = {
   name: string;
   customers: ICustomer[];
+  relCustomers?: ICustomer[];
   onSelect: (customers: ICustomer[]) => void;
+  isOpen?: boolean;
 };
 
-function CustomerSection({ name, customers, onSelect }: Props) {
+function CustomerSection({
+  name,
+  customers = [],
+  relCustomers = [],
+  onSelect,
+  isOpen
+}: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -30,6 +39,27 @@ function CustomerSection({ name, customers, onSelect }: Props) {
     }
     return null;
   };
+
+  const renderRelatedCustomerChooser = props => {
+    return (
+      <CustomerChooser
+        {...props}
+        data={{ name, customers, relCustomers }}
+        onSelect={onSelect}
+      />
+    );
+  };
+
+  const relCustomerTrigger = <button>see related customers..</button>;
+
+  const relQuickButtons = (
+    <ModalTrigger
+      title="Related Associate"
+      trigger={relCustomerTrigger}
+      size="lg"
+      content={renderRelatedCustomerChooser}
+    />
+  );
 
   const renderBody = (customersObj: ICustomer[]) => {
     if (!customersObj) {
@@ -51,6 +81,7 @@ function CustomerSection({ name, customers, onSelect }: Props) {
         {customersObj.length === 0 && (
           <EmptyState icon="user-5" text="No customer" />
         )}
+        <Button>{relQuickButtons}</Button>
       </SectionBody>
     );
   };

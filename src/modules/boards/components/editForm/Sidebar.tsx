@@ -14,6 +14,8 @@ type Props = {
   item: IItem;
   customers: ICustomer[];
   companies: ICompany[];
+  relCustomers: ICustomer[];
+  relCompanies: ICompany[];
   assignedUserIds: string[];
   onChangeField?: (
     name: 'companies' | 'customers' | 'assignedUserIds',
@@ -38,6 +40,8 @@ class Sidebar extends React.Component<Props> {
     const {
       customers,
       companies,
+      relCustomers,
+      relCompanies,
       item,
       copyItem,
       removeItem,
@@ -67,12 +71,14 @@ class Sidebar extends React.Component<Props> {
         <CompanySection
           name={options.title}
           companies={companies}
+          relCompanies={relCompanies}
           onSelect={cmpsChange}
         />
 
         <CustomerSection
           name={options.title}
           customers={customers}
+          relCustomers={relCustomers}
           onSelect={cmrsChange}
         />
 

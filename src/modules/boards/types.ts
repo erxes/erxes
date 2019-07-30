@@ -202,3 +202,13 @@ export interface IFilterParams {
   noCloseDate?: string;
   overdue?: string;
 }
+
+export type RelatedCompaniesQueryResponse = {
+  relatedCompanies: ICompany[];
+  loading: boolean;
+};
+
+export type RelatedCustomersQueryResponse = {
+  relatedCustomers: ICustomer[];
+  loading: boolean;
+};

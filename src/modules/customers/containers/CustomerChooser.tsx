@@ -41,6 +41,10 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       });
   };
 
+  const datas = data.relCustomers
+    ? data.relCustomers
+    : customersQuery.customers;
+
   const updatedProps = {
     ...props,
     data: {
@@ -56,7 +60,7 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       <CustomerForm {...formProps} action={addCustomer} />
     ),
     add: addCustomer,
-    datas: customersQuery.customers || []
+    datas: datas || []
   };
 
   return <Chooser {...updatedProps} />;
@@ -90,7 +94,12 @@ const WithQuery = withProps<Props>(
 );
 
 type WrapperProps = {
-  data: { _id?: string; name: string; customers: ICustomer[] };
+  data: {
+    _id?: string;
+    name: string;
+    customers: ICustomer[];
+    relCustomers: ICustomer[];
+  };
   onSelect: (datas: ICustomer[]) => void;
   closeModal: () => void;
 };

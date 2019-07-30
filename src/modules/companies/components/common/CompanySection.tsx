@@ -1,3 +1,4 @@
+import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -13,11 +14,18 @@ import CompanyChooser from '../../containers/CompanyChooser';
 type Props = {
   name: string;
   companies?: ICompany[];
+  relCompanies?: ICompany[];
   onSelect: (companies: ICompany[]) => void;
   isOpen?: boolean;
 };
 
-function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
+function CompanySection({
+  name,
+  companies = [],
+  relCompanies = [],
+  onSelect,
+  isOpen
+}: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -31,11 +39,23 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
     );
   };
 
+  const renderRelatedCompanyChooser = props => {
+    return (
+      <CompanyChooser
+        {...props}
+        data={{ name, companies, relCompanies }}
+        onSelect={onSelect}
+      />
+    );
+  };
+
   const companyTrigger = (
     <button>
       <Icon icon="add" />
     </button>
   );
+
+  const relCompanyTrigger = <button>see related companies..</button>;
 
   const quickButtons = (
     <ModalTrigger
@@ -43,6 +63,15 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
       trigger={companyTrigger}
       size="lg"
       content={renderCompanyChooser}
+    />
+  );
+
+  const relQuickButtons = (
+    <ModalTrigger
+      title="Related Associate"
+      trigger={relCompanyTrigger}
+      size="lg"
+      content={renderRelatedCompanyChooser}
     />
   );
 
@@ -64,6 +93,7 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
       {companies.length === 0 && (
         <EmptyState icon="briefcase" text="No company" />
       )}
+      <Button>{relQuickButtons}</Button>
     </SectionBody>
   );
 
