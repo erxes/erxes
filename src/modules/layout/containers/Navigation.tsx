@@ -48,6 +48,7 @@ export default withProps<{ currentUser: IUser }>(
       {
         name: 'unreadConversationsCountQuery',
         options: () => ({
+          fetchPolicy: 'network-only',
           notifyOnNetworkStatusChange: true
         })
       }
