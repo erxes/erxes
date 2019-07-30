@@ -543,6 +543,7 @@ export const loadClass = () => {
     }) {
       const user = await Users.findOne({
         $or: [{ email: { $regex: new RegExp(email, 'i') } }, { username: { $regex: new RegExp(email, 'i') } }],
+        isActive: true,
       });
 
       if (!user || !user.password) {
