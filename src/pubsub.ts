@@ -3,21 +3,10 @@ import * as fs from 'fs';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
 import * as path from 'path';
-import { ActivityLogs, Conversations } from './db/models';
-import { debugBase } from './debuggers';
-import { get, redisOptions, set } from './redisClient';
+import { redisOptions } from './redisClient';
 
 // load environment variables
 dotenv.config();
-
-interface IPubsubMessage {
-  action: string;
-  data: {
-    trigger: string;
-    type: string;
-    payload: any;
-  };
-}
 
 interface IGoogleOptions {
   projectId: string;
@@ -31,7 +20,7 @@ const { PUBSUB_TYPE, NODE_ENV, PROCESS_NAME } = process.env;
 
 // Google pubsub message handler
 const commonMessageHandler = payload => {
-  return convertPubSubBuffer(payload.data);
+  return JSON.parse(payload.data.toString());
 };
 
 const configGooglePubsub = (): IGoogleOptions => {
@@ -69,9 +58,9 @@ const createPubsubInstance = () => {
 
     const GooglePubSub = require('@axelspringer/graphql-google-pubsub').GooglePubSub;
 
-    pubsub = new GooglePubSub(googleOptions, undefined, commonMessageHandler);
+    return new GooglePubSub(googleOptions, undefined, commonMessageHandler);
   } else {
-    pubsub = new RedisPubSub({
+    return new RedisPubSub({
       connectionListener: error => {
         if (error) {
           console.error(error);
@@ -81,78 +70,6 @@ const createPubsubInstance = () => {
       subscriber: new Redis(redisOptions),
     });
   }
-
-  return pubsub;
-};
-
-export const initSubscribe = () => {
-  setTimeout(async () => {
-    const isSubscribed = await get('isErxesApiSubscribed');
-
-    if (isSubscribed !== 'true') {
-      debugBase('Subscribing .....');
-      set('isErxesApiSubscribed', 'true');
-
-      graphqlPubsub.subscribe('widgetNotification', message => {
-        return publishMessage(message);
-      });
-    }
-  }, 1000 * Math.floor(Math.random() * 6) + 1);
-};
-
-export const unsubscribe = async () => {
-  debugBase('Unsubscribing .....');
-  await set('isErxesApiSubscribed', 'false');
-};
-
-const publishMessage = async ({ action, data }: IPubsubMessage) => {
-  if (NODE_ENV === 'test') {
-    return;
-  }
-
-  if (action === 'callPublish') {
-    if (data.trigger === 'conversationMessageInserted') {
-      const { customerId, conversationId } = data.payload;
-      const conversation = await Conversations.findOne({ _id: conversationId }, { integrationId: 1 });
-      const customerLastStatus = await get(`customer_last_status_${customerId}`);
-
-      // if customer's last status is left then mark as joined when customer ask
-      if (conversation && customerLastStatus === 'left') {
-        set(`customer_last_status_${customerId}`, 'joined');
-
-        // customer has joined + time
-        const conversationMessages = await Conversations.changeCustomerStatus(
-          'joined',
-          customerId,
-          conversation.integrationId,
-        );
-
-        for (const message of conversationMessages) {
-          graphqlPubsub.publish('conversationMessageInserted', {
-            conversationMessageInserted: message,
-          });
-        }
-
-        // notify as connected
-        graphqlPubsub.publish('customerConnectionChanged', {
-          customerConnectionChanged: {
-            _id: customerId,
-            status: 'connected',
-          },
-        });
-      }
-    }
-
-    graphqlPubsub.publish(data.trigger, { [data.trigger]: data.payload });
-  }
-
-  if (action === 'activityLog') {
-    ActivityLogs.createLogFromWidget(data.type, data.payload);
-  }
-};
-
-const convertPubSubBuffer = (data: Buffer) => {
-  return JSON.parse(data.toString());
 };
 
 export const graphqlPubsub = createPubsubInstance();
