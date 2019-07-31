@@ -1,4 +1,3 @@
-import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -9,8 +8,8 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ButtonRelated } from '../../../companies/styles';
 import CustomerChooser from '../../containers/CustomerChooser';
-
 type Props = {
   name: string;
   customers: ICustomer[];
@@ -50,7 +49,11 @@ function CustomerSection({
     );
   };
 
-  const relCustomerTrigger = <button>see related customers..</button>;
+  const relCustomerTrigger = (
+    <ButtonRelated>
+      <button>{__('See related customers..')}</button>
+    </ButtonRelated>
+  );
 
   const relQuickButtons = (
     <ModalTrigger
@@ -81,7 +84,7 @@ function CustomerSection({
         {customersObj.length === 0 && (
           <EmptyState icon="user-5" text="No customer" />
         )}
-        <Button>{relQuickButtons}</Button>
+        {relQuickButtons}
       </SectionBody>
     );
   };

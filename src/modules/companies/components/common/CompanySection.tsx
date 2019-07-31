@@ -1,4 +1,3 @@
-import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -10,7 +9,7 @@ import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CompanyChooser from '../../containers/CompanyChooser';
-
+import { ButtonRelated } from '../../styles';
 type Props = {
   name: string;
   companies?: ICompany[];
@@ -55,7 +54,11 @@ function CompanySection({
     </button>
   );
 
-  const relCompanyTrigger = <button>see related companies..</button>;
+  const relCompanyTrigger = (
+    <ButtonRelated>
+      <button>{__('See related companies..')}</button>
+    </ButtonRelated>
+  );
 
   const quickButtons = (
     <ModalTrigger
@@ -93,7 +96,7 @@ function CompanySection({
       {companies.length === 0 && (
         <EmptyState icon="briefcase" text="No company" />
       )}
-      <Button>{relQuickButtons}</Button>
+      {relQuickButtons}
     </SectionBody>
   );
 
