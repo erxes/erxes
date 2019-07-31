@@ -11,6 +11,7 @@ import {
   IConversation
 } from '../types';
 import { refetchSidebarConversationsOptions } from '../utils';
+import { InboxManagementActionConsumer } from './Inbox';
 
 type Props = {
   conversations: IConversation[];
@@ -23,9 +24,11 @@ const ResolverContainer = (props: FinalProps) => {
   const { changeStatusMutation, emptyBulk } = props;
 
   // change conversation status
-  const changeStatus = (conversationIds: string[], status) => {
+  const changeStatus = notifyHandler => (conversationIds: string[], status) => {
     changeStatusMutation({ variables: { _ids: conversationIds, status } })
       .then(() => {
+        notifyHandler();
+
         if (status === CONVERSATION_STATUSES.CLOSED) {
           Alert.success('The conversation has been resolved!');
 
@@ -49,11 +52,19 @@ const ResolverContainer = (props: FinalProps) => {
   };
 
   const updatedProps = {
-    ...props,
-    changeStatus
+    ...props
   };
 
-  return <Resolver {...updatedProps} />;
+  return (
+    <InboxManagementActionConsumer>
+      {({ notifyConsumersOfManagementAction }) => (
+        <Resolver
+          {...updatedProps}
+          changeStatus={changeStatus(notifyConsumersOfManagementAction)}
+        />
+      )}
+    </InboxManagementActionConsumer>
+  );
 };
 
 export default withProps<Props>(

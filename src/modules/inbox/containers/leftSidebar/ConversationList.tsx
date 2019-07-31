@@ -12,6 +12,7 @@ import {
   IConversation
 } from '../../types';
 import { ConversationsTotalCountQueryResponse } from '../../types';
+import { InboxManagementActionConsumer } from '../Inbox';
 
 type Props = {
   currentUser?: IUser;
@@ -25,16 +26,23 @@ type Props = {
 type FinalProps = {
   conversationsQuery: ConversationsQueryResponse;
   totalCountQuery: ConversationsTotalCountQueryResponse;
+  updateCountsForNewMessage: () => void;
 } & Props;
 
 class ConversationListContainer extends React.PureComponent<FinalProps> {
   componentWillMount() {
-    const { currentUser, conversationsQuery, totalCountQuery } = this.props;
+    const {
+      currentUser,
+      conversationsQuery,
+      totalCountQuery,
+      updateCountsForNewMessage
+    } = this.props;
 
     conversationsQuery.subscribeToMore({
       document: gql(subscriptions.conversationClientMessageInserted),
       variables: { userId: currentUser ? currentUser._id : null },
       updateQuery: () => {
+        updateCountsForNewMessage();
         conversationsQuery.refetch();
         totalCountQuery.refetch();
       }
@@ -65,6 +73,17 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
   }
 }
 
+const ConversationListContainerWithRefetch = props => (
+  <InboxManagementActionConsumer>
+    {({ notifyConsumersOfManagementAction }) => (
+      <ConversationListContainer
+        {...props}
+        updateCountsForNewMessage={notifyConsumersOfManagementAction}
+      />
+    )}
+  </InboxManagementActionConsumer>
+);
+
 const generateOptions = queryParams => ({
   ...queryParams,
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10
@@ -94,5 +113,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(ConversationListContainer)
+  )(ConversationListContainerWithRefetch)
 );

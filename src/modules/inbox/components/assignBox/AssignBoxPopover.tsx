@@ -2,6 +2,7 @@ import { __ } from 'modules/common/utils';
 import AssignBox from 'modules/inbox/containers/AssignBox';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { InboxManagementActionConsumer } from '../../containers/Inbox';
 import { IConversation } from '../../types';
 
 type Props = {
@@ -9,16 +10,21 @@ type Props = {
   trigger: React.ReactNode;
   container?: React.ReactNode;
   afterSave?: () => void;
+  notifyHandler: () => void;
 };
 
 class AssignBoxPopover extends React.Component<Props> {
   private overlayTrigger;
 
   hidePopover = () => {
-    const { afterSave } = this.props;
+    const { afterSave, notifyHandler } = this.props;
 
     if (afterSave) {
       afterSave();
+    }
+
+    if (notifyHandler) {
+      notifyHandler();
     }
 
     this.overlayTrigger.hide();
@@ -53,4 +59,13 @@ class AssignBoxPopover extends React.Component<Props> {
   }
 }
 
-export default AssignBoxPopover;
+export default props => (
+  <InboxManagementActionConsumer>
+    {({ notifyConsumersOfManagementAction }) => (
+      <AssignBoxPopover
+        {...props}
+        notifyHandler={notifyConsumersOfManagementAction}
+      />
+    )}
+  </InboxManagementActionConsumer>
+);
