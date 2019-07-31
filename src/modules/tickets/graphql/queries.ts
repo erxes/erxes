@@ -24,6 +24,19 @@ const commonParamDefs = `
   source: $source
 `;
 
+const companies = `
+  _id
+  primaryName
+  website
+`;
+
+const customers = `
+  _id
+  firstName
+  primaryEmail
+  primaryPhone
+`;
+
 const ticketFields = `
   _id
   name
@@ -34,15 +47,10 @@ const ticketFields = `
   }
   boardId
   companies {
-    _id
-    primaryName
-    website
+    ${companies}
   }
   customers {
-    _id
-    firstName
-    primaryEmail
-    primaryPhone
+    ${customers}
   }
   closeDate
   description
@@ -100,7 +108,25 @@ const ticketDetail = `
   }
 `;
 
+const ticketRelatedCustomers = `
+  query ticketRelatedCustomers($_id: String!) {
+    ticketRelatedCustomers(_id: $_id) {
+      ${customers}
+    }
+  }
+`;
+
+const ticketRelatedCompanies = `
+  query ticketRelatedCompanies($_id: String!) {
+    ticketRelatedCompanies(_id: $_id) {
+      ${companies}
+    }
+  }
+`;
+
 export default {
   tickets,
-  ticketDetail
+  ticketDetail,
+  ticketRelatedCompanies,
+  ticketRelatedCustomers
 };

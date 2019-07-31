@@ -122,7 +122,12 @@ class EditFormContainer extends React.Component<FinalProps> {
       relatedCustomersQuery
     } = this.props;
 
-    if (usersQuery.loading || detailQuery.loading) {
+    if (
+      usersQuery.loading ||
+      detailQuery.loading ||
+      relatedCompaniesQuery.loading ||
+      relatedCustomersQuery.loading
+    ) {
       return <Spinner />;
     }
 
@@ -140,8 +145,10 @@ class EditFormContainer extends React.Component<FinalProps> {
       removeItem: this.removeItem,
       saveItem: this.saveItem,
       users,
-      relatedCustomers: relatedCustomersQuery.relatedCustomers || [],
-      relatedCompanies: relatedCompaniesQuery.relatedCompanies || []
+      relatedCustomers:
+        relatedCustomersQuery[options.queriesName.relatedCustomersQuery] || [],
+      relatedCompanies:
+        relatedCompaniesQuery[options.queriesName.relatedCompaniesQuery] || []
     };
 
     const EditForm = options.EditForm;
@@ -171,7 +178,7 @@ export default (props: IProps) => {
         }
       ),
       graphql<IProps, RelatedCustomersQueryResponse, { _id: string }>(
-        gql(queries.relatedCustomers),
+        gql(options.queries.relatedCustomersQuery),
         {
           name: 'relatedCustomersQuery',
           options: ({ itemId }: { itemId: string }) => {
@@ -185,7 +192,7 @@ export default (props: IProps) => {
         }
       ),
       graphql<IProps, RelatedCompaniesQueryResponse, { _id: string }>(
-        gql(queries.relatedCompanies),
+        gql(options.queries.relatedCompaniesQuery),
         {
           name: 'relatedCompaniesQuery',
           options: ({ itemId }: { itemId: string }) => {

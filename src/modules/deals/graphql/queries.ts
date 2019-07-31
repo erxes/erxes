@@ -22,6 +22,19 @@ const commonParamDefs = `
   productIds: $productIds
 `;
 
+const companies = `
+  _id
+  primaryName
+  website
+`;
+
+const customers = `
+  _id
+  firstName
+  primaryEmail
+  primaryPhone
+`;
+
 const dealFields = `
   _id
   name
@@ -32,15 +45,10 @@ const dealFields = `
   }
   boardId
   companies {
-    _id
-    primaryName
-    website
+    ${companies}
   }
   customers {
-    _id
-    firstName
-    primaryEmail
-    primaryPhone
+    ${customers}
   }
   products
   productsData
@@ -136,9 +144,27 @@ const productDetail = `
   }
 `;
 
+const dealRelatedCustomers = `
+  query dealRelatedCustomers($_id: String!) {
+    dealRelatedCustomers(_id: $_id) {
+      ${customers}
+    }
+  }
+`;
+
+const dealRelatedCompanies = `
+  query dealRelatedCompanies($_id: String!) {
+    dealRelatedCompanies(_id: $_id) {
+      ${companies}
+    }
+  }
+`;
+
 export default {
   deals,
   dealDetail,
+  dealRelatedCompanies,
+  dealRelatedCustomers,
   productDetail,
   dealsTotalAmounts
 };

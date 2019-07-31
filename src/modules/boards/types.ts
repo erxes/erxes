@@ -8,7 +8,12 @@ export interface IOptions {
   Item: any;
   type: string;
   title: string;
-  queriesName: { itemsQuery: string; detailQuery: string };
+  queriesName: {
+    itemsQuery: string;
+    detailQuery: string;
+    relatedCompaniesQuery: string;
+    relatedCustomersQuery: string;
+  };
   mutationsName: {
     addMutation: string;
     editMutation: string;
@@ -17,7 +22,12 @@ export interface IOptions {
     updateOrderMutation: string;
     watchMutation: string;
   };
-  queries: { itemsQuery: string; detailQuery: string };
+  queries: {
+    itemsQuery: string;
+    detailQuery: string;
+    relatedCompaniesQuery: string;
+    relatedCustomersQuery: string;
+  };
   mutations: {
     addMutation: string;
     editMutation: string;
@@ -204,11 +214,9 @@ export interface IFilterParams {
 }
 
 export type RelatedCompaniesQueryResponse = {
-  relatedCompanies: ICompany[];
   loading: boolean;
 };
 
 export type RelatedCustomersQueryResponse = {
-  relatedCustomers: ICustomer[];
   loading: boolean;
 };

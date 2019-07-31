@@ -127,27 +127,6 @@ const stageDetail = `
   }
 `;
 
-const relatedCustomers = `
-  query relatedCustomers($_id: String!) {
-    relatedCustomers(_id: $_id) {
-      _id
-      firstName
-      primaryEmail
-      primaryPhone
-    }
-  }
-`;
-
-const relatedCompanies = `
-  query relatedCompanies($_id: String!) {
-    relatedCompanies(_id: $_id) {
-      _id
-      primaryName
-      website
-    }
-  }
-`;
-
 export default {
   boards,
   boardGetLast,
@@ -155,7 +134,5 @@ export default {
   pipelines,
   pipelineDetail,
   stages,
-  stageDetail,
-  relatedCustomers,
-  relatedCompanies
+  stageDetail
 };

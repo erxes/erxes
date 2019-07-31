@@ -22,6 +22,19 @@ const commonParamDefs = `
   priority: $priority
 `;
 
+const companies = `
+  _id
+  primaryName
+  website
+`;
+
+const customers = `
+  _id
+  firstName
+  primaryEmail
+  primaryPhone
+`;
+
 const taskFields = `
   _id
   name
@@ -32,15 +45,10 @@ const taskFields = `
   }
   boardId
   companies {
-    _id
-    primaryName
-    website
+    ${companies}
   }
   customers {
-    _id
-    firstName
-    primaryEmail
-    primaryPhone
+    ${customers}
   }
   closeDate
   description
@@ -97,7 +105,25 @@ const taskDetail = `
   }
 `;
 
+const taskRelatedCustomers = `
+  query taskRelatedCustomers($_id: String!) {
+    taskRelatedCustomers(_id: $_id) {
+      ${customers}
+    }
+  }
+`;
+
+const taskRelatedCompanies = `
+  query taskRelatedCompanies($_id: String!) {
+    taskRelatedCompanies(_id: $_id) {
+      ${companies}
+    }
+  }
+`;
+
 export default {
   tasks,
-  taskDetail
+  taskDetail,
+  taskRelatedCompanies,
+  taskRelatedCustomers
 };
