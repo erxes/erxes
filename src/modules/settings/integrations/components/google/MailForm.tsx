@@ -16,6 +16,7 @@ import {
   IIntegration
 } from 'modules/settings/integrations/types';
 import React from 'react';
+import strip from 'strip';
 import { formatStr } from '../../containers/utils';
 import {
   AttachmentContainer,
@@ -105,6 +106,7 @@ class MailForm extends React.Component<Props, State> {
       from,
       attachments,
       textHtml: content,
+      textPlain: strip(content),
       erxesApiId: from,
       references
     };
@@ -133,6 +135,12 @@ class MailForm extends React.Component<Props, State> {
   getEmailSender = (fromEmail?: string) => {
     const { to = '', integrationEmail } = this.props;
 
+    // new email
+    if (!to && !integrationEmail) {
+      return fromEmail;
+    }
+
+    // reply
     if (!integrationEmail || !fromEmail) {
       return '';
     }
