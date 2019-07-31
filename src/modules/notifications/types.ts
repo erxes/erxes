@@ -6,6 +6,7 @@ export interface INotification {
   title: string;
   link: string;
   content: string;
+  action: string;
   createdUser: IUser;
   receiver: string;
   date: Date;
@@ -14,6 +15,9 @@ export interface INotification {
 
 export type NotificationsQueryResponse = {
   notifications: INotification[];
+  subscribeToMore: (
+    params: { document: string; updateQuery: () => void }
+  ) => void;
   loading: boolean;
   refetch: () => void;
 };
@@ -27,6 +31,9 @@ export type MarkAsReadMutationResponse = {
 export type NotificationsCountQueryResponse = {
   notificationCounts: number;
   loading: boolean;
+  subscribeToMore: (
+    params: { document: string; updateQuery: () => void }
+  ) => void;
   refetch: () => void;
 };
 

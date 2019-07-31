@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Spinner } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
@@ -8,7 +9,7 @@ import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { KnowledgeBase } from '../../components/knowledgebase';
+import KnowledgeBase from '../../components/knowledgebase/knowledgeBase';
 import { mutations } from '../../graphql';
 import { IntegrationsQueryResponse } from '../../types';
 import { integrationsListParams } from '../utils';

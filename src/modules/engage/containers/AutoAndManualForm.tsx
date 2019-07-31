@@ -6,7 +6,7 @@ import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
-import { AutoAndManualForm } from '../components';
+import AutoAndManualForm from '../components/AutoAndManualForm';
 import FormBase from '../components/FormBase';
 import { queries } from '../graphql';
 import { IEngageMessageDoc, IEngageScheduleDate } from '../types';
@@ -21,6 +21,7 @@ type Props = {
 type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   users: IUser[];
+  isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
 } & Props &
   AddMutationResponse;

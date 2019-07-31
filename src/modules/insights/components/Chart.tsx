@@ -1,5 +1,6 @@
 import { ResponsiveLine } from '@nivo/line';
-import { EmptyState, Spinner } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
 import { colors } from 'modules/common/styles';
 import React from 'react';
 import { ChartWrapper, LoaderWrapper } from '../styles';

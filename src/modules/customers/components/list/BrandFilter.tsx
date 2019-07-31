@@ -1,7 +1,7 @@
-import { DataWithLoader } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
@@ -26,7 +26,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
         return (
           <li key={brand._id}>
             <a
-              href="#active"
+              href="#filter"
               tabIndex={0}
               className={
                 router.getParam(history, 'brand') === brand._id ? 'active' : ''

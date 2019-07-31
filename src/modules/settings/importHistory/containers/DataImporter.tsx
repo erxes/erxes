@@ -1,7 +1,7 @@
 import { AppConsumer } from 'appContext';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
-import { DataImporter } from '../components';
+import DataImporter from '../components/DataImporter';
 import { handleXlsUpload } from '../utils';
 
 type Props = {

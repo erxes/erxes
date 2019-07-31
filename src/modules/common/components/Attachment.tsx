@@ -1,108 +1,116 @@
-import { Icon, ImageWithPreview } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ImageWithPreview from 'modules/common/components/ImageWithPreview';
 import React from 'react';
 import styled from 'styled-components';
+import { rgba } from '../styles/color';
+import colors from '../styles/colors';
 import { IAttachment } from '../types';
 import { readFile } from '../utils';
 
-const sizing = 30;
-
-const Overlay = styled.a`
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 2px;
-  left: 0;
-  top: 0;
-  transition: all 0.3s ease;
-
-  > div {
-    position: absolute;
-    color: #fff;
-    width: ${sizing}px;
-    height: ${sizing}px;
-    text-align: center;
-    border-radius: ${sizing / 2}px;
-    line-height: ${sizing - 2}pxpx;
-    left: 50%;
-    top: 50%;
-    border: 1px solid #fff;
-    margin-left: -15px;
-    margin-top: -15px;
-
-    i {
-      margin: 0;
-    }
-  }
-`;
-
 const AttachmentWrapper = styled.div`
-  display: inline-block;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: flex;
+  color: ${colors.textPrimary};
   position: relative;
-  max-width: 360px;
-  transition: all ease 0.3s;
-  color: inherit;
 
   img {
     max-width: 100%;
   }
 
-  &:hover ${Overlay}, &:hover ${Overlay} > div {
-    opacity: 1;
+  &:hover {
+    background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
   }
 `;
 
-const FileWrapper = styled.div`
-  position: relative;
-  padding-left: 40px;
-  padding-right: 20px;
-  min-width: 120px;
-  min-height: 36px;
-  line-height: 36px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
+const ItemInfo = styled.div`
+  flex: 1;
+  padding: 10px 15px;
+  color: ${colors.textPrimary};
+  word-wrap: break-word;
+
+  h5 {
+    margin: 0 0 5px;
+    display: flex;
+    font-weight: bold;
+  }
+`;
+
+const Download = styled.a`
+  color: ${colors.colorCoreGray};
+  padding: 0 5px;
+  margin-left: 5px;
+
+  &:hover {
+    color: ${colors.colorCoreBlack};
+  }
+`;
+
+const PreviewWrapper = styled.div`
+  height: 80px;
+  width: 110px;
+  background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  overflow: hidden;
 
   i {
     font-size: 26px;
-    position: absolute;
-    left: 10px;
-    top: 0;
   }
+`;
 
-  span {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    direction: rtl;
-    text-align: left;
-    max-width: 200px;
-    display: block;
+const Meta = styled.div`
+  position: relative;
+  font-weight: 500;
+  color: ${colors.colorCoreGray};
+
+  > * + * {
+    margin-left: 10px;
   }
 `;
 
 type Props = {
   attachment: IAttachment;
   scrollBottom?: () => void;
+  additionalItem?: React.ReactNode;
 };
 
 class Attachment extends React.Component<Props> {
-  renderOtherFile = (name, icon) => {
+  renderOtherInfo = attachment => {
+    const name = attachment.name || attachment.url || '';
+
     return (
-      <React.Fragment>
-        <FileWrapper key="wrapper">
-          <Icon icon={icon} /> <span>{name}</span>
-        </FileWrapper>
-        <Overlay
-          key="overlay"
-          href={readFile(this.props.attachment.url)}
-          target="_blank"
-        >
-          <div>
-            <Icon icon="download" />
-          </div>
-        </Overlay>
-      </React.Fragment>
+      <>
+        <h5>
+          {name}
+          <Download
+            rel="noopener noreferrer"
+            href={readFile(attachment.url)}
+            target="_blank"
+          >
+            <Icon icon="download-1" />
+          </Download>
+        </h5>
+        <Meta>
+          {attachment.size && (
+            <span>Size: {Math.round(attachment.size / 1000)}kB</span>
+          )}
+          {this.props.additionalItem}
+        </Meta>
+      </>
+    );
+  };
+
+  renderOtherFile = (attachment, icon) => {
+    return (
+      <AttachmentWrapper>
+        <PreviewWrapper>
+          <Icon icon={icon} />
+        </PreviewWrapper>
+        <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
+      </AttachmentWrapper>
     );
   };
 
@@ -121,27 +129,27 @@ class Attachment extends React.Component<Props> {
 
     if (attachment.type.startsWith('image')) {
       return (
-        <ImageWithPreview
-          onLoad={this.onLoadImage}
-          alt={attachment.url}
-          src={attachment.url}
-        />
+        <AttachmentWrapper>
+          <PreviewWrapper>
+            <ImageWithPreview
+              onLoad={this.onLoadImage}
+              alt={attachment.url}
+              src={attachment.url}
+            />
+          </PreviewWrapper>
+          <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
+        </AttachmentWrapper>
       );
     }
 
     const url = attachment.url || attachment.name || '';
-    const name = attachment.name || attachment.url || '';
     const fileExtension = url.split('.').pop();
 
     let filePreview;
+
     switch (fileExtension) {
       case 'png':
       case 'jpeg':
-      case 'jpg':
-        filePreview = (
-          <ImageWithPreview alt={url} src={url} onLoad={this.onLoadImage} />
-        );
-        break;
       case 'doc':
       case 'docx':
       case 'txt':
@@ -150,21 +158,21 @@ class Attachment extends React.Component<Props> {
       case 'xlsx':
       case 'ppt':
       case 'pptx':
-        filePreview = this.renderOtherFile(name, 'file');
+        filePreview = this.renderOtherFile(attachment, 'file');
         break;
       case 'mp4':
       case 'avi':
-        filePreview = this.renderOtherFile(name, 'videocamera');
+        filePreview = this.renderOtherFile(attachment, 'videocamera');
         break;
       case 'mp3':
       case 'wav':
-        filePreview = this.renderOtherFile(name, 'music');
+        filePreview = this.renderOtherFile(attachment, 'music');
         break;
       case 'zip':
-        filePreview = this.renderOtherFile(name, 'cube');
+        filePreview = this.renderOtherFile(attachment, 'cube');
         break;
       default:
-        filePreview = this.renderOtherFile(name, 'clipboard-1');
+        filePreview = this.renderOtherFile(attachment, 'clipboard-1');
     }
     return filePreview;
   };
@@ -172,7 +180,7 @@ class Attachment extends React.Component<Props> {
   render() {
     const props = this.props;
 
-    return <AttachmentWrapper>{this.renderAtachment(props)}</AttachmentWrapper>;
+    return this.renderAtachment(props);
   }
 }
 

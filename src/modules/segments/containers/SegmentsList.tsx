@@ -3,7 +3,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { SegmentsList } from '../components';
+import SegmentsList from '../components/SegmentsList';
 import { mutations, queries } from '../graphql';
 import { RemoveMutationResponse, SegmentsQueryResponse } from '../types';
 

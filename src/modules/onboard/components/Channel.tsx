@@ -1,11 +1,9 @@
 import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Icon
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IChannel } from 'modules/settings/channels/types';
 import React from 'react';
@@ -13,7 +11,7 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import RTG from 'react-transition-group';
 import { IIntegration } from '../types';
-import { ChannelList } from './';
+import ChannelList from './ChannelList';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
@@ -210,7 +208,7 @@ class ChannelForm extends React.Component<Props, State> {
               disabled={this.isFilledValues()}
               onClick={this.save}
             >
-              {__('Finish')} <Icon icon="checked" />
+              {__('Finish')} <Icon icon="check-1" />
             </Button>
           </div>
           <Link to="/inbox/index">{__('Go to Inbox')} »</Link>

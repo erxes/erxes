@@ -1,9 +1,10 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 
-import { DataWithLoader, Icon } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IRouterProps } from '../../../common/types';
 import { LEAD_STATUS_TYPES } from '../../constants';
@@ -31,7 +32,7 @@ class LeadStatusFilter extends React.Component<IProps> {
             return (
               <li key={Math.random()}>
                 <a
-                  href="#active"
+                  href="#filter"
                   tabIndex={0}
                   className={
                     router.getParam(history, [paramKey]) === value

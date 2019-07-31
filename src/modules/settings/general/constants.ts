@@ -1,16 +1,17 @@
 export const LANGUAGES = [
-  { label: 'Mongolian', value: 'mn' },
   { label: 'English', value: 'en' },
+  { label: 'Mongolian', value: 'mn' },
   { label: 'French', value: 'fr' },
   { label: 'Deustch', value: 'de' },
-  { label: 'Korean', value: 'kr' },
+  { label: 'Korean', value: 'ko' },
   { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'ptBr' },
-  { label: 'Japanese', value: 'jp' },
+  { label: 'Portuguese', value: 'pt-br' },
+  { label: 'Japanese', value: 'ja' },
   { label: 'Russian', value: 'ru' },
   { label: 'Chinese', value: 'zh' },
   { label: 'Hindi', value: 'np' },
-  { label: 'Vietnam', value: 'vn' }
+  { label: 'Vietnam', value: 'vn' },
+  { label: 'Indonesia', value: 'yi' }
 ];
 
 export const CURRENCIES = [

@@ -7,7 +7,8 @@ const commonVariables = `
   $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
-  $priority: String
+  $priority: String,
+  $attachments: [AttachmentInput]
 `;
 
 const commonParams = `
@@ -20,6 +21,7 @@ const commonParams = `
   assignedUserIds: $assignedUserIds,
   order: $order,
   priority: $priority,
+  attachments: $attachments
 `;
 
 const commonReturn = `
@@ -90,10 +92,20 @@ const tasksUpdateOrder = `
   }
 `;
 
+const tasksWatch = `
+  mutation tasksWatch($_id: String!, $isAdd: Boolean!) {
+    tasksWatch(_id: $_id, isAdd: $isAdd) {
+      _id
+      isWatched
+    }
+  }
+`;
+
 export default {
   tasksAdd,
   tasksEdit,
   tasksRemove,
   tasksChange,
-  tasksUpdateOrder
+  tasksUpdateOrder,
+  tasksWatch
 };

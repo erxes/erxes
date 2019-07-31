@@ -1,7 +1,7 @@
-import { DataWithLoader } from 'modules/common/components';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
@@ -23,7 +23,7 @@ function IntegrationFilter({ history, counts }: IProps) {
       {KIND_CHOICES.ALL_LIST.map((kind, index) => (
         <li key={index}>
           <a
-            href="#active"
+            href="#filter"
             tabIndex={0}
             className={
               router.getParam(history, 'integrationType') === kind
@@ -32,7 +32,7 @@ function IntegrationFilter({ history, counts }: IProps) {
             }
             onClick={onClick.bind(null, kind)}
           >
-            {kind}
+            {kind === 'facebook' ? 'facebook messenger' : kind}
             <SidebarCounter>{counts[kind]}</SidebarCounter>
           </a>
         </li>

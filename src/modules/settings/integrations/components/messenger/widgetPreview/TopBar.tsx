@@ -1,11 +1,10 @@
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
-import moment from 'moment';
 import React from 'react';
-import { Supporters as SupporterComponent } from './';
 import {
   ErxesGreeting,
   ErxesMiddleTitle,
@@ -15,6 +14,7 @@ import {
   Socials,
   TopBarIcon
 } from './styles';
+import SupporterComponent from './Supporters';
 
 type Props = {
   color: string;
@@ -129,11 +129,11 @@ class TopBar extends React.Component<Props> {
       <>
         <ErxesGreeting>
           <Links>
-            <span>{moment(new Date()).format('lll')}</span>
+            <span>{dayjs(new Date()).format('lll')}</span>
             <Socials>
-              {this.renderLink(facebook, 'facebook')}
+              {this.renderLink(facebook, 'facebook-official')}
               {this.renderLink(twitter, 'twitter')}
-              {this.renderLink(youtube, 'youtube')}
+              {this.renderLink(youtube, 'youtube-play')}
             </Socials>
           </Links>
 

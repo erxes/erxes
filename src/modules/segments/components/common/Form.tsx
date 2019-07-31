@@ -1,10 +1,8 @@
-import {
-  Button,
-  ControlLabel,
-  Form as CommonForm,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import CommonForm from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, generateRandomColorCode } from 'modules/common/utils';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
@@ -18,7 +16,8 @@ import {
 } from 'modules/segments/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AddConditionButton, Conditions } from '..';
+import AddConditionButton from '../AddConditionButton';
+import Conditions from '../Conditions';
 import { ConditionWrapper, SegmentTitle, SegmentWrapper } from '../styles';
 
 type Props = {

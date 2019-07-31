@@ -1,29 +1,61 @@
-import { Spinner } from 'modules/common/components';
-import { Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
+import { rgba } from '../styles/color';
+import colors from '../styles/colors';
 import { IAttachment } from '../types';
+import Attachment from './Attachment';
+import Spinner from './Spinner';
 
-const Attachment = styled.div`
+const List = styled.div`
   margin: 10px 0;
+`;
 
-  img {
+const Item = styled.div`
+  margin-bottom: 10px;
+`;
+
+const Delete = styled.span`
+  text-decoration: underline;
+
+  &:hover {
+    color: ${colors.colorCoreBlack};
+    cursor: pointer;
+  }
+`;
+
+const UploadBtn = styled.div`
+  position: relative;
+  margin-top: 10px;
+
+  label {
+    padding: 8px 16px;
+    background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background 0.3s ease;
     display: inline-block;
-    width: 35px;
-    height: 35px;
-    margin: 0 5px 5px 0;
+
+    &:hover {
+      background: ${rgba(colors.colorCoreDarkBlue, 0.1)};
+      cursor: pointer;
+    }
+  }
+
+  input[type='file'] {
+    display: none;
   }
 `;
 
 type Props = {
   defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
+  multiple?: boolean;
 };
 
 type State = {
   attachments: IAttachment[];
   loading: boolean;
-  attachmentPreviewStyle: any;
 };
 
 class Uploader extends React.Component<Props, State> {
@@ -34,8 +66,7 @@ class Uploader extends React.Component<Props, State> {
 
     this.state = {
       attachments: defaultFileList || [],
-      loading: false,
-      attachmentPreviewStyle: {}
+      loading: false
     };
   }
 
@@ -47,8 +78,7 @@ class Uploader extends React.Component<Props, State> {
 
       beforeUpload: () => {
         this.setState({
-          loading: true,
-          attachmentPreviewStyle: { opacity: '0.2' }
+          loading: true
         });
       },
 
@@ -69,17 +99,14 @@ class Uploader extends React.Component<Props, State> {
 
         this.setState({
           loading: false,
-          attachments,
-          attachmentPreviewStyle: { opacity: '1' }
+          attachments
         });
       }
     });
   };
 
-  removeAttachment = e => {
+  removeAttachment = (index: number) => {
     const attachments = [...this.state.attachments];
-
-    const index = attachments.indexOf(e);
 
     attachments.splice(index, 1);
 
@@ -88,23 +115,40 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
-  render() {
-    const { loading, attachments, attachmentPreviewStyle } = this.state;
+  renderItem = (item: IAttachment, index: number) => {
+    const removeAttachment = () => this.removeAttachment(index);
+    const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
 
     return (
-      <Attachment>
-        {attachments.map((event, index) => (
-          <img
-            key={index}
-            alt="attachment"
-            src="/images/attach.svg"
-            style={attachmentPreviewStyle}
-            onClick={this.removeAttachment}
-          />
-        ))}
-        {loading && <Spinner />}
-        <input type="file" multiple={true} onChange={this.handleFileInput} />
-      </Attachment>
+      <Item key={item.url}>
+        <Attachment attachment={item} additionalItem={remove} />
+      </Item>
+    );
+  };
+
+  render() {
+    const { loading, attachments } = this.state;
+    const { multiple = true } = this.props;
+
+    return (
+      <>
+        <List>
+          {attachments.map((item, index) => this.renderItem(item, index))}
+        </List>
+        <UploadBtn>
+          <label>
+            Upload an attachment
+            <input
+              type="file"
+              multiple={multiple}
+              onChange={this.handleFileInput}
+            />
+          </label>
+          {loading && (
+            <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
+          )}
+        </UploadBtn>
+      </>
     );
   }
 }

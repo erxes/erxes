@@ -1,6 +1,6 @@
-import { HeaderDescription } from 'modules/common/components';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Row from './Row';

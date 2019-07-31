@@ -1,9 +1,9 @@
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import { IUser } from '../../auth/types';
 import { UsersQueryResponse } from '../../settings/team/types';
-import { CompanyForm } from '../components';
+import CompanyForm from '../components/list/CompanyForm';
 import { mutations } from '../graphql';
 import { ICompany } from '../types';
 

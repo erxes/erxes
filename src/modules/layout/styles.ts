@@ -21,6 +21,7 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
   flex: 1;
   max-width: 100%;
   position: relative;
+  overflow: hidden;
 `;
 
 const MainWrapper = styled.div`
@@ -142,7 +143,7 @@ const SidebarHeader = styledTS<{
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
-  font-weight: ${props => (props.bold ? 'bold' : 'normal')};
+  font-weight: ${props => (props.bold ? 'bold' : '500')};
   display: flex;
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
@@ -227,7 +228,7 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     props.isSidebarOpen ? `${dimensions.unitSpacing}px` : '15px'};
   color: ${colors.colorCoreLightGray};
 
-  a {
+  a, button {
     float: left;
     color: ${colors.colorCoreLightGray};
     text-transform: none;
@@ -236,6 +237,9 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     font-size: ${typography.fontSizeHeading8}px;
     font-weight: ${typography.fontWeightLight};
     outline: 0;
+    padding: 0;
+    border: none;
+    background: none;
 
     > i {
       font-size: 14px;
@@ -354,9 +358,15 @@ const FlexContent = styled.div`
   min-height: 100%;
 `;
 
-const FlexItem = styledTS<{ count?: number }>(styled.div)`
+const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
   flex: ${props => (props.count ? props.count : 1)};
   position: relative;
+
+  ${props =>
+    props.hasSpace &&
+    css`
+      margin-left: ${dimensions.coreSpacing}px;
+    `};
 `;
 
 const FlexRightItem = styled.div`

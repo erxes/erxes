@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { Status } from '../components';
+import Status from '../components/Status';
 import { queries } from '../graphql';
 import { VersionsQueryResponse } from '../types';
 

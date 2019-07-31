@@ -1,11 +1,28 @@
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { AuthLayout } from '../layout/components';
-import { ForgotPassword, ResetPassword, SignIn } from './containers';
+
+const AuthLayout = asyncComponent(() =>
+  import(/* webpackChunkName: "AuthLayout" */ '../layout/components/AuthLayout')
+);
+
+const ForgotPassword = asyncComponent(() =>
+  import(/* webpackChunkName: "ForgotPassword" */ './containers/ForgotPassword')
+);
+
+const ResetPassword = asyncComponent(() =>
+  import(/* webpackChunkName: "ResetPassword" */ './containers/ResetPassword')
+);
+
+const SignIn = asyncComponent(() =>
+  import(/* webpackChunkName: "SignIn" */ './containers/SignIn')
+);
 
 const signIn = () => <AuthLayout content={<SignIn />} />;
+
 const forgotPassword = () => <AuthLayout content={<ForgotPassword />} />;
+
 const resetPassword = ({ location }) => {
   const parsed = queryString.parse(location.search);
   return <AuthLayout content={<ResetPassword token={parsed.token || ''} />} />;

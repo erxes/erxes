@@ -1,5 +1,5 @@
-import { EmptyState } from 'modules/common/components';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import EmptyState from 'modules/common/components/EmptyState';
 import React from 'react';
 import { IUser } from '../../auth/types';
 import { ActivityTitle, Timeline } from '../styles';
@@ -31,7 +31,7 @@ class ActivityList extends React.Component<Props> {
 
   renderTimeLine(activities) {
     const result = activities.reduce((item, activity) => {
-      const createdDate = moment(activity.createdAt).format('MMMM YYYY');
+      const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
       item[createdDate] = item[createdDate] || [];
       item[createdDate].push(activity);

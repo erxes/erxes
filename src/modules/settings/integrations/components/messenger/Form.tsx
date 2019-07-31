@@ -1,12 +1,14 @@
 import { IUser } from 'modules/auth/types';
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   Preview,
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __, Alert } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
@@ -59,6 +61,7 @@ type State = {
   isStepActive?: boolean;
   requireAuth?: boolean;
   showChat?: boolean;
+  showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
 };
 
@@ -83,6 +86,7 @@ class CreateMessenger extends React.Component<Props, State> {
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth ? true : false,
       showChat: configData.showChat ? true : false,
+      showLauncher: configData.showLauncher ? true : false,
       forceLogoutWhenResolve: configData.forceLogoutWhenResolve ? true : false,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
@@ -141,6 +145,7 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube,
       requireAuth,
       showChat,
+      showLauncher,
       forceLogoutWhenResolve
     } = this.state;
 
@@ -176,6 +181,7 @@ class CreateMessenger extends React.Component<Props, State> {
         messages,
         requireAuth,
         showChat,
+        showLauncher,
         forceLogoutWhenResolve,
         links
       },
@@ -242,6 +248,7 @@ class CreateMessenger extends React.Component<Props, State> {
       isStepActive,
       requireAuth,
       showChat,
+      showLauncher,
       forceLogoutWhenResolve
     } = this.state;
 
@@ -267,6 +274,7 @@ class CreateMessenger extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderButtons()}
         </TitleContainer>
 
         <Row>
@@ -283,6 +291,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 languageCode={languageCode}
                 requireAuth={requireAuth}
                 showChat={showChat}
+                showLauncher={showLauncher}
                 forceLogoutWhenResolve={forceLogoutWhenResolve}
               />
             </Step>
@@ -334,7 +343,7 @@ class CreateMessenger extends React.Component<Props, State> {
               img="/images/icons/erxes-04.svg"
               title="Appearance"
               onClick={this.onStepClick.bind(null, 'appearance')}
-              nextButton={this.renderButtons()}
+              noButton={true}
             >
               <Appearance
                 onChange={this.onChange}

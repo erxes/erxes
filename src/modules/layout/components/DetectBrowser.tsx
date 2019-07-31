@@ -4,7 +4,7 @@ import { AlertItem } from 'modules/common/utils/Alert/Alert';
 import React from 'react';
 import RTG from 'react-transition-group';
 import styled from 'styled-components';
-import { Icon } from '../../common/components';
+import Icon from '../../common/components/Icon';
 
 const OldBrowserWarning = styled(AlertItem)`
   position: fixed;

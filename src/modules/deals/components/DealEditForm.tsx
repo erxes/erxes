@@ -1,10 +1,10 @@
 import { IUser } from 'modules/auth/types';
-import { EditForm } from 'modules/boards/components/editForm';
+import EditForm from 'modules/boards/components/editForm/EditForm';
 import { HeaderContentSmall } from 'modules/boards/styles/item';
 import { IOptions } from 'modules/boards/types';
-import { ControlLabel } from 'modules/common/components';
+import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
-import { ProductSection } from 'modules/deals/components';
+import ProductSection from 'modules/deals/components/ProductSection';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import { IDeal, IDealParams } from '../types';

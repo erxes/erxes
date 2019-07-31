@@ -1,15 +1,13 @@
-import {
-  Button,
-  DataWithLoader,
-  HeaderDescription,
-  Pagination,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
-import { DataImporter } from 'modules/settings/importHistory/containers';
+import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
 import React from 'react';
 import Sidebar from '../../properties/components/Sidebar';
 import { IImportHistory } from '../types';
@@ -66,7 +64,12 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     return (
       <BarItems>
-        <Button btnStyle="primary" size="small" icon="download-1" href={url}>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="folder-download"
+          href={url}
+        >
           {__('Download template')}
         </Button>
         <DataImporter

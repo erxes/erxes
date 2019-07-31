@@ -1,25 +1,14 @@
-import {
-  ActionButtons,
-  Button,
-  Icon,
-  ModalTrigger,
-  TextInfo,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IProduct } from '../types';
-import { Form } from './';
-
-type Doc = {
-  type: string;
-  _id?: string;
-  name?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
-};
+import Form from './Form';
 
 type Props = {
   product: IProduct;

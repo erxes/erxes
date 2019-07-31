@@ -1,4 +1,6 @@
-import { Button, DropdownToggle, Icon } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import DealAddTrigger from 'modules/deals/components/DealAddTrigger';
 import TaskAddTrigger from 'modules/tasks/components/TaskAddTrigger';
@@ -30,7 +32,7 @@ export default (props: Props) => {
       <Dropdown id="dropdown-convert-to">
         <DropdownToggle bsRole="toggle">
           <Button size="small">
-            {__('Convert to')} <Icon icon="downarrow" />
+            {__('Convert to')} <Icon icon="angle-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

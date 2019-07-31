@@ -1,10 +1,8 @@
-import {
-  Button,
-  EmptyState,
-  FormControl,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
@@ -128,12 +126,12 @@ class CommonChooser extends React.Component<Props, State> {
     const addTrigger = (
       <p>
         {__("Don't see the result you're looking for? ")}
-        <a href="#create">{__(`Create a new ${title}`)}</a>
+        <span>{__(`Create a new ${title}`)}</span>
       </p>
     );
 
     return (
-      <div>
+      <>
         <Columns>
           <Column>
             <FormControl
@@ -187,7 +185,7 @@ class CommonChooser extends React.Component<Props, State> {
             </div>
           </Footer>
         </ModalFooter>
-      </div>
+      </>
     );
   }
 }

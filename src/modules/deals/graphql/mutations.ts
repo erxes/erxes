@@ -8,6 +8,7 @@ const commonVariables = `
   $description: String,
   $assignedUserIds: [String],
   $order: Int,
+  $attachments: [AttachmentInput]
 `;
 
 const commonParams = `
@@ -19,7 +20,8 @@ const commonParams = `
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
-  order: $order
+  order: $order,
+  attachments: $attachments
 `;
 
 const commonReturn = `
@@ -91,10 +93,20 @@ const dealsUpdateOrder = `
   }
 `;
 
+const dealsWatch = `
+  mutation dealsWatch($_id: String!, $isAdd: Boolean!) {
+    dealsWatch(_id: $_id, isAdd: $isAdd) {
+      _id
+      isWatched
+    }
+  }
+`;
+
 export default {
   dealsAdd,
   dealsEdit,
   dealsRemove,
   dealsChange,
-  dealsUpdateOrder
+  dealsUpdateOrder,
+  dealsWatch
 };

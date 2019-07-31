@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { BasicInfo } from 'modules/companies/components';
+import BasicInfo from 'modules/companies/components/detail/BasicInfo';
 import { mutations, queries } from 'modules/companies/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';

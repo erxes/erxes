@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { CountQueryResponse } from 'modules/customers/types';
@@ -12,7 +12,7 @@ import {
 import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { SegmentStep } from '../components';
+import SegmentStep from '../components/step/SegmentStep';
 import { mutations, queries } from '../graphql';
 import { sumCounts } from '../utils';
 

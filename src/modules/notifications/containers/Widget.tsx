@@ -4,15 +4,29 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { withProps } from '../../common/utils';
-import { Widget } from '../components';
-import { queries } from '../graphql';
+import Widget from '../components/Widget';
+import { queries, subscriptions } from '../graphql';
 import { NotificationsCountQueryResponse } from '../types';
 
 type Props = {
   notificationCountQuery: NotificationsCountQueryResponse;
 } & IRouterProps;
 
+const subscription = gql(subscriptions.notificationSubscription);
+
 class WidgetContainer extends React.Component<Props> {
+  componentWillMount() {
+    const { notificationCountQuery } = this.props;
+
+    notificationCountQuery.subscribeToMore({
+      document: subscription,
+
+      updateQuery: () => {
+        notificationCountQuery.refetch();
+      }
+    });
+  }
+
   render() {
     const { notificationCountQuery } = this.props;
 

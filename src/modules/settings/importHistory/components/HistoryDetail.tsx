@@ -1,14 +1,12 @@
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Table from 'modules/common/components/table';
+import TextInfo from 'modules/common/components/TextInfo';
 import React from 'react';
 import styled from 'styled-components';
-import {
-  DataWithLoader,
-  HeaderDescription,
-  Table,
-  TextInfo
-} from '../../../common/components';
 import { colors, dimensions } from '../../../common/styles';
 import { __ } from '../../../common/utils';
-import { Wrapper } from '../../../layout/components';
+import Wrapper from '../../../layout/components/Wrapper';
 import { IImportHistory } from '../types';
 import CircularProgressBar from './CircularProgressBar';
 

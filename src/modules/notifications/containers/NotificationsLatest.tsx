@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { NotificationsLatest } from '../components';
-import { mutations, queries } from '../graphql';
+import NotificationsLatest from '../components/NotificationsLatest';
+import { mutations, queries, subscriptions } from '../graphql';
 import {
   MarkAsReadMutationResponse,
   NotificationsQueryResponse
@@ -19,7 +19,21 @@ type FinalProps = {
 } & Props &
   MarkAsReadMutationResponse;
 
+const subscription = gql(subscriptions.notificationSubscription);
+
 class NotificationsLatestContainer extends React.Component<FinalProps> {
+  componentWillMount() {
+    const { notificationsQuery } = this.props;
+
+    notificationsQuery.subscribeToMore({
+      document: subscription,
+
+      updateQuery: () => {
+        notificationsQuery.refetch();
+      }
+    });
+  }
+
   render() {
     const {
       notificationsQuery,

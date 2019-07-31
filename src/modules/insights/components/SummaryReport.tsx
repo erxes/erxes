@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
@@ -10,7 +10,10 @@ import {
   InsightWrapper
 } from '../styles';
 import { IChartParams, IQueryParams, SummaryData } from '../types';
-import { Chart, InboxFilter, Sidebar, Summary } from './';
+import Chart from './Chart';
+import InboxFilter from './filter/InboxFilter';
+import Sidebar from './Sidebar';
+import Summary from './Summary';
 
 type Props = {
   brands: IBrand[];
@@ -99,7 +102,7 @@ class SummaryReport extends React.Component<Props, { width: number }> {
         header={
           <Wrapper.Header title={__('Response Report')} submenu={menuInbox} />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

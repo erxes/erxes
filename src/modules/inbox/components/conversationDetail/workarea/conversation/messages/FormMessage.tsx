@@ -1,5 +1,5 @@
-import { Table } from 'modules/common/components';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import Table from 'modules/common/components/table';
 import React from 'react';
 import { IMessage } from '../../../../../types';
 import { FormTable } from '../styles';
@@ -11,7 +11,7 @@ type Props = {
 export default class FormMessage extends React.Component<Props, {}> {
   displayValue(data) {
     if (data.validation === 'date') {
-      return moment(data.value).format('YYYY/MM/DD');
+      return dayjs(data.value).format('YYYY/MM/DD');
     }
 
     return data.value;

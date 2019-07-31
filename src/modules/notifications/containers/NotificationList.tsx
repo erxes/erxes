@@ -3,7 +3,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { NotificationList } from '../components';
+import NotificationList from '../components/NotificationList';
 import { mutations, queries } from '../graphql';
 import {
   MarkAsReadMutationResponse,
@@ -47,7 +47,8 @@ class NotificationListContainer extends React.Component<FinalProps> {
 
       markAsRead,
       notifications: notificationsQuery.notifications || [],
-      count: notificationCountQuery.notificationCounts || 0
+      count: notificationCountQuery.notificationCounts || 0,
+      loading: notificationsQuery.loading
     };
 
     return <NotificationList {...updatedProps} />;
@@ -65,7 +66,7 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
-          requireRead: false,
+          requireRead: queryParams.requireRead === 'true' ? true : false,
           title: queryParams.title
         }
       })
@@ -74,9 +75,9 @@ export default withProps<Props>(
       gql(queries.notificationCounts),
       {
         name: 'notificationCountQuery',
-        options: () => ({
+        options: ({ queryParams }) => ({
           variables: {
-            requireRead: false
+            requireRead: queryParams.requireRead === 'true' ? true : false
           }
         })
       }

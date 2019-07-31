@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { NameCard } from 'modules/common/components';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import React from 'react';
 import strip from 'strip';
 import xss from 'xss';

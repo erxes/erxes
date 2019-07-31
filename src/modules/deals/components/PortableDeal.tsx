@@ -1,11 +1,14 @@
-import { Details, UserCounter } from 'modules/boards/components/portable';
-import { EditForm } from 'modules/boards/containers/editForm';
-import { ItemContainer } from 'modules/boards/styles/common';
+import dayjs from 'dayjs';
+import Details from 'modules/boards/components/portable/Details';
+import UserCounter from 'modules/boards/components/portable/UserCounter';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
-import { renderDate } from 'modules/boards/utils';
 import { renderAmount } from 'modules/boards/utils';
-import { ModalTrigger } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import React from 'react';
@@ -52,6 +55,18 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
     );
   };
 
+  renderDate = (date, format = 'YYYY-MM-DD') => {
+    if (!date) {
+      return null;
+    }
+
+    return (
+      <Tip text={dayjs(date).format(format)}>
+        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
+      </Tip>
+    );
+  };
+
   renderStatusLabel(text, color) {
     return (
       <Status>
@@ -86,7 +101,7 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
         <Content>
           <SpaceContent>
             <h5>{item.name}</h5>
-            {renderDate(item.closeDate)}
+            {this.renderDate(item.closeDate)}
           </SpaceContent>
           <Details color="#63D2D6" items={products} />
           <Details color="#F7CE53" items={item.customers || []} />
@@ -101,7 +116,8 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
         </PriceContainer>
 
         <Footer>
-          {__('Last updated')}:<Right>{renderDate(item.modifiedAt)}</Right>
+          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
+          <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </ItemContainer>
     );

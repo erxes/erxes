@@ -5,7 +5,7 @@ import { UnreadConversationsTotalCountQueryResponse } from 'modules/inbox/types'
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import { Navigation } from '../components';
+import Navigation from '../components/Navigation';
 
 class NavigationContainer extends React.Component<{
   unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
@@ -48,6 +48,7 @@ export default withProps<{ currentUser: IUser }>(
       {
         name: 'unreadConversationsCountQuery',
         options: () => ({
+          fetchPolicy: 'network-only',
           notifyOnNetworkStatusChange: true
         })
       }

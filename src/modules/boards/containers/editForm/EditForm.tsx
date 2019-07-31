@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, renderWithProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
-import { UsersQueryResponse } from 'modules/settings/team/types';
+import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
@@ -28,7 +28,7 @@ type IProps = {
 
 type FinalProps = {
   detailQuery: DetailQueryResponse;
-  usersQuery: UsersQueryResponse;
+  usersQuery: AllUsersQueryResponse;
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
@@ -116,7 +116,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const users = usersQuery.users;
+    const users = usersQuery.allUsers;
     const item = detailQuery[options.queriesName.detailQuery];
 
     if (!item) {
@@ -158,7 +158,7 @@ export default (props: IProps) => {
           }
         }
       ),
-      graphql<IProps, UsersQueryResponse>(gql(userQueries.usersForSelector), {
+      graphql<IProps, AllUsersQueryResponse>(gql(userQueries.allUsers), {
         name: 'usersQuery'
       }),
       graphql<IProps, SaveMutation, IItemParams>(

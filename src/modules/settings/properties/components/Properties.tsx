@@ -1,19 +1,19 @@
-import {
-  Button,
-  DropdownToggle,
-  EmptyState,
-  HeaderDescription,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyState from 'modules/common/components/EmptyState';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
-import { PropertyForm, PropertyGroupForm } from '../containers';
+import PropertyForm from '../containers/PropertyForm';
+import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { PropertyList } from '../styles';
 import { IFieldGroup } from '../types';
-import { PropertyRow, Sidebar } from './';
+import PropertyRow from './PropertyRow';
+import Sidebar from './Sidebar';
 
 type Props = {
   queryParams: any;
@@ -97,7 +97,8 @@ class Properties extends React.Component<Props> {
       >
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
-            {__('Add Group & Field ')} <Icon icon="downarrow" />
+            {__('Add Group & Field ')}
+            <Icon icon="angle-down" />
           </Button>
         </DropdownToggle>
         <Dropdown.Menu>

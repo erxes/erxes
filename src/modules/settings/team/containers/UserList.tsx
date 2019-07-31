@@ -12,7 +12,7 @@ import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
-import { UserList } from '../components';
+import UserList from '../components/UserList';
 import { mutations, queries } from '../graphql';
 
 type Props = ICommonListProps &

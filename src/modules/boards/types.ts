@@ -15,6 +15,7 @@ export interface IOptions {
     removeMutation: string;
     changeMutation: string;
     updateOrderMutation: string;
+    watchMutation: string;
   };
   queries: { itemsQuery: string; detailQuery: string };
   mutations: {
@@ -23,6 +24,7 @@ export interface IOptions {
     removeMutation: string;
     changeMutation: string;
     updateOrderMutation: string;
+    watchMutation: string;
   };
   texts: {
     addText: string;
@@ -30,6 +32,7 @@ export interface IOptions {
     updateSuccessText: string;
     deleteSuccessText: string;
     copySuccessText: string;
+    changeSuccessText: string;
   };
   getExtraParams: (queryParams: any) => any;
 }
@@ -57,16 +60,32 @@ export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 export interface IPipeline {
   _id: string;
   name: string;
+  boardId: string;
+  visibility: string;
+  members?: IUser[];
+  memberIds?: string[];
+  bgColor?: string;
+  isWatched: boolean;
+}
+
+interface IStageComparisonInfo {
+  count: number;
+  percent: number;
 }
 
 export interface IStage {
   _id: string;
-  name?: string;
-  type?: string;
+  name: string;
+  type: string;
+  probability: string;
   index?: number;
   itemId?: string;
   amount?: any;
   itemsTotalCount: number;
+  initialDealsTotalCount: number;
+  inProcessDealsTotalCount: number;
+  stayedDealsTotalCount: number;
+  compareNextStage: IStageComparisonInfo;
 }
 
 export interface IItem {
@@ -82,6 +101,8 @@ export interface IItem {
   customers: ICustomer[];
   pipeline: IPipeline;
   stage?: IStage;
+  isWatched?: boolean;
+  priority?: string;
 }
 
 export interface IDraggableLocation {
@@ -114,6 +135,7 @@ export interface IItemMap {
 export type BoardsQueryResponse = {
   boards: IBoard[];
   loading: boolean;
+  refetch: () => void;
 };
 
 export type PipelinesQueryResponse = {
@@ -143,7 +165,15 @@ export type PipelineDetailQueryResponse = {
   loading: boolean;
 };
 
+export type WatchVariables = {
+  _id: string;
+  isAdd: boolean;
+  type?: string;
+};
+
 export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
+
+export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
 
 export type RemoveVariables = {
   _id: string;

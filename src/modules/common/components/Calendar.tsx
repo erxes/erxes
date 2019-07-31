@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React from 'react';
 import styled from 'styled-components';
 import { IDateColumn } from '../types';
@@ -46,7 +46,7 @@ const Item = styled.div`
 `;
 
 type State = {
-  currentDate: moment.Moment;
+  currentDate: dayjs.Dayjs;
 };
 
 type ItemButton = {

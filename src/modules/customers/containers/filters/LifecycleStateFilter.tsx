@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { LifecycleStateFilter } from '../../components';
+import LifecycleStateFilter from '../../components/list/LifecycleStateFilter';
 import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 

@@ -1,7 +1,7 @@
-import { EmptyState, Spinner } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { Summary } from '.';
 import {
   ChartWrapper,
   FullName,
@@ -12,6 +12,7 @@ import {
 import { IChartParams } from '../types';
 import { convertTime } from '../utils';
 import Chart from './Chart';
+import Summary from './Summary';
 
 type Props = {
   datas: IChartParams[];
@@ -30,12 +31,11 @@ class TeamMembers extends React.Component<Props> {
 
         <InsightUserData>
           <UserProfile>
-            <a href="#img">
-              <img
-                src={data.avatar || '/images/avatar-colored.svg'}
-                alt={data.fullName}
-              />
-            </a>
+            <img
+              src={data.avatar || '/images/avatar-colored.svg'}
+              alt={data.fullName}
+            />
+
             <FullName>{data.fullName}</FullName>
 
             {userData.time ? (

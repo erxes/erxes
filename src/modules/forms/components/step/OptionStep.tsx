@@ -1,18 +1,18 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import { COLORS } from 'modules/boards/constants';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { SelectBrand } from 'modules/settings/integrations/containers';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
+import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
+import ChromePicker from 'react-color/lib/Chrome';
 import { IBrand } from '../../../settings/brands/types';
 import { FormPreview } from './preview';
-import { BackgroundSelector, ColorPicker, FlexItem, Picker } from './style';
+import { BackgroundSelector, ColorList, FlexItem } from './style';
 
 type Props = {
   type: string;
@@ -39,7 +39,7 @@ class OptionStep extends React.Component<Props, {}> {
   onColorChange = e => {
     this.setState({ color: e.hex, theme: '#000' }, () => {
       this.props.onChange('color', e.hex);
-      this.props.onChange('theme', '');
+      this.props.onChange('theme', e.hex);
     });
   };
 
@@ -48,6 +48,7 @@ class OptionStep extends React.Component<Props, {}> {
 
     return (
       <BackgroundSelector
+        key={value}
         selected={this.props.theme === value}
         onClick={onClick}
       >
@@ -103,27 +104,24 @@ class OptionStep extends React.Component<Props, {}> {
 
           <FormGroup>
             <ControlLabel>Theme color</ControlLabel>
+            <div>
+              <OverlayTrigger
+                trigger="click"
+                rootClose={true}
+                placement="bottom"
+                overlay={popoverTop}
+              >
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: this.props.theme }} />
+                </ColorPick>
+              </OverlayTrigger>
+            </div>
+            <br />
             <p>{__('Try some of these colors:')}</p>
+            <ColorList>
+              {COLORS.map(value => this.renderThemeColor(value))}
+            </ColorList>
           </FormGroup>
-
-          <React.Fragment>
-            {this.renderThemeColor('#04A9F5')}
-            {this.renderThemeColor('#392a6f')}
-            {this.renderThemeColor('#fd3259')}
-            {this.renderThemeColor('#67C682')}
-            {this.renderThemeColor('#F5C22B')}
-            {this.renderThemeColor('#2d2d32')}
-            <OverlayTrigger
-              trigger="click"
-              rootClose={true}
-              placement="bottom"
-              overlay={popoverTop}
-            >
-              <ColorPicker>
-                <Picker style={{ backgroundColor: this.props.theme }} />
-              </ColorPicker>
-            </OverlayTrigger>
-          </React.Fragment>
         </LeftItem>
 
         <Preview>

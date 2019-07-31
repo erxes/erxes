@@ -1,12 +1,13 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Spinner } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../brands/types';
-import { SelectBrand } from '../components';
+import SelectBrand from '../components/SelectBrand';
 
 type Props = {
   onChange: () => void;
@@ -15,6 +16,7 @@ type Props = {
   isRequired?: boolean;
   formProps: IFormProps;
 };
+
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
 } & Props;
@@ -33,12 +35,19 @@ const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
     isSubmitted,
     callback
   }: IButtonMutateProps) => {
+    const callBackResponse = () => {
+      brandsQuery.refetch();
+
+      if (callback) {
+        callback();
+      }
+    };
+
     return (
       <ButtonMutate
         mutation={brandMutations.brandAdd}
         variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries()}
+        callback={callBackResponse}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}

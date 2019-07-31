@@ -1,4 +1,5 @@
-import { Icon, ModalTrigger } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import React from 'react';

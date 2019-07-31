@@ -1,10 +1,7 @@
-import {
-  Button,
-  ConditionsRule,
-  FormControl,
-  Step,
-  Steps
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
@@ -13,13 +10,14 @@ import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { IFormIntegration } from 'modules/forms/types';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { ImportLoader } from 'modules/common/components/ButtonMutate';
 import {
   CallOut,
   ChooseType,
@@ -33,7 +31,7 @@ type Props = {
   integration?: IFormIntegration;
   fields: IField[];
   loading?: boolean;
-
+  isActionLoading: boolean;
   save: (
     params: {
       name: string;
@@ -180,6 +178,8 @@ class Form extends React.Component<Props, State> {
   };
 
   renderSaveButton = () => {
+    const { isActionLoading } = this.props;
+
     const cancelButton = (
       <Link to="/forms">
         <Button btnStyle="simple" size="small" icon="cancel-1">
@@ -192,11 +192,13 @@ class Form extends React.Component<Props, State> {
       <Button.Group>
         {cancelButton}
         <Button
+          disabled={isActionLoading}
           btnStyle="success"
           size="small"
-          icon="checked-1"
+          icon={isActionLoading ? undefined : 'checked-1'}
           onClick={this.handleSubmit}
         >
+          {isActionLoading && <ImportLoader />}
           Save
         </Button>
       </Button.Group>
@@ -250,6 +252,7 @@ class Form extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderSaveButton()}
         </TitleContainer>
         <Steps active={activeStep || 1}>
           <Step img="/images/icons/erxes-04.svg" title="Type">
@@ -318,7 +321,7 @@ class Form extends React.Component<Props, State> {
           <Step
             img="/images/icons/erxes-19.svg"
             title="Full Preview"
-            nextButton={this.renderSaveButton()}
+            noButton={true}
           >
             <FullPreviewStep
               onChange={this.onChange}

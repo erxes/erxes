@@ -1,16 +1,14 @@
+import dayjs from 'dayjs';
 import _ from 'lodash';
-import {
-  FormControl,
-  NameCard,
-  Tags,
-  TextInfo
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
+import TextInfo from 'modules/common/components/TextInfo';
 import { isTimeStamp, isValidDate } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
 import { Date } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
-import moment from 'moment';
 import React from 'react';
 
 type Props = {
@@ -35,7 +33,7 @@ function formatValue(value) {
   }
 
   if (isValidDate(value) || isTimeStamp(value)) {
-    return <Date>{moment(value).format('lll')}</Date>;
+    return <Date>{dayjs(value).format('lll')}</Date>;
   }
 
   if (typeof value === 'string') {
