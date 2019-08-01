@@ -12,14 +12,13 @@ export const gmailClient = gmail.users;
 const getOauthClient = () => {
   const GOOGLE_CLIENT_ID = getEnv({ name: 'GOOGLE_CLIENT_ID' });
   const GOOGLE_CLIENT_SECRET = getEnv({ name: 'GOOGLE_CLIENT_SECRET' });
-  const GMAIL_REDIRECT_URL = getEnv({ name: 'GMAIL_REDIRECT_URL' });
+  const GMAIL_REDIRECT_URL = `${getEnv({ name: 'DOMAIN' })}/gmaillogin`;
 
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GMAIL_REDIRECT_URL) {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     debugGmail(`
       Error Google: Missing env values
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GMAIL_REDIRECT_URL: ${GMAIL_REDIRECT_URL}
     `);
   }
 
@@ -32,7 +31,6 @@ const getOauthClient = () => {
       Error Google: Could not create OAuth2 Client with
       ${GOOGLE_CLIENT_ID}
       ${GOOGLE_CLIENT_SECRET}
-      ${GMAIL_REDIRECT_URL}
     `);
     return;
   }
