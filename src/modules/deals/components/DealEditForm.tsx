@@ -1,7 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
-import { HeaderContentSmall } from 'modules/boards/styles/item';
-import { IOptions } from 'modules/boards/types';
+import Left from 'modules/boards/components/editForm/Left';
+import Sidebar from 'modules/boards/components/editForm/Sidebar';
+import Top from 'modules/boards/components/editForm/Top';
+import { FlexContent, HeaderContentSmall } from 'modules/boards/styles/item';
+import { IEditFormContent, IOptions } from 'modules/boards/types';
 import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import ProductSection from 'modules/deals/components/ProductSection';
@@ -120,6 +123,66 @@ export default class DealEditForm extends React.Component<Props, State> {
     return true;
   };
 
+  renderFormContent = ({
+    state,
+    onChangeAttachment,
+    onChangeField,
+    copy,
+    remove
+  }: IEditFormContent) => {
+    const { item, users, options } = this.props;
+
+    const {
+      name,
+      stageId,
+      description,
+      closeDate,
+      assignedUserIds,
+      customers,
+      companies,
+      attachments
+    } = state;
+
+    return (
+      <>
+        <Top
+          options={options}
+          name={name}
+          description={description}
+          closeDate={closeDate}
+          amount={this.renderAmount}
+          users={users}
+          stageId={stageId}
+          item={item}
+          onChangeField={onChangeField}
+        />
+
+        <FlexContent>
+          <Left
+            onChangeAttachment={onChangeAttachment}
+            type={options.type}
+            description={description}
+            attachments={attachments}
+            item={item}
+            onChangeField={onChangeField}
+          />
+
+          <Sidebar
+            options={options}
+            customers={customers}
+            companies={companies}
+            assignedUserIds={assignedUserIds}
+            item={item}
+            sidebar={this.renderProductSection}
+            onChangeField={onChangeField}
+            copyItem={copy}
+            removeItem={remove}
+          />
+        </FlexContent>
+      </>
+    );
+  };
+
   render() {
     const { productsData } = this.state;
 
@@ -128,7 +191,8 @@ export default class DealEditForm extends React.Component<Props, State> {
       extraFieldsCheck: this.checkProductsData,
       extraFields: { productsData },
       amount: this.renderAmount,
-      sidebar: this.renderProductSection
+      sidebar: this.renderProductSection,
+      formContent: this.renderFormContent
     };
 
     return <EditForm {...extendedProps} />;
