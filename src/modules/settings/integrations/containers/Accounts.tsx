@@ -53,7 +53,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     }
 
     if (fetchApiQuery.error) {
-      alert(fetchApiQuery.error.message);
+      return <span style={{ color: 'red' }}>Accounts api is not running</span>;
     }
 
     const accounts = fetchApiQuery.integrationsFetchApi || [];
