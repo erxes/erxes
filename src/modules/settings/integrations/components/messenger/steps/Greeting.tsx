@@ -95,7 +95,12 @@ class Greeting extends React.Component<Props, State> {
 
   render() {
     const { facebook, twitter, youtube, languageCode } = this.props;
-    const message = this.state.messages[languageCode] || {};
+    const message = this.state.messages[languageCode] || {
+      greetings: {
+        title: '',
+        message: ''
+      }
+    };
 
     const greetingTitle = e =>
       this.onGreetingsChange('title', (e.target as HTMLInputElement).value);
