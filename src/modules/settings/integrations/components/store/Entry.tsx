@@ -2,6 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
+import Gmail from 'modules/settings/integrations/containers/google/Gmail';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
@@ -56,6 +57,10 @@ class Entry extends React.Component<Props> {
       );
     }
 
+    if (!createUrl && !createModal) {
+      return null;
+    }
+
     if (createModal === 'lead') {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
@@ -77,6 +82,16 @@ class Entry extends React.Component<Props> {
           trigger={trigger}
           content={content}
         />
+      );
+    }
+
+    if (createModal === 'gmail') {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <Gmail {...props} />;
+
+      return (
+        <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
       );
     }
 

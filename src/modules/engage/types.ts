@@ -36,6 +36,7 @@ export interface IEngageStats {
   bounce: number;
   renderingfailure: number;
   reject: number;
+  total: number;
 }
 
 export interface IEngageMessageDoc {

@@ -143,6 +143,9 @@ export default class WorkArea extends React.Component<Props, State> {
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
+    const { kind } = currentConversation.integration;
+
+    const showInternal = kind === 'gmail';
 
     const tagTrigger = (
       <PopoverButton>
@@ -229,7 +232,7 @@ export default class WorkArea extends React.Component<Props, State> {
           <ContenFooter>
             {typingIndicator}
             <RespondBox
-              showInternal={false}
+              showInternal={showInternal}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}

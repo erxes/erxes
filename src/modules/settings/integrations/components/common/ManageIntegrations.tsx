@@ -115,6 +115,8 @@ class ManageIntegrations extends React.Component<Props, State> {
       icon = 'doc-text-inv-1';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
       icon = 'facebook-official';
+    } else if (kind === KIND_CHOICES.GMAIL) {
+      icon = 'mail-alt';
     }
 
     return icon;

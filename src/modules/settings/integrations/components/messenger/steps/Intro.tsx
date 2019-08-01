@@ -43,7 +43,7 @@ class Intro extends React.Component<Props, State> {
 
   render() {
     const { languageCode } = this.props;
-    const message = this.state.messages[languageCode];
+    const message = this.state.messages[languageCode] || {};
 
     const welcomeOnChange = e =>
       this.onMessageChange('welcome', (e.target as HTMLInputElement).value);
