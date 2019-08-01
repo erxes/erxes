@@ -119,7 +119,9 @@ const integrationMutations = {
     const integration = await Integrations.findOne({ _id });
 
     if (integration) {
-      await integrationsApi.removeIntegration({ integrationId: _id });
+      if (['facebook', 'gmail'].includes(integration.kind || '')) {
+        await integrationsApi.removeIntegration({ integrationId: _id });
+      }
 
       await putDeleteLog(
         {
