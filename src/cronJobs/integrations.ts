@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import { notifyRunCron } from '../messageQueue';
+import { sendMessage } from '../messageQueue';
 
 /**
  * *    *    *    *    *    *
@@ -13,5 +13,5 @@ import { notifyRunCron } from '../messageQueue';
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 schedule.scheduleJob('0 0 * * *', () => {
-  return notifyRunCron();
+  return sendMessage('cronjob');
 });

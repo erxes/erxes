@@ -9,7 +9,7 @@ dotenv.config();
 
 const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 
-interface IMessage {
+interface IWidgetMessage {
   action: string;
   data: {
     trigger: string;
@@ -21,7 +21,7 @@ interface IMessage {
 let connection;
 let channel;
 
-const receiveMessage = async ({ action, data }: IMessage) => {
+const receiveWidgetNotification = async ({ action, data }: IWidgetMessage) => {
   if (NODE_ENV === 'test') {
     return;
   }
@@ -67,13 +67,10 @@ const receiveMessage = async ({ action, data }: IMessage) => {
   }
 };
 
-const buildMessage = (action: string, data?: IMessage) => {
-  return Buffer.from(JSON.stringify({ action, data }));
-};
-
-export const notifyRunCron = async () => {
+export const sendMessage = async (action: string, data?: any) => {
   if (channel) {
-    await channel.sendToQueue('erxes-api-queue', buildMessage('cronjob'));
+    await channel.assertQueue('erxes-api-notification');
+    await channel.sendToQueue('erxes-api-notification', Buffer.from(JSON.stringify({ action, data: data || {} })));
   }
 };
 
@@ -83,22 +80,26 @@ const initConsumer = async () => {
     connection = await amqplib.connect(RABBITMQ_HOST);
     channel = await connection.createChannel();
 
+    // listen for widgets api =========
     await channel.assertQueue('widgetNotification');
 
     channel.consume('widgetNotification', async msg => {
       if (msg !== null) {
-        await receiveMessage(JSON.parse(msg.content.toString()));
+        await receiveWidgetNotification(JSON.parse(msg.content.toString()));
         channel.ack(msg);
       }
     });
 
+    // listen for engage api ===========
     await channel.assertQueue('engagesApi');
 
     channel.consume('engagesApi', async msg => {
       if (msg !== null) {
-        const { data } = JSON.parse(msg.content.toString());
+        const { action, data } = JSON.parse(msg.content.toString());
 
-        await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
+        if (action === 'setDoNotDisturb') {
+          await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
+        }
 
         channel.ack(msg);
       }

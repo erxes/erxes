@@ -11,8 +11,8 @@ import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { sendMessage } from '../../../messageQueue';
 import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../../constants';
-import EngagesAPI from '../../dataSources/engages';
 import QueryBuilder from '../../modules/segments/queryBuilder';
 
 /**
@@ -115,8 +115,6 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   EngageMessages.setCustomerIds(engageMessage._id, customers);
 
   if (engageMessage.method === METHODS.EMAIL) {
-    const engagesApi = new EngagesAPI();
-
     const customerInfos = customers.map(customer => {
       let customerName = customer.firstName || customer.lastName || 'Customer';
 
@@ -131,7 +129,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
       };
     });
 
-    await engagesApi.send({
+    await sendMessage('sendEngage', {
       customers: customerInfos,
       email: engageMessage.email,
       user: {
