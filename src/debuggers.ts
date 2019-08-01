@@ -2,9 +2,11 @@ import * as debug from 'debug';
 
 export const debugInit = debug('erxes-integrations:init');
 export const debugDb = debug('erxes-integrations:db');
+export const debugCrons = debug('erxes-integrations-crons:');
 export const debugBase = debug('erxes-integrations:base');
 export const debugIntegrations = debug('erxes-integrations:integrations');
 export const debugFacebook = debug('erxes-integrations:facebook');
+export const debugGmail = debug('erxes-integrations:gmail');
 export const debugExternalRequests = debug('erxes-integrations:external-requests');
 
 export const debugRequest = (debugInstance, req) =>

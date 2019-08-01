@@ -9,8 +9,13 @@ import { connect } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
 import { getPageAccessToken, unsubscribePage } from './facebook/utils';
+import initGmail from './gmail/controller';
+import { getCredentialsByEmailAccountId } from './gmail/util';
+import { stopPushNotification } from './gmail/watch';
+import './messageQueue';
 import Accounts from './models/Accounts';
 import Integrations from './models/Integrations';
+import { init } from './startup';
 
 connect();
 
@@ -26,8 +31,8 @@ app.use((req: any, _res, next) => {
   next();
 });
 
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '10mb' }));
 
 app.post('/integrations/remove', async (req, res) => {
   debugRequest(debugIntegrations, req);
@@ -52,6 +57,12 @@ app.post('/integrations/remove', async (req, res) => {
 
       await unsubscribePage(pageId, pageTokenResponse);
     }
+  }
+
+  if (integration.kind === 'gmail') {
+    const credentials = await getCredentialsByEmailAccountId({ email: account.uid });
+
+    await stopPushNotification(account.uid, credentials);
   }
 
   await Integrations.deleteOne({ erxesApiId: integrationId });
@@ -84,6 +95,9 @@ app.post('/accounts/remove', async (req, res) => {
 // init bots
 initFacebook(app);
 
+// init gmail
+initGmail(app);
+
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   console.error(error.stack);
@@ -94,4 +108,7 @@ const { PORT } = process.env;
 
 app.listen(PORT, () => {
   debugInit(`Integrations server is running on port ${PORT}`);
+
+  // Initialize startup
+  init();
 });
