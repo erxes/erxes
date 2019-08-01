@@ -344,8 +344,6 @@ describe('engage message mutation tests', () => {
       throw new Error('User not found');
     }
 
-    sinon.stub(EngagesAPI.prototype, 'send').callsFake(() => ({}));
-
     const engageMessage = await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc, context);
 
     const tags = engageMessage.getTags.map(tag => tag._id);
