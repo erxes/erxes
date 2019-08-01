@@ -22,7 +22,7 @@ const handleErxesApiMessages = async ({ action }: IMessage) => {
     return;
   }
 
-  if (action === 'cronjob') {
+  if (action === 'run-integrations-cronjob') {
     const integrations = await Integrations.aggregate([
       {
         $match: { email: { $exists: true } }, // email field indicates the gmail
