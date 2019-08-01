@@ -13,5 +13,5 @@ import { sendMessage } from '../messageQueue';
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 schedule.scheduleJob('0 0 * * *', () => {
-  return sendMessage('run-integrations-cronjob');
+  return sendMessage('erxes-api:run-integrations-cronjob');
 });

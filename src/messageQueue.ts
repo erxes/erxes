@@ -67,10 +67,10 @@ const receiveWidgetNotification = async ({ action, data }: IWidgetMessage) => {
   }
 };
 
-export const sendMessage = async (action: string, data?: any) => {
+export const sendMessage = async (queueName: string, data?: any) => {
   if (channel) {
-    await channel.assertQueue('erxes-api-notification');
-    await channel.sendToQueue('erxes-api-notification', Buffer.from(JSON.stringify({ action, data: data || {} })));
+    await channel.assertQueue(queueName);
+    await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
   }
 };
 
@@ -91,15 +91,13 @@ const initConsumer = async () => {
     });
 
     // listen for engage api ===========
-    await channel.assertQueue('engagesApi');
+    await channel.assertQueue('engages-api:set-donot-disturb');
 
-    channel.consume('engagesApi', async msg => {
+    channel.consume('engages-api:set-donot-disturb', async msg => {
       if (msg !== null) {
-        const { action, data } = JSON.parse(msg.content.toString());
+        const data = JSON.parse(msg.content.toString());
 
-        if (action === 'setDoNotDisturb') {
-          await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
-        }
+        await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
 
         channel.ack(msg);
       }

@@ -129,7 +129,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
       };
     });
 
-    await sendMessage('sendEngage', {
+    await sendMessage('erxes-api:send-engage', {
       customers: customerInfos,
       email: engageMessage.email,
       user: {
