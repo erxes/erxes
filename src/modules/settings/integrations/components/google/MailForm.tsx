@@ -192,6 +192,7 @@ class MailForm extends React.Component<Props, State> {
         mimeType: file.type
       };
 
+      // eslint-disable-next-line
       uploadReader.onloadend = () => {
         const totalFileSize = this.state.totalFileSize + fileInfo.size;
 
