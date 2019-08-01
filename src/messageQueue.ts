@@ -17,7 +17,7 @@ interface IMessage {
   };
 }
 
-const receiveMessage = async ({ action }: IMessage) => {
+const handleErxesApiMessages = async ({ action }: IMessage) => {
   if (NODE_ENV === 'test') {
     return;
   }
@@ -71,11 +71,11 @@ const initConsumer = async () => {
     const conn = await amqplib.connect(RABBITMQ_HOST);
     const channel = await conn.createChannel();
 
-    await channel.assertQueue('erxes-api-queue');
+    await channel.assertQueue('erxes-api-notification');
 
-    channel.consume('erxes-api-queue', async response => {
+    channel.consume('erxes-api-notification', async response => {
       if (response !== null) {
-        await receiveMessage(parseResponse(response));
+        await handleErxesApiMessages(parseResponse(response));
 
         channel.ack(response);
       }
