@@ -1,3 +1,4 @@
+import { IAttachment } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
@@ -201,4 +202,23 @@ export interface IFilterParams {
   nextMonth?: string;
   noCloseDate?: string;
   overdue?: string;
+}
+
+export interface IEditFormContent {
+  state: any;
+  onChangeAttachment: (attachments: IAttachment[]) => void;
+  onChangeField: (
+    name:
+      | 'name'
+      | 'stageId'
+      | 'description'
+      | 'closeDate'
+      | 'assignedUserIds'
+      | 'customers'
+      | 'companies'
+      | 'attachments',
+    value: any
+  ) => void;
+  copy: () => void;
+  remove: (id: string) => void;
 }
