@@ -52,6 +52,13 @@ const configQueries = {
       widgetVersion,
     };
   },
+
+  /**
+   * Config for engage
+   */
+  engagesConfigDetail(_root, {}, { dataSources: { EngagesAPI } }) {
+    return EngagesAPI.engagesConfigDetail();
+  },
 };
 
 moduleRequireLogin(configQueries);

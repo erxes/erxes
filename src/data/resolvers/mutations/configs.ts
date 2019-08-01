@@ -9,6 +9,10 @@ const configMutations = {
   configsInsert(_root, doc: IConfig) {
     return Configs.createOrUpdateConfig(doc);
   },
+
+  engagesConfigSave(_root, args, { dataSources }) {
+    return dataSources.EngagesAPI.engagesConfigSave(args);
+  },
 };
 
 moduleCheckPermission(configMutations, 'manageGeneralSettings');

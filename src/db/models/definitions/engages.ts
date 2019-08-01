@@ -31,19 +31,6 @@ export interface IMessenger {
 
 interface IMessengerDocument extends IMessenger, Document {}
 
-export interface IStats {
-  open: number;
-  click: number;
-  complaint: number;
-  delivery: number;
-  bounce: number;
-  reject: number;
-  send: number;
-  renderingfailure: number;
-}
-
-interface IStatsDocument extends IStats, Document {}
-
 export interface IEngageMessage {
   kind?: string;
   segmentIds?: string[];
@@ -60,8 +47,6 @@ export interface IEngageMessage {
   email?: IEmail;
   scheduleDate?: IScheduleDate;
   messenger?: IMessenger;
-  deliveryReports?: any;
-  stats?: IStats;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
@@ -69,7 +54,6 @@ export interface IEngageMessageDocument extends IEngageMessage, Document {
 
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
-  stats?: IStatsDocument;
 
   _id: string;
 }
@@ -112,20 +96,6 @@ const messengerSchema = new Schema(
   { _id: false },
 );
 
-const statsSchema = new Schema(
-  {
-    open: field({ type: Number }),
-    click: field({ type: Number }),
-    complaint: field({ type: Number }),
-    delivery: field({ type: Number }),
-    bounce: field({ type: Number }),
-    reject: field({ type: Number }),
-    send: field({ type: Number }),
-    renderingfailure: field({ type: Number }),
-  },
-  { _id: false },
-);
-
 export const engageMessageSchema = new Schema({
   _id: field({ pkey: true }),
   kind: field({ type: String }),
@@ -155,6 +125,4 @@ export const engageMessageSchema = new Schema({
   email: field({ type: emailSchema }),
   scheduleDate: field({ type: scheduleDateSchema }),
   messenger: field({ type: messengerSchema }),
-  deliveryReports: field({ type: Object }),
-  stats: field({ type: statsSchema, default: {} }),
 });
