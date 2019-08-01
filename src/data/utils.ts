@@ -9,7 +9,7 @@ import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
+import { debugEmail, debugExternalApi } from '../debuggers';
 import { graphqlPubsub } from '../pubsub';
 
 /*
@@ -681,10 +681,6 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
 
   if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
-  }
-
-  if (!value) {
-    debugBase(`Missing environment variable configuration for ${name}`);
   }
 
   return value || '';
