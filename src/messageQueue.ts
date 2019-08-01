@@ -8,60 +8,49 @@ dotenv.config();
 
 const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 
-interface IMessage {
-  action: string;
-  data: {
-    trigger: string;
-    type: string;
-    payload: any;
-  };
-}
-
-const handleErxesApiMessages = async ({ action }: IMessage) => {
+const handleRunCronMessage = async () => {
   if (NODE_ENV === 'test') {
     return;
   }
 
-  if (action === 'run-integrations-cronjob') {
-    const integrations = await Integrations.aggregate([
-      {
-        $match: { email: { $exists: true } }, // email field indicates the gmail
+  const integrations = await Integrations.aggregate([
+    {
+      $match: { email: { $exists: true } }, // email field indicates the gmail
+    },
+    {
+      $lookup: {
+        from: 'accounts',
+        localField: 'accountId',
+        foreignField: '_id',
+        as: 'accounts',
       },
-      {
-        $lookup: {
-          from: 'accounts',
-          localField: 'accountId',
-          foreignField: '_id',
-          as: 'accounts',
-        },
+    },
+    {
+      $unwind: '$accounts',
+    },
+    {
+      $project: {
+        access_token: '$accounts.token',
+        refresh_token: '$accounts.tokenSecret',
+        scope: '$accounts.scope',
+        expire_date: '$accounts.expireDate',
       },
-      {
-        $unwind: '$accounts',
-      },
-      {
-        $project: {
-          access_token: '$accounts.token',
-          refresh_token: '$accounts.tokenSecret',
-          scope: '$accounts.scope',
-          expire_date: '$accounts.expireDate',
-        },
-      },
-    ]);
+    },
+  ]);
 
-    if (!integrations) {
-      return debugGmail('Gmail Integration not found');
+  if (!integrations) {
+    return debugGmail('Gmail Integration not found');
+  }
+
+  for (const { _id, accountId, ...credentials } of integrations) {
+    const response = await watchPushNotification(accountId, credentials);
+    const { historyId, expiration } = response.data;
+
+    if (!historyId || !expiration) {
+      return debugGmail('Error Google: Failed to renew push notification');
     }
 
-    for (const { _id, accountId, ...credentials } of integrations) {
-      const response = await watchPushNotification(accountId, credentials);
-      const { historyId, expiration } = response.data;
-
-      if (!historyId || !expiration) {
-        return debugGmail('Error Google: Failed to renew push notification');
-      }
-
-      await Integrations.updateOne({ _id }, { $set: { gmailHistoryId: historyId, expiration } });
-    }
+    await Integrations.updateOne({ _id }, { $set: { gmailHistoryId: historyId, expiration } });
   }
 };
 
@@ -71,22 +60,15 @@ const initConsumer = async () => {
     const conn = await amqplib.connect(RABBITMQ_HOST);
     const channel = await conn.createChannel();
 
-    await channel.assertQueue('erxes-api-notification');
+    await channel.assertQueue('erxes-api:run-integrations-cronjob');
 
-    channel.consume('erxes-api-notification', async response => {
-      if (response !== null) {
-        await handleErxesApiMessages(parseResponse(response));
-
-        channel.ack(response);
-      }
+    channel.consume('erxes-api:run-integrations-cronjob', async () => {
+      await handleRunCronMessage();
+      channel.ack();
     });
   } catch (e) {
     debugBase(e.message);
   }
-};
-
-const parseResponse = (response: any) => {
-  return JSON.parse(response.content.toString());
 };
 
 initConsumer();
