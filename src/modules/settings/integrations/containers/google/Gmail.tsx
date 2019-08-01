@@ -3,11 +3,10 @@ import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
-import Facebook from 'modules/settings/integrations/components/facebook/Form';
+import Gmail from 'modules/settings/integrations/components/google/Gmail';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import React from 'react';
+import * as React from 'react';
 import { withRouter } from 'react-router';
-import { IPages } from '../../types';
 import { getRefetchQueries } from '../utils';
 
 type Props = {
@@ -18,34 +17,34 @@ type Props = {
 type FinalProps = {} & IRouterProps & Props;
 
 type State = {
-  pages: IPages[];
-  accountId?: string;
+  email: string;
+  accountId: string;
 };
 
-class FacebookContainer extends React.Component<FinalProps, State> {
+class GmailContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { pages: [] };
+    this.state = { email: '', accountId: '' };
   }
 
   onAccountSelect = (accountId?: string) => {
     if (!accountId) {
-      return this.setState({ pages: [], accountId: '' });
+      return this.setState({ email: '', accountId: '' });
     }
 
     client
       .query({
         query: gql(queries.fetchApi),
         variables: {
-          path: '/facebook/get-pages',
+          path: '/gmail/get-email',
           params: { accountId }
         }
       })
       .then(({ data, loading }: any) => {
         if (!loading) {
           this.setState({
-            pages: data.integrationsFetchApi,
+            email: data.integrationsFetchApi,
             accountId
           });
         }
@@ -56,7 +55,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
   };
 
   onRemoveAccount = () => {
-    this.setState({ pages: [] });
+    this.setState({ email: '' });
   };
 
   renderButton = ({
@@ -70,7 +69,7 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         mutation={mutations.integrationsCreateExternalIntegration}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries('facebook')}
+        refetchQueries={getRefetchQueries('gmail')}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}
@@ -80,18 +79,19 @@ class FacebookContainer extends React.Component<FinalProps, State> {
 
   render() {
     const { closeModal } = this.props;
+    const { accountId, email } = this.state;
 
     const updatedProps = {
       closeModal,
-      accountId: this.state.accountId,
-      pages: this.state.pages,
+      accountId,
+      email,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
       renderButton: this.renderButton
     };
 
-    return <Facebook {...updatedProps} />;
+    return <Gmail {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(FacebookContainer);
+export default withRouter<FinalProps>(GmailContainer);

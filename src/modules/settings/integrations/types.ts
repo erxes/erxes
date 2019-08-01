@@ -137,6 +137,7 @@ export type ByKind = {
   messenger: number;
   form: number;
   facebook: number;
+  gmail: number;
 };
 
 type IntegrationsCount = {
@@ -151,6 +152,13 @@ export type IntegrationsCountQueryResponse = {
   integrationsTotalCount: IntegrationsCount;
   loading: boolean;
 };
+
+export interface IGmailAttachment {
+  filename?: string;
+  mimeType?: string;
+  size?: number;
+  data?: string;
+}
 
 export type MessengerAppsCountQueryResponse = {
   messengerAppsCount: number;
@@ -175,6 +183,30 @@ export type SaveMessengerMutationVariables = {
   name: string;
   brandId: string;
   languageCode: string;
+};
+
+export type CreateGmailMutationVariables = {
+  name: string;
+  brandId: string;
+};
+
+export type SendGmailMutationVariables = {
+  cc?: string;
+  bcc?: string;
+  toEmails?: string;
+  headerId?: string;
+  threadId?: string;
+  subject?: string;
+  body: string;
+  integrationId?: string;
+};
+
+export type SendGmailMutationResponse = {
+  integrationsSendGmail: (
+    params: {
+      variables: SendGmailMutationVariables;
+    }
+  ) => Promise<any>;
 };
 
 export type SaveMessengerMutationResponse = {
