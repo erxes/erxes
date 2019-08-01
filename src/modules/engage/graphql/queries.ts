@@ -27,7 +27,6 @@ const engageMessages = `
     engageMessages(${listParamsValue}) {
       _id
       title
-      deliveryReports
       isDraft
       isLive
       createdDate
@@ -78,7 +77,6 @@ const engageDetailFields = `
   isLive
   stopDate
   createdDate
-  deliveryReports
   messenger
   scheduleDate {
     type
