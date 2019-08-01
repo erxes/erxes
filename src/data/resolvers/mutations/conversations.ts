@@ -8,8 +8,9 @@ import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugExternalApi } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
+import { IntegrationsAPI } from '../../dataSources';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
-import utils, { fetchIntegrationApi } from '../../utils';
+import utils from '../../utils';
 
 interface IConversationMessageAdd {
   conversationId: string;
@@ -208,16 +209,15 @@ const conversationMutations = {
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK) {
-      fetchIntegrationApi({
-        path: '/facebook/reply',
-        method: 'POST',
-        body: {
+      const integrationsApi = new IntegrationsAPI();
+
+      integrationsApi
+        .replyFacebook({
           conversationId: conversation._id,
           integrationId: integration._id,
           content: strip(doc.content),
           attachments: doc.attachments || [],
-        },
-      })
+        })
         .then(response => {
           debugExternalApi(response);
         })

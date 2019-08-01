@@ -55,7 +55,8 @@ export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
   FACEBOOK: 'facebook',
-  ALL: ['messenger', 'form', 'facebook'],
+  GMAIL: 'gmail',
+  ALL: ['messenger', 'form', 'facebook', 'gmail'],
 };
 
 // messenger data availability constants

@@ -1,7 +1,8 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
+import { IntegrationsAPI } from '../../dataSources';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
-import { fetchIntegrationApi, paginate } from '../../utils';
+import { paginate } from '../../utils';
 
 /**
  * Common helper for integrations & integrationsTotalCount
@@ -119,7 +120,9 @@ const integrationQueries = {
    * Fetch integrations api
    */
   integrationsFetchApi(_root, { path, params }: { path: string; params: { [key: string]: string } }) {
-    return fetchIntegrationApi({ path, method: 'GET', params });
+    const integrationsApi = new IntegrationsAPI();
+
+    return integrationsApi.fetchApi(path, params);
   },
 };
 

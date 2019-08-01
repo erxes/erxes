@@ -5,7 +5,8 @@ export const INTEGRATION_KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
   FACEBOOK: 'facebook',
-  ALL: ['messenger', 'form', 'facebook'],
+  GMAIL: 'gmail',
+  ALL: ['messenger', 'form', 'facebook', 'gmail'],
 };
 
 export const MESSAGE_KINDS = {

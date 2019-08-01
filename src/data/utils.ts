@@ -532,18 +532,6 @@ export const sendRequest = async (
 };
 
 /**
- * Send request to integrations api
- */
-export const fetchIntegrationApi = ({ path, method, body, params }: IRequestParams) => {
-  const INTEGRATIONS_API_DOMAIN = getEnv({ name: 'INTEGRATIONS_API_DOMAIN' });
-
-  return sendRequest(
-    { url: `${INTEGRATIONS_API_DOMAIN}${path}`, method, body, params },
-    'Failed to connect integration api. Check INTEGRATIONS_API_DOMAIN env or integration api is not running',
-  );
-};
-
-/**
  * Send request to crons api
  */
 export const fetchCronsApi = ({ path, method, body, params }: IRequestParams) => {

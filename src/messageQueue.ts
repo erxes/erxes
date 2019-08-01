@@ -18,7 +18,10 @@ interface IMessage {
   };
 }
 
-const reciveMessage = async ({ action, data }: IMessage) => {
+let connection;
+let channel;
+
+const receiveMessage = async ({ action, data }: IMessage) => {
   if (NODE_ENV === 'test') {
     return;
   }
@@ -64,17 +67,27 @@ const reciveMessage = async ({ action, data }: IMessage) => {
   }
 };
 
+const buildMessage = (action: string, data?: IMessage) => {
+  return Buffer.from(JSON.stringify({ action, data }));
+};
+
+export const notifyRunCron = async () => {
+  if (channel) {
+    await channel.sendToQueue('erxes-api-queue', buildMessage('cronjob'));
+  }
+};
+
 const initConsumer = async () => {
   // Consumer
   try {
-    const conn = await amqplib.connect(RABBITMQ_HOST);
-    const channel = await conn.createChannel();
+    connection = await amqplib.connect(RABBITMQ_HOST);
+    channel = await connection.createChannel();
 
     await channel.assertQueue('widgetNotification');
 
     channel.consume('widgetNotification', async msg => {
       if (msg !== null) {
-        await reciveMessage(JSON.parse(msg.content.toString()));
+        await receiveMessage(JSON.parse(msg.content.toString()));
         channel.ack(msg);
       }
     });
