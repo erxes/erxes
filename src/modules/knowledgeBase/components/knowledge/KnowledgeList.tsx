@@ -90,7 +90,6 @@ class KnowledgeList extends React.Component<Props> {
           count={topics.length}
           emptyText="There is no knowledge base"
           emptyImage="/images/actions/18.svg"
-          objective={true}
         />
       </Sidebar>
     );
