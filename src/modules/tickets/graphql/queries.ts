@@ -24,19 +24,6 @@ const commonParamDefs = `
   source: $source
 `;
 
-const companies = `
-  _id
-  primaryName
-  website
-`;
-
-const customers = `
-  _id
-  firstName
-  primaryEmail
-  primaryPhone
-`;
-
 const ticketFields = `
   _id
   name
@@ -47,10 +34,15 @@ const ticketFields = `
   }
   boardId
   companies {
-    ${companies}
+    _id
+    primaryName
+    website
   }
   customers {
-    ${customers}
+    _id
+    firstName
+    primaryEmail
+    primaryPhone
   }
   closeDate
   description

@@ -9,10 +9,7 @@ export interface IOptions {
   Item: any;
   type: string;
   title: string;
-  queriesName: {
-    itemsQuery: string;
-    detailQuery: string;
-  };
+  queriesName: { itemsQuery: string; detailQuery: string };
   mutationsName: {
     addMutation: string;
     editMutation: string;
@@ -21,10 +18,7 @@ export interface IOptions {
     updateOrderMutation: string;
     watchMutation: string;
   };
-  queries: {
-    itemsQuery: string;
-    detailQuery: string;
-  };
+  queries: { itemsQuery: string; detailQuery: string };
   mutations: {
     addMutation: string;
     editMutation: string;

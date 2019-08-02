@@ -22,19 +22,6 @@ const commonParamDefs = `
   priority: $priority
 `;
 
-const companies = `
-  _id
-  primaryName
-  website
-`;
-
-const customers = `
-  _id
-  firstName
-  primaryEmail
-  primaryPhone
-`;
-
 const taskFields = `
   _id
   name
@@ -45,10 +32,15 @@ const taskFields = `
   }
   boardId
   companies {
-    ${companies}
+    _id
+    primaryName
+    website
   }
   customers {
-    ${customers}
+    _id
+    firstName
+    primaryEmail
+    primaryPhone
   }
   closeDate
   description
