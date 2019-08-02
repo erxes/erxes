@@ -7,40 +7,18 @@ import Pipelines from '../containers/Pipelines';
 type Props = {
   boardId: string;
   type: string;
+  title: string;
 };
 
 class Home extends React.Component<Props, {}> {
   render() {
-    const { boardId, type } = this.props;
+    const { boardId, type, title } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Board') }
+      { title: __('Board') },
+      { title: __(title), link: `/settings/boards/${type}` }
     ];
-
-    switch (type) {
-      case 'deal': {
-        breadcrumb.push({ title: __('Deal'), link: '/settings/boards/deal' });
-
-        break;
-      }
-      case 'ticket': {
-        breadcrumb.push({
-          title: __('Ticket'),
-          link: '/settings/boards/ticket'
-        });
-
-        break;
-      }
-      case 'task': {
-        breadcrumb.push({
-          title: __('Task'),
-          link: '/settings/boards/task'
-        });
-
-        break;
-      }
-    }
 
     return (
       <Wrapper
