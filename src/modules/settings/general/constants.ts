@@ -10,7 +10,8 @@ export const LANGUAGES = [
   { label: 'Russian', value: 'ru' },
   { label: 'Chinese', value: 'zh-cn' },
   { label: 'Hindi', value: 'hi' },
-  { label: 'Vietnam', value: 'vi' }
+  { label: 'Vietnam', value: 'vi' },
+  { label: 'Indonesian', value: 'yi' }
 ];
 
 export const MEASUREMENTS = [
