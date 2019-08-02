@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { IRouterProps } from 'modules/common/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -9,18 +10,23 @@ import { queries, subscriptions } from '../graphql';
 import { NotificationsCountQueryResponse } from '../types';
 
 type Props = {
+  currentUser: IUser;
+};
+
+type FinalProps = {
   notificationCountQuery: NotificationsCountQueryResponse;
-} & IRouterProps;
+} & IRouterProps &
+  Props;
 
 const subscription = gql(subscriptions.notificationSubscription);
 
-class WidgetContainer extends React.Component<Props> {
+class WidgetContainer extends React.Component<FinalProps> {
   componentWillMount() {
-    const { notificationCountQuery } = this.props;
+    const { notificationCountQuery, currentUser } = this.props;
 
     notificationCountQuery.subscribeToMore({
       document: subscription,
-
+      variables: { userId: currentUser ? currentUser._id : null },
       updateQuery: () => {
         notificationCountQuery.refetch();
       }
@@ -39,7 +45,7 @@ class WidgetContainer extends React.Component<Props> {
   }
 }
 
-export default withProps<{}>(
+export default withProps<Props>(
   compose(
     graphql<Props, NotificationsCountQueryResponse, { requireRead: boolean }>(
       gql(queries.notificationCounts),
@@ -53,5 +59,5 @@ export default withProps<{}>(
         })
       }
     )
-  )(withRouter<Props>(WidgetContainer))
+  )(withRouter<FinalProps>(WidgetContainer))
 );

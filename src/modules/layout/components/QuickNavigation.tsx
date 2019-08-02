@@ -96,7 +96,7 @@ const QuickNavigation = ({
       </Tip>
 
       <NavItem>
-        <Widget />
+        <Widget currentUser={currentUser} />
       </NavItem>
       <NavItem>
         <Link to="/settings">
