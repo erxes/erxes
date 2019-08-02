@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
@@ -12,6 +13,7 @@ import {
 
 type Props = {
   update?: () => void;
+  currentUser: IUser;
 };
 
 type FinalProps = {
@@ -23,11 +25,11 @@ const subscription = gql(subscriptions.notificationSubscription);
 
 class NotificationsLatestContainer extends React.Component<FinalProps> {
   componentWillMount() {
-    const { notificationsQuery } = this.props;
+    const { notificationsQuery, currentUser } = this.props;
 
     notificationsQuery.subscribeToMore({
       document: subscription,
-
+      variables: { userId: currentUser ? currentUser._id : null },
       updateQuery: () => {
         notificationsQuery.refetch();
       }
