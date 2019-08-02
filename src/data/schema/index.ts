@@ -221,7 +221,7 @@ export const subscriptions = `
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
     activityLogsChanged: Boolean
     importHistoryChanged(_id: String!): ImportHistory
-    notificationInserted: Boolean
+    notificationInserted(userId: String): Boolean
   }
 `;
 

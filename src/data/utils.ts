@@ -409,7 +409,9 @@ export const sendNotification = async (doc: ISendNotification) => {
         createdUser._id,
       );
 
-      graphqlPubsub.publish('notificationInserted');
+      graphqlPubsub.publish('notificationInserted', {
+        userId: receiverId,
+      });
     } catch (e) {
       // Any other error is serious
       if (e.message !== 'Configuration does not exist') {
