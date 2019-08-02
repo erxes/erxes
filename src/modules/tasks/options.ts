@@ -12,9 +12,7 @@ const options = {
   title: 'Task',
   queriesName: {
     itemsQuery: 'tasks',
-    detailQuery: 'taskDetail',
-    relatedCustomersQuery: 'taskRelatedCustomers',
-    relatedCompaniesQuery: 'taskRelatedCompanies'
+    detailQuery: 'taskDetail'
   },
   mutationsName: {
     addMutation: 'tasksAdd',
@@ -26,9 +24,7 @@ const options = {
   },
   queries: {
     itemsQuery: queries.tasks,
-    detailQuery: queries.taskDetail,
-    relatedCustomersQuery: queries.taskRelatedCustomers,
-    relatedCompaniesQuery: queries.taskRelatedCompanies
+    detailQuery: queries.taskDetail
   },
   mutations: {
     addMutation: mutations.tasksAdd,

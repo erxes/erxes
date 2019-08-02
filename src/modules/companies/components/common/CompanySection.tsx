@@ -13,7 +13,8 @@ import { ButtonRelated } from '../../styles';
 type Props = {
   name: string;
   companies?: ICompany[];
-  relCompanies?: ICompany[];
+  itemId?: string;
+  itemKind?: string;
   onSelect: (companies: ICompany[]) => void;
   isOpen?: boolean;
 };
@@ -21,7 +22,8 @@ type Props = {
 function CompanySection({
   name,
   companies = [],
-  relCompanies = [],
+  itemId = '',
+  itemKind = '',
   onSelect,
   isOpen
 }: Props) {
@@ -42,7 +44,7 @@ function CompanySection({
     return (
       <CompanyChooser
         {...props}
-        data={{ name, companies, relCompanies }}
+        data={{ name, companies, itemId, itemKind }}
         onSelect={onSelect}
       />
     );
@@ -96,7 +98,7 @@ function CompanySection({
       {companies.length === 0 && (
         <EmptyState icon="briefcase" text="No company" />
       )}
-      {relQuickButtons}
+      {itemId && itemKind && relQuickButtons}
     </SectionBody>
   );
 

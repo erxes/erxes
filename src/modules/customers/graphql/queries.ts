@@ -72,7 +72,9 @@ const listParamsDef = `
   $leadStatus: String,
   $lifecycleState: String,
   $sortField: String,
-  $sortDirection: Int
+  $sortDirection: Int,
+  $itemId: String
+  $itemKind: String
 `;
 
 const listParamsValue = `
@@ -91,12 +93,22 @@ const listParamsValue = `
   leadStatus: $leadStatus,
   lifecycleState: $lifecycleState,
   sortField: $sortField,
-  sortDirection: $sortDirection
+  sortDirection: $sortDirection,
+  itemId: $itemId
+  itemKind: $itemKind
 `;
 
 const customers = `
   query customers(${listParamsDef}) {
     customers(${listParamsValue}) {
+      ${customerFields}
+    }
+  }
+`;
+
+const relatedCustomers = `
+  query relatedCustomers(${listParamsDef}) {
+    relatedCustomers(${listParamsValue}) {
       ${customerFields}
     }
   }
@@ -198,5 +210,6 @@ export default {
   customerCounts,
   customerDetail,
   customersListConfig,
-  customersExport
+  customersExport,
+  relatedCustomers
 };

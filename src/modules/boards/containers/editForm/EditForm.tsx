@@ -11,8 +11,6 @@ import {
   IItem,
   IItemParams,
   IOptions,
-  RelatedCompaniesQueryResponse,
-  RelatedCustomersQueryResponse,
   RemoveMutation,
   SaveMutation
 } from '../../types';
@@ -31,8 +29,6 @@ type IProps = {
 type FinalProps = {
   detailQuery: DetailQueryResponse;
   usersQuery: AllUsersQueryResponse;
-  relatedCompaniesQuery: RelatedCompaniesQueryResponse;
-  relatedCustomersQuery: RelatedCustomersQueryResponse;
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
@@ -114,20 +110,9 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const {
-      usersQuery,
-      detailQuery,
-      options,
-      relatedCompaniesQuery,
-      relatedCustomersQuery
-    } = this.props;
+    const { usersQuery, detailQuery, options } = this.props;
 
-    if (
-      usersQuery.loading ||
-      detailQuery.loading ||
-      relatedCompaniesQuery.loading ||
-      relatedCustomersQuery.loading
-    ) {
+    if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
     }
 
@@ -144,11 +129,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       addItem: this.addItem,
       removeItem: this.removeItem,
       saveItem: this.saveItem,
-      users,
-      relatedCustomers:
-        relatedCustomersQuery[options.queriesName.relatedCustomersQuery] || [],
-      relatedCompanies:
-        relatedCompaniesQuery[options.queriesName.relatedCompaniesQuery] || []
+      users
     };
 
     const EditForm = options.EditForm;
@@ -167,34 +148,6 @@ export default (props: IProps) => {
         gql(options.queries.detailQuery),
         {
           name: 'detailQuery',
-          options: ({ itemId }: { itemId: string }) => {
-            return {
-              variables: {
-                _id: itemId
-              },
-              fetchPolicy: 'network-only'
-            };
-          }
-        }
-      ),
-      graphql<IProps, RelatedCustomersQueryResponse, { _id: string }>(
-        gql(options.queries.relatedCustomersQuery),
-        {
-          name: 'relatedCustomersQuery',
-          options: ({ itemId }: { itemId: string }) => {
-            return {
-              variables: {
-                _id: itemId
-              },
-              fetchPolicy: 'network-only'
-            };
-          }
-        }
-      ),
-      graphql<IProps, RelatedCompaniesQueryResponse, { _id: string }>(
-        gql(options.queries.relatedCompaniesQuery),
-        {
-          name: 'relatedCompaniesQuery',
           options: ({ itemId }: { itemId: string }) => {
             return {
               variables: {

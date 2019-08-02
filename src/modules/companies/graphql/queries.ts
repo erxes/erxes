@@ -60,6 +60,8 @@ const listParamsDef = `
   $brand: String
   $sortField: String
   $sortDirection: Int
+  $itemId: String
+  $itemKind: String
 `;
 
 const listParamsValue = `
@@ -74,11 +76,21 @@ const listParamsValue = `
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection
+  itemId: $itemId
+  itemKind: $itemKind
 `;
 
 export const companies = `
   query companies(${listParamsDef}) {
     companies(${listParamsValue}) {
+      ${companyFields}
+    }
+  }
+`;
+
+export const relatedCompanies = `
+  query relatedCompanies(${listParamsDef}) {
+    relatedCompanies(${listParamsValue}) {
       ${companyFields}
     }
   }
@@ -173,5 +185,6 @@ export default {
   companyDetail,
   tags,
   companiesListConfig,
-  companiesExport
+  companiesExport,
+  relatedCompanies
 };

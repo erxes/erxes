@@ -8,7 +8,8 @@ import {
   AddMutationResponse,
   CompaniesQueryResponse,
   ICompany,
-  ICompanyDoc
+  ICompanyDoc,
+  RelatedCompaniesQueryResponse
 } from '../types';
 import CompanyForm from './CompanyForm';
 
@@ -16,15 +17,24 @@ type Props = {
   search: (value: string, loadMore?: boolean) => void;
   perPage: number;
   searchValue: string;
+  itemId?: string;
+  itemKind?: string;
 };
 
 type FinalProps = {
   companiesQuery: CompaniesQueryResponse;
+  relatedCompaniesQuery: RelatedCompaniesQueryResponse;
 } & Props &
   AddMutationResponse;
 
 const CompanyChooser = (props: WrapperProps & FinalProps) => {
-  const { data, companiesQuery, companiesAdd, search } = props;
+  const {
+    data,
+    companiesQuery,
+    companiesAdd,
+    relatedCompaniesQuery,
+    search
+  } = props;
   // add company
   const addCompany = ({ doc, callback }) => {
     companiesAdd({
@@ -46,15 +56,19 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
     return company.primaryName || company.website || 'Unknown';
   };
 
-  const datas = data.relCompanies
-    ? data.relCompanies
-    : companiesQuery.companies;
+  const datas =
+    data.itemId && data.itemKind
+      ? relatedCompaniesQuery.relatedCompanies
+      : companiesQuery.companies;
+
   const updatedProps = {
     ...props,
     data: {
       _id: data._id,
       name: renderName(data),
-      datas: data.companies
+      datas: data.companies,
+      itemId: data.itemId,
+      itemKind: data.itemKind
     },
     search,
     clearState: () => search(''),
@@ -85,6 +99,29 @@ const WithQuery = withProps<Props>(
         };
       }
     }),
+    graphql<
+      Props,
+      RelatedCompaniesQueryResponse,
+      {
+        searchValue: string;
+        perPage: number;
+        itemKind?: string;
+        itemId?: string;
+      }
+    >(gql(queries.relatedCompanies), {
+      name: 'relatedCompaniesQuery',
+      options: ({ searchValue, perPage, itemKind, itemId }) => {
+        return {
+          variables: {
+            searchValue,
+            perPage,
+            itemKind,
+            itemId
+          }
+          // fetchPolicy: 'network-only'
+        };
+      }
+    }),
     // mutations
     graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
       name: 'companiesAdd'
@@ -97,7 +134,8 @@ type WrapperProps = {
     _id?: string;
     name: string;
     companies: ICompany[];
-    relCompanies: ICompany[];
+    itemId?: string;
+    itemKind?: string;
   };
   onSelect: (datas: ICompany[]) => void;
   closeModal: () => void;
@@ -105,12 +143,12 @@ type WrapperProps = {
 
 export default class Wrapper extends React.Component<
   WrapperProps,
-  { perPage: number; searchValue: string }
+  { perPage: number; searchValue: string; itemId?: string; itemKind?: string }
 > {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '' };
+    this.state = { perPage: 20, searchValue: '', itemId: '', itemKind: '' };
   }
 
   search = (value, loadmore) => {
@@ -132,6 +170,8 @@ export default class Wrapper extends React.Component<
         search={this.search}
         searchValue={searchValue}
         perPage={perPage}
+        itemId={this.props.data.itemId}
+        itemKind={this.props.data.itemKind}
       />
     );
   }

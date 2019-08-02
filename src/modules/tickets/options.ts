@@ -12,9 +12,7 @@ const options = {
   title: 'Ticket',
   queriesName: {
     itemsQuery: 'tickets',
-    detailQuery: 'ticketDetail',
-    relatedCustomersQuery: 'ticketRelatedCustomers',
-    relatedCompaniesQuery: 'ticketRelatedCompanies'
+    detailQuery: 'ticketDetail'
   },
   mutationsName: {
     addMutation: 'ticketsAdd',
@@ -26,9 +24,7 @@ const options = {
   },
   queries: {
     itemsQuery: queries.tickets,
-    detailQuery: queries.ticketDetail,
-    relatedCustomersQuery: queries.ticketRelatedCustomers,
-    relatedCompaniesQuery: queries.ticketRelatedCompanies
+    detailQuery: queries.ticketDetail
   },
   mutations: {
     addMutation: mutations.ticketsAdd,

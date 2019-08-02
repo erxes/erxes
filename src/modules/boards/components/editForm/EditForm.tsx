@@ -40,8 +40,6 @@ type State = {
   customers: ICustomer[];
   companies: ICompany[];
   attachments: IAttachment[];
-  relatedCustomers: ICustomer[];
-  relatedCompanies: ICompany[];
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -49,16 +47,12 @@ class EditForm extends React.Component<Props, State> {
     super(props);
 
     const item = props.item;
-    const relCustomers = props.relatedCustomers;
-    const relCompanies = props.relatedCompanies;
 
     this.state = {
       name: item.name,
       stageId: item.stageId,
       // IItem datas
       companies: item.companies || [],
-      relatedCustomers: relCustomers || [],
-      relatedCompanies: relCompanies || [],
       customers: item.customers || [],
       closeDate: item.closeDate,
       description: item.description || '',
@@ -149,8 +143,6 @@ class EditForm extends React.Component<Props, State> {
       assignedUserIds,
       customers,
       companies,
-      relatedCustomers,
-      relatedCompanies,
       attachments
     } = this.state;
 
@@ -220,8 +212,6 @@ class EditForm extends React.Component<Props, State> {
             options={options}
             customers={customers}
             companies={companies}
-            relCustomers={relatedCustomers}
-            relCompanies={relatedCompanies}
             assignedUserIds={assignedUserIds}
             item={item}
             sidebar={sidebar}

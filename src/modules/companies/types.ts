@@ -141,6 +141,12 @@ export type CompaniesQueryResponse = {
   refetch: () => void;
 };
 
+export type RelatedCompaniesQueryResponse = {
+  relatedCompanies: ICompany[];
+  loading: boolean;
+  // refetch: () => void;
+};
+
 export type ListConfigQueryResponse = {
   fieldsDefaultColumnsConfig: ListConfig[];
   loading: boolean;

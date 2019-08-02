@@ -9,20 +9,32 @@ import {
   AddMutationResponse,
   CustomersQueryResponse,
   ICustomer,
-  ICustomerDoc
+  ICustomerDoc,
+  RelatedCustomersQueryResponse
 } from '../types';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
   searchValue: string;
   perPage: number;
+  itemId?: string;
+  itemKind?: string;
 };
 
-type FinalProps = { customersQuery: CustomersQueryResponse } & Props &
+type FinalProps = {
+  customersQuery: CustomersQueryResponse;
+  relatedCustomersQuery: RelatedCustomersQueryResponse;
+} & Props &
   AddMutationResponse;
 
 const CustomerChooser = (props: WrapperProps & FinalProps) => {
-  const { data, customersQuery, customersAdd, search } = props;
+  const {
+    data,
+    customersQuery,
+    customersAdd,
+    relatedCustomersQuery,
+    search
+  } = props;
 
   // add customer
   const addCustomer = ({ doc, callback }) => {
@@ -41,9 +53,10 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       });
   };
 
-  const datas = data.relCustomers
-    ? data.relCustomers
-    : customersQuery.customers;
+  const datas =
+    data.itemId && data.itemKind
+      ? relatedCustomersQuery.relatedCustomers
+      : customersQuery.customers;
 
   const updatedProps = {
     ...props,
@@ -83,6 +96,28 @@ const WithQuery = withProps<Props>(
         };
       }
     }),
+    graphql<
+      Props,
+      RelatedCustomersQueryResponse,
+      {
+        searchValue: string;
+        perPage: number;
+        itemId?: string;
+        itemKind?: string;
+      }
+    >(gql(queries.relatedCustomers), {
+      name: 'relatedCustomersQuery',
+      options: ({ searchValue, perPage, itemId, itemKind }) => {
+        return {
+          variables: {
+            searchValue,
+            perPage,
+            itemId,
+            itemKind
+          }
+        };
+      }
+    }),
     // mutations
     graphql<Props, AddMutationResponse, ICustomerDoc>(
       gql(mutations.customersAdd),
@@ -98,7 +133,8 @@ type WrapperProps = {
     _id?: string;
     name: string;
     customers: ICustomer[];
-    relCustomers: ICustomer[];
+    itemId?: string;
+    itemKind?: string;
   };
   onSelect: (datas: ICustomer[]) => void;
   closeModal: () => void;
@@ -106,12 +142,12 @@ type WrapperProps = {
 
 export default class Wrapper extends React.Component<
   WrapperProps,
-  { perPage: number; searchValue: string }
+  { perPage: number; searchValue: string; itemId?: string; itemKind?: string }
 > {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '' };
+    this.state = { perPage: 20, searchValue: '', itemId: '', itemKind: '' };
   }
 
   search = (value, loadmore) => {
@@ -133,6 +169,8 @@ export default class Wrapper extends React.Component<
         search={this.search}
         searchValue={searchValue}
         perPage={perPage}
+        itemId={this.props.data.itemId}
+        itemKind={this.props.data.itemKind}
       />
     );
   }
