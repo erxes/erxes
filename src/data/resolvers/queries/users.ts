@@ -37,7 +37,7 @@ const queryBuilder = async (params: IListArgs) => {
   }
 
   if (status) {
-    selector.registrationToken = { $exists: false, $eq: null };
+    selector.registrationToken = { $eq: null };
   }
 
   return selector;
