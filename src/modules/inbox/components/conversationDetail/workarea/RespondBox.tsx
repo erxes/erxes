@@ -292,6 +292,7 @@ class RespondBox extends React.Component<Props, State> {
     const { responseTemplates, conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);
+    const disabled = integration.kind === 'gmail';
 
     const Buttons = (
       <EditorActions>
@@ -299,6 +300,7 @@ class RespondBox extends React.Component<Props, State> {
           className="toggle-message"
           componentClass="checkbox"
           checked={isInternal}
+          disabled={disabled}
           onChange={this.toggleForm}
         >
           {__('Internal note')}

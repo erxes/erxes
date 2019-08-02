@@ -1,8 +1,12 @@
 import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
+import Left from 'modules/boards/components/editForm/Left';
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
+import Sidebar from 'modules/boards/components/editForm/Sidebar';
+import Top from 'modules/boards/components/editForm/Top';
 import { PRIORITIES } from 'modules/boards/constants';
-import { IOptions } from 'modules/boards/types';
+import { FlexContent } from 'modules/boards/styles/item';
+import { IEditFormContent, IOptions } from 'modules/boards/types';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
@@ -101,9 +105,69 @@ export default class TicketEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderFormContent = ({
+    state,
+    onChangeAttachment,
+    onChangeField,
+    copy,
+    remove
+  }: IEditFormContent) => {
+    const { item, users, options } = this.props;
+
+    const {
+      name,
+      stageId,
+      description,
+      closeDate,
+      assignedUserIds,
+      customers,
+      companies,
+      attachments
+    } = state;
+
+    return (
+      <>
+        <Top
+          options={options}
+          name={name}
+          description={description}
+          closeDate={closeDate}
+          users={users}
+          stageId={stageId}
+          item={item}
+          onChangeField={onChangeField}
+        />
+
+        <FlexContent>
+          <Left
+            onChangeAttachment={onChangeAttachment}
+            type={options.type}
+            description={description}
+            attachments={attachments}
+            item={item}
+            onChangeField={onChangeField}
+          />
+
+          <Sidebar
+            options={options}
+            customers={customers}
+            companies={companies}
+            assignedUserIds={assignedUserIds}
+            item={item}
+            sidebar={this.renderSidebarFields}
+            onChangeField={onChangeField}
+            copyItem={copy}
+            removeItem={remove}
+          />
+        </FlexContent>
+      </>
+    );
+  };
+
   render() {
     const extendedProps = {
       ...this.props,
+      formContent: this.renderFormContent,
       sidebar: this.renderSidebarFields,
       extraFields: this.state
     };

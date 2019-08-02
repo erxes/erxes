@@ -12,8 +12,10 @@ import {
 } from './styles';
 
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
+import MailForm from 'modules/settings/integrations/containers/google/MailForm';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import { IConversation } from '../../../types';
@@ -219,11 +221,26 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { customer } = this.props;
     const { primaryPhone, primaryEmail } = customer;
 
+    const content = props => (
+      <MailForm
+        fromEmail={primaryEmail}
+        refetchQueries={['activityLogsCustomer']}
+        closeModal={props.closeModal}
+      />
+    );
+
     return (
       <Actions>
-        <Button disabled={primaryEmail ? false : true} size="small">
-          {__('Email')}
-        </Button>
+        <ModalTrigger
+          title="Email"
+          trigger={
+            <Button disabled={primaryEmail ? false : true} size="small">
+              {__('Email')}
+            </Button>
+          }
+          size="lg"
+          content={content}
+        />
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"

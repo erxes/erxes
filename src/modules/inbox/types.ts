@@ -40,6 +40,31 @@ interface IEngageDataRules {
   value?: string;
 }
 
+export interface IGmailData {
+  integrationEmail: string;
+  messageId?: string;
+  headerId?: string;
+  from?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+  reply?: string;
+  references?: string;
+  threadId?: string;
+  subject?: string;
+  textPlain?: string;
+  textHtml?: string;
+  attachments?: IGmailAttachment[];
+}
+
+export interface IGmailAttachment {
+  filename?: string;
+  mimeType?: string;
+  size: number;
+  attachmentId: string;
+  data?: string;
+}
+
 export interface IEngageData {
   messageId: string;
   brandId: string;
@@ -63,6 +88,7 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
+  gmailData?: IGmailData;
 
   _id: string;
   user?: IUser;
