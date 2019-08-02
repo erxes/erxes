@@ -12,8 +12,6 @@ export interface IOptions {
   queriesName: {
     itemsQuery: string;
     detailQuery: string;
-    relatedCompaniesQuery: string;
-    relatedCustomersQuery: string;
   };
   mutationsName: {
     addMutation: string;
@@ -26,8 +24,6 @@ export interface IOptions {
   queries: {
     itemsQuery: string;
     detailQuery: string;
-    relatedCompaniesQuery: string;
-    relatedCustomersQuery: string;
   };
   mutations: {
     addMutation: string;

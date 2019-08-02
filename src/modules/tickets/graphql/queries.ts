@@ -108,25 +108,7 @@ const ticketDetail = `
   }
 `;
 
-const ticketRelatedCustomers = `
-  query ticketRelatedCustomers($_id: String!) {
-    ticketRelatedCustomers(_id: $_id) {
-      ${customers}
-    }
-  }
-`;
-
-const ticketRelatedCompanies = `
-  query ticketRelatedCompanies($_id: String!) {
-    ticketRelatedCompanies(_id: $_id) {
-      ${companies}
-    }
-  }
-`;
-
 export default {
   tickets,
-  ticketDetail,
-  ticketRelatedCompanies,
-  ticketRelatedCustomers
+  ticketDetail
 };

@@ -164,7 +164,6 @@ export type CustomersQueryResponse = {
 export type RelatedCustomersQueryResponse = {
   relatedCustomers: ICustomer[];
   loading: boolean;
-  // refetch: () => void;
 };
 
 export type CountQueryResponse = {

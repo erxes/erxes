@@ -144,27 +144,9 @@ const productDetail = `
   }
 `;
 
-const dealRelatedCustomers = `
-  query dealRelatedCustomers($_id: String!) {
-    dealRelatedCustomers(_id: $_id) {
-      ${customers}
-    }
-  }
-`;
-
-const dealRelatedCompanies = `
-  query dealRelatedCompanies($_id: String!) {
-    dealRelatedCompanies(_id: $_id) {
-      ${companies}
-    }
-  }
-`;
-
 export default {
   deals,
   dealDetail,
-  dealRelatedCompanies,
-  dealRelatedCustomers,
   productDetail,
   dealsTotalAmounts
 };

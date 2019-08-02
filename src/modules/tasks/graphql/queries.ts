@@ -105,25 +105,7 @@ const taskDetail = `
   }
 `;
 
-const taskRelatedCustomers = `
-  query taskRelatedCustomers($_id: String!) {
-    taskRelatedCustomers(_id: $_id) {
-      ${customers}
-    }
-  }
-`;
-
-const taskRelatedCompanies = `
-  query taskRelatedCompanies($_id: String!) {
-    taskRelatedCompanies(_id: $_id) {
-      ${companies}
-    }
-  }
-`;
-
 export default {
   tasks,
-  taskDetail,
-  taskRelatedCompanies,
-  taskRelatedCustomers
+  taskDetail
 };
