@@ -1,5 +1,6 @@
 import { Channels, Users } from '../../../db/models';
 import { IDetail, IEmailSignature, ILink, IUser, IUserDocument } from '../../../db/models/definitions/users';
+import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { authCookieOptions, getEnv } from '../../utils';
 
@@ -105,6 +106,8 @@ const userMutations = {
 
     // add new user to channels
     await Channels.updateUserChannels(channelIds, _id);
+
+    resetPermissionsCache();
 
     return updatedUser;
   },
