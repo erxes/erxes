@@ -47,11 +47,7 @@ app.post('/integrations/remove', async (req, res) => {
 
   const account = await Accounts.findOne({ _id: integration.accountId });
 
-  if (!account) {
-    return res.status(500).send('Account not found');
-  }
-
-  if (integration.kind === 'facebook') {
+  if (integration.kind === 'facebook' && account) {
     for (const pageId of integration.facebookPageIds) {
       const pageTokenResponse = await getPageAccessToken(pageId, account.token);
 
@@ -59,7 +55,7 @@ app.post('/integrations/remove', async (req, res) => {
     }
   }
 
-  if (integration.kind === 'gmail') {
+  if (integration.kind === 'gmail' && account) {
     const credentials = await getCredentialsByEmailAccountId({ email: account.uid });
 
     await stopPushNotification(account.uid, credentials);
