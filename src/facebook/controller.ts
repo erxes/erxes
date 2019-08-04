@@ -1,5 +1,5 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook';
-import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
+import { debugBase, debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { getEnv, sendRequest } from '../utils';
@@ -164,11 +164,17 @@ const init = async app => {
     }
   });
 
+  const { FACEBOOK_VERIFY_TOKEN, FACEBOOK_APP_SECRET } = process.env;
+
+  if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
+    return debugBase('Invalid facebook config');
+  }
+
   const accessTokensByPageId = {};
 
   const adapter = new FacebookAdapter({
-    verify_token: process.env.FACEBOOK_VERIFY_TOKEN,
-    app_secret: process.env.FACEBOOK_APP_SECRET,
+    verify_token: FACEBOOK_VERIFY_TOKEN,
+    app_secret: FACEBOOK_APP_SECRET,
     getAccessTokenForPage: async (pageId: string) => {
       return accessTokensByPageId[pageId];
     },
@@ -176,8 +182,6 @@ const init = async app => {
 
   // Facebook endpoint verifier
   app.get('/facebook/receive', (req, res) => {
-    const { FACEBOOK_VERIFY_TOKEN } = process.env;
-
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
