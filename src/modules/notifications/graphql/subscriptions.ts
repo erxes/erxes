@@ -1,6 +1,6 @@
 const notificationSubscription = `
-	subscription notificationInserted {
-		notificationInserted
+	subscription notificationInserted($userId: String) {
+		notificationInserted(userId: $userId)
   }
 `;
 
