@@ -57,7 +57,7 @@ export default class GrowthHackItem extends React.PureComponent<
     }
 
     return (
-      <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
+      <Modal dialogClassName="modal-1000w" show={true} onHide={this.toggleForm}>
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit growth hack')}</Modal.Title>
         </Modal.Header>

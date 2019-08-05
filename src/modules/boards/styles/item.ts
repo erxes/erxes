@@ -1,4 +1,5 @@
 import { SelectContainer } from 'modules/boards/styles/common';
+import Button from 'modules/common/components/Button';
 import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
@@ -98,22 +99,6 @@ const HeaderContentSmall = styled.div`
   }
 `;
 
-const Button = styled.div`
-  padding: 7px 10px;
-  background: ${colors.colorWhite};
-  cursor: pointer;
-  border-bottom: 1px solid ${colors.borderDarker};
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: ${colors.bgLight};
-  }
-
-  i {
-    float: right;
-  }
-`;
-
 const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
@@ -158,31 +143,31 @@ const WatchIndicator = styled.span`
 const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
+`;
 
-  > button {
-    width: 100%;
-    margin-bottom: 5px;
-    margin-left: 0;
-    padding: 8px 40px 8px 20px;
-    background: ${rgba(buttonColor, 0.04)};
+const RightButton = styled(Button)`
+  width: 100%;
+  margin-bottom: 5px;
+  margin-left: 0;
+  padding: 8px 40px 8px 20px;
+  background: ${rgba(buttonColor, 0.04)};
+  color: ${colors.textPrimary};
+  text-align: left;
+  border-radius: ${borderRadius};
+  text-transform: none;
+  font-size: 13px;
+  box-shadow: none;
+  position: relative;
+
+  > i {
     color: ${colors.textPrimary};
-    text-align: left;
-    border-radius: ${borderRadius};
-    text-transform: none;
-    font-size: 13px;
+    margin-right: 5px;
+  }
+
+  &:hover {
+    color: ${colors.colorCoreDarkGray};
+    background: ${rgba(buttonColor, 0.08)};
     box-shadow: none;
-    position: relative;
-
-    > i {
-      color: ${colors.textPrimary};
-      margin-right: 5px;
-    }
-
-    &:hover {
-      color: ${colors.colorCoreDarkGray};
-      background: ${rgba(buttonColor, 0.08)};
-      box-shadow: none;
-    }
   }
 `;
 
@@ -343,7 +328,7 @@ export {
   TitleRow,
   HeaderContent,
   HeaderContentSmall,
-  Button,
+  RightButton,
   MoveFormContainer,
   PipelineName,
   FormFooter,

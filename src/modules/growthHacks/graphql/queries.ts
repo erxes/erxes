@@ -42,6 +42,8 @@ const growthHackFields = `
   }
   closeDate
   description
+  hackDescription
+  goal
   assignedUsers {
     _id
     email

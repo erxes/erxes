@@ -1,18 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
-import Left from 'modules/boards/components/editForm/Left';
-import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
-import Sidebar from 'modules/boards/components/editForm/Sidebar';
-import Top from 'modules/boards/components/editForm/Top';
-import { PRIORITIES } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ISelectedOption } from 'modules/common/types';
 import React from 'react';
-import Select from 'react-select-plus';
 import { IGrowthHack, IGrowthHackParams } from '../types';
+import { Left, Right, Top } from './editForm/';
 
 type Props = {
   options: IOptions;
@@ -27,6 +19,7 @@ type Props = {
 type State = {
   hackDescription: string;
   goal: string;
+  description?: string;
 };
 
 export default class GrowthHackEditForm extends React.Component<Props, State> {
@@ -41,7 +34,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     };
   }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+  onChangeExtraField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
@@ -53,17 +46,9 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
+    const { hackDescription, goal } = this.state;
 
-    const {
-      name,
-      stageId,
-      description,
-      closeDate,
-      assignedUserIds,
-      customers,
-      companies,
-      attachments
-    } = state;
+    const { name, stageId, description, closeDate, attachments } = state;
 
     return (
       <>
@@ -86,15 +71,14 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}
+            onChangeExtraField={this.onChangeExtraField}
+            hackDescription={hackDescription}
+            goal={goal}
           />
 
-          <Sidebar
+          <Right
             options={options}
-            customers={customers}
-            companies={companies}
-            assignedUserIds={assignedUserIds}
             item={item}
-            onChangeField={onChangeField}
             copyItem={copy}
             removeItem={remove}
           />

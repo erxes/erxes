@@ -1,8 +1,7 @@
-import { WatchIndicator } from 'modules/boards/styles/item';
 import { IItem } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
+import { RightButton, WatchIndicator } from '../../styles/item';
 
 type IProps = {
   item: IItem;
@@ -19,14 +18,14 @@ class Watch extends React.Component<IProps> {
     const onClick = () => onChangeWatch(!isWatched);
 
     return (
-      <Button icon="eye" onClick={onClick}>
+      <RightButton icon="eye" onClick={onClick}>
         Watch
         {isWatched && (
           <WatchIndicator>
             <Icon icon="check" />
           </WatchIndicator>
         )}
-      </Button>
+      </RightButton>
     );
   }
 }

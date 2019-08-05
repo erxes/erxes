@@ -79,6 +79,10 @@ a:hover {
   width: 85%;
 }
 
+.modal-1000w {
+  width: 1000px;
+}
+
 .modal-content {
   border-radius: 2px;
   border: 0;
