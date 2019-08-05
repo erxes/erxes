@@ -162,6 +162,17 @@ class Settings extends React.PureComponent {
             )}
           </div>
         </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Growth hack Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Boards & Pipelines',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/growthHack'
+            )}
+          </div>
+        </Row>
       </MenusContainer>
     );
 

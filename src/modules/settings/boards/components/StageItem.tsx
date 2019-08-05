@@ -48,6 +48,13 @@ class StageItem extends React.Component<Props, {}> {
           onClick={remove.bind(this, stage._id)}
           icon="cancel-1"
         />
+
+        <Button
+          btnStyle="default"
+          size="small"
+          onClick={remove.bind(this, stage._id)}
+          icon="edit"
+        />
       </StageItemContainer>
     );
   }
