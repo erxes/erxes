@@ -174,10 +174,10 @@ services:
       # public urls
       DOMAIN: http://localhost:3300
       MAIN_APP_DOMAIN: http://localhost:3000
+      WIDGETS_DOMAIN: http://localhost:3200
+      INTEGRATIONS_API_DOMAIN: http://localhost:3400
       # non public urls
-      WIDGETS_DOMAIN: http://erxes-widgets:3200
       WIDGETS_API_DOMAIN: http://erxes-widgets-api:3100
-      INTEGRATIONS_API_DOMAIN: http://erxes-integrations:3400
       CRONS_API_DOMAIN: http://erxes-crons:3600
       WORKERS_API_DOMAIN: http://erxes-workers:3700
       LOGS_API_DOMAIN: http://erxes-logger:3800
@@ -305,9 +305,9 @@ services:
       DEBUG: "erxes-integrations:*"
       # public urls
       DOMAIN: http://localhost:3400
+      MAIN_APP_DOMAIN: http://localhost:3000
+      MAIN_API_DOMAIN: http://localhost:3300
       # non public urls
-      MAIN_APP_DOMAIN: http://erxes:80
-      MAIN_API_DOMAIN: http://erxes-api:3300
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes_integrations
     ports:
