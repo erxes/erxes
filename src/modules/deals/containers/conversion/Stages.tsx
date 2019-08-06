@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { queries } from 'modules/boards/graphql';
 import { StagesQueryResponse } from 'modules/boards/types';
+import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import List from 'modules/deals/components/conversion/list/List';
@@ -21,6 +22,17 @@ type FinalProps = {
 class DealStagesContainer extends React.Component<FinalProps> {
   render() {
     const { stagesQuery, type, pipelineId } = this.props;
+
+    if (!stagesQuery || !stagesQuery.stages) {
+      return (
+        <EmptyState
+          image="/images/actions/18.svg"
+          text="Oh boy, looks like you need to get a head start on your board"
+          size="small"
+        />
+      );
+    }
+
     if (localStorage.getItem('cacheInvalidated') === 'true') {
       stagesQuery.refetch({ pipelineId });
     }
@@ -43,6 +55,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
+      skip: ({ pipelineId }) => !pipelineId,
       options: ({ pipelineId, queryParams }) => ({
         variables: {
           isNotLost: true,
