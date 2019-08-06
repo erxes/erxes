@@ -62,6 +62,11 @@ const growthHackFields = `
     type
     size
   }
+  formFields {
+    _id
+    value
+  }
+  formId
   modifiedAt
   modifiedBy
 `;

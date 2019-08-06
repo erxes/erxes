@@ -17,8 +17,7 @@ class Stages extends React.Component<Props, {}> {
     }
   }
 
-  onChange = (stageId, e) => {
-    const { name, value } = e.target;
+  onChange = (stageId, name, value) => {
     const { stages, onChangeStages } = this.props;
 
     const stage = stages.find(s => s._id === stageId);

@@ -3,7 +3,7 @@ import EditForm from 'modules/boards/components/editForm/EditForm';
 import { FlexContent } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
 import React from 'react';
-import { IGrowthHack, IGrowthHackParams } from '../types';
+import { IFormField, IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, Right, Top } from './editForm/';
 
 type Props = {
@@ -20,6 +20,7 @@ type State = {
   hackDescription: string;
   goal: string;
   description?: string;
+  formFields: IFormField;
 };
 
 export default class GrowthHackEditForm extends React.Component<Props, State> {
@@ -30,7 +31,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
     this.state = {
       hackDescription: item.hackDescription || '',
-      goal: item.goal || ''
+      goal: item.goal || '',
+      formFields: item.formFields || []
     };
   }
 

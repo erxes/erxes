@@ -3,12 +3,13 @@ import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import React from 'react';
 import { PROBABILITY } from '../constants';
+import FormList from '../containers/FormList';
 import { StageItemContainer } from '../styles';
 
 type Props = {
   stage: IStage;
   remove: (stageId: string) => void;
-  onChange: (stageId: string, e: any) => void;
+  onChange: (stageId: string, name: string, value: string) => void;
   onKeyPress: (e: any) => void;
 };
 
@@ -16,6 +17,14 @@ class StageItem extends React.Component<Props, {}> {
   render() {
     const { stage, onChange, onKeyPress, remove } = this.props;
     const probabilties = PROBABILITY.ALL;
+
+    const onChangeName = (stageId, e) =>
+      onChange(stageId, e.target.name, e.target.value);
+    const onChangeProbability = (stageId, e) =>
+      onChange(stageId, e.target.name, e.target.value);
+    const onChangeForm = (stageId, value) => {
+      onChange(stageId, 'formId', value);
+    };
 
     return (
       <StageItemContainer key={stage._id}>
@@ -26,14 +35,14 @@ class StageItem extends React.Component<Props, {}> {
           onKeyPress={onKeyPress}
           autoFocus={true}
           name="name"
-          onChange={onChange.bind(this, stage._id)}
+          onChange={onChangeName.bind(this, stage._id)}
         />
 
         <FormControl
           defaultValue={stage.probability}
           componentClass="select"
           name="probability"
-          onChange={onChange.bind(this, stage._id)}
+          onChange={onChangeProbability.bind(this, stage._id)}
         >
           {probabilties.map((p, index) => (
             <option key={index} value={p}>
@@ -49,12 +58,7 @@ class StageItem extends React.Component<Props, {}> {
           icon="cancel-1"
         />
 
-        <Button
-          btnStyle="default"
-          size="small"
-          onClick={remove.bind(this, stage._id)}
-          icon="edit"
-        />
+        <FormList onChangeForm={onChangeForm} stage={stage} />
       </StageItemContainer>
     );
   }

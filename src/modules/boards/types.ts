@@ -87,6 +87,7 @@ export interface IStage {
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
+  formId: string;
 }
 
 export interface IItem {

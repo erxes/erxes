@@ -44,6 +44,7 @@ const stages = `
       name
       probability
       pipelineId
+      formId
     }
   }
 `;

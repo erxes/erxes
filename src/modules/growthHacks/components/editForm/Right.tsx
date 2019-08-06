@@ -1,6 +1,8 @@
 import { Watch } from 'modules/boards/containers/editForm/';
 import { RightButton } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
+import { IOptions } from 'modules/boards/types';
+import FormFields from 'modules/growthHacks/containers/FormFields';
+import { IGrowthHack } from 'modules/growthHacks/types';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -9,7 +11,7 @@ const RightContainer = styled.div`
 `;
 
 type Props = {
-  item: IItem;
+  item: IGrowthHack;
   onChangeField?: (name: string, value: any) => void;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
@@ -19,11 +21,14 @@ type Props = {
 class RigthContent extends React.Component<Props> {
   render() {
     const { item, copyItem, options, removeItem } = this.props;
+    const { formId, formFields } = item;
 
     const onClick = () => removeItem(item._id);
 
     return (
       <RightContainer>
+        {formId ? <FormFields formFields={formFields} formId={formId} /> : null}
+
         <Watch item={item} options={options} />
 
         <RightButton icon="checked-1" onClick={copyItem}>
