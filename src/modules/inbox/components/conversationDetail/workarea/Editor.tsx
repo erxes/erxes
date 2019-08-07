@@ -29,6 +29,7 @@ type EditorProps = {
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
   onAddMessage: () => void;
+  onSearchChange: (value: string) => void;
   showMentions: boolean;
   responseTemplate: string;
   responseTemplates: IResponseTemplate[];
@@ -320,6 +321,8 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   onSearchChange = ({ value }) => {
+    this.props.onSearchChange(value);
+
     this.setState({
       suggestions: defaultSuggestionsFilter(
         value,
