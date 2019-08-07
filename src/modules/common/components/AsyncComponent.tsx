@@ -25,12 +25,12 @@ export default function asyncComponent(
     render() {
       const Comp = this.state.component;
 
+      if (!Comp && loaderStyle) {
+        return <AnimatedLoader loaderStyle={loaderStyle} />;
+      }
+
       if (!Comp) {
-        return loaderStyle ? (
-          <AnimatedLoader loaderStyle={loaderStyle} />
-        ) : (
-          <Spinner />
-        );
+        return <Spinner />;
       }
 
       return <Comp {...this.props} />;
