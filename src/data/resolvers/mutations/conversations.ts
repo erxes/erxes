@@ -143,6 +143,7 @@ const sendNotifications = async ({
         body: strip(doc.content),
         receivers: conversationNotifReceivers(conversation, user._id, false),
         customerId: conversation.customerId,
+        conversationId: conversation._id,
       });
     }
   }
