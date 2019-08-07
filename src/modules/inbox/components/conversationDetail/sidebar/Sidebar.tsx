@@ -24,12 +24,16 @@ const CompanyAssociate = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-CompanyAssociate" */ 'modules/companies/containers/CompanyAssociate')
 );
 
-const ActionSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/components/common/ActionSection')
+const ActionSection = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/components/common/ActionSection'),
+  { height: '25px', width: '80px' }
 );
 
-const CustomFieldsSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ 'modules/customers/containers/common/CustomFieldsSection')
+const CustomFieldsSection = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ 'modules/customers/containers/common/CustomFieldsSection'),
+  { height: '200px', width: '100%', color: '#fff' }
 );
 
 const PortableDeals = asyncComponent(() =>
@@ -40,12 +44,16 @@ const Contacts = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-Contacts" */ 'modules/companies/components/detail/Contacts')
 );
 
-const DetailInfo = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/DetailInfo')
+const DetailInfo = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/DetailInfo'),
+  { isBox: true }
 );
 
-const InfoSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/InfoSection')
+const InfoSection = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/InfoSection'),
+  { withImage: true }
 );
 
 const DevicePropertiesSection = asyncComponent(() =>
@@ -56,16 +64,20 @@ const MessengerSection = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-MessengerSection" */ 'modules/customers/components/common/MessengerSection')
 );
 
-const TaggerSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ 'modules/customers/components/common/TaggerSection')
+const TaggerSection = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ 'modules/customers/components/common/TaggerSection'),
+  { height: '200px', width: '100%', color: '#fff' }
 );
 
 const SidebarActivity = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ 'modules/inbox/containers/conversationDetail/SidebarActivity')
 );
 
-const ConversationDetails = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails')
+const ConversationDetails = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails'),
+  { isBox: true }
 );
 
 type BoxProps = {
