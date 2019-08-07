@@ -119,8 +119,8 @@ const conversationMessagesTotalCount = `
 `;
 
 const userList = `
-  query objects {
-    users {
+  query objects($searchValue: String) {
+    users(searchValue: $searchValue) {
       _id
       username
       email

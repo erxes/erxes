@@ -35,6 +35,7 @@ type Props = {
     message: AddMessageMutationVariables,
     callback: (error: Error) => void
   ) => void;
+  onSearchChange: (value: string) => void;
   showInternal: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
@@ -129,6 +130,10 @@ class RespondBox extends React.Component<Props, State> {
   // save mentioned user to state
   onAddMention = (mentionedUserIds: string[]) => {
     this.setState({ mentionedUserIds });
+  };
+
+  onSearchChange = (value: string) => {
+    this.props.onSearchChange(value);
   };
 
   checkIsActive(conversation: IConversation) {
@@ -355,6 +360,7 @@ class RespondBox extends React.Component<Props, State> {
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
             onAddMessage={this.addMessage}
+            onSearchChange={this.onSearchChange}
             placeholder={placeholder}
             mentions={this.props.teamMembers}
             showMentions={isInternal}
