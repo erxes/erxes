@@ -700,11 +700,13 @@ export const sendMobileNotification = async ({
   title,
   body,
   customerId,
+  conversationId,
 }: {
   receivers: string[];
   customerId?: string;
   title: string;
   body: string;
+  conversationId: string;
 }): Promise<void> => {
   if (!admin.apps.length) {
     return;
@@ -724,7 +726,7 @@ export const sendMobileNotification = async ({
   if (tokens.length > 0) {
     // send notification
     for (const token of tokens) {
-      await transporter.send({ token, notification: { title, body } });
+      await transporter.send({ token, notification: { title, body }, data: { conversationId } });
     }
   }
 };
