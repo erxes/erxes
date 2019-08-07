@@ -10,7 +10,7 @@ import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMember
 import React from 'react';
 
 type Props = {
-  onChange: (name: string, value: any) => void;
+  onChange: (name: any, value: any) => void;
   teamMembers: IUser[];
   supporterIds: string[];
   facebook?: string;
