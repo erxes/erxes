@@ -1,6 +1,7 @@
 import { EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { debugExternalApi } from '../../../debuggers';
 import { MESSAGE_KINDS } from '../../constants';
 import { checkPermission } from '../../permissions/wrappers';
 import { fetchCronsApi, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
@@ -41,7 +42,11 @@ const engageMutations = {
     const engageMessage = await EngageMessages.findOne({ _id });
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
-    await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });
+    try {
+      await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });
+    } catch (e) {
+      debugExternalApi(`Error occurred : ${e.body || e.message}`);
+    }
 
     if (engageMessage) {
       await putUpdateLog(
@@ -64,7 +69,11 @@ const engageMutations = {
   async engageMessageRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
     const engageMessage = await EngageMessages.findOne({ _id });
 
-    await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id } });
+    try {
+      await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id } });
+    } catch (e) {
+      debugExternalApi(`Error occurred : ${e.body || e.message}`);
+    }
 
     const removed = await EngageMessages.removeEngageMessage(_id);
 
@@ -91,11 +100,15 @@ const engageMutations = {
     const { kind } = engageMessage;
 
     if (kind === MESSAGE_KINDS.AUTO || kind === MESSAGE_KINDS.VISITOR_AUTO) {
-      await fetchCronsApi({
-        path: '/create-schedule',
-        method: 'POST',
-        body: { message: JSON.stringify(engageMessage) },
-      });
+      try {
+        await fetchCronsApi({
+          path: '/create-schedule',
+          method: 'POST',
+          body: { message: JSON.stringify(engageMessage) },
+        });
+      } catch (e) {
+        debugExternalApi(`Error occurred : ${e.body || e.message}`);
+      }
     }
 
     return engageMessage;

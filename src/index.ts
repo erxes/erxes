@@ -25,8 +25,6 @@ import { initRedis } from './redisClient';
 
 initRedis();
 
-initRedis();
-
 // load environment variables
 dotenv.config();
 

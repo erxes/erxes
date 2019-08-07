@@ -524,11 +524,10 @@ export const sendRequest = async (
     return responseBody;
   } catch (e) {
     if (e.code === 'ECONNREFUSED') {
-      debugExternalApi(errorMessage);
       throw new Error(errorMessage);
     } else {
-      debugExternalApi(`Error occurred : ${e.body}`);
-      throw new Error(e.body);
+      const message = e.body || e.message;
+      throw new Error(message);
     }
   }
 };
