@@ -17,6 +17,17 @@ export type IAttachmentPreview = {
   data: string;
 } | null;
 
+export interface IAnimatedLoader {
+  height?: string;
+  width?: string;
+  color?: string;
+  round?: boolean;
+  margin?: string;
+  marginRight?: string;
+  isBox?: boolean;
+  withImage?: boolean;
+}
+
 export interface IBreadCrumbItem {
   title: string;
   link?: string;

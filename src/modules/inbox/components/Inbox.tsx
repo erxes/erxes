@@ -9,8 +9,10 @@ const Sidebar = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar" */ '../containers/leftSidebar/Sidebar')
 );
 
-const ConversationDetail = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-ConversationDetail" */ '../containers/conversationDetail/ConversationDetail')
+const ConversationDetail = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-ConversationDetail" */ '../containers/conversationDetail/ConversationDetail'),
+  { height: 'auto', width: '100%', color: '#fff', margin: '10px 10px 10px 0' }
 );
 
 type Props = {

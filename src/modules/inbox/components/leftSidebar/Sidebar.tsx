@@ -23,8 +23,10 @@ import {
   SidebarActions
 } from './styles';
 
-const DateFilter = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter')
+const DateFilter = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter'),
+  { height: '15px', width: '70px' }
 );
 
 const AssignBoxPopover = asyncComponent(() =>
