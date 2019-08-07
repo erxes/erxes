@@ -87,7 +87,7 @@ class Greeting extends React.Component<Props, State> {
     const youtubeChange = e =>
       this.onInputChange('youtube', (e.target as HTMLInputElement).value);
 
-    const userOnChange = usrs => this.props.onChange('supporterIds', usrs);
+    const usersOnChange = users => this.props.onChange('supporterIds', users);
 
     return (
       <FlexItem>
@@ -122,7 +122,7 @@ class Greeting extends React.Component<Props, State> {
               label="Choose users"
               name="supporterIds"
               value={supporterIds}
-              onSelect={userOnChange}
+              onSelect={usersOnChange}
               filterParams={{ status: 'verified' }}
             />
           </FormGroup>
