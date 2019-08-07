@@ -25,7 +25,6 @@ type Props = {
       callback: (error: Error) => void;
     }
   ) => void;
-  searchValue: string;
 };
 
 type FinalProps = {
@@ -120,9 +119,9 @@ const RespondBoxContainer = (props: FinalProps) => {
 };
 
 const withQuery = () =>
-  withProps<Props & { currentUser: IUser }>(
+  withProps<Props & { currentUser: IUser } & { searchValue: string }>(
     compose(
-      graphql<Props, UsersQueryResponse, { searchValue: string }>(
+      graphql<Props & { searchValue: string }, UsersQueryResponse>(
         gql(queries.userList),
         {
           name: 'usersQuery',
