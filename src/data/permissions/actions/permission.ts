@@ -797,44 +797,6 @@ export const moduleObjects = {
       },
     ],
   },
-  fields: {
-    name: 'fields',
-    description: 'Fields',
-    actions: [
-      {
-        name: 'fieldsAll',
-        description: 'All',
-        use: ['showFields', 'manageFields'],
-      },
-      {
-        name: 'manageFields',
-        description: 'Manage fields',
-      },
-      {
-        name: 'showFields',
-        description: 'Show fields',
-      },
-    ],
-  },
-  fieldsGroups: {
-    name: 'fieldsGroups',
-    description: 'Fields groups',
-    actions: [
-      {
-        name: 'fieldsGroupsAll',
-        description: 'All',
-        use: ['showFieldsGroups', 'manageFieldsGroups'],
-      },
-      {
-        name: 'manageFieldsGroups',
-        description: 'Manage fields groups',
-      },
-      {
-        name: 'showFieldsGroups',
-        description: 'Show fields groups',
-      },
-    ],
-  },
   inbox: {
     name: 'inbox',
     description: 'Inbox',

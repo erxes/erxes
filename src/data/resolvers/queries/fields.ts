@@ -162,7 +162,7 @@ const fieldQueries = {
 requireLogin(fieldQueries, 'fieldsCombinedByContentType');
 requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
 
-checkPermission(fieldQueries, 'fields', 'showFields', []);
+checkPermission(fieldQueries, 'fields', 'showForms', []);
 
 const fieldsGroupQueries = {
   /**
@@ -178,6 +178,6 @@ const fieldsGroupQueries = {
   },
 };
 
-checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showFieldsGroups', []);
+checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
 
 export { fieldQueries, fieldsGroupQueries };
