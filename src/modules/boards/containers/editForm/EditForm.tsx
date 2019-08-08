@@ -8,6 +8,10 @@ import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import {
   DetailQueryResponse,
+  EditCompaniesMutation,
+  EditCompaniesVariables,
+  EditCustomersMutation,
+  EditCustomersVariables,
   IItem,
   IItemParams,
   IOptions,
@@ -32,6 +36,8 @@ type FinalProps = {
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
+  editCompaniesMutation: EditCompaniesMutation;
+  editCustomersMutation: EditCustomersMutation;
   removeMutation: RemoveMutation;
 } & IProps;
 
@@ -86,6 +92,30 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   };
 
+  editCompanies = (companyIds: string[]) => {
+    const { itemId, editCompaniesMutation, options } = this.props;
+
+    editCompaniesMutation({ variables: { _id: itemId, companyIds } })
+      .then(() => {
+        Alert.success(options.texts.changeSuccessText);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  editCustomers = (customerIds: string[]) => {
+    const { itemId, editCustomersMutation, options } = this.props;
+
+    editCustomersMutation({ variables: { _id: itemId, customerIds } })
+      .then(() => {
+        Alert.success(options.texts.changeSuccessText);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   removeItem = (itemId: string, callback) => {
     const { removeMutation, onRemove, stageId, options } = this.props;
 
@@ -129,6 +159,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       addItem: this.addItem,
       removeItem: this.removeItem,
       saveItem: this.saveItem,
+      editCompanies: this.editCompanies,
+      editCustomers: this.editCustomers,
       users
     };
 
@@ -194,6 +226,46 @@ export default (props: IProps) => {
               {
                 query: gql(queries.stageDetail),
                 variables: { _id: stageId }
+              }
+            ]
+          })
+        }
+      ),
+      graphql<IProps, EditCompaniesMutation, EditCompaniesVariables>(
+        gql(options.mutations.itemsEditCompanies),
+        {
+          name: 'editCompaniesMutation',
+          options: ({
+            itemId
+          }: // companyIds
+          {
+            itemId: string;
+            // companyIds: [string];
+          }) => ({
+            refetchQueries: [
+              {
+                query: gql(options.queries.detailQuery),
+                variables: { _id: itemId }
+              }
+            ]
+          })
+        }
+      ),
+      graphql<IProps, EditCustomersMutation, EditCustomersVariables>(
+        gql(options.mutations.itemsEditCustomers),
+        {
+          name: 'editCustomersMutation',
+          options: ({
+            itemId
+          }: // customerIds
+          {
+            itemId: string;
+            // customerIds: [string];
+          }) => ({
+            refetchQueries: [
+              {
+                query: gql(options.queries.detailQuery),
+                variables: { _id: itemId }
               }
             ]
           })

@@ -77,14 +77,6 @@ const customersEdit = `
   }
 `;
 
-const customersAddCompany = `
-  mutation customersAddCompany($_id: String!, $name: String!, $website: String) {
-    customersAddCompany(_id: $_id, name: $name, website: $website) {
-      _id
-    }
-  }
-`;
-
 const customersEditCompanies = `
   mutation customersEditCompanies($_id: String!, $companyIds: [String]) {
     customersEditCompanies(_id: $_id, companyIds: $companyIds) {
@@ -114,7 +106,6 @@ const customersMerge = `
 export default {
   customersAdd,
   customersEdit,
-  customersAddCompany,
   customersEditCompanies,
   customersRemove,
   customersMerge

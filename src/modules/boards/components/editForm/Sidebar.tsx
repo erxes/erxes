@@ -76,7 +76,7 @@ class Sidebar extends React.Component<Props> {
           name={options.title}
           customers={customers}
           itemId={item._id}
-          itemKind={options.type === 'task' ? '' : options.type}
+          itemKind={options.type}
           onSelect={cmrsChange}
         />
 

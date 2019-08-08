@@ -14,6 +14,8 @@ type Props = {
   users: IUser[];
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: IItemParams, callback: () => void) => void;
+  editCompanies: (companyIds: string[]) => void;
+  editCustomers: (customerIds: string[]) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
   extraFields?: any;
@@ -56,7 +58,22 @@ class EditForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    // this.setState({ [name]: value } as Pick<State, keyof State>);
+    switch (name) {
+      case 'companies':
+        const companyIds = (value as ICompany[]).map(company => company._id);
+        this.props.editCompanies(companyIds);
+        break;
+
+      case 'customers':
+        const customerIds = (value as ICustomer[]).map(
+          customer => customer._id
+        );
+        this.props.editCustomers(customerIds);
+        break;
+    }
+
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   onChangeAttachment = (attachments: IAttachment[]) => {
@@ -67,8 +84,6 @@ class EditForm extends React.Component<Props, State> {
     const {
       name,
       description,
-      companies,
-      customers,
       closeDate,
       stageId,
       assignedUserIds,
@@ -87,8 +102,6 @@ class EditForm extends React.Component<Props, State> {
 
     const doc = {
       name,
-      companyIds: companies.map(company => company._id),
-      customerIds: customers.map(customer => customer._id),
       closeDate,
       description,
       stageId,
@@ -114,9 +127,7 @@ class EditForm extends React.Component<Props, State> {
     // copied doc
     const doc = {
       ...item,
-      assignedUserIds: item.assignedUsers.map(user => user._id),
-      companyIds: item.companies.map(company => company._id),
-      customerIds: item.customers.map(customer => customer._id)
+      assignedUserIds: item.assignedUsers.map(user => user._id)
     };
 
     addItem(

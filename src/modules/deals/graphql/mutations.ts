@@ -2,8 +2,6 @@ const commonVariables = `
   $name: String!,
   $stageId: String,
   $productsData: JSON,
-  $companyIds: [String],
-  $customerIds: [String],
   $closeDate: Date,
   $description: String,
   $assignedUserIds: [String],
@@ -15,8 +13,6 @@ const commonParams = `
   name: $name,
   stageId: $stageId,
   productsData: $productsData,
-  companyIds: $companyIds,
-  customerIds: $customerIds,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
@@ -69,6 +65,30 @@ const dealsEdit = `
   }
 `;
 
+const dealsEditCompanies = `
+  mutation dealsEditCompanies($_id: String!, $companyIds: [String]!) {
+    dealsEditCompanies(_id: $_id, companyIds: $companyIds) {
+      companies {
+        _id
+        primaryName
+        website
+      }
+    }
+  }
+`;
+
+const dealsEditCustomers = `
+  mutation dealsEditCustomers($_id: String!, $customerIds: [String]!) {
+    dealsEditCustomers(_id: $_id, customerIds: $customerIds) {
+      customers {
+        _id
+        firstName
+        primaryEmail
+      }
+    }
+  }
+`;
+
 const dealsRemove = `
   mutation dealsRemove($_id: String!) {
     dealsRemove(_id: $_id) {
@@ -105,6 +125,8 @@ const dealsWatch = `
 export default {
   dealsAdd,
   dealsEdit,
+  dealsEditCustomers,
+  dealsEditCompanies,
   dealsRemove,
   dealsChange,
   dealsUpdateOrder,

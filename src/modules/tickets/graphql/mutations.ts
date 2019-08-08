@@ -3,8 +3,6 @@ const commonVariables = `
   $stageId: String,
   $closeDate: Date,
   $description: String,
-  $companyIds: [String],
-  $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
   $attachments: [AttachmentInput],
@@ -15,8 +13,6 @@ const commonVariables = `
 const commonParams = `
   name: $name,
   stageId: $stageId,
-  companyIds: $companyIds,
-  customerIds: $customerIds,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
@@ -71,6 +67,30 @@ const ticketsEdit = `
   }
 `;
 
+const ticketsEditCompanies = `
+  mutation ticketsEditCompanies($_id: String!, $companyIds: [String]!) {
+    ticketsEditCompanies(_id: $_id, companyIds: $companyIds) {
+      companies {
+        _id
+        primaryName
+        website
+      }
+    }
+  }
+`;
+
+const ticketsEditCustomers = `
+  mutation ticketsEditCustomers($_id: String!, $customerIds: [String]!) {
+    ticketsEditCustomers(_id: $_id, customerIds: $customerIds) {
+      customers {
+        _id
+        firstName
+        primaryEmail
+      }
+    }
+  }
+`;
+
 const ticketsRemove = `
   mutation ticketsRemove($_id: String!) {
     ticketsRemove(_id: $_id) {
@@ -107,6 +127,8 @@ const ticketsWatch = `
 export default {
   ticketsAdd,
   ticketsEdit,
+  ticketsEditCustomers,
+  ticketsEditCompanies,
   ticketsRemove,
   ticketsChange,
   ticketsUpdateOrder,

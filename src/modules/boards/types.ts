@@ -17,6 +17,8 @@ export interface IOptions {
     changeMutation: string;
     updateOrderMutation: string;
     watchMutation: string;
+    itemsEditCustomers: string;
+    itemsEditCompanies: string;
   };
   queries: { itemsQuery: string; detailQuery: string };
   mutations: {
@@ -26,6 +28,8 @@ export interface IOptions {
     changeMutation: string;
     updateOrderMutation: string;
     watchMutation: string;
+    itemsEditCustomers: string;
+    itemsEditCompanies: string;
   };
   texts: {
     addText: string;
@@ -49,8 +53,6 @@ export interface IItemParams {
   name: string;
   stageId: string;
   assignedUserIds?: string[];
-  companyIds?: string[];
-  customerIds?: string[];
   closeDate?: Date;
   description?: string;
   order?: number;
@@ -172,7 +174,25 @@ export type WatchVariables = {
   type?: string;
 };
 
+export type EditCompaniesVariables = {
+  _id: string;
+  companyIds: string[];
+};
+
+export type EditCustomersVariables = {
+  _id: string;
+  customerIds: string[];
+};
+
 export type SaveMutation = ({ variables: IItemParams }) => Promise<any>;
+
+export type EditCompaniesMutation = (
+  { variables: EditCompaniesVariables }
+) => Promise<any>;
+
+export type EditCustomersMutation = (
+  { variables: EditCustomersVariables }
+) => Promise<any>;
 
 export type WatchMutation = ({ variables: WatchVariables }) => Promise<any>;
 

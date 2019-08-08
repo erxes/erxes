@@ -38,6 +38,8 @@ const CustomerAssociate = (props: FinalProps) => {
     ...props,
     name: data.primaryName || '',
     customers: data.customers,
+    itemId: data._id,
+    itemKind: 'company',
     onSelect: customers => save(customers)
   };
 

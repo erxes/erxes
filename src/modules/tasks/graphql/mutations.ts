@@ -3,8 +3,6 @@ const commonVariables = `
   $stageId: String,
   $closeDate: Date,
   $description: String,
-  $companyIds: [String],
-  $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
   $priority: String,
@@ -14,8 +12,6 @@ const commonVariables = `
 const commonParams = `
   name: $name,
   stageId: $stageId,
-  companyIds: $companyIds,
-  customerIds: $customerIds,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
@@ -68,6 +64,30 @@ const tasksEdit = `
   }
 `;
 
+const tasksEditCompanies = `
+  mutation tasksEditCompanies($_id: String!, $companyIds: [String]!) {
+    tasksEditCompanies(_id: $_id, companyIds: $companyIds) {
+      companies {
+        _id
+        primaryName
+        website
+      }
+    }
+  }
+`;
+
+const tasksEditCustomers = `
+  mutation tasksEditCustomers($_id: String!, $customerIds: [String]!) {
+    tasksEditCustomers(_id: $_id, customerIds: $customerIds) {
+      customers {
+        _id
+        firstName
+        primaryEmail
+      }
+    }
+  }
+`;
+
 const tasksRemove = `
   mutation tasksRemove($_id: String!) {
     tasksRemove(_id: $_id) {
@@ -104,6 +124,8 @@ const tasksWatch = `
 export default {
   tasksAdd,
   tasksEdit,
+  tasksEditCompanies,
+  tasksEditCustomers,
   tasksRemove,
   tasksChange,
   tasksUpdateOrder,
