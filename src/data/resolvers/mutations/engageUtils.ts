@@ -13,6 +13,7 @@ import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { sendMessage } from '../../../messageQueue';
 import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../../constants';
+import { Builder as CustomerQueryBuilder } from '../../modules/coc/customers';
 import QueryBuilder from '../../modules/segments/queryBuilder';
 
 /**
@@ -66,15 +67,26 @@ export const findCustomers = async ({
   // find matched customers
   let customerQuery: any = { _id: { $in: customerIds || [] } };
   const doNotDisturbQuery = [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }];
+  const customerQb = new CustomerQueryBuilder({});
+  await customerQb.buildAllQueries();
+  const customerFilter = customerQb.mainQuery();
 
   if (tagIds.length > 0) {
-    customerQuery = { $or: doNotDisturbQuery, tagIds: { $in: tagIds || [] } };
+    customerQuery = { $and: [customerFilter, { $or: doNotDisturbQuery, tagIds: { $in: tagIds || [] } }] };
   }
 
   if (brandIds.length > 0) {
-    const integrationIds = await Integrations.find({ brandId: { $in: brandIds } }).distinct('_id');
+    const brandQueries: any[] = [];
 
-    customerQuery = { $or: doNotDisturbQuery, integrationId: { $in: integrationIds } };
+    customerQuery = { $and: [customerFilter] };
+
+    for (const brandId of brandIds) {
+      const brandQuery = await customerQb.brandFilter(brandId);
+
+      brandQueries.push(brandQuery);
+    }
+
+    customerQuery = { $and: [customerFilter, { $or: brandQueries }] };
   }
 
   if (segmentIds.length > 0) {
@@ -90,7 +102,7 @@ export const findCustomers = async ({
       segmentQueries.push(filter);
     }
 
-    customerQuery = { $or: segmentQueries };
+    customerQuery = { $and: [customerFilter, { $or: segmentQueries }] };
   }
 
   return Customers.find(customerQuery);
