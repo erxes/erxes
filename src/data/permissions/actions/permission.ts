@@ -602,7 +602,7 @@ export const moduleObjects = {
   },
   users: {
     name: 'users',
-    description: 'Users',
+    description: 'Team members',
     actions: [
       {
         name: 'usersAll',
@@ -611,19 +611,19 @@ export const moduleObjects = {
       },
       {
         name: 'showUsers',
-        description: 'Show users',
+        description: 'Show team members',
       },
       {
         name: 'usersSetActiveStatus',
-        description: 'Set active/deactive user',
+        description: 'Set active/deactive team member',
       },
       {
         name: 'usersEdit',
-        description: 'Update user',
+        description: 'Update team member',
       },
       {
         name: 'usersInvite',
-        description: 'Invite user',
+        description: 'Invite team member',
       },
     ],
   },
