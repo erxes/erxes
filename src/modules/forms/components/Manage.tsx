@@ -1,6 +1,7 @@
 import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
+import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
@@ -15,6 +16,8 @@ type Props = {
 
 type State = {
   code?: string;
+  embedCode?: string;
+  buttonCode?: string;
   copied: boolean;
 };
 
@@ -47,11 +50,25 @@ const getInstallCode = (brandCode: string, formCode: string) => {
   `;
 };
 
+const getEmbedCode = (formCode: string) => {
+  return `
+    <div data-erxes-embed="${formCode}"></div>
+  `;
+};
+
+const getButtonCode = (formCode: string) => {
+  return `
+    data-erxes-modal="${formCode}"
+  `;
+};
+
 class Manage extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     let code = '';
+    let embedCode = '';
+    let buttonCode = '';
     const integration = props.integration;
 
     // showed install code automatically in edit mode
@@ -60,31 +77,69 @@ class Manage extends React.Component<Props, State> {
       const form = integration.form;
 
       code = getInstallCode(brand.code, form.code || '');
+      embedCode = getEmbedCode(form.code || '');
+      buttonCode = getButtonCode(form.code || '');
     }
 
     this.state = {
       code,
+      embedCode,
+      buttonCode,
       copied: false
     };
   }
 
-  render() {
+  renderContent = () => {
     const onCopy = () => this.setState({ copied: true });
 
+    const { code, embedCode, copied, buttonCode } = this.state;
+
     return (
-      <React.Fragment>
+      <>
         <MarkdownWrapper>
-          <ReactMarkdown source={this.state.code || ''} />
-          {this.state.code ? (
-            <CopyToClipboard text={this.state.code} onCopy={onCopy}>
+          <ReactMarkdown source={code || ''} />
+          {code ? (
+            <CopyToClipboard text={code} onCopy={onCopy}>
               <Button size="small" btnStyle="primary" icon="copy">
-                {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+                {copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
             <EmptyState icon="copy" text="No copyable code" size="small" />
           )}
         </MarkdownWrapper>
+        <br />
+        <Info>
+          {
+            'If your flow type is embedded paste the code below additionally that you want erxes lead to appear'
+          }
+        </Info>
+        <MarkdownWrapper>
+          <ReactMarkdown source={embedCode || ''} />
+        </MarkdownWrapper>
+        <br />
+        <Info>
+          {
+            'If your flow type is popup paste the code below additionally in your button'
+          }
+        </Info>
+        <MarkdownWrapper>
+          <ReactMarkdown source={buttonCode || ''} />
+        </MarkdownWrapper>
+      </>
+    );
+  };
+
+  render() {
+    return (
+      <>
+        <Info>
+          {
+            'Paste the code below before the body tag on every page you want erxes lead to appear'
+          }
+        </Info>
+
+        {this.renderContent()}
 
         <ModalFooter>
           <Button
@@ -95,7 +150,7 @@ class Manage extends React.Component<Props, State> {
             Cancel
           </Button>
         </ModalFooter>
-      </React.Fragment>
+      </>
     );
   }
 }
