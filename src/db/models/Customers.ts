@@ -321,9 +321,6 @@ export const loadClass = () => {
       await Deals.changeCustomer(customer._id, customerIds);
       await Tickets.changeCustomer(customer._id, customerIds);
 
-      // create log
-      await ActivityLogs.createCustomerLog(customer);
-
       return customer;
     }
   }

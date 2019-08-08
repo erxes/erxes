@@ -224,9 +224,6 @@ export const loadClass = () => {
       await Deals.changeCompany(company._id, companyIds);
       await Tickets.changeCompany(company._id, companyIds);
 
-      // create log
-      await ActivityLogs.createCompanyLog(company);
-
       return company;
     }
   }
