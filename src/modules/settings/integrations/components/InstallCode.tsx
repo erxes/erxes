@@ -23,6 +23,8 @@ type State = {
   singlePageCode: string;
   erxesSdkCode: string;
   copied: boolean;
+  singleCopied: boolean;
+  contentCopied: boolean;
   currentTab: string;
 };
 
@@ -155,12 +157,22 @@ class InstallCode extends React.PureComponent<Props, State> {
       erxesSdkCode,
       singlePageCode,
       currentTab: 'basic',
-      copied: false
+      copied: false,
+      singleCopied: false,
+      contentCopied: false
     };
   }
 
-  onCopy = () => {
-    this.setState({ copied: true });
+  onCopy = (currentTab: string) => {
+    if (currentTab === 'basic') {
+      return this.setState({ copied: true });
+    }
+
+    if (currentTab === 'single') {
+      return this.setState({ singleCopied: true });
+    }
+
+    return this.setState({ contentCopied: true });
   };
 
   onTabClick = currentTab => {
@@ -299,9 +311,7 @@ class InstallCode extends React.PureComponent<Props, State> {
     return null;
   }
 
-  renderScript(code: string) {
-    const { copied } = this.state;
-
+  renderScript(code: string, action: boolean, currentTab: string) {
     if (!code) {
       return null;
     }
@@ -310,13 +320,16 @@ class InstallCode extends React.PureComponent<Props, State> {
       <MarkdownWrapper>
         <ReactMarkdown source={code} />
         {code ? (
-          <CopyToClipboard text={code} onCopy={this.onCopy}>
+          <CopyToClipboard
+            text={code}
+            onCopy={this.onCopy.bind(this, currentTab)}
+          >
             <Button
               size="small"
-              btnStyle={copied ? 'primary' : 'success'}
+              btnStyle={action ? 'primary' : 'success'}
               icon="copy"
             >
-              {copied ? 'Copied' : 'Copy to clipboard'}
+              {action ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
         ) : (
@@ -330,7 +343,8 @@ class InstallCode extends React.PureComponent<Props, State> {
     description: string,
     code: string,
     extraContent: boolean,
-    currentTab: string
+    currentTab: string,
+    action: boolean
   ) {
     return (
       <Script>
@@ -338,33 +352,44 @@ class InstallCode extends React.PureComponent<Props, State> {
           {__(description)}
           {extraContent && this.renderDescription(currentTab)}
         </Info>
-        {this.renderScript(code)}
+        {this.renderScript(code, action, currentTab)}
       </Script>
     );
   }
 
   renderContents() {
-    const { currentTab, basicCode, singlePageCode } = this.state;
+    const {
+      currentTab,
+      basicCode,
+      singlePageCode,
+      copied,
+      singleCopied,
+      contentCopied
+    } = this.state;
 
     let description;
     let extraContent;
     let script;
+    let action;
     switch (currentTab) {
       case 'basic':
         description =
           'For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear';
         script = basicCode;
+        action = copied;
         break;
       case 'single':
         description =
           'For web apps built with asynchronous JavaScript. Paste the code below in main layout you want erxes chat to appear';
         script = singlePageCode;
+        action = singleCopied;
         break;
       case 'googletag':
         description =
           'To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container';
         extraContent = true;
         script = basicCode;
+        action = contentCopied;
         break;
       case 'ios':
         extraContent = true;
@@ -373,7 +398,13 @@ class InstallCode extends React.PureComponent<Props, State> {
         extraContent = true;
     }
 
-    return this.renderContent(description, script, extraContent, currentTab);
+    return this.renderContent(
+      description,
+      script,
+      extraContent,
+      currentTab,
+      action
+    );
   }
 
   render() {
