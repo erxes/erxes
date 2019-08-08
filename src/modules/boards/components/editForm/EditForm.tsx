@@ -97,6 +97,9 @@ class EditForm extends React.Component<Props, State> {
       ...extraFields
     };
 
+    // tslint:disable
+    console.log('doc: ', doc);
+
     saveItem(doc, () => {
       closeModal();
     });

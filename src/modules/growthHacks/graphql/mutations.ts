@@ -8,6 +8,7 @@ const commonVariables = `
   $assignedUserIds: [String],
   $order: Int,
   $hackDescription: String,
+  $formFields: JSON,
   $goal: String,
   $attachments: [AttachmentInput]
 `;
@@ -23,6 +24,7 @@ const commonParams = `
   order: $order,
   hackDescription: $hackDescription,
   goal: $goal,
+  formFields: $formFields,
   attachments: $attachments
 `;
 

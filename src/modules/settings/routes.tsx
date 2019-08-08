@@ -8,6 +8,7 @@ import EmailTemplatesRoutes from './emailTemplates/routes';
 import EngageRoutes from './engages/routes';
 import General from './general/routes';
 import GrowthHackRoutes from './growthHacks/routes';
+import GrowthHackTemplateRoutes from './growthHackTemplates/routes';
 import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
 import LogRoutes from './logs/routes';
@@ -43,6 +44,7 @@ const routes = () => (
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
     <GrowthHackRoutes key="GrowthHackRoutes" />
+    <GrowthHackTemplateRoutes key="GrowthHackTemplateRoutes" />
   </React.Fragment>
 );
 

@@ -171,6 +171,11 @@ class Settings extends React.PureComponent {
               '/images/icons/erxes-19.svg',
               '/settings/boards/growthHack'
             )}
+            {this.renderBox(
+              'Templates',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/growthHackTemplates'
+            )}
           </div>
         </Row>
       </MenusContainer>

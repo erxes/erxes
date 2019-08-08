@@ -15,9 +15,6 @@ class Home extends React.Component<Props, {}> {
   render() {
     const { boardId, type, title, options = {} } = this.props;
 
-    // tslint:disable
-    console.log('options: ', options);
-
     const boardName = options.boardName || 'Board';
 
     const breadcrumb = [
