@@ -17,6 +17,7 @@ type HomeContainerProps = {
 type Props = {
   type: string;
   title: string;
+  options?: any;
 };
 
 class HomeContainer extends React.Component<HomeContainerProps & Props> {

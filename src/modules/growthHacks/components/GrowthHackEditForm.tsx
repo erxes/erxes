@@ -19,7 +19,6 @@ type Props = {
 type State = {
   hackDescription: string;
   goal: string;
-  description?: string;
   formFields: IFormField;
 };
 
@@ -29,10 +28,13 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
     const item = props.item;
 
+    // tslint:disable
+    console.log('item: ', item);
+
     this.state = {
       hackDescription: item.hackDescription || '',
       goal: item.goal || '',
-      formFields: item.formFields || []
+      formFields: item.formFields || {}
     };
   }
 
@@ -48,7 +50,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
-    const { hackDescription, goal } = this.state;
+    const { hackDescription, goal, formFields } = this.state;
 
     const { name, stageId, description, closeDate, attachments } = state;
 
@@ -57,10 +59,10 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           name={name}
-          description={description}
           closeDate={closeDate}
           users={users}
           stageId={stageId}
+          description={description}
           item={item}
           onChangeField={onChangeField}
         />
@@ -83,6 +85,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             item={item}
             copyItem={copy}
             removeItem={remove}
+            onChangeExtraField={this.onChangeExtraField}
+            formFields={formFields}
           />
         </FlexContent>
       </>

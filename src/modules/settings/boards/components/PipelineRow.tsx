@@ -13,6 +13,7 @@ type Props = {
   remove: (pipelineId: string) => void;
   onTogglePopup: () => void;
   type: string;
+  options?: any;
 };
 
 type State = {
@@ -52,7 +53,7 @@ class PipelineRow extends React.Component<Props, State> {
   }
 
   renderEditForm() {
-    const { renderButton, type, pipeline } = this.props;
+    const { renderButton, type, pipeline, options } = this.props;
 
     const closeModal = () => {
       this.setState({ showModal: false });
@@ -62,6 +63,7 @@ class PipelineRow extends React.Component<Props, State> {
 
     return (
       <PipelineForm
+        options={options}
         type={type}
         boardId={pipeline.boardId || ''}
         renderButton={renderButton}

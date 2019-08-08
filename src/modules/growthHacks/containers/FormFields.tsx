@@ -9,6 +9,7 @@ import FormFields from '../components/FormFields';
 type IProps = {
   formId: string;
   formFields?: any;
+  onChangeFormField: (field: any) => void;
 };
 
 type FinalProps = {

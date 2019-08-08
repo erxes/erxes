@@ -18,16 +18,11 @@ const TaskHome = () => {
   return <Home type="task" title="Task" />;
 };
 
-const GrowthHackHome = () => {
-  return <Home type="growthHack" title="Growth hack" />;
-};
-
 const routes = () => (
   <React.Fragment>
     <Route path="/settings/boards/deal" component={DealHome} />
     <Route path="/settings/boards/ticket" component={TicketHome} />
     <Route path="/settings/boards/task" component={TaskHome} />
-    <Route path="/settings/boards/growthHack" component={GrowthHackHome} />
   </React.Fragment>
 );
 

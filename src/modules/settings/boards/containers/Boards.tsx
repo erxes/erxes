@@ -16,6 +16,7 @@ type Props = {
   history?: any;
   currentBoardId?: string;
   type: string;
+  options?: any;
 };
 
 type FinalProps = {

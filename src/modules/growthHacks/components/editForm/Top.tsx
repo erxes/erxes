@@ -18,7 +18,7 @@ type Props = {
   item: IItem;
   options: IOptions;
   name: string;
-  description: string;
+  description?: string;
   closeDate: Date;
   stageId: string;
   users: IUser[];

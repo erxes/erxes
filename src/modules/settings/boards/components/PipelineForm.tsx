@@ -26,6 +26,7 @@ type Props = {
   members: IUser[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  options?: any;
 };
 
 type State = {
@@ -131,9 +132,12 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { pipeline, renderButton, closeModal } = this.props;
+    const { pipeline, renderButton, closeModal, options } = this.props;
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
+    const pipelineName = options.pipelineName
+      ? options.pipelineName.toLowerCase()
+      : 'pipeline';
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -150,7 +154,7 @@ class PipelineForm extends React.Component<Props, State> {
       <>
         <Modal.Header closeButton={true}>
           <Modal.Title>
-            {pipeline ? 'Edit pipeline' : 'Add pipeline'}
+            {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
           </Modal.Title>
         </Modal.Header>
 
@@ -216,7 +220,7 @@ class PipelineForm extends React.Component<Props, State> {
             </Button>
 
             {renderButton({
-              name: 'pipeline',
+              name: pipelineName,
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,

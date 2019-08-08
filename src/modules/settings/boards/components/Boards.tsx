@@ -17,6 +17,7 @@ type Props = {
   remove: (boardId: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
+  options?: any;
 };
 
 class Boards extends React.Component<Props, {}> {
@@ -40,8 +41,10 @@ class Boards extends React.Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    const { renderButton, type } = this.props;
+    const { renderButton, type, options } = this.props;
     const { Header } = Sidebar;
+
+    const boardName = options.boardName || 'Board';
 
     const addBoard = (
       <HelperButtons>
@@ -57,15 +60,23 @@ class Boards extends React.Component<Props, {}> {
 
     return (
       <Header uppercase={true}>
-        {__('Board')}
+        {__(boardName)}
 
-        <ModalTrigger title="New Board" trigger={addBoard} content={content} />
+        <ModalTrigger
+          title={`New ${boardName}`}
+          trigger={addBoard}
+          content={content}
+        />
       </Header>
     );
   }
 
   render() {
-    const { loading, boards } = this.props;
+    const { loading, boards, options } = this.props;
+
+    const boardName = options.boardName
+      ? options.boardName.toLowerCase()
+      : 'board';
 
     return (
       <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>
@@ -73,7 +84,7 @@ class Boards extends React.Component<Props, {}> {
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
-          emptyText="There is no board"
+          emptyText={`There is no ${boardName}`}
           emptyImage="/images/actions/18.svg"
           objective={true}
         />
