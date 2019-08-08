@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -110,18 +111,18 @@ class Manage extends React.Component<Props, State> {
         </MarkdownWrapper>
         <br />
         <Info>
-          {
+          {__(
             'If your flow type is embedded paste the code below additionally that you want erxes lead to appear'
-          }
+          )}
         </Info>
         <MarkdownWrapper>
           <ReactMarkdown source={embedCode || ''} />
         </MarkdownWrapper>
         <br />
         <Info>
-          {
+          {__(
             'If your flow type is popup paste the code below additionally in your button'
-          }
+          )}
         </Info>
         <MarkdownWrapper>
           <ReactMarkdown source={buttonCode || ''} />
@@ -134,9 +135,9 @@ class Manage extends React.Component<Props, State> {
     return (
       <>
         <Info>
-          {
+          {__(
             'Paste the code below before the body tag on every page you want erxes lead to appear'
-          }
+          )}
         </Info>
 
         {this.renderContent()}
