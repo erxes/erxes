@@ -21,6 +21,7 @@ type Props = {
 type State = {
   basicCode: string;
   singlePageCode: string;
+  erxesSdkCode: string;
   copied: boolean;
   currentTab: string;
 };
@@ -57,9 +58,15 @@ const singlePageInstall = brandCode => {
 
   return `
     (window as any).erxesSettings = {
+      email: "<email>",
       messenger: {
         brand_id: "${brandCode}",
       },
+      phone: "<phone>",
+      data: {
+         domain: "<website>",
+         ...
+      }
     };
     
     (() => {
@@ -73,12 +80,65 @@ const singlePageInstall = brandCode => {
   `;
 };
 
+const erxesSDK = brandCode => {
+  return `
+    Erxes.setBrandCode(code: "${brandCode}")
+    Erxes.setHosts(apiHost: "https://your_erxes-widgets-api_url_here/graphql",
+          subsHost: "wss://your_erxes-api_url_here/subscriptions",
+          uploadUrl: "https://your_erxes-api_url_here/upload-file")
+  `;
+};
+
+const iosSDK = `target {'<Your Target Name>'} do
+    pod 'ErxesSDK'
+  end`;
+
+const withUserData = `var data = [String : Any]()
+    data["key"] = "value"
+    data["another key"] = "another value"
+  Erxes.start(email: "email@.com", phone: "+1234567890", data:data)`;
+
+const buildgradle = `allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+  }`;
+
+const dependency = `dependencies {
+    implementation 'com.github.erxes:erxes-android-sdk:1.0.3-rc1'
+  }`;
+
+const androidClass = `public class CustomActivity extends AppCompatActivity {
+    Config config;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        config = new Config.Builder("brandid")
+                .setApiHost("https://url/graphql")
+                .setSubscriptionHost("wss://url/subscriptions")
+                .setUploadHost("https://url/upload-file")
+                .build(this);
+    }
+  }`;
+
+const loginChat = `public void onClick(View view) {
+  config.Start();
+}`;
+
+const startChat = `public void onClick(View view) {
+  JSONObject customData = new JSONObject();
+  customData.put("firstName","itgel");
+  customData.put("lastName","galt");
+  config.start(email: "info@erxes.co", phone: "88998899", data: customData)
+}`;
+
 class InstallCode extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
     let basicCode = '';
     let singlePageCode = '';
+    let erxesSdkCode = '';
     const integration = props.integration || {};
 
     // showed install code automatically in edit mode
@@ -87,10 +147,12 @@ class InstallCode extends React.PureComponent<Props, State> {
 
       basicCode = getInstallCode(brand.code);
       singlePageCode = singlePageInstall(brand.code);
+      erxesSdkCode = erxesSDK(brand.code);
     }
 
     this.state = {
       basicCode,
+      erxesSdkCode,
       singlePageCode,
       currentTab: 'basic',
       copied: false
@@ -105,7 +167,7 @@ class InstallCode extends React.PureComponent<Props, State> {
     this.setState({ currentTab });
   };
 
-  renderContent(currentTab: string) {
+  renderDescription(currentTab: string) {
     if (currentTab === 'googletag') {
       return (
         <div>
@@ -141,43 +203,147 @@ class InstallCode extends React.PureComponent<Props, State> {
       );
     }
 
+    if (currentTab === 'ios') {
+      return (
+        <ol>
+          <li>
+            Add Erxes SDK to your iOS project in Xcode:
+            <MarkdownWrapper>
+              <pre>{iosSDK}</pre>
+            </MarkdownWrapper>
+            then run <b>pod install</b> in terminal
+          </li>
+          <li>
+            Add a "Privacy - Photo Library Usage Description" entry to your
+            Info.plist. This is
+            <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
+              {' '}
+              required by Apple{' '}
+            </a>
+            and gives your users permission to upload images.
+          </li>
+          <li>
+            Import ErxesSDK into AppDelegate.swift then paste the code below
+            into didFinishLaunchingWithOptions method:
+            <MarkdownWrapper>
+              <pre>{this.state.erxesSdkCode}</pre>
+            </MarkdownWrapper>
+          </li>
+          <li>
+            Import ErxesSDK into your UIViewController class and you can start
+            Erxes with following options: <br />
+            <ol type="a">
+              <li>
+                <b>Without user data</b>
+                <MarkdownWrapper>
+                  <pre>Erxes.start()</pre>
+                </MarkdownWrapper>
+              </li>
+              <li>
+                <b>With user data</b>
+                <MarkdownWrapper>
+                  <pre>{withUserData}</pre>
+                </MarkdownWrapper>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      );
+    }
+
+    if (currentTab === 'android') {
+      return (
+        <ol>
+          <li>
+            <b>Add the JitPack repository to your build file </b> <br />
+            Add it in your root build.gradle at the end of repositories:
+            <MarkdownWrapper>
+              <pre>{buildgradle}</pre>
+            </MarkdownWrapper>
+          </li>
+          <li>
+            <b>Add the dependency</b> <br />
+            <MarkdownWrapper>
+              <pre>{dependency}</pre>
+            </MarkdownWrapper>
+          </li>
+          <li>
+            <b>Default configuration</b> <br />
+            <b>* brandCode</b> - generated unique code of your brand <br />
+            <b>* apiHost</b> - erxes-widgets-api server url <br />
+            <b>* subsHost</b> - erxes-api subscription url <br />
+            <b>* uploadUrl</b> - erxes-api server url
+            <MarkdownWrapper>
+              <pre>{androidClass}</pre>
+            </MarkdownWrapper>
+          </li>
+          <li>
+            <b>Start chat</b> <br />
+            Call a chat with login form
+            <MarkdownWrapper>
+              <pre>{loginChat}</pre>
+            </MarkdownWrapper>
+          </li>
+          <li>
+            <b>Start chat</b> <br />
+            If your application has already registered with user , give user’s
+            information with this way <br />
+            <MarkdownWrapper>
+              <pre>{startChat}</pre>
+            </MarkdownWrapper>
+          </li>
+        </ol>
+      );
+    }
+
     return null;
   }
 
-  renderScript(
+  renderScript(code: string) {
+    const { copied } = this.state;
+
+    if (!code) {
+      return null;
+    }
+
+    return (
+      <MarkdownWrapper>
+        <ReactMarkdown source={code} />
+        {code ? (
+          <CopyToClipboard text={code} onCopy={this.onCopy}>
+            <Button
+              size="small"
+              btnStyle={copied ? 'primary' : 'success'}
+              icon="copy"
+            >
+              {copied ? 'Copied' : 'Copy to clipboard'}
+            </Button>
+          </CopyToClipboard>
+        ) : (
+          <EmptyState icon="copy" text="No copyable code" size="small" />
+        )}
+      </MarkdownWrapper>
+    );
+  }
+
+  renderContent(
     description: string,
     code: string,
     extraContent: boolean,
     currentTab: string
   ) {
-    const { copied } = this.state;
-
     return (
       <Script>
         <Info>
-          {__(description)}.{extraContent && this.renderContent(currentTab)}
+          {__(description)}
+          {extraContent && this.renderDescription(currentTab)}
         </Info>
-        <MarkdownWrapper>
-          <ReactMarkdown source={code} />
-          {code ? (
-            <CopyToClipboard text={code} onCopy={this.onCopy}>
-              <Button
-                size="small"
-                btnStyle={copied ? 'primary' : 'success'}
-                icon="copy"
-              >
-                {copied ? 'Copied' : 'Copy to clipboard'}
-              </Button>
-            </CopyToClipboard>
-          ) : (
-            <EmptyState icon="copy" text="No copyable code" size="small" />
-          )}
-        </MarkdownWrapper>
+        {this.renderScript(code)}
       </Script>
     );
   }
 
-  renderScripts() {
+  renderContents() {
     const { currentTab, basicCode, singlePageCode } = this.state;
 
     let description;
@@ -201,16 +367,13 @@ class InstallCode extends React.PureComponent<Props, State> {
         script = basicCode;
         break;
       case 'ios':
-        description = 'mail-alt';
-        break;
-      case 'android':
-        description = 'mail-alt';
+        extraContent = true;
         break;
       default:
-        description = 'doc-text-inv-1';
+        extraContent = true;
     }
 
-    return this.renderScript(description, script, extraContent, currentTab);
+    return this.renderContent(description, script, extraContent, currentTab);
   }
 
   render() {
@@ -249,15 +412,9 @@ class InstallCode extends React.PureComponent<Props, State> {
           >
             {__('Android')}
           </TabTitle>
-          <TabTitle
-            className={currentTab === 'react' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'react')}
-          >
-            {__('React native')}
-          </TabTitle>
         </Tabs>
 
-        {this.renderScripts()}
+        {this.renderContents()}
 
         <ModalFooter>
           <Button
