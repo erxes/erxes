@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
@@ -10,8 +9,10 @@ import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Select from 'react-select-plus';
+import { isObject } from 'util';
 import GroupList from '../containers/GroupList';
 import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
 import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
@@ -20,7 +21,6 @@ import {
   correctValue,
   filterActions,
   generatedList,
-  generateListParams,
   generateModuleParams
 } from './utils';
 
@@ -34,7 +34,6 @@ type Props = {
 type commonProps = {
   modules: IModule[];
   actions: IActions[];
-  users: IUser[];
   groups: IUserGroup[];
   permissions: IPermissionDocument[];
   remove: (id: string) => void;
@@ -46,7 +45,7 @@ class PermissionList extends React.Component<Props> {
     const { history } = this.props;
 
     router.setParams(history, {
-      [name]: correctValue(item),
+      [name]: isObject(item) ? correctValue(item) : item,
       page: null,
       perPage: null
     });
@@ -108,13 +107,12 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderForm = props => {
-    const { modules, actions, users, groups, refetchQueries } = this.props;
+    const { modules, actions, groups, refetchQueries } = this.props;
 
     const extendedProps = {
       ...props,
       modules,
       actions,
-      users,
       groups,
       refetchQueries
     };
@@ -123,13 +121,17 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderActionBar() {
-    const { queryParams, modules, actions, users } = this.props;
+    const { queryParams, modules, actions } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">
         New permission
       </Button>
     );
+
+    const usersOnChange = users => {
+      this.setFilter('userId', users);
+    };
 
     const actionBarRight = (
       <NotWrappable>
@@ -162,11 +164,13 @@ class PermissionList extends React.Component<Props> {
           />
         </FilterItem>
         <FilterItem>
-          <Select
-            placeholder={__('Choose user')}
-            options={generateListParams(users)}
-            onChange={this.setFilter.bind(this, 'userId')}
+          <SelectTeamMembers
+            label="Choose users"
+            name="userId"
             value={queryParams.userId}
+            onSelect={usersOnChange}
+            filterParams={{ status: 'verified' }}
+            multi={false}
           />
         </FilterItem>
       </FilterWrapper>

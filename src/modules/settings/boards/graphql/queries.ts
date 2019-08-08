@@ -25,14 +25,6 @@ const pipelines = `
       visibility
       memberIds
       bgColor
-      members {
-        _id
-        email
-        username
-        details {
-          fullName
-        }
-      }
     }
   }
 `;
