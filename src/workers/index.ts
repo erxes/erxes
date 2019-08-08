@@ -8,12 +8,15 @@ import { checkFile } from '../data/utils';
 import { connect } from '../db/connection';
 import { debugRequest, debugResponse, debugWorkers } from '../debuggers';
 import userMiddleware from '../middlewares/userMiddleware';
+import { initRedis } from '../redisClient';
 import { importXlsFile } from './bulkInsert';
 import { init } from './startup';
 import { clearIntervals, createWorkers, removeWorkers, splitToCore } from './utils';
 
 // load environment variables
 dotenv.config();
+
+initRedis();
 
 // connect to mongo database
 connect();
