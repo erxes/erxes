@@ -25,8 +25,9 @@ import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
 
-const Editor = asyncComponent(() =>
-  import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor')
+const Editor = asyncComponent(
+  () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
+  { height: '137px', width: '100%', color: '#fff' }
 );
 
 type Props = {

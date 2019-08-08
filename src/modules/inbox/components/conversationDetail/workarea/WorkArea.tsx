@@ -29,12 +29,14 @@ import {
 import Conversation from './conversation/Conversation';
 import TypingIndicator from './TypingIndicator';
 
-const Participators = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Participators" */ './Participators')
+const Participators = asyncComponent(
+  () => import(/* webpackChunkName:"Inbox-Participators" */ './Participators'),
+  { height: '30px', width: '30px', round: true }
 );
 
-const ConvertTo = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-ConvertTo" */ './ConvertTo')
+const ConvertTo = asyncComponent(
+  () => import(/* webpackChunkName:"Inbox-ConvertTo" */ './ConvertTo'),
+  { height: '22px', width: '100px', marginRight: '10px' }
 );
 
 type Props = {

@@ -42,7 +42,10 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
       document: gql(subscriptions.conversationClientMessageInserted),
       variables: { userId: currentUser ? currentUser._id : null },
       updateQuery: () => {
-        updateCountsForNewMessage();
+        if (updateCountsForNewMessage) {
+          updateCountsForNewMessage();
+        }
+
         conversationsQuery.refetch();
         totalCountQuery.refetch();
       }
