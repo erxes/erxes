@@ -174,7 +174,7 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Templates',
               '/images/icons/erxes-19.svg',
-              '/settings/boards/growthHackTemplates'
+              '/settings/boards/growthHackTemplate'
             )}
           </div>
         </Row>
