@@ -65,6 +65,7 @@ class IntegrationList extends React.Component<Props> {
 
           <ModalTrigger
             title="Install code"
+            size="lg"
             trigger={editTrigger}
             content={content}
           />

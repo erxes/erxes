@@ -117,6 +117,7 @@ const MarkdownWrapper = styled.div`
   background: ${colors.colorWhite};
   border: 1px solid ${colors.colorShadowGray};
   border-radius: 2px;
+  margin: ${dimensions.unitSpacing - 5}px 0;
 
   > div {
     background: none;
