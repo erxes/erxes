@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import { COLORS } from 'modules/boards/constants';
 import { IPipeline, IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
@@ -10,10 +9,10 @@ import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import BlockPicker from 'react-color/lib/Block';
-import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
 import Stages from './Stages';
 
@@ -23,7 +22,6 @@ type Props = {
   boardId: string;
   pipeline?: IPipeline;
   stages?: IStage[];
-  members: IUser[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   options?: any;
@@ -32,7 +30,7 @@ type Props = {
 type State = {
   stages: IStage[];
   visibility: string;
-  selectedMembers: IUser[];
+  selectedMemberIds: string[];
   backgroundColor: string;
 };
 
@@ -45,9 +43,7 @@ class PipelineForm extends React.Component<Props, State> {
     this.state = {
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
-      selectedMembers: this.generateMembersParams(
-        pipeline ? pipeline.members : []
-      ),
+      selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor: (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
     };
   }
@@ -63,17 +59,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   onChangeMembers = items => {
-    this.setState({ selectedMembers: items });
-  };
-
-  generateMembersParams = members => {
-    return members.map(member => ({
-      value: member._id,
-      label:
-        (member.details && member.details.fullName) ||
-        member.email ||
-        member.username
-    }));
+    this.setState({ selectedMemberIds: items });
   };
 
   collectValues = items => {
@@ -90,6 +76,7 @@ class PipelineForm extends React.Component<Props, State> {
     visibility: string;
   }) => {
     const { pipeline, type, boardId } = this.props;
+    const { selectedMemberIds, stages, backgroundColor } = this.state;
     const finalValues = values;
 
     if (pipeline) {
@@ -100,31 +87,34 @@ class PipelineForm extends React.Component<Props, State> {
       ...finalValues,
       type,
       boardId: pipeline ? pipeline.boardId : boardId,
-      stages: this.state.stages.filter(el => el.name),
-      memberIds: this.collectValues(this.state.selectedMembers),
-      bgColor: this.state.backgroundColor
+      stages: stages.filter(el => el.name),
+      memberIds: selectedMemberIds,
+      bgColor: backgroundColor
     };
   };
 
   renderSelectMembers() {
-    const { members } = this.props;
-    const { visibility, selectedMembers } = this.state;
+    const { visibility, selectedMemberIds } = this.state;
 
     if (visibility === 'public') {
       return;
     }
+    const self = this;
+
+    const onChange = items => {
+      self.setState({ selectedMemberIds: items });
+    };
 
     return (
       <FormGroup>
         <SelectMemberStyled>
           <ControlLabel>Members</ControlLabel>
 
-          <Select
-            placeholder={__('Choose members')}
-            onChange={this.onChangeMembers}
-            value={selectedMembers}
-            options={this.generateMembersParams(members)}
-            multi={true}
+          <SelectTeamMembers
+            label="Choose members"
+            name="selectedMemberIds"
+            value={selectedMemberIds}
+            onSelect={onChange}
           />
         </SelectMemberStyled>
       </FormGroup>
