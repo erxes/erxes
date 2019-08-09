@@ -1,4 +1,6 @@
 const commonParams = `
+  $customerIds: [String],
+  $companyIds: [String],
   $assignedUserIds: [String],
   $nextDay: String,
   $nextWeek: String,
@@ -9,6 +11,8 @@ const commonParams = `
 `;
 
 const commonParamDefs = `
+  customerIds: $customerIds,
+  companyIds: $companyIds,
   assignedUserIds: $assignedUserIds,
   nextDay: $nextDay,
   nextWeek: $nextWeek,

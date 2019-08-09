@@ -20,6 +20,8 @@ type Props = {
   users: IUser[];
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITaskParams, callback: () => void) => void;
+  editCompanies: (relTypeIds: string[]) => void;
+  editCustomers: (relTypeIds: string[]) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };
