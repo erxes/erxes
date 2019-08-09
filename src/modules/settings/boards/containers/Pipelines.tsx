@@ -57,7 +57,9 @@ class PipelinesContainer extends React.Component<FinalProps> {
             Alert.success(msg);
           })
           .catch(error => {
-            Alert.error(error.message);
+            Alert.error(
+              `Please remove all stages in this pipeline before delete the pipeline`
+            );
           });
       });
     };
