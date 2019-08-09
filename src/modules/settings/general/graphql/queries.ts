@@ -8,6 +8,15 @@ const configsDetail = `
   }
 `;
 
+const configsGetEnv = `
+  query configsGetEnv {
+    configsGetEnv {
+      USE_BRAND_RESTRICTIONS
+    }
+  }
+`;
+
 export default {
-  configsDetail
+  configsDetail,
+  configsGetEnv
 };
