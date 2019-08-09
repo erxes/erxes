@@ -82,18 +82,6 @@ export const VISITOR_AUDIENCE_RULES = [
   { value: 'numberOfVisits', text: 'Number of visits' }
 ];
 
-const stringTypeChoices = [
-  { value: '', text: '' },
-  { value: 'is', text: 'is' },
-  { value: 'isNot', text: 'is not' },
-  { value: 'startsWith', text: 'starts with' },
-  { value: 'endsWith', text: 'ends with' },
-  { value: 'contains', text: 'contains' },
-  { value: 'doesNotContain', text: 'does not contain' },
-  { value: 'isUnknown', text: 'is unknown' },
-  { value: 'hasAnyValue', text: 'has any value' }
-];
-
 const numberTypeChoices = [
   { value: '', text: '' },
   { value: 'greaterThan', text: 'Greater than' },
@@ -104,11 +92,75 @@ const numberTypeChoices = [
   { value: 'hasAnyValue', text: 'has any value' }
 ];
 
+const browserTypeChoices = [
+  { value: '', text: '' },
+  { value: 'is', text: 'is', description: 'awfawe' },
+  { value: 'isNot', text: 'is not', description: 'arthrt' },
+  { value: 'startsWith', text: 'starts with', description: 'yuiyuuyi' },
+  { value: 'endsWith', text: 'ends with', description: 'bnmnbmm' },
+  { value: 'contains', text: 'contains', description: 'awfawef' },
+  {
+    value: 'doesNotContain',
+    text: 'does not contain',
+    description: 'awefaewf'
+  },
+  { value: 'isUnknown', text: 'is unknown', description: 'vefbrb' },
+  { value: 'hasAnyValue', text: 'has any value', description: 'dfbdbf' }
+];
+
+const pageUrlTypeChoices = [
+  { value: '', text: '' },
+  { value: 'is', text: 'is', description: 'awfawe' },
+  { value: 'isNot', text: 'is not', description: 'arthrt' },
+  { value: 'startsWith', text: 'starts with', description: 'yuiyuuyi' },
+  { value: 'endsWith', text: 'ends with', description: 'bnmnbmm' },
+  { value: 'contains', text: 'contains', description: 'awfawef' },
+  {
+    value: 'doesNotContain',
+    text: 'does not contain',
+    description: 'awefaewf'
+  },
+  { value: 'isUnknown', text: 'is unknown', description: 'vefbrb' },
+  { value: 'hasAnyValue', text: 'has any value', description: 'dfbdbf' }
+];
+
+const countryTypeChoices = [
+  { value: '', text: '' },
+  { value: 'is', text: 'is', description: 'awfawe' },
+  { value: 'isNot', text: 'is not', description: 'arthrt' },
+  { value: 'startsWith', text: 'starts with', description: 'yuiyuuyi' },
+  { value: 'endsWith', text: 'ends with', description: 'bnmnbmm' },
+  { value: 'contains', text: 'contains', description: 'awfawef' },
+  {
+    value: 'doesNotContain',
+    text: 'does not contain',
+    description: 'awefaewf'
+  },
+  { value: 'isUnknown', text: 'is unknown', description: 'vefbrb' },
+  { value: 'hasAnyValue', text: 'has any value', description: 'dfbdbf' }
+];
+
+const cityTypeChoices = [
+  { value: '', text: '' },
+  { value: 'is', text: 'is', description: 'awfawe' },
+  { value: 'isNot', text: 'is not', description: 'arthrt' },
+  { value: 'startsWith', text: 'starts with', description: 'yuiyuuyi' },
+  { value: 'endsWith', text: 'ends with', description: 'bnmnbmm' },
+  { value: 'contains', text: 'contains', description: 'awfawef' },
+  {
+    value: 'doesNotContain',
+    text: 'does not contain',
+    description: 'awefaewf'
+  },
+  { value: 'isUnknown', text: 'is unknown', description: 'vefbrb' },
+  { value: 'hasAnyValue', text: 'has any value', description: 'dfbdbf' }
+];
+
 export const RULE_CONDITIONS = {
-  browserLanguage: stringTypeChoices,
-  currentPageUrl: stringTypeChoices,
-  country: stringTypeChoices,
-  city: stringTypeChoices,
+  browserLanguage: browserTypeChoices,
+  currentPageUrl: pageUrlTypeChoices,
+  country: countryTypeChoices,
+  city: cityTypeChoices,
   numberOfVisits: numberTypeChoices
 };
 

@@ -285,6 +285,12 @@ const Error = styled.label`
 
 const FlexWrapper = styled.span`
   flex: 1;
+
+  > p {
+    margin-top: ${dimensions.unitSpacing - 5}px;
+    font-size: ${typography.fontSizeHeading8}px;
+    color: ${colors.colorCoreGray};
+  }
 `;
 
 export {

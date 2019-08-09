@@ -9,6 +9,7 @@ import {
 } from 'modules/engage/constants';
 import React from 'react';
 import { IConditionsRule } from '../../types';
+import { FlexWrapper } from '../form/styles';
 
 type Props = {
   rules: IConditionsRule[];
@@ -44,6 +45,20 @@ class ConditionsRule extends React.Component<Props, State> {
       this.setState({ rules });
     }
   };
+
+  renderDescription(rule) {
+    let description = '';
+
+    RULE_CONDITIONS[rule.kind].map(cond => {
+      if (cond.value && cond.value === rule.condition) {
+        description = cond.description;
+      }
+
+      return null;
+    });
+
+    return <p>{description}</p>;
+  }
 
   renderRule(rule) {
     const remove = () => {
@@ -94,11 +109,14 @@ class ConditionsRule extends React.Component<Props, State> {
             ))}
           </FormControl>
 
-          <FormControl
-            type="text"
-            value={rule.value}
-            onChange={onChangeValue}
-          />
+          <FlexWrapper>
+            <FormControl
+              type="text"
+              value={rule.value}
+              onChange={onChangeValue}
+            />
+            {this.renderDescription(rule)}
+          </FlexWrapper>
           <Button
             size="small"
             onClick={remove}
