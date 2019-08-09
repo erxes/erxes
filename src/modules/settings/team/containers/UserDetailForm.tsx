@@ -4,6 +4,7 @@ import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
+import { queries as channelQueries } from '../../channels/graphql';
 import { ChannelsQueryResponse } from '../../channels/types';
 import UserDetailForm from '../components/detail/UserDetailForm';
 import { queries } from '../graphql';
@@ -81,7 +82,7 @@ export default withProps<Props>(
         }
       })
     }),
-    graphql(gql(queries.channels), {
+    graphql(gql(channelQueries.channels), {
       name: 'channelsQuery',
       options: commonOptions
     })
