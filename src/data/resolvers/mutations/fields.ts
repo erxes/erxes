@@ -82,7 +82,7 @@ const fieldsGroupsMutations = {
   },
 };
 
-moduleCheckPermission(fieldMutations, 'manageFields');
-moduleCheckPermission(fieldsGroupsMutations, 'manageFieldsGroups');
+moduleCheckPermission(fieldMutations, 'manageForms');
+moduleCheckPermission(fieldsGroupsMutations, 'manageForms');
 
 export { fieldsGroupsMutations, fieldMutations };
