@@ -57,19 +57,32 @@ class Form extends React.Component<Props, State> {
   };
 
   getValue = child => {
-    return (document.getElementsByName(child.props.name) as any)[0].value;
+    const { name } = child.props;
+
+    const values = document.getElementsByName(name) as any;
+
+    if (values.length > 1) {
+      return values[values.length - 1].value;
+    }
+
+    return values[0].value;
   };
 
   onSubmit = e => {
     e.preventDefault();
+    e.stopPropagation();
 
     this.runValidations();
   };
 
   validate = child => {
     const { props } = child;
+    const elements = document.getElementsByName(props.name) as any;
 
-    const value = (document.getElementsByName(props.name) as any)[0].value;
+    const value =
+      elements.length > 1
+        ? elements[elements.length - 1].value
+        : elements[0].value;
 
     if (props.required && !value) {
       return <Error>{__('Required field')}</Error>;
