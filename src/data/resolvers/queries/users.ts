@@ -1,6 +1,6 @@
 import { Conversations, Users } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 interface IListArgs {
@@ -82,7 +82,7 @@ const userQueries = {
   /**
    * Current user
    */
-  currentUser(_root, _args, { user }: { user: IUserDocument }) {
+  currentUser(_root, _args, { user }: IContext) {
     if (user) {
       return Users.findOne({ _id: user._id, isActive: { $ne: false } });
     }

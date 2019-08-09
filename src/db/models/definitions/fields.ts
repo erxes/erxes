@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
+import { field } from './utils';
 
 export interface IField {
   contentType?: string;

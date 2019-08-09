@@ -1,8 +1,8 @@
 import { Companies, Customers, Deals, InternalNotes, Pipelines, Stages, Tasks, Tickets } from '../../../db/models';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import utils, { ISendNotification, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IInternalNotesEdit extends IInternalNote {
@@ -13,7 +13,7 @@ const internalNoteMutations = {
   /**
    * Adds internalNote object and also adds an activity log
    */
-  async internalNotesAdd(_root, args: IInternalNote, { user }: { user: IUserDocument }) {
+  async internalNotesAdd(_root, args: IInternalNote, { user }: IContext) {
     const notifDoc: ISendNotification = {
       title: `${args.contentType.toUpperCase()} updated`,
       createdUser: user,
@@ -105,7 +105,7 @@ const internalNoteMutations = {
   /**
    * Updates internalNote object
    */
-  async internalNotesEdit(_root, { _id, ...doc }: IInternalNotesEdit, { user }: { user: IUserDocument }) {
+  async internalNotesEdit(_root, { _id, ...doc }: IInternalNotesEdit, { user }: IContext) {
     const internalNote = await InternalNotes.findOne({ _id });
     const updated = await InternalNotes.updateInternalNote(_id, doc);
 
@@ -127,7 +127,7 @@ const internalNoteMutations = {
   /**
    * Remove a channel
    */
-  async internalNotesRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async internalNotesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const internalNote = await InternalNotes.findOne({ _id });
     const removed = await InternalNotes.removeInternalNote(_id);
 

@@ -1,7 +1,7 @@
 import { ResponseTemplates } from '../../../db/models';
 import { IResponseTemplate } from '../../../db/models/definitions/responseTemplates';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleCheckPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
@@ -12,8 +12,8 @@ const responseTemplateMutations = {
   /**
    * Create new response template
    */
-  async responseTemplatesAdd(_root, doc: IResponseTemplate, { user }: { user: IUserDocument }) {
-    const template = await ResponseTemplates.create(doc);
+  async responseTemplatesAdd(_root, doc: IResponseTemplate, { user, docModifier }: IContext) {
+    const template = await ResponseTemplates.create(docModifier(doc));
 
     if (template) {
       await putCreateLog(
@@ -33,9 +33,9 @@ const responseTemplateMutations = {
   /**
    * Update response template
    */
-  async responseTemplatesEdit(_root, { _id, ...fields }: IResponseTemplatesEdit, { user }: { user: IUserDocument }) {
+  async responseTemplatesEdit(_root, { _id, ...fields }: IResponseTemplatesEdit, { user, docModifier }: IContext) {
     const template = await ResponseTemplates.findOne({ _id });
-    const updated = await ResponseTemplates.updateResponseTemplate(_id, fields);
+    const updated = await ResponseTemplates.updateResponseTemplate(_id, docModifier(fields));
 
     if (template) {
       await putUpdateLog(
@@ -55,7 +55,7 @@ const responseTemplateMutations = {
   /**
    * Delete response template
    */
-  async responseTemplatesRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async responseTemplatesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const template = await ResponseTemplates.findOne({ _id });
     const removed = await ResponseTemplates.removeResponseTemplate(_id);
 

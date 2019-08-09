@@ -1,13 +1,14 @@
 import { Brands } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 const brandQueries = {
   /**
    * Brands list
    */
-  brands(_root, args: { page: number; perPage: number }) {
-    const brands = paginate(Brands.find({}), args);
+  brands(_root, args: { page: number; perPage: number }, { brandIdSelector }: IContext) {
+    const brands = paginate(Brands.find(brandIdSelector), args);
     return brands.sort({ createdAt: -1 });
   },
 
@@ -21,8 +22,8 @@ const brandQueries = {
   /**
    * Get all brands count. We will use it in pager
    */
-  brandsTotalCount() {
-    return Brands.find({}).countDocuments();
+  brandsTotalCount(_root, _args, { brandIdSelector }: IContext) {
+    return Brands.find(brandIdSelector).countDocuments();
   },
 
   /**

@@ -53,6 +53,12 @@ const configQueries = {
     };
   },
 
+  configsGetEnv(_root) {
+    return {
+      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
+    };
+  },
+
   /**
    * Config for engage
    */

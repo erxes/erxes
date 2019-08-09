@@ -1,5 +1,6 @@
 import { Boards, Pipelines, Stages } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 export interface IDate {
   month: number;
@@ -21,22 +22,22 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  boards(_root, { type }: { type: string }) {
-    return Boards.find({ type }).sort({ order: 1, createdAt: -1 });
+  boards(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
+    return Boards.find({ ...commonQuerySelector, type }).sort({ order: 1, createdAt: -1 });
   },
 
   /**
    *  Board detail
    */
-  boardDetail(_root, { _id }: { _id: string }) {
-    return Boards.findOne({ _id });
+  boardDetail(_root, { _id }: { _id: string }, { commonQuerySelector }: IContext) {
+    return Boards.findOne({ ...commonQuerySelector, _id });
   },
 
   /**
    * Get last board
    */
-  boardGetLast(_root, { type }: { type: string }) {
-    return Boards.findOne({ type }).sort({ createdAt: -1 });
+  boardGetLast(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
+    return Boards.findOne({ ...commonQuerySelector, type }).sort({ createdAt: -1 });
   },
 
   /**

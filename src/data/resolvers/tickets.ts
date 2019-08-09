@@ -1,6 +1,6 @@
 import { Companies, Customers, Pipelines, Stages, Users } from '../../db/models';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
-import { IUserDocument } from '../../db/models/definitions/users';
+import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
@@ -34,7 +34,7 @@ export default {
     return Stages.findOne({ _id: ticket.stageId });
   },
 
-  isWatched(ticket: ITicketDocument, _args, { user }: { user: IUserDocument }) {
+  isWatched(ticket: ITicketDocument, _args, { user }: IContext) {
     const watchedUserIds = ticket.watchedUserIds || [];
 
     if (watchedUserIds.includes(user._id)) {

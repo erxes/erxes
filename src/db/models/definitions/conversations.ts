@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { CONVERSATION_STATUSES } from './constants';
+import { field } from './utils';
 
 export interface IConversation {
   content?: string;

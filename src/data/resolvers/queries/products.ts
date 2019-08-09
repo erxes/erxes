@@ -1,5 +1,6 @@
 import { Products } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 const productQueries = {
@@ -14,8 +15,9 @@ const productQueries = {
       ids,
       ...pagintationArgs
     }: { ids: string[]; type: string; searchValue: string; page: number; perPage: number },
+    { commonQuerySelector }: IContext,
   ) {
-    const filter: any = {};
+    const filter: any = commonQuerySelector;
 
     if (type) {
       filter.type = type;
@@ -36,8 +38,8 @@ const productQueries = {
   /**
    * Get all products count. We will use it in pager
    */
-  productsTotalCount(_root, { type }: { type: string }) {
-    const filter: any = {};
+  productsTotalCount(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
+    const filter: any = commonQuerySelector;
 
     if (type) {
       filter.type = type;

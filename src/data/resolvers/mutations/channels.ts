@@ -3,6 +3,7 @@ import { IChannel, IChannelDocument } from '../../../db/models/definitions/chann
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleCheckPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import utils, { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { checkUserIds } from './notifications';
 
@@ -42,7 +43,7 @@ const channelMutations = {
   /**
    * Create a new channel and send notifications to its members bar the creator
    */
-  async channelsAdd(_root, doc: IChannel, { user }: { user: IUserDocument }) {
+  async channelsAdd(_root, doc: IChannel, { user }: IContext) {
     const channel = await Channels.createChannel(doc, user._id);
 
     await sendChannelNotifications(channel, 'invited', user);
@@ -63,7 +64,7 @@ const channelMutations = {
   /**
    * Update channel data
    */
-  async channelsEdit(_root, { _id, ...doc }: IChannelsEdit, { user }: { user: IUserDocument }) {
+  async channelsEdit(_root, { _id, ...doc }: IChannelsEdit, { user }: IContext) {
     const channel = await Channels.findOne({ _id });
 
     if (!channel) {
@@ -97,7 +98,7 @@ const channelMutations = {
   /**
    * Remove a channel
    */
-  async channelsRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async channelsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const channel = await Channels.findOne({ _id });
 
     if (!channel) {

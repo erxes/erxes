@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { commonItemFieldsSchema, IItemCommonFields } from './boards';
 import { PRODUCT_TYPES } from './constants';
+import { field } from './utils';
 
 export interface IProduct {
   name: string;

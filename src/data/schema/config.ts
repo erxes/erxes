@@ -24,12 +24,17 @@ export const types = `
     secretAccessKey: String
     region: String
   }
+
+  type ENV {
+    USE_BRAND_RESTRICTIONS: String
+  }
 `;
 
 export const queries = `
   configsDetail(code: String!): Config
   configsVersions: ProjectInfos
   engagesConfigDetail: EngagesConfig
+  configsGetEnv: ENV
 `;
 
 export const mutations = `

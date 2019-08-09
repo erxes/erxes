@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { IRule, ruleSchema } from './common';
+import { field, schemaWrapper } from './utils';
 
 export interface ICallout extends Document {
   title?: string;
@@ -56,24 +56,26 @@ const submissionSchema = new Schema(
 );
 
 // schema for form document
-export const formSchema = new Schema({
-  _id: field({ pkey: true }),
-  title: field({ type: String, optional: true }),
-  description: field({
-    type: String,
-    optional: true,
+export const formSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    title: field({ type: String, optional: true }),
+    description: field({
+      type: String,
+      optional: true,
+    }),
+    buttonText: field({ type: String, optional: true }),
+    themeColor: field({ type: String, optional: true }),
+    code: field({ type: String }),
+    createdUserId: field({ type: String }),
+    createdDate: field({
+      type: Date,
+      default: Date.now,
+    }),
+    callout: field({ type: calloutSchema, default: {} }),
+    viewCount: field({ type: Number }),
+    contactsGathered: field({ type: Number }),
+    submissions: field({ type: [submissionSchema] }),
+    rules: field({ type: [ruleSchema] }),
   }),
-  buttonText: field({ type: String, optional: true }),
-  themeColor: field({ type: String, optional: true }),
-  code: field({ type: String }),
-  createdUserId: field({ type: String }),
-  createdDate: field({
-    type: Date,
-    default: Date.now,
-  }),
-  callout: field({ type: calloutSchema, default: {} }),
-  viewCount: field({ type: Number }),
-  contactsGathered: field({ type: Number }),
-  submissions: field({ type: [submissionSchema] }),
-  rules: field({ type: [ruleSchema] }),
-});
+);

@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { ACTIVITY_CONTENT_TYPES } from './constants';
+import { field } from './utils';
 
 export interface IInternalNote {
   contentType: string;

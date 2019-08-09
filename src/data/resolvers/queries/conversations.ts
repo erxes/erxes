@@ -1,8 +1,8 @@
 import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
 
 interface ICountBy {
@@ -82,7 +82,7 @@ const conversationQueries = {
   /**
    * Conversations list
    */
-  async conversations(_root, params: IListArgs, { user }: { user: IUserDocument }) {
+  async conversations(_root, params: IListArgs, { user }: IContext) {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({
@@ -144,7 +144,7 @@ const conversationQueries = {
   /**
    * Group conversation counts by brands, channels, integrations, status
    */
-  async conversationCounts(_root, params: IListArgs, { user }: { user: IUserDocument }) {
+  async conversationCounts(_root, params: IListArgs, { user }: IContext) {
     const { only } = params;
 
     const response: IConversationRes = {};
@@ -221,7 +221,7 @@ const conversationQueries = {
   /**
    * Get all conversations count. We will use it in pager
    */
-  async conversationsTotalCount(_root, params: IListArgs, { user }: { user: IUserDocument }) {
+  async conversationsTotalCount(_root, params: IListArgs, { user }: IContext) {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
@@ -236,7 +236,7 @@ const conversationQueries = {
   /**
    * Get last conversation
    */
-  async conversationsGetLast(_root, params: IListArgs, { user }: { user: IUserDocument }) {
+  async conversationsGetLast(_root, params: IListArgs, { user }: IContext) {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
@@ -251,7 +251,7 @@ const conversationQueries = {
   /**
    * Get all unread conversations for logged in user
    */
-  async conversationsTotalUnreadCount(_root, _args, { user }: { user: IUserDocument }) {
+  async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
     // initiate query builder
     const qb = new QueryBuilder({}, { _id: user._id });
 

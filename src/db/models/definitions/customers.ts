@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 
 import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES, STATUSES } from './constants';
 
-import { field } from '../utils';
+import { field, schemaWrapper } from './utils';
 
 export interface ILocation {
   remoteAddress: string;
@@ -44,6 +44,7 @@ export interface ILink {
 interface ILinkDocument extends ILink, Document {}
 
 export interface ICustomer {
+  scopeBrandIds?: string[];
   firstName?: string;
   lastName?: string;
   primaryEmail?: string;
@@ -148,82 +149,84 @@ const linkSchema = new Schema(
   { _id: false },
 );
 
-export const customerSchema = new Schema({
-  _id: field({ pkey: true }),
+export const customerSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
 
-  createdAt: field({ type: Date, label: 'Created at' }),
-  modifiedAt: field({ type: Date, label: 'Modified at' }),
-  avatar: field({ type: String, optional: true }),
+    createdAt: field({ type: Date, label: 'Created at' }),
+    modifiedAt: field({ type: Date, label: 'Modified at' }),
+    avatar: field({ type: String, optional: true }),
 
-  firstName: field({ type: String, label: 'First name', optional: true }),
-  lastName: field({ type: String, label: 'Last name', optional: true }),
+    firstName: field({ type: String, label: 'First name', optional: true }),
+    lastName: field({ type: String, label: 'Last name', optional: true }),
 
-  primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
-  emails: field({ type: [String], optional: true }),
-  hasValidEmail: field({ type: Boolean, optional: true }),
+    primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
+    emails: field({ type: [String], optional: true }),
+    hasValidEmail: field({ type: Boolean, optional: true }),
 
-  primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
-  phones: field({ type: [String], optional: true }),
-  profileScore: field({ type: Number, index: true, optional: true }),
+    primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
+    phones: field({ type: [String], optional: true }),
+    profileScore: field({ type: Number, index: true, optional: true }),
 
-  ownerId: field({ type: String, optional: true }),
-  position: field({ type: String, optional: true, label: 'Position' }),
-  department: field({ type: String, optional: true, label: 'Department' }),
+    ownerId: field({ type: String, optional: true }),
+    position: field({ type: String, optional: true, label: 'Position' }),
+    department: field({ type: String, optional: true, label: 'Department' }),
 
-  leadStatus: field({
-    type: String,
-    enum: CUSTOMER_LEAD_STATUS_TYPES,
-    optional: true,
-    label: 'Lead Status',
+    leadStatus: field({
+      type: String,
+      enum: CUSTOMER_LEAD_STATUS_TYPES,
+      optional: true,
+      label: 'Lead Status',
+    }),
+
+    status: field({
+      type: String,
+      enum: STATUSES.ALL,
+      default: STATUSES.ACTIVE,
+      optional: true,
+      label: 'Status',
+      index: true,
+    }),
+
+    lifecycleState: field({
+      type: String,
+      enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
+      optional: true,
+      label: 'Lifecycle State',
+    }),
+
+    hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    doNotDisturb: field({
+      type: String,
+      optional: true,
+      label: 'Do not disturb',
+    }),
+    links: field({ type: linkSchema, default: {} }),
+
+    isUser: field({ type: Boolean, label: 'Is user', optional: true }),
+
+    integrationId: field({ type: String, optional: true }),
+    tagIds: field({ type: [String], optional: true, index: true }),
+    companyIds: field({ type: [String], optional: true }),
+
+    // Merged customer ids
+    mergedIds: field({ type: [String], optional: true }),
+
+    customFieldsData: field({ type: Object, optional: true }),
+    messengerData: field({ type: messengerSchema, optional: true }),
+
+    location: field({ type: locationSchema, optional: true }),
+
+    // if customer is not a user then we will contact with this visitor using
+    // this information
+    visitorContactInfo: field({
+      type: visitorContactSchema,
+      optional: true,
+      label: 'Visitor contact info',
+    }),
+    urlVisits: Object,
+
+    deviceTokens: field({ type: [String], default: [] }),
   }),
-
-  status: field({
-    type: String,
-    enum: STATUSES.ALL,
-    default: STATUSES.ACTIVE,
-    optional: true,
-    label: 'Status',
-    index: true,
-  }),
-
-  lifecycleState: field({
-    type: String,
-    enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
-    optional: true,
-    label: 'Lifecycle State',
-  }),
-
-  hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
-  description: field({ type: String, optional: true, label: 'Description' }),
-  doNotDisturb: field({
-    type: String,
-    optional: true,
-    label: 'Do not disturb',
-  }),
-  links: field({ type: linkSchema, default: {} }),
-
-  isUser: field({ type: Boolean, label: 'Is user', optional: true }),
-
-  integrationId: field({ type: String, optional: true }),
-  tagIds: field({ type: [String], optional: true, index: true }),
-  companyIds: field({ type: [String], optional: true }),
-
-  // Merged customer ids
-  mergedIds: field({ type: [String], optional: true }),
-
-  customFieldsData: field({ type: Object, optional: true }),
-  messengerData: field({ type: messengerSchema, optional: true }),
-
-  location: field({ type: locationSchema, optional: true }),
-
-  // if customer is not a user then we will contact with this visitor using
-  // this information
-  visitorContactInfo: field({
-    type: visitorContactSchema,
-    optional: true,
-    label: 'Visitor contact info',
-  }),
-  urlVisits: Object,
-
-  deviceTokens: field({ type: [String], default: [] }),
-});
+);

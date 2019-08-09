@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { IRule, ruleSchema } from './common';
 import { MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
+import { field, schemaWrapper } from './utils';
 
 export interface IScheduleDate {
   type?: string;
@@ -96,33 +96,35 @@ const messengerSchema = new Schema(
   { _id: false },
 );
 
-export const engageMessageSchema = new Schema({
-  _id: field({ pkey: true }),
-  kind: field({ type: String }),
-  segmentId: field({ type: String, optional: true }), // TODO Remove
-  segmentIds: field({
-    type: [String],
-    optional: true,
-  }),
-  brandIds: field({
-    type: [String],
-    optional: true,
-  }),
-  customerIds: field({ type: [String] }),
-  title: field({ type: String }),
-  fromUserId: field({ type: String }),
-  method: field({
-    type: String,
-    enum: METHODS.ALL,
-  }),
-  isDraft: field({ type: Boolean }),
-  isLive: field({ type: Boolean }),
-  stopDate: field({ type: Date }),
-  createdDate: field({ type: Date }),
-  tagIds: field({ type: [String], optional: true }),
-  messengerReceivedCustomerIds: field({ type: [String] }),
+export const engageMessageSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    kind: field({ type: String }),
+    segmentId: field({ type: String, optional: true }), // TODO Remove
+    segmentIds: field({
+      type: [String],
+      optional: true,
+    }),
+    brandIds: field({
+      type: [String],
+      optional: true,
+    }),
+    customerIds: field({ type: [String] }),
+    title: field({ type: String }),
+    fromUserId: field({ type: String }),
+    method: field({
+      type: String,
+      enum: METHODS.ALL,
+    }),
+    isDraft: field({ type: Boolean }),
+    isLive: field({ type: Boolean }),
+    stopDate: field({ type: Date }),
+    createdDate: field({ type: Date }),
+    tagIds: field({ type: [String], optional: true }),
+    messengerReceivedCustomerIds: field({ type: [String] }),
 
-  email: field({ type: emailSchema }),
-  scheduleDate: field({ type: scheduleDateSchema }),
-  messenger: field({ type: messengerSchema }),
-});
+    email: field({ type: emailSchema }),
+    scheduleDate: field({ type: scheduleDateSchema }),
+    messenger: field({ type: messengerSchema }),
+  }),
+);

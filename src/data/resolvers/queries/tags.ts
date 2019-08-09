@@ -1,12 +1,13 @@
 import { Tags } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 const tagQueries = {
   /**
    * Tags list
    */
-  tags(_root, { type }: { type: string }) {
-    return Tags.find({ type }).sort({ name: 1 });
+  tags(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
+    return Tags.find({ ...commonQuerySelector, type }).sort({ name: 1 });
   },
 
   /**

@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
+import { field } from './utils';
 
 export interface IImportHistory {
   success: number;

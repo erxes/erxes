@@ -1,7 +1,7 @@
 import { Scripts } from '../../../db/models';
 import { IScript } from '../../../db/models/definitions/scripts';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleCheckPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IScriptsEdit extends IScript {
@@ -12,8 +12,8 @@ const scriptMutations = {
   /**
    * Create new script
    */
-  async scriptsAdd(_root, doc: IScript, { user }: { user: IUserDocument }) {
-    const script = await Scripts.createScript(doc);
+  async scriptsAdd(_root, doc: IScript, { user, docModifier }: IContext) {
+    const script = await Scripts.createScript(docModifier(doc));
 
     if (script) {
       await putCreateLog(
@@ -33,9 +33,9 @@ const scriptMutations = {
   /**
    * Update script
    */
-  async scriptsEdit(_root, { _id, ...fields }: IScriptsEdit, { user }: { user: IUserDocument }) {
+  async scriptsEdit(_root, { _id, ...fields }: IScriptsEdit, { user, docModifier }: IContext) {
     const script = await Scripts.findOne({ _id });
-    const updated = await Scripts.updateScript(_id, fields);
+    const updated = await Scripts.updateScript(_id, docModifier(fields));
 
     if (script) {
       await putUpdateLog(
@@ -55,7 +55,7 @@ const scriptMutations = {
   /**
    * Delete script
    */
-  async scriptsRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async scriptsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const script = await Scripts.findOne({ _id });
     const removed = await Scripts.removeScript(_id);
 

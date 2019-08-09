@@ -1,4 +1,4 @@
-import { ActivityLogs, ConversationMessages, Conversations, Customers } from '../db/models';
+import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
 import { graphqlPubsub } from '../pubsub';
 
@@ -17,7 +17,16 @@ const integrationsApiMiddleware = async (req, res) => {
   const doc = JSON.parse(payload);
 
   if (action === 'create-customer') {
-    const customer = await Customers.createCustomer(doc);
+    const integration = await Integrations.findOne({ _id: doc.integrationId });
+
+    if (!integration) {
+      throw new Error(`Integration not found: ${doc.integrationId}`);
+    }
+
+    const customer = await Customers.createCustomer({
+      ...doc,
+      scopeBrandIds: integration.brandId,
+    });
 
     return res.json({ _id: customer._id });
   }

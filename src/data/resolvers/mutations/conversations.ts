@@ -10,6 +10,7 @@ import { debugExternalApi } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
 import { IntegrationsAPI } from '../../dataSources';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import utils from '../../utils';
 
 interface IConversationMessageAdd {
@@ -153,7 +154,7 @@ const conversationMutations = {
   /**
    * Create new message in conversation
    */
-  async conversationMessageAdd(_root, doc: IConversationMessageAdd, { user }: { user: IUserDocument }) {
+  async conversationMessageAdd(_root, doc: IConversationMessageAdd, { user }: IContext) {
     const conversation = await Conversations.findOne({
       _id: doc.conversationId,
     });
@@ -243,7 +244,7 @@ const conversationMutations = {
   async conversationsAssign(
     _root,
     { conversationIds, assignedUserId }: { conversationIds: string[]; assignedUserId: string },
-    { user }: { user: IUserDocument },
+    { user }: IContext,
   ) {
     const conversations: IConversationDocument[] = await Conversations.assignUserConversation(
       conversationIds,
@@ -261,7 +262,7 @@ const conversationMutations = {
   /**
    * Unassign employee from conversation
    */
-  async conversationsUnassign(_root, { _ids }: { _ids: string[] }, { user }: { user: IUserDocument }) {
+  async conversationsUnassign(_root, { _ids }: { _ids: string[] }, { user }: IContext) {
     const oldConversations = await Conversations.find({ _id: { $in: _ids } });
     const updatedConversations = await Conversations.unassignUserConversation(_ids);
 
@@ -280,11 +281,7 @@ const conversationMutations = {
   /**
    * Change conversation status
    */
-  async conversationsChangeStatus(
-    _root,
-    { _ids, status }: { _ids: string[]; status: string },
-    { user }: { user: IUserDocument },
-  ) {
+  async conversationsChangeStatus(_root, { _ids, status }: { _ids: string[]; status: string }, { user }: IContext) {
     const { conversations } = await Conversations.checkExistanceConversations(_ids);
 
     await Conversations.changeStatusConversation(_ids, status, user._id);
@@ -349,7 +346,7 @@ const conversationMutations = {
   /**
    * Conversation mark as read
    */
-  async conversationMarkAsRead(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async conversationMarkAsRead(_root, { _id }: { _id: string }, { user }: IContext) {
     return Conversations.markAsReadConversation(_id, user._id);
   },
 };

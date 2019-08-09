@@ -1,7 +1,7 @@
 import { Tags } from '../../../db/models';
 import { ITag } from '../../../db/models/definitions/tags';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { publishConversationsChanged } from './conversations';
 
@@ -13,8 +13,8 @@ const tagMutations = {
   /**
    * Create new tag
    */
-  async tagsAdd(_root, doc: ITag, { user }: { user: IUserDocument }) {
-    const tag = await Tags.createTag(doc);
+  async tagsAdd(_root, doc: ITag, { user, docModifier }: IContext) {
+    const tag = await Tags.createTag(docModifier(doc));
 
     if (tag) {
       await putCreateLog(
@@ -34,9 +34,9 @@ const tagMutations = {
   /**
    * Edit tag
    */
-  async tagsEdit(_root, { _id, ...doc }: ITagsEdit, { user }: { user: IUserDocument }) {
+  async tagsEdit(_root, { _id, ...doc }: ITagsEdit, { user, docModifier }: IContext) {
     const tag = await Tags.findOne({ _id });
-    const updated = await Tags.updateTag(_id, doc);
+    const updated = await Tags.updateTag(_id, docModifier(doc));
 
     if (tag) {
       await putUpdateLog(
@@ -56,7 +56,7 @@ const tagMutations = {
   /**
    * Remove tag
    */
-  async tagsRemove(_root, { ids }: { ids: string[] }, { user }: { user: IUserDocument }) {
+  async tagsRemove(_root, { ids }: { ids: string[] }, { user }: IContext) {
     const tags = await Tags.find({ _id: { $in: ids } });
     const removed = await Tags.removeTag(ids);
 

@@ -159,6 +159,7 @@ export const loadClass = () => {
       // Checking duplicated fields of company
       await this.checkDuplication(companyFields, companyIds);
 
+      let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -173,6 +174,9 @@ export const loadClass = () => {
           const companyNames = companyObj.names || [];
           const companyEmails = companyObj.emails || [];
           const companyPhones = companyObj.phones || [];
+
+          // Merging scopeBrandIds
+          scopeBrandIds = [...scopeBrandIds, ...(companyObj.scopeBrandIds || [])];
 
           // Merging company's tag into 1 array
           tagIds = tagIds.concat(companyTags);
@@ -192,21 +196,16 @@ export const loadClass = () => {
         }
       }
 
-      // Removing Duplicated Tags from company
+      // Removing Duplicates
       tagIds = Array.from(new Set(tagIds));
-
-      // Removing Duplicated names from company
       names = Array.from(new Set(names));
-
-      // Removing Duplicated names from company
       emails = Array.from(new Set(emails));
-
-      // Removing Duplicated names from company
       phones = Array.from(new Set(phones));
 
       // Creating company with properties
       const company = await Companies.createCompany({
         ...companyFields,
+        scopeBrandIds,
         tagIds,
         mergedIds: companyIds,
         names,

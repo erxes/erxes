@@ -1,9 +1,9 @@
 import { Pipelines } from '../../db/models';
 import { IBoardDocument } from '../../db/models/definitions/boards';
-import { IUserDocument } from '../../db/models/definitions/users';
+import { IContext } from '../types';
 
 export default {
-  pipelines(board: IBoardDocument, {}, { user }: { user: IUserDocument }) {
+  pipelines(board: IBoardDocument, {}, { user }: IContext) {
     if (user.isOwner) {
       return Pipelines.find({ boardId: board._id });
     }

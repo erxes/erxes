@@ -57,6 +57,7 @@ export const types = `
     emailSignatures: JSON
     getNotificationByEmail: Boolean
     groupIds: [String]
+    brandIds: [String]
 
     isOwner: Boolean
     permissionActions: JSON
@@ -75,6 +76,7 @@ const commonParams = `
   links: UserLinks,	
   channelIds: [String],	
   groupIds: [String]
+  brandIds: [String]
 `;
 
 const commonSelector = `

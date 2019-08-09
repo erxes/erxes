@@ -1,25 +1,5 @@
-import * as Random from 'meteor-random';
-import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS } from '../../data/constants';
-import { Fields } from './';
-
-/*
- * Mongoose field options wrapper
- */
-export const field = options => {
-  const { pkey, type, optional } = options;
-
-  if (type === String && !pkey && !optional) {
-    options.validate = /\S+/;
-  }
-
-  // TODO: remove
-  if (pkey) {
-    options.type = String;
-    options.default = () => Random.id();
-  }
-
-  return options;
-};
+import { Fields } from '../../../db/models';
+import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS } from '../../constants';
 
 // Checking field names, All field names must be configured correctly
 export const checkFieldNames = async (type: string, fields: string[]) => {
