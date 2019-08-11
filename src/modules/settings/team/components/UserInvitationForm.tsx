@@ -236,7 +236,7 @@ class UserInvitationForm extends React.Component<Props, State> {
           {__("Send an email and notify members that they've been invited!")}
         </Info>
 
-        <Form renderContent={this.renderContent} />
+        <Form renderContent={this.renderContent} duplicatedInputNames={true} />
       </>
     );
   }

@@ -6,6 +6,7 @@ import { Error } from './styles';
 
 type Props = {
   renderContent: (props: IFormProps) => React.ReactNode;
+  duplicatedInputNames?: boolean;
   onSubmit?: (values: any) => any;
 };
 
@@ -61,7 +62,7 @@ class Form extends React.Component<Props, State> {
 
     const values = document.getElementsByName(name) as any;
 
-    if (values.length > 1) {
+    if (values.length > 1 && !this.props.duplicatedInputNames) {
       return values[values.length - 1].value;
     }
 
@@ -80,7 +81,7 @@ class Form extends React.Component<Props, State> {
     const elements = document.getElementsByName(props.name) as any;
 
     const value =
-      elements.length > 1
+      elements.length > 1 && !this.props.duplicatedInputNames
         ? elements[elements.length - 1].value
         : elements[0].value;
 
