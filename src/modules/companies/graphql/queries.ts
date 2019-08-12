@@ -125,29 +125,6 @@ export const companyDetail = `
         primaryEmail
         primaryPhone
       }
-      deals {
-        _id
-        companies {
-          _id
-          primaryName
-        }
-        customers {
-          _id
-          firstName
-          primaryEmail
-        }
-        products
-        amount
-        closeDate
-        assignedUsers {
-          _id
-          email
-          details {
-            fullName
-            avatar
-          }
-        }
-      }
     }
   }
 `;
