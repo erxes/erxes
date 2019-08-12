@@ -11,9 +11,19 @@ const GrowthHackHome = () => {
   return <Home type="growthHack" title="Growth hack" options={options} />;
 };
 
+const GrowthHackTemplateHome = () => {
+  return (
+    <Home type="growthHackTemplate" title="Growth hack" options={options} />
+  );
+};
+
 const routes = () => (
   <React.Fragment>
     <Route path="/settings/boards/growthHack" component={GrowthHackHome} />
+    <Route
+      path="/settings/boards/growthHackTemplate"
+      component={GrowthHackTemplateHome}
+    />
   </React.Fragment>
 );
 

@@ -7,6 +7,7 @@ import SortableList from 'modules/common/components/SortableList';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import TemplateButton from 'modules/settings/growthHacks/components/TemplateButton';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';
 import { PipelineContainer } from '../styles';
@@ -149,14 +150,7 @@ class Pipelines extends React.Component<Props, State> {
         >
           Add {pipelineName}
         </Button>
-        <Button
-          btnStyle="success"
-          size="small"
-          icon="add"
-          onClick={this.addPipeline}
-        >
-          From template
-        </Button>
+        <TemplateButton />
       </>
     );
   }
