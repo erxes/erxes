@@ -94,7 +94,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name="name-group"
             autoFocus={true}
             required={true}
             defaultValue={object.name}
@@ -105,7 +105,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Description</ControlLabel>
           <FormControl
             {...formProps}
-            name="description"
+            name="description-group"
             required={true}
             defaultValue={object.description}
           />

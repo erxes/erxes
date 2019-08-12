@@ -37,8 +37,13 @@ class Form extends React.Component<Props, State> {
     const values = {};
 
     for (const child of this.children) {
-      errors[child.props.name] = this.validate(child);
-      values[child.props.name] = this.getValue(child);
+      const fieldName = child.props.name;
+      const name = fieldName.includes('-')
+        ? fieldName.split('-')[0]
+        : fieldName;
+
+      errors[name] = this.validate(child);
+      values[name] = this.getValue(child);
     }
 
     this.setState({ errors, values }, () => {
@@ -57,15 +62,7 @@ class Form extends React.Component<Props, State> {
   };
 
   getValue = child => {
-    const { name } = child.props;
-
-    const values = document.getElementsByName(name) as any;
-
-    if (values.length > 1) {
-      return values[values.length - 1].value;
-    }
-
-    return values[0].value;
+    return (document.getElementsByName(child.props.name) as any)[0].value;
   };
 
   onSubmit = e => {
@@ -77,12 +74,7 @@ class Form extends React.Component<Props, State> {
 
   validate = child => {
     const { props } = child;
-    const elements = document.getElementsByName(props.name) as any;
-
-    const value =
-      elements.length > 1
-        ? elements[elements.length - 1].value
-        : elements[0].value;
+    const value = (document.getElementsByName(props.name) as any)[0].value;
 
     if (props.required && !value) {
       return <Error>{__('Required field')}</Error>;
