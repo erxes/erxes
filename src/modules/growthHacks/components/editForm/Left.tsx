@@ -55,7 +55,7 @@ class Left extends React.Component<Props> {
           <TitleRow>
             <ControlLabel>
               <Icon icon="align-left-justify" />
-              Hack Description
+              Hack description
             </ControlLabel>
           </TitleRow>
 

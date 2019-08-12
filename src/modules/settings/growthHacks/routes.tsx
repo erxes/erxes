@@ -1,7 +1,7 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import options from './options';
+import { options, templateOptions } from './options';
 
 const Home = asyncComponent(() =>
   import(/* webpackChunkName: "Settings - Board Home" */ 'modules/settings/boards/containers/Home')
@@ -13,7 +13,11 @@ const GrowthHackHome = () => {
 
 const GrowthHackTemplateHome = () => {
   return (
-    <Home type="growthHackTemplate" title="Growth hack" options={options} />
+    <Home
+      type="growthHackTemplate"
+      title="Growth hack"
+      options={templateOptions}
+    />
   );
 };
 

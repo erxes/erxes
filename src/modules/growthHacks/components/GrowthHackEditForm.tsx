@@ -28,9 +28,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
     const item = props.item;
 
-    // tslint:disable
-    console.log('item: ', item);
-
     this.state = {
       hackDescription: item.hackDescription || '',
       goal: item.goal || '',
@@ -51,8 +48,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
     const { hackDescription, goal, formFields } = this.state;
-
-    console.log('formFields: ', formFields);
 
     const { name, stageId, description, closeDate, attachments } = state;
 

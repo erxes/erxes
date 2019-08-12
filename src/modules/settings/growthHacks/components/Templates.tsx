@@ -8,12 +8,12 @@ type Props = {
   show: boolean;
 };
 
+// tslint:disable
 class Templates extends React.Component<Props> {
   render() {
     const { templates, show, closeModal } = this.props;
 
     const copy = (id: string) => {
-      //tslint:disable
       console.log('_id: ', id);
     };
 

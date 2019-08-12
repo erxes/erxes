@@ -11,7 +11,7 @@ class TemplateButton extends React.Component<{}, State> {
     super(props);
 
     this.state = {
-      showModal: true
+      showModal: false
     };
   }
 

@@ -7,7 +7,6 @@ import SortableList from 'modules/common/components/SortableList';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import TemplateButton from 'modules/settings/growthHacks/components/TemplateButton';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';
 import { PipelineContainer } from '../styles';
@@ -135,6 +134,7 @@ class Pipelines extends React.Component<Props, State> {
   renderButton() {
     const { options, boardId } = this.props;
     const pipelineName = options.pipelineName || 'pipeline';
+    const ExtraButton = options.ExtraButton;
 
     if (!boardId) {
       return null;
@@ -150,7 +150,7 @@ class Pipelines extends React.Component<Props, State> {
         >
           Add {pipelineName}
         </Button>
-        <TemplateButton />
+        {ExtraButton ? <ExtraButton /> : null}
       </>
     );
   }
