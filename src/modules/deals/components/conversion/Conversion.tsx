@@ -23,7 +23,7 @@ class ConversionView extends React.Component<Props> {
         <Header title={__('Deal')} submenu={menuDeal} />
         <DealContent transparent={true}>
           <MainActionBar type="deal" component={DealMainActionBar} />
-          <ScrolledContent transparent={true}>
+          <ScrolledContent>
             <FixedContent>
               <Stages
                 type="brief"
