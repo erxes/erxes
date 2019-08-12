@@ -7,7 +7,11 @@ import React from 'react';
 import styled from 'styled-components';
 
 const RightContainer = styled.div`
-  flex: 1;
+  background: #fff;
+  padding: 30px;
+  box-shadow: 0 0 6px 1px rgba(221, 221, 221, 0.7);
+  align-self: baseline;
+  flex-basis: 450px;
 `;
 
 type Props = {

@@ -61,7 +61,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           name={name}
-          closeDate={closeDate}
           users={users}
           stageId={stageId}
           description={description}
@@ -80,6 +79,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             onChangeExtraField={this.onChangeExtraField}
             hackDescription={hackDescription}
             goal={goal}
+            closeDate={closeDate}
           />
 
           <Right

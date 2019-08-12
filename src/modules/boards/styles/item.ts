@@ -1,6 +1,6 @@
 import { SelectContainer } from 'modules/boards/styles/common';
 import Button from 'modules/common/components/Button';
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -40,7 +40,7 @@ const Footer = styled.div`
 `;
 
 const HeaderRow = styled(FlexContent)`
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `;
 
 const HeaderContent = styled.div`
@@ -50,19 +50,29 @@ const HeaderContent = styled.div`
 const TitleRow = styled.div`
   display: flex;
   align-items: center;
-  font-size: 18px;
+  font-size: 16px;
 
   i {
-    margin-right: 10px;
+    margin-right: 8px;
   }
 
   label {
-    font-size: 15px;
+    font-size: 13px;
     text-transform: initial;
   }
 
   input {
     font-weight: bold;
+  }
+
+  textarea {
+    font-weight: bold;
+    border-bottom: none;
+    min-height: auto;
+
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
   }
 `;
 
@@ -114,7 +124,7 @@ const FooterContent = styled.div`
 `;
 
 const LeftContainer = styled.div`
-  margin-right: 20px;
+  margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
 
   textarea {
@@ -148,7 +158,7 @@ const RightContent = styled.div`
 const RightButton = styled(Button)`
   width: 100%;
   margin-bottom: 5px;
-  margin-left: 0;
+  margin-left: 0 !important;
   padding: 8px 40px 8px 20px;
   background: ${rgba(buttonColor, 0.04)};
   color: ${colors.textPrimary};

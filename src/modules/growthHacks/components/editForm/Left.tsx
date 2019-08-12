@@ -1,3 +1,4 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
@@ -13,17 +14,28 @@ import { IAttachment } from 'modules/common/types';
 
 type Props = {
   item: IItem;
-  onChangeField: (name: 'description', value: any) => void;
+  onChangeField: (name: 'description' | 'closeDate', value: any) => void;
   onChangeExtraField: (name: 'hackDescription' | 'goal', value: any) => void;
   type: string;
   description: string;
   hackDescription: string;
   goal: string;
+  closeDate: Date;
   onChangeAttachment: (attachments: IAttachment[]) => void;
   attachments: IAttachment[];
 };
 
 class Left extends React.Component<Props> {
+  renderInput = (props, openCalendar, closeCalendar) => {
+    return (
+      <div>
+        <input {...props} />
+        <button onClick={openCalendar}>open calendar</button>
+        <button onClick={closeCalendar}>close calendar</button>
+      </div>
+    );
+  };
+
   render() {
     const {
       item,
@@ -34,6 +46,7 @@ class Left extends React.Component<Props> {
       description,
       hackDescription,
       goal,
+      closeDate,
       type
     } = this.props;
 
@@ -49,12 +62,28 @@ class Left extends React.Component<Props> {
     const goalOnChange = e =>
       onChangeExtraField('goal', (e.target as HTMLInputElement).value);
 
+    const dateOnChange = date => onChangeField('closeDate', date);
+
     return (
       <LeftContainer>
         <FormGroup>
+          <ControlLabel>Close date</ControlLabel>
+          <Datetime
+            open={false}
+            renderInput={this.renderInput}
+            dateFormat="YYYY/MM/DD"
+            timeFormat={false}
+            value={closeDate}
+            closeOnSelect={true}
+            onChange={dateOnChange}
+            utc={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="align-left-justify" />
+              <Icon icon="idea" />
               Hack Description
             </ControlLabel>
           </TitleRow>
@@ -69,7 +98,7 @@ class Left extends React.Component<Props> {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="align-left-justify" />
+              <Icon icon="align-left" />
               Description
             </ControlLabel>
           </TitleRow>
@@ -84,7 +113,7 @@ class Left extends React.Component<Props> {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="align-left-justify" />
+              <Icon icon="sign-out-alt" />
               Goal
             </ControlLabel>
           </TitleRow>

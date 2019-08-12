@@ -1,17 +1,8 @@
-import Datetime from '@nateradebaugh/react-datetime';
 import { IUser } from 'modules/auth/types';
 import Move from 'modules/boards/containers/editForm/Move';
-import {
-  HeaderContent,
-  HeaderContentSmall,
-  HeaderRow,
-  TitleRow
-} from 'modules/boards/styles/item';
+import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
 import { IItem, IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
 import React from 'react';
 
 type Props = {
@@ -19,10 +10,9 @@ type Props = {
   options: IOptions;
   name: string;
   description?: string;
-  closeDate: Date;
   stageId: string;
   users: IUser[];
-  onChangeField: (name: 'name' | 'stageId' | 'closeDate', value: any) => void;
+  onChangeField: (name: 'name' | 'stageId', value: any) => void;
   amount?: () => React.ReactNode;
 };
 
@@ -45,20 +35,18 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { name, closeDate, onChangeField, amount } = this.props;
+    const { name, onChangeField, amount } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
-
-    const dateOnChange = date => onChangeField('closeDate', date);
 
     return (
       <React.Fragment>
         <HeaderRow>
           <HeaderContent>
             <TitleRow>
-              <Icon icon="creditcard" />
               <FormControl
+                componentClass="textarea"
                 defaultValue={name}
                 required={true}
                 onChange={nameOnChange}
@@ -71,21 +59,6 @@ class Top extends React.Component<Props> {
 
         <HeaderRow>
           <HeaderContent>{this.renderMove()}</HeaderContent>
-
-          <HeaderContentSmall>
-            <FormGroup>
-              <ControlLabel>Close date</ControlLabel>
-              <Datetime
-                inputProps={{ placeholder: 'Click to select a date' }}
-                dateFormat="YYYY/MM/DD"
-                timeFormat={false}
-                value={closeDate}
-                closeOnSelect={true}
-                onChange={dateOnChange}
-                utc={true}
-              />
-            </FormGroup>
-          </HeaderContentSmall>
         </HeaderRow>
       </React.Fragment>
     );
