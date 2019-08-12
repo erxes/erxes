@@ -1,25 +1,32 @@
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps } from 'modules/common/types';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import Settings from '../components/Settings';
-import { mutations, queries } from '../graphql';
+import { withRouter } from 'react-router';
+import Settings from '../../components/engages/Settings';
+import { mutations, queries } from '../../graphql';
 import {
   EngageConfigQueryResponse,
   EngagesConfigSaveMutationResponse,
   IEngageConfig
-} from '../types';
+} from '../../types';
+
+type Props = {
+  closeModal: () => void;
+};
 
 type FinalProps = {
   engagesConfigDetailQuery: EngageConfigQueryResponse;
-} & EngagesConfigSaveMutationResponse;
+} & IRouterProps &
+  Props &
+  EngagesConfigSaveMutationResponse;
 
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
-    const { engagesConfigDetailQuery } = this.props;
+    const { engagesConfigDetailQuery, closeModal } = this.props;
 
     if (engagesConfigDetailQuery.loading) {
       return <Spinner />;
@@ -45,6 +52,7 @@ class SettingsContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       renderButton,
+      closeModal,
       engagesConfigDetail: engagesConfigDetailQuery.engagesConfigDetail || {}
     };
 
@@ -66,5 +74,5 @@ export default withProps<{}>(
         name: 'engagesConfigSave'
       }
     )
-  )(SettingsContainer)
+  )(withRouter<FinalProps>(SettingsContainer))
 );
