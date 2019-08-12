@@ -5,6 +5,7 @@ const commonParamsDef = `
   $links: UserLinks,
   $channelIds: [String]
   $groupIds: [String]
+  $brandIds: [String]
 `;
 
 const commonParams = `
@@ -14,6 +15,7 @@ const commonParams = `
   links: $links,
   channelIds: $channelIds
   groupIds: $groupIds
+  brandIds: $brandIds
 `;
 
 const usersEdit = `
