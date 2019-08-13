@@ -15,7 +15,7 @@ const GrowthHackTemplateHome = () => {
   return (
     <Home
       type="growthHackTemplate"
-      title="Growth hack"
+      title="Growth hack template"
       options={templateOptions}
     />
   );

@@ -12,7 +12,6 @@ type Props = {
 class FormFields extends React.Component<Props> {
   render() {
     const { fields, formFields, onChangeFormField } = this.props;
-    console.log('formFields: ', formFields);
 
     return fields.map(field => (
       <GenerateField

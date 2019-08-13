@@ -6,15 +6,18 @@ type Props = {
   templates: IPipeline[];
   closeModal: () => void;
   show: boolean;
+  pipelinesCopy: ({ _id, boardId, type }) => void;
+  boardId: string;
 };
 
-// tslint:disable
 class Templates extends React.Component<Props> {
   render() {
-    const { templates, show, closeModal } = this.props;
+    const { templates, show, closeModal, pipelinesCopy, boardId } = this.props;
 
     const copy = (id: string) => {
-      console.log('_id: ', id);
+      pipelinesCopy({ _id: id, boardId, type: 'growthHack' });
+
+      closeModal();
     };
 
     return (

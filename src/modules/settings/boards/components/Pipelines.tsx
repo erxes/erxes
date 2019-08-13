@@ -20,6 +20,7 @@ type Props = {
   remove: (pipelineId: string) => void;
   boardId: string;
   options?: any;
+  refetch: any;
 };
 
 type State = {
@@ -132,7 +133,7 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderButton() {
-    const { options, boardId } = this.props;
+    const { options, boardId, refetch } = this.props;
     const pipelineName = options.pipelineName || 'pipeline';
     const ExtraButton = options.ExtraButton;
 
@@ -150,7 +151,9 @@ class Pipelines extends React.Component<Props, State> {
         >
           Add {pipelineName}
         </Button>
-        {ExtraButton ? <ExtraButton /> : null}
+        {ExtraButton ? (
+          <ExtraButton refetch={refetch} boardId={boardId} />
+        ) : null}
       </>
     );
   }
