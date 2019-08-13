@@ -5,11 +5,15 @@ import Tip from 'modules/common/components/Tip';
 import { __, urlParser } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import {
+  ButtonRelated,
+  SectionBody,
+  SectionBodyItem
+} from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CompanyChooser from '../../containers/CompanyChooser';
-import { ButtonRelated } from '../../styles';
+
 type Props = {
   name: string;
   companies?: ICompany[];

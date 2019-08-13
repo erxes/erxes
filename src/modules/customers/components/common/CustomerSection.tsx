@@ -5,10 +5,13 @@ import Spinner from 'modules/common/components/Spinner';
 import { __, renderFullName } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import {
+  ButtonRelated,
+  SectionBody,
+  SectionBodyItem
+} from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ButtonRelated } from '../../../companies/styles';
 import CustomerChooser from '../../containers/CustomerChooser';
 type Props = {
   name: string;
@@ -105,7 +108,7 @@ function CustomerSection({
     <Section>
       <Title>{__('Customers')}</Title>
 
-      <QuickButtons>
+      <QuickButtons isSidebarOpen={isOpen}>
         <ModalTrigger
           title="Associate"
           size="lg"
