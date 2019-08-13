@@ -29,6 +29,8 @@ class EngageMessage extends Component<Props> {
       "full-message": sentAs === "fullMessage"
     });
 
+    const regex = /&nbsp;/gi;
+
     return (
       <>
         <div className="flex-notification">
@@ -37,7 +39,11 @@ class EngageMessage extends Component<Props> {
             {this.renderUserFullName(fromUser)}
           </div>
           <div className={classes}>
-            <span dangerouslySetInnerHTML={{ __html: content }} />
+            {sentAs === "fullMessage" ? (
+              <span dangerouslySetInnerHTML={{ __html: content }} />
+            ) : (
+              striptags(content).replace(regex, " ")
+            )}
           </div>
         </div>
       </>
