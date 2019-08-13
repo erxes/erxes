@@ -21,6 +21,7 @@ type Props = {
   selectedBrands: IBrand[];
   selectedGroups: IUserGroup[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  showBrands: boolean;
 } & ICommonFormProps;
 
 type State = {
@@ -86,7 +87,11 @@ class UserForm extends React.Component<Props, State> {
 
   renderBrands() {
     const self = this;
-    const { brands } = this.props;
+    const { showBrands, brands } = this.props;
+
+    if (!showBrands) {
+      return null;
+    }
 
     const onChange = selectedBrands => {
       this.setState({ selectedBrands });

@@ -39,7 +39,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
 
   return (
     <RootBack style={{ backgroundColor: pipeline.bgColor }}>
-      <ScrolledContent transparent={true}>
+      <ScrolledContent>
         <Pipeline
           options={options}
           pipeline={pipeline}
