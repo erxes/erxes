@@ -56,8 +56,6 @@ class Stages extends React.Component<Props, {}> {
 
   render() {
     const { options } = this.props;
-    // tslint:disable
-    console.log('options: ', options);
     const Item = options.StageItem || StageItem;
 
     return (
