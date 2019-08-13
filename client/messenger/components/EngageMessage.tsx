@@ -37,11 +37,7 @@ class EngageMessage extends Component<Props> {
             {this.renderUserFullName(fromUser)}
           </div>
           <div className={classes}>
-            {sentAs === "fullMessage" ? (
-              <span dangerouslySetInnerHTML={{ __html: content }} />
-            ) : (
-              striptags(content)
-            )}
+            <span dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         </div>
       </>
