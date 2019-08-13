@@ -44,7 +44,6 @@ class ArticleList extends React.Component<Props> {
           count={articles.length}
           emptyText="Articles can address any number of issues your customers encounter. Types of knowledge articles can include solutions to common issues, product or feature documentation, FAQ's and much more."
           emptyImage="/images/actions/8.svg"
-          objective={true}
           data={this.renderArticles()}
         />
       </React.Fragment>

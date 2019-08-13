@@ -26,6 +26,10 @@ class IntegrationList extends React.Component<Props> {
       return 'facebook';
     }
 
+    if (kind === KIND_CHOICES.GMAIL) {
+      return 'gmail';
+    }
+
     if (kind === KIND_CHOICES.FORM) {
       return 'form';
     }
@@ -61,6 +65,7 @@ class IntegrationList extends React.Component<Props> {
 
           <ModalTrigger
             title="Install code"
+            size="lg"
             trigger={editTrigger}
             content={content}
           />

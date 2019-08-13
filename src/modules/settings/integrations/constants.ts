@@ -66,6 +66,7 @@ export const hours = [
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   FACEBOOK: 'facebook',
+  GMAIL: 'gmail',
   FORM: 'form',
   ALL_LIST: ['messenger', 'facebook', 'form']
 };
@@ -105,6 +106,15 @@ export const INTEGRATIONS = [
         createUrl: '/settings/integrations/createMessenger'
       },
       {
+        name: 'Gmail',
+        description:
+          'Connect straight to your Gmail and get those emails going',
+        inMessenger: false,
+        kind: 'gmail',
+        logo: '/images/integrations/gmail.png',
+        createModal: 'gmail'
+      },
+      {
         name: 'Lead',
         description: 'Find your lead forms right here in your Widget',
         inMessenger: true,
@@ -112,7 +122,12 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-2',
+    rows: [
       {
         name: 'Knowledge Base',
         description: 'Get access to your Knowledge Base right in your Widget',

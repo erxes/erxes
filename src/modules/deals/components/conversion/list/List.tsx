@@ -1,5 +1,4 @@
 import { IStage } from 'modules/boards/types';
-import EmptyState from 'modules/common/components/EmptyState';
 import * as React from 'react';
 import { Result } from '../style';
 import Stage from './Stage';
@@ -36,10 +35,6 @@ class List extends React.Component<Props, {}> {
 
   render() {
     const { stages } = this.props;
-
-    if (stages.length === 0) {
-      return <EmptyState image="/images/actions/18.svg" text="No data" />;
-    }
 
     const contents = stages.map((stage: IStage, index: number) => (
       <Stage

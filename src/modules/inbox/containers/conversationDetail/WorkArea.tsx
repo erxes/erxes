@@ -305,7 +305,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       gql(queries.conversationMessagesTotalCount),
       {
         name: 'messagesTotalCountQuery',
-        options: ({ currentId }) => ({
+        options: ({ currentId, currentConversation }) => ({
           variables: { conversationId: currentId },
           fetchPolicy: 'network-only'
         })

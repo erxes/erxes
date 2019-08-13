@@ -12,8 +12,9 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import { TAG_TYPES } from 'modules/tags/constants';
 import React from 'react';
 import RTG from 'react-transition-group';
+import { InboxManagementActionConsumer } from '../../containers/Inbox';
+import { StatusFilterPopover } from '../../containers/leftSidebar';
 import { IConversation } from '../../types';
-import StatusFilterPopover from './StatusFilterPopover';
 import {
   AdditionalSidebar,
   DropdownWrapper,
@@ -22,8 +23,10 @@ import {
   SidebarActions
 } from './styles';
 
-const DateFilter = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter')
+const DateFilter = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter'),
+  { height: '15px', width: '70px' }
 );
 
 const AssignBoxPopover = asyncComponent(() =>
@@ -129,7 +132,7 @@ class LeftSidebar extends React.Component<Props, State> {
     return <SidebarActions>{this.renderSidebarActions()}</SidebarActions>;
   }
 
-  renderAdditionalSidebar() {
+  renderAdditionalSidebar(refetchRequired: string) {
     const { integrations, queryParams } = this.props;
 
     return (
@@ -150,6 +153,7 @@ class LeftSidebar extends React.Component<Props, State> {
               counts="byChannels"
               paramKey="channelId"
               queryParams={queryParams}
+              refetchRequired={refetchRequired}
             />
           </FilterToggler>
 
@@ -159,6 +163,7 @@ class LeftSidebar extends React.Component<Props, State> {
               counts="byBrands"
               queryParams={queryParams}
               paramKey="brandId"
+              refetchRequired={refetchRequired}
             />
           </FilterToggler>
 
@@ -168,6 +173,7 @@ class LeftSidebar extends React.Component<Props, State> {
               queryParams={queryParams}
               counts="byIntegrationTypes"
               paramKey="integrationType"
+              refetchRequired={refetchRequired}
             />
           </FilterToggler>
 
@@ -184,6 +190,7 @@ class LeftSidebar extends React.Component<Props, State> {
               counts="byTags"
               paramKey="tag"
               icon="tag"
+              refetchRequired={refetchRequired}
             />
           </FilterToggler>
         </div>
@@ -203,7 +210,13 @@ class LeftSidebar extends React.Component<Props, State> {
 
     return (
       <LeftContent isOpen={this.state.isOpen}>
-        <AdditionalSidebar>{this.renderAdditionalSidebar()}</AdditionalSidebar>
+        <InboxManagementActionConsumer>
+          {({ refetchRequired }) => (
+            <AdditionalSidebar>
+              {this.renderAdditionalSidebar(refetchRequired)}
+            </AdditionalSidebar>
+          )}
+        </InboxManagementActionConsumer>
         <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
           <ConversationList
             currentUser={currentUser}

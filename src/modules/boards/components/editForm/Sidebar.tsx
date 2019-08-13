@@ -50,6 +50,7 @@ class Sidebar extends React.Component<Props> {
     const cmrsChange = cmrs => this.onChange('customers', cmrs);
     const onClick = () => removeItem(item._id);
     const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
+
     return (
       <RightContent>
         <FormGroup>
