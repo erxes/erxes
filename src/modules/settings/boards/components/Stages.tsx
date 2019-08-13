@@ -8,6 +8,7 @@ type Props = {
   onChangeStages: (stages: IStage[]) => void;
   stages: any;
   type: string;
+  options: any;
 };
 
 class Stages extends React.Component<Props, {}> {
@@ -54,10 +55,15 @@ class Stages extends React.Component<Props, {}> {
   };
 
   render() {
+    const { options } = this.props;
+    // tslint:disable
+    console.log('options: ', options);
+    const Item = options.StageItem || StageItem;
+
     return (
       <StageList>
         {this.props.stages.map((stage: IStage) => (
-          <StageItem
+          <Item
             key={stage._id}
             stage={stage}
             onChange={this.onChange}

@@ -134,6 +134,7 @@ class Pipelines extends React.Component<Props, State> {
   renderButton() {
     const { options, boardId } = this.props;
     const pipelineName = options.pipelineName || 'pipeline';
+    const ExtraButton = options.ExtraButton;
 
     if (!boardId) {
       return null;
@@ -149,14 +150,7 @@ class Pipelines extends React.Component<Props, State> {
         >
           Add {pipelineName}
         </Button>
-        <Button
-          btnStyle="success"
-          size="small"
-          icon="add"
-          onClick={this.addPipeline}
-        >
-          From template
-        </Button>
+        {ExtraButton ? <ExtraButton /> : null}
       </>
     );
   }

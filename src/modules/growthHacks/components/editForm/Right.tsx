@@ -16,10 +16,7 @@ const RightContainer = styled.div`
 
 type Props = {
   item: IGrowthHack;
-  onChangeExtraField: (
-    name: 'hackDescription' | 'goal' | 'formFields',
-    value: any
-  ) => void;
+  onChangeExtraField: (name: 'formFields', value: any) => void;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
   options: IOptions;

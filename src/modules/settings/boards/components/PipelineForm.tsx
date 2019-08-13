@@ -194,6 +194,7 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderSelectMembers()}
 
           <Stages
+            options={options}
             type={this.props.type}
             stages={this.state.stages}
             onChangeStages={this.onChangeStages}
