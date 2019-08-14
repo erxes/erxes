@@ -76,11 +76,6 @@ class Settings extends React.PureComponent {
               '/images/icons/erxes-14.svg',
               '/settings/logs'
             )}
-            {this.renderBox(
-              'Engage Config',
-              '/images/icons/erxes-08.svg',
-              '/settings/engages'
-            )}
           </div>
         </Row>
         <Divider />

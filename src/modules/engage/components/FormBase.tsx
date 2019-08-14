@@ -34,7 +34,7 @@ class FormBase extends React.Component<Props> {
     }
 
     if (doc.messenger) {
-      const { brandId, sentAs, rules, content } = doc.messenger;
+      const { brandId, sentAs, content } = doc.messenger;
 
       if (!brandId) {
         return this.sendError(__('Choose a brand'));
@@ -46,13 +46,6 @@ class FormBase extends React.Component<Props> {
 
       if (!content) {
         return this.sendError(__('Write a content'));
-      }
-
-      if (
-        rules.length > 0 &&
-        rules.map(rule => !rule.condition || !rule.value)
-      ) {
-        return this.sendError(__('Choose your rule condition and write value'));
       }
     }
 
