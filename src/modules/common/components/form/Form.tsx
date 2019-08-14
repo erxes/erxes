@@ -1,7 +1,7 @@
 import { IFormProps } from 'modules/common/types';
 import React from 'react';
 import validator from 'validator';
-import { __ } from '../../utils';
+import { __, generateRandomString } from '../../utils';
 import { Error } from './styles';
 
 type Props = {
@@ -16,6 +16,7 @@ type State = {
 };
 
 class Form extends React.Component<Props, State> {
+  private formId: string = generateRandomString();
   private children: any[] = [];
 
   constructor(props: Props) {
@@ -56,16 +57,18 @@ class Form extends React.Component<Props, State> {
     });
   };
 
+  getSelector = (name: string) => {
+    return document.querySelector(`#${this.formId} [name='${name}']`) as any;
+  };
+
   getValue = child => {
-    const { name } = child.props;
+    const element = this.getSelector(child.props.name);
 
-    const values = document.getElementsByName(name) as any;
-
-    if (values.length > 1) {
-      return values[values.length - 1].value;
+    if (element) {
+      return element.value;
     }
 
-    return values[0].value;
+    return '';
   };
 
   onSubmit = e => {
@@ -77,12 +80,8 @@ class Form extends React.Component<Props, State> {
 
   validate = child => {
     const { props } = child;
-    const elements = document.getElementsByName(props.name) as any;
-
-    const value =
-      elements.length > 1
-        ? elements[elements.length - 1].value
-        : elements[0].value;
+    const element = this.getSelector(props.name);
+    const value = element ? element.value : '';
 
     if (props.required && !value) {
       return <Error>{__('Required field')}</Error>;
@@ -124,7 +123,7 @@ class Form extends React.Component<Props, State> {
 
   render() {
     return (
-      <form onSubmit={this.onSubmit} noValidate={true}>
+      <form id={this.formId} onSubmit={this.onSubmit} noValidate={true}>
         {this.props.renderContent({
           errors: this.state.errors,
           values: this.state.values,

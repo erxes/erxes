@@ -214,3 +214,19 @@ export const getCookie = cname => {
 
   return '';
 };
+
+/**
+ * Generate random string
+ */
+export const generateRandomString = (len: number = 10) => {
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+  let randomString = '';
+
+  for (let i = 0; i < len; i++) {
+    const position = Math.floor(Math.random() * charSet.length);
+    randomString += charSet.substring(position, position + 1);
+  }
+
+  return randomString;
+};

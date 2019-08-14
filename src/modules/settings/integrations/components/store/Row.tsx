@@ -50,7 +50,7 @@ class Row extends React.Component<Props, State> {
   };
 
   toggleBox = selectedKind => {
-    if (!selectedKind) {
+    if (!selectedKind || selectedKind === 'amazon-ses') {
       return false;
     }
 
