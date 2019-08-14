@@ -66,16 +66,19 @@ class LogList extends React.Component<Props, State> {
     };
   }
 
-  setUserFilter = (value: string) => {
-    router.onParamSelect('userId', value, this.props.history);
-  };
-
   setFilter(
     name: string,
     selectedItem: string & { value: string; label?: string }
   ) {
+    const value =
+      typeof selectedItem === 'string'
+        ? selectedItem
+        : selectedItem
+        ? selectedItem.value
+        : '';
+
     this.setState({
-      [name]: selectedItem ? selectedItem.value : '',
+      [name]: value,
       page: '',
       perPage: ''
     });
@@ -161,11 +164,10 @@ class LogList extends React.Component<Props, State> {
   };
 
   renderActionBar() {
-    const { queryParams } = this.props;
-    const { action } = this.state;
+    const { action, userId } = this.state;
 
-    const usersOnChange = users => {
-      this.setUserFilter(users);
+    const onUserChange = user => {
+      this.setFilter('userId', user);
     };
 
     const actionBarLeft = (
@@ -184,8 +186,8 @@ class LogList extends React.Component<Props, State> {
           <SelectTeamMembers
             label="Choose users"
             name="userId"
-            value={queryParams.userId}
-            onSelect={usersOnChange}
+            value={userId || ''}
+            onSelect={onUserChange}
             filterParams={{ status: 'verified' }}
             multi={false}
           />
