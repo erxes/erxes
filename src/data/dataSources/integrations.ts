@@ -11,6 +11,14 @@ export default class IntegrationsAPI extends RESTDataSource {
     this.httpCache = new HTTPCache();
   }
 
+  public didEncounterError(e) {
+    const error = e.extensions || {};
+    const { response } = error;
+    const { body } = response;
+
+    throw new Error(body);
+  }
+
   public async createIntegration(kind, params) {
     return this.post(`/${kind}/create-integration`, params);
   }

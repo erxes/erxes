@@ -12,6 +12,14 @@ export default class EngagesAPI extends RESTDataSource {
     this.httpCache = new HTTPCache();
   }
 
+  public didEncounterError(e) {
+    const error = e.extensions || {};
+    const { response } = error;
+    const { body } = response;
+
+    throw new Error(body);
+  }
+
   public async engagesConfigDetail() {
     return this.get(`/configs/detail`);
   }
