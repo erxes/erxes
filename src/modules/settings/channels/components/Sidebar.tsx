@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import LoadMore from 'modules/common/components/LoadMore';
@@ -15,7 +14,6 @@ import ChannelRow from './ChannelRow';
 
 type Props = {
   channels: IChannel[];
-  members: IUser[];
   remove: (channelId: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
@@ -25,20 +23,14 @@ type Props = {
 
 class Sidebar extends React.Component<Props, {}> {
   renderItems = () => {
-    const {
-      channels,
-      members,
-      remove,
-      currentChannelId,
-      renderButton
-    } = this.props;
+    const { channels, remove, currentChannelId, renderButton } = this.props;
 
     return channels.map(channel => (
       <ChannelRow
         key={channel._id}
         isActive={currentChannelId === channel._id}
         channel={channel}
-        members={members}
+        members={channel.members}
         remove={remove}
         renderButton={renderButton}
       />
@@ -46,7 +38,7 @@ class Sidebar extends React.Component<Props, {}> {
   };
 
   renderSidebarHeader() {
-    const { members, renderButton } = this.props;
+    const { renderButton } = this.props;
     const { Header } = LeftSidebar;
 
     const addChannel = (
@@ -58,7 +50,7 @@ class Sidebar extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm {...props} members={members} renderButton={renderButton} />
+      <ChannelForm {...props} renderButton={renderButton} />
     );
 
     return (
