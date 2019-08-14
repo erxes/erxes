@@ -157,6 +157,9 @@ const FlexItem = styledTS<{
 
 const FlexPad = styled(FlexItem)`
   padding: ${dimensions.coreSpacing}px;
+  flex: 1;
+  border-right: ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`

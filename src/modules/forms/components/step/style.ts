@@ -257,6 +257,14 @@ const ColorList = styled.ul`
   padding: 0;
 `;
 
+const FieldSection = styled.div``;
+
+const Field = styled.div`
+  width: 50%;
+  height: 200px;
+  background: ${colors.bgLight};
+`;
+
 export {
   FlexItem,
   FlexColumn,
@@ -269,6 +277,8 @@ export {
   CarouselSteps,
   MarkdownWrapper,
   Tabs,
+  FieldSection,
+  Field,
   CarouselInner,
   FullPreview,
   ImageUpload,

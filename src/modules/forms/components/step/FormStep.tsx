@@ -2,13 +2,14 @@ import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import ActionBar from 'modules/layout/components/ActionBar';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormPreview from './preview/FormPreview';
-import { FlexColumn, FlexItem } from './style';
+import { Field, FieldSection, FlexColumn, FlexItem } from './style';
 
 type Props = {
   type: string;
@@ -228,18 +229,6 @@ class FormStep extends React.Component<Props, State> {
   renderOptions() {
     const editingField = this.state.editingField || ({} as IField);
 
-    const formTitle = e =>
-      this.onChangeState(
-        'formTitle',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
-    const formDesc = e =>
-      this.onChangeState(
-        'formDesc',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
     const validation = e =>
       this.onFieldAttrChange(
         'validation',
@@ -258,33 +247,8 @@ class FormStep extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const formBtnText = e =>
-      this.onChangeState(
-        'formBtnText',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
     return (
       <React.Fragment>
-        <FormGroup>
-          <ControlLabel>{__('Form title')}</ControlLabel>
-          <FormControl
-            id="form-btn-text"
-            value={this.props.formTitle}
-            onChange={formTitle}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{__('Form description')}</ControlLabel>
-          <FormControl
-            id="form-btn-text"
-            componentClass="textarea"
-            value={this.props.formDesc}
-            onChange={formDesc}
-          />
-        </FormGroup>
-
         <FormGroup>
           <ControlLabel htmlFor="type">Type:</ControlLabel>
 
@@ -334,6 +298,8 @@ class FormStep extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        {this.renderOptionsTextArea()}
+
         <FormGroup>
           <ControlLabel htmlFor="description">Description:</ControlLabel>
           <FormControl
@@ -343,26 +309,75 @@ class FormStep extends React.Component<Props, State> {
             onChange={desc}
           />
         </FormGroup>
+      </React.Fragment>
+    );
+  }
 
-        {this.renderOptionsTextArea()}
+  renderLeftSidebar = () => {
+    const formTitle = e =>
+      this.onChangeState(
+        'formTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const formDesc = e =>
+      this.onChangeState(
+        'formDesc',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const formBtnText = e =>
+      this.onChangeState(
+        'formBtnText',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>{__('Form title')}</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            value={this.props.formTitle}
+            onChange={formTitle}
+          />
+        </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Form button text')}</ControlLabel>
+          <ControlLabel required={true}>{__('Form description')}</ControlLabel>
+          <FormControl
+            id="form-btn-text"
+            componentClass="textarea"
+            value={this.props.formDesc}
+            onChange={formDesc}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>{__('Form button text')}</ControlLabel>
           <FormControl
             id="form-btn-text"
             value={this.props.formBtnText}
             onChange={formBtnText}
           />
         </FormGroup>
-      </React.Fragment>
+
+        <h4>New field</h4>
+        <div>
+          <Field>
+            <Icon icon="checked-1" />
+            <span>Text Input</span>
+          </Field>
+        </div>
+      </>
     );
-  }
+  };
 
   render() {
     return (
       <FlexItem>
         <FlexColumn>
-          <LeftItem>{this.renderOptions()}</LeftItem>
+          <LeftItem>{this.renderLeftSidebar()}</LeftItem>
           {this.footerActions()}
         </FlexColumn>
 
