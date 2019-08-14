@@ -141,7 +141,7 @@ export default class {
         break;
 
       case 'segment-create':
-        caption = <span>{target} created a segment</span>;
+        caption = <span>{target} joined a segment</span>;
         break;
 
       case 'internal_note-create':
