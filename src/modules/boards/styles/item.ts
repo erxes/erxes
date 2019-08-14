@@ -182,9 +182,16 @@ const RightButton = styled(Button)`
 `;
 
 const MoveContainer = styled(FlexContent)`
-  display: flex;
   margin-bottom: 20px;
   align-items: center;
+`;
+
+const ActionContainer = styled(MoveContainer)`
+  flex-wrap: wrap;
+
+  > div {
+    margin: 0 ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing / 2}px 0;
+  }
 `;
 
 const MoveFormContainer = styled.div`
@@ -357,5 +364,6 @@ export {
   PriceContainer,
   Right,
   Footer,
-  WatchIndicator
+  WatchIndicator,
+  ActionContainer
 };

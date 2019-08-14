@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { PriorityIndicator } from 'modules/boards/components/editForm';
 import Move from 'modules/boards/containers/editForm/Move';
 import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
 import { IItem, IOptions } from 'modules/boards/types';
@@ -12,8 +13,11 @@ type Props = {
   description?: string;
   stageId: string;
   users: IUser[];
+  priority: string;
+  hackStage: string;
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
   amount?: () => React.ReactNode;
+  dueDate: React.ReactNode;
 };
 
 class Top extends React.Component<Props> {
@@ -35,7 +39,7 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { name, onChangeField, amount } = this.props;
+    const { name, onChangeField, amount, dueDate, priority } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
@@ -45,6 +49,7 @@ class Top extends React.Component<Props> {
         <HeaderRow>
           <HeaderContent>
             <TitleRow>
+              {priority && <PriorityIndicator value={priority} />}
               <FormControl
                 componentClass="textarea"
                 defaultValue={name}
@@ -52,6 +57,7 @@ class Top extends React.Component<Props> {
                 onChange={nameOnChange}
               />
             </TitleRow>
+            {dueDate}
           </HeaderContent>
 
           {amount && amount()}
