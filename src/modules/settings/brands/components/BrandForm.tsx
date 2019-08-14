@@ -57,7 +57,7 @@ class BrandForm extends React.Component<Props> {
 
           <FormControl
             {...formProps}
-            name="name-brand"
+            name="name"
             defaultValue={object.name}
             required={true}
           />
@@ -68,7 +68,7 @@ class BrandForm extends React.Component<Props> {
 
           <FormControl
             {...formProps}
-            name="description-brand"
+            name="description"
             componentClass="textarea"
             rows={5}
             defaultValue={object.description}
