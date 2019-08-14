@@ -8,8 +8,12 @@ import {
   VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
 import React from 'react';
+import styled from 'styled-components';
 import { IConditionsRule } from '../../types';
-import { FlexWrapper } from '../form/styles';
+
+const RuleDescription = styled.p`
+  text-transform: initial;
+`;
 
 type Props = {
   rules: IConditionsRule[];
@@ -47,17 +51,28 @@ class ConditionsRule extends React.Component<Props, State> {
   };
 
   renderDescription(rule) {
-    let description = '';
-
-    RULE_CONDITIONS[rule.kind].map(cond => {
-      if (cond.value && cond.value === rule.condition) {
-        description = cond.description;
-      }
-
-      return null;
-    });
-
-    return <p>{description}</p>;
+    let description;
+    switch (rule.kind) {
+      case 'browserLanguage':
+        description =
+          'You can write only language code in value. Example: mn, en, fr ... etc';
+        break;
+      case 'currentPageUrl':
+        description =
+          'You can write path after domain in value. Example: if www.erxes.io/integrations. You can write here only /integrations';
+        break;
+      case 'country':
+        description =
+          'You can write only country code in value. Example: mn, en, fr ... etc';
+        break;
+      case 'city':
+        description =
+          'You can write only city name in value. Example: Ulaanbaatar, Tokyo ... etc';
+        break;
+      default:
+        description = 'doc-text-inv-1';
+    }
+    return description;
   }
 
   renderRule(rule) {
@@ -95,7 +110,10 @@ class ConditionsRule extends React.Component<Props, State> {
 
     return (
       <FormGroup key={rule._id}>
-        <ControlLabel>{rule.text}</ControlLabel>
+        <ControlLabel>
+          {rule.text}
+          <RuleDescription>{this.renderDescription(rule)}</RuleDescription>
+        </ControlLabel>
         <InlineForm>
           <FormControl
             componentClass="select"
@@ -109,14 +127,11 @@ class ConditionsRule extends React.Component<Props, State> {
             ))}
           </FormControl>
 
-          <FlexWrapper>
-            <FormControl
-              type="text"
-              value={rule.value}
-              onChange={onChangeValue}
-            />
-            {this.renderDescription(rule)}
-          </FlexWrapper>
+          <FormControl
+            type="text"
+            value={rule.value}
+            onChange={onChangeValue}
+          />
           <Button
             size="small"
             onClick={remove}
