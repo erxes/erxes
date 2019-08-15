@@ -5,7 +5,6 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
-import { IRouterProps } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -23,8 +22,7 @@ type Props = {
   onUpdate: (item: ITask) => void;
   onTogglePopup: () => void;
   options: IOptions;
-  queryParams: any;
-} & IRouterProps;
+};
 
 class TaskItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
@@ -128,4 +126,4 @@ class TaskItem extends React.PureComponent<Props, {}> {
   }
 }
 
-export default withRouter<Props>(TaskItem);
+export default TaskItem;

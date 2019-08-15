@@ -5,11 +5,9 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
-import { IRouterProps } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { withRouter } from 'react-router';
 import { ITicket } from '../types';
 
 type Props = {
@@ -23,8 +21,7 @@ type Props = {
   onUpdate: (item: ITicket) => void;
   onTogglePopup: () => void;
   options: IOptions;
-  queryParams: any;
-} & IRouterProps;
+};
 class TicketItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
     if (!date) {
@@ -127,4 +124,4 @@ class TicketItem extends React.PureComponent<Props, {}> {
   }
 }
 
-export default withRouter<Props>(TicketItem);
+export default TicketItem;

@@ -15,7 +15,7 @@ type Props = {
 export default (props: Props) => {
   return (
     <PipelineConsumer>
-      {({ onAddItem, onRemoveItem, onUpdateItem, options, queryParams }) => {
+      {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
         return (
           <TicketItem
             options={options}
@@ -28,7 +28,6 @@ export default (props: Props) => {
             onAdd={onAddItem}
             onRemove={onRemoveItem}
             onUpdate={onUpdateItem}
-            queryParams={queryParams}
           />
         );
       }}
