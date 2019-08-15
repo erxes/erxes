@@ -80,7 +80,7 @@ export const sendNotifications = async ({
       title,
       action: `removed you from ${contentType}`,
       content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
+      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
       receivers: removedUsers,
     });
   }
@@ -92,7 +92,7 @@ export const sendNotifications = async ({
       title,
       action: `invited you to the ${contentType}: `,
       content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
+      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
       receivers: invitedUsers,
     });
   }
@@ -105,7 +105,7 @@ export const sendNotifications = async ({
     title,
     action: action ? action : `has updated ${contentType}`,
     content,
-    link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
+    link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
 
     // exclude current user, invited user and removed users
     receivers: (await notifiedUserIds(item)).filter(id => {
