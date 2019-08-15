@@ -50,18 +50,19 @@ class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
     }
   }
 
-  toggleForm = () => {
+  toggleForm = (dealId?: string) => {
+    const { queryParams } = this.props;
     this.props.onTogglePopup();
 
     const { isFormVisible } = this.state;
 
-    if (isFormVisible && this.props.queryParams.dealId) {
-      return this.setState({ isFormVisible: false }, () => {
-        routerUtils.removeParams(this.props.history, 'dealId');
-      });
-    }
+    this.setState({ isFormVisible: !isFormVisible }, () => {
+      if (queryParams.dealId) {
+        return routerUtils.removeParams(this.props.history, 'dealId');
+      }
 
-    this.setState({ isFormVisible: !isFormVisible });
+      return routerUtils.setParams(this.props.history, { dealId });
+    });
   };
 
   renderForm = () => {
@@ -109,7 +110,7 @@ class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
+        <Content onClick={this.toggleForm.bind(this, item._id)}>
           <h5>{item.name}</h5>
 
           {products.map((product, index) => (

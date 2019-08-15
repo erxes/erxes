@@ -5,9 +5,12 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
+import { IRouterProps } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
+import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
+import { withRouter } from 'react-router';
 import { ITask } from '../types';
 
 type Props = {
@@ -20,16 +23,22 @@ type Props = {
   onUpdate: (item: ITask) => void;
   onTogglePopup: () => void;
   options: IOptions;
-};
+  queryParams: any;
+} & IRouterProps;
 
-export default class TaskItem extends React.PureComponent<
-  Props,
-  { isFormVisible: boolean }
-> {
+class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
   constructor(props) {
     super(props);
 
     this.state = { isFormVisible: false };
+  }
+
+  componentDidMount() {
+    const { queryParams, item } = this.props;
+
+    if (queryParams.taskId && queryParams.taskId === item._id) {
+      return this.setState({ isFormVisible: true });
+    }
   }
 
   renderDate(date) {
@@ -40,12 +49,19 @@ export default class TaskItem extends React.PureComponent<
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = () => {
+  toggleForm = (taskId?: string) => {
+    const { queryParams } = this.props;
     this.props.onTogglePopup();
 
     const { isFormVisible } = this.state;
 
-    this.setState({ isFormVisible: !isFormVisible });
+    this.setState({ isFormVisible: !isFormVisible }, () => {
+      if (queryParams.taskId) {
+        return routerUtils.removeParams(this.props.history, 'taskId');
+      }
+
+      return routerUtils.setParams(this.props.history, { taskId });
+    });
   };
 
   renderForm = () => {
@@ -87,7 +103,7 @@ export default class TaskItem extends React.PureComponent<
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
+        <Content onClick={this.toggleForm.bind(this, item._id)}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}
@@ -132,3 +148,5 @@ export default class TaskItem extends React.PureComponent<
     );
   }
 }
+
+export default withRouter<Props>(TaskItem);

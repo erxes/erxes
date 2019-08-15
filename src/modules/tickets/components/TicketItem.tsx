@@ -5,9 +5,12 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
+import { IRouterProps } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
+import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
+import { withRouter } from 'react-router';
 import { ITicket } from '../types';
 
 type Props = {
@@ -20,9 +23,9 @@ type Props = {
   onUpdate: (item: ITicket) => void;
   onTogglePopup: () => void;
   options: IOptions;
-};
-
-export default class TicketItem extends React.PureComponent<
+  queryParams: any;
+} & IRouterProps;
+class TicketItem extends React.PureComponent<
   Props,
   { isFormVisible: boolean }
 > {
@@ -30,6 +33,14 @@ export default class TicketItem extends React.PureComponent<
     super(props);
 
     this.state = { isFormVisible: false };
+  }
+
+  componentDidMount() {
+    const { queryParams, item } = this.props;
+
+    if (queryParams.ticketId && queryParams.ticketId === item._id) {
+      return this.setState({ isFormVisible: true });
+    }
   }
 
   renderDate(date) {
@@ -40,12 +51,19 @@ export default class TicketItem extends React.PureComponent<
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = () => {
+  toggleForm = (ticketId?: string) => {
+    const { queryParams } = this.props;
     this.props.onTogglePopup();
 
     const { isFormVisible } = this.state;
 
-    this.setState({ isFormVisible: !isFormVisible });
+    this.setState({ isFormVisible: !isFormVisible }, () => {
+      if (queryParams.ticketId) {
+        return routerUtils.removeParams(this.props.history, 'ticketId');
+      }
+
+      return routerUtils.setParams(this.props.history, { ticketId });
+    });
   };
 
   renderForm = () => {
@@ -87,7 +105,7 @@ export default class TicketItem extends React.PureComponent<
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
+        <Content onClick={this.toggleForm.bind(this, item._id)}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}
@@ -132,3 +150,5 @@ export default class TicketItem extends React.PureComponent<
     );
   }
 }
+
+export default withRouter<Props>(TicketItem);
