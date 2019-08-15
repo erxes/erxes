@@ -27,6 +27,14 @@ const channels = `
       description
       integrationIds
       memberIds
+      members {
+        _id
+        email
+        details {
+          avatar
+          fullName
+        }
+      }
     }
   }
 `;
