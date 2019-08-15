@@ -10,6 +10,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';
 import { PipelineContainer } from '../styles';
+import { IOption } from '../types';
 import PipelineRow from './PipelineRow';
 
 type Props = {
@@ -19,8 +20,8 @@ type Props = {
   updateOrder?: any;
   remove: (pipelineId: string) => void;
   boardId: string;
-  options?: any;
-  refetch: any;
+  options?: IOption;
+  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 };
 
 type State = {
@@ -112,7 +113,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderContent() {
     const { pipelines, options } = this.props;
-    const pipelineName = options.pipelineName || 'pipeline';
+    const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (pipelines.length === 0) {
       return (
@@ -134,8 +135,8 @@ class Pipelines extends React.Component<Props, State> {
 
   renderButton() {
     const { options, boardId, refetch } = this.props;
-    const pipelineName = options.pipelineName || 'pipeline';
-    const ExtraButton = options.ExtraButton;
+    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const TemplateButton = options ? options.TemplateButton : null;
 
     if (!boardId) {
       return null;
@@ -151,8 +152,8 @@ class Pipelines extends React.Component<Props, State> {
         >
           Add {pipelineName}
         </Button>
-        {ExtraButton ? (
-          <ExtraButton refetch={refetch} boardId={boardId} />
+        {TemplateButton ? (
+          <TemplateButton pipelinesRefetch={refetch} boardId={boardId} />
         ) : null}
       </>
     );
@@ -160,8 +161,8 @@ class Pipelines extends React.Component<Props, State> {
 
   render() {
     const { options } = this.props;
-    const pipelineName = options.pipelineName || 'Pipeline';
-    const boardName = options.boardName || 'Board';
+    const pipelineName = options ? options.pipelineName : 'Pipeline';
+    const boardName = options ? options.boardName : 'Board';
 
     return (
       <React.Fragment>

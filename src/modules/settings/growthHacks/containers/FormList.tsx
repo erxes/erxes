@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { queries } from 'modules/forms/graphql';
+import { FormsQueryResponse } from 'modules/forms/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import FormList from '../components/FormList';
@@ -28,7 +29,7 @@ class FormListContainer extends React.Component<FinalProps> {
 }
 
 export default compose(
-  graphql(gql(queries.forms), {
+  graphql<Props, FormsQueryResponse>(gql(queries.forms), {
     name: 'formsQuery'
   })
 )(FormListContainer);

@@ -8,6 +8,7 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import Home from '../components/Home';
 import { queries } from '../graphql';
+import { IOption } from '../types';
 
 type HomeContainerProps = {
   history?: any;
@@ -17,7 +18,7 @@ type HomeContainerProps = {
 type Props = {
   type: string;
   title: string;
-  options?: any;
+  options?: IOption;
 };
 
 class HomeContainer extends React.Component<HomeContainerProps & Props> {

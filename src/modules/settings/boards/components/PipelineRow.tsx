@@ -6,6 +6,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';
 import { PipelineRowContainer } from '../styles';
+import { IOption } from '../types';
 
 type Props = {
   pipeline: IPipeline;
@@ -13,7 +14,7 @@ type Props = {
   remove: (pipelineId: string) => void;
   onTogglePopup: () => void;
   type: string;
-  options?: any;
+  options?: IOption;
 };
 
 type State = {

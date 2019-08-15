@@ -3,19 +3,20 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Boards from '../containers/Boards';
 import Pipelines from '../containers/Pipelines';
+import { IOption } from '../types';
 
 type Props = {
   boardId: string;
   type: string;
   title: string;
-  options?: any;
+  options?: IOption;
 };
 
 class Home extends React.Component<Props, {}> {
   render() {
-    const { boardId, type, title, options = {} } = this.props;
+    const { boardId, type, title, options } = this.props;
 
-    const boardName = options.boardName || 'Board';
+    const boardName = options ? options.boardName : 'Board';
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },

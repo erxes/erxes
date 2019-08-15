@@ -2,13 +2,14 @@ import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import React from 'react';
 import { StageList } from '../styles';
+import { IOption } from '../types';
 import StageItem from './StageItem';
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
   stages: any;
   type: string;
-  options: any;
+  options?: IOption;
 };
 
 class Stages extends React.Component<Props, {}> {
@@ -56,7 +57,7 @@ class Stages extends React.Component<Props, {}> {
 
   render() {
     const { options } = this.props;
-    const Item = options.StageItem || StageItem;
+    const Item = options ? options.StageItem : StageItem;
 
     return (
       <StageList>

@@ -139,3 +139,8 @@ export type CountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type FormsQueryResponse = {
+  forms: IForm[];
+  loading: boolean;
+};

@@ -1,8 +1,13 @@
 import gql from 'graphql-tag';
-import { PipelinesQueryResponse } from 'modules/boards/types';
+import { TemplatesQueryResponse } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert } from 'modules/common/utils';
 import { withProps } from 'modules/common/utils';
+import {
+  PipelineCopyMutation,
+  PipelineCopyMutationResponse,
+  PipelineCopyMutationVariables
+} from 'modules/settings/boards/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Templates from '../components/Templates';
@@ -12,12 +17,12 @@ type Props = {
   show: boolean;
   closeModal: () => void;
   boardId: string;
-  refetch: any;
+  pipelinesRefetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 };
 
 type FinalProps = {
-  templatesQuery: any;
-  pipelinesCopyMutation: any;
+  templatesQuery: TemplatesQueryResponse;
+  pipelinesCopyMutation: PipelineCopyMutation;
 } & Props;
 
 class PipelinesContainer extends React.Component<FinalProps> {
@@ -28,11 +33,11 @@ class PipelinesContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const pipelinesCopy = variables => {
+    const pipelinesCopy = (variables: PipelineCopyMutationVariables) => {
       pipelinesCopyMutation({ variables }).then(({ data }) => {
         Alert.success('You successfully copied');
 
-        this.props.refetch({ boardId: data.pipelinesCopy.boardId });
+        this.props.pipelinesRefetch({ boardId: data.pipelinesCopy.boardId });
       });
     };
 
@@ -48,14 +53,14 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, PipelinesQueryResponse, { boardId: string }>(
-      gql(queries.growthHackTemplates),
+    graphql<Props, TemplatesQueryResponse>(gql(queries.growthHackTemplates), {
+      name: 'templatesQuery'
+    }),
+    graphql<Props, PipelineCopyMutationResponse, PipelineCopyMutationVariables>(
+      gql(mutations.pipelinesCopy),
       {
-        name: 'templatesQuery'
+        name: 'pipelinesCopyMutation'
       }
-    ),
-    graphql(gql(mutations.pipelinesCopy), {
-      name: 'pipelinesCopyMutation'
-    })
+    )
   )(PipelinesContainer)
 );

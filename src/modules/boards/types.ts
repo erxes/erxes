@@ -147,6 +147,11 @@ export type PipelinesQueryResponse = {
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 };
 
+export type TemplatesQueryResponse = {
+  growthHackTemplates: IPipeline[];
+  loading: boolean;
+};
+
 export type StagesQueryResponse = {
   stages: IStage[];
   loading: boolean;

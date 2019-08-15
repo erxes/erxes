@@ -6,7 +6,7 @@ const options = {
   boardName: 'Campaign',
   pipelineName: 'Project',
   StageItem,
-  ExtraButton: TemplateButton,
+  TemplateButton,
   PipelineForm
 };
 

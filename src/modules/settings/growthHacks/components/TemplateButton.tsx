@@ -4,7 +4,7 @@ import Templates from '../containers/Templates';
 
 type Props = {
   boardId: string;
-  refetch: any;
+  pipelinesRefetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 };
 
 type State = {
@@ -21,12 +21,12 @@ class TemplateButton extends React.Component<Props, State> {
   }
 
   renderTemplates() {
-    const { boardId, refetch } = this.props;
+    const { boardId, pipelinesRefetch } = this.props;
     const closeModal = () => this.setState({ showModal: false });
 
     return (
       <Templates
-        refetch={refetch}
+        pipelinesRefetch={pipelinesRefetch}
         boardId={boardId}
         show={this.state.showModal}
         closeModal={closeModal}

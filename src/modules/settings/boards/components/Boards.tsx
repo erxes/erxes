@@ -7,6 +7,7 @@ import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
+import { IOption } from '../types';
 import BoardForm from './BoardForm';
 import BoardRow from './BoardRow';
 
@@ -17,7 +18,7 @@ type Props = {
   remove: (boardId: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
-  options?: any;
+  options?: IOption;
 };
 
 class Boards extends React.Component<Props, {}> {
@@ -44,7 +45,7 @@ class Boards extends React.Component<Props, {}> {
     const { renderButton, type, options } = this.props;
     const { Header } = Sidebar;
 
-    const boardName = options.boardName || 'Board';
+    const boardName = options ? options.boardName : 'Board';
 
     const addBoard = (
       <HelperButtons>
@@ -74,9 +75,8 @@ class Boards extends React.Component<Props, {}> {
   render() {
     const { loading, boards, options } = this.props;
 
-    const boardName = options.boardName
-      ? options.boardName.toLowerCase()
-      : 'board';
+    const boardName =
+      options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
       <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>

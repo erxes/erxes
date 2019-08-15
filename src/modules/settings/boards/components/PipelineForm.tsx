@@ -14,6 +14,7 @@ import React from 'react';
 import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import BlockPicker from 'react-color/lib/Block';
 import { SelectMemberStyled } from '../styles';
+import { IOption } from '../types';
 import Stages from './Stages';
 
 type Props = {
@@ -24,7 +25,7 @@ type Props = {
   stages?: IStage[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  options?: any;
+  options?: IOption;
   renderExtraFields?: (formProps: IFormProps) => JSX.Element;
   extraFields?: any;
 };
@@ -134,9 +135,10 @@ class PipelineForm extends React.Component<Props, State> {
     } = this.props;
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
-    const pipelineName = options.pipelineName
-      ? options.pipelineName.toLowerCase()
-      : 'pipeline';
+    const pipelineName =
+      options && options.pipelineName
+        ? options.pipelineName.toLowerCase()
+        : 'pipeline';
 
     const popoverTop = (
       <Popover id="color-picker">

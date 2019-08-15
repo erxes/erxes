@@ -28,7 +28,7 @@ class Templates extends React.Component<Props> {
         dialogClassName="transform"
       >
         {templates.map(t => (
-          <div onClick={() => copy(t._id)} key={t._id}>
+          <div onClick={copy.bind(this, t._id)} key={t._id}>
             {t.name}
           </div>
         ))}
