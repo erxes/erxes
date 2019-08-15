@@ -12,6 +12,7 @@ interface ICustomerFieldsInput {
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
+  getCustomer(_id: string): Promise<ICustomerDocument>;
   createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
@@ -80,6 +81,19 @@ export const loadClass = () => {
           throw new Error('Duplicated phone');
         }
       }
+    }
+
+    /**
+     * Retreives customer
+     */
+    public static async getCustomer(_id: string) {
+      const customer = await Customers.findOne({ _id });
+
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+
+      return customer;
     }
 
     /**
@@ -241,6 +255,7 @@ export const loadClass = () => {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(customerFields, customerIds);
 
+      let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
       let companyIds: string[] = [];
 
@@ -263,6 +278,9 @@ export const loadClass = () => {
           // get last customer's integrationId
           customerFields.integrationId = customerObj.integrationId;
 
+          // Merging scopeBrandIds
+          scopeBrandIds = [...scopeBrandIds, ...(customerObj.scopeBrandIds || [])];
+
           const customerTags: string[] = customerObj.tagIds || [];
           const customerCompanies: string[] = customerObj.companyIds || [];
 
@@ -278,21 +296,17 @@ export const loadClass = () => {
         }
       }
 
-      // Removing Duplicated Tags from customer
+      // Removing Duplicates
+      scopeBrandIds = Array.from(new Set(scopeBrandIds));
       tagIds = Array.from(new Set(tagIds));
-
-      // Removing Duplicated Companies from customer
       companyIds = Array.from(new Set(companyIds));
-
-      // Removing Duplicated Emails from customer
       emails = Array.from(new Set(emails));
-
-      // Removing Duplicated Phones from customer
       phones = Array.from(new Set(phones));
 
       // Creating customer with properties
       const customer = await this.createCustomer({
         ...customerFields,
+        scopeBrandIds,
         tagIds,
         companyIds,
         mergedIds: customerIds,
@@ -306,9 +320,6 @@ export const loadClass = () => {
       await InternalNotes.changeCustomer(customer._id, customerIds);
       await Deals.changeCustomer(customer._id, customerIds);
       await Tickets.changeCustomer(customer._id, customerIds);
-
-      // create log
-      await ActivityLogs.createCustomerLog(customer);
 
       return customer;
     }

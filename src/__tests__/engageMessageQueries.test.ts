@@ -41,7 +41,6 @@ describe('engageQueries', () => {
 
         email
         messenger
-        deliveryReports
 
         segments { _id }
         fromUser { _id }

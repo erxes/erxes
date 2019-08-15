@@ -16,12 +16,14 @@ export const checkLogin = (user: IUserDocument) => {
 export const permissionWrapper = (cls: any, methodName: string, checkers: any) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = (root, args, { user }) => {
+  cls[methodName] = (root, args, context) => {
+    const { user } = context;
+
     for (const checker of checkers) {
       checker(user);
     }
 
-    return oldMethod(root, args, { user });
+    return oldMethod(root, args, context);
   };
 };
 

@@ -1,9 +1,10 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { IExternalIntegrationParams, IMessengerIntegration } from '../../../db/models/Integrations';
+import { IntegrationsAPI } from '../../dataSources';
 import { checkPermission } from '../../permissions/wrappers';
-import { fetchIntegrationApi, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import { IContext } from '../../types';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
@@ -13,11 +14,13 @@ interface IEditFormIntegration extends IIntegration {
   _id: string;
 }
 
+const integrationsApi = new IntegrationsAPI();
+
 const integrationMutations = {
   /**
    * Create a new messenger integration
    */
-  async integrationsCreateMessengerIntegration(_root, doc: IMessengerIntegration, { user }: { user: IUserDocument }) {
+  async integrationsCreateMessengerIntegration(_root, doc: IMessengerIntegration, { user }: IContext) {
     const integration = await Integrations.createMessengerIntegration(doc);
 
     if (integration) {
@@ -38,11 +41,7 @@ const integrationMutations = {
   /**
    * Update messenger integration
    */
-  async integrationsEditMessengerIntegration(
-    _root,
-    { _id, ...fields }: IEditMessengerIntegration,
-    { user }: { user: IUserDocument },
-  ) {
+  async integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditMessengerIntegration, { user }: IContext) {
     const integration = await Integrations.findOne({ _id });
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
 
@@ -96,14 +95,10 @@ const integrationMutations = {
     const integration = await Integrations.createExternalIntegration(doc);
 
     try {
-      await fetchIntegrationApi({
-        path: `/${doc.kind}/create-integration`,
-        method: 'POST',
-        body: {
-          accountId: doc.accountId,
-          integrationId: integration._id,
-          data: data ? JSON.stringify(data) : '',
-        },
+      await integrationsApi.createIntegration(doc.kind, {
+        accountId: doc.accountId,
+        integrationId: integration._id,
+        data: data ? JSON.stringify(data) : '',
       });
     } catch (e) {
       await Integrations.remove({ _id: integration._id });
@@ -116,18 +111,12 @@ const integrationMutations = {
   /**
    * Delete an integration
    */
-  async integrationsRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async integrationsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const integration = await Integrations.findOne({ _id });
 
     if (integration) {
-      if (integration.kind === 'facebook') {
-        await fetchIntegrationApi({
-          path: '/integrations/remove',
-          method: 'POST',
-          body: {
-            integrationId: _id,
-          },
-        });
+      if (['facebook', 'gmail'].includes(integration.kind || '')) {
+        await integrationsApi.removeIntegration({ integrationId: _id });
       }
 
       await putDeleteLog(
@@ -147,7 +136,19 @@ const integrationMutations = {
    * Delete an account
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
-    return fetchIntegrationApi({ path: '/accounts/remove', method: 'post', body: { _id } });
+    return integrationsApi.removeAccount({ _id });
+  },
+
+  /**
+   * Send gmail
+   */
+  async integrationSendMail(_root, args: any) {
+    const { erxesApiId, ...mailParams } = args;
+
+    return integrationsApi.sendEmail({
+      erxesApiId,
+      data: JSON.stringify(mailParams),
+    });
   },
 };
 

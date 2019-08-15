@@ -1,6 +1,5 @@
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
 import { TAG_TYPES } from '../../../db/models/definitions/constants';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import { getDateFieldAsStr, getDurationField } from '../../modules/insights/aggregationUtils';
 import { IListArgs, IPieChartData } from '../../modules/insights/types';
@@ -23,6 +22,7 @@ import {
   noConversationSelector,
 } from '../../modules/insights/utils';
 import { moduleCheckPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 const insightQueries = {
   /**
@@ -116,7 +116,7 @@ const insightQueries = {
   /**
    * Counts conversations by each hours in each days.
    */
-  async insightsPunchCard(_root, args: IListArgs, { user }: { user: IUserDocument }) {
+  async insightsPunchCard(_root, args: IListArgs, { user }: IContext) {
     const messageSelector = await getMessageSelector({ args });
 
     return generatePunchData(ConversationMessages, messageSelector, user);
@@ -264,7 +264,7 @@ const insightQueries = {
   /**
    * Calculates average response close time for each team members.
    */
-  async insightsResponseClose(_root, args: IListArgs, { user }: { user: IUserDocument }) {
+  async insightsResponseClose(_root, args: IListArgs, { user }: IContext) {
     const { startDate, endDate } = args;
     const { start, end } = fixDates(startDate, endDate);
 

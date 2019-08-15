@@ -75,24 +75,6 @@ describe('Test Tickets model', () => {
     expect(updatedDealToOrder.order).toBe(9);
   });
 
-  test('Remove ticket', async () => {
-    const isDeleted = await Tickets.removeTicket(ticket.id);
-
-    expect(isDeleted).toBeTruthy();
-  });
-
-  test('Remove ticket not found', async () => {
-    expect.assertions(1);
-
-    const fakeDealId = 'fakeDealId';
-
-    try {
-      await Tickets.removeTicket(fakeDealId);
-    } catch (e) {
-      expect(e.message).toEqual('Ticket not found');
-    }
-  });
-
   test('Ticket change customer', async () => {
     const newCustomer = await customerFactory({});
 

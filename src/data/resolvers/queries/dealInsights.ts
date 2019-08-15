@@ -1,5 +1,4 @@
 import { Deals } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { INSIGHT_TYPES } from '../../constants';
 import { getDateFieldAsStr } from '../../modules/insights/aggregationUtils';
 import { IDealListArgs } from '../../modules/insights/types';
@@ -13,12 +12,13 @@ import {
   getTimezone,
 } from '../../modules/insights/utils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 const dealInsightQueries = {
   /**
    * Counts deals by each hours in each days.
    */
-  async dealInsightsPunchCard(_root, args: IDealListArgs, { user }: { user: IUserDocument }) {
+  async dealInsightsPunchCard(_root, args: IDealListArgs, { user }: IContext) {
     const selector = await getDealSelector(args);
 
     return generatePunchData(Deals, selector, user);
@@ -57,7 +57,7 @@ const dealInsightQueries = {
   /**
    * Calculates won or lost deals for each team members.
    */
-  async dealInsightsByTeamMember(_root, args: IDealListArgs, { user }: { user: IUserDocument }) {
+  async dealInsightsByTeamMember(_root, args: IDealListArgs, { user }: IContext) {
     const dealMatch = await getDealSelector(args);
 
     const insightAggregateData = await Deals.aggregate([

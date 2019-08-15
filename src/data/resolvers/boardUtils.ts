@@ -1,26 +1,27 @@
 import { Boards, Pipelines, Stages } from '../../db/models';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
+import { IDealDocument } from '../../db/models/definitions/deals';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { can } from '../permissions/utils';
 import { checkLogin } from '../permissions/wrappers';
 import utils from '../utils';
 
 export const notifiedUserIds = async (item: any) => {
-  const userIds: string[] = [];
+  let userIds: string[] = [];
 
-  if (item.assignedUserIds) {
-    userIds.concat(item.assignedUserIds);
+  if (item.assignedUserIds && item.assignedUserIds.length > 0) {
+    userIds = userIds.concat(item.assignedUserIds);
   }
 
-  if (item.watchedUserIds) {
-    userIds.concat(item.watchedUserIds);
+  if (item.watchedUserIds && item.watchedUserIds.length > 0) {
+    userIds = userIds.concat(item.watchedUserIds);
   }
 
   const stage = await Stages.getStage(item.stageId || '');
   const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
 
-  if (pipeline.watchedUserIds) {
-    userIds.concat(pipeline.watchedUserIds);
+  if (pipeline.watchedUserIds && pipeline.watchedUserIds.length > 0) {
+    userIds = userIds.concat(pipeline.watchedUserIds);
   }
 
   return userIds;
@@ -29,15 +30,26 @@ export const notifiedUserIds = async (item: any) => {
 /**
  * Send notification to all members of this content except the sender
  */
-export const sendNotifications = async (
-  stageId: string,
-  user: IUserDocument,
-  type: string,
-  userIds: string[],
-  content: string,
-  contentType: string,
-) => {
-  const stage = await Stages.findOne({ _id: stageId });
+export const sendNotifications = async ({
+  item,
+  user,
+  type,
+  action,
+  content,
+  contentType,
+  invitedUsers,
+  removedUsers,
+}: {
+  item: IDealDocument;
+  user: IUserDocument;
+  type: string;
+  action?: string;
+  content?: string;
+  contentType: string;
+  invitedUsers?: string[];
+  removedUsers?: string[];
+}) => {
+  const stage = await Stages.findOne({ _id: item.stageId });
 
   if (!stage) {
     throw new Error('Stage not found');
@@ -49,71 +61,65 @@ export const sendNotifications = async (
     throw new Error('Pipeline not found');
   }
 
+  const title = `${contentType} updated`;
+
+  if (!content) {
+    content = `${contentType} '${item.name}'`;
+  }
+
+  let route = '';
+
+  if (contentType === 'ticket') {
+    route = '/inbox';
+  }
+
+  if (removedUsers && removedUsers.length > 0) {
+    await utils.sendNotification({
+      createdUser: user,
+      notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
+      title,
+      action: `removed you from ${contentType}`,
+      content: `'${item.name}'`,
+      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
+      receivers: removedUsers,
+    });
+  }
+
+  if (invitedUsers && invitedUsers.length > 0) {
+    await utils.sendNotification({
+      createdUser: user,
+      notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
+      title,
+      action: `invited you to the ${contentType}: `,
+      content: `'${item.name}'`,
+      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
+      receivers: invitedUsers,
+    });
+  }
+
+  const usersToExclude = [...(removedUsers || []), ...(invitedUsers || []), user._id];
+
   await utils.sendNotification({
-    createdUser: user._id,
+    createdUser: user,
     notifType: type,
-    title: content,
+    title,
+    action: action ? action : `has updated ${contentType}`,
     content,
-    link: `/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
+    link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
 
-    // exclude current user
-    receivers: userIds.filter(id => id !== user._id),
+    // exclude current user, invited user and removed users
+    receivers: (await notifiedUserIds(item)).filter(id => {
+      return usersToExclude.indexOf(id) < 0;
+    }),
   });
-};
-
-export const manageNotifications = async (collection: any, item: any, user: IUserDocument, type: string) => {
-  const { _id } = item;
-  const oldItem = await collection.findOne({ _id });
-
-  const oldUserIds = await notifiedUserIds(oldItem);
-  const userIds = await notifiedUserIds(item);
-
-  // new assignee users
-  const newUserIds = userIds.filter(userId => oldUserIds.indexOf(userId) < 0);
-
-  if (newUserIds.length > 0) {
-    await sendNotifications(
-      item.stageId || '',
-      user,
-      NOTIFICATION_TYPES[`${type.toUpperCase()}_ADD`],
-      newUserIds,
-      `'{userName}' invited you to the ${type}: '${item.name}'.`,
-      type,
-    );
-  }
-
-  // remove from assignee users
-  const removedUserIds = oldUserIds.filter(userId => userIds.indexOf(userId) < 0);
-
-  if (removedUserIds.length > 0) {
-    await sendNotifications(
-      item.stageId || '',
-      user,
-      NOTIFICATION_TYPES[`${type.toUpperCase()}_REMOVE_ASSIGN`],
-      removedUserIds,
-      `'{userName}' removed you from ${type}: '${item.name}'.`,
-      type,
-    );
-  }
-
-  // dont assignee change and other edit
-  if (removedUserIds.length === 0 && newUserIds.length === 0) {
-    await sendNotifications(
-      item.stageId || '',
-      user,
-      NOTIFICATION_TYPES[`${type.toUpperCase()}_EDIT`],
-      userIds,
-      `'{userName}' edited your ${type} '${item.name}'`,
-      type,
-    );
-  }
 };
 
 export const itemsChange = async (collection: any, item: any, type: string, destinationStageId: string) => {
   const oldItem = await collection.findOne({ _id: item._id });
   const oldStageId = oldItem ? oldItem.stageId || '' : '';
 
-  let content = `'{userName}' changed order your ${type}:'${item.name}'`;
+  let action = `changed order of your ${type}:`;
+  let content = `'${item.name}'`;
 
   if (oldStageId !== destinationStageId) {
     const stage = await Stages.findOne({ _id: destinationStageId });
@@ -122,10 +128,12 @@ export const itemsChange = async (collection: any, item: any, type: string, dest
       throw new Error('Stage not found');
     }
 
-    content = `'{userName}' moved your ${type} '${item.name}' to the '${stage.name}'.`;
+    action = `moved your`;
+
+    content = `${type} '${item.name}' to the '${stage.name}'.`;
   }
 
-  return content;
+  return { content, action };
 };
 
 export const boardId = async (item: any) => {

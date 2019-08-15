@@ -1,8 +1,8 @@
 import { Permissions, Users, UsersGroups } from '../../../db/models';
 import { IPermissionParams, IUserGroup } from '../../../db/models/definitions/permissions';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 const permissionMutations = {
@@ -14,7 +14,7 @@ const permissionMutations = {
    * @param {Boolean} doc.allowed
    * @return {Promise} newly created permission object
    */
-  async permissionsAdd(_root, doc: IPermissionParams, { user }: { user: IUserDocument }) {
+  async permissionsAdd(_root, doc: IPermissionParams, { user }: IContext) {
     const result = await Permissions.createPermission(doc);
 
     if (result && result.length > 0) {
@@ -59,7 +59,7 @@ const permissionMutations = {
    * @param {[String]} ids
    * @return {Promise}
    */
-  async permissionsRemove(_root, { ids }: { ids: string[] }, { user }: { user: IUserDocument }) {
+  async permissionsRemove(_root, { ids }: { ids: string[] }, { user }: IContext) {
     const permissions = await Permissions.find({ _id: { $in: ids } });
     const result = await Permissions.removePermission(ids);
 
@@ -107,11 +107,7 @@ const usersGroupMutations = {
    * @param {String} doc.description
    * @return {Promise} newly created group object
    */
-  async usersGroupsAdd(
-    _root,
-    { memberIds, ...doc }: IUserGroup & { memberIds?: string[] },
-    { user }: { user: IUserDocument },
-  ) {
+  async usersGroupsAdd(_root, { memberIds, ...doc }: IUserGroup & { memberIds?: string[] }, { user }: IContext) {
     const result = await UsersGroups.createGroup(doc, memberIds);
 
     if (result) {
@@ -140,7 +136,7 @@ const usersGroupMutations = {
   async usersGroupsEdit(
     _root,
     { _id, memberIds, ...doc }: { _id: string; memberIds?: string[] } & IUserGroup,
-    { user }: { user: IUserDocument },
+    { user }: IContext,
   ) {
     const group = await UsersGroups.findOne({ _id });
     const result = await UsersGroups.updateGroup(_id, doc, memberIds);
@@ -167,7 +163,7 @@ const usersGroupMutations = {
    * @param {String} _id
    * @return {Promise}
    */
-  async usersGroupsRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async usersGroupsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const group = await UsersGroups.findOne({ _id });
     const result = await UsersGroups.removeGroup(_id);
 

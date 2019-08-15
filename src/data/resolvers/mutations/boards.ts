@@ -1,6 +1,6 @@
 import { Boards, Pipelines, Stages } from '../../../db/models';
 import { IBoard, IOrderInput, IPipeline, IStageDocument } from '../../../db/models/definitions/boards';
-import { IUserDocument } from '../../../db/models/definitions/users';
+import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { checkPermission } from '../boardUtils';
 
@@ -20,9 +20,10 @@ const boardMutations = {
   /**
    * Create new board
    */
-  async boardsAdd(_root, doc: IBoard, { user }: { user: IUserDocument }) {
+  async boardsAdd(_root, doc: IBoard, { user, docModifier }: IContext) {
     await checkPermission(doc.type, user, 'boardsAdd');
-    const board = await Boards.createBoard({ userId: user._id, ...doc });
+
+    const board = await Boards.createBoard(docModifier({ userId: user._id, ...doc }));
 
     await putCreateLog(
       {
@@ -40,11 +41,11 @@ const boardMutations = {
   /**
    * Edit board
    */
-  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user }: { user: IUserDocument }) {
+  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user, docModifier }: IContext) {
     await checkPermission(doc.type, user, 'boardsEdit');
 
     const board = await Boards.findOne({ _id });
-    const updated = await Boards.updateBoard(_id, doc);
+    const updated = await Boards.updateBoard(_id, docModifier(doc));
 
     if (board) {
       await putUpdateLog(
@@ -64,7 +65,7 @@ const boardMutations = {
   /**
    * Remove board
    */
-  async boardsRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async boardsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const board = await Boards.findOne({ _id });
 
     if (board) {
@@ -88,7 +89,7 @@ const boardMutations = {
   /**
    * Create new pipeline
    */
-  async pipelinesAdd(_root, { stages, ...doc }: IPipelinesAdd, { user }: { user: IUserDocument }) {
+  async pipelinesAdd(_root, { stages, ...doc }: IPipelinesAdd, { user }: IContext) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
     return Pipelines.createPipeline({ userId: user._id, ...doc }, stages);
@@ -97,7 +98,7 @@ const boardMutations = {
   /**
    * Edit pipeline
    */
-  async pipelinesEdit(_root, { _id, stages, ...doc }: IPipelinesEdit, { user }: { user: IUserDocument }) {
+  async pipelinesEdit(_root, { _id, stages, ...doc }: IPipelinesEdit, { user }: IContext) {
     await checkPermission(doc.type, user, 'pipelinesEdit');
 
     return Pipelines.updatePipeline(_id, doc, stages);
@@ -113,11 +114,7 @@ const boardMutations = {
   /**
    * Watch pipeline
    */
-  async pipelinesWatch(
-    _root,
-    { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string },
-    { user }: { user: IUserDocument },
-  ) {
+  async pipelinesWatch(_root, { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string }, { user }: IContext) {
     await checkPermission(type, user, 'pipelinesWatch');
 
     const pipeline = await Pipelines.findOne({ _id });
@@ -132,7 +129,7 @@ const boardMutations = {
   /**
    * Remove pipeline
    */
-  async pipelinesRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async pipelinesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const pipeline = await Pipelines.findOne({ _id });
 
     if (pipeline) {

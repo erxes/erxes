@@ -8,8 +8,9 @@ import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
-import { IUserDocument } from '../db/models/definitions/users';
-import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
+import { IUser, IUserDocument } from '../db/models/definitions/users';
+import { debugEmail, debugExternalApi } from '../debuggers';
+import { graphqlPubsub } from '../pubsub';
 
 /*
  * Check that given file is not harmful
@@ -61,16 +62,28 @@ const createAWS = () => {
   const AWS_ACCESS_KEY_ID = getEnv({ name: 'AWS_ACCESS_KEY_ID' });
   const AWS_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SECRET_ACCESS_KEY' });
   const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = getEnv({ name: 'AWS_COMPATIBLE_SERVICE_ENDPOINT' });
+  const AWS_FORCE_PATH_STYLE = getEnv({ name: 'AWS_FORCE_PATH_STYLE' });
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
   }
 
-  // initialize s3
-  return new AWS.S3({
+  const options: { accessKeyId: string; secretAccessKey: string; endpoint?: string; s3ForcePathStyle?: boolean } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  });
+  };
+
+  if (AWS_FORCE_PATH_STYLE === 'true') {
+    options.s3ForcePathStyle = true;
+  }
+
+  if (AWS_COMPATIBLE_SERVICE_ENDPOINT) {
+    options.endpoint = AWS_COMPATIBLE_SERVICE_ENDPOINT;
+  }
+
+  // initialize s3
+  return new AWS.S3(options);
 };
 
 /**
@@ -352,20 +365,29 @@ export const sendEmail = async ({
 };
 
 /**
- * Send a notification
+ * Returns user's name or email
  */
-export const sendNotification = async ({
-  createdUser,
-  receivers,
-  ...doc
-}: {
-  createdUser?: string;
+export const getUserDetail = (user: IUser) => {
+  return (user.details && user.details.fullName) || user.email;
+};
+
+export interface ISendNotification {
+  createdUser: IUserDocument;
   receivers: string[];
   title: string;
   content: string;
   notifType: string;
   link: string;
-}) => {
+  action: string;
+}
+
+/**
+ * Send a notification
+ */
+export const sendNotification = async (doc: ISendNotification) => {
+  const { createdUser, receivers, title, content, notifType, action } = doc;
+  let link = doc.link;
+
   // collecting emails
   const recipients = await Users.find({ _id: { $in: receivers } });
 
@@ -382,8 +404,14 @@ export const sendNotification = async ({
   for (const receiverId of receivers) {
     try {
       // send web and mobile notification
+      await Notifications.createNotification(
+        { link, title, content, notifType, receiver: receiverId, action },
+        createdUser._id,
+      );
 
-      await Notifications.createNotification({ ...doc, receiver: receiverId }, createdUser);
+      graphqlPubsub.publish('notificationInserted', {
+        userId: receiverId,
+      });
     } catch (e) {
       // Any other error is serious
       if (e.message !== 'Configuration does not exist') {
@@ -392,16 +420,24 @@ export const sendNotification = async ({
     }
   }
 
-  return sendEmail({
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+
+  link = `${MAIN_APP_DOMAIN}${link}`;
+
+  await sendEmail({
     toEmails,
     title: 'Notification',
     template: {
       name: 'notification',
       data: {
-        notification: doc,
+        notification: { ...doc, link },
+        action,
+        userName: getUserDetail(createdUser),
       },
     },
   });
+
+  return true;
 };
 
 /**
@@ -488,25 +524,12 @@ export const sendRequest = async (
     return responseBody;
   } catch (e) {
     if (e.code === 'ECONNREFUSED') {
-      debugExternalApi(errorMessage);
       throw new Error(errorMessage);
     } else {
-      debugExternalApi(`Error occurred : ${e.body}`);
-      throw new Error(e.body);
+      const message = e.body || e.message;
+      throw new Error(message);
     }
   }
-};
-
-/**
- * Send request to integrations api
- */
-export const fetchIntegrationApi = ({ path, method, body, params }: IRequestParams) => {
-  const INTEGRATIONS_API_DOMAIN = getEnv({ name: 'INTEGRATIONS_API_DOMAIN' });
-
-  return sendRequest(
-    { url: `${INTEGRATIONS_API_DOMAIN}${path}`, method, body, params },
-    'Failed to connect integration api. Check INTEGRATIONS_API_DOMAIN env or integration api is not running',
-  );
 };
 
 /**
@@ -661,10 +684,6 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
     return defaultValue;
   }
 
-  if (!value) {
-    debugBase(`Missing environment variable configuration for ${name}`);
-  }
-
   return value || '';
 };
 
@@ -680,11 +699,13 @@ export const sendMobileNotification = async ({
   title,
   body,
   customerId,
+  conversationId,
 }: {
   receivers: string[];
   customerId?: string;
   title: string;
   body: string;
+  conversationId: string;
 }): Promise<void> => {
   if (!admin.apps.length) {
     return;
@@ -704,7 +725,7 @@ export const sendMobileNotification = async ({
   if (tokens.length > 0) {
     // send notification
     for (const token of tokens) {
-      await transporter.send({ token, notification: { title, body } });
+      await transporter.send({ token, notification: { title, body }, data: { conversationId } });
     }
   }
 };

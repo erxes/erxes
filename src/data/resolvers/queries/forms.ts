@@ -1,12 +1,13 @@
 import { Forms } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 const formQueries = {
   /**
    * Forms list
    */
-  forms() {
-    return Forms.find({}).sort({ title: 1 });
+  forms(_root, _args, { commonQuerySelector }: IContext) {
+    return Forms.find(commonQuerySelector).sort({ title: 1 });
   },
 
   /**

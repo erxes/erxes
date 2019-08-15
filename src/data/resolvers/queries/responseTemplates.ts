@@ -1,5 +1,6 @@
 import { ResponseTemplates } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 interface IListParams {
@@ -9,10 +10,10 @@ interface IListParams {
   searchValue: string;
 }
 
-const generateFilter = (args: IListParams) => {
+const generateFilter = (commonSelector, args: IListParams) => {
   const { brandId, searchValue } = args;
 
-  const filter: any = {};
+  const filter: any = commonSelector;
 
   if (brandId) {
     filter.brandId = brandId;
@@ -32,8 +33,8 @@ const responseTemplateQueries = {
   /**
    * Response templates list
    */
-  responseTemplates(_root, args: IListParams) {
-    const filter = generateFilter(args);
+  responseTemplates(_root, args: IListParams, { commonQuerySelector }: IContext) {
+    const filter = generateFilter(commonQuerySelector, args);
 
     return paginate(ResponseTemplates.find(filter), args);
   },
@@ -41,8 +42,8 @@ const responseTemplateQueries = {
   /**
    * Get all response templates count. We will use it in pager
    */
-  responseTemplatesTotalCount(_root, args: IListParams) {
-    const filter = generateFilter(args);
+  responseTemplatesTotalCount(_root, args: IListParams, { commonQuerySelector }: IContext) {
+    const filter = generateFilter(commonQuerySelector, args);
 
     return ResponseTemplates.find(filter).countDocuments();
   },

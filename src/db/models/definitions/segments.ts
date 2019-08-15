@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { ACTIVITY_CONTENT_TYPES } from './constants';
+import { field, schemaWrapper } from './utils';
 
 export interface ICondition {
   field: string;
@@ -53,16 +53,18 @@ const conditionSchema = new Schema(
   { _id: false },
 );
 
-export const segmentSchema = new Schema({
-  _id: field({ pkey: true }),
-  contentType: field({
-    type: String,
-    enum: ACTIVITY_CONTENT_TYPES.ALL,
+export const segmentSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    contentType: field({
+      type: String,
+      enum: ACTIVITY_CONTENT_TYPES.ALL,
+    }),
+    name: field({ type: String }),
+    description: field({ type: String, optional: true }),
+    subOf: field({ type: String, optional: true }),
+    color: field({ type: String }),
+    connector: field({ type: String }),
+    conditions: field({ type: [conditionSchema] }),
   }),
-  name: field({ type: String }),
-  description: field({ type: String, optional: true }),
-  subOf: field({ type: String, optional: true }),
-  color: field({ type: String }),
-  connector: field({ type: String }),
-  conditions: field({ type: [conditionSchema] }),
-});
+);

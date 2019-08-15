@@ -1,7 +1,7 @@
 import { Companies } from '../../../db/models';
 import { ICompany } from '../../../db/models/definitions/companies';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface ICompaniesEdit extends ICompany {
@@ -12,8 +12,8 @@ const companyMutations = {
   /**
    * Create new company also adds Company registration log
    */
-  async companiesAdd(_root, doc: ICompany, { user }: { user: IUserDocument }) {
-    const company = await Companies.createCompany(doc, user);
+  async companiesAdd(_root, doc: ICompany, { user, docModifier }: IContext) {
+    const company = await Companies.createCompany(docModifier(doc), user);
 
     await putCreateLog(
       {
@@ -31,9 +31,9 @@ const companyMutations = {
   /**
    * Updates a company
    */
-  async companiesEdit(_root, { _id, ...doc }: ICompaniesEdit, { user }: { user: IUserDocument }) {
+  async companiesEdit(_root, { _id, ...doc }: ICompaniesEdit, { user, docModifier }: IContext) {
     const company = await Companies.findOne({ _id });
-    const updated = await Companies.updateCompany(_id, doc);
+    const updated = await Companies.updateCompany(_id, docModifier(doc));
 
     if (company) {
       await putUpdateLog(
@@ -60,7 +60,7 @@ const companyMutations = {
   /**
    * Remove companies
    */
-  async companiesRemove(_root, { companyIds }: { companyIds: string[] }, { user }: { user: IUserDocument }) {
+  async companiesRemove(_root, { companyIds }: { companyIds: string[] }, { user }: IContext) {
     for (const companyId of companyIds) {
       const company = await Companies.findOne({ _id: companyId });
       // Removing every company and modules associated with

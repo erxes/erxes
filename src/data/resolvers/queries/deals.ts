@@ -33,27 +33,72 @@ const dealQueries = {
         $match: filter,
       },
       {
+        $lookup: {
+          from: 'stages',
+          let: { letStageId: '$stageId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$letStageId'],
+                },
+              },
+            },
+            {
+              $project: {
+                probability: {
+                  $cond: {
+                    if: {
+                      $or: [{ $eq: ['$probability', 'Won'] }, { $eq: ['$probability', 'Lost'] }],
+                    },
+                    then: '$probability',
+                    else: 'In progress',
+                  },
+                },
+              },
+            },
+          ],
+          as: 'stageProbability',
+        },
+      },
+      {
         $unwind: '$productsData',
+      },
+      {
+        $unwind: '$stageProbability',
       },
       {
         $project: {
           amount: '$productsData.amount',
           currency: '$productsData.currency',
+          type: '$stageProbability.probability',
         },
       },
       {
         $group: {
-          _id: '$currency',
+          _id: { currency: '$currency', type: '$type' },
+
           amount: { $sum: '$amount' },
         },
       },
+      {
+        $group: {
+          _id: '$_id.type',
+          currencies: {
+            $push: { amount: '$amount', name: '$_id.currency' },
+          },
+        },
+      },
+      {
+        $sort: { _id: -1 },
+      },
     ]);
 
-    const dealAmounts = amountList.map(deal => {
-      return { _id: Math.random(), currency: deal._id, amount: deal.amount };
+    const totalForType = amountList.map(type => {
+      return { _id: Math.random(), name: type._id, currencies: type.currencies };
     });
 
-    return { _id: Math.random(), dealCount, dealAmounts };
+    return { _id: Math.random(), dealCount, totalForType };
   },
 
   /**

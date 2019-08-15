@@ -1,6 +1,6 @@
 import { ImportHistory } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { fetchWorkersApi, putDeleteLog } from '../../utils';
 
 const importHistoryMutations = {
@@ -8,7 +8,7 @@ const importHistoryMutations = {
    * Removes a history
    * @param {string} param1._id ImportHistory id
    */
-  async importHistoriesRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
+  async importHistoriesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const importHistory = await ImportHistory.findOne({ _id });
 
     if (!importHistory) {

@@ -19,6 +19,7 @@ export const types = `
     customers: [Customer]
     assignedUsers: [User]
     isWatched: Boolean
+    attachments: [Attachment]
     stage: Stage
     pipeline: Pipeline
     modifiedAt: Date
@@ -52,6 +53,7 @@ const commonParams = `
   stageId: String,
   assignedUserIds: [String],
   companyIds: [String],
+  attachments: [AttachmentInput],
   customerIds: [String],
   closeDate: Date,
   description: String,

@@ -52,6 +52,19 @@ const configQueries = {
       widgetVersion,
     };
   },
+
+  configsGetEnv(_root) {
+    return {
+      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
+    };
+  },
+
+  /**
+   * Config for engage
+   */
+  engagesConfigDetail(_root, {}, { dataSources: { EngagesAPI } }) {
+    return EngagesAPI.engagesConfigDetail();
+  },
 };
 
 moduleRequireLogin(configQueries);

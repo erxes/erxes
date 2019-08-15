@@ -57,7 +57,15 @@ export const graphqlRequest = async (source: string = '', name: string = '', arg
     },
   };
 
-  const response: any = await graphql(schema, source, rootValue, context || { user, res }, args);
+  const finalContext = context || { user, res };
+
+  finalContext.docModifier = doc => {
+    return doc;
+  };
+
+  finalContext.commonQuerySelector = {};
+
+  const response: any = await graphql(schema, source, rootValue, finalContext, args);
 
   if (response.errors || !response.data) {
     throw response.errors;

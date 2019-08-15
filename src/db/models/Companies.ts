@@ -13,6 +13,8 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
     idsToExclude?: string[] | string,
   ): never;
 
+  getCompany(_id: string): Promise<ICompanyDocument>;
+
   createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
 
   updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
@@ -65,6 +67,19 @@ export const loadClass = () => {
           throw new Error('Duplicated name');
         }
       }
+    }
+
+    /**
+     * Retreives company
+     */
+    public static async getCompany(_id: string) {
+      const company = await Companies.findOne({ _id });
+
+      if (!company) {
+        throw new Error('Company not found');
+      }
+
+      return company;
     }
 
     /**
@@ -144,6 +159,7 @@ export const loadClass = () => {
       // Checking duplicated fields of company
       await this.checkDuplication(companyFields, companyIds);
 
+      let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -158,6 +174,9 @@ export const loadClass = () => {
           const companyNames = companyObj.names || [];
           const companyEmails = companyObj.emails || [];
           const companyPhones = companyObj.phones || [];
+
+          // Merging scopeBrandIds
+          scopeBrandIds = [...scopeBrandIds, ...(companyObj.scopeBrandIds || [])];
 
           // Merging company's tag into 1 array
           tagIds = tagIds.concat(companyTags);
@@ -177,21 +196,16 @@ export const loadClass = () => {
         }
       }
 
-      // Removing Duplicated Tags from company
+      // Removing Duplicates
       tagIds = Array.from(new Set(tagIds));
-
-      // Removing Duplicated names from company
       names = Array.from(new Set(names));
-
-      // Removing Duplicated names from company
       emails = Array.from(new Set(emails));
-
-      // Removing Duplicated names from company
       phones = Array.from(new Set(phones));
 
       // Creating company with properties
       const company = await Companies.createCompany({
         ...companyFields,
+        scopeBrandIds,
         tagIds,
         mergedIds: companyIds,
         names,
@@ -208,9 +222,6 @@ export const loadClass = () => {
       await InternalNotes.changeCompany(company._id, companyIds);
       await Deals.changeCompany(company._id, companyIds);
       await Tickets.changeCompany(company._id, companyIds);
-
-      // create log
-      await ActivityLogs.createCompanyLog(company);
 
       return company;
     }

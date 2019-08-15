@@ -8,7 +8,7 @@ import {
   STATUSES,
 } from './constants';
 
-import { field } from '../utils';
+import { field, schemaWrapper } from './utils';
 
 export interface ILink {
   linkedIn?: string;
@@ -22,6 +22,7 @@ export interface ILink {
 interface ILinkDocument extends ILink, Document {}
 
 export interface ICompany {
+  scopeBrandIds?: string[];
   primaryName?: string;
   avatar?: string;
   names?: string[];
@@ -72,113 +73,115 @@ const linkSchema = new Schema(
   { _id: false },
 );
 
-export const companySchema = new Schema({
-  _id: field({ pkey: true }),
+export const companySchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
 
-  createdAt: field({ type: Date, label: 'Created at' }),
-  modifiedAt: field({ type: Date, label: 'Modified at' }),
+    createdAt: field({ type: Date, label: 'Created at' }),
+    modifiedAt: field({ type: Date, label: 'Modified at' }),
 
-  primaryName: field({
-    type: String,
-    label: 'Name',
+    primaryName: field({
+      type: String,
+      label: 'Name',
+    }),
+
+    names: field({
+      type: [String],
+      optional: true,
+    }),
+
+    avatar: field({
+      type: String,
+      optional: true,
+    }),
+
+    size: field({
+      type: Number,
+      label: 'Size',
+      optional: true,
+    }),
+
+    industry: field({
+      type: String,
+      enum: COMPANY_INDUSTRY_TYPES,
+      label: 'Industry',
+      optional: true,
+    }),
+
+    website: field({
+      type: String,
+      label: 'Website',
+      optional: true,
+    }),
+
+    plan: field({
+      type: String,
+      label: 'Plan',
+      optional: true,
+    }),
+
+    parentCompanyId: field({
+      type: String,
+      optional: true,
+      label: 'Parent Company',
+    }),
+
+    primaryEmail: field({ type: String, optional: true, label: 'Email' }),
+    emails: field({ type: [String], optional: true }),
+
+    primaryPhone: field({ type: String, optional: true, label: 'Phone' }),
+    phones: field({ type: [String], optional: true }),
+
+    ownerId: field({ type: String, optional: true, label: 'Owner' }),
+
+    leadStatus: field({
+      type: String,
+      enum: COMPANY_LEAD_STATUS_TYPES,
+      optional: true,
+      label: 'Lead Status',
+    }),
+
+    status: field({
+      type: String,
+      enum: STATUSES.ALL,
+      default: STATUSES.ACTIVE,
+      optional: true,
+      label: 'Status',
+    }),
+
+    lifecycleState: field({
+      type: String,
+      enum: COMPANY_LIFECYCLE_STATE_TYPES,
+      optional: true,
+      label: 'Lifecycle State',
+    }),
+
+    businessType: field({
+      type: String,
+      enum: COMPANY_BUSINESS_TYPES,
+      optional: true,
+      label: 'Business Type',
+    }),
+
+    description: field({ type: String, optional: true }),
+    employees: field({ type: Number, optional: true, label: 'Employees' }),
+    doNotDisturb: field({
+      type: String,
+      optional: true,
+      label: 'Do not disturb',
+    }),
+    links: field({ type: linkSchema, default: {} }),
+
+    tagIds: field({
+      type: [String],
+      optional: true,
+    }),
+
+    // Merged company ids
+    mergedIds: field({ type: [String], optional: true }),
+
+    customFieldsData: field({
+      type: Object,
+    }),
   }),
-
-  names: field({
-    type: [String],
-    optional: true,
-  }),
-
-  avatar: field({
-    type: String,
-    optional: true,
-  }),
-
-  size: field({
-    type: Number,
-    label: 'Size',
-    optional: true,
-  }),
-
-  industry: field({
-    type: String,
-    enum: COMPANY_INDUSTRY_TYPES,
-    label: 'Industry',
-    optional: true,
-  }),
-
-  website: field({
-    type: String,
-    label: 'Website',
-    optional: true,
-  }),
-
-  plan: field({
-    type: String,
-    label: 'Plan',
-    optional: true,
-  }),
-
-  parentCompanyId: field({
-    type: String,
-    optional: true,
-    label: 'Parent Company',
-  }),
-
-  primaryEmail: field({ type: String, optional: true, label: 'Email' }),
-  emails: field({ type: [String], optional: true }),
-
-  primaryPhone: field({ type: String, optional: true, label: 'Phone' }),
-  phones: field({ type: [String], optional: true }),
-
-  ownerId: field({ type: String, optional: true, label: 'Owner' }),
-
-  leadStatus: field({
-    type: String,
-    enum: COMPANY_LEAD_STATUS_TYPES,
-    optional: true,
-    label: 'Lead Status',
-  }),
-
-  status: field({
-    type: String,
-    enum: STATUSES.ALL,
-    default: STATUSES.ACTIVE,
-    optional: true,
-    label: 'Status',
-  }),
-
-  lifecycleState: field({
-    type: String,
-    enum: COMPANY_LIFECYCLE_STATE_TYPES,
-    optional: true,
-    label: 'Lifecycle State',
-  }),
-
-  businessType: field({
-    type: String,
-    enum: COMPANY_BUSINESS_TYPES,
-    optional: true,
-    label: 'Business Type',
-  }),
-
-  description: field({ type: String, optional: true }),
-  employees: field({ type: Number, optional: true, label: 'Employees' }),
-  doNotDisturb: field({
-    type: String,
-    optional: true,
-    label: 'Do not disturb',
-  }),
-  links: field({ type: linkSchema, default: {} }),
-
-  tagIds: field({
-    type: [String],
-    optional: true,
-  }),
-
-  // Merged company ids
-  mergedIds: field({ type: [String], optional: true }),
-
-  customFieldsData: field({
-    type: Object,
-  }),
-});
+);

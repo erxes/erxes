@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { ACTIVITY_ACTIONS, ACTIVITY_CONTENT_TYPES, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES } from './constants';
+import { field } from './utils';
 
 export interface IActionPerformer {
   type: string;

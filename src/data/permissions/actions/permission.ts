@@ -602,7 +602,7 @@ export const moduleObjects = {
   },
   users: {
     name: 'users',
-    description: 'Users',
+    description: 'Team members',
     actions: [
       {
         name: 'usersAll',
@@ -611,19 +611,19 @@ export const moduleObjects = {
       },
       {
         name: 'showUsers',
-        description: 'Show users',
+        description: 'Show team members',
       },
       {
         name: 'usersSetActiveStatus',
-        description: 'Set active/deactive user',
+        description: 'Set active/deactive team member',
       },
       {
         name: 'usersEdit',
-        description: 'Update user',
+        description: 'Update team member',
       },
       {
         name: 'usersInvite',
-        description: 'Invite user',
+        description: 'Invite team member',
       },
     ],
   },
@@ -797,44 +797,6 @@ export const moduleObjects = {
       },
     ],
   },
-  fields: {
-    name: 'fields',
-    description: 'Fields',
-    actions: [
-      {
-        name: 'fieldsAll',
-        description: 'All',
-        use: ['showFields', 'manageFields'],
-      },
-      {
-        name: 'manageFields',
-        description: 'Manage fields',
-      },
-      {
-        name: 'showFields',
-        description: 'Show fields',
-      },
-    ],
-  },
-  fieldsGroups: {
-    name: 'fieldsGroups',
-    description: 'Fields groups',
-    actions: [
-      {
-        name: 'fieldsGroupsAll',
-        description: 'All',
-        use: ['showFieldsGroups', 'manageFieldsGroups'],
-      },
-      {
-        name: 'manageFieldsGroups',
-        description: 'Manage fields groups',
-      },
-      {
-        name: 'showFieldsGroups',
-        description: 'Show fields groups',
-      },
-    ],
-  },
   inbox: {
     name: 'inbox',
     description: 'Inbox',
@@ -897,6 +859,16 @@ export const moduleObjects = {
       {
         name: 'manageEmailAppearance',
         description: 'Manage email appearance',
+      },
+    ],
+  },
+  logs: {
+    name: 'logs',
+    description: 'Logs',
+    actions: [
+      {
+        name: 'viewLogs',
+        description: 'View logs',
       },
     ],
   },

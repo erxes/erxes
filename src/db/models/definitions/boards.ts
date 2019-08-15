@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
+import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
   userId?: string;
@@ -18,6 +18,7 @@ export interface IItemCommonFields {
   assignedUserIds?: string[];
   watchedUserIds?: string[];
   notifiedUserIds?: string[];
+  attachments?: any[];
   stageId?: string;
   initialStageId?: string;
   modifiedAt?: Date;
@@ -64,6 +65,16 @@ export interface IOrderInput {
   order: number;
 }
 
+const attachmentSchema = new Schema(
+  {
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true }),
+  },
+  { _id: false },
+);
+
 // Mongoose schemas =======================
 const commonFieldsSchema = {
   userId: field({ type: String }),
@@ -94,6 +105,7 @@ export const commonItemFieldsSchema = {
   description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
   watchedUserIds: field({ type: [String] }),
+  attachments: field({ type: [attachmentSchema] }),
   stageId: field({ type: String, optional: true }),
   initialStageId: field({ type: String, optional: true }),
   modifiedAt: field({
@@ -103,15 +115,17 @@ export const commonItemFieldsSchema = {
   modifiedBy: field({ type: String }),
 };
 
-export const boardSchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String }),
-  isDefault: field({
-    type: Boolean,
-    default: false,
+export const boardSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String }),
+    isDefault: field({
+      type: Boolean,
+      default: false,
+    }),
+    ...commonFieldsSchema,
   }),
-  ...commonFieldsSchema,
-});
+);
 
 export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),

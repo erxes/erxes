@@ -8,12 +8,15 @@ import { checkFile } from '../data/utils';
 import { connect } from '../db/connection';
 import { debugRequest, debugResponse, debugWorkers } from '../debuggers';
 import userMiddleware from '../middlewares/userMiddleware';
+import { initRedis } from '../redisClient';
 import { importXlsFile } from './bulkInsert';
 import { init } from './startup';
 import { clearIntervals, createWorkers, removeWorkers, splitToCore } from './utils';
 
 // load environment variables
 dotenv.config();
+
+initRedis();
 
 // connect to mongo database
 connect();
@@ -72,6 +75,8 @@ app.post('/import-file', async (req: any, res) => {
 
   debugRequest(debugWorkers, req);
 
+  const scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+
   form.parse(req, async (_err, fields: any, response) => {
     let status = '';
 
@@ -86,7 +91,7 @@ app.post('/import-file', async (req: any, res) => {
       return res.json(status);
     }
 
-    importXlsFile(response.file, fields.type, { user: req.user })
+    importXlsFile(response.file, fields.type, { scopeBrandIds, user: req.user })
       .then(result => {
         debugResponse(debugWorkers, req);
         return res.json(result);

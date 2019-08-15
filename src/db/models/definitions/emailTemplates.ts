@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
+import { field, schemaWrapper } from './utils';
 
 export interface IEmailTemplate {
   name: string;
@@ -10,8 +10,10 @@ export interface IEmailTemplateDocument extends IEmailTemplate, Document {
   _id: string;
 }
 
-export const emailTemplateSchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String }),
-  content: field({ type: String, optional: true }),
-});
+export const emailTemplateSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String }),
+    content: field({ type: String, optional: true }),
+  }),
+);

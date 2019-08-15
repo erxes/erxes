@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import utils from '../data/utils';
-import { Deals, Pipelines, Stages } from '../db/models';
+import { Deals, Pipelines, Stages, Users } from '../db/models';
 import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
 
 /**
@@ -23,13 +23,21 @@ export const sendNotifications = async () => {
     const stage = await Stages.getStage(deal.stageId || '');
     const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
 
-    const content = `Reminder: '${deal.name}' deal is due in upcoming`;
+    const user = await Users.findOne({ _id: deal.modifiedBy });
+
+    if (!user) {
+      return;
+    }
+
+    const content = `'${deal.name}' deal is due in upcoming`;
 
     utils.sendNotification({
       notifType: NOTIFICATION_TYPES.DEAL_DUE_DATE,
       title: content,
       content,
+      action: `Reminder:`,
       link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
+      createdUser: user,
       // exclude current user
       receivers: deal.assignedUserIds || [],
     });

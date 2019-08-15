@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { commonItemFieldsSchema, IItemCommonFields } from './boards';
+import { field } from './utils';
 
 export interface ITask extends IItemCommonFields {
   priority?: string;

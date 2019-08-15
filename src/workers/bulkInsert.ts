@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
+import { checkFieldNames } from '../data/modules/coc/utils';
 import { can } from '../data/permissions/utils';
 import { ImportHistory } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
-import { checkFieldNames } from '../db/models/utils';
 import { createWorkers, splitToCore } from './utils';
 
 export const intervals: any[] = [];
@@ -13,7 +13,11 @@ export const intervals: any[] = [];
  * Receives and saves xls file in private/xlsImports folder
  * and imports customers to the database
  */
-export const importXlsFile = async (file: any, type: string, { user }: { user: IUserDocument }) => {
+export const importXlsFile = async (
+  file: any,
+  type: string,
+  { user, scopeBrandIds }: { scopeBrandIds: string[]; user: IUserDocument },
+) => {
   return new Promise(async (resolve, reject) => {
     if (!(await can('importXlsFile', user))) {
       return reject(new Error('Permission denied!'));
@@ -93,8 +97,9 @@ export const importXlsFile = async (file: any, type: string, { user }: { user: I
         const percentagePerData = Number(((1 / usedSheets.length) * 100).toFixed(3));
 
         const workerData = {
-          contentType: type,
+          scopeBrandIds,
           user,
+          contentType: type,
           properties,
           importHistoryId: importHistory._id,
           percentagePerData,

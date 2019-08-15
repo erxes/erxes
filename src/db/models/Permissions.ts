@@ -17,7 +17,6 @@ export interface IPermissionModel extends Model<IPermissionDocument> {
 }
 
 export interface IUserGroupModel extends Model<IUserGroupDocument> {
-  generateDocs(groupId: string, memberIds?: string[]): Array<{ userId: string; groupId: string }>;
   createGroup(doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
   updateGroup(_id: string, doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
   removeGroup(_id: string): Promise<IUserGroupDocument>;
@@ -151,6 +150,8 @@ export const userGroupLoadClass = () => {
       if (!groupObj) {
         throw new Error(`Group not found with id ${_id}`);
       }
+
+      await Users.updateMany({ groupIds: { $in: [_id] } }, { $pull: { groupIds: { $in: [_id] } } });
 
       return groupObj.remove();
     }

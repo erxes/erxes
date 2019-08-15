@@ -1,3 +1,4 @@
+import { checkPermission } from '../../permissions/wrappers';
 import { fetchLogs, ILogQueryParams } from '../../utils';
 
 const logQueries = {
@@ -23,5 +24,7 @@ const logQueries = {
     });
   },
 };
+
+checkPermission(logQueries, 'logs', 'viewLogs');
 
 export default logQueries;

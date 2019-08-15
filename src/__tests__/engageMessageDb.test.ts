@@ -1,4 +1,3 @@
-import * as Random from 'meteor-random';
 import {
   brandFactory,
   customerFactory,
@@ -159,52 +158,6 @@ describe('engage messages model tests', () => {
     expect(message.customerIds.length).toEqual(2);
   });
 
-  test('add new delivery report', async () => {
-    const mailMessageId = Random.id();
-    const message = await EngageMessages.addNewDeliveryReport(_message._id, mailMessageId, _customer._id);
-
-    expect(message.deliveryReports[`${mailMessageId}`].status).toEqual('pending');
-    expect(message.deliveryReports[`${mailMessageId}`].customerId).toEqual(_customer._id);
-  });
-
-  test('change delivery report status', async () => {
-    const customer = await customerFactory({});
-    const mailId = Random.id();
-
-    const headers = {
-      mailId,
-      customerId: customer._id,
-      engageMessageId: _message._id,
-    };
-
-    const message = await EngageMessages.changeDeliveryReportStatus(headers, 'sent');
-
-    expect(message.deliveryReports[`${mailId}`].status).toEqual('sent');
-  });
-
-  test('Set customer to do not disturb when complaint or bounce', async () => {
-    const customer = await customerFactory({
-      doNotDisturb: 'No',
-    });
-    const mailId = Random.id();
-
-    const headers = {
-      mailId,
-      customerId: customer._id,
-      engageMessageId: _message._id,
-    };
-
-    await EngageMessages.changeDeliveryReportStatus(headers, 'bounce');
-
-    const customerObj = await Customers.findOne({ _id: customer._id });
-
-    if (!customerObj) {
-      throw new Error('Customer not found');
-    }
-
-    expect(customerObj.doNotDisturb).toBe('Yes');
-  });
-
   test('changeCustomer', async () => {
     const customer = await customerFactory({});
     const newCustomer = await customerFactory({});
@@ -243,32 +196,5 @@ describe('engage messages model tests', () => {
 
     expect(engageMessages).toHaveLength(0);
     expect(messengerReceivedCustomerIds).toHaveLength(0);
-  });
-
-  test('increaseStat', async () => {
-    const engageMessage = await engageMessageFactory({});
-
-    await EngageMessages.updateStats(engageMessage._id, 'open');
-
-    let engageMessageObj = await EngageMessages.findOne({
-      _id: engageMessage._id,
-    });
-
-    if (!engageMessageObj || !engageMessageObj.stats) {
-      throw new Error('Engage message not found');
-    }
-
-    expect(engageMessageObj.stats).toBeDefined();
-    expect(engageMessageObj.stats.toJSON()).toEqual({ open: 1 });
-
-    await EngageMessages.updateStats(engageMessage._id, 'open');
-
-    engageMessageObj = await EngageMessages.findOne({ _id: engageMessage._id });
-
-    if (!engageMessageObj || !engageMessageObj.stats) {
-      throw new Error('Engage message not found');
-    }
-
-    expect(engageMessageObj.stats.toJSON()).toEqual({ open: 2 });
   });
 });

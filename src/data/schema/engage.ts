@@ -20,7 +20,6 @@ export const types = `
 
     email: JSON
     messenger: JSON
-    deliveryReports: JSON
 
     scheduleDate: EngageScheduleDate
     segments: [Segment]

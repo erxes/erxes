@@ -347,6 +347,7 @@ interface ICustomerFactoryInput {
   tagIds?: string[];
   ownerId?: string;
   hasValidEmail?: boolean;
+  profileScore?: number;
 }
 
 export const customerFactory = (params: ICustomerFactoryInput = {}, useModelMethod = false) => {
@@ -367,6 +368,7 @@ export const customerFactory = (params: ICustomerFactoryInput = {}, useModelMeth
     tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
     hasValidEmail: params.hasValidEmail || false,
+    profileScore: params.profileScore || 0,
   };
 
   if (useModelMethod) {

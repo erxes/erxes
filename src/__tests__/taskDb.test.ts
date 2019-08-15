@@ -75,24 +75,6 @@ describe('Test tasks model', () => {
     expect(updatedDealToOrder.order).toBe(9);
   });
 
-  test('Remove task', async () => {
-    const isDeleted = await Tasks.removeTask(task.id);
-
-    expect(isDeleted).toBeTruthy();
-  });
-
-  test('Remove task not found', async () => {
-    expect.assertions(1);
-
-    const fakeDealId = 'fakeDealId';
-
-    try {
-      await Tasks.removeTask(fakeDealId);
-    } catch (e) {
-      expect(e.message).toEqual('Task not found');
-    }
-  });
-
   test('Task change customer', async () => {
     const newCustomer = await customerFactory({});
 

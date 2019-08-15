@@ -1,7 +1,7 @@
 import { Users } from '../../db/models';
 import { IPipelineDocument } from '../../db/models/definitions/boards';
 import { PIPELINE_VISIBLITIES } from '../../db/models/definitions/constants';
-import { IUserDocument } from '../../db/models/definitions/users';
+import { IContext } from '../types';
 
 export default {
   members(pipeline: IPipelineDocument, {}) {
@@ -12,7 +12,7 @@ export default {
     return [];
   },
 
-  isWatched(pipeline: IPipelineDocument, _args, { user }: { user: IUserDocument }) {
+  isWatched(pipeline: IPipelineDocument, _args, { user }: IContext) {
     const watchedUserIds = pipeline.watchedUserIds || [];
 
     if (watchedUserIds.includes(user._id)) {

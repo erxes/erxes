@@ -8,6 +8,7 @@ import './activityLogs';
 import './conversations';
 import './deals';
 import { createSchedule, updateOrRemoveSchedule } from './engages';
+import './integrations';
 
 // load environment variables
 dotenv.config();

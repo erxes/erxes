@@ -1,7 +1,7 @@
 import { NotificationConfigurations, Notifications } from '../../../db/models';
-import { IUserDocument } from '../../../db/models/definitions/users';
 import { NOTIFICATION_MODULES } from '../../constants';
 import { moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 const notificationQueries = {
@@ -22,7 +22,7 @@ const notificationQueries = {
       page: number;
       perPage: number;
     },
-    { user }: { user: IUserDocument },
+    { user }: IContext,
   ) {
     const sort = { date: -1 };
     const selector: any = { receiver: user._id };
@@ -47,7 +47,7 @@ const notificationQueries = {
   /**
    * Notification counts
    */
-  notificationCounts(_root, { requireRead }: { requireRead: boolean }, { user }: { user: IUserDocument }) {
+  notificationCounts(_root, { requireRead }: { requireRead: boolean }, { user }: IContext) {
     const selector: any = { receiver: user._id };
 
     if (requireRead) {
@@ -67,7 +67,7 @@ const notificationQueries = {
   /**
    * Get per user configuration
    */
-  notificationsGetConfigurations(_root, _args, { user }: { user: IUserDocument }) {
+  notificationsGetConfigurations(_root, _args, { user }: IContext) {
     return NotificationConfigurations.find({ user: user._id });
   },
 };

@@ -1,5 +1,4 @@
 import { Model, model } from 'mongoose';
-import { Customers } from '.';
 import { ICustomerDocument } from './definitions/customers';
 import { engageMessageSchema, IEngageMessage, IEngageMessageDocument } from './definitions/engages';
 
@@ -12,21 +11,8 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   engageMessageSetPause(_id: string): Promise<IEngageMessageDocument>;
   removeEngageMessage(_id: string): void;
   setCustomerIds(_id: string, customers: ICustomerDocument[]): Promise<IEngageMessageDocument>;
-
-  addNewDeliveryReport(_id: string, mailMessageId: string, customerId: string): Promise<IEngageMessageDocument>;
-
-  changeDeliveryReportStatus(headers: IHeaders, status: string): Promise<IEngageMessageDocument>;
-
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IEngageMessageDocument>;
-
   removeCustomerEngages(customerId: string): void;
-  updateStats(engageMessageId: string, stat: string): void;
-}
-
-interface IHeaders {
-  engageMessageId: string;
-  customerId: string;
-  mailId: string;
 }
 
 export const loadClass = () => {
@@ -37,7 +23,6 @@ export const loadClass = () => {
     public static createEngageMessage(doc: IEngageMessage) {
       return EngageMessages.create({
         ...doc,
-        deliveryReports: {},
         createdDate: new Date(),
       });
     }
@@ -102,52 +87,6 @@ export const loadClass = () => {
     }
 
     /**
-     * Add new delivery report
-     */
-    public static async addNewDeliveryReport(_id: string, mailMessageId: string, customerId: string) {
-      await EngageMessages.updateOne(
-        { _id },
-        {
-          $set: {
-            [`deliveryReports.${mailMessageId}`]: {
-              customerId,
-              status: 'pending',
-            },
-          },
-        },
-      );
-
-      return EngageMessages.findOne({ _id });
-    }
-
-    /**
-     * Change delivery report status
-     */
-    public static async changeDeliveryReportStatus(headers: IHeaders, status: string) {
-      const { engageMessageId, mailId, customerId } = headers;
-      const customer = await Customers.findOne({ _id: customerId });
-
-      if (!customer) {
-        throw new Error('Change Delivery Report Status: Customer not found');
-      }
-
-      if (status === 'complaint' || status === 'bounce') {
-        await Customers.updateOne({ _id: customer._id }, { $set: { doNotDisturb: 'Yes' } });
-      }
-
-      await EngageMessages.updateOne(
-        { _id: engageMessageId },
-        {
-          $set: {
-            [`deliveryReports.${mailId}.status`]: status,
-          },
-        },
-      );
-
-      return EngageMessages.findOne({ _id: engageMessageId });
-    }
-
-    /**
      * Transfers customers' engage messages to another customer
      */
     public static async changeCustomer(newCustomerId: string, customerIds: string[]) {
@@ -186,13 +125,6 @@ export const loadClass = () => {
       );
 
       return EngageMessages.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
-    }
-
-    /**
-     * Increase engage message stat by 1
-     */
-    public static async updateStats(engageMessageId: string, stat: string) {
-      return EngageMessages.updateOne({ _id: engageMessageId }, { $inc: { [`stats.${stat}`]: 1 } });
     }
   }
 

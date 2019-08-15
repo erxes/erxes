@@ -47,6 +47,12 @@ describe('Notification model tests', () => {
   test('model create, update, remove', async () => {
     // Create notification ================
 
+    await notificationConfigurationFactory({
+      isAllowed: true,
+      notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
+      user: _user2._id,
+    });
+
     let doc = {
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       title: 'new Notification title',

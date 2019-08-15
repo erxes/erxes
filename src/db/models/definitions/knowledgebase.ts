@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { PUBLISH_STATUSES } from './constants';
+import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
   createdBy: string;
@@ -14,6 +14,8 @@ export interface IArticle {
   summary?: string;
   content?: string;
   status?: string;
+  reactionChoices?: string[];
+  reactionCounts?: { [key: string]: number };
 }
 
 export interface IArticleDocument extends ICommonFields, IArticle, Document {
@@ -69,6 +71,8 @@ export const articleSchema = new Schema({
     enum: PUBLISH_STATUSES.ALL,
     default: PUBLISH_STATUSES.DRAFT,
   }),
+  reactionChoices: field({ type: [String], default: [] }),
+  reactionCounts: field({ type: Object }),
   ...commonFields,
 });
 
@@ -81,24 +85,26 @@ export const categorySchema = new Schema({
   ...commonFields,
 });
 
-export const topicSchema = new Schema({
-  _id: field({ pkey: true }),
-  title: field({ type: String }),
-  description: field({ type: String, optional: true }),
-  brandId: field({ type: String, optional: true }),
+export const topicSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    title: field({ type: String }),
+    description: field({ type: String, optional: true }),
+    brandId: field({ type: String, optional: true }),
 
-  categoryIds: field({
-    type: [String],
-    required: false,
+    categoryIds: field({
+      type: [String],
+      required: false,
+    }),
+
+    color: field({ type: String, optional: true }),
+    backgroundImage: field({ type: String, optional: true }),
+
+    languageCode: field({
+      type: String,
+      optional: true,
+    }),
+
+    ...commonFields,
   }),
-
-  color: field({ type: String, optional: true }),
-  backgroundImage: field({ type: String, optional: true }),
-
-  languageCode: field({
-    type: String,
-    optional: true,
-  }),
-
-  ...commonFields,
-});
+);

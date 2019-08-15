@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { field } from '../utils';
 import { NOTIFICATION_TYPES } from './constants';
+import { field } from './utils';
 
 export interface INotification {
   notifType?: string;
@@ -8,6 +8,7 @@ export interface INotification {
   content?: string;
   link?: string;
   receiver?: string;
+  action?: string;
 }
 
 export interface INotificationDocument extends INotification, Document {
@@ -23,6 +24,10 @@ export const notificationSchema = new Schema({
   notifType: field({
     type: String,
     enum: NOTIFICATION_TYPES.ALL,
+  }),
+  action: field({
+    type: String,
+    optional: true,
   }),
   title: field({ type: String }),
   link: field({ type: String }),

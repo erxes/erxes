@@ -29,4 +29,7 @@ export default {
       return Brands.findOne({ _id: messenger.brandId });
     }
   },
+  stats(engageMessage: IEngageMessageDocument, _args, { dataSources }) {
+    return dataSources.EngagesAPI.engagesStats(engageMessage._id);
+  },
 };
