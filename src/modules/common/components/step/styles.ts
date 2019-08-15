@@ -99,7 +99,7 @@ const ShortStep = styledTS<{ show: boolean }>(styled.div)`
 
 const InlineForm = styled.div`
   display: flex;
-  align-items: baseline;
+  flex-direction: row;
 
   > *:not(:first-child) {
     margin-left: ${dimensions.unitSpacing}px;
