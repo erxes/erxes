@@ -34,8 +34,6 @@ class DraggableContainer extends React.Component<
   constructor(props: DraggableContainerProps) {
     super(props);
 
-    this.unlisten = undefined;
-
     const { item } = props;
     const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
