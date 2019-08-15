@@ -1,6 +1,6 @@
 {
   "name": "erxes-widgets",
-  "version": "0.9.17",
+  "version": "0.10.0",
   "description": "Embedable widget scripts server for erxes",
   "homepage": "https://erxes.io",
   "repository": {
