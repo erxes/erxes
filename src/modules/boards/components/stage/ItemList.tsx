@@ -1,8 +1,9 @@
-import history from 'browserHistory';
 import EmptyState from 'modules/common/components/EmptyState';
 import routerUtils from 'modules/common/utils/router';
+import queryString from 'query-string';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
+import history from '../../../../browserHistory';
 import { DropZone, EmptyContainer, Wrapper } from '../../styles/common';
 import { IItem, IOptions } from '../../types';
 
@@ -28,8 +29,12 @@ class DraggableContainer extends React.Component<
   DraggableContainerProps,
   { isDragDisabled: boolean; isFormVisible: boolean }
 > {
+  unlisten?: () => void;
+
   constructor(props: DraggableContainerProps) {
     super(props);
+
+    this.unlisten = undefined;
 
     const { item } = props;
     const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
@@ -41,6 +46,22 @@ class DraggableContainer extends React.Component<
     }
 
     this.state = { isDragDisabled: false, isFormVisible };
+  }
+
+  componentDidMount() {
+    this.unlisten = history.listen(location => {
+      const queryParams = queryString.parse(location.search);
+
+      if (queryParams.itemId && queryParams.itemId === this.props.item._id) {
+        return this.setState({ isFormVisible: true });
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unlisten) {
+      this.unlisten();
+    }
   }
 
   onTogglePopup = (id?: string) => {
