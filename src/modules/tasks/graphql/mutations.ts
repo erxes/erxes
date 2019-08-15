@@ -64,30 +64,6 @@ const tasksEdit = `
   }
 `;
 
-const tasksEditCompanies = `
-  mutation tasksEditCompanies($_id: String!, $companyIds: [String]!) {
-    tasksEditCompanies(_id: $_id, companyIds: $companyIds) {
-      companies {
-        _id
-        primaryName
-        website
-      }
-    }
-  }
-`;
-
-const tasksEditCustomers = `
-  mutation tasksEditCustomers($_id: String!, $customerIds: [String]!) {
-    tasksEditCustomers(_id: $_id, customerIds: $customerIds) {
-      customers {
-        _id
-        firstName
-        primaryEmail
-      }
-    }
-  }
-`;
-
 const tasksRemove = `
   mutation tasksRemove($_id: String!) {
     tasksRemove(_id: $_id) {
@@ -124,8 +100,6 @@ const tasksWatch = `
 export default {
   tasksAdd,
   tasksEdit,
-  tasksEditCompanies,
-  tasksEditCustomers,
   tasksRemove,
   tasksChange,
   tasksUpdateOrder,

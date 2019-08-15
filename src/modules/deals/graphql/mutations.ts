@@ -65,30 +65,6 @@ const dealsEdit = `
   }
 `;
 
-const dealsEditCompanies = `
-  mutation dealsEditCompanies($_id: String!, $companyIds: [String]!) {
-    dealsEditCompanies(_id: $_id, companyIds: $companyIds) {
-      companies {
-        _id
-        primaryName
-        website
-      }
-    }
-  }
-`;
-
-const dealsEditCustomers = `
-  mutation dealsEditCustomers($_id: String!, $customerIds: [String]!) {
-    dealsEditCustomers(_id: $_id, customerIds: $customerIds) {
-      customers {
-        _id
-        firstName
-        primaryEmail
-      }
-    }
-  }
-`;
-
 const dealsRemove = `
   mutation dealsRemove($_id: String!) {
     dealsRemove(_id: $_id) {
@@ -125,8 +101,6 @@ const dealsWatch = `
 export default {
   dealsAdd,
   dealsEdit,
-  dealsEditCustomers,
-  dealsEditCompanies,
   dealsRemove,
   dealsChange,
   dealsUpdateOrder,

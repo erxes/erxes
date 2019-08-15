@@ -14,8 +14,7 @@ type Props = {
   users: IUser[];
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: IItemParams, callback: () => void) => void;
-  editCompanies: (companyIds: string[]) => void;
-  editCustomers: (customerIds: string[]) => void;
+  createConformity: (relTypeId: string, relTypeIds: string[]) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
   extraFields?: any;
@@ -62,14 +61,14 @@ class EditForm extends React.Component<Props, State> {
     switch (name) {
       case 'companies':
         const companyIds = (value as ICompany[]).map(company => company._id);
-        this.props.editCompanies(companyIds);
+        this.props.createConformity('company', companyIds);
         break;
 
       case 'customers':
         const customerIds = (value as ICustomer[]).map(
           customer => customer._id
         );
-        this.props.editCustomers(customerIds);
+        this.props.createConformity('customer', customerIds);
         break;
     }
 

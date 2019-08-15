@@ -1,10 +1,15 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import { mutations } from 'modules/conformity/graphql';
+import {
+  CreateConformityMutation,
+  IConformityCreate
+} from 'modules/conformity/types';
 import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
 import { queries } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
+import { Alert, withProps } from '../../../common/utils';
 import {
   CustomerDetailQueryResponse,
   ICustomer
@@ -16,7 +21,10 @@ type Props = {
   conversation: IConversation;
 };
 
-type FinalProps = { customerDetailQuery: CustomerDetailQueryResponse } & Props;
+type FinalProps = {
+  customerDetailQuery: CustomerDetailQueryResponse;
+  createConformityMutation: CreateConformityMutation;
+} & Props;
 
 type State = {
   customer: ICustomer;
@@ -75,6 +83,25 @@ class Sidebar extends React.Component<FinalProps, State> {
     return;
   }
 
+  createConformity = (relType: string, relTypeIds: string[]) => {
+    const { conversation, createConformityMutation } = this.props;
+
+    createConformityMutation({
+      variables: {
+        mainType: 'customer',
+        mainTypeId: conversation.customerId,
+        relType,
+        relTypeIds
+      }
+    })
+      .then(() => {
+        Alert.success('success changed companies');
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   toggleSection = ({ name, isOpen }: { name: string; isOpen: boolean }) => {
     const customerId = this.props.conversation.customerId;
     const config = getConfig(STORAGE_KEY);
@@ -116,7 +143,8 @@ class Sidebar extends React.Component<FinalProps, State> {
       loading,
       toggleSection: this.toggleSection,
       config: getConfig(STORAGE_KEY),
-      taggerRefetchQueries
+      taggerRefetchQueries,
+      createConformity: this.createConformity
     };
 
     return <DumbSidebar {...updatedProps} />;
@@ -133,6 +161,22 @@ export default withProps<Props>(
           variables: {
             _id: conversation.customerId
           }
+        })
+      }
+    ),
+    graphql<Props, CreateConformityMutation, IConformityCreate>(
+      gql(mutations.conformityCreate),
+      {
+        name: 'createConformityMutation',
+        options: ({ conversation }) => ({
+          refetchQueries: [
+            {
+              query: gql(
+                queries.generateCustomerDetailQuery(getConfig(STORAGE_KEY))
+              ),
+              variables: { _id: conversation.customerId }
+            }
+          ]
         })
       }
     )

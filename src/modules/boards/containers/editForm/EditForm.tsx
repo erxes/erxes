@@ -1,6 +1,11 @@
 import gql from 'graphql-tag';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, renderWithProps } from 'modules/common/utils';
+import { mutations } from 'modules/conformity/graphql';
+import {
+  CreateConformityMutation,
+  IConformityCreate
+} from 'modules/conformity/types';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
@@ -8,10 +13,6 @@ import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import {
   DetailQueryResponse,
-  EditCompaniesMutation,
-  EditCompaniesVariables,
-  EditCustomersMutation,
-  EditCustomersVariables,
   IItem,
   IItemParams,
   IOptions,
@@ -36,8 +37,7 @@ type FinalProps = {
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
-  editCompaniesMutation: EditCompaniesMutation;
-  editCustomersMutation: EditCustomersMutation;
+  createConformityMutation: CreateConformityMutation;
   removeMutation: RemoveMutation;
 } & IProps;
 
@@ -48,6 +48,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.addItem = this.addItem.bind(this);
     this.saveItem = this.saveItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
+    this.createConformity = this.createConformity.bind(this);
   }
 
   addItem(
@@ -92,24 +93,19 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   };
 
-  editCompanies = (companyIds: string[]) => {
-    const { itemId, editCompaniesMutation, options } = this.props;
+  createConformity = (relType: string, relTypeIds: string[]) => {
+    const { itemId, createConformityMutation, options } = this.props;
 
-    editCompaniesMutation({ variables: { _id: itemId, companyIds } })
+    createConformityMutation({
+      variables: {
+        mainType: options.type,
+        mainTypeId: itemId,
+        relType,
+        relTypeIds
+      }
+    })
       .then(() => {
-        Alert.success(options.texts.changeSuccessText);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
-  editCustomers = (customerIds: string[]) => {
-    const { itemId, editCustomersMutation, options } = this.props;
-
-    editCustomersMutation({ variables: { _id: itemId, customerIds } })
-      .then(() => {
-        Alert.success(options.texts.changeSuccessText);
+        Alert.success(options.texts.updateSuccessText);
       })
       .catch(error => {
         Alert.error(error.message);
@@ -159,8 +155,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       addItem: this.addItem,
       removeItem: this.removeItem,
       saveItem: this.saveItem,
-      editCompanies: this.editCompanies,
-      editCustomers: this.editCustomers,
+      createConformity: this.createConformity,
       users
     };
 
@@ -231,37 +226,11 @@ export default (props: IProps) => {
           })
         }
       ),
-      graphql<IProps, EditCompaniesMutation, EditCompaniesVariables>(
-        gql(options.mutations.itemsEditCompanies),
+      graphql<IProps, CreateConformityMutation, IConformityCreate>(
+        gql(mutations.conformityCreate),
         {
-          name: 'editCompaniesMutation',
-          options: ({
-            itemId
-          }: // companyIds
-          {
-            itemId: string;
-            // companyIds: [string];
-          }) => ({
-            refetchQueries: [
-              {
-                query: gql(options.queries.detailQuery),
-                variables: { _id: itemId }
-              }
-            ]
-          })
-        }
-      ),
-      graphql<IProps, EditCustomersMutation, EditCustomersVariables>(
-        gql(options.mutations.itemsEditCustomers),
-        {
-          name: 'editCustomersMutation',
-          options: ({
-            itemId
-          }: // customerIds
-          {
-            itemId: string;
-            // customerIds: [string];
-          }) => ({
+          name: 'createConformityMutation',
+          options: ({ itemId }: { itemId: string }) => ({
             refetchQueries: [
               {
                 query: gql(options.queries.detailQuery),

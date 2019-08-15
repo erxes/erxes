@@ -1,5 +1,11 @@
 import gql from 'graphql-tag';
 import { Alert, renderWithProps } from 'modules/common/utils';
+
+import { mutations } from 'modules/conformity/graphql';
+import {
+  AddConformityMutation,
+  IConformityDoc
+} from 'modules/conformity/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
@@ -8,8 +14,8 @@ import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 
 type IProps = {
   options: IOptions;
-  customerIds?: string[];
-  companyIds?: string[];
+  mainType: string;
+  mainTypeId: string;
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
@@ -20,15 +26,31 @@ type IProps = {
 
 type FinalProps = {
   addMutation: SaveMutation;
+  addConformity: ({ variables: AddConformityMutation }) => void;
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
-    const { addMutation, options } = this.props;
+    const {
+      addMutation,
+      options,
+      mainType,
+      mainTypeId,
+      addConformity
+    } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
         Alert.success(options.texts.addSuccessText);
+
+        addConformity({
+          variables: {
+            mainType,
+            mainTypeId,
+            relType: options.type,
+            relTypeId: data[options.mutationsName.addMutation]._id
+          }
+        });
 
         callback(data[options.mutationsName.addMutation]);
       })
@@ -69,6 +91,12 @@ export default (props: IProps) =>
               ]
             };
           }
+        }
+      ),
+      graphql<IProps, AddConformityMutation, IConformityDoc>(
+        gql(mutations.conformityAdd),
+        {
+          name: 'addConformity'
         }
       )
     )(AddFormContainer)

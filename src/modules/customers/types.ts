@@ -101,19 +101,6 @@ export type MergeMutationResponse = {
   ) => Promise<any>;
 };
 
-export type CompaniesEditCustomersMutationVariables = {
-  _id: string;
-  customerIds: string[];
-};
-
-export type CompaniesEditCustomersMutationResponse = {
-  companiesEditCustomers: (
-    doc: {
-      variables: CompaniesEditCustomersMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
 // query types
 
 export type ListQueryVariables = {

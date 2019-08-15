@@ -6,6 +6,8 @@ import Items from '../../components/portable/Items';
 import { IOptions, ItemsQueryResponse } from '../../types';
 
 type IProps = {
+  mainType?: string;
+  mainTypeId?: string;
   customerIds?: string[];
   companyIds?: string[];
   isOpen?: boolean;
@@ -24,7 +26,7 @@ class PortableItemsContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { itemsQuery, options } = this.props;
+    const { itemsQuery, options, mainType, mainTypeId } = this.props;
 
     if (!itemsQuery) {
       return null;
@@ -34,6 +36,8 @@ class PortableItemsContainer extends React.Component<FinalProps> {
 
     const extendedProps = {
       ...this.props,
+      mainType,
+      mainTypeId,
       items,
       onChangeItems: this.onChangeItems
     };

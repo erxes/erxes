@@ -1,7 +1,8 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
-import CompanyAssociate from 'modules/companies/containers/CompanyAssociate';
+import CompanySection from 'modules/companies/components/common/CompanySection';
 import { List } from 'modules/companies/styles';
+import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
@@ -9,9 +10,37 @@ import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 
-export default class RightSidebar extends React.Component<{
+type Props = {
   customer: ICustomer;
-}> {
+  createConformity: (relTypeId: string, relTypeIds: string[]) => void;
+};
+
+type State = {
+  companies: ICompany[];
+};
+
+export default class RightSidebar extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    const customer = props.customer;
+
+    this.state = {
+      companies: customer.companies || []
+    };
+  }
+
+  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    switch (name) {
+      case 'companies':
+        const companyIds = (value as ICompany[]).map(company => company._id);
+        this.props.createConformity('company', companyIds);
+        break;
+    }
+
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
+  };
+
   renderContent() {
     const { customer } = this.props;
     const { integration, visitorContactInfo } = customer;
@@ -52,13 +81,32 @@ export default class RightSidebar extends React.Component<{
 
   render() {
     const { customer } = this.props;
+    const cmpsChange = cmps => this.onChangeField('companies', cmps);
 
     return (
       <Sidebar>
-        <CompanyAssociate data={customer} />
-        <PortableDeals customerIds={[customer._id]} />
-        <PortableTickets customerIds={[customer._id]} />
-        <PortableTasks customerIds={[customer._id]} />
+        <CompanySection
+          name={'Customer'}
+          companies={customer.companies}
+          itemId={customer._id}
+          itemKind={'company'}
+          onSelect={cmpsChange}
+        />
+        <PortableDeals
+          customerIds={[customer._id]}
+          mainType="customer"
+          mainTypeId={customer._id}
+        />
+        <PortableTickets
+          customerIds={[customer._id]}
+          mainType="customer"
+          mainTypeId={customer._id}
+        />
+        <PortableTasks
+          customerIds={[customer._id]}
+          mainType="customer"
+          mainTypeId={customer._id}
+        />
         {this.renderOther()}
       </Sidebar>
     );

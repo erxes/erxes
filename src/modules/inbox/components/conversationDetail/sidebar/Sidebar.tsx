@@ -1,6 +1,7 @@
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { ICompany } from 'modules/companies/types';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import {
@@ -14,15 +15,12 @@ import {
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
+import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICustomer } from 'modules/customers/types';
 import MailForm from 'modules/settings/integrations/containers/google/MailForm';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import { IConversation } from '../../../types';
-
-const CompanyAssociate = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-CompanyAssociate" */ 'modules/companies/containers/CompanyAssociate')
-);
 
 const ActionSection = asyncComponent(
   () =>
@@ -153,11 +151,13 @@ type IndexProps = {
   config: { [key: string]: boolean };
   taggerRefetchQueries: any;
   merge?: (doc: { ids: string[]; data: ICustomer }) => void;
+  createConformity: (relTypeId: string, relTypeIds: string[]) => void;
 };
 
 type IndexState = {
   currentTab: string;
   currentSubTab: string;
+  companies: ICompany[];
 };
 
 interface IRenderData {
@@ -173,7 +173,8 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     this.state = {
       currentTab: 'customer',
-      currentSubTab: 'details'
+      currentSubTab: 'details',
+      companies: props.customer.companies
     };
   }
 
@@ -373,6 +374,23 @@ class Index extends React.Component<IndexProps, IndexState> {
     );
   }
 
+  onChangeField = <T extends keyof IndexState>(
+    name: T,
+    value: IndexState[T]
+  ) => {
+    switch (name) {
+      case 'companies':
+        const companyIds = (value as ICompany[]).map(company => company._id);
+        this.props.createConformity('company', companyIds);
+        break;
+    }
+
+    this.setState(({ [name]: value } as unknown) as Pick<
+      IndexState,
+      keyof IndexState
+    >);
+  };
+
   renderTabContent() {
     const { currentTab, currentSubTab } = this.state;
     const { customer, config, toggleSection } = this.props;
@@ -418,6 +436,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       );
     }
 
+    const cmpsChange = cmps => this.onChangeField('companies', cmps);
     return (
       <>
         <Box
@@ -426,7 +445,13 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
         >
-          <CompanyAssociate isOpen={config.showCompanies} data={customer} />
+          <CompanySection
+            name={'Customer'}
+            companies={customer.companies}
+            itemId={customer._id}
+            itemKind={'company'}
+            onSelect={cmpsChange}
+          />
         </Box>
 
         <Box

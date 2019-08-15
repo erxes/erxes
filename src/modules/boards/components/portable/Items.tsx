@@ -3,7 +3,7 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SectionContainer } from 'modules/layout/styles';
+import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
 import React from 'react';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions } from '../../types';
@@ -11,8 +11,8 @@ import { IItem, IOptions } from '../../types';
 type Props = {
   options: IOptions;
   items: IItem[];
-  customerIds?: string[];
-  companyIds?: string[];
+  mainType?: string;
+  mainTypeId?: string;
   onChangeItems: () => void;
   isOpen?: boolean;
 };
@@ -43,13 +43,7 @@ class Items extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const {
-      customerIds,
-      companyIds,
-      isOpen,
-      options,
-      onChangeItems
-    } = this.props;
+    const { mainType, mainTypeId, isOpen, options, onChangeItems } = this.props;
 
     const trigger = (
       <button>
@@ -62,8 +56,8 @@ class Items extends React.Component<Props> {
         options={options}
         {...props}
         callback={onChangeItems}
-        customerIds={customerIds}
-        companyIds={companyIds}
+        mainType={mainType}
+        mainTypeId={mainTypeId}
         showSelect={true}
       />
     );
@@ -83,6 +77,9 @@ class Items extends React.Component<Props> {
         <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 
         <SectionContainer>{this.renderItems()}</SectionContainer>
+        <ButtonRelated>
+          <button>{__('See related ' + options.title + '..')}</button>
+        </ButtonRelated>
       </Section>
     );
   }

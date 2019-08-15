@@ -13,6 +13,7 @@ import RightSidebar from './RightSidebar';
 type Props = {
   customer: ICustomer;
   taggerRefetchQueries?: any[];
+  createConformity: (relTypeId: string, relTypeIds: string[]) => void;
 };
 
 class CustomerDetails extends React.Component<Props> {
@@ -102,7 +103,12 @@ class CustomerDetails extends React.Component<Props> {
             taggerRefetchQueries={taggerRefetchQueries}
           />
         }
-        rightSidebar={<RightSidebar customer={customer} />}
+        rightSidebar={
+          <RightSidebar
+            createConformity={this.props.createConformity}
+            customer={customer}
+          />
+        }
         content={content}
         transparent={true}
       />

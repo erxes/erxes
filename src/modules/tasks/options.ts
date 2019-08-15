@@ -20,9 +20,7 @@ const options = {
     removeMutation: 'tasksRemove',
     changeMutation: 'tasksChange',
     updateOrderMutation: 'tasksUpdateOrder',
-    watchMutation: 'tasksWatch',
-    itemsEditCustomers: 'tasksEditCustomers',
-    itemsEditCompanies: 'tasksEditCompanies'
+    watchMutation: 'tasksWatch'
   },
   queries: {
     itemsQuery: queries.tasks,
@@ -34,9 +32,7 @@ const options = {
     removeMutation: mutations.tasksRemove,
     changeMutation: mutations.tasksChange,
     updateOrderMutation: mutations.tasksUpdateOrder,
-    watchMutation: mutations.tasksWatch,
-    itemsEditCustomers: mutations.tasksEditCustomers,
-    itemsEditCompanies: mutations.tasksEditCompanies
+    watchMutation: mutations.tasksWatch
   },
   texts: {
     addText: 'Add a task',

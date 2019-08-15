@@ -67,30 +67,6 @@ const ticketsEdit = `
   }
 `;
 
-const ticketsEditCompanies = `
-  mutation ticketsEditCompanies($_id: String!, $companyIds: [String]!) {
-    ticketsEditCompanies(_id: $_id, companyIds: $companyIds) {
-      companies {
-        _id
-        primaryName
-        website
-      }
-    }
-  }
-`;
-
-const ticketsEditCustomers = `
-  mutation ticketsEditCustomers($_id: String!, $customerIds: [String]!) {
-    ticketsEditCustomers(_id: $_id, customerIds: $customerIds) {
-      customers {
-        _id
-        firstName
-        primaryEmail
-      }
-    }
-  }
-`;
-
 const ticketsRemove = `
   mutation ticketsRemove($_id: String!) {
     ticketsRemove(_id: $_id) {
@@ -127,8 +103,6 @@ const ticketsWatch = `
 export default {
   ticketsAdd,
   ticketsEdit,
-  ticketsEditCustomers,
-  ticketsEditCompanies,
   ticketsRemove,
   ticketsChange,
   ticketsUpdateOrder,
