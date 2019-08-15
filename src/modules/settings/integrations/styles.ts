@@ -81,6 +81,10 @@ const Options = styled.div`
   }
 `;
 
+const Description = styled.p`
+  text-transform: initial;
+`;
+
 export {
   FlexRow,
   Row,
@@ -88,5 +92,6 @@ export {
   IntegrationName,
   BrandName,
   Options,
+  Description,
   Script
 };
