@@ -8,7 +8,12 @@ import {
   VISITOR_AUDIENCE_RULES
 } from 'modules/engage/constants';
 import React from 'react';
+import styled from 'styled-components';
 import { IConditionsRule } from '../../types';
+
+const RuleDescription = styled.p`
+  text-transform: initial;
+`;
 
 type Props = {
   rules: IConditionsRule[];
@@ -45,6 +50,31 @@ class ConditionsRule extends React.Component<Props, State> {
     }
   };
 
+  renderDescription(rule) {
+    let description;
+    switch (rule.kind) {
+      case 'browserLanguage':
+        description =
+          'Recognizes which language is set for visitor’s browser. Insert only Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.';
+        break;
+      case 'currentPageUrl':
+        description =
+          'Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing';
+        break;
+      case 'country':
+        description =
+          'Locates visitor’s physical location in country  resolution. Insert only Country codes in value field as appointed in ISO-3166 standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.';
+        break;
+      case 'city':
+        description =
+          'Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.';
+        break;
+      default:
+        description = 'Counts individual visitor’s visitting number.';
+    }
+    return description;
+  }
+
   renderRule(rule) {
     const remove = () => {
       let rules = this.state.rules;
@@ -80,7 +110,10 @@ class ConditionsRule extends React.Component<Props, State> {
 
     return (
       <FormGroup key={rule._id}>
-        <ControlLabel>{rule.text}</ControlLabel>
+        <ControlLabel>
+          {rule.text}
+          <RuleDescription>{this.renderDescription(rule)}</RuleDescription>
+        </ControlLabel>
         <InlineForm>
           <FormControl
             componentClass="select"
