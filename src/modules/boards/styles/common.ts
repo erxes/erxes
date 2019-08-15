@@ -68,20 +68,24 @@ export const SelectContainer = styled.div`
   background: ${colors.colorWhite};
 `;
 
-export const ColorButton = styled.div`
+export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   height: 25px;
   border-radius: 2px;
   font-weight: 500;
   line-height: 25px;
   font-size: 12px;
-  background-color: ${rgba(colors.colorPrimary, 0.1)};
-  color: ${colors.colorPrimaryDark};
+  background-color: ${props => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${props => props.color || colors.colorPrimaryDark};
   padding: 0 10px;
   transition: background 0.3s ease;
 
+  > i {
+    margin-right: 5px;
+  }
+
   &:hover {
     cursor: pointer;
-    background-color: ${rgba(colors.colorPrimary, 0.2)};
+    background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
   }
 `;
 

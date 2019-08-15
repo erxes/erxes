@@ -82,12 +82,14 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     const dateOnChange = date => onChangeField('closeDate', date);
     const priorityTrigger = (
       <ColorButton>
-        <Icon icon="sort-amount-up" /> Priority
+        <Icon icon="sort-amount-up" />
+        Priority
       </ColorButton>
     );
     const hackStageTrigger = (
       <ColorButton>
-        <Icon icon="diary" /> Hack Stage
+        <Icon icon="diary" />
+        Hack Stage
       </ColorButton>
     );
 
@@ -135,14 +137,16 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
                 onChange={hackStageOnChange}
                 trigger={hackStageTrigger}
               />
+              <Watch item={item} options={options} isSmall={true} />
               <ColorButton onClick={copy}>
-                <Icon icon="copy-1" /> Copy
+                <Icon icon="copy-1" />
+                Copy
               </ColorButton>
               <ColorButton onClick={onClick}>
-                <Icon icon="times-circle" /> Delete
+                <Icon icon="times-circle" />
+                Delete
               </ColorButton>
             </ActionContainer>
-            <Watch item={item} options={options} />
 
             <Left
               {...commonProp}
@@ -156,6 +160,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               options={options}
             />
           </LeftContainer>
+
           <Right
             item={item}
             onChangeExtraField={this.onChangeExtraField}

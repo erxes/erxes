@@ -76,6 +76,15 @@ const TitleRow = styled.div`
   }
 `;
 
+const MetaInfo = styled.div`
+  display: flex;
+  align-item: center;
+
+  > * {
+    margin-right: 5px;
+  }
+`;
+
 const HeaderContentSmall = styled.div`
   text-align: right;
   margin-left: 20px;
@@ -343,6 +352,7 @@ export {
   FooterContent,
   HeaderRow,
   TitleRow,
+  MetaInfo,
   HeaderContent,
   HeaderContentSmall,
   RightButton,

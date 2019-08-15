@@ -1,7 +1,13 @@
 import { IUser } from 'modules/auth/types';
 import { PriorityIndicator } from 'modules/boards/components/editForm';
 import Move from 'modules/boards/containers/editForm/Move';
-import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
+import { ColorButton } from 'modules/boards/styles/common';
+import {
+  HeaderContent,
+  HeaderRow,
+  MetaInfo,
+  TitleRow
+} from 'modules/boards/styles/item';
 import { IItem, IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
 import React from 'react';
@@ -38,6 +44,21 @@ class Top extends React.Component<Props> {
     );
   }
 
+  renderHackStage() {
+    const { hackStage } = this.props;
+
+    if (!hackStage) {
+      return null;
+    }
+
+    return (
+      <ColorButton color="#666">
+        <PriorityIndicator value={hackStage} />
+        {hackStage}
+      </ColorButton>
+    );
+  }
+
   render() {
     const { name, onChangeField, amount, dueDate, priority } = this.props;
 
@@ -45,7 +66,7 @@ class Top extends React.Component<Props> {
       onChangeField('name', (e.target as HTMLInputElement).value);
 
     return (
-      <React.Fragment>
+      <>
         <HeaderRow>
           <HeaderContent>
             <TitleRow>
@@ -57,7 +78,10 @@ class Top extends React.Component<Props> {
                 onChange={nameOnChange}
               />
             </TitleRow>
-            {dueDate}
+            <MetaInfo>
+              {dueDate}
+              {this.renderHackStage()}
+            </MetaInfo>
           </HeaderContent>
 
           {amount && amount()}
@@ -66,7 +90,7 @@ class Top extends React.Component<Props> {
         <HeaderRow>
           <HeaderContent>{this.renderMove()}</HeaderContent>
         </HeaderRow>
-      </React.Fragment>
+      </>
     );
   }
 }

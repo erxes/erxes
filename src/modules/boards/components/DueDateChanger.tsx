@@ -20,7 +20,7 @@ export const DateWrapper = styledTS<{ color: string }>(styled.div)`
 		border-radius: 2px;
 		font-weight: 500;
 		line-height: 25px;
-		width: 105px;
+		width: 110px;
 		font-size: 12px;
 
 		&:hover {
@@ -63,7 +63,7 @@ class DueDateChanger extends React.Component<IProps> {
         <Icon icon="clock-eight" />
         <Datetime
           inputProps={{ placeholder: 'Due date' }}
-          dateFormat="YYYY/MM/DD"
+          dateFormat="MMM,DD YYYY"
           timeFormat={false}
           value={value}
           closeOnSelect={true}
