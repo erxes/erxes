@@ -11,6 +11,7 @@ export const types = `
     openConversationCount: Int
 
     integrations: [Integration]
+    members: [User]
   }
 `;
 
