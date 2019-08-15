@@ -111,4 +111,14 @@ ignore:
     - sanitize-html > lodash.mergewith:
         reason: None given
         expires: '2019-08-08T03:49:55.608Z'
-patch: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-450202:
+    - react-color > lodash:
+        patched: '2019-08-15T14:04:10.169Z'
+    - react-color > reactcss > lodash:
+        patched: '2019-08-15T14:04:10.169Z'
+    - juice > web-resource-inliner > async > lodash:
+        patched: '2019-08-15T14:04:10.169Z'
+    - emotion > babel-plugin-emotion > @babel/helper-module-imports > @babel/types > lodash:
+        patched: '2019-08-15T14:04:10.169Z'
