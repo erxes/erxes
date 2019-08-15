@@ -1,12 +1,12 @@
-import { MainActionBar } from 'modules/boards/containers';
+import MainActionBar from 'modules/boards/containers/MainActionBar';
 import { BoardContainer, ScrolledContent } from 'modules/boards/styles/common';
 
 import { __ } from 'modules/common/utils';
 import { menuDeal } from 'modules/common/utils/menus';
 import Stages from 'modules/deals/containers/conversion/Stages';
-import { Header } from 'modules/layout/components';
+import Header from 'modules/layout/components/Header';
 import * as React from 'react';
-import { DealMainActionBar } from '../';
+import DealMainActionBar from '../DealMainActionBar';
 import { DealContent, FixedContent, ViewDivider } from './style';
 
 type Props = {
@@ -23,7 +23,7 @@ class ConversionView extends React.Component<Props> {
         <Header title={__('Deal')} submenu={menuDeal} />
         <DealContent transparent={true}>
           <MainActionBar type="deal" component={DealMainActionBar} />
-          <ScrolledContent transparent={true}>
+          <ScrolledContent>
             <FixedContent>
               <Stages
                 type="brief"

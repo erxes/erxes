@@ -1,5 +1,7 @@
-import { Details, UserCounter } from 'modules/boards/components/portable';
-import { EditForm } from 'modules/boards/containers/editForm';
+import dayjs from 'dayjs';
+import Details from 'modules/boards/components/portable/Details';
+import UserCounter from 'modules/boards/components/portable/UserCounter';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import {
   Footer,
@@ -9,9 +11,9 @@ import {
 } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
-import { ModalTrigger, Tip } from 'modules/common/components';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import { ITask } from '../types';
 
@@ -55,8 +57,8 @@ class Task extends React.Component<Props, { isFormVisible: boolean }> {
     }
 
     return (
-      <Tip text={moment(date).format(format)}>
-        <ItemDate>{moment(date).format('lll')}</ItemDate>
+      <Tip text={dayjs(date).format(format)}>
+        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
       </Tip>
     );
   };

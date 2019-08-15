@@ -1,17 +1,16 @@
 import { Button as DealButton } from 'modules/boards/styles/item';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import CURRENCIES from 'modules/common/constants/currencies';
 import { __ } from 'modules/common/utils';
-import { CURRENCIES, MEASUREMENTS } from 'modules/settings/general/constants';
+import { MEASUREMENTS } from 'modules/settings/general/constants';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { ProductChooser } from '../../containers';
+import ProductChooser from '../../containers/product/ProductChooser';
 import {
   ContentColumn,
   ContentRow,

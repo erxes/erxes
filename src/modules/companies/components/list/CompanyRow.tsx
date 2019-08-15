@@ -1,8 +1,10 @@
+import dayjs from 'dayjs';
 import _ from 'lodash';
-import { FormControl, NameCard, Tags } from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
 import { isTimeStamp, urlParser } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
-import moment from 'moment';
 import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';
@@ -41,11 +43,8 @@ function formatValue(value) {
     return createLinkFromUrl(value);
   }
 
-  if (
-    value &&
-    (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value))
-  ) {
-    return <Date>{moment(value).format('lll')}</Date>;
+  if (value && (dayjs(value).isValid() || isTimeStamp(value))) {
+    return <Date>{dayjs(value).format('lll')}</Date>;
   }
 
   return value || '-';

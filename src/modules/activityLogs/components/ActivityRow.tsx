@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   ActivityDate,
   ActivityIcon,
@@ -6,8 +7,9 @@ import {
   FlexBody,
   FlexContent
 } from 'modules/activityLogs/styles';
-import { Icon, NameCard, Tip } from 'modules/common/components';
-import moment from 'moment';
+import Icon from 'modules/common/components/Icon';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tip from 'modules/common/components/Tip';
 import React from 'react';
 
 type Props = {
@@ -30,9 +32,9 @@ const ActivityRowComponent = (props: Props) => {
             <NameCard.Avatar user={data.by} size={32} />
           </AvatarWrapper>
           <FlexBody>{body}</FlexBody>
-          <Tip text={moment(data.createdAt).format('llll')}>
+          <Tip text={dayjs(data.createdAt).format('llll')}>
             <ActivityDate>
-              {moment(data.createdAt).format('MMM Do, h:mm A')}
+              {dayjs(data.createdAt).format('MMM Do, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexContent>

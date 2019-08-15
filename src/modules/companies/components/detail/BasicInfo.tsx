@@ -1,20 +1,18 @@
 import { AvatarWrapper } from 'modules/activityLogs/styles';
-import {
-  Button,
-  DropdownToggle,
-  Icon,
-  ModalTrigger,
-  NameCard
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __, Alert, confirm } from 'modules/common/utils';
-import { TargetMerge } from 'modules/customers/components';
+import TargetMerge from 'modules/customers/components/common/TargetMerge';
 import {
   LEAD_STATUS_TYPES,
   LIFECYCLE_STATE_TYPES
 } from 'modules/customers/constants';
 import { Action, Name } from 'modules/customers/styles';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import {
   SidebarCounter,
   SidebarFlexRow,
@@ -22,9 +20,9 @@ import {
 } from 'modules/layout/styles';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
-import { CompaniesMerge } from '..';
-import { CompanyForm } from '../../containers';
+import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
+import CompaniesMerge from '../detail/CompaniesMerge';
 
 type Props = {
   company: ICompany;
@@ -95,8 +93,9 @@ class BasicInfo extends React.Component<Props> {
       <Action>
         <Dropdown id="dropdown-engage">
           <DropdownToggle bsRole="toggle">
-            <Button btnStyle="simple" size="medium" icon="downarrow">
+            <Button btnStyle="simple" size="medium">
               {__('Action')}
+              <Icon icon="angle-down" />
             </Button>
           </DropdownToggle>
           <Dropdown.Menu>

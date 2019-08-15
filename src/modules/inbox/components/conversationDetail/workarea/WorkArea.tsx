@@ -1,10 +1,15 @@
-import { Button, Icon, Label, Tags } from 'modules/common/components';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import Tags from 'modules/common/components/Tags';
 import { IAttachmentPreview } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
-import { AssignBoxPopover } from 'modules/inbox/components';
-import { Resolver, Tagger } from 'modules/inbox/containers';
-import { RespondBox } from 'modules/inbox/containers/conversationDetail';
+import AssignBoxPopover from 'modules/inbox/components/assignBox/AssignBoxPopover';
+import RespondBox from 'modules/inbox/containers/conversationDetail/RespondBox';
+import Resolver from 'modules/inbox/containers/Resolver';
+import Tagger from 'modules/inbox/containers/Tagger';
 import {
   ActionBarLeft,
   AssignText,
@@ -12,7 +17,7 @@ import {
   ConversationWrapper,
   PopoverButton
 } from 'modules/inbox/styles';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
 import React from 'react';
@@ -22,9 +27,17 @@ import {
   IMessage
 } from '../../../types';
 import Conversation from './conversation/Conversation';
-import ConvertTo from './ConvertTo';
-import Participators from './Participators';
 import TypingIndicator from './TypingIndicator';
+
+const Participators = asyncComponent(
+  () => import(/* webpackChunkName:"Inbox-Participators" */ './Participators'),
+  { height: '30px', width: '30px', round: true }
+);
+
+const ConvertTo = asyncComponent(
+  () => import(/* webpackChunkName:"Inbox-ConvertTo" */ './ConvertTo'),
+  { height: '22px', width: '100px', marginRight: '10px' }
+);
 
 type Props = {
   queryParams?: any;
@@ -132,6 +145,9 @@ export default class WorkArea extends React.Component<Props, State> {
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
+    const { kind } = currentConversation.integration;
+
+    const showInternal = kind === 'gmail';
 
     const tagTrigger = (
       <PopoverButton>
@@ -140,7 +156,7 @@ export default class WorkArea extends React.Component<Props, State> {
         ) : (
           <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon="downarrow" />
+        <Icon icon="angle-down" />
       </PopoverButton>
     );
 
@@ -151,9 +167,9 @@ export default class WorkArea extends React.Component<Props, State> {
         ) : (
           <Button btnStyle="simple" size="small">
             Member
+            <Icon icon="angle-down" />
           </Button>
         )}
-        <Icon icon="downarrow" />
       </AssignTrigger>
     );
 
@@ -218,7 +234,7 @@ export default class WorkArea extends React.Component<Props, State> {
           <ContenFooter>
             {typingIndicator}
             <RespondBox
-              showInternal={false}
+              showInternal={showInternal}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}

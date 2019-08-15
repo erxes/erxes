@@ -1,5 +1,4 @@
 import { IStage } from 'modules/boards/types';
-import { EmptyState } from 'modules/common/components';
 import { __ } from 'modules/common/utils';
 import Stage from 'modules/deals/containers/conversion/Stage';
 import * as React from 'react';
@@ -14,10 +13,6 @@ type Props = {
 class Table extends React.Component<Props, {}> {
   render() {
     const { stages, queryParams, pipelineId } = this.props;
-
-    if (stages.length === 0) {
-      return <EmptyState image="/images/actions/18.svg" text="No data" />;
-    }
 
     return (
       <TableView>

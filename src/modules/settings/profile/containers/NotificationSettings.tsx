@@ -11,7 +11,7 @@ import {
   SaveNotificationConfigMutationResponse,
   SaveNotificationConfigMutationVariables
 } from '../../../notifications/types';
-import { NotificationSettings } from '../components';
+import NotificationSettings from '../components/NotificationSettings';
 
 type Props = {
   notificationModulesQuery: NotificationModulesQueryResponse;
@@ -59,7 +59,7 @@ const NotificationSettingsContainer = (props: Props) => {
   let getNotificationByEmail = currentUser.getNotificationByEmail;
 
   if (getNotificationByEmail === undefined || getNotificationByEmail === null) {
-    getNotificationByEmail = true;
+    getNotificationByEmail = false;
   }
 
   const updatedProps = {

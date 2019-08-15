@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { EmptyState } from '..';
+import EmptyState from '../EmptyState';
 import Filter from './Filter';
 import {
   AvatarImg,

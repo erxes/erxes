@@ -1,15 +1,13 @@
-import {
-  ActionButtons,
-  Button,
-  EmptyState,
-  Icon,
-  Label,
-  ModalTrigger,
-  Table,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { InstallCode } from 'modules/settings/integrations/components';
+import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -26,6 +24,10 @@ class IntegrationList extends React.Component<Props> {
 
     if (kind === KIND_CHOICES.FACEBOOK) {
       return 'facebook';
+    }
+
+    if (kind === KIND_CHOICES.GMAIL) {
+      return 'gmail';
     }
 
     if (kind === KIND_CHOICES.FORM) {
@@ -63,6 +65,7 @@ class IntegrationList extends React.Component<Props> {
 
           <ModalTrigger
             title="Install code"
+            size="lg"
             trigger={editTrigger}
             content={content}
           />

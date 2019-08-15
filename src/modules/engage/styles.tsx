@@ -135,6 +135,10 @@ const Recipient = styled.div`
   font-size: 13px;
 `;
 
+const Half = styled.div`
+  width: 50%;
+`;
+
 const StepContent = styled.div`
   display: flex;
 `;
@@ -193,6 +197,10 @@ const SelectMonth = styled.div`
 const DateTimePicker = styled.div`
   margin-top: ${coreSpace};
 
+  .rdtCounters {
+    padding-left: 15px;
+  }
+
   .rdtOpen .rdtPicker {
     border:none;
 
@@ -203,7 +211,7 @@ const DateTimePicker = styled.div`
 
   .rdtCounterSeparator {
     line-height: inherit;
-    padding-left: ${dimensions.unitSpacing}px;
+    padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
   }
 
   .rdtTime {
@@ -212,14 +220,24 @@ const DateTimePicker = styled.div`
 
   .rdtCounter {
     position: relative;
-    height: ${dimensions.headerSpacing + 5}px
+    height: ${dimensions.coreSpacing + 10}px
     color: ${rgba(colors.colorCoreDarkGray, 0.8)};
+    background: ${colors.bgLight};
+    border: 1px solid ${colors.borderPrimary};
 
     .rdtBtn {
       line-height: ${dimensions.unitSpacing}px;
       position: absolute;
       right: 0;
-      font-size: 10px;
+      font-size: ${dimensions.unitSpacing}px;
+      color: ${colors.colorCoreGray};
+      padding: 2px 3px 0 0;
+    }
+
+    .rdtCount {
+      height: ${dimensions.unitSpacing}px;
+      font-size: inherit;
+      margin: 3px 0 0 -${dimensions.unitSpacing - 5}px;
     }
   }
 `;
@@ -281,6 +299,7 @@ export {
   ListCounter,
   Recipients,
   Recipient,
+  Half,
   StepContent,
   FlexItemCentered,
   Box,

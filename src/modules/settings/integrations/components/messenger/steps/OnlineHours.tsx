@@ -1,9 +1,7 @@
-import {
-  Button,
-  ControlLabel,
-  FormGroup,
-  Icon
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { days, hours } from 'modules/settings/integrations/constants';
 import { FlexRow } from 'modules/settings/integrations/styles';
 import React from 'react';

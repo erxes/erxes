@@ -1,12 +1,10 @@
-import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  ButtonMutate,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __, Alert } from 'modules/common/utils';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
@@ -24,7 +22,6 @@ import {
 type Props = {
   modules: IModule[];
   actions: IActions[];
-  users: IUser[];
   groups: IUserGroup[];
   refetchQueries: any;
   closeModal: () => void;
@@ -33,7 +30,7 @@ type Props = {
 type State = {
   selectedModule: string;
   selectedActions: IActions[];
-  selectedUsers: IUser[];
+  selectedUserIds: string[];
   selectedGroups: IUserGroup[];
   valueChanged: boolean;
   isSubmitted: boolean;
@@ -43,7 +40,7 @@ class PermissionForm extends React.Component<Props, State> {
   state = {
     selectedModule: '',
     selectedActions: [],
-    selectedUsers: [],
+    selectedUserIds: [],
     selectedGroups: [],
     valueChanged: false,
     isSubmitted: false
@@ -55,7 +52,7 @@ class PermissionForm extends React.Component<Props, State> {
     const {
       selectedModule,
       selectedActions,
-      selectedUsers,
+      selectedUserIds,
       selectedGroups
     } = this.state;
 
@@ -67,7 +64,7 @@ class PermissionForm extends React.Component<Props, State> {
       return Alert.error('Please select at least one action!');
     }
 
-    if (!this.hasItems(selectedGroups) && !this.hasItems(selectedUsers)) {
+    if (!this.hasItems(selectedGroups) && !this.hasItems(selectedUserIds)) {
       return Alert.error('Please select at least one group or user!');
     }
 
@@ -78,7 +75,7 @@ class PermissionForm extends React.Component<Props, State> {
     const {
       selectedModule,
       selectedActions,
-      selectedUsers,
+      selectedUserIds,
       selectedGroups,
       valueChanged
     } = this.state;
@@ -86,7 +83,7 @@ class PermissionForm extends React.Component<Props, State> {
     return {
       module: selectedModule,
       actions: this.collectValues(selectedActions),
-      userIds: this.collectValues(selectedUsers),
+      userIds: selectedUserIds,
       groupIds: this.collectValues(selectedGroups),
       allowed: valueChanged
     };
@@ -126,14 +123,16 @@ class PermissionForm extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { modules, actions, users, groups } = this.props;
+    const { modules, actions, groups } = this.props;
     const {
       selectedModule,
       selectedActions,
-      selectedUsers,
+      selectedUserIds,
       selectedGroups,
       valueChanged
     } = this.state;
+
+    const usersOnChange = users => this.select('selectedUserIds', users);
 
     return (
       <>
@@ -173,7 +172,7 @@ class PermissionForm extends React.Component<Props, State> {
           <StepHeader
             number="2"
             isDone={
-              this.hasItems(selectedGroups) || this.hasItems(selectedUsers)
+              this.hasItems(selectedGroups) || this.hasItems(selectedUserIds)
             }
           >
             {__('Who can')}
@@ -192,12 +191,13 @@ class PermissionForm extends React.Component<Props, State> {
             <Divider>{__('Or')}</Divider>
             <FormGroup>
               <ControlLabel required={true}>Choose the users</ControlLabel>
-              <Select
-                placeholder="Choose users"
-                options={generateListParams(users)}
-                value={selectedUsers}
-                onChange={this.select.bind(this, 'selectedUsers')}
-                multi={true}
+
+              <SelectTeamMembers
+                label="Choose users"
+                name="selectedUserIds"
+                value={selectedUserIds}
+                onSelect={usersOnChange}
+                filterParams={{ status: 'verified' }}
               />
             </FormGroup>
           </StepBody>

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { Entry } from 'modules/settings/integrations/components/store';
+import Spinner from 'modules/common/components/Spinner';
+import Entry from 'modules/settings/integrations/components/store/Entry';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -17,6 +17,7 @@ type Props = {
     messenger: number;
     form: number;
     facebook: number;
+    gmail: number;
   };
 };
 

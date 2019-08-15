@@ -1,11 +1,12 @@
 import { IUser } from 'modules/auth/types';
-import { FormControl, Step, Steps } from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
@@ -17,7 +18,8 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from '../types';
-import { ChannelStep, MessageStep } from './step';
+import ChannelStep from './step/ChannelStep';
+import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
 
 type Props = {
@@ -26,6 +28,7 @@ type Props = {
   users: IUser[];
   templates: IEmailTemplate[];
   kind: string;
+  isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
@@ -134,7 +137,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderTitle, breadcrumbs } = this.props;
+    const { renderTitle, breadcrumbs, isActionLoading } = this.props;
 
     const {
       activeStep,
@@ -193,6 +196,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
               this,
               this.props.kind === 'manual' ? 'live' : 'draft'
             )}
+            isActionLoading={isActionLoading}
             message={this.props.message}
           >
             <MessageStep

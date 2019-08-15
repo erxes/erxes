@@ -1,23 +1,22 @@
-import { Button, ControlLabel } from 'modules/common/components';
+import Datetime from '@nateradebaugh/react-datetime';
+import dayjs from 'dayjs';
+import Button from 'modules/common/components/Button';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
-import Datetime from 'react-datetime';
 import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../../styles';
 import { IQueryParams } from '../../types';
 
 type Props = {
   content: React.ReactNode;
-  onApplyClick: (
-    args: { startDate: moment.Moment; endDate: moment.Moment }
-  ) => void;
+  onApplyClick: (args: { startDate: Date; endDate: Date }) => void;
   history: any;
   queryParams: IQueryParams;
 };
 
 type States = {
-  startDate: moment.Moment;
-  endDate: moment.Moment;
+  startDate: Date;
+  endDate: Date;
 };
 
 class Filter extends React.Component<Props, States> {
@@ -27,13 +26,13 @@ class Filter extends React.Component<Props, States> {
     let { startDate, endDate } = props.queryParams;
 
     if (!startDate && !endDate) {
-      startDate = moment().add(-7, 'days');
-      endDate = moment();
+      startDate = dayjs().add(-7, 'day');
+      endDate = dayjs();
     }
 
     this.state = {
-      startDate: moment(startDate),
-      endDate: moment(endDate)
+      startDate: dayjs(startDate).toDate(),
+      endDate: dayjs(endDate).toDate()
     };
   }
 

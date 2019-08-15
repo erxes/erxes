@@ -4,7 +4,7 @@ import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Stage } from '../components/stage';
+import Stage from '../components/stage/Stage';
 import {
   IFilterParams,
   IItem,
@@ -90,6 +90,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       options,
       onAddItem
     } = this.props;
+
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
 
     return (

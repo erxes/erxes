@@ -1,6 +1,7 @@
-import { HeaderDescription, Icon } from 'modules/common/components';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Box, Group, Title } from '../styles';
 import { ProjectVersions, Version } from '../types';

@@ -1,6 +1,6 @@
-import { Pagination } from 'modules/common/components';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import { __ } from 'modules/common/utils';
-import { IntegrationList } from 'modules/settings/integrations/containers/common';
+import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
 import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import React from 'react';
 import { Collapse } from 'react-bootstrap';
@@ -14,6 +14,8 @@ type Props = {
   totalCount: {
     messenger: number;
     form: number;
+    facebook: number;
+    gmail: number;
   };
   queryParams: any;
 };
@@ -48,7 +50,7 @@ class Row extends React.Component<Props, State> {
   };
 
   toggleBox = selectedKind => {
-    if (!selectedKind) {
+    if (!selectedKind || selectedKind === 'amazon-ses') {
       return false;
     }
 

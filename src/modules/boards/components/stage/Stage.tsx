@@ -10,7 +10,9 @@ import {
   StageFooter,
   StageRoot
 } from 'modules/boards/styles/stage';
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
@@ -80,7 +82,7 @@ export default class Stage extends React.Component<Props, {}> {
     const trigger = (
       <StageFooter>
         <AddNew>
-          <Icon icon="plus" />
+          <Icon icon="plus-1" />
           {__(addText)}
         </AddNew>
       </StageFooter>

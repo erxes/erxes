@@ -1,19 +1,12 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
 import { IUser } from 'modules/auth/types';
-import { Button } from 'modules/common/components';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import Button from 'modules/common/components/Button';
+import { IAttachment } from 'modules/common/types';
+import { Alert, extractAttachment } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { FlexContent, FormFooter, Left } from '../../styles/item';
-import { IItem, IItemParams, IOptions } from '../../types';
-import { Sidebar, Top } from './';
+import { FormFooter } from '../../styles/item';
+import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 type Props = {
   options: IOptions;
@@ -27,6 +20,9 @@ type Props = {
   extraFieldsCheck?: () => boolean;
   amount?: () => React.ReactNode;
   sidebar?: () => React.ReactNode;
+  formContent: (
+    { state, onChangeAttachment, onChangeField, copy, remove }: IEditFormContent
+  ) => React.ReactNode;
 };
 
 type State = {
@@ -37,6 +33,7 @@ type State = {
   assignedUserIds: string[];
   customers: ICustomer[];
   companies: ICompany[];
+  attachments: IAttachment[];
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -53,12 +50,17 @@ class EditForm extends React.Component<Props, State> {
       customers: item.customers || [],
       closeDate: item.closeDate,
       description: item.description || '',
+      attachments: extractAttachment(item.attachments),
       assignedUserIds: (item.assignedUsers || []).map(user => user._id)
     };
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
+  };
+
+  onChangeAttachment = (attachments: IAttachment[]) => {
+    this.setState({ attachments });
   };
 
   save = () => {
@@ -69,7 +71,8 @@ class EditForm extends React.Component<Props, State> {
       customers,
       closeDate,
       stageId,
-      assignedUserIds
+      assignedUserIds,
+      attachments
     } = this.state;
 
     const { closeModal, saveItem, extraFields, extraFieldsCheck } = this.props;
@@ -90,6 +93,7 @@ class EditForm extends React.Component<Props, State> {
       description,
       stageId,
       assignedUserIds,
+      attachments,
       ...extraFields
     };
 
@@ -98,7 +102,7 @@ class EditForm extends React.Component<Props, State> {
     });
   };
 
-  remove = id => {
+  remove = (id: string) => {
     const { removeItem, closeModal } = this.props;
 
     removeItem(id, () => closeModal());
@@ -122,79 +126,16 @@ class EditForm extends React.Component<Props, State> {
     );
   };
 
-  renderFormContent() {
-    const { item, users, options, amount, sidebar } = this.props;
-
-    const {
-      name,
-      stageId,
-      description,
-      closeDate,
-      assignedUserIds,
-      customers,
-      companies
-    } = this.state;
-
-    const descriptionOnChange = e =>
-      this.onChangeField('description', (e.target as HTMLInputElement).value);
-
-    return (
-      <>
-        <Top
-          options={options}
-          name={name}
-          description={description}
-          closeDate={closeDate}
-          amount={amount}
-          users={users}
-          stageId={stageId}
-          item={item}
-          onChangeField={this.onChangeField}
-        />
-
-        <FlexContent>
-          <Left>
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                componentClass="textarea"
-                defaultValue={description}
-                onChange={descriptionOnChange}
-              />
-            </FormGroup>
-            <ActivityInputs
-              contentTypeId={item._id}
-              contentType={options.type}
-              showEmail={false}
-            />
-            <ActivityLogs
-              target={item.name}
-              contentId={item._id}
-              contentType={options.type}
-              extraTabs={[]}
-            />
-          </Left>
-
-          <Sidebar
-            options={options}
-            customers={customers}
-            companies={companies}
-            assignedUserIds={assignedUserIds}
-            item={item}
-            sidebar={sidebar}
-            onChangeField={this.onChangeField}
-            copyItem={this.copy}
-            removeItem={this.remove}
-          />
-        </FlexContent>
-      </>
-    );
-  }
-
   render() {
     return (
       <>
-        {this.renderFormContent()}
+        {this.props.formContent({
+          state: this.state,
+          onChangeAttachment: this.onChangeAttachment,
+          onChangeField: this.onChangeField,
+          copy: this.copy,
+          remove: this.remove
+        })}
 
         <FormFooter>
           <Button

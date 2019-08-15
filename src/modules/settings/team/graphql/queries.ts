@@ -48,17 +48,6 @@ const userConversations = `
   }
 `;
 
-const channels = `
-  query channels($memberIds: [String]) {
-    channels(memberIds: $memberIds) {
-      _id
-      name
-      description
-      memberIds
-    }
-  }
-`;
-
 const listParamsDef = `
   $searchValue: String,
   $isActive: Boolean,
@@ -80,6 +69,7 @@ const users = `
       status
       isActive
       groupIds
+      brandIds
       details {
         avatar
         fullName
@@ -100,9 +90,9 @@ const users = `
   }
 `;
 
-const usersForSelector = `
-  query users {
-    users {
+const allUsers = `
+  query allUsers {
+    allUsers {
       _id
       email
       username
@@ -122,9 +112,8 @@ const usersTotalCount = `
 
 export default {
   userDetail,
-  channels,
   userConversations,
   users,
   usersTotalCount,
-  usersForSelector
+  allUsers
 };

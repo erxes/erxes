@@ -1,20 +1,18 @@
-import {
-  Button,
-  CountsByTag,
-  DataWithLoader,
-  FormControl,
-  Pagination,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import CountsByTag from 'modules/common/components/CountsByTag';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import FormControl from 'modules/common/components/form/Control';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
-import { TaggerPopover } from 'modules/tags/components';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
 import { IFormIntegration } from '../types';
-import { Row } from './';
+import Row from './Row';
 
 type Props = {
   integrations: IFormIntegration[];
@@ -66,7 +64,7 @@ class List extends React.Component<Props, {}> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="downarrow">
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );

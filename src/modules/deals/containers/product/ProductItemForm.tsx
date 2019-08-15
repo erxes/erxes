@@ -4,7 +4,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { ConfigDetailQueryResponse } from '../../../settings/general/types';
-import { ProductItemForm } from '../../components';
+import ProductItemForm from '../../components/product/ProductItemForm';
 import { IProductData } from '../../types';
 
 type Props = {

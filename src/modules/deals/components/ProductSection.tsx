@@ -1,7 +1,9 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { renderFullName } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';

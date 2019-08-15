@@ -9,6 +9,7 @@ export const PageHeader = styled.div`
   justify-content: space-between;
   padding: 10px ${dimensions.coreSpacing}px 6px;
   background: ${colors.colorWhite};
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   min-height: 50px;
 `;
 
@@ -68,7 +69,7 @@ export const HeaderButton = styledTS<{
   vertical-align: middle;
 
   > i {
-    font-size: ${props => (props.rightIconed ? '8px' : '14px')};
+    font-size: 14px;
     color: ${props =>
       props.isActive ? colors.colorSecondary : colors.colorCoreGray};
     margin-right: 5px;
@@ -77,7 +78,7 @@ export const HeaderButton = styledTS<{
       props.rightIconed &&
       css`
         margin-right: 0;
-        margin-left: 8px;
+        margin-left: 5px;
       `};
   }
 

@@ -1,11 +1,9 @@
 import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import { queries as userQueries } from 'modules/settings/team/graphql';
-import { UsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { PermissionList } from '../components';
+import PermissionList from '../components/PermissionList';
 import { mutations, queries } from '../graphql';
 import {
   PermissionActionsQueryResponse,
@@ -27,7 +25,6 @@ const List = (props: FinalProps) => {
     permissionsQuery,
     modulesQuery,
     actionsQuery,
-    usersQuery,
     usersGroupsQuery,
     totalCountQuery,
     removeMutation
@@ -52,7 +49,6 @@ const List = (props: FinalProps) => {
     permissionsQuery.loading ||
     modulesQuery.loading ||
     actionsQuery.loading ||
-    usersQuery.loading ||
     usersGroupsQuery.loading ||
     totalCountQuery.loading;
 
@@ -65,7 +61,6 @@ const List = (props: FinalProps) => {
     modules: modulesQuery.permissionModules || [],
     actions: actionsQuery.permissionActions || [],
     permissions: permissionsQuery.permissions || [],
-    users: usersQuery.users || [],
     groups: usersGroupsQuery.usersGroups || [],
     isLoading,
     refetchQueries: commonOptions(queryParams)
@@ -80,7 +75,6 @@ type Props = {
   permissionsQuery: PermissionsQueryResponse;
   modulesQuery: PermissionModulesQueryResponse;
   actionsQuery: PermissionActionsQueryResponse;
-  usersQuery: UsersQueryResponse;
   usersGroupsQuery: UsersGroupsQueryResponse;
   totalCountQuery: PermissionTotalCountQueryResponse;
   removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
@@ -132,9 +126,6 @@ export default compose(
   }),
   graphql<Props, PermissionActionsQueryResponse>(gql(queries.actions), {
     name: 'actionsQuery'
-  }),
-  graphql<Props, UsersQueryResponse>(gql(userQueries.users), {
-    name: 'usersQuery'
   }),
   graphql<{}, UsersGroupsQueryResponse>(gql(queries.usersGroups), {
     name: 'usersGroupsQuery'

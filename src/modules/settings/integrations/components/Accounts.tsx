@@ -1,9 +1,7 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
 import { __, confirm } from 'modules/common/utils';
 import React from 'react';
@@ -47,7 +45,11 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const { accountId } = this.state;
 
     if (!accountId || accountId === '') {
-      return <Button onClick={onAdd}>Add Account</Button>;
+      return (
+        <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
+          Add Account
+        </Button>
+      );
     }
 
     return (

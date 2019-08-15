@@ -1,9 +1,10 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
-import { Icon, TabTitle } from 'modules/common/components';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
+import Icon from 'modules/common/components/Icon';
+import { TabTitle } from 'modules/common/components/tabs';
 import { __, renderFullName } from 'modules/common/utils';
-import { Widget } from 'modules/engage/containers';
-import { Wrapper } from 'modules/layout/components';
+import Widget from 'modules/engage/containers/Widget';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
@@ -15,14 +16,45 @@ type Props = {
 };
 
 class CustomerDetails extends React.Component<Props> {
-  renderExtraTab = () => {
-    const trigger = (
+  renderEmailTab = () => {
+    const { customer } = this.props;
+
+    if (!customer.primaryEmail) {
+      return null;
+    }
+
+    const triggerEmail = (
       <TabTitle>
-        <Icon icon="speech-bubble-3" /> {__('Chat message')}
+        <Icon icon="email-4" /> {__('New email')}
       </TabTitle>
     );
 
-    return <Widget customers={[this.props.customer]} modalTrigger={trigger} />;
+    return (
+      <Widget
+        customers={[this.props.customer]}
+        modalTrigger={triggerEmail}
+        channelType="email"
+      />
+    );
+  };
+
+  renderExtraTabs = () => {
+    const triggerMessenger = (
+      <TabTitle>
+        <Icon icon="speech-bubble-3" /> {__('New message')}
+      </TabTitle>
+    );
+
+    return (
+      <>
+        <Widget
+          customers={[this.props.customer]}
+          modalTrigger={triggerMessenger}
+          channelType="messenger"
+        />
+        {this.renderEmailTab()}
+      </>
+    );
   };
 
   render() {
@@ -41,7 +73,7 @@ class CustomerDetails extends React.Component<Props> {
           contentType="customer"
           toEmail={customer.primaryEmail}
           showEmail={false}
-          extraTab={this.renderExtraTab()}
+          extraTabs={this.renderExtraTabs()}
         />
         <ActivityLogs
           target={customer.firstName}

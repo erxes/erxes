@@ -10,6 +10,42 @@ const commonParams = `
   languageCode: $languageCode
 `;
 
+const sendGmailFields = `
+  $erxesApiId: String!,
+  $headerId: String,
+  $threadId: String,
+  $subject: String!,
+  $textHtml: String!,
+  $textPlain: String!,
+  $references: String
+  $to: String!,
+  $cc: String,
+  $bcc: String,
+  $from: String!,
+  $attachments: [gmailAttachmentData],
+`;
+
+const sendGmailVariables = `
+  erxesApiId: $erxesApiId,
+  headerId: $headerId,
+  threadId: $threadId,
+  subject: $subject,
+  references: $references,
+  textHtml: $textHtml,
+  textPlain: $textPlain,
+  to: $to,
+  cc: $cc,
+  bcc: $bcc,
+  from: $from,
+  attachments: $attachments,
+`;
+
+const integrationSendMail = ` 
+  mutation integrationSendMail(${sendGmailFields}) {
+    integrationSendMail(${sendGmailVariables})
+  }
+`;
+
 const integrationsCreateMessenger = `
   mutation integrationsCreateMessengerIntegration(${commonParamsDef}) {
     integrationsCreateMessengerIntegration(${commonParams}) {
@@ -69,6 +105,16 @@ const integrationsRemove = `
   }
 `;
 
+const engagesConfigSave = `
+  mutation engagesConfigSave($secretAccessKey: String!, $accessKeyId: String!, $region: String!) {
+    engagesConfigSave(secretAccessKey: $secretAccessKey, accessKeyId: $accessKeyId, region: $region) {
+      accessKeyId
+      secretAccessKey
+      region
+    }
+  }
+`;
+
 const messengerAppsAddLead = `
   mutation messengerAppsAddLead(
     $name: String!
@@ -120,8 +166,10 @@ export default {
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
   integrationsRemove,
+  engagesConfigSave,
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
-  removeAccount
+  removeAccount,
+  integrationSendMail
 };

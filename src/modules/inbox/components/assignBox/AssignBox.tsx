@@ -1,4 +1,4 @@
-import { FilterableList } from 'modules/common/components';
+import FilterableList from 'modules/common/components/filterableList/FilterableList';
 import { __, getUserAvatar } from 'modules/common/utils';
 import Alert from 'modules/common/utils/Alert';
 import React from 'react';
@@ -104,13 +104,17 @@ class AssignBox extends React.Component<Props, State> {
   };
 
   removeAssignee = () => {
-    const { clear, targets } = this.props;
+    const { clear, targets, afterSave } = this.props;
 
     clear(targets.map(t => t._id), error => {
       if (error) {
         Alert.error(`Error: ${error.message}`);
       }
     });
+
+    if (afterSave) {
+      afterSave();
+    }
   };
 
   render() {

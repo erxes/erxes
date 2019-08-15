@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { Sidebar } from 'modules/layout/components';
-import { GenerateCustomFields } from 'modules/settings/properties/components';
+import Spinner from 'modules/common/components/Spinner';
+import Sidebar from 'modules/layout/components/Sidebar';
+import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
 import { FIELDS_GROUPS_CONTENT_TYPES } from 'modules/settings/properties/constants';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
 import React from 'react';

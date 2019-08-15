@@ -1,8 +1,9 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
+import debounce from 'lodash/debounce';
 import { IAttachmentPreview } from 'modules/common/types';
-import { RespondBox } from 'modules/inbox/components/conversationDetail';
+import RespondBox from 'modules/inbox/components/conversationDetail/workarea/RespondBox';
 import { queries } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -29,6 +30,7 @@ type Props = {
 type FinalProps = {
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
   usersQuery: UsersQueryResponse;
+  search: (value: string) => void;
 } & Props & { currentUser: IUser };
 
 interface ITeamMembers {
@@ -44,8 +46,15 @@ const RespondBoxContainer = (props: FinalProps) => {
     usersQuery,
     addMessage,
     responseTemplatesQuery,
-    currentUser
+    currentUser,
+    search
   } = props;
+
+  const onSearchChange = (searchValue: string) => {
+    if (searchValue) {
+      debounce(() => search(searchValue), 500)();
+    }
+  };
 
   const sendMessage = (
     variables: AddMessageMutationVariables,
@@ -100,6 +109,7 @@ const RespondBoxContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    onSearchChange,
     sendMessage,
     responseTemplates: responseTemplatesQuery.responseTemplates || [],
     teamMembers: fromJS(teamMembers.filter(member => member.name))
@@ -107,37 +117,71 @@ const RespondBoxContainer = (props: FinalProps) => {
 
   return <RespondBox {...updatedProps} />;
 };
-const WithQuery = withProps<Props & { currentUser: IUser }>(
-  compose(
-    graphql<Props, UsersQueryResponse>(gql(queries.userList), {
-      name: 'usersQuery'
-    }),
-    graphql<Props, ResponseTemplatesQueryResponse>(
-      gql(queries.responseTemplateList),
-      {
-        name: 'responseTemplatesQuery',
-        options: () => {
-          return {
+
+const withQuery = () =>
+  withProps<Props & { currentUser: IUser } & { searchValue: string }>(
+    compose(
+      graphql<Props & { searchValue: string }, UsersQueryResponse>(
+        gql(queries.userList),
+        {
+          name: 'usersQuery',
+          options: ({ searchValue }) => ({
             variables: {
-              perPage: 200
+              searchValue
             }
-          };
+          })
         }
-      }
-    )
-  )(RespondBoxContainer)
-);
-
-// TODO: Context currentUser must be required not optional
-
-const WithConsumer = (props: Props) => {
-  return (
-    <AppConsumer>
-      {({ currentUser }) => (
-        <WithQuery {...props} currentUser={currentUser || ({} as IUser)} />
-      )}
-    </AppConsumer>
+      ),
+      graphql<Props, ResponseTemplatesQueryResponse>(
+        gql(queries.responseTemplateList),
+        {
+          name: 'responseTemplatesQuery',
+          options: () => {
+            return {
+              variables: {
+                perPage: 200
+              }
+            };
+          }
+        }
+      )
+    )(RespondBoxContainer)
   );
-};
 
-export default WithConsumer;
+class Wrapper extends React.Component<
+  Props,
+  { searchValue: string },
+  { WithQuery: React.ReactNode }
+> {
+  private withQuery;
+
+  constructor(props) {
+    super(props);
+
+    this.withQuery = withQuery();
+
+    this.state = { searchValue: '' };
+  }
+
+  search = (searchValue: string) => this.setState({ searchValue });
+
+  render() {
+    const { searchValue } = this.state;
+    const Component = this.withQuery;
+
+    return (
+      <AppConsumer>
+        {({ currentUser }) => (
+          <Component
+            {...this.props}
+            search={this.search}
+            searchValue={searchValue}
+            currentUser={currentUser || ({} as IUser)}
+          />
+        )}
+      </AppConsumer>
+    );
+  }
+}
+
+export default Wrapper;

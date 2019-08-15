@@ -1,17 +1,15 @@
 import { IUser } from 'modules/auth/types';
-import {
-  Button,
-  DataWithLoader,
-  Icon,
-  LoadMore,
-  ModalTrigger,
-  Tip
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import LoadMore from 'modules/common/components/LoadMore';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
-import { MemberAvatars } from 'modules/settings/channels/components';
+import MemberAvatars from 'modules/settings/channels/components/MemberAvatars';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { withRouter } from 'react-router';

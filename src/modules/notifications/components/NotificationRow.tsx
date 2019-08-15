@@ -1,27 +1,44 @@
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 import { IUser } from 'modules/auth/types';
-import { NameCard } from 'modules/common/components';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import { IRouterProps } from 'modules/common/types';
-import moment from 'moment';
 import React from 'react';
 import { withRouter } from 'react-router';
+import xss from 'xss';
 import { INotification } from '../types';
+import NotificationIcon from './NotificationIcon';
+import {
+  AvatarSection,
+  Content,
+  ConversationContent,
+  CreatedDate,
+  CreatedUser,
+  InfoSection
+} from './styles';
 
 interface IProps extends IRouterProps {
   notification: INotification;
   markAsRead: (notificationIds?: string[]) => void;
   createdUser?: IUser;
+  isList?: boolean;
 }
 
 class NotificationRow extends React.Component<IProps> {
   markAsRead = () => {
-    const { history, notification, markAsRead } = this.props;
+    const { notification, markAsRead } = this.props;
 
     if (!notification.isRead) {
       markAsRead([notification._id]);
     }
 
-    history.push(notification.link);
+    const params = notification.link.split('?');
+
+    this.props.history.replace({
+      pathname: params[0],
+      state: { from: 'notification' },
+      search: `?${params[1]}`
+    });
   };
 
   getTitle = (title, user) => {
@@ -29,25 +46,68 @@ class NotificationRow extends React.Component<IProps> {
       return title.replace('{userName}', '');
     }
 
-    if (!(user.details && user.details.fullName)) {
+    if (!user.details || user.details.fullName) {
       return title.replace('{userName}', user.email);
     }
 
     return title.replace('{userName}', user.details.fullName);
   };
 
+  renderContent(content: string, type: string) {
+    if (!type.includes('conversation')) {
+      return <b> {content}</b>;
+    }
+
+    return (
+      <ConversationContent>
+        <Content dangerouslySetInnerHTML={{ __html: xss(content) }} />
+      </ConversationContent>
+    );
+  }
+
+  renderCreatedUser() {
+    const { notification, isList } = this.props;
+    const { createdUser } = notification;
+
+    let name = 'system';
+
+    if (createdUser) {
+      name = createdUser.details
+        ? createdUser.details.fullName || ''
+        : createdUser.username || createdUser.email;
+    }
+
+    return (
+      <CreatedUser isList={isList}>
+        {name}
+        <span>
+          {notification.action}
+          {this.renderContent(notification.content, notification.notifType)}
+        </span>
+      </CreatedUser>
+    );
+  }
+
   render() {
-    const { notification } = this.props;
+    const { notification, isList } = this.props;
     const { isRead, createdUser } = notification;
     const classes = classNames({ unread: !isRead });
 
     return (
       <li className={classes} onClick={this.markAsRead}>
-        <NameCard
-          user={createdUser}
-          firstLine={this.getTitle(notification.title, createdUser)}
-          secondLine={moment(notification.date).format('DD MMM YYYY, HH:mm')}
-        />
+        <AvatarSection>
+          <NameCard.Avatar
+            user={createdUser}
+            size={30}
+            icon={<NotificationIcon notification={notification} />}
+          />
+        </AvatarSection>
+        <InfoSection>
+          {this.renderCreatedUser()}
+          <CreatedDate isList={isList}>
+            {dayjs(notification.date).format('DD MMM YYYY, HH:mm')}
+          </CreatedDate>
+        </InfoSection>
       </li>
     );
   }

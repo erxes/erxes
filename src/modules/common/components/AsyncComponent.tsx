@@ -1,6 +1,12 @@
+import AnimatedLoader from 'modules/common/components/AnimatedLoader';
+import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
+import { IAnimatedLoader } from '../types';
 
-export default function asyncComponent(importComponent: any) {
+export default function asyncComponent(
+  importComponent: any,
+  loaderStyle?: IAnimatedLoader
+) {
   class AsyncComponent extends React.Component<any, { component: any }> {
     constructor(props) {
       super(props);
@@ -19,7 +25,15 @@ export default function asyncComponent(importComponent: any) {
     render() {
       const Comp = this.state.component;
 
-      return Comp ? <Comp {...this.props} /> : null;
+      if (Comp) {
+        return <Comp {...this.props} />;
+      }
+
+      if (loaderStyle) {
+        return <AnimatedLoader loaderStyle={loaderStyle} />;
+      }
+
+      return <Spinner />;
     }
   }
 

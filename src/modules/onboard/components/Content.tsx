@@ -1,6 +1,9 @@
 import React from 'react';
 import RTG from 'react-transition-group';
-import { BrandAdd, Channel, MessengerAdd, UserAdd } from '../containers';
+import BrandAdd from '../containers/BrandAdd';
+import Channel from '../containers/Channel';
+import MessengerAdd from '../containers/MessengerAdd';
+import UserAdd from '../containers/UserAdd';
 
 type Props = {
   activeStep: number;

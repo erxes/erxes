@@ -63,10 +63,6 @@ const Values = styled('div')`
   padding: 6px 10px 0 10px;
   font-weight: bold;
   color: ${colors.colorCoreGreen};
-
-  i {
-    font-size: 8px;
-  }
 `;
 
 const Lost = styled('span')`

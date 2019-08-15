@@ -2,13 +2,13 @@ import gql from 'graphql-tag';
 import { STORAGE_BOARD_KEY } from 'modules/boards/constants';
 import { BoardsQueryResponse } from 'modules/boards/types';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { Boards } from '../components';
+import Boards from '../components/Boards';
 import { mutations, queries } from '../graphql';
 import { RemoveBoardMutationResponse } from '../types';
 
@@ -55,7 +55,9 @@ class BoardsContainer extends React.Component<FinalProps> {
             Alert.success('You successfully deleted a board');
           })
           .catch(error => {
-            Alert.error(error.message);
+            Alert.error(
+              `Please remove all pipelines in this board before delete the board`
+            );
           });
       });
     };

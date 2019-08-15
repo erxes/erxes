@@ -1,22 +1,20 @@
-import {
-  ActionButtons,
-  Button,
-  FormControl,
-  Icon,
-  Label,
-  NameCard,
-  Tags,
-  Tip
-} from 'modules/common/components';
+import dayjs from 'dayjs';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { MESSAGE_KINDS } from 'modules/engage/constants';
-import moment from 'moment';
 import React from 'react';
 import { EngageTitle, HelperText } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
 
 type Props = {
-  message: IEngageMessage;
+  message: any;
 
   // TODO: add types
   edit: () => void;
@@ -126,8 +124,7 @@ class Row extends React.Component<Props> {
     const { isChecked, message, remove } = this.props;
     const { stats = { send: '' }, brand = { name: '' } } = message;
 
-    const deliveryReports = Object.values(message.deliveryReports || {});
-    const totalCount = deliveryReports.length;
+    const totalCount = stats.total || 0;
 
     if (totalCount === stats.send) {
       status = <Label lblStyle="success">Sent</Label>;
@@ -172,8 +169,8 @@ class Row extends React.Component<Props> {
         </td>
 
         <td>
-          <Icon icon="calendar" />{' '}
-          {moment(message.createdDate).format('DD MMM YYYY')}
+          <Icon icon="calender" />{' '}
+          {dayjs(message.createdDate).format('DD MMM YYYY')}
         </td>
 
         <td>

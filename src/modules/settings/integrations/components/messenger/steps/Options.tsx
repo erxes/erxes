@@ -1,13 +1,12 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import React from 'react';
 import Toggle from 'react-toggle';
-import { SelectBrand } from '../../../containers/';
+import SelectBrand from '../../../containers/SelectBrand';
+import { Description } from '../../../styles';
 
 type Props = {
   onChange: (
@@ -46,6 +45,38 @@ class Options extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
+  renderToggle({
+    label,
+    description,
+    onChange,
+    checked
+  }: {
+    label: string;
+    description: string;
+    checked?: boolean;
+    onChange: (e: React.FormEvent) => void;
+  }) {
+    return (
+      <FormGroup>
+        <ControlLabel>
+          {label}
+          <Description>{description}</Description>
+        </ControlLabel>
+        <div>
+          <Toggle
+            className="wide"
+            checked={checked}
+            onChange={onChange}
+            icons={{
+              checked: <span>Yes</span>,
+              unchecked: <span>No</span>
+            }}
+          />
+        </div>
+      </FormGroup>
+    );
+  }
+
   render() {
     const languageOnChange = e =>
       this.onInputChange(
@@ -82,7 +113,6 @@ class Options extends React.Component<Props, State> {
               defaultValue={this.props.languageCode}
               onChange={languageOnChange}
             >
-              <option />
               {LANGUAGES.map((item, index) => (
                 <option key={index} value={item.value}>
                   {item.label}
@@ -97,80 +127,44 @@ class Options extends React.Component<Props, State> {
             onChange={brandOnChange}
           />
 
-          <FormGroup>
-            <ControlLabel>Require Authentication</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.requireAuth}
-                onChange={requireAuthChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Require Authentication',
+            description: 'It will require email and phone in widget',
+            checked: this.props.requireAuth,
+            onChange: requireAuthChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Show chat</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.showChat}
-                onChange={showChatChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Show chat',
+            description:
+              'Hide chat section and show only knowledgebase and form',
+            checked: this.props.showChat,
+            onChange: showChatChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Show launcher</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.showLauncher}
-                onChange={showLauncherChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Show launcher',
+            description:
+              'The widget section will invisible but you can still get messenger data',
+            checked: this.props.showLauncher,
+            onChange: showLauncherChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Force logout when resolve</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.forceLogoutWhenResolve}
-                onChange={forceLogoutWhenResolveChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Force logout when resolve',
+            description:
+              'If an operator resolve the conversation from inbox then client session will end automatically',
+            checked: this.props.forceLogoutWhenResolve,
+            onChange: forceLogoutWhenResolveChange
+          })}
 
-          <FormGroup>
-            <ControlLabel>Notify customer</ControlLabel>
-            <div>
-              <Toggle
-                className="wide"
-                checked={this.props.notifyCustomer}
-                onChange={notifyCustomerChange}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
-            </div>
-          </FormGroup>
+          {this.renderToggle({
+            label: 'Notify customer',
+            description:
+              'If customer is offline and inserted email, it will send email when operator respond',
+            checked: this.props.notifyCustomer,
+            onChange: notifyCustomerChange
+          })}
         </LeftItem>
       </FlexItem>
     );

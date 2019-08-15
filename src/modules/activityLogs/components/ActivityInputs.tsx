@@ -1,6 +1,7 @@
-import { Icon, Tabs, TabTitle } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from 'modules/common/utils';
-import { Form as NoteForm } from 'modules/internalNotes/containers';
+import NoteForm from 'modules/internalNotes/containers/Form';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import React from 'react';
 
@@ -10,7 +11,7 @@ type Props = {
   showEmail: boolean;
   toEmail?: string;
   toEmails?: string[];
-  extraTab?: React.ReactNode;
+  extraTabs?: React.ReactNode;
 };
 
 type State = {
@@ -48,7 +49,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
   }
 
   renderExtraTab() {
-    const { showEmail, extraTab } = this.props;
+    const { showEmail, extraTabs } = this.props;
     let tabEmail;
 
     if (showEmail) {
@@ -65,7 +66,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     return (
       <>
         {tabEmail}
-        {extraTab}
+        {extraTabs}
       </>
     );
   }

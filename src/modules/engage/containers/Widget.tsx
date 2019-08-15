@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { withCurrentUser } from 'modules/auth/containers';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
@@ -8,7 +8,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
-import { Widget } from '../components';
+import Widget from '../components/Widget';
 import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
@@ -17,6 +17,7 @@ type Props = {
   customers: ICustomer[];
   emptyBulk?: () => void;
   modalTrigger?: React.ReactNode;
+  channelType?: string;
 };
 
 type FinalProps = {

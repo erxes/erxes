@@ -1,11 +1,14 @@
-import { EmptyState, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { __, urlParser } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CompanyChooser } from '../../containers';
+import CompanyChooser from '../../containers/CompanyChooser';
 
 type Props = {
   name: string;

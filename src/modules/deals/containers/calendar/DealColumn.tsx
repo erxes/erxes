@@ -1,9 +1,9 @@
+import dayjs from 'dayjs';
 import gql from 'graphql-tag';
 import { IDateColumn } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { getMonthTitle, getMonthYear } from 'modules/common/utils/calendar';
-import { DealColumn } from 'modules/deals/components';
-import moment from 'moment';
+import DealColumn from 'modules/deals/components/calendar/DealColumn';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
@@ -59,7 +59,7 @@ class DealColumnContainer extends React.Component<FinalProps> {
       if (deal) {
         const { onColumnUpdated } = this.props;
 
-        const convertedDate = moment(deal.closeDate);
+        const convertedDate = dayjs(deal.closeDate);
         const date = getMonthYear(convertedDate);
 
         onColumnUpdated(date);

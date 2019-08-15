@@ -2,6 +2,7 @@ import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import React from 'react';
+import { IAttachment } from '../types';
 import Alert from './Alert';
 import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
@@ -176,4 +177,56 @@ export const isValidDate = date => {
   }
 
   return false;
+};
+
+export const extractAttachment = (attachments: IAttachment[]) => {
+  return attachments.map(file => ({
+    name: file.name,
+    type: file.type,
+    url: file.url,
+    size: file.size
+  }));
+};
+
+export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
+  const d = new Date();
+
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+
+  const expires = `expires=${d.toUTCString()}`;
+
+  document.cookie = `${cname}=${cvalue};${expires};path=/`;
+};
+
+export const getCookie = cname => {
+  const name = `${cname}=`;
+  const ca = document.cookie.split(';');
+
+  for (let c of ca) {
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+
+  return '';
+};
+
+/**
+ * Generate random string
+ */
+export const generateRandomString = (len: number = 10) => {
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+  let randomString = '';
+
+  for (let i = 0; i < len; i++) {
+    const position = Math.floor(Math.random() * charSet.length);
+    randomString += charSet.substring(position, position + 1);
+  }
+
+  return randomString;
 };

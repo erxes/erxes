@@ -1,4 +1,4 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { lighten } from 'modules/common/styles/color';
 import { rotate } from 'modules/common/utils/animations';
@@ -52,7 +52,7 @@ type Props = {
 function DataImporter({ uploadXls, uploading, text }: Props) {
   return (
     <ImportButton>
-      {uploading ? <ImportLoader /> : <Icon icon="download-1" />}
+      {uploading ? <ImportLoader /> : <Icon icon="import" />}
       {text}
       <input
         type="file"

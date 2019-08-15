@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Chooser } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Chooser from 'modules/common/components/Chooser';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { Form as ProductForm } from 'modules/settings/productService/components';
+import ProductForm from 'modules/settings/productService/components/Form';
 import {
   mutations as productMutations,
   queries as productQueries

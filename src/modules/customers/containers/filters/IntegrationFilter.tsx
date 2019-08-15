@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { IntegrationFilter } from '../../components';
+import IntegrationFilter from '../../components/list/IntegrationFilter';
 import { queries as customerQueries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 

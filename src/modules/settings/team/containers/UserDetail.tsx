@@ -1,11 +1,13 @@
 import gql from 'graphql-tag';
 import { IUserDoc } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
+import { queries as channelQueries } from 'modules/settings/channels/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { UserDetailForm, UserForm } from '.';
 import { mutations, queries } from '../graphql';
 import { EditMutationResponse } from '../types';
+import UserDetailForm from './UserDetailForm';
+import UserForm from './UserForm';
 
 type Props = {
   _id: string;
@@ -51,7 +53,10 @@ export default withProps<Props>(
         options: ({ _id }) => ({
           refetchQueries: [
             { query: gql(queries.userDetail), variables: { _id } },
-            { query: gql(queries.channels), variables: { memberIds: [_id] } }
+            {
+              query: gql(channelQueries.channels),
+              variables: { memberIds: [_id] }
+            }
           ]
         })
       }

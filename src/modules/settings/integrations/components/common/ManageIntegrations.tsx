@@ -1,10 +1,8 @@
-import {
-  Button,
-  FormControl,
-  Icon,
-  Label,
-  Tip
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import Tip from 'modules/common/components/Tip';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
@@ -117,6 +115,8 @@ class ManageIntegrations extends React.Component<Props, State> {
       icon = 'doc-text-inv-1';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
       icon = 'facebook-official';
+    } else if (kind === KIND_CHOICES.GMAIL) {
+      icon = 'mail-alt';
     }
 
     return icon;

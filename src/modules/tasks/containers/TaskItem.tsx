@@ -1,11 +1,12 @@
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import React from 'react';
-import { TaskItem } from '../components/';
+import TaskItem from '../components/TaskItem';
 import { ITask } from '../types';
 
 type Props = {
   stageId: string;
   item: ITask;
+  isFormVisible: boolean;
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;
@@ -20,6 +21,7 @@ export default (props: Props) => {
             options={options}
             stageId={props.stageId}
             item={props.item}
+            isFormVisible={props.isFormVisible}
             isDragging={props.isDragging}
             provided={props.provided}
             onTogglePopup={props.onTogglePopup}

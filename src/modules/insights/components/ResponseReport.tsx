@@ -1,7 +1,7 @@
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
@@ -17,7 +17,11 @@ import {
   IQueryParams,
   SummaryData
 } from '../types';
-import { Chart, InboxFilter, PunchCard, Sidebar, Summary } from './';
+import Chart from './Chart';
+import InboxFilter from './filter/InboxFilter';
+import PunchCard from './PunchCard';
+import Sidebar from './Sidebar';
+import Summary from './Summary';
 
 type ILoading = {
   summaryData: boolean;
@@ -142,7 +146,7 @@ class ResponseReport extends React.Component<Props, { width: number }> {
         header={
           <Wrapper.Header title={__('Response Report')} submenu={menuInbox} />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

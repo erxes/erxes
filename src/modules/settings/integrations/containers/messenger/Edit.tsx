@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
-import { Form } from 'modules/settings/integrations/components/messenger';
+import Form from 'modules/settings/integrations/components/messenger/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import {
   EditMessengerMutationResponse,

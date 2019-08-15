@@ -11,7 +11,7 @@ import {
 } from 'modules/settings/styles';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
+import ChromePicker from 'react-color/lib/Chrome';
 
 type Props = {
   onChange: (

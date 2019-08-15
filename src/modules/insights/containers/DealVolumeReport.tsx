@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { DealVolumeReport } from '../components';
+import DealVolumeReport from '../components/DealVolumeReport';
 import { queries } from '../graphql';
 import {
   DealMainQueryResponse,

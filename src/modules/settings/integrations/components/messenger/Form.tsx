@@ -1,12 +1,14 @@
 import { IUser } from 'modules/auth/types';
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   Preview,
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __, Alert } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
@@ -69,7 +71,13 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || 'en';
-    const configData = integration.messengerData || {};
+    const configData = integration.messengerData || {
+      notifyCustomer: false,
+      requireAuth: true,
+      showChat: true,
+      showLauncher: true,
+      forceLogoutWhenResolve: false
+    };
     const links = configData.links || {};
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
@@ -82,10 +90,10 @@ class CreateMessenger extends React.Component<Props, State> {
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
-      requireAuth: configData.requireAuth ? true : false,
-      showChat: configData.showChat ? true : false,
-      showLauncher: configData.showLauncher ? true : false,
-      forceLogoutWhenResolve: configData.forceLogoutWhenResolve ? true : false,
+      requireAuth: configData.requireAuth,
+      showChat: configData.showChat,
+      showLauncher: configData.showLauncher,
+      forceLogoutWhenResolve: configData.forceLogoutWhenResolve,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
       isOnline: configData.isOnline || false,
@@ -272,6 +280,7 @@ class CreateMessenger extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderButtons()}
         </TitleContainer>
 
         <Row>
@@ -340,7 +349,7 @@ class CreateMessenger extends React.Component<Props, State> {
               img="/images/icons/erxes-04.svg"
               title="Appearance"
               onClick={this.onStepClick.bind(null, 'appearance')}
-              nextButton={this.renderButtons()}
+              noButton={true}
             >
               <Appearance
                 onChange={this.onChange}

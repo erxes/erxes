@@ -1,8 +1,12 @@
-import { Button, ModalTrigger, Pagination } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { ArticleForm, ArticleList, KnowledgeList } from '../containers';
+import ArticleForm from '../containers/article/ArticleForm';
+import ArticleList from '../containers/article/ArticleList';
+import KnowledgeList from '../containers/knowledge/KnowledgeList';
 import { ICategory } from '../types';
 
 type Props = {

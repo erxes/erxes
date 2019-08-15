@@ -1,23 +1,18 @@
 import { IUser } from 'modules/auth/types';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { IMessages } from 'modules/settings/integrations/types';
 import { SubHeading } from 'modules/settings/styles';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import Select from 'react-select-plus';
 
 type Props = {
-  onChange: (
-    name: 'supporterIds' | 'messages',
-    value: IMessages | string[]
-  ) => void;
+  onChange: (name: any, value: any) => void;
   teamMembers: IUser[];
-  supporterIds?: string[];
+  supporterIds: string[];
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -26,8 +21,6 @@ type Props = {
 };
 
 type State = {
-  supporters?: any;
-  supporterIds: string[];
   facebook?: string;
   twitter?: string;
   youtube?: string;
@@ -39,15 +32,9 @@ class Greeting extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { teamMembers, supporterIds = [], messages } = props;
-
-    const selectedMembers: IUser[] = teamMembers.filter(member =>
-      supporterIds.includes(member._id)
-    );
+    const { messages } = props;
 
     this.state = {
-      supporters: this.generateSupporterOptions(selectedMembers),
-      supporterIds: [],
       facebook: '',
       twitter: '',
       youtube: '',
@@ -70,34 +57,20 @@ class Greeting extends React.Component<Props, State> {
     this.props.onChange('messages', messages);
   };
 
-  onTeamMembersChange = options => {
-    if (options.length > 3) {
-      return;
-    }
-
-    this.setState({
-      supporters: options,
-      supporterIds: options.map(option => option.value)
-    });
-
-    this.props.onChange('supporterIds', options.map(option => option.value));
-  };
-
-  generateSupporterOptions(members: IUser[] = []) {
-    return members.map(member => {
-      const details = member.details || {};
-
-      return {
-        value: member._id,
-        label: details.fullName,
-        avatar: details.avatar
-      };
-    });
-  }
-
   render() {
-    const { facebook, twitter, youtube, languageCode } = this.props;
-    const message = this.state.messages[languageCode];
+    const {
+      facebook,
+      twitter,
+      youtube,
+      languageCode,
+      supporterIds
+    } = this.props;
+    const message = this.state.messages[languageCode] || {
+      greetings: {
+        title: '',
+        message: ''
+      }
+    };
 
     const greetingTitle = e =>
       this.onGreetingsChange('title', (e.target as HTMLInputElement).value);
@@ -113,6 +86,8 @@ class Greeting extends React.Component<Props, State> {
 
     const youtubeChange = e =>
       this.onInputChange('youtube', (e.target as HTMLInputElement).value);
+
+    const usersOnChange = users => this.props.onChange('supporterIds', users);
 
     return (
       <FlexItem>
@@ -143,13 +118,12 @@ class Greeting extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Supporters</ControlLabel>
 
-            <Select
-              closeOnSelect={false}
-              value={this.state.supporters}
-              options={this.generateSupporterOptions(this.props.teamMembers)}
-              onChange={this.onTeamMembersChange}
-              clearable={true}
-              multi={true}
+            <SelectTeamMembers
+              label="Choose users"
+              name="supporterIds"
+              value={supporterIds}
+              onSelect={usersOnChange}
+              filterParams={{ status: 'verified' }}
             />
           </FormGroup>
 

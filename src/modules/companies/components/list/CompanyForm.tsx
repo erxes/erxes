@@ -1,12 +1,10 @@
-import {
-  AvatarUpload,
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  ModifiableSelect
-} from 'modules/common/components';
+import AvatarUpload from 'modules/common/components/AvatarUpload';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import ModifiableSelect from 'modules/common/components/ModifiableSelect';
 import {
   ColumnTitle,
   FormColumn,
@@ -15,12 +13,12 @@ import {
 } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { SelectCompanies } from 'modules/companies/containers';
+import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import {
   leadStatusChoices,
   lifecycleStateChoices
 } from 'modules/customers/utils';
-import { SelectTeamMembers } from 'modules/settings/team/containers';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import validator from 'validator';
 import { IUser } from '../../../auth/types';

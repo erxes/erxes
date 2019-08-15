@@ -36,6 +36,7 @@ export interface IEngageStats {
   bounce: number;
   renderingfailure: number;
   reject: number;
+  total: number;
 }
 
 export interface IEngageMessageDoc {
@@ -60,7 +61,6 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stopDate: Date;
   createdDate: Date;
   messengerReceivedCustomerIds?: string[];
-  deliveryReports?: JSON;
   stats?: IEngageStats;
   brand: IBrand;
   segment: ISegment;

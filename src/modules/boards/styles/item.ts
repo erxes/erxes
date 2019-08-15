@@ -46,6 +46,25 @@ const HeaderContent = styled.div`
   flex: 1;
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+
+  i {
+    margin-right: 10px;
+  }
+
+  label {
+    font-size: 15px;
+    text-transform: initial;
+  }
+
+  input {
+    font-weight: bold;
+  }
+`;
+
 const HeaderContentSmall = styled.div`
   text-align: right;
   margin-left: 20px;
@@ -109,7 +128,7 @@ const FooterContent = styled.div`
   flex: 1;
 `;
 
-const Left = styled.div`
+const LeftContainer = styled.div`
   margin-right: 20px;
   flex: 1;
 
@@ -321,6 +340,7 @@ export {
   SpaceContent,
   FooterContent,
   HeaderRow,
+  TitleRow,
   HeaderContent,
   HeaderContentSmall,
   Button,
@@ -328,7 +348,7 @@ export {
   PipelineName,
   FormFooter,
   FlexContent,
-  Left,
+  LeftContainer,
   RightContent,
   MoveContainer,
   Stages,

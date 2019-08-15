@@ -1,10 +1,14 @@
-import { DropdownToggle, Icon, ModalTrigger } from 'modules/common/components';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { DropIcon } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
-import { CategoryForm, CategoryList, KnowledgeForm } from '../../containers';
+import CategoryForm from '../../containers/category/CategoryForm';
+import CategoryList from '../../containers/category/CategoryList';
+import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
 import {
   KnowledgeBaseRow,

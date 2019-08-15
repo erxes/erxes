@@ -8,6 +8,7 @@ export interface IAttachment {
   name: string;
   type: string;
   url: string;
+  size?: number;
 }
 
 export type IAttachmentPreview = {
@@ -15,6 +16,17 @@ export type IAttachmentPreview = {
   type: string;
   data: string;
 } | null;
+
+export interface IAnimatedLoader {
+  height?: string;
+  width?: string;
+  color?: string;
+  round?: boolean;
+  margin?: string;
+  marginRight?: string;
+  isBox?: boolean;
+  withImage?: boolean;
+}
 
 export interface IBreadCrumbItem {
   title: string;
@@ -85,4 +97,5 @@ export type IEditorProps = {
   removeButtons?: string;
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
+  toolbar?: any[];
 };

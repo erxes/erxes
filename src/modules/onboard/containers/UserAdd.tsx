@@ -1,6 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { ButtonMutate, Icon } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, withProps } from 'modules/common/utils';
 import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
@@ -8,7 +8,7 @@ import { queries as teamQueries } from 'modules/settings/team/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUserGroup } from '../../settings/permissions/types';
-import { UserAdd } from '../components';
+import UserAdd from '../components/UserAdd';
 import { OnboardConsumer } from '../containers/OnboardContext';
 import { mutations } from '../graphql';
 import { UsersCountQueryResponse } from '../types';
@@ -57,9 +57,10 @@ class UserAddContainer extends React.Component<
           isSubmitted={isSubmitted}
           disabled={!values}
           type="submit"
+          icon="arrow-right"
           successMessage={`You successfully invited a ${name}`}
         >
-          {__('Next')} <Icon icon="rightarrow-2" />
+          {__('Next')}
         </ButtonMutate>
       );
     };

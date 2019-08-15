@@ -1,5 +1,5 @@
 import { IStage } from 'modules/boards/types';
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 import {
   Content,
@@ -27,7 +27,7 @@ class Stage extends React.Component<Props> {
         <Values>
           <Lost>Lost: {lost}</Lost>
           <span>
-            {percent}% <Icon icon="downarrow" />
+            {percent}% <Icon icon="angle-down" />
           </span>
         </Values>
       );

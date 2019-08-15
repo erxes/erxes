@@ -1,4 +1,4 @@
-import { Chip } from 'modules/common/components';
+import Chip from 'modules/common/components/Chip';
 import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
 

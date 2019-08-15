@@ -1,17 +1,15 @@
 import { COLORS } from 'modules/boards/constants';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { SelectBrand } from 'modules/settings/integrations/containers';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
+import ChromePicker from 'react-color/lib/Chrome';
 import { IBrand } from '../../../settings/brands/types';
 import { FormPreview } from './preview';
 import { BackgroundSelector, ColorList, FlexItem } from './style';
@@ -50,6 +48,7 @@ class OptionStep extends React.Component<Props, {}> {
 
     return (
       <BackgroundSelector
+        key={value}
         selected={this.props.theme === value}
         onClick={onClick}
       >

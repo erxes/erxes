@@ -1,8 +1,5 @@
-import { Button, FormControl, Icon, Tip } from 'modules/common/components';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import React from 'react';
-
-import { ResponseTemplate } from 'modules/inbox/containers/conversationDetail';
 
 import {
   Attachment,
@@ -16,12 +13,22 @@ import {
   RespondBoxStyled
 } from 'modules/inbox/styles';
 
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
-import Editor from './Editor';
+
+const Editor = asyncComponent(
+  () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
+  { height: '137px', width: '100%', color: '#fff' }
+);
 
 type Props = {
   conversation: IConversation;
@@ -29,6 +36,7 @@ type Props = {
     message: AddMessageMutationVariables,
     callback: (error: Error) => void
   ) => void;
+  onSearchChange: (value: string) => void;
   showInternal: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
@@ -123,6 +131,10 @@ class RespondBox extends React.Component<Props, State> {
   // save mentioned user to state
   onAddMention = (mentionedUserIds: string[]) => {
     this.setState({ mentionedUserIds });
+  };
+
+  onSearchChange = (value: string) => {
+    this.props.onSearchChange(value);
   };
 
   checkIsActive(conversation: IConversation) {
@@ -286,6 +298,7 @@ class RespondBox extends React.Component<Props, State> {
     const { responseTemplates, conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);
+    const disabled = integration.kind === 'gmail';
 
     const Buttons = (
       <EditorActions>
@@ -293,6 +306,7 @@ class RespondBox extends React.Component<Props, State> {
           className="toggle-message"
           componentClass="checkbox"
           checked={isInternal}
+          disabled={disabled}
           onChange={this.toggleForm}
         >
           {__('Internal note')}
@@ -347,6 +361,7 @@ class RespondBox extends React.Component<Props, State> {
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
             onAddMessage={this.addMessage}
+            onSearchChange={this.onSearchChange}
             placeholder={placeholder}
             mentions={this.props.teamMembers}
             showMentions={isInternal}

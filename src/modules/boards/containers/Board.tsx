@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -26,6 +26,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
         image="/images/actions/18.svg"
         text="Oh boy, looks like you need to get a head start on your board"
         size="small"
+        light={true}
       />
     );
   }
@@ -38,7 +39,7 @@ const WithPipelinesQuery = (props: FinalProps) => {
 
   return (
     <RootBack style={{ backgroundColor: pipeline.bgColor }}>
-      <ScrolledContent transparent={true}>
+      <ScrolledContent>
         <Pipeline
           options={options}
           pipeline={pipeline}

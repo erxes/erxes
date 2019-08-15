@@ -1,12 +1,10 @@
-import {
-  HeaderDescription,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { List } from '../../common/components';
+import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
 import {
   Actions,

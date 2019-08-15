@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { FilterByParams, Spinner } from 'modules/common/components';
+import FilterByParams from 'modules/common/components/FilterByParams';
+import Spinner from 'modules/common/components/Spinner';
 import { Alert } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { NoHeight } from 'modules/inbox/styles';
@@ -14,6 +15,7 @@ type Props = {
   paramKey: string;
   icon?: string;
   queryParams?: any;
+  refetchRequired: string;
 };
 
 type State = {
@@ -43,7 +45,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
     };
   }
 
-  fetchData() {
+  fetchData(ignoreCache = false) {
     const { query, counts, queryParams } = this.props;
 
     this.mounted = true;
@@ -71,7 +73,8 @@ export default class FilterList extends React.PureComponent<Props, State> {
     client
       .query({
         query: gql(queries.conversationCounts),
-        variables: { ...generateParams({ ...queryParams }), only: counts }
+        variables: { ...generateParams({ ...queryParams }), only: counts },
+        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first'
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         if (this.mounted) {
@@ -89,6 +92,20 @@ export default class FilterList extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  componentDidUpdate(prevProps) {
+    const { queryParams, refetchRequired } = this.props;
+
+    if (prevProps.refetchRequired !== refetchRequired) {
+      return this.fetchData(true);
+    }
+
+    if (prevProps.queryParams === queryParams) {
+      return;
+    }
+
+    return this.fetchData(true);
   }
 
   render() {

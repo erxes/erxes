@@ -1,11 +1,14 @@
 import { IUser } from 'modules/auth/types';
-import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChannelForm } from '../containers';
+import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
 import MemberAvatars from './MemberAvatars';
 
@@ -24,7 +27,7 @@ class ChannelRow extends React.Component<Props, {}> {
   };
 
   renderEditAction = () => {
-    const { channel, members, renderButton } = this.props;
+    const { channel, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -35,12 +38,7 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm
-        {...props}
-        members={members}
-        channel={channel}
-        renderButton={renderButton}
-      />
+      <ChannelForm {...props} channel={channel} renderButton={renderButton} />
     );
 
     return (

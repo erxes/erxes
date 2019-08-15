@@ -1,6 +1,8 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionContainer } from 'modules/layout/styles';
 import React from 'react';
 import { AddForm } from '../../containers/portable';

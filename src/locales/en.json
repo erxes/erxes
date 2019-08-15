@@ -805,6 +805,9 @@
   "A channel gives a full view of all the brands and its applications all in one place You can see all in-coming messages in your team inbox": "A channel gives a full view of all the brands and its applications all in one place. You can see all in-coming messages in your team inbox.",
   "Hooray and Congratulations! You've completed the initial setup!": "Hooray and Congratulations! You've completed the initial setup!",
   "Paste the code below before the body tag on every page you want erxes chat to appear": "Paste the code below before the </body> tag on every page you want erxes chat to appear.",
+  "Paste the code below before the body tag on every page you want erxes lead to appear": "Paste the code below before the body tag on every page you want erxes lead to appear",
+  "If your flow type is embedded paste the code below additionally that you want erxes lead to appear": "If your flow type is embedded paste the code below additionally that you want erxes lead to appear",
+  "If your flow type is popup paste the code below additionally in your button": "If your flow type is popup paste the code below additionally in your button",
   "Choose messengers": "Choose messengers",
   "erxes allows you to create multiple messengers": "erxes allows you to create multiple messengers",
   "erxes allows you to create multiple brands": "erxes allows you to create multiple brands",
@@ -858,11 +861,14 @@
   "Logs": "Logs",
   "There are no logs recorded": "There are no logs recorded",
   "Module": "Module",
-  "Old data": "Old data",
-  "New data": "New data",
+  "Unchanged fields": "Unchanged fields",
+  "Changed fields": "Changed fields",
   "Create": "Create",
   "Update": "Update",
   "Changes": "Changes",
   "Choose start date": "Choose start date",
-  "Choose end date": "Choose end date"
+  "Choose end date": "Choose end date",
+  "Permission denied": "Permission denied",
+  "Old data": "Old data",
+  "New data": "New data"
 }

@@ -1,11 +1,11 @@
-import { EditForm } from 'modules/boards/containers/editForm';
+import dayjs from 'dayjs';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
-import moment from 'moment';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { ITicket } from '../types';
@@ -13,6 +13,7 @@ import { ITicket } from '../types';
 type Props = {
   stageId: string;
   item: ITicket;
+  isFormVisible: boolean;
   isDragging: boolean;
   provided;
   onAdd: (stageId: string, item: ITicket) => void;
@@ -21,43 +22,33 @@ type Props = {
   onTogglePopup: () => void;
   options: IOptions;
 };
-
-export default class TicketItem extends React.PureComponent<
-  Props,
-  { isFormVisible: boolean }
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = { isFormVisible: false };
-  }
-
+class TicketItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
     if (!date) {
       return null;
     }
 
-    return <ItemDate>{moment(date).format('MMM D, h:mm a')}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = () => {
-    this.props.onTogglePopup();
-
-    const { isFormVisible } = this.state;
-
-    this.setState({ isFormVisible: !isFormVisible });
-  };
-
   renderForm = () => {
-    const { stageId, item, onAdd, onRemove, onUpdate, options } = this.props;
-    const { isFormVisible } = this.state;
+    const {
+      onTogglePopup,
+      isFormVisible,
+      stageId,
+      item,
+      onAdd,
+      onRemove,
+      onUpdate,
+      options
+    } = this.props;
 
     if (!isFormVisible) {
       return null;
     }
 
     return (
-      <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
+      <Modal bsSize="lg" show={true} onHide={onTogglePopup}>
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit ticket')}</Modal.Title>
         </Modal.Header>
@@ -69,7 +60,7 @@ export default class TicketItem extends React.PureComponent<
             onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}
-            closeModal={this.toggleForm}
+            closeModal={onTogglePopup}
           />
         </Modal.Body>
       </Modal>
@@ -77,7 +68,7 @@ export default class TicketItem extends React.PureComponent<
   };
 
   render() {
-    const { item, isDragging, provided } = this.props;
+    const { item, isDragging, provided, onTogglePopup } = this.props;
     const { customers, companies } = item;
 
     return (
@@ -87,7 +78,7 @@ export default class TicketItem extends React.PureComponent<
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
+        <Content onClick={onTogglePopup}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}
@@ -132,3 +123,5 @@ export default class TicketItem extends React.PureComponent<
     );
   }
 }
+
+export default TicketItem;

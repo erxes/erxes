@@ -1,25 +1,31 @@
 import { IUser } from 'modules/auth/types';
-import {
-  DropdownToggle,
-  Icon,
-  ModalTrigger,
-  NameCard,
-  Tip
-} from 'modules/common/components';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
+import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Widget } from 'modules/notifications/containers';
-import { Signature } from 'modules/settings/email/containers';
-import {
-  ChangePassword,
-  NotificationSettings
-} from 'modules/settings/profile/containers';
+import Widget from 'modules/notifications/containers/Widget';
+import { IBrand } from 'modules/settings/brands/types';
+import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import Select from 'react-select-plus';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { UserHelper } from '../styles';
+
+const Signature = asyncComponent(() =>
+  import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
+);
+
+const ChangePassword = asyncComponent(() =>
+  import(/* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword')
+);
 
 const UserInfo = styled.div`
   display: flex;
@@ -28,7 +34,7 @@ const UserInfo = styled.div`
 
   span {
     float: none;
-    margin: 0 10px;
+    margin: 0 5px 0 10px;
   }
 `;
 
@@ -64,10 +70,18 @@ const WorkFlowImage = styled.img`
 
 const QuickNavigation = ({
   logout,
-  currentUser
+  currentUser,
+  showBrands,
+  brands,
+  selectedBrands,
+  onChangeBrands
 }: {
   logout: () => void;
   currentUser: IUser;
+  showBrands: boolean;
+  brands: IBrand[];
+  selectedBrands: IOption[];
+  onChangeBrands: (options: IOption[]) => void;
 }) => {
   const passContent = props => <ChangePassword {...props} />;
   const signatureContent = props => <Signature {...props} />;
@@ -78,12 +92,37 @@ const QuickNavigation = ({
       {...props}
     />
   );
+
   const notificationContent = props => (
     <NotificationSettings currentUser={currentUser} {...props} />
   );
 
+  const brandOptions = brands.map(brand => ({
+    value: brand._id,
+    label: brand.name
+  }));
+
+  let brandsCombo;
+
+  if (showBrands && brands.length > 1) {
+    brandsCombo = (
+      <NavItem>
+        <Select
+          style={{ maxWidth: '400px', minWidth: '150px' }}
+          placeholder={__('Choose brands')}
+          value={selectedBrands}
+          options={brandOptions}
+          onChange={onChangeBrands}
+          multi={true}
+        />
+      </NavItem>
+    );
+  }
+
   return (
     <nav>
+      {brandsCombo}
+
       <Tip text={__('Task')} placement="bottom">
         <NavItem odd={true}>
           <Link to="/task">
@@ -93,7 +132,7 @@ const QuickNavigation = ({
       </Tip>
 
       <NavItem>
-        <Widget />
+        <Widget currentUser={currentUser} />
       </NavItem>
       <NavItem>
         <Link to="/settings">
@@ -106,7 +145,7 @@ const QuickNavigation = ({
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon icon="downarrow" size={10} />
+                <Icon icon="angle-down" />
               </UserInfo>
             </UserHelper>
           </DropdownToggle>
@@ -138,7 +177,7 @@ const QuickNavigation = ({
               title="Email signatures"
               trigger={
                 <li>
-                  <a href="email">{__('Email signatures')}</a>
+                  <a href="#email">{__('Email signatures')}</a>
                 </li>
               }
               content={signatureContent}

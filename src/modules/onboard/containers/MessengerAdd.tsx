@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { ButtonMutate, Icon } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
@@ -13,7 +13,7 @@ import {
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { MessengerAdd } from '../components';
+import MessengerAdd from '../components/MessengerAdd';
 import { OnboardConsumer } from '../containers/OnboardContext';
 import { queries } from '../graphql';
 
@@ -77,9 +77,10 @@ class MessengerAddContainer extends React.Component<Props, State> {
           isSubmitted={isSubmitted}
           disabled={!values}
           type="submit"
+          icon="arrow-right"
           successMessage={`You successfully added an ${name}`}
         >
-          {__('Continue')} <Icon icon="rightarrow-2" />
+          {__('Continue')}
         </ButtonMutate>
       );
     };

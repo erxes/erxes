@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { IBrandDoc } from 'modules/settings/brands/types';
 import { IChannelDoc } from 'modules/settings/channels/types';
-import { ManageIntegrations } from 'modules/settings/integrations/components/common';
+import ManageIntegrations from 'modules/settings/integrations/components/common/ManageIntegrations';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';

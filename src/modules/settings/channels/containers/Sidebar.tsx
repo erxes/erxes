@@ -1,11 +1,10 @@
 import gql from 'graphql-tag';
-import { ButtonMutate } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { UsersQueryResponse } from '../../team/types';
-import { Sidebar } from '../components';
+import Sidebar from '../components/Sidebar';
 import { mutations, queries } from '../graphql';
 import {
   ChannelsCountQueryResponse,
@@ -21,14 +20,12 @@ type Props = {
 
 type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
-  usersQuery: UsersQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
 } & Props &
   RemoveChannelMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
   const {
-    usersQuery,
     channelsQuery,
     channelsCountQuery,
     removeMutation,
@@ -37,7 +34,6 @@ const SidebarContainer = (props: FinalProps) => {
   } = props;
 
   const channels = channelsQuery.channels || [];
-  const members = usersQuery.users || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
   // remove action
@@ -79,7 +75,6 @@ const SidebarContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    members,
     channels,
     channelsTotalCount,
     remove,
@@ -110,8 +105,7 @@ const getRefetchQueries = (queryParams, currentChannelId?: string) => {
       query: gql(queries.channelDetail),
       variables: { _id: currentChannelId || '' }
     },
-    { query: gql(queries.channelsCount) },
-    { query: gql(queries.users) }
+    { query: gql(queries.channelsCount) }
   ];
 };
 
@@ -129,12 +123,6 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, UsersQueryResponse, {}>(gql(queries.users), {
-      name: 'usersQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
       name: 'channelsCountQuery'
     }),

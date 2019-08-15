@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
 import { PipelinesQueryResponse } from 'modules/boards/types';
-import { ButtonMutate, Spinner } from 'modules/common/components';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Pipelines } from '../components';
+import Pipelines from '../components/Pipelines';
 import { mutations, queries } from '../graphql';
 import {
   RemovePipelineMutationResponse,
@@ -56,7 +57,9 @@ class PipelinesContainer extends React.Component<FinalProps> {
             Alert.success(msg);
           })
           .catch(error => {
-            Alert.error(error.message);
+            Alert.error(
+              `Please remove all stages in this pipeline before delete the pipeline`
+            );
           });
       });
     };

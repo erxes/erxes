@@ -1,12 +1,10 @@
-import {
-  ActionButtons,
-  Button,
-  Label,
-  Table,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Label from 'modules/common/components/Label';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment } from '../types';

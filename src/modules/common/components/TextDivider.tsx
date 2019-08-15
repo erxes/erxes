@@ -1,8 +1,8 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React from 'react';
 import styled from 'styled-components';
-import { Tip } from '.';
 import { colors } from '../styles';
+import Tip from './Tip';
 
 type Props = {
   text: string;
@@ -36,8 +36,8 @@ function TextDivider({ text, date }: Props) {
     <Divider>
       <span>
         {text}
-        <Tip text={moment(date).format('lll')}>
-          <footer>{moment(date).format('LT')}</footer>
+        <Tip text={dayjs(date).format('lll')}>
+          <footer>{dayjs(date).format('LT')}</footer>
         </Tip>
       </span>
     </Divider>

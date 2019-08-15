@@ -6,7 +6,7 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { Histories } from '../components';
+import Histories from '../components/Histories';
 import { mutations, queries } from '../graphql';
 import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 

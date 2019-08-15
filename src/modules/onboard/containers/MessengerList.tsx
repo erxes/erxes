@@ -10,7 +10,7 @@ import {
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { MessengerList } from '../components';
+import MessengerList from '../components/MessengerList';
 import { queries } from '../graphql';
 
 type FinalProps = {

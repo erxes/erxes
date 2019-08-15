@@ -1,12 +1,10 @@
 import { AuthBox } from 'modules/auth/styles';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
-import { AuthLayout } from 'modules/layout/components';
+import AuthLayout from 'modules/layout/components/AuthLayout';
 import React from 'react';
 
 class Confirmation extends React.Component<{

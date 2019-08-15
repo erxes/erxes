@@ -1,10 +1,19 @@
 import { IUser } from 'modules/auth/types';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import { can } from 'modules/common/utils';
-import { Header } from 'modules/layout/components';
+import Header from 'modules/layout/components/Header';
 import { Contents } from 'modules/layout/styles';
 import React from 'react';
-import { ConversationDetail } from '../containers/conversationDetail';
-import { Sidebar } from '../containers/leftSidebar';
+
+const Sidebar = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar" */ '../containers/leftSidebar/Sidebar')
+);
+
+const ConversationDetail = asyncComponent(
+  () =>
+    import(/* webpackChunkName:"Inbox-ConversationDetail" */ '../containers/conversationDetail/ConversationDetail'),
+  { height: 'auto', width: '100%', color: '#fff', margin: '10px 10px 10px 0' }
+);
 
 type Props = {
   queryParams: any;
@@ -14,7 +23,7 @@ type Props = {
 
 function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
   const menuInbox = [
-    { title: 'Inbox', link: '/inbox/index' },
+    { title: 'Team Inbox', link: '/inbox/index' },
     { title: 'Ticket', link: '/inbox/ticket' }
   ];
 
@@ -24,7 +33,11 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
 
   return (
     <Contents>
-      <Header title={'Inbox'} queryParams={queryParams} submenu={menuInbox} />
+      <Header
+        title={'Conversation'}
+        queryParams={queryParams}
+        submenu={menuInbox}
+      />
       <Sidebar
         queryParams={queryParams}
         currentConversationId={currentConversationId}

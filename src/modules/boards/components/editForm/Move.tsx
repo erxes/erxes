@@ -1,4 +1,4 @@
-import { BoardSelect } from 'modules/boards/containers';
+import BoardSelect from 'modules/boards/containers/BoardSelect';
 import {
   MoveContainer,
   MoveFormContainer,
@@ -7,7 +7,8 @@ import {
   Stages
 } from 'modules/boards/styles/item';
 import { IStage } from 'modules/boards/types';
-import { Icon, Tip } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import React from 'react';
 import { IItem, IOptions } from '../../types';
 
@@ -121,7 +122,7 @@ class Move extends React.Component<Props, State> {
       <MoveContainer>
         <MoveFormContainer>
           <PipelineName onClick={this.toggleForm}>
-            {pipeline && pipeline.name} <Icon icon="downarrow" size={10} />
+            {pipeline && pipeline.name} <Icon icon="angle-down" />
           </PipelineName>
 
           {this.renderBoardSelect()}

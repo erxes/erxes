@@ -1,19 +1,18 @@
-import { Pagination } from 'modules/common/components';
-import {
-  Button,
-  DataWithLoader,
-  DropdownToggle,
-  FormControl,
-  Icon,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { TaggerPopover } from 'modules/tags/components';
+import Wrapper from 'modules/layout/components/Wrapper';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { MessageListRow, Sidebar } from '../containers';
+import MessageListRow from '../containers/MessageListRow';
+import Sidebar from '../containers/Sidebar';
 import { MessageDescription } from '../styles';
 import { IEngageMessage } from '../types';
 
@@ -40,8 +39,8 @@ class List extends React.Component<Props> {
     const { bulk, emptyBulk } = this.props;
 
     const tagButton = (
-      <Button btnStyle="simple" size="small">
-        {__('Tag')} <Icon icon="downarrow" />
+      <Button btnStyle="simple" size="small" icon="tag-alt">
+        {__('Tag')}
       </Button>
     );
 
@@ -74,7 +73,7 @@ class List extends React.Component<Props> {
       <Dropdown id="dropdown-engage" pullRight={true}>
         <DropdownToggle bsRole="toggle">
           <Button btnStyle="success" size="small" icon="add">
-            {__('New message')} <Icon icon="downarrow" />
+            {__('New message')} <Icon icon="angle-down" />
           </Button>
         </DropdownToggle>
 

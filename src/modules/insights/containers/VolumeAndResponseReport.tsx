@@ -3,7 +3,8 @@ import gql from 'graphql-tag';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
-import { ResponseReport, VolumeReport } from '../components';
+import ResponseReport from '../components/ResponseReport';
+import VolumeReport from '../components/VolumeReport';
 import { queries } from '../graphql';
 import {
   IChartParams,

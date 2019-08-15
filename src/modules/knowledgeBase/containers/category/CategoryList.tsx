@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { Alert, confirm } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { CategoryList } from '../../components';
+import CategoryList from '../../components/category/CategoryList';
 import { mutations, queries } from '../../graphql';
 import {
   ArticlesTotalCountQueryResponse,

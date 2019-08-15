@@ -1,20 +1,27 @@
-import { Button } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
-import { colors } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';
 
 export const EditorActions = styled.div`
-  padding: 0 15px 40px 20px;
-  position: absolute;
-  color: ${colors.colorCoreGray};
-  bottom: 0;
-  right: 0;
+  padding: 10px 15px 40px 20px;
+  text-align: right;
 `;
 
 const EditorWrapper = styled.div`
   position: relative;
+
+  > .cke_chrome {
+    border-bottom: 0;
+  }
+
+  .cke_bottom {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
 `;
 
 type Prop = {
@@ -89,7 +96,12 @@ class Form extends React.PureComponent<Prop, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}
-          removeButtons="Source,NewPage,Preview,Indent,Outdent,CreateDiv,Anchor,Styles,Font,Maximize,Strike,Table"
+          toolbar={[
+            { name: 'insert', items: ['Image', 'EmojiPanel'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+            { name: 'basicstyles', items: ['Bold', 'Italic'] },
+            { name: 'links', items: ['Link', 'Unlink'] }
+          ]}
           toolbarCanCollapse={true}
         />
 
