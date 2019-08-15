@@ -1,4 +1,5 @@
 import queryString from 'query-string';
+import { router } from '.';
 
 /**
  * @param {Object} query
@@ -91,7 +92,22 @@ export const generatePaginationParams = (queryParams: {
   };
 };
 
+/**
+ * Set selected option param
+ * @param {String} selected values
+ * @param {String} param name
+ * @param {Object}  history
+ */
+const onParamSelect = (
+  name: string,
+  values: string[] | string,
+  history: any
+) => {
+  router.setParams(history, { [name]: values });
+};
+
 export default {
+  onParamSelect,
   setParams,
   getParam,
   replaceParam,
