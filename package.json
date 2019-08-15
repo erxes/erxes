@@ -113,7 +113,7 @@
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
     "react-scripts": "^3.0.1",
-    "release-it": "^12.3.3",
+    "release-it": "^12.3.5",
     "snyk": "^1.108.2",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
