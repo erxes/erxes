@@ -55,22 +55,22 @@ class ConditionsRule extends React.Component<Props, State> {
     switch (rule.kind) {
       case 'browserLanguage':
         description =
-          'You can write only language code in value. Example: mn, en, fr ... etc';
+          'Recognizes which language is set for visitor’s browser. Insert only Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.';
         break;
       case 'currentPageUrl':
         description =
-          'You can write path after domain in value. Example: if www.erxes.io/integrations. You can write here only /integrations';
+          'Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing';
         break;
       case 'country':
         description =
-          'You can write only country code in value. Example: mn, en, fr ... etc';
+          'Locates visitor’s physical location in country  resolution. Insert only Country codes in value field as appointed in ISO-3166 standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.';
         break;
       case 'city':
         description =
-          'You can write only city name in value. Example: Ulaanbaatar, Tokyo ... etc';
+          'Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.';
         break;
       default:
-        description = 'doc-text-inv-1';
+        description = 'Counts individual visitor’s visitting number.';
     }
     return description;
   }
