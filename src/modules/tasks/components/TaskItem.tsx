@@ -36,7 +36,7 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
   componentDidMount() {
     const { queryParams, item } = this.props;
 
-    if (queryParams.taskId && queryParams.taskId === item._id) {
+    if (queryParams.itemId && queryParams.itemId === item._id) {
       return this.setState({ isFormVisible: true });
     }
   }
@@ -49,18 +49,18 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = (taskId?: string) => {
+  toggleForm = (itemId?: string) => {
     const { queryParams } = this.props;
     this.props.onTogglePopup();
 
     const { isFormVisible } = this.state;
 
     this.setState({ isFormVisible: !isFormVisible }, () => {
-      if (queryParams.taskId) {
+      if (queryParams.itemId) {
         return routerUtils.removeParams(this.props.history, 'taskId');
       }
 
-      return routerUtils.setParams(this.props.history, { taskId });
+      return routerUtils.setParams(this.props.history, { itemId });
     });
   };
 

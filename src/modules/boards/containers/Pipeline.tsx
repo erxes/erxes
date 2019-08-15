@@ -43,15 +43,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
   queryParamsChanged = (queryParams, nextProps: Props) => {
     const nextQueryParams = nextProps.queryParams;
 
-    if (nextQueryParams.dealId || queryParams.dealId) {
-      return false;
-    }
-
-    if (nextQueryParams.taskId || queryParams.taskId) {
-      return false;
-    }
-
-    if (nextQueryParams.ticketId || queryParams.ticketId) {
+    if (nextQueryParams.itemId || queryParams.itemId) {
       return false;
     }
 

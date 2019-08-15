@@ -38,7 +38,7 @@ class TicketItem extends React.PureComponent<
   componentDidMount() {
     const { queryParams, item } = this.props;
 
-    if (queryParams.ticketId && queryParams.ticketId === item._id) {
+    if (queryParams.itemId && queryParams.itemId === item._id) {
       return this.setState({ isFormVisible: true });
     }
   }
@@ -51,18 +51,18 @@ class TicketItem extends React.PureComponent<
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = (ticketId?: string) => {
+  toggleForm = (itemId?: string) => {
     const { queryParams } = this.props;
     this.props.onTogglePopup();
 
     const { isFormVisible } = this.state;
 
     this.setState({ isFormVisible: !isFormVisible }, () => {
-      if (queryParams.ticketId) {
-        return routerUtils.removeParams(this.props.history, 'ticketId');
+      if (queryParams.itemId) {
+        return routerUtils.removeParams(this.props.history, 'itemId');
       }
 
-      return routerUtils.setParams(this.props.history, { ticketId });
+      return routerUtils.setParams(this.props.history, { itemId });
     });
   };
 
