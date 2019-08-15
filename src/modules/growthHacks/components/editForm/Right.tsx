@@ -1,37 +1,43 @@
-import { Watch } from 'modules/boards/containers/editForm/';
-import { RightButton } from 'modules/boards/styles/item';
-import { IOptions } from 'modules/boards/types';
+import colors from 'modules/common/styles/colors';
 import FormFields from 'modules/growthHacks/containers/FormFields';
 import { IGrowthHack } from 'modules/growthHacks/types';
 import React from 'react';
 import styled from 'styled-components';
 
 const RightContainer = styled.div`
-  flex: 1;
+  background: #fff;
+  padding: 30px;
+  box-shadow: 0 0 6px 1px rgba(221, 221, 221, 0.7);
+  align-self: baseline;
+  flex-basis: 450px;
+`;
+
+const CurrentStage = styled.div`
+  margin-bottom: 20px;
+  color: ${colors.colorCoreGray};
+  font-weight: 500;
+  font-size: 12px;
+
+  h4 {
+    color: ${colors.colorCoreDarkGray};
+    margin: 5px 0 0;
+    font-size: 16px;
+  }
 `;
 
 type Props = {
   item: IGrowthHack;
   onChangeExtraField: (name: 'formFields', value: any) => void;
-  copyItem: () => void;
-  removeItem: (itemId: string) => void;
-  options: IOptions;
   formFields: any;
 };
 
 class RigthContent extends React.Component<Props> {
   render() {
-    const {
-      item,
-      copyItem,
-      options,
-      removeItem,
-      onChangeExtraField,
-      formFields
-    } = this.props;
+    const { item, onChangeExtraField, formFields } = this.props;
     const { formId } = item;
 
-    const onClick = () => removeItem(item._id);
+    const stageName = item.stage && item.stage.name;
+
     const onChangeFormField = field => {
       formFields[field._id] = field.value;
       onChangeExtraField('formFields', formFields);
@@ -39,6 +45,9 @@ class RigthContent extends React.Component<Props> {
 
     return (
       <RightContainer>
+        <CurrentStage>
+          Currently on <h4>{stageName}</h4>
+        </CurrentStage>
         {formId ? (
           <FormFields
             onChangeFormField={onChangeFormField}
@@ -46,16 +55,6 @@ class RigthContent extends React.Component<Props> {
             formId={formId}
           />
         ) : null}
-
-        <Watch item={item} options={options} />
-
-        <RightButton icon="checked-1" onClick={copyItem}>
-          Copy
-        </RightButton>
-
-        <RightButton icon="cancel-1" onClick={onClick}>
-          Delete
-        </RightButton>
       </RightContainer>
     );
   }

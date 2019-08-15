@@ -43,6 +43,8 @@ const growthHackFields = `
   closeDate
   description
   hackDescription
+  hackStage
+  priority
   goal
   assignedUsers {
     _id
@@ -54,6 +56,7 @@ const growthHackFields = `
   }
   stage {
     probability
+    name
   }
   isWatched
   attachments {

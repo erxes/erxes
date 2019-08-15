@@ -1,8 +1,19 @@
 import { IUser } from 'modules/auth/types';
+import DueDateChanger from 'modules/boards/components/DueDateChanger';
 import EditForm from 'modules/boards/components/editForm/EditForm';
-import { FlexContent } from 'modules/boards/styles/item';
+import SelectItem from 'modules/boards/components/SelectItem';
+import { PRIORITIES } from 'modules/boards/constants';
+import { Watch } from 'modules/boards/containers/editForm/';
+import { ColorButton } from 'modules/boards/styles/common';
+import {
+  ActionContainer,
+  FlexContent,
+  LeftContainer
+} from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
+import Icon from 'modules/common/components/Icon';
 import React from 'react';
+import { HACKSTAGES } from '../constants';
 import { IFormField, IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, Right, Top } from './editForm/';
 
@@ -20,6 +31,8 @@ type State = {
   hackDescription: string;
   goal: string;
   formFields: IFormField;
+  priority: string;
+  hackStage: string;
 };
 
 export default class GrowthHackEditForm extends React.Component<Props, State> {
@@ -31,7 +44,9 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     this.state = {
       hackDescription: item.hackDescription || '',
       goal: item.goal || '',
-      formFields: item.formFields || {}
+      formFields: item.formFields || {},
+      priority: item.priority || '',
+      hackStage: item.hackStage || ''
     };
   }
 
@@ -47,41 +62,102 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
-    const { hackDescription, goal, formFields } = this.state;
+    const {
+      hackDescription,
+      goal,
+      formFields,
+      priority,
+      hackStage
+    } = this.state;
+
+    const commonProp = {
+      priority,
+      hackDescription,
+      hackStage,
+      goal
+    };
 
     const { name, stageId, description, closeDate, attachments } = state;
+
+    const dateOnChange = date => onChangeField('closeDate', date);
+    const priorityTrigger = (
+      <ColorButton>
+        <Icon icon="sort-amount-up" /> Priority
+      </ColorButton>
+    );
+    const hackStageTrigger = (
+      <ColorButton>
+        <Icon icon="diary" /> Hack Stage
+      </ColorButton>
+    );
+
+    const onClick = () => remove(item._id);
+    const priorityOnChange = (value: string) =>
+      this.onChangeExtraField('priority', value);
+    const hackStageOnChange = (value: string) =>
+      this.onChangeExtraField('hackStage', value);
 
     return (
       <>
         <Top
+          {...commonProp}
           options={options}
           name={name}
-          closeDate={closeDate}
           users={users}
           stageId={stageId}
           description={description}
           item={item}
           onChangeField={onChangeField}
+          dueDate={
+            closeDate && (
+              <DueDateChanger
+                isWarned={true}
+                value={closeDate}
+                onChange={dateOnChange}
+              />
+            )
+          }
         />
 
         <FlexContent>
-          <Left
-            onChangeAttachment={onChangeAttachment}
-            type={options.type}
-            description={description}
-            attachments={attachments}
-            item={item}
-            onChangeField={onChangeField}
-            onChangeExtraField={this.onChangeExtraField}
-            hackDescription={hackDescription}
-            goal={goal}
-          />
+          <LeftContainer>
+            <ActionContainer>
+              <DueDateChanger value={closeDate} onChange={dateOnChange} />
+              <SelectItem
+                items={PRIORITIES}
+                currentItem={priority}
+                onChange={priorityOnChange}
+                trigger={priorityTrigger}
+              />
+              <SelectItem
+                items={HACKSTAGES}
+                currentItem={hackStage}
+                onChange={hackStageOnChange}
+                trigger={hackStageTrigger}
+              />
+              <ColorButton onClick={copy}>
+                <Icon icon="copy-1" /> Copy
+              </ColorButton>
+              <ColorButton onClick={onClick}>
+                <Icon icon="times-circle" /> Delete
+              </ColorButton>
+            </ActionContainer>
+            <Watch item={item} options={options} />
 
+            <Left
+              {...commonProp}
+              onChangeAttachment={onChangeAttachment}
+              type={options.type}
+              description={description}
+              attachments={attachments}
+              item={item}
+              onChangeField={onChangeField}
+              onChangeExtraField={this.onChangeExtraField}
+              options={options}
+            />
+          </LeftContainer>
           <Right
-            options={options}
             item={item}
-            copyItem={copy}
-            removeItem={remove}
             onChangeExtraField={this.onChangeExtraField}
             formFields={formFields}
           />

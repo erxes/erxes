@@ -11,6 +11,7 @@ const commonVariables = `
   $formFields: JSON,
   $goal: String,
   $hackStage: String,
+  $priority: String,
   $attachments: [AttachmentInput]
 `;
 
@@ -26,6 +27,7 @@ const commonParams = `
   hackDescription: $hackDescription,
   goal: $goal,
   hackStage: $hackStage,
+  priority: $priority,
   formFields: $formFields,
   attachments: $attachments
 `;

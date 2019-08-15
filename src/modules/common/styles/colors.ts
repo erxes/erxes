@@ -43,7 +43,7 @@ const textPrimary = '#444';
 const textSecondary = rgba(textPrimary, 0.8);
 
 // Shadow colors
-const shadowPrimary = rgba(colorShadowGray, 0.7);
+const shadowPrimary = rgba(colorBlack, 0.08);
 const darkShadow = rgba(colorBlack, 0.2);
 
 // Social colors

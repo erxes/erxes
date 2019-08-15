@@ -1,26 +1,29 @@
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
-import React from 'react';
-
-import { LeftContainer, TitleRow } from 'modules/boards/styles/item';
-import { IItem } from 'modules/boards/types';
+import { TitleRow } from 'modules/boards/styles/item';
+import { IItem, IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
+import React from 'react';
 
 type Props = {
   item: IItem;
-  onChangeField: (name: 'description', value: any) => void;
-  onChangeExtraField: (name: 'hackDescription' | 'goal', value: any) => void;
+  onChangeField: (name: 'description' | 'closeDate', value: any) => void;
+  onChangeExtraField: (
+    name: 'hackDescription' | 'goal' | 'priority',
+    value: any
+  ) => void;
   type: string;
   description: string;
   hackDescription: string;
   goal: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
   attachments: IAttachment[];
+  options: IOptions;
 };
 
 class Left extends React.Component<Props> {
@@ -50,12 +53,12 @@ class Left extends React.Component<Props> {
       onChangeExtraField('goal', (e.target as HTMLInputElement).value);
 
     return (
-      <LeftContainer>
+      <>
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="align-left-justify" />
-              Hack description
+              <Icon icon="idea" />
+              Hack Description
             </ControlLabel>
           </TitleRow>
 
@@ -69,7 +72,7 @@ class Left extends React.Component<Props> {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="align-left-justify" />
+              <Icon icon="align-left" />
               Description
             </ControlLabel>
           </TitleRow>
@@ -84,7 +87,7 @@ class Left extends React.Component<Props> {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="align-left-justify" />
+              <Icon icon="sign-out-alt" />
               Goal
             </ControlLabel>
           </TitleRow>
@@ -122,7 +125,7 @@ class Left extends React.Component<Props> {
           contentType={type}
           extraTabs={[]}
         />
-      </LeftContainer>
+      </>
     );
   }
 }
