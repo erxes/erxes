@@ -50,7 +50,7 @@ class DraggableContainer extends React.Component<
     this.unlisten = history.listen(location => {
       const queryParams = queryString.parse(location.search);
 
-      if (queryParams.itemId && queryParams.itemId === this.props.item._id) {
+      if (queryParams.itemId === this.props.item._id) {
         return this.setState({ isFormVisible: true });
       }
     });
@@ -62,7 +62,7 @@ class DraggableContainer extends React.Component<
     }
   }
 
-  onTogglePopup = (id?: string) => {
+  onTogglePopup = () => {
     const { item } = this.props;
     const { isFormVisible, isDragDisabled } = this.state;
     const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
