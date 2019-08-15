@@ -29,12 +29,12 @@ type Props = {
   item: IGrowthHack;
   onChangeExtraField: (name: 'formFields', value: any) => void;
   formFields: any;
+  formId: string;
 };
 
 class RigthContent extends React.Component<Props> {
   render() {
-    const { item, onChangeExtraField, formFields } = this.props;
-    const { formId } = item;
+    const { item, onChangeExtraField, formFields, formId } = this.props;
 
     const stageName = item.stage && item.stage.name;
 

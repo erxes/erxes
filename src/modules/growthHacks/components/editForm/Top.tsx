@@ -22,13 +22,22 @@ type Props = {
   priority: string;
   hackStage: string;
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
+  saveFormFields: (
+    itemId: string,
+    destinationStageId: string,
+    formFields: JSON
+  ) => void;
   amount?: () => React.ReactNode;
   dueDate: React.ReactNode;
+  formFields: JSON;
 };
 
 class Top extends React.Component<Props> {
   onChangeStage = stageId => {
-    this.props.onChangeField('stageId', stageId);
+    const { onChangeField, saveFormFields, item, formFields } = this.props;
+
+    onChangeField('stageId', stageId);
+    saveFormFields(item._id, stageId, formFields);
   };
 
   renderMove() {

@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 
 export interface IChannel {
@@ -6,6 +7,7 @@ export interface IChannel {
   description?: string;
   integrationIds: string[];
   memberIds: string[];
+  members: IUser[];
 }
 
 export interface IChannelDoc extends IChannel {

@@ -25,6 +25,8 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   options?: any;
+  renderExtraFields?: (formProps: IFormProps) => JSX.Element;
+  extraFields?: any;
 };
 
 type State = {
@@ -75,7 +77,7 @@ class PipelineForm extends React.Component<Props, State> {
     name: string;
     visibility: string;
   }) => {
-    const { pipeline, type, boardId } = this.props;
+    const { pipeline, type, boardId, extraFields } = this.props;
     const { selectedMemberIds, stages, backgroundColor } = this.state;
     const finalValues = values;
 
@@ -85,6 +87,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      ...extraFields,
       type,
       boardId: pipeline ? pipeline.boardId : boardId,
       stages: stages.filter(el => el.name),
@@ -122,7 +125,13 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { pipeline, renderButton, closeModal, options } = this.props;
+    const {
+      pipeline,
+      renderButton,
+      closeModal,
+      options,
+      renderExtraFields
+    } = this.props;
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
     const pipelineName = options.pipelineName
@@ -159,6 +168,8 @@ class PipelineForm extends React.Component<Props, State> {
               required={true}
             />
           </FormGroup>
+
+          {renderExtraFields && renderExtraFields(formProps)}
 
           <FormGroup>
             <ControlLabel>Background</ControlLabel>

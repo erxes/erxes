@@ -25,7 +25,7 @@ type FinalProps = {
 
 class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, boardId, renderButton } = this.props;
+    const { stagesQuery, boardId, renderButton, options } = this.props;
 
     if (stagesQuery && stagesQuery.loading) {
       return <Spinner />;
@@ -40,7 +40,9 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       renderButton
     };
 
-    return <PipelineForm {...extendedProps} />;
+    const Form = options.PipelineForm || PipelineForm;
+
+    return <Form {...extendedProps} />;
   }
 }
 
