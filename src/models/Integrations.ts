@@ -6,6 +6,9 @@ export interface IIntegration {
   accountId: string;
   erxesApiId: string;
   facebookPageIds?: string[];
+  email: string;
+  expiration?: string;
+  gmailHistoryId?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -17,6 +20,9 @@ export const integrationSchema = new Schema({
   accountId: String,
   erxesApiId: String,
   facebookPageIds: [String],
+  email: String,
+  expiration: String,
+  gmailHistoryId: String,
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}
