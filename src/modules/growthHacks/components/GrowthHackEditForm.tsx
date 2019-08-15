@@ -3,23 +3,14 @@ import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import DueDateChanger from 'modules/boards/components/DueDateChanger';
 import EditForm from 'modules/boards/components/editForm/EditForm';
-import SelectItem from 'modules/boards/components/SelectItem';
-import { PRIORITIES } from 'modules/boards/constants';
-import { Watch } from 'modules/boards/containers/editForm/';
-import { ColorButton } from 'modules/boards/styles/common';
-import {
-  ActionContainer,
-  FlexContent,
-  LeftContainer
-} from 'modules/boards/styles/item';
+import { FlexContent, LeftContainer } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
-import { HACKSTAGES } from '../constants';
 import { mutations } from '../graphql';
 import { IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, Right, Top } from './editForm/';
+import Actions from './editForm/Actions';
 
 type Props = {
   options: IOptions;
@@ -88,48 +79,16 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
-    const {
-      hackDescription,
-      goal,
-      formFields,
-      priority,
-      hackStage,
-      formId
-    } = this.state;
-
-    const commonProp = {
-      priority,
-      hackDescription,
-      hackStage,
-      goal
-    };
+    const { formFields, priority, hackStage, formId } = this.state;
 
     const { name, stageId, description, closeDate, attachments } = state;
 
     const dateOnChange = date => onChangeField('closeDate', date);
-    const priorityTrigger = (
-      <ColorButton>
-        <Icon icon="sort-amount-up" />
-        Priority
-      </ColorButton>
-    );
-    const hackStageTrigger = (
-      <ColorButton>
-        <Icon icon="diary" />
-        Hack Stage
-      </ColorButton>
-    );
-
-    const onClick = () => remove(item._id);
-    const priorityOnChange = (value: string) =>
-      this.onChangeExtraField('priority', value);
-    const hackStageOnChange = (value: string) =>
-      this.onChangeExtraField('hackStage', value);
 
     return (
       <>
         <Top
-          {...commonProp}
+          {...this.state}
           options={options}
           name={name}
           users={users}
@@ -138,7 +97,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           item={item}
           onChangeField={onChangeField}
           saveFormFields={this.saveFormFields}
-          formFields={formFields}
           dueDate={
             closeDate && (
               <DueDateChanger
@@ -152,33 +110,19 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
         <FlexContent>
           <LeftContainer>
-            <ActionContainer>
-              <DueDateChanger value={closeDate} onChange={dateOnChange} />
-              <SelectItem
-                items={PRIORITIES}
-                currentItem={priority}
-                onChange={priorityOnChange}
-                trigger={priorityTrigger}
-              />
-              <SelectItem
-                items={HACKSTAGES}
-                currentItem={hackStage}
-                onChange={hackStageOnChange}
-                trigger={hackStageTrigger}
-              />
-              <Watch item={item} options={options} isSmall={true} />
-              <ColorButton onClick={copy}>
-                <Icon icon="copy-1" />
-                Copy
-              </ColorButton>
-              <ColorButton onClick={onClick}>
-                <Icon icon="times-circle" />
-                Delete
-              </ColorButton>
-            </ActionContainer>
-
+            <Actions
+              priority={priority}
+              hackStage={hackStage}
+              onChangeField={this.onChangeExtraField}
+              closeDate={closeDate}
+              dateOnChange={dateOnChange}
+              item={item}
+              options={options}
+              copy={copy}
+              remove={remove}
+            />
             <Left
-              {...commonProp}
+              {...this.state}
               onChangeAttachment={onChangeAttachment}
               type={options.type}
               description={description}
