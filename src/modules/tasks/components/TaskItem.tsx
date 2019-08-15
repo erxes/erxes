@@ -8,7 +8,6 @@ import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { withRouter } from 'react-router';
 import { ITask } from '../types';
 
 type Props = {
