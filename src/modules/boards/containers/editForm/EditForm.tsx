@@ -66,14 +66,16 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   }
 
-  saveItem = (doc: IItemParams, callback: () => void) => {
+  saveItem = (doc: IItemParams, callback?: () => void) => {
     const { stageId, itemId, editMutation, onUpdate, options } = this.props;
 
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
         Alert.success(options.texts.updateSuccessText);
 
-        callback();
+        if (callback) {
+          callback();
+        }
 
         if (onUpdate) {
           invalidateCache();

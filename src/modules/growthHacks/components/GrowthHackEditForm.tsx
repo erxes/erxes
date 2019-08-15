@@ -1,3 +1,5 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import DueDateChanger from 'modules/boards/components/DueDateChanger';
 import EditForm from 'modules/boards/components/editForm/EditForm';
@@ -12,9 +14,11 @@ import {
 } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
+import { Alert } from 'modules/common/utils';
 import React from 'react';
 import { HACKSTAGES } from '../constants';
-import { IFormField, IGrowthHack, IGrowthHackParams } from '../types';
+import { mutations } from '../graphql';
+import { IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, Right, Top } from './editForm/';
 
 type Props = {
@@ -22,7 +26,7 @@ type Props = {
   item: IGrowthHack;
   users: IUser[];
   addItem: (doc: IGrowthHackParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: IGrowthHackParams, callback: () => void) => void;
+  saveItem: (doc: IGrowthHackParams, callback?: () => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };
@@ -30,7 +34,8 @@ type Props = {
 type State = {
   hackDescription: string;
   goal: string;
-  formFields: IFormField;
+  formFields: JSON;
+  formId: string;
   priority: string;
   hackStage: string;
 };
@@ -46,12 +51,33 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
       goal: item.goal || '',
       formFields: item.formFields || {},
       priority: item.priority || '',
-      hackStage: item.hackStage || ''
+      hackStage: item.hackStage || '',
+      formId: item.formId || ''
     };
   }
 
   onChangeExtraField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
+  };
+
+  saveFormFields = (itemId: string, stageId: string, formFields: JSON) => {
+    client
+      .mutate({
+        mutation: gql(mutations.growthHacksSaveFormFields),
+        variables: {
+          _id: itemId,
+          formFields,
+          stageId
+        }
+      })
+      .then(({ data }) => {
+        if (data && data.growthHacksSaveFormFields) {
+          this.setState({ formId: data.growthHacksSaveFormFields });
+        }
+      })
+      .catch((e: Error) => {
+        Alert.error(e.message);
+      });
   };
 
   renderFormContent = ({
@@ -67,7 +93,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
       goal,
       formFields,
       priority,
-      hackStage
+      hackStage,
+      formId
     } = this.state;
 
     const commonProp = {
@@ -108,6 +135,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           description={description}
           item={item}
           onChangeField={onChangeField}
+          saveFormFields={this.saveFormFields}
+          formFields={formFields}
           dueDate={
             closeDate && (
               <DueDateChanger
@@ -160,6 +189,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             item={item}
             onChangeExtraField={this.onChangeExtraField}
             formFields={formFields}
+            formId={formId}
           />
         </FlexContent>
       </>

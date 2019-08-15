@@ -18,6 +18,8 @@ export interface IGrowthHackParams extends IItemParams {
   hackDescription?: string;
   goal?: string;
   hackStage?: string;
+  formId?: string;
+  formFields?: any;
 }
 
 export interface IFormField {

@@ -86,10 +86,16 @@ const growthHacksRemove = `
 `;
 
 const growthHacksChange = `
-  mutation growthHacksChange($_id: String!, $destinationStageId: String!) {
-    growthHacksChange(_id: $_id, destinationStageId: $destinationStageId) {
+  mutation growthHacksChange($_id: String!, $destinationStageId: String!, $formFields: JSON) {
+    growthHacksChange(_id: $_id, destinationStageId: $destinationStageId, formFields: $formFields) {
       _id
     }
+  }
+`;
+
+const growthHacksSaveFormFields = `
+  mutation growthHacksSaveFormFields($_id: String!, $stageId: String!, $formFields: JSON!) {
+    growthHacksSaveFormFields(_id: $_id, stageId: $stageId, formFields: $formFields)
   }
 `;
 
@@ -116,5 +122,6 @@ export default {
   growthHacksRemove,
   growthHacksChange,
   growthHacksUpdateOrder,
-  growthHacksWatch
+  growthHacksWatch,
+  growthHacksSaveFormFields
 };
