@@ -20,7 +20,7 @@ const CurrentStage = styled.div`
 
   h4 {
     color: ${colors.colorCoreDarkGray};
-    margin: 5px 0 0;
+    margin: 2px 0 0;
     font-size: 16px;
   }
 `;
