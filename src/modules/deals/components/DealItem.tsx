@@ -6,9 +6,12 @@ import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
+import { IRouterProps } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
+import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
+import { withRouter } from 'react-router';
 import { IDeal } from '../types';
 
 type Props = {
@@ -21,12 +24,10 @@ type Props = {
   onUpdate: (item: IDeal) => void;
   onTogglePopup: () => void;
   options: IOptions;
-};
+  queryParams: any;
+} & IRouterProps;
 
-export default class DealItem extends React.PureComponent<
-  Props,
-  { isFormVisible: boolean }
-> {
+class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
   constructor(props) {
     super(props);
 
@@ -41,10 +42,24 @@ export default class DealItem extends React.PureComponent<
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
+  componentDidMount() {
+    const { queryParams, item } = this.props;
+
+    if (queryParams.dealId && queryParams.dealId === item._id) {
+      return this.setState({ isFormVisible: true });
+    }
+  }
+
   toggleForm = () => {
     this.props.onTogglePopup();
 
     const { isFormVisible } = this.state;
+
+    if (isFormVisible && this.props.queryParams.dealId) {
+      return this.setState({ isFormVisible: false }, () => {
+        routerUtils.removeParams(this.props.history, 'dealId');
+      });
+    }
 
     this.setState({ isFormVisible: !isFormVisible });
   };
@@ -145,3 +160,5 @@ export default class DealItem extends React.PureComponent<
     );
   }
 }
+
+export default withRouter<Props>(DealItem);

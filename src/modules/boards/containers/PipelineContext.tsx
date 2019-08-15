@@ -44,6 +44,7 @@ interface IStore {
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
+  queryParams: any;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -337,6 +338,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
   render() {
     const { itemMap, stageLoadMap, stageIds } = this.state;
+    const { queryParams } = this.props;
 
     return (
       <PipelineContext.Provider
@@ -350,7 +352,8 @@ export class PipelineProvider extends React.Component<Props, State> {
           onUpdateItem: this.onUpdateItem,
           itemMap,
           stageLoadMap,
-          stageIds
+          stageIds,
+          queryParams
         }}
       >
         {this.props.children}
