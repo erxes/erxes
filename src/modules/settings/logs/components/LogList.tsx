@@ -1,6 +1,5 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
-import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyState from 'modules/common/components/EmptyState';
@@ -8,6 +7,7 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import Select from 'react-select-plus';
 import { FilterItem, FilterWrapper } from '../styles';
@@ -18,7 +18,7 @@ type Props = {
   history: any;
   queryParams: any;
   isLoading: boolean;
-  errorMessage?: string;
+  errorMessage: string;
 } & commonProps;
 
 type State = {
@@ -31,11 +31,21 @@ type State = {
 };
 
 type commonProps = {
-  users: IUser[];
   logs: ILog[];
   count: number;
   refetchQueries: any;
 };
+
+const actionOptions = [
+  { value: 'create', label: __('Create') },
+  { value: 'update', label: __('Update') },
+  { value: 'delete', label: __('Delete') }
+];
+
+const breadcrumb = [
+  { title: 'Settings', link: '/settings' },
+  { title: __('Logs') }
+];
 
 class LogList extends React.Component<Props, State> {
   constructor(props) {
@@ -48,8 +58,6 @@ class LogList extends React.Component<Props, State> {
       userId: ''
     };
 
-    this.onClick = this.onClick.bind(this);
-
     this.state = {
       start: qp.start,
       end: qp.end,
@@ -58,9 +66,19 @@ class LogList extends React.Component<Props, State> {
     };
   }
 
-  setFilter(name: string, item: { value: string; label?: string }) {
+  setFilter(
+    name: string,
+    selectedItem: string & { value: string; label?: string }
+  ) {
+    const value =
+      typeof selectedItem === 'string'
+        ? selectedItem
+        : selectedItem
+        ? selectedItem.value
+        : '';
+
     this.setState({
-      [name]: item ? item.value : '',
+      [name]: value,
       page: '',
       perPage: ''
     });
@@ -79,7 +97,7 @@ class LogList extends React.Component<Props, State> {
     this.setState(filter);
   }
 
-  onClick() {
+  onClick = () => {
     const { history } = this.props;
     const { start, end, action, userId } = this.state;
 
@@ -89,7 +107,7 @@ class LogList extends React.Component<Props, State> {
       action,
       userId
     });
-  }
+  };
 
   renderObjects() {
     const { logs } = this.props;
@@ -100,7 +118,7 @@ class LogList extends React.Component<Props, State> {
     }
 
     for (const log of logs) {
-      rows.push(<LogRow log={log} key={log._id} />);
+      rows.push(<LogRow key={log._id} log={log} />);
     }
 
     return rows;
@@ -124,41 +142,38 @@ class LogList extends React.Component<Props, State> {
     );
   }
 
+  renderDateFilter = (name: string) => {
+    const props = {
+      value: this.state[name],
+      onChange: this.onDateChange.bind(this, name),
+      inputProps: {
+        placeholder: `${__(`Choose ${name} date`)}`
+      }
+    };
+
+    return (
+      <FilterItem>
+        <Datetime
+          {...props}
+          dateFormat="YYYY/MM/DD"
+          timeFormat="HH:mm"
+          closeOnSelect={true}
+        />
+      </FilterItem>
+    );
+  };
+
   renderActionBar() {
-    const { users } = this.props;
-    const { start, end, action, userId } = this.state;
-    const actionOptions = [
-      { value: 'create', label: __('Create') },
-      { value: 'update', label: __('Update') },
-      { value: 'delete', label: __('Delete') }
-    ];
-    const userOptions = users.map(user => ({
-      value: user._id,
-      label: user.email
-    }));
+    const { action, userId } = this.state;
+
+    const onUserChange = user => {
+      this.setFilter('userId', user);
+    };
 
     const actionBarLeft = (
       <FilterWrapper>
-        <FilterItem>
-          <Datetime
-            dateFormat="YYYY/MM/DD"
-            timeFormat="HH:mm"
-            value={start}
-            closeOnSelect={true}
-            onChange={this.onDateChange.bind(this, 'start')}
-            inputProps={{ placeholder: `${__('Choose start date')}` }}
-          />
-        </FilterItem>
-        <FilterItem>
-          <Datetime
-            dateFormat="YYYY/MM/DD"
-            timeFormat="HH:mm"
-            value={end}
-            closeOnSelect={true}
-            onChange={this.onDateChange.bind(this, 'end')}
-            inputProps={{ placeholder: `${__('Choose end date')}` }}
-          />
-        </FilterItem>
+        {this.renderDateFilter('start')}
+        {this.renderDateFilter('end')}
         <FilterItem>
           <Select
             placeholder={__('Choose action')}
@@ -168,11 +183,13 @@ class LogList extends React.Component<Props, State> {
           />
         </FilterItem>
         <FilterItem>
-          <Select
-            placeholder={__('Choose user')}
-            options={userOptions}
-            onChange={this.setFilter.bind(this, 'userId')}
-            value={userId}
+          <SelectTeamMembers
+            label="Choose users"
+            name="userId"
+            value={userId || ''}
+            onSelect={onUserChange}
+            filterParams={{ status: 'verified' }}
+            multi={false}
           />
         </FilterItem>
         <Button
@@ -191,36 +208,28 @@ class LogList extends React.Component<Props, State> {
 
   render() {
     const { isLoading, count, errorMessage } = this.props;
-    const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: __('Logs') }
-    ];
-    const emptyImage = '/images/actions/21.svg';
-    let actionBar = this.renderActionBar();
-    let footer = <Pagination count={count} />;
-    let emptyMessage = __('There are no logs recorded');
-    let data = this.renderContent();
 
-    // show EmptyState when viewLogs permission is not granted
-    if (errorMessage && errorMessage.indexOf('Permission required') !== -1) {
-      actionBar = <div />;
-      footer = <div />;
-      emptyMessage = __('Permission denied');
-      data = <EmptyState text={emptyMessage} image={emptyImage} />;
+    if (errorMessage.indexOf('Permission required') !== -1) {
+      return (
+        <EmptyState
+          text={__('Permission denied')}
+          image="/images/actions/21.svg"
+        />
+      );
     }
 
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Logs')} breadcrumb={breadcrumb} />}
-        actionBar={actionBar}
-        footer={footer}
+        actionBar={this.renderActionBar()}
+        footer={<Pagination count={count} />}
         content={
           <DataWithLoader
-            data={data}
+            data={this.renderContent()}
             loading={isLoading}
             count={count}
-            emptyText={emptyMessage}
-            emptyImage={emptyImage}
+            emptyText={__('There are no logs recorded')}
+            emptyImage="/images/actions/21.svg"
           />
         }
       />

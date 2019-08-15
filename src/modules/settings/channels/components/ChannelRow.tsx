@@ -27,7 +27,7 @@ class ChannelRow extends React.Component<Props, {}> {
   };
 
   renderEditAction = () => {
-    const { channel, members, renderButton } = this.props;
+    const { channel, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -38,12 +38,7 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm
-        {...props}
-        members={members}
-        channel={channel}
-        renderButton={renderButton}
-      />
+      <ChannelForm {...props} channel={channel} renderButton={renderButton} />
     );
 
     return (
