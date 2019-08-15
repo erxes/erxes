@@ -32,15 +32,15 @@ class TicketItem extends React.PureComponent<
   constructor(props) {
     super(props);
 
-    this.state = { isFormVisible: false };
-  }
+    let isFormVisible = false;
 
-  componentDidMount() {
-    const { queryParams, item } = this.props;
+    const { queryParams, item } = props;
 
     if (queryParams.itemId && queryParams.itemId === item._id) {
-      return this.setState({ isFormVisible: true });
+      isFormVisible = true;
     }
+
+    this.state = { isFormVisible };
   }
 
   renderDate(date) {

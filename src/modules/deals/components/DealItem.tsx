@@ -31,7 +31,15 @@ class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
   constructor(props) {
     super(props);
 
-    this.state = { isFormVisible: false };
+    let isFormVisible = false;
+
+    const { queryParams, item } = props;
+
+    if (queryParams.itemId && queryParams.itemId === item._id) {
+      isFormVisible = true;
+    }
+
+    this.state = { isFormVisible };
   }
 
   renderDate(date) {
@@ -40,14 +48,6 @@ class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
     }
 
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
-  }
-
-  componentDidMount() {
-    const { queryParams, item } = this.props;
-
-    if (queryParams.itemId && queryParams.itemId === item._id) {
-      return this.setState({ isFormVisible: true });
-    }
   }
 
   toggleForm = (itemId?: string) => {

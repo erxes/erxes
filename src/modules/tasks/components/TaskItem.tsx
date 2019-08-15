@@ -30,15 +30,15 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
   constructor(props) {
     super(props);
 
-    this.state = { isFormVisible: false };
-  }
+    let isFormVisible = false;
 
-  componentDidMount() {
-    const { queryParams, item } = this.props;
+    const { queryParams, item } = props;
 
     if (queryParams.itemId && queryParams.itemId === item._id) {
-      return this.setState({ isFormVisible: true });
+      isFormVisible = true;
     }
+
+    this.state = { isFormVisible };
   }
 
   renderDate(date) {
@@ -57,7 +57,7 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
 
     this.setState({ isFormVisible: !isFormVisible }, () => {
       if (queryParams.itemId) {
-        return routerUtils.removeParams(this.props.history, 'taskId');
+        return routerUtils.removeParams(this.props.history, 'itemId');
       }
 
       return routerUtils.setParams(this.props.history, { itemId });
