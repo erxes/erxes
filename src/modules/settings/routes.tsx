@@ -5,7 +5,6 @@ import BrandsRoutes from './brands/routes';
 import ChannelsRoutes from './channels/routes';
 import EmailRoutes from './email/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
-import EngageRoutes from './engages/routes';
 import General from './general/routes';
 import ImportHistory from './importHistory/routes';
 import IntegrationsRoutes from './integrations/routes';
@@ -28,7 +27,6 @@ const routes = () => (
     <ResponseTemplatesRoutes key="ResponseTemplatesRoutes" />
     <ProfileRoutes key="profile" />
     <TeamRoutes key="team" />
-    <EngageRoutes key="EngagesRoute" />
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
     <EmailRoutes key="EmailRoutes" />
     <ScriptsRoutes key="ScriptsRoutes" />
