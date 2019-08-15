@@ -86,8 +86,8 @@ const growthHacksRemove = `
 `;
 
 const growthHacksChange = `
-  mutation growthHacksChange($_id: String!, $destinationStageId: String!, $formFields: JSON) {
-    growthHacksChange(_id: $_id, destinationStageId: $destinationStageId, formFields: $formFields) {
+  mutation growthHacksChange($_id: String!, $destinationStageId: String!) {
+    growthHacksChange(_id: $_id, destinationStageId: $destinationStageId) {
       _id
     }
   }
