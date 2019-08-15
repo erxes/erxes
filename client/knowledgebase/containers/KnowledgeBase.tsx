@@ -19,7 +19,11 @@ const Topic = (props: ChildProps<{}, QueryResponse>) => {
     return null;
   }
 
-  const { color, languageCode } = data.knowledgeBaseTopicsDetail;
+  const {
+    color,
+    languageCode,
+    backgroundImage
+  } = data.knowledgeBaseTopicsDetail;
 
   // set language
   setLocale(languageCode);
@@ -29,7 +33,12 @@ const Topic = (props: ChildProps<{}, QueryResponse>) => {
       <AppConsumer>
         {({ activeRoute }) => {
           return (
-            <KnowledgeBase {...props} color={color} activeRoute={activeRoute} />
+            <KnowledgeBase
+              {...props}
+              color={color}
+              backgroundImage={backgroundImage}
+              activeRoute={activeRoute}
+            />
           );
         }}
       </AppConsumer>

@@ -1,7 +1,6 @@
 import T from "i18n-react";
 import * as moment from "moment";
 import "moment/locale/mn";
-import translation from "../locales";
 import { ENV, IBrowserInfo, IRule } from "./types";
 
 export const getBrowserInfo = async () => {
@@ -87,8 +86,12 @@ export const setMomentLocale = (code: string) => {
 };
 
 export const setLocale = (code?: string) => {
-  T.setTexts(translation[code || "en"]);
-  setMomentLocale(code || "en");
+  import(`../locales/${code}.json`)
+    .then(translations => {
+      T.setTexts(translations);
+      setMomentLocale(code || "en");
+    })
+    .catch(e => console.log(e)); // tslint:disable-line
 };
 
 export const __ = (msg: string) => {

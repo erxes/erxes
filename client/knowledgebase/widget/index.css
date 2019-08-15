@@ -3,6 +3,7 @@
   background: #fcfcfc;
   border-radius: 10px;
   position: relative;
+  overflow: hidden;
 }
 
 .erxes-knowledge-container-shoutbox {
@@ -20,7 +21,6 @@
   min-height: 100%;
   position: absolute;
 }
-
 
 @media only screen and (max-width: 420px) {
   #erxes-knowledge-container {

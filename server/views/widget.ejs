@@ -8,6 +8,12 @@
   <body>
     <script>
        window.erxesEnv = <%- env %>;
+
+       <% if (locals.kbTopicId) { %>
+        window.knowledgebaseSettings = {
+          topic_id: "<%- kbTopicId %>"
+        }
+       <% } %>
      </script>
 
     <div id="root">

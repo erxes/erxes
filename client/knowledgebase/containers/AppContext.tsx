@@ -1,5 +1,8 @@
+import gql from "graphql-tag";
 import * as React from "react";
+import client from "../../apollo-client";
 import { IKbArticle, IKbCategory } from "../types";
+import graphql from "./graphql";
 
 interface IState {
   activeRoute: string;
@@ -14,6 +17,7 @@ interface IStore extends IState {
   goToArticles: () => void;
   search: (value: string) => void;
   goToCategories: () => void;
+  incReactionCount: (articleId: string, reactionChoice: string) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -61,6 +65,16 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  incReactionCount = (articleId: string, reactionChoice: string) => {
+    client.mutate({
+      mutation: gql(graphql.incReactionCount),
+      variables: {
+        articleId,
+        reactionChoice
+      }
+    });
+  };
+
   search = (value: string) => {
     let activeRoute = "CATEGORIES";
 
@@ -80,6 +94,7 @@ export class AppProvider extends React.Component<{}, IState> {
           goToCategories: this.goToCategories,
           goToArticle: this.goToArticle,
           goToArticles: this.goToArticles,
+          incReactionCount: this.incReactionCount,
           search: this.search
         }}
       >

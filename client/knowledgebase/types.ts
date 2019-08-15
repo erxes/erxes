@@ -13,6 +13,7 @@ export interface IKbArticle extends ICommonFields {
   summary: string;
   content: string;
   status: string;
+  reactionChoices?: string[];
   author: IUser;
 }
 
@@ -35,6 +36,7 @@ export interface IKbTopic extends ICommonFields {
   brandId: string;
   categoryIds: string[];
   color: string;
+  backgroundImage: string;
   languageCode?: string;
 
   categories: IKbCategory[];

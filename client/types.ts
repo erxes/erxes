@@ -144,32 +144,6 @@ export interface IIntegration {
   facebookData: IIntegrationFacebookData;
   uiOptions: IIntegrationUiOptions;
 }
-
-export interface IDealProductInput {
-  productName: string;
-  uom: string;
-  currency: string;
-  quantity: number;
-  unitPrice: number;
-  taxPercent?: number;
-  tax?: number;
-  discountPercent?: number;
-  discount?: number;
-  amount?: number;
-}
-
-export interface IDealInput {
-  name: string;
-  boardName: string;
-  pipelineName: string;
-  stageName: string;
-  userEmail: string;
-  companyIds?: string[];
-  customerEmail?: string;
-  description?: string;
-  productsData: IDealProductInput;
-}
-
 export interface IRule {
   _id: string;
   kind?: string;
