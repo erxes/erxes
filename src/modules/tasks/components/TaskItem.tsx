@@ -7,7 +7,6 @@ import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { IRouterProps } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
-import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { withRouter } from 'react-router';
@@ -16,6 +15,7 @@ import { ITask } from '../types';
 type Props = {
   stageId: string;
   item: ITask;
+  isFormVisible: boolean;
   isDragging: boolean;
   provided;
   onAdd: (stageId: string, item: ITask) => void;
@@ -26,21 +26,7 @@ type Props = {
   queryParams: any;
 } & IRouterProps;
 
-class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
-  constructor(props) {
-    super(props);
-
-    let isFormVisible = false;
-
-    const { queryParams, item } = props;
-
-    if (queryParams.itemId && queryParams.itemId === item._id) {
-      isFormVisible = true;
-    }
-
-    this.state = { isFormVisible };
-  }
-
+class TaskItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
     if (!date) {
       return null;
@@ -49,31 +35,24 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = (itemId?: string) => {
-    const { queryParams } = this.props;
-    this.props.onTogglePopup();
-
-    const { isFormVisible } = this.state;
-
-    this.setState({ isFormVisible: !isFormVisible }, () => {
-      if (queryParams.itemId) {
-        return routerUtils.removeParams(this.props.history, 'itemId');
-      }
-
-      return routerUtils.setParams(this.props.history, { itemId });
-    });
-  };
-
   renderForm = () => {
-    const { stageId, item, onAdd, onRemove, onUpdate, options } = this.props;
-    const { isFormVisible } = this.state;
+    const {
+      onTogglePopup,
+      isFormVisible,
+      stageId,
+      item,
+      onAdd,
+      onRemove,
+      onUpdate,
+      options
+    } = this.props;
 
     if (!isFormVisible) {
       return null;
     }
 
     return (
-      <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
+      <Modal bsSize="lg" show={true} onHide={onTogglePopup}>
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit task')}</Modal.Title>
         </Modal.Header>
@@ -85,7 +64,7 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
             onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}
-            closeModal={this.toggleForm}
+            closeModal={onTogglePopup}
           />
         </Modal.Body>
       </Modal>
@@ -93,7 +72,7 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
   };
 
   render() {
-    const { item, isDragging, provided } = this.props;
+    const { onTogglePopup, item, isDragging, provided } = this.props;
     const { customers, companies } = item;
 
     return (
@@ -103,7 +82,7 @@ class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm.bind(this, item._id)}>
+        <Content onClick={onTogglePopup}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}

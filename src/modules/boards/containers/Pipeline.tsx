@@ -66,6 +66,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
       options,
       queryParams
     } = this.props;
+
     const stagesCount = this.countStages(stageMap);
 
     if (stagesCount === 0) {
