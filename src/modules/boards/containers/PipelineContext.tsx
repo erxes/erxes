@@ -20,7 +20,7 @@ type Props = {
   initialItemMap?: IItemMap;
   options: IOptions;
   queryParams: IFilterParams;
-  getQueryParams: (queryParams: IFilterParams, args: any) => boolean;
+  queryParamsChanged: (queryParams: IFilterParams, args: any) => boolean;
 };
 
 type StageLoadMap = {
@@ -76,9 +76,9 @@ export class PipelineProvider extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { queryParams, getQueryParams } = this.props;
+    const { queryParams, queryParamsChanged } = this.props;
 
-    if (getQueryParams(queryParams, nextProps)) {
+    if (queryParamsChanged(queryParams, nextProps)) {
       const { stageIds } = this.state;
 
       PipelineProvider.tasks = [];

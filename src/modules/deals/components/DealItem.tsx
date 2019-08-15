@@ -14,6 +14,7 @@ import { IDeal } from '../types';
 type Props = {
   stageId: string;
   item: IDeal;
+  isFormVisible: boolean;
   isDragging: boolean;
   provided;
   onAdd: (stageId: string, item: IDeal) => void;
@@ -23,16 +24,7 @@ type Props = {
   options: IOptions;
 };
 
-export default class DealItem extends React.PureComponent<
-  Props,
-  { isFormVisible: boolean }
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = { isFormVisible: false };
-  }
-
+class DealItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
     if (!date) {
       return null;
@@ -41,17 +33,17 @@ export default class DealItem extends React.PureComponent<
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = () => {
-    this.props.onTogglePopup();
-
-    const { isFormVisible } = this.state;
-
-    this.setState({ isFormVisible: !isFormVisible });
-  };
-
   renderForm = () => {
-    const { stageId, item, onAdd, onRemove, onUpdate, options } = this.props;
-    const { isFormVisible } = this.state;
+    const {
+      onTogglePopup,
+      isFormVisible,
+      stageId,
+      item,
+      onAdd,
+      onRemove,
+      onUpdate,
+      options
+    } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -62,7 +54,7 @@ export default class DealItem extends React.PureComponent<
         enforceFocus={false}
         bsSize="lg"
         show={true}
-        onHide={this.toggleForm}
+        onHide={onTogglePopup}
       >
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit deal')}</Modal.Title>
@@ -75,7 +67,7 @@ export default class DealItem extends React.PureComponent<
             onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}
-            closeModal={this.toggleForm}
+            closeModal={onTogglePopup}
           />
         </Modal.Body>
       </Modal>
@@ -83,7 +75,7 @@ export default class DealItem extends React.PureComponent<
   };
 
   render() {
-    const { item, isDragging, provided } = this.props;
+    const { item, isDragging, provided, onTogglePopup } = this.props;
     const products = (item.products || []).map(p => p.product);
     const { customers, companies } = item;
 
@@ -94,7 +86,7 @@ export default class DealItem extends React.PureComponent<
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
+        <Content onClick={onTogglePopup}>
           <h5>{item.name}</h5>
 
           {products.map((product, index) => (
@@ -145,3 +137,5 @@ export default class DealItem extends React.PureComponent<
     );
   }
 }
+
+export default DealItem;
