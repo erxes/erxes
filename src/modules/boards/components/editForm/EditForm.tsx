@@ -57,7 +57,6 @@ class EditForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    // this.setState({ [name]: value } as Pick<State, keyof State>);
     switch (name) {
       case 'companies':
         const companyIds = (value as ICompany[]).map(company => company._id);
