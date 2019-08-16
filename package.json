@@ -1,6 +1,6 @@
 {
   "name": "erxes-integrations",
-  "version": "0.9.17",
+  "version": "0.10.0",
   "description": "erxes integrations",
   "homepage": "https://erxes.io",
   "repository": {
@@ -68,7 +68,7 @@
     "jest": "22.0.4",
     "lint-staged": "^3.6.0",
     "prettier": "^1.13.7",
-    "release-it": "^12.3.3",
+    "release-it": "^12.3.5",
     "ts-jest": "22.0.4",
     "ts-node": "^7.0.0",
     "ts-node-dev": "^1.0.0-pre.32",
