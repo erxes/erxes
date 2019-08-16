@@ -1,15 +1,15 @@
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import Fields from 'modules/common/components/form/Fields';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import ActionBar from 'modules/layout/components/ActionBar';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormPreview from './preview/FormPreview';
-import { Field, FieldSection, FlexColumn, FlexItem } from './style';
+import { FlexColumn, FlexItem, Title } from './style';
 
 type Props = {
   type: string;
@@ -362,13 +362,18 @@ class FormStep extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <h4>New field</h4>
-        <div>
-          <Field>
-            <Icon icon="checked-1" />
-            <span>Text Input</span>
-          </Field>
-        </div>
+        <Title>New field</Title>
+        <Fields>
+          <option value="input">{__('Input')}</option>
+          <option value="textarea">{__('Text area')}</option>
+          <option value="select">{__('Select')}</option>
+          <option value="check">{__('Checkbox')}</option>
+          <option value="radio">{__('Radio button')}</option>
+          <option value="phone">{__('Phone')}</option>
+          <option value="email">{__('Email')}</option>
+          <option value="firstName">{__('First name')}</option>
+          <option value="lastName">{__('Last name')}</option>
+        </Fields>
       </>
     );
   };

@@ -287,6 +287,39 @@ const FlexWrapper = styled.span`
   flex: 1;
 `;
 
+const Field = styledTS<{ isGreyBg?: boolean }>(styled.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 40%;
+  height: 100px;
+  float: left;
+  background: ${props =>
+    props.isGreyBg ? colors.bgActive : colors.colorWhite};
+  margin: 0 20px 20px 0px;
+  padding: 20px;
+  border-radius: 2px;
+  transition: all ease 0.5s;
+  box-shadow: 0 5px 15px rgba(0,0,0,.08);
+
+  > span {
+    margin-top: 10px;
+    color: #666;
+  }
+
+  &:hover {
+    cursor: pointer;
+    box-shadow: 0 3px 17px rgba(0,0,0,.08), 0 4px 10px rgba(0,0,0,.08);
+  }
+`;
+
+const Options = styled.div`
+  display: inline-block;
+  width: 100%;
+  margin-top: 10px;
+`;
+
 export {
   Input,
   SelectWrapper,
@@ -297,6 +330,8 @@ export {
   FormLabel,
   Label,
   Formgroup,
+  Field,
   Error,
+  Options,
   FlexWrapper
 };

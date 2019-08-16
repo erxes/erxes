@@ -257,12 +257,9 @@ const ColorList = styled.ul`
   padding: 0;
 `;
 
-const FieldSection = styled.div``;
-
-const Field = styled.div`
-  width: 50%;
-  height: 200px;
-  background: ${colors.bgLight};
+const Title = styled.h4`
+  font-size: 16px;
+  margin-top: 40px;
 `;
 
 export {
@@ -277,8 +274,7 @@ export {
   CarouselSteps,
   MarkdownWrapper,
   Tabs,
-  FieldSection,
-  Field,
+  Title,
   CarouselInner,
   FullPreview,
   ImageUpload,
