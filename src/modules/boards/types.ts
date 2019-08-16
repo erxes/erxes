@@ -191,6 +191,7 @@ export type DetailQueryResponse = {
 };
 
 export interface IFilterParams {
+  itemId?: string;
   search?: string;
   customerIds?: string;
   companyIds?: string;
