@@ -1,5 +1,6 @@
 import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
+import SortableList from 'modules/common/components/SortableList';
 import React from 'react';
 import { StageList } from '../styles';
 import { IOption } from '../types';
@@ -59,17 +60,24 @@ class Stages extends React.Component<Props, {}> {
     const { options } = this.props;
     const Item = options ? options.StageItem : StageItem;
 
+    const child = stage => (
+      <Item
+        stage={stage}
+        onChange={this.onChange}
+        remove={this.remove}
+        onKeyPress={this.onStageInputKeyPress}
+      />
+    );
+
     return (
       <StageList>
-        {this.props.stages.map((stage: IStage) => (
-          <Item
-            key={stage._id}
-            stage={stage}
-            onChange={this.onChange}
-            remove={this.remove}
-            onKeyPress={this.onStageInputKeyPress}
-          />
-        ))}
+        <SortableList
+          fields={this.props.stages}
+          child={child}
+          onChangeFields={this.props.onChangeStages}
+          isModal={true}
+        />
+
         <Button onClick={this.add} btnStyle="success" size="small" icon="add">
           Add stage
         </Button>

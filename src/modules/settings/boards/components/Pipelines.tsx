@@ -3,7 +3,6 @@ import { collectOrders } from 'modules/boards/utils';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
-import SortableList from 'modules/common/components/SortableList';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -84,31 +83,19 @@ class Pipelines extends React.Component<Props, State> {
 
   renderRows() {
     const { renderButton, type, options } = this.props;
-
-    const child = pipeline => {
-      return (
-        <PipelineRow
-          key={pipeline._id}
-          pipeline={pipeline}
-          renderButton={renderButton}
-          remove={this.props.remove}
-          type={type}
-          options={options}
-          onTogglePopup={this.onTogglePopup}
-        />
-      );
-    };
-
     const { pipelines } = this.state;
 
-    return (
-      <SortableList
-        fields={pipelines}
-        child={child}
-        onChangeFields={this.onChangePipelines}
-        isDragDisabled={this.state.isDragDisabled}
+    return pipelines.map(pipeline => (
+      <PipelineRow
+        key={pipeline._id}
+        pipeline={pipeline}
+        renderButton={renderButton}
+        remove={this.props.remove}
+        type={type}
+        options={options}
+        onTogglePopup={this.onTogglePopup}
       />
-    );
+    ));
   }
 
   renderContent() {

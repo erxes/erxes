@@ -47,6 +47,8 @@ const PipelineRowContainer = styled.div`
   display: flex;
   justify-content: space-between;
   flex: 1;
+  border-top: 1px solid rgb(238, 238, 238);
+  padding: 10px 20px;
 `;
 
 const StageList = styled.div`
@@ -57,8 +59,8 @@ const StageList = styled.div`
 
 const StageItemContainer = styled(PipelineRowContainer)`
   background-color: #fff;
-  margin-bottom: 10px;
-  padding: 5px 20px 10px;
+  padding: 0;
+  border-top: 0;
   align-items: center;
 
   > *:not(button) {

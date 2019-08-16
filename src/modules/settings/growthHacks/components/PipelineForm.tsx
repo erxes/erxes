@@ -29,7 +29,7 @@ class GrowthHackPipelineForm extends React.Component<Props, State> {
     const { pipeline } = this.props;
 
     this.state = {
-      hackScoringType: pipeline ? pipeline.hackScoringType : ''
+      hackScoringType: pipeline ? pipeline.hackScoringType : 'ice'
     };
   }
 
