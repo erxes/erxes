@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from '../Icon';
+import ModalTrigger from '../ModalTrigger';
 import { Field, Options } from './styles';
 
 type Props = {
@@ -40,6 +41,25 @@ class FormFields extends React.Component<Props> {
     return <Icon icon={icon} size={25} />;
   }
 
+  renderContent(option) {
+    const trigger = (
+      <Field isGreyBg={true}>
+        {this.renderIcon(option.value)}
+        <span>{option.children}</span>
+      </Field>
+    );
+
+    const content = props => <div {...props}>{option.children}</div>;
+
+    return (
+      <ModalTrigger
+        title="Add form field"
+        trigger={trigger}
+        content={content}
+      />
+    );
+  }
+
   render() {
     const { children } = this.props;
 
@@ -50,12 +70,7 @@ class FormFields extends React.Component<Props> {
     return (
       <Options>
         {children.map((option, index) => (
-          <div key={index}>
-            <Field isGreyBg={true}>
-              {this.renderIcon(option.props.value)}
-              <span>{option.props.children}</span>
-            </Field>
-          </div>
+          <div key={index}>{this.renderContent(option.props)}</div>
         ))}
       </Options>
     );

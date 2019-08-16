@@ -260,6 +260,7 @@ const ColorList = styled.ul`
 const Title = styled.h4`
   font-size: 16px;
   margin-top: 40px;
+  font-weight: 400;
 `;
 
 export {
