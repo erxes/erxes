@@ -16,8 +16,8 @@ import CustomerChooser from '../../containers/CustomerChooser';
 type Props = {
   name: string;
   customers: ICustomer[];
-  itemId?: string;
-  itemKind?: string;
+  mainType?: string;
+  mainTypeId?: string;
   onSelect: (customers: ICustomer[]) => void;
   isOpen?: boolean;
 };
@@ -25,8 +25,8 @@ type Props = {
 function CustomerSection({
   name,
   customers = [],
-  itemId = '',
-  itemKind = '',
+  mainType = '',
+  mainTypeId = '',
   onSelect,
   isOpen
 }: Props) {
@@ -48,7 +48,7 @@ function CustomerSection({
     return (
       <CustomerChooser
         {...props}
-        data={{ name, customers, itemId, itemKind }}
+        data={{ name, customers, mainTypeId, mainType }}
         onSelect={onSelect}
       />
     );
@@ -89,7 +89,7 @@ function CustomerSection({
         {customersObj.length === 0 && (
           <EmptyState icon="user-5" text="No customer" />
         )}
-        {itemId && itemKind && relQuickButtons}
+        {mainTypeId && mainType && relQuickButtons}
       </SectionBody>
     );
   };

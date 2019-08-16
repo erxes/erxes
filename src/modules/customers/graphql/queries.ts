@@ -73,8 +73,8 @@ const listParamsDef = `
   $lifecycleState: String,
   $sortField: String,
   $sortDirection: Int,
-  $itemId: String
-  $itemKind: String
+  $mainType: String
+  $mainTypeId: String
 `;
 
 const listParamsValue = `
@@ -94,8 +94,8 @@ const listParamsValue = `
   lifecycleState: $lifecycleState,
   sortField: $sortField,
   sortDirection: $sortDirection,
-  itemId: $itemId
-  itemKind: $itemKind
+  mainType: $mainType
+  mainTypeId: $mainTypeId
 `;
 
 const customers = `

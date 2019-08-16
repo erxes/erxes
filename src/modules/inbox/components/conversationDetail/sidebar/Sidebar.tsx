@@ -344,7 +344,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           toggle={toggleSection}
         >
           <PortableDeals
-            customerIds={[customer._id]}
+            mainType="customer"
+            mainTypeIds={[customer._id]}
             isOpen={config.showDeals}
           />
         </Box>
@@ -355,7 +356,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           toggle={toggleSection}
         >
           <PortableTickets
-            customerIds={[customer._id]}
+            mainType="customer"
+            mainTypeIds={[customer._id]}
             isOpen={config.showTickets}
           />
         </Box>
@@ -366,7 +368,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           toggle={toggleSection}
         >
           <PortableTasks
-            customerIds={[customer._id]}
+            mainType="customer"
+            mainTypeIds={[customer._id]}
             isOpen={config.showTasks}
           />
         </Box>
@@ -448,8 +451,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           <CompanySection
             name={'Customer'}
             companies={customer.companies}
-            itemId={customer._id}
-            itemKind={'company'}
+            mainType={'company'}
+            mainTypeId={customer._id}
             onSelect={cmpsChange}
           />
         </Box>

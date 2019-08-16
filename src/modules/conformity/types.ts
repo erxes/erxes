@@ -1,6 +1,6 @@
 export interface IConformityDoc {
   mainType?: string;
-  mainTypeId?: string;
+  mainTypeIds?: string[];
   relType?: string;
   relTypeId?: string;
 }

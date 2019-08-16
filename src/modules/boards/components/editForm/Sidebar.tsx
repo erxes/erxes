@@ -5,7 +5,10 @@ import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICompany } from 'modules/companies/types';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
 import { ICustomer } from 'modules/customers/types';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 import { Watch } from '../../containers/editForm/';
 import { RightContent } from '../../styles/item';
@@ -32,6 +35,27 @@ class Sidebar extends React.Component<Props> {
     if (onChangeField) {
       onChangeField(type, value);
     }
+  };
+
+  renderDeal = ({ type, id }: { type: string; id: string }) => {
+    if (type === 'deal') {
+      return '';
+    }
+    return <PortableDeals mainType={type} mainTypeIds={[id]} />;
+  };
+
+  renderTicket = ({ type, id }: { type: string; id: string }) => {
+    if (type === 'ticket') {
+      return '';
+    }
+    return <PortableTickets mainType={type} mainTypeIds={[id]} />;
+  };
+
+  renderTask = ({ type, id }: { type: string; id: string }) => {
+    if (type === 'task') {
+      return '';
+    }
+    return <PortableTasks mainType={type} mainTypeIds={[id]} />;
   };
 
   render() {
@@ -68,18 +92,22 @@ class Sidebar extends React.Component<Props> {
         <CompanySection
           name={options.title}
           companies={companies}
-          itemId={item._id}
-          itemKind={options.type === 'task' ? '' : options.type}
+          mainType={options.type}
+          mainTypeId={item._id}
           onSelect={cmpsChange}
         />
 
         <CustomerSection
           name={options.title}
           customers={customers}
-          itemId={item._id}
-          itemKind={options.type}
+          mainType={options.type}
+          mainTypeId={item._id}
           onSelect={cmrsChange}
         />
+
+        {this.renderDeal({ type: options.type, id: item._id })}
+        {this.renderTicket({ type: options.type, id: item._id })}
+        {this.renderTask({ type: options.type, id: item._id })}
 
         <Watch item={item} options={options} />
 

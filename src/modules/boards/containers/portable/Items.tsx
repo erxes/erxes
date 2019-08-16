@@ -7,9 +7,7 @@ import { IOptions, ItemsQueryResponse } from '../../types';
 
 type IProps = {
   mainType?: string;
-  mainTypeId?: string;
-  customerIds?: string[];
-  companyIds?: string[];
+  mainTypeIds?: string[];
   isOpen?: boolean;
   options: IOptions;
 };
@@ -26,7 +24,7 @@ class PortableItemsContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { itemsQuery, options, mainType, mainTypeId } = this.props;
+    const { itemsQuery, options, mainType, mainTypeIds } = this.props;
 
     if (!itemsQuery) {
       return null;
@@ -37,7 +35,7 @@ class PortableItemsContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       mainType,
-      mainTypeId,
+      mainTypeIds,
       items,
       onChangeItems: this.onChangeItems
     };
@@ -53,14 +51,15 @@ export default (props: IProps) =>
       graphql<
         IProps,
         ItemsQueryResponse,
-        { customerIds?: string[]; companyIds?: string[] }
+        { mainType?: string; mainTypeIds?: string[]; relType: string }
       >(gql(props.options.queries.itemsQuery), {
         name: 'itemsQuery',
-        skip: ({ customerIds, companyIds }) => !customerIds && !companyIds,
-        options: ({ customerIds, companyIds }) => ({
+        skip: ({ mainType, mainTypeIds }) => !mainType && !mainTypeIds,
+        options: ({ mainType, mainTypeIds, options }) => ({
           variables: {
-            customerIds,
-            companyIds
+            mainType,
+            mainTypeIds,
+            relType: options.type
           }
         })
       })

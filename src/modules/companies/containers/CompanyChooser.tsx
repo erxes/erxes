@@ -17,8 +17,8 @@ type Props = {
   search: (value: string, loadMore?: boolean) => void;
   perPage: number;
   searchValue: string;
-  itemId?: string;
-  itemKind?: string;
+  mainTypeId?: string;
+  mainType?: string;
 };
 
 type FinalProps = {
@@ -57,7 +57,7 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
   };
 
   const datas =
-    data.itemId && data.itemKind
+    data.mainTypeId && data.mainType
       ? relatedCompaniesQuery.relatedCompanies
       : companiesQuery.companies;
 
@@ -67,8 +67,8 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
       _id: data._id,
       name: renderName(data),
       datas: data.companies,
-      itemId: data.itemId,
-      itemKind: data.itemKind
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType
     },
     search,
     clearState: () => search(''),
@@ -105,18 +105,18 @@ const WithQuery = withProps<Props>(
       {
         searchValue: string;
         perPage: number;
-        itemKind?: string;
-        itemId?: string;
+        mainType?: string;
+        mainTypeId?: string;
       }
     >(gql(queries.relatedCompanies), {
       name: 'relatedCompaniesQuery',
-      options: ({ searchValue, perPage, itemKind, itemId }) => {
+      options: ({ searchValue, perPage, mainType, mainTypeId }) => {
         return {
           variables: {
             searchValue,
             perPage,
-            itemKind,
-            itemId
+            mainType,
+            mainTypeId
           }
           // fetchPolicy: 'network-only'
         };
@@ -134,8 +134,8 @@ type WrapperProps = {
     _id?: string;
     name: string;
     companies: ICompany[];
-    itemId?: string;
-    itemKind?: string;
+    mainTypeId?: string;
+    mainType?: string;
   };
   onSelect: (datas: ICompany[]) => void;
   closeModal: () => void;
@@ -143,12 +143,17 @@ type WrapperProps = {
 
 export default class Wrapper extends React.Component<
   WrapperProps,
-  { perPage: number; searchValue: string; itemId?: string; itemKind?: string }
+  {
+    perPage: number;
+    searchValue: string;
+    mainTypeId?: string;
+    mainType?: string;
+  }
 > {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '', itemId: '', itemKind: '' };
+    this.state = { perPage: 20, searchValue: '', mainTypeId: '', mainType: '' };
   }
 
   search = (value, loadmore) => {
@@ -170,8 +175,8 @@ export default class Wrapper extends React.Component<
         search={this.search}
         searchValue={searchValue}
         perPage={perPage}
-        itemId={this.props.data.itemId}
-        itemKind={this.props.data.itemKind}
+        mainTypeId={this.props.data.mainTypeId}
+        mainType={this.props.data.mainType}
       />
     );
   }

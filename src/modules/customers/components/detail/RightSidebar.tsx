@@ -88,25 +88,13 @@ export default class RightSidebar extends React.Component<Props, State> {
         <CompanySection
           name={'Customer'}
           companies={customer.companies}
-          itemId={customer._id}
-          itemKind={'company'}
+          mainType={'company'}
+          mainTypeId={customer._id}
           onSelect={cmpsChange}
         />
-        <PortableDeals
-          customerIds={[customer._id]}
-          mainType="customer"
-          mainTypeId={customer._id}
-        />
-        <PortableTickets
-          customerIds={[customer._id]}
-          mainType="customer"
-          mainTypeId={customer._id}
-        />
-        <PortableTasks
-          customerIds={[customer._id]}
-          mainType="customer"
-          mainTypeId={customer._id}
-        />
+        <PortableDeals mainType="customer" mainTypeIds={[customer._id]} />
+        <PortableTickets mainType="customer" mainTypeIds={[customer._id]} />
+        <PortableTasks mainType="customer" mainTypeIds={[customer._id]} />
         {this.renderOther()}
       </Sidebar>
     );

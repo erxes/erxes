@@ -12,7 +12,7 @@ type Props = {
   options: IOptions;
   items: IItem[];
   mainType?: string;
-  mainTypeId?: string;
+  mainTypeIds?: string[];
   onChangeItems: () => void;
   isOpen?: boolean;
 };
@@ -43,7 +43,13 @@ class Items extends React.Component<Props> {
     const { Section } = Sidebar;
     const { Title, QuickButtons } = Section;
 
-    const { mainType, mainTypeId, isOpen, options, onChangeItems } = this.props;
+    const {
+      mainType,
+      mainTypeIds,
+      isOpen,
+      options,
+      onChangeItems
+    } = this.props;
 
     const trigger = (
       <button>
@@ -57,7 +63,7 @@ class Items extends React.Component<Props> {
         {...props}
         callback={onChangeItems}
         mainType={mainType}
-        mainTypeId={mainTypeId}
+        mainTypeIds={mainTypeIds}
         showSelect={true}
       />
     );

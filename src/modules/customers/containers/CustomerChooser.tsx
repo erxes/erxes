@@ -17,8 +17,8 @@ type Props = {
   search: (value: string, loadMore?: boolean) => void;
   searchValue: string;
   perPage: number;
-  itemId?: string;
-  itemKind?: string;
+  mainType?: string;
+  mainTypeId?: string;
 };
 
 type FinalProps = {
@@ -54,7 +54,7 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
   };
 
   const datas =
-    data.itemId && data.itemKind
+    data.mainTypeId && data.mainType
       ? relatedCustomersQuery.relatedCustomers
       : customersQuery.customers;
 
@@ -102,18 +102,18 @@ const WithQuery = withProps<Props>(
       {
         searchValue: string;
         perPage: number;
-        itemId?: string;
-        itemKind?: string;
+        mainTypeId?: string;
+        mainType?: string;
       }
     >(gql(queries.relatedCustomers), {
       name: 'relatedCustomersQuery',
-      options: ({ searchValue, perPage, itemId, itemKind }) => {
+      options: ({ searchValue, perPage, mainTypeId, mainType }) => {
         return {
           variables: {
             searchValue,
             perPage,
-            itemId,
-            itemKind
+            mainTypeId,
+            mainType
           }
         };
       }
@@ -133,8 +133,8 @@ type WrapperProps = {
     _id?: string;
     name: string;
     customers: ICustomer[];
-    itemId?: string;
-    itemKind?: string;
+    mainTypeId?: string;
+    mainType?: string;
   };
   onSelect: (datas: ICustomer[]) => void;
   closeModal: () => void;
@@ -142,12 +142,17 @@ type WrapperProps = {
 
 export default class Wrapper extends React.Component<
   WrapperProps,
-  { perPage: number; searchValue: string; itemId?: string; itemKind?: string }
+  {
+    perPage: number;
+    searchValue: string;
+    mainTypeId?: string;
+    mainType?: string;
+  }
 > {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '', itemId: '', itemKind: '' };
+    this.state = { perPage: 20, searchValue: '', mainTypeId: '', mainType: '' };
   }
 
   search = (value, loadmore) => {
@@ -169,8 +174,8 @@ export default class Wrapper extends React.Component<
         search={this.search}
         searchValue={searchValue}
         perPage={perPage}
-        itemId={this.props.data.itemId}
-        itemKind={this.props.data.itemKind}
+        mainTypeId={this.props.data.mainTypeId}
+        mainType={this.props.data.mainType}
       />
     );
   }

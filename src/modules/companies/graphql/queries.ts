@@ -60,8 +60,8 @@ const listParamsDef = `
   $brand: String
   $sortField: String
   $sortDirection: Int
-  $itemId: String
-  $itemKind: String
+  $mainType: String
+  $mainTypeId: String
 `;
 
 const listParamsValue = `
@@ -76,8 +76,8 @@ const listParamsValue = `
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection
-  itemId: $itemId
-  itemKind: $itemKind
+  mainType: $mainType
+  mainTypeId: $mainTypeId
 `;
 
 export const companies = `
