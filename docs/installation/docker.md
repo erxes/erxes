@@ -133,6 +133,7 @@ _Should not published to host machine network, only used internally_
 * erxes-logger will run on port 3800
 * redis server will run on port 6379
 * mongodb server will run on port 27017
+* rabbitmq server will run on port 5672
 
 _If these ports aren't available for you, you can always change it. But don't forget to change related ENV settings._
 
