@@ -17,6 +17,7 @@ title: Getting  Started
 - <a href="../installation/ubuntu">Installing on Ubuntu 16.04 LTS</a>
 - <a href="../installation/docker">Docker</a>
 - <a href="../installation/kubernetes">Kubernetes</a>
+- <a href="../installation/upgrade">Upgrade</a>
 
 ### User's Guide
 
