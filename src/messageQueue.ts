@@ -62,9 +62,11 @@ const initConsumer = async () => {
 
     await channel.assertQueue('erxes-api:run-integrations-cronjob');
 
-    channel.consume('erxes-api:run-integrations-cronjob', async () => {
-      await handleRunCronMessage();
-      channel.ack();
+    channel.consume('erxes-api:run-integrations-cronjob', async msg => {
+      if (msg) {
+        await handleRunCronMessage();
+        channel.ack(msg);
+      }
     });
   } catch (e) {
     debugBase(e.message);
