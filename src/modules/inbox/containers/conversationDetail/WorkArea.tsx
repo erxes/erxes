@@ -5,7 +5,7 @@ import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
-import { withProps } from '../../../common/utils';
+import { sendWebNotification, withProps } from '../../../common/utils';
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
@@ -107,6 +107,12 @@ class WorkArea extends React.Component<FinalProps, State> {
             ...prev,
             conversationMessages: [...messages, message]
           };
+
+          // send desktop notification
+          sendWebNotification({
+            title: 'You have a new message',
+            content: message.content || ''
+          });
 
           return next;
         }

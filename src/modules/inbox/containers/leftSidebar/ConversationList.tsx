@@ -1,6 +1,10 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
-import { router as routerUtils, withProps } from 'modules/common/utils';
+import {
+  router as routerUtils,
+  sendWebNotification,
+  withProps
+} from 'modules/common/utils';
 import ConversationList from 'modules/inbox/components/leftSidebar/ConversationList';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
@@ -48,6 +52,9 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
 
         conversationsQuery.refetch();
         totalCountQuery.refetch();
+
+        // send desktop notification
+        sendWebNotification({ title: 'You have a new message' });
       }
     });
   }
