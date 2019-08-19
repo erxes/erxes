@@ -7,4 +7,8 @@ export interface IContext {
   docModifier: <T>(doc: T) => any;
   brandIdSelector: {};
   commonQuerySelector: {};
+  dataSources: {
+    EngagesAPI: any;
+    IntegrationsAPI: any;
+  };
 }

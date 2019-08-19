@@ -1,7 +1,6 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams, IMessengerIntegration } from '../../../db/models/Integrations';
-import { IntegrationsAPI } from '../../dataSources';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
@@ -13,8 +12,6 @@ interface IEditMessengerIntegration extends IMessengerIntegration {
 interface IEditFormIntegration extends IIntegration {
   _id: string;
 }
-
-const integrationsApi = new IntegrationsAPI();
 
 const integrationMutations = {
   /**
@@ -91,11 +88,15 @@ const integrationMutations = {
   /*
    * Create external integrations like twitter, facebook, gmail etc ...
    */
-  async integrationsCreateExternalIntegration(_root, { data, ...doc }: IExternalIntegrationParams & { data: object }) {
+  async integrationsCreateExternalIntegration(
+    _root,
+    { data, ...doc }: IExternalIntegrationParams & { data: object },
+    { dataSources }: IContext,
+  ) {
     const integration = await Integrations.createExternalIntegration(doc);
 
     try {
-      await integrationsApi.createIntegration(doc.kind, {
+      await dataSources.IntegrationsAPI.createIntegration(doc.kind, {
         accountId: doc.accountId,
         integrationId: integration._id,
         data: data ? JSON.stringify(data) : '',
@@ -111,12 +112,12 @@ const integrationMutations = {
   /**
    * Delete an integration
    */
-  async integrationsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+  async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
     const integration = await Integrations.findOne({ _id });
 
     if (integration) {
       if (['facebook', 'gmail'].includes(integration.kind || '')) {
-        await integrationsApi.removeIntegration({ integrationId: _id });
+        await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
       }
 
       await putDeleteLog(
@@ -135,17 +136,17 @@ const integrationMutations = {
   /**
    * Delete an account
    */
-  async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
-    return integrationsApi.removeAccount({ _id });
+  async integrationsRemoveAccount(_root, { _id }: { _id: string }, { dataSources }: IContext) {
+    return dataSources.IntegrationsAPI.removeAccount({ _id });
   },
 
   /**
    * Send gmail
    */
-  async integrationSendMail(_root, args: any) {
+  async integrationSendMail(_root, args: any, { dataSources }: IContext) {
     const { erxesApiId, ...mailParams } = args;
 
-    return integrationsApi.sendEmail({
+    return dataSources.IntegrationsAPI.sendEmail({
       erxesApiId,
       data: JSON.stringify(mailParams),
     });

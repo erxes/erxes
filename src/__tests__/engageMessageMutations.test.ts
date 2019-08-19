@@ -28,6 +28,7 @@ import {
   Users,
 } from '../db/models';
 
+import { IntegrationsAPI } from '../data/dataSources';
 import { STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
 
@@ -140,7 +141,7 @@ describe('engage message mutation tests', () => {
       },
     };
 
-    context = { user: _user, dataSources: { EngagesAPI: new EngagesAPI() } };
+    context = { user: _user, dataSources: { EngagesAPI: new EngagesAPI(), IntegrationsAPI: new IntegrationsAPI() } };
 
     spy = jest.spyOn(engageUtils, 'send');
   });
