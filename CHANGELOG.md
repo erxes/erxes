@@ -1,3 +1,10 @@
+## [0.10.1](https://github.com/erxes/erxes-integrations/compare/0.10.0...0.10.1) (2019-08-19)
+
+
+### Bug Fixes
+
+* **broker:** invalid cron message acknowledgement ([e0b75e0](https://github.com/erxes/erxes-integrations/commit/e0b75e0)), closes [#6](https://github.com/erxes/erxes-integrations/issues/6)
+
 # [0.10.0](https://github.com/erxes/erxes-integrations/compare/0.9.17...0.10.0) (2019-08-15)
 
 
