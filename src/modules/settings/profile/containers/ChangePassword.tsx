@@ -19,12 +19,21 @@ const ChangePasswordContainer = (
       return Alert.error("Password didn't match");
     }
 
+    if (!currentPassword || currentPassword === 0) {
+      return Alert.error('Please enter a current password');
+    }
+
+    if (!newPassword || newPassword === 0) {
+      return Alert.error('Please enter a new password');
+    }
+
     changePasswordMutation({ variables: { currentPassword, newPassword } })
       .then(() => {
         Alert.success('Your password has been changed and updated');
+        props.closeModal();
       })
       .catch(error => {
-        Alert.success(error.message);
+        Alert.error(error.message);
       });
   };
 
