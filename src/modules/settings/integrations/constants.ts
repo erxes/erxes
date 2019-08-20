@@ -68,7 +68,8 @@ export const KIND_CHOICES = {
   FACEBOOK: 'facebook',
   GMAIL: 'gmail',
   FORM: 'form',
-  ALL_LIST: ['messenger', 'facebook', 'form']
+  CALLPRO: 'callpro',
+  ALL_LIST: ['messenger', 'facebook', 'form', 'callpro']
 };
 
 export const FORM_LOAD_TYPES = {
@@ -145,6 +146,14 @@ export const INTEGRATIONS = [
         kind: 'amazon-ses',
         logo: '/images/integrations/aws-ses.svg',
         createModal: 'sesconfig'
+      },
+      {
+        name: 'Call Pro',
+        description: 'Connect your call pro phone number',
+        inMessenger: false,
+        kind: 'callpro',
+        logo: '/images/integrations/callpro.png',
+        createModal: 'callpro'
       }
     ]
   },

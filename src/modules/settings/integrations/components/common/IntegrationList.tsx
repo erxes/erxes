@@ -34,6 +34,10 @@ class IntegrationList extends React.Component<Props> {
       return 'form';
     }
 
+    if (kind === KIND_CHOICES.CALLPRO) {
+      return 'callpro';
+    }
+
     return 'default';
   }
 
