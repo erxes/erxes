@@ -12,10 +12,10 @@ import { HACKSTAGES } from '../../constants';
 
 type Props = {
   item: IGrowthHack;
-  onChangeField: (name: 'priority' | 'hackStage', value: any) => void;
+  onChangeField: (name: 'priority', value: any) => void;
   closeDate: Date;
   priority: string;
-  hackStage: string;
+  hackStages: string[];
   dateOnChange: (date) => void;
   options: IOptions;
   copy: () => void;
@@ -29,7 +29,7 @@ class Actions extends React.Component<Props> {
       onChangeField,
       closeDate,
       priority,
-      hackStage,
+      hackStages,
       options,
       copy,
       remove,
@@ -38,8 +38,7 @@ class Actions extends React.Component<Props> {
 
     const priorityOnChange = (value: string) =>
       onChangeField('priority', value);
-    const hackStageOnChange = (value: string) =>
-      onChangeField('hackStage', value);
+    const hackStageOnChange = (value: string) => null;
 
     const onRemove = () => remove(item._id);
 
@@ -67,7 +66,7 @@ class Actions extends React.Component<Props> {
         />
         <SelectItem
           items={HACKSTAGES}
-          currentItem={hackStage}
+          currentItem={hackStages[0]}
           onChange={hackStageOnChange}
           trigger={hackStageTrigger}
         />

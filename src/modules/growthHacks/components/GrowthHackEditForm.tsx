@@ -29,7 +29,7 @@ type State = {
   formFields: JSON;
   formId: string;
   priority: string;
-  hackStage: string;
+  hackStages: string[];
   impact: number;
   ease: number;
   confidence: number;
@@ -47,7 +47,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
       goal: item.goal || '',
       formFields: item.formFields || {},
       priority: item.priority || '',
-      hackStage: item.hackStage || '',
+      hackStages: item.hackStages || [],
       formId: item.formId || '',
       impact: item.impact || 0,
       confidence: item.confidence || 0,
@@ -127,7 +127,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
-    const { formFields, priority, hackStage, formId } = this.state;
+    const { formFields, priority, hackStages, formId } = this.state;
 
     const { name, stageId, description, closeDate, attachments } = state;
 
@@ -153,7 +153,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           <LeftContainer>
             <Actions
               priority={priority}
-              hackStage={hackStage}
+              hackStages={hackStages}
               onChangeField={this.onChangeExtraField}
               closeDate={closeDate}
               dateOnChange={dateOnChange}

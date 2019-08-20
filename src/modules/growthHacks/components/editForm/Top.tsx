@@ -20,7 +20,7 @@ type Props = {
   stageId: string;
   users: IUser[];
   priority: string;
-  hackStage: string;
+  hackStages: string[];
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
   saveFormFields: (
     itemId: string,
@@ -54,16 +54,16 @@ class Top extends React.Component<Props> {
   }
 
   renderHackStage() {
-    const { hackStage } = this.props;
+    const { hackStages } = this.props;
 
-    if (!hackStage) {
+    if (hackStages.length === 0) {
       return null;
     }
 
     return (
       <ColorButton color="#666">
-        <PriorityIndicator value={hackStage} />
-        {hackStage}
+        <PriorityIndicator value={hackStages[0]} />
+        {hackStages[0]}
       </ColorButton>
     );
   }
