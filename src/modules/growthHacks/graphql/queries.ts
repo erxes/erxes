@@ -43,7 +43,7 @@ const growthHackFields = `
   closeDate
   description
   hackDescription
-  hackStage
+  hackStages
   priority
   goal
   assignedUsers {

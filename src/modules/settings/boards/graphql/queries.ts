@@ -25,6 +25,8 @@ const pipelines = `
       visibility
       memberIds
       bgColor
+      hackScoringType
+      templateId
     }
   }
 `;

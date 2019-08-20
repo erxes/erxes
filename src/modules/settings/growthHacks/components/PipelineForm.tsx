@@ -113,7 +113,12 @@ class PipelineForm extends React.Component<Props, State> {
     visibility: string;
   }) => {
     const { pipeline, type, boardId } = this.props;
-    const { selectedMemberIds, stages, backgroundColor } = this.state;
+    const {
+      selectedMemberIds,
+      stages,
+      backgroundColor,
+      templateId
+    } = this.state;
     const finalValues = values;
 
     if (pipeline) {
@@ -126,7 +131,8 @@ class PipelineForm extends React.Component<Props, State> {
       boardId: pipeline ? pipeline.boardId : boardId,
       stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
-      bgColor: backgroundColor
+      bgColor: backgroundColor,
+      templateId
     };
   };
 
