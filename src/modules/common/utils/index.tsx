@@ -238,12 +238,12 @@ export const sendWebNotification = (doc: {
   title: string;
   content?: string;
 }) => {
-  // Don't send notification to itself
-  if (!window.document.hidden) {
-    return;
-  }
-
   const notify = () => {
+    // Don't send notification to itself
+    if (!window.document.hidden) {
+      return;
+    }
+
     const notification = new Notification(doc.title, {
       body: doc.content,
       icon: '/favicon.png',
