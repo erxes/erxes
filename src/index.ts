@@ -24,6 +24,10 @@ const app = express();
 const rawBodySaver = (req, _res, buf, encoding) => {
   if (buf && buf.length) {
     req.rawBody = buf.toString(encoding || 'utf8');
+
+    if (req.headers.fromcore === 'true') {
+      req.rawBody = req.rawBody.replace(/\//g, '\\/');
+    }
   }
 };
 
