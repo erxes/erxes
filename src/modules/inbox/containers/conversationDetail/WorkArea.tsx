@@ -1,6 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
+import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -73,12 +74,12 @@ class WorkArea extends React.Component<FinalProps, State> {
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
           const message = subscriptionData.data.conversationMessageInserted;
+          const kind = currentConversation.integration.kind;
 
           // current user's message is being showed after insert message
           // mutation. So to prevent from duplication we are ignoring current
           // user's messages from subscription
-          const isMessenger =
-            currentConversation.integration.kind === 'messenger';
+          const isMessenger = kind === 'messenger';
 
           if (isMessenger && message.userId === currentUser._id) {
             return;
@@ -110,7 +111,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
           // send desktop notification
           sendWebNotification({
-            title: 'You have a new message',
+            title: NOTIFICATION_TYPE[kind],
             content: message.content || ''
           });
 
