@@ -85,6 +85,5 @@ export type IOption = {
   boardName: string;
   pipelineName: string;
   StageItem: any;
-  TemplateButton: any;
   PipelineForm: any;
 };

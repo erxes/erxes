@@ -121,28 +121,22 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderButton() {
-    const { options, boardId, refetch } = this.props;
+    const { options, boardId } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
-    const TemplateButton = options ? options.TemplateButton : null;
 
     if (!boardId) {
       return null;
     }
 
     return (
-      <>
-        <Button
-          btnStyle="success"
-          size="small"
-          icon="add"
-          onClick={this.addPipeline}
-        >
-          Add {pipelineName}
-        </Button>
-        {TemplateButton ? (
-          <TemplateButton pipelinesRefetch={refetch} boardId={boardId} />
-        ) : null}
-      </>
+      <Button
+        btnStyle="success"
+        size="small"
+        icon="add"
+        onClick={this.addPipeline}
+      >
+        Add {pipelineName}
+      </Button>
     );
   }
 

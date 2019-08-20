@@ -1,16 +1,13 @@
-const growthHackTemplates = `
-  query growthHackTemplates {
-    growthHackTemplates {
+const templates = `
+  query pipelineTemplates($type: String!) {
+    pipelineTemplates(type: $type) {
       _id
       name
-      boardId
-      visibility
-      memberIds
-      bgColor
+      description
     }
   }
 `;
 
 export default {
-  growthHackTemplates
+  templates
 };

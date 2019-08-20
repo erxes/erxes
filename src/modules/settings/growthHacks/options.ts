@@ -1,12 +1,10 @@
 import PipelineForm from './components/PipelineForm';
 import StageItem from './components/StageItem';
-import TemplateButton from './components/TemplateButton';
 
 const options = {
   boardName: 'Campaign',
   pipelineName: 'Project',
   StageItem,
-  TemplateButton,
   PipelineForm
 };
 
