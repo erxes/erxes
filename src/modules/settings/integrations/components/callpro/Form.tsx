@@ -28,7 +28,7 @@ class CallPro extends React.Component<Props, { loading: boolean }> {
     brandId: string;
   }) => {
     return {
-      name: values.name,
+      name: `${values.name} - ${values.phoneNumber}`,
       brandId: values.brandId,
       kind: 'callpro',
       data: {
