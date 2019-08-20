@@ -69,6 +69,8 @@ const TitleRow = styled.div`
     font-weight: bold;
     border-bottom: none;
     min-height: auto;
+    padding: 5px 0;
+    margin-bottom: 5px;
 
     &:focus {
       border-bottom: 1px solid ${colors.colorSecondary};

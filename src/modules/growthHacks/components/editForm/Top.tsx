@@ -27,8 +27,8 @@ type Props = {
     destinationStageId: string,
     formFields: JSON
   ) => void;
-  amount?: () => React.ReactNode;
-  dueDate: React.ReactNode;
+  score?: () => React.ReactNode;
+  dueDate?: React.ReactNode;
   formFields: JSON;
 };
 
@@ -69,7 +69,7 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { name, onChangeField, amount, dueDate, priority } = this.props;
+    const { name, onChangeField, score, dueDate, priority } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
@@ -93,7 +93,7 @@ class Top extends React.Component<Props> {
             </MetaInfo>
           </HeaderContent>
 
-          {amount && amount()}
+          {score && score()}
         </HeaderRow>
 
         <HeaderRow>

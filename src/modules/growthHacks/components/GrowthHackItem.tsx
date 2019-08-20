@@ -5,9 +5,11 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
+import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
+import { CloseModal } from '../styles';
 import { IGrowthHack } from '../types';
 
 type Props = {
@@ -57,10 +59,15 @@ export default class GrowthHackItem extends React.PureComponent<
     }
 
     return (
-      <Modal dialogClassName="modal-1000w" show={true} onHide={this.toggleForm}>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit growth hack')}</Modal.Title>
-        </Modal.Header>
+      <Modal
+        dialogClassName="modal-1000w"
+        show={isFormVisible}
+        onHide={this.toggleForm}
+        enforceFocus={false}
+      >
+        <CloseModal onClick={this.toggleForm}>
+          <Icon icon="times" />
+        </CloseModal>
         <Modal.Body>
           <EditForm
             options={options}

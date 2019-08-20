@@ -115,7 +115,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     const { usersQuery, detailQuery, options } = this.props;
 
     if (usersQuery.loading || detailQuery.loading) {
-      return <Spinner />;
+      return <Spinner objective={true} />;
     }
 
     const users = usersQuery.allUsers;

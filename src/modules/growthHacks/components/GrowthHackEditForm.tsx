@@ -11,6 +11,7 @@ import { mutations } from '../graphql';
 import { IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, Right, Top } from './editForm/';
 import Actions from './editForm/Actions';
+import Score from './Score';
 
 type Props = {
   options: IOptions;
@@ -29,6 +30,10 @@ type State = {
   formId: string;
   priority: string;
   hackStage: string;
+  impact: number;
+  ease: number;
+  confidence: number;
+  reach: number;
 };
 
 export default class GrowthHackEditForm extends React.Component<Props, State> {
@@ -43,7 +48,11 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
       formFields: item.formFields || {},
       priority: item.priority || '',
       hackStage: item.hackStage || '',
-      formId: item.formId || ''
+      formId: item.formId || '',
+      impact: item.impact || 0,
+      confidence: item.confidence || 0,
+      ease: item.ease || 0,
+      reach: item.reach || 0
     };
   }
 
@@ -69,6 +78,45 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
       .catch((e: Error) => {
         Alert.error(e.message);
       });
+  };
+
+  renderDueDate = (closeDate, onDateChange: (date) => void) => {
+    if (!closeDate) {
+      return null;
+    }
+
+    return (
+      <DueDateChanger
+        isWarned={true}
+        value={closeDate}
+        onChange={onDateChange}
+      />
+    );
+  };
+
+  renderScore = () => {
+    const { reach, impact, confidence, ease } = this.state;
+
+    const onChange = e => {
+      const value = Number((e.target as HTMLInputElement).value);
+      const confirmedValue = value > 10 ? 10 : value;
+
+      this.setState({ [e.target.name]: confirmedValue } as Pick<
+        State,
+        keyof State
+      >);
+    };
+
+    return (
+      <Score
+        reach={reach}
+        impact={impact}
+        confidence={confidence}
+        ease={ease}
+        onChange={onChange}
+        scoringType={this.props.item.scoringType || 'ice'}
+      />
+    );
   };
 
   renderFormContent = ({
@@ -97,15 +145,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           item={item}
           onChangeField={onChangeField}
           saveFormFields={this.saveFormFields}
-          dueDate={
-            closeDate && (
-              <DueDateChanger
-                isWarned={true}
-                value={closeDate}
-                onChange={dateOnChange}
-              />
-            )
-          }
+          dueDate={this.renderDueDate(closeDate, dateOnChange)}
+          score={this.renderScore}
         />
 
         <FlexContent>

@@ -27,7 +27,7 @@ export const MainLoader = styledTS<Props>(styled.div)`
   width: ${props => props.size}px;
   height: ${props => props.size}px;
   margin-left: -${props => props.size}px;
-  margin-top: -${props => props.size}px;
+  margin-top: -${props => props.size && props.size / 2}px;
   animation: ${rotate} 0.75s linear infinite;
   border: 2px solid ${colors.borderDarker};
   border-top-color: ${colors.colorSecondary};
