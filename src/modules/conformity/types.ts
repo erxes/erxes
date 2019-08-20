@@ -1,11 +1,12 @@
 export interface IConformityDoc {
   mainType?: string;
-  mainTypeIds?: string[];
+  mainTypeId?: string;
   relType?: string;
   relTypeId?: string;
 }
 
 export interface IConformityCreate {
+  stageId?: string;
   mainType?: string;
   mainTypeId?: string;
   relType?: string;

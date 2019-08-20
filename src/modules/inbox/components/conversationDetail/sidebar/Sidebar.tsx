@@ -18,8 +18,6 @@ import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICustomer } from 'modules/customers/types';
 import MailForm from 'modules/settings/integrations/containers/google/MailForm';
-import PortableTasks from 'modules/tasks/components/PortableTasks';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
 import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(
@@ -36,6 +34,14 @@ const CustomFieldsSection = asyncComponent(
 
 const PortableDeals = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals')
+);
+
+const PortableTasks = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks')
+);
+
+const PortableTickets = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets')
 );
 
 const Contacts = asyncComponent(() =>
@@ -345,7 +351,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         >
           <PortableDeals
             mainType="customer"
-            mainTypeIds={[customer._id]}
+            mainTypeId={customer._id}
             isOpen={config.showDeals}
           />
         </Box>
@@ -357,7 +363,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         >
           <PortableTickets
             mainType="customer"
-            mainTypeIds={[customer._id]}
+            mainTypeId={customer._id}
             isOpen={config.showTickets}
           />
         </Box>
@@ -369,7 +375,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         >
           <PortableTasks
             mainType="customer"
-            mainTypeIds={[customer._id]}
+            mainTypeId={customer._id}
             isOpen={config.showTasks}
           />
         </Box>

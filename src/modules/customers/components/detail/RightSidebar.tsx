@@ -3,11 +3,15 @@ import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import { List } from 'modules/companies/styles';
 import { ICompany } from 'modules/companies/types';
+import { onSelectChange } from 'modules/conformity/utils';
 import { ICustomer } from 'modules/customers/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
+import { IDeal } from 'modules/deals/types';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
+import { ITask } from 'modules/tasks/types';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
+import { ITicket } from 'modules/tickets/types';
 import React from 'react';
 
 type Props = {
@@ -17,6 +21,9 @@ type Props = {
 
 type State = {
   companies: ICompany[];
+  deals: IDeal[];
+  tickets: ITicket[];
+  tasks: ITask[];
 };
 
 export default class RightSidebar extends React.Component<Props, State> {
@@ -26,17 +33,15 @@ export default class RightSidebar extends React.Component<Props, State> {
     const customer = props.customer;
 
     this.state = {
-      companies: customer.companies || []
+      companies: customer.companies || [],
+      deals: customer.deals || [],
+      tasks: customer.tasks || [],
+      tickets: customer.tickets || []
     };
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    switch (name) {
-      case 'companies':
-        const companyIds = (value as ICompany[]).map(company => company._id);
-        this.props.createConformity('company', companyIds);
-        break;
-    }
+    onSelectChange(name, value, this.props.createConformity);
 
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
@@ -81,20 +86,36 @@ export default class RightSidebar extends React.Component<Props, State> {
 
   render() {
     const { customer } = this.props;
+
     const cmpsChange = cmps => this.onChangeField('companies', cmps);
+    const dealsChange = deals => this.onChangeField('deals', deals);
+    const ticketsChange = tickets => this.onChangeField('tickets', tickets);
+    const tasksChange = tasks => this.onChangeField('tasks', tasks);
 
     return (
       <Sidebar>
         <CompanySection
           name={'Customer'}
           companies={customer.companies}
-          mainType={'company'}
+          mainType={'customer'}
           mainTypeId={customer._id}
           onSelect={cmpsChange}
         />
-        <PortableDeals mainType="customer" mainTypeIds={[customer._id]} />
-        <PortableTickets mainType="customer" mainTypeIds={[customer._id]} />
-        <PortableTasks mainType="customer" mainTypeIds={[customer._id]} />
+        <PortableDeals
+          mainType="customer"
+          mainTypeId={customer._id}
+          onSelect={dealsChange}
+        />
+        <PortableTickets
+          mainType="customer"
+          mainTypeId={customer._id}
+          onSelect={ticketsChange}
+        />
+        <PortableTasks
+          mainType="customer"
+          mainTypeId={customer._id}
+          onSelect={tasksChange}
+        />
         {this.renderOther()}
       </Sidebar>
     );

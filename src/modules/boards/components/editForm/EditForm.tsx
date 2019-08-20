@@ -3,7 +3,11 @@ import Button from 'modules/common/components/Button';
 import { IAttachment } from 'modules/common/types';
 import { Alert, extractAttachment } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
+import { onSelectChange } from 'modules/conformity/utils';
 import { ICustomer } from 'modules/customers/types';
+import { IDeal } from 'modules/deals/types';
+import { ITask } from 'modules/tasks/types';
+import { ITicket } from 'modules/tickets/types';
 import React from 'react';
 import { FormFooter } from '../../styles/item';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
@@ -35,6 +39,9 @@ type State = {
   customers: ICustomer[];
   companies: ICompany[];
   attachments: IAttachment[];
+  deals: IDeal[];
+  tickets: ITicket[];
+  tasks: ITask[];
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -49,6 +56,9 @@ class EditForm extends React.Component<Props, State> {
       // IItem datas
       companies: item.companies || [],
       customers: item.customers || [],
+      deals: item.deals || [],
+      tasks: item.tasks || [],
+      tickets: item.tickets || [],
       closeDate: item.closeDate,
       description: item.description || '',
       attachments: extractAttachment(item.attachments),
@@ -57,20 +67,7 @@ class EditForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    switch (name) {
-      case 'companies':
-        const companyIds = (value as ICompany[]).map(company => company._id);
-        this.props.createConformity('company', companyIds);
-        break;
-
-      case 'customers':
-        const customerIds = (value as ICustomer[]).map(
-          customer => customer._id
-        );
-        this.props.createConformity('customer', customerIds);
-        break;
-    }
-
+    onSelectChange(name, value, this.props.createConformity);
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 

@@ -186,6 +186,12 @@ export type ItemsQueryResponse = {
   fetchMore: any;
 };
 
+export type RelatedItemsQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
 export type DetailQueryResponse = {
   loading: boolean;
 };
@@ -196,6 +202,10 @@ export interface IFilterParams {
   customerIds?: string;
   companyIds?: string;
   assignedUserIds?: string;
+  mainType?: string;
+  mainTypeId?: string;
+  relType?: string;
+  isRelated?: boolean;
   nextDay?: string;
   nextWeek?: string;
   nextMonth?: string;
@@ -215,7 +225,10 @@ export interface IEditFormContent {
       | 'assignedUserIds'
       | 'customers'
       | 'companies'
-      | 'attachments',
+      | 'attachments'
+      | 'deals'
+      | 'tasks'
+      | 'tickets',
     value: any
   ) => void;
   copy: () => void;

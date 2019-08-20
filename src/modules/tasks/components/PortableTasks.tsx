@@ -1,10 +1,12 @@
 import PortableItems from 'modules/boards/containers/portable/Items';
 import React from 'react';
 import options from '../options';
+import { ITask } from '../types';
 
 type IProps = {
   mainType?: string;
-  mainTypeIds?: string[];
+  mainTypeId?: string;
+  onSelect: (items: ITask[]) => void;
   isOpen?: boolean;
 };
 

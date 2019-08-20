@@ -1,7 +1,8 @@
 const commonParams = `
   $mainType: String,
-  $mainTypeIds: [String],
+  $mainTypeId: String,
   $relType: String,
+  $isRelated: Boolean,
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -15,8 +16,9 @@ const commonParams = `
 
 const commonParamDefs = `
   mainType: $mainType,
-  mainTypeIds: $mainTypeIds,
+  mainTypeId: $mainTypeId,
   relType: $relType,
+  isRelated: $isRelated,
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,

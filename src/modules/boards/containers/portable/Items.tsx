@@ -3,12 +3,13 @@ import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Items from '../../components/portable/Items';
-import { IOptions, ItemsQueryResponse } from '../../types';
+import { IItem, IOptions, ItemsQueryResponse } from '../../types';
 
 type IProps = {
   mainType?: string;
-  mainTypeIds?: string[];
+  mainTypeId?: string;
   isOpen?: boolean;
+  onSelect: (items: IItem[]) => void;
   options: IOptions;
 };
 
@@ -24,7 +25,7 @@ class PortableItemsContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { itemsQuery, options, mainType, mainTypeIds } = this.props;
+    const { itemsQuery, options, mainType, mainTypeId } = this.props;
 
     if (!itemsQuery) {
       return null;
@@ -35,7 +36,7 @@ class PortableItemsContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       mainType,
-      mainTypeIds,
+      mainTypeId,
       items,
       onChangeItems: this.onChangeItems
     };
@@ -51,14 +52,14 @@ export default (props: IProps) =>
       graphql<
         IProps,
         ItemsQueryResponse,
-        { mainType?: string; mainTypeIds?: string[]; relType: string }
+        { mainType?: string; mainTypeId?: string; relType: string }
       >(gql(props.options.queries.itemsQuery), {
         name: 'itemsQuery',
-        skip: ({ mainType, mainTypeIds }) => !mainType && !mainTypeIds,
-        options: ({ mainType, mainTypeIds, options }) => ({
+        skip: ({ mainType, mainTypeId }) => !mainType && !mainTypeId,
+        options: ({ mainType, mainTypeId, options }) => ({
           variables: {
             mainType,
-            mainTypeIds,
+            mainTypeId,
             relType: options.type
           }
         })

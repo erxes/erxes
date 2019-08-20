@@ -19,7 +19,13 @@ type Props = {
   companies: ICompany[];
   assignedUserIds: string[];
   onChangeField?: (
-    name: 'companies' | 'customers' | 'assignedUserIds',
+    name:
+      | 'companies'
+      | 'customers'
+      | 'assignedUserIds'
+      | 'deals'
+      | 'tasks'
+      | 'tickets',
     value: any
   ) => void;
   copyItem: () => void;
@@ -41,21 +47,34 @@ class Sidebar extends React.Component<Props> {
     if (type === 'deal') {
       return '';
     }
-    return <PortableDeals mainType={type} mainTypeIds={[id]} />;
+    const dealsChange = deals => this.onChange('deals', deals);
+    return (
+      <PortableDeals mainType={type} mainTypeId={id} onSelect={dealsChange} />
+    );
   };
 
   renderTicket = ({ type, id }: { type: string; id: string }) => {
     if (type === 'ticket') {
       return '';
     }
-    return <PortableTickets mainType={type} mainTypeIds={[id]} />;
+    const ticketsChange = tickets => this.onChange('tickets', tickets);
+    return (
+      <PortableTickets
+        mainType={type}
+        mainTypeId={id}
+        onSelect={ticketsChange}
+      />
+    );
   };
 
   renderTask = ({ type, id }: { type: string; id: string }) => {
     if (type === 'task') {
       return '';
     }
-    return <PortableTasks mainType={type} mainTypeIds={[id]} />;
+    const tasksChange = tasks => this.onChange('tasks', tasks);
+    return (
+      <PortableTasks mainType={type} mainTypeId={id} onSelect={tasksChange} />
+    );
   };
 
   render() {

@@ -6,14 +6,16 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
 import React from 'react';
 import { AddForm } from '../../containers/portable';
+import { ItemChooser } from '../../containers/portable/';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
   options: IOptions;
   items: IItem[];
   mainType?: string;
-  mainTypeIds?: string[];
+  mainTypeId?: string;
   onChangeItems: () => void;
+  onSelect: (items: IItem[]) => void;
   isOpen?: boolean;
 };
 
@@ -45,10 +47,12 @@ class Items extends React.Component<Props> {
 
     const {
       mainType,
-      mainTypeIds,
+      mainTypeId,
       isOpen,
       options,
-      onChangeItems
+      onChangeItems,
+      onSelect,
+      items
     } = this.props;
 
     const trigger = (
@@ -57,13 +61,45 @@ class Items extends React.Component<Props> {
       </button>
     );
 
+    const relTrigger = (
+      <ButtonRelated>
+        <button>{__('See related ' + options.title + '..')}</button>
+      </ButtonRelated>
+    );
+
+    const editTrigger = (
+      <ButtonRelated>
+        <button>{__('See all ' + options.title + '..')}</button>
+      </ButtonRelated>
+    );
+
     const content = props => (
       <AddForm
         options={options}
         {...props}
         callback={onChangeItems}
         mainType={mainType}
-        mainTypeIds={mainTypeIds}
+        mainTypeId={mainTypeId}
+        showSelect={true}
+      />
+    );
+
+    const relContent = props => (
+      <ItemChooser
+        {...props}
+        data={{ options, mainType, mainTypeId, items }}
+        callback={onChangeItems}
+        onSelect={onSelect}
+        showSelect={true}
+      />
+    );
+
+    const editContent = props => (
+      <ItemChooser
+        {...props}
+        data={{ options, items }}
+        callback={onChangeItems}
+        onSelect={onSelect}
         showSelect={true}
       />
     );
@@ -76,6 +112,24 @@ class Items extends React.Component<Props> {
       />
     );
 
+    const relQuickButtons = (
+      <ModalTrigger
+        title="Related Associate"
+        trigger={relTrigger}
+        size="lg"
+        content={relContent}
+      />
+    );
+
+    const editQuickButtons = (
+      <ModalTrigger
+        title="Edit Associate"
+        trigger={editTrigger}
+        size="lg"
+        content={editContent}
+      />
+    );
+
     return (
       <Section>
         <Title>{__(options.title)}</Title>
@@ -83,9 +137,8 @@ class Items extends React.Component<Props> {
         <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 
         <SectionContainer>{this.renderItems()}</SectionContainer>
-        <ButtonRelated>
-          <button>{__('See related ' + options.title + '..')}</button>
-        </ButtonRelated>
+        {editQuickButtons}
+        {mainTypeId && mainType && relQuickButtons}
       </Section>
     );
   }

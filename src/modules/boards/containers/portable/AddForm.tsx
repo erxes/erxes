@@ -15,7 +15,7 @@ import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 type IProps = {
   options: IOptions;
   mainType: string;
-  mainTypeIds: string[];
+  mainTypeId: string;
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
@@ -35,7 +35,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       addMutation,
       options,
       mainType,
-      mainTypeIds,
+      mainTypeId,
       addConformity
     } = this.props;
 
@@ -46,7 +46,7 @@ class AddFormContainer extends React.Component<FinalProps> {
         addConformity({
           variables: {
             mainType,
-            mainTypeIds,
+            mainTypeId,
             relType: options.type,
             relTypeId: data[options.mutationsName.addMutation]._id
           }

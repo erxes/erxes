@@ -43,7 +43,7 @@ class CompanyDetailsContainer extends React.Component<FinalProps> {
       }
     })
       .then(() => {
-        Alert.success('success changed customers');
+        Alert.success('success changed' + relType);
       })
       .catch(error => {
         Alert.error(error.message);

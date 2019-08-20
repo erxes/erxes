@@ -230,11 +230,21 @@ export default (props: IProps) => {
         gql(mutations.conformityCreate),
         {
           name: 'createConformityMutation',
-          options: ({ itemId }: { itemId: string }) => ({
+          options: ({
+            itemId,
+            stageId
+          }: {
+            itemId: string;
+            stageId: string;
+          }) => ({
             refetchQueries: [
               {
                 query: gql(options.queries.detailQuery),
                 variables: { _id: itemId }
+              },
+              {
+                query: gql(queries.stageDetail),
+                variables: { _id: stageId }
               }
             ]
           })

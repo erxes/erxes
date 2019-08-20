@@ -1,13 +1,13 @@
 const commonFields = `
   $mainType: String,
-  $mainTypeIds: [String],
+  $mainTypeId: String,
   $relType: String,
   $relTypeId: String,
 `;
 
 const commonVariables = `
   mainType: $mainType,
-  mainTypeIds: $mainTypeIds,
+  mainTypeId: $mainTypeId,
   relType: $relType,
   relTypeId: $relTypeId,
 `;
