@@ -46,6 +46,11 @@ const growthHackFields = `
   hackStages
   priority
   goal
+  reach
+  impact
+  confidence
+  ease
+  scoringType
   assignedUsers {
     _id
     email

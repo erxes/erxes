@@ -20,15 +20,15 @@ type Props = {
   stageId: string;
   users: IUser[];
   priority: string;
-  hackStages?: string[];
+  hackStages: string[];
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
   saveFormFields: (
     itemId: string,
     destinationStageId: string,
     formFields: JSON
   ) => void;
-  amount?: () => React.ReactNode;
-  dueDate: React.ReactNode;
+  score?: () => React.ReactNode;
+  dueDate?: React.ReactNode;
   formFields: JSON;
 };
 
@@ -56,20 +56,20 @@ class Top extends React.Component<Props> {
   renderHackStage() {
     const { hackStages } = this.props;
 
-    if (!hackStages) {
+    if (hackStages.length === 0) {
       return null;
     }
 
     return (
       <ColorButton color="#666">
         <PriorityIndicator value={hackStages[0]} />
-        {hackStages}
+        {hackStages[0]}
       </ColorButton>
     );
   }
 
   render() {
-    const { name, onChangeField, amount, dueDate, priority } = this.props;
+    const { name, onChangeField, score, dueDate, priority } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
@@ -93,7 +93,7 @@ class Top extends React.Component<Props> {
             </MetaInfo>
           </HeaderContent>
 
-          {amount && amount()}
+          {score && score()}
         </HeaderRow>
 
         <HeaderRow>

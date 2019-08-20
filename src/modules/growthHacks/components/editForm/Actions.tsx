@@ -12,7 +12,7 @@ import { HACKSTAGES } from '../../constants';
 
 type Props = {
   item: IGrowthHack;
-  onChangeField: (name: 'priority' | 'hackStages', value: any) => void;
+  onChangeField: (name: 'priority', value: any) => void;
   closeDate: Date;
   priority: string;
   hackStages: string[];
@@ -38,8 +38,7 @@ class Actions extends React.Component<Props> {
 
     const priorityOnChange = (value: string) =>
       onChangeField('priority', value);
-    const hackStageOnChange = (value: string) =>
-      onChangeField('hackStages', value);
+    const hackStageOnChange = (value: string) => null;
 
     const onRemove = () => remove(item._id);
 

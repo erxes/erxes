@@ -12,6 +12,7 @@ type Props = {
   dialogClassName?: string;
   backDrop?: string;
   enforceFocus?: boolean;
+  hideHeader?: boolean;
 };
 
 type State = {
@@ -33,12 +34,24 @@ class ModalTrigger extends React.Component<Props, State> {
     this.setState({ isOpen: false });
   };
 
+  renderHeader = () => {
+    if (this.props.hideHeader) {
+      return null;
+    }
+
+    const { title, ignoreTrans } = this.props;
+
+    return (
+      <Modal.Header closeButton={true}>
+        <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
+      </Modal.Header>
+    );
+  };
+
   render() {
     const {
-      title,
       trigger,
       size,
-      ignoreTrans,
       dialogClassName,
       content,
       backDrop,
@@ -67,9 +80,7 @@ class ModalTrigger extends React.Component<Props, State> {
           backdrop={backDrop}
           enforceFocus={enforceFocus}
         >
-          <Modal.Header closeButton={true}>
-            <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
-          </Modal.Header>
+          {this.renderHeader()}
           <Modal.Body>
             <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
               {content({ closeModal: this.closeModal })}
