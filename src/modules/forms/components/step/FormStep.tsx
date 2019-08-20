@@ -71,7 +71,8 @@ class FormStep extends React.Component<Props, State> {
 
   onSubmit = e => {
     e.preventDefault();
-
+    // tslint:disable-next-line:no-console
+    console.log('a');
     const editingField = this.state.editingField || ({} as IField);
 
     const doc = {
@@ -107,7 +108,8 @@ class FormStep extends React.Component<Props, State> {
     editingField[attributeName] = value;
 
     this.setState({ editingField });
-
+    // tslint:disable-next-line:no-console
+    console.log('a', attributeName, value);
     this.props.onChange('fields', fields);
   }
 
@@ -363,7 +365,11 @@ class FormStep extends React.Component<Props, State> {
         </FormGroup>
 
         <Title>New field</Title>
-        <Fields>
+        <Fields
+          onSubmit={this.onSubmit}
+          onChange={this.onFieldAttrChange}
+          editingField={this.state.editingField}
+        >
           <option value="input">{__('Input')}</option>
           <option value="textarea">{__('Text area')}</option>
           <option value="select">{__('Select')}</option>

@@ -1,10 +1,15 @@
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Icon from '../Icon';
 import ModalTrigger from '../ModalTrigger';
+import FieldForm from './FieldForm';
 import { Field, Options } from './styles';
 
 type Props = {
   children?: any[];
+  editingField?: IField;
+  onChange: (name: string, value: string | boolean | string[]) => void;
+  onSubmit: (e: any) => void;
 };
 
 class FormFields extends React.Component<Props> {
@@ -38,10 +43,13 @@ class FormFields extends React.Component<Props> {
       default:
         icon = 'user-4';
     }
+
     return <Icon icon={icon} size={25} />;
   }
 
   renderContent(option) {
+    const { onSubmit, onChange, editingField } = this.props;
+
     const trigger = (
       <Field isGreyBg={true}>
         {this.renderIcon(option.value)}
@@ -49,11 +57,20 @@ class FormFields extends React.Component<Props> {
       </Field>
     );
 
-    const content = props => <div {...props}>{option.children}</div>;
+    const content = props => (
+      <FieldForm
+        {...props}
+        type={option}
+        onSubmit={onSubmit}
+        onChange={onChange}
+        value={editingField}
+      />
+    );
 
     return (
       <ModalTrigger
-        title="Add form field"
+        title={`Add ${option.children} field`}
+        size="lg"
         trigger={trigger}
         content={content}
       />
