@@ -21,18 +21,19 @@ connect();
 
 const app = express();
 
-app.use((req: any, _res, next) => {
-  req.rawBody = '';
+const rawBodySaver = (req, _res, buf, encoding) => {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString(encoding || 'utf8');
 
-  req.on('data', chunk => {
-    req.rawBody += chunk.toString().replace(/\//g, '/');
-  });
+    if (req.headers.fromcore === 'true') {
+      req.rawBody = req.rawBody.replace(/\//g, '\\/');
+    }
+  }
+};
 
-  next();
-});
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
+app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
+app.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }));
 
 app.post('/integrations/remove', async (req, res) => {
   debugRequest(debugIntegrations, req);

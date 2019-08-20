@@ -60,11 +60,11 @@ const init = async app => {
             await subscribePage(pageId, pageAccessToken);
             debugFacebook(`Successfully subscribed page ${pageId}`);
           } catch (e) {
-            debugFacebook(`Error ocurred while trying to subscribe page ${e.message}`);
+            debugFacebook(`Error ocurred while trying to subscribe page ${e.message || e}`);
             return next(e);
           }
         } catch (e) {
-          debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
+          debugFacebook(`Error ocurred while trying to get page access token with ${e.message || e}`);
           return next(e);
         }
       }
