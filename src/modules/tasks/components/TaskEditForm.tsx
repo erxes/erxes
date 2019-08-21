@@ -19,7 +19,7 @@ type Props = {
   item: ITask;
   users: IUser[];
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITaskParams, callback: (item) => void) => void;
+  saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };
@@ -100,6 +100,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
       <>
         <Top
           options={options}
+          saveItem={saveItem}
           name={name}
           description={description}
           closeDate={closeDate}

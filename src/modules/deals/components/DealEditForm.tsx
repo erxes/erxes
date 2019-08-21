@@ -44,7 +44,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     };
   }
 
-  save = (doc, callback) => {
+  save = (doc, callback?) => {
     const { saveItem } = this.props;
 
     saveItem(doc, item => {
@@ -134,7 +134,12 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ productsData: filteredProductsData, products, amount });
+    this.setState(
+      { productsData: filteredProductsData, products, amount },
+      () => {
+        this.save({ productsData: this.state.productsData });
+      }
+    );
   };
 
   checkProductsData = () => {
@@ -176,6 +181,7 @@ export default class DealEditForm extends React.Component<Props, State> {
           closeDate={closeDate}
           amount={this.renderAmount}
           users={users}
+          saveItem={this.save}
           stageId={stageId}
           item={item}
           onChangeField={onChangeField}
