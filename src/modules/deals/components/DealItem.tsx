@@ -8,7 +8,7 @@ import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+
 import { IDeal } from '../types';
 
 type Props = {
@@ -50,27 +50,15 @@ class DealItem extends React.PureComponent<Props, {}> {
     }
 
     return (
-      <Modal
-        enforceFocus={false}
-        bsSize="lg"
-        show={true}
-        onHide={onTogglePopup}
-      >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit deal')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <EditForm
-            options={options}
-            stageId={stageId}
-            itemId={item._id}
-            onAdd={onAdd}
-            onRemove={onRemove}
-            onUpdate={onUpdate}
-            closeModal={onTogglePopup}
-          />
-        </Modal.Body>
-      </Modal>
+      <EditForm
+        options={options}
+        stageId={stageId}
+        itemId={item._id}
+        onAdd={onAdd}
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+        closeModal={onTogglePopup}
+      />
     );
   };
 

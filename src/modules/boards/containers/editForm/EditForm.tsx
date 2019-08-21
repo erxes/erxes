@@ -66,20 +66,16 @@ class EditFormContainer extends React.Component<FinalProps> {
       });
   }
 
-  saveItem = (doc: IItemParams, callback: () => void) => {
-    const { stageId, itemId, editMutation, onUpdate, options } = this.props;
+  saveItem = (doc: IItemParams, callback: (item) => void) => {
+    const { itemId, editMutation, options } = this.props;
 
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
         Alert.success(options.texts.updateSuccessText);
 
-        callback();
+        callback(data[options.mutationsName.editMutation]);
 
-        if (onUpdate) {
-          invalidateCache();
-
-          onUpdate(data[options.mutationsName.editMutation], stageId);
-        }
+        invalidateCache();
       })
       .catch(error => {
         Alert.error(error.message);
@@ -178,25 +174,7 @@ export default (props: IProps) => {
       graphql<IProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: 'editMutation',
-          options: ({
-            itemId,
-            stageId
-          }: {
-            stageId: string;
-            itemId: string;
-          }) => ({
-            refetchQueries: [
-              {
-                query: gql(options.queries.detailQuery),
-                variables: { _id: itemId }
-              },
-              {
-                query: gql(queries.stageDetail),
-                variables: { _id: stageId }
-              }
-            ]
-          })
+          name: 'editMutation'
         }
       ),
       graphql<IProps, RemoveMutation, { _id: string }>(

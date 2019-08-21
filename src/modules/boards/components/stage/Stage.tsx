@@ -28,6 +28,7 @@ type Props = {
   length: number;
   items: IItem[];
   onAddItem: (stageId: string, item: IItem) => void;
+  onUpdateItem: (item, stageId) => void;
   loadMore: () => void;
   options: IOptions;
 };
@@ -130,7 +131,7 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   renderItemList() {
-    const { stage, items, loadingItems, options } = this.props;
+    const { stage, items, loadingItems, options, onUpdateItem } = this.props;
 
     if (loadingItems) {
       return (
@@ -142,6 +143,7 @@ export default class Stage extends React.Component<Props, {}> {
 
     return (
       <ItemList
+        onUpdateItem={onUpdateItem}
         listId={stage._id}
         stageId={stage._id}
         items={items}

@@ -19,7 +19,7 @@ type Props = {
   item: ITask;
   users: IUser[];
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITaskParams, callback: () => void) => void;
+  saveItem: (doc: ITaskParams, callback: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };
@@ -83,7 +83,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
     copy,
     remove
   }: IEditFormContent) => {
-    const { item, users, options } = this.props;
+    const { item, users, options, saveItem } = this.props;
 
     const {
       name,
@@ -121,6 +121,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
           <Sidebar
             options={options}
+            saveItem={saveItem}
             customers={customers}
             companies={companies}
             assignedUserIds={assignedUserIds}

@@ -28,6 +28,7 @@ type StageProps = {
   onLoad: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
   onAddItem: (stageId: string, item: IItem) => void;
+  onUpdateItem: (item: IItem, stageId: string) => void;
 } & WrapperProps;
 
 type FinalStageProps = {
@@ -88,7 +89,8 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       items,
       itemsQuery,
       options,
-      onAddItem
+      onAddItem,
+      onUpdateItem
     } = this.props;
 
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
@@ -96,6 +98,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     return (
       <Stage
         options={options}
+        onUpdateItem={onUpdateItem}
         stage={stage}
         index={index}
         length={length}
@@ -169,13 +172,14 @@ class WithData extends React.Component<StageProps> {
 export default (props: WrapperProps) => {
   return (
     <PipelineConsumer>
-      {({ onAddItem, onLoadStage, scheduleStage }) => {
+      {({ onAddItem, onLoadStage, scheduleStage, onUpdateItem }) => {
         return (
           <WithData
             {...props}
             scheduleStage={scheduleStage}
             onLoad={onLoadStage}
             onAddItem={onAddItem}
+            onUpdateItem={onUpdateItem}
           />
         );
       }}

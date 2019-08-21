@@ -21,7 +21,7 @@ type Props = {
   item: ITicket;
   users: IUser[];
   addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITicketParams, callback: () => void) => void;
+  saveItem: (doc: ITicketParams, callback: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };
@@ -112,7 +112,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     copy,
     remove
   }: IEditFormContent) => {
-    const { item, users, options } = this.props;
+    const { item, users, options, saveItem } = this.props;
 
     const {
       name,
@@ -149,6 +149,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
           />
 
           <Sidebar
+            saveItem={saveItem}
             options={options}
             customers={customers}
             companies={companies}

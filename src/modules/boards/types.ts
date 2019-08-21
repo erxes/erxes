@@ -46,8 +46,8 @@ export interface IBoard {
 
 export interface IItemParams {
   _id?: string;
-  name: string;
-  stageId: string;
+  name?: string;
+  stageId?: string;
   assignedUserIds?: string[];
   companyIds?: string[];
   customerIds?: string[];

@@ -1,5 +1,5 @@
 const commonVariables = `
-  $name: String!,
+  $name: String,
   $stageId: String,
   $productsData: JSON,
   $companyIds: [String],

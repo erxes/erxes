@@ -1,11 +1,10 @@
 import { IUser } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
 import { IAttachment } from 'modules/common/types';
-import { Alert, extractAttachment } from 'modules/common/utils';
+import { __, extractAttachment } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { FormFooter } from '../../styles/item';
+import { Modal } from 'react-bootstrap';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 type Props = {
@@ -13,7 +12,6 @@ type Props = {
   item: IItem;
   users: IUser[];
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: IItemParams, callback: () => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
   extraFields?: any;
@@ -23,6 +21,7 @@ type Props = {
   formContent: (
     { state, onChangeAttachment, onChangeField, copy, remove }: IEditFormContent
   ) => React.ReactNode;
+  onHideModal?: () => void;
 };
 
 type State = {
@@ -63,45 +62,6 @@ class EditForm extends React.Component<Props, State> {
     this.setState({ attachments });
   };
 
-  save = () => {
-    const {
-      name,
-      description,
-      companies,
-      customers,
-      closeDate,
-      stageId,
-      assignedUserIds,
-      attachments
-    } = this.state;
-
-    const { closeModal, saveItem, extraFields, extraFieldsCheck } = this.props;
-
-    if (!name) {
-      return Alert.error('Enter a name');
-    }
-
-    if (extraFieldsCheck && !extraFieldsCheck()) {
-      return extraFieldsCheck();
-    }
-
-    const doc = {
-      name,
-      companyIds: companies.map(company => company._id),
-      customerIds: customers.map(customer => customer._id),
-      closeDate,
-      description,
-      stageId,
-      assignedUserIds,
-      attachments,
-      ...extraFields
-    };
-
-    saveItem(doc, () => {
-      closeModal();
-    });
-  };
-
   remove = (id: string) => {
     const { removeItem, closeModal } = this.props;
 
@@ -128,29 +88,25 @@ class EditForm extends React.Component<Props, State> {
 
   render() {
     return (
-      <>
-        {this.props.formContent({
-          state: this.state,
-          onChangeAttachment: this.onChangeAttachment,
-          onChangeField: this.onChangeField,
-          copy: this.copy,
-          remove: this.remove
-        })}
-
-        <FormFooter>
-          <Button
-            btnStyle="simple"
-            onClick={this.props.closeModal}
-            icon="cancel-1"
-          >
-            Close
-          </Button>
-
-          <Button btnStyle="success" icon="checked-1" onClick={this.save}>
-            Save
-          </Button>
-        </FormFooter>
-      </>
+      <Modal
+        enforceFocus={false}
+        bsSize="lg"
+        show={true}
+        onHide={this.props.onHideModal}
+      >
+        <Modal.Header closeButton={true}>
+          <Modal.Title>{__('Edit deal')}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {this.props.formContent({
+            state: this.state,
+            onChangeAttachment: this.onChangeAttachment,
+            onChangeField: this.onChangeField,
+            copy: this.copy,
+            remove: this.remove
+          })}
+        </Modal.Body>
+      </Modal>
     );
   }
 }
