@@ -12,7 +12,7 @@ import { HACKSTAGES } from '../../constants';
 
 type Props = {
   item: IGrowthHack;
-  onChangeField: (name: 'priority', value: any) => void;
+  onChangeField: (name: 'priority' | 'hackStages', value: any) => void;
   closeDate: Date;
   priority: string;
   hackStages: string[];
@@ -38,7 +38,19 @@ class Actions extends React.Component<Props> {
 
     const priorityOnChange = (value: string) =>
       onChangeField('priority', value);
-    const hackStageOnChange = (value: string) => null;
+
+    const hackStageOnChange = (value: string) => {
+      if (hackStages.includes(value)) {
+        return onChangeField(
+          'hackStages',
+          hackStages.filter(i => {
+            return i !== value;
+          })
+        );
+      }
+
+      return onChangeField('hackStages', hackStages.concat(value));
+    };
 
     const onRemove = () => remove(item._id);
 
@@ -60,15 +72,16 @@ class Actions extends React.Component<Props> {
         <DueDateChanger value={closeDate} onChange={dateOnChange} />
         <SelectItem
           items={PRIORITIES}
-          currentItem={priority}
+          selectedItems={priority}
           onChange={priorityOnChange}
           trigger={priorityTrigger}
         />
         <SelectItem
           items={HACKSTAGES}
-          currentItem={hackStages[0]}
+          selectedItems={hackStages}
           onChange={hackStageOnChange}
           trigger={hackStageTrigger}
+          multiple={true}
         />
         <Watch item={item} options={options} isSmall={true} />
         <ColorButton onClick={copy}>

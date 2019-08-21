@@ -83,6 +83,10 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
     margin-right: 5px;
   }
 
+  > span {
+    margin-right: 10px;
+  }
+
   &:hover {
     cursor: pointer;
     background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};

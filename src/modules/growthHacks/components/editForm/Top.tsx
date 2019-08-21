@@ -62,8 +62,12 @@ class Top extends React.Component<Props> {
 
     return (
       <ColorButton color="#666">
-        <PriorityIndicator value={hackStages[0]} />
-        {hackStages[0]}
+        {hackStages.map(i => (
+          <span key={i}>
+            <PriorityIndicator value={i} />
+            {i}
+          </span>
+        ))}
       </ColorButton>
     );
   }

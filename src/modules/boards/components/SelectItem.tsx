@@ -23,17 +23,27 @@ export const ActionItem = styled.button`
 
 type IProps = {
   onChange: (value: string) => void;
-  currentItem?: string;
+  selectedItems?: string | string[];
   items: string[];
   trigger: React.ReactNode;
+  multiple?: boolean;
 };
 
 class SelectItem extends React.Component<IProps> {
-  render() {
-    const { currentItem, onChange, items, trigger } = this.props;
+  isChecked = (item: string) => {
+    const { selectedItems, multiple } = this.props;
 
-    const onChangeItem = (value: string) =>
-      onChange(currentItem === value ? '' : value);
+    if (multiple) {
+      return (selectedItems || []).includes(item);
+    }
+
+    return selectedItems === item;
+  };
+
+  render() {
+    const { onChange, items, trigger } = this.props;
+
+    const onChangeItem = (value: string) => onChange(value);
 
     return (
       <Dropdown id="dropdown">
@@ -43,7 +53,7 @@ class SelectItem extends React.Component<IProps> {
             <li key={item}>
               <ActionItem onClick={onChangeItem.bind(this, item)}>
                 <PriorityIndicator value={item} /> {item}
-                {currentItem === item && <Icon icon="check-1" />}
+                {this.isChecked(item) && <Icon icon="check-1" />}
               </ActionItem>
             </li>
           ))}
