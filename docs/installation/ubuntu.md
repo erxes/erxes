@@ -37,11 +37,10 @@ Install Erlang from an Apt Repostory on Bintray
 ```sh
 sudo apt-key adv --keyserver "hkps.pool.sks-keyservers.net" --recv-keys "0x6B73A36E6026DFCA"
 sudo apt-get install apt-transport-https
-sudo vim /etc/apt/sources.list.d/bintray.erlang.list
-# This repository provides RabbitMQ packages
-# See below for supported distribution and component values
-deb https://dl.bintray.com/rabbitmq/debian xenial main
-deb https://dl.bintray.com/rabbitmq-erlang/debian xenial erlang
+
+echo "deb https://dl.bintray.com/rabbitmq/debian xenial main
+deb https://dl.bintray.com/rabbitmq-erlang/debian xenial erlang" | sudo tee /etc/apt/sources.list.d/bintray.erlang.list
+
 sudo apt-get update
 sudo apt-get install -y erlang-base \
                         erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
@@ -54,6 +53,8 @@ Package: erlang*
 Pin: release o=Bintray
 Pin-Priority: 1000
 ```
+
+
 
 Enable management plugin
 ```sh
