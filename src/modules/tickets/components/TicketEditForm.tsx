@@ -140,6 +140,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
         <FlexContent>
           <Left
+            saveItem={saveItem}
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}

@@ -18,6 +18,7 @@ type Props = {
   description: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
   attachments: IAttachment[];
+  saveItem: (item, callback?) => void;
 };
 
 class Left extends React.Component<Props> {
@@ -28,11 +29,18 @@ class Left extends React.Component<Props> {
       attachments,
       onChangeAttachment,
       description,
-      type
+      type,
+      saveItem
     } = this.props;
 
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);
+
+    const attachmentOnChange = datas => {
+      saveItem({ attachments: datas }, () => {
+        onChangeAttachment(datas);
+      });
+    };
 
     return (
       <LeftContainer>
@@ -46,7 +54,7 @@ class Left extends React.Component<Props> {
 
           <Uploader
             defaultFileList={attachments}
-            onChange={onChangeAttachment}
+            onChange={attachmentOnChange}
           />
         </FormGroup>
 

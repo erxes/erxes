@@ -111,6 +111,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
         <FlexContent>
           <Left
+            saveItem={saveItem}
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}

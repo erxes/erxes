@@ -57,13 +57,13 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   onHideModal = () => {
+    this.props.closeModal();
+
     if (this.state.item) {
       this.props.onUpdate(this.state.item);
     }
 
-    this.setState({ item: undefined }, () => {
-      this.props.closeModal();
-    });
+    this.setState({ item: undefined });
   };
 
   renderAmount = () => {
@@ -186,6 +186,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}
+            saveItem={this.save}
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}
