@@ -5,6 +5,7 @@ import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import strip from 'strip';
 import { IUser } from '../../../auth/types';
 import { sendDesktopNotification, withProps } from '../../../common/utils';
 import {
@@ -112,7 +113,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           // send desktop notification
           sendDesktopNotification({
             title: NOTIFICATION_TYPE[kind],
-            content: message.content || ''
+            content: strip(message.content) || ''
           });
 
           return next;

@@ -34,9 +34,13 @@ class NotificationsLatestContainer extends React.Component<FinalProps> {
     notificationsQuery.subscribeToMore({
       document: subscription,
       variables: { userId: currentUser ? currentUser._id : null },
-      updateQuery: () => {
+      updateQuery: (prev, { subscriptionData: { data } }) => {
+        const { notificationInserted } = data;
+        const { title, content } = notificationInserted;
+
+        sendDesktopNotification({ title, content });
+
         notificationsQuery.refetch();
-        sendDesktopNotification({ title: 'You have a new notification' });
       }
     });
   }

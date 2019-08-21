@@ -10,6 +10,7 @@ import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import strip from 'strip';
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
@@ -45,16 +46,20 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
     conversationsQuery.subscribeToMore({
       document: gql(subscriptions.conversationClientMessageInserted),
       variables: { userId: currentUser ? currentUser._id : null },
-      updateQuery: () => {
+      updateQuery: (prev, { subscriptionData: { data } }) => {
+        const { conversationClientMessageInserted } = data;
+        const { content } = conversationClientMessageInserted;
         if (updateCountsForNewMessage) {
           updateCountsForNewMessage();
         }
 
+        sendDesktopNotification({
+          title: 'You have a new message',
+          content: strip(content)
+        });
+
         conversationsQuery.refetch();
         totalCountQuery.refetch();
-
-        // send desktop notification
-        sendDesktopNotification({ title: 'You have a new message' });
       }
     });
   }

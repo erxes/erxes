@@ -20,6 +20,7 @@ const conversationClientMessageInserted = `
   subscription conversationClientMessageInserted($userId: String!) {
     conversationClientMessageInserted(userId: $userId) {
       _id
+      content
     }
   }
 `;
