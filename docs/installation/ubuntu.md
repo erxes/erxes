@@ -8,19 +8,17 @@ Manual installation on Ubuntu 16.04/18.04 LTS.
 ## Prerequisites
 
 There are a couple of pre-reqs for running erxes. This page outlines how to quickly install the things needed on an Ubuntu 16.04/18.04 server.
+This guide assumes that the server does not have any other services running on it.
 
 ### Install MongoDB v3.6.x
 
 ```sh
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
-
 echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
-
 sudo apt-get update
-
 sudo apt-get install -y mongodb-org
-
 sudo systemctl start mongod
+sudo systemctl enable mongod
 ```
 
 Official MongoDB documentation: https://docs.mongodb.com/v3.6/tutorial/install-mongodb-on-ubuntu/
@@ -29,11 +27,41 @@ Official MongoDB documentation: https://docs.mongodb.com/v3.6/tutorial/install-m
 
 ```sh
 sudo apt-get update
-
-sudo apt-get install redis-server
-
+sudo apt-get install -y redis-server
 sudo systemctl start redis-server
 ```
+
+### Install RabbitMQ
+
+Install Erlang from an Apt Repostory on Bintray
+```sh
+sudo apt-key adv --keyserver "hkps.pool.sks-keyservers.net" --recv-keys "0x6B73A36E6026DFCA"
+sudo apt-get install apt-transport-https
+sudo vim /etc/apt/sources.list.d/bintray.erlang.list
+# This repository provides RabbitMQ packages
+# See below for supported distribution and component values
+deb https://dl.bintray.com/rabbitmq/debian xenial main
+deb https://dl.bintray.com/rabbitmq-erlang/debian xenial erlang
+sudo apt-get update
+sudo apt-get install -y erlang-base \
+                        erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+                        erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+                        erlang-runtime-tools erlang-snmp erlang-ssl \
+                        erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+sudo apt-get install rabbitmq-server
+sudo vim /etc/apt/preferences.d/erlang
+Package: erlang*
+Pin: release o=Bintray
+Pin-Priority: 1000
+```
+
+Enable management plugin
+```sh
+sudo rabbitmq-plugins enable rabbitmq_management
+sudo service rabbitmq-server restart
+```
+
+Official RabbitMQ documentation: https://www.rabbitmq.com/install-debian.html
 
 ### Install Nginx
 
