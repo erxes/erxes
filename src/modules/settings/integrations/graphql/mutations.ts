@@ -105,6 +105,16 @@ const integrationsRemove = `
   }
 `;
 
+const engagesConfigSave = `
+  mutation engagesConfigSave($secretAccessKey: String!, $accessKeyId: String!, $region: String!) {
+    engagesConfigSave(secretAccessKey: $secretAccessKey, accessKeyId: $accessKeyId, region: $region) {
+      accessKeyId
+      secretAccessKey
+      region
+    }
+  }
+`;
+
 const messengerAppsAddLead = `
   mutation messengerAppsAddLead(
     $name: String!
@@ -156,6 +166,7 @@ export default {
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
   integrationsRemove,
+  engagesConfigSave,
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,

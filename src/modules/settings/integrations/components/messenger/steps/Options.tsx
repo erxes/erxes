@@ -6,6 +6,7 @@ import { LANGUAGES } from 'modules/settings/general/constants';
 import React from 'react';
 import Toggle from 'react-toggle';
 import SelectBrand from '../../../containers/SelectBrand';
+import { Description } from '../../../styles';
 
 type Props = {
   onChange: (
@@ -46,16 +47,21 @@ class Options extends React.Component<Props, State> {
 
   renderToggle({
     label,
+    description,
     onChange,
     checked
   }: {
     label: string;
+    description: string;
     checked?: boolean;
     onChange: (e: React.FormEvent) => void;
   }) {
     return (
       <FormGroup>
-        <ControlLabel>{label}</ControlLabel>
+        <ControlLabel>
+          {label}
+          <Description>{description}</Description>
+        </ControlLabel>
         <div>
           <Toggle
             className="wide"
@@ -123,30 +129,39 @@ class Options extends React.Component<Props, State> {
 
           {this.renderToggle({
             label: 'Require Authentication',
+            description: 'It will require email and phone in widget',
             checked: this.props.requireAuth,
             onChange: requireAuthChange
           })}
 
           {this.renderToggle({
             label: 'Show chat',
+            description:
+              'Hide chat section and show only knowledgebase and form',
             checked: this.props.showChat,
             onChange: showChatChange
           })}
 
           {this.renderToggle({
             label: 'Show launcher',
+            description:
+              'The widget section will invisible but you can still get messenger data',
             checked: this.props.showLauncher,
             onChange: showLauncherChange
           })}
 
           {this.renderToggle({
             label: 'Force logout when resolve',
+            description:
+              'If an operator resolve the conversation from inbox then client session will end automatically',
             checked: this.props.forceLogoutWhenResolve,
             onChange: forceLogoutWhenResolveChange
           })}
 
           {this.renderToggle({
             label: 'Notify customer',
+            description:
+              'If customer is offline and inserted email, it will send email when operator respond',
             checked: this.props.notifyCustomer,
             onChange: notifyCustomerChange
           })}

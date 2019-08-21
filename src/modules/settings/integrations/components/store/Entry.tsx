@@ -5,6 +5,7 @@ import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import Gmail from 'modules/settings/integrations/containers/google/Gmail';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Settings from '../../containers/engages/Settings';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import { Box, IntegrationItem, Type } from './styles';
@@ -68,6 +69,20 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add lead" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'sesconfig') {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <Settings {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add engage config"
+          trigger={trigger}
+          content={content}
+        />
       );
     }
 

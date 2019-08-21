@@ -136,6 +136,15 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/knowledge-base.png',
         createModal: 'knowledgeBase',
         createUrl: '/settings/integrations/knowledgeBase'
+      },
+      {
+        name: 'Engage config',
+        description:
+          'Set up your custome amazon simple email service account here',
+        inMessenger: false,
+        kind: 'amazon-ses',
+        logo: '/images/integrations/aws-ses.svg',
+        createModal: 'sesconfig'
       }
     ]
   },

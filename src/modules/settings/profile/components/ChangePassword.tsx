@@ -8,16 +8,22 @@ import React from 'react';
 
 type Props = {
   save: (
-    save: { currentPassword: string; newPassword: string; confirmation: string }
+    {
+      currentPassword,
+      newPassword,
+      confirmation
+    }: {
+      currentPassword: string;
+      newPassword: string;
+      confirmation: string;
+    }
   ) => void;
   closeModal: () => void;
 };
 
 class ChangePassword extends React.Component<Props> {
-  handleSubmit = e => {
-    e.preventDefault();
-
-    this.props.save({
+  generateDoc = () => {
+    return {
       currentPassword: (document.getElementById(
         'current-password'
       ) as HTMLInputElement).value,
@@ -26,9 +32,13 @@ class ChangePassword extends React.Component<Props> {
       confirmation: (document.getElementById(
         'new-password-confirmation'
       ) as HTMLInputElement).value
-    });
+    };
+  };
 
-    this.props.closeModal();
+  handleSubmit = e => {
+    e.preventDefault();
+
+    this.props.save(this.generateDoc());
   };
 
   render() {
