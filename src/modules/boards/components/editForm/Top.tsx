@@ -26,15 +26,12 @@ type Props = {
     name: 'stageId' | 'name' | 'closeDate' | 'description',
     value: any
   ) => void;
-  saveItem: (doc: any, callback?: () => void) => void;
   amount?: () => React.ReactNode;
 };
 
 class Top extends React.Component<Props> {
   onChangeStage = stageId => {
-    const { saveItem, onChangeField } = this.props;
-
-    saveItem({ stageId }, () => onChangeField('stageId', stageId));
+    this.props.onChangeField('stageId', stageId);
   };
 
   renderMove() {
@@ -51,15 +48,12 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { name, closeDate, onChangeField, amount, saveItem } = this.props;
+    const { name, closeDate, onChangeField, amount } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
 
-    const dateOnChange = date => {
-      onChangeField('closeDate', date);
-      saveItem({ closeDate: date });
-    };
+    const dateOnChange = date => onChangeField('closeDate', date);
 
     return (
       <React.Fragment>

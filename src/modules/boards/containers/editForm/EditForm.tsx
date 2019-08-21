@@ -23,7 +23,7 @@ type IProps = {
   onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
-  closeModal: () => void;
+  closeModal: (callback?: () => void) => void;
 };
 
 type FinalProps = {
@@ -73,7 +73,9 @@ class EditFormContainer extends React.Component<FinalProps> {
       .then(({ data }) => {
         Alert.success(options.texts.updateSuccessText);
 
-        callback(data[options.mutationsName.editMutation]);
+        if (callback) {
+          callback(data[options.mutationsName.editMutation]);
+        }
 
         invalidateCache();
       })

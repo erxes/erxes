@@ -24,6 +24,7 @@ type Props = {
   saveItem: (doc: ITicketParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
+  onUpdate: (item, prevStageId?: string) => void;
 };
 
 type State = {
@@ -112,7 +113,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     copy,
     remove
   }: IEditFormContent) => {
-    const { item, users, options, saveItem } = this.props;
+    const { item, users, options } = this.props;
 
     const {
       name,
@@ -129,7 +130,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
       <>
         <Top
           options={options}
-          saveItem={saveItem}
           name={name}
           description={description}
           closeDate={closeDate}
@@ -141,7 +141,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
         <FlexContent>
           <Left
-            saveItem={saveItem}
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}
@@ -151,7 +150,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
           />
 
           <Sidebar
-            saveItem={saveItem}
             options={options}
             customers={customers}
             companies={companies}

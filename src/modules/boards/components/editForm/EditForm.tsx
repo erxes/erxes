@@ -7,13 +7,15 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
+const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
+
 type Props = {
   options: IOptions;
   item: IItem;
   users: IUser[];
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  closeModal: (callback?) => void;
   extraFields?: any;
   extraFieldsCheck?: () => boolean;
   amount?: () => React.ReactNode;
@@ -21,18 +23,21 @@ type Props = {
   formContent: (
     { state, onChangeAttachment, onChangeField, copy, remove }: IEditFormContent
   ) => React.ReactNode;
-  onHideModal?: () => void;
+  onUpdate: (item, prevStageId?) => void;
+  saveItem: (doc, callback?: (item) => void) => void;
 };
 
 type State = {
-  name: string;
-  stageId: string;
-  description: string;
-  closeDate: Date;
-  assignedUserIds: string[];
-  customers: ICustomer[];
-  companies: ICompany[];
-  attachments: IAttachment[];
+  name?: string;
+  stageId?: string;
+  description?: string;
+  closeDate?: Date;
+  assignedUserIds?: string[];
+  customers?: ICustomer[];
+  companies?: ICompany[];
+  attachments?: IAttachment[];
+  updatedItem?;
+  prevStageId?;
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -55,11 +60,27 @@ class EditForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+      if (this.props.item.stageId !== this.state.stageId) {
+        this.setState({
+          prevStageId: this.props.item.stageId
+        });
+      }
+
+      if (reactiveFields.includes(name)) {
+        this.props.saveItem({ [name]: value }, updatedItem => {
+          this.setState({ updatedItem });
+        });
+      }
+    });
   };
 
   onChangeAttachment = (attachments: IAttachment[]) => {
-    this.setState({ attachments });
+    this.setState({ attachments }, () => {
+      this.props.saveItem({ attachments }, updatedItem => {
+        this.setState({ updatedItem });
+      });
+    });
   };
 
   remove = (id: string) => {
@@ -86,13 +107,23 @@ class EditForm extends React.Component<Props, State> {
     );
   };
 
+  onHideModal = () => {
+    const { updatedItem, prevStageId } = this.state;
+
+    this.props.closeModal(() => {
+      if (updatedItem) {
+        this.props.onUpdate(updatedItem, prevStageId);
+      }
+    });
+  };
+
   render() {
     return (
       <Modal
         enforceFocus={false}
         bsSize="lg"
         show={true}
-        onHide={this.props.onHideModal}
+        onHide={this.onHideModal}
       >
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit deal')}</Modal.Title>

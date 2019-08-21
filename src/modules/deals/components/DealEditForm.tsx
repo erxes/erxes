@@ -17,17 +17,16 @@ type Props = {
   item: IDeal;
   users: IUser[];
   addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: IDealParams, callback: (item) => void) => void;
+  saveItem: (doc: IDealParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  closeModal: (callback?: () => void) => void;
 };
 
 type State = {
   amount: any;
   products: IProduct[];
   productsData: any;
-  item?: any;
 };
 
 export default class DealEditForm extends React.Component<Props, State> {
@@ -43,28 +42,6 @@ export default class DealEditForm extends React.Component<Props, State> {
       products: item.products ? item.products.map(p => p.product) : []
     };
   }
-
-  save = (doc, callback?) => {
-    const { saveItem } = this.props;
-
-    saveItem(doc, item => {
-      this.setState({ item });
-
-      if (callback) {
-        callback();
-      }
-    });
-  };
-
-  onHideModal = () => {
-    this.props.closeModal();
-
-    if (this.state.item) {
-      this.props.onUpdate(this.state.item);
-    }
-
-    this.setState({ item: undefined });
-  };
 
   renderAmount = () => {
     const { amount } = this.state;
@@ -134,12 +111,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState(
-      { productsData: filteredProductsData, products, amount },
-      () => {
-        this.save({ productsData: this.state.productsData });
-      }
-    );
+    this.setState({ productsData: filteredProductsData, products, amount });
   };
 
   checkProductsData = () => {
@@ -181,7 +153,6 @@ export default class DealEditForm extends React.Component<Props, State> {
           closeDate={closeDate}
           amount={this.renderAmount}
           users={users}
-          saveItem={this.save}
           stageId={stageId}
           item={item}
           onChangeField={onChangeField}
@@ -192,7 +163,6 @@ export default class DealEditForm extends React.Component<Props, State> {
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}
-            saveItem={this.save}
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}
@@ -204,7 +174,6 @@ export default class DealEditForm extends React.Component<Props, State> {
             companies={companies}
             assignedUserIds={assignedUserIds}
             item={item}
-            saveItem={this.save}
             sidebar={this.renderProductSection}
             onChangeField={onChangeField}
             copyItem={copy}
@@ -222,7 +191,6 @@ export default class DealEditForm extends React.Component<Props, State> {
       ...this.props,
       extraFieldsCheck: this.checkProductsData,
       extraFields: { productsData },
-      onHideModal: this.onHideModal,
       amount: this.renderAmount,
       sidebar: this.renderProductSection,
       formContent: this.renderFormContent

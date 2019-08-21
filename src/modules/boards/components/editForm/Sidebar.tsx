@@ -5,7 +5,6 @@ import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICompany } from 'modules/companies/types';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
 import { ICustomer } from 'modules/customers/types';
-import { IDealParams } from 'modules/deals/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Watch } from '../../containers/editForm/';
@@ -23,7 +22,6 @@ type Props = {
   ) => void;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
-  saveItem: (doc: IDealParams, callback: () => void) => void;
   sidebar?: () => React.ReactNode;
   options: IOptions;
 };
@@ -52,11 +50,7 @@ class Sidebar extends React.Component<Props> {
     const cmpsChange = cmps => this.onChange('companies', cmps);
     const cmrsChange = cmrs => this.onChange('customers', cmrs);
     const onClick = () => removeItem(item._id);
-    const userOnChange = usrs => {
-      this.props.saveItem({ assignedUserIds: usrs }, () =>
-        this.onChange('assignedUserIds', usrs)
-      );
-    };
+    const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
 
     return (
       <RightContent>

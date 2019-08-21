@@ -64,7 +64,7 @@ class DraggableContainer extends React.Component<
     }
   }
 
-  onTogglePopup = () => {
+  onTogglePopup = (callback?) => {
     const { item } = this.props;
     const { isFormVisible, isDragDisabled } = this.state;
     const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
@@ -73,10 +73,14 @@ class DraggableContainer extends React.Component<
       { isDragDisabled: !isDragDisabled, isFormVisible: !isFormVisible },
       () => {
         if (itemIdQueryParam) {
-          return routerUtils.removeParams(history, 'itemId');
+          routerUtils.removeParams(history, 'itemId');
+        } else {
+          routerUtils.setParams(history, { itemId: item._id });
         }
 
-        return routerUtils.setParams(history, { itemId: item._id });
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
       }
     );
   };
