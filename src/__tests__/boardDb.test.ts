@@ -218,14 +218,6 @@ describe('Test board model', () => {
     expect(updatedStage.name).toEqual(stageName);
   });
 
-  test('Change stage', async () => {
-    const pipelineToUpdate = await pipelineFactory({});
-    const changedStage = await Stages.changeStage(stage._id, pipelineToUpdate._id);
-
-    expect(changedStage).toBeDefined();
-    expect(changedStage.pipelineId).toEqual(pipelineToUpdate._id);
-  });
-
   test('Update stage orders', async () => {
     const stageToOrder = await stageFactory({});
 
@@ -236,35 +228,5 @@ describe('Test board model', () => {
 
     expect(updatedStage.order).toBe(5);
     expect(updatedStageToOrder.order).toBe(9);
-  });
-
-  test('Remove stage', async () => {
-    await Deals.updateMany({}, { $set: { stageId: 'stageId' } });
-
-    const isDeleted = await Stages.removeStage(stage.id);
-
-    expect(isDeleted).toBeTruthy();
-  });
-
-  test('Remove stage not found', async () => {
-    expect.assertions(1);
-
-    const fakeStageId = 'fakeStageId';
-
-    try {
-      await Stages.removeStage(fakeStageId);
-    } catch (e) {
-      expect(e.message).toEqual('Stage not found');
-    }
-  });
-
-  test("Can't remove a stage", async () => {
-    expect.assertions(1);
-
-    try {
-      await Stages.removeStage(stage._id);
-    } catch (e) {
-      expect(e.message).toEqual("Can't remove a stage");
-    }
   });
 });
