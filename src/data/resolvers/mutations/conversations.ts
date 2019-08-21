@@ -120,7 +120,7 @@ const sendNotifications = async ({
     switch (type) {
       case NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE:
         doc.action = `sent you a message`;
-        doc.receivers = conversationNotifReceivers(conversation, user._id, false);
+        doc.receivers = conversationNotifReceivers(conversation, user._id);
         break;
       case NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE:
         doc.action = 'has assigned you to conversation ';
