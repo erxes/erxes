@@ -4,7 +4,8 @@ import { MainWrapper } from 'modules/layout/styles';
 import { userConfirmation } from 'modules/settings/team/routes';
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import history from './browserHistory';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import CompaniesRoutes from './modules/companies/routes';
@@ -73,7 +74,7 @@ const renderRoutes = currentUser => {
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
-  <Router>{renderRoutes(currentUser)}</Router>
+  <Router history={history}>{renderRoutes(currentUser)}</Router>
 );
 
 export default withCurrentUser(Routes);

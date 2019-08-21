@@ -13,6 +13,7 @@ import { ITask } from '../types';
 type Props = {
   stageId: string;
   item: ITask;
+  isFormVisible: boolean;
   isDragging: boolean;
   provided;
   onAdd: (stageId: string, item: ITask) => void;
@@ -22,16 +23,7 @@ type Props = {
   options: IOptions;
 };
 
-export default class TaskItem extends React.PureComponent<
-  Props,
-  { isFormVisible: boolean }
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = { isFormVisible: false };
-  }
-
+class TaskItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
     if (!date) {
       return null;
@@ -40,24 +32,24 @@ export default class TaskItem extends React.PureComponent<
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = () => {
-    this.props.onTogglePopup();
-
-    const { isFormVisible } = this.state;
-
-    this.setState({ isFormVisible: !isFormVisible });
-  };
-
   renderForm = () => {
-    const { stageId, item, onAdd, onRemove, onUpdate, options } = this.props;
-    const { isFormVisible } = this.state;
+    const {
+      onTogglePopup,
+      isFormVisible,
+      stageId,
+      item,
+      onAdd,
+      onRemove,
+      onUpdate,
+      options
+    } = this.props;
 
     if (!isFormVisible) {
       return null;
     }
 
     return (
-      <Modal bsSize="lg" show={true} onHide={this.toggleForm}>
+      <Modal bsSize="lg" show={true} onHide={onTogglePopup}>
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Edit task')}</Modal.Title>
         </Modal.Header>
@@ -69,7 +61,7 @@ export default class TaskItem extends React.PureComponent<
             onAdd={onAdd}
             onRemove={onRemove}
             onUpdate={onUpdate}
-            closeModal={this.toggleForm}
+            closeModal={onTogglePopup}
           />
         </Modal.Body>
       </Modal>
@@ -77,7 +69,7 @@ export default class TaskItem extends React.PureComponent<
   };
 
   render() {
-    const { item, isDragging, provided } = this.props;
+    const { onTogglePopup, item, isDragging, provided } = this.props;
     const { customers, companies } = item;
 
     return (
@@ -87,7 +79,7 @@ export default class TaskItem extends React.PureComponent<
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
+        <Content onClick={onTogglePopup}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}
@@ -132,3 +124,5 @@ export default class TaskItem extends React.PureComponent<
     );
   }
 }
+
+export default TaskItem;

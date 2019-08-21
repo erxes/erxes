@@ -6,6 +6,7 @@ import { IDeal } from '../types';
 type Props = {
   stageId: string;
   item: IDeal;
+  isFormVisible: boolean;
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;
@@ -20,6 +21,7 @@ export default (props: Props) => {
             options={options}
             stageId={props.stageId}
             item={props.item}
+            isFormVisible={props.isFormVisible}
             isDragging={props.isDragging}
             provided={props.provided}
             onTogglePopup={props.onTogglePopup}
