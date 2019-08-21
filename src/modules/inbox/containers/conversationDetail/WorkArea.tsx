@@ -6,7 +6,7 @@ import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
-import { sendWebNotification, withProps } from '../../../common/utils';
+import { sendDesktopNotification, withProps } from '../../../common/utils';
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
@@ -110,7 +110,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           };
 
           // send desktop notification
-          sendWebNotification({
+          sendDesktopNotification({
             title: NOTIFICATION_TYPE[kind],
             content: message.content || ''
           });

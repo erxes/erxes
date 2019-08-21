@@ -234,7 +234,7 @@ export const generateRandomString = (len: number = 10) => {
 /**
  * Send desktop notification
  */
-export const sendWebNotification = (doc: {
+export const sendDesktopNotification = (doc: {
   title: string;
   content?: string;
 }) => {

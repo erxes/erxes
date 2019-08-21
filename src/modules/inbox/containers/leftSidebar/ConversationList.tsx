@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import {
   router as routerUtils,
-  sendWebNotification,
+  sendDesktopNotification,
   withProps
 } from 'modules/common/utils';
 import ConversationList from 'modules/inbox/components/leftSidebar/ConversationList';
@@ -54,7 +54,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
         totalCountQuery.refetch();
 
         // send desktop notification
-        sendWebNotification({ title: 'You have a new message' });
+        sendDesktopNotification({ title: 'You have a new message' });
       }
     });
   }

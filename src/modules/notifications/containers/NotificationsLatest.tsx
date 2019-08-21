@@ -1,7 +1,11 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
+import {
+  Alert,
+  sendDesktopNotification,
+  withProps
+} from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import NotificationsLatest from '../components/NotificationsLatest';
@@ -32,6 +36,7 @@ class NotificationsLatestContainer extends React.Component<FinalProps> {
       variables: { userId: currentUser ? currentUser._id : null },
       updateQuery: () => {
         notificationsQuery.refetch();
+        sendDesktopNotification({ title: 'You have a new notification' });
       }
     });
   }
