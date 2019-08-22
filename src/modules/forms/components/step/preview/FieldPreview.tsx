@@ -1,3 +1,5 @@
+import { ShowPreview } from 'modules/common/components/form/styles';
+import Icon from 'modules/common/components/Icon';
 import GenerateField from 'modules/settings/properties/components/GenerateField';
 import React from 'react';
 import { IField } from '../../../../settings/properties/types';

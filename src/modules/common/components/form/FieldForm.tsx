@@ -18,6 +18,7 @@ import {
   PreviewSection,
   ShowPreview
 } from './styles';
+import FieldPreview from 'modules/forms/components/step/preview/FieldPreview';
 
 type Props = {
   closeModal?: () => void;
@@ -130,8 +131,35 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderButtons() {
+    const { closeModal } = this.props;
+
+    return (
+      <ModalFooter>
+        <Button
+          btnStyle="simple"
+          size="small"
+          type="button"
+          icon="cancel-1"
+          onClick={closeModal}
+        >
+          Cancel
+        </Button>
+
+        <Button
+          size="small"
+          onClick={this.onSubmit}
+          btnStyle="success"
+          icon="add"
+        >
+          Add
+        </Button>
+      </ModalFooter>
+    );
+  }
+
   renderLeftContent() {
-    const { type, closeModal } = this.props;
+    const { type } = this.props;
     const { editingField = {} as IField } = this.state;
 
     const text = e =>
@@ -187,26 +215,7 @@ class FieldForm extends React.Component<Props, State> {
           />
         </FlexRow>
 
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            size="small"
-            type="button"
-            icon="cancel-1"
-            onClick={closeModal}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            size="small"
-            onClick={this.onSubmit}
-            btnStyle="success"
-            icon="add"
-          >
-            Add
-          </Button>
-        </ModalFooter>
+        {this.renderButtons()}
       </>
     );
   }
@@ -222,13 +231,10 @@ class FieldForm extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldItem>
-              <GenerateField field={editingField} />
-
-              <ShowPreview>
-                <Icon icon="eye" /> Show field preview
-              </ShowPreview>
-            </FieldItem>
+            <FieldPreview field={editingField} />
+            <ShowPreview>
+              <Icon icon="eye" /> Haregerg sierughiseuhrg
+            </ShowPreview>
           </Preview>
         </PreviewSection>
       </FlexItem>

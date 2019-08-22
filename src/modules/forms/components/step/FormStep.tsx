@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import FieldForm from 'modules/common/components/form/FieldForm';
 import Fields from 'modules/common/components/form/Fields';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -57,7 +58,17 @@ class FormStep extends React.Component<Props, State> {
   };
 
   onFieldEdit = (field: IField) => {
-    this.setState({ editingField: field });
+    // tslint:disable-next-line:no-console
+    console.log(field);
+    const type = { value: 'type', children: 'string' };
+
+    return (
+      <FieldForm
+        onSubmit={this.onSubmit}
+        onChange={this.onFieldChange}
+        type={type}
+      />
+    );
   };
 
   onFieldAttrChange = (name: string, value: string | boolean | string[]) => {
