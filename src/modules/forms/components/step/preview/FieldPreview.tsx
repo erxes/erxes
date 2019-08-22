@@ -1,4 +1,3 @@
-import FieldForm from 'modules/common/components/form/FieldForm';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import GenerateField from 'modules/settings/properties/components/GenerateField';
 import React from 'react';
@@ -11,16 +10,8 @@ type Props = {
 };
 
 class FieldPreview extends React.Component<Props, {}> {
-  renderContent = props => {
-    const { field, onFieldEdit } = this.props;
-
-    if (onFieldEdit) {
-      return onFieldEdit(field, props);
-    }
-  };
-
   render() {
-    const { field } = this.props;
+    const { field, onFieldEdit } = this.props;
 
     const trigger = (
       <FieldItem selectType={field.type === 'select'} noPadding={true}>
@@ -28,12 +19,15 @@ class FieldPreview extends React.Component<Props, {}> {
       </FieldItem>
     );
 
+    const content = props =>
+      onFieldEdit ? onFieldEdit(field, props) : <div />;
+
     return (
       <ModalTrigger
         title={`Edit field`}
         size="lg"
         trigger={trigger}
-        content={this.renderContent}
+        content={content}
       />
     );
   }

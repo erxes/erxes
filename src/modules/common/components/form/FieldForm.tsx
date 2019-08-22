@@ -1,8 +1,6 @@
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import FieldPreview from 'modules/forms/components/step/preview/FieldPreview';
-import { FieldItem } from 'modules/forms/components/step/preview/styles';
-import GenerateField from 'modules/settings/properties/components/GenerateField';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Toggle from 'react-toggle';
@@ -114,9 +112,7 @@ class FieldForm extends React.Component<Props, State> {
       );
 
     if (
-      !['select', 'check', 'radio'].includes(
-        type.value || editingField.type || ''
-      )
+      !['select', 'check', 'radio'].includes(editingField.type || type.value)
     ) {
       return null;
     }
@@ -160,7 +156,7 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderLeftContent() {
-    const { type, field, closeModal } = this.props;
+    const { type, closeModal } = this.props;
     const { editingField = {} as IField } = this.state;
 
     const text = e =>
