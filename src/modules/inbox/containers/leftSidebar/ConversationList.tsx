@@ -1,16 +1,11 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
-import {
-  router as routerUtils,
-  sendDesktopNotification,
-  withProps
-} from 'modules/common/utils';
+import { router as routerUtils, withProps } from 'modules/common/utils';
 import ConversationList from 'modules/inbox/components/leftSidebar/ConversationList';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import strip from 'strip';
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
@@ -46,17 +41,10 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
     conversationsQuery.subscribeToMore({
       document: gql(subscriptions.conversationClientMessageInserted),
       variables: { userId: currentUser ? currentUser._id : null },
-      updateQuery: (prev, { subscriptionData: { data } }) => {
-        const { conversationClientMessageInserted } = data;
-        const { content } = conversationClientMessageInserted;
+      updateQuery: () => {
         if (updateCountsForNewMessage) {
           updateCountsForNewMessage();
         }
-
-        sendDesktopNotification({
-          title: 'You have a new message',
-          content: strip(content)
-        });
 
         conversationsQuery.refetch();
         totalCountQuery.refetch();
