@@ -22,12 +22,15 @@ type WrapperProps = {
   stageId: string;
   closeModal: (callback?: () => void) => void;
   options?: IOptions;
-};
-
-type ContainerProps = {
   onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
+};
+
+type ContainerProps = {
+  onAdd: (stageId: string, item: IItem) => void;
+  onRemove: (itemId: string, stageId: string) => void;
+  onUpdate: (item: IItem, prevStageId: string) => void;
   options: IOptions;
 } & WrapperProps;
 
@@ -227,9 +230,9 @@ export default (props: WrapperProps) => {
         return (
           <WithData
             {...props}
-            onAdd={onAddItem}
-            onRemove={onRemoveItem}
-            onUpdate={onUpdateItem}
+            onAdd={onAddItem || props.onAdd}
+            onRemove={onRemoveItem || props.onRemove}
+            onUpdate={onUpdateItem || props.onUpdate}
             options={options || props.options}
           />
         );
