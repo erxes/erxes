@@ -7,7 +7,13 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
-const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
+const reactiveFields = [
+  'closeDate',
+  'stageId',
+  'assignedUserIds',
+  'customers',
+  'companies'
+];
 
 type Props = {
   options: IOptions;
@@ -61,6 +67,8 @@ class EditForm extends React.Component<Props, State> {
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+      let fieldName: string = name;
+
       if (this.props.item.stageId !== this.state.stageId) {
         this.setState({
           prevStageId: this.props.item.stageId
@@ -68,7 +76,17 @@ class EditForm extends React.Component<Props, State> {
       }
 
       if (reactiveFields.includes(name)) {
-        this.props.saveItem({ [name]: value }, updatedItem => {
+        if (name === 'companies') {
+          value = value.map(coc => coc._id);
+          fieldName = 'companyIds';
+        }
+
+        if (name === 'customers') {
+          value = value.map(coc => coc._id);
+          fieldName = 'customerIds';
+        }
+
+        this.props.saveItem({ [fieldName]: value }, updatedItem => {
           this.setState({ updatedItem });
         });
       }
