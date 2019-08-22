@@ -5,6 +5,7 @@ import * as express from 'express';
 // load environment variables
 dotenv.config();
 
+import initCallPro from './callpro/controller';
 import { connect } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
@@ -94,6 +95,9 @@ initFacebook(app);
 
 // init gmail
 initGmail(app);
+
+// init callpro
+initCallPro(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {

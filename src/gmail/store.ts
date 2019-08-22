@@ -128,6 +128,7 @@ const createOrGetConversationMessage = async (
         method: 'POST',
         body: {
           action: 'create-conversation-message',
+          metaInfo: 'replaceContent',
           payload: JSON.stringify({
             conversationId: conversationErxesApiId,
             customerId: customerErxesApiId,
