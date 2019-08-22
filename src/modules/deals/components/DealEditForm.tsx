@@ -85,6 +85,7 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   saveProductsData = () => {
     const { productsData } = this.state;
+    const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
 
@@ -111,7 +112,12 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ productsData: filteredProductsData, products, amount });
+    this.setState(
+      { productsData: filteredProductsData, products, amount },
+      () => {
+        saveItem({ productsData: this.state.productsData });
+      }
+    );
   };
 
   checkProductsData = () => {
