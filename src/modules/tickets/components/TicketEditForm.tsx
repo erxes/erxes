@@ -22,9 +22,9 @@ type Props = {
   users: IUser[];
   addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITicketParams, callback?: (item) => void) => void;
-  removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
   onUpdate: (item, prevStageId?: string) => void;
+  removeItem: (itemId: string, callback: () => void) => void;
+  closeModal: (callback?: () => void) => void;
 };
 
 type State = {
@@ -61,10 +61,16 @@ export default class TicketEditForm extends React.Component<Props, State> {
       value: 'other'
     });
 
-    const onChangePriority = (option: ISelectedOption) =>
-      this.onChangeField('priority', option ? option.value : '');
-    const onChangeSource = (option: ISelectedOption) =>
-      this.onChangeField('source', option ? option.value : '');
+    const onChangePriority = (option: ISelectedOption) => {
+      this.props.saveItem({ priority: option ? option.value : '' }, () =>
+        this.onChangeField('priority', option ? option.value : '')
+      );
+    };
+    const onChangeSource = (option: ISelectedOption) => {
+      this.props.saveItem({ source: option ? option.value : '' }, () =>
+        this.onChangeField('source', option ? option.value : '')
+      );
+    };
 
     const priorityValueRenderer = (
       option: ISelectedOption

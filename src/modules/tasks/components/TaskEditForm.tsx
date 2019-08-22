@@ -21,8 +21,8 @@ type Props = {
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
   onUpdate: (item, prevStageId?: string) => void;
+  closeModal: (callback?: () => void) => void;
 };
 
 type State = {
@@ -49,8 +49,11 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
     const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
 
-    const onChangePriority = (option: ISelectedOption) =>
-      this.onChangeField('priority', option ? option.value : '');
+    const onChangePriority = (option: ISelectedOption) => {
+      this.props.saveItem({ priority: option ? option.value : '' }, () =>
+        this.onChangeField('priority', option ? option.value : '')
+      );
+    };
 
     const priorityValueRenderer = (
       option: ISelectedOption

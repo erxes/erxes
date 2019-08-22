@@ -7,7 +7,6 @@ import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
 import { ITask } from '../types';
 
 type Props = {
@@ -49,22 +48,15 @@ class TaskItem extends React.PureComponent<Props, {}> {
     }
 
     return (
-      <Modal bsSize="lg" show={true} onHide={onTogglePopup}>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit task')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <EditForm
-            options={options}
-            stageId={stageId}
-            itemId={item._id}
-            onAdd={onAdd}
-            onRemove={onRemove}
-            onUpdate={onUpdate}
-            closeModal={onTogglePopup}
-          />
-        </Modal.Body>
-      </Modal>
+      <EditForm
+        options={options}
+        stageId={stageId}
+        itemId={item._id}
+        onAdd={onAdd}
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+        closeModal={onTogglePopup}
+      />
     );
   };
 

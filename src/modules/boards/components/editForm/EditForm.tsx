@@ -54,7 +54,7 @@ class EditForm extends React.Component<Props, State> {
       customers: item.customers || [],
       closeDate: item.closeDate,
       description: item.description || '',
-      attachments: extractAttachment(item.attachments),
+      attachments: item.attachments && extractAttachment(item.attachments),
       assignedUserIds: (item.assignedUsers || []).map(user => user._id)
     };
   }
