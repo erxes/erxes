@@ -3,7 +3,6 @@ import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
-import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
@@ -17,11 +16,7 @@ type Props = {
   isFormVisible: boolean;
   isDragging: boolean;
   provided;
-  onAdd: (stageId: string, item: IDeal) => void;
-  onRemove: (dealId: string, stageId: string) => void;
-  onUpdate: (item: IDeal) => void;
   onTogglePopup: () => void;
-  options: IOptions;
 };
 
 class DealItem extends React.PureComponent<Props, {}> {
@@ -34,16 +29,7 @@ class DealItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const {
-      onTogglePopup,
-      isFormVisible,
-      stageId,
-      item,
-      onAdd,
-      onRemove,
-      onUpdate,
-      options
-    } = this.props;
+    const { onTogglePopup, isFormVisible, stageId, item } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -51,12 +37,8 @@ class DealItem extends React.PureComponent<Props, {}> {
 
     return (
       <EditForm
-        options={options}
         stageId={stageId}
         itemId={item._id}
-        onAdd={onAdd}
-        onRemove={onRemove}
-        onUpdate={onUpdate}
         closeModal={onTogglePopup}
       />
     );

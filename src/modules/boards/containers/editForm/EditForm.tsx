@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import Spinner from 'modules/common/components/Spinner';
-import { Alert, confirm, renderWithProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
@@ -15,16 +15,20 @@ import {
   SaveMutation
 } from '../../types';
 import { invalidateCache } from '../../utils';
+import { PipelineConsumer } from '../PipelineContext';
 
-type IProps = {
-  options: IOptions;
+type WrapperProps = {
   itemId: string;
   stageId: string;
+  closeModal: (callback?: () => void) => void;
+};
+
+type ContainerProps = {
   onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
-  closeModal: (callback?: () => void) => void;
-};
+  options: IOptions;
+} & WrapperProps;
 
 type FinalProps = {
   detailQuery: DetailQueryResponse;
@@ -33,7 +37,7 @@ type FinalProps = {
   addMutation: SaveMutation;
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
-} & IProps;
+} & ContainerProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -136,13 +140,12 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 }
 
-export default (props: IProps) => {
+const withQuery = (props: ContainerProps) => {
   const { options } = props;
 
-  return renderWithProps<IProps>(
-    props,
+  return withProps<ContainerProps>(
     compose(
-      graphql<IProps, DetailQueryResponse, { _id: string }>(
+      graphql<ContainerProps, DetailQueryResponse, { _id: string }>(
         gql(options.queries.detailQuery),
         {
           name: 'detailQuery',
@@ -156,10 +159,13 @@ export default (props: IProps) => {
           }
         }
       ),
-      graphql<IProps, AllUsersQueryResponse>(gql(userQueries.allUsers), {
-        name: 'usersQuery'
-      }),
-      graphql<IProps, SaveMutation, IItemParams>(
+      graphql<ContainerProps, AllUsersQueryResponse>(
+        gql(userQueries.allUsers),
+        {
+          name: 'usersQuery'
+        }
+      ),
+      graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
           name: 'addMutation',
@@ -173,13 +179,13 @@ export default (props: IProps) => {
           })
         }
       ),
-      graphql<IProps, SaveMutation, IItemParams>(
+      graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
           name: 'editMutation'
         }
       ),
-      graphql<IProps, RemoveMutation, { _id: string }>(
+      graphql<ContainerProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
           name: 'removeMutation',
@@ -194,5 +200,39 @@ export default (props: IProps) => {
         }
       )
     )(EditFormContainer)
+  );
+};
+
+class WithData extends React.Component<ContainerProps> {
+  private withQuery;
+
+  constructor(props) {
+    super(props);
+
+    this.withQuery = withQuery(props);
+  }
+
+  render() {
+    const Component = this.withQuery;
+
+    return <Component {...this.props} />;
+  }
+}
+
+export default (props: WrapperProps) => {
+  return (
+    <PipelineConsumer>
+      {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
+        return (
+          <WithData
+            {...props}
+            onAdd={onAddItem}
+            onRemove={onRemoveItem}
+            onUpdate={onUpdateItem}
+            options={options}
+          />
+        );
+      }}
+    </PipelineConsumer>
   );
 };

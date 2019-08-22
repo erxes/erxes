@@ -1,7 +1,7 @@
 import { toArray } from 'modules/boards/utils';
 import PortableTicket from 'modules/tickets/components/PortableTicket';
 import TicketEditForm from 'modules/tickets/components/TicketEditForm';
-import TicketItem from './containers/TicketItem';
+import TicketItem from './components/TicketItem';
 import { mutations, queries } from './graphql';
 
 const options = {
