@@ -1,9 +1,14 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
+import {
+  Alert,
+  sendDesktopNotification,
+  withProps
+} from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import strip from 'strip';
 import NotificationsLatest from '../components/NotificationsLatest';
 import { mutations, queries, subscriptions } from '../graphql';
 import {
@@ -30,7 +35,12 @@ class NotificationsLatestContainer extends React.Component<FinalProps> {
     notificationsQuery.subscribeToMore({
       document: subscription,
       variables: { userId: currentUser ? currentUser._id : null },
-      updateQuery: () => {
+      updateQuery: (prev, { subscriptionData: { data } }) => {
+        const { notificationInserted } = data;
+        const { title, content } = notificationInserted;
+
+        sendDesktopNotification({ title, content: strip(content || '') });
+
         notificationsQuery.refetch();
       }
     });
