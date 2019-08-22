@@ -21,6 +21,7 @@ type WrapperProps = {
   itemId: string;
   stageId: string;
   closeModal: (callback?: () => void) => void;
+  options?: IOptions;
 };
 
 type ContainerProps = {
@@ -229,7 +230,7 @@ export default (props: WrapperProps) => {
             onAdd={onAddItem}
             onRemove={onRemoveItem}
             onUpdate={onUpdateItem}
-            options={options}
+            options={options || props.options}
           />
         );
       }}

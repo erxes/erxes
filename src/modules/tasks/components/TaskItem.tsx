@@ -3,6 +3,7 @@ import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
+import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
@@ -15,6 +16,7 @@ type Props = {
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;
+  options?: IOptions;
 };
 
 class TaskItem extends React.PureComponent<Props, {}> {
@@ -27,7 +29,7 @@ class TaskItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { onTogglePopup, isFormVisible, stageId, item } = this.props;
+    const { onTogglePopup, isFormVisible, stageId, item, options } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -35,6 +37,7 @@ class TaskItem extends React.PureComponent<Props, {}> {
 
     return (
       <EditForm
+        options={options}
         stageId={stageId}
         itemId={item._id}
         closeModal={onTogglePopup}

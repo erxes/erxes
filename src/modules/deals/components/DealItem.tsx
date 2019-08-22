@@ -8,6 +8,7 @@ import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 
+import { IOptions } from 'modules/boards/types';
 import { IDeal } from '../types';
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
   isDragging: boolean;
   provided;
   onTogglePopup: () => void;
+  options?: IOptions;
 };
 
 class DealItem extends React.PureComponent<Props, {}> {
@@ -29,7 +31,7 @@ class DealItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { onTogglePopup, isFormVisible, stageId, item } = this.props;
+    const { onTogglePopup, isFormVisible, stageId, item, options } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -37,6 +39,7 @@ class DealItem extends React.PureComponent<Props, {}> {
 
     return (
       <EditForm
+        options={options}
         stageId={stageId}
         itemId={item._id}
         closeModal={onTogglePopup}
