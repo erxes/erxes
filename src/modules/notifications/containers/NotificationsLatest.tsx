@@ -8,6 +8,7 @@ import {
 } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import strip from 'strip';
 import NotificationsLatest from '../components/NotificationsLatest';
 import { mutations, queries, subscriptions } from '../graphql';
 import {
@@ -38,7 +39,7 @@ class NotificationsLatestContainer extends React.Component<FinalProps> {
         const { notificationInserted } = data;
         const { title, content } = notificationInserted;
 
-        sendDesktopNotification({ title, content });
+        sendDesktopNotification({ title, content: strip(content || '') });
 
         notificationsQuery.refetch();
       }
