@@ -8,7 +8,7 @@ import { Field, Options } from './styles';
 type Props = {
   children?: any[];
   editingField?: IField;
-  onChange: (name: string, value: string | boolean | string[]) => void;
+  onChange: (value: IField, callback: () => void) => void;
   onSubmit: (e: any) => void;
 };
 
@@ -63,7 +63,7 @@ class FormFields extends React.Component<Props> {
         type={option}
         onSubmit={onSubmit}
         onChange={onChange}
-        value={editingField}
+        editingField={editingField}
       />
     );
 

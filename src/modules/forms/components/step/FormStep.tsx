@@ -64,6 +64,10 @@ class FormStep extends React.Component<Props, State> {
     this.setFieldAttrChanges(name, value);
   };
 
+  onFieldChange = (value: IField, callback: () => void) => {
+    this.setState({ editingField: value }, () => callback());
+  };
+
   onChangeState = (name: any, value: string) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
@@ -71,8 +75,7 @@ class FormStep extends React.Component<Props, State> {
 
   onSubmit = e => {
     e.preventDefault();
-    // tslint:disable-next-line:no-console
-    console.log('a');
+
     const editingField = this.state.editingField || ({} as IField);
 
     const doc = {
@@ -108,8 +111,7 @@ class FormStep extends React.Component<Props, State> {
     editingField[attributeName] = value;
 
     this.setState({ editingField });
-    // tslint:disable-next-line:no-console
-    console.log('a', attributeName, value);
+
     this.props.onChange('fields', fields);
   }
 
@@ -367,7 +369,7 @@ class FormStep extends React.Component<Props, State> {
         <Title>New field</Title>
         <Fields
           onSubmit={this.onSubmit}
-          onChange={this.onFieldAttrChange}
+          onChange={this.onFieldChange}
           editingField={this.state.editingField}
         >
           <option value="input">{__('Input')}</option>

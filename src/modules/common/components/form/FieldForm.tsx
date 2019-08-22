@@ -1,28 +1,34 @@
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { FieldItem } from 'modules/forms/components/step/preview/styles';
+import GenerateField from 'modules/settings/properties/components/GenerateField';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Toggle from 'react-toggle';
 import { ModalFooter } from '../../styles/main';
 import Button from '../Button';
+import Icon from '../Icon';
 import FormControl from './Control';
-import FieldPreview from './FieldPreview';
 import FormGroup from './Group';
 import ControlLabel from './Label';
-import { FlexRow, LeftSection, Preview, PreviewSection } from './styles';
+import {
+  FlexRow,
+  LeftSection,
+  Preview,
+  PreviewSection,
+  ShowPreview
+} from './styles';
 
 type Props = {
   closeModal?: () => void;
   afterSave?: () => void;
-  onChange: (name: string, value: string | boolean | string[]) => void;
+  onChange: (value: IField, callback: () => void) => void;
   onSubmit: (e: any) => void;
   type: { value: string; children: string };
-  editingField?: IField;
 };
 
 type State = {
-  chosenFieldType?: string;
+  editingField?: IField;
 };
 
 class FieldForm extends React.Component<Props, State> {
@@ -30,16 +36,42 @@ class FieldForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      chosenFieldType: ''
+      editingField: undefined
     };
   }
 
   onFieldChange = (name: string, value: string | boolean | string[]) => {
-    this.props.onChange(name, value);
+    this.setFieldAttrChanges(name, value);
   };
 
+  onSubmit = e => {
+    e.preventDefault();
+
+    const { editingField = {} as IField } = this.state;
+
+    this.props.onChange(editingField, () => {
+      this.props.onSubmit(e);
+    });
+
+    if (this.props.closeModal) {
+      this.props.closeModal();
+    }
+  };
+
+  setFieldAttrChanges(
+    attributeName: string,
+    value: string | boolean | string[]
+  ) {
+    const editingField =
+      this.state.editingField || ({ type: this.props.type.value } as IField);
+
+    editingField[attributeName] = value;
+
+    this.setState({ editingField });
+  }
+
   renderValidation() {
-    const { editingField = {} as IField } = this.props;
+    const { editingField = {} as IField } = this.state;
 
     const validation = e =>
       this.onFieldChange(
@@ -68,7 +100,7 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderOptions(type) {
-    const { editingField = {} as IField } = this.props;
+    const { editingField = {} as IField } = this.state;
 
     const onChange = e =>
       this.onFieldChange(
@@ -99,8 +131,8 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   renderLeftContent() {
-    const { type, onSubmit, closeModal } = this.props;
-    const { editingField = {} as IField } = this.props;
+    const { type, closeModal } = this.props;
+    const { editingField = {} as IField } = this.state;
 
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
@@ -166,7 +198,12 @@ class FieldForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button size="small" onClick={onSubmit} btnStyle="success" icon="add">
+          <Button
+            size="small"
+            onClick={this.onSubmit}
+            btnStyle="success"
+            icon="add"
+          >
             Add
           </Button>
         </ModalFooter>
@@ -174,24 +211,26 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderFieldPreview(editingField) {
-    return (
-      <Preview>
-        <FieldItem>
-          <FieldPreview type={this.props.type} editingField={editingField} />
-        </FieldItem>
-      </Preview>
-    );
-  }
-
   render() {
-    const { editingField = {} as IField } = this.props;
+    const {
+      editingField = { type: this.props.type.value } as IField
+    } = this.state;
 
     return (
       <FlexItem>
         <LeftSection>{this.renderLeftContent()}</LeftSection>
 
-        <PreviewSection>{this.renderFieldPreview(editingField)}</PreviewSection>
+        <PreviewSection>
+          <Preview>
+            <FieldItem>
+              <GenerateField field={editingField} />
+
+              <ShowPreview>
+                <Icon icon="eye" /> Show field preview
+              </ShowPreview>
+            </FieldItem>
+          </Preview>
+        </PreviewSection>
       </FlexItem>
     );
   }
