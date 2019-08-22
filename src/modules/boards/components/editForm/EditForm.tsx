@@ -1,4 +1,6 @@
 import { IUser } from 'modules/auth/types';
+import { FormFooter } from 'modules/boards/styles/item';
+import Button from 'modules/common/components/Button';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
@@ -7,13 +9,7 @@ import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
-const reactiveFields = [
-  'closeDate',
-  'stageId',
-  'assignedUserIds',
-  'customers',
-  'companies'
-];
+const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
 
 type Props = {
   options: IOptions;
@@ -67,8 +63,6 @@ class EditForm extends React.Component<Props, State> {
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>, () => {
-      let fieldName: string = name;
-
       if (this.props.item.stageId !== this.state.stageId) {
         this.setState({
           prevStageId: this.props.item.stageId
@@ -76,17 +70,7 @@ class EditForm extends React.Component<Props, State> {
       }
 
       if (reactiveFields.includes(name)) {
-        if (name === 'companies') {
-          value = value.map(coc => coc._id);
-          fieldName = 'companyIds';
-        }
-
-        if (name === 'customers') {
-          value = value.map(coc => coc._id);
-          fieldName = 'customerIds';
-        }
-
-        this.props.saveItem({ [fieldName]: value }, updatedItem => {
+        this.props.saveItem({ [name]: value }, updatedItem => {
           this.setState({ updatedItem });
         });
       }
@@ -113,6 +97,21 @@ class EditForm extends React.Component<Props, State> {
     const { removeItem, closeModal } = this.props;
 
     removeItem(id, () => closeModal());
+  };
+
+  save = () => {
+    const { companies, customers } = this.state;
+
+    const { closeModal, saveItem } = this.props;
+
+    const doc = {
+      companyIds: (companies || []).map(company => company._id),
+      customerIds: (customers || []).map(customer => customer._id)
+    };
+
+    saveItem(doc, updatedItem => {
+      closeModal(() => this.props.onUpdate(updatedItem));
+    });
   };
 
   copy = () => {
@@ -163,6 +162,20 @@ class EditForm extends React.Component<Props, State> {
             remove: this.remove,
             onBlurFields: this.onBlurFields
           })}
+
+          <FormFooter>
+            <Button
+              btnStyle="simple"
+              onClick={this.props.closeModal}
+              icon="cancel-1"
+            >
+              Close
+            </Button>
+
+            <Button btnStyle="success" icon="checked-1" onClick={this.save}>
+              Save
+            </Button>
+          </FormFooter>
         </Modal.Body>
       </Modal>
     );
