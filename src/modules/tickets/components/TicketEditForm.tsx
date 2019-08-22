@@ -117,7 +117,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
     onChangeAttachment,
     onChangeField,
     copy,
-    remove
+    remove,
+    onBlurFields
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
 
@@ -137,9 +138,9 @@ export default class TicketEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           name={name}
-          description={description}
           closeDate={closeDate}
           users={users}
+          onBlurFields={onBlurFields}
           stageId={stageId}
           item={item}
           onChangeField={onChangeField}
@@ -150,6 +151,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}
+            onBlurFields={onBlurFields}
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}

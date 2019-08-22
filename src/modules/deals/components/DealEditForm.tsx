@@ -135,7 +135,8 @@ export default class DealEditForm extends React.Component<Props, State> {
     onChangeAttachment,
     onChangeField,
     copy,
-    remove
+    remove,
+    onBlurFields
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
 
@@ -155,11 +156,11 @@ export default class DealEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           name={name}
-          description={description}
           closeDate={closeDate}
           amount={this.renderAmount}
           users={users}
           stageId={stageId}
+          onBlurFields={onBlurFields}
           item={item}
           onChangeField={onChangeField}
         />
@@ -169,6 +170,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}
+            onBlurFields={onBlurFields}
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}

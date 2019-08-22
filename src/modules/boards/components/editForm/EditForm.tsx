@@ -75,6 +75,14 @@ class EditForm extends React.Component<Props, State> {
     });
   };
 
+  onBlurFields = (name: 'name' | 'description', value: string) => {
+    this.props.saveItem({ [name]: value }, updatedItem => {
+      this.setState({
+        updatedItem
+      });
+    });
+  };
+
   onChangeAttachment = (attachments: IAttachment[]) => {
     this.setState({ attachments }, () => {
       this.props.saveItem({ attachments }, updatedItem => {
@@ -134,7 +142,8 @@ class EditForm extends React.Component<Props, State> {
             onChangeAttachment: this.onChangeAttachment,
             onChangeField: this.onChangeField,
             copy: this.copy,
-            remove: this.remove
+            remove: this.remove,
+            onBlurFields: this.onBlurFields
           })}
         </Modal.Body>
       </Modal>

@@ -37,6 +37,7 @@ type Props = {
   className?: string;
   errors?: any;
   registerChild?: (child: any) => void;
+  onBlur?: (e: React.FormEvent<HTMLElement>) => void;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -84,6 +85,7 @@ class FormControl extends React.Component<Props> {
       onChange,
       onKeyPress: props.onKeyPress,
       onClick: props.onClick,
+      onBlur: props.onBlur,
       value: props.value,
       defaultValue: props.defaultValue,
       [props.defaultChecked

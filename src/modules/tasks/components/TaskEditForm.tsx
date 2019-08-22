@@ -85,7 +85,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
     onChangeAttachment,
     onChangeField,
     copy,
-    remove
+    remove,
+    onBlurFields
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
 
@@ -105,12 +106,12 @@ export default class TaskEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           name={name}
-          description={description}
           closeDate={closeDate}
           users={users}
           stageId={stageId}
           item={item}
           onChangeField={onChangeField}
+          onBlurFields={onBlurFields}
         />
 
         <FlexContent>
@@ -121,6 +122,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}
+            onBlurFields={onBlurFields}
           />
 
           <Sidebar
