@@ -1,5 +1,6 @@
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import FieldPreview from 'modules/forms/components/step/preview/FieldPreview';
 import { FieldItem } from 'modules/forms/components/step/preview/styles';
 import GenerateField from 'modules/settings/properties/components/GenerateField';
 import { IField } from 'modules/settings/properties/types';
@@ -18,13 +19,16 @@ import {
   PreviewSection,
   ShowPreview
 } from './styles';
-import FieldPreview from 'modules/forms/components/step/preview/FieldPreview';
 
 type Props = {
   closeModal?: () => void;
   afterSave?: () => void;
   onChange: (value: IField, callback: () => void) => void;
   onSubmit: (e: any) => void;
+  onDelete: (fieldId: string) => void;
+  field?: IField;
+  fields?: IField[];
+  editingField?: IField;
   type: { value: string; children: string };
 };
 
@@ -37,7 +41,7 @@ class FieldForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      editingField: undefined
+      editingField: props.field || undefined
     };
   }
 
@@ -131,35 +135,32 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderButtons() {
-    const { closeModal } = this.props;
+  renderExtraButton() {
+    const { field, closeModal } = this.props;
+
+    if (!field) {
+      return null;
+    }
+
+    const onDelete = e => {
+      e.preventDefault();
+
+      this.props.onDelete(field._id);
+
+      if (closeModal) {
+        closeModal();
+      }
+    };
 
     return (
-      <ModalFooter>
-        <Button
-          btnStyle="simple"
-          size="small"
-          type="button"
-          icon="cancel-1"
-          onClick={closeModal}
-        >
-          Cancel
-        </Button>
-
-        <Button
-          size="small"
-          onClick={this.onSubmit}
-          btnStyle="success"
-          icon="add"
-        >
-          Add
-        </Button>
-      </ModalFooter>
+      <Button size="small" btnStyle="danger" onClick={onDelete} icon="cancel-1">
+        Delete
+      </Button>
     );
   }
 
   renderLeftContent() {
-    const { type } = this.props;
+    const { type, field, closeModal } = this.props;
     const { editingField = {} as IField } = this.state;
 
     const text = e =>
@@ -215,7 +216,28 @@ class FieldForm extends React.Component<Props, State> {
           />
         </FlexRow>
 
-        {this.renderButtons()}
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            size="small"
+            type="button"
+            icon="cancel-1"
+            onClick={closeModal}
+          >
+            Cancel
+          </Button>
+
+          {this.renderExtraButton()}
+
+          <Button
+            size="small"
+            onClick={this.onSubmit}
+            btnStyle="success"
+            icon="add"
+          >
+            Add
+          </Button>
+        </ModalFooter>
       </>
     );
   }
@@ -233,7 +255,7 @@ class FieldForm extends React.Component<Props, State> {
           <Preview>
             <FieldPreview field={editingField} />
             <ShowPreview>
-              <Icon icon="eye" /> Haregerg sierughiseuhrg
+              <Icon icon="eye" /> Show field preview
             </ShowPreview>
           </Preview>
         </PreviewSection>

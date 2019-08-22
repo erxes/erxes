@@ -1,5 +1,5 @@
-import { ShowPreview } from 'modules/common/components/form/styles';
-import Icon from 'modules/common/components/Icon';
+import FieldForm from 'modules/common/components/form/FieldForm';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import GenerateField from 'modules/settings/properties/components/GenerateField';
 import React from 'react';
 import { IField } from '../../../../settings/properties/types';
@@ -7,29 +7,34 @@ import { FieldItem } from './styles';
 
 type Props = {
   field: IField;
-  onEdit?: (field: IField) => void;
+  onFieldEdit?: (field: IField, props) => void;
 };
 
 class FieldPreview extends React.Component<Props, {}> {
-  onEdit = () => {
-    const { onEdit } = this.props;
+  renderContent = props => {
+    const { field, onFieldEdit } = this.props;
 
-    if (onEdit) {
-      onEdit(this.props.field);
+    if (onFieldEdit) {
+      return onFieldEdit(field, props);
     }
   };
 
   render() {
     const { field } = this.props;
 
-    return (
-      <FieldItem
-        onClick={this.onEdit}
-        selectType={field.type === 'select'}
-        noPadding={true}
-      >
+    const trigger = (
+      <FieldItem selectType={field.type === 'select'} noPadding={true}>
         <GenerateField field={field} />
       </FieldItem>
+    );
+
+    return (
+      <ModalTrigger
+        title={`Edit field`}
+        size="lg"
+        trigger={trigger}
+        content={this.renderContent}
+      />
     );
   }
 }

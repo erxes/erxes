@@ -57,20 +57,6 @@ class FormStep extends React.Component<Props, State> {
     );
   };
 
-  onFieldEdit = (field: IField) => {
-    // tslint:disable-next-line:no-console
-    console.log(field);
-    const type = { value: 'type', children: 'string' };
-
-    return (
-      <FieldForm
-        onSubmit={this.onSubmit}
-        onChange={this.onFieldChange}
-        type={type}
-      />
-    );
-  };
-
   onFieldAttrChange = (name: string, value: string | boolean | string[]) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -82,6 +68,22 @@ class FormStep extends React.Component<Props, State> {
   onChangeState = (name: any, value: string) => {
     this.setState({ [name]: value });
     this.props.onChange(name, value);
+  };
+
+  onFieldEdit = (field: IField, props) => {
+    const type = { value: 'awef', children: 'awef' };
+
+    return (
+      <FieldForm
+        {...props}
+        type={type}
+        field={field}
+        fields={this.state.fields}
+        onSubmit={this.onSubmit}
+        onDelete={this.onDelete}
+        onChange={this.props.onChange}
+      />
+    );
   };
 
   onSubmit = e => {
@@ -109,6 +111,17 @@ class FormStep extends React.Component<Props, State> {
     this.setState({ fields: this.state.fields, editingField: undefined });
 
     this.props.onChange('fields', this.state.fields || []);
+  };
+
+  onDelete = fieldId => {
+    // remove field from state
+    const fields = (this.state.fields || []).filter(
+      field => field._id !== fieldId
+    );
+
+    this.setState({ fields });
+
+    this.props.onChange('fields', fields);
   };
 
   setFieldAttrChanges(

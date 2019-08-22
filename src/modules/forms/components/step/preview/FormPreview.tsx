@@ -10,7 +10,7 @@ type Props = {
   color: string;
   theme: string;
   fields?: IField[];
-  onFieldEdit?: (field: IField) => void;
+  onFieldEdit?: (field: IField, props) => void;
   onChange: (name: any, fields: string) => void;
   type: string;
 };
