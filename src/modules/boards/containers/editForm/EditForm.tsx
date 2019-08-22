@@ -20,8 +20,8 @@ import { PipelineConsumer } from '../PipelineContext';
 type WrapperProps = {
   itemId: string;
   stageId: string;
-  closeModal: (callback?: () => void) => void;
   options?: IOptions;
+  beforePopupClose?: () => void;
   onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;

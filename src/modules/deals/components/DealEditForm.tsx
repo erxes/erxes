@@ -20,7 +20,7 @@ type Props = {
   saveItem: (doc: IDealParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: (callback?: () => void) => void;
+  beforePopupClose: () => void;
 };
 
 type State = {
@@ -193,10 +193,12 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   render() {
+    const { beforePopupClose } = this.props;
     const { productsData } = this.state;
 
     const extendedProps = {
       ...this.props,
+      beforePopupClose,
       extraFieldsCheck: this.checkProductsData,
       extraFields: { productsData },
       amount: this.renderAmount,

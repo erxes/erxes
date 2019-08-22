@@ -14,10 +14,10 @@ import { IDeal } from '../types';
 type Props = {
   stageId: string;
   item: IDeal;
-  isFormVisible: boolean;
   isDragging: boolean;
   provided;
-  onTogglePopup: () => void;
+  onClick: () => void;
+  beforePopupClose: () => void;
   options?: IOptions;
 };
 
@@ -31,24 +31,20 @@ class DealItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { onTogglePopup, isFormVisible, stageId, item, options } = this.props;
-
-    if (!isFormVisible) {
-      return null;
-    }
+    const { beforePopupClose, stageId, item, options } = this.props;
 
     return (
       <EditForm
+        beforePopupClose={beforePopupClose}
         options={options}
         stageId={stageId}
         itemId={item._id}
-        closeModal={onTogglePopup}
       />
     );
   };
 
   render() {
-    const { item, isDragging, provided, onTogglePopup } = this.props;
+    const { item, isDragging, provided, onClick } = this.props;
     const products = (item.products || []).map(p => p.product);
     const { customers, companies } = item;
 
@@ -59,7 +55,7 @@ class DealItem extends React.PureComponent<Props, {}> {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={onTogglePopup}>
+        <Content onClick={onClick}>
           <h5>{item.name}</h5>
 
           {products.map((product, index) => (
@@ -105,6 +101,7 @@ class DealItem extends React.PureComponent<Props, {}> {
             <Right>{this.renderDate(item.modifiedAt)}</Right>
           </Footer>
         </Content>
+
         {this.renderForm()}
       </ItemContainer>
     );

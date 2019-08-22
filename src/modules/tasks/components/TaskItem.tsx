@@ -12,10 +12,10 @@ import { ITask } from '../types';
 type Props = {
   stageId: string;
   item: ITask;
-  isFormVisible: boolean;
   isDragging: boolean;
   provided;
-  onTogglePopup: () => void;
+  onClick: () => void;
+  beforePopupClose: () => void;
   options?: IOptions;
 };
 
@@ -29,24 +29,20 @@ class TaskItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { onTogglePopup, isFormVisible, stageId, item, options } = this.props;
-
-    if (!isFormVisible) {
-      return null;
-    }
+    const { beforePopupClose, stageId, item, options } = this.props;
 
     return (
       <EditForm
         options={options}
         stageId={stageId}
         itemId={item._id}
-        closeModal={onTogglePopup}
+        beforePopupClose={beforePopupClose}
       />
     );
   };
 
   render() {
-    const { onTogglePopup, item, isDragging, provided } = this.props;
+    const { onClick, item, isDragging, provided } = this.props;
     const { customers, companies } = item;
 
     return (
@@ -56,7 +52,7 @@ class TaskItem extends React.PureComponent<Props, {}> {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={onTogglePopup}>
+        <Content onClick={onClick}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}

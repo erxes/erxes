@@ -22,7 +22,7 @@ type Props = {
   saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
-  closeModal: (callback?: () => void) => void;
+  beforePopupClose: () => void;
 };
 
 type State = {

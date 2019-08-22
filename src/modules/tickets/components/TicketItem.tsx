@@ -12,10 +12,10 @@ import { ITicket } from '../types';
 type Props = {
   stageId: string;
   item: ITicket;
-  isFormVisible: boolean;
   isDragging: boolean;
   provided;
-  onTogglePopup: () => void;
+  onClick: () => void;
+  beforePopupClose: () => void;
   options?: IOptions;
 };
 class TicketItem extends React.PureComponent<Props, {}> {
@@ -28,24 +28,20 @@ class TicketItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { onTogglePopup, isFormVisible, stageId, item, options } = this.props;
-
-    if (!isFormVisible) {
-      return null;
-    }
+    const { beforePopupClose, stageId, item, options } = this.props;
 
     return (
       <EditForm
         stageId={stageId}
         itemId={item._id}
-        closeModal={onTogglePopup}
+        beforePopupClose={beforePopupClose}
         options={options}
       />
     );
   };
 
   render() {
-    const { item, isDragging, provided, onTogglePopup } = this.props;
+    const { item, isDragging, provided, onClick } = this.props;
     const { customers, companies } = item;
 
     return (
@@ -55,7 +51,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={onTogglePopup}>
+        <Content onClick={onClick}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}
