@@ -77,7 +77,7 @@ class CreateFormContainer extends React.Component<
 
         .then(() => {
           Alert.success('You successfully added a lead');
-          history.push('/forms');
+          history.push('/leads');
 
           this.setState({ isLoading: false });
         })

@@ -9,10 +9,10 @@ import {
 import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import { IFormIntegration } from 'modules/forms/types';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
+import { IFormIntegration } from '../types';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -181,7 +181,7 @@ class Form extends React.Component<Props, State> {
     const { isActionLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/forms">
+      <Link to="/leads">
         <Button btnStyle="simple" size="small" icon="cancel-1">
           Cancel
         </Button>
@@ -236,7 +236,7 @@ class Form extends React.Component<Props, State> {
 
     const formData = integration && integration.formData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Leads'), link: '/forms' }];
+    const breadcrumb = [{ title: __('Leads'), link: '/leads' }];
     const constant = isSkip ? 'form' : 'callout';
 
     const onChange = e =>

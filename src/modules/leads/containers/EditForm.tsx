@@ -147,7 +147,7 @@ class EditFormContainer extends React.Component<
           Alert.success('You successfully updated a lead');
 
           fieldsQuery.refetch().then(() => {
-            history.push('/forms');
+            history.push('/leads');
           });
 
           this.setState({ isLoading: false });

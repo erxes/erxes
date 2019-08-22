@@ -1,4 +1,4 @@
-import { IForm, IFormIntegration } from 'modules/forms/types';
+import { IForm, IFormIntegration } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 

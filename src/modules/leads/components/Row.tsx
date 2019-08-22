@@ -42,7 +42,7 @@ class Row extends React.Component<Props, {}> {
 
   manageAction(integration) {
     return (
-      <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
+      <Link to={`/leads/edit/${integration._id}/${integration.formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')}>
             <Icon icon="edit" />

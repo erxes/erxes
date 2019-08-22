@@ -1,6 +1,6 @@
 import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import FieldPreview from 'modules/forms/components/step/preview/FieldPreview';
+import FieldPreview from 'modules/leads/components/step/preview/FieldPreview';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Toggle from 'react-toggle';
