@@ -404,13 +404,17 @@ export const sendNotification = async (doc: ISendNotification) => {
   for (const receiverId of receivers) {
     try {
       // send web and mobile notification
-      await Notifications.createNotification(
+      const notification = await Notifications.createNotification(
         { link, title, content, notifType, receiver: receiverId, action },
         createdUser._id,
       );
 
       graphqlPubsub.publish('notificationInserted', {
-        userId: receiverId,
+        notificationInserted: {
+          userId: receiverId,
+          title: notification.title,
+          content: notification.content,
+        },
       });
     } catch (e) {
       // Any other error is serious

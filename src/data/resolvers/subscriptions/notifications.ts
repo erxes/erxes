@@ -9,7 +9,7 @@ export default {
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('notificationInserted'),
       (payload, variables) => {
-        return payload.userId === variables.userId;
+        return payload.notificationInserted.userId === variables.userId;
       },
     ),
   },
