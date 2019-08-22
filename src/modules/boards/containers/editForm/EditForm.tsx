@@ -16,6 +16,7 @@ import {
   IItem,
   IItemParams,
   IOptions,
+  ItemsQueryResponse,
   RemoveMutation,
   SaveMutation
 } from '../../types';
@@ -38,6 +39,7 @@ type FinalProps = {
   addMutation: SaveMutation;
   editMutation: SaveMutation;
   createConformityMutation: CreateConformityMutation;
+  itemsQuery: ItemsQueryResponse;
   removeMutation: RemoveMutation;
 } & IProps;
 
@@ -94,7 +96,12 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   createConformity = (relType: string, relTypeIds: string[]) => {
-    const { itemId, createConformityMutation, options } = this.props;
+    const {
+      itemId,
+      createConformityMutation,
+      options,
+      itemsQuery
+    } = this.props;
 
     createConformityMutation({
       variables: {
@@ -106,6 +113,8 @@ class EditFormContainer extends React.Component<FinalProps> {
     })
       .then(() => {
         Alert.success(options.texts.updateSuccessText);
+        itemsQuery.refetch();
+        // callback();
       })
       .catch(error => {
         Alert.error(error.message);
@@ -232,10 +241,12 @@ export default (props: IProps) => {
           name: 'createConformityMutation',
           options: ({
             itemId,
-            stageId
+            stageId,
+            relType
           }: {
             itemId: string;
             stageId: string;
+            relType?: string;
           }) => ({
             refetchQueries: [
               {
@@ -245,6 +256,14 @@ export default (props: IProps) => {
               {
                 query: gql(queries.stageDetail),
                 variables: { _id: stageId }
+              },
+              {
+                query: gql(options.queries.itemsQuery),
+                variables: {
+                  mainType: options.type,
+                  mainTypeId: itemId,
+                  relType
+                }
               }
             ]
           })

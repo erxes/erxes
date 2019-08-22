@@ -5,7 +5,6 @@ import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
 import React from 'react';
-import { AddForm } from '../../containers/portable';
 import { ItemChooser } from '../../containers/portable/';
 import { IItem, IOptions } from '../../types';
 
@@ -67,24 +66,7 @@ class Items extends React.Component<Props> {
       </ButtonRelated>
     );
 
-    const editTrigger = (
-      <ButtonRelated>
-        <button>{__('See all ' + options.title + '..')}</button>
-      </ButtonRelated>
-    );
-
     const content = props => (
-      <AddForm
-        options={options}
-        {...props}
-        callback={onChangeItems}
-        mainType={mainType}
-        mainTypeId={mainTypeId}
-        showSelect={true}
-      />
-    );
-
-    const relContent = props => (
       <ItemChooser
         {...props}
         data={{ options, mainType, mainTypeId, items }}
@@ -94,10 +76,10 @@ class Items extends React.Component<Props> {
       />
     );
 
-    const editContent = props => (
+    const relContent = props => (
       <ItemChooser
         {...props}
-        data={{ options, items }}
+        data={{ options, mainType, mainTypeId, items, isRelated: true }}
         callback={onChangeItems}
         onSelect={onSelect}
         showSelect={true}
@@ -109,6 +91,7 @@ class Items extends React.Component<Props> {
         title={options.texts.addText}
         trigger={trigger}
         content={content}
+        size="lg"
       />
     );
 
@@ -121,15 +104,6 @@ class Items extends React.Component<Props> {
       />
     );
 
-    const editQuickButtons = (
-      <ModalTrigger
-        title="Edit Associate"
-        trigger={editTrigger}
-        size="lg"
-        content={editContent}
-      />
-    );
-
     return (
       <Section>
         <Title>{__(options.title)}</Title>
@@ -137,7 +111,7 @@ class Items extends React.Component<Props> {
         <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 
         <SectionContainer>{this.renderItems()}</SectionContainer>
-        {editQuickButtons}
+
         {mainTypeId && mainType && relQuickButtons}
       </Section>
     );

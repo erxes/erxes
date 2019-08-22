@@ -1,17 +1,10 @@
 import gql from 'graphql-tag';
-// import Chooser from 'modules/common/components/Chooser';
 import { Alert, renderWithProps } from 'modules/common/utils';
-
-// import { mutations } from 'modules/conformity/graphql';
-// import {
-//   CreateConformityMutation,
-//   IConformityDoc
-// } from 'modules/conformity/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
 import ItemChooser from '../../components/portable/ItemChooser';
-// import { queries } from '../../graphql';
+import { queries } from '../../graphql';
 import {
   IFilterParams,
   IItem,
@@ -23,12 +16,15 @@ import {
 } from '../../types';
 
 type IProps = {
+  search: (value: string) => void;
+  searchValue: string;
   options: IOptions;
   mainType?: string;
   mainTypeId?: string;
-  // boardId?: string;
-  // pipelineId?: string;
-  // stageId?: string;
+  boardId?: string;
+  pipelineId?: string;
+  filterStageId: (stageId: string) => void;
+  stageId?: string;
   showSelect?: boolean;
 };
 
@@ -39,20 +35,16 @@ type FinalProps = {
 } & IProps;
 
 const ItemChooserContainer = (props: WrapperProps & FinalProps) => {
-  const {
-    data,
-    itemsQuery,
-    relatedItemsQuery
-    // saveMutation,
-  } = props;
+  const { data, itemsQuery, relatedItemsQuery, search, filterStageId } = props;
 
-  const saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
+  const saveItem = (doc: IItemParams, callback: () => void) => {
     const { addMutation } = props;
 
     addMutation({ variables: doc })
-      .then(({ resData }) => {
+      .then(() => {
         Alert.success(data.options.texts.addSuccessText);
-        callback(resData[data.options.mutationsName.addMutation]);
+        callback();
+        itemsQuery.refetch();
       })
       .catch(error => {
         Alert.error(error.message);
@@ -63,10 +55,9 @@ const ItemChooserContainer = (props: WrapperProps & FinalProps) => {
     return item.name || 'Unknown';
   };
 
-  const datas =
-    data.mainTypeId && data.mainType
-      ? relatedItemsQuery[data.options.queriesName.itemsQuery]
-      : itemsQuery[data.options.queriesName.itemsQuery];
+  const datas = data.isRelated
+    ? relatedItemsQuery[data.options.queriesName.itemsQuery]
+    : itemsQuery[data.options.queriesName.itemsQuery];
 
   const updatedProps = {
     ...props,
@@ -75,10 +66,26 @@ const ItemChooserContainer = (props: WrapperProps & FinalProps) => {
       name: renderName(data),
       datas: data.items,
       mainTypeId: data.mainTypeId,
-      mainType: data.mainType
+      mainType: data.mainType,
+      isRelated: data.isRelated
     },
+    search,
+    filterStageId,
+    clearStateStage: () => filterStageId(''),
+    clearState: () => search(''),
     title: data.options.title,
-    renderForm: formProps => <AddForm {...formProps} action={saveItem} />,
+    renderForm: formProps => (
+      <AddForm
+        {...formProps}
+        action={saveItem}
+        options={data.options}
+        boardId={props.boardId}
+        pipelineId={props.pipelineId}
+        stageId={props.stageId}
+        showSelect={true}
+        saveItem={saveItem}
+      />
+    ),
     renderName,
     add: saveItem,
     datas: datas || []
@@ -94,7 +101,15 @@ const WithQuery = (props: IProps) =>
       graphql<IProps, ItemsQueryResponse, IFilterParams>(
         gql(props.options.queries.itemsQuery),
         {
-          name: 'itemsQuery'
+          name: 'itemsQuery',
+          options: ({ searchValue, stageId }) => {
+            return {
+              variables: {
+                search: searchValue,
+                stageId
+              }
+            };
+          }
         }
       ),
       graphql<IProps, RelatedItemsQueryResponse, IFilterParams>(
@@ -102,36 +117,38 @@ const WithQuery = (props: IProps) =>
         {
           name: 'relatedItemsQuery',
           skip: ({ mainType, mainTypeId }) => !mainType && !mainTypeId,
-          options: () => ({
+          options: ({ searchValue, stageId }) => ({
             variables: {
               mainType: props.mainType,
               mainTypeId: props.mainTypeId,
               relType: props.options.type,
-              isRelated: true
+              isRelated: true,
+              search: searchValue,
+              stageId
             }
           })
         }
-      )
-      // graphql<IProps, SaveMutation, IItem>(
-      //   gql(props.options.mutations.addMutation),
-      //   {
-      //     name: 'addMutation',
-      //     options: ({ stageId }: { stageId?: string }) => {
-      //       if (!stageId) {
-      //         return {};
-      //       }
+      ),
+      graphql<IProps, SaveMutation, IItem>(
+        gql(props.options.mutations.addMutation),
+        {
+          name: 'addMutation',
+          options: ({ stageId }: { stageId?: string }) => {
+            if (!stageId) {
+              return {};
+            }
 
-      //       return {
-      //         refetchQueries: [
-      //           {
-      //             query: gql(queries.stageDetail),
-      //             variables: { _id: stageId }
-      //           }
-      //         ]
-      //       };
-      //     }
-      //   }
-      // ),
+            return {
+              refetchQueries: [
+                {
+                  query: gql(queries.stageDetail),
+                  variables: { _id: stageId }
+                }
+              ]
+            };
+          }
+        }
+      )
     )(ItemChooserContainer)
   );
 
@@ -143,32 +160,49 @@ type WrapperProps = {
     options: IOptions;
     mainTypeId?: string;
     mainType?: string;
+    isRelated?: boolean;
   };
   showSelect?: boolean;
   onSelect: (datas: IItem[]) => void;
   closeModal: () => void;
-  callback?: () => void;
+  // callback?: () => void;
 };
 
 export default class Wrapper extends React.Component<
   WrapperProps,
   {
-    perPage: number;
     searchValue: string;
     mainTypeId?: string;
     mainType?: string;
+    stageId?: string;
+    pipelineId?: string;
+    boardId?: string;
   }
 > {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '', mainTypeId: '', mainType: '' };
+    this.state = { searchValue: '', mainTypeId: '', mainType: '', stageId: '' };
   }
 
+  search = value => {
+    return this.setState({ searchValue: value });
+  };
+
+  filterStageId = stageId => {
+    return this.setState({ stageId });
+  };
+
   render() {
+    const { searchValue, stageId } = this.state;
+
     return (
       <WithQuery
         {...this.props}
+        search={this.search}
+        searchValue={searchValue}
+        filterStageId={this.filterStageId}
+        stageId={stageId}
         mainTypeId={this.props.data.mainTypeId}
         mainType={this.props.data.mainType}
         options={this.props.data.options}
