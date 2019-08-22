@@ -16,7 +16,6 @@ type Props = {
   // may not be provided - and might be null
   ignoreContainerClipping?: boolean;
   options: IOptions;
-  onUpdateItem: (item, stageId?) => void;
 };
 
 type DraggableContainerProps = {
@@ -24,7 +23,6 @@ type DraggableContainerProps = {
   item: IItem;
   index: number;
   options: IOptions;
-  onUpdateItem: (item, stageId?) => void;
 };
 
 class DraggableContainer extends React.Component<
@@ -118,14 +116,12 @@ class InnerItemList extends React.PureComponent<{
   stageId: string;
   items: IItem[];
   options: IOptions;
-  onUpdateItem: (item, stageId?) => void;
 }> {
   render() {
-    const { stageId, items, options, onUpdateItem } = this.props;
+    const { stageId, items, options } = this.props;
 
     return items.map((item, index: number) => (
       <DraggableContainer
-        onUpdateItem={onUpdateItem}
         key={item._id}
         stageId={stageId}
         item={item}
@@ -141,12 +137,11 @@ type InnerListProps = {
   stageId: string;
   items: IItem[];
   options: IOptions;
-  onUpdateItem: (item, stageId?) => void;
 };
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const { stageId, items, dropProvided, options, onUpdateItem } = this.props;
+    const { stageId, items, dropProvided, options } = this.props;
 
     if (items.length === 0) {
       return (
@@ -162,12 +157,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
     return (
       <DropZone innerRef={dropProvided.innerRef}>
-        <InnerItemList
-          onUpdateItem={onUpdateItem}
-          stageId={stageId}
-          items={items}
-          options={options}
-        />
+        <InnerItemList stageId={stageId} items={items} options={options} />
         {dropProvided.placeholder}
       </DropZone>
     );
@@ -186,8 +176,7 @@ export default class ItemList extends React.Component<Props> {
       style,
       stageId,
       items,
-      options,
-      onUpdateItem
+      options
     } = this.props;
 
     return (
@@ -202,7 +191,6 @@ export default class ItemList extends React.Component<Props> {
             {...dropProvided.droppableProps}
           >
             <InnerList
-              onUpdateItem={onUpdateItem}
               stageId={stageId}
               items={items}
               dropProvided={dropProvided}
