@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Icon from 'modules/common/components/Icon';
@@ -22,7 +21,6 @@ interface IProps extends IRouterProps {
   refetch: any;
   totalCount: number;
   loading: boolean;
-  users: IUser[];
   objects: IUserGroupDocument[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (id: string) => void;
@@ -81,15 +79,13 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderObjects(objects: IUserGroupDocument[]) {
-    const allMembers = this.props.users || [];
-
     return objects.map(object => (
       <SidebarListItem key={object._id} isActive={this.isActive(object._id)}>
         <Link to={`?groupId=${object._id}`}>
           {object.name}
           <MemberAvatars
             selectedMemberIds={object.memberIds || []}
-            allMembers={allMembers}
+            allMembers={object.members || []}
           />
         </Link>
         <ActionButtons>
