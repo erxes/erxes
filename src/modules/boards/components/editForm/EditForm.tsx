@@ -30,6 +30,7 @@ type Props = {
   ) => React.ReactNode;
   onUpdate: (item, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
+  isPopupVisible?: boolean;
 };
 
 type State = {
@@ -58,7 +59,7 @@ class EditForm extends React.Component<Props, State> {
 
     let isFormVisible = false;
 
-    if (itemIdQueryParam === item._id) {
+    if (itemIdQueryParam === item._id || props.isPopupVisible) {
       isFormVisible = true;
     }
 
@@ -89,6 +90,12 @@ class EditForm extends React.Component<Props, State> {
   componentWillUnmount() {
     if (this.unlisten) {
       this.unlisten();
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isPopupVisible && nextProps.isPopupVisible === true) {
+      this.setState({ isFormVisible: true });
     }
   }
 
