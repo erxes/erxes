@@ -1,7 +1,6 @@
 import client from 'apolloClient';
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { IOption } from 'modules/common/types';
 import { Alert, getCookie, setCookie, withProps } from 'modules/common/utils';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
@@ -46,20 +45,21 @@ class QuickNavigationContainer extends React.Component<Props, State> {
       });
   };
 
+  setValues = (selectedBrands: string[]) => {
+    this.setState({ selectedBrands }, () => {
+      setCookie('scopeBrandIds', JSON.stringify(this.state.selectedBrands));
+      window.location.reload();
+    });
+  };
+
   onChangeBrands = (value: string) => {
     const { selectedBrands } = this.state;
 
-    // const ids = selectedBrands.includes(value) ? selectedBrands.push(option => option.value);
+    if (selectedBrands.includes(value)) {
+      return this.setValues(selectedBrands.filter(i => i !== value));
+    }
 
-    // if (ids.length === 0) {
-    //   ids = (brandsQuery.brands || []).map(brand => brand._id);
-    // }
-
-    // setCookie('scopeBrandIds', JSON.stringify(ids));
-
-    // this.setState({ selectedBrands: options });
-
-    window.location.reload();
+    return this.setValues(selectedBrands.concat(value));
   };
 
   render() {
