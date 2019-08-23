@@ -34,7 +34,7 @@ const init = async app => {
   app.post('/callpro-receive', async (req, res, next) => {
     debugRequest(debugCallPro, req);
 
-    const { numberTo, numberFrom, disp, recordURL, callID, date } = JSON.parse(req.rawBody);
+    const { numberTo, numberFrom, disp, recordURL, callID, date } = req.body;
     const integration = await Integrations.findOne({ phoneNumber: numberTo }).lean();
 
     if (!integration) {
