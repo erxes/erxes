@@ -75,7 +75,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'sesconfig') {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <a href="#add">+ {__('Manage')}</a>;
 
       const content = props => <Settings {...props} />;
 
@@ -147,7 +147,8 @@ class Entry extends React.Component<Props> {
 
   render() {
     const { integration, getClassName } = this.props;
-
+    // tslint:disable-next-line:no-console
+    console.log(this.props);
     return (
       <IntegrationItem
         key={integration.name}

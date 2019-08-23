@@ -9,6 +9,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
 
 type Props = {
@@ -40,7 +41,7 @@ class Left extends React.Component<Props> {
           <TitleRow>
             <ControlLabel>
               <Icon icon="attach" />
-              Attachments
+              {__('Attachments')}
             </ControlLabel>
           </TitleRow>
 
@@ -54,7 +55,7 @@ class Left extends React.Component<Props> {
           <TitleRow>
             <ControlLabel>
               <Icon icon="align-left-justify" />
-              Description
+              {__('Description')}
             </ControlLabel>
           </TitleRow>
 
