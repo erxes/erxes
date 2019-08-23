@@ -1,16 +1,14 @@
-import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
-import FieldForm from 'modules/common/components/form/FieldForm';
 import Fields from 'modules/common/components/form/Fields';
+import FormField from 'modules/common/components/form/FormField';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import ActionBar from 'modules/layout/components/ActionBar';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormPreview from './preview/FormPreview';
-import { FlexColumn, FlexItem, Title } from './style';
+import { FlexItem, Title } from './style';
 
 type Props = {
   type: string;
@@ -47,20 +45,6 @@ class FormStep extends React.Component<Props, State> {
     this.setState({ fields: nextProps.fields });
   }
 
-  onChangeType = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({
-      chosenFieldType: (e.currentTarget as HTMLInputElement).value
-    });
-    this.setFieldAttrChanges(
-      'type',
-      (e.currentTarget as HTMLInputElement).value
-    );
-  };
-
-  onFieldAttrChange = (name: string, value: string | boolean | string[]) => {
-    this.setFieldAttrChanges(name, value);
-  };
-
   onFieldChange = (value: IField, callback: () => void) => {
     this.setState({ editingField: value }, () => callback());
   };
@@ -71,12 +55,9 @@ class FormStep extends React.Component<Props, State> {
   };
 
   onFieldEdit = (field: IField, props) => {
-    const type = { value: 'awef', children: 'awef' };
-
     return (
-      <FieldForm
+      <FormField
         {...props}
-        type={type}
         field={field}
         fields={this.state.fields}
         onSubmit={this.onSubmit}
@@ -123,223 +104,6 @@ class FormStep extends React.Component<Props, State> {
 
     this.props.onChange('fields', fields);
   };
-
-  setFieldAttrChanges(
-    attributeName: string,
-    value: string | boolean | string[]
-  ) {
-    const { fields = [] } = this.state;
-
-    const editingField = this.state.editingField || ({} as IField);
-
-    editingField[attributeName] = value;
-
-    this.setState({ editingField });
-
-    this.props.onChange('fields', fields);
-  }
-
-  renderButtons() {
-    const { editingField } = this.state;
-
-    if (editingField && editingField._id) {
-      const _id = editingField._id;
-
-      // reset editing field state
-      const reset = () => {
-        this.setState({ editingField: undefined });
-      };
-
-      const onDelete = e => {
-        e.preventDefault();
-
-        // remove field from state
-        const fields = (this.state.fields || []).filter(
-          field => field._id !== _id
-        );
-
-        this.setState({ fields });
-
-        reset();
-
-        this.props.onChange('fields', fields);
-      };
-
-      return (
-        <Button.Group>
-          <Button
-            size="small"
-            btnStyle="danger"
-            onClick={onDelete}
-            icon="cancel-1"
-          >
-            Delete
-          </Button>
-          <Button size="small" btnStyle="primary" onClick={reset} icon="add">
-            New
-          </Button>
-        </Button.Group>
-      );
-    }
-
-    return (
-      <Button
-        size="small"
-        onClick={this.onSubmit}
-        btnStyle="primary"
-        icon="add"
-      >
-        Add
-      </Button>
-    );
-  }
-
-  footerActions = () => {
-    const editingField = this.state.editingField || ({} as IField);
-
-    const onChange = e =>
-      this.onFieldAttrChange(
-        'isRequired',
-        (e.currentTarget as HTMLInputElement).checked
-      );
-
-    return (
-      <ActionBar
-        right={
-          <React.Fragment>
-            <FormControl
-              checked={editingField.isRequired || false}
-              id="isRequired"
-              componentClass="checkbox"
-              onChange={onChange}
-            >
-              {__('This item is required')}
-            </FormControl>
-            &emsp; {this.renderButtons()}
-          </React.Fragment>
-        }
-      />
-    );
-  };
-
-  renderOptionsTextArea() {
-    const { chosenFieldType = '' } = this.state;
-    const editingField = this.state.editingField || ({} as IField);
-
-    const onChange = e =>
-      this.onFieldAttrChange(
-        'options',
-        (e.currentTarget as HTMLInputElement).value.split('\n')
-      );
-
-    if (
-      !['select', 'check', 'radio'].includes(
-        chosenFieldType || editingField.type || ''
-      )
-    ) {
-      return null;
-    }
-
-    return (
-      <FormGroup>
-        <ControlLabel htmlFor="type">Options:</ControlLabel>
-
-        <FormControl
-          id="options"
-          componentClass="textarea"
-          value={(editingField.options || []).join('\n')}
-          onChange={onChange}
-        />
-      </FormGroup>
-    );
-  }
-
-  renderOptions() {
-    const editingField = this.state.editingField || ({} as IField);
-
-    const validation = e =>
-      this.onFieldAttrChange(
-        'validation',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
-    const text = e =>
-      this.onFieldAttrChange(
-        'text',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
-    const desc = e =>
-      this.onFieldAttrChange(
-        'description',
-        (e.currentTarget as HTMLInputElement).value
-      );
-
-    return (
-      <React.Fragment>
-        <FormGroup>
-          <ControlLabel htmlFor="type">Type:</ControlLabel>
-
-          <FormControl
-            id="type"
-            componentClass="select"
-            value={editingField.type || ''}
-            onChange={this.onChangeType}
-          >
-            <option />
-            <option value="input">{__('Input')}</option>
-            <option value="textarea">{__('Text area')}</option>
-            <option value="select">{__('Select')}</option>
-            <option value="check">{__('Checkbox')}</option>
-            <option value="radio">{__('Radio button')}</option>
-            <option value="phone">{__('Phone')}</option>
-            <option value="email">{__('Email')}</option>
-            <option value="firstName">{__('First name')}</option>
-            <option value="lastName">{__('Last name')}</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel htmlFor="validation">Validation:</ControlLabel>
-
-          <FormControl
-            id="validation"
-            componentClass="select"
-            value={editingField.validation || ''}
-            onChange={validation}
-          >
-            <option />
-            <option value="email">{__('Email')}</option>
-            <option value="number">{__('Number')}</option>
-            <option value="date">{__('Date')}</option>
-            <option value="phone">{__('Phone')}</option>
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel htmlFor="text">Text:</ControlLabel>
-          <FormControl
-            id="text"
-            type="text"
-            value={editingField.text || ''}
-            onChange={text}
-          />
-        </FormGroup>
-
-        {this.renderOptionsTextArea()}
-
-        <FormGroup>
-          <ControlLabel htmlFor="description">Description:</ControlLabel>
-          <FormControl
-            id="description"
-            componentClass="textarea"
-            value={editingField.description || ''}
-            onChange={desc}
-          />
-        </FormGroup>
-      </React.Fragment>
-    );
-  }
 
   renderLeftSidebar = () => {
     const formTitle = e =>
@@ -413,10 +177,7 @@ class FormStep extends React.Component<Props, State> {
   render() {
     return (
       <FlexItem>
-        <FlexColumn>
-          <LeftItem>{this.renderLeftSidebar()}</LeftItem>
-          {this.footerActions()}
-        </FlexColumn>
+        <LeftItem>{this.renderLeftSidebar()}</LeftItem>
 
         <Preview>
           <FormPreview

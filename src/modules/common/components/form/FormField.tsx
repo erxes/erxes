@@ -25,16 +25,15 @@ type Props = {
   onSubmit: (e: any) => void;
   onDelete: (fieldId: string) => void;
   field?: IField;
-  fields?: IField[];
   editingField?: IField;
-  type: { value: string; children: string };
+  type?: { value: string; children: string };
 };
 
 type State = {
   editingField?: IField;
 };
 
-class FieldForm extends React.Component<Props, State> {
+class FormField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -65,8 +64,10 @@ class FieldForm extends React.Component<Props, State> {
     attributeName: string,
     value: string | boolean | string[]
   ) {
+    const { type } = this.props;
+
     const editingField =
-      this.state.editingField || ({ type: this.props.type.value } as IField);
+      this.state.editingField || ({ type: type && type.value } as IField);
 
     editingField[attributeName] = value;
 
@@ -239,8 +240,10 @@ class FieldForm extends React.Component<Props, State> {
   }
 
   render() {
+    const { type } = this.props;
+
     const {
-      editingField = { type: this.props.type.value } as IField
+      editingField = { type: type && type.value } as IField
     } = this.state;
 
     return (
@@ -260,4 +263,4 @@ class FieldForm extends React.Component<Props, State> {
   }
 }
 
-export default FieldForm;
+export default FormField;

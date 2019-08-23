@@ -2,7 +2,7 @@ import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Icon from '../Icon';
 import ModalTrigger from '../ModalTrigger';
-import FieldForm from './FieldForm';
+import FormField from './FormField';
 import { Field, Options } from './styles';
 
 type Props = {
@@ -58,7 +58,7 @@ class FormFields extends React.Component<Props> {
     );
 
     const content = props => (
-      <FieldForm
+      <FormField
         {...props}
         type={option}
         onSubmit={onSubmit}
