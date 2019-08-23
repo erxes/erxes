@@ -34,7 +34,7 @@ const init = async app => {
   app.post('/callpro-receive', async (req, res, next) => {
     debugRequest(debugCallPro, req);
 
-    const { numberTo, numberFrom, disp, recordURL, callID, date } = req.body;
+    const { numberTo, numberFrom, disp, recordUrl, callID, date } = req.body;
     const integration = await Integrations.findOne({ phoneNumber: numberTo }).lean();
 
     if (!integration) {
@@ -122,7 +122,7 @@ const init = async app => {
     if (!conversationMessage) {
       // save on integrations db
       await ConversationMessages.create({
-        content: audioElement(recordURL || ''),
+        content: audioElement(recordUrl || ''),
         conversationId: conversation._id,
         callId: callID,
       });
@@ -135,7 +135,7 @@ const init = async app => {
           body: {
             action: 'create-conversation-message',
             payload: JSON.stringify({
-              content: audioElement(recordURL || ''),
+              content: audioElement(recordUrl || ''),
               conversationId: conversation.erxesApiId,
               customerId: customer.erxesApiId,
             }),
