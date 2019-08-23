@@ -1,9 +1,9 @@
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import Icon from '../Icon';
-import ModalTrigger from '../ModalTrigger';
+import { Field, Options } from '../styles';
 import FormField from './FormField';
-import { Field, Options } from './styles';
 
 type Props = {
   children?: any[];

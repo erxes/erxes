@@ -1,22 +1,22 @@
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
+import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import FieldPreview from 'modules/leads/components/step/preview/FieldPreview';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Toggle from 'react-toggle';
-import { ModalFooter } from '../../styles/main';
-import Button from '../Button';
-import Icon from '../Icon';
-import FormControl from './Control';
-import FormGroup from './Group';
-import ControlLabel from './Label';
 import {
   FlexRow,
   LeftSection,
   Preview,
   PreviewSection,
   ShowPreview
-} from './styles';
+} from '../styles';
 
 type Props = {
   closeModal?: () => void;
@@ -254,7 +254,7 @@ class FormField extends React.Component<Props, State> {
           <Preview>
             <FieldPreview field={editingField} />
             <ShowPreview>
-              <Icon icon="eye" /> Show field preview
+              <Icon icon="eye" /> Field preview
             </ShowPreview>
           </Preview>
         </PreviewSection>

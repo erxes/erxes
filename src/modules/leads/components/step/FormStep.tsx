@@ -1,10 +1,10 @@
 import FormControl from 'modules/common/components/form/Control';
-import Fields from 'modules/common/components/form/Fields';
-import FormField from 'modules/common/components/form/FormField';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import Fields from 'modules/forms/components/Fields';
+import FormField from 'modules/forms/components/FormField';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormPreview from './preview/FormPreview';
