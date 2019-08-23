@@ -14,7 +14,7 @@ mongoose.set('useFindAndModify', false);
 
 const removeDbs = async () => {
   await mongoose.connect(
-    TEST_MONGO_URL.replace('test', `erxes-test-${Math.random()}`).replace('.', ''),
+    TEST_MONGO_URL.replace('test', `erxes-test-${Math.random()}`).replace(/\./g, ''),
     { useNewUrlParser: true, useCreateIndex: true },
   );
 
