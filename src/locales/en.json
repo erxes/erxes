@@ -583,6 +583,8 @@
   "Normal": "Normal",
   "Low": "Low",
   "Attachments": "Attachments",
+  "Source": "Source",
+  "Select a source": "Select a source",
   "Upload an attachment": "Upload an attachment",
   "Description": "Description",
   "Select a priority": "Select a priority",
