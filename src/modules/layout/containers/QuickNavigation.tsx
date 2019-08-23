@@ -16,7 +16,7 @@ type Props = {
 };
 
 type State = {
-  selectedBrands: IOption[];
+  selectedBrands: string[];
 };
 
 class QuickNavigationContainer extends React.Component<Props, State> {
@@ -46,18 +46,18 @@ class QuickNavigationContainer extends React.Component<Props, State> {
       });
   };
 
-  onChangeBrands = (options: IOption[]) => {
-    const { brandsQuery } = this.props;
+  onChangeBrands = (value: string) => {
+    const { selectedBrands } = this.state;
 
-    let ids = options.map(option => option.value);
+    // const ids = selectedBrands.includes(value) ? selectedBrands.push(option => option.value);
 
-    if (ids.length === 0) {
-      ids = (brandsQuery.brands || []).map(brand => brand._id);
-    }
+    // if (ids.length === 0) {
+    //   ids = (brandsQuery.brands || []).map(brand => brand._id);
+    // }
 
-    setCookie('scopeBrandIds', JSON.stringify(ids));
+    // setCookie('scopeBrandIds', JSON.stringify(ids));
 
-    this.setState({ selectedBrands: options });
+    // this.setState({ selectedBrands: options });
 
     window.location.reload();
   };

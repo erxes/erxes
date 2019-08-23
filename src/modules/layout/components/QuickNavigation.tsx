@@ -18,6 +18,7 @@ import Select from 'react-select-plus';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { UserHelper } from '../styles';
+import BrandChooser from './BrandChooser';
 
 const Signature = asyncComponent(() =>
   import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
@@ -80,8 +81,8 @@ const QuickNavigation = ({
   currentUser: IUser;
   showBrands: boolean;
   brands: IBrand[];
-  selectedBrands: IOption[];
-  onChangeBrands: (options: IOption[]) => void;
+  selectedBrands: string[];
+  onChangeBrands: (value: string) => void;
 }) => {
   const passContent = props => <ChangePassword {...props} />;
   const signatureContent = props => <Signature {...props} />;
@@ -99,23 +100,34 @@ const QuickNavigation = ({
 
   const brandOptions = brands.map(brand => ({
     value: brand._id,
-    label: brand.name
+    label: brand.name || ''
   }));
 
   let brandsCombo;
 
   if (showBrands && brands.length > 1) {
     brandsCombo = (
-      <NavItem>
-        <Select
-          style={{ maxWidth: '400px', minWidth: '150px' }}
-          placeholder={__('Choose brands')}
-          value={selectedBrands}
-          options={brandOptions}
-          onChange={onChangeBrands}
-          multi={true}
-        />
-      </NavItem>
+      <>
+        <NavItem>
+          <Select
+            style={{ maxWidth: '400px', minWidth: '150px' }}
+            placeholder={__('Choose brands')}
+            value={selectedBrands}
+            options={brandOptions}
+            onChange={onChangeBrands}
+            multi={true}
+          />
+        </NavItem>
+
+        <NavItem>
+          <BrandChooser
+            selectedItems={selectedBrands}
+            items={brandOptions}
+            onChange={onChangeBrands}
+            trigger={<div>brand</div>}
+          />
+        </NavItem>
+      </>
     );
   }
 
