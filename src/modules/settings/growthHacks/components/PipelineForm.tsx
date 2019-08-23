@@ -60,7 +60,7 @@ class PipelineForm extends React.Component<Props, State> {
   componentDidMount() {
     client
       .query({
-        query: gql(queries.templates),
+        query: gql(queries.pipelineTemplates),
         variables: { type: 'growthHack' }
       })
       .then(({ data }: { data: any }) => {

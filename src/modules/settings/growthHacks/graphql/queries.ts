@@ -1,4 +1,4 @@
-const templates = `
+const pipelineTemplates = `
   query pipelineTemplates($type: String!) {
     pipelineTemplates(type: $type) {
       _id
@@ -8,6 +8,13 @@ const templates = `
   }
 `;
 
+const totalCount = `
+  query pipelineTemplatesTotalCount {
+	  pipelineTemplatesTotalCount
+  }
+`;
+
 export default {
-  templates
+  pipelineTemplates,
+  totalCount
 };

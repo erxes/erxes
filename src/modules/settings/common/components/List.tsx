@@ -56,6 +56,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         enforceFocus={false}
         trigger={trigger}
         content={content}
+        dialogClassName="transform"
       />
     );
 
