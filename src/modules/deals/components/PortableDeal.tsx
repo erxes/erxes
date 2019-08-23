@@ -40,6 +40,10 @@ class Deal extends React.Component<Props, { isPopupVisible: boolean }> {
   renderForm = () => {
     const { item, onAdd, onRemove, onUpdate, options } = this.props;
 
+    const beforePopupClose = () => {
+      this.setState({ isPopupVisible: false });
+    };
+
     return (
       <EditForm
         {...this.props}
@@ -50,6 +54,7 @@ class Deal extends React.Component<Props, { isPopupVisible: boolean }> {
         onRemove={onRemove}
         onUpdate={onUpdate}
         isPopupVisible={this.state.isPopupVisible}
+        beforePopupClose={beforePopupClose}
       />
     );
   };
