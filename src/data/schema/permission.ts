@@ -25,6 +25,7 @@ export const types = `
     name: String!
     description: String!
     memberIds: [String]
+    members: [User]
   }
 `;
 
