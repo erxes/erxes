@@ -12,6 +12,7 @@ type Props = {
     form: number;
     facebook: number;
     gmail: number;
+    callpro: number;
   };
   queryParams: any;
 };

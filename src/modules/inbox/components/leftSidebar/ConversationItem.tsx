@@ -86,6 +86,18 @@ class ConversationItem extends React.Component<Props> {
     return null;
   }
 
+  showMessageContent(kind: string, content: string) {
+    if (kind === 'callpro') {
+      return (
+        <span style={{ color: content === 'answered' ? 'green' : 'red' }}>
+          {content}
+        </span>
+      );
+    }
+
+    return strip(content);
+  }
+
   render() {
     const { currentUser } = this.props;
     const { conversation, isActive, selectedIds = [] } = this.props;
@@ -142,7 +154,9 @@ class ConversationItem extends React.Component<Props> {
               </FlexContent>
             </MainInfo>
 
-            <MessageContent>{strip(content)}</MessageContent>
+            <MessageContent>
+              {this.showMessageContent(integration.kind, content || '')}
+            </MessageContent>
             <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>
