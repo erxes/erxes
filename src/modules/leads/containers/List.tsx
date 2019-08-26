@@ -41,8 +41,7 @@ class ListContainer extends React.Component<FinalProps, {}> {
     const tagsCount = counts.byTag || {};
 
     const integrations = integrationsQuery.integrations || [];
-    // tslint:disable-next-line:no-console
-    console.log(integrationsQuery);
+
     const remove = (integrationId: string, callback: (error?: any) => void) => {
       removeMutation({
         variables: { _id: integrationId }
