@@ -117,9 +117,16 @@ class EditForm extends React.Component<Props, State> {
 
   onBlurFields = (name: 'name' | 'description', value: string) => {
     this.props.saveItem({ [name]: value }, updatedItem => {
-      this.setState({
-        updatedItem
-      });
+      this.setState(
+        {
+          updatedItem
+        },
+        () => {
+          if (this.state.isFormVisible === false) {
+            this.props.onUpdate(updatedItem);
+          }
+        }
+      );
     });
   };
 
