@@ -53,7 +53,7 @@ const commonReturn = `
 
 const dealsAdd = `
   mutation dealsAdd($name: String!, ${commonVariables}) {
-    dealsAdd(name: $name${commonParams}) {
+    dealsAdd(name: $name, ${commonParams}) {
       ${commonReturn}
     }
   }
