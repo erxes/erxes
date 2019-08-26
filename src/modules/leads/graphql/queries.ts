@@ -11,19 +11,17 @@ const integrations = `
         code
       }
       languageCode
-      formData
-      formId
+      leadData
+      leadId
       tags {
         _id
         name
         colorCode
       }
       tagIds
-      form {
+      lead {
         _id
-        title
-        code
-        description
+        formId
         createdDate
         createdUserId
         createdUser {
@@ -34,7 +32,6 @@ const integrations = `
             position
           }
         }
-        buttonText
         themeColor
         contactsGathered
         viewCount
@@ -51,6 +48,24 @@ const integrations = `
           text
           condition
           value
+        }
+        form {
+          _id
+          title
+          code
+          description
+          type
+          buttonText
+          createdDate
+          createdUserId
+          createdUser {
+            _id
+            details {
+              avatar
+              fullName
+              position
+            }
+          }
         }
       }
     }
