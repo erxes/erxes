@@ -51,7 +51,7 @@ export const queries = `
 `;
 
 const commonParams = `
-  name: String!,
+  name: String,
   stageId: String,
   assignedUserIds: [String],
   companyIds: [String],
@@ -65,8 +65,8 @@ const commonParams = `
 `;
 
 export const mutations = `
-  ticketsAdd(${commonParams}): Ticket
-  ticketsEdit(_id: String!, ${commonParams}): Ticket
+  ticketsAdd(name: String!, ${commonParams}): Ticket
+  ticketsEdit(_id: String!, name: String, ${commonParams}): Ticket
   ticketsChange( _id: String!, destinationStageId: String): Ticket
   ticketsUpdateOrder(stageId: String!, orders: [OrderItem]): [Ticket]
   ticketsRemove(_id: String!): Ticket

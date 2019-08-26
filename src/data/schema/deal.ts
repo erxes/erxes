@@ -82,7 +82,6 @@ export const queries = `
 `;
 
 const commonParams = `
-  name: String!,
   stageId: String,
   assignedUserIds: [String],
   companyIds: [String],
@@ -95,8 +94,8 @@ const commonParams = `
 `;
 
 export const mutations = `
-  dealsAdd(${commonParams}): Deal
-  dealsEdit(_id: String!, ${commonParams}): Deal
+  dealsAdd(name: String!, ${commonParams}): Deal
+  dealsEdit(_id: String!, name: String, ${commonParams}): Deal
   dealsChange( _id: String!, destinationStageId: String): Deal
   dealsUpdateOrder(stageId: String!, orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): Deal
