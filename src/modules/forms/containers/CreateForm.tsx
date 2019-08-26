@@ -12,7 +12,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import Form from '../components/Form';
+// import Form from '../components/Form';
 import { mutations } from '../graphql';
 import { AddFormMutationResponse, AddFormMutationVariables } from '../types';
 
@@ -96,7 +96,7 @@ class CreateFormContainer extends React.Component<
       isActionLoading: this.state.isLoading
     };
 
-    return <Form {...updatedProps} />;
+    return <div {...updatedProps} />;
   }
 }
 
@@ -106,7 +106,7 @@ export default withProps<{}>(
       {},
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
-    >(gql(mutations.integrationsCreateFormIntegration), {
+    >(gql(mutations.integrationsCreateLeadintegration), {
       name: 'addIntegrationMutation',
       options: {
         refetchQueries: ['formIntegrations', 'formIntegrationCounts']

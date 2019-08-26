@@ -43,7 +43,8 @@ export type AddFormMutationVariables = {
   title: string;
   description: string;
   buttonText: string;
-  type: string;
+  themeColor: string;
+  callout: ICallout;
 };
 
 export type AddFormMutationResponse = {
@@ -57,7 +58,8 @@ export type EditFormMutationVariables = {
   title: string;
   description: string;
   buttonText: string;
-  type: string;
+  themeColor: string;
+  callout: ICallout;
 };
 
 export type EditFormMutationResponse = {

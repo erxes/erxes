@@ -3,12 +3,12 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const CreateForm = asyncComponent(() =>
-  import(/* webpackChunkName: "CreateForm" */ './containers/CreateForm')
+const CreateLead = asyncComponent(() =>
+  import(/* webpackChunkName: "CreateLead" */ './containers/CreateLead')
 );
 
-const EditForm = asyncComponent(() =>
-  import(/* webpackChunkName: "EditForm" */ './containers/EditForm')
+const EditLead = asyncComponent(() =>
+  import(/* webpackChunkName: "EditLead" */ './containers/EditLead')
 );
 
 const List = asyncComponent(() =>
@@ -20,16 +20,16 @@ const forms = ({ location }) => {
   return <List queryParams={queryParams} />;
 };
 
-const createForm = () => {
-  return <CreateForm />;
+const createLead = () => {
+  return <CreateLead />;
 };
 
-const editForm = ({ match, location }) => {
+const editLead = ({ match, location }) => {
   const { contentTypeId, formId } = match.params;
   const queryParams = queryString.parse(location.search);
 
   return (
-    <EditForm
+    <EditLead
       queryParams={queryParams}
       contentTypeId={contentTypeId}
       formId={formId}
@@ -46,14 +46,14 @@ const routes = () => {
         key="/leads/create"
         exact={true}
         path="/leads/create"
-        component={createForm}
+        component={createLead}
       />
 
       <Route
         key="/leads/edit/:contentTypeId?/:formId?"
         exact={true}
         path="/leads/edit/:contentTypeId/:formId"
-        component={editForm}
+        component={editLead}
       />
     </React.Fragment>
   );

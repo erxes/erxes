@@ -165,6 +165,7 @@ class Form extends React.Component<Props, State> {
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
         },
+        type: 'lead',
         rules: (rules || []).map(rule => ({
           _id: rule._id,
           kind: rule.kind,

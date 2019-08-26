@@ -40,7 +40,7 @@ type FinalProps = {
   RemoveFieldMutationResponse &
   IRouterProps;
 
-class EditFormContainer extends React.Component<
+class EditLeadContainer extends React.Component<
   FinalProps,
   { isLoading: boolean }
 > {
@@ -234,5 +234,5 @@ export default withProps<Props>(
         name: 'editFormMutation'
       }
     )
-  )(withRouter<FinalProps>(EditFormContainer))
+  )(withRouter<FinalProps>(EditLeadContainer))
 );
