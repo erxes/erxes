@@ -1,4 +1,3 @@
-import { IStage } from 'modules/boards/types';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -18,7 +17,6 @@ import TemplateForm from './TemplateForm';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  stages: IStage[];
 } & ICommonListProps;
 
 class TemplateList extends React.Component<Props> {
@@ -42,6 +40,7 @@ class TemplateList extends React.Component<Props> {
         enforceFocus={false}
         title="Edit"
         size="lg"
+        dialogClassName="transform"
         trigger={
           <div>
             <Icon icon="edit" /> Edit

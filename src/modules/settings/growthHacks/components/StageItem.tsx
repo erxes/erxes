@@ -34,14 +34,14 @@ class StageItem extends React.Component<Props, {}> {
           onChange={onChangeName.bind(this, stage._id)}
         />
 
+        <FormList onChangeForm={onChangeForm} stage={stage} />
+
         <Button
           btnStyle="danger"
           size="small"
           onClick={remove.bind(this, stage._id)}
           icon="cancel-1"
         />
-
-        <FormList onChangeForm={onChangeForm} stage={stage} />
       </StageItemContainer>
     );
   }

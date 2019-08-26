@@ -18,7 +18,7 @@ type Props = {
 
 export default commonListComposer<Props>({
   text: 'growth hack template',
-  label: 'growth hackTemplates',
+  label: 'pipelineTemplates',
   stringEditMutation: mutations.pipelineTemplatesEdit,
   stringAddMutation: mutations.pipelineTemplatesAdd,
 

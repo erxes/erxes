@@ -42,7 +42,7 @@ class SortableList extends React.Component<Props> {
 
     return (
       <DragHandler>
-        <Icon icon="move-1" />
+        <Icon icon="ellipsis-v" />
       </DragHandler>
     );
   }

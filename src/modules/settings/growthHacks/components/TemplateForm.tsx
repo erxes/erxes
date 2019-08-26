@@ -7,11 +7,11 @@ import Stages from 'modules/settings/boards/components/Stages';
 import React from 'react';
 import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
+import { options } from '../options';
 import { IPipelineTemplate } from '../types';
 
 type Props = {
   object?: IPipelineTemplate;
-  stages: IStage[];
 } & ICommonFormProps;
 
 type State = {
@@ -23,17 +23,25 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
   constructor(props: Props) {
     super(props);
 
-    const { stages } = this.props;
+    const { object } = props;
 
     this.state = {
-      stages: (stages || []).map(stage => ({ ...stage })),
-      content: (props.object && props.object.content) || ''
+      stages: object ? this.generateStages(object.stages, true) : [],
+      content: (object && object.content) || ''
     };
   }
 
   onEditorChange = e => {
     this.setState({ content: e.editor.getData() });
   };
+
+  generateStages(stages, hasId: boolean) {
+    return stages.map(stage => ({
+      _id: hasId ? Math.random().toString() : undefined,
+      name: stage.name,
+      formId: stage.formId
+    }));
+  }
 
   generateDoc = (values: {
     _id?: string;
@@ -48,15 +56,12 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       finalValues._id = object._id;
     }
 
-    // tslint:disable-next-line:no-console
-    console.log(this.state.stages);
-
     return {
       _id: finalValues._id,
       name: finalValues.name,
       description: finalValues.name,
       type: 'growthHack',
-      stages: stages.filter(el => el.name)
+      stages: this.generateStages(stages, false).filter(el => el.name)
     };
   };
 
@@ -94,7 +99,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
         <FormGroup>
           <ControlLabel>Stages</ControlLabel>
           <Stages
-            type="growthhack"
+            options={options}
             stages={this.state.stages}
             onChangeStages={this.onChangeStages}
           />

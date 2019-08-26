@@ -9,7 +9,7 @@ import StageItem from './StageItem';
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
   stages: any;
-  type: string;
+  type?: string;
   options?: IOption;
 };
 

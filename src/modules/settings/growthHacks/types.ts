@@ -1,7 +1,7 @@
 export interface IPipelineTemplateStage {
   name: string;
   formId: string;
-  order: number;
+  order?: number;
 }
 
 export interface IPipelineTemplate {

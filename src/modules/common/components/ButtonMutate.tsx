@@ -68,9 +68,6 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
 
     this.setState({ isLoading: true });
 
-    // tslint:disable-next-line:no-console
-    console.log('vvvv', mutation);
-
     client
       .mutate({
         mutation: gql(mutation),

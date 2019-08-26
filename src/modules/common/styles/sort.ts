@@ -26,8 +26,6 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean }>(
 
 const SortableWrapper = styled.div`
   width: 100%;
-  max-height: 420px;
-  overflow: auto;
 
   label {
     margin: 0;

@@ -1,8 +1,8 @@
 const commonParamsDef = `
   $name: String!,
   $description: String,
-  $type: String,
-  $stages: [PipelineTemplateStage],
+  $type: String!,
+  $stages: [PipelineTemplateStageInput],
 `;
 
 const commonParams = `
