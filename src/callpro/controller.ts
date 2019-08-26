@@ -62,6 +62,8 @@ const init = async app => {
             payload: JSON.stringify({
               integrationId: integration.erxesApiId,
               primaryPhone: numberFrom,
+              isUser: true,
+              phones: [numberFrom],
             }),
           },
         });
