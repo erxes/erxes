@@ -19,9 +19,10 @@ type Props = {
   item: ITask;
   users: IUser[];
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITaskParams, callback: () => void) => void;
+  saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  onUpdate: (item, prevStageId?: string) => void;
+  beforePopupClose: () => void;
 };
 
 type State = {
@@ -48,8 +49,11 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
     const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
 
-    const onChangePriority = (option: ISelectedOption) =>
-      this.onChangeField('priority', option ? option.value : '');
+    const onChangePriority = (option: ISelectedOption) => {
+      this.props.saveItem({ priority: option ? option.value : '' }, () =>
+        this.onChangeField('priority', option ? option.value : '')
+      );
+    };
 
     const priorityValueRenderer = (
       option: ISelectedOption
@@ -81,7 +85,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
     onChangeAttachment,
     onChangeField,
     copy,
-    remove
+    remove,
+    onBlurFields
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
 
@@ -101,12 +106,12 @@ export default class TaskEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           name={name}
-          description={description}
           closeDate={closeDate}
           users={users}
           stageId={stageId}
           item={item}
           onChangeField={onChangeField}
+          onBlurFields={onBlurFields}
         />
 
         <FlexContent>
@@ -117,6 +122,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}
+            onBlurFields={onBlurFields}
           />
 
           <Sidebar
