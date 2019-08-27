@@ -46,8 +46,8 @@ export interface IBoard {
 
 export interface IItemParams {
   _id?: string;
-  name: string;
-  stageId: string;
+  name?: string;
+  stageId?: string;
   assignedUserIds?: string[];
   closeDate?: Date;
   description?: string;
@@ -226,12 +226,10 @@ export interface IEditFormContent {
       | 'assignedUserIds'
       | 'customers'
       | 'companies'
-      | 'attachments'
-      | 'deals'
-      | 'tasks'
-      | 'tickets',
+      | 'attachments',
     value: any
   ) => void;
   copy: () => void;
   remove: (id: string) => void;
+  onBlurFields: (name: 'description' | 'name', value: string) => void;
 }
