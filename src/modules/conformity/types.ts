@@ -6,7 +6,6 @@ export interface IConformityDoc {
 }
 
 export interface IConformityCreate {
-  stageId?: string;
   mainType?: string;
   mainTypeId?: string;
   relType?: string;

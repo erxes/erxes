@@ -128,11 +128,6 @@ export type CompaniesQueryResponse = {
   refetch: () => void;
 };
 
-export type RelatedCompaniesQueryResponse = {
-  relatedCompanies: ICompany[];
-  loading: boolean;
-};
-
 export type ListConfigQueryResponse = {
   fieldsDefaultColumnsConfig: ListConfig[];
   loading: boolean;

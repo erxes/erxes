@@ -18,7 +18,6 @@ type Props = {
   customers: ICustomer[];
   mainType?: string;
   mainTypeId?: string;
-  onSelect: (customers: ICustomer[]) => void;
   isOpen?: boolean;
 };
 
@@ -27,7 +26,6 @@ function CustomerSection({
   customers = [],
   mainType = '',
   mainTypeId = '',
-  onSelect,
   isOpen
 }: Props) {
   const { Section } = Sidebar;
@@ -48,8 +46,7 @@ function CustomerSection({
     return (
       <CustomerChooser
         {...props}
-        data={{ name, customers, mainTypeId, mainType }}
-        onSelect={onSelect}
+        data={{ name, customers, mainTypeId, mainType, isRelated: true }}
       />
     );
   };
@@ -98,8 +95,7 @@ function CustomerSection({
     return (
       <CustomerChooser
         {...props}
-        data={{ name, customers }}
-        onSelect={onSelect}
+        data={{ name, customers, mainTypeId, mainType }}
       />
     );
   };

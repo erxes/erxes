@@ -19,13 +19,7 @@ type Props = {
   companies: ICompany[];
   assignedUserIds: string[];
   onChangeField?: (
-    name:
-      | 'companies'
-      | 'customers'
-      | 'assignedUserIds'
-      | 'deals'
-      | 'tasks'
-      | 'tickets',
+    name: 'companies' | 'customers' | 'assignedUserIds',
     value: any
   ) => void;
   copyItem: () => void;
@@ -47,34 +41,24 @@ class Sidebar extends React.Component<Props> {
     if (type === 'deal') {
       return '';
     }
-    const dealsChange = deals => this.onChange('deals', deals);
-    return (
-      <PortableDeals mainType={type} mainTypeId={id} onSelect={dealsChange} />
-    );
+
+    return <PortableDeals mainType={type} mainTypeId={id} />;
   };
 
   renderTicket = ({ type, id }: { type: string; id: string }) => {
     if (type === 'ticket') {
       return '';
     }
-    const ticketsChange = tickets => this.onChange('tickets', tickets);
-    return (
-      <PortableTickets
-        mainType={type}
-        mainTypeId={id}
-        onSelect={ticketsChange}
-      />
-    );
+
+    return <PortableTickets mainType={type} mainTypeId={id} />;
   };
 
   renderTask = ({ type, id }: { type: string; id: string }) => {
     if (type === 'task') {
       return '';
     }
-    const tasksChange = tasks => this.onChange('tasks', tasks);
-    return (
-      <PortableTasks mainType={type} mainTypeId={id} onSelect={tasksChange} />
-    );
+
+    return <PortableTasks mainType={type} mainTypeId={id} />;
   };
 
   render() {
@@ -89,8 +73,6 @@ class Sidebar extends React.Component<Props> {
       assignedUserIds
     } = this.props;
 
-    const cmpsChange = cmps => this.onChange('companies', cmps);
-    const cmrsChange = cmrs => this.onChange('customers', cmrs);
     const onClick = () => removeItem(item._id);
     const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
 
@@ -113,7 +95,6 @@ class Sidebar extends React.Component<Props> {
           companies={companies}
           mainType={options.type}
           mainTypeId={item._id}
-          onSelect={cmpsChange}
         />
 
         <CustomerSection
@@ -121,7 +102,6 @@ class Sidebar extends React.Component<Props> {
           customers={customers}
           mainType={options.type}
           mainTypeId={item._id}
-          onSelect={cmrsChange}
         />
 
         {this.renderDeal({ type: options.type, id: item._id })}

@@ -3,7 +3,6 @@ import Button from 'modules/common/components/Button';
 import { IAttachment } from 'modules/common/types';
 import { Alert, extractAttachment } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
-import { onSelectChange } from 'modules/conformity/utils';
 import { ICustomer } from 'modules/customers/types';
 import { IDeal } from 'modules/deals/types';
 import { ITask } from 'modules/tasks/types';
@@ -67,7 +66,6 @@ class EditForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    onSelectChange(name, value, this.props.createConformity);
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 

@@ -12,7 +12,6 @@ type Props = {
   company: ICompany;
   currentUser: IUser;
   taggerRefetchQueries?: any[];
-  createConformity: (relTypeId: string, relTypeIds: string[]) => void;
 };
 
 class CompanyDetails extends React.Component<Props> {
@@ -56,12 +55,7 @@ class CompanyDetails extends React.Component<Props> {
             taggerRefetchQueries={taggerRefetchQueries}
           />
         }
-        rightSidebar={
-          <RightSidebar
-            createConformity={this.props.createConformity}
-            company={company}
-          />
-        }
+        rightSidebar={<RightSidebar company={company} />}
         content={content}
         transparent={true}
       />

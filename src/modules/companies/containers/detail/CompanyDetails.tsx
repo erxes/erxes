@@ -1,12 +1,7 @@
 import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
-import { Alert, renderWithProps } from 'modules/common/utils';
-import { mutations } from 'modules/conformity/graphql';
-import {
-  CreateConformityMutation,
-  IConformityCreate
-} from 'modules/conformity/types';
+import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
@@ -20,36 +15,10 @@ type IProps = {
 
 type FinalProps = {
   companyDetailQuery: DetailQueryResponse;
-  createConformityMutation: CreateConformityMutation;
   currentUser: IUser;
 } & IProps;
 
 class CompanyDetailsContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-
-    this.createConformity = this.createConformity.bind(this);
-  }
-
-  createConformity = (relType: string, relTypeIds: string[]) => {
-    const { id, createConformityMutation } = this.props;
-
-    createConformityMutation({
-      variables: {
-        mainType: 'company',
-        mainTypeId: id,
-        relType,
-        relTypeIds
-      }
-    })
-      .then(() => {
-        Alert.success('success changed' + relType);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
   render() {
     const { id, companyDetailQuery, currentUser } = this.props;
 
@@ -76,7 +45,6 @@ class CompanyDetailsContainer extends React.Component<FinalProps> {
       ...this.props,
       loading: companyDetailQuery.loading,
       company: companyDetail,
-      createConformity: this.createConformity,
       taggerRefetchQueries,
       currentUser
     };
@@ -97,20 +65,6 @@ export default (props: IProps) => {
             variables: {
               _id: id
             }
-          })
-        }
-      ),
-      graphql<IProps, CreateConformityMutation, IConformityCreate>(
-        gql(mutations.conformityCreate),
-        {
-          name: 'createConformityMutation',
-          options: ({ id }: { id: string }) => ({
-            refetchQueries: [
-              {
-                query: gql(queries.companyDetail),
-                variables: { _id: id }
-              }
-            ]
           })
         }
       )

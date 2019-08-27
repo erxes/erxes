@@ -148,11 +148,6 @@ export type CustomersQueryResponse = {
   refetch: () => void;
 };
 
-export type RelatedCustomersQueryResponse = {
-  relatedCustomers: ICustomer[];
-  loading: boolean;
-};
-
 export type CountQueryResponse = {
   customerCounts: CustomerCounts;
   loading: boolean;

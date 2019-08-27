@@ -387,13 +387,6 @@ class Index extends React.Component<IndexProps, IndexState> {
     name: T,
     value: IndexState[T]
   ) => {
-    switch (name) {
-      case 'companies':
-        const companyIds = (value as ICompany[]).map(company => company._id);
-        this.props.createConformity('company', companyIds);
-        break;
-    }
-
     this.setState(({ [name]: value } as unknown) as Pick<
       IndexState,
       keyof IndexState
@@ -445,7 +438,6 @@ class Index extends React.Component<IndexProps, IndexState> {
       );
     }
 
-    const cmpsChange = cmps => this.onChangeField('companies', cmps);
     return (
       <>
         <Box
@@ -457,9 +449,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           <CompanySection
             name={'Customer'}
             companies={customer.companies}
-            mainType={'company'}
+            mainType={'customer'}
             mainTypeId={customer._id}
-            onSelect={cmpsChange}
           />
         </Box>
 

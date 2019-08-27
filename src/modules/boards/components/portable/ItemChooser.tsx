@@ -8,16 +8,12 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import BoardSelect from '../../containers/BoardSelect';
-import { IOptions } from '../../types';
 
 type Props = {
   data: any;
   onSelect: (datas: any[]) => void;
-  clearState: () => void;
-  clearStateStage: () => void;
   datas: any[];
   title: string;
-  // onChangeItems: () => void;
   renderName: (data: any) => void;
   renderForm: (props: { closeModal: () => void }) => any;
   limit?: number;
@@ -27,17 +23,20 @@ type Props = {
   pipelineId?: string;
   stageId?: string;
   showSelect?: boolean;
-  options: IOptions;
+  searchValue?: string;
   search: (value: string) => void;
-  filterStageId: (stageId: string) => void;
+  filterStageId?: (
+    stageId?: string,
+    boardId?: string,
+    pipelineId?: string
+  ) => void;
+  clearState: () => void;
 };
 
 type State = {
   datas: any[];
-  searchValue: string;
+  searchValue?: string;
   stageId: string;
-  name: string;
-  disabled: boolean;
   boardId: string;
   pipelineId: string;
 };
@@ -53,11 +52,9 @@ class ItemChooser extends React.Component<Props, State> {
     this.state = {
       datas,
       searchValue: '',
-      stageId: '',
-      name: '',
-      disabled: false,
-      boardId: '',
-      pipelineId: ''
+      stageId: this.props.stageId || '',
+      boardId: this.props.boardId || '',
+      pipelineId: this.props.pipelineId || ''
     };
   }
 
@@ -66,23 +63,10 @@ class ItemChooser extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
-  // componentWillUnmount() {
-  //   this.props.clearStateStage();
-  //   this.props.clearState();
-  // }
-
-  // componentWillReceiveProps() {
-  //   this.setState({});
-  // }
-
   handleChange = (type, data) => {
     const { datas } = this.state;
 
     if (type === 'add') {
-      if (this.props.limit && this.props.limit === datas.length) {
-        return;
-      }
-
       this.setState({ datas: [...datas, data] });
     } else {
       this.setState({ datas: datas.filter(item => item !== data) });
@@ -130,8 +114,8 @@ class ItemChooser extends React.Component<Props, State> {
     return <EmptyState text="No items added" icon="list-2" />;
   }
 
-  renderSelect() {
-    const { showSelect, options } = this.props;
+  renderSelectChooser() {
+    const { showSelect, data } = this.props;
 
     if (!showSelect) {
       return null;
@@ -145,7 +129,7 @@ class ItemChooser extends React.Component<Props, State> {
 
     return (
       <BoardSelect
-        type={options.type}
+        type={data.options.type}
         stageId={stageId}
         pipelineId={pipelineId}
         boardId={boardId}
@@ -157,14 +141,11 @@ class ItemChooser extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    console.log(name, value);
-    // this.timer = setTimeout(() => {
-    if (name === 'stageId') {
-      const { filterStageId } = this.props;
-      filterStageId(value as string);
+    const { filterStageId } = this.props;
+    if (name === 'stageId' && filterStageId) {
+      filterStageId(value as string, this.state.boardId, this.state.pipelineId);
     }
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
-    // }, 500);
   };
 
   render() {
@@ -181,7 +162,7 @@ class ItemChooser extends React.Component<Props, State> {
     return (
       <>
         <Columns>
-          <Column>{this.renderSelect()}</Column>
+          <Column>{this.renderSelectChooser()}</Column>
           <Column>
             <FormControl
               placeholder={__('Type to search')}

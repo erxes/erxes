@@ -3,13 +3,12 @@ import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Items from '../../components/portable/Items';
-import { IItem, IOptions, ItemsQueryResponse } from '../../types';
+import { IOptions, ItemsQueryResponse } from '../../types';
 
 type IProps = {
   mainType?: string;
   mainTypeId?: string;
   isOpen?: boolean;
-  onSelect: (items: IItem[]) => void;
   options: IOptions;
 };
 

@@ -14,7 +14,6 @@ type Props = {
   mainType?: string;
   mainTypeId?: string;
   onChangeItems: () => void;
-  onSelect: (items: IItem[]) => void;
   isOpen?: boolean;
 };
 
@@ -50,7 +49,6 @@ class Items extends React.Component<Props> {
       isOpen,
       options,
       onChangeItems,
-      onSelect,
       items
     } = this.props;
 
@@ -71,7 +69,6 @@ class Items extends React.Component<Props> {
         {...props}
         data={{ options, mainType, mainTypeId, items }}
         callback={onChangeItems}
-        onSelect={onSelect}
         showSelect={true}
       />
     );
@@ -81,7 +78,6 @@ class Items extends React.Component<Props> {
         {...props}
         data={{ options, mainType, mainTypeId, items, isRelated: true }}
         callback={onChangeItems}
-        onSelect={onSelect}
         showSelect={true}
       />
     );

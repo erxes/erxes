@@ -1,10 +1,5 @@
-// import gql from 'graphql-tag';
-// import { renderWithProps } from 'modules/common/utils';
-
 import React from 'react';
-// import { compose, graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
-// import { queries } from '../../graphql';
 import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 
 type IProps = {
@@ -26,7 +21,6 @@ type FinalProps = {
 
 export default class AddFormContainer extends React.Component<FinalProps> {
   render() {
-    console.log(this.props);
     const extendedProps = {
       ...this.props,
       saveItem: this.props.saveItem,

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
-import Chooser from 'modules/common/components/Chooser';
 import { Alert, renderFullName, withProps } from 'modules/common/utils';
+import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import CustomerForm from '../containers/CustomerForm';
@@ -9,32 +9,22 @@ import {
   AddMutationResponse,
   CustomersQueryResponse,
   ICustomer,
-  ICustomerDoc,
-  RelatedCustomersQueryResponse
+  ICustomerDoc
 } from '../types';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
   searchValue: string;
   perPage: number;
-  mainType?: string;
-  mainTypeId?: string;
 };
 
 type FinalProps = {
   customersQuery: CustomersQueryResponse;
-  relatedCustomersQuery: RelatedCustomersQueryResponse;
 } & Props &
   AddMutationResponse;
 
 const CustomerChooser = (props: WrapperProps & FinalProps) => {
-  const {
-    data,
-    customersQuery,
-    customersAdd,
-    relatedCustomersQuery,
-    search
-  } = props;
+  const { data, customersQuery, customersAdd, search } = props;
 
   // add customer
   const addCustomer = ({ doc, callback }) => {
@@ -53,17 +43,15 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       });
   };
 
-  const datas =
-    data.mainTypeId && data.mainType
-      ? relatedCustomersQuery.relatedCustomers
-      : customersQuery.customers;
-
   const updatedProps = {
     ...props,
     data: {
       _id: data._id,
       name: data.name,
-      datas: data.customers
+      datas: data.customers,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'company'
     },
     search,
     clearState: () => search(''),
@@ -73,47 +61,28 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       <CustomerForm {...formProps} action={addCustomer} />
     ),
     add: addCustomer,
-    datas: datas || []
+    datas: customersQuery.customers || []
   };
 
-  return <Chooser {...updatedProps} />;
+  return <ConformityChooser {...updatedProps} />;
 };
 
 const WithQuery = withProps<Props>(
   compose(
     graphql<
-      Props,
+      Props & WrapperProps,
       CustomersQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.customers), {
       name: 'customersQuery',
-      options: ({ searchValue, perPage }) => {
-        return {
-          variables: {
-            searchValue,
-            perPage
-          }
-        };
-      }
-    }),
-    graphql<
-      Props,
-      RelatedCustomersQueryResponse,
-      {
-        searchValue: string;
-        perPage: number;
-        mainTypeId?: string;
-        mainType?: string;
-      }
-    >(gql(queries.relatedCustomers), {
-      name: 'relatedCustomersQuery',
-      options: ({ searchValue, perPage, mainTypeId, mainType }) => {
+      options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
             searchValue,
             perPage,
-            mainTypeId,
-            mainType
+            mainType: data.mainType,
+            mainTypeId: data.mainTypeId,
+            isRelated: data.isRelated
           }
         };
       }
@@ -135,8 +104,8 @@ type WrapperProps = {
     customers: ICustomer[];
     mainTypeId?: string;
     mainType?: string;
+    isRelated?: boolean;
   };
-  onSelect: (datas: ICustomer[]) => void;
   closeModal: () => void;
 };
 
@@ -145,14 +114,12 @@ export default class Wrapper extends React.Component<
   {
     perPage: number;
     searchValue: string;
-    mainTypeId?: string;
-    mainType?: string;
   }
 > {
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '', mainTypeId: '', mainType: '' };
+    this.state = { perPage: 20, searchValue: '' };
   }
 
   search = (value, loadmore) => {
@@ -167,15 +134,12 @@ export default class Wrapper extends React.Component<
 
   render() {
     const { searchValue, perPage } = this.state;
-
     return (
       <WithQuery
         {...this.props}
         search={this.search}
         searchValue={searchValue}
         perPage={perPage}
-        mainTypeId={this.props.data.mainTypeId}
-        mainType={this.props.data.mainType}
       />
     );
   }

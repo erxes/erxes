@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
-import { Alert, renderWithProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
+import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
-import ItemChooser from '../../components/portable/ItemChooser';
 import { queries } from '../../graphql';
 import {
   IFilterParams,
@@ -11,146 +11,132 @@ import {
   IItemParams,
   IOptions,
   ItemsQueryResponse,
-  RelatedItemsQueryResponse,
   SaveMutation
 } from '../../types';
 
 type IProps = {
-  search: (value: string) => void;
+  search: (value: string, loadMore?: boolean) => void;
   searchValue: string;
-  options: IOptions;
-  mainType?: string;
-  mainTypeId?: string;
+  filterStageId?: (
+    stageId?: string,
+    boardId?: string,
+    pipelineId?: string
+  ) => void;
+  stageId?: string;
   boardId?: string;
   pipelineId?: string;
-  filterStageId: (stageId: string) => void;
-  stageId?: string;
   showSelect?: boolean;
 };
 
 type FinalProps = {
   itemsQuery: ItemsQueryResponse;
-  relatedItemsQuery: RelatedItemsQueryResponse;
   addMutation: SaveMutation;
 } & IProps;
 
-const ItemChooserContainer = (props: WrapperProps & FinalProps) => {
-  const { data, itemsQuery, relatedItemsQuery, search, filterStageId } = props;
+class ItemChooserContainer extends React.Component<
+  WrapperProps & FinalProps,
+  {}
+> {
+  render() {
+    const { data, itemsQuery, search } = this.props;
 
-  const saveItem = (doc: IItemParams, callback: () => void) => {
-    const { addMutation } = props;
+    const saveItem = (doc: IItemParams, callback: () => void) => {
+      const { addMutation } = this.props;
 
-    addMutation({ variables: doc })
-      .then(() => {
-        Alert.success(data.options.texts.addSuccessText);
-        callback();
-        itemsQuery.refetch();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
+      addMutation({ variables: doc })
+        .then(() => {
+          Alert.success(data.options.texts.addSuccessText);
+          callback();
+          itemsQuery.refetch();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
-  const renderName = item => {
-    return item.name || 'Unknown';
-  };
+    const renderName = item => {
+      return item.name || 'Unknown';
+    };
 
-  const datas = data.isRelated
-    ? relatedItemsQuery[data.options.queriesName.itemsQuery]
-    : itemsQuery[data.options.queriesName.itemsQuery];
+    const updatedProps = {
+      ...this.props,
+      data: {
+        _id: data._id,
+        name: renderName(data),
+        datas: data.items,
+        mainTypeId: data.mainTypeId,
+        mainType: data.mainType,
+        isRelated: data.isRelated,
+        relType: data.options.type,
+        options: data.options
+      },
+      perPage: 0,
+      title: data.options.title,
+      renderName,
+      add: saveItem,
+      datas: itemsQuery[data.options.queriesName.itemsQuery] || [],
+      renderForm: formProps => (
+        <AddForm
+          {...formProps}
+          action={saveItem}
+          options={data.options}
+          boardId={this.props.boardId}
+          pipelineId={this.props.pipelineId}
+          stageId={this.props.stageId}
+          showSelect={true}
+          saveItem={saveItem}
+        />
+      ),
+      hasBoardChooser: true,
+      clearState: () => search('')
+    };
 
-  const updatedProps = {
-    ...props,
-    data: {
-      _id: data._id,
-      name: renderName(data),
-      datas: data.items,
-      mainTypeId: data.mainTypeId,
-      mainType: data.mainType,
-      isRelated: data.isRelated
-    },
-    search,
-    filterStageId,
-    clearStateStage: () => filterStageId(''),
-    clearState: () => search(''),
-    title: data.options.title,
-    renderForm: formProps => (
-      <AddForm
-        {...formProps}
-        action={saveItem}
-        options={data.options}
-        boardId={props.boardId}
-        pipelineId={props.pipelineId}
-        stageId={props.stageId}
-        showSelect={true}
-        saveItem={saveItem}
-      />
-    ),
-    renderName,
-    add: saveItem,
-    datas: datas || []
-  };
+    return <ConformityChooser {...updatedProps} />;
+  }
+}
 
-  return <ItemChooser {...updatedProps} />;
-};
-
-const WithQuery = (props: IProps) =>
-  renderWithProps<IProps>(
-    props,
+const WithQuery = ({ options }) => {
+  return withProps<IProps>(
     compose(
-      graphql<IProps, ItemsQueryResponse, IFilterParams>(
-        gql(props.options.queries.itemsQuery),
+      graphql<IProps & WrapperProps, ItemsQueryResponse, IFilterParams>(
+        gql(options.queries.itemsQuery),
         {
           name: 'itemsQuery',
-          options: ({ searchValue, stageId }) => {
+          options: ({ searchValue, stageId, data }) => {
             return {
               variables: {
                 search: searchValue,
-                stageId
+                stageId,
+                mainType: data.mainType,
+                mainTypeId: data.mainTypeId,
+                isRelated: data.isRelated,
+                relType: data.isRelated ? data.options.type : ''
               }
             };
           }
         }
       ),
-      graphql<IProps, RelatedItemsQueryResponse, IFilterParams>(
-        gql(props.options.queries.itemsQuery),
-        {
-          name: 'relatedItemsQuery',
-          skip: ({ mainType, mainTypeId }) => !mainType && !mainTypeId,
-          options: ({ searchValue, stageId }) => ({
-            variables: {
-              mainType: props.mainType,
-              mainTypeId: props.mainTypeId,
-              relType: props.options.type,
-              isRelated: true,
-              search: searchValue,
-              stageId
-            }
-          })
-        }
-      ),
-      graphql<IProps, SaveMutation, IItem>(
-        gql(props.options.mutations.addMutation),
-        {
-          name: 'addMutation',
-          options: ({ stageId }: { stageId?: string }) => {
-            if (!stageId) {
-              return {};
-            }
-
-            return {
-              refetchQueries: [
-                {
-                  query: gql(queries.stageDetail),
-                  variables: { _id: stageId }
-                }
-              ]
-            };
+      graphql<IProps, SaveMutation, IItem>(gql(options.mutations.addMutation), {
+        name: 'addMutation',
+        options: ({ stageId }: { stageId?: string }) => {
+          if (!stageId) {
+            return {};
           }
+
+          return {
+            refetchQueries: [
+              {
+                query: gql(queries.stageDetail),
+                variables: { _id: stageId }
+              }
+            ]
+          };
         }
-      )
+      })
     )(ItemChooserContainer)
   );
+};
+// );
 
 type WrapperProps = {
   data: {
@@ -163,49 +149,48 @@ type WrapperProps = {
     isRelated?: boolean;
   };
   showSelect?: boolean;
-  onSelect: (datas: IItem[]) => void;
   closeModal: () => void;
-  // callback?: () => void;
 };
 
 export default class Wrapper extends React.Component<
   WrapperProps,
   {
     searchValue: string;
-    mainTypeId?: string;
-    mainType?: string;
     stageId?: string;
     pipelineId?: string;
     boardId?: string;
   }
 > {
+  private withQuery;
+
   constructor(props) {
     super(props);
 
-    this.state = { searchValue: '', mainTypeId: '', mainType: '', stageId: '' };
+    this.state = { searchValue: '', stageId: '', boardId: '', pipelineId: '' };
+    this.withQuery = WithQuery({ options: props.data.options });
   }
 
   search = value => {
     return this.setState({ searchValue: value });
   };
 
-  filterStageId = stageId => {
-    return this.setState({ stageId });
+  filterStageId = (stageId, boardId, pipelineId) => {
+    return this.setState({ stageId, boardId, pipelineId });
   };
 
   render() {
-    const { searchValue, stageId } = this.state;
+    const { searchValue, stageId, boardId, pipelineId } = this.state;
+    const Component = this.withQuery;
 
     return (
-      <WithQuery
+      <Component
         {...this.props}
         search={this.search}
         searchValue={searchValue}
         filterStageId={this.filterStageId}
         stageId={stageId}
-        mainTypeId={this.props.data.mainTypeId}
-        mainType={this.props.data.mainType}
-        options={this.props.data.options}
+        boardId={boardId}
+        pipelineId={pipelineId}
       />
     );
   }

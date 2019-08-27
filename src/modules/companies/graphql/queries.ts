@@ -62,6 +62,7 @@ const listParamsDef = `
   $sortDirection: Int
   $mainType: String
   $mainTypeId: String
+  $isRelated: Boolean
 `;
 
 const listParamsValue = `
@@ -78,19 +79,12 @@ const listParamsValue = `
   sortDirection: $sortDirection
   mainType: $mainType
   mainTypeId: $mainTypeId
+  isRelated: $isRelated
 `;
 
 export const companies = `
   query companies(${listParamsDef}) {
     companies(${listParamsValue}) {
-      ${companyFields}
-    }
-  }
-`;
-
-export const relatedCompanies = `
-  query relatedCompanies(${listParamsDef}) {
-    relatedCompanies(${listParamsValue}) {
       ${companyFields}
     }
   }
@@ -162,6 +156,5 @@ export default {
   companyDetail,
   tags,
   companiesListConfig,
-  companiesExport,
-  relatedCompanies
+  companiesExport
 };
