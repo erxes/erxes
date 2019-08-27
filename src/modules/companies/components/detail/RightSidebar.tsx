@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
-import { ICustomer } from 'modules/customers/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
@@ -14,21 +13,7 @@ type Props = {
   company: ICompany;
 };
 
-type State = {
-  customers: ICustomer[];
-};
-
-export default class RightSidebar extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const company = props.company;
-
-    this.state = {
-      customers: company.customers || []
-    };
-  }
-
+export default class RightSidebar extends React.Component<Props> {
   renderPlan(company) {
     if (!company.plan) {
       return null;

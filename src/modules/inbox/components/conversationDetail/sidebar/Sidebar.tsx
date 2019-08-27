@@ -1,7 +1,6 @@
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import { ICompany } from 'modules/companies/types';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import {
@@ -157,13 +156,11 @@ type IndexProps = {
   config: { [key: string]: boolean };
   taggerRefetchQueries: any;
   merge?: (doc: { ids: string[]; data: ICustomer }) => void;
-  createConformity: (relTypeId: string, relTypeIds: string[]) => void;
 };
 
 type IndexState = {
   currentTab: string;
   currentSubTab: string;
-  companies: ICompany[];
 };
 
 interface IRenderData {
@@ -179,8 +176,7 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     this.state = {
       currentTab: 'customer',
-      currentSubTab: 'details',
-      companies: props.customer.companies
+      currentSubTab: 'details'
     };
   }
 
@@ -382,16 +378,6 @@ class Index extends React.Component<IndexProps, IndexState> {
       </>
     );
   }
-
-  onChangeField = <T extends keyof IndexState>(
-    name: T,
-    value: IndexState[T]
-  ) => {
-    this.setState(({ [name]: value } as unknown) as Pick<
-      IndexState,
-      keyof IndexState
-    >);
-  };
 
   renderTabContent() {
     const { currentTab, currentSubTab } = this.state;

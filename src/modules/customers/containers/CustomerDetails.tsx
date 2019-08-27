@@ -1,20 +1,20 @@
 import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
-import { renderWithProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import CustomerDetails from '../components/detail/CustomerDetails';
 import { queries } from '../graphql';
 import { CustomerDetailQueryResponse } from '../types';
 
-type IProps = {
+type Props = {
   id: string;
 };
 
 type FinalProps = {
   customerDetailQuery: CustomerDetailQueryResponse;
-} & IProps;
+} & Props;
 
 class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
   render() {
@@ -47,21 +47,18 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
   }
 }
 
-export default (props: IProps) => {
-  return renderWithProps<IProps>(
-    props,
-    compose(
-      graphql<IProps, CustomerDetailQueryResponse, { _id: string }>(
-        gql(queries.customerDetail),
-        {
-          name: 'customerDetailQuery',
-          options: ({ id }: { id: string }) => ({
-            variables: {
-              _id: id
-            }
-          })
-        }
-      )
-    )(CustomerDetailsContainer)
-  );
-};
+export default withProps<Props>(
+  compose(
+    graphql<Props, CustomerDetailQueryResponse, { _id: string }>(
+      gql(queries.customerDetail),
+      {
+        name: 'customerDetailQuery',
+        options: ({ id }: { id: string }) => ({
+          variables: {
+            _id: id
+          }
+        })
+      }
+    )
+  )(CustomerDetailsContainer)
+);

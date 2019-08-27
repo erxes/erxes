@@ -23,55 +23,51 @@ type FinalProps = {
 } & Props &
   AddMutationResponse;
 
-class CompanyChooser extends React.Component<WrapperProps & FinalProps, {}> {
-  render() {
-    const { data, companiesQuery, companiesAdd, search } = this.props;
+const CompanyChooser = (props: WrapperProps & FinalProps) => {
+  const { data, companiesQuery, companiesAdd, search } = props;
 
-    // add company
-    const addCompany = ({ doc, callback }) => {
-      companiesAdd({
-        variables: doc
+  // add company
+  const addCompany = ({ doc, callback }) => {
+    companiesAdd({
+      variables: doc
+    })
+      .then(() => {
+        companiesQuery.refetch();
+
+        Alert.success('You successfully added a company');
+
+        callback();
       })
-        .then(() => {
-          companiesQuery.refetch();
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
-          Alert.success('You successfully added a company');
+  const renderName = company => {
+    return company.primaryName || company.website || 'Unknown';
+  };
 
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+  const updatedProps = {
+    ...props,
+    data: {
+      _id: data._id,
+      name: renderName(data),
+      datas: data.companies,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'company'
+    },
+    search,
+    clearState: () => search(''),
+    title: 'Company',
+    renderForm: formProps => <CompanyForm {...formProps} action={addCompany} />,
+    renderName,
+    add: addCompany,
+    datas: companiesQuery.companies || []
+  };
 
-    const renderName = company => {
-      return company.primaryName || company.website || 'Unknown';
-    };
-
-    const updatedProps = {
-      ...this.props,
-      data: {
-        _id: data._id,
-        name: renderName(data),
-        datas: data.companies,
-        mainTypeId: data.mainTypeId,
-        mainType: data.mainType,
-        relType: 'company'
-      },
-      search,
-      clearState: () => search(''),
-      title: 'Company',
-      renderForm: formProps => (
-        <CompanyForm {...formProps} action={addCompany} />
-      ),
-      renderName,
-      add: addCompany,
-      datas: companiesQuery.companies || []
-    };
-
-    return <ConformityChooser {...updatedProps} />;
-  }
-}
+  return <ConformityChooser {...updatedProps} />;
+};
 
 const WithQuery = withProps<Props>(
   compose(

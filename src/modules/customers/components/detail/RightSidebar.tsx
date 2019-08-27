@@ -2,7 +2,6 @@ import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import { List } from 'modules/companies/styles';
-import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
@@ -14,21 +13,7 @@ type Props = {
   customer: ICustomer;
 };
 
-type State = {
-  companies: ICompany[];
-};
-
-export default class RightSidebar extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const customer = props.customer;
-
-    this.state = {
-      companies: customer.companies || []
-    };
-  }
-
+export default class RightSidebar extends React.Component<Props> {
   renderContent() {
     const { customer } = this.props;
     const { integration, visitorContactInfo } = customer;
