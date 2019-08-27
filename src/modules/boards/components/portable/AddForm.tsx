@@ -38,9 +38,9 @@ class AddForm extends React.Component<Props, State> {
 
     this.state = {
       disabled: false,
-      boardId: '',
-      pipelineId: '',
-      stageId: props.stageId || '',
+      boardId: this.props.boardId || '',
+      pipelineId: this.props.pipelineId || '',
+      stageId: this.props.stageId || '',
       name: ''
     };
   }

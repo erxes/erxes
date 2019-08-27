@@ -4,8 +4,6 @@ import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 
 type IProps = {
   options: IOptions;
-  mainType: string;
-  mainTypeId: string;
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
@@ -21,13 +19,6 @@ type FinalProps = {
 
 export default class AddFormContainer extends React.Component<FinalProps> {
   render() {
-    const extendedProps = {
-      ...this.props,
-      saveItem: this.props.saveItem,
-      showSelect: true,
-      options: this.props.options
-    };
-
-    return <AddForm {...extendedProps} />;
+    return <AddForm {...this.props} />;
   }
 }

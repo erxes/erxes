@@ -3,7 +3,6 @@ import { Alert, withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import AddForm from '../../components/portable/AddForm';
 import { queries } from '../../graphql';
 import {
   IFilterParams,
@@ -13,6 +12,7 @@ import {
   ItemsQueryResponse,
   SaveMutation
 } from '../../types';
+import AddForm from './AddForm';
 
 type IProps = {
   search: (value: string, loadMore?: boolean) => void;
@@ -88,7 +88,8 @@ class ItemChooserContainer extends React.Component<
         />
       ),
       hasBoardChooser: true,
-      clearState: () => search('')
+      clearState: () => search(''),
+      refetchQuery: data.options.queries.itemsQuery
     };
 
     return <ConformityChooser {...updatedProps} />;
