@@ -1,7 +1,5 @@
 import gql from 'graphql-tag';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import { queries as userQueries } from 'modules/settings/team/graphql';
-import { UsersQueryResponse } from 'modules/settings/team/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import LogList from '../components/LogList';
@@ -13,16 +11,13 @@ type FinalProps = {
 } & Props;
 
 const List = (props: FinalProps) => {
-  const { history, queryParams, usersQuery, logsQuery } = props;
-  const isLoading = logsQuery.loading || usersQuery.loading;
-  const errorMessage = logsQuery.error && logsQuery.error.message;
+  const { queryParams, logsQuery } = props;
+  const errorMessage = logsQuery.error ? logsQuery.error.message : '';
+  const isLoading = logsQuery.loading;
 
   const updatedProps = {
     ...props,
-    queryParams,
-    history,
-    users: usersQuery.users || [],
-    isLoading,
+    isLoading: logsQuery.loading,
     refetchQueries: commonOptions(queryParams),
     logs: isLoading || errorMessage ? [] : logsQuery.logs.logs,
     count: isLoading || errorMessage ? 0 : logsQuery.logs.totalCount,
@@ -35,7 +30,6 @@ const List = (props: FinalProps) => {
 type Props = {
   history: any;
   queryParams: any;
-  usersQuery: UsersQueryResponse;
   logsQuery: LogsQueryResponse;
 };
 
@@ -64,8 +58,5 @@ export default compose(
         ...generatePaginationParams(queryParams)
       }
     })
-  }),
-  graphql<Props, UsersQueryResponse>(gql(userQueries.users), {
-    name: 'usersQuery'
   })
 )(List);

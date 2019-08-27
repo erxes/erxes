@@ -35,11 +35,7 @@ class EmailStatistics extends React.Component<Props> {
 
   render() {
     const stats = this.props.message.stats || ({} as IEngageStats);
-
-    const deliveryReports = Object.values(
-      this.props.message.deliveryReports || {}
-    );
-    const totalCount = deliveryReports.length;
+    const totalCount = stats.total;
 
     const content = (
       <EngageBox>

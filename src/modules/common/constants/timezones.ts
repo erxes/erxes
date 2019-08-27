@@ -1,4 +1,4 @@
-export const timezones = [
+const timezones = [
   { value: 'Africa/Abidjan', label: 'Africa/Abidjan' },
   { value: 'Africa/Accra', label: 'Africa/Accra' },
   { value: 'Africa/Addis_Ababa', label: 'Africa/Addis_Ababa' },
@@ -578,3 +578,5 @@ export const timezones = [
   { value: 'W-SU', label: 'W-SU' },
   { value: 'Zulu', label: 'Zulu' }
 ];
+
+export default timezones;

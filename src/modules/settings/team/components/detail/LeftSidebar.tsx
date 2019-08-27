@@ -35,10 +35,10 @@ class LeftSidebar extends React.Component<Props> {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.facebook, 'facebook-official')}
         {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.linkedIn, 'linkedin-logo')}
-        {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.youtube, 'youtube-play')}
         {this.renderLink(links.github, 'github-circled')}
         {this.renderLink(links.website, 'earthgrid')}
       </Links>

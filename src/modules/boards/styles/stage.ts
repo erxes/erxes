@@ -21,6 +21,7 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   border-radius: 3px;
   transition: box-shadow 0.3s ease;
   background: ${stageGray};
+  overflow: hidden;
 
   ${props => css`
     box-shadow: ${props.isDragging

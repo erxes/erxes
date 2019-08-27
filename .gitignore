@@ -22,6 +22,7 @@
 .env.development
 .env.test.local
 .env.production.local
+package-lock.json
 
 version.json
 

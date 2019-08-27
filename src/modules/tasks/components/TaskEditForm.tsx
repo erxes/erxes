@@ -1,8 +1,12 @@
 import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
+import Left from 'modules/boards/components/editForm/Left';
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
+import Sidebar from 'modules/boards/components/editForm/Sidebar';
+import Top from 'modules/boards/components/editForm/Top';
 import { PRIORITIES } from 'modules/boards/constants';
-import { IOptions } from 'modules/boards/types';
+import { FlexContent } from 'modules/boards/styles/item';
+import { IEditFormContent, IOptions } from 'modules/boards/types';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
@@ -15,9 +19,10 @@ type Props = {
   item: ITask;
   users: IUser[];
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITaskParams, callback: () => void) => void;
+  saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  onUpdate: (item, prevStageId?: string) => void;
+  beforePopupClose: () => void;
 };
 
 type State = {
@@ -44,8 +49,11 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
     const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
 
-    const onChangePriority = (option: ISelectedOption) =>
-      this.onChangeField('priority', option ? option.value : '');
+    const onChangePriority = (option: ISelectedOption) => {
+      this.props.saveItem({ priority: option ? option.value : '' }, () =>
+        this.onChangeField('priority', option ? option.value : '')
+      );
+    };
 
     const priorityValueRenderer = (
       option: ISelectedOption
@@ -72,9 +80,71 @@ export default class TaskEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderFormContent = ({
+    state,
+    onChangeAttachment,
+    onChangeField,
+    copy,
+    remove,
+    onBlurFields
+  }: IEditFormContent) => {
+    const { item, users, options } = this.props;
+
+    const {
+      name,
+      stageId,
+      description,
+      closeDate,
+      assignedUserIds,
+      customers,
+      companies,
+      attachments
+    } = state;
+
+    return (
+      <>
+        <Top
+          options={options}
+          name={name}
+          closeDate={closeDate}
+          users={users}
+          stageId={stageId}
+          item={item}
+          onChangeField={onChangeField}
+          onBlurFields={onBlurFields}
+        />
+
+        <FlexContent>
+          <Left
+            onChangeAttachment={onChangeAttachment}
+            type={options.type}
+            description={description}
+            attachments={attachments}
+            item={item}
+            onChangeField={onChangeField}
+            onBlurFields={onBlurFields}
+          />
+
+          <Sidebar
+            options={options}
+            customers={customers}
+            companies={companies}
+            assignedUserIds={assignedUserIds}
+            item={item}
+            sidebar={this.renderSidebarFields}
+            onChangeField={onChangeField}
+            copyItem={copy}
+            removeItem={remove}
+          />
+        </FlexContent>
+      </>
+    );
+  };
+
   render() {
     const extendedProps = {
       ...this.props,
+      formContent: this.renderFormContent,
       sidebar: this.renderSidebarFields,
       extraFields: this.state
     };

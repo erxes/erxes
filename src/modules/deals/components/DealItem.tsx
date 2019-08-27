@@ -3,12 +3,12 @@ import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
-import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+
+import { IOptions } from 'modules/boards/types';
 import { IDeal } from '../types';
 
 type Props = {
@@ -16,23 +16,12 @@ type Props = {
   item: IDeal;
   isDragging: boolean;
   provided;
-  onAdd: (stageId: string, item: IDeal) => void;
-  onRemove: (dealId: string, stageId: string) => void;
-  onUpdate: (item: IDeal) => void;
-  onTogglePopup: () => void;
-  options: IOptions;
+  onClick: () => void;
+  beforePopupClose: () => void;
+  options?: IOptions;
 };
 
-export default class DealItem extends React.PureComponent<
-  Props,
-  { isFormVisible: boolean }
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = { isFormVisible: false };
-  }
-
+class DealItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
     if (!date) {
       return null;
@@ -41,49 +30,21 @@ export default class DealItem extends React.PureComponent<
     return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
-  toggleForm = () => {
-    this.props.onTogglePopup();
-
-    const { isFormVisible } = this.state;
-
-    this.setState({ isFormVisible: !isFormVisible });
-  };
-
   renderForm = () => {
-    const { stageId, item, onAdd, onRemove, onUpdate, options } = this.props;
-    const { isFormVisible } = this.state;
-
-    if (!isFormVisible) {
-      return null;
-    }
+    const { beforePopupClose, stageId, item, options } = this.props;
 
     return (
-      <Modal
-        enforceFocus={false}
-        bsSize="lg"
-        show={true}
-        onHide={this.toggleForm}
-      >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit deal')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <EditForm
-            options={options}
-            stageId={stageId}
-            itemId={item._id}
-            onAdd={onAdd}
-            onRemove={onRemove}
-            onUpdate={onUpdate}
-            closeModal={this.toggleForm}
-          />
-        </Modal.Body>
-      </Modal>
+      <EditForm
+        beforePopupClose={beforePopupClose}
+        options={options}
+        stageId={stageId}
+        itemId={item._id}
+      />
     );
   };
 
   render() {
-    const { item, isDragging, provided } = this.props;
+    const { item, isDragging, provided, onClick } = this.props;
     const products = (item.products || []).map(p => p.product);
     const { customers, companies } = item;
 
@@ -94,7 +55,7 @@ export default class DealItem extends React.PureComponent<
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
-        <Content onClick={this.toggleForm}>
+        <Content onClick={onClick}>
           <h5>{item.name}</h5>
 
           {products.map((product, index) => (
@@ -140,8 +101,11 @@ export default class DealItem extends React.PureComponent<
             <Right>{this.renderDate(item.modifiedAt)}</Right>
           </Footer>
         </Content>
+
         {this.renderForm()}
       </ItemContainer>
     );
   }
 }
+
+export default DealItem;

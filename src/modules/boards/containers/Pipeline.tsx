@@ -35,13 +35,17 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
     const { stagesQuery, queryParams } = this.props;
     const { pipelineId } = queryParams;
 
-    if (this.getQueryParams(queryParams, nextProps)) {
+    if (this.queryParamsChanged(queryParams, nextProps)) {
       stagesQuery.refetch({ pipelineId });
     }
   }
 
-  getQueryParams = (queryParams, nextProps: Props) => {
+  queryParamsChanged = (queryParams, nextProps: Props) => {
     const nextQueryParams = nextProps.queryParams;
+
+    if (nextQueryParams.itemId || queryParams.itemId) {
+      return false;
+    }
 
     if (queryParams !== nextQueryParams) {
       return true;
@@ -62,6 +66,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
       options,
       queryParams
     } = this.props;
+
     const stagesCount = this.countStages(stageMap);
 
     if (stagesCount === 0) {
@@ -81,7 +86,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
         initialItemMap={initialItemMap}
         queryParams={queryParams}
         options={options}
-        getQueryParams={this.getQueryParams}
+        queryParamsChanged={this.queryParamsChanged}
       >
         <PipelineConsumer>
           {({ stageLoadMap, itemMap, onDragEnd, stageIds }) => (

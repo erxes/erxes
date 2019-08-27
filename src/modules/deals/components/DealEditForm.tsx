@@ -1,7 +1,10 @@
 import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
-import { HeaderContentSmall } from 'modules/boards/styles/item';
-import { IOptions } from 'modules/boards/types';
+import Left from 'modules/boards/components/editForm/Left';
+import Sidebar from 'modules/boards/components/editForm/Sidebar';
+import Top from 'modules/boards/components/editForm/Top';
+import { FlexContent, HeaderContentSmall } from 'modules/boards/styles/item';
+import { IEditFormContent, IOptions } from 'modules/boards/types';
 import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import ProductSection from 'modules/deals/components/ProductSection';
@@ -14,9 +17,10 @@ type Props = {
   item: IDeal;
   users: IUser[];
   addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: IDealParams, callback: () => void) => void;
+  saveItem: (doc: IDealParams, callback?: (item) => void) => void;
+  onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  beforePopupClose: () => void;
 };
 
 type State = {
@@ -81,6 +85,7 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   saveProductsData = () => {
     const { productsData } = this.state;
+    const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
 
@@ -107,7 +112,12 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ productsData: filteredProductsData, products, amount });
+    this.setState(
+      { productsData: filteredProductsData, products, amount },
+      () => {
+        saveItem({ productsData: this.state.productsData });
+      }
+    );
   };
 
   checkProductsData = () => {
@@ -120,15 +130,80 @@ export default class DealEditForm extends React.Component<Props, State> {
     return true;
   };
 
+  renderFormContent = ({
+    state,
+    onChangeAttachment,
+    onChangeField,
+    copy,
+    remove,
+    onBlurFields
+  }: IEditFormContent) => {
+    const { item, users, options } = this.props;
+
+    const {
+      name,
+      stageId,
+      description,
+      closeDate,
+      assignedUserIds,
+      customers,
+      companies,
+      attachments
+    } = state;
+
+    return (
+      <>
+        <Top
+          options={options}
+          name={name}
+          closeDate={closeDate}
+          amount={this.renderAmount}
+          users={users}
+          stageId={stageId}
+          onBlurFields={onBlurFields}
+          item={item}
+          onChangeField={onChangeField}
+        />
+
+        <FlexContent>
+          <Left
+            onChangeAttachment={onChangeAttachment}
+            type={options.type}
+            description={description}
+            onBlurFields={onBlurFields}
+            attachments={attachments}
+            item={item}
+            onChangeField={onChangeField}
+          />
+
+          <Sidebar
+            options={options}
+            customers={customers}
+            companies={companies}
+            assignedUserIds={assignedUserIds}
+            item={item}
+            sidebar={this.renderProductSection}
+            onChangeField={onChangeField}
+            copyItem={copy}
+            removeItem={remove}
+          />
+        </FlexContent>
+      </>
+    );
+  };
+
   render() {
+    const { beforePopupClose } = this.props;
     const { productsData } = this.state;
 
     const extendedProps = {
       ...this.props,
+      beforePopupClose,
       extraFieldsCheck: this.checkProductsData,
       extraFields: { productsData },
       amount: this.renderAmount,
-      sidebar: this.renderProductSection
+      sidebar: this.renderProductSection,
+      formContent: this.renderFormContent
     };
 
     return <EditForm {...extendedProps} />;

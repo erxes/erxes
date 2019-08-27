@@ -11,7 +11,6 @@ import {
 } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import React from 'react';
@@ -25,28 +24,28 @@ type Props = {
   options: IOptions;
 };
 
-class Ticket extends React.Component<Props, { isFormVisible: boolean }> {
-  renderFormTrigger = (trigger: React.ReactNode) => {
+class Ticket extends React.Component<Props, { isPopupVisible: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isPopupVisible: false
+    };
+  }
+
+  renderForm = () => {
     const { item, onAdd, onRemove, onUpdate, options } = this.props;
 
-    const content = props => (
+    return (
       <EditForm
-        {...props}
+        {...this.props}
         options={options}
         stageId={item.stageId}
         itemId={item._id}
         onAdd={onAdd}
         onRemove={onRemove}
         onUpdate={onUpdate}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title="Edit ticket"
-        trigger={trigger}
-        size="lg"
-        content={content}
+        isPopupVisible={this.state.isPopupVisible}
       />
     );
   };
@@ -66,29 +65,35 @@ class Ticket extends React.Component<Props, { isFormVisible: boolean }> {
   render() {
     const { item } = this.props;
 
-    const content = (
-      <ItemContainer>
-        <Content>
-          <SpaceContent>
-            <h5>{item.name}</h5>
-            {this.renderDate(item.closeDate)}
-          </SpaceContent>
-          <Details color="#F7CE53" items={item.customers || []} />
-          <Details color="#EA475D" items={item.companies || []} />
-        </Content>
-        <PriceContainer>
-          <Right>
-            <UserCounter users={item.assignedUsers || []} />
-          </Right>
-        </PriceContainer>
+    const onClick = () => {
+      this.setState({ isPopupVisible: true });
+    };
 
-        <Footer>
-          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
-        </Footer>
-      </ItemContainer>
+    return (
+      <>
+        <ItemContainer onClick={onClick}>
+          <Content>
+            <SpaceContent>
+              <h5>{item.name}</h5>
+              {this.renderDate(item.closeDate)}
+            </SpaceContent>
+            <Details color="#F7CE53" items={item.customers || []} />
+            <Details color="#EA475D" items={item.companies || []} />
+          </Content>
+          <PriceContainer>
+            <Right>
+              <UserCounter users={item.assignedUsers || []} />
+            </Right>
+          </PriceContainer>
+
+          <Footer>
+            {__('Last updated')}:
+            <Right>{this.renderDate(item.modifiedAt)}</Right>
+          </Footer>
+        </ItemContainer>
+        {this.renderForm()}
+      </>
     );
-
-    return this.renderFormTrigger(content);
   }
 }
 

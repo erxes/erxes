@@ -131,9 +131,9 @@ class TopBar extends React.Component<Props> {
           <Links>
             <span>{dayjs(new Date()).format('lll')}</span>
             <Socials>
-              {this.renderLink(facebook, 'facebook')}
+              {this.renderLink(facebook, 'facebook-official')}
               {this.renderLink(twitter, 'twitter')}
-              {this.renderLink(youtube, 'youtube')}
+              {this.renderLink(youtube, 'youtube-play')}
             </Socials>
           </Links>
 

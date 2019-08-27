@@ -90,6 +90,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       options,
       onAddItem
     } = this.props;
+
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
 
     return (

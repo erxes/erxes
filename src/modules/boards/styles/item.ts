@@ -128,7 +128,7 @@ const FooterContent = styled.div`
   flex: 1;
 `;
 
-const Left = styled.div`
+const LeftContainer = styled.div`
   margin-right: 20px;
   flex: 1;
 
@@ -348,7 +348,7 @@ export {
   PipelineName,
   FormFooter,
   FlexContent,
-  Left,
+  LeftContainer,
   RightContent,
   MoveContainer,
   Stages,

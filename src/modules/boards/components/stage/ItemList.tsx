@@ -1,6 +1,8 @@
 import EmptyState from 'modules/common/components/EmptyState';
+import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
+import history from '../../../../browserHistory';
 import { DropZone, EmptyContainer, Wrapper } from '../../styles/common';
 import { IItem, IOptions } from '../../types';
 
@@ -15,20 +17,33 @@ type Props = {
   options: IOptions;
 };
 
+type DraggableContainerProps = {
+  stageId: string;
+  item: IItem;
+  index: number;
+  options: IOptions;
+};
+
 class DraggableContainer extends React.Component<
-  { stageId: string; item: IItem; index: number; options: IOptions },
+  DraggableContainerProps,
   { isDragDisabled: boolean }
 > {
-  constructor(props) {
+  constructor(props: DraggableContainerProps) {
     super(props);
 
     this.state = { isDragDisabled: false };
   }
 
-  onTogglePopup = () => {
-    const { isDragDisabled } = this.state;
+  onItemClick = () => {
+    const { item } = this.props;
 
-    this.setState({ isDragDisabled: !isDragDisabled });
+    this.setState({ isDragDisabled: true }, () => {
+      routerUtils.setParams(history, { itemId: item._id });
+    });
+  };
+
+  beforePopupClose = () => {
+    this.setState({ isDragDisabled: false });
   };
 
   render() {
@@ -49,7 +64,8 @@ class DraggableContainer extends React.Component<
             stageId={stageId}
             item={item}
             isDragging={dragSnapshot.isDragging}
-            onTogglePopup={this.onTogglePopup}
+            onClick={this.onItemClick}
+            beforePopupClose={this.beforePopupClose}
             provided={dragProvided}
             options={options}
           />

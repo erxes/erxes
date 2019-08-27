@@ -133,7 +133,6 @@ const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
 
 const EmailContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0 60px;
-  max-height: 110px;
   overflow: hidden;
 `;
 

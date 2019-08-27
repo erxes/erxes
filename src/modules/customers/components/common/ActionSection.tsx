@@ -23,14 +23,14 @@ class ActionSection extends React.Component<Props> {
     if (this.props.isSmall) {
       return (
         <Button size="small">
-          {__('Action')} <Icon icon="downarrow" />
+          {__('Action')} <Icon icon="angle-down" />
         </Button>
       );
     }
 
     return (
-      <Button btnStyle="simple" size="medium" icon="downarrow">
-        {__('Action')}
+      <Button btnStyle="simple" size="medium">
+        {__('Action')} <Icon icon="angle-down" />
       </Button>
     );
   }

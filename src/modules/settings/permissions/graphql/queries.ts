@@ -19,6 +19,13 @@ const usersGroups = `
       name
       description
       memberIds
+      members {
+        _id
+        details {
+          fullName
+          avatar
+        }
+      }
     }
   }
 `;

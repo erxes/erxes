@@ -1,8 +1,12 @@
 import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
+import Left from 'modules/boards/components/editForm/Left';
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
+import Sidebar from 'modules/boards/components/editForm/Sidebar';
+import Top from 'modules/boards/components/editForm/Top';
 import { PRIORITIES } from 'modules/boards/constants';
-import { IOptions } from 'modules/boards/types';
+import { FlexContent } from 'modules/boards/styles/item';
+import { IEditFormContent, IOptions } from 'modules/boards/types';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
@@ -17,9 +21,10 @@ type Props = {
   item: ITicket;
   users: IUser[];
   addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITicketParams, callback: () => void) => void;
+  saveItem: (doc: ITicketParams, callback?: (item) => void) => void;
+  onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  beforePopupClose: () => void;
 };
 
 type State = {
@@ -56,10 +61,16 @@ export default class TicketEditForm extends React.Component<Props, State> {
       value: 'other'
     });
 
-    const onChangePriority = (option: ISelectedOption) =>
-      this.onChangeField('priority', option ? option.value : '');
-    const onChangeSource = (option: ISelectedOption) =>
-      this.onChangeField('source', option ? option.value : '');
+    const onChangePriority = (option: ISelectedOption) => {
+      this.props.saveItem({ priority: option ? option.value : '' }, () =>
+        this.onChangeField('priority', option ? option.value : '')
+      );
+    };
+    const onChangeSource = (option: ISelectedOption) => {
+      this.props.saveItem({ source: option ? option.value : '' }, () =>
+        this.onChangeField('source', option ? option.value : '')
+      );
+    };
 
     const priorityValueRenderer = (
       option: ISelectedOption
@@ -101,9 +112,71 @@ export default class TicketEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderFormContent = ({
+    state,
+    onChangeAttachment,
+    onChangeField,
+    copy,
+    remove,
+    onBlurFields
+  }: IEditFormContent) => {
+    const { item, users, options } = this.props;
+
+    const {
+      name,
+      stageId,
+      description,
+      closeDate,
+      assignedUserIds,
+      customers,
+      companies,
+      attachments
+    } = state;
+
+    return (
+      <>
+        <Top
+          options={options}
+          name={name}
+          closeDate={closeDate}
+          users={users}
+          onBlurFields={onBlurFields}
+          stageId={stageId}
+          item={item}
+          onChangeField={onChangeField}
+        />
+
+        <FlexContent>
+          <Left
+            onChangeAttachment={onChangeAttachment}
+            type={options.type}
+            description={description}
+            onBlurFields={onBlurFields}
+            attachments={attachments}
+            item={item}
+            onChangeField={onChangeField}
+          />
+
+          <Sidebar
+            options={options}
+            customers={customers}
+            companies={companies}
+            assignedUserIds={assignedUserIds}
+            item={item}
+            sidebar={this.renderSidebarFields}
+            onChangeField={onChangeField}
+            copyItem={copy}
+            removeItem={remove}
+          />
+        </FlexContent>
+      </>
+    );
+  };
+
   render() {
     const extendedProps = {
       ...this.props,
+      formContent: this.renderFormContent,
       sidebar: this.renderSidebarFields,
       extraFields: this.state
     };

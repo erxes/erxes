@@ -21,7 +21,16 @@ type Props = {} & IRouterProps &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
 
-class CreateFormContainer extends React.Component<Props, {}> {
+class CreateFormContainer extends React.Component<
+  Props,
+  { isLoading: boolean }
+> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { isLoading: false };
+  }
+
   render() {
     const {
       addIntegrationMutation,
@@ -34,6 +43,8 @@ class CreateFormContainer extends React.Component<Props, {}> {
       let formId;
 
       const { form, brandId, name, languageCode, formData, fields } = doc;
+
+      this.setState({ isLoading: true });
 
       addFormMutation({
         variables: form
@@ -67,17 +78,22 @@ class CreateFormContainer extends React.Component<Props, {}> {
         .then(() => {
           Alert.success('You successfully added a lead');
           history.push('/forms');
+
+          this.setState({ isLoading: false });
         })
 
         .catch(error => {
           Alert.error(error.message);
+
+          this.setState({ isLoading: false });
         });
     };
 
     const updatedProps = {
       ...this.props,
       fields: [],
-      save
+      save,
+      isActionLoading: this.state.isLoading
     };
 
     return <Form {...updatedProps} />;

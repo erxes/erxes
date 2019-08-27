@@ -82,7 +82,7 @@ export default class Stage extends React.Component<Props, {}> {
     const trigger = (
       <StageFooter>
         <AddNew>
-          <Icon icon="plus" />
+          <Icon icon="plus-1" />
           {__(addText)}
         </AddNew>
       </StageFooter>

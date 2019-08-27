@@ -8,6 +8,7 @@ import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
+import { CallLabel } from 'modules/inbox/styles';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
 import { IBrand } from '../../../settings/brands/types';
@@ -86,6 +87,18 @@ class ConversationItem extends React.Component<Props> {
     return null;
   }
 
+  showMessageContent(kind: string, content: string) {
+    if (kind === 'callpro') {
+      return (
+        <CallLabel type={(content || '').toLocaleLowerCase()}>
+          {content}
+        </CallLabel>
+      );
+    }
+
+    return strip(content);
+  }
+
   render() {
     const { currentUser } = this.props;
     const { conversation, isActive, selectedIds = [] } = this.props;
@@ -142,7 +155,9 @@ class ConversationItem extends React.Component<Props> {
               </FlexContent>
             </MainInfo>
 
-            <MessageContent>{strip(content)}</MessageContent>
+            <MessageContent>
+              {this.showMessageContent(integration.kind, content || '')}
+            </MessageContent>
             <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>

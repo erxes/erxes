@@ -1,10 +1,16 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
+import {
+  Alert,
+  sendDesktopNotification,
+  withProps
+} from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import strip from 'strip';
 import NotificationsLatest from '../components/NotificationsLatest';
-import { mutations, queries } from '../graphql';
+import { mutations, queries, subscriptions } from '../graphql';
 import {
   MarkAsReadMutationResponse,
   NotificationsQueryResponse
@@ -12,6 +18,7 @@ import {
 
 type Props = {
   update?: () => void;
+  currentUser: IUser;
 };
 
 type FinalProps = {
@@ -19,7 +26,26 @@ type FinalProps = {
 } & Props &
   MarkAsReadMutationResponse;
 
+const subscription = gql(subscriptions.notificationSubscription);
+
 class NotificationsLatestContainer extends React.Component<FinalProps> {
+  componentWillMount() {
+    const { notificationsQuery, currentUser } = this.props;
+
+    notificationsQuery.subscribeToMore({
+      document: subscription,
+      variables: { userId: currentUser ? currentUser._id : null },
+      updateQuery: (prev, { subscriptionData: { data } }) => {
+        const { notificationInserted } = data;
+        const { title, content } = notificationInserted;
+
+        sendDesktopNotification({ title, content: strip(content || '') });
+
+        notificationsQuery.refetch();
+      }
+    });
+  }
+
   render() {
     const {
       notificationsQuery,

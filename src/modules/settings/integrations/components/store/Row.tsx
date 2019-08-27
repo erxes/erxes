@@ -14,6 +14,9 @@ type Props = {
   totalCount: {
     messenger: number;
     form: number;
+    facebook: number;
+    gmail: number;
+    callpro: number;
   };
   queryParams: any;
 };
@@ -48,7 +51,7 @@ class Row extends React.Component<Props, State> {
   };
 
   toggleBox = selectedKind => {
-    if (!selectedKind) {
+    if (!selectedKind || selectedKind === 'amazon-ses') {
       return false;
     }
 

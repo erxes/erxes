@@ -177,19 +177,11 @@ const Item = styledTS<{ active?: boolean }>(styled.div)`
     align-items: center;
 
     span {
-      width: 18px;
-      height: 18px;
-      border-radius: 9px;
-      background: ${colors.colorCoreYellow};
-      color: ${colors.colorCoreDarkGray};
-      font-size: 9px;
+      color: ${colors.colorCoreYellow};
+      font-size: 18px;
       margin-left: 8px;
       display: flex;
       justify-content: center;
-
-      i {
-        margin-top: 4px;
-      }
     }
   }
 
