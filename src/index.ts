@@ -44,7 +44,7 @@ app.post('/integrations/remove', async (req, res) => {
   const integration = await Integrations.findOne({ erxesApiId: integrationId });
 
   if (!integration) {
-    return res.status(500).send('Integration not found');
+    return res.json({ status: 'integation not found' });
   }
 
   const account = await Accounts.findOne({ _id: integration.accountId });
@@ -67,7 +67,7 @@ app.post('/integrations/remove', async (req, res) => {
 
   debugResponse(debugIntegrations, req);
 
-  return res.json({ status: 'ok ' });
+  return res.json({ status: 'ok' });
 });
 
 app.get('/accounts', async (req, res) => {
