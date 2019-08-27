@@ -11,19 +11,19 @@ import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITag } from '../../tags/types';
-import { IFormIntegration } from '../types';
+import { ILeadIntegration } from '../types';
 import Row from './Row';
 
 type Props = {
-  integrations: IFormIntegration[];
+  integrations: ILeadIntegration[];
   tags: ITag[];
-  bulk: IFormIntegration[];
+  bulk: ILeadIntegration[];
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
   tagsCount: { [key: string]: number };
-  toggleBulk: (target: IFormIntegration, toAdd: boolean) => void;
-  toggleAll: (bulk: IFormIntegration[], name: string) => void;
+  toggleBulk: (target: ILeadIntegration, toAdd: boolean) => void;
+  toggleAll: (bulk: ILeadIntegration[], name: string) => void;
   loading: boolean;
   remove: (integrationId: string, callback: (error: Error) => void) => void;
 };

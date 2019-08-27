@@ -1,5 +1,6 @@
 import { IConditionsRule } from 'modules/common/types';
 import { IUser } from '../auth/types';
+import { IForm } from '../forms/types';
 import { IBrand } from '../settings/brands/types';
 import { IIntegration } from '../settings/integrations/types';
 import { IField } from '../settings/properties/types';
@@ -13,12 +14,9 @@ export interface ICallout {
   skip?: boolean;
 }
 
-export interface IForm {
+export interface ILead {
   _id: string;
-  title?: string;
-  code?: string;
-  description?: string;
-  buttonText?: string;
+  formId: string;
   themeColor?: string;
   callout?: ICallout;
   rules?: IConditionsRule[];
@@ -29,11 +27,12 @@ export interface IForm {
   contactsGathered?: number;
   tagIds?: string[];
   getTags?: ITag[];
+  form?: IForm;
 }
 
-export interface IFormIntegration extends IIntegration {
+export interface ILeadIntegration extends IIntegration {
   brand: IBrand;
-  form: IForm;
+  lead: ILead;
   tags: ITag[];
   createdUser: IUser;
 }
@@ -115,7 +114,7 @@ export type RemoveFieldMutationResponse = {
 // query types
 
 export type FormIntegrationsQueryResponse = {
-  integrations: IFormIntegration;
+  integrations: ILeadIntegration;
   loading: boolean;
   refetch: () => void;
 };

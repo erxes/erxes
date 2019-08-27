@@ -9,13 +9,13 @@ import Tip from 'modules/common/components/Tip';
 import { __, Alert, confirm } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IFormIntegration } from '../types';
+import { ILeadIntegration } from '../types';
 import Manage from './Manage';
 
 type Props = {
-  integration: IFormIntegration;
+  integration: ILeadIntegration;
 
-  toggleBulk: (integration: IFormIntegration, checked: boolean) => void;
+  toggleBulk: (integration: ILeadIntegration, checked: boolean) => void;
   remove: (integrationId: string, callback: (error: Error) => void) => void;
 
   isChecked: boolean;
@@ -70,8 +70,8 @@ class Row extends React.Component<Props, {}> {
 
   render() {
     const { integration, isChecked, toggleBulk } = this.props;
-    const form = integration.form;
-    const createdUser = form.createdUser || {
+    const lead = integration.lead;
+    const createdUser = lead.createdUser || {
       _id: '',
       details: { fullName: '' }
     };
@@ -79,8 +79,8 @@ class Row extends React.Component<Props, {}> {
 
     let percentage: string | number = '0.00';
 
-    if (form.contactsGathered && form.viewCount) {
-      percentage = (form.contactsGathered / form.viewCount) * 100;
+    if (lead.contactsGathered && lead.viewCount) {
+      percentage = (lead.contactsGathered / lead.viewCount) * 100;
       percentage = percentage.toString();
     }
 
@@ -101,17 +101,17 @@ class Row extends React.Component<Props, {}> {
         </td>
         <td>{integration.name}</td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>{form.viewCount || 0}</td>
+        <td>{lead.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>
         <td>
-          {form.contactsGathered || 0}{' '}
+          {lead.contactsGathered || 0}{' '}
           <Tip text={__('View')}>
-            <Link to={`/contacts/customers/all?form=${integration.formId}`}>
+            <Link to={`/contacts/customers/all?form=${integration.leadId}`}>
               <Icon icon="eye" />
             </Link>
           </Tip>
         </td>
-        <td>{dayjs(form.createdDate).format('ll')}</td>
+        <td>{dayjs(lead.createdDate).format('ll')}</td>
         <td>
           <div key={createdUser._id}>
             {createdUser.details && createdUser.details.fullName}

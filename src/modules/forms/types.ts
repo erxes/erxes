@@ -17,18 +17,12 @@ export interface IForm {
   _id: string;
   title?: string;
   code?: string;
+  type?: string;
   description?: string;
   buttonText?: string;
-  themeColor?: string;
-  callout?: ICallout;
-  rules?: IConditionsRule[];
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;
-  viewCount?: number;
-  contactsGathered?: number;
-  tagIds?: string[];
-  getTags?: ITag[];
 }
 
 export interface IFormIntegration extends IIntegration {

@@ -37,7 +37,7 @@ class ListContainer extends React.Component<FinalProps, {}> {
     const counts = integrationsTotalCountQuery.integrationsTotalCount || {
       byKind: {}
     };
-    const totalCount = counts.byKind.form || 0;
+    const totalCount = counts.byKind.lead || 0;
     const tagsCount = counts.byTag || {};
 
     const integrations = integrationsQuery.integrations || [];
@@ -94,7 +94,7 @@ export default withProps<Props>(
           variables: {
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
-            kind: 'form'
+            kind: 'lead'
           }
         };
       }
