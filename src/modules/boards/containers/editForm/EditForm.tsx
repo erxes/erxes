@@ -1,11 +1,6 @@
 import gql from 'graphql-tag';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, renderWithProps } from 'modules/common/utils';
-import { mutations } from 'modules/conformity/graphql';
-import {
-  CreateConformityMutation,
-  IConformityCreate
-} from 'modules/conformity/types';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
@@ -38,7 +33,6 @@ type FinalProps = {
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
-  createConformityMutation: CreateConformityMutation;
   itemsQuery: ItemsQueryResponse;
   removeMutation: RemoveMutation;
 } & IProps;
@@ -50,7 +44,6 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.addItem = this.addItem.bind(this);
     this.saveItem = this.saveItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
-    this.createConformity = this.createConformity.bind(this);
   }
 
   addItem(
@@ -89,32 +82,6 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           onUpdate(data[options.mutationsName.editMutation], stageId);
         }
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
-
-  createConformity = (relType: string, relTypeIds: string[]) => {
-    const {
-      itemId,
-      createConformityMutation,
-      options,
-      itemsQuery
-    } = this.props;
-
-    createConformityMutation({
-      variables: {
-        mainType: options.type,
-        mainTypeId: itemId,
-        relType,
-        relTypeIds
-      }
-    })
-      .then(() => {
-        Alert.success(options.texts.updateSuccessText);
-        itemsQuery.refetch();
-        // callback();
       })
       .catch(error => {
         Alert.error(error.message);
@@ -164,7 +131,6 @@ class EditFormContainer extends React.Component<FinalProps> {
       addItem: this.addItem,
       removeItem: this.removeItem,
       saveItem: this.saveItem,
-      createConformity: this.createConformity,
       users
     };
 
@@ -230,40 +196,6 @@ export default (props: IProps) => {
               {
                 query: gql(queries.stageDetail),
                 variables: { _id: stageId }
-              }
-            ]
-          })
-        }
-      ),
-      graphql<IProps, CreateConformityMutation, IConformityCreate>(
-        gql(mutations.conformityCreate),
-        {
-          name: 'createConformityMutation',
-          options: ({
-            itemId,
-            stageId,
-            relType
-          }: {
-            itemId: string;
-            stageId: string;
-            relType?: string;
-          }) => ({
-            refetchQueries: [
-              {
-                query: gql(options.queries.detailQuery),
-                variables: { _id: itemId }
-              },
-              {
-                query: gql(queries.stageDetail),
-                variables: { _id: stageId }
-              },
-              {
-                query: gql(options.queries.itemsQuery),
-                variables: {
-                  mainType: options.type,
-                  mainTypeId: itemId,
-                  relType
-                }
               }
             ]
           })

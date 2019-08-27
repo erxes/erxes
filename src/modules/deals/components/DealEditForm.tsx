@@ -18,7 +18,6 @@ type Props = {
   users: IUser[];
   addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: IDealParams, callback: () => void) => void;
-  createConformity: (relTypeId: string, relTypeIds: string[]) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   closeModal: () => void;
 };

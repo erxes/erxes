@@ -18,10 +18,7 @@ type Props = {
   customers: ICustomer[];
   companies: ICompany[];
   assignedUserIds: string[];
-  onChangeField?: (
-    name: 'companies' | 'customers' | 'assignedUserIds',
-    value: any
-  ) => void;
+  onChangeField?: (name: 'assignedUserIds', value: any) => void;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
   sidebar?: () => React.ReactNode;
