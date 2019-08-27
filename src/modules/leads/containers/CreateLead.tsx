@@ -40,9 +40,9 @@ class CreateLeadContainer extends React.Component<
     } = this.props;
 
     const save = doc => {
-      let formId;
+      let leadId;
 
-      const { form, brandId, name, languageCode, formData, fields } = doc;
+      const { form, brandId, name, languageCode, leadData, fields } = doc;
 
       this.setState({ isLoading: true });
 
@@ -52,10 +52,10 @@ class CreateLeadContainer extends React.Component<
         .then(({ data }) => {
           // tslint:disable-next-line:no-console
           console.log(data);
-          formId = data.formsAdd._id;
+          leadId = data.formsAdd._id;
 
           return addIntegrationMutation({
-            variables: { formData, brandId, name, languageCode, formId }
+            variables: { leadData, brandId, name, languageCode, leadId }
           });
         })
 
@@ -67,7 +67,7 @@ class CreateLeadContainer extends React.Component<
               addFieldsMutation({
                 variables: {
                   contentType: 'form',
-                  contentTypeId: formId,
+                  contentTypeId: leadId,
                   ...field
                 }
               })

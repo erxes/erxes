@@ -113,7 +113,7 @@ export type RemoveFieldMutationResponse = {
 
 // query types
 
-export type FormIntegrationsQueryResponse = {
+export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration;
   loading: boolean;
   refetch: () => void;

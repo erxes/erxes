@@ -1,8 +1,4 @@
-import {
-  Formgroup,
-  Label,
-  SelectWrapper
-} from 'modules/common/components/form/styles';
+import { Formgroup, Label } from 'modules/common/components/form/styles';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import {
@@ -241,55 +237,6 @@ const Embedded = styled.div`
   }
 `;
 
-const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
-  styled.div
-)`
-  padding: ${props => !props.noPadding && `0 ${dimensions.unitSpacing}px`};
-
-  input,
-  textarea,
-  select {
-    box-sizing: border-box;
-    transition: all 0.3s ease-in-out;
-    background: #faf9fb;
-    border: 1px solid ${colors.colorShadowGray};
-    border-radius: 5px !important;
-    box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.07);
-    color: #1a1a1a;
-    display: block;
-    font-size: 14px;
-    height: 36px;
-    line-height: 1.42857143;
-    margin-top: ${props => !props.selectType && `${dimensions.unitSpacing}px`};
-    outline: 0;
-    padding: 6px 15px;
-    width: 100%;
-
-
-    &:focus {
-      border-color: ${colors.colorShadowGray};
-      background: ${colors.colorWhite};
-    }
-
-    &:after {
-      top: 22px;
-    }
-  }
-
-  textarea {
-    overflow: auto;
-    height: auto;
-  }
-
-  .required {
-    color: ${colors.colorCoreRed};
-  }
-
-  ${SelectWrapper} {
-    margin-top: ${dimensions.unitSpacing}px;
-  }
-`;
-
 const ThankContent = styled.div`
   text-align: center;
 `;
@@ -306,7 +253,6 @@ export {
   PopUpContainer,
   OverlayTrigger,
   Embedded,
-  FieldItem,
   ThankContent,
   PreviewContainer
 };

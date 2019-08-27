@@ -6,7 +6,7 @@ import { Field, Options } from '../styles';
 import FormField from './FormField';
 
 type Props = {
-  children?: any[];
+  children: any[];
   editingField?: IField;
   onChange: (value: IField, callback: () => void) => void;
   onSubmit: (e: any) => void;
@@ -79,10 +79,6 @@ class FormFields extends React.Component<Props> {
 
   render() {
     const { children } = this.props;
-
-    if (!children) {
-      return null;
-    }
 
     return (
       <Options>

@@ -10,9 +10,9 @@ import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { IFormData } from 'modules/settings/integrations/types';
+import { ILeadData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
-import { IFormIntegration } from '../types';
+import { ILeadIntegration } from '../types';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -28,7 +28,7 @@ import {
 } from './step';
 
 type Props = {
-  integration?: IFormIntegration;
+  integration?: ILeadIntegration;
   fields: IField[];
   loading?: boolean;
   isActionLoading: boolean;
@@ -37,7 +37,7 @@ type Props = {
       name: string;
       brandId: string;
       languageCode?: string;
-      formData: IFormData;
+      formData: ILeadData;
       form: any;
       fields?: IField[];
     }
@@ -82,10 +82,10 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const integration = props.integration || ({} as IFormIntegration);
+    const integration = props.integration || ({} as ILeadIntegration);
 
-    const formData = integration.formData || ({} as IFormData);
-    const form = integration.form || {};
+    const formData = integration.leadData || ({} as ILeadData);
+    const form = integration.lead || {};
     const callout = form.callout || {};
     const fields = props.fields;
 
@@ -102,16 +102,16 @@ class Form extends React.Component<Props, State> {
       adminEmailContent: formData.adminEmailContent || '',
       thankContent: formData.thankContent || 'Thank you.',
       redirectUrl: formData.redirectUrl || '',
-      rules: integration.form ? integration.form.rules : [],
+      rules: integration.lead ? integration.lead.rules : [],
 
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
-      formTitle: form.title || '',
+      // formTitle: form.title || '',
       bodyValue: callout.body || '',
-      formDesc: form.description || '',
-      formBtnText: form.buttonText || 'Send',
+      // formDesc: form.description || '',
+      // formBtnText: form.buttonText || 'Send',
       calloutBtnText: callout.buttonText || 'Start',
       color: '',
       logoPreviewStyle: {},
@@ -235,7 +235,7 @@ class Form extends React.Component<Props, State> {
 
     const { integration } = this.props;
 
-    const formData = integration && integration.formData;
+    const formData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Leads'), link: '/leads' }];
     const constant = isSkip ? 'form' : 'callout';
@@ -280,16 +280,7 @@ class Form extends React.Component<Props, State> {
             />
           </Step>
           <Step img="/images/icons/erxes-12.svg" title={'Form'}>
-            <FormStep
-              onChange={this.onChange}
-              formTitle={formTitle}
-              formBtnText={formBtnText}
-              formDesc={formDesc}
-              type={type}
-              color={color}
-              theme={theme}
-              fields={fields}
-            />
+            <FormStep type={type} color={color} theme={theme} />
           </Step>
           <Step img="/images/icons/erxes-02.svg" title="Rule">
             <ConditionsRule rules={rules || []} onChange={this.onChange} />

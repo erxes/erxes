@@ -25,7 +25,7 @@ import {
 
 type Props = {
   contentTypeId: string;
-  formId: string;
+  leadId: string;
   queryParams: any;
 };
 
@@ -52,7 +52,7 @@ class EditLeadContainer extends React.Component<
 
   render() {
     const {
-      formId,
+      leadId,
       integrationDetailQuery,
       editIntegrationMutation,
       addFieldMutation,
@@ -71,22 +71,22 @@ class EditLeadContainer extends React.Component<
     const integration = integrationDetailQuery.integrationDetail || {};
 
     const save = doc => {
-      const { form, brandId, name, languageCode, formData, fields } = doc;
+      const { form, brandId, name, languageCode, leadData, fields } = doc;
 
       this.setState({ isLoading: true });
 
       // edit form
-      editFormMutation({ variables: { _id: formId, ...form } })
+      editFormMutation({ variables: { _id: leadId, ...form } })
         .then(() =>
           // edit integration
           editIntegrationMutation({
             variables: {
               _id: integration._id,
-              formData,
+              leadData,
               brandId,
               name,
               languageCode,
-              formId
+              leadId
             }
           })
         )
@@ -113,7 +113,7 @@ class EditLeadContainer extends React.Component<
             createFieldsData.push({
               ...field,
               contentType: 'form',
-              contentTypeId: formId
+              contentTypeId: leadId
             });
           }
 
@@ -180,11 +180,11 @@ export default withProps<Props>(
       { contentType: string; contentTypeId: string }
     >(gql(queries.fields), {
       name: 'fieldsQuery',
-      options: ({ formId }) => {
+      options: ({ leadId }) => {
         return {
           variables: {
             contentType: 'form',
-            contentTypeId: formId
+            contentTypeId: leadId
           }
         };
       }

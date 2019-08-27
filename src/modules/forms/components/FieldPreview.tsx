@@ -1,8 +1,8 @@
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import GenerateField from 'modules/settings/properties/components/GenerateField';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import { IField } from '../../../../settings/properties/types';
-import { FieldItem } from './styles';
+import { FieldItem } from '../styles';
 
 type Props = {
   field: IField;

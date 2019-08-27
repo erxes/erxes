@@ -12,20 +12,29 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-// import Form from '../components/Form';
+import Form from '../components/Form';
 import { mutations } from '../graphql';
-import { AddFormMutationResponse, AddFormMutationVariables } from '../types';
+import {
+  AddFormMutationResponse,
+  AddFormMutationVariables,
+  IFormPreviewContent
+} from '../types';
 
-type Props = {} & IRouterProps &
+type Props = {
+  previewContent: (props: IFormPreviewContent) => void;
+};
+
+type FinalProps = {} & Props &
+  IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
 
-class CreateFormContainer extends React.Component<
-  Props,
+class FormContainer extends React.Component<
+  FinalProps,
   { isLoading: boolean }
 > {
-  constructor(props: Props) {
+  constructor(props: FinalProps) {
     super(props);
 
     this.state = { isLoading: false };
@@ -50,6 +59,8 @@ class CreateFormContainer extends React.Component<
         variables: form
       })
         .then(({ data }) => {
+          // tslint:disable-next-line:no-console
+          console.log(data);
           leadId = data.formsAdd._id;
 
           return addIntegrationMutation({
@@ -91,19 +102,17 @@ class CreateFormContainer extends React.Component<
 
     const updatedProps = {
       ...this.props,
-      fields: [],
-      save,
-      isActionLoading: this.state.isLoading
+      fields: []
     };
 
-    return <div {...updatedProps} />;
+    return <Form {...updatedProps} />;
   }
 }
 
-export default withProps<{}>(
+export default withProps<Props>(
   compose(
     graphql<
-      {},
+      Props,
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadintegration), {
@@ -112,17 +121,17 @@ export default withProps<{}>(
         refetchQueries: ['formIntegrations', 'formIntegrationCounts']
       }
     }),
-    graphql<{}, AddFormMutationResponse, AddFormMutationVariables>(
+    graphql<Props, AddFormMutationResponse, AddFormMutationVariables>(
       gql(mutations.addForm),
       {
         name: 'addFormMutation'
       }
     ),
-    graphql<{}, AddFieldsMutationResponse, AddFieldsMutationVariables>(
+    graphql<Props, AddFieldsMutationResponse, AddFieldsMutationVariables>(
       gql(mutations.fieldsAdd),
       {
         name: 'addFieldsMutation'
       }
     )
-  )(withRouter<Props>(CreateFormContainer))
+  )(withRouter<FinalProps>(FormContainer))
 );

@@ -1,7 +1,7 @@
 import FormFieldPreview from 'modules/forms/components/FormFieldPreview';
+import CommonPreview from 'modules/leads/components/step/preview/CommonPreview';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import CommonPreview from './CommonPreview';
 
 type Props = {
   formTitle?: string;

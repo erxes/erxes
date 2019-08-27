@@ -23,7 +23,7 @@ export interface ISelectMessengerApps {
   brand: IBrand;
   label: string;
   value: string;
-  form?: ILead;
+  lead?: ILead;
 }
 
 export interface IOnlineHour {
@@ -118,7 +118,7 @@ export type IntegrationsQueryResponse = {
 };
 
 export type LeadsQueryResponse = {
-  forms: ILead[];
+  leads: ILead[];
   loading: boolean;
   refetch: (variables?: QueryVariables) => void;
 };
@@ -292,11 +292,11 @@ export type MessengerAppsAddKnowledgebaseMutationResponse = {
 };
 
 export type AddIntegrationMutationVariables = {
-  formData: ILeadData;
+  leadData: ILeadData;
   brandId: string;
   name: string;
   languageCode: string;
-  formId: string;
+  leadId: string;
 };
 
 export type AddIntegrationMutationResponse = {
@@ -309,11 +309,11 @@ export type AddIntegrationMutationResponse = {
 
 export type EditIntegrationMutationVariables = {
   _id: string;
-  formData: ILeadData;
+  leadData: ILeadData;
   brandId: string;
   name: string;
   languageCode: string;
-  formId: string;
+  leadId: string;
 };
 
 export type EditIntegrationMutationResponse = {

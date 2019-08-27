@@ -1,5 +1,5 @@
 const integrations = `
-  query formIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
+  query leadIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
     integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
       _id
       brandId

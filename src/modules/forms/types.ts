@@ -1,4 +1,3 @@
-import { IConditionsRule } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { IBrand } from '../settings/brands/types';
 import { IIntegration } from '../settings/integrations/types';
@@ -133,3 +132,11 @@ export type CountQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export interface IFormPreviewContent {
+  formTitle: string;
+  formBtnText: string;
+  formDesc: string;
+  fields?: IField[];
+  onFieldEdit?: (field: IField, props) => void;
+}

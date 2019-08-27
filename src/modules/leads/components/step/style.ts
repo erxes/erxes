@@ -257,12 +257,6 @@ const ColorList = styled.ul`
   padding: 0;
 `;
 
-const Title = styled.h4`
-  font-size: 16px;
-  margin-top: 40px;
-  font-weight: 400;
-`;
-
 export {
   FlexItem,
   FlexColumn,
@@ -275,7 +269,6 @@ export {
   CarouselSteps,
   MarkdownWrapper,
   Tabs,
-  Title,
   CarouselInner,
   FullPreview,
   ImageUpload,

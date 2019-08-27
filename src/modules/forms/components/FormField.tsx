@@ -6,7 +6,6 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import FieldPreview from 'modules/leads/components/step/preview/FieldPreview';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import Toggle from 'react-toggle';
@@ -17,6 +16,7 @@ import {
   PreviewSection,
   ShowPreview
 } from '../styles';
+import FieldPreview from './FieldPreview';
 
 type Props = {
   closeModal?: () => void;
@@ -157,7 +157,7 @@ class FormField extends React.Component<Props, State> {
   }
 
   renderLeftContent() {
-    const { type, closeModal } = this.props;
+    const { type, field, closeModal } = this.props;
     const { editingField = {} as IField } = this.state;
 
     const text = e =>
@@ -230,9 +230,9 @@ class FormField extends React.Component<Props, State> {
             size="small"
             onClick={this.onSubmit}
             btnStyle="success"
-            icon="add"
+            icon={field ? 'checked-1' : 'add'}
           >
-            Add
+            {field ? 'Save' : 'Add'}
           </Button>
         </ModalFooter>
       </>

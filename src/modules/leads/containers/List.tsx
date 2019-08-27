@@ -9,7 +9,7 @@ import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   CountQueryResponse,
-  FormIntegrationsQueryResponse,
+  LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
@@ -20,7 +20,7 @@ type Props = {
 
 type FinalProps = {
   integrationsTotalCountQuery: CountQueryResponse;
-  integrationsQuery: FormIntegrationsQueryResponse;
+  integrationsQuery: LeadIntegrationsQueryResponse;
   tagsQuery: TagsQueryResponse;
 } & RemoveMutationResponse &
   Props;
@@ -85,7 +85,7 @@ export default withProps<Props>(
   compose(
     graphql<
       Props,
-      FormIntegrationsQueryResponse,
+      LeadIntegrationsQueryResponse,
       { page?: number; perPage?: number; tag?: string; kind?: string }
     >(gql(queries.integrations), {
       name: 'integrationsQuery',
