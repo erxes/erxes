@@ -4,14 +4,6 @@ import { IIntegration } from '../settings/integrations/types';
 import { IField } from '../settings/properties/types';
 import { ITag } from '../tags/types';
 
-export interface ICallout {
-  title?: string;
-  body?: string;
-  buttonText?: string;
-  featuredImage?: string;
-  skip?: boolean;
-}
-
 export interface IForm {
   _id: string;
   title?: string;
@@ -22,13 +14,6 @@ export interface IForm {
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;
-}
-
-export interface IFormIntegration extends IIntegration {
-  brand: IBrand;
-  form: IForm;
-  tags: ITag[];
-  createdUser: IUser;
 }
 
 // mutation types
@@ -58,16 +43,6 @@ export type EditFormMutationResponse = {
     params: {
       variables: EditFormMutationVariables;
     }
-  ) => Promise<any>;
-};
-
-export type RemoveMutationVariables = {
-  _id: string;
-};
-
-export type RemoveMutationResponse = {
-  removeMutation: (
-    params: { variables: RemoveMutationVariables }
   ) => Promise<any>;
 };
 

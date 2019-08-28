@@ -67,7 +67,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
     const integration = integrationDetailQuery.integrationDetail || {};
 
-    const onLeadEdit = () => {
+    const onLeadEdit = data => {
       this.setState({ isSaving: false });
 
       if (this.state.doc) {
@@ -97,8 +97,11 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           )
 
           .then(() => {
-            Alert.success('You successfully added a lead');
-            history.push('/leads');
+            Alert.success('You successfully updated a lead');
+
+            data.fieldsQuery.refetch().then(() => {
+              history.push('/leads');
+            });
 
             this.setState({ isLoading: false });
           })

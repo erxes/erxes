@@ -77,42 +77,7 @@ export type RemoveMutationResponse = {
   ) => Promise<any>;
 };
 
-export type AddFieldMutationVariables = {
-  createFieldsData: IField[];
-};
-
-export type AddFieldMutationResponse = {
-  addFieldMutation: (
-    params: {
-      variables: AddFieldMutationVariables;
-    }
-  ) => Promise<void>;
-};
-
-export type EditFieldMutationVariables = {
-  updateFieldsData: IField[];
-};
-
-export type EditFieldMutationResponse = {
-  editFieldMutation: (
-    params: {
-      variables: EditFieldMutationVariables;
-    }
-  ) => Promise<void>;
-};
-
-export type RemoveFieldMutationVariables = {
-  removeFieldsData: IField[];
-};
-
-export type RemoveFieldMutationResponse = {
-  removeFieldMutation: (
-    params: { variable: RemoveFieldMutationVariables }
-  ) => Promise<void>;
-};
-
 // query types
-
 export type LeadIntegrationsQueryResponse = {
   integrations: ILeadIntegration;
   loading: boolean;

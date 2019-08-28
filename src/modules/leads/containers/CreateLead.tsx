@@ -46,7 +46,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
     const { addIntegrationMutation, addLeadMutation, history } = this.props;
     let leadId;
 
-    const onLeadChange = doc => {
+    const onLeadChange = id => {
       this.setState({ isSaving: false });
 
       if (this.state.doc) {
@@ -54,7 +54,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
 
         addLeadMutation({
           variables: {
-            formId: doc.formId,
+            formId: id.formId,
             callout: lead.callout,
             rules: lead.rules,
             themeColor: lead.themeColor

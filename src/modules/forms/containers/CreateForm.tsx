@@ -46,7 +46,7 @@ class CreateFormContainer extends React.Component<FinalProps> {
         .then(({ data }) => {
           formId = data.formsAdd._id;
 
-          onChange({ ...doc, formId });
+          onChange({ formId });
         })
 
         .then(() => {

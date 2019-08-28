@@ -71,10 +71,6 @@ class EditFormContainer extends React.Component<FinalProps> {
         }
       })
         .then(() => {
-          onChange({ ...doc, formId });
-        })
-
-        .then(() => {
           const dbFieldIds = dbFields.map(field => field._id);
           const existingIds: string[] = [];
           const createFieldsData: IField[] = [];
@@ -124,6 +120,10 @@ class EditFormContainer extends React.Component<FinalProps> {
           });
 
           return Promise.all(promises);
+        })
+
+        .then(() => {
+          onChange({ fieldsQuery });
         })
 
         .catch(error => {

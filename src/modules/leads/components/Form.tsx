@@ -11,7 +11,6 @@ import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { ILeadData } from 'modules/settings/integrations/types';
-import { IField } from 'modules/settings/properties/types';
 import { ILeadIntegration } from '../types';
 
 import React from 'react';
@@ -29,7 +28,6 @@ import {
 
 type Props = {
   integration?: ILeadIntegration;
-  fields?: IField[];
   loading?: boolean;
   isActionLoading: boolean;
   isSaving: boolean;
@@ -52,14 +50,10 @@ type State = {
   language?: string;
   title?: string;
   calloutTitle?: string;
-  formTitle?: string;
   bodyValue?: string;
-  formDesc?: string;
-  formBtnText?: string;
   calloutBtnText?: string;
   theme: string;
   logoPreviewUrl?: string;
-  fields?: IField[];
   isSkip?: boolean;
   color: string;
   logoPreviewStyle?: { opacity?: string };
@@ -85,23 +79,23 @@ class Form extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as ILeadIntegration);
 
-    const formData = integration.leadData || ({} as ILeadData);
-    const form = integration.lead || {};
-    const callout = form.callout || {};
+    const leadData = integration.leadData || ({} as ILeadData);
+    const lead = integration.lead || {};
+    const callout = lead.callout || {};
 
     this.state = {
       activeStep: 1,
 
-      type: formData.loadType || 'shoutbox',
-      successAction: formData.successAction || '',
-      fromEmail: formData.fromEmail || '',
-      userEmailTitle: formData.userEmailTitle || '',
-      userEmailContent: formData.userEmailContent || '',
-      adminEmails: formData.adminEmails || [],
-      adminEmailTitle: formData.adminEmailTitle || '',
-      adminEmailContent: formData.adminEmailContent || '',
-      thankContent: formData.thankContent || 'Thank you.',
-      redirectUrl: formData.redirectUrl || '',
+      type: leadData.loadType || 'shoutbox',
+      successAction: leadData.successAction || '',
+      fromEmail: leadData.fromEmail || '',
+      userEmailTitle: leadData.userEmailTitle || '',
+      userEmailContent: leadData.userEmailContent || '',
+      adminEmails: leadData.adminEmails || [],
+      adminEmailTitle: leadData.adminEmailTitle || '',
+      adminEmailContent: leadData.adminEmailContent || '',
+      thankContent: leadData.thankContent || 'Thank you.',
+      redirectUrl: leadData.redirectUrl || '',
       rules: integration.lead ? integration.lead.rules : [],
 
       brand: integration.brandId,
@@ -114,7 +108,7 @@ class Form extends React.Component<Props, State> {
       logoPreviewStyle: {},
       defaultValue: {},
       logo: '',
-      theme: form.themeColor || '#6569DF',
+      theme: lead.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
     };
@@ -210,28 +204,24 @@ class Form extends React.Component<Props, State> {
     const {
       activeStep,
       calloutTitle,
-      formTitle,
       type,
       calloutBtnText,
       bodyValue,
-      formDesc,
       color,
       theme,
       logoPreviewUrl,
       thankContent,
-      fields,
       carousel,
       language,
       title,
       successAction,
-      formBtnText,
       isSkip,
       rules
     } = this.state;
 
     const { integration } = this.props;
 
-    const formData = integration && integration.leadData;
+    const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Leads'), link: '/leads' }];
     const constant = isSkip ? 'form' : 'callout';
@@ -291,14 +281,10 @@ class Form extends React.Component<Props, State> {
           <Step img="/images/icons/erxes-06.svg" title="Options">
             <OptionStep
               onChange={this.onChange}
-              formTitle={formTitle}
-              formBtnText={formBtnText}
-              formDesc={formDesc}
               type={type}
               color={color}
               brand={brand}
               theme={theme}
-              fields={fields}
               language={language}
             />
           </Step>
@@ -310,7 +296,7 @@ class Form extends React.Component<Props, State> {
               color={color}
               theme={theme}
               successAction={successAction}
-              formData={formData}
+              leadData={leadData}
             />
           </Step>
           <Step
@@ -321,16 +307,12 @@ class Form extends React.Component<Props, State> {
             <FullPreviewStep
               onChange={this.onChange}
               calloutTitle={calloutTitle}
-              formTitle={formTitle}
-              formBtnText={formBtnText}
               calloutBtnText={calloutBtnText}
               bodyValue={bodyValue}
-              formDesc={formDesc}
               type={type}
               color={color}
               theme={theme}
               image={logoPreviewUrl}
-              fields={fields}
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}

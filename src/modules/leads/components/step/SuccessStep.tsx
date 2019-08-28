@@ -25,7 +25,7 @@ type Props = {
   thankContent?: string;
   successAction?: string;
   onChange: (name: Name, value: string) => void;
-  formData?: ILeadData;
+  leadData?: ILeadData;
 };
 
 type State = {
@@ -36,10 +36,10 @@ class SuccessStep extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const formData = props.formData || {};
+    const leadData = props.leadData || {};
 
     this.state = {
-      successAction: formData.successAction || 'onPage'
+      successAction: leadData.successAction || 'onPage'
     };
   }
 
@@ -58,7 +58,7 @@ class SuccessStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  renderEmailFields(formData: ILeadData) {
+  renderEmailFields(leadData: ILeadData) {
     if (this.state.successAction !== 'email') {
       return null;
     }
@@ -106,7 +106,7 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             type="text"
             id="fromEmail"
-            defaultValue={formData.fromEmail}
+            defaultValue={leadData.fromEmail}
             onChange={fromEmailOnChange}
           />
         </FormGroup>
@@ -116,7 +116,7 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             type="text"
             id="userEmailTitle"
-            defaultValue={formData.userEmailTitle}
+            defaultValue={leadData.userEmailTitle}
             onChange={userEmailTitle}
           />
         </FormGroup>
@@ -126,7 +126,7 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             componentClass="textarea"
             type="text"
-            defaultValue={formData.userEmailContent}
+            defaultValue={leadData.userEmailContent}
             id="userEmailContent"
             onChange={userEmailContent}
           />
@@ -138,7 +138,7 @@ class SuccessStep extends React.Component<Props, State> {
             id="adminEmails"
             type="text"
             defaultValue={
-              formData.adminEmails ? formData.adminEmails.join(',') : ''
+              leadData.adminEmails ? leadData.adminEmails.join(',') : ''
             }
             onChange={adminEmails}
           />
@@ -148,7 +148,7 @@ class SuccessStep extends React.Component<Props, State> {
           <ControlLabel>Admin email title</ControlLabel>
           <FormControl
             type="text"
-            defaultValue={formData.adminEmailTitle}
+            defaultValue={leadData.adminEmailTitle}
             id="adminEmailTitle"
             onChange={adminEmailTitle}
           />
@@ -159,7 +159,7 @@ class SuccessStep extends React.Component<Props, State> {
           <FormControl
             componentClass="textarea"
             type="text"
-            defaultValue={formData.adminEmailContent}
+            defaultValue={leadData.adminEmailContent}
             id="adminEmailContent"
             onChange={adminEmailContent}
           />
@@ -168,7 +168,7 @@ class SuccessStep extends React.Component<Props, State> {
     );
   }
 
-  renderRedirectUrl(formData) {
+  renderRedirectUrl(leadData) {
     if (this.state.successAction !== 'redirect') {
       return null;
     }
@@ -185,7 +185,7 @@ class SuccessStep extends React.Component<Props, State> {
           <ControlLabel>Redirect url</ControlLabel>
           <FormControl
             type="text"
-            defaultValue={formData.redirectUrl}
+            defaultValue={leadData.redirectUrl}
             id="redirectUrl"
             onChange={onChange}
           />
@@ -223,7 +223,7 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   render() {
-    const formData = this.props.formData || {};
+    const leadData = this.props.leadData || {};
     const { successAction } = this.state;
 
     return (
@@ -244,8 +244,8 @@ class SuccessStep extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          {this.renderEmailFields(formData)}
-          {this.renderRedirectUrl(formData)}
+          {this.renderEmailFields(leadData)}
+          {this.renderRedirectUrl(leadData)}
           {this.renderThankContent()}
         </LeftItem>
 
