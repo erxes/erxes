@@ -76,6 +76,7 @@ const listParamsDef = `
   $mainType: String,
   $mainTypeId: String,
   $isRelated: Boolean
+  $isSaved: Boolean
 `;
 
 const listParamsValue = `
@@ -98,6 +99,7 @@ const listParamsValue = `
   mainType: $mainType,
   mainTypeId: $mainTypeId,
   isRelated: $isRelated
+  isSaved: $isSaved
 `;
 
 const customers = `

@@ -111,7 +111,7 @@ const WithQuery = ({ options }) => {
                 mainType: data.mainType,
                 mainTypeId: data.mainTypeId,
                 isRelated: data.isRelated,
-                relType: data.isRelated ? data.options.type : ''
+                relType: data.options.type
               }
             };
           }

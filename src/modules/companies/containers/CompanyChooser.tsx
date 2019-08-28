@@ -63,7 +63,8 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
     renderForm: formProps => <CompanyForm {...formProps} action={addCompany} />,
     renderName,
     add: addCompany,
-    datas: companiesQuery.companies || []
+    datas: companiesQuery.companies || [],
+    refetchQuery: queries.companies
   };
 
   return <ConformityChooser {...updatedProps} />;

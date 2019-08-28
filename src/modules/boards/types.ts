@@ -207,6 +207,7 @@ export interface IFilterParams {
   mainTypeId?: string;
   relType?: string;
   isRelated?: boolean;
+  isSaved?: boolean;
   nextDay?: string;
   nextWeek?: string;
   nextMonth?: string;

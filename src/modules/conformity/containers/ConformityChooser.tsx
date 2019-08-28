@@ -28,6 +28,7 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   showSelect?: boolean;
+  refetchQuery: string;
 };
 
 type FinalProps = {
@@ -64,11 +65,27 @@ const ConformityChooser = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, CreateConformityMutation, IConformityCreate>(
-      gql(mutations.conformityCreate),
-      {
-        name: 'createConformityMutation'
+    graphql<
+      Props,
+      CreateConformityMutation,
+      IConformityCreate & { isSaved?: boolean }
+    >(gql(mutations.conformityCreate), {
+      name: 'createConformityMutation',
+      options: ({ data, refetchQuery }) => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(refetchQuery),
+              variables: {
+                mainType: data.mainType,
+                mainTypeId: data.mainTypeId,
+                relType: data.relType,
+                isSaved: true
+              }
+            }
+          ]
+        };
       }
-    )
+    })
   )(ConformityChooser)
 );

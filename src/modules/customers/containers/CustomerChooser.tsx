@@ -51,7 +51,7 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       datas: data.customers,
       mainTypeId: data.mainTypeId,
       mainType: data.mainType,
-      relType: 'company'
+      relType: 'customer'
     },
     search,
     clearState: () => search(''),
@@ -61,7 +61,8 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       <CustomerForm {...formProps} action={addCustomer} />
     ),
     add: addCustomer,
-    datas: customersQuery.customers || []
+    datas: customersQuery.customers || [],
+    refetchQuery: queries.customers
   };
 
   return <ConformityChooser {...updatedProps} />;

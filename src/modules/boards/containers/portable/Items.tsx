@@ -59,7 +59,8 @@ export default (props: IProps) =>
           variables: {
             mainType,
             mainTypeId,
-            relType: options.type
+            relType: options.type,
+            isSaved: true
           }
         })
       })

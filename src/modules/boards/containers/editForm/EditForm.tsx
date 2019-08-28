@@ -11,7 +11,6 @@ import {
   IItem,
   IItemParams,
   IOptions,
-  ItemsQueryResponse,
   RemoveMutation,
   SaveMutation
 } from '../../types';
@@ -42,7 +41,6 @@ type FinalProps = {
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
   editMutation: SaveMutation;
-  itemsQuery: ItemsQueryResponse;
   removeMutation: RemoveMutation;
 } & ContainerProps;
 

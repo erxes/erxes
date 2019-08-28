@@ -13,6 +13,7 @@ import {
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CustomerChooser from '../../containers/CustomerChooser';
+
 type Props = {
   name: string;
   customers: ICustomer[];
