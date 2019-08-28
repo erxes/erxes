@@ -16,17 +16,29 @@ const integrationsApiMiddleware = async (req, res) => {
   const { action, metaInfo, payload } = req.body;
   const doc = JSON.parse(payload);
 
-  if (action === 'create-customer') {
+  if (action === 'create-or-update-customer') {
     const integration = await Integrations.findOne({ _id: doc.integrationId });
 
     if (!integration) {
       throw new Error(`Integration not found: ${doc.integrationId}`);
     }
 
-    const customer = await Customers.createCustomer({
-      ...doc,
-      scopeBrandIds: integration.brandId,
-    });
+    const { primaryPhone } = doc;
+
+    let customer;
+
+    if (primaryPhone) {
+      customer = await Customers.findOne({ primaryPhone }).lean();
+    }
+
+    if (customer) {
+      await Customers.updateCustomer(customer._id, doc);
+    } else {
+      customer = await Customers.createCustomer({
+        ...doc,
+        scopeBrandIds: integration.brandId,
+      });
+    }
 
     return res.json({ _id: customer._id });
   }
