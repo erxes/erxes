@@ -40,8 +40,8 @@ type State = {
   description?: string;
   closeDate?: Date;
   assignedUserIds?: string[];
-  customers?: ICustomer[];
-  companies?: ICompany[];
+  customers: ICustomer[];
+  companies: ICompany[];
   attachments?: IAttachment[];
   updatedItem?;
   prevStageId?;
@@ -145,16 +145,22 @@ class EditForm extends React.Component<Props, State> {
   };
 
   save = () => {
-    const { companies, customers } = this.state;
+    const { companies, customers, updatedItem, prevStageId } = this.state;
     const { saveItem } = this.props;
 
     const doc = {
-      companyIds: (companies || []).map(company => company._id),
-      customerIds: (customers || []).map(customer => customer._id)
+      companyIds: companies.map(company => company._id),
+      customerIds: customers.map(customer => customer._id)
     };
 
-    saveItem(doc, updatedItem => {
-      this.props.onUpdate(updatedItem);
+    if (updatedItem && prevStageId) {
+      this.props.onUpdate(updatedItem, prevStageId);
+
+      return this.closeModal();
+    }
+
+    saveItem(doc, result => {
+      this.props.onUpdate(result);
       this.closeModal();
     });
   };
