@@ -136,6 +136,7 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
         method: 'POST',
         body: {
           action: 'create-conversation-message',
+          metaInfo: 'replaceContent',
           payload: JSON.stringify({
             content: text,
             attachments: (attachments || [])
