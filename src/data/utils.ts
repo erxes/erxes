@@ -5,7 +5,6 @@ import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
-import * as Path from 'path';
 import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
@@ -29,7 +28,7 @@ export const checkFile = async file => {
   }
 
   // read file
-  const buffer = await fs.readFileSync(Path.basename(file.path));
+  const buffer = await fs.readFileSync(file.path);
 
   // determine file type using magic numbers
   const ft = fileType(buffer);
@@ -123,7 +122,7 @@ export const uploadFileAWS = async (file: { name: string; path: string }): Promi
   const fileName = `${AWS_PREFIX}${Math.random()}${file.name}`;
 
   // read file
-  const buffer = await fs.readFileSync(Path.basename(file.path));
+  const buffer = await fs.readFileSync(file.path);
 
   // upload to s3
   const response: any = await new Promise((resolve, reject) => {
