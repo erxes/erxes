@@ -17,6 +17,7 @@ type Props = {
   isDragging: boolean;
   provided;
   onClick: () => void;
+  hasSeen: boolean;
   beforePopupClose: () => void;
   options?: IOptions;
 };
@@ -31,7 +32,7 @@ class DealItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { beforePopupClose, stageId, item, options } = this.props;
+    const { stageId, item, options, beforePopupClose } = this.props;
 
     return (
       <EditForm
@@ -44,7 +45,7 @@ class DealItem extends React.PureComponent<Props, {}> {
   };
 
   render() {
-    const { item, isDragging, provided, onClick } = this.props;
+    const { item, isDragging, provided, onClick, hasSeen } = this.props;
     const products = (item.products || []).map(p => p.product);
     const { customers, companies } = item;
 
@@ -52,7 +53,7 @@ class DealItem extends React.PureComponent<Props, {}> {
       <ItemContainer
         isDragging={isDragging}
         innerRef={provided.innerRef}
-        hasSeen={item.hasSeen === false ? false : true}
+        hasSeen={hasSeen}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >

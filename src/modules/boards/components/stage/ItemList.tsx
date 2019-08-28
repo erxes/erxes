@@ -29,12 +29,15 @@ type DraggableContainerProps = {
 
 class DraggableContainer extends React.Component<
   DraggableContainerProps,
-  { isDragDisabled: boolean }
+  { isDragDisabled: boolean; hasSeen: boolean }
 > {
   constructor(props: DraggableContainerProps) {
     super(props);
 
-    this.state = { isDragDisabled: false };
+    this.state = {
+      isDragDisabled: false,
+      hasSeen: props.item.hasSeen === false ? false : true
+    };
   }
 
   onItemClick = () => {
@@ -55,7 +58,7 @@ class DraggableContainer extends React.Component<
   };
 
   beforePopupClose = () => {
-    this.setState({ isDragDisabled: false });
+    this.setState({ isDragDisabled: false, hasSeen: true });
   };
 
   render() {
@@ -74,6 +77,7 @@ class DraggableContainer extends React.Component<
           <ItemComponent
             key={item._id}
             stageId={stageId}
+            hasSeen={this.state.hasSeen}
             item={item}
             isDragging={dragSnapshot.isDragging}
             onClick={this.onItemClick}
