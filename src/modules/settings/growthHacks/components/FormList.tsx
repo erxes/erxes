@@ -3,8 +3,7 @@ import Select from 'react-select-plus';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  margin-left: 10px;
-  width: 100px;
+  width: 140px;
 `;
 
 type Props = {

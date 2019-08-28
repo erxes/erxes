@@ -35,6 +35,7 @@ const RowTitle = styled.h3`
 const Box = styled(BoxRoot)`
   width: ${boxSize}px;
   height: ${boxSize}px;
+  border-color: transparent;
 
   img {
     height: 83px;

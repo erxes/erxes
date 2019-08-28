@@ -1,6 +1,8 @@
 import { IStage } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
 import SortableList from 'modules/common/components/SortableList';
+import { __ } from 'modules/common/utils';
+import { LinkButton } from 'modules/settings/team/styles';
 import React from 'react';
 import { StageList } from '../styles';
 import { IOption } from '../types';
@@ -78,9 +80,9 @@ class Stages extends React.Component<Props, {}> {
           isModal={true}
         />
 
-        <Button onClick={this.add} btnStyle="success" size="small" icon="add">
-          Add stage
-        </Button>
+        <LinkButton onClick={this.add}>
+          <Icon icon="plus-1" /> {__('Add another stage')}
+        </LinkButton>
       </StageList>
     );
   }

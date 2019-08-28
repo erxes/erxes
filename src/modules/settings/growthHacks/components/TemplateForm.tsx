@@ -59,7 +59,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
     return {
       _id: finalValues._id,
       name: finalValues.name,
-      description: finalValues.name,
+      description: finalValues.description,
       type: 'growthHack',
       stages: this.generateStages(stages, false).filter(el => el.name)
     };
@@ -91,6 +91,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
             {...formProps}
             name="description"
             defaultValue={object.description}
+            componentClass="textarea"
             type="text"
             required={true}
           />

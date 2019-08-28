@@ -5,14 +5,13 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import {
   Actions,
-  EmailTemplate,
-  IframePreview,
-  TemplateBox,
+  Template,
   Templates
 } from 'modules/settings/emailTemplates/styles';
 import React from 'react';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
+import { TemplateBoxContent } from '../styles';
 import TemplateForm from './TemplateForm';
 
 type Props = {
@@ -39,7 +38,6 @@ class TemplateList extends React.Component<Props> {
       <ModalTrigger
         enforceFocus={false}
         title="Edit"
-        size="lg"
         dialogClassName="transform"
         trigger={
           <div>
@@ -53,20 +51,18 @@ class TemplateList extends React.Component<Props> {
 
   renderRow({ objects }) {
     return objects.map((object, index) => (
-      <EmailTemplate key={index}>
-        <TemplateBox>
+      <Template key={index}>
+        <TemplateBoxContent>
           <Actions>
             {this.renderEditAction(object)}
             <div onClick={this.removeTemplate.bind(this, object)}>
               <Icon icon="cancel-1" /> Delete
             </div>
           </Actions>
-          <IframePreview>
-            <iframe title="content-iframe" srcDoc={object.content} />
-          </IframePreview>
-        </TemplateBox>
-        <h5>{object.name}</h5>
-      </EmailTemplate>
+          <h5>{object.name}</h5>
+          <p>{object.description}</p>
+        </TemplateBoxContent>
+      </Template>
     ));
   }
 
@@ -78,7 +74,6 @@ class TemplateList extends React.Component<Props> {
     return (
       <List
         formTitle="New growth hack template"
-        size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Growth hack templates') }

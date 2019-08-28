@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { COLORS } from 'modules/boards/constants';
+import { FlexContent } from 'modules/boards/styles/item';
 import { IPipeline, IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
@@ -11,13 +12,14 @@ import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { SelectMemberStyled } from 'modules/settings/boards/styles';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import BlockPicker from 'react-color/lib/Block';
 import Select from 'react-select-plus';
 import { queries } from '../graphql';
+import { Box } from '../styles';
 
 type Props = {
   type: string;
@@ -51,7 +53,7 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
-      hackScoringType: pipeline ? pipeline.hackScoringType : '',
+      hackScoringType: pipeline ? pipeline.hackScoringType : 'ice',
       templates: [],
       templateId: ''
     };
@@ -83,10 +85,8 @@ class PipelineForm extends React.Component<Props, State> {
     });
   };
 
-  onChangeType = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({
-      hackScoringType: (e.currentTarget as HTMLInputElement).value
-    });
+  onChangeType = (hackScoringType: string) => {
+    this.setState({ hackScoringType });
   };
 
   onChangeTemplate = (value: any) => {
@@ -117,7 +117,8 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds,
       stages,
       backgroundColor,
-      templateId
+      templateId,
+      hackScoringType
     } = this.state;
     const finalValues = values;
 
@@ -132,7 +133,8 @@ class PipelineForm extends React.Component<Props, State> {
       stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
-      templateId
+      templateId,
+      hackScoringType
     };
   };
 
@@ -173,12 +175,29 @@ class PipelineForm extends React.Component<Props, State> {
     }));
 
     return (
-      <Select
-        placeholder={__('Choose template')}
-        value={templateId}
-        options={templateOptions}
-        onChange={this.onChangeTemplate}
-      />
+      <FormGroup>
+        <ControlLabel>Template</ControlLabel>
+
+        <Select
+          placeholder={__('Choose template')}
+          value={templateId}
+          options={templateOptions}
+          onChange={this.onChangeTemplate}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderBox(type, desc, formula) {
+    const onClick = () => this.onChangeType(type);
+
+    return (
+      <Box selected={this.state.hackScoringType === type} onClick={onClick}>
+        <b>{__(type)}</b>
+        <p>
+          {__(desc)} <strong>{formula}</strong>
+        </p>
+      </Box>
     );
   }
 
@@ -220,49 +239,57 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Scoring type</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="hackScoringType"
-              componentClass="select"
-              value={this.state.hackScoringType}
-              onChange={this.onChangeType}
-            >
-              <option value="ice">{__('Ice')}</option>
-              <option value="rice">{__('Rice')}</option>
-            </FormControl>
+
+            <FlexContent>
+              {this.renderBox(
+                'ice',
+                'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:',
+                'Impact * Confidence * Ease'
+              )}
+              {this.renderBox(
+                'rice',
+                'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:',
+                'Reach * Impact * Confidence / Effort'
+              )}
+            </FlexContent>
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Background</ControlLabel>
-            <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={popoverTop}
-              >
-                <ColorPick>
-                  <ColorPicker
-                    style={{ backgroundColor: this.state.backgroundColor }}
-                  />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-          </FormGroup>
+          <FlexContent>
+            <ExpandWrapper>
+              <FormGroup>
+                <ControlLabel required={true}>Visibility</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="visibility"
+                  componentClass="select"
+                  value={this.state.visibility}
+                  onChange={this.onChangeVisibility}
+                >
+                  <option value="public">{__('Public')}</option>
+                  <option value="private">{__('Private')}</option>
+                </FormControl>
+              </FormGroup>
+            </ExpandWrapper>
 
-          <FormGroup>
-            <ControlLabel required={true}>Visibility</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="visibility"
-              componentClass="select"
-              value={this.state.visibility}
-              onChange={this.onChangeVisibility}
-            >
-              <option value="public">{__('Public')}</option>
-              <option value="private">{__('Private')}</option>
-            </FormControl>
-          </FormGroup>
+            <FormGroup>
+              <ControlLabel>Background</ControlLabel>
+              <div>
+                <OverlayTrigger
+                  trigger="click"
+                  rootClose={true}
+                  placement="bottom"
+                  overlay={popoverTop}
+                >
+                  <ColorPick>
+                    <ColorPicker
+                      style={{ backgroundColor: this.state.backgroundColor }}
+                    />
+                  </ColorPick>
+                </OverlayTrigger>
+              </div>
+            </FormGroup>
+          </FlexContent>
+
           {this.renderSelectMembers()}
           {this.renderTemplates()}
 

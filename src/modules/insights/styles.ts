@@ -174,9 +174,9 @@ const BoxContainer = styled.div`
   justify-content: center;
 `;
 
-const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
+const Box = styled(BoxRoot)`
   width: 320px;
-  border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
+  border-color: transparent;
   margin: 10px;
   flex-shrink: 0;
 

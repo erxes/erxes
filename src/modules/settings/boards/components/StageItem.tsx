@@ -48,10 +48,10 @@ class StageItem extends React.Component<Props, {}> {
         </FormControl>
 
         <Button
-          btnStyle="danger"
+          btnStyle="link"
           size="small"
           onClick={remove.bind(this, stage._id)}
-          icon="cancel-1"
+          icon="cancel"
         />
       </StageItemContainer>
     );

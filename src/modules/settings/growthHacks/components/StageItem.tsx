@@ -37,10 +37,10 @@ class StageItem extends React.Component<Props, {}> {
         <FormList onChangeForm={onChangeForm} stage={stage} />
 
         <Button
-          btnStyle="danger"
+          btnStyle="link"
           size="small"
           onClick={remove.bind(this, stage._id)}
-          icon="cancel-1"
+          icon="cancel"
         />
       </StageItemContainer>
     );

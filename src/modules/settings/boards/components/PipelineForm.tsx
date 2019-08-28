@@ -1,4 +1,5 @@
 import { COLORS } from 'modules/boards/constants';
+import { FlexContent } from 'modules/boards/styles/item';
 import { IPipeline, IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
@@ -8,7 +9,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
@@ -173,45 +174,52 @@ class PipelineForm extends React.Component<Props, State> {
 
           {renderExtraFields && renderExtraFields(formProps)}
 
-          <FormGroup>
-            <ControlLabel>Background</ControlLabel>
-            <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={popoverTop}
-              >
-                <ColorPick>
-                  <ColorPicker
-                    style={{ backgroundColor: this.state.backgroundColor }}
-                  />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-          </FormGroup>
+          <FlexContent>
+            <ExpandWrapper>
+              <FormGroup>
+                <ControlLabel required={true}>Visibility</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="visibility"
+                  componentClass="select"
+                  value={this.state.visibility}
+                  onChange={this.onChangeVisibility}
+                >
+                  <option value="public">{__('Public')}</option>
+                  <option value="private">{__('Private')}</option>
+                </FormControl>
+              </FormGroup>
+            </ExpandWrapper>
+            <FormGroup>
+              <ControlLabel>Background</ControlLabel>
+              <div>
+                <OverlayTrigger
+                  trigger="click"
+                  rootClose={true}
+                  placement="bottom"
+                  overlay={popoverTop}
+                >
+                  <ColorPick>
+                    <ColorPicker
+                      style={{ backgroundColor: this.state.backgroundColor }}
+                    />
+                  </ColorPick>
+                </OverlayTrigger>
+              </div>
+            </FormGroup>
+          </FlexContent>
 
-          <FormGroup>
-            <ControlLabel required={true}>Visibility</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="visibility"
-              componentClass="select"
-              value={this.state.visibility}
-              onChange={this.onChangeVisibility}
-            >
-              <option value="public">{__('Public')}</option>
-              <option value="private">{__('Private')}</option>
-            </FormControl>
-          </FormGroup>
           {this.renderSelectMembers()}
 
-          <Stages
-            options={options}
-            type={this.props.type}
-            stages={this.state.stages}
-            onChangeStages={this.onChangeStages}
-          />
+          <FormGroup>
+            <ControlLabel>Stages</ControlLabel>
+            <Stages
+              options={options}
+              type={this.props.type}
+              stages={this.state.stages}
+              onChangeStages={this.onChangeStages}
+            />
+          </FormGroup>
 
           <Modal.Footer>
             <Button
