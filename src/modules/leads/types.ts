@@ -38,31 +38,31 @@ export interface ILeadIntegration extends IIntegration {
 }
 
 // mutation types
-export type AddFormMutationVariables = {
-  title: string;
-  description: string;
-  buttonText: string;
-  type: string;
+export type AddLeadMutationVariables = {
+  formId: string;
+  themeColor?: string;
+  callout?: ICallout;
+  rules?: IConditionsRule[];
 };
 
-export type AddFormMutationResponse = {
-  addFormMutation: (
-    params: { variables: AddFormMutationVariables }
+export type AddLeadMutationResponse = {
+  addLeadMutation: (
+    params: { variables: AddLeadMutationVariables }
   ) => Promise<any>;
 };
 
-export type EditFormMutationVariables = {
+export type EditLeadMutationVariables = {
   _id: string;
-  title: string;
-  description: string;
-  buttonText: string;
-  type: string;
+  formId: string;
+  themeColor?: string;
+  callout?: ICallout;
+  rules?: IConditionsRule[];
 };
 
-export type EditFormMutationResponse = {
-  editFormMutation: (
+export type EditLeadMutationResponse = {
+  editLeadMutation: (
     params: {
-      variables: EditFormMutationVariables;
+      variables: EditLeadMutationVariables;
     }
   ) => Promise<any>;
 };

@@ -33,11 +33,10 @@ export interface IFormIntegration extends IIntegration {
 
 // mutation types
 export type AddFormMutationVariables = {
-  title: string;
-  description: string;
-  buttonText: string;
-  themeColor: string;
-  callout: ICallout;
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  type: string;
 };
 
 export type AddFormMutationResponse = {
@@ -48,11 +47,10 @@ export type AddFormMutationResponse = {
 
 export type EditFormMutationVariables = {
   _id: string;
-  title: string;
-  description: string;
-  buttonText: string;
-  themeColor: string;
-  callout: ICallout;
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  type: string;
 };
 
 export type EditFormMutationResponse = {
@@ -108,31 +106,6 @@ export type RemoveFieldMutationResponse = {
 };
 
 // query types
-
-export type FormIntegrationsQueryResponse = {
-  integrations: IFormIntegration;
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type Counts = {
-  [key: string]: number;
-};
-
-export type IntegrationsCount = {
-  total: number;
-  byTag: Counts;
-  byChannel: Counts;
-  byBrand: Counts;
-  byKind: Counts;
-};
-
-export type CountQueryResponse = {
-  integrationsTotalCount: IntegrationsCount;
-  loading: boolean;
-  refetch: () => void;
-};
-
 export interface IFormPreviewContent {
   formTitle: string;
   formBtnText: string;
@@ -140,3 +113,9 @@ export interface IFormPreviewContent {
   fields?: IField[];
   onFieldEdit?: (field: IField, props) => void;
 }
+
+export type FormDetailQueryResponse = {
+  formDetail: IForm;
+  loading: boolean;
+  refetch: () => void;
+};

@@ -3,9 +3,9 @@ import { Alert, withProps } from 'modules/common/utils';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
-  FormIntegrationDetailQueryResponse
+  ILeadData,
+  LeadIntegrationDetailQueryResponse
 } from 'modules/settings/integrations/types';
-import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -13,159 +13,117 @@ import { IRouterProps } from '../../common/types';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
-  AddFieldMutationResponse,
-  AddFieldMutationVariables,
-  EditFieldMutationResponse,
-  EditFieldMutationVariables,
-  EditFormMutationResponse,
-  EditFormMutationVariables,
-  RemoveFieldMutationResponse,
-  RemoveFieldMutationVariables
+  EditLeadMutationResponse,
+  EditLeadMutationVariables,
+  ILead
 } from '../types';
 
 type Props = {
   contentTypeId: string;
+  formId: string;
   leadId: string;
   queryParams: any;
 };
 
+type State = {
+  isLoading: boolean;
+  isSaving: boolean;
+  doc?: {
+    brandId: string;
+    name: string;
+    languageCode: string;
+    lead: ILead;
+    leadData: ILeadData;
+  };
+};
+
 type FinalProps = {
-  fieldsQuery: FieldsQueryResponse;
-  integrationDetailQuery: FormIntegrationDetailQueryResponse;
+  integrationDetailQuery: LeadIntegrationDetailQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
-  EditFormMutationResponse &
-  AddFieldMutationResponse &
-  EditFieldMutationResponse &
-  RemoveFieldMutationResponse &
+  EditLeadMutationResponse &
   IRouterProps;
 
-class EditLeadContainer extends React.Component<
-  FinalProps,
-  { isLoading: boolean }
-> {
+class EditLeadContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { isLoading: false };
+    this.state = { isLoading: false, isSaving: false };
   }
 
   render() {
     const {
       leadId,
+      formId,
       integrationDetailQuery,
       editIntegrationMutation,
-      addFieldMutation,
-      editFieldMutation,
-      removeFieldMutation,
-      editFormMutation,
-      fieldsQuery,
+      editLeadMutation,
       history
     } = this.props;
 
-    if (fieldsQuery.loading || integrationDetailQuery.loading) {
+    if (integrationDetailQuery.loading) {
       return false;
     }
 
-    const dbFields = fieldsQuery.fields || [];
     const integration = integrationDetailQuery.integrationDetail || {};
 
-    const save = doc => {
-      const { form, brandId, name, languageCode, leadData, fields } = doc;
+    const onLeadChange = () => {
+      this.setState({ isSaving: false });
 
-      this.setState({ isLoading: true });
+      if (this.state.doc) {
+        const { lead, leadData, brandId, name, languageCode } = this.state.doc;
 
-      // edit form
-      editFormMutation({ variables: { _id: leadId, ...form } })
-        .then(() =>
-          // edit integration
-          editIntegrationMutation({
-            variables: {
-              _id: integration._id,
-              leadData,
-              brandId,
-              name,
-              languageCode,
-              leadId
-            }
-          })
-        )
-
-        .then(() => {
-          const dbFieldIds = dbFields.map(field => field._id);
-          const existingIds: string[] = [];
-          const createFieldsData: IField[] = [];
-          const updateFieldsData: IField[] = [];
-          const removeFieldsData: Array<{ _id: string }> = [];
-
-          // collect fields ================
-          for (const field of fields) {
-            // collect fields to update
-            if (dbFieldIds.includes(field._id)) {
-              existingIds.push(field._id);
-              updateFieldsData.push(field);
-              continue;
-            }
-
-            // collect fields to create
-            delete field._id;
-
-            createFieldsData.push({
-              ...field,
-              contentType: 'form',
-              contentTypeId: leadId
-            });
+        editLeadMutation({
+          variables: {
+            _id: leadId,
+            formId,
+            themeColor: lead.themeColor,
+            callout: lead.callout,
+            rules: lead.rules
           }
-
-          // collect fields to remove
-          for (const dbFieldId of dbFieldIds) {
-            if (!existingIds.includes(dbFieldId)) {
-              removeFieldsData.push({ _id: dbFieldId });
-            }
-          }
-
-          // save fields ===================
-          const promises: any[] = [];
-
-          const doMutation = ({ datas, mutation }) => {
-            for (const data of datas) {
-              promises.push(mutation({ variables: data }));
-            }
-          };
-
-          doMutation({ datas: createFieldsData, mutation: addFieldMutation });
-          doMutation({ datas: updateFieldsData, mutation: editFieldMutation });
-          doMutation({
-            datas: removeFieldsData,
-            mutation: removeFieldMutation
-          });
-
-          return Promise.all(promises);
         })
+          .then(() =>
+            // edit integration
+            editIntegrationMutation({
+              variables: {
+                _id: integration._id,
+                leadData,
+                brandId,
+                name,
+                languageCode,
+                leadId
+              }
+            })
+          )
 
-        .then(() => {
-          Alert.success('You successfully updated a lead');
-
-          fieldsQuery.refetch().then(() => {
+          .then(() => {
+            Alert.success('You successfully added a lead');
             history.push('/leads');
+
+            this.setState({ isLoading: false });
+          })
+
+          .catch(error => {
+            Alert.error(error.message);
+
+            this.setState({ isLoading: false });
           });
+      }
+    };
 
-          this.setState({ isLoading: false });
-        })
-
-        .catch(error => {
-          Alert.error(error.message);
-
-          this.setState({ isLoading: false });
-        });
+    const save = doc => {
+      this.setState({ isLoading: true });
+      this.setState({ isSaving: true });
+      this.setState({ doc });
     };
 
     const updatedProps = {
       ...this.props,
       integration,
-      fields: dbFields.map(field => ({ ...field })),
       save,
-      isActionLoading: this.state.isLoading
+      onChange: onLeadChange,
+      isActionLoading: this.state.isLoading,
+      isSaving: this.state.isLoading
     };
 
     return <Form {...updatedProps} />;
@@ -174,22 +132,7 @@ class EditLeadContainer extends React.Component<
 
 export default withProps<Props>(
   compose(
-    graphql<
-      Props,
-      FieldsQueryResponse,
-      { contentType: string; contentTypeId: string }
-    >(gql(queries.fields), {
-      name: 'fieldsQuery',
-      options: ({ leadId }) => {
-        return {
-          variables: {
-            contentType: 'form',
-            contentTypeId: leadId
-          }
-        };
-      }
-    }),
-    graphql<Props, FormIntegrationDetailQueryResponse, { _id: string }>(
+    graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
       {
         name: 'integrationDetailQuery',
@@ -204,34 +147,16 @@ export default withProps<Props>(
       Props,
       EditIntegrationMutationResponse,
       EditIntegrationMutationVariables
-    >(gql(mutations.integrationsEditFormIntegration), {
+    >(gql(mutations.integrationsEditLeadIntegration), {
       name: 'editIntegrationMutation',
       options: {
-        refetchQueries: ['formIntegrations', 'formIntegrationCounts']
+        refetchQueries: ['leadIntegrations', 'leadIntegrationCounts']
       }
     }),
-    graphql<Props, AddFieldMutationResponse, AddFieldMutationVariables>(
-      gql(mutations.fieldsAdd),
+    graphql<Props, EditLeadMutationResponse, EditLeadMutationVariables>(
+      gql(mutations.editLead),
       {
-        name: 'addFieldMutation'
-      }
-    ),
-    graphql<Props, EditFieldMutationResponse, EditFieldMutationVariables>(
-      gql(mutations.fieldsEdit),
-      {
-        name: 'editFieldMutation'
-      }
-    ),
-    graphql<Props, RemoveFieldMutationResponse, RemoveFieldMutationVariables>(
-      gql(mutations.fieldsRemove),
-      {
-        name: 'removeFieldMutation'
-      }
-    ),
-    graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
-      gql(mutations.editForm),
-      {
-        name: 'editFormMutation'
+        name: 'editLeadMutation'
       }
     )
   )(withRouter<FinalProps>(EditLeadContainer))

@@ -123,6 +123,29 @@ const integrationDetail = `
   }
 `;
 
+const formDetail = `
+  query formDetail($_id: String!) {
+    formDetail(_id: $_id) {
+      _id
+      title
+      code
+      type
+      description
+      buttonText
+      createdDate
+      createdUserId
+      createdUser {
+        _id
+        details {
+          avatar
+          fullName
+          position
+        }
+      }
+    }
+  }
+`;
+
 const integrationsTotalCount = `
   query integrationsTotalCount {
     integrationsTotalCount {
@@ -188,6 +211,7 @@ export default {
   integrationDetail,
   integrationsTotalCount,
   fields,
+  formDetail,
   tags,
   forms,
   fieldsCombinedByContentType,

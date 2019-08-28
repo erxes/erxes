@@ -6,18 +6,20 @@ import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
 import { Title } from '../styles';
-import { IFormPreviewContent } from '../types';
+import { IForm, IFormPreviewContent } from '../types';
 import Fields from './Fields';
 import FormField from './FormField';
 
 type Props = {
   fields: IField[];
   previewContent: (props: IFormPreviewContent) => void;
+  saveForm: (params: any) => void;
+  isSaving: boolean;
+  form?: IForm;
 };
 
 type State = {
   fields?: IField[];
-  chosenFieldType?: string;
   editingField?: IField;
   formTitle: string;
   formDesc: string;
@@ -28,18 +30,15 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { form = {} as IForm } = props;
+
     this.state = {
       fields: props.fields,
-      chosenFieldType: '',
-      formTitle: '',
-      formDesc: '',
-      formBtnText: 'Send',
+      formTitle: form.title || '',
+      formDesc: form.description || '',
+      formBtnText: form.buttonText || 'Send',
       editingField: undefined
     };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    this.setState({ fields: nextProps.fields });
   }
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
@@ -72,9 +71,7 @@ class Form extends React.Component<Props, State> {
       ...doc
     });
 
-    this.setState({ fields: this.state.fields, editingField: undefined });
-
-    this.onChange('fields', this.state.fields || []);
+    this.setState({ fields: this.state.fields });
   };
 
   onDelete = fieldId => {
@@ -102,7 +99,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { previewContent } = this.props;
+    const { previewContent, isSaving, saveForm } = this.props;
     const { formTitle, formBtnText, formDesc, fields } = this.state;
 
     const onChangeTitle = e =>
@@ -113,6 +110,16 @@ class Form extends React.Component<Props, State> {
 
     const onChangeBtnText = e =>
       this.onChange('formBtnText', (e.currentTarget as HTMLInputElement).value);
+
+    if (isSaving) {
+      saveForm({
+        title: formTitle,
+        description: formDesc,
+        buttonText: formBtnText,
+        fields,
+        type: 'lead'
+      });
+    }
 
     return (
       <>

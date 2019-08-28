@@ -25,14 +25,15 @@ const createLead = () => {
 };
 
 const editLead = ({ match, location }) => {
-  const { contentTypeId, formId } = match.params;
+  const { contentTypeId, formId, leadId } = match.params;
   const queryParams = queryString.parse(location.search);
 
   return (
     <EditLead
       queryParams={queryParams}
-      contentTypeId={contentTypeId}
       formId={formId}
+      contentTypeId={contentTypeId}
+      leadId={leadId}
     />
   );
 };
@@ -50,9 +51,9 @@ const routes = () => {
       />
 
       <Route
-        key="/leads/edit/:contentTypeId?/:formId?"
+        key="/leads/edit/:contentTypeId?/:formId?/:leadId?"
         exact={true}
-        path="/leads/edit/:contentTypeId/:formId"
+        path="/leads/edit/:contentTypeId/:formId?/:leadId"
         component={editLead}
       />
     </React.Fragment>

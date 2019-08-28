@@ -29,17 +29,18 @@ import {
 
 type Props = {
   integration?: ILeadIntegration;
-  fields: IField[];
+  fields?: IField[];
   loading?: boolean;
   isActionLoading: boolean;
+  isSaving: boolean;
+  onChange: (doc: any) => void;
   save: (
     params: {
       name: string;
       brandId: string;
       languageCode?: string;
-      formData: ILeadData;
-      form: any;
-      fields?: IField[];
+      leadData: ILeadData;
+      lead: any;
     }
   ) => void;
 };
@@ -87,7 +88,6 @@ class Form extends React.Component<Props, State> {
     const formData = integration.leadData || ({} as ILeadData);
     const form = integration.lead || {};
     const callout = form.callout || {};
-    const fields = props.fields;
 
     this.state = {
       activeStep: 1,
@@ -108,10 +108,7 @@ class Form extends React.Component<Props, State> {
       language: integration.languageCode,
       title: integration.name,
       calloutTitle: callout.title || 'Title',
-      // formTitle: form.title || '',
       bodyValue: callout.body || '',
-      // formDesc: form.description || '',
-      // formBtnText: form.buttonText || 'Send',
       calloutBtnText: callout.buttonText || 'Start',
       color: '',
       logoPreviewStyle: {},
@@ -119,7 +116,6 @@ class Form extends React.Component<Props, State> {
       logo: '',
       theme: form.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
-      fields: fields || [],
       isSkip: callout.skip && true
     };
   }
@@ -137,11 +133,11 @@ class Form extends React.Component<Props, State> {
       return Alert.error('Choose a brand');
     }
 
-    this.props.save({
+    const doc = {
       name: title,
       brandId: brand,
       languageCode: this.state.language,
-      formData: {
+      leadData: {
         loadType: this.state.type,
         successAction: this.state.successAction,
         fromEmail: this.state.fromEmail,
@@ -153,10 +149,7 @@ class Form extends React.Component<Props, State> {
         thankContent: this.state.thankContent,
         redirectUrl: this.state.redirectUrl
       },
-      form: {
-        title: this.state.formTitle,
-        description: this.state.formDesc,
-        buttonText: this.state.formBtnText,
+      lead: {
         themeColor: this.state.theme || this.state.color,
         callout: {
           title: calloutTitle,
@@ -165,7 +158,6 @@ class Form extends React.Component<Props, State> {
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
         },
-        type: 'lead',
         rules: (rules || []).map(rule => ({
           _id: rule._id,
           kind: rule.kind,
@@ -173,8 +165,11 @@ class Form extends React.Component<Props, State> {
           condition: rule.condition,
           value: rule.value
         }))
-      },
-      fields: this.state.fields
+      }
+    };
+
+    this.props.save({
+      ...doc
     });
   };
 
@@ -192,6 +187,7 @@ class Form extends React.Component<Props, State> {
     return (
       <Button.Group>
         {cancelButton}
+
         <Button
           disabled={isActionLoading}
           btnStyle="success"
@@ -280,7 +276,14 @@ class Form extends React.Component<Props, State> {
             />
           </Step>
           <Step img="/images/icons/erxes-12.svg" title={'Form'}>
-            <FormStep type={type} color={color} theme={theme} />
+            <FormStep
+              type={type}
+              color={color}
+              theme={theme}
+              formId={integration && integration.lead.formId}
+              onChange={this.props.onChange}
+              isSaving={this.props.isSaving}
+            />
           </Step>
           <Step img="/images/icons/erxes-02.svg" title="Rule">
             <ConditionsRule rules={rules || []} onChange={this.onChange} />

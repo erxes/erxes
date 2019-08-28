@@ -188,7 +188,7 @@ export type MessengerAppsCountQueryResponse = {
   loading: boolean;
 };
 
-export type FormIntegrationDetailQueryResponse = {
+export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
   loading: boolean;
   refetch: () => void;

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries } from 'modules/leads/graphql';
+import { queries } from 'modules/forms/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import ManageColumns from '../components/ManageColumns';

@@ -2,100 +2,100 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   AddIntegrationMutationResponse,
-  AddIntegrationMutationVariables
+  AddIntegrationMutationVariables,
+  ILeadData
 } from 'modules/settings/integrations/types';
-import {
-  AddFieldsMutationResponse,
-  AddFieldsMutationVariables
-} from 'modules/settings/properties/types';
+import { AddFieldsMutationResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import Form from '../components/Form';
 import { mutations } from '../graphql';
-import { AddFormMutationResponse, AddFormMutationVariables } from '../types';
+import {
+  AddLeadMutationResponse,
+  AddLeadMutationVariables,
+  ILead
+} from '../types';
 
 type Props = {} & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse &
-  AddFormMutationResponse;
+  AddLeadMutationResponse;
 
-class CreateLeadContainer extends React.Component<
-  Props,
-  { isLoading: boolean }
-> {
+type State = {
+  isLoading: boolean;
+  isSaving: boolean;
+  doc?: {
+    brandId: string;
+    name: string;
+    languageCode: string;
+    lead: ILead;
+    leadData: ILeadData;
+  };
+};
+
+class CreateLeadContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { isLoading: false };
+    this.state = { isLoading: false, isSaving: false };
   }
 
   render() {
-    const {
-      addIntegrationMutation,
-      addFormMutation,
-      addFieldsMutation,
-      history
-    } = this.props;
+    const { addIntegrationMutation, addLeadMutation, history } = this.props;
+    let leadId;
+
+    const onLeadChange = doc => {
+      this.setState({ isSaving: false });
+
+      if (this.state.doc) {
+        const { lead, leadData, brandId, name, languageCode } = this.state.doc;
+
+        addLeadMutation({
+          variables: {
+            formId: doc.formId,
+            callout: lead.callout,
+            rules: lead.rules,
+            themeColor: lead.themeColor
+          }
+        })
+          .then(({ data }) => {
+            leadId = data.leadsAdd._id;
+
+            return addIntegrationMutation({
+              variables: { leadData, brandId, name, languageCode, leadId }
+            });
+          })
+
+          .then(() => {
+            Alert.success('You successfully added a lead');
+            history.push('/leads');
+
+            this.setState({ isLoading: false });
+          })
+
+          .catch(error => {
+            Alert.error(error.message);
+
+            this.setState({ isLoading: false });
+          });
+      }
+    };
 
     const save = doc => {
-      let leadId;
-
-      const { form, brandId, name, languageCode, leadData, fields } = doc;
-
       this.setState({ isLoading: true });
-
-      addFormMutation({
-        variables: form
-      })
-        .then(({ data }) => {
-          // tslint:disable-next-line:no-console
-          console.log(data);
-          leadId = data.formsAdd._id;
-
-          return addIntegrationMutation({
-            variables: { leadData, brandId, name, languageCode, leadId }
-          });
-        })
-
-        .then(() => {
-          const promises: any[] = [];
-
-          for (const field of fields) {
-            promises.push(
-              addFieldsMutation({
-                variables: {
-                  contentType: 'form',
-                  contentTypeId: leadId,
-                  ...field
-                }
-              })
-            );
-          }
-
-          return Promise.all(promises);
-        })
-
-        .then(() => {
-          Alert.success('You successfully added a lead');
-          history.push('/leads');
-
-          this.setState({ isLoading: false });
-        })
-
-        .catch(error => {
-          Alert.error(error.message);
-
-          this.setState({ isLoading: false });
-        });
+      this.setState({ isSaving: true });
+      this.setState({ doc });
     };
 
     const updatedProps = {
       ...this.props,
       fields: [],
       save,
-      isActionLoading: this.state.isLoading
+      onChange: onLeadChange,
+      isActionLoading: this.state.isLoading,
+      isSaving: this.state.isSaving
     };
 
     return <Form {...updatedProps} />;
@@ -108,19 +108,16 @@ export default withProps<{}>(
       {},
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
-    >(gql(mutations.integrationsCreateLeadintegration), {
+    >(gql(mutations.integrationsCreateLeadIntegration), {
       name: 'addIntegrationMutation',
       options: {
-        refetchQueries: ['formIntegrations', 'formIntegrationCounts']
+        refetchQueries: ['leadIntegrations', 'leadIntegrationCounts']
       }
     }),
-    graphql<{}, AddFormMutationResponse, AddFormMutationVariables>(
-      gql(mutations.addForm)
-    ),
-    graphql<{}, AddFieldsMutationResponse, AddFieldsMutationVariables>(
-      gql(mutations.fieldsAdd),
+    graphql<{}, AddLeadMutationResponse, AddLeadMutationVariables>(
+      gql(mutations.addLead),
       {
-        name: 'addFieldsMutation'
+        name: 'addLeadMutation'
       }
     )
   )(withRouter<Props>(CreateLeadContainer))

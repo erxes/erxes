@@ -41,8 +41,12 @@ class Row extends React.Component<Props, {}> {
   };
 
   manageAction(integration) {
+    const { formId } = integration.lead;
+
     return (
-      <Link to={`/leads/edit/${integration._id}/${integration.formId}`}>
+      <Link
+        to={`/leads/edit/${integration._id}/${formId}/${integration.leadId}`}
+      >
         <Button btnStyle="link">
           <Tip text={__('Manage')}>
             <Icon icon="edit" />

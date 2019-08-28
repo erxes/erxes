@@ -1,10 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import {
-  AddIntegrationMutationResponse,
-  AddIntegrationMutationVariables
-} from 'modules/settings/integrations/types';
-import {
   AddFieldsMutationResponse,
   AddFieldsMutationVariables
 } from 'modules/settings/properties/types';
@@ -22,50 +18,35 @@ import {
 
 type Props = {
   previewContent: (props: IFormPreviewContent) => void;
+  onChange: (doc: any) => void;
+  isSaving: boolean;
 };
 
 type FinalProps = {} & Props &
   IRouterProps &
-  AddIntegrationMutationResponse &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
 
-class FormContainer extends React.Component<
-  FinalProps,
-  { isLoading: boolean }
-> {
-  constructor(props: FinalProps) {
-    super(props);
-
-    this.state = { isLoading: false };
-  }
-
+class CreateFormContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      addIntegrationMutation,
-      addFormMutation,
-      addFieldsMutation,
-      history
-    } = this.props;
+    const { addFormMutation, addFieldsMutation, onChange } = this.props;
 
-    const save = doc => {
-      let leadId;
-
-      const { form, brandId, name, languageCode, leadData, fields } = doc;
-
-      this.setState({ isLoading: true });
+    const saveForm = doc => {
+      let formId;
+      const { title, description, buttonText, fields, type } = doc;
 
       addFormMutation({
-        variables: form
+        variables: {
+          title,
+          description,
+          buttonText,
+          type
+        }
       })
         .then(({ data }) => {
-          // tslint:disable-next-line:no-console
-          console.log(data);
-          leadId = data.formsAdd._id;
+          formId = data.formsAdd._id;
 
-          return addIntegrationMutation({
-            variables: { leadData, brandId, name, languageCode, leadId }
-          });
+          onChange({ ...doc, formId });
         })
 
         .then(() => {
@@ -76,7 +57,7 @@ class FormContainer extends React.Component<
               addFieldsMutation({
                 variables: {
                   contentType: 'form',
-                  contentTypeId: leadId,
+                  contentTypeId: formId,
                   ...field
                 }
               })
@@ -86,23 +67,15 @@ class FormContainer extends React.Component<
           return Promise.all(promises);
         })
 
-        .then(() => {
-          Alert.success('You successfully added a lead');
-          history.push('/leads');
-
-          this.setState({ isLoading: false });
-        })
-
         .catch(error => {
           Alert.error(error.message);
-
-          this.setState({ isLoading: false });
         });
     };
 
     const updatedProps = {
       ...this.props,
-      fields: []
+      fields: [],
+      saveForm
     };
 
     return <Form {...updatedProps} />;
@@ -111,16 +84,6 @@ class FormContainer extends React.Component<
 
 export default withProps<Props>(
   compose(
-    graphql<
-      Props,
-      AddIntegrationMutationResponse,
-      AddIntegrationMutationVariables
-    >(gql(mutations.integrationsCreateLeadintegration), {
-      name: 'addIntegrationMutation',
-      options: {
-        refetchQueries: ['formIntegrations', 'formIntegrationCounts']
-      }
-    }),
     graphql<Props, AddFormMutationResponse, AddFormMutationVariables>(
       gql(mutations.addForm),
       {
@@ -133,5 +96,5 @@ export default withProps<Props>(
         name: 'addFieldsMutation'
       }
     )
-  )(withRouter<FinalProps>(FormContainer))
+  )(withRouter<FinalProps>(CreateFormContainer))
 );
