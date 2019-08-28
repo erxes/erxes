@@ -95,6 +95,7 @@ export interface IItem {
   order: number;
   stageId: string;
   closeDate: Date;
+  description: string;
   amount: number;
   modifiedAt: Date;
   assignedUsers: IUser[];
