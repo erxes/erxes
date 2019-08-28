@@ -67,7 +67,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
     const integration = integrationDetailQuery.integrationDetail || {};
 
-    const onLeadChange = () => {
+    const onLeadEdit = () => {
       this.setState({ isSaving: false });
 
       if (this.state.doc) {
@@ -121,7 +121,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
       ...this.props,
       integration,
       save,
-      onChange: onLeadChange,
+      onChange: onLeadEdit,
       isActionLoading: this.state.isLoading,
       isSaving: this.state.isLoading
     };
@@ -150,7 +150,11 @@ export default withProps<Props>(
     >(gql(mutations.integrationsEditLeadIntegration), {
       name: 'editIntegrationMutation',
       options: {
-        refetchQueries: ['leadIntegrations', 'leadIntegrationCounts']
+        refetchQueries: [
+          'leadIntegrations',
+          'leadIntegrationCounts',
+          'formDetail'
+        ]
       }
     }),
     graphql<Props, EditLeadMutationResponse, EditLeadMutationVariables>(
