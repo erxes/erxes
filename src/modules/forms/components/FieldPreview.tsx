@@ -6,12 +6,13 @@ import { FieldItem } from '../styles';
 
 type Props = {
   field: IField;
+  type?: string;
   onFieldEdit?: (field: IField, props) => void;
 };
 
 class FieldPreview extends React.Component<Props, {}> {
   render() {
-    const { field, onFieldEdit } = this.props;
+    const { field, onFieldEdit, type } = this.props;
 
     const trigger = (
       <FieldItem selectType={field.type === 'select'} noPadding={true}>
@@ -21,6 +22,10 @@ class FieldPreview extends React.Component<Props, {}> {
 
     const content = props =>
       onFieldEdit ? onFieldEdit(field, props) : <div />;
+
+    if (type) {
+      return trigger;
+    }
 
     return (
       <ModalTrigger

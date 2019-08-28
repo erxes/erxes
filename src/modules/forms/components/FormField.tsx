@@ -252,7 +252,7 @@ class FormField extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={editingField} />
+            <FieldPreview field={editingField} type="onEdit" />
             <ShowPreview>
               <Icon icon="eye" /> Field preview
             </ShowPreview>
