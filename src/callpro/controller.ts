@@ -1,7 +1,7 @@
 import { debugCallPro, debugRequest } from '../debuggers';
 import { Integrations } from '../models';
 import { fetchMainApi } from '../utils';
-import { ConversationMessages, Conversations, Customers } from './model';
+import { ConversationMessages, Conversations, Customers } from './models';
 
 const init = async app => {
   app.post('/callpro/create-integration', async (req, res, next) => {
@@ -58,7 +58,7 @@ const init = async app => {
           path: '/integrations-api',
           method: 'POST',
           body: {
-            action: 'create-customer',
+            action: 'create-or-update-customer',
             payload: JSON.stringify({
               integrationId: integration.erxesApiId,
               primaryPhone: numberFrom,

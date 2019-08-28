@@ -22,7 +22,7 @@ const createOrGetCustomer = async (email: string, integrationId: string) => {
         path: '/integrations-api',
         method: 'POST',
         body: {
-          action: 'create-customer',
+          action: 'create-or-update-customer',
           payload: JSON.stringify({
             emails: [email],
             firstName: '',
