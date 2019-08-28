@@ -159,11 +159,11 @@ class EditForm extends React.Component<Props, State> {
     }
 
     if (companies.length > 0) {
-      doc.companyIds = (companies || []).map(company => company._id);
+      doc.companyIds = companies.map(company => company._id);
     }
 
     if (customers.length > 0) {
-      doc.customerIds = (customers || []).map(customer => customer._id);
+      doc.customerIds = customers.map(customer => customer._id);
     }
 
     saveItem(doc, result => {
