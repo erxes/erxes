@@ -79,7 +79,7 @@ export const ItemContainer = styledTS<{
 }>(styled.div)`
   margin-bottom: 8px;
   background-color: ${props =>
-    props.hasSeen ? `rgb(255, 255, 255)` : colors.bgActive};
+    props.hasSeen === false ? colors.bgActive : `rgb(255, 255, 255)`};
   box-shadow: ${props =>
     props.isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'

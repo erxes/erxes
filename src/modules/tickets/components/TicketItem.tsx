@@ -48,6 +48,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
       <ItemContainer
         isDragging={isDragging}
         innerRef={provided.innerRef}
+        hasSeen={item.hasSeen === false ? false : true}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >

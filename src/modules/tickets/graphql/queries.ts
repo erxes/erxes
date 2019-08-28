@@ -28,6 +28,7 @@ const ticketFields = `
   _id
   name
   stageId
+  hasSeen
   pipeline {
     _id
     name

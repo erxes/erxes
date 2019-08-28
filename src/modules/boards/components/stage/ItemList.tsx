@@ -1,5 +1,8 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
 import routerUtils from 'modules/common/utils/router';
+import { mutations as notificationMutations } from 'modules/notifications/graphql';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import history from '../../../../browserHistory';
@@ -39,6 +42,15 @@ class DraggableContainer extends React.Component<
 
     this.setState({ isDragDisabled: true }, () => {
       routerUtils.setParams(history, { itemId: item._id });
+    });
+
+    setImmediate(() => {
+      client.mutate({
+        mutation: gql(notificationMutations.markAsRead),
+        variables: {
+          contentTypeId: item._id
+        }
+      });
     });
   };
 

@@ -52,7 +52,7 @@ class DealItem extends React.PureComponent<Props, {}> {
       <ItemContainer
         isDragging={isDragging}
         innerRef={provided.innerRef}
-        hasSeen={item.hasSeen || true}
+        hasSeen={item.hasSeen === false ? false : true}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >
