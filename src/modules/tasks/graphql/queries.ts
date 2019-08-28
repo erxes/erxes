@@ -26,7 +26,7 @@ const taskFields = `
   _id
   name
   stageId
-  hasSeen
+  hasNotified
   pipeline {
     _id
     name

@@ -17,7 +17,7 @@ type Props = {
   onClick: () => void;
   beforePopupClose: () => void;
   options?: IOptions;
-  hasSeen: boolean;
+  hasNotified: boolean;
 };
 class TicketItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
@@ -42,14 +42,14 @@ class TicketItem extends React.PureComponent<Props, {}> {
   };
 
   render() {
-    const { item, isDragging, provided, onClick, hasSeen } = this.props;
+    const { item, isDragging, provided, onClick, hasNotified } = this.props;
     const { customers, companies } = item;
 
     return (
       <ItemContainer
         isDragging={isDragging}
         innerRef={provided.innerRef}
-        hasSeen={hasSeen}
+        hasNotified={hasNotified}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >

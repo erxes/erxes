@@ -17,7 +17,7 @@ type Props = {
   onClick: () => void;
   beforePopupClose: () => void;
   options?: IOptions;
-  hasSeen: boolean;
+  hasNotified: boolean;
 };
 
 class TaskItem extends React.PureComponent<Props, {}> {
@@ -43,14 +43,14 @@ class TaskItem extends React.PureComponent<Props, {}> {
   };
 
   render() {
-    const { onClick, item, isDragging, provided, hasSeen } = this.props;
+    const { onClick, item, isDragging, provided, hasNotified } = this.props;
     const { customers, companies } = item;
 
     return (
       <ItemContainer
         isDragging={isDragging}
         innerRef={provided.innerRef}
-        hasSeen={hasSeen}
+        hasNotified={hasNotified}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
       >

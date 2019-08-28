@@ -75,11 +75,11 @@ export const ItemDate = styled.span`
 
 export const ItemContainer = styledTS<{
   isDragging?: boolean;
-  hasSeen?: boolean;
+  hasNotified?: boolean;
 }>(styled.div)`
   margin-bottom: 8px;
   background-color: ${props =>
-    props.hasSeen === false ? colors.bgActive : `rgb(255, 255, 255)`};
+    props.hasNotified === false ? colors.bgActive : `rgb(255, 255, 255)`};
   box-shadow: ${props =>
     props.isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'

@@ -29,14 +29,14 @@ type DraggableContainerProps = {
 
 class DraggableContainer extends React.Component<
   DraggableContainerProps,
-  { isDragDisabled: boolean; hasSeen: boolean }
+  { isDragDisabled: boolean; hasNotified: boolean }
 > {
   constructor(props: DraggableContainerProps) {
     super(props);
 
     this.state = {
       isDragDisabled: false,
-      hasSeen: props.item.hasSeen === false ? false : true
+      hasNotified: props.item.hasNotified === false ? false : true
     };
   }
 
@@ -47,18 +47,18 @@ class DraggableContainer extends React.Component<
       routerUtils.setParams(history, { itemId: item._id });
     });
 
-    setImmediate(() => {
+    if (!this.state.hasNotified) {
       client.mutate({
         mutation: gql(notificationMutations.markAsRead),
         variables: {
           contentTypeId: item._id
         }
       });
-    });
+    }
   };
 
   beforePopupClose = () => {
-    this.setState({ isDragDisabled: false, hasSeen: true });
+    this.setState({ isDragDisabled: false, hasNotified: true });
   };
 
   render() {
@@ -77,7 +77,7 @@ class DraggableContainer extends React.Component<
           <ItemComponent
             key={item._id}
             stageId={stageId}
-            hasSeen={this.state.hasSeen}
+            hasNotified={this.state.hasNotified}
             item={item}
             isDragging={dragSnapshot.isDragging}
             onClick={this.onItemClick}
