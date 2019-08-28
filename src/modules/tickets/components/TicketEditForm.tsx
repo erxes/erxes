@@ -128,8 +128,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
       description,
       closeDate,
       assignedUserIds,
-      customers,
-      companies,
       attachments
     } = state;
 
@@ -159,8 +157,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
           <Sidebar
             options={options}
-            customers={customers}
-            companies={companies}
             assignedUserIds={assignedUserIds}
             item={item}
             sidebar={this.renderSidebarFields}

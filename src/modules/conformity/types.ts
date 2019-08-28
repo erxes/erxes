@@ -5,6 +5,20 @@ export interface IConformityDoc {
   relTypeId?: string;
 }
 
+export interface ISavedConformity {
+  mainType?: string;
+  mainTypeId?: string;
+  relType?: string;
+  isSaved?: boolean;
+  isRelated?: boolean;
+}
+
+export type ConformityQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
 export interface IConformityCreate {
   mainType?: string;
   mainTypeId?: string;

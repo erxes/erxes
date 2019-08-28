@@ -432,12 +432,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
         >
-          <CompanySection
-            name={'Customer'}
-            companies={customer.companies}
-            mainType={'customer'}
-            mainTypeId={customer._id}
-          />
+          <CompanySection mainType={'customer'} mainTypeId={customer._id} />
         </Box>
 
         <Box

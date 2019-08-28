@@ -8,8 +8,11 @@ import React from 'react';
 import { ItemChooser } from '../../containers/portable/';
 import { IItem, IOptions } from '../../types';
 
-type Props = {
+type IData = {
   options: IOptions;
+};
+type Props = {
+  data: IData;
   items: IItem[];
   mainType?: string;
   mainTypeId?: string;
@@ -19,17 +22,17 @@ type Props = {
 
 class Items extends React.Component<Props> {
   renderItems = () => {
-    const { onChangeItems, items, options } = this.props;
+    const { onChangeItems, items, data } = this.props;
 
     if (items.length === 0) {
-      return <EmptyState icon="folder" text={`No ${options.type}`} />;
+      return <EmptyState icon="folder" text={`No ${data.options.type}`} />;
     }
 
-    const PortableItem = options.PortableItem;
+    const PortableItem = data.options.PortableItem;
 
     return items.map((item, index) => (
       <PortableItem
-        options={options}
+        options={data.options}
         key={index}
         item={item}
         onAdd={onChangeItems}
@@ -47,7 +50,7 @@ class Items extends React.Component<Props> {
       mainType,
       mainTypeId,
       isOpen,
-      options,
+      data,
       onChangeItems,
       items
     } = this.props;
@@ -60,14 +63,14 @@ class Items extends React.Component<Props> {
 
     const relTrigger = (
       <ButtonRelated>
-        <button>{__('See related ' + options.title + '..')}</button>
+        <button>{__('See related ' + data.options.title + '..')}</button>
       </ButtonRelated>
     );
 
     const content = props => (
       <ItemChooser
         {...props}
-        data={{ options, mainType, mainTypeId, items }}
+        data={{ options: data.options, mainType, mainTypeId, items }}
         callback={onChangeItems}
         showSelect={true}
       />
@@ -76,7 +79,13 @@ class Items extends React.Component<Props> {
     const relContent = props => (
       <ItemChooser
         {...props}
-        data={{ options, mainType, mainTypeId, items, isRelated: true }}
+        data={{
+          options: data.options,
+          mainType,
+          mainTypeId,
+          items,
+          isRelated: true
+        }}
         callback={onChangeItems}
         showSelect={true}
       />
@@ -84,7 +93,7 @@ class Items extends React.Component<Props> {
 
     const quickButtons = (
       <ModalTrigger
-        title={options.texts.addText}
+        title={data.options.texts.addText}
         trigger={trigger}
         content={content}
         size="lg"
@@ -102,7 +111,7 @@ class Items extends React.Component<Props> {
 
     return (
       <Section>
-        <Title>{__(options.title)}</Title>
+        <Title>{__(data.options.title)}</Title>
 
         <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
 

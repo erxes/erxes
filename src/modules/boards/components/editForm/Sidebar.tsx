@@ -2,9 +2,7 @@ import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import CompanySection from 'modules/companies/components/common/CompanySection';
-import { ICompany } from 'modules/companies/types';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
-import { ICustomer } from 'modules/customers/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
@@ -16,8 +14,6 @@ import { IItem, IOptions } from '../../types';
 
 type Props = {
   item: IItem;
-  customers: ICustomer[];
-  companies: ICompany[];
   assignedUserIds: string[];
   onChangeField?: (name: 'assignedUserIds', value: any) => void;
   copyItem: () => void;
@@ -61,8 +57,6 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     const {
-      customers,
-      companies,
       item,
       copyItem,
       removeItem,
@@ -88,19 +82,9 @@ class Sidebar extends React.Component<Props> {
         </FormGroup>
         {sidebar && sidebar()}
 
-        <CompanySection
-          name={options.title}
-          companies={companies}
-          mainType={options.type}
-          mainTypeId={item._id}
-        />
+        <CompanySection mainType={options.type} mainTypeId={item._id} />
 
-        <CustomerSection
-          name={options.title}
-          customers={customers}
-          mainType={options.type}
-          mainTypeId={item._id}
-        />
+        <CustomerSection mainType={options.type} mainTypeId={item._id} />
 
         {this.renderDeal({ type: options.type, id: item._id })}
         {this.renderTicket({ type: options.type, id: item._id })}

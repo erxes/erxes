@@ -35,12 +35,7 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <Sidebar>
-        <CustomerSection
-          name={'Company'}
-          customers={company.customers}
-          mainType={'company'}
-          mainTypeId={company._id}
-        />
+        <CustomerSection mainType={'company'} mainTypeId={company._id} />
         <PortableDeals mainType="company" mainTypeId={company._id} />
         <PortableTickets mainType="company" mainTypeId={company._id} />
         <PortableTasks mainType="company" mainTypeId={company._id} />
