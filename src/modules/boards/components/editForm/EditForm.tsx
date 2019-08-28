@@ -148,22 +148,15 @@ class EditForm extends React.Component<Props, State> {
     const { companies, customers, updatedItem, prevStageId } = this.state;
     const { saveItem } = this.props;
 
-    const doc: { customerIds?: string[]; companyIds?: string[] } = {};
+    const doc = {
+      companyIds: companies.map(company => company._id),
+      customerIds: customers.map(customer => customer._id)
+    };
 
-    if (companies.length === 0 || customers.length === 0) {
-      if (updatedItem && prevStageId) {
-        this.props.onUpdate(updatedItem, prevStageId);
-      }
+    if (updatedItem && prevStageId) {
+      this.props.onUpdate(updatedItem, prevStageId);
 
       return this.closeModal();
-    }
-
-    if (companies.length > 0) {
-      doc.companyIds = (companies || []).map(company => company._id);
-    }
-
-    if (customers.length > 0) {
-      doc.customerIds = (customers || []).map(customer => customer._id);
     }
 
     saveItem(doc, result => {
