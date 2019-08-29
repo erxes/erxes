@@ -108,6 +108,7 @@ export interface IItem {
   stage?: IStage;
   isWatched?: boolean;
   priority?: string;
+  hasNotified?: boolean;
 }
 
 export interface IDraggableLocation {

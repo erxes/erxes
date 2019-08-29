@@ -1,9 +1,17 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
 import routerUtils from 'modules/common/utils/router';
+import { mutations as notificationMutations } from 'modules/notifications/graphql';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import history from '../../../../browserHistory';
-import { DropZone, EmptyContainer, Wrapper } from '../../styles/common';
+import {
+  DropZone,
+  EmptyContainer,
+  ItemContainer,
+  Wrapper
+} from '../../styles/common';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
@@ -26,12 +34,15 @@ type DraggableContainerProps = {
 
 class DraggableContainer extends React.Component<
   DraggableContainerProps,
-  { isDragDisabled: boolean }
+  { isDragDisabled: boolean; hasNotified: boolean }
 > {
   constructor(props: DraggableContainerProps) {
     super(props);
 
-    this.state = { isDragDisabled: false };
+    this.state = {
+      isDragDisabled: false,
+      hasNotified: props.item.hasNotified === false ? false : true
+    };
   }
 
   onItemClick = () => {
@@ -40,10 +51,19 @@ class DraggableContainer extends React.Component<
     this.setState({ isDragDisabled: true }, () => {
       routerUtils.setParams(history, { itemId: item._id });
     });
+
+    if (!this.state.hasNotified) {
+      client.mutate({
+        mutation: gql(notificationMutations.markAsRead),
+        variables: {
+          contentTypeId: item._id
+        }
+      });
+    }
   };
 
   beforePopupClose = () => {
-    this.setState({ isDragDisabled: false });
+    this.setState({ isDragDisabled: false, hasNotified: true });
   };
 
   render() {
@@ -59,16 +79,22 @@ class DraggableContainer extends React.Component<
         isDragDisabled={isDragDisabled}
       >
         {(dragProvided, dragSnapshot) => (
-          <ItemComponent
-            key={item._id}
-            stageId={stageId}
-            item={item}
+          <ItemContainer
             isDragging={dragSnapshot.isDragging}
-            onClick={this.onItemClick}
-            beforePopupClose={this.beforePopupClose}
-            provided={dragProvided}
-            options={options}
-          />
+            innerRef={dragProvided.innerRef}
+            hasNotified={this.state.hasNotified}
+            {...dragProvided.draggableProps}
+            {...dragProvided.dragHandleProps}
+          >
+            <ItemComponent
+              key={item._id}
+              stageId={stageId}
+              item={item}
+              onClick={this.onItemClick}
+              beforePopupClose={this.beforePopupClose}
+              options={options}
+            />
+          </ItemContainer>
         )}
       </Draggable>
     );
