@@ -31,6 +31,7 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean }>(
 
 const SortableWrapper = styled.div`
   width: 100%;
+  flex: 1;
 
   label {
     margin: 0;

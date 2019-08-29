@@ -26,6 +26,7 @@ type WrapperProps = {
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
   isPopupVisible?: boolean;
+  hideHeader?: boolean;
 };
 
 type ContainerProps = {

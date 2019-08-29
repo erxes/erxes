@@ -49,6 +49,7 @@ const FieldItem = styledTS<{ selectType?: boolean; noPadding?: boolean }>(
   styled.div
 )`
   padding: ${props => !props.noPadding && `0 ${dimensions.unitSpacing}px`};
+  flex: 1;
 
   input,
   textarea,

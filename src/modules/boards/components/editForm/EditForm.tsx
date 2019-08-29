@@ -1,11 +1,13 @@
 import { IUser } from 'modules/auth/types';
 import { FormFooter } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import routerUtils from 'modules/common/utils/router';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
+import { CloseModal } from 'modules/growthHacks/styles';
 import queryString from 'query-string';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -31,6 +33,7 @@ type Props = {
   onUpdate: (item, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
+  hideHeader?: boolean;
 };
 
 type State = {
@@ -212,6 +215,22 @@ class EditForm extends React.Component<Props, State> {
     this.closeModal();
   };
 
+  renderHeader = () => {
+    if (this.props.hideHeader) {
+      return (
+        <CloseModal onClick={this.onHideModal}>
+          <Icon icon="times" />
+        </CloseModal>
+      );
+    }
+
+    return (
+      <Modal.Header closeButton={true}>
+        <Modal.Title>{__('Edit')}</Modal.Title>
+      </Modal.Header>
+    );
+  };
+
   render() {
     const { isFormVisible } = this.state;
 
@@ -221,14 +240,13 @@ class EditForm extends React.Component<Props, State> {
 
     return (
       <Modal
+        dialogClassName="modal-1000w"
         enforceFocus={false}
         bsSize="lg"
         show={true}
         onHide={this.onHideModal}
       >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit')}</Modal.Title>
-        </Modal.Header>
+        {this.renderHeader()}
         <Modal.Body>
           {this.props.formContent({
             state: this.state,

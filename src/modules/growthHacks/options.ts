@@ -1,7 +1,7 @@
 import { toArray } from 'modules/boards/utils';
 import GrowthHackEditForm from 'modules/growthHacks/components/GrowthHackEditForm';
 import PortableGrowthHack from 'modules/growthHacks/components/PortableGrowthHack';
-import GrowthHackItem from './containers/GrowthHackItem';
+import GrowthHackItem from './components/GrowthHackItem';
 import { mutations, queries } from './graphql';
 
 const options = {

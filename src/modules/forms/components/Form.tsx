@@ -2,6 +2,7 @@ import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { FlexContent } from 'modules/layout/styles';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
@@ -125,7 +126,7 @@ class Form extends React.Component<Props, State> {
     }
 
     return (
-      <>
+      <FlexContent>
         <LeftItem>
           <FormGroup>
             <ControlLabel required={true}>{__('Form title')}</ControlLabel>
@@ -184,7 +185,7 @@ class Form extends React.Component<Props, State> {
           fields,
           onFieldEdit: this.onFieldEdit
         })}
-      </>
+      </FlexContent>
     );
   }
 }

@@ -103,7 +103,6 @@ const BodyContent = styled.div`
 
   input,
   textarea {
-    border-radius: ${dimensions.unitSpacing}px !important;
     margin-top: 5px !important;
   }
 
@@ -129,6 +128,7 @@ const BodyContent = styled.div`
 
       > div {
         width: 100%;
+        flex: 1;
       }
 
       ${DragHandler} {

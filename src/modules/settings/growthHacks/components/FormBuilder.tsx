@@ -13,16 +13,17 @@ type Props = {
 };
 
 class FormBuilder extends React.Component<Props, {}> {
+  renderFormPreview = (props: IFormPreviewContent) => {
+    return <FormFieldPreview {...props} />;
+  };
+
   renderContent = () => {
     const { formId } = this.props;
 
-    const previewContent = (props: IFormPreviewContent) => {
-      return <FormFieldPreview {...props} />;
-    };
-
     const doc = {
-      previewContent,
+      renderPreview: this.renderFormPreview,
       onChange: () => null,
+      onDocChange: () => null,
       isSaving: false
     };
 
