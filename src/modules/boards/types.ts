@@ -67,7 +67,8 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
-  hackScoringType: string;
+  hackScoringType?: string;
+  templateId?: string;
 }
 
 interface IStageComparisonInfo {

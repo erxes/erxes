@@ -53,13 +53,13 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
-      hackScoringType: pipeline ? pipeline.hackScoringType : 'ice',
+      hackScoringType: (pipeline && pipeline.hackScoringType) || 'ice',
       templates: [],
-      templateId: ''
+      templateId: pipeline ? pipeline.templateId : ''
     };
   }
 
-  componentDidMount() {
+  getTemplates() {
     client
       .query({
         query: gql(queries.pipelineTemplates),
@@ -73,6 +73,10 @@ class PipelineForm extends React.Component<Props, State> {
       .catch(error => {
         console.log(error.message); // tslint:disable-line
       });
+  }
+
+  componentDidMount() {
+    this.getTemplates();
   }
 
   onChangeStages = stages => {

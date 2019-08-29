@@ -56,9 +56,7 @@ class BoardsContainer extends React.Component<FinalProps> {
             Alert.success('You successfully deleted a board');
           })
           .catch(error => {
-            Alert.error(
-              `Please remove all pipelines in this board before delete the board`
-            );
+            Alert.error(error.message);
           });
       });
     };
