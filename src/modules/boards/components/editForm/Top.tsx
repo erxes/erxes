@@ -18,15 +18,12 @@ type Props = {
   item: IItem;
   options: IOptions;
   name: string;
-  description: string;
   closeDate: Date;
   stageId: string;
   users: IUser[];
-  onChangeField: (
-    name: 'stageId' | 'name' | 'closeDate' | 'description',
-    value: any
-  ) => void;
+  onChangeField: (name: 'stageId' | 'name' | 'closeDate', value: any) => void;
   amount?: () => React.ReactNode;
+  onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
 
 class Top extends React.Component<Props> {
@@ -48,12 +45,16 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { name, closeDate, onChangeField, amount } = this.props;
+    const { name, closeDate, onChangeField, amount, onBlurFields } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
 
     const dateOnChange = date => onChangeField('closeDate', date);
+
+    const onNameBlur = e => {
+      onBlurFields('name', e.target.value);
+    };
 
     return (
       <React.Fragment>
@@ -65,6 +66,7 @@ class Top extends React.Component<Props> {
                 defaultValue={name}
                 required={true}
                 onChange={nameOnChange}
+                onBlur={onNameBlur}
               />
             </TitleRow>
           </HeaderContent>

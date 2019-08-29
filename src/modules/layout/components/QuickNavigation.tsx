@@ -6,7 +6,6 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
-import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import { IBrand } from 'modules/settings/brands/types';
@@ -14,10 +13,10 @@ import NotificationSettings from 'modules/settings/profile/containers/Notificati
 import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import Select from 'react-select-plus';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { UserHelper } from '../styles';
+import BrandChooser from './BrandChooser';
 
 const Signature = asyncComponent(() =>
   import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
@@ -80,8 +79,8 @@ const QuickNavigation = ({
   currentUser: IUser;
   showBrands: boolean;
   brands: IBrand[];
-  selectedBrands: IOption[];
-  onChangeBrands: (options: IOption[]) => void;
+  selectedBrands: string[];
+  onChangeBrands: (value: string) => void;
 }) => {
   const passContent = props => <ChangePassword {...props} />;
   const signatureContent = props => <Signature {...props} />;
@@ -99,7 +98,7 @@ const QuickNavigation = ({
 
   const brandOptions = brands.map(brand => ({
     value: brand._id,
-    label: brand.name
+    label: brand.name || ''
   }));
 
   let brandsCombo;
@@ -107,13 +106,10 @@ const QuickNavigation = ({
   if (showBrands && brands.length > 1) {
     brandsCombo = (
       <NavItem>
-        <Select
-          style={{ maxWidth: '400px', minWidth: '150px' }}
-          placeholder={__('Choose brands')}
-          value={selectedBrands}
-          options={brandOptions}
+        <BrandChooser
+          selectedItems={selectedBrands}
+          items={brandOptions}
           onChange={onChangeBrands}
-          multi={true}
         />
       </NavItem>
     );
@@ -132,7 +128,7 @@ const QuickNavigation = ({
       </Tip>
 
       <NavItem>
-        <Widget currentUser={currentUser} />
+        <Widget />
       </NavItem>
       <NavItem>
         <Link to="/settings">

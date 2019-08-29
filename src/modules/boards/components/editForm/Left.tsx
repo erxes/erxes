@@ -19,6 +19,7 @@ type Props = {
   description: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
   attachments: IAttachment[];
+  onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
 
 class Left extends React.Component<Props> {
@@ -34,6 +35,9 @@ class Left extends React.Component<Props> {
 
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);
+
+    const descriptionOnBlur = e =>
+      this.props.onBlurFields('description', e.target.value);
 
     return (
       <LeftContainer>
@@ -63,6 +67,7 @@ class Left extends React.Component<Props> {
             componentClass="textarea"
             defaultValue={description}
             onChange={descriptionOnChange}
+            onBlur={descriptionOnBlur}
           />
         </FormGroup>
 
