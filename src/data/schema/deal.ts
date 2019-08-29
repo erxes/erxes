@@ -1,6 +1,7 @@
 const commonTypes = `
   order: Int
   createdAt: Date
+  hasNotified: Boolean
 `;
 
 export const types = `

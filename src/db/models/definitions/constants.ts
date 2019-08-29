@@ -336,3 +336,14 @@ export const NOTIFICATION_TYPES = {
     'companyMention',
   ],
 };
+
+export const NOTIFICATION_CONTENT_TYPES = {
+  TASK: 'task',
+  DEAL: 'deal',
+  COMPANY: 'company',
+  CUSTOMER: 'customer',
+  TICKET: 'ticket',
+  CHANNEL: 'channel',
+  CONVERSATION: 'conversation',
+  ALL: ['task', 'deal', 'company', 'customer', 'ticket', 'channel', 'conversation'],
+};

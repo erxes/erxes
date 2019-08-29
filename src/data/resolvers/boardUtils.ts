@@ -27,6 +27,17 @@ export const notifiedUserIds = async (item: any) => {
   return userIds;
 };
 
+export interface IBoardNotificationParams {
+  item: IDealDocument;
+  user: IUserDocument;
+  type: string;
+  action?: string;
+  content?: string;
+  contentType: string;
+  invitedUsers?: string[];
+  removedUsers?: string[];
+}
+
 /**
  * Send notification to all members of this content except the sender
  */
@@ -39,16 +50,7 @@ export const sendNotifications = async ({
   contentType,
   invitedUsers,
   removedUsers,
-}: {
-  item: IDealDocument;
-  user: IUserDocument;
-  type: string;
-  action?: string;
-  content?: string;
-  contentType: string;
-  invitedUsers?: string[];
-  removedUsers?: string[];
-}) => {
+}: IBoardNotificationParams) => {
   const stage = await Stages.findOne({ _id: item.stageId });
 
   if (!stage) {
@@ -73,36 +75,14 @@ export const sendNotifications = async ({
     route = '/inbox';
   }
 
-  if (removedUsers && removedUsers.length > 0) {
-    await utils.sendNotification({
-      createdUser: user,
-      notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
-      title,
-      action: `removed you from ${contentType}`,
-      content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
-      receivers: removedUsers,
-    });
-  }
-
-  if (invitedUsers && invitedUsers.length > 0) {
-    await utils.sendNotification({
-      createdUser: user,
-      notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
-      title,
-      action: `invited you to the ${contentType}: `,
-      content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
-      receivers: invitedUsers,
-    });
-  }
-
   const usersToExclude = [...(removedUsers || []), ...(invitedUsers || []), user._id];
 
-  await utils.sendNotification({
+  const notificationDoc = {
     createdUser: user,
-    notifType: type,
     title,
+    contentType,
+    contentTypeId: item._id,
+    notifType: type,
     action: action ? action : `has updated ${contentType}`,
     content,
     link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
@@ -111,6 +91,32 @@ export const sendNotifications = async ({
     receivers: (await notifiedUserIds(item)).filter(id => {
       return usersToExclude.indexOf(id) < 0;
     }),
+  };
+
+  if (removedUsers && removedUsers.length > 0) {
+    await utils.sendNotification({
+      ...notificationDoc,
+      notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
+      action: `removed you from ${contentType}`,
+      content: `'${item.name}'`,
+      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
+      receivers: removedUsers.filter(id => id !== user._id),
+    });
+  }
+
+  if (invitedUsers && invitedUsers.length > 0) {
+    await utils.sendNotification({
+      ...notificationDoc,
+      notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
+      action: `invited you to the ${contentType}: `,
+      content: `'${item.name}'`,
+      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
+      receivers: invitedUsers.filter(id => id !== user._id),
+    });
+  }
+
+  await utils.sendNotification({
+    ...notificationDoc,
   });
 };
 

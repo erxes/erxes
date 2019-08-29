@@ -5,7 +5,7 @@ import { IDeal } from '../../../db/models/definitions/deals';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
-import { itemsChange, sendNotifications } from '../boardUtils';
+import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 import { checkUserIds } from './notifications';
 
 interface IDealsEdit extends IDeal {
@@ -62,18 +62,23 @@ const dealMutations = {
       modifiedBy: user._id,
     });
 
-    const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds || [], doc.assignedUserIds || []);
-
-    await sendNotifications({
+    const notificationDoc: IBoardNotificationParams = {
       item: updatedDeal,
       user,
       type: NOTIFICATION_TYPES.DEAL_EDIT,
-      invitedUsers: addedUserIds,
-      removedUsers: removedUserIds,
       action: `has updated deal`,
       content: `${updatedDeal.name}`,
       contentType: 'deal',
-    });
+    };
+
+    if (doc.assignedUserIds) {
+      const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds || [], doc.assignedUserIds);
+
+      notificationDoc.invitedUsers = addedUserIds;
+      notificationDoc.removedUsers = removedUserIds;
+    }
+
+    await sendNotifications(notificationDoc);
 
     if (updatedDeal) {
       await putUpdateLog(

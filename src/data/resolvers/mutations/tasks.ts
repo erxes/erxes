@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITask } from '../../../db/models/definitions/tasks';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { itemsChange, sendNotifications } from '../boardUtils';
+import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 import { checkUserIds } from './notifications';
 
 interface ITasksEdit extends ITask {
@@ -49,16 +49,21 @@ const taskMutations = {
       modifiedBy: user._id,
     });
 
-    const { addedUserIds, removedUserIds } = checkUserIds(oldTask.assignedUserIds || [], doc.assignedUserIds || []);
-
-    await sendNotifications({
+    const notificationDoc: IBoardNotificationParams = {
       item: updatedTask,
       user,
       type: NOTIFICATION_TYPES.TASK_EDIT,
-      invitedUsers: addedUserIds,
-      removedUsers: removedUserIds,
       contentType: 'task',
-    });
+    };
+
+    if (doc.assignedUserIds) {
+      const { addedUserIds, removedUserIds } = checkUserIds(oldTask.assignedUserIds || [], doc.assignedUserIds);
+
+      notificationDoc.invitedUsers = addedUserIds;
+      notificationDoc.removedUsers = removedUserIds;
+    }
+
+    await sendNotifications(notificationDoc);
 
     return updatedTask;
   },

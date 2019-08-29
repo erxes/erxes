@@ -12,6 +12,7 @@ export interface INotificationModel extends Model<INotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
   createNotification(doc: INotification, createdUser?: IUserDocument | string): Promise<INotificationDocument>;
   updateNotification(_id: string, doc: INotification): Promise<INotificationDocument>;
+  checkIfRead(userId: string, contentTypeId: string): Promise<boolean>;
   removeNotification(_id: string): void;
 }
 
@@ -28,6 +29,15 @@ export const loadNotificationClass = () => {
       }
 
       return Notifications.updateMany(selector, { $set: { isRead: true } }, { multi: true });
+    }
+
+    /**
+     * Check if user has read notification
+     */
+    public static async checkIfRead(userId, contentTypeId) {
+      const notification = await Notifications.findOne({ isRead: false, receiver: userId, contentTypeId });
+
+      return notification ? false : true;
     }
 
     /**

@@ -379,13 +379,15 @@ export interface ISendNotification {
   notifType: string;
   link: string;
   action: string;
+  contentType: string;
+  contentTypeId: string;
 }
 
 /**
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
-  const { createdUser, receivers, title, content, notifType, action } = doc;
+  const { createdUser, receivers, title, content, notifType, action, contentType, contentTypeId } = doc;
   let link = doc.link;
 
   // collecting emails
@@ -405,7 +407,7 @@ export const sendNotification = async (doc: ISendNotification) => {
     try {
       // send web and mobile notification
       const notification = await Notifications.createNotification(
-        { link, title, content, notifType, receiver: receiverId, action },
+        { link, title, content, notifType, receiver: receiverId, action, contentType, contentTypeId },
         createdUser._id,
       );
 

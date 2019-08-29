@@ -1,6 +1,6 @@
 import { Channels } from '../../../db/models';
 import { IChannel, IChannelDocument } from '../../../db/models/definitions/channels';
-import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -27,6 +27,8 @@ export const sendChannelNotifications = async (
   }
 
   return utils.sendNotification({
+    contentType: NOTIFICATION_CONTENT_TYPES.CHANNEL,
+    contentTypeId: channel._id,
     createdUser: user,
     notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
     title: `Channel updated`,

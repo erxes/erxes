@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import utils from '../data/utils';
 import { Deals, Pipelines, Stages, Users } from '../db/models';
-import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
+import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../db/models/definitions/constants';
 
 /**
  * Send notification Deals dueDate
@@ -39,6 +39,8 @@ export const sendNotifications = async () => {
       link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
       createdUser: user,
       // exclude current user
+      contentType: NOTIFICATION_CONTENT_TYPES.DEAL,
+      contentTypeId: deal._id,
       receivers: deal.assignedUserIds || [],
     });
   }

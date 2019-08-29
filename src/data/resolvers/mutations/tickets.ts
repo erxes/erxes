@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { itemsChange, sendNotifications } from '../boardUtils';
+import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 import { checkUserIds } from './notifications';
 
 interface ITicketsEdit extends ITicket {
@@ -49,16 +49,21 @@ const ticketMutations = {
       modifiedBy: user._id,
     });
 
-    const { addedUserIds, removedUserIds } = checkUserIds(oldTicket.assignedUserIds || [], doc.assignedUserIds || []);
-
-    await sendNotifications({
+    const notificationDoc: IBoardNotificationParams = {
       item: updatedTicket,
       user,
       type: NOTIFICATION_TYPES.TICKET_EDIT,
-      invitedUsers: addedUserIds,
-      removedUsers: removedUserIds,
       contentType: 'ticket',
-    });
+    };
+
+    if (doc.assignedUserIds) {
+      const { addedUserIds, removedUserIds } = checkUserIds(oldTicket.assignedUserIds || [], doc.assignedUserIds);
+
+      notificationDoc.invitedUsers = addedUserIds;
+      notificationDoc.removedUsers = removedUserIds;
+    }
+
+    await sendNotifications(notificationDoc);
 
     return updatedTicket;
   },

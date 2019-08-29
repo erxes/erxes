@@ -32,7 +32,7 @@ export const updateOrRemoveSchedule = async (engageMessageId: string, update?: b
     return;
   }
 
-  const message = await EngageMessages.findOne({ engageMessageId });
+  const message = await EngageMessages.findOne({ _id: engageMessageId });
 
   if (!message) {
     return;

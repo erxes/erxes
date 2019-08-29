@@ -7,6 +7,8 @@ export interface INotification {
   title?: string;
   content?: string;
   link?: string;
+  contentType?: string;
+  contentTypeId?: string;
   receiver?: string;
   action?: string;
 }
@@ -34,6 +36,8 @@ export const notificationSchema = new Schema({
   content: field({ type: String }),
   createdUser: field({ type: String }),
   receiver: field({ type: String }),
+  contentType: field({ type: String }),
+  contentTypeId: field({ type: String }),
   date: field({
     type: Date,
     default: Date.now,
