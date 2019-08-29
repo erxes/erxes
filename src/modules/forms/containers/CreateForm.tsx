@@ -2,7 +2,8 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
-  AddFieldsMutationVariables
+  AddFieldsMutationVariables,
+  FieldsQueryResponse
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -13,12 +14,14 @@ import { mutations } from '../graphql';
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
+  IFormData,
   IFormPreviewContent
 } from '../types';
 
 type Props = {
-  previewContent: (props: IFormPreviewContent) => void;
-  onChange: (doc: any) => void;
+  renderPreview: (props: IFormPreviewContent) => void;
+  onChange: (callback: string | FieldsQueryResponse) => void;
+  onDocChange: (doc: IFormData) => void;
   isSaving: boolean;
 };
 
@@ -46,7 +49,7 @@ class CreateFormContainer extends React.Component<FinalProps> {
         .then(({ data }) => {
           formId = data.formsAdd._id;
 
-          onChange({ formId });
+          onChange(formId);
         })
 
         .then(() => {

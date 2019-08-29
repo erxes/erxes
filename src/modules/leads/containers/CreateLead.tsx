@@ -54,7 +54,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
 
         addLeadMutation({
           variables: {
-            formId: id.formId,
+            formId: id,
             callout: lead.callout,
             rules: lead.rules,
             themeColor: lead.themeColor

@@ -15,14 +15,16 @@ import {
   EditFormMutationResponse,
   EditFormMutationVariables,
   FormDetailQueryResponse,
+  IFormData,
   IFormPreviewContent,
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
 
 type Props = {
-  previewContent: (props: IFormPreviewContent) => void;
-  onChange: (doc: any) => void;
+  renderPreview: (props: IFormPreviewContent) => void;
+  onChange: (callback: string | FieldsQueryResponse) => void;
+  onDocChange: (doc: IFormData) => void;
   isSaving: boolean;
   formId: string;
   integration?: IIntegration;
@@ -123,7 +125,7 @@ class EditFormContainer extends React.Component<FinalProps> {
         })
 
         .then(() => {
-          onChange({ fieldsQuery });
+          onChange(fieldsQuery);
         })
 
         .catch(error => {

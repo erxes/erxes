@@ -6,14 +6,15 @@ import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormGroup from '../../common/components/form/Group';
 import { Title } from '../styles';
-import { IForm, IFormPreviewContent } from '../types';
+import { IForm, IFormData, IFormPreviewContent } from '../types';
 import Fields from './Fields';
 import FormField from './FormField';
 
 type Props = {
   fields: IField[];
-  previewContent: (props: IFormPreviewContent) => void;
-  saveForm: (params: any) => void;
+  renderPreview: (props: IFormPreviewContent) => void;
+  onDocChange: (doc: IFormData) => void;
+  saveForm: (params: IFormData) => void;
   isSaving: boolean;
   form?: IForm;
 };
@@ -42,7 +43,9 @@ class Form extends React.Component<Props, State> {
   }
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as Pick<State, keyof State>);
+    this.setState({ [key]: value } as Pick<State, keyof State>, () =>
+      this.props.onDocChange(this.state)
+    );
   };
 
   onFieldChange = (value: IField, callback: () => void) => {
@@ -99,7 +102,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { previewContent, isSaving, saveForm } = this.props;
+    const { renderPreview, isSaving, saveForm } = this.props;
     const { formTitle, formBtnText, formDesc, fields } = this.state;
 
     const onChangeTitle = e =>
@@ -174,7 +177,7 @@ class Form extends React.Component<Props, State> {
           </Fields>
         </LeftItem>
 
-        {previewContent({
+        {renderPreview({
           formTitle,
           formBtnText,
           formDesc,
