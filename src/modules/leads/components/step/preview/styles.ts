@@ -96,8 +96,6 @@ const SlideRightContent = styled(SlideLeftContent)`
 
 const BodyContent = styled.div`
   span {
-    padding-left: 5px;
-
     &:after {
       left: ${dimensions.unitSpacing - 1}px;
     }
