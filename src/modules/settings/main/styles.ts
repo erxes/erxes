@@ -40,6 +40,18 @@ const Box = styled(BoxRoot)`
   img {
     height: 83px;
   }
+
+  > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+
+    &:focus {
+      text-decoration: none;
+    }
+  }
 `;
 
 const Divider = styled.div`
@@ -51,6 +63,7 @@ const Divider = styled.div`
 
 const BoxName = styled.span`
   font-size: ${typography.fontSizeUppercase}px;
+  margin: 0 !important;
 `;
 
 export { Row, RowTitle, Box, Divider, BoxName, MenusContainer };

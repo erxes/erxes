@@ -104,17 +104,20 @@ const CloseModal = styled.div`
 
   &:hover {
     background: ${rgba(colors.colorBlack, 0.4)};
+    cursor: pointer;
   }
 `;
 
 const ScoreAmount = styled.div`
   position: absolute;
   right: 0;
-  top: 0;
+  top: 5px;
   border-radius: 2px;
   background: ${colors.colorCoreTeal};
-  padding: 3px 6px;
+  padding: 2px 5px;
   color: ${colors.colorWhite};
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 `;
 
 export {

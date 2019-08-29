@@ -64,6 +64,10 @@ const commonReturn = `
     }
   }
   hackDescription
+  reach
+  impact
+  confidence
+  ease
   goal
   modifiedAt
   modifiedBy

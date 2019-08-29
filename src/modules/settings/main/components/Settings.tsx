@@ -121,6 +121,22 @@ class Settings extends React.PureComponent {
         </Row>
         <Divider />
         <Row>
+          <RowTitle>{__('Growth hack Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Campaigns & Projects',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/growthHack'
+            )}
+            {this.renderBox(
+              'Templates',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/growthHackTemplate'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
           <RowTitle>{__('Deal Settings')}</RowTitle>
           <div>
             {this.renderBox(
@@ -154,22 +170,6 @@ class Settings extends React.PureComponent {
               'Boards & Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/task'
-            )}
-          </div>
-        </Row>
-        <Divider />
-        <Row>
-          <RowTitle>{__('Growth hack Settings')}</RowTitle>
-          <div>
-            {this.renderBox(
-              'Campaigns & Projects',
-              '/images/icons/erxes-19.svg',
-              '/settings/boards/growthHack'
-            )}
-            {this.renderBox(
-              'Templates',
-              '/images/icons/erxes-19.svg',
-              '/settings/boards/growthHackTemplate'
             )}
           </div>
         </Row>
