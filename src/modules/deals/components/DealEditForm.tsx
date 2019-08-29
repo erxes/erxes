@@ -17,9 +17,10 @@ type Props = {
   item: IDeal;
   users: IUser[];
   addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: IDealParams, callback: () => void) => void;
+  saveItem: (doc: IDealParams, callback?: (item) => void) => void;
+  onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  beforePopupClose: () => void;
 };
 
 type State = {
@@ -84,6 +85,7 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   saveProductsData = () => {
     const { productsData } = this.state;
+    const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
 
@@ -110,7 +112,12 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ productsData: filteredProductsData, products, amount });
+    this.setState(
+      { productsData: filteredProductsData, products, amount },
+      () => {
+        saveItem({ productsData: this.state.productsData });
+      }
+    );
   };
 
   checkProductsData = () => {
@@ -128,7 +135,8 @@ export default class DealEditForm extends React.Component<Props, State> {
     onChangeAttachment,
     onChangeField,
     copy,
-    remove
+    remove,
+    onBlurFields
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
 
@@ -148,11 +156,11 @@ export default class DealEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           name={name}
-          description={description}
           closeDate={closeDate}
           amount={this.renderAmount}
           users={users}
           stageId={stageId}
+          onBlurFields={onBlurFields}
           item={item}
           onChangeField={onChangeField}
         />
@@ -162,6 +170,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             onChangeAttachment={onChangeAttachment}
             type={options.type}
             description={description}
+            onBlurFields={onBlurFields}
             attachments={attachments}
             item={item}
             onChangeField={onChangeField}
@@ -184,10 +193,12 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   render() {
+    const { beforePopupClose } = this.props;
     const { productsData } = this.state;
 
     const extendedProps = {
       ...this.props,
+      beforePopupClose,
       extraFieldsCheck: this.checkProductsData,
       extraFields: { productsData },
       amount: this.renderAmount,

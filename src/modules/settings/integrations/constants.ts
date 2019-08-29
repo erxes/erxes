@@ -144,7 +144,7 @@ export const INTEGRATIONS = [
           'Set up your custome amazon simple email service account here',
         inMessenger: false,
         kind: 'amazon-ses',
-        logo: '/images/integrations/aws-ses.svg',
+        logo: '/images/integrations/aws-ses.png',
         createModal: 'sesconfig'
       },
       {
