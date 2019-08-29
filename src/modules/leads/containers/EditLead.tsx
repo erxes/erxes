@@ -68,8 +68,6 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
     const integration = integrationDetailQuery.integrationDetail || {};
 
     const onLeadEdit = data => {
-      this.setState({ isSaving: false });
-
       if (this.state.doc) {
         const { lead, leadData, brandId, name, languageCode } = this.state.doc;
 
@@ -103,7 +101,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
               history.push('/leads');
             });
 
-            this.setState({ isLoading: false });
+            this.setState({ isSaving: false, isLoading: false });
           })
 
           .catch(error => {

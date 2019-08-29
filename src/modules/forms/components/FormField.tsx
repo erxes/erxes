@@ -103,7 +103,7 @@ class FormField extends React.Component<Props, State> {
     );
   }
 
-  renderOptions(type) {
+  renderOptions(type = { value: '' }) {
     const { editingField = {} as IField } = this.state;
 
     const onChange = e =>
