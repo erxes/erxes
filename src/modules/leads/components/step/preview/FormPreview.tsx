@@ -1,7 +1,7 @@
+import FormFieldPreview from 'modules/forms/components/FormFieldPreview';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import CommonPreview from './CommonPreview';
-import FormFieldPreview from './FormFieldPreview';
 
 type Props = {
   formTitle?: string;
@@ -10,8 +10,8 @@ type Props = {
   color: string;
   theme: string;
   fields?: IField[];
-  onFieldEdit?: (field: IField) => void;
-  onChange: (name: any, fields: string) => void;
+  onFieldEdit?: (field: IField, props) => void;
+  onChange?: (name: any, fields: string) => void;
   type: string;
 };
 

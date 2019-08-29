@@ -1,348 +1,187 @@
-import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
-import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
-import { Step, Steps } from 'modules/common/components/step';
-import {
-  StepWrapper,
-  TitleContainer
-} from 'modules/common/components/step/styles';
-import { IConditionsRule } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
+import ControlLabel from 'modules/common/components/form/Label';
+import { LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
-import { IFormIntegration } from 'modules/forms/types';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-
-import { ImportLoader } from 'modules/common/components/ButtonMutate';
-import {
-  CallOut,
-  ChooseType,
-  FormStep,
-  FullPreviewStep,
-  OptionStep,
-  SuccessStep
-} from './step';
+import FormGroup from '../../common/components/form/Group';
+import { Title } from '../styles';
+import { IForm, IFormPreviewContent } from '../types';
+import Fields from './Fields';
+import FormField from './FormField';
 
 type Props = {
-  integration?: IFormIntegration;
   fields: IField[];
-  loading?: boolean;
-  isActionLoading: boolean;
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode?: string;
-      formData: IFormData;
-      form: any;
-      fields?: IField[];
-    }
-  ) => void;
+  previewContent: (props: IFormPreviewContent) => void;
+  saveForm: (params: any) => void;
+  isSaving: boolean;
+  form?: IForm;
 };
 
 type State = {
-  activeStep?: number;
-  type: string;
-  brand?: string;
-  language?: string;
-  title?: string;
-  calloutTitle?: string;
-  formTitle?: string;
-  bodyValue?: string;
-  formDesc?: string;
-  formBtnText?: string;
-  calloutBtnText?: string;
-  theme: string;
-  logoPreviewUrl?: string;
   fields?: IField[];
-  isSkip?: boolean;
-  color: string;
-  logoPreviewStyle?: { opacity?: string };
-  defaultValue: { [key: string]: boolean };
-  logo?: string;
-  rules?: IConditionsRule[];
-
-  successAction?: string;
-  fromEmail?: string;
-  userEmailTitle?: string;
-  userEmailContent?: string;
-  adminEmails?: string[];
-  adminEmailTitle?: string;
-  adminEmailContent?: string;
-  thankContent?: string;
-  redirectUrl?: string;
-  carousel?: string;
+  editingField?: IField;
+  formTitle: string;
+  formDesc: string;
+  formBtnText: string;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const integration = props.integration || ({} as IFormIntegration);
-
-    const formData = integration.formData || ({} as IFormData);
-    const form = integration.form || {};
-    const callout = form.callout || {};
-    const fields = props.fields;
+    const { form = {} as IForm } = props;
 
     this.state = {
-      activeStep: 1,
-
-      type: formData.loadType || 'shoutbox',
-      successAction: formData.successAction || '',
-      fromEmail: formData.fromEmail || '',
-      userEmailTitle: formData.userEmailTitle || '',
-      userEmailContent: formData.userEmailContent || '',
-      adminEmails: formData.adminEmails || [],
-      adminEmailTitle: formData.adminEmailTitle || '',
-      adminEmailContent: formData.adminEmailContent || '',
-      thankContent: formData.thankContent || 'Thank you.',
-      redirectUrl: formData.redirectUrl || '',
-      rules: integration.form ? integration.form.rules : [],
-
-      brand: integration.brandId,
-      language: integration.languageCode,
-      title: integration.name,
-      calloutTitle: callout.title || 'Title',
+      fields: props.fields,
       formTitle: form.title || '',
-      bodyValue: callout.body || '',
       formDesc: form.description || '',
       formBtnText: form.buttonText || 'Send',
-      calloutBtnText: callout.buttonText || 'Start',
-      color: '',
-      logoPreviewStyle: {},
-      defaultValue: {},
-      logo: '',
-      theme: form.themeColor || '#6569DF',
-      logoPreviewUrl: callout.featuredImage,
-      fields: fields || [],
-      isSkip: callout.skip && true
+      editingField: undefined
     };
   }
-
-  handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const { brand, calloutTitle, title, rules } = this.state;
-
-    if (!title) {
-      return Alert.error('Write title');
-    }
-
-    if (!brand) {
-      return Alert.error('Choose a brand');
-    }
-
-    this.props.save({
-      name: title,
-      brandId: brand,
-      languageCode: this.state.language,
-      formData: {
-        loadType: this.state.type,
-        successAction: this.state.successAction,
-        fromEmail: this.state.fromEmail,
-        userEmailTitle: this.state.userEmailTitle,
-        userEmailContent: this.state.userEmailContent,
-        adminEmails: this.state.adminEmails,
-        adminEmailTitle: this.state.adminEmailTitle,
-        adminEmailContent: this.state.adminEmailContent,
-        thankContent: this.state.thankContent,
-        redirectUrl: this.state.redirectUrl
-      },
-      form: {
-        title: this.state.formTitle,
-        description: this.state.formDesc,
-        buttonText: this.state.formBtnText,
-        themeColor: this.state.theme || this.state.color,
-        callout: {
-          title: calloutTitle,
-          body: this.state.bodyValue,
-          buttonText: this.state.calloutBtnText,
-          featuredImage: this.state.logoPreviewUrl,
-          skip: this.state.isSkip
-        },
-        rules: (rules || []).map(rule => ({
-          _id: rule._id,
-          kind: rule.kind,
-          text: rule.text,
-          condition: rule.condition,
-          value: rule.value
-        }))
-      },
-      fields: this.state.fields
-    });
-  };
-
-  renderSaveButton = () => {
-    const { isActionLoading } = this.props;
-
-    const cancelButton = (
-      <Link to="/forms">
-        <Button btnStyle="simple" size="small" icon="cancel-1">
-          Cancel
-        </Button>
-      </Link>
-    );
-
-    return (
-      <Button.Group>
-        {cancelButton}
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          size="small"
-          icon={isActionLoading ? undefined : 'checked-1'}
-          onClick={this.handleSubmit}
-        >
-          {isActionLoading && <ImportLoader />}
-          Save
-        </Button>
-      </Button.Group>
-    );
-  };
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
   };
 
+  onFieldChange = (value: IField, callback: () => void) => {
+    this.setState({ editingField: value }, () => callback());
+  };
+
+  onSubmit = e => {
+    e.preventDefault();
+
+    const editingField = this.state.editingField || ({} as IField);
+
+    const doc = {
+      contentType: 'form',
+      type: editingField.type,
+      validation: editingField.validation,
+      text: editingField.text,
+      description: editingField.description,
+      options: editingField.options,
+      order: 0,
+      isRequired: editingField.isRequired
+    };
+
+    // newly created field to fields state
+    (this.state.fields || []).push({
+      _id: Math.random().toString(),
+      ...doc
+    });
+
+    this.setState({ fields: this.state.fields });
+  };
+
+  onDelete = fieldId => {
+    // remove field from state
+    const fields = (this.state.fields || []).filter(
+      field => field._id !== fieldId
+    );
+
+    this.setState({ fields });
+
+    this.onChange('fields', fields);
+  };
+
+  onFieldEdit = (field: IField, props) => {
+    return (
+      <FormField
+        {...props}
+        field={field}
+        fields={this.state.fields}
+        onSubmit={this.onSubmit}
+        onDelete={this.onDelete}
+        onChange={this.onChange}
+      />
+    );
+  };
+
   render() {
-    const {
-      activeStep,
-      calloutTitle,
-      formTitle,
-      type,
-      calloutBtnText,
-      bodyValue,
-      formDesc,
-      color,
-      theme,
-      logoPreviewUrl,
-      thankContent,
-      fields,
-      carousel,
-      language,
-      title,
-      successAction,
-      formBtnText,
-      isSkip,
-      rules
-    } = this.state;
+    const { previewContent, isSaving, saveForm } = this.props;
+    const { formTitle, formBtnText, formDesc, fields } = this.state;
 
-    const { integration } = this.props;
+    const onChangeTitle = e =>
+      this.onChange('formTitle', (e.currentTarget as HTMLInputElement).value);
 
-    const formData = integration && integration.formData;
-    const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Leads'), link: '/forms' }];
-    const constant = isSkip ? 'form' : 'callout';
+    const onChangeDesc = e =>
+      this.onChange('formDesc', (e.currentTarget as HTMLInputElement).value);
 
-    const onChange = e =>
-      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
+    const onChangeBtnText = e =>
+      this.onChange('formBtnText', (e.currentTarget as HTMLInputElement).value);
+
+    if (isSaving) {
+      saveForm({
+        title: formTitle,
+        description: formDesc,
+        buttonText: formBtnText,
+        fields,
+        type: 'lead'
+      });
+    }
 
     return (
-      <StepWrapper>
-        <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
-        <TitleContainer>
-          <div>{__('Title')}</div>
-          <FormControl
-            required={true}
-            onChange={onChange}
-            defaultValue={title}
-          />
-          {this.renderSaveButton()}
-        </TitleContainer>
-        <Steps active={activeStep || 1}>
-          <Step img="/images/icons/erxes-04.svg" title="Type">
-            <ChooseType
-              onChange={this.onChange}
-              type={type}
-              calloutTitle={calloutTitle}
-              calloutBtnText={calloutBtnText}
-              color={color}
-              theme={theme}
+      <>
+        <LeftItem>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Form title')}</ControlLabel>
+            <FormControl
+              id="form-btn-text"
+              value={formTitle}
+              onChange={onChangeTitle}
             />
-          </Step>
-          <Step img="/images/icons/erxes-03.svg" title="CallOut">
-            <CallOut
-              onChange={this.onChange}
-              type={type}
-              calloutTitle={calloutTitle}
-              calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
-              color={color}
-              theme={theme}
-              image={logoPreviewUrl}
-              skip={isSkip}
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel required={true}>
+              {__('Form description')}
+            </ControlLabel>
+            <FormControl
+              id="form-btn-text"
+              componentClass="textarea"
+              value={formDesc}
+              onChange={onChangeDesc}
             />
-          </Step>
-          <Step img="/images/icons/erxes-12.svg" title={'Form'}>
-            <FormStep
-              onChange={this.onChange}
-              formTitle={formTitle}
-              formBtnText={formBtnText}
-              formDesc={formDesc}
-              type={type}
-              color={color}
-              theme={theme}
-              fields={fields}
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel required={true}>
+              {__('Form button text')}
+            </ControlLabel>
+            <FormControl
+              id="form-btn-text"
+              value={formBtnText}
+              onChange={onChangeBtnText}
             />
-          </Step>
-          <Step img="/images/icons/erxes-02.svg" title="Rule">
-            <ConditionsRule rules={rules || []} onChange={this.onChange} />
-          </Step>
-          <Step img="/images/icons/erxes-06.svg" title="Options">
-            <OptionStep
-              onChange={this.onChange}
-              formTitle={formTitle}
-              formBtnText={formBtnText}
-              formDesc={formDesc}
-              type={type}
-              color={color}
-              brand={brand}
-              theme={theme}
-              fields={fields}
-              language={language}
-            />
-          </Step>
-          <Step img="/images/icons/erxes-13.svg" title="Thank content">
-            <SuccessStep
-              onChange={this.onChange}
-              thankContent={thankContent}
-              type={type}
-              color={color}
-              theme={theme}
-              successAction={successAction}
-              formData={formData}
-            />
-          </Step>
-          <Step
-            img="/images/icons/erxes-19.svg"
-            title="Full Preview"
-            noButton={true}
+          </FormGroup>
+
+          <Title>New field</Title>
+          <Fields
+            onSubmit={this.onSubmit}
+            onChange={this.onFieldChange}
+            editingField={this.state.editingField}
           >
-            <FullPreviewStep
-              onChange={this.onChange}
-              calloutTitle={calloutTitle}
-              formTitle={formTitle}
-              formBtnText={formBtnText}
-              calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
-              formDesc={formDesc}
-              type={type}
-              color={color}
-              theme={theme}
-              image={logoPreviewUrl}
-              fields={fields}
-              thankContent={thankContent}
-              skip={isSkip}
-              carousel={carousel || constant}
-            />
-          </Step>
-        </Steps>
-      </StepWrapper>
+            <option value="input">{__('Input')}</option>
+            <option value="textarea">{__('Text area')}</option>
+            <option value="select">{__('Select')}</option>
+            <option value="check">{__('Checkbox')}</option>
+            <option value="radio">{__('Radio button')}</option>
+            <option value="phone">{__('Phone')}</option>
+            <option value="email">{__('Email')}</option>
+            <option value="firstName">{__('First name')}</option>
+            <option value="lastName">{__('Last name')}</option>
+          </Fields>
+        </LeftItem>
+
+        {previewContent({
+          formTitle,
+          formBtnText,
+          formDesc,
+          fields,
+          onFieldEdit: this.onFieldEdit
+        })}
+      </>
     );
   }
 }

@@ -9,7 +9,7 @@ import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
   CountQueryResponse,
-  FormIntegrationsQueryResponse,
+  LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
@@ -20,7 +20,7 @@ type Props = {
 
 type FinalProps = {
   integrationsTotalCountQuery: CountQueryResponse;
-  integrationsQuery: FormIntegrationsQueryResponse;
+  integrationsQuery: LeadIntegrationsQueryResponse;
   tagsQuery: TagsQueryResponse;
 } & RemoveMutationResponse &
   Props;
@@ -37,7 +37,7 @@ class ListContainer extends React.Component<FinalProps, {}> {
     const counts = integrationsTotalCountQuery.integrationsTotalCount || {
       byKind: {}
     };
-    const totalCount = counts.byKind.form || 0;
+    const totalCount = counts.byKind.lead || 0;
     const tagsCount = counts.byTag || {};
 
     const integrations = integrationsQuery.integrations || [];
@@ -85,7 +85,7 @@ export default withProps<Props>(
   compose(
     graphql<
       Props,
-      FormIntegrationsQueryResponse,
+      LeadIntegrationsQueryResponse,
       { page?: number; perPage?: number; tag?: string; kind?: string }
     >(gql(queries.integrations), {
       name: 'integrationsQuery',
@@ -94,7 +94,7 @@ export default withProps<Props>(
           variables: {
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
-            kind: 'form'
+            kind: 'lead'
           }
         };
       }

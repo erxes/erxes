@@ -1,5 +1,5 @@
 const integrations = `
-  query formIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
+  query leadIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
     integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
       _id
       brandId
@@ -76,6 +76,7 @@ const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
       _id
+      kind
       name
       brand {
         _id
@@ -85,22 +86,27 @@ const integrationDetail = `
       languageCode
       brandId
       code
-      formId
-      formData
+      leadId
+      leadData
       tagIds
       tags {
         _id
         name
         colorCode
       }
-      form {
+      lead {
         _id
-        title
-        code
-        description
+        formId
         createdDate
         createdUserId
-        buttonText
+        createdUser {
+          _id
+          details {
+            avatar
+            fullName
+            position
+          }
+        }
         themeColor
         contactsGathered
         viewCount
@@ -118,28 +124,23 @@ const integrationDetail = `
           condition
           value
         }
-      }
-    }
-  }
-`;
-
-const formDetail = `
-  query formDetail($_id: String!) {
-    formDetail(_id: $_id) {
-      _id
-      title
-      code
-      type
-      description
-      buttonText
-      createdDate
-      createdUserId
-      createdUser {
-        _id
-        details {
-          avatar
-          fullName
-          position
+        form {
+          _id
+          title
+          code
+          description
+          type
+          buttonText
+          createdDate
+          createdUserId
+          createdUser {
+            _id
+            details {
+              avatar
+              fullName
+              position
+            }
+          }
         }
       }
     }
@@ -154,38 +155,6 @@ const integrationsTotalCount = `
     }
   }
 `;
-
-const fields = `
-  query fields($contentType: String!, $contentTypeId: String) {
-    fields(contentType: $contentType, contentTypeId: $contentTypeId) {
-      _id
-      type
-      validation
-      text
-      description
-      options
-      isRequired
-      order
-    }
-  }
-`;
-
-const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!) {
-    fieldsCombinedByContentType(contentType: $contentType)
-  }
-`;
-
-const fieldsDefaultColumnsConfig = `
-  query fieldsDefaultColumnsConfig($contentType: String!) {
-    fieldsDefaultColumnsConfig(contentType: $contentType) {
-      name
-      label
-      order
-    }
-  }
-`;
-
 const tags = `
   query tags($type: String) {
     tags(type: $type) {
@@ -210,10 +179,6 @@ export default {
   integrations,
   integrationDetail,
   integrationsTotalCount,
-  fields,
-  formDetail,
   tags,
-  forms,
-  fieldsCombinedByContentType,
-  fieldsDefaultColumnsConfig
+  forms
 };

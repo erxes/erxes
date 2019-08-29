@@ -3,12 +3,12 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const CreateForm = asyncComponent(() =>
-  import(/* webpackChunkName: "CreateForm" */ './containers/CreateForm')
+const CreateLead = asyncComponent(() =>
+  import(/* webpackChunkName: "CreateLead" */ './containers/CreateLead')
 );
 
-const EditForm = asyncComponent(() =>
-  import(/* webpackChunkName: "EditForm" */ './containers/EditForm')
+const EditLead = asyncComponent(() =>
+  import(/* webpackChunkName: "EditLead" */ './containers/EditLead')
 );
 
 const List = asyncComponent(() =>
@@ -20,19 +20,20 @@ const forms = ({ location }) => {
   return <List queryParams={queryParams} />;
 };
 
-const createForm = () => {
-  return <CreateForm />;
+const createLead = () => {
+  return <CreateLead />;
 };
 
-const editForm = ({ match, location }) => {
-  const { contentTypeId, formId } = match.params;
+const editLead = ({ match, location }) => {
+  const { contentTypeId, formId, leadId } = match.params;
   const queryParams = queryString.parse(location.search);
 
   return (
-    <EditForm
+    <EditLead
       queryParams={queryParams}
-      contentTypeId={contentTypeId}
       formId={formId}
+      contentTypeId={contentTypeId}
+      leadId={leadId}
     />
   );
 };
@@ -40,20 +41,20 @@ const editForm = ({ match, location }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route exact={true} key="/forms" path="/forms" component={forms} />
+      <Route exact={true} key="/leads" path="/leads" component={forms} />
 
       <Route
-        key="/forms/create"
+        key="/leads/create"
         exact={true}
-        path="/forms/create"
-        component={createForm}
+        path="/leads/create"
+        component={createLead}
       />
 
       <Route
-        key="/forms/edit/:contentTypeId?/:formId?"
+        key="/leads/edit/:contentTypeId?/:formId?/:leadId?"
         exact={true}
-        path="/forms/edit/:contentTypeId/:formId"
-        component={editForm}
+        path="/leads/edit/:contentTypeId/:formId?/:leadId"
+        component={editLead}
       />
     </React.Fragment>
   );

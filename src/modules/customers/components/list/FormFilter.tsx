@@ -23,7 +23,7 @@ function Forms({ history, counts, integrations, loading }: IProps) {
   const data = (
     <SidebarList>
       {integrations.map(integration => {
-        const form = integration.form || {};
+        const form = integration.lead || {};
 
         return (
           <li key={integration._id}>

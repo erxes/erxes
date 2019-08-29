@@ -1,35 +1,15 @@
-const commonFormParamsDef = `
-  $name: String!,
-  $brandId: String!,
-  $formId: String!,
-  $languageCode: String,
-  $formData: IntegrationFormData!
-`;
-
-const commonFormParams = `
-  name: $name,
-  brandId: $brandId,
-  formId: $formId,
-  languageCode: $languageCode,
-  formData: $formData
-`;
-
 const commonParamsDef = `
   $title: String,
   $description: String,
   $buttonText: String,
-  $themeColor: String,
-  $callout: JSON,
-  $rules:[InputRule]
+  $type: String!
 `;
 
 const commonParams = `
   title: $title,
   description: $description,
   buttonText: $buttonText,
-  themeColor: $themeColor,
-  callout: $callout
-  rules: $rules
+  type: $type
 `;
 
 const commonVariables = `
@@ -50,28 +30,6 @@ const commonFieldParams = `
   options: $options,
   isRequired: $isRequired,
   order: $order
-`;
-
-const integrationRemove = `
-  mutation integrationsRemove($_id: String!) {
-    integrationsRemove(_id: $_id)
-  }
-`;
-
-const integrationsCreateFormIntegration = `
-  mutation integrationsCreateFormIntegration(${commonFormParamsDef}) {
-    integrationsCreateFormIntegration(${commonFormParams}) {
-      _id
-    }
-  }
-`;
-
-const integrationsEditFormIntegration = `
-  mutation integrationsEditFormIntegration($_id: String!, ${commonFormParamsDef}) {
-    integrationsEditFormIntegration(_id: $_id, ${commonFormParams}) {
-      _id
-    }
-  }
 `;
 
 const addForm = `
@@ -125,9 +83,6 @@ const fieldsRemove = `
 `;
 
 export default {
-  integrationRemove,
-  integrationsEditFormIntegration,
-  integrationsCreateFormIntegration,
   addForm,
   editForm,
   fieldsAdd,

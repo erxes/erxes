@@ -178,7 +178,7 @@ class Navigation extends React.Component<{
           </WithPermission>
           <WithPermission action="showForms">
             <Tip placement="right" text={__('Leads').toString()}>
-              <NavLink to="/forms">
+              <NavLink to="/leads">
                 <NavIcon className="icon-laptop" />
               </NavLink>
             </Tip>

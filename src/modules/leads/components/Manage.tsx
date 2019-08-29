@@ -4,14 +4,15 @@ import EmptyState from 'modules/common/components/EmptyState';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { IForm } from 'modules/forms/types';
 import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
-import { IFormIntegration } from '../types';
+import { ILeadIntegration } from '../types';
 
 type Props = {
-  integration: IFormIntegration;
+  integration: ILeadIntegration;
   closeModal: () => void;
 };
 
@@ -75,7 +76,7 @@ class Manage extends React.Component<Props, State> {
     // showed install code automatically in edit mode
     if (integration._id) {
       const brand = integration.brand;
-      const form = integration.form;
+      const form = integration.lead.form || ({} as IForm);
 
       code = getInstallCode(brand.code, form.code || '');
       embedCode = getEmbedCode(form.code || '');

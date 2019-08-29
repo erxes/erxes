@@ -1,4 +1,4 @@
-import { IForm, IFormIntegration } from 'modules/forms/types';
+import { ILead, ILeadIntegration } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
@@ -23,7 +23,7 @@ export interface ISelectMessengerApps {
   brand: IBrand;
   label: string;
   value: string;
-  form?: IForm;
+  lead?: ILead;
 }
 
 export interface IOnlineHour {
@@ -66,7 +66,7 @@ export interface IUiOptions {
   logoPreviewUrl?: string;
 }
 
-export interface IFormData {
+export interface ILeadData {
   loadType?: string;
   successAction?: string;
   fromEmail?: string;
@@ -84,17 +84,15 @@ export interface IIntegration {
   kind: string;
   name: string;
   brandId?: string;
-  description?: string;
   code: string;
-  formId: string;
-  form: IForm;
-  logo: string;
+  leadId: string;
+  lead: ILead;
   languageCode?: string;
   createUrl: string;
   createModal: string;
   messengerData?: IMessengerData;
   uiOptions?: IUiOptions;
-  formData?: IFormData;
+  leadData?: ILeadData;
   brand: IBrand;
   channels: IChannel[];
 }
@@ -120,7 +118,7 @@ export type IntegrationsQueryResponse = {
 };
 
 export type LeadsQueryResponse = {
-  forms: IForm[];
+  leads: ILead[];
   loading: boolean;
   refetch: (variables?: QueryVariables) => void;
 };
@@ -138,6 +136,7 @@ export type ByKind = {
   form: number;
   facebook: number;
   gmail: number;
+  callpro: number;
 };
 
 type IntegrationsCount = {
@@ -189,8 +188,8 @@ export type MessengerAppsCountQueryResponse = {
   loading: boolean;
 };
 
-export type FormIntegrationDetailQueryResponse = {
-  integrationDetail: IFormIntegration;
+export type LeadIntegrationDetailQueryResponse = {
+  integrationDetail: ILeadIntegration;
   loading: boolean;
   refetch: () => void;
 };
@@ -293,11 +292,11 @@ export type MessengerAppsAddKnowledgebaseMutationResponse = {
 };
 
 export type AddIntegrationMutationVariables = {
-  formData: IFormData;
+  leadData: ILeadData;
   brandId: string;
   name: string;
   languageCode: string;
-  formId: string;
+  leadId: string;
 };
 
 export type AddIntegrationMutationResponse = {
@@ -310,11 +309,11 @@ export type AddIntegrationMutationResponse = {
 
 export type EditIntegrationMutationVariables = {
   _id: string;
-  formData: IFormData;
+  leadData: ILeadData;
   brandId: string;
   name: string;
   languageCode: string;
-  formId: string;
+  leadId: string;
 };
 
 export type EditIntegrationMutationResponse = {
