@@ -223,7 +223,7 @@ class EditForm extends React.Component<Props, State> {
         onHide={this.onHideModal}
       >
         <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit deal')}</Modal.Title>
+          <Modal.Title>{__('Edit')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {this.props.formContent({
