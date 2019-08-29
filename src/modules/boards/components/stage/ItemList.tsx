@@ -6,7 +6,12 @@ import { mutations as notificationMutations } from 'modules/notifications/graphq
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import history from '../../../../browserHistory';
-import { DropZone, EmptyContainer, Wrapper } from '../../styles/common';
+import {
+  DropZone,
+  EmptyContainer,
+  ItemContainer,
+  Wrapper
+} from '../../styles/common';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
@@ -74,17 +79,22 @@ class DraggableContainer extends React.Component<
         isDragDisabled={isDragDisabled}
       >
         {(dragProvided, dragSnapshot) => (
-          <ItemComponent
-            key={item._id}
-            stageId={stageId}
-            hasNotified={this.state.hasNotified}
-            item={item}
+          <ItemContainer
             isDragging={dragSnapshot.isDragging}
-            onClick={this.onItemClick}
-            beforePopupClose={this.beforePopupClose}
-            provided={dragProvided}
-            options={options}
-          />
+            innerRef={dragProvided.innerRef}
+            hasNotified={this.state.hasNotified}
+            {...dragProvided.draggableProps}
+            {...dragProvided.dragHandleProps}
+          >
+            <ItemComponent
+              key={item._id}
+              stageId={stageId}
+              item={item}
+              onClick={this.onItemClick}
+              beforePopupClose={this.beforePopupClose}
+              options={options}
+            />
+          </ItemContainer>
         )}
       </Draggable>
     );

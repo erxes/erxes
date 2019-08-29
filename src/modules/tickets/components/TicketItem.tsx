@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
+import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
@@ -12,12 +12,9 @@ import { ITicket } from '../types';
 type Props = {
   stageId: string;
   item: ITicket;
-  isDragging: boolean;
-  provided;
   onClick: () => void;
   beforePopupClose: () => void;
   options?: IOptions;
-  hasNotified: boolean;
 };
 class TicketItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
@@ -42,17 +39,11 @@ class TicketItem extends React.PureComponent<Props, {}> {
   };
 
   render() {
-    const { item, isDragging, provided, onClick, hasNotified } = this.props;
+    const { item, onClick } = this.props;
     const { customers, companies } = item;
 
     return (
-      <ItemContainer
-        isDragging={isDragging}
-        innerRef={provided.innerRef}
-        hasNotified={hasNotified}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-      >
+      <>
         <Content onClick={onClick}>
           <h5>
             {renderPriority(item.priority)}
@@ -94,7 +85,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
           </Footer>
         </Content>
         {this.renderForm()}
-      </ItemContainer>
+      </>
     );
   }
 }
