@@ -46,8 +46,8 @@ export interface IBoard {
 
 export interface IItemParams {
   _id?: string;
-  name: string;
-  stageId: string;
+  name?: string;
+  stageId?: string;
   assignedUserIds?: string[];
   companyIds?: string[];
   customerIds?: string[];
@@ -98,6 +98,7 @@ export interface IItem {
   order: number;
   stageId: string;
   closeDate: Date;
+  description: string;
   amount: number;
   modifiedAt: Date;
   assignedUsers: IUser[];
@@ -230,4 +231,5 @@ export interface IEditFormContent {
   ) => void;
   copy: () => void;
   remove: (id: string) => void;
+  onBlurFields: (name: 'description' | 'name', value: string) => void;
 }

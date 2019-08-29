@@ -33,6 +33,7 @@ type Props = {
   carousel: string;
   thankContent?: string;
   skip?: boolean;
+  formData: any;
 };
 
 type State = {
@@ -70,14 +71,14 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   renderPreview() {
-    const { carousel } = this.props;
+    const { carousel, formData } = this.props;
 
     if (carousel === 'callout') {
       return <CalloutPreview {...this.props} />;
     }
 
     if (carousel === 'form') {
-      return <FormPreview {...this.props} />;
+      return <FormPreview {...this.props} {...formData || {}} />;
     }
 
     return <SuccessPreview {...this.props} />;

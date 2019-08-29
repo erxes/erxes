@@ -17,6 +17,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { ImportLoader } from 'modules/common/components/ButtonMutate';
+import { IFormData } from 'modules/forms/types';
+import { FieldsQueryResponse } from 'modules/settings/properties/types';
 import {
   CallOut,
   ChooseType,
@@ -31,7 +33,7 @@ type Props = {
   loading?: boolean;
   isActionLoading: boolean;
   isSaving: boolean;
-  onChange: (doc: any) => void;
+  onChange: (callback: string | FieldsQueryResponse) => void;
   save: (
     params: {
       name: string;
@@ -60,6 +62,7 @@ type State = {
   defaultValue: { [key: string]: boolean };
   logo?: string;
   rules?: IConditionsRule[];
+  formData: IFormData;
 
   successAction?: string;
   fromEmail?: string;
@@ -108,6 +111,7 @@ class Form extends React.Component<Props, State> {
       logoPreviewStyle: {},
       defaultValue: {},
       logo: '',
+      formData: {},
       theme: lead.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
@@ -200,6 +204,10 @@ class Form extends React.Component<Props, State> {
     this.setState({ [key]: value } as Pick<State, keyof State>);
   };
 
+  onFormDocChange = formData => {
+    this.setState({ formData });
+  };
+
   render() {
     const {
       activeStep,
@@ -216,11 +224,11 @@ class Form extends React.Component<Props, State> {
       title,
       successAction,
       isSkip,
-      rules
+      rules,
+      formData
     } = this.state;
 
     const { integration } = this.props;
-
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Leads'), link: '/leads' }];
@@ -272,6 +280,7 @@ class Form extends React.Component<Props, State> {
               theme={theme}
               formId={integration && integration.lead.formId}
               onChange={this.props.onChange}
+              onDocChange={this.onFormDocChange}
               isSaving={this.props.isSaving}
             />
           </Step>
@@ -286,6 +295,7 @@ class Form extends React.Component<Props, State> {
               brand={brand}
               theme={theme}
               language={language}
+              formData={formData}
             />
           </Step>
           <Step img="/images/icons/erxes-13.svg" title="Thank content">
@@ -316,6 +326,7 @@ class Form extends React.Component<Props, State> {
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}
+              formData={formData}
             />
           </Step>
         </Steps>

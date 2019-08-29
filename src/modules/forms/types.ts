@@ -16,6 +16,14 @@ export interface IForm {
   createdDate?: Date;
 }
 
+export interface IFormData {
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  fields?: IField[];
+  type?: string;
+}
+
 // mutation types
 export type AddFormMutationVariables = {
   title?: string;

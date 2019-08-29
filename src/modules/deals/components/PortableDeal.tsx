@@ -7,7 +7,6 @@ import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
@@ -29,28 +28,33 @@ type Props = {
   onUpdate?: (item: IDeal) => void;
 };
 
-class Deal extends React.Component<Props, { isFormVisible: boolean }> {
-  renderFormTrigger = (trigger: React.ReactNode) => {
+class Deal extends React.Component<Props, { isPopupVisible: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isPopupVisible: false
+    };
+  }
+
+  renderForm = () => {
     const { item, onAdd, onRemove, onUpdate, options } = this.props;
 
-    const content = props => (
+    const beforePopupClose = () => {
+      this.setState({ isPopupVisible: false });
+    };
+
+    return (
       <EditForm
-        {...props}
+        {...this.props}
         options={options}
         stageId={item.stageId}
         itemId={item._id}
         onAdd={onAdd}
         onRemove={onRemove}
         onUpdate={onUpdate}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title="Edit deal"
-        trigger={trigger}
-        size="lg"
-        content={content}
+        isPopupVisible={this.state.isPopupVisible}
+        beforePopupClose={beforePopupClose}
       />
     );
   };
@@ -95,34 +99,39 @@ class Deal extends React.Component<Props, { isFormVisible: boolean }> {
     const { item } = this.props;
     const products = (item.products || []).map(p => p.product);
 
-    const content = (
-      <ItemContainer>
-        {this.renderDealStatus(item.stage)}
-        <Content>
-          <SpaceContent>
-            <h5>{item.name}</h5>
-            {this.renderDate(item.closeDate)}
-          </SpaceContent>
-          <Details color="#63D2D6" items={products} />
-          <Details color="#F7CE53" items={item.customers || []} />
-          <Details color="#EA475D" items={item.companies || []} />
-        </Content>
-        <PriceContainer>
-          {renderAmount(item.amount)}
+    const onClick = () => {
+      this.setState({ isPopupVisible: true });
+    };
 
-          <Right>
-            <UserCounter users={item.assignedUsers || []} />
-          </Right>
-        </PriceContainer>
+    return (
+      <>
+        <ItemContainer onClick={onClick}>
+          {this.renderDealStatus(item.stage)}
+          <Content>
+            <SpaceContent>
+              <h5>{item.name}</h5>
+              {this.renderDate(item.closeDate)}
+            </SpaceContent>
+            <Details color="#63D2D6" items={products} />
+            <Details color="#F7CE53" items={item.customers || []} />
+            <Details color="#EA475D" items={item.companies || []} />
+          </Content>
+          <PriceContainer>
+            {renderAmount(item.amount)}
 
-        <Footer>
-          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
-          <Right>{this.renderDate(item.modifiedAt)}</Right>
-        </Footer>
-      </ItemContainer>
+            <Right>
+              <UserCounter users={item.assignedUsers || []} />
+            </Right>
+          </PriceContainer>
+
+          <Footer>
+            {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
+            <Right>{this.renderDate(item.modifiedAt)}</Right>
+          </Footer>
+        </ItemContainer>
+        {this.renderForm()}
+      </>
     );
-
-    return this.renderFormTrigger(content);
   }
 }
 

@@ -1,7 +1,8 @@
 import { Preview } from 'modules/common/components/step/styles';
 import CreateForm from 'modules/forms/containers/CreateForm';
 import EditForm from 'modules/forms/containers/EditForm';
-import { IFormPreviewContent } from 'modules/forms/types';
+import { IFormData, IFormPreviewContent } from 'modules/forms/types';
+import { FieldsQueryResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import FormPreview from './preview/FormPreview';
 import { FlexItem } from './style';
@@ -12,25 +13,27 @@ type Props = {
   theme: string;
   isSaving: boolean;
   formId?: string;
-  onChange: (doc: any) => void;
+  onChange: (callback: string | FieldsQueryResponse) => void;
+  onDocChange: (doc: IFormData) => void;
 };
 
 class FormStep extends React.Component<Props> {
-  renderContent() {
-    const { formId } = this.props;
+  renderFormPreview = (props: IFormPreviewContent) => {
+    return (
+      <Preview>
+        <FormPreview {...this.props} {...props} />
+      </Preview>
+    );
+  };
 
-    const content = (props: IFormPreviewContent) => {
-      return (
-        <Preview>
-          <FormPreview {...this.props} {...props} />
-        </Preview>
-      );
-    };
+  renderContent() {
+    const { formId, onDocChange, onChange, isSaving } = this.props;
 
     const doc = {
-      previewContent: content,
-      onChange: this.props.onChange,
-      isSaving: this.props.isSaving
+      renderPreview: this.renderFormPreview,
+      onChange,
+      onDocChange,
+      isSaving
     };
 
     if (formId) {

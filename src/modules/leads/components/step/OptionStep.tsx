@@ -28,6 +28,7 @@ type Props = {
   ) => void;
   fields?: IField[];
   brand?: IBrand;
+  formData: any;
   onFieldEdit?: () => void;
 };
 
@@ -58,7 +59,7 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { language, brand } = this.props;
+    const { language, brand, formData } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -125,7 +126,7 @@ class OptionStep extends React.Component<Props, {}> {
         </LeftItem>
 
         <Preview>
-          <FormPreview {...this.props} />
+          <FormPreview {...this.props} {...formData || {}} />
         </Preview>
       </FlexItem>
     );

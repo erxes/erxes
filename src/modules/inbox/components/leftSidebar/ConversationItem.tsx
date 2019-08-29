@@ -8,6 +8,7 @@ import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
+import { CallLabel } from 'modules/inbox/styles';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
 import { IBrand } from '../../../settings/brands/types';
@@ -89,9 +90,9 @@ class ConversationItem extends React.Component<Props> {
   showMessageContent(kind: string, content: string) {
     if (kind === 'callpro') {
       return (
-        <span style={{ color: content === 'answered' ? 'green' : 'red' }}>
+        <CallLabel type={(content || '').toLocaleLowerCase()}>
           {content}
-        </span>
+        </CallLabel>
       );
     }
 

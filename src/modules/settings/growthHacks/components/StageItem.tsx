@@ -4,6 +4,7 @@ import FormControl from 'modules/common/components/form/Control';
 import { StageItemContainer } from 'modules/settings/boards/styles';
 import React from 'react';
 import FormList from '../containers/FormList';
+import FormBuilder from './FormBuilder';
 
 type Props = {
   stage: IStage;
@@ -35,6 +36,7 @@ class StageItem extends React.Component<Props, {}> {
         />
 
         <FormList onChangeForm={onChangeForm} stage={stage} />
+        <FormBuilder formId={stage.formId} />
 
         <Button
           btnStyle="link"

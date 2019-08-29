@@ -75,7 +75,11 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'sesconfig') {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = (
+        <a href="#add">
+          <Icon icon="settings" /> {__('Manage')}
+        </a>
+      );
 
       const content = props => <Settings {...props} />;
 

@@ -9,6 +9,7 @@ import React from 'react';
 import { Watch } from '../../containers/editForm/';
 import { RightButton, RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
+
 type Props = {
   item: IItem;
   customers: ICustomer[];

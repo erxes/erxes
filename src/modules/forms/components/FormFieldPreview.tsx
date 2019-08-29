@@ -64,14 +64,14 @@ class FormFieldPreview extends React.Component<Props, State> {
     };
 
     return (
-      <React.Fragment>
+      <>
         {this.renderFormDesc()}
         <SortableList
           child={child}
           fields={this.state.fields || []}
           onChangeFields={this.onChangeFields}
         />
-      </React.Fragment>
+      </>
     );
   }
 }

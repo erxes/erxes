@@ -1,6 +1,5 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import routerUtils from 'modules/common/utils/router';
-import queryString from 'query-string';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import history from '../../../../browserHistory';
@@ -27,61 +26,29 @@ type DraggableContainerProps = {
 
 class DraggableContainer extends React.Component<
   DraggableContainerProps,
-  { isDragDisabled: boolean; isFormVisible: boolean }
+  { isDragDisabled: boolean }
 > {
-  unlisten?: () => void;
-
   constructor(props: DraggableContainerProps) {
     super(props);
 
-    const { item } = props;
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
-
-    let isFormVisible = false;
-
-    if (itemIdQueryParam === item._id) {
-      isFormVisible = true;
-    }
-
-    this.state = { isDragDisabled: false, isFormVisible };
+    this.state = { isDragDisabled: false };
   }
 
-  componentDidMount() {
-    this.unlisten = history.listen(location => {
-      const queryParams = queryString.parse(location.search);
-
-      if (queryParams.itemId === this.props.item._id) {
-        return this.setState({ isFormVisible: true });
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    if (this.unlisten) {
-      this.unlisten();
-    }
-  }
-
-  onTogglePopup = () => {
+  onItemClick = () => {
     const { item } = this.props;
-    const { isFormVisible, isDragDisabled } = this.state;
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
-    this.setState(
-      { isDragDisabled: !isDragDisabled, isFormVisible: !isFormVisible },
-      () => {
-        if (itemIdQueryParam) {
-          return routerUtils.removeParams(history, 'itemId');
-        }
+    this.setState({ isDragDisabled: true }, () => {
+      routerUtils.setParams(history, { itemId: item._id });
+    });
+  };
 
-        return routerUtils.setParams(history, { itemId: item._id });
-      }
-    );
+  beforePopupClose = () => {
+    this.setState({ isDragDisabled: false });
   };
 
   render() {
     const { stageId, item, index, options } = this.props;
-    const { isDragDisabled, isFormVisible } = this.state;
+    const { isDragDisabled } = this.state;
     const ItemComponent = options.Item;
 
     return (
@@ -96,9 +63,9 @@ class DraggableContainer extends React.Component<
             key={item._id}
             stageId={stageId}
             item={item}
-            isFormVisible={isFormVisible}
             isDragging={dragSnapshot.isDragging}
-            onTogglePopup={this.onTogglePopup}
+            onClick={this.onItemClick}
+            beforePopupClose={this.beforePopupClose}
             provided={dragProvided}
             options={options}
           />
