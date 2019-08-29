@@ -63,13 +63,11 @@ export const HeaderButton = styledTS<{
   border-radius: 4px;
   transition: background 0.3s ease;
   background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
-  font-size: 14px;
   font-weight: 500;
   display: inline-block;
   vertical-align: middle;
 
   > i {
-    font-size: 14px;
     color: ${props =>
       props.isActive ? colors.colorSecondary : colors.colorCoreGray};
     margin-right: 5px;

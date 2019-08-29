@@ -9,8 +9,9 @@ import Icon from 'modules/common/components/Icon';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { CloseModal } from '../styles';
+import { CloseModal, ScoreAmount } from '../styles';
 import { IGrowthHack } from '../types';
+import Score from './Score';
 
 type Props = {
   stageId: string;
@@ -85,7 +86,15 @@ export default class GrowthHackItem extends React.PureComponent<
 
   render() {
     const { item, isDragging, provided } = this.props;
-    const { customers, companies } = item;
+    const {
+      customers,
+      companies,
+      scoringType,
+      reach = 0,
+      impact = 0,
+      confidence = 0,
+      ease = 0
+    } = item;
 
     return (
       <ItemContainer
@@ -99,6 +108,15 @@ export default class GrowthHackItem extends React.PureComponent<
             {renderPriority(item.priority)}
             {item.name}
           </h5>
+          <ScoreAmount>
+            <Score.Amount
+              type={scoringType}
+              r={reach}
+              i={impact}
+              c={confidence}
+              e={ease}
+            />
+          </ScoreAmount>
 
           {customers.map((customer, index) => (
             <div key={index}>

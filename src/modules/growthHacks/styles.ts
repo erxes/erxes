@@ -35,27 +35,14 @@ const CalculatedAmount = styled.div`
 const Amounts = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 40px 30px;
 `;
 
 const Factor = styled.div`
   display: flex;
 `;
 
-const Denominator = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 2px solid ${colors.colorCoreDarkGray};
-
-  input {
-    max-width: 80px;
-  }
-`;
-
-const Amount = styled.div`
+const AmountItem = styled.div`
   margin-left: ${dimensions.coreSpacing}px;
   position: relative;
   text-align: center;
@@ -85,6 +72,15 @@ const Amount = styled.div`
     color: ${colors.colorCoreGreen};
   }
 
+  &:nth-of-type(4) {
+    color: ${colors.colorCoreTeal};
+  }
+
+  &:nth-of-type(4):after {
+    content: '\/';
+    left: -10px;
+  }
+
   &:after {
     content: '\\ecdb';
     font-family: 'erxes';
@@ -111,12 +107,22 @@ const CloseModal = styled.div`
   }
 `;
 
+const ScoreAmount = styled.div`
+  position: absolute;
+  right: 0;
+  top: 0;
+  border-radius: 2px;
+  background: ${colors.colorCoreTeal};
+  padding: 3px 6px;
+  color: ${colors.colorWhite};
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
   Amounts,
-  Amount,
+  AmountItem,
   CloseModal,
   Factor,
-  Denominator
+  ScoreAmount
 };
