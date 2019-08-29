@@ -109,7 +109,9 @@ class EditForm extends React.Component<Props, State> {
 
       if (reactiveFields.includes(name)) {
         this.props.saveItem({ [name]: value }, updatedItem => {
-          this.setState({ updatedItem });
+          this.setState({ updatedItem }, () => {
+            this.props.onUpdate(updatedItem, this.state.prevStageId);
+          });
         });
       }
     });
