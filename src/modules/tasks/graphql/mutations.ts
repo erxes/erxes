@@ -1,5 +1,4 @@
 const commonVariables = `
-  $name: String!,
   $stageId: String,
   $closeDate: Date,
   $description: String,
@@ -12,7 +11,6 @@ const commonVariables = `
 `;
 
 const commonParams = `
-  name: $name,
   stageId: $stageId,
   companyIds: $companyIds,
   customerIds: $customerIds,
@@ -53,16 +51,16 @@ const commonReturn = `
 `;
 
 const tasksAdd = `
-  mutation tasksAdd(${commonVariables}) {
-    tasksAdd(${commonParams}) {
+  mutation tasksAdd($name: String!, ${commonVariables}) {
+    tasksAdd(name: $name, ${commonParams}) {
       ${commonReturn}
     }
   }
 `;
 
 const tasksEdit = `
-  mutation tasksEdit($_id: String!, ${commonVariables}) {
-    tasksEdit(_id: $_id, ${commonParams}) {
+  mutation tasksEdit($_id: String!, $name: String, ${commonVariables}) {
+    tasksEdit(_id: $_id, name: $name, ${commonParams}) {
       ${commonReturn}
     }
   }
