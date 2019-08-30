@@ -10,6 +10,7 @@ import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
   AddFieldMutationResponse,
+  AddFieldMutationVariables,
   EditFieldMutationResponse,
   EditFieldMutationVariables,
   EditFormMutationResponse,
@@ -170,6 +171,12 @@ export default withProps<Props>(
             _id: formId
           }
         })
+      }
+    ),
+    graphql<Props, AddFieldMutationResponse, AddFieldMutationVariables>(
+      gql(mutations.fieldsAdd),
+      {
+        name: 'addFieldMutation'
       }
     ),
     graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
