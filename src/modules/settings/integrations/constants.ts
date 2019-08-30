@@ -67,9 +67,9 @@ export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   FACEBOOK: 'facebook',
   GMAIL: 'gmail',
-  FORM: 'form',
+  LEAD: 'lead',
   CALLPRO: 'callpro',
-  ALL_LIST: ['messenger', 'facebook', 'form', 'callpro']
+  ALL_LIST: ['messenger', 'facebook', 'lead', 'callpro']
 };
 
 export const FORM_LOAD_TYPES = {
