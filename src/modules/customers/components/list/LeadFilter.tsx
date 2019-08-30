@@ -13,7 +13,7 @@ interface IProps extends IRouterProps {
   loading: boolean;
 }
 
-function Forms({ history, counts, integrations, loading }: IProps) {
+function Leads({ history, counts, integrations, loading }: IProps) {
   const { Section, Header } = Wrapper.Sidebar;
 
   const onClick = formId => {
@@ -46,13 +46,13 @@ function Forms({ history, counts, integrations, loading }: IProps) {
 
   return (
     <Section collapsible={integrations.length > 5}>
-      <Header uppercase={true}>{__('Filter by form')}</Header>
+      <Header uppercase={true}>{__('Filter by lead')}</Header>
 
       <DataWithLoader
         data={data}
         loading={loading}
         count={integrations.length}
-        emptyText="Search and filter customers by form"
+        emptyText="Search and filter customers by lead"
         emptyIcon="monitor"
         size="small"
         objective={true}
@@ -61,4 +61,4 @@ function Forms({ history, counts, integrations, loading }: IProps) {
   );
 }
 
-export default withRouter<IProps>(Forms);
+export default withRouter<IProps>(Leads);

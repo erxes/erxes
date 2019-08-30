@@ -18,8 +18,10 @@ class StageItem extends React.Component<Props, {}> {
 
     const onChangeName = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
-    const onChangeForm = (formId: string) => {
-      onChange(stage._id, 'formId', formId);
+    const onChangeForm = (stageId: string, formId: string) => {
+      if (typeof formId === 'string') {
+        onChange(stageId, 'formId', formId);
+      }
     };
 
     return (
@@ -34,13 +36,16 @@ class StageItem extends React.Component<Props, {}> {
           onChange={onChangeName.bind(this, stage._id)}
         />
 
-        <FormBuilder onChangeForm={onChangeForm} formId={stage.formId} />
+        <FormBuilder
+          stageId={stage._id}
+          onChangeForm={onChangeForm}
+          formId={stage.formId}
+        />
 
         <Button
           btnStyle="link"
-          size="small"
           onClick={remove.bind(this, stage._id)}
-          icon="cancel"
+          icon="times"
         />
       </StageItemContainer>
     );
