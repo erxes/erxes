@@ -39,7 +39,6 @@ type Props = {
       brandId: string;
       languageCode?: string;
       leadData: ILeadData;
-      lead: any;
     }
   ) => void;
 };
@@ -150,9 +149,7 @@ class Form extends React.Component<Props, State> {
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
         thankContent: this.state.thankContent,
-        redirectUrl: this.state.redirectUrl
-      },
-      lead: {
+        redirectUrl: this.state.redirectUrl,
         themeColor: this.state.theme || this.state.color,
         callout: {
           title: calloutTitle,
