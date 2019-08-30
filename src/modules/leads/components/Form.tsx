@@ -17,7 +17,6 @@ import { Link } from 'react-router-dom';
 
 import { ImportLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
-import { FieldsQueryResponse } from 'modules/settings/properties/types';
 import {
   CallOut,
   ChooseType,
@@ -32,7 +31,7 @@ type Props = {
   loading?: boolean;
   isActionLoading: boolean;
   isSaving: boolean;
-  onChange: (callback: string | FieldsQueryResponse) => void;
+  onChange: (formId: string) => void;
   save: (
     params: {
       name: string;

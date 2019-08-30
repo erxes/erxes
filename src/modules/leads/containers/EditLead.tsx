@@ -75,9 +75,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           .then(() => {
             Alert.success('You successfully updated a lead');
 
-            data.refetch().then(() => {
-              history.push('/leads');
-            });
+            history.push('/leads');
 
             this.setState({ isSaving: false, isLoading: false });
           })

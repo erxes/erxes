@@ -24,7 +24,7 @@ import {
 
 type Props = {
   renderPreview: (props: IFormPreviewContent) => void;
-  onChange: (callback: string | FieldsQueryResponse) => void;
+  onChange: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   type: string;
   isSaving: boolean;
@@ -127,9 +127,11 @@ class EditFormContainer extends React.Component<FinalProps> {
         })
 
         .then(() => {
-          Alert.success('You successfully updated a field');
+          Alert.success('You successfully updated a form');
 
-          onChange(fieldsQuery);
+          fieldsQuery.refetch().then(() => {
+            onChange(formId);
+          });
         })
 
         .catch(error => {

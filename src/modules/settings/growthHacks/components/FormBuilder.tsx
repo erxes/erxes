@@ -51,7 +51,7 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
       type: 'growthHack'
     };
 
-    if (formId) {
+    if (this.props.formId) {
       return <EditForm {...doc} formId={formId} />;
     }
 

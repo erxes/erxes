@@ -15,7 +15,7 @@ type Props = {
   fields: IField[];
   renderPreview: (props: IFormPreviewContent) => void;
   onDocChange?: (doc: IFormData) => void;
-  saveForm: (params: IFormData, callback: () => void) => void;
+  saveForm: (params: IFormData) => void;
   isSaving: boolean;
   type: string;
   form?: IForm;
@@ -44,6 +44,21 @@ class Form extends React.Component<Props, State> {
       isSaving: props.isSaving,
       editingField: undefined
     };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const { saveForm, type } = this.props;
+    const { formTitle, formBtnText, formDesc, fields } = this.state;
+
+    if (this.props.isSaving !== nextProps.isSaving) {
+      saveForm({
+        title: formTitle,
+        description: formDesc,
+        buttonText: formBtnText,
+        fields,
+        type
+      });
+    }
   }
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
@@ -107,7 +122,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderPreview, isSaving, saveForm, type } = this.props;
+    const { renderPreview } = this.props;
     const { formTitle, formBtnText, formDesc, fields } = this.state;
 
     const onChangeTitle = e =>
@@ -118,22 +133,6 @@ class Form extends React.Component<Props, State> {
 
     const onChangeBtnText = e =>
       this.onChange('formBtnText', (e.currentTarget as HTMLInputElement).value);
-    // tslint:disable-next-line:no-console
-    console.log(isSaving);
-    if (isSaving) {
-      saveForm(
-        {
-          title: formTitle,
-          description: formDesc,
-          buttonText: formBtnText,
-          fields,
-          type
-        },
-        () => {
-          this.setState({ isSaving: false });
-        }
-      );
-    }
 
     return (
       <FlexContent>

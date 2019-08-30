@@ -2,8 +2,7 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
-  AddFieldsMutationVariables,
-  FieldsQueryResponse
+  AddFieldsMutationVariables
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -20,7 +19,7 @@ import {
 
 type Props = {
   renderPreview: (props: IFormPreviewContent) => void;
-  onChange: (callback: string | FieldsQueryResponse) => void;
+  onChange: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   type: string;
   isSaving: boolean;
@@ -44,7 +43,7 @@ class CreateFormContainer extends React.Component<
   render() {
     const { addFormMutation, addFieldsMutation, onChange } = this.props;
 
-    const saveForm = (doc, callback) => {
+    const saveForm = doc => {
       let formId;
       const { title, description, buttonText, fields, type } = doc;
 
@@ -81,9 +80,7 @@ class CreateFormContainer extends React.Component<
         })
 
         .then(() => {
-          Alert.success('You successfully added a field');
-
-          callback();
+          Alert.success('You successfully added a form');
         })
 
         .catch(error => {
