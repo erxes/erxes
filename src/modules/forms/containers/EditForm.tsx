@@ -127,6 +127,8 @@ class EditFormContainer extends React.Component<FinalProps> {
         })
 
         .then(() => {
+          Alert.success('You successfully updated a field');
+
           onChange(fieldsQuery);
         })
 

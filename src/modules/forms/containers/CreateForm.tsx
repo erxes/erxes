@@ -71,6 +71,10 @@ class CreateFormContainer extends React.Component<FinalProps> {
           return Promise.all(promises);
         })
 
+        .then(() => {
+          Alert.success('You successfully added a field');
+        })
+
         .catch(error => {
           Alert.error(error.message);
         });
