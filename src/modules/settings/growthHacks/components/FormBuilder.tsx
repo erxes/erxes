@@ -12,6 +12,8 @@ import { PreviewWrapper } from '../styles';
 
 type Props = {
   formId: string;
+  onChangeForm: (stageId: string, formId: string) => void;
+  stageId: string;
 };
 
 class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
@@ -35,13 +37,16 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
     this.setState({ isSaveForm: true });
   };
 
+  onAfterSaveForm = formId => {
+    this.props.onChangeForm(this.props.stageId, formId);
+  };
+
   renderFormContent = () => {
     const { formId } = this.props;
 
     const doc = {
       renderPreview: this.renderFormPreview,
-      onChange: () => null,
-      onDocChange: () => null,
+      onChange: this.onAfterSaveForm,
       isSaving: this.state.isSaveForm,
       type: 'growthHack'
     };
@@ -84,7 +89,7 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
     const formTrigger = (
       <Button btnStyle="link">
         <Tip text="Edit">
-          <Icon icon="edit" />
+          <Icon icon={this.props.formId ? 'file-edit-alt' : 'file-plus-alt'} />
         </Tip>
       </Button>
     );

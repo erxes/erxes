@@ -127,6 +127,8 @@ class EditFormContainer extends React.Component<FinalProps> {
         })
 
         .then(() => {
+          Alert.success('You successfully updated a field');
+
           onChange(fieldsQuery);
         })
 
@@ -159,7 +161,8 @@ export default withProps<Props>(
           variables: {
             contentType: 'form',
             contentTypeId: formId
-          }
+          },
+          fetchPolicy: 'network-only'
         };
       }
     }),

@@ -74,6 +74,11 @@ const StageItemContainer = styled(PipelineRowContainer)`
     margin-right: 10px;
   }
 
+  button {
+    padding: 3px;
+    font-size: 16px;
+  }
+
   button:hover {
     color: ${colors.colorCoreRed};
   }
