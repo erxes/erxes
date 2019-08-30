@@ -3,7 +3,6 @@ import { Alert, withProps } from 'modules/common/utils';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
-  ILeadData,
   LeadIntegrationDetailQueryResponse
 } from 'modules/settings/integrations/types';
 import React from 'react';
@@ -12,16 +11,11 @@ import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
-import {
-  EditLeadMutationResponse,
-  EditLeadMutationVariables,
-  ILead
-} from '../types';
+import { ILeadData } from '../types';
 
 type Props = {
   contentTypeId: string;
   formId: string;
-  leadId: string;
   queryParams: any;
 };
 
@@ -32,7 +26,7 @@ type State = {
     brandId: string;
     name: string;
     languageCode: string;
-    lead: ILead;
+    lead: any;
     leadData: ILeadData;
   };
 };
@@ -41,7 +35,6 @@ type FinalProps = {
   integrationDetailQuery: LeadIntegrationDetailQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
-  EditLeadMutationResponse &
   IRouterProps;
 
 class EditLeadContainer extends React.Component<FinalProps, State> {
@@ -53,11 +46,9 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
   render() {
     const {
-      leadId,
       formId,
       integrationDetailQuery,
       editIntegrationMutation,
-      editLeadMutation,
       history
     } = this.props;
 
@@ -69,31 +60,18 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
     const onLeadEdit = data => {
       if (this.state.doc) {
-        const { lead, leadData, brandId, name, languageCode } = this.state.doc;
+        const { leadData, brandId, name, languageCode } = this.state.doc;
 
-        editLeadMutation({
+        editIntegrationMutation({
           variables: {
-            _id: leadId,
+            _id: integration._id,
             formId,
-            themeColor: lead.themeColor,
-            callout: lead.callout,
-            rules: lead.rules
+            leadData,
+            brandId,
+            name,
+            languageCode
           }
         })
-          .then(() =>
-            // edit integration
-            editIntegrationMutation({
-              variables: {
-                _id: integration._id,
-                leadData,
-                brandId,
-                name,
-                languageCode,
-                leadId
-              }
-            })
-          )
-
           .then(() => {
             Alert.success('You successfully updated a lead');
 
@@ -107,7 +85,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           .catch(error => {
             Alert.error(error.message);
 
-            this.setState({ isLoading: false });
+            this.setState({ isSaving: false, isLoading: false });
           });
       }
     };
@@ -157,12 +135,6 @@ export default withProps<Props>(
           'formDetail'
         ]
       }
-    }),
-    graphql<Props, EditLeadMutationResponse, EditLeadMutationVariables>(
-      gql(mutations.editLead),
-      {
-        name: 'editLeadMutation'
-      }
-    )
+    })
   )(withRouter<FinalProps>(EditLeadContainer))
 );

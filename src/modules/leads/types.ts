@@ -3,7 +3,6 @@ import { IUser } from '../auth/types';
 import { IForm } from '../forms/types';
 import { IBrand } from '../settings/brands/types';
 import { IIntegration } from '../settings/integrations/types';
-import { IField } from '../settings/properties/types';
 import { ITag } from '../tags/types';
 
 export interface ICallout {
@@ -14,9 +13,17 @@ export interface ICallout {
   skip?: boolean;
 }
 
-export interface ILead {
-  _id: string;
-  formId: string;
+export interface ILeadData {
+  loadType?: string;
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankContent?: string;
+  redirectUrl?: string;
   themeColor?: string;
   callout?: ICallout;
   rules?: IConditionsRule[];
@@ -32,40 +39,9 @@ export interface ILead {
 
 export interface ILeadIntegration extends IIntegration {
   brand: IBrand;
-  lead: ILead;
   tags: ITag[];
   createdUser: IUser;
 }
-
-// mutation types
-export type AddLeadMutationVariables = {
-  formId: string;
-  themeColor?: string;
-  callout?: ICallout;
-  rules?: IConditionsRule[];
-};
-
-export type AddLeadMutationResponse = {
-  addLeadMutation: (
-    params: { variables: AddLeadMutationVariables }
-  ) => Promise<any>;
-};
-
-export type EditLeadMutationVariables = {
-  _id: string;
-  formId: string;
-  themeColor?: string;
-  callout?: ICallout;
-  rules?: IConditionsRule[];
-};
-
-export type EditLeadMutationResponse = {
-  editLeadMutation: (
-    params: {
-      variables: EditLeadMutationVariables;
-    }
-  ) => Promise<any>;
-};
 
 export type RemoveMutationVariables = {
   _id: string;
