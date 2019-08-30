@@ -36,6 +36,7 @@ const dealFields = `
   _id
   name
   stageId
+  hasNotified
   pipeline {
     _id
     name
