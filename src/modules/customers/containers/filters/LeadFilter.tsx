@@ -3,7 +3,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { IntegrationsQueryResponse } from '../../../settings/integrations/types';
-import FormFilter from '../../components/list/FormFilter';
+import LeadFilter from '../../components/list/LeadFilter';
 import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
@@ -12,7 +12,7 @@ type Props = {
   customersCountQuery?: CountQueryResponse;
 };
 
-const FormFilterContainer = (props: Props) => {
+const LeadFilterContainer = (props: Props) => {
   const { integrationsQuery, customersCountQuery } = props;
 
   const counts = (customersCountQuery
@@ -28,7 +28,7 @@ const FormFilterContainer = (props: Props) => {
     loading: integrationsQuery ? integrationsQuery.loading : false
   };
 
-  return <FormFilter {...updatedProps} />;
+  return <LeadFilter {...updatedProps} />;
 };
 
 export default withProps<{ loadingMainQuery: boolean }>(
@@ -36,7 +36,7 @@ export default withProps<{ loadingMainQuery: boolean }>(
     graphql<{ loadingMainQuery: boolean }, IntegrationsQueryResponse, {}>(
       gql`
         query integrations {
-          integrations(kind: "form") {
+          integrations(kind: "lead") {
             _id
             name
             form {
@@ -61,5 +61,5 @@ export default withProps<{ loadingMainQuery: boolean }>(
         variables: { only: 'byForm' }
       }
     })
-  )(FormFilterContainer)
+  )(LeadFilterContainer)
 );
