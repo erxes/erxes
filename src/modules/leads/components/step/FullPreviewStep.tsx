@@ -78,7 +78,15 @@ class FullPreviewStep extends React.Component<Props, State> {
     }
 
     if (carousel === 'form') {
-      return <FormPreview {...this.props} {...formData || {}} />;
+      return (
+        <FormPreview
+          {...this.props}
+          formTitle={formData.title}
+          formBtnText={formData.buttonText}
+          formDesc={formData.description}
+          fields={formData.fields}
+        />
+      );
     }
 
     return <SuccessPreview {...this.props} />;
