@@ -1,7 +1,7 @@
 import * as request from 'request';
 import { debugGmail } from '../debuggers';
 import { Integrations } from '../models';
-import { IIntegration } from '../models/Integrations';
+import { IIntegrationDocument } from '../models/Integrations';
 import { getAuth, gmailClient } from './auth';
 import { createOrGetConversation, createOrGetConversationMessage, createOrGetCustomer } from './store';
 import { ICredentials, IGmailAttachment, IMessage, IMessageAdded } from './types';
@@ -98,7 +98,11 @@ export const syncPartially = async (receivedEmail: string, credentials: ICredent
  * Create customer, conversation, message
  * according to received emails
  */
-const processReceivedEmails = async (messagesResponse: any, integration: IIntegration, receivedEmail: string) => {
+const processReceivedEmails = async (
+  messagesResponse: any,
+  integration: IIntegrationDocument,
+  receivedEmail: string,
+) => {
   const [firstMessage] = messagesResponse;
   const previousMessageId = firstMessage.messageId;
 
@@ -119,11 +123,12 @@ const processReceivedEmails = async (messagesResponse: any, integration: IIntegr
 
     const email = extractEmailFromString(from);
 
-    const customer = await createOrGetCustomer(email, integration.erxesApiId);
+    const customer = await createOrGetCustomer(email, integration.erxesApiId, integration._id);
     const conversation = await createOrGetConversation(
       email,
       reply,
       integration.erxesApiId,
+      integration._id,
       customer.erxesApiId,
       subject,
       receivedEmail,

@@ -1,4 +1,5 @@
 import * as graph from 'fbgraph';
+import { debugFacebook } from '../debuggers';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -51,5 +52,8 @@ export const subscribePage = async (pageId, pageToken): Promise<{ success: true 
 };
 
 export const unsubscribePage = async (pageId, pageToken): Promise<{ success: true } | any> => {
-  return graphRequest.delete(`${pageId}/subscribed_apps`, pageToken);
+  return graphRequest
+    .delete(`${pageId}/subscribed_apps`, pageToken)
+    .then(res => res)
+    .catch(e => debugFacebook(e));
 };

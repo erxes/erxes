@@ -2,7 +2,7 @@ import { fetchMainApi } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 import { extractEmailFromString } from './util';
 
-const createOrGetCustomer = async (email: string, integrationId: string) => {
+const createOrGetCustomer = async (email: string, integrationIdErxesApiId: string, integrationId: string) => {
   let customer = await Customers.findOne({ email });
 
   if (!customer) {
@@ -28,7 +28,7 @@ const createOrGetCustomer = async (email: string, integrationId: string) => {
             firstName: '',
             lastName: '',
             primaryEmail: email,
-            integrationId,
+            integrationId: integrationIdErxesApiId,
           }),
         },
       });
@@ -47,6 +47,7 @@ const createOrGetCustomer = async (email: string, integrationId: string) => {
 const createOrGetConversation = async (
   email: string,
   reply: string[],
+  integrationIdErxesApiId: string,
   integrationId: string,
   customerId: string,
   subject: string,
@@ -86,7 +87,7 @@ const createOrGetConversation = async (
           action: 'create-conversation',
           payload: JSON.stringify({
             customerId,
-            integrationId,
+            integrationId: integrationIdErxesApiId,
             content: subject,
           }),
         },

@@ -47,7 +47,7 @@ const init = async app => {
 
     if (!customer) {
       try {
-        customer = await Customers.create({ phoneNumber: numberFrom });
+        customer = await Customers.create({ phoneNumber: numberFrom, integrationId: integration._id });
       } catch (e) {
         throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
       }
@@ -88,6 +88,7 @@ const init = async app => {
           callId: callID,
           senderPhoneNumber: numberTo,
           recipientPhoneNumber: numberFrom,
+          integrationId: integration._id,
         });
       } catch (e) {
         throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
@@ -119,6 +120,7 @@ const init = async app => {
     // get conversation message
     const conversationMessage = await ConversationMessages.findOne({
       callId: callID,
+      conversationId: conversation._id,
     });
 
     if (!conversationMessage) {

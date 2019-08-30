@@ -7,6 +7,7 @@ export interface ICustomer {
   firstName?: string;
   lastName?: string;
   erxesApiId?: string;
+  integrationId?: string;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {}
@@ -17,6 +18,7 @@ export const customerSchema = new Schema({
   erxesApiId: String,
   firstName: String,
   lastName: String,
+  integrationId: String,
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
@@ -31,6 +33,7 @@ export interface IConversation {
   customerId: string;
   erxesApiId: string;
   createdAt: Date;
+  integrationId: string;
 }
 
 export interface IConversationDocument extends IConversation, Document {}
@@ -42,6 +45,7 @@ export const conversationSchema = new Schema({
   content: String,
   customerId: String,
   erxesApiId: String,
+  integrationId: String,
   createdAt: field({ type: Date, index: true, default: new Date() }),
 });
 

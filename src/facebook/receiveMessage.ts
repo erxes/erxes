@@ -43,6 +43,7 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
         firstName: response.first_name,
         lastName: response.last_name,
         profilePic: response.profile_pic,
+        integrationId: integration._id,
       });
     } catch (e) {
       throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
@@ -87,6 +88,7 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
         senderId: userId,
         recipientId: recipient.id,
         content: text,
+        integrationId: integration._id,
       });
     } catch (e) {
       throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);

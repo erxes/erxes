@@ -9,6 +9,7 @@ export interface ICustomer {
   firstName: string;
   lastName: string;
   profilePic: string;
+  integrationId: string;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {}
@@ -20,6 +21,7 @@ export const customerSchema = new Schema({
   firstName: String,
   lastName: String,
   profilePic: String,
+  integrationId: String,
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
@@ -32,6 +34,7 @@ export interface IConversation {
   senderId: string;
   recipientId: string;
   content: string;
+  integrationId: string;
 }
 
 export interface IConversationDocument extends IConversation, Document {}
@@ -42,6 +45,7 @@ export const conversationSchema = new Schema({
   timestamp: Date,
   senderId: { type: String, index: true },
   recipientId: { type: String, index: true },
+  integrationId: String,
   content: String,
 });
 

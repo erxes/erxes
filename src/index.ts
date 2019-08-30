@@ -9,13 +9,10 @@ import initCallPro from './callpro/controller';
 import { connect } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
-import { getPageAccessToken, unsubscribePage } from './facebook/utils';
 import initGmail from './gmail/controller';
-import { getCredentialsByEmailAccountId } from './gmail/util';
-import { stopPushNotification } from './gmail/watch';
+import { removeIntegration } from './helpers';
 import './messageQueue';
 import Accounts from './models/Accounts';
-import Integrations from './models/Integrations';
 import { init } from './startup';
 
 connect();
@@ -41,29 +38,11 @@ app.post('/integrations/remove', async (req, res) => {
 
   const { integrationId } = req.body;
 
-  const integration = await Integrations.findOne({ erxesApiId: integrationId });
-
-  if (!integration) {
-    return res.json({ status: 'integation not found' });
+  try {
+    await removeIntegration(integrationId);
+  } catch (e) {
+    return res.json({ status: e.message });
   }
-
-  const account = await Accounts.findOne({ _id: integration.accountId });
-
-  if (integration.kind === 'facebook' && account) {
-    for (const pageId of integration.facebookPageIds) {
-      const pageTokenResponse = await getPageAccessToken(pageId, account.token);
-
-      await unsubscribePage(pageId, pageTokenResponse);
-    }
-  }
-
-  if (integration.kind === 'gmail' && account) {
-    const credentials = await getCredentialsByEmailAccountId({ email: account.uid });
-
-    await stopPushNotification(account.uid, credentials);
-  }
-
-  await Integrations.deleteOne({ erxesApiId: integrationId });
 
   debugResponse(debugIntegrations, req);
 
@@ -83,7 +62,14 @@ app.get('/accounts', async (req, res) => {
 app.post('/accounts/remove', async (req, res) => {
   debugRequest(debugIntegrations, req);
 
-  await Accounts.deleteOne({ _id: req.body._id });
+  const { _id } = req.body;
+
+  try {
+    await removeIntegration(_id);
+    await Accounts.deleteOne({ _id });
+  } catch (e) {
+    return res.json({ status: e.message });
+  }
 
   debugResponse(debugIntegrations, req);
 
