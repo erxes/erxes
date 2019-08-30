@@ -5,6 +5,7 @@ const integrations = `
       brandId
       name
       kind
+      code
       brand {
         _id
         name
@@ -12,16 +13,20 @@ const integrations = `
       }
       languageCode
       leadData
-      leadId
+      formId
       tags {
         _id
         name
         colorCode
       }
       tagIds
-      lead {
+      form {
         _id
-        formId
+        title
+        code
+        description
+        type
+        buttonText
         createdDate
         createdUserId
         createdUser {
@@ -30,41 +35,6 @@ const integrations = `
             avatar
             fullName
             position
-          }
-        }
-        themeColor
-        contactsGathered
-        viewCount
-        callout {
-          title
-          body
-          buttonText
-          featuredImage
-          skip
-        }
-        rules {
-          _id
-          kind
-          text
-          condition
-          value
-        }
-        form {
-          _id
-          title
-          code
-          description
-          type
-          buttonText
-          createdDate
-          createdUserId
-          createdUser {
-            _id
-            details {
-              avatar
-              fullName
-              position
-            }
           }
         }
       }
@@ -86,7 +56,7 @@ const integrationDetail = `
       languageCode
       brandId
       code
-      leadId
+      formId
       leadData
       tagIds
       tags {
@@ -94,9 +64,13 @@ const integrationDetail = `
         name
         colorCode
       }
-      lead {
+      form {
         _id
-        formId
+        title
+        code
+        description
+        type
+        buttonText
         createdDate
         createdUserId
         createdUser {
@@ -105,41 +79,6 @@ const integrationDetail = `
             avatar
             fullName
             position
-          }
-        }
-        themeColor
-        contactsGathered
-        viewCount
-        callout {
-          title
-          body
-          buttonText
-          featuredImage
-          skip
-        }
-        rules {
-          _id
-          kind
-          text
-          condition
-          value
-        }
-        form {
-          _id
-          title
-          code
-          description
-          type
-          buttonText
-          createdDate
-          createdUserId
-          createdUser {
-            _id
-            details {
-              avatar
-              fullName
-              position
-            }
           }
         }
       }

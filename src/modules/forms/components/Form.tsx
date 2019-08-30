@@ -14,9 +14,10 @@ import FormField from './FormField';
 type Props = {
   fields: IField[];
   renderPreview: (props: IFormPreviewContent) => void;
-  onDocChange: (doc: IFormData) => void;
+  onDocChange?: (doc: IFormData) => void;
   saveForm: (params: IFormData) => void;
   isSaving: boolean;
+  type: string;
   form?: IForm;
 };
 
@@ -44,8 +45,9 @@ class Form extends React.Component<Props, State> {
   }
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as Pick<State, keyof State>, () =>
-      this.props.onDocChange(this.state)
+    this.setState(
+      { [key]: value } as Pick<State, keyof State>,
+      () => this.props.onDocChange && this.props.onDocChange(this.state)
     );
   };
 
@@ -103,7 +105,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderPreview, isSaving, saveForm } = this.props;
+    const { renderPreview, isSaving, saveForm, type } = this.props;
     const { formTitle, formBtnText, formDesc, fields } = this.state;
 
     const onChangeTitle = e =>
@@ -121,7 +123,7 @@ class Form extends React.Component<Props, State> {
         description: formDesc,
         buttonText: formBtnText,
         fields,
-        type: 'lead'
+        type
       });
     }
 

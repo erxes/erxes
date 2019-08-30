@@ -1,5 +1,6 @@
 import { colors } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
+import { WhiteBoxRoot } from 'modules/layout/styles';
 import styled from 'styled-components';
 import { TemplateBox } from '../emailTemplates/styles';
 
@@ -35,4 +36,9 @@ const Box = styled(BoxRoot)`
   }
 `;
 
-export { TemplateBoxContent, Box };
+const PreviewWrapper = styled(WhiteBoxRoot)`
+  flex: 1;
+  padding: 30px 60px;
+`;
+
+export { TemplateBoxContent, Box, PreviewWrapper };

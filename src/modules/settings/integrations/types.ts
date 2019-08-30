@@ -1,4 +1,5 @@
-import { ILead, ILeadIntegration } from 'modules/leads/types';
+import { IForm } from 'modules/forms/types';
+import { ILeadData, ILeadIntegration } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
@@ -23,7 +24,7 @@ export interface ISelectMessengerApps {
   brand: IBrand;
   label: string;
   value: string;
-  lead?: ILead;
+  form?: IForm;
 }
 
 export interface IOnlineHour {
@@ -66,33 +67,20 @@ export interface IUiOptions {
   logoPreviewUrl?: string;
 }
 
-export interface ILeadData {
-  loadType?: string;
-  successAction?: string;
-  fromEmail?: string;
-  userEmailTitle?: string;
-  userEmailContent?: string;
-  adminEmails?: string[];
-  adminEmailTitle?: string;
-  adminEmailContent?: string;
-  thankContent?: string;
-  redirectUrl?: string;
-}
-
 export interface IIntegration {
   _id: string;
   kind: string;
   name: string;
   brandId?: string;
   code: string;
-  leadId: string;
-  lead: ILead;
+  formId: string;
   languageCode?: string;
   createUrl: string;
   createModal: string;
   messengerData?: IMessengerData;
+  form: IForm;
   uiOptions?: IUiOptions;
-  leadData?: ILeadData;
+  leadData: ILeadData;
   brand: IBrand;
   channels: IChannel[];
 }
@@ -113,12 +101,6 @@ export type QueryVariables = {
 
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
-  loading: boolean;
-  refetch: (variables?: QueryVariables) => void;
-};
-
-export type LeadsQueryResponse = {
-  leads: ILead[];
   loading: boolean;
   refetch: (variables?: QueryVariables) => void;
 };
@@ -296,7 +278,7 @@ export type AddIntegrationMutationVariables = {
   brandId: string;
   name: string;
   languageCode: string;
-  leadId: string;
+  formId: string;
 };
 
 export type AddIntegrationMutationResponse = {
@@ -313,7 +295,7 @@ export type EditIntegrationMutationVariables = {
   brandId: string;
   name: string;
   languageCode: string;
-  leadId: string;
+  formId: string;
 };
 
 export type EditIntegrationMutationResponse = {

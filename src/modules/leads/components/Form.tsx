@@ -10,8 +10,7 @@ import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { ILeadData } from 'modules/settings/integrations/types';
-import { ILeadIntegration } from '../types';
+import { ILeadData, ILeadIntegration } from '../types';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -40,7 +39,6 @@ type Props = {
       brandId: string;
       languageCode?: string;
       leadData: ILeadData;
-      lead: any;
     }
   ) => void;
 };
@@ -82,9 +80,9 @@ class Form extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as ILeadIntegration);
 
-    const leadData = integration.leadData || ({} as ILeadData);
-    const lead = integration.lead || {};
-    const callout = lead.callout || {};
+    const { leadData = {} as ILeadData } = integration;
+    const callout = leadData.callout || {};
+    const form = integration.form || {};
 
     this.state = {
       activeStep: 1,
@@ -99,7 +97,7 @@ class Form extends React.Component<Props, State> {
       adminEmailContent: leadData.adminEmailContent || '',
       thankContent: leadData.thankContent || 'Thank you.',
       redirectUrl: leadData.redirectUrl || '',
-      rules: integration.lead ? integration.lead.rules : [],
+      rules: leadData.rules || [],
 
       brand: integration.brandId,
       language: integration.languageCode,
@@ -111,8 +109,14 @@ class Form extends React.Component<Props, State> {
       logoPreviewStyle: {},
       defaultValue: {},
       logo: '',
-      formData: {},
-      theme: lead.themeColor || '#6569DF',
+      formData: {
+        title: form.title || '',
+        description: form.description || '',
+        buttonText: form.buttonText || '',
+        fields: [],
+        type: form.type || ''
+      },
+      theme: leadData.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
     };
@@ -145,9 +149,7 @@ class Form extends React.Component<Props, State> {
         adminEmailTitle: this.state.adminEmailTitle,
         adminEmailContent: this.state.adminEmailContent,
         thankContent: this.state.thankContent,
-        redirectUrl: this.state.redirectUrl
-      },
-      lead: {
+        redirectUrl: this.state.redirectUrl,
         themeColor: this.state.theme || this.state.color,
         callout: {
           title: calloutTitle,
@@ -278,7 +280,7 @@ class Form extends React.Component<Props, State> {
               type={type}
               color={color}
               theme={theme}
-              formId={integration && integration.lead.formId}
+              formId={integration && integration.formId}
               onChange={this.props.onChange}
               onDocChange={this.onFormDocChange}
               isSaving={this.props.isSaving}

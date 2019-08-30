@@ -10,6 +10,7 @@ import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
   AddFieldMutationResponse,
+  AddFieldMutationVariables,
   EditFieldMutationResponse,
   EditFieldMutationVariables,
   EditFormMutationResponse,
@@ -24,7 +25,8 @@ import {
 type Props = {
   renderPreview: (props: IFormPreviewContent) => void;
   onChange: (callback: string | FieldsQueryResponse) => void;
-  onDocChange: (doc: IFormData) => void;
+  onDocChange?: (doc: IFormData) => void;
+  type: string;
   isSaving: boolean;
   formId: string;
   integration?: IIntegration;
@@ -170,6 +172,12 @@ export default withProps<Props>(
             _id: formId
           }
         })
+      }
+    ),
+    graphql<Props, AddFieldMutationResponse, AddFieldMutationVariables>(
+      gql(mutations.fieldsAdd),
+      {
+        name: 'addFieldMutation'
       }
     ),
     graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(

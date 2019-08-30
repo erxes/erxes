@@ -1,5 +1,4 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 
 const ScoreWrapper = styled.div``;
@@ -91,23 +90,6 @@ const AmountItem = styled.div`
   }
 `;
 
-const CloseModal = styled.div`
-  position: absolute;
-  right: -40px;
-  width: 30px;
-  height: 30px;
-  background: ${rgba(colors.colorBlack, 0.3)};
-  line-height: 30px;
-  border-radius: 15px;
-  text-align: center;
-  color: ${colors.colorWhite};
-
-  &:hover {
-    background: ${rgba(colors.colorBlack, 0.4)};
-    cursor: pointer;
-  }
-`;
-
 const ScoreAmount = styled.div`
   position: absolute;
   right: 0;
@@ -125,7 +107,6 @@ export {
   CalculatedAmount,
   Amounts,
   AmountItem,
-  CloseModal,
   Factor,
   ScoreAmount
 };

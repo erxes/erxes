@@ -2,6 +2,8 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import RTG from 'react-transition-group';
+import { CloseModal } from '../styles/main';
+import Icon from './Icon';
 
 type Props = {
   title: string;
@@ -36,7 +38,11 @@ class ModalTrigger extends React.Component<Props, State> {
 
   renderHeader = () => {
     if (this.props.hideHeader) {
-      return null;
+      return (
+        <CloseModal onClick={this.closeModal}>
+          <Icon icon="times" />
+        </CloseModal>
+      );
     }
 
     const { title, ignoreTrans } = this.props;

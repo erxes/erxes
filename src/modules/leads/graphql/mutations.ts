@@ -1,7 +1,7 @@
 const commonFormParamsDef = `
   $name: String!,
   $brandId: String!,
-  $leadId: String!,
+  $formId: String!,
   $languageCode: String,
   $leadData: IntegrationLeadData!
 `;
@@ -9,23 +9,9 @@ const commonFormParamsDef = `
 const commonFormParams = `
   name: $name,
   brandId: $brandId,
-  leadId: $leadId,
+  formId: $formId,
   languageCode: $languageCode,
   leadData: $leadData
-`;
-
-const commonParamsDef = `
-  $formId: String!,
-  $themeColor: String,
-  $callout: JSON,
-  $rules: [InputRule]
-`;
-
-const commonParams = `
-  formId: $formId,
-  themeColor: $themeColor,
-  callout: $callout,
-  rules: $rules
 `;
 
 const integrationRemove = `
@@ -50,26 +36,8 @@ const integrationsEditLeadIntegration = `
   }
 `;
 
-const addLead = `
-  mutation leadsAdd(${commonParamsDef}) {
-    leadsAdd(${commonParams}) {
-      _id
-    }
-  }
-`;
-
-const editLead = `
-  mutation leadsEdit($_id: String!, ${commonParamsDef}) {
-    leadsEdit(_id: $_id, ${commonParams}) {
-      _id
-    }
-  }
-`;
-
 export default {
   integrationRemove,
   integrationsEditLeadIntegration,
-  integrationsCreateLeadIntegration,
-  addLead,
-  editLead
+  integrationsCreateLeadIntegration
 };

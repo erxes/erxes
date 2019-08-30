@@ -165,6 +165,23 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
   }
 `;
 
+const CloseModal = styled.div`
+  position: absolute;
+  right: -40px;
+  width: 30px;
+  height: 30px;
+  background: ${rgba(colors.colorBlack, 0.3)};
+  line-height: 30px;
+  border-radius: 15px;
+  text-align: center;
+  color: ${colors.colorWhite};
+
+  &:hover {
+    background: ${rgba(colors.colorBlack, 0.4)};
+    cursor: pointer;
+  }
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -177,5 +194,6 @@ export {
   CenterContent,
   ActivityContent,
   DropIcon,
-  MiddleContent
+  MiddleContent,
+  CloseModal
 };

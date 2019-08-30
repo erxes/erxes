@@ -41,12 +41,10 @@ class Row extends React.Component<Props, {}> {
   };
 
   manageAction(integration) {
-    const { formId } = integration.lead;
+    const { formId } = integration;
 
     return (
-      <Link
-        to={`/leads/edit/${integration._id}/${formId}/${integration.leadId}`}
-      >
+      <Link to={`/leads/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')}>
             <Icon icon="edit" />
@@ -74,8 +72,10 @@ class Row extends React.Component<Props, {}> {
 
   render() {
     const { integration, isChecked, toggleBulk } = this.props;
-    const lead = integration.lead;
-    const createdUser = lead.createdUser || {
+    const form = integration.form;
+    const lead = integration.leadData;
+
+    const createdUser = form.createdUser || {
       _id: '',
       details: { fullName: '' }
     };
@@ -110,12 +110,12 @@ class Row extends React.Component<Props, {}> {
         <td>
           {lead.contactsGathered || 0}{' '}
           <Tip text={__('View')}>
-            <Link to={`/contacts/customers/all?form=${integration.leadId}`}>
+            <Link to={`/contacts/customers/all?form=${integration.formId}`}>
               <Icon icon="eye" />
             </Link>
           </Tip>
         </td>
-        <td>{dayjs(lead.createdDate).format('ll')}</td>
+        <td>{dayjs(form.createdDate).format('ll')}</td>
         <td>
           <div key={createdUser._id}>
             {createdUser.details && createdUser.details.fullName}

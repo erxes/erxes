@@ -1,8 +1,5 @@
 import { IUser } from '../auth/types';
-import { IBrand } from '../settings/brands/types';
-import { IIntegration } from '../settings/integrations/types';
 import { IField } from '../settings/properties/types';
-import { ITag } from '../tags/types';
 
 export interface IForm {
   _id: string;
