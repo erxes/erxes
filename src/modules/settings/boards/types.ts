@@ -86,4 +86,6 @@ export type IOption = {
   pipelineName: string;
   StageItem: any;
   PipelineForm: any;
+  additionalButton?: string;
+  additionalButtonText?: string;
 };

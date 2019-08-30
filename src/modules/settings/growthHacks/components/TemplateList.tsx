@@ -1,3 +1,4 @@
+import Button from 'modules/common/components/Button';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -9,6 +10,7 @@ import {
   Templates
 } from 'modules/settings/emailTemplates/styles';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
 import { TemplateBoxContent } from '../styles';
@@ -70,6 +72,16 @@ class TemplateList extends React.Component<Props> {
     return <Templates>{this.renderRow(props)}</Templates>;
   };
 
+  renderButton = () => {
+    return (
+      <Link to="/settings/boards/growthHack">
+        <Button size="small" icon="award">
+          Go to Campaign
+        </Button>
+      </Link>
+    );
+  };
+
   render() {
     return (
       <List
@@ -86,6 +98,7 @@ class TemplateList extends React.Component<Props> {
             description={`Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.`}
           />
         }
+        additionalButton={this.renderButton()}
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         {...this.props}

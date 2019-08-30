@@ -7,31 +7,78 @@ import CreateForm from 'modules/forms/containers/CreateForm';
 import EditForm from 'modules/forms/containers/EditForm';
 import { IFormPreviewContent } from 'modules/forms/types';
 import React from 'react';
+import { Modal } from 'react-bootstrap';
+import { PreviewWrapper } from '../styles';
 
 type Props = {
   formId: string;
 };
 
-class FormBuilder extends React.Component<Props, {}> {
+class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isSaveForm: false
+    };
+  }
+
   renderFormPreview = (props: IFormPreviewContent) => {
-    return <FormFieldPreview {...props} />;
+    return (
+      <PreviewWrapper>
+        <FormFieldPreview {...props} />
+      </PreviewWrapper>
+    );
   };
 
-  renderContent = () => {
+  saveForm = () => {
+    this.setState({ isSaveForm: true });
+  };
+
+  renderFormContent = () => {
     const { formId } = this.props;
 
     const doc = {
       renderPreview: this.renderFormPreview,
       onChange: () => null,
       onDocChange: () => null,
-      isSaving: false
+      isSaving: this.state.isSaveForm
     };
+
+    console.log(this.state.isSaveForm);
 
     if (formId) {
       return <EditForm {...doc} formId={formId} />;
     }
 
     return <CreateForm {...doc} />;
+  };
+
+  renderContent = modalProps => {
+    return (
+      <>
+        {this.renderFormContent()}
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="cancel-1"
+            onClick={modalProps.closeModal}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            btnStyle="success"
+            type="button"
+            icon="cancel-1"
+            onClick={this.saveForm}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </>
+    );
   };
 
   render() {
@@ -48,8 +95,9 @@ class FormBuilder extends React.Component<Props, {}> {
         size="lg"
         title="Edit"
         trigger={formTrigger}
-        dialogClassName="transform"
+        dialogClassName="transform modal-1000w"
         content={this.renderContent}
+        hideHeader={true}
       />
     );
   }

@@ -121,7 +121,7 @@ class Form extends React.Component<Props, State> {
         description: formDesc,
         buttonText: formBtnText,
         fields,
-        type: 'lead'
+        type: 'growthHack'
       });
     }
 
