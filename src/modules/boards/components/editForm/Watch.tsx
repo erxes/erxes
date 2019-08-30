@@ -2,6 +2,7 @@ import { WatchIndicator } from 'modules/boards/styles/item';
 import { IItem } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 
 type IProps = {
@@ -20,7 +21,7 @@ class Watch extends React.Component<IProps> {
 
     return (
       <Button icon="eye" onClick={onClick}>
-        Watch
+        {__('Watch')}
         {isWatched && (
           <WatchIndicator>
             <Icon icon="check" />
