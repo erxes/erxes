@@ -25,12 +25,13 @@ const FormContainer = (props: Props & ICommonFormProps) => {
   }
 
   const integrations = integrationsQuery.integrations;
+
   const kbTopics = kbTopicsQuery.knowledgeBaseTopics;
 
   const updatedProps = {
     ...props,
     messengers: integrations.filter(i => i.kind === 'messenger'),
-    forms: integrations.filter(i => i.kind === 'form'),
+    leads: integrations.filter(i => i.kind === 'lead'),
     kbTopics
   };
 

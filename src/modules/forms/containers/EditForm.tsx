@@ -25,7 +25,8 @@ import {
 type Props = {
   renderPreview: (props: IFormPreviewContent) => void;
   onChange: (callback: string | FieldsQueryResponse) => void;
-  onDocChange: (doc: IFormData) => void;
+  onDocChange?: (doc: IFormData) => void;
+  type: string;
   isSaving: boolean;
   formId: string;
   integration?: IIntegration;

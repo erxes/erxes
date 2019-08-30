@@ -47,7 +47,8 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
       renderPreview: this.renderFormPreview,
       onChange: this.onAfterSaveForm,
       onDocChange: () => null,
-      isSaving: this.state.isSaveForm
+      isSaving: this.state.isSaveForm,
+      type: 'growthHack'
     };
 
     if (formId) {
