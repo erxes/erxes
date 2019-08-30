@@ -18,9 +18,10 @@ type Props = {
   item: IGrowthHack;
   users: IUser[];
   addItem: (doc: IGrowthHackParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: IGrowthHackParams, callback?: () => void) => void;
+  saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
+  onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  closeModal: () => void;
+  beforePopupClose: () => void;
 };
 
 type State = {
