@@ -161,7 +161,8 @@ export default withProps<Props>(
           variables: {
             contentType: 'form',
             contentTypeId: formId
-          }
+          },
+          fetchPolicy: 'network-only'
         };
       }
     }),
