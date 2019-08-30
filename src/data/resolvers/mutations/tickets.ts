@@ -76,13 +76,15 @@ const ticketMutations = {
     { _id, destinationStageId }: { _id: string; destinationStageId: string },
     { user }: IContext,
   ) {
-    const ticket = await Tickets.updateTicket(_id, {
+    const ticket = await Tickets.getTicket(_id);
+
+    await Tickets.updateTicket(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(Tickets, ticket, 'ticket', destinationStageId);
+    const { content, action } = await itemsChange(ticket, 'ticket', destinationStageId);
 
     await sendNotifications({
       item: ticket,

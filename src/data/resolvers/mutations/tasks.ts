@@ -76,13 +76,15 @@ const taskMutations = {
     { _id, destinationStageId }: { _id: string; destinationStageId: string },
     { user }: IContext,
   ) {
-    const task = await Tasks.updateTask(_id, {
+    const task = await Tasks.getTask(_id);
+
+    await Tasks.updateTask(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(Tasks, task, 'task', destinationStageId);
+    const { content, action } = await itemsChange(task, 'task', destinationStageId);
 
     await sendNotifications({
       item: task,
