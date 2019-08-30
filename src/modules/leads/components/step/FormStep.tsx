@@ -14,7 +14,7 @@ type Props = {
   isSaving: boolean;
   formId?: string;
   onChange: (callback: string | FieldsQueryResponse) => void;
-  onDocChange: (doc: IFormData) => void;
+  onDocChange?: (doc: IFormData) => void;
 };
 
 class FormStep extends React.Component<Props> {
@@ -33,7 +33,8 @@ class FormStep extends React.Component<Props> {
       renderPreview: this.renderFormPreview,
       onChange,
       onDocChange,
-      isSaving
+      isSaving,
+      type: 'lead'
     };
 
     if (formId) {
