@@ -15,7 +15,7 @@ type Props = {
   fields: IField[];
   renderPreview: (props: IFormPreviewContent) => void;
   onDocChange?: (doc: IFormData) => void;
-  saveForm: (params: IFormData) => void;
+  saveForm: (params: IFormData, callback: () => void) => void;
   isSaving: boolean;
   type: string;
   form?: IForm;
@@ -26,6 +26,7 @@ type State = {
   editingField?: IField;
   formTitle: string;
   formDesc: string;
+  isSaving: boolean;
   formBtnText: string;
 };
 
@@ -40,6 +41,7 @@ class Form extends React.Component<Props, State> {
       formTitle: form.title || '',
       formDesc: form.description || '',
       formBtnText: form.buttonText || 'Send',
+      isSaving: props.isSaving,
       editingField: undefined
     };
   }
@@ -116,15 +118,21 @@ class Form extends React.Component<Props, State> {
 
     const onChangeBtnText = e =>
       this.onChange('formBtnText', (e.currentTarget as HTMLInputElement).value);
-
+    // tslint:disable-next-line:no-console
+    console.log(isSaving);
     if (isSaving) {
-      saveForm({
-        title: formTitle,
-        description: formDesc,
-        buttonText: formBtnText,
-        fields,
-        type
-      });
+      saveForm(
+        {
+          title: formTitle,
+          description: formDesc,
+          buttonText: formBtnText,
+          fields,
+          type
+        },
+        () => {
+          this.setState({ isSaving: false });
+        }
+      );
     }
 
     return (

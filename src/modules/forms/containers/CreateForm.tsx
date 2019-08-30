@@ -31,11 +31,20 @@ type FinalProps = {} & Props &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
 
-class CreateFormContainer extends React.Component<FinalProps> {
+class CreateFormContainer extends React.Component<
+  FinalProps,
+  { isSaving: boolean }
+> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = { isSaving: props.isSaving };
+  }
+
   render() {
     const { addFormMutation, addFieldsMutation, onChange } = this.props;
 
-    const saveForm = doc => {
+    const saveForm = (doc, callback) => {
       let formId;
       const { title, description, buttonText, fields, type } = doc;
 
@@ -71,6 +80,12 @@ class CreateFormContainer extends React.Component<FinalProps> {
           return Promise.all(promises);
         })
 
+        .then(() => {
+          Alert.success('You successfully added a field');
+
+          callback();
+        })
+
         .catch(error => {
           Alert.error(error.message);
         });
@@ -91,7 +106,10 @@ export default withProps<Props>(
     graphql<Props, AddFormMutationResponse, AddFormMutationVariables>(
       gql(mutations.addForm),
       {
-        name: 'addFormMutation'
+        name: 'addFormMutation',
+        options: {
+          refetchQueries: ['fields']
+        }
       }
     ),
     graphql<Props, AddFieldsMutationResponse, AddFieldsMutationVariables>(
