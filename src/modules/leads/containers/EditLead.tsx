@@ -91,9 +91,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
     };
 
     const save = doc => {
-      this.setState({ isLoading: true });
-      this.setState({ isSaving: true });
-      this.setState({ doc });
+      this.setState({ isLoading: true, isSaving: true, doc });
     };
 
     const updatedProps = {

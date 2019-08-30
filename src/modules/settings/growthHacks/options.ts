@@ -5,7 +5,9 @@ const options = {
   boardName: 'Campaign',
   pipelineName: 'Project',
   StageItem,
-  PipelineForm
+  PipelineForm,
+  additionalButton: '/settings/boards/growthHackTemplate',
+  additionalButtonText: 'Go to templates'
 };
 
 const templateOptions = {

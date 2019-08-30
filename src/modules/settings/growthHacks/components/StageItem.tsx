@@ -36,6 +36,7 @@ class StageItem extends React.Component<Props, {}> {
         />
 
         <FormList onChangeForm={onChangeForm} stage={stage} />
+
         <FormBuilder formId={stage.formId} />
 
         <Button

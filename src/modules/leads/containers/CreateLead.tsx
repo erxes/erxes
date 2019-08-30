@@ -70,9 +70,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
     };
 
     const save = doc => {
-      this.setState({ isLoading: true });
-      this.setState({ isSaving: true });
-      this.setState({ doc });
+      this.setState({ isLoading: true, isSaving: true, doc });
     };
 
     const updatedProps = {

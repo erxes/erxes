@@ -7,6 +7,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
 import { PipelineContainer } from '../styles';
 import { IOption } from '../types';
@@ -120,6 +121,22 @@ class Pipelines extends React.Component<Props, State> {
     );
   }
 
+  renderAdditionalButton = () => {
+    const { options } = this.props;
+
+    if (options && options.additionalButton) {
+      return (
+        <Link to={options.additionalButton}>
+          <Button size="small" icon="arrow-to-right">
+            {options.additionalButtonText}
+          </Button>
+        </Link>
+      );
+    }
+
+    return null;
+  };
+
   renderButton() {
     const { options, boardId } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
@@ -129,14 +146,17 @@ class Pipelines extends React.Component<Props, State> {
     }
 
     return (
-      <Button
-        btnStyle="success"
-        size="small"
-        icon="add"
-        onClick={this.addPipeline}
-      >
-        Add {pipelineName}
-      </Button>
+      <>
+        {this.renderAdditionalButton()}
+        <Button
+          btnStyle="success"
+          size="small"
+          icon="add"
+          onClick={this.addPipeline}
+        >
+          Add {pipelineName}
+        </Button>
+      </>
     );
   }
 
@@ -146,7 +166,7 @@ class Pipelines extends React.Component<Props, State> {
     const boardName = options ? options.boardName : 'Board';
 
     return (
-      <React.Fragment>
+      <>
         <Wrapper.ActionBar
           left={
             <HeaderDescription
@@ -160,7 +180,7 @@ class Pipelines extends React.Component<Props, State> {
 
         {this.renderContent()}
         {this.renderAddForm()}
-      </React.Fragment>
+      </>
     );
   }
 }
