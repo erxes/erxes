@@ -19,7 +19,7 @@ type Props = {
   count: (segment: ISegmentDoc) => void;
   counterLoading: boolean;
   total: {
-    byFakeSegment: number;
+    byFakeSegment?: number;
   };
 };
 
@@ -36,7 +36,7 @@ const SegmentsForm = (props: Props) => {
               {counterLoading ? (
                 <Spinner objective={true} />
               ) : (
-                total.byFakeSegment
+                total.byFakeSegment || 0
               )}
             </ResultCount>
             {__('User(s) will recieve this message')}
