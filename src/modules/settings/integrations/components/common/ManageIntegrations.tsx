@@ -102,6 +102,8 @@ class ManageIntegrations extends React.Component<Props, State> {
       type = 'form';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
       type = 'facebook';
+    } else if (kind === KIND_CHOICES.CALLPRO) {
+      type = 'callpro';
     }
 
     return type;
@@ -117,6 +119,8 @@ class ManageIntegrations extends React.Component<Props, State> {
       icon = 'facebook-official';
     } else if (kind === KIND_CHOICES.GMAIL) {
       icon = 'mail-alt';
+    } else if (kind === KIND_CHOICES.CALLPRO) {
+      icon = 'phone-call';
     }
 
     return icon;

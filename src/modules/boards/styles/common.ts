@@ -73,9 +73,13 @@ export const ItemDate = styled.span`
   z-index: 10;
 `;
 
-export const ItemContainer = styledTS<{ isDragging?: boolean }>(styled.div)`
+export const ItemContainer = styledTS<{
+  isDragging?: boolean;
+  hasNotified?: boolean;
+}>(styled.div)`
   margin-bottom: 8px;
-  background-color: rgb(255, 255, 255);
+  background-color: ${props =>
+    props.hasNotified === false ? colors.bgActive : `rgb(255, 255, 255)`};
   box-shadow: ${props =>
     props.isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'

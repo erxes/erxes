@@ -1,26 +1,20 @@
 import dayjs from 'dayjs';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
+import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
 import { ITicket } from '../types';
 
 type Props = {
   stageId: string;
   item: ITicket;
-  isFormVisible: boolean;
-  isDragging: boolean;
-  provided;
-  onAdd: (stageId: string, item: ITicket) => void;
-  onRemove: (dealId: string, stageId: string) => void;
-  onUpdate: (item: ITicket) => void;
-  onTogglePopup: () => void;
-  options: IOptions;
+  onClick: () => void;
+  beforePopupClose: () => void;
+  options?: IOptions;
 };
 class TicketItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
@@ -32,53 +26,25 @@ class TicketItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const {
-      onTogglePopup,
-      isFormVisible,
-      stageId,
-      item,
-      onAdd,
-      onRemove,
-      onUpdate,
-      options
-    } = this.props;
-
-    if (!isFormVisible) {
-      return null;
-    }
+    const { beforePopupClose, stageId, item, options } = this.props;
 
     return (
-      <Modal bsSize="lg" show={true} onHide={onTogglePopup}>
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit ticket')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <EditForm
-            options={options}
-            stageId={stageId}
-            itemId={item._id}
-            onAdd={onAdd}
-            onRemove={onRemove}
-            onUpdate={onUpdate}
-            closeModal={onTogglePopup}
-          />
-        </Modal.Body>
-      </Modal>
+      <EditForm
+        stageId={stageId}
+        itemId={item._id}
+        beforePopupClose={beforePopupClose}
+        options={options}
+      />
     );
   };
 
   render() {
-    const { item, isDragging, provided, onTogglePopup } = this.props;
+    const { item, onClick } = this.props;
     const { customers, companies } = item;
 
     return (
-      <ItemContainer
-        isDragging={isDragging}
-        innerRef={provided.innerRef}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-      >
-        <Content onClick={onTogglePopup}>
+      <>
+        <Content onClick={onClick}>
           <h5>
             {renderPriority(item.priority)}
             {item.name}
@@ -119,7 +85,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
           </Footer>
         </Content>
         {this.renderForm()}
-      </ItemContainer>
+      </>
     );
   }
 }
