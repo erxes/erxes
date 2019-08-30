@@ -12,6 +12,7 @@ import { PreviewWrapper } from '../styles';
 
 type Props = {
   formId: string;
+  onChangeForm: (formId: string) => void;
 };
 
 class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
@@ -35,17 +36,19 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
     this.setState({ isSaveForm: true });
   };
 
+  onAfterSaveForm = formId => {
+    this.props.onChangeForm(formId);
+  };
+
   renderFormContent = () => {
     const { formId } = this.props;
 
     const doc = {
       renderPreview: this.renderFormPreview,
-      onChange: () => null,
+      onChange: this.onAfterSaveForm,
       onDocChange: () => null,
       isSaving: this.state.isSaveForm
     };
-
-    console.log(this.state.isSaveForm);
 
     if (formId) {
       return <EditForm {...doc} formId={formId} />;

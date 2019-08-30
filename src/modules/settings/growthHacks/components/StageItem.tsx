@@ -3,7 +3,6 @@ import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import { StageItemContainer } from 'modules/settings/boards/styles';
 import React from 'react';
-import FormList from '../containers/FormList';
 import FormBuilder from './FormBuilder';
 
 type Props = {
@@ -19,8 +18,8 @@ class StageItem extends React.Component<Props, {}> {
 
     const onChangeName = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
-    const onChangeForm = (stageId, value) => {
-      onChange(stageId, 'formId', value);
+    const onChangeForm = (formId: string) => {
+      onChange(stage._id, 'formId', formId);
     };
 
     return (
@@ -35,9 +34,7 @@ class StageItem extends React.Component<Props, {}> {
           onChange={onChangeName.bind(this, stage._id)}
         />
 
-        <FormList onChangeForm={onChangeForm} stage={stage} />
-
-        <FormBuilder formId={stage.formId} />
+        <FormBuilder onChangeForm={onChangeForm} formId={stage.formId} />
 
         <Button
           btnStyle="link"
