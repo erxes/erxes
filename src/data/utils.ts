@@ -379,13 +379,15 @@ export interface ISendNotification {
   notifType: string;
   link: string;
   action: string;
+  contentType: string;
+  contentTypeId: string;
 }
 
 /**
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
-  const { createdUser, receivers, title, content, notifType, action } = doc;
+  const { createdUser, receivers, title, content, notifType, action, contentType, contentTypeId } = doc;
   let link = doc.link;
 
   // collecting emails
@@ -404,13 +406,17 @@ export const sendNotification = async (doc: ISendNotification) => {
   for (const receiverId of receivers) {
     try {
       // send web and mobile notification
-      await Notifications.createNotification(
-        { link, title, content, notifType, receiver: receiverId, action },
+      const notification = await Notifications.createNotification(
+        { link, title, content, notifType, receiver: receiverId, action, contentType, contentTypeId },
         createdUser._id,
       );
 
       graphqlPubsub.publish('notificationInserted', {
-        userId: receiverId,
+        notificationInserted: {
+          userId: receiverId,
+          title: notification.title,
+          content: notification.content,
+        },
       });
     } catch (e) {
       // Any other error is serious
@@ -730,11 +736,15 @@ export const sendMobileNotification = async ({
   }
 };
 
-export const paginate = (collection, params: { page?: number; perPage?: number }) => {
-  const { page = 0, perPage = 0 } = params || {};
+export const paginate = (collection, params: { ids?: string[]; page?: number; perPage?: number }) => {
+  const { page = 0, perPage = 0, ids } = params || { ids: null };
 
   const _page = Number(page || '1');
   const _limit = Number(perPage || '20');
+
+  if (ids) {
+    return collection;
+  }
 
   return collection.limit(_limit).skip((_page - 1) * _limit);
 };

@@ -108,7 +108,7 @@ export const getUserAllowedActions = async (user: IUserDocument): Promise<IActio
 
   let actionMap: IActionMap;
 
-  if (permissionCache) {
+  if (permissionCache && permissionCache !== '{}') {
     actionMap = JSON.parse(permissionCache);
   } else {
     actionMap = await userAllowedActions(user);

@@ -56,7 +56,8 @@ export const KIND_CHOICES = {
   FORM: 'form',
   FACEBOOK: 'facebook',
   GMAIL: 'gmail',
-  ALL: ['messenger', 'form', 'facebook', 'gmail'],
+  CALLPRO: 'callpro',
+  ALL: ['messenger', 'form', 'facebook', 'gmail', 'callpro'],
 };
 
 // messenger data availability constants
@@ -334,4 +335,15 @@ export const NOTIFICATION_TYPES = {
     'customerMention',
     'companyMention',
   ],
+};
+
+export const NOTIFICATION_CONTENT_TYPES = {
+  TASK: 'task',
+  DEAL: 'deal',
+  COMPANY: 'company',
+  CUSTOMER: 'customer',
+  TICKET: 'ticket',
+  CHANNEL: 'channel',
+  CONVERSATION: 'conversation',
+  ALL: ['task', 'deal', 'company', 'customer', 'ticket', 'channel', 'conversation'],
 };

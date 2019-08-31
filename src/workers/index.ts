@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import * as formidable from 'formidable';
 import * as path from 'path';
+import { filterXSS } from 'xss';
 import { checkFile } from '../data/utils';
 import { connect } from '../db/connection';
 import { debugRequest, debugResponse, debugWorkers } from '../debuggers';
@@ -22,6 +23,7 @@ initRedis();
 connect();
 
 const app = express();
+app.disable('x-powered-by');
 
 // for health check
 app.get('/status', async (_req, res) => {
@@ -106,7 +108,7 @@ app.post('/import-file', async (req: any, res) => {
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   console.error(error.stack);
-  res.status(500).send(error.message);
+  res.status(500).send(filterXSS(error.message));
 });
 
 const { PORT_WORKERS } = process.env;

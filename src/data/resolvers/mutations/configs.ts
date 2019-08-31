@@ -1,6 +1,7 @@
 import { Configs } from '../../../db/models';
 import { IConfig } from '../../../db/models/definitions/configs';
 import { moduleCheckPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 const configMutations = {
   /**
@@ -10,7 +11,7 @@ const configMutations = {
     return Configs.createOrUpdateConfig(doc);
   },
 
-  engagesConfigSave(_root, args, { dataSources }) {
+  engagesConfigSave(_root, args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesConfigSave(args);
   },
 };

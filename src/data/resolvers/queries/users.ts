@@ -9,6 +9,7 @@ interface IListArgs {
   searchValue?: string;
   isActive?: boolean;
   ids?: string[];
+  email?: string;
   status?: string;
 }
 
@@ -21,6 +22,7 @@ const queryBuilder = async (params: IListArgs) => {
 
   if (searchValue) {
     const fields = [
+      { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
     ];
@@ -33,7 +35,7 @@ const queryBuilder = async (params: IListArgs) => {
   }
 
   if (ids) {
-    selector._id = { $in: ids };
+    return { _id: { $in: ids } };
   }
 
   if (status) {

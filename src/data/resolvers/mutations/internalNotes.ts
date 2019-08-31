@@ -1,5 +1,5 @@
 import { Companies, Customers, Deals, InternalNotes, Pipelines, Stages, Tasks, Tickets } from '../../../db/models';
-import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -22,6 +22,8 @@ const internalNoteMutations = {
       content: ``,
       link: ``,
       notifType: ``,
+      contentType: ``,
+      contentTypeId: ``,
     };
 
     switch (args.contentType) {
@@ -32,7 +34,9 @@ const internalNoteMutations = {
 
         notifDoc.notifType = NOTIFICATION_TYPES.DEAL_EDIT;
         notifDoc.content = `"${deal.name}"`;
-        notifDoc.link = `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`;
+        notifDoc.link = `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
+        notifDoc.contentTypeId = deal._id;
+        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.DEAL;
         break;
       }
 
@@ -45,6 +49,8 @@ const internalNoteMutations = {
           customer.lastName ||
           customer.primaryPhone}"`;
         notifDoc.link = `/contacts/customers/details/${customer._id}`;
+        notifDoc.contentTypeId = customer._id;
+        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
         break;
       }
 
@@ -54,6 +60,8 @@ const internalNoteMutations = {
         notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
         notifDoc.content = `"${company.primaryName || company.primaryEmail || company.primaryPhone}"`;
         notifDoc.link = `/contacts/companies/details/${company._id}`;
+        notifDoc.contentTypeId = company._id;
+        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
         break;
       }
 
@@ -64,7 +72,9 @@ const internalNoteMutations = {
 
         notifDoc.notifType = NOTIFICATION_TYPES.TICKET_EDIT;
         notifDoc.content = `"${ticket.name}"`;
-        notifDoc.link = `/inbox/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`;
+        notifDoc.link = `/inbox/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
+        notifDoc.contentTypeId = ticket._id;
+        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
         break;
       }
 
@@ -75,7 +85,9 @@ const internalNoteMutations = {
 
         notifDoc.notifType = NOTIFICATION_TYPES.TASK_EDIT;
         notifDoc.content = `"${task.name}"`;
-        notifDoc.link = `/task/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`;
+        notifDoc.link = `/task/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${task._id}`;
+        notifDoc.contentTypeId = task._id;
+        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TASK;
         break;
       }
 

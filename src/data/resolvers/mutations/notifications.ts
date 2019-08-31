@@ -26,11 +26,23 @@ const notificationMutations = {
   /**
    * Marks notification as read
    */
-  notificationsMarkAsRead(_root, { _ids }: { _ids: string[] }, { user }: IContext) {
+  async notificationsMarkAsRead(
+    _root,
+    { _ids, contentTypeId }: { _ids: string[]; contentTypeId: string },
+    { user }: IContext,
+  ) {
     // notify subscription
     graphqlPubsub.publish('notificationsChanged', '');
 
-    return Notifications.markAsRead(_ids, user._id);
+    let notificationIds = _ids;
+
+    if (contentTypeId) {
+      const notifications = await Notifications.find({ contentTypeId });
+
+      notificationIds = notifications.map(notification => notification._id);
+    }
+
+    return Notifications.markAsRead(notificationIds, user._id);
   },
 };
 

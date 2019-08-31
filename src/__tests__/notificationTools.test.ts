@@ -3,7 +3,7 @@ import utils from '../data/utils';
 import { channelFactory, notificationConfigurationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
-import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
+import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('testings helper methods', () => {
@@ -52,6 +52,8 @@ describe('testings helper methods', () => {
       link: 'new Notification link',
       action: 'action',
       receivers: [_user._id, _user2._id, _user3._id],
+      contentType: NOTIFICATION_CONTENT_TYPES.CHANNEL,
+      contentTypeId: 'channelId',
     };
 
     await utils.sendNotification(doc);
@@ -100,6 +102,8 @@ describe('testings helper methods', () => {
       title: `Channel updated`,
       content,
       link: `/inbox/index?channelId=${channel._id}`,
+      contentType: NOTIFICATION_CONTENT_TYPES.CHANNEL,
+      contentTypeId: channel._id,
       receivers: channel && channel.memberIds ? channel.memberIds.filter(id => id !== channel.userId) : null,
     });
 

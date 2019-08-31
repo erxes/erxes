@@ -1,7 +1,7 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
-import { IntegrationsAPI } from '../../dataSources';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { paginate } from '../../utils';
 
 /**
@@ -119,10 +119,12 @@ const integrationQueries = {
   /**
    * Fetch integrations api
    */
-  integrationsFetchApi(_root, { path, params }: { path: string; params: { [key: string]: string } }) {
-    const integrationsApi = new IntegrationsAPI();
-
-    return integrationsApi.fetchApi(path, params);
+  integrationsFetchApi(
+    _root,
+    { path, params }: { path: string; params: { [key: string]: string } },
+    { dataSources }: IContext,
+  ) {
+    return dataSources.IntegrationsAPI.fetchApi(path, params);
   },
 };
 

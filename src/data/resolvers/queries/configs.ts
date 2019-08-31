@@ -1,5 +1,6 @@
 import { Configs } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { getEnv, sendRequest } from '../../utils';
 
 const configQueries = {
@@ -62,7 +63,7 @@ const configQueries = {
   /**
    * Config for engage
    */
-  engagesConfigDetail(_root, {}, { dataSources: { EngagesAPI } }) {
+  engagesConfigDetail(_root, {}, { dataSources: { EngagesAPI } }: IContext) {
     return EngagesAPI.engagesConfigDetail();
   },
 };

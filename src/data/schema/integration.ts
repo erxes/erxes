@@ -140,7 +140,7 @@ export const mutations = `
     kind: String!,
     name: String!,
     brandId: String!,
-    accountId: String!,
+    accountId: String,
     data: JSON): Integration
 
   integrationsRemove(_id: String!): JSON

@@ -17,8 +17,8 @@ export const ENGAGE_SCHEDULES: IEngageSchedules[] = [];
  * @param _id - Engage id
  * @param update - Action type
  */
-export const updateOrRemoveSchedule = async ({ _id }: { _id: string }, update?: boolean) => {
-  const selectedIndex = ENGAGE_SCHEDULES.findIndex(engage => engage.id === _id);
+export const updateOrRemoveSchedule = async (engageMessageId: string, update?: boolean) => {
+  const selectedIndex = ENGAGE_SCHEDULES.findIndex(engage => engage.id === engageMessageId);
 
   if (selectedIndex === -1) {
     return;
@@ -32,7 +32,7 @@ export const updateOrRemoveSchedule = async ({ _id }: { _id: string }, update?: 
     return;
   }
 
-  const message = await EngageMessages.findOne({ _id });
+  const message = await EngageMessages.findOne({ _id: engageMessageId });
 
   if (!message) {
     return;
