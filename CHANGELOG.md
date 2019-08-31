@@ -1,3 +1,23 @@
+## [0.10.1](https://github.com/erxes/erxes/compare/0.10.0...0.10.1) (2019-08-31)
+
+
+### Bug Fixes
+
+* **notification:** widget and notification popover being out of sync. ([#1223](https://github.com/erxes/erxes/issues/1223)) ([1fdcc25](https://github.com/erxes/erxes/commit/1fdcc25))
+
+
+### Features
+
+* **deal/task/ticket:** auto save ([51fe182](https://github.com/erxes/erxes/commit/51fe182)), closes [#637](https://github.com/erxes/erxes/issues/637)
+* **deal/ticket/task:** added notification color on item  ([e7f9f7c](https://github.com/erxes/erxes/commit/e7f9f7c)), closes [#1232](https://github.com/erxes/erxes/issues/1232) [#1209](https://github.com/erxes/erxes/issues/1209)
+* **notification:** add desktop notification ([8d4097f](https://github.com/erxes/erxes/commit/8d4097f)), closes [#1093](https://github.com/erxes/erxes/issues/1093)
+* **translation:** add some translations ([b964af3](https://github.com/erxes/erxes/commit/b964af3)), closes [#1144](https://github.com/erxes/erxes/issues/1144)
+
+
+### Performance Improvements
+
+* **segment:** refactored edit form segment count ([afcde0b](https://github.com/erxes/erxes/commit/afcde0b)), closes [#1131](https://github.com/erxes/erxes/issues/1131)
+
 # [0.10.0](https://github.com/erxes/erxes/compare/0.9.17...0.10.0) (2019-08-15)
 
 
