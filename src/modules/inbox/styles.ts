@@ -323,6 +323,10 @@ const NoHeight = styled.div`
   height: auto;
 `;
 
+const CallLabel = styledTS<{ type: string }>(styled.span)`
+  color: ${props => (props.type === 'answered' ? 'green' : 'red')};
+`;
+
 export {
   PopoverButton,
   ConversationWrapper,
@@ -351,5 +355,6 @@ export {
   AssignTrigger,
   Mask,
   MaskWrapper,
-  NoHeight
+  NoHeight,
+  CallLabel
 };

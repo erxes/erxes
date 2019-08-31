@@ -1,6 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
+import CallPro from 'modules/settings/integrations/containers/callpro/Form';
 import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import Gmail from 'modules/settings/integrations/containers/google/Gmail';
 import React from 'react';
@@ -20,6 +21,7 @@ type Props = {
     messenger: number;
     form: number;
     facebook: number;
+    callpro: number;
   };
 };
 
@@ -73,7 +75,11 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'sesconfig') {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = (
+        <a href="#add">
+          <Icon icon="settings" /> {__('Manage')}
+        </a>
+      );
 
       const content = props => <Settings {...props} />;
 
@@ -94,6 +100,20 @@ class Entry extends React.Component<Props> {
       return (
         <ModalTrigger
           title="Add knowledge base"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === 'callpro') {
+      const trigger = <a href="#add">+ {'Add'}</a>;
+
+      const content = props => <CallPro {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add call pro"
           trigger={trigger}
           content={content}
         />

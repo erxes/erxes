@@ -138,6 +138,7 @@ export type ByKind = {
   form: number;
   facebook: number;
   gmail: number;
+  callpro: number;
 };
 
 type IntegrationsCount = {

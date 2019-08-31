@@ -15,13 +15,7 @@ export interface INotification {
 
 export type NotificationsQueryResponse = {
   notifications: INotification[];
-  subscribeToMore: (
-    params: {
-      document: string;
-      updateQuery: () => void;
-      variables: { userId: string | null };
-    }
-  ) => void;
+  subscribeToMore: any;
   loading: boolean;
   refetch: () => void;
 };

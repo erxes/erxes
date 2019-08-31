@@ -9,6 +9,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   description: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
   attachments: IAttachment[];
+  onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
 
 class Left extends React.Component<Props> {
@@ -34,13 +36,16 @@ class Left extends React.Component<Props> {
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);
 
+    const descriptionOnBlur = e =>
+      this.props.onBlurFields('description', e.target.value);
+
     return (
       <LeftContainer>
         <FormGroup>
           <TitleRow>
             <ControlLabel>
               <Icon icon="attach" />
-              Attachments
+              {__('Attachments')}
             </ControlLabel>
           </TitleRow>
 
@@ -54,7 +59,7 @@ class Left extends React.Component<Props> {
           <TitleRow>
             <ControlLabel>
               <Icon icon="align-left-justify" />
-              Description
+              {__('Description')}
             </ControlLabel>
           </TitleRow>
 
@@ -62,6 +67,7 @@ class Left extends React.Component<Props> {
             componentClass="textarea"
             defaultValue={description}
             onChange={descriptionOnChange}
+            onBlur={descriptionOnBlur}
           />
         </FormGroup>
 
