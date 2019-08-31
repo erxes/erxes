@@ -7,6 +7,7 @@ export interface IIntegration {
   erxesApiId: string;
   facebookPageIds?: string[];
   email: string;
+  phoneNumber: string;
   expiration?: string;
   gmailHistoryId?: string;
 }
@@ -19,6 +20,7 @@ export const integrationSchema = new Schema({
   kind: String,
   accountId: String,
   erxesApiId: String,
+  phoneNumber: String,
   facebookPageIds: [String],
   email: String,
   expiration: String,
