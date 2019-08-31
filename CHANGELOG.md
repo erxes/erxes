@@ -1,3 +1,15 @@
+## [0.10.3](https://github.com/erxes/erxes-integrations/compare/0.10.2...0.10.3) (2019-08-31)
+
+
+### Bug Fixes
+
+* **integration/account:** remove customer, conversation, message when integration deleted ([88f3acb](https://github.com/erxes/erxes-integrations/commit/88f3acb)), closes [#12](https://github.com/erxes/erxes-integrations/issues/12)
+
+
+### Features
+
+* **integration:** integration callpro ([c26f980](https://github.com/erxes/erxes-integrations/commit/c26f980)), closes [#8](https://github.com/erxes/erxes-integrations/issues/8)
+
 ## [0.10.2](https://github.com/erxes/erxes-integrations/compare/0.10.1...0.10.2) (2019-08-20)
 
 ## [0.10.1](https://github.com/erxes/erxes-integrations/compare/0.10.0...0.10.1) (2019-08-19)
