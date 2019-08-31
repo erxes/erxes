@@ -1,3 +1,5 @@
+## [0.10.1](https://github.com/erxes/erxes-widgets/compare/0.10.0...0.10.1) (2019-08-31)
+
 # [0.10.0](https://github.com/erxes/erxes-widgets/compare/0.9.17...0.10.0) (2019-08-15)
 
 
