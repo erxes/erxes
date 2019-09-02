@@ -114,7 +114,7 @@ const dealMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(Deals, deal, 'deal', destinationStageId);
+    const { content, action } = await itemsChange(deal, 'deal', destinationStageId);
 
     await sendNotifications({
       item: deal,

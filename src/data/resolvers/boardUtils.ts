@@ -120,23 +120,25 @@ export const sendNotifications = async ({
   });
 };
 
-export const itemsChange = async (collection: any, item: any, type: string, destinationStageId: string) => {
-  const oldItem = await collection.findOne({ _id: item._id });
-  const oldStageId = oldItem ? oldItem.stageId || '' : '';
+export const itemsChange = async (item: any, type: string, destinationStageId: string) => {
+  const oldStageId = item ? item.stageId || '' : '';
 
   let action = `changed order of your ${type}:`;
   let content = `'${item.name}'`;
 
   if (oldStageId !== destinationStageId) {
-    const stage = await Stages.findOne({ _id: destinationStageId });
+    const stage = await Stages.getStage(destinationStageId);
+    const oldStage = await Stages.getStage(oldStageId);
 
-    if (!stage) {
-      throw new Error('Stage not found');
-    }
+    const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+    const oldPipeline = await Pipelines.getPipeline(oldStage.pipelineId || '');
 
-    action = `moved your`;
+    const board = await Boards.getBoard(pipeline.boardId || '');
+    const oldBoard = await Boards.getBoard(oldPipeline.boardId || '');
 
-    content = `${type} '${item.name}' to the '${stage.name}'.`;
+    action = `moved '${item.name}' from ${oldBoard.name}-${oldPipeline.name}-${oldStage.name} to `;
+
+    content = `${board.name}-${pipeline.name}-${stage.name}`;
   }
 
   return { content, action };
