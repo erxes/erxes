@@ -145,7 +145,7 @@ _If these ports aren't available for you, you can always change it. But don't fo
 version: "2.1"
 services:
   erxes:
-    image: erxes/erxes:0.10.0
+    image: erxes/erxes:0.10.1
     container_name: erxes
     restart: unless-stopped
     environment:
@@ -157,14 +157,11 @@ services:
       NGINX_HOST: localhost
     ports:
       - "3000:80"
-    depends_on:
-      erxes-api:
-        condition: service_started
     networks:
       - erxes-net
 
   erxes-api:
-    image: erxes/erxes-api:0.10.0
+    image: erxes/erxes-api:0.10.1
     container_name: erxes-api
     restart: unless-stopped
     environment:
@@ -195,23 +192,42 @@ services:
       REDIS_PASSWORD: ""
       # RabbitMQ
       RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
+      # Email
+      COMPANY_EMAIL_FROM: ""
       # Aws S3
       AWS_ACCESS_KEY_ID: ""
       AWS_SECRET_ACCESS_KEY: ""
       AWS_BUCKET: ""
       AWS_PREFIX: ""
+      # Used when using s3 compatible service
+      AWS_COMPATIBLE_SERVICE_ENDPOINT: ""
+      AWS_FORCE_PATH_STYLE: "false"
+      # Used when using SES for transaction emails
+      AWS_SES_ACCESS_KEY_ID: ""
+      AWS_SES_SECRET_ACCESS_KEY: ""
+      AWS_REGION: ""
+      # Google Cloud Storage
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+      GOOGLE_APPLICATION_CREDENTIALS: ""
+      GOOGLE_TOPIC: ""
+      GOOGLE_SUBSCRIPTION_NAME: ""
+      GOOGLE_PROJECT_ID: ""
+      GOOGLE_CLOUD_STORAGE_BUCKET: ""
     ports:
       - "3300:3300"
     depends_on:
       mongo:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     networks:
       - erxes-net
 
   erxes-crons:
-    image: erxes/erxes-api:0.10.0
+    image: erxes/erxes-api:0.10.1
     container_name: erxes-crons
     entrypoint: ["node", "--max_old_space_size=8192", "dist/cronJobs"]
     restart: unless-stopped
@@ -226,13 +242,13 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-      erxes-api:
-        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - erxes-net
 
   erxes-workers:
-    image: erxes/erxes-api:0.10.0
+    image: erxes/erxes-api:0.10.1
     container_name: erxes-workers
     entrypoint: ["node", "--max_old_space_size=8192", "--experimental-worker", "dist/workers"]
     restart: unless-stopped
@@ -248,17 +264,17 @@ services:
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ""
     depends_on:
-      redis:
-        condition: service_started
       mongo:
         condition: service_healthy
-      erxes-api:
-        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - erxes-net
 
   erxes-widgets:
-    image: erxes/erxes-widgets:0.10.0
+    image: erxes/erxes-widgets:0.10.1
     container_name: erxes-widgets
     restart: unless-stopped
     environment:
@@ -270,14 +286,11 @@ services:
       API_SUBSCRIPTIONS_URL: ws://localhost:3300/subscriptions
     ports:
       - "3200:3200"
-    depends_on:
-      erxes-api:
-        condition: service_started
     networks:
       - erxes-net
 
   erxes-widgets-api:
-    image: erxes/erxes-widgets-api:0.10.0
+    image: erxes/erxes-widgets-api:0.10.1
     container_name: erxes-widgets-api
     restart: unless-stopped
     environment:
@@ -299,15 +312,15 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       redis:
-        condition: service_started
-      erxes-api:
-        condition: service_started
+        condition: service_healthy
     networks:
       - erxes-net
 
   erxes-integrations:
-    image: erxes/erxes-integrations:0.10.1
+    image: erxes/erxes-integrations:0.10.3
     container_name: erxes-integrations
     restart: unless-stopped
     environment:
@@ -327,13 +340,20 @@ services:
       FACEBOOK_APP_ID: ""
       FACEBOOK_APP_SECRET: ""
       FACEBOOK_VERIFY_TOKEN: ""
+      # Gmail
+      GOOGLE_PROJECT_ID: ""
+      GOOGLE_GMAIL_TOPIC: ""
+      GOOGLE_APPLICATION_CREDENTIALS: ""  # path to .json file
+      GOOGLE_GMAIL_SUBSCRIPTION_NAME: ""
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
     ports:
       - "3400:3400"
     depends_on:
       mongo:
         condition: service_healthy
-      erxes-api:
-        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     networks:
       - erxes-net
 
@@ -349,8 +369,6 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-      erxes-api:
-        condition: service_started
     networks:
       - erxes-net
 
@@ -369,8 +387,10 @@ services:
       # RabbitMQ
       RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
     depends_on:
-      erxes-api:
-        condition: service_started
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - erxes-net
 
@@ -378,6 +398,15 @@ services:
     image: redis:5.0.5
     container_name: redis
     restart: unless-stopped
+    healthcheck:
+      timeout: 2s
+      interval: 2s
+      retries: 200
+      test:
+        - "CMD"
+        - "bash"
+        - "-c"
+        - "exec 3<> /dev/tcp/127.0.0.1/6379 && echo PING >&3 && head -1 <&3 | grep PONG"
     networks:
       - erxes-net
     # Redis data will be saved into ./redis-data folder.
@@ -390,10 +419,9 @@ services:
     restart: unless-stopped
     healthcheck:
       test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      # start_period: 10s
+      interval: 2s
+      timeout: 2s
+      retries: 200
     networks:
       - erxes-net
     # MongoDB data will be saved into ./mongo-data folder.
@@ -407,6 +435,14 @@ services:
     hostname: rabbitmq
     environment:
       RABBITMQ_DEFAULT_VHOST: erxes
+    healthcheck:
+      timeout: 2s
+      interval: 2s
+      retries: 200
+      test:
+        - "CMD"
+        - "rabbitmqctl"
+        - "status"
     networks:
       - erxes-net
     # RabbitMQ data will be saved into ./rabbitmq-data folder.
