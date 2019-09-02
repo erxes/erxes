@@ -16,12 +16,16 @@ type Props = {
   stageId: string;
 };
 
-class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
+class FormBuilder extends React.Component<
+  Props,
+  { isSaveForm: boolean; isOpenModal: boolean }
+> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      isSaveForm: false
+      isSaveForm: false,
+      isOpenModal: false
     };
   }
 
@@ -39,9 +43,10 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
 
   onAfterSaveForm = formId => {
     this.props.onChangeForm(this.props.stageId, formId);
+    this.setState({ isOpenModal: false });
   };
 
-  renderFormContent = () => {
+  renderFormContent = props => {
     const { formId } = this.props;
 
     const doc = {
@@ -61,7 +66,7 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
   renderContent = modalProps => {
     return (
       <>
-        {this.renderFormContent()}
+        {this.renderFormContent(modalProps)}
         <Modal.Footer>
           <Button
             btnStyle="simple"
@@ -102,6 +107,7 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
         dialogClassName="transform modal-1000w"
         content={this.renderContent}
         hideHeader={true}
+        isOpen={this.state.isOpenModal}
       />
     );
   }

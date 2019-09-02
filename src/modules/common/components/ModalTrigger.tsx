@@ -15,6 +15,7 @@ type Props = {
   backDrop?: string;
   enforceFocus?: boolean;
   hideHeader?: boolean;
+  isOpen?: boolean;
 };
 
 type State = {
@@ -25,7 +26,7 @@ class ModalTrigger extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { isOpen: false };
+    this.state = { isOpen: props.isOpen || false };
   }
 
   openModal = () => {

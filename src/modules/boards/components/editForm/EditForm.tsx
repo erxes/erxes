@@ -234,16 +234,12 @@ class EditForm extends React.Component<Props, State> {
   render() {
     const { isFormVisible } = this.state;
 
-    if (!isFormVisible) {
-      return null;
-    }
-
     return (
       <Modal
         dialogClassName="modal-1000w"
         enforceFocus={false}
         bsSize="lg"
-        show={true}
+        show={isFormVisible}
         onHide={this.onHideModal}
       >
         {this.renderHeader()}
