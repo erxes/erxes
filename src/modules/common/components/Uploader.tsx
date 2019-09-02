@@ -137,7 +137,7 @@ class Uploader extends React.Component<Props, State> {
         </List>
         <UploadBtn>
           <label>
-            Upload an attachment
+            {__('Upload an attachment')}
             <input
               type="file"
               multiple={multiple}

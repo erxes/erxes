@@ -297,7 +297,7 @@ class MainActionBar extends React.Component<Props, State> {
     if (currentPipeline.visibility === 'public') {
       return (
         <HeaderButton>
-          <Icon icon="earthgrid" /> Public
+          <Icon icon="earthgrid" /> {__('Public')}
         </HeaderButton>
       );
     }
@@ -307,7 +307,7 @@ class MainActionBar extends React.Component<Props, State> {
     return (
       <>
         <HeaderButton>
-          <Icon icon="user" /> Private
+          <Icon icon="user" /> {__('Private')}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
       </>
