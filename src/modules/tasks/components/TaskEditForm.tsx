@@ -10,6 +10,7 @@ import { IEditFormContent, IOptions } from 'modules/boards/types';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ITask, ITaskParams } from '../types';
@@ -47,7 +48,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
   renderSidebarFields = () => {
     const { priority } = this.state;
 
-    const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+    const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
 
     const onChangePriority = (option: ISelectedOption) => {
       this.props.saveItem({ priority: option ? option.value : '' }, () =>
@@ -68,7 +69,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Priority</ControlLabel>
           <Select
-            placeholder="Select a priority"
+            placeholder={__('Select a priority')}
             value={priority}
             options={priorityValues}
             onChange={onChangePriority}
