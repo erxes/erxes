@@ -33,7 +33,7 @@ class Chart extends React.Component<IProps> {
       );
     }
 
-    const chartData = [{ id: 'count', color: '#eee', data }];
+    const chartData = [{ id: 'sec', color: '#eee', data }];
 
     return (
       <ChartWrapper height={height}>

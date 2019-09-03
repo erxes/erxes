@@ -101,6 +101,7 @@ const LoaderWrapper = styled(ChartWrapper)`
 const SummaryTitle = styled.div`
   margin-bottom: 5px;
   text-transform: uppercase;
+  min-height: ${dimensions.headerSpacing - 10}px;
 
   span {
     text-transform: lowercase;
