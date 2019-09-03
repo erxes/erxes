@@ -1,13 +1,11 @@
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { queries } from '../../graphql';
 import {
   IFilterParams,
   IItem,
-  IItemParams,
   IOptions,
   ItemsQueryResponse,
   SaveMutation
@@ -40,20 +38,6 @@ class ItemChooserContainer extends React.Component<
   render() {
     const { data, itemsQuery, search } = this.props;
 
-    const saveItem = (doc: IItemParams, callback: () => void) => {
-      const { addMutation } = this.props;
-
-      addMutation({ variables: doc })
-        .then(() => {
-          Alert.success(data.options.texts.addSuccessText);
-          callback();
-          itemsQuery.refetch();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
     const renderName = item => {
       return item.name || 'Unknown';
     };
@@ -73,18 +57,15 @@ class ItemChooserContainer extends React.Component<
       perPage: 0,
       title: data.options.title,
       renderName,
-      add: saveItem,
       datas: itemsQuery[data.options.queriesName.itemsQuery] || [],
       renderForm: formProps => (
         <AddForm
           {...formProps}
-          action={saveItem}
           options={data.options}
           boardId={this.props.boardId}
           pipelineId={this.props.pipelineId}
           stageId={this.props.stageId}
           showSelect={true}
-          saveItem={saveItem}
         />
       ),
       hasBoardChooser: true,
@@ -116,24 +97,7 @@ const WithQuery = ({ options }) => {
             };
           }
         }
-      ),
-      graphql<IProps, SaveMutation, IItem>(gql(options.mutations.addMutation), {
-        name: 'addMutation',
-        options: ({ stageId }: { stageId?: string }) => {
-          if (!stageId) {
-            return {};
-          }
-
-          return {
-            refetchQueries: [
-              {
-                query: gql(queries.stageDetail),
-                variables: { _id: stageId }
-              }
-            ]
-          };
-        }
-      })
+      )
     )(ItemChooserContainer)
   );
 };
