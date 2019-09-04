@@ -97,7 +97,8 @@
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "postinstall": "opencollective postinstall",
     "generateVersion": "node commands/generateVersion.js",
-    "release": "release-it"
+    "release": "release-it",
+    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",
@@ -119,11 +120,11 @@
     "lint-staged": "^4.3.0",
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
-    "react-test-renderer": "^16.8.6",
-    "ts-jest": "^23.0.1",
     "react-scripts": "^3.0.1",
+    "react-test-renderer": "^16.3.2",
     "release-it": "^12.3.5",
     "snyk": "^1.108.2",
+    "ts-jest": "^23.0.1",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
