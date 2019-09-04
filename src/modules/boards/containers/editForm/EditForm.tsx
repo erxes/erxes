@@ -26,6 +26,7 @@ type WrapperProps = {
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
   isPopupVisible?: boolean;
+  mustPortable?: boolean;
 };
 
 type ContainerProps = {
@@ -228,6 +229,25 @@ export default (props: WrapperProps) => {
   return (
     <PipelineConsumer>
       {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
+        const { mustPortable } = props;
+        const propsOptions = props.options;
+
+        if (mustPortable && propsOptions) {
+          if (options && propsOptions.type === options.type) {
+            return null;
+          }
+
+          return (
+            <WithData
+              {...props}
+              options={propsOptions}
+              onAdd={props.onAdd || onAddItem}
+              onRemove={props.onRemove || onRemoveItem}
+              onUpdate={props.onUpdate || onUpdateItem}
+            />
+          );
+        }
+
         return (
           <WithData
             {...props}
