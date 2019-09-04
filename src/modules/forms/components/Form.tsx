@@ -19,6 +19,7 @@ type Props = {
   isSaving: boolean;
   type: string;
   form?: IForm;
+  hideOptionalFields?: boolean;
 };
 
 type State = {
@@ -121,70 +122,70 @@ class Form extends React.Component<Props, State> {
     );
   };
 
+  renderOptionalFields = () => {
+    if (this.props.hideOptionalFields) {
+      return null;
+    }
+
+    const { formTitle, formBtnText, formDesc } = this.state;
+
+    const onChangeField = e =>
+      this.onChange(e.target.name, (e.currentTarget as HTMLInputElement).value);
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>{__('Form title')}</ControlLabel>
+          <FormControl
+            name="formTitle"
+            value={formTitle}
+            onChange={onChangeField}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Form description')}</ControlLabel>
+          <FormControl
+            componentClass="textarea"
+            name="formDesc"
+            value={formDesc}
+            onChange={onChangeField}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Form button text')}</ControlLabel>
+          <FormControl
+            name="formBtnText"
+            value={formBtnText}
+            onChange={onChangeField}
+          />
+        </FormGroup>
+      </>
+    );
+  };
+
   render() {
     const { renderPreview } = this.props;
-    const { formTitle, formBtnText, formDesc, fields } = this.state;
-
-    const onChangeTitle = e =>
-      this.onChange('formTitle', (e.currentTarget as HTMLInputElement).value);
-
-    const onChangeDesc = e =>
-      this.onChange('formDesc', (e.currentTarget as HTMLInputElement).value);
-
-    const onChangeBtnText = e =>
-      this.onChange('formBtnText', (e.currentTarget as HTMLInputElement).value);
+    const {
+      formTitle,
+      formBtnText,
+      formDesc,
+      fields,
+      editingField
+    } = this.state;
 
     return (
       <FlexContent>
         <LeftItem>
-          <FormGroup>
-            <ControlLabel required={true}>{__('Form title')}</ControlLabel>
-            <FormControl
-              id="form-btn-text"
-              value={formTitle}
-              onChange={onChangeTitle}
-            />
-          </FormGroup>
+          {this.renderOptionalFields()}
 
-          <FormGroup>
-            <ControlLabel required={true}>
-              {__('Form description')}
-            </ControlLabel>
-            <FormControl
-              id="form-btn-text"
-              componentClass="textarea"
-              value={formDesc}
-              onChange={onChangeDesc}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel required={true}>
-              {__('Form button text')}
-            </ControlLabel>
-            <FormControl
-              id="form-btn-text"
-              value={formBtnText}
-              onChange={onChangeBtnText}
-            />
-          </FormGroup>
-
-          <Title>New field</Title>
+          <Title>{__('New field')}</Title>
           <Fields
             onSubmit={this.onSubmit}
             onChange={this.onFieldChange}
-            editingField={this.state.editingField}
-          >
-            <option value="input">{__('Input')}</option>
-            <option value="textarea">{__('Text area')}</option>
-            <option value="select">{__('Select')}</option>
-            <option value="check">{__('Checkbox')}</option>
-            <option value="radio">{__('Radio button')}</option>
-            <option value="phone">{__('Phone')}</option>
-            <option value="email">{__('Email')}</option>
-            <option value="firstName">{__('First name')}</option>
-            <option value="lastName">{__('Last name')}</option>
-          </Fields>
+            editingField={editingField}
+          />
         </LeftItem>
 
         {renderPreview({

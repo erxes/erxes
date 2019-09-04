@@ -13,10 +13,8 @@ import React from 'react';
 type Props = {
   item: IItem;
   onChangeField: (name: 'description' | 'closeDate', value: any) => void;
-  onChangeExtraField: (
-    name: 'hackDescription' | 'goal' | 'priority',
-    value: any
-  ) => void;
+  onChangeExtraField: (name: 'hackDescription' | 'goal', value: any) => void;
+  onBlurFields: (name: 'description' | 'name', value: string) => void;
   type: string;
   description: string;
   hackDescription: string;
@@ -32,6 +30,7 @@ class Left extends React.Component<Props> {
       item,
       onChangeField,
       onChangeExtraField,
+      onBlurFields,
       attachments,
       onChangeAttachment,
       description,
@@ -40,17 +39,15 @@ class Left extends React.Component<Props> {
       type
     } = this.props;
 
-    const descriptionOnChange = e =>
-      onChangeField('description', (e.target as HTMLInputElement).value);
+    const onChange = e =>
+      onChangeField(e.target.name, (e.target as HTMLInputElement).value);
 
-    const hackDescriptionOnChange = e =>
-      onChangeExtraField(
-        'hackDescription',
-        (e.target as HTMLInputElement).value
-      );
+    const onChangeExtra = e =>
+      onChangeExtraField(e.target.name, (e.target as HTMLInputElement).value);
 
-    const goalOnChange = e =>
-      onChangeExtraField('goal', (e.target as HTMLInputElement).value);
+    const onSave = e => {
+      onBlurFields(e.target.name, e.target.value);
+    };
 
     return (
       <>
@@ -64,8 +61,10 @@ class Left extends React.Component<Props> {
 
           <FormControl
             componentClass="textarea"
+            name="hackDescription"
             defaultValue={hackDescription}
-            onChange={hackDescriptionOnChange}
+            onChange={onChangeExtra}
+            onBlur={onSave}
           />
         </FormGroup>
 
@@ -79,8 +78,10 @@ class Left extends React.Component<Props> {
 
           <FormControl
             componentClass="textarea"
+            name="description"
             defaultValue={description}
-            onChange={descriptionOnChange}
+            onChange={onChange}
+            onBlur={onSave}
           />
         </FormGroup>
 
@@ -95,7 +96,9 @@ class Left extends React.Component<Props> {
           <FormControl
             componentClass="textarea"
             defaultValue={goal}
-            onChange={goalOnChange}
+            name="goal"
+            onChange={onChangeExtra}
+            onBlur={onSave}
           />
         </FormGroup>
 

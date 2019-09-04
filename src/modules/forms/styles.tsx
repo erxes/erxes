@@ -18,30 +18,32 @@ const FlexWrapper = styled.span`
   flex: 1;
 `;
 
-const Field = styledTS<{ isGreyBg?: boolean }>(styled.div)`
+const FieldWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  width: 40%;
-  height: 100px;
+  width: 48%;
   float: left;
-  background: ${props => (props.isGreyBg ? colors.bgLight : colors.colorWhite)};
+  min-height: 110px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
-  margin: 0 20px 20px 0px;
+  margin-bottom: 4%;
   padding: 20px;
-  transition: all ease 0.5s;
-  box-shadow: 0 5px 15px rgba(0,0,0,.08);
+  transition: all ease 0.3s;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 
-  > span {
-    margin-top: 10px;
-    color: #666;
+  &:nth-of-type(even) {
+    margin-left: 4%;
+  }
+
+  > i {
+    margin-bottom: 10px;
   }
 
   &:hover {
     cursor: pointer;
-    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)}
+    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
   }
 `;
 
@@ -135,12 +137,12 @@ const ShowPreview = styled.div`
 
 const Title = styled.h4`
   font-size: 16px;
-  margin-top: 40px;
-  font-weight: 400;
+  margin-top: 10px;
+  font-weight: 500;
 `;
 
 export {
-  Field,
+  FieldWrapper,
   FieldItem,
   Options,
   Preview,

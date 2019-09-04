@@ -22,6 +22,7 @@ type Props = {
   priority: string;
   hackStages: string[];
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
+  onBlurFields: (name: 'description' | 'name', value: string) => void;
   saveFormFields: (
     itemId: string,
     destinationStageId: string,
@@ -73,10 +74,21 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { name, onChangeField, score, dueDate, priority } = this.props;
+    const {
+      name,
+      onChangeField,
+      score,
+      dueDate,
+      priority,
+      onBlurFields
+    } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
+
+    const onSaveName = e => {
+      onBlurFields('name', e.target.value);
+    };
 
     return (
       <>
@@ -89,6 +101,7 @@ class Top extends React.Component<Props> {
                 defaultValue={name}
                 required={true}
                 onChange={nameOnChange}
+                onBlur={onSaveName}
               />
             </TitleRow>
             <MetaInfo>

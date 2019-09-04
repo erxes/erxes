@@ -125,7 +125,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     onChangeAttachment,
     onChangeField,
     copy,
-    remove
+    remove,
+    onBlurFields
   }: IEditFormContent) => {
     const { item, users, options } = this.props;
     const { formFields, priority, hackStages, formId } = this.state;
@@ -148,6 +149,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           saveFormFields={this.saveFormFields}
           dueDate={this.renderDueDate(closeDate, dateOnChange)}
           score={this.renderScore}
+          onBlurFields={onBlurFields}
         />
 
         <FlexContent>
@@ -173,6 +175,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               onChangeField={onChangeField}
               onChangeExtraField={this.onChangeExtraField}
               options={options}
+              onBlurFields={onBlurFields}
             />
           </LeftContainer>
 

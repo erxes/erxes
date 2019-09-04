@@ -36,8 +36,6 @@ class RigthContent extends React.Component<Props> {
   render() {
     const { item, onChangeExtraField, formFields, formId } = this.props;
 
-    console.log(item);
-
     const stageName = item.stage && item.stage.name;
 
     const onChangeFormField = field => {

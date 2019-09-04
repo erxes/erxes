@@ -26,7 +26,7 @@ type Props = {
   onDelete: (fieldId: string) => void;
   field?: IField;
   editingField?: IField;
-  type?: { value: string; children: string };
+  type?: string;
 };
 
 type State = {
@@ -47,7 +47,7 @@ class FormField extends React.Component<Props, State> {
   };
 
   onSubmit = e => {
-    e.preventDefault();
+    e.persist();
 
     const { editingField = {} as IField } = this.state;
 
@@ -66,8 +66,7 @@ class FormField extends React.Component<Props, State> {
   ) {
     const { type } = this.props;
 
-    const editingField =
-      this.state.editingField || ({ type: type && type.value } as IField);
+    const editingField = this.state.editingField || ({ type } as IField);
 
     editingField[attributeName] = value;
 
@@ -103,7 +102,7 @@ class FormField extends React.Component<Props, State> {
     );
   }
 
-  renderOptions(type = { value: '' }) {
+  renderOptions(type = '') {
     const { editingField = {} as IField } = this.state;
 
     const onChange = e =>
@@ -112,9 +111,7 @@ class FormField extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value.split('\n')
       );
 
-    if (
-      !['select', 'check', 'radio'].includes(editingField.type || type.value)
-    ) {
+    if (!['select', 'check', 'radio'].includes(editingField.type || type)) {
       return null;
     }
 
@@ -187,6 +184,7 @@ class FormField extends React.Component<Props, State> {
             type="text"
             value={editingField.text || ''}
             onChange={text}
+            autoFocus={true}
           />
         </FormGroup>
 
@@ -242,9 +240,7 @@ class FormField extends React.Component<Props, State> {
   render() {
     const { type } = this.props;
 
-    const {
-      editingField = { type: type && type.value } as IField
-    } = this.state;
+    const { editingField = { type } as IField } = this.state;
 
     return (
       <FlexItem>

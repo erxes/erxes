@@ -1,93 +1,77 @@
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import { Field, Options } from '../styles';
+import { FieldWrapper, Options } from '../styles';
 import FormField from './FormField';
 
 type Props = {
-  children: any[];
   editingField?: IField;
   onChange: (value: IField, callback: () => void) => void;
   onSubmit: (e: any) => void;
 };
 
-class FormFields extends React.Component<Props> {
-  renderIcon(value: string) {
-    let icon;
-    switch (value) {
-      case 'input':
-        icon = 'edit';
-        break;
-      case 'textarea':
-        icon = 'alignleft';
-        break;
-      case 'select':
-        icon = 'clicker';
-        break;
-      case 'check':
-        icon = 'check';
-        break;
-      case 'radio':
-        icon = 'checked-1';
-        break;
-      case 'phone':
-        icon = 'phonecall-3';
-        break;
-      case 'email':
-        icon = 'email-1';
-        break;
-      case 'firstName':
-        icon = 'user-3';
-        break;
-      default:
-        icon = 'user-4';
-    }
+type FieldProps = {
+  icon: string;
+  type: string;
+  text: string;
+};
 
-    return <Icon icon={icon} size={25} />;
-  }
+function Field(props: Props & FieldProps) {
+  const { onChange, onSubmit, editingField, icon, type, text } = props;
 
-  renderContent(option) {
-    const { onSubmit, onChange, editingField } = this.props;
+  const trigger = (
+    <FieldWrapper>
+      <Icon icon={icon} size={25} />
+      {text || type}
+    </FieldWrapper>
+  );
 
-    const trigger = (
-      <Field isGreyBg={true}>
-        {this.renderIcon(option.value)}
-        <span>{option.children}</span>
-      </Field>
-    );
+  const content = modalProps => (
+    <FormField
+      {...modalProps}
+      type={type}
+      onSubmit={onSubmit}
+      onChange={onChange}
+      editingField={editingField}
+    />
+  );
 
-    const content = props => (
-      <FormField
+  return (
+    <ModalTrigger
+      title={`Add ${type} field`}
+      size="lg"
+      trigger={trigger}
+      content={content}
+    />
+  );
+}
+
+function FormFields(props: Props) {
+  return (
+    <Options>
+      <Field {...props} type="input" text={__('Text input')} icon="edit" />
+      <Field
         {...props}
-        type={option}
-        onSubmit={onSubmit}
-        onChange={onChange}
-        editingField={editingField}
+        type="textarea"
+        text={__('Text area')}
+        icon="alignleft"
       />
-    );
-
-    return (
-      <ModalTrigger
-        title={`Add ${option.children} field`}
-        size="lg"
-        trigger={trigger}
-        content={content}
+      <Field {...props} type="select" text={__('Select')} icon="clicker" />
+      <Field {...props} type="check" text={__('Checkbox')} icon="check" />
+      <Field {...props} type="radio" text={__('Radio button')} icon="checked" />
+      <Field {...props} type="phone" text={__('Phone')} icon="phonecall-3" />
+      <Field {...props} type="email" text={__('Email')} icon="email-1" />
+      <Field
+        {...props}
+        type="firstName"
+        text={__('First name')}
+        icon="user-3"
       />
-    );
-  }
-
-  render() {
-    const { children } = this.props;
-
-    return (
-      <Options>
-        {children.map((option, index) => (
-          <div key={index}>{this.renderContent(option.props)}</div>
-        ))}
-      </Options>
-    );
-  }
+      <Field {...props} type="lastName" text={__('Last name')} icon="user-4" />
+    </Options>
+  );
 }
 
 export default FormFields;

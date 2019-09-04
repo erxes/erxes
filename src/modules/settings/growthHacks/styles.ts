@@ -1,3 +1,4 @@
+import { LeftItem } from 'modules/common/components/step/styles';
 import { colors } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
 import { WhiteBoxRoot } from 'modules/layout/styles';
@@ -38,7 +39,23 @@ const Box = styled(BoxRoot)`
 
 const PreviewWrapper = styled(WhiteBoxRoot)`
   flex: 1;
-  padding: 30px 60px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+
+  > div {
+    max-width: 400px;
+  }
 `;
 
-export { TemplateBoxContent, Box, PreviewWrapper };
+const ContentWrapper = styled.div`
+  ${LeftItem} {
+    padding: 30px;
+    flex: 0.5;
+    min-width: auto;
+  }
+`;
+
+export { TemplateBoxContent, Box, PreviewWrapper, ContentWrapper };
