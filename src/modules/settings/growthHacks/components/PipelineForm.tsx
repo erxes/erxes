@@ -187,6 +187,7 @@ class PipelineForm extends React.Component<Props, State> {
           value={templateId}
           options={templateOptions}
           onChange={this.onChangeTemplate}
+          clearable={false}
         />
       </FormGroup>
     );
