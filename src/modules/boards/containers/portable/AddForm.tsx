@@ -1,5 +1,10 @@
 import gql from 'graphql-tag';
 import { Alert, renderWithProps } from 'modules/common/utils';
+import { mutations } from 'modules/conformity/graphql/';
+import {
+  CreateConformityMutation,
+  IConformityCreate
+} from 'modules/conformity/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
@@ -12,21 +17,52 @@ type IProps = {
   pipelineId?: string;
   stageId?: string;
   showSelect?: boolean;
+  companyIds?: string[];
+  customerIds?: string[];
   closeModal: () => void;
   callback?: () => void;
 };
 
 type FinalProps = {
   addMutation: SaveMutation;
+  createConformity: CreateConformityMutation;
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
-    const { addMutation, options } = this.props;
+    const {
+      addMutation,
+      options,
+      customerIds,
+      companyIds,
+      createConformity
+    } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
         Alert.success(options.texts.addSuccessText);
+
+        if (customerIds) {
+          createConformity({
+            variables: {
+              mainType: options.type,
+              mainTypeId: data[options.mutationsName.addMutation]._id,
+              relType: 'customer',
+              relTypeIds: customerIds
+            }
+          });
+        }
+
+        if (companyIds) {
+          createConformity({
+            variables: {
+              mainType: options.type,
+              mainTypeId: data[options.mutationsName.addMutation]._id,
+              relType: 'company',
+              relTypeIds: companyIds
+            }
+          });
+        }
 
         callback(data[options.mutationsName.addMutation]);
       })
@@ -67,6 +103,12 @@ export default (props: IProps) =>
               ]
             };
           }
+        }
+      ),
+      graphql<FinalProps, CreateConformityMutation, IConformityCreate>(
+        gql(mutations.conformityCreate),
+        {
+          name: 'createConformity'
         }
       )
     )(AddFormContainer)
