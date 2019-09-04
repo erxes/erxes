@@ -34,9 +34,9 @@ const conformityAdd = `
   }
 `;
 
-const conformityCreate = `
-  mutation conformityCreate(${commonCreateFields}) {
-    conformityCreate(${commonCreateVariables}) {
+const conformityEdit = `
+  mutation conformityEdit(${commonCreateFields}) {
+    conformityEdit(${commonCreateVariables}) {
       success
     }
   }
@@ -44,5 +44,5 @@ const conformityCreate = `
 
 export default {
   conformityAdd,
-  conformityCreate
+  conformityEdit
 };

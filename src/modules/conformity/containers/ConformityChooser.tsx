@@ -5,7 +5,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations } from '../graphql';
-import { CreateConformityMutation, IConformityCreate } from '../types';
+import { CreateConformityMutation, IConformityEdit } from '../types';
 
 type Props = {
   search: (value: string, reload?: boolean) => void;
@@ -32,15 +32,15 @@ type Props = {
 };
 
 type FinalProps = {
-  createConformityMutation: CreateConformityMutation;
+  editConformityMutation: CreateConformityMutation;
 } & Props;
 
 const ConformityChooser = (props: FinalProps) => {
-  const { createConformityMutation, data } = props;
+  const { editConformityMutation, data } = props;
 
   const onSelect = relTypes => {
     const relTypeIds = relTypes.map(item => item._id);
-    createConformityMutation({
+    editConformityMutation({
       variables: {
         mainType: data.mainType,
         mainTypeId: data.mainTypeId,
@@ -49,7 +49,7 @@ const ConformityChooser = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('success changed' + data.relType);
+        Alert.success('Success changed ' + data.relType);
       })
       .catch(error => {
         Alert.error(error.message);
@@ -68,9 +68,9 @@ export default withProps<Props>(
     graphql<
       Props,
       CreateConformityMutation,
-      IConformityCreate & { isSaved?: boolean }
-    >(gql(mutations.conformityCreate), {
-      name: 'createConformityMutation',
+      IConformityEdit & { isSaved?: boolean }
+    >(gql(mutations.conformityEdit), {
+      name: 'editConformityMutation',
       options: ({ data, refetchQuery }) => {
         return {
           refetchQueries: [

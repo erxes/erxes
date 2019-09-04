@@ -3,7 +3,7 @@ import { Alert, renderWithProps } from 'modules/common/utils';
 import { mutations } from 'modules/conformity/graphql/';
 import {
   CreateConformityMutation,
-  IConformityCreate
+  IConformityEdit
 } from 'modules/conformity/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -25,7 +25,7 @@ type IProps = {
 
 type FinalProps = {
   addMutation: SaveMutation;
-  createConformity: CreateConformityMutation;
+  editConformity: CreateConformityMutation;
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
@@ -35,7 +35,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       options,
       customerIds,
       companyIds,
-      createConformity
+      editConformity
     } = this.props;
 
     addMutation({ variables: doc })
@@ -43,7 +43,7 @@ class AddFormContainer extends React.Component<FinalProps> {
         Alert.success(options.texts.addSuccessText);
 
         if (customerIds) {
-          createConformity({
+          editConformity({
             variables: {
               mainType: options.type,
               mainTypeId: data[options.mutationsName.addMutation]._id,
@@ -54,7 +54,7 @@ class AddFormContainer extends React.Component<FinalProps> {
         }
 
         if (companyIds) {
-          createConformity({
+          editConformity({
             variables: {
               mainType: options.type,
               mainTypeId: data[options.mutationsName.addMutation]._id,
@@ -105,10 +105,10 @@ export default (props: IProps) =>
           }
         }
       ),
-      graphql<FinalProps, CreateConformityMutation, IConformityCreate>(
-        gql(mutations.conformityCreate),
+      graphql<FinalProps, CreateConformityMutation, IConformityEdit>(
+        gql(mutations.conformityEdit),
         {
-          name: 'createConformity'
+          name: 'editConformity'
         }
       )
     )(AddFormContainer)

@@ -55,7 +55,7 @@ class Deal extends React.Component<Props, { isPopupVisible: boolean }> {
         onUpdate={onUpdate}
         isPopupVisible={this.state.isPopupVisible}
         beforePopupClose={beforePopupClose}
-        mustPortable={true}
+        isFromPortable={true}
       />
     );
   };

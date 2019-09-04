@@ -19,7 +19,7 @@ export type ConformityQueryResponse = {
   fetchMore: any;
 };
 
-export interface IConformityCreate {
+export interface IConformityEdit {
   mainType?: string;
   mainTypeId?: string;
   relType?: string;
