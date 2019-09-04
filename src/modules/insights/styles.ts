@@ -111,6 +111,12 @@ const SummaryTitle = styled.div`
 const SummaryCount = styled.span`
   font-weight: bold;
   font-size: ${typography.fontSizeHeading5}px;
+
+  > span {
+    font-size: 14px;
+    padding-left: ${dimensions.unitSpacing - 5}px;
+    font-weight: normal;
+  }
 `;
 
 const SummaryItem = styledTS<{ isSmall?: boolean }>(styled.div)`

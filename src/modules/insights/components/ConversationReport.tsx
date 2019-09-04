@@ -77,6 +77,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
           <InsightRow>
             <InsightTitle>{__('Trend')}</InsightTitle>
             <Chart
+              type="conversation-report"
               loading={loading}
               height={300}
               data={conversationReport.trend}
@@ -86,6 +87,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
           <InsightRow>
             <InsightTitle>{__('Team Member')}</InsightTitle>
             <TeamMembers
+              type="conversation-report"
               loading={loading}
               datas={conversationReport.teamMembers || []}
             />

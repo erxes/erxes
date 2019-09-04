@@ -1,4 +1,5 @@
 import Spinner from 'modules/common/components/Spinner';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import {
@@ -41,6 +42,7 @@ class Summary extends React.Component<Props> {
                   maximumFractionDigits: 2
                 })
               : 0}
+            <span>{__('sec')}</span>
           </SummaryCount>
         </SummaryItem>
       </Col>
