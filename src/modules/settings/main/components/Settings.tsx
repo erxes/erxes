@@ -43,7 +43,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Permission',
-              '/images/icons/erxes-20.svg',
+              '/images/icons/erxes-23.svg',
               '/settings/permissions'
             )}
             {this.renderBox(
@@ -125,12 +125,12 @@ class Settings extends React.PureComponent {
           <div>
             {this.renderBox(
               'Campaigns & Projects',
-              '/images/icons/erxes-19.svg',
+              '/images/icons/erxes-20.svg',
               '/settings/boards/growthHack'
             )}
             {this.renderBox(
               'Templates',
-              '/images/icons/erxes-19.svg',
+              '/images/icons/erxes-22.svg',
               '/settings/boards/growthHackTemplate'
             )}
           </div>

@@ -116,6 +116,7 @@ class FormBuilder extends React.Component<
           bsSize="lg"
           show={this.state.isOpenModal}
           onHide={this.closeModal}
+          backdrop={false}
         >
           <CloseModal onClick={this.closeModal}>
             <Icon icon="times" />

@@ -106,6 +106,7 @@ class Score extends React.Component<Props> {
         <OverlayTrigger
           trigger="click"
           placement="bottom"
+          rootClose={true}
           overlay={this.renderPopover()}
         >
           <CalculatedAmount>

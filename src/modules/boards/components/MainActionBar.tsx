@@ -354,8 +354,9 @@ class MainActionBar extends React.Component<Props, State> {
         <HeaderLink>
           <Tip text={__('Manage Board & Pipeline')}>
             <Link
-              to={`/settings/boards/${type}?boardId=${currentBoard &&
-                currentBoard._id}`}
+              to={`/settings/boards/${type}?boardId=${
+                currentBoard ? currentBoard._id : ''
+              }`}
             >
               <Icon icon="settings" />
             </Link>
