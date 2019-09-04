@@ -1,6 +1,7 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 
+import { IButtonMutateProps } from 'modules/common/types';
 import Form from '../../modules/tags/components/Form';
 
 describe('Form component', () => {
@@ -15,7 +16,9 @@ describe('Form component', () => {
         colorCode: string;
       };
       callback: () => void;
-    }) => null
+    }) => null,
+    afterSave: () => null,
+    renderButton: (props: IButtonMutateProps) => <div />
   };
 
   test('renders Form successfully', () => {
