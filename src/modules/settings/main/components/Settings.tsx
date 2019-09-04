@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Box,
@@ -71,6 +71,11 @@ class Settings extends React.PureComponent {
               '/images/icons/erxes-06.svg',
               '/settings/status'
             )}
+            {this.renderBox(
+              'Logs',
+              '/images/icons/erxes-14.svg',
+              '/settings/logs'
+            )}
           </div>
         </Row>
         <Divider />
@@ -121,12 +126,34 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Boards & Pipelines',
               '/images/icons/erxes-19.svg',
-              '/settings/deals'
+              '/settings/boards/deal'
             )}
             {this.renderBox(
               'Product & Service',
               '/images/icons/erxes-13.svg',
               '/settings/product-service'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Ticket Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Boards & Pipelines',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/ticket'
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Task Settings')}</RowTitle>
+          <div>
+            {this.renderBox(
+              'Boards & Pipelines',
+              '/images/icons/erxes-19.svg',
+              '/settings/boards/task'
             )}
           </div>
         </Row>

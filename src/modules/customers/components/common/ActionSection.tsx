@@ -1,14 +1,13 @@
-import {
-  Button,
-  DropdownToggle,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __, Alert, confirm } from 'modules/common/utils';
-import { CustomersMerge, TargetMerge } from 'modules/customers/components';
-import { CustomerForm } from 'modules/customers/containers';
+import TargetMerge from 'modules/customers/components/common/TargetMerge';
+import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
+import CustomerForm from 'modules/customers/containers/CustomerForm';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 
 type Props = {
@@ -24,14 +23,14 @@ class ActionSection extends React.Component<Props> {
     if (this.props.isSmall) {
       return (
         <Button size="small">
-          {__('Action')} <Icon icon="downarrow" />
+          {__('Action')} <Icon icon="angle-down" />
         </Button>
       );
     }
 
     return (
-      <Button btnStyle="simple" size="medium" icon="downarrow">
-        {__('Action')}
+      <Button btnStyle="simple" size="medium">
+        {__('Action')} <Icon icon="angle-down" />
       </Button>
     );
   }
@@ -51,7 +50,7 @@ class ActionSection extends React.Component<Props> {
       <li>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a>{__('Edit')}</a>}
+          trigger={<a href="#edit">{__('Edit')}</a>}
           size="lg"
           content={customerForm}
         />
@@ -78,7 +77,7 @@ class ActionSection extends React.Component<Props> {
           cus.lastName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
-          'N/A'
+          'Unknown'
       }));
     };
 
@@ -97,7 +96,9 @@ class ActionSection extends React.Component<Props> {
             />
           </li>
           <li>
-            <a onClick={onClick}>{__('Delete')}</a>
+            <a href="#delete" onClick={onClick}>
+              {__('Delete')}
+            </a>
           </li>
         </Dropdown.Menu>
       </Dropdown>

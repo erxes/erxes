@@ -61,6 +61,30 @@ export type SummaryDataQueryResponse = {
   loading: boolean;
 };
 
+export type ConversationCustomerAvgQueryResponse = {
+  insightsConversationCustomerAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationInternalAvgQueryResponse = {
+  insightsConversationInternalAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationOverallAvgQueryResponse = {
+  insightsConversationOverallAvg: SummaryData[];
+  loading: boolean;
+};
+
+export type ConversationSummaryDataQueryResponse = {
+  insightsConversationSummary: {
+    avg: SummaryData[];
+    trend: IChartParams[];
+    teamMembers: IChartParams[];
+  };
+  loading: boolean;
+};
+
 export type TrendQueryResponse = {
   insightsTrend: IChartParams[];
   loading: boolean;
@@ -119,10 +143,4 @@ export type ResponseCloseQueryResponse = {
 export type VolumeReportExportQueryResponse = {
   insightVolumeReportExport: string;
   loading: boolean;
-};
-
-export type ExportArgs = {
-  queryName: string;
-  type?: string;
-  userId?: string;
 };

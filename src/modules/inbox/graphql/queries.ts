@@ -119,8 +119,8 @@ const conversationMessagesTotalCount = `
 `;
 
 const userList = `
-  query objects {
-    users {
+  query objects($searchValue: String) {
+    users(searchValue: $searchValue) {
       _id
       username
       email
@@ -188,8 +188,8 @@ const lastConversation = `
 `;
 
 const responseTemplateList = `
-  query responseTemplates {
-    responseTemplates {
+  query responseTemplates($perPage: Int) {
+    responseTemplates(perPage: $perPage) {
       _id
       name
       brandId

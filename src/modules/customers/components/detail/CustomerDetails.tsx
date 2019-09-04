@@ -1,8 +1,11 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
+import Icon from 'modules/common/components/Icon';
+import { TabTitle } from 'modules/common/components/tabs';
 import { __, renderFullName } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Widget from 'modules/engage/containers/Widget';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
@@ -13,6 +16,47 @@ type Props = {
 };
 
 class CustomerDetails extends React.Component<Props> {
+  renderEmailTab = () => {
+    const { customer } = this.props;
+
+    if (!customer.primaryEmail) {
+      return null;
+    }
+
+    const triggerEmail = (
+      <TabTitle>
+        <Icon icon="email-4" /> {__('New email')}
+      </TabTitle>
+    );
+
+    return (
+      <Widget
+        customers={[this.props.customer]}
+        modalTrigger={triggerEmail}
+        channelType="email"
+      />
+    );
+  };
+
+  renderExtraTabs = () => {
+    const triggerMessenger = (
+      <TabTitle>
+        <Icon icon="speech-bubble-3" /> {__('New message')}
+      </TabTitle>
+    );
+
+    return (
+      <>
+        <Widget
+          customers={[this.props.customer]}
+          modalTrigger={triggerMessenger}
+          channelType="messenger"
+        />
+        {this.renderEmailTab()}
+      </>
+    );
+  };
+
   render() {
     const { customer, taggerRefetchQueries } = this.props;
 
@@ -28,7 +72,8 @@ class CustomerDetails extends React.Component<Props> {
           contentTypeId={customer._id}
           contentType="customer"
           toEmail={customer.primaryEmail}
-          showEmail={true}
+          showEmail={false}
+          extraTabs={this.renderExtraTabs()}
         />
         <ActivityLogs
           target={customer.firstName}

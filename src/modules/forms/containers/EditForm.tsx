@@ -6,11 +6,11 @@ import {
   FormIntegrationDetailQueryResponse
 } from 'modules/settings/integrations/types';
 import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { Form } from '../components';
+import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
   AddFieldMutationResponse,
@@ -40,7 +40,16 @@ type FinalProps = {
   RemoveFieldMutationResponse &
   IRouterProps;
 
-class EditFormContainer extends React.Component<FinalProps, {}> {
+class EditFormContainer extends React.Component<
+  FinalProps,
+  { isLoading: boolean }
+> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = { isLoading: false };
+  }
+
   render() {
     const {
       formId,
@@ -63,6 +72,8 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
 
     const save = doc => {
       const { form, brandId, name, languageCode, formData, fields } = doc;
+
+      this.setState({ isLoading: true });
 
       // edit form
       editFormMutation({ variables: { _id: formId, ...form } })
@@ -138,10 +149,14 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
           fieldsQuery.refetch().then(() => {
             history.push('/forms');
           });
+
+          this.setState({ isLoading: false });
         })
 
         .catch(error => {
           Alert.error(error.message);
+
+          this.setState({ isLoading: false });
         });
     };
 
@@ -149,7 +164,8 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
       ...this.props,
       integration,
       fields: dbFields.map(field => ({ ...field })),
-      save
+      save,
+      isActionLoading: this.state.isLoading
     };
 
     return <Form {...updatedProps} />;

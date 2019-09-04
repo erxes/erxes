@@ -1,16 +1,14 @@
-import * as moment from 'moment';
-import * as React from 'react';
+import dayjs from 'dayjs';
+import React from 'react';
 import strip from 'strip';
 
-import { withCurrentUser } from 'modules/auth/containers';
-import {
-  FormControl,
-  IntegrationIcon,
-  NameCard,
-  Tags,
-  Tip
-} from 'modules/common/components';
-
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import FormControl from 'modules/common/components/form/Control';
+import IntegrationIcon from 'modules/common/components/IntegrationIcon';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
+import Tip from 'modules/common/components/Tip';
+import { CallLabel } from 'modules/inbox/styles';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
 import { IBrand } from '../../../settings/brands/types';
@@ -89,6 +87,18 @@ class ConversationItem extends React.Component<Props> {
     return null;
   }
 
+  showMessageContent(kind: string, content: string) {
+    if (kind === 'callpro') {
+      return (
+        <CallLabel type={(content || '').toLocaleLowerCase()}>
+          {content}
+        </CallLabel>
+      );
+    }
+
+    return strip(content);
+  }
+
   render() {
     const { currentUser } = this.props;
     const { conversation, isActive, selectedIds = [] } = this.props;
@@ -145,13 +155,15 @@ class ConversationItem extends React.Component<Props> {
               </FlexContent>
             </MainInfo>
 
-            <MessageContent>{strip(content)}</MessageContent>
+            <MessageContent>
+              {this.showMessageContent(integration.kind, content || '')}
+            </MessageContent>
             <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>
 
         <SmallText>
-          {moment(updatedAt || createdAt).fromNow()}
+          {dayjs(updatedAt || createdAt).fromNow()}
 
           {assignedUser && (
             <AssigneeWrapper>

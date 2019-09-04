@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries } from 'modules/forms/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { ManageColumns } from '../components';
+import ManageColumns from '../components/ManageColumns';
 import {
   DefaultColumnsConfigQueryResponse,
   FieldsCombinedByTypeQueryResponse

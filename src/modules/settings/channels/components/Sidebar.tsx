@@ -1,34 +1,21 @@
-import { IUser } from 'modules/auth/types';
-import {
-  EmptyState,
-  Icon,
-  LoadMore,
-  ModalTrigger,
-  Spinner
-} from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import LoadMore from 'modules/common/components/LoadMore';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { Sidebar as LeftSidebar } from 'modules/layout/components';
+import LeftSidebar from 'modules/layout/components/Sidebar';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
-import { ChannelForm } from '../containers';
+import React from 'react';
+import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
-import { ChannelRow } from './';
+import ChannelRow from './ChannelRow';
 
 type Props = {
   channels: IChannel[];
-  members: IUser[];
   remove: (channelId: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   loading: boolean;
   currentChannelId?: string;
   channelsTotalCount: number;
@@ -36,34 +23,34 @@ type Props = {
 
 class Sidebar extends React.Component<Props, {}> {
   renderItems = () => {
-    const { channels, members, remove, save, currentChannelId } = this.props;
+    const { channels, remove, currentChannelId, renderButton } = this.props;
 
     return channels.map(channel => (
       <ChannelRow
         key={channel._id}
         isActive={currentChannelId === channel._id}
         channel={channel}
-        members={members}
+        members={channel.members}
         remove={remove}
-        save={save}
+        renderButton={renderButton}
       />
     ));
   };
 
   renderSidebarHeader() {
-    const { save, members } = this.props;
+    const { renderButton } = this.props;
     const { Header } = LeftSidebar;
 
     const addChannel = (
       <HelperButtons>
-        <a>
+        <button>
           <Icon icon="add" />
-        </a>
+        </button>
       </HelperButtons>
     );
 
     const content = props => (
-      <ChannelForm {...props} save={save} members={members} />
+      <ChannelForm {...props} renderButton={renderButton} />
     );
 
     return (
@@ -88,10 +75,9 @@ class Sidebar extends React.Component<Props, {}> {
           <LoadMore all={channelsTotalCount} loading={loading} />
         </SidebarList>
         {loading && <Spinner />}
-        {!loading &&
-          channelsTotalCount === 0 && (
-            <EmptyState icon="sitemap" text="There is no channel" />
-          )}
+        {!loading && channelsTotalCount === 0 && (
+          <EmptyState icon="sitemap" text="There is no channel" />
+        )}
       </LeftSidebar>
     );
   }

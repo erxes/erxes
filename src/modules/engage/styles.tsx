@@ -102,7 +102,7 @@ const MessengerPreview = styled(WebPreview)`
   min-height: 500px;
 `;
 
-const Segmentli = styledTS<{ chosen: boolean }>(styled.li)`
+const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
   list-style-type: none;
   text-align: left;
   display: list-item;
@@ -133,6 +133,10 @@ const Recipient = styled.div`
   margin-bottom: 5px;
   background: ${colors.bgLight};
   font-size: 13px;
+`;
+
+const Half = styled.div`
+  width: 50%;
 `;
 
 const StepContent = styled.div`
@@ -193,6 +197,10 @@ const SelectMonth = styled.div`
 const DateTimePicker = styled.div`
   margin-top: ${coreSpace};
 
+  .rdtCounters {
+    padding-left: 15px;
+  }
+
   .rdtOpen .rdtPicker {
     border:none;
 
@@ -203,7 +211,7 @@ const DateTimePicker = styled.div`
 
   .rdtCounterSeparator {
     line-height: inherit;
-    padding-left: ${dimensions.unitSpacing}px;
+    padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
   }
 
   .rdtTime {
@@ -212,15 +220,49 @@ const DateTimePicker = styled.div`
 
   .rdtCounter {
     position: relative;
-    height: ${dimensions.headerSpacing + 5}px
+    height: ${dimensions.coreSpacing + 10}px
     color: ${rgba(colors.colorCoreDarkGray, 0.8)};
+    background: ${colors.bgLight};
+    border: 1px solid ${colors.borderPrimary};
 
     .rdtBtn {
       line-height: ${dimensions.unitSpacing}px;
       position: absolute;
       right: 0;
-      font-size: 10px;
+      font-size: ${dimensions.unitSpacing}px;
+      color: ${colors.colorCoreGray};
+      padding: 2px 3px 0 0;
     }
+
+    .rdtCount {
+      height: ${dimensions.unitSpacing}px;
+      font-size: inherit;
+      margin: 3px 0 0 -${dimensions.unitSpacing - 5}px;
+    }
+  }
+`;
+
+const StepFormWrapper = styled.div`
+  padding: 20px;
+`;
+
+const ListWrapper = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const RadioContainer = styled.div`
+  border-bottom: 1px dotted ${colors.borderPrimary};
+
+  > * {
+    padding: ${dimensions.coreSpacing}px;
+  }
+`;
+
+const CustomerCounts = styled.div`
+  text-align: center;
+
+  > i {
+    color: ${colors.colorCoreLightGray};
   }
 `;
 
@@ -232,6 +274,19 @@ const MessageDescription = styled.div`
   padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
 `;
 
+const EditorContainer = styled.div`
+  padding: ${coreSpace};
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const SelectMessageType = styled.div`
+  margin: 20px 20px 0 20px;
+  width: 300px;
+  white-space: normal;
+  color: ${colors.colorCoreGray};
+`;
+
 export {
   EngageTitle,
   HelperText,
@@ -241,9 +296,10 @@ export {
   PreviewContent,
   Messenger,
   MessengerPreview,
-  Segmentli,
+  ListCounter,
   Recipients,
   Recipient,
+  Half,
   StepContent,
   FlexItemCentered,
   Box,
@@ -254,5 +310,11 @@ export {
   SelectMonth,
   LauncherContainer,
   WidgetPreview,
-  MessageDescription
+  MessageDescription,
+  EditorContainer,
+  StepFormWrapper,
+  ListWrapper,
+  RadioContainer,
+  CustomerCounts,
+  SelectMessageType
 };

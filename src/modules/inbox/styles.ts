@@ -16,9 +16,8 @@ const PopoverButton = styled.div`
   }
 
   > i {
-    margin-left: 5px;
+    margin-left: 3px;
     margin-right: 0;
-    font-size: 10px;
     transition: all ease 0.3s;
     color: ${colors.colorCoreGray};
   }
@@ -276,9 +275,7 @@ const AssignTrigger = styled.div`
     margin-left: 5px;
     margin-right: 0;
     transition: all ease 0.3s;
-    line-height: 30px;
     color: ${colors.colorCoreGray};
-    font-size: 10px;
     display: inline-block;
   }
 
@@ -321,8 +318,13 @@ const Mask = styled.div`
     cursor: pointer;
   }
 `;
+
 const NoHeight = styled.div`
   height: auto;
+`;
+
+const CallLabel = styledTS<{ type: string }>(styled.span)`
+  color: ${props => (props.type === 'answered' ? 'green' : 'red')};
 `;
 
 export {
@@ -353,5 +355,6 @@ export {
   AssignTrigger,
   Mask,
   MaskWrapper,
-  NoHeight
+  NoHeight,
+  CallLabel
 };

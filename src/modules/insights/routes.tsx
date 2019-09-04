@@ -1,11 +1,15 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { Route } from 'react-router-dom';
 import { INSIGHT_TYPES } from './constants';
 
 const AsyncExportReport = asyncComponent(() =>
   import(/* webpackChunkName: "AsyncExportReport" */ './containers/ExportReport')
+);
+
+const AsyncConversationReport = asyncComponent(() =>
+  import(/* webpackChunkName: "AsyncConversationReport" */ './containers/ConversationReport')
 );
 
 const AsyncSummaryReport = asyncComponent(() =>
@@ -26,7 +30,7 @@ const AsyncInsightPage = asyncComponent(() =>
   import('./components/InsightPage')
 );
 
-const AsyncDealVolumeReport = asyncComponent(([]) =>
+const AsyncDealVolumeReport = asyncComponent(() =>
   import(/* webpackChunkName: "DealVolumeReport" */ './containers/DealVolumeReport')
 );
 
@@ -72,6 +76,14 @@ const exportReport = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <AsyncExportReport queryParams={queryParams} history={history} />;
+};
+
+const conversationReport = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <AsyncConversationReport queryParams={queryParams} history={history} />
+  );
 };
 
 const dealVolumeReport = ({ history, location }) => {
@@ -154,6 +166,13 @@ const routes = () => {
         exact={true}
         path="/inbox/insights/export-report"
         component={exportReport}
+      />
+
+      <Route
+        key="/inbox/insights/conversation-report"
+        exact={true}
+        path="/inbox/insights/conversation-report"
+        component={conversationReport}
       />
 
       <Route

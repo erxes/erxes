@@ -1,25 +1,29 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   save: (
-    save: { currentPassword: string; newPassword: string; confirmation: string }
+    {
+      currentPassword,
+      newPassword,
+      confirmation
+    }: {
+      currentPassword: string;
+      newPassword: string;
+      confirmation: string;
+    }
   ) => void;
   closeModal: () => void;
 };
 
 class ChangePassword extends React.Component<Props> {
-  handleSubmit = e => {
-    e.preventDefault();
-
-    this.props.save({
+  generateDoc = () => {
+    return {
       currentPassword: (document.getElementById(
         'current-password'
       ) as HTMLInputElement).value,
@@ -28,9 +32,13 @@ class ChangePassword extends React.Component<Props> {
       confirmation: (document.getElementById(
         'new-password-confirmation'
       ) as HTMLInputElement).value
-    });
+    };
+  };
 
-    this.props.closeModal();
+  handleSubmit = e => {
+    e.preventDefault();
+
+    this.props.save(this.generateDoc());
   };
 
   render() {

@@ -1,10 +1,8 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 
 type Props = {

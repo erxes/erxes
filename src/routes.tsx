@@ -1,11 +1,11 @@
-import { withCurrentUser } from 'modules/auth/containers';
-import { MainBar } from 'modules/layout/components';
-import { MainLayout } from 'modules/layout/containers';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import { MainWrapper } from 'modules/layout/styles';
 import { userConfirmation } from 'modules/settings/team/routes';
-import * as React from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import history from './browserHistory';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import CompaniesRoutes from './modules/companies/routes';
@@ -16,11 +16,22 @@ import FormRoutes from './modules/forms/routes';
 import InboxRoutes from './modules/inbox/routes';
 import InsightsRoutes from './modules/insights/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
+import { NotifProvider } from './modules/notifications/context';
 import NotificationRoutes from './modules/notifications/routes';
 import OnboardRoutes from './modules/onboard/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
+import TaskRoutes from './modules/tasks/routes';
+import TicketRoutes from './modules/tickets/routes';
+
+const MainLayout = asyncComponent(() =>
+  import(/* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout')
+);
+
+const MainBar = asyncComponent(() =>
+  import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
+);
 
 const renderRoutes = currentUser => {
   if (currentUser) {
@@ -29,7 +40,10 @@ const renderRoutes = currentUser => {
         <OnboardRoutes />
         <MainLayout currentUser={currentUser}>
           <MainWrapper>
-            <MainBar />
+            <NotifProvider currentUser={currentUser}>
+              <MainBar />
+              <NotificationRoutes />
+            </NotifProvider>
             <InboxRoutes />
             <SegmentsRoutes />
             <CustomersRoutes />
@@ -40,8 +54,9 @@ const renderRoutes = currentUser => {
             <FormRoutes />
             <SettingsRoutes />
             <TagsRoutes />
-            <NotificationRoutes />
             <DealsRoutes />
+            <TicketRoutes />
+            <TaskRoutes />
           </MainWrapper>
         </MainLayout>
       </>
@@ -62,7 +77,7 @@ const renderRoutes = currentUser => {
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
-  <Router>{renderRoutes(currentUser)}</Router>
+  <Router history={history}>{renderRoutes(currentUser)}</Router>
 );
 
 export default withCurrentUser(Routes);

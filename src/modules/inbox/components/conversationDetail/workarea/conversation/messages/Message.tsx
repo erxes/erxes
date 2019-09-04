@@ -1,6 +1,8 @@
-import * as React from 'react';
+import React from 'react';
 import { IMessage } from '../../../../../types';
-import { AppMessage, FormMessage, SimpleMessage } from './';
+import AppMessage from './AppMessage';
+import FormMessage from './FormMessage';
+import SimpleMessage from './SimpleMessage';
 
 type Props = {
   message: IMessage;

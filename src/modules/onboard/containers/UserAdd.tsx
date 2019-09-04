@@ -1,20 +1,21 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert, withProps } from 'modules/common/utils';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __, withProps } from 'modules/common/utils';
 import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
 import { queries as teamQueries } from 'modules/settings/team/graphql';
-import * as React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
+import React from 'react';
+import { compose, graphql } from 'react-apollo';
 import { IUserGroup } from '../../settings/permissions/types';
-import { UserAdd } from '../components';
+import UserAdd from '../components/UserAdd';
 import { OnboardConsumer } from '../containers/OnboardContext';
 import { mutations } from '../graphql';
-import { UsersAddMutationResponse, UsersCountQueryResponse } from '../types';
+import { UsersCountQueryResponse } from '../types';
 
 type Props = { changeStep: (inscrease: boolean) => void };
 
-type FinalProps = { usersCountQuery: UsersCountQueryResponse } & Props &
-  UsersAddMutationResponse;
+type FinalProps = { usersCountQuery: UsersCountQueryResponse } & Props;
 
 class UserAddContainer extends React.Component<
   FinalProps,
@@ -37,47 +38,54 @@ class UserAddContainer extends React.Component<
   }
 
   render() {
-    const { usersCountQuery, addMutation } = this.props;
+    const { usersCountQuery } = this.props;
 
     const usersTotalCount = usersCountQuery.usersTotalCount || 0;
 
-    // add action
-    const save = ({ doc }, callback: () => void) => {
-      addMutation({ variables: doc })
-        .then(() => {
-          Alert.success('You successfully invited a team member');
-          callback();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={mutations.usersInvite}
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          disabled={!values}
+          type="submit"
+          icon="arrow-right"
+          successMessage={`You successfully invited a ${name}`}
+        >
+          {__('Next')}
+        </ButtonMutate>
+      );
     };
 
     const updatedProps = {
       ...this.props,
       usersTotalCount,
       usersGroups: this.state.usersGroups,
-      save
+      renderButton
     };
 
     return <UserAdd {...updatedProps} />;
   }
 }
 
+const getRefetchQueries = () => {
+  return [
+    { query: gql(teamQueries.users) },
+    { query: gql(teamQueries.usersTotalCount) }
+  ];
+};
+
 const WithQuery = withProps<Props>(
   compose(
-    graphql(gql(mutations.usersInvite), {
-      name: 'addMutation',
-      options: () => {
-        return {
-          refetchQueries: [
-            { query: gql(teamQueries.users) },
-            { query: gql(teamQueries.usersTotalCount) }
-          ]
-        };
-      }
-    }),
-    graphql<Props, UsersAddMutationResponse, {}>(
+    graphql<Props, UsersCountQueryResponse, {}>(
       gql(teamQueries.usersTotalCount),
       {
         name: 'usersCountQuery',

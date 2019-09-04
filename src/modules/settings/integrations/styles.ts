@@ -46,6 +46,7 @@ const Row = styled.div`
   > button {
     flex-shrink: 0;
     margin-left: 10px;
+    align-self: baseline;
   }
 `;
 
@@ -62,6 +63,14 @@ const BrandName = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
+const Script = styled.div`
+  padding-top: ${dimensions.coreSpacing}px;
+
+  ol {
+    padding-left: ${dimensions.coreSpacing}px;
+  }
+`;
+
 const Options = styled.div`
   font-weight: 500;
 
@@ -72,4 +81,17 @@ const Options = styled.div`
   }
 `;
 
-export { FlexRow, Row, MessengerPreview, IntegrationName, BrandName, Options };
+const Description = styled.p`
+  text-transform: initial;
+`;
+
+export {
+  FlexRow,
+  Row,
+  MessengerPreview,
+  IntegrationName,
+  BrandName,
+  Options,
+  Description,
+  Script
+};

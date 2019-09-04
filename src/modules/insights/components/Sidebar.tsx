@@ -1,7 +1,8 @@
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import queryString from 'query-string';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { DEAL_INSIGHTS, INBOX_INSIGHTS, INSIGHT_TYPES } from '../constants';
@@ -9,6 +10,7 @@ import { IInsightType } from '../types';
 
 type Props = {
   type?: string;
+  queryParams?: any;
 };
 
 class Sidebar extends React.Component<Props> {
@@ -20,10 +22,19 @@ class Sidebar extends React.Component<Props> {
 
   renderItem(insight: IInsightType) {
     const { name, to } = insight;
+    const { queryParams } = this.props;
+
+    const search = queryString.stringify(queryParams);
 
     return (
       <li key={to}>
-        <NavLink activeClassName="active" to={to}>
+        <NavLink
+          activeClassName="active"
+          to={{
+            pathname: to,
+            search
+          }}
+        >
           {__(name)}
         </NavLink>
       </li>

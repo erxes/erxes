@@ -1,7 +1,8 @@
 import { getEnv } from 'apolloClient';
 import T from 'i18n-react';
 import { IUser, IUserDoc } from 'modules/auth/types';
-import * as React from 'react';
+import React from 'react';
+import { IAttachment } from '../types';
 import Alert from './Alert';
 import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
@@ -15,7 +16,7 @@ export const renderFullName = data => {
     return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
-  return data.primaryEmail || data.primaryPhone || 'N/A';
+  return data.primaryEmail || data.primaryPhone || 'Unknown';
 };
 
 export const setTitle = (title: string, force: boolean) => {
@@ -159,3 +160,124 @@ export function withProps<IProps>(
     }
   };
 }
+
+export function renderWithProps<Props>(
+  props: Props,
+  Wrapped: new (props: Props) => React.Component<Props>
+) {
+  return <Wrapped {...props} />;
+}
+
+export const isValidDate = date => {
+  const parsedDate = Date.parse(date);
+
+  // Checking if it is date
+  if (isNaN(date) && !isNaN(parsedDate)) {
+    return true;
+  }
+
+  return false;
+};
+
+export const extractAttachment = (attachments: IAttachment[]) => {
+  return attachments.map(file => ({
+    name: file.name,
+    type: file.type,
+    url: file.url,
+    size: file.size
+  }));
+};
+
+export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
+  const d = new Date();
+
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+
+  const expires = `expires=${d.toUTCString()}`;
+
+  document.cookie = `${cname}=${cvalue};${expires};path=/`;
+};
+
+export const getCookie = cname => {
+  const name = `${cname}=`;
+  const ca = document.cookie.split(';');
+
+  for (let c of ca) {
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+
+  return '';
+};
+
+/**
+ * Generate random string
+ */
+export const generateRandomString = (len: number = 10) => {
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+  let randomString = '';
+
+  for (let i = 0; i < len; i++) {
+    const position = Math.floor(Math.random() * charSet.length);
+    randomString += charSet.substring(position, position + 1);
+  }
+
+  return randomString;
+};
+
+/**
+ * Send desktop notification
+ */
+export const sendDesktopNotification = (doc: {
+  title: string;
+  content?: string;
+}) => {
+  const notify = () => {
+    // Don't send notification to itself
+    if (!window.document.hidden) {
+      return;
+    }
+
+    const notification = new Notification(doc.title, {
+      body: doc.content,
+      icon: '/favicon.png',
+      dir: 'ltr'
+    });
+
+    // notify by sound
+    const audio = new Audio('/sound/notify.mp3');
+    audio.play();
+
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
+  };
+
+  // Browser doesn't support Notification api
+  if (!('Notification' in window)) {
+    return;
+  }
+
+  if (Notification.permission === 'granted') {
+    return notify();
+  }
+
+  if (Notification.permission !== 'denied') {
+    Notification.requestPermission(permission => {
+      if (!('permission' in Notification)) {
+        (Notification as any).permission = permission;
+      }
+
+      if (permission === 'granted') {
+        return notify();
+      }
+    });
+  }
+};

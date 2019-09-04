@@ -1,15 +1,17 @@
-import { Calendar } from 'modules/common/components';
-import { IDateColumn } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { Header } from 'modules/layout/components';
-import * as React from 'react';
-import styled from 'styled-components';
-import { DealColumn, MainActionBar } from '../../containers';
+import MainActionBar from 'modules/boards/containers/MainActionBar';
 import {
   BoardContainer,
   BoardContent,
   ScrolledContent
-} from '../../styles/common';
+} from 'modules/boards/styles/common';
+import Calendar from 'modules/common/components/Calendar';
+import { IDateColumn } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import Header from 'modules/layout/components/Header';
+import React from 'react';
+import styled from 'styled-components';
+import DealColumn from '../../containers/calendar/DealColumn';
+import DealMainActionBar from '../DealMainActionBar';
 
 type Props = {
   queryParams: any;
@@ -51,7 +53,13 @@ class CalendarView extends React.Component<Props> {
   };
 
   renderActionBar = (renderMiddleContent: () => React.ReactNode) => {
-    return <MainActionBar middleContent={renderMiddleContent} />;
+    return (
+      <MainActionBar
+        type="deal"
+        component={DealMainActionBar}
+        middleContent={renderMiddleContent}
+      />
+    );
   };
 
   renderMonthView(renderMonths: () => React.ReactNode[]) {
@@ -69,7 +77,7 @@ class CalendarView extends React.Component<Props> {
         <Header title={__('Deal')} breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           {this.renderActionBar(renderMiddleContent)}
-          <ScrolledContent transparent={true}>
+          <ScrolledContent>
             {this.renderMonthView(renderMonths)}
           </ScrolledContent>
         </BoardContent>

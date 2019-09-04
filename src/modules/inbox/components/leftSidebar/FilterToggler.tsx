@@ -1,6 +1,6 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { GroupTitle } from './styles';
 
 type Props = {
@@ -35,7 +35,7 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
       <>
         <GroupTitle onClick={this.onClick} isOpen={isOpen}>
           {__(groupText)}
-          <Icon icon="downarrow" />
+          <Icon icon="angle-down" />
         </GroupTitle>
         {this.state.isOpen && children}
       </>

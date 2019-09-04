@@ -1,10 +1,15 @@
-import { Button, Icon, Label, Tags } from 'modules/common/components';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
 import { AvatarImg } from 'modules/common/components/filterableList/styles';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import Tags from 'modules/common/components/Tags';
 import { IAttachmentPreview } from 'modules/common/types';
 import { __, getUserAvatar } from 'modules/common/utils';
-import { AssignBoxPopover } from 'modules/inbox/components';
-import { Resolver, Tagger } from 'modules/inbox/containers';
-import { RespondBox } from 'modules/inbox/containers/conversationDetail';
+import AssignBoxPopover from 'modules/inbox/components/assignBox/AssignBoxPopover';
+import RespondBox from 'modules/inbox/containers/conversationDetail/RespondBox';
+import Resolver from 'modules/inbox/containers/Resolver';
+import Tagger from 'modules/inbox/containers/Tagger';
 import {
   ActionBarLeft,
   AssignText,
@@ -12,17 +17,27 @@ import {
   ConversationWrapper,
   PopoverButton
 } from 'modules/inbox/styles';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import {
   AddMessageMutationVariables,
   IConversation,
   IMessage
 } from '../../../types';
 import Conversation from './conversation/Conversation';
-import Participators from './Participators';
+import TypingIndicator from './TypingIndicator';
+
+const Participators = asyncComponent(
+  () => import(/* webpackChunkName:"Inbox-Participators" */ './Participators'),
+  { height: '30px', width: '30px', round: true }
+);
+
+const ConvertTo = asyncComponent(
+  () => import(/* webpackChunkName:"Inbox-ConvertTo" */ './ConvertTo'),
+  { height: '22px', width: '100px', marginRight: '10px' }
+);
 
 type Props = {
   queryParams?: any;
@@ -31,6 +46,7 @@ type Props = {
   currentConversation: IConversation;
   conversationMessages: IMessage[];
   loading: boolean;
+  typingInfo?: string;
   loadMoreMessages: () => void;
   addMessage: (
     {
@@ -81,7 +97,7 @@ export default class WorkArea extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages } = this.props;
+    const { conversationMessages, typingInfo } = this.props;
 
     const messageCount = conversationMessages.length;
     const prevMessageCount = prevProps.conversationMessages.length;
@@ -91,7 +107,7 @@ export default class WorkArea extends React.Component<Props, State> {
       current.scrollTop = current.scrollHeight - snapshot;
     }
 
-    if (prevMessageCount + 1 === messageCount) {
+    if (prevMessageCount + 1 === messageCount || typingInfo) {
       this.scrollBottom();
     }
 
@@ -122,12 +138,16 @@ export default class WorkArea extends React.Component<Props, State> {
       currentConversation,
       conversationMessages,
       addMessage,
-      loading
+      loading,
+      typingInfo
     } = this.props;
 
     const tags = currentConversation.tags || [];
     const assignedUser = currentConversation.assignedUser;
     const participatedUsers = currentConversation.participatedUsers || [];
+    const { kind } = currentConversation.integration;
+
+    const showInternal = kind === 'gmail';
 
     const tagTrigger = (
       <PopoverButton>
@@ -136,7 +156,7 @@ export default class WorkArea extends React.Component<Props, State> {
         ) : (
           <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon="downarrow" />
+        <Icon icon="angle-down" />
       </PopoverButton>
     );
 
@@ -147,15 +167,23 @@ export default class WorkArea extends React.Component<Props, State> {
         ) : (
           <Button btnStyle="simple" size="small">
             Member
+            <Icon icon="angle-down" />
           </Button>
         )}
-        <Icon icon="downarrow" />
       </AssignTrigger>
     );
 
     const actionBarRight = (
       <BarItems>
         <Tagger targets={[currentConversation]} trigger={tagTrigger} />
+
+        <ConvertTo
+          customerIds={
+            currentConversation.customerId
+              ? [currentConversation.customerId]
+              : []
+          }
+        />
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>
@@ -182,6 +210,10 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
+    const typingIndicator = typingInfo ? (
+      <TypingIndicator>{typingInfo}</TypingIndicator>
+    ) : null;
+
     const content = (
       <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
         <Conversation
@@ -195,20 +227,21 @@ export default class WorkArea extends React.Component<Props, State> {
     );
 
     return (
-      <React.Fragment>
+      <>
         {actionBar}
         <ContentBox>{content}</ContentBox>
         {currentConversation._id && (
           <ContenFooter>
+            {typingIndicator}
             <RespondBox
-              showInternal={false}
+              showInternal={showInternal}
               conversation={currentConversation}
               setAttachmentPreview={this.setAttachmentPreview}
               addMessage={addMessage}
             />
           </ContenFooter>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }

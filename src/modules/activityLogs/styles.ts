@@ -1,5 +1,4 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
-import { lighten } from 'modules/common/styles/color';
 import { WhiteBox } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -134,7 +133,6 @@ const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
 
 const EmailContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0 60px;
-  max-height: 110px;
   overflow: hidden;
 `;
 

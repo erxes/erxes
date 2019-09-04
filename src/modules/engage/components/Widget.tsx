@@ -1,7 +1,9 @@
-import { Button, ModalTrigger } from 'modules/common/components';
+import { IUser } from 'modules/auth/types';
+import Button from 'modules/common/components/Button';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ICustomer } from 'modules/customers/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import * as React from 'react';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import { IEngageMessageDoc } from '../types';
 import WidgetForm from './WidgetForm';
@@ -12,21 +14,37 @@ type Props = {
   customers: ICustomer[];
   messengerKinds: any[];
   sentAsChoices: any[];
+  modalTrigger?: React.ReactNode;
+  currentUser: IUser;
   save: (doc: IEngageMessageDoc, closeModal: () => void) => void;
 };
 
 class Widget extends React.Component<Props> {
-  render() {
-    const trigger = (
+  getTrigger = () => {
+    const trigger = this.props.modalTrigger;
+
+    if (trigger) {
+      return trigger;
+    }
+
+    return (
       <Button btnStyle="success" size="small" icon="email">
         Message
       </Button>
     );
+  };
 
+  render() {
     const content = props => <WidgetForm {...this.props} {...props} />;
 
     return (
-      <ModalTrigger title="New message" trigger={trigger} content={content} />
+      <ModalTrigger
+        size="lg"
+        title="Quick message"
+        trigger={this.getTrigger()}
+        content={content}
+        enforceFocus={false}
+      />
     );
   }
 }

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { Entry } from 'modules/settings/integrations/components/store';
+import Spinner from 'modules/common/components/Spinner';
+import Entry from 'modules/settings/integrations/components/store/Entry';
 import { queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { MessengerAppsCountQueryResponse } from '../types';
@@ -17,6 +17,8 @@ type Props = {
     messenger: number;
     form: number;
     facebook: number;
+    gmail: number;
+    callpro: number;
   };
 };
 

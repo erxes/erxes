@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { GettingStart } from '../components';
+import React from 'react';
+import GettingStart from '../components/GettingStart';
 import { OnboardConsumer, OnboardProvider } from './OnboardContext';
 
 const container = () => (

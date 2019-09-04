@@ -1,13 +1,12 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  Icon
-} from 'modules/common/components';
-import { Alert } from 'modules/common/utils';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
+import React from 'react';
+import RTG from 'react-transition-group';
 import { IUserGroup } from '../../settings/permissions/types';
 import {
   FlexRow,
@@ -16,14 +15,14 @@ import {
   RemoveRow
 } from '../../settings/team/styles';
 import { IInvitationEntry } from '../../settings/team/types';
-import { UserList } from '../containers';
+import UserList from '../containers/UserList';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   usersTotalCount: number;
   usersGroups: IUserGroup[];
   changeStep: (increase: boolean) => void;
-  save: (params: { doc: any }, callback: () => void) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
@@ -62,9 +61,7 @@ class UserAdd extends React.Component<Props, State> {
     }));
   };
 
-  save = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  generateDoc = () => {
     const { entries } = this.state;
 
     const validEntries: IInvitationEntry[] = [];
@@ -75,14 +72,11 @@ class UserAdd extends React.Component<Props, State> {
       }
     }
 
-    if (validEntries.length === 0) {
-      return Alert.warning('Please complete the form');
-    }
+    return { entries: validEntries };
+  };
 
-    this.props.save({ doc: { entries: validEntries } }, () => {
-      this.setState({ entries: [] });
-      this.props.changeStep(true);
-    });
+  changeStep = () => {
+    return this.props.changeStep(true);
   };
 
   onChange = (i: number, type: 'email' | 'groupId', e: React.FormEvent) => {
@@ -129,7 +123,7 @@ class UserAdd extends React.Component<Props, State> {
         <Description>
           <Icon icon="checked-1" /> {__('There is another')}{' '}
           <b>{usersTotalCount}</b> {__('users')}.{' '}
-          <a href="javascript:;" onClick={this.toggleUsers}>
+          <a href="#toggle" onClick={this.toggleUsers}>
             {showUsers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
@@ -147,7 +141,7 @@ class UserAdd extends React.Component<Props, State> {
     );
   };
 
-  renderContent() {
+  renderFormContent = (formProps: IFormProps) => {
     const { entries } = this.state;
 
     return (
@@ -155,15 +149,19 @@ class UserAdd extends React.Component<Props, State> {
         {entries.map((input, i) => (
           <FlexRow key={i}>
             <FormControl
-              id="emailValue"
+              {...formProps}
+              name="email"
               type="email"
               placeholder="name@example.com"
               value={input.email}
               autoFocus={i === 0}
               onChange={this.onChange.bind(this, i, 'email')}
+              required={true}
             />
 
             <FormControl
+              {...formProps}
+              name="groupId"
               componentClass="select"
               placeholder={__('Choose group')}
               options={[
@@ -171,6 +169,7 @@ class UserAdd extends React.Component<Props, State> {
                 ...this.generateGroupsChoices()
               ]}
               onChange={this.onChange.bind(this, i, 'groupId')}
+              required={true}
             />
 
             {this.renderRemoveInput(i)}
@@ -186,34 +185,44 @@ class UserAdd extends React.Component<Props, State> {
         {this.renderOtherUsers()}
       </>
     );
-  }
+  };
 
-  render() {
-    const { changeStep } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { changeStep, renderButton } = this.props;
 
     return (
-      <form onSubmit={this.save}>
+      <>
         <TopContent>
           <h2>{__(`Let's grow your team`)}</h2>
           <FlexRow>
-            <ControlLabel>Email address</ControlLabel>
-            <ControlLabel>Permission</ControlLabel>
+            <ControlLabel required={true}>Email address</ControlLabel>
+            <ControlLabel required={true}>Permission</ControlLabel>
           </FlexRow>
-          {this.renderContent()}
+          {this.renderFormContent({ ...formProps })}
         </TopContent>
         <Footer>
           <div>
             <Button btnStyle="link" onClick={changeStep.bind(null, false)}>
               Previous
             </Button>
-            <Button btnStyle="success" onClick={this.save}>
-              {__('Invite')} <Icon icon="rightarrow-2" />
-            </Button>
+
+            {renderButton({
+              name: 'team member invitation',
+              values: this.generateDoc(),
+              isSubmitted: formProps.isSubmitted,
+              callback: this.changeStep
+            })}
           </div>
-          <a onClick={changeStep.bind(null, true)}>{__('Skip for now')} »</a>
+          <a href="#skip" onClick={changeStep.bind(null, true)}>
+            {__('Skip for now')} »
+          </a>
         </Footer>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

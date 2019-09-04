@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import { queries } from 'modules/activityLogs/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Form } from '../components';
+import Form from '../components/Form';
 import { mutations } from '../graphql';
 import {
   InternalNotesAddMutationResponse,
@@ -16,22 +16,44 @@ type Props = {
 
 type FinalProps = Props & InternalNotesAddMutationResponse;
 
-const FormContainer = (props: FinalProps) => {
-  const { contentType, contentTypeId, internalNotesAdd } = props;
+class FormContainer extends React.Component<
+  FinalProps,
+  { isLoading: boolean }
+> {
+  constructor(props: FinalProps) {
+    super(props);
 
-  // create internalNote
-  const create = content => {
-    internalNotesAdd({
-      variables: {
-        contentType,
-        contentTypeId,
-        content
-      }
-    });
-  };
+    this.state = { isLoading: false };
+  }
 
-  return <Form create={create} />;
-};
+  render() {
+    const { contentType, contentTypeId, internalNotesAdd } = this.props;
+
+    // create internalNote
+    const create = (
+      content: string,
+      mentionedUserIds,
+      callback: () => void
+    ) => {
+      this.setState({ isLoading: true });
+
+      internalNotesAdd({
+        variables: {
+          contentType,
+          contentTypeId,
+          mentionedUserIds,
+          content
+        }
+      }).then(() => {
+        callback();
+
+        this.setState({ isLoading: false });
+      });
+    };
+
+    return <Form create={create} isActionLoading={this.state.isLoading} />;
+  }
+}
 
 export default compose(
   graphql<

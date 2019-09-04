@@ -13,9 +13,9 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
-import * as React from 'react';
+import React from 'react';
 import strip from 'strip';
-import * as xss from 'xss';
+import xss from 'xss';
 
 import {
   ResponseSuggestionItem,
@@ -28,7 +28,8 @@ type EditorProps = {
   defaultContent?: string;
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
-  onShifEnter: () => void;
+  onAddMessage: () => void;
+  onSearchChange: (value: string) => void;
   showMentions: boolean;
   responseTemplate: string;
   responseTemplates: IResponseTemplate[];
@@ -140,7 +141,7 @@ class TemplateList extends React.Component<TemplateListProps, {}> {
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, template.name))
                 }}
-              />
+              />{' '}
               <span
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, strip(template.content)))
@@ -320,6 +321,8 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   onSearchChange = ({ value }) => {
+    this.props.onSearchChange(value);
+
     this.setState({
       suggestions: defaultSuggestionsFilter(
         value,
@@ -384,7 +387,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       }
 
       // call parent's method to save content
-      this.props.onShifEnter();
+      this.props.onAddMessage();
 
       // clear content
       const state = this.state.editorState;

@@ -52,33 +52,19 @@ const FullPreview = styled.div`
 const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   display: inline-block;
   cursor: pointer;
-  margin-left: ${dimensions.unitSpacing}px;
   border-radius: 50%;
+  padding: ${dimensions.unitSpacing / 2}px;
+  margin-right: ${dimensions.unitSpacing}px;
   border: 1px solid
-    ${props => (props.selected ? colors.colorPrimary : 'transparent')};
+    ${props => (props.selected ? colors.borderPrimary : 'transparent')};
 
   > div {
     height: ${dimensions.headerSpacing - 20}px;
     width: ${dimensions.headerSpacing - 20}px;
-    margin: ${dimensions.unitSpacing / 2}px;
     background: ${colors.borderPrimary};
     border-radius: 50%;
     line-height: ${dimensions.headerSpacing - 20}px;
   }
-`;
-
-const ColorPicker = styled.div`
-  border-radius: 4px;
-  display: inline-block;
-  padding: ${dimensions.unitSpacing / 2}px;
-  border: 1px solid ${colors.colorShadowGray};
-  cursor: pointer;
-  margin: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing / 2}px;
-`;
-
-const Picker = styled.div`
-  width: 80px;
-  height: 15px;
 `;
 
 const ImageUpload = styled.div`
@@ -266,11 +252,14 @@ const FlexColumn = styled.div`
   }
 `;
 
+const ColorList = styled.ul`
+  list-style: none;
+  padding: 0;
+`;
+
 export {
   FlexItem,
   FlexColumn,
-  ColorPicker,
-  Picker,
   BackgroundSelector,
   Box,
   BoxRow,
@@ -283,5 +272,6 @@ export {
   CarouselInner,
   FullPreview,
   ImageUpload,
-  ImagePreview
+  ImagePreview,
+  ColorList
 };

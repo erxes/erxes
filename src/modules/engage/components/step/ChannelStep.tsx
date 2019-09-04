@@ -1,11 +1,11 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { BoxRoot, FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { METHODS } from 'modules/engage/constants';
 import styledTS from 'styled-components-ts';
 
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Box = styledTS<{ selected: boolean }>(styled(BoxRoot))`
@@ -61,7 +61,7 @@ class ChannelStep extends React.Component<Props> {
         {this.renderBox(
           METHODS.EMAIL,
           'email-1',
-          'Delivered to a user s email inbox Customize with your own templates'
+          `Delivered to a user's email inbox Customize with your own templates`
         )}
         {this.renderBox(
           METHODS.MESSENGER,

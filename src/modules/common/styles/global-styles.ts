@@ -108,13 +108,17 @@ a:hover {
 }
 
 .modal-body {
-  padding: 40px 40px 30px 40px;
+  padding: 30px 40px;
 }
 
 .modal-footer {
   padding: 0;
-  margin-top: 40px;
+  margin-top: 30px;
   border: none;
+}
+
+.wide-modal {
+  width: 90%;
 }
 
 .close {
@@ -220,7 +224,7 @@ a:hover {
   box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
 }
 
-.tooltip.bottom .tooltip-arrow, {
+.tooltip.bottom .tooltip-arrow {
   border-bottom-color: ${colors.colorWhite};
 }
 
@@ -343,11 +347,16 @@ a:hover {
 /* select  */
 
 .Select-control {
+  height: 34px;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid ${colors.borderDarker};
   box-shadow: none;
   background: none;
+}
+
+.Select-input {
+  height: 33px;
 }
 
 .Select-control:hover {
@@ -823,6 +832,20 @@ a:hover {
     stroke-dashoffset: -100;
   }
 }
+
+/* ckEditor */
+  .editor-avatar {
+    width: 25px;
+    margin-right: 4px;
+    border-radius: 11px;
+  }
+  .editor-id {
+    display: none;
+  }
+
+  .rdt {
+    display: block !important;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;

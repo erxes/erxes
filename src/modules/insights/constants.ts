@@ -42,6 +42,12 @@ export const INBOX_INSIGHTS = [
     image: '/images/icons/erxes-22.svg',
     to: '/inbox/insights/export-report',
     desc: 'Download insight data as an excel sheet'
+  },
+  {
+    name: 'Response Frequency Report',
+    image: '/images/icons/erxes-15.svg',
+    to: '/inbox/insights/conversation-report',
+    desc: ''
   }
 ];
 

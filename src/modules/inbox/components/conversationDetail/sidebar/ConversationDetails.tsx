@@ -1,13 +1,13 @@
-import { IntegrationIcon } from 'modules/common/components';
+import dayjs from 'dayjs';
+import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import {
   SectionBody,
   SidebarCounter,
   SidebarList
 } from 'modules/layout/styles';
-import * as moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { ICustomer } from '../../../../customers/types';
 import { IBrand } from '../../../../settings/brands/types';
 import { IIntegration } from '../../../../settings/integrations/types';
@@ -53,7 +53,7 @@ class ConversationDetails extends React.Component<Props> {
             <li>
               {__('Opened')}
               <SidebarCounter>
-                {moment(conversation.createdAt).format('lll')}
+                {dayjs(conversation.createdAt).format('lll')}
               </SidebarCounter>
             </li>
             <li>

@@ -1,17 +1,17 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { IFormProps } from 'modules/common/types';
 import { __, confirm } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Row } from '../styles';
 import { IAccount } from '../types';
 
 type Props = {
   onSelect: (accountId?: string) => void;
   accounts: IAccount[];
+  formProps: IFormProps;
   onAdd: () => void;
   removeAccount: (accountId: string) => void;
 };
@@ -45,7 +45,11 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const { accountId } = this.state;
 
     if (!accountId || accountId === '') {
-      return <Button onClick={onAdd}>Add Account</Button>;
+      return (
+        <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
+          Add Account
+        </Button>
+      );
     }
 
     return (
@@ -56,17 +60,19 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   }
 
   render() {
-    const { accounts } = this.props;
+    const { accounts, formProps } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Linked Accounts</ControlLabel>
-
         <Row>
           <FormControl
+            {...formProps}
+            name="accountId"
             componentClass="select"
             placeholder={__('Select account')}
             onChange={this.onChange}
+            required={true}
           >
             <option value="">{__('Select account ...')}</option>
 

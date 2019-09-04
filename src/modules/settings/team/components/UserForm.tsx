@@ -1,24 +1,33 @@
-import { UserCommonInfos } from 'modules/auth/components';
-import { ControlLabel, FormGroup } from 'modules/common/components';
+import UserCommonInfos from 'modules/auth/components/UserCommonInfos';
+import { IUser, IUserDetails, IUserLinks } from 'modules/auth/types';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { ColumnTitle } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
-import * as React from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import { IChannel } from '../../channels/types';
-import { Form as CommonForm } from '../../common/components';
+import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
 
 type Props = {
   channels: IChannel[];
-  groups: any;
+  brands: IBrand[];
+  groups: IUserGroup[];
   selectedChannels: IChannel[];
+  selectedBrands: IBrand[];
   selectedGroups: IUserGroup[];
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  showBrands: boolean;
 } & ICommonFormProps;
 
 type State = {
   avatar: string;
   selectedChannels: IChannel[];
+  selectedBrands: IBrand[];
   selectedGroups: IUserGroup[];
 };
 
@@ -31,8 +40,9 @@ class UserForm extends React.Component<Props, State> {
 
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
-      selectedChannels: this.generateChannelsParams(props.selectedChannels),
-      selectedGroups: this.generateGroupsParams(props.selectedGroups)
+      selectedChannels: this.generateParams(props.selectedChannels),
+      selectedGroups: this.generateParams(props.selectedGroups),
+      selectedBrands: this.generateParams(props.selectedBrands)
     };
   }
 
@@ -40,17 +50,10 @@ class UserForm extends React.Component<Props, State> {
     this.setState({ avatar: url });
   };
 
-  generateChannelsParams = channels => {
-    return channels.map(channel => ({
-      value: channel._id,
-      label: channel.name
-    }));
-  };
-
-  generateGroupsParams = groups => {
-    return groups.map(group => ({
-      value: group._id,
-      label: group.name
+  generateParams = options => {
+    return options.map(option => ({
+      value: option._id,
+      label: option.name
     }));
   };
 
@@ -74,7 +77,35 @@ class UserForm extends React.Component<Props, State> {
         <Select
           placeholder={__('Choose groups')}
           value={self.state.selectedGroups}
-          options={self.generateGroupsParams(groups)}
+          options={self.generateParams(groups)}
+          onChange={onChange}
+          multi={true}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderBrands() {
+    const self = this;
+    const { showBrands, brands } = this.props;
+
+    if (!showBrands) {
+      return null;
+    }
+
+    const onChange = selectedBrands => {
+      this.setState({ selectedBrands });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Choose the brands</ControlLabel>
+        <br />
+
+        <Select
+          placeholder={__('Choose brands')}
+          value={self.state.selectedBrands}
+          options={self.generateParams(brands)}
           onChange={onChange}
           multi={true}
         />
@@ -98,7 +129,7 @@ class UserForm extends React.Component<Props, State> {
         <Select
           placeholder={__('Choose channels')}
           value={self.state.selectedChannels}
-          options={self.generateChannelsParams(channels)}
+          options={self.generateParams(channels)}
           onChange={onChange}
           multi={true}
         />
@@ -106,49 +137,57 @@ class UserForm extends React.Component<Props, State> {
     );
   }
 
-  getInputElementValue(id) {
-    return (document.getElementById(id) as HTMLInputElement).value;
-  }
+  generateDoc = (values: {} & IUser & IUserDetails & IUserLinks) => {
+    const { object } = this.props;
+    const { selectedChannels, selectedGroups, selectedBrands } = this.state;
+    const finalValues = values;
 
-  generateDoc = () => {
-    const { selectedChannels, selectedGroups } = this.state;
+    if (object) {
+      finalValues._id = object._id;
+    }
 
-    const doc = {
-      username: this.getInputElementValue('username'),
-      email: this.getInputElementValue('email'),
+    return {
+      _id: finalValues._id,
+      username: finalValues.username,
+      email: finalValues.email,
       details: {
         avatar: this.state.avatar,
-        shortName: this.getInputElementValue('shortName'),
-        position: this.getInputElementValue('position'),
-        fullName: this.getInputElementValue('fullName'),
-        location: this.getInputElementValue('user-location'),
-        description: this.getInputElementValue('description')
+        shortName: finalValues.shortName,
+        fullName: finalValues.fullName,
+        position: finalValues.position,
+        location: finalValues.location,
+        description: finalValues.description
       },
       channelIds: this.collectValues(selectedChannels),
       links: {
-        linkedIn: this.getInputElementValue('linkedin'),
-        twitter: this.getInputElementValue('twitter'),
-        facebook: this.getInputElementValue('facebook'),
-        youtube: this.getInputElementValue('youtube'),
-        github: this.getInputElementValue('github'),
-        website: this.getInputElementValue('website')
+        linkedIn: finalValues.linkedIn,
+        twitter: finalValues.twitter,
+        facebook: finalValues.facebook,
+        youtube: finalValues.youtube,
+        github: finalValues.github,
+        website: finalValues.website
       },
-      groupIds: this.collectValues(selectedGroups)
+      groupIds: this.collectValues(selectedGroups),
+      brandIds: this.collectValues(selectedBrands)
     };
-    return { doc };
   };
 
-  renderContent = () => {
+  renderContent = (formProps: IFormProps) => {
     const { object } = this.props;
     const user = object || { details: {} };
 
     return (
       <div>
-        <UserCommonInfos user={user} onAvatarUpload={this.onAvatarUpload} />
+        <UserCommonInfos
+          user={user}
+          onAvatarUpload={this.onAvatarUpload}
+          formProps={formProps}
+        />
         <ColumnTitle>{__('Other')}</ColumnTitle>
 
         {this.renderChannels()}
         {this.renderGroups()}
+        {this.renderBrands()}
       </div>
     );
   };
@@ -157,8 +196,11 @@ class UserForm extends React.Component<Props, State> {
     return (
       <CommonForm
         {...this.props}
+        name="team member"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
+        renderButton={this.props.renderButton}
+        object={this.props.object}
       />
     );
   }

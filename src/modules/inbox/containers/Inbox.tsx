@@ -1,10 +1,10 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { IUser } from 'modules/auth/types';
 import { can, router as routerUtils } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { graphql } from 'react-apollo';
-import { Empty, Inbox } from '../components';
+import Empty from '../components/Empty';
+import Inbox from '../components/Inbox';
 import { queries } from '../graphql';
 import {
   ConvesationsQueryVariables,
@@ -20,6 +20,44 @@ interface IRouteProps {
 interface IProps extends IRouteProps {
   conversationsGetLast: any;
   loading: boolean;
+}
+
+interface IInboxRefetchController {
+  notifyConsumersOfManagementAction: () => void;
+  refetchRequired: string;
+}
+
+const InboxManagementActionContext = React.createContext(
+  {} as IInboxRefetchController
+);
+
+export const InboxManagementActionConsumer =
+  InboxManagementActionContext.Consumer;
+
+class WithRefetchHandling extends React.Component<
+  any,
+  IInboxRefetchController
+> {
+  constructor(props) {
+    super(props);
+
+    const notifHandler = () => {
+      this.setState({ refetchRequired: new Date().toISOString() });
+    };
+
+    this.state = {
+      notifyConsumersOfManagementAction: notifHandler,
+      refetchRequired: ''
+    };
+  }
+
+  public render() {
+    return (
+      <InboxManagementActionContext.Provider value={this.state}>
+        {this.props.children}
+      </InboxManagementActionContext.Provider>
+    );
+  }
 }
 
 class WithCurrentId extends React.Component<IProps> {
@@ -50,11 +88,13 @@ class WithCurrentId extends React.Component<IProps> {
           }
 
           return (
-            <Inbox
-              queryParams={queryParams}
-              currentConversationId={_id}
-              currentUser={currentUser}
-            />
+            <WithRefetchHandling>
+              <Inbox
+                queryParams={queryParams}
+                currentConversationId={_id}
+                currentUser={currentUser}
+              />
+            </WithRefetchHandling>
           );
         }}
       </AppConsumer>

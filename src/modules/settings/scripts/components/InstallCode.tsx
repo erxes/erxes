@@ -1,10 +1,11 @@
 import { getEnv } from 'apolloClient';
-import { Button, EmptyState } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import { ModalFooter } from 'modules/common/styles/main';
 import { MarkdownWrapper } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { IScript } from '../types';
 
 type Props = {

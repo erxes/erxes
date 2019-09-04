@@ -1,10 +1,12 @@
-import { EmptyState, Icon, ModalTrigger } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { renderFullName } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
-import * as React from 'react';
+import React from 'react';
 import { IProductData } from '../types';
 import ProductForm from './product/ProductForm';
 
@@ -44,9 +46,9 @@ function ProductSection({
           title="New Product & Service"
           size="lg"
           trigger={
-            <a>
+            <button>
               <Icon icon="add" />
-            </a>
+            </button>
           }
           content={content}
         />

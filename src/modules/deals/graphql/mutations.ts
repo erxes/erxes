@@ -1,5 +1,4 @@
 const commonVariables = `
-  $name: String!,
   $stageId: String,
   $productsData: JSON,
   $companyIds: [String],
@@ -8,10 +7,10 @@ const commonVariables = `
   $description: String,
   $assignedUserIds: [String],
   $order: Int,
+  $attachments: [AttachmentInput]
 `;
 
 const commonParams = `
-  name: $name,
   stageId: $stageId,
   productsData: $productsData,
   companyIds: $companyIds,
@@ -19,7 +18,8 @@ const commonParams = `
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
-  order: $order
+  order: $order,
+  attachments: $attachments
 `;
 
 const commonReturn = `
@@ -52,16 +52,16 @@ const commonReturn = `
 `;
 
 const dealsAdd = `
-  mutation dealsAdd(${commonVariables}) {
-    dealsAdd(${commonParams}) {
+  mutation dealsAdd($name: String!, ${commonVariables}) {
+    dealsAdd(name: $name, ${commonParams}) {
       ${commonReturn}
     }
   }
 `;
 
 const dealsEdit = `
-  mutation dealsEdit($_id: String!, ${commonVariables}) {
-    dealsEdit(_id: $_id, ${commonParams}) {
+  mutation dealsEdit($_id: String!, $name: String, ${commonVariables}) {
+    dealsEdit(_id: $_id, name: $name, ${commonParams}) {
       ${commonReturn}
     }
   }
@@ -75,6 +75,14 @@ const dealsRemove = `
   }
 `;
 
+const dealsChange = `
+  mutation dealsChange($_id: String!, $destinationStageId: String!) {
+    dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
+      _id
+    }
+  }
+`;
+
 const dealsUpdateOrder = `
   mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
     dealsUpdateOrder(stageId: $stageId, orders: $orders) {
@@ -83,26 +91,11 @@ const dealsUpdateOrder = `
   }
 `;
 
-const stagesUpdateOrder = `
-  mutation dealStagesUpdateOrder($orders: [OrderItem]) {
-    dealStagesUpdateOrder(orders: $orders) {
+const dealsWatch = `
+  mutation dealsWatch($_id: String!, $isAdd: Boolean!) {
+    dealsWatch(_id: $_id, isAdd: $isAdd) {
       _id
-    }
-  }
-`;
-
-const dealsChange = `
-  mutation dealsChange($_id: String!, $destinationStageId: String) {
-    dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
-      _id
-    }
-  }
-`;
-
-const stagesChange = `
-  mutation dealStagesChange($_id: String!, $pipelineId: String!) {
-    dealStagesChange(_id: $_id, pipelineId: $pipelineId) {
-      _id
+      isWatched
     }
   }
 `;
@@ -111,8 +104,7 @@ export default {
   dealsAdd,
   dealsEdit,
   dealsRemove,
-  dealsUpdateOrder,
-  stagesUpdateOrder,
   dealsChange,
-  stagesChange
+  dealsUpdateOrder,
+  dealsWatch
 };

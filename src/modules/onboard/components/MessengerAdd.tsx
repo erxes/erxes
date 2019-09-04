@@ -1,32 +1,25 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Icon
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { LANGUAGES } from 'modules/settings/general/constants';
-import { InstallCode } from 'modules/settings/integrations/components';
-import { SelectBrand } from 'modules/settings/integrations/containers';
+import InstallCode from 'modules/settings/integrations/components/InstallCode';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IIntegration } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
-import * as RTG from 'react-transition-group';
-import { MessengerList } from '../containers';
+import RTG from 'react-transition-group';
+import MessengerList from '../containers/MessengerList';
 import { Description, Footer, TopContent } from './styles';
 
 type Props = {
   totalCount: number;
   integration?: IIntegration;
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode: string;
-    },
-    callback: () => void
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   changeStep: (increase: boolean) => void;
   showInstallCode: boolean;
   closeInstallCodeModal: () => void;
@@ -46,9 +39,9 @@ class MessengerAdd extends React.Component<Props, State> {
     this.state = { showMessengers: true, name: '', brandId: '', language: '' };
   }
 
-  clearInput() {
-    this.setState({ name: '' });
-  }
+  changeStep = () => {
+    return this.props.changeStep(true);
+  };
 
   toggleMessengers = () => {
     this.setState({ showMessengers: !this.state.showMessengers });
@@ -60,20 +53,6 @@ class MessengerAdd extends React.Component<Props, State> {
     }
 
     this.props.changeStep(true);
-  };
-
-  save = e => {
-    e.preventDefault();
-    const { name, brandId, language } = this.state;
-
-    this.props.save(
-      {
-        name,
-        brandId,
-        languageCode: language
-      },
-      this.clearInput.bind(this)
-    );
   };
 
   handleChange = <T extends keyof State>(name: T, e) => {
@@ -95,7 +74,7 @@ class MessengerAdd extends React.Component<Props, State> {
         <Description>
           <Icon icon="checked-1" /> {__('You already have')} <b>{totalCount}</b>{' '}
           {__('messengers')}.
-          <a href="javascript:;" onClick={this.toggleMessengers}>
+          <a href="#toggle" onClick={this.toggleMessengers}>
             {showMessengers ? __('Hide') : __('Show')} ›
           </a>
         </Description>
@@ -136,18 +115,15 @@ class MessengerAdd extends React.Component<Props, State> {
     );
   }
 
-  renderContent() {
-    const { name } = this.state;
-
+  renderFormContent = (formProps: IFormProps) => {
     return (
       <>
         <FormGroup>
           <ControlLabel required={true}>Messenger name</ControlLabel>
 
           <FormControl
-            value={name}
-            onChange={this.handleChange.bind(this, 'name')}
-            type="text"
+            {...formProps}
+            name="name"
             autoFocus={true}
             required={true}
           />
@@ -157,9 +133,10 @@ class MessengerAdd extends React.Component<Props, State> {
           <ControlLabel required={true}>Messenger Language</ControlLabel>
 
           <FormControl
+            {...formProps}
             componentClass="select"
-            id="languageCode"
-            onChange={this.handleChange.bind(this, 'language')}
+            name="languageCode"
+            required={true}
           >
             <option />
             {LANGUAGES.map((item, index) => (
@@ -172,38 +149,51 @@ class MessengerAdd extends React.Component<Props, State> {
 
         <SelectBrand
           isRequired={true}
-          onChange={this.handleChange.bind(this, 'brandId')}
           creatable={false}
+          formProps={formProps}
         />
 
         {this.renderOtherMessengers()}
       </>
     );
-  }
+  };
+
+  renderContent = (formProps: IFormProps) => {
+    const { renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
+
+    return (
+      <>
+        <TopContent>
+          <h2>{__('Start messaging now!')}</h2>
+          {this.renderFormContent({ ...formProps })}
+        </TopContent>
+        <Footer>
+          <div>
+            <Button
+              btnStyle="link"
+              onClick={this.props.changeStep.bind(null, false)}
+            >
+              Previous
+            </Button>
+            {renderButton({
+              name: 'app',
+              values,
+              isSubmitted
+            })}
+          </div>
+          <a href="#skip" onClick={this.goNext}>
+            {__('Skip for now')} »
+          </a>
+        </Footer>
+      </>
+    );
+  };
 
   render() {
     return (
       <>
-        <form onSubmit={this.save}>
-          <TopContent>
-            <h2>{__('Start messaging now!')}</h2>
-            {this.renderContent()}
-          </TopContent>
-          <Footer>
-            <div>
-              <Button
-                btnStyle="link"
-                onClick={this.props.changeStep.bind(null, false)}
-              >
-                Previous
-              </Button>
-              <Button btnStyle="success" onClick={this.save}>
-                {__('Continue')} <Icon icon="rightarrow-2" />
-              </Button>
-            </div>
-            <a onClick={this.goNext}>{__('Skip for now')} »</a>
-          </Footer>
-        </form>
+        <Form renderContent={this.renderContent} />
         {this.renderInstallCode()}
       </>
     );
