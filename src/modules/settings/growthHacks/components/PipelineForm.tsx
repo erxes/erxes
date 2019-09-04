@@ -2,7 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { COLORS } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
-import { IPipeline, IStage } from 'modules/boards/types';
+import { IPipeline } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -26,13 +26,11 @@ type Props = {
   show: boolean;
   boardId: string;
   pipeline?: IPipeline;
-  stages?: IStage[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
-  stages: IStage[];
   visibility: string;
   selectedMemberIds: string[];
   backgroundColor: string;
@@ -45,10 +43,9 @@ class PipelineForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { pipeline, stages } = this.props;
+    const { pipeline } = this.props;
 
     this.state = {
-      stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
@@ -78,10 +75,6 @@ class PipelineForm extends React.Component<Props, State> {
   componentDidMount() {
     this.getTemplates();
   }
-
-  onChangeStages = stages => {
-    this.setState({ stages });
-  };
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
@@ -119,7 +112,6 @@ class PipelineForm extends React.Component<Props, State> {
     const { pipeline, type, boardId } = this.props;
     const {
       selectedMemberIds,
-      stages,
       backgroundColor,
       templateId,
       hackScoringType
@@ -134,7 +126,6 @@ class PipelineForm extends React.Component<Props, State> {
       ...finalValues,
       type,
       boardId: pipeline ? pipeline.boardId : boardId,
-      stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       templateId,
