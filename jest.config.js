@@ -12,10 +12,10 @@ module.exports = {
   modulePaths: ["<rootDir>/src"],
   globals: {
     "ts-jest": {
-      tsConfigFile: "tsconfig.json"
+      tsConfigFile: "tsconfig.jest.json"
     },
     // without it, compilation error occurs in apolloClient
     "fetch": {}
   },
-  setupTestFrameworkScriptFile: "./src/setupTests.ts",
+  setupFilesAfterEnv: ["./src/setupTests.ts"],
 };
