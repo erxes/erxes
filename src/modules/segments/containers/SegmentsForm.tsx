@@ -1,3 +1,4 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -6,8 +7,6 @@ import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { CountQueryResponse as CompanyCountQueryResponse } from '../../companies/types';
-import { CountQueryResponse as CustomerCountQueryResponse } from '../../customers/types';
 import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
 import SegmentsForm from '../components/SegmentsForm';
 import { mutations, queries } from '../graphql';
@@ -29,12 +28,25 @@ type FinalProps = {
   segmentDetailQuery: SegmentDetailQueryResponse;
   headSegmentsQuery: HeadSegmentsQueryResponse;
   combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
-  counts: CustomerCountQueryResponse | CompanyCountQueryResponse;
 } & Props &
   AddMutationResponse &
   EditMutationResponse;
 
-class SegmentsFormContainer extends React.Component<FinalProps> {
+class SegmentsFormContainer extends React.Component<
+  FinalProps,
+  { total: { byFakeSegment?: number }; loading: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      total: {
+        byFakeSegment: 0
+      },
+      loading: false
+    };
+  }
+
   renderButton = ({
     name,
     values,
@@ -69,13 +81,34 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
   };
 
   count = (segment: ISegmentDoc) => {
-    const { counts } = this.props;
+    const { contentType } = this.props;
 
-    try {
-      counts.refetch({ byFakeSegment: segment });
-    } catch (error) {
-      Alert.error(error.message);
+    this.setState({ loading: true });
+
+    let query = companyQueries.companyCounts;
+
+    if (contentType === 'customer') {
+      query = customerQueries.customerCounts;
     }
+
+    client
+      .query({
+        query: gql(query),
+        variables: {
+          contentType,
+          byFakeSegment: segment
+        }
+      })
+      .then(({ data }: any) => {
+        this.setState({
+          total: data[`${contentType}Counts`]
+        });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+
+    this.setState({ loading: false });
   };
 
   render() {
@@ -83,8 +116,7 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       contentType,
       segmentDetailQuery,
       headSegmentsQuery,
-      combinedFieldsQuery,
-      counts
+      combinedFieldsQuery
     } = this.props;
 
     if (segmentDetailQuery.loading || combinedFieldsQuery.loading) {
@@ -111,8 +143,8 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       headSegments: headSegments.filter(s => s.contentType === contentType),
       renderButton: this.renderButton,
       count: this.count,
-      counterLoading: counts.loading,
-      total: counts[`${contentType}Counts`] || {}
+      counterLoading: this.state.loading,
+      total: this.state.total
     };
 
     return <SegmentsForm {...updatedProps} />;
@@ -145,24 +177,6 @@ export default withProps<Props>(
         options: ({ id }) => ({
           variables: { _id: id }
         })
-      }
-    ),
-    graphql<Props, CustomerCountQueryResponse>(
-      gql(customerQueries.customerCounts),
-      {
-        name: 'counts',
-        skip: ({ contentType }) => {
-          return contentType === 'company';
-        }
-      }
-    ),
-    graphql<Props, CompanyCountQueryResponse>(
-      gql(companyQueries.companyCounts),
-      {
-        name: 'counts',
-        skip: ({ contentType }) => {
-          return contentType === 'customer';
-        }
       }
     ),
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(

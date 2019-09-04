@@ -99,7 +99,7 @@ class ManageIntegrations extends React.Component<Props, State> {
     let type = 'messenger';
 
     if (kind === KIND_CHOICES.LEAD) {
-      type = 'form';
+      type = 'lead';
     } else if (kind === KIND_CHOICES.FACEBOOK) {
       type = 'facebook';
     } else if (kind === KIND_CHOICES.CALLPRO) {

@@ -31,7 +31,7 @@ class IntegrationList extends React.Component<Props> {
     }
 
     if (kind === KIND_CHOICES.LEAD) {
-      return 'form';
+      return 'lead';
     }
 
     if (kind === KIND_CHOICES.CALLPRO) {
