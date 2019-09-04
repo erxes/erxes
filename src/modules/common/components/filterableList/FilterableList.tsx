@@ -19,7 +19,7 @@ type Props = {
 
   // hooks
   onClick?: (items: any[], id: string) => void;
-  onSearch?: (e) => void;
+  onSearch?: (e: React.FormEvent<HTMLElement>) => void;
   onExit?: (items: any[]) => void;
 };
 

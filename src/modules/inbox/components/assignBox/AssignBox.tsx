@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import debounce from 'lodash/debounce';
 import FilterableList from 'modules/common/components/filterableList/FilterableList';
 import { __, getUserAvatar } from 'modules/common/utils';
 import Alert from 'modules/common/utils/Alert';
@@ -48,13 +49,9 @@ class AssignBox extends React.Component<Props, State> {
   }
 
   fetchUsers = (e?) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
     const searchValue = e ? e.target.value : '';
 
-    this.timer = setTimeout(() => {
+    debounce(() => {
       client
         .query({
           query: gql(queries.userList),
@@ -77,7 +74,7 @@ class AssignBox extends React.Component<Props, State> {
         .catch(error => {
           Alert.error(error.message);
         });
-    }, 500);
+    }, 500)();
   };
 
   generateAssignParams(assignees: IUser[] = [], targets: IConversation[] = []) {
