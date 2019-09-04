@@ -26,7 +26,7 @@ export interface IConformityEdit {
   relTypeIds?: string[];
 }
 
-export type CreateConformityVariables = {
+export type EditConformityVariables = {
   _id: string;
   relType: string;
   relTypeIds: string[];
@@ -35,6 +35,6 @@ export type CreateConformityVariables = {
 // mutation types
 export type AddConformityMutation = ({ variables: IConformityDoc }) => void;
 
-export type CreateConformityMutation = (
-  { variables: CreateConformityVariables }
+export type EditConformityMutation = (
+  { variables: EditConformityVariables }
 ) => Promise<any>;

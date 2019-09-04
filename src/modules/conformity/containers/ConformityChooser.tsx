@@ -5,7 +5,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations } from '../graphql';
-import { CreateConformityMutation, IConformityEdit } from '../types';
+import { EditConformityMutation, IConformityEdit } from '../types';
 
 type Props = {
   search: (value: string, reload?: boolean) => void;
@@ -32,7 +32,7 @@ type Props = {
 };
 
 type FinalProps = {
-  editConformityMutation: CreateConformityMutation;
+  editConformityMutation: EditConformityMutation;
 } & Props;
 
 const ConformityChooser = (props: FinalProps) => {
@@ -67,7 +67,7 @@ export default withProps<Props>(
   compose(
     graphql<
       Props,
-      CreateConformityMutation,
+      EditConformityMutation,
       IConformityEdit & { isSaved?: boolean }
     >(gql(mutations.conformityEdit), {
       name: 'editConformityMutation',

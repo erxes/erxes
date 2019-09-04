@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { Alert, renderWithProps } from 'modules/common/utils';
 import { mutations } from 'modules/conformity/graphql/';
 import {
-  CreateConformityMutation,
+  EditConformityMutation,
   IConformityEdit
 } from 'modules/conformity/types';
 import React from 'react';
@@ -25,7 +25,7 @@ type IProps = {
 
 type FinalProps = {
   addMutation: SaveMutation;
-  editConformity: CreateConformityMutation;
+  editConformity: EditConformityMutation;
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
@@ -105,7 +105,7 @@ export default (props: IProps) =>
           }
         }
       ),
-      graphql<FinalProps, CreateConformityMutation, IConformityEdit>(
+      graphql<FinalProps, EditConformityMutation, IConformityEdit>(
         gql(mutations.conformityEdit),
         {
           name: 'editConformity'
