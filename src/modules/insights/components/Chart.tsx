@@ -18,7 +18,7 @@ class Chart extends React.Component<IProps> {
   render() {
     const { data, height, loading, type } = this.props;
     let typeId = 'count';
-    let marginLeft = 30;
+    let marginLeft = 35;
 
     if (loading) {
       return (
@@ -73,10 +73,6 @@ class Chart extends React.Component<IProps> {
           motionStiffness={90}
           motionDamping={15}
           curve="monotoneX"
-          axisLeft={{
-            orient: 'left',
-            tickSize: 5
-          }}
         />
       </ChartWrapper>
     );
