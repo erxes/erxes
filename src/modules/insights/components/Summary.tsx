@@ -13,6 +13,7 @@ type Props = {
   data: any;
   loading: boolean;
   isSmall?: boolean;
+  type?: string;
 };
 
 class Summary extends React.Component<Props> {
@@ -39,7 +40,7 @@ class Summary extends React.Component<Props> {
                 maximumFractionDigits: 2
               })
             : 0}
-          <span>{__('sec')}</span>
+          {this.props.type && <span>{__('sec')}</span>}
         </SummaryCount>
       </SummaryItem>
     );
