@@ -42,9 +42,9 @@ describe('Row component', () => {
     expect(props).toMatchObject(defaultProps);
   });
 
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Row {...defaultProps} />).toJSON();
+  // test('snapshot matches', () => {
+  //   const rendered = renderer.create(<Row {...defaultProps} />).toJSON();
 
-    expect(rendered).toMatchSnapshot();
-  });
+  //   expect(rendered).toMatchSnapshot();
+  // });
 });
