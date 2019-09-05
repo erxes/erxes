@@ -95,6 +95,7 @@ export interface IItem {
   order: number;
   stageId: string;
   closeDate: Date;
+  description: string;
   amount: number;
   modifiedAt: Date;
   assignedUsers: IUser[];
@@ -104,6 +105,7 @@ export interface IItem {
   stage?: IStage;
   isWatched?: boolean;
   priority?: string;
+  hasNotified?: boolean;
 }
 
 export interface IDraggableLocation {

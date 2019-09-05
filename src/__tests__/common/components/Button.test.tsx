@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import Button from '../../../modules/common/components/Button';
 
@@ -14,12 +13,6 @@ describe('Button component', () => {
 
   test('renders successfully', () => {
     shallow(<Button />);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Button {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 
   test('fully renders with default props', () => {

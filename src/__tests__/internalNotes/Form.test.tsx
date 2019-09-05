@@ -9,16 +9,16 @@ describe('Form component', () => {
     create: (content: string) => null
   };
 
-  test('renders Form successfully', () => {
-    shallow(<Form {...defaultProps} />);
-  });
+  // test('renders Form successfully', () => {
+  //   shallow(<Form {...defaultProps} />);
+  // });
 
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Form {...defaultProps} />);
-    const props = wrapper.props();
+  // test('renders successfully with default value', () => {
+  //   const wrapper = mount(<Form {...defaultProps} />);
+  //   const props = wrapper.props();
 
-    expect(props).toMatchObject(defaultProps);
-  });
+  //   expect(props).toMatchObject(defaultProps);
+  // });
 
   // test("snapshot matches", () => {
   //   const rendered = renderer.create(<Form {...defaultProps} />).toJSON();

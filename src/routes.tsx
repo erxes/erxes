@@ -16,6 +16,7 @@ import FormRoutes from './modules/forms/routes';
 import InboxRoutes from './modules/inbox/routes';
 import InsightsRoutes from './modules/insights/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
+import { NotifProvider } from './modules/notifications/context';
 import NotificationRoutes from './modules/notifications/routes';
 import OnboardRoutes from './modules/onboard/routes';
 import SegmentsRoutes from './modules/segments/routes';
@@ -39,7 +40,10 @@ const renderRoutes = currentUser => {
         <OnboardRoutes />
         <MainLayout currentUser={currentUser}>
           <MainWrapper>
-            <MainBar />
+            <NotifProvider currentUser={currentUser}>
+              <MainBar />
+              <NotificationRoutes />
+            </NotifProvider>
             <InboxRoutes />
             <SegmentsRoutes />
             <CustomersRoutes />
@@ -50,7 +54,6 @@ const renderRoutes = currentUser => {
             <FormRoutes />
             <SettingsRoutes />
             <TagsRoutes />
-            <NotificationRoutes />
             <DealsRoutes />
             <TicketRoutes />
             <TaskRoutes />

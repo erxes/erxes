@@ -1,15 +1,17 @@
-import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import NotificationsLatest from '../containers/NotificationsLatest';
+import { INotification } from '../types';
 import { NotifButton, PopoverHeader } from './styles';
 
 type Props = {
-  currentUser: IUser;
   unreadCount: number;
+  notifications: INotification[];
+  markAsRead: () => void;
+  isLoading: boolean;
 };
 
 type State = {
@@ -17,11 +19,6 @@ type State = {
 };
 
 class Widget extends React.Component<Props, State> {
-  update = () => {
-    // rerender component
-    this.forceUpdate();
-  };
-
   renderUnreadCount() {
     const { unreadCount } = this.props;
 
@@ -37,12 +34,13 @@ class Widget extends React.Component<Props, State> {
   }
 
   render() {
-    const { currentUser } = this.props;
+    const { notifications, markAsRead, isLoading } = this.props;
 
+    const popoverProps = { notifications, markAsRead, isLoading };
     const popoverNotification = (
       <Popover id="npopover" className="notification-popover">
         <PopoverHeader>{__('Notifications')}</PopoverHeader>
-        <NotificationsLatest currentUser={currentUser} update={this.update} />
+        <NotificationsLatest {...popoverProps} />
       </Popover>
     );
 

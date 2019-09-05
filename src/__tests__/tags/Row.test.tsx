@@ -1,7 +1,7 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
+import { IButtonMutateProps } from 'modules/common/types';
 import Row from '../../modules/tags/components/Row';
 
 describe('Row component', () => {
@@ -26,7 +26,9 @@ describe('Row component', () => {
         type: string;
         colorCode: string;
       };
-    }) => null
+      callback: () => void;
+    }) => null,
+    renderButton: (props: IButtonMutateProps) => <div />
   };
 
   test('renders WithPermission successfully', () => {

@@ -2,13 +2,14 @@ import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
 
+import { IButtonMutateProps } from '../../modules/common/types';
 import BrandAdd from '../../modules/onboard/components/BrandAdd';
 
 describe('BrandAdd component', () => {
   const defaultProps = {
     brandsTotalCount: 0,
-    save: (name: string, callback: () => void) => null,
-    changeStep: () => null
+    changeStep: () => null,
+    renderButton: (props: IButtonMutateProps) => <div />
   };
 
   test('renders BrandAdd successfully', () => {
