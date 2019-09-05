@@ -4,7 +4,7 @@ import React from 'react';
 
 type Props = {
   placeholder?: string;
-  onChange: (e: React.FormEvent<HTMLElement>) => void;
+  onChange: (e) => void;
 };
 
 function Filter({ placeholder = 'Search', onChange }: Props) {

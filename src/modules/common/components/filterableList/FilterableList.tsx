@@ -19,6 +19,7 @@ type Props = {
 
   // hooks
   onClick?: (items: any[], id: string) => void;
+  onSearch?: (e: React.FormEvent<HTMLElement>) => void;
   onExit?: (items: any[]) => void;
 };
 
@@ -117,7 +118,7 @@ class FilterableList extends React.Component<Props, State> {
     return (
       <div className={this.props.className}>
         <PopoverHeader>
-          <Filter onChange={this.filterItems} />
+          <Filter onChange={this.props.onSearch || this.filterItems} />
         </PopoverHeader>
 
         <PopoverBody>
