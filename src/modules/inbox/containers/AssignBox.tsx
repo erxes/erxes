@@ -3,9 +3,8 @@ import Alert from 'modules/common/utils/Alert';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import { UsersQueryResponse } from '../../settings/team/types';
 import AssignBox from '../components/assignBox/AssignBox';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 import {
   AssignMutationResponse,
   AssignMutationVariables,
@@ -21,18 +20,10 @@ type Props = {
   afterSave: () => void;
 };
 
-type FinalProps = {
-  usersQuery: UsersQueryResponse;
-} & Props &
-  AssignMutationResponse &
-  UnAssignMutationResponse;
+type FinalProps = Props & AssignMutationResponse & UnAssignMutationResponse;
 
 const AssignBoxContainer = (props: FinalProps) => {
-  const { usersQuery, assignMutation, conversationsUnassign } = props;
-
-  if (usersQuery.loading) {
-    return null;
-  }
+  const { assignMutation, conversationsUnassign } = props;
 
   const assign = (
     {
@@ -70,11 +61,8 @@ const AssignBoxContainer = (props: FinalProps) => {
       });
   };
 
-  const verifiedUsers = usersQuery.users.filter(user => user.username) || [];
-
   const updatedProps = {
     ...props,
-    assignees: verifiedUsers,
     assign,
     clear
   };
@@ -84,9 +72,6 @@ const AssignBoxContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, UsersQueryResponse>(gql(queries.userList), {
-      name: 'usersQuery'
-    }),
     graphql<Props, AssignMutationResponse, AssignMutationVariables>(
       gql(mutations.conversationsAssign),
       {
