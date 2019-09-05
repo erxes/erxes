@@ -185,7 +185,14 @@ class Main extends React.Component<FinalProps> {
         STORAGE_PIPELINE_KEY,
         JSON.stringify(defaultPipelines)
       );
-      window.location.href = `/${type}/board`;
+
+      let route = '';
+
+      if (type === 'ticket') {
+        route = '/inbox';
+      }
+
+      window.location.href = `${route}/${type}/board`;
       return null;
     }
 
