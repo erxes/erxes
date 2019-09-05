@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import PageContent from '../../modules/layout/components/PageContent';
 
@@ -18,13 +17,5 @@ describe('PageContent component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<PageContent {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 import ConfirmDialog from '../../../modules/common/components/ConfirmDialog';
 
 describe('ConfirmDialog component', () => {

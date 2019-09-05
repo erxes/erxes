@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import ModifiableList from '../../../modules/common/components/ModifiableList';
 
@@ -41,13 +40,5 @@ describe('ModifiableList component', () => {
     wrapper.setState({ options: added });
 
     expect(wrapper.state('options')).toEqual(added);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<ModifiableList {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

@@ -123,7 +123,7 @@
     "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
     "react-scripts": "^3.0.1",
-    "react-test-renderer": "^16.3.2",
+    "react-test-renderer": "^16.8.1",
     "release-it": "^12.3.5",
     "snyk": "^1.108.2",
     "ts-jest": "^23.0.1",

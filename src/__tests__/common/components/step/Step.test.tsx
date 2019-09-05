@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import Step from '../../../../modules/common/components/step/Step';
 
@@ -18,11 +17,5 @@ describe('Step component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Step {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

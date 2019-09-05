@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import ChooseType from 'modules/forms/components/step/ChooseType';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('ChooseType component', () => {
   const defaultProps = {
@@ -20,11 +19,5 @@ describe('ChooseType component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<ChooseType {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

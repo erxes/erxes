@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Group component snapshot matches 1`] = `
-<div
-  className="sc-bdVaJa fkrXdF"
-/>
-`;

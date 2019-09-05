@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import SuccessPreview from 'modules/forms/components/step/preview/SuccessPreview';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('SuccessPreview component', () => {
   const defaultProps = {
@@ -19,13 +18,5 @@ describe('SuccessPreview component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<SuccessPreview {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

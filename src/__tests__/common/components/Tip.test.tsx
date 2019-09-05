@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import Button from '../../../modules/common/components/Button';
 import Tip from '../../../modules/common/components/Tip';
@@ -19,11 +18,5 @@ describe('FilterToggler component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Tip {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

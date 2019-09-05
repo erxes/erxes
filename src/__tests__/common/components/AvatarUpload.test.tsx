@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import AvatarUpload from '../../../modules/common/components/AvatarUpload';
 
@@ -55,12 +54,5 @@ describe('AvatarUpload component', () => {
       avatarPreviewStyle: {},
       avatarPreviewUrl: defaultStatus.avatarPreviewUrl
     });
-  });
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<AvatarUpload {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

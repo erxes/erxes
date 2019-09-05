@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 import Attachment from '../../../modules/common/components/Attachment';
 
 describe('Attachment component', () => {
@@ -22,11 +21,5 @@ describe('Attachment component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Attachment {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

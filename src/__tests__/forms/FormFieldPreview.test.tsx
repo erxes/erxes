@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import FormFieldPreview from 'modules/forms/components/step/preview/FormFieldPreview';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('FormFieldPreview component', () => {
   const defaultProps = {

@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import FullPreviewStep from 'modules/forms/components/step/FullPreviewStep';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('FullPreviewStep component', () => {
   const defaultProps = {
@@ -21,13 +20,5 @@ describe('FullPreviewStep component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<FullPreviewStep {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

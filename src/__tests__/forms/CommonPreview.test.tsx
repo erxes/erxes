@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import CommonPreview from 'modules/forms/components/step/preview/CommonPreview';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('CommonPreview component', () => {
   const defaultProps = {
@@ -17,13 +16,5 @@ describe('CommonPreview component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<CommonPreview {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 import Control from '../../../../modules/common/components/form/Control';
 
 describe('Form control component', () => {
@@ -68,10 +67,5 @@ describe('Form control component', () => {
     const area = rendered.find('textarea');
 
     expect(area.length).toBe(1);
-  });
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Control {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

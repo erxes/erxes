@@ -4,7 +4,7 @@ import { IUser } from 'modules/auth/types';
 import EmailForm from 'modules/engage/components/EmailForm';
 import { IEngageEmail, IEngageScheduleDate } from 'modules/engage/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import * as React from 'react';
+import React from 'react';
 
 describe('EmailForm component', () => {
   const testUsers: IUser[] = [

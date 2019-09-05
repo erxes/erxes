@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import CalloutPreview from 'modules/forms/components/step/preview/CalloutPreview';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('CalloutPreview component', () => {
   const defaultProps = {
@@ -17,13 +16,5 @@ describe('CalloutPreview component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<CalloutPreview {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

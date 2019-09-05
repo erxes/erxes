@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import Steps from '../../../../modules/common/components/step/Steps';
 
@@ -19,11 +18,5 @@ describe('Group component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Steps {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

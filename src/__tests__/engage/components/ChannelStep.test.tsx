@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import ChannelStep from 'modules/engage/components/step/ChannelStep';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('ChannelStep component', () => {
   const defaultProps = {
@@ -18,13 +17,5 @@ describe('ChannelStep component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<ChannelStep {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });

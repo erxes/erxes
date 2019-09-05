@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import ImageWithPreview from '../../../modules/common/components/ImageWithPreview';
 
@@ -14,14 +13,6 @@ describe('ImageWithPreview component', () => {
 
   test('renders ImageWithPreview successfully', () => {
     shallow(<ImageWithPreview />);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<ImageWithPreview {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 
   test('renders successfully with default value', () => {

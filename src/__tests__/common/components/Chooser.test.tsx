@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 
-import * as renderer from 'react-test-renderer';
 import Chooser from '../../../modules/common/components/Chooser';
 
 describe('Chooser component', () => {
@@ -20,12 +19,6 @@ describe('Chooser component', () => {
 
   test('renders Chooser successfully', () => {
     shallow(<Chooser {...defaultProps} />);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Chooser {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 
   test('renders successfully with default value', () => {

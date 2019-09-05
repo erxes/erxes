@@ -1,8 +1,6 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 import Icon from '../../../modules/common/components/Icon';
-
-import * as renderer from 'react-test-renderer';
 
 describe('Icon component', () => {
   const defaultProps = {
@@ -20,12 +18,6 @@ describe('Icon component', () => {
     const props = control.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-
-  test('snapshot matches', () => {
-    const rendered = renderer.create(<Icon {...defaultProps} />).toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 
   test('renders test email', () => {

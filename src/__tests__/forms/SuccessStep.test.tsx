@@ -1,7 +1,6 @@
 import { mount, shallow } from 'enzyme';
 import SuccessStep from 'modules/forms/components/step/SuccessStep';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 describe('SuccessStep component', () => {
   const defaultProps = {

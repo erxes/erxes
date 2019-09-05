@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-import * as renderer from 'react-test-renderer';
+import React from 'react';
 
 import TeamMembers from '../../modules/insights/components/TeamMembers';
 
@@ -25,12 +24,5 @@ describe('TeamMembers component', () => {
     const props = wrapper.props();
 
     expect(props).toMatchObject(defaultProps);
-  });
-  test('snapshot matches', () => {
-    const rendered = renderer
-      .create(<TeamMembers {...defaultProps} />)
-      .toJSON();
-
-    expect(rendered).toMatchSnapshot();
   });
 });
