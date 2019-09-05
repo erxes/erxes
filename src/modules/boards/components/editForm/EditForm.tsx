@@ -163,16 +163,12 @@ class EditForm extends React.Component<Props, State> {
   };
 
   closeModal = () => {
-    const { beforePopupClose, saveItem } = this.props;
+    const { beforePopupClose } = this.props;
     const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
     if (beforePopupClose) {
       beforePopupClose();
     }
-
-    saveItem({}, result => {
-      this.props.onUpdate(result);
-    });
 
     this.setState({ isFormVisible: false });
 

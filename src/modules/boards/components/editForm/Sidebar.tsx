@@ -33,7 +33,7 @@ class Sidebar extends React.Component<Props> {
 
   renderDeal = ({ type, id }: { type: string; id: string }) => {
     if (type === 'deal') {
-      return '';
+      return null;
     }
 
     return <PortableDeals mainType={type} mainTypeId={id} />;
@@ -41,7 +41,7 @@ class Sidebar extends React.Component<Props> {
 
   renderTicket = ({ type, id }: { type: string; id: string }) => {
     if (type === 'ticket') {
-      return '';
+      return null;
     }
 
     return <PortableTickets mainType={type} mainTypeId={id} />;
@@ -49,7 +49,7 @@ class Sidebar extends React.Component<Props> {
 
   renderTask = ({ type, id }: { type: string; id: string }) => {
     if (type === 'task') {
-      return '';
+      return null;
     }
 
     return <PortableTasks mainType={type} mainTypeId={id} />;
