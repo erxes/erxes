@@ -70,7 +70,6 @@ const TitleRow = styled.div`
     border-bottom: none;
     min-height: auto;
     padding: 5px 0;
-    margin-bottom: 5px;
 
     &:focus {
       border-bottom: 1px solid ${colors.colorSecondary};
@@ -80,7 +79,8 @@ const TitleRow = styled.div`
 
 const MetaInfo = styled.div`
   display: flex;
-  align-item: center;
+  align-items: center;
+  margin-top: 5px;
 
   > * {
     margin-right: 5px;

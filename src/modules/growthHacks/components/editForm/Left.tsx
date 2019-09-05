@@ -8,14 +8,19 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 
 type Props = {
   item: IItem;
-  onChangeField: (name: 'description' | 'closeDate', value: any) => void;
+  onChangeField: (
+    name: 'description' | 'closeDate' | 'assignedUserIds',
+    value: any
+  ) => void;
   onChangeExtraField: (name: 'hackDescription' | 'goal', value: any) => void;
   onBlurFields: (name: 'description' | 'name', value: string) => void;
   type: string;
+  assignedUserIds: string[];
   description: string;
   hackDescription: string;
   goal: string;
@@ -36,7 +41,8 @@ class Left extends React.Component<Props> {
       description,
       hackDescription,
       goal,
-      type
+      type,
+      assignedUserIds
     } = this.props;
 
     const onChange = e =>
@@ -49,8 +55,25 @@ class Left extends React.Component<Props> {
       onBlurFields(e.target.name, e.target.value);
     };
 
+    const userOnChange = usrs => onChangeField('assignedUserIds', usrs);
+
     return (
       <>
+        <FormGroup>
+          <TitleRow>
+            <ControlLabel>
+              <Icon icon="user-check" />
+              Assign to
+            </ControlLabel>
+          </TitleRow>
+          <SelectTeamMembers
+            label="Choose users"
+            name="assignedUserIds"
+            value={assignedUserIds}
+            onSelect={userOnChange}
+            filterParams={{ status: 'verified' }}
+          />
+        </FormGroup>
         <FormGroup>
           <TitleRow>
             <ControlLabel>

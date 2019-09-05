@@ -48,10 +48,10 @@ class Form extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { saveForm, type } = this.props;
+    const { saveForm, type, isSaving } = this.props;
     const { formTitle, formBtnText, formDesc, fields } = this.state;
 
-    if (this.props.isSaving !== nextProps.isSaving) {
+    if (nextProps.isSaving && isSaving !== nextProps.isSaving) {
       saveForm({
         title: formTitle,
         description: formDesc,

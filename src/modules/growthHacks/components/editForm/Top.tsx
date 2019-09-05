@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import { PriorityIndicator } from 'modules/boards/components/editForm';
 import Move from 'modules/boards/containers/editForm/Move';
 import { ColorButton } from 'modules/boards/styles/common';
@@ -10,15 +9,14 @@ import {
 } from 'modules/boards/styles/item';
 import { IItem, IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 
 type Props = {
   item: IItem;
   options: IOptions;
   name: string;
-  description?: string;
   stageId: string;
-  users: IUser[];
   priority: string;
   hackStages: string[];
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
@@ -80,8 +78,11 @@ class Top extends React.Component<Props> {
       score,
       dueDate,
       priority,
-      onBlurFields
+      onBlurFields,
+      item
     } = this.props;
+
+    const { assignedUsers = [] } = item;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
@@ -105,6 +106,9 @@ class Top extends React.Component<Props> {
               />
             </TitleRow>
             <MetaInfo>
+              {assignedUsers.length > 0 && (
+                <Participators participatedUsers={assignedUsers} limit={3} />
+              )}
               {dueDate}
               {this.renderHackStage()}
             </MetaInfo>

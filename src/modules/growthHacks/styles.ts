@@ -96,7 +96,7 @@ const ScoreAmount = styled.div`
   top: 5px;
   border-radius: 2px;
   background: ${colors.colorCoreTeal};
-  padding: 2px 5px;
+  padding: 0 5px;
   color: ${colors.colorWhite};
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;

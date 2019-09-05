@@ -128,10 +128,17 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove,
     onBlurFields
   }: IEditFormContent) => {
-    const { item, users, options } = this.props;
+    const { item, options } = this.props;
     const { formFields, priority, hackStages, formId } = this.state;
 
-    const { name, stageId, description, closeDate, attachments } = state;
+    const {
+      name,
+      stageId,
+      description,
+      closeDate,
+      attachments,
+      assignedUserIds
+    } = state;
 
     const dateOnChange = date => onChangeField('closeDate', date);
 
@@ -141,9 +148,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           {...this.state}
           options={options}
           name={name}
-          users={users}
           stageId={stageId}
-          description={description}
           item={item}
           onChangeField={onChangeField}
           saveFormFields={this.saveFormFields}
@@ -175,6 +180,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               onChangeField={onChangeField}
               onChangeExtraField={this.onChangeExtraField}
               options={options}
+              assignedUserIds={assignedUserIds}
               onBlurFields={onBlurFields}
             />
           </LeftContainer>

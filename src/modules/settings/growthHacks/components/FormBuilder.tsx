@@ -64,7 +64,7 @@ class FormBuilder extends React.Component<
 
   onAfterSaveForm = formId => {
     this.props.onChangeForm(this.props.stageId, formId);
-    this.setState({ isOpenModal: false });
+    this.setState({ isOpenModal: false, isSaveForm: false });
   };
 
   closeModal = () => {
