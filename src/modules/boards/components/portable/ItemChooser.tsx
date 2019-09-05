@@ -3,7 +3,13 @@ import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { Column, Columns, Footer, Title } from 'modules/common/styles/chooser';
+import {
+  Column,
+  Columns,
+  Footer,
+  SelectChooser,
+  Title
+} from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
@@ -129,6 +135,7 @@ class ItemChooser extends React.Component<Props, State> {
 
     return (
       <BoardSelect
+        inSidebar={true}
         type={data.options.type}
         stageId={stageId}
         pipelineId={pipelineId}
@@ -162,7 +169,7 @@ class ItemChooser extends React.Component<Props, State> {
     return (
       <>
         <Columns>
-          <Column>{this.renderSelectChooser()}</Column>
+          <SelectChooser>{this.renderSelectChooser()}</SelectChooser>
           <Column>
             <FormControl
               placeholder={__('Type to search')}
