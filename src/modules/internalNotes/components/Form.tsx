@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import { ImportLoader } from 'modules/common/components/ButtonMutate';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
@@ -26,6 +27,7 @@ const EditorWrapper = styled.div`
 
 type Prop = {
   create: (content: string, mentionedUserIds, callback: () => void) => void;
+  isActionLoading: boolean;
 };
 
 type State = {
@@ -56,6 +58,8 @@ class Form extends React.PureComponent<Prop, State> {
   };
 
   renderFooter() {
+    const { isActionLoading } = this.props;
+
     if (!this.state.content) {
       return null;
     }
@@ -70,12 +74,15 @@ class Form extends React.PureComponent<Prop, State> {
         >
           Discard
         </Button>
+
         <Button
+          disabled={isActionLoading}
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon="send"
+          icon={isActionLoading ? undefined : 'send'}
         >
+          {isActionLoading && <ImportLoader />}
           Save
         </Button>
       </EditorActions>
