@@ -15,7 +15,10 @@ import { IItem, IOptions } from '../../types';
 type Props = {
   item: IItem;
   assignedUserIds: string[];
-  onChangeField?: (name: 'assignedUserIds', value: any) => void;
+  onChangeField?: (
+    name: 'companies' | 'customers' | 'assignedUserIds',
+    value: any
+  ) => void;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
   sidebar?: () => React.ReactNode;
@@ -67,6 +70,8 @@ class Sidebar extends React.Component<Props> {
 
     const onClick = () => removeItem(item._id);
     const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
+    const cmpsChange = cmps => this.onChange('companies', cmps);
+    const cmrsChange = cmrs => this.onChange('customers', cmrs);
 
     return (
       <RightContent>
@@ -82,9 +87,17 @@ class Sidebar extends React.Component<Props> {
         </FormGroup>
         {sidebar && sidebar()}
 
-        <CompanySection mainType={options.type} mainTypeId={item._id} />
+        <CompanySection
+          mainType={options.type}
+          mainTypeId={item._id}
+          onSelect={cmpsChange}
+        />
 
-        <CustomerSection mainType={options.type} mainTypeId={item._id} />
+        <CustomerSection
+          mainType={options.type}
+          mainTypeId={item._id}
+          onSelect={cmrsChange}
+        />
 
         {this.renderDeal({ type: options.type, id: item._id })}
         {this.renderTicket({ type: options.type, id: item._id })}

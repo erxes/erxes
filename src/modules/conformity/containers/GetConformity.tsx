@@ -11,7 +11,7 @@ type IProps = {
   component: any;
   queryName: string;
   itemsQuery: string;
-  data: any;
+  data?: any;
   isOpen?: boolean;
 };
 

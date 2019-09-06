@@ -11,6 +11,7 @@ import history from '../../../../browserHistory';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
+const reactiveForiegnFields = ['companies', 'customers'];
 
 type Props = {
   options: IOptions;
@@ -112,6 +113,15 @@ class EditForm extends React.Component<Props, State> {
               this.props.onUpdate(updatedItem, this.state.prevStageId);
             }
           });
+        });
+      }
+
+      if (reactiveForiegnFields.includes(name)) {
+        const updatedItem = this.props.item;
+        updatedItem[String(name)] = value;
+
+        this.setState({ name: value, updatedItem }, () => {
+          this.props.onUpdate(updatedItem);
         });
       }
     });

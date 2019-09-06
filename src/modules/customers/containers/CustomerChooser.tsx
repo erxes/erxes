@@ -107,6 +107,7 @@ type WrapperProps = {
     mainType?: string;
     isRelated?: boolean;
   };
+  onSelect: (datas: ICustomer[]) => void;
   closeModal: () => void;
 };
 

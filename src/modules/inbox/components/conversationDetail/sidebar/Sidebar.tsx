@@ -434,7 +434,7 @@ class Index extends React.Component<IndexProps, IndexState> {
         >
           <CompanySection
             isOpen={config.showTags}
-            mainType={'customer'}
+            mainType="customer"
             mainTypeId={customer._id}
           />
         </Box>

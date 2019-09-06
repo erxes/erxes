@@ -13,7 +13,7 @@ export default (props: IProps) => {
   return (
     <GetConformity
       {...props}
-      relType={'task'}
+      relType="task"
       component={PortableItems}
       queryName={options.queriesName.itemsQuery}
       itemsQuery={options.queries.itemsQuery}

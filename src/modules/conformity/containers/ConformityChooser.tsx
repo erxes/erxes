@@ -17,6 +17,7 @@ type Props = {
   clearState: () => void;
   renderForm: (props: { closeModal: () => void }) => any;
   renderName: (data: any) => void;
+  onSelect?: (datas: any[]) => void;
   closeModal: () => void;
   title: string;
   data: any;
@@ -36,9 +37,9 @@ type FinalProps = {
 } & Props;
 
 const ConformityChooser = (props: FinalProps) => {
-  const { editConformityMutation, data } = props;
+  const { editConformityMutation, data, onSelect } = props;
 
-  const onSelect = relTypes => {
+  const onSelected = relTypes => {
     const relTypeIds = relTypes.map(item => item._id);
     editConformityMutation({
       variables: {
@@ -50,6 +51,10 @@ const ConformityChooser = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success('Success changed ' + data.relType);
+
+        if (onSelect) {
+          onSelect(relTypes);
+        }
       })
       .catch(error => {
         Alert.error(error.message);
@@ -57,10 +62,10 @@ const ConformityChooser = (props: FinalProps) => {
   };
 
   if (props.data.options) {
-    return <ItemChooser {...props} onSelect={onSelect} />;
+    return <ItemChooser {...props} onSelect={onSelected} />;
   }
 
-  return <Chooser {...props} onSelect={onSelect} />;
+  return <Chooser {...props} onSelect={onSelected} />;
 };
 
 export default withProps<Props>(

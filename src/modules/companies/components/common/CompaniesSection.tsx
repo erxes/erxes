@@ -20,6 +20,7 @@ type Props = {
   mainType?: string;
   mainTypeId?: string;
   isOpen?: boolean;
+  onSelect?: (companies: ICompany[]) => void;
 };
 
 function CompanySection({
@@ -27,7 +28,8 @@ function CompanySection({
   items = [],
   mainType = '',
   mainTypeId = '',
-  isOpen
+  isOpen,
+  onSelect
 }: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
@@ -37,6 +39,7 @@ function CompanySection({
       <CompanyChooser
         {...props}
         data={{ name, companies: items, mainType, mainTypeId }}
+        onSelect={onSelect}
       />
     );
   };
@@ -46,6 +49,7 @@ function CompanySection({
       <CompanyChooser
         {...props}
         data={{ name, companies: items, mainTypeId, mainType, isRelated: true }}
+        onSelect={onSelect}
       />
     );
   };
