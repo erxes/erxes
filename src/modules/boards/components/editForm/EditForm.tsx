@@ -117,11 +117,11 @@ class EditForm extends React.Component<Props, State> {
       }
 
       if (reactiveForiegnFields.includes(name)) {
-        const updatedItem = this.props.item;
-        updatedItem[String(name)] = value;
-
-        this.setState({ name: value, updatedItem }, () => {
-          this.props.onUpdate(updatedItem);
+        // const updatedItem = this.state.updatedItem || {...this.props.item};
+        // updatedItem[name] = {...value};
+        // this.setState({ updatedItem },);
+        this.props.saveItem({}, updatedItem => {
+          this.setState({ updatedItem });
         });
       }
     });
