@@ -38,7 +38,7 @@ const Content = styled('div')`
 
   h5 {
     margin-top: 0;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
   }
 `;
 
