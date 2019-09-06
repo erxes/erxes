@@ -47,51 +47,40 @@ class SortableList extends React.Component<Props> {
     );
   }
 
-  renderField(field, index) {
-    const { child, isModal, isDragDisabled } = this.props;
-
-    return (
-      <Draggable
-        draggableId={field._id}
-        index={index}
-        key={index}
-        isDragDisabled={isDragDisabled}
-      >
-        {(provided, snapshot) => (
-          <>
-            <SortItem
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              isDragging={snapshot.isDragging}
-              isModal={isModal}
-            >
-              {this.renderDragHandler()}
-
-              {child(field)}
-            </SortItem>
-            {provided.placeholder}
-          </>
-        )}
-      </Draggable>
-    );
-  }
-
-  renderFields(provided) {
-    const { fields } = this.props;
-
-    return (
-      <SortableWrapper innerRef={provided.innerRef}>
-        {fields.map((field, index) => this.renderField(field, index))}
-      </SortableWrapper>
-    );
-  }
-
   render() {
+    const { fields, child, isDragDisabled } = this.props;
+
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="droppableId" type="ITEMS">
-          {provided => this.renderFields(provided)}
+        <Droppable droppableId="droppableId-1" type="ITEMS">
+          {provided => (
+            <SortableWrapper
+              {...provided.droppableProps}
+              innerRef={provided.innerRef}
+            >
+              {fields.map((field, index) => (
+                <Draggable
+                  key={field._id}
+                  draggableId={field._id}
+                  index={index}
+                  isDragDisabled={isDragDisabled}
+                >
+                  {(dragProvided, snapshot) => (
+                    <SortItem
+                      innerRef={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
+                      {...dragProvided.dragHandleProps}
+                      isDragging={snapshot.isDragging}
+                    >
+                      {this.renderDragHandler()}
+                      {child(field)}
+                    </SortItem>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </SortableWrapper>
+          )}
         </Droppable>
       </DragDropContext>
     );

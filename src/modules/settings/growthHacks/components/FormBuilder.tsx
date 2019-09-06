@@ -103,7 +103,7 @@ class FormBuilder extends React.Component<
     return (
       <>
         <Button btnStyle="link" onClick={this.openModal}>
-          <Tip text="Edit">
+          <Tip text="Build a form">
             <Icon
               icon={formId ? 'file-edit-alt' : 'file-plus-alt'}
               color={formId ? colors.colorSecondary : colors.colorCoreGreen}

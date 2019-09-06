@@ -51,7 +51,7 @@ class StageItem extends React.Component<Props, {}> {
           btnStyle="link"
           size="small"
           onClick={remove.bind(this, stage._id)}
-          icon="cancel"
+          icon="times"
         />
       </StageItemContainer>
     );

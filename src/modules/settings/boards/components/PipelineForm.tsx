@@ -252,12 +252,7 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal
-        show={show}
-        onHide={closeModal}
-        enforceFocus={false}
-        dialogClassName="transform"
-      >
+      <Modal show={show} onHide={closeModal} enforceFocus={false}>
         <Form renderContent={this.renderContent} />
       </Modal>
     );

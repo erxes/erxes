@@ -40,7 +40,6 @@ class TemplateList extends React.Component<Props> {
       <ModalTrigger
         enforceFocus={false}
         title="Edit"
-        dialogClassName="transform"
         trigger={
           <div>
             <Icon icon="edit" /> Edit
