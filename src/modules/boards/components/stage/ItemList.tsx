@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import routerUtils from 'modules/common/utils/router';
 import { mutations as notificationMutations } from 'modules/notifications/graphql';
 import React from 'react';
@@ -10,6 +11,7 @@ import {
   DropZone,
   EmptyContainer,
   ItemContainer,
+  NotifiedContainer,
   Wrapper
 } from '../../styles/common';
 import { IItem, IOptions } from '../../types';
@@ -66,6 +68,18 @@ class DraggableContainer extends React.Component<
     this.setState({ isDragDisabled: false, hasNotified: true });
   };
 
+  renderHasNotified() {
+    if (this.state.hasNotified) {
+      return null;
+    }
+
+    return (
+      <NotifiedContainer>
+        <Icon icon="bell" size={16} />
+      </NotifiedContainer>
+    );
+  }
+
   render() {
     const { stageId, item, index, options } = this.props;
     const { isDragDisabled } = this.state;
@@ -82,10 +96,10 @@ class DraggableContainer extends React.Component<
           <ItemContainer
             isDragging={dragSnapshot.isDragging}
             innerRef={dragProvided.innerRef}
-            hasNotified={this.state.hasNotified}
             {...dragProvided.draggableProps}
             {...dragProvided.dragHandleProps}
           >
+            {this.renderHasNotified()}
             <ItemComponent
               key={item._id}
               stageId={stageId}
