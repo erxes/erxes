@@ -1,3 +1,8 @@
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from 'modules/conformity/graphql/queries';
+
 const companyFields = `
   _id
   createdAt
@@ -60,10 +65,7 @@ const listParamsDef = `
   $brand: String
   $sortField: String
   $sortDirection: Int
-  $mainType: String
-  $mainTypeId: String
-  $isRelated: Boolean
-  $isSaved: Boolean
+  ${conformityQueryFields}
 `;
 
 const listParamsValue = `
@@ -78,10 +80,7 @@ const listParamsValue = `
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection
-  mainType: $mainType
-  mainTypeId: $mainTypeId
-  isRelated: $isRelated
-  isSaved: $isSaved
+  ${conformityQueryFieldDefs}
 `;
 
 export const companies = `

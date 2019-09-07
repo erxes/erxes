@@ -8,7 +8,6 @@ export interface IConformityDoc {
 export interface ISavedConformity {
   mainType?: string;
   mainTypeId?: string;
-  relType?: string;
   isSaved?: boolean;
   isRelated?: boolean;
 }

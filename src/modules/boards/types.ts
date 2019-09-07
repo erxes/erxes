@@ -1,4 +1,5 @@
 import { IAttachment } from 'modules/common/types';
+import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
@@ -198,18 +199,13 @@ export type DetailQueryResponse = {
   loading: boolean;
 };
 
-export interface IFilterParams {
+export interface IFilterParams extends ISavedConformity {
   itemId?: string;
   search?: string;
   stageId?: string;
   customerIds?: string;
   companyIds?: string;
   assignedUserIds?: string;
-  mainType?: string;
-  mainTypeId?: string;
-  relType?: string;
-  isRelated?: boolean;
-  isSaved?: boolean;
   nextDay?: string;
   nextWeek?: string;
   nextMonth?: string;

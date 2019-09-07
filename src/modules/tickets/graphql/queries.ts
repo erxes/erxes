@@ -1,9 +1,9 @@
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from 'modules/conformity/graphql/queries';
+
 const commonParams = `
-  $mainType: String,
-  $mainTypeId: String,
-  $relType: String,
-  $isRelated: Boolean,
-  $isSaved: Boolean,
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -14,14 +14,10 @@ const commonParams = `
   $overdue: String,
   $priority: [String],
   $source: [String],
+  ${conformityQueryFields}
 `;
 
 const commonParamDefs = `
-  mainType: $mainType,
-  mainTypeId: $mainTypeId,
-  relType: $relType,
-  isRelated: $isRelated,
-  isSaved: $isSaved,
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
@@ -32,6 +28,7 @@ const commonParamDefs = `
   overdue: $overdue,
   priority: $priority,
   source: $source
+  ${conformityQueryFieldDefs}
 `;
 
 const ticketFields = `
