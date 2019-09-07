@@ -101,7 +101,6 @@ const WithQuery = ({ options }) => {
     )(ItemChooserContainer)
   );
 };
-// );
 
 type WrapperProps = {
   data: {
