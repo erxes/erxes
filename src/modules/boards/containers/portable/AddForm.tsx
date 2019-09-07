@@ -17,8 +17,8 @@ type IProps = {
   pipelineId?: string;
   stageId?: string;
   showSelect?: boolean;
-  companyIds?: string[];
-  customerIds?: string[];
+  relType?: string;
+  relTypeIds?: string[];
   closeModal: () => void;
   callback?: () => void;
 };
@@ -33,8 +33,8 @@ class AddFormContainer extends React.Component<FinalProps> {
     const {
       addMutation,
       options,
-      customerIds,
-      companyIds,
+      relType,
+      relTypeIds,
       editConformity
     } = this.props;
 
@@ -42,24 +42,13 @@ class AddFormContainer extends React.Component<FinalProps> {
       .then(({ data }) => {
         Alert.success(options.texts.addSuccessText);
 
-        if (customerIds) {
+        if (relType && relTypeIds) {
           editConformity({
             variables: {
               mainType: options.type,
               mainTypeId: data[options.mutationsName.addMutation]._id,
-              relType: 'customer',
-              relTypeIds: customerIds
-            }
-          });
-        }
-
-        if (companyIds) {
-          editConformity({
-            variables: {
-              mainType: options.type,
-              mainTypeId: data[options.mutationsName.addMutation]._id,
-              relType: 'company',
-              relTypeIds: companyIds
+              relType,
+              relTypeIds
             }
           });
         }
