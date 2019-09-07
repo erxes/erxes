@@ -46,7 +46,6 @@ class Task extends React.Component<Props, { isPopupVisible: boolean }> {
         onRemove={onRemove}
         onUpdate={onUpdate}
         isPopupVisible={this.state.isPopupVisible}
-        isFromPortable={true}
       />
     );
   };
