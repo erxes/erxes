@@ -14,11 +14,4 @@ describe('ImageWithPreview component', () => {
   test('renders ImageWithPreview successfully', () => {
     shallow(<ImageWithPreview />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<ImageWithPreview {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

@@ -11,11 +11,4 @@ describe('Sidebar component', () => {
   test('renders Sidebar successfully', () => {
     shallow(<Sidebar {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Sidebar {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

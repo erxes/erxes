@@ -20,11 +20,4 @@ describe('FormBase component', () => {
   test('renders successfully', () => {
     shallow(<FormBase {...defaultProps} />);
   });
-
-  test('renders with default props', () => {
-    const control = mount(<FormBase {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

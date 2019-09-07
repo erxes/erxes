@@ -11,11 +11,4 @@ describe('Spinner component', () => {
   test('renders Spinner successfully', () => {
     shallow(<Spinner {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Spinner {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

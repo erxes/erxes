@@ -14,11 +14,4 @@ describe('BrandAdd component', () => {
   test('renders BrandAdd successfully', () => {
     shallow(<BrandAdd {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<BrandAdd {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

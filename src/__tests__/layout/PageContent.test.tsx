@@ -11,11 +11,4 @@ describe('PageContent component', () => {
   test('renders PageContent successfully', () => {
     shallow(<PageContent {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<PageContent {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

@@ -13,11 +13,4 @@ describe('SortableList component', () => {
   test('renders successfully', () => {
     shallow(<SortableList {...defaultProps} />);
   });
-
-  test('renders with default props', () => {
-    const control = mount(<SortableList {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

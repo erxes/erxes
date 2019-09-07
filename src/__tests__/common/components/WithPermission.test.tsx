@@ -12,11 +12,4 @@ describe('WithPermission component', () => {
   test('renders WithPermission successfully', () => {
     shallow(<WithPermission {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<WithPermission {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

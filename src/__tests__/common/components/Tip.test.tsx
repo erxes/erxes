@@ -12,11 +12,4 @@ describe('FilterToggler component', () => {
   test('renders FilterToggler successfully', () => {
     shallow(<Tip {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Tip {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

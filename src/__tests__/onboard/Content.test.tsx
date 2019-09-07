@@ -11,11 +11,4 @@ describe('Content component', () => {
   test('renders Content successfully', () => {
     shallow(<Content {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Content {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

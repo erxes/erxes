@@ -11,11 +11,4 @@ describe('Step component', () => {
   test('renders Step successfully', () => {
     shallow(<Step {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Step {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

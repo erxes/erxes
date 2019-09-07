@@ -11,11 +11,4 @@ describe('EmptyState component', () => {
   test('renders EmptyState successfully', () => {
     shallow(<EmptyState {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<EmptyState {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

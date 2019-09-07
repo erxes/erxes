@@ -12,11 +12,4 @@ describe('SuccessPreview component', () => {
   test('renders shallow successfully', () => {
     shallow(<SuccessPreview {...defaultProps} />);
   });
-
-  test('renders mount with default props', () => {
-    const control = mount(<SuccessPreview {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

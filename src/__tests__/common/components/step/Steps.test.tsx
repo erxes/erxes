@@ -12,11 +12,4 @@ describe('Group component', () => {
   test('renders Steps successfully', () => {
     shallow(<Steps {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Steps {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

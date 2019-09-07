@@ -11,11 +11,4 @@ describe('Filter component', () => {
   test('renders Filter successfully', () => {
     shallow(<Filter {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Filter {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

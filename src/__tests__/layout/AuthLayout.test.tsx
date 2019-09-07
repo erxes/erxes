@@ -11,11 +11,4 @@ describe('AuthLayout component', () => {
   test('renders AuthLayout successfully', () => {
     shallow(<AuthLayout {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<AuthLayout {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

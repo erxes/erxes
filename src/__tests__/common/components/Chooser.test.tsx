@@ -20,11 +20,4 @@ describe('Chooser component', () => {
   test('renders Chooser successfully', () => {
     shallow(<Chooser {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Chooser {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

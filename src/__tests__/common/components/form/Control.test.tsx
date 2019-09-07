@@ -14,13 +14,6 @@ describe('Form control component', () => {
     shallow(<Control />);
   });
 
-  test('renders with default props', () => {
-    const control = mount(<Control {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
-
   test('renders an input properly', () => {
     const rendered = mount(<Control {...defaultProps} />);
     const input = rendered.find('input');

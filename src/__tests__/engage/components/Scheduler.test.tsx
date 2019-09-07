@@ -20,11 +20,4 @@ describe('Scheduler component', () => {
   test('renders successfully', () => {
     shallow(<Scheduler {...defaultProps} />);
   });
-
-  test('renders with default props', () => {
-    const control = mount(<Scheduler {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

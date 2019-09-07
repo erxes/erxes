@@ -34,17 +34,4 @@ describe('Row component', () => {
   test('renders WithPermission successfully', () => {
     shallow(<Row {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Row {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
-
-  // test('snapshot matches', () => {
-  //   const rendered = renderer.create(<Row {...defaultProps} />).toJSON();
-
-  //   expect(rendered).toMatchSnapshot();
-  // });
 });

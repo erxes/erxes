@@ -25,11 +25,4 @@ describe('SuccessStep component', () => {
   test('renders shallow successfully', () => {
     shallow(<SuccessStep {...defaultProps} />);
   });
-
-  test('renders mount with default props', () => {
-    const control = mount(<SuccessStep {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

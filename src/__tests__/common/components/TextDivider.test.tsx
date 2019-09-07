@@ -12,11 +12,4 @@ describe('TextDivider component', () => {
   test('renders TextDivider successfully', () => {
     shallow(<TextDivider {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<TextDivider {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

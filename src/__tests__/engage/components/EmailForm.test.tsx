@@ -63,11 +63,4 @@ describe('EmailForm component', () => {
   test('renders successfully', () => {
     shallow(<EmailForm {...defaultProps} />);
   });
-
-  test('renders with default props', () => {
-    const control = mount(<EmailForm {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

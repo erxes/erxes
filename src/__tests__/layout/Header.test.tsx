@@ -11,11 +11,4 @@ describe('Header component', () => {
   test('renders Header successfully', () => {
     shallow(<Header {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Header {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

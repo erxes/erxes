@@ -11,11 +11,4 @@ describe('HeadlinesButton component', () => {
   test('renders HeadlinesButton successfully', () => {
     shallow(<HeadlinesButton {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<HeadlinesButton {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

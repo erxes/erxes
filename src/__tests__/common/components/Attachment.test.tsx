@@ -15,11 +15,4 @@ describe('Attachment component', () => {
   test('renders successfully', () => {
     shallow(<Attachment {...defaultProps} />);
   });
-
-  test('renders with default props', () => {
-    const control = mount(<Attachment {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

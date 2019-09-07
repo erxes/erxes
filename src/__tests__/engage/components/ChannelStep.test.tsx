@@ -11,11 +11,4 @@ describe('ChannelStep component', () => {
   test('renders successfully', () => {
     shallow(<ChannelStep {...defaultProps} />);
   });
-
-  test('renders with default props', () => {
-    const control = mount(<ChannelStep {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

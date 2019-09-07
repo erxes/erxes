@@ -14,11 +14,4 @@ describe('FilterToggler component', () => {
   test('renders FilterToggler successfully', () => {
     shallow(<FilterToggler {...defaultProps} />);
   });
-
-  test('renders with default props', () => {
-    const wrapper = mount(<FilterToggler {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

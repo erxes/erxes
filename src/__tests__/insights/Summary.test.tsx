@@ -12,11 +12,4 @@ describe('Summary component', () => {
   test('renders Summary successfully', () => {
     shallow(<Summary {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Summary {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

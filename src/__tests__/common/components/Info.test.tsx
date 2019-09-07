@@ -11,11 +11,4 @@ describe('Info component', () => {
   test('renders Info successfully', () => {
     shallow(<Info {...defaultProps} />);
   });
-
-  test('renders Info successfully with default value', () => {
-    const wrapper = mount(<Info {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

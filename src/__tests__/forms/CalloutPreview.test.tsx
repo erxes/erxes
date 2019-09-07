@@ -10,11 +10,4 @@ describe('CalloutPreview component', () => {
   test('renders shallow successfully', () => {
     shallow(<CalloutPreview {...defaultProps} />);
   });
-
-  test('renders mount with default props', () => {
-    const control = mount(<CalloutPreview {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

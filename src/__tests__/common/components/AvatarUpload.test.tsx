@@ -15,13 +15,6 @@ describe('AvatarUpload component', () => {
     shallow(<AvatarUpload {...defaultProps} />);
   });
 
-  test('renders with Avatars default props', () => {
-    const control = mount(<AvatarUpload {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
-
   test('renders test 2 different props', () => {
     defaultProps.avatar = 'email';
     defaultProps.defaultAvatar = 'icon-upload-2';

@@ -12,11 +12,4 @@ describe('AddConditionButton component', () => {
   test('renders AddConditionButton successfully', () => {
     shallow(<AddConditionButton {...defaultProps} />);
   });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<AddConditionButton {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });

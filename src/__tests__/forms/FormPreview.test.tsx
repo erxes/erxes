@@ -14,11 +14,4 @@ describe('FormPreview component', () => {
   test('renders shallow successfully', () => {
     shallow(<FormPreview {...defaultProps} />);
   });
-
-  test('renders mount with default props', () => {
-    const control = mount(<FormPreview {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
 });
