@@ -229,25 +229,6 @@ export default (props: WrapperProps) => {
   return (
     <PipelineConsumer>
       {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
-        const { isFromPortable } = props;
-        const propsOptions = props.options;
-
-        if (isFromPortable && propsOptions) {
-          if (options && propsOptions.type === options.type) {
-            return null;
-          }
-
-          return (
-            <WithData
-              {...props}
-              options={propsOptions}
-              onAdd={props.onAdd || onAddItem}
-              onRemove={props.onRemove || onRemoveItem}
-              onUpdate={props.onUpdate || onUpdateItem}
-            />
-          );
-        }
-
         return (
           <WithData
             {...props}
