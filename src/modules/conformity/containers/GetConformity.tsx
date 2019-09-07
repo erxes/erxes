@@ -28,11 +28,13 @@ class PortableItemsContainer extends React.Component<FinalProps> {
 
   render() {
     const { itemsQuery, component, queryName } = this.props;
+
     if (!itemsQuery) {
       return null;
     }
 
     const items = itemsQuery[queryName] || [];
+
     const extendedProps = {
       ...this.props,
       items,
