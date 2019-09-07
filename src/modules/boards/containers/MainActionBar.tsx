@@ -186,13 +186,7 @@ class Main extends React.Component<FinalProps> {
         JSON.stringify(defaultPipelines)
       );
 
-      let route = '';
-
-      if (type === 'ticket') {
-        route = '/inbox';
-      }
-
-      window.location.href = `${route}/${type}/board`;
+      window.location.href = `/${type}/board`;
       return null;
     }
 
