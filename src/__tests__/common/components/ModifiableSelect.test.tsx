@@ -23,20 +23,8 @@ describe('Testing ModifiableSelect component', () => {
     select.unmount();
   });
 
-  test('matches snapshot', () => {
-    const shallowSelect = shallow(<ModifiableSelect {...defaultProps} />);
-
-    expect(toJson(shallowSelect)).toMatchSnapshot();
-  });
-
   test('renders successfully', () => {
     shallow(<ModifiableSelect {...defaultProps} />);
-  });
-
-  test('renders with default props', () => {
-    const props = select.props();
-
-    expect(props).toMatchObject(defaultProps);
   });
 
   test('properly renders add button', () => {

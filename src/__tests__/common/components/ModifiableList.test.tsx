@@ -15,13 +15,6 @@ describe('ModifiableList component', () => {
     shallow(<ModifiableList {...defaultProps} />);
   });
 
-  test('renders mount with default props', () => {
-    const control = mount(<ModifiableList {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
-
   test('renders test 2 different props', () => {
     defaultProps.options = ['80201929', '12312322'];
     defaultProps.addButtonLabel = 'primary';
