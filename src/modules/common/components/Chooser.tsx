@@ -8,7 +8,7 @@ import React from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
 
-type Props = {
+export type CommonProps = {
   data: any;
   onSelect: (datas: any[]) => void;
   search: (value: string, reload?: boolean) => void;
@@ -22,6 +22,10 @@ type Props = {
   add?: any;
   closeModal: () => void;
 };
+
+type Props = {
+  renderSidebar?: () => any;
+} & CommonProps;
 
 type State = {
   datas: any[];
@@ -120,7 +124,14 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderForm, datas, title, data, closeModal } = this.props;
+    const {
+      renderForm,
+      datas,
+      title,
+      data,
+      closeModal,
+      renderSidebar
+    } = this.props;
     const selectedDatas = this.state.datas;
 
     const addTrigger = (
@@ -133,6 +144,7 @@ class CommonChooser extends React.Component<Props, State> {
     return (
       <>
         <Columns>
+          {renderSidebar && renderSidebar()}
           <Column>
             <FormControl
               placeholder={__('Type to search')}
