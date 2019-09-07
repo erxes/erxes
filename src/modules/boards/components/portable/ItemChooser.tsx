@@ -13,6 +13,7 @@ type Props = {
     boardId?: string,
     pipelineId?: string
   ) => void;
+  onSelect: (datas: any[]) => void;
 } & CommonProps;
 
 type State = {
@@ -63,9 +64,11 @@ class ItemChooser extends React.Component<Props, State> {
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     const { filterStageId } = this.props;
+
     if (name === 'stageId' && filterStageId) {
       filterStageId(value as string, this.state.boardId, this.state.pipelineId);
     }
+
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 

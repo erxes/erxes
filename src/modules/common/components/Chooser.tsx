@@ -10,7 +10,6 @@ import { CenterContent, ModalFooter } from '../styles/main';
 
 export type CommonProps = {
   data: any;
-  onSelect: (datas: any[]) => void;
   search: (value: string, reload?: boolean) => void;
   datas: any[];
   title: string;
@@ -24,6 +23,7 @@ export type CommonProps = {
 };
 
 type Props = {
+  onSelect: (datas: any[]) => void;
   renderSidebar?: () => any;
 } & CommonProps;
 
