@@ -3,10 +3,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
-import PortableDeals from 'modules/deals/components/PortableDeals';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import PortableTasks from 'modules/tasks/components/PortableTasks';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 import { Watch } from '../../containers/editForm/';
 import { RightContent } from '../../styles/item';
@@ -23,6 +20,7 @@ type Props = {
   removeItem: (itemId: string) => void;
   sidebar?: () => React.ReactNode;
   options: IOptions;
+  renderItems: () => React.ReactNode;
 };
 
 class Sidebar extends React.Component<Props> {
@@ -34,30 +32,6 @@ class Sidebar extends React.Component<Props> {
     }
   };
 
-  renderDeal = ({ type, id }: { type: string; id: string }) => {
-    if (type === 'deal') {
-      return null;
-    }
-
-    return <PortableDeals mainType={type} mainTypeId={id} />;
-  };
-
-  renderTicket = ({ type, id }: { type: string; id: string }) => {
-    if (type === 'ticket') {
-      return null;
-    }
-
-    return <PortableTickets mainType={type} mainTypeId={id} />;
-  };
-
-  renderTask = ({ type, id }: { type: string; id: string }) => {
-    if (type === 'task') {
-      return null;
-    }
-
-    return <PortableTasks mainType={type} mainTypeId={id} />;
-  };
-
   render() {
     const {
       item,
@@ -65,7 +39,8 @@ class Sidebar extends React.Component<Props> {
       removeItem,
       sidebar,
       options,
-      assignedUserIds
+      assignedUserIds,
+      renderItems
     } = this.props;
 
     const onClick = () => removeItem(item._id);
@@ -99,9 +74,7 @@ class Sidebar extends React.Component<Props> {
           onSelect={cmrsChange}
         />
 
-        {this.renderDeal({ type: options.type, id: item._id })}
-        {this.renderTicket({ type: options.type, id: item._id })}
-        {this.renderTask({ type: options.type, id: item._id })}
+        {renderItems()}
 
         <Watch item={item} options={options} />
 

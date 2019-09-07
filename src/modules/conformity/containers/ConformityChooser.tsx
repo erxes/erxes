@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import ItemChooser from 'modules/boards/components/portable/ItemChooser';
-import Chooser from 'modules/common/components/Chooser';
+import Chooser, { CommonProps } from 'modules/common/components/Chooser';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -8,29 +8,18 @@ import { mutations } from '../graphql';
 import { EditConformityMutation, IConformityEdit } from '../types';
 
 type Props = {
-  search: (value: string, reload?: boolean) => void;
   filterStageId?: (
     stageId?: string,
     boardId?: string,
     pipelineId?: string
   ) => void;
-  clearState: () => void;
-  renderForm: (props: { closeModal: () => void }) => any;
-  renderName: (data: any) => void;
   onSelect?: (datas: any[]) => void;
-  closeModal: () => void;
-  title: string;
-  data: any;
-  datas: any[];
-  perPage: number;
-  limit?: number;
-  add?: any;
   stageId?: string;
   boardId?: string;
   pipelineId?: string;
   showSelect?: boolean;
   refetchQuery: string;
-};
+} & CommonProps;
 
 type FinalProps = {
   editConformityMutation: EditConformityMutation;
@@ -41,6 +30,7 @@ const ConformityChooser = (props: FinalProps) => {
 
   const onSelected = relTypes => {
     const relTypeIds = relTypes.map(item => item._id);
+
     editConformityMutation({
       variables: {
         mainType: data.mainType,
@@ -50,8 +40,6 @@ const ConformityChooser = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('Success changed ' + data.relType);
-
         if (onSelect) {
           onSelect(relTypes);
         }

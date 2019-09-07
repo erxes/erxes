@@ -9,6 +9,8 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import ProductSection from 'modules/deals/components/ProductSection';
 import { IProduct } from 'modules/settings/productService/types';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 import { IDeal, IDealParams } from '../types';
 
@@ -130,6 +132,15 @@ export default class DealEditForm extends React.Component<Props, State> {
     return true;
   };
 
+  renderItems = () => {
+    return (
+      <>
+        <PortableTickets mainType="deal" mainTypeId={this.props.item._id} />
+        <PortableTasks mainType="deal" mainTypeId={this.props.item._id} />
+      </>
+    );
+  };
+
   renderFormContent = ({
     state,
     onChangeAttachment,
@@ -182,6 +193,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             onChangeField={onChangeField}
             copyItem={copy}
             removeItem={remove}
+            renderItems={this.renderItems}
           />
         </FlexContent>
       </>
