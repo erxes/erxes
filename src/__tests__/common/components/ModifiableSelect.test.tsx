@@ -1,5 +1,4 @@
 import { mount, shallow } from 'enzyme';
-import toJson from 'enzyme-to-json';
 import React from 'react';
 
 import ModifiableSelect from '../../../modules/common/components/ModifiableSelect';
