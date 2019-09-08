@@ -15,20 +15,6 @@ describe('Button component', () => {
     shallow(<Button />);
   });
 
-  test('fully renders with custom props', () => {
-    const p = {
-      ...defaultProps,
-      size: 'large',
-      type: 'submit',
-      block: true
-    };
-
-    const rendered = mount(<Button {...p} />);
-    const props = rendered.props();
-
-    expect(p).toMatchObject(props);
-  });
-
   test('check Element ', () => {
     const props = {
       ...defaultProps,
