@@ -14,6 +14,7 @@ import { ContentWrapper, PreviewWrapper } from '../styles';
 type Props = {
   formId: string;
   onChangeForm: (stageId: string, formId: string) => void;
+  onChangeDragDisabled: (isDragDisabled: boolean) => void;
   stageId: string;
 };
 
@@ -68,10 +69,14 @@ class FormBuilder extends React.Component<
   };
 
   closeModal = () => {
+    this.props.onChangeDragDisabled(false);
+
     this.setState({ isOpenModal: false });
   };
 
   openModal = () => {
+    this.props.onChangeDragDisabled(true);
+
     this.setState({ isOpenModal: true });
   };
 

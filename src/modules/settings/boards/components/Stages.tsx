@@ -15,7 +15,12 @@ type Props = {
   options?: IOption;
 };
 
-class Stages extends React.Component<Props, {}> {
+class Stages extends React.Component<Props, { isDragDisabled: boolean }> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { isDragDisabled: false };
+  }
   componentDidMount() {
     if (this.props.stages.length === 0) {
       this.add();
@@ -58,14 +63,20 @@ class Stages extends React.Component<Props, {}> {
     }
   };
 
+  onChangeDragDisabled = (isDragDisabled: boolean) => {
+    this.setState({ isDragDisabled });
+  };
+
   render() {
     const { options } = this.props;
+    const { isDragDisabled } = this.state;
     const Item = options ? options.StageItem : StageItem;
 
     const child = stage => (
       <Item
         stage={stage}
         onChange={this.onChange}
+        onChangeDragDisabled={this.onChangeDragDisabled}
         remove={this.remove}
         onKeyPress={this.onStageInputKeyPress}
       />
@@ -78,6 +89,7 @@ class Stages extends React.Component<Props, {}> {
           child={child}
           onChangeFields={this.props.onChangeStages}
           isModal={true}
+          isDragDisabled={isDragDisabled}
         />
 
         <LinkButton onClick={this.add}>
