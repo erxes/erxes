@@ -60,7 +60,7 @@ class CommonChooser extends React.Component<Props, State> {
   componentWillReceiveProps(newProps) {
     const { datas, perPage } = newProps;
 
-    this.setState({ loadmore: datas.length === perPage });
+    this.setState({ loadmore: datas.length === perPage && datas.length > 0 });
   }
 
   handleChange = (type, data) => {
