@@ -34,8 +34,17 @@ const pipelineTemplatesRemove = `
 	}
 `;
 
+const pipelineTemplatesDuplicate = `
+	mutation pipelineTemplatesDuplicate($_id: String!) {
+		pipelineTemplatesDuplicate(_id: $_id) {
+			_id
+		}
+	}
+`;
+
 export default {
   pipelineTemplatesAdd,
   pipelineTemplatesEdit,
-  pipelineTemplatesRemove
+  pipelineTemplatesRemove,
+  pipelineTemplatesDuplicate
 };

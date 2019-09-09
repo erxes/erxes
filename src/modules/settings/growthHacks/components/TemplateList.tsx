@@ -18,6 +18,7 @@ import TemplateForm from './TemplateForm';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  duplicate: (id: string) => void;
 } & ICommonListProps;
 
 class TemplateList extends React.Component<Props> {
@@ -27,6 +28,10 @@ class TemplateList extends React.Component<Props> {
 
   removeTemplate = object => {
     this.props.remove(object._id);
+  };
+
+  duplicateTemplate = id => {
+    this.props.duplicate(id);
   };
 
   renderEditAction = object => {
@@ -50,16 +55,29 @@ class TemplateList extends React.Component<Props> {
     );
   };
 
+  renderActions = object => {
+    if (object.isDefinedByErxes) {
+      return null;
+    }
+
+    return (
+      <Actions>
+        {this.renderEditAction(object)}
+        <div onClick={this.duplicateTemplate.bind(this, object._id)}>
+          <Icon icon="copy" /> Duplicate
+        </div>
+        <div onClick={this.removeTemplate.bind(this, object)}>
+          <Icon icon="cancel-1" /> Delete
+        </div>
+      </Actions>
+    );
+  };
+
   renderRow({ objects }) {
     return objects.map((object, index) => (
       <Template key={index}>
         <TemplateBoxContent>
-          <Actions>
-            {this.renderEditAction(object)}
-            <div onClick={this.removeTemplate.bind(this, object)}>
-              <Icon icon="cancel-1" /> Delete
-            </div>
-          </Actions>
+          {this.renderActions(object)}
           <h5>{object.name}</h5>
           <p>{object.description}</p>
         </TemplateBoxContent>

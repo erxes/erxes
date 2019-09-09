@@ -8,6 +8,7 @@ const pipelineTemplates = `
         name
         formId
       }
+      isDefinedByErxes
     }
   }
 `;
