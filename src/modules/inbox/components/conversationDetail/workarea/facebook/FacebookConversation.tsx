@@ -1,22 +1,21 @@
-// import { FacebookComment } from 'modules/inbox/containers/conversationDetail';
 import * as React from 'react';
 
 import { ICustomer } from 'modules/customers/types';
-import { IFacebookComment, IFacebookPost } from 'modules/inbox/types';
+import { IFacebookComment, IFacebookPost, IMessage } from 'modules/inbox/types';
 
 import FacebookComment from 'modules/inbox/containers/conversationDetail/facebook/FacebookComment';
+import { SimpleMessage } from '../conversation/messages';
 import FacebookPost from './FacebookPost';
 import { ShowMore } from './styles';
-
-// import { ShowMore } from './styles';
 
 type Props = {
   post?: IFacebookPost;
   customer: ICustomer;
   comments: IFacebookComment[];
+  internalNotes: IMessage[];
   hasMore: boolean;
 
-  // scrollBottom: () => void;
+  scrollBottom: () => void;
   fetchFacebook: (
     {
       commentId,
@@ -35,10 +34,6 @@ const getAttr = (comment: IFacebookComment, attr: string) => {
 };
 
 export default class FacebookConversation extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   fetchComments = () => {
     const { post, comments } = this.props;
     if (!post) {
@@ -94,6 +89,18 @@ export default class FacebookConversation extends React.Component<Props> {
     ));
   }
 
+  renderInternals(internalNotes: IMessage[]) {
+    return internalNotes.map(message => {
+      return (
+        <SimpleMessage
+          message={message}
+          isStaff={!message.customerId}
+          key={message._id}
+        />
+      );
+    });
+  }
+
   renderViewMore() {
     if (this.props.hasMore) {
       return (
@@ -105,7 +112,7 @@ export default class FacebookConversation extends React.Component<Props> {
   }
 
   render() {
-    const { post, customer, comments } = this.props;
+    const { post, customer, internalNotes, scrollBottom } = this.props;
 
     if (!post) {
       return null;
@@ -113,9 +120,14 @@ export default class FacebookConversation extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <FacebookPost post={post} customer={customer} />
+        <FacebookPost
+          post={post}
+          customer={customer}
+          scrollBottom={scrollBottom}
+        />
         {this.renderViewMore()}
         {this.renderComments()}
+        {this.renderInternals(internalNotes)}
       </React.Fragment>
     );
   }

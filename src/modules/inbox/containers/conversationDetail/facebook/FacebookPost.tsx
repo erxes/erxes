@@ -8,25 +8,24 @@ import {
   FacebookCommentsQueryResponse,
   IConversation,
   IFacebookComment,
-  IFacebookPost
+  IFacebookPost,
+  MessagesQueryResponse
 } from 'modules/inbox/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 
 type Props = {
   conversation: IConversation;
+  scrollBottom: () => void;
 };
 
 type FinalProps = {
   currentUser: IUser;
   commentsQuery: FacebookCommentsQueryResponse;
+  internalNotesQuery: MessagesQueryResponse;
 } & Props;
 
 class FacebookPostContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   fetchMoreComments = variables => {
     const { commentsQuery } = this.props;
 
@@ -82,7 +81,11 @@ class FacebookPostContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { commentsQuery, conversation } = this.props;
+    const { commentsQuery, conversation, internalNotesQuery } = this.props;
+
+    if (commentsQuery.loading || internalNotesQuery.loading) {
+      return null;
+    }
 
     const post = conversation.post || ({} as IFacebookPost);
     const comments = commentsQuery.facebookComments || [];
@@ -90,9 +93,11 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     const hasMore = post.commentCount > comments.length;
 
     const updatedProps = {
+      ...this.props,
       post,
-      customer: conversation.customer,
+      customer: conversation.customer || {},
       comments,
+      internalNotes: internalNotesQuery.conversationMessages,
       hasMore,
       fetchFacebook: this.fetchFacebook
     };
@@ -116,6 +121,20 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
           };
         }
       }
+    ),
+    graphql<Props, MessagesQueryResponse, { conversationId: string }>(
+      gql(queries.conversationMessages),
+      {
+        name: 'internalNotesQuery',
+        options: ({ conversation }: { conversation: IConversation }) => {
+          return {
+            variables: {
+              conversationId: conversation._id
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
     )
   )(FacebookPostContainer)
 );
@@ -131,3 +150,5 @@ const WithConsumer = (props: Props) => {
 };
 
 export default WithConsumer;
+
+// conversationMessages

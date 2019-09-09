@@ -3,9 +3,9 @@ import { Alert, withProps } from 'modules/common/utils';
 import FacebookComment from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookComment';
 import { mutations } from 'modules/inbox/graphql';
 import {
-  AddMessageMutationVariables,
   IFacebookComment,
-  ReplyMutationResponse
+  ReplyFacebookCommentMutationResponse,
+  ReplyFaceBookCommentMutationVariables
 } from 'modules/inbox/types';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -18,13 +18,13 @@ type Props = {
   ) => void;
 };
 
-type FinalProps = Props & ReplyMutationResponse;
+type FinalProps = Props & ReplyFacebookCommentMutationResponse;
 
 const FacebookCommentContainer = (props: FinalProps) => {
   const { replyMutation, comment } = props;
 
   const replyPost = (
-    variables: AddMessageMutationVariables,
+    variables: ReplyFaceBookCommentMutationVariables,
     callback: () => void
   ) => {
     replyMutation({ variables })
@@ -47,11 +47,12 @@ const FacebookCommentContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ReplyMutationResponse, AddMessageMutationVariables>(
-      gql(mutations.conversationMessageAdd),
-      {
-        name: 'replyMutation'
-      }
-    )
+    graphql<
+      Props,
+      ReplyFacebookCommentMutationResponse,
+      ReplyFaceBookCommentMutationVariables
+    >(gql(mutations.conversationMessageAdd), {
+      name: 'replyMutation'
+    })
   )(FacebookCommentContainer)
 );

@@ -247,3 +247,17 @@ export type FacebookCommentsQueryResponse = {
   refetch: () => void;
   fetchMore: (variables) => void;
 };
+
+export type ReplyFaceBookCommentMutationVariables = {
+  postId: string;
+  commentId: string;
+  content: string;
+};
+
+export type ReplyFacebookCommentMutationResponse = {
+  replyMutation: (
+    doc: {
+      variables: ReplyFaceBookCommentMutationVariables;
+    }
+  ) => Promise<any>;
+};

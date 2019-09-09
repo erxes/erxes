@@ -16,6 +16,8 @@ export default class FacebookContent extends React.Component<Props, {}> {
       return null;
     }
 
+    const { scrollBottom } = this.props;
+
     return attachments.map((link, index) => {
       if (link.includes('youtube.com')) {
         const iframeSrc = link.split('v=')[1].substring(0, 11);
@@ -46,10 +48,21 @@ export default class FacebookContent extends React.Component<Props, {}> {
         );
       }
       if (link.includes('fna.fbcdn.net')) {
-        return <ImageWithPreview alt={link} src={link} key={index} />;
+        return (
+          <ImageWithPreview
+            alt={link}
+            src={link}
+            key={index}
+            onLoad={scrollBottom}
+          />
+        );
       } else {
         return (
-          <a href={`https://www.facebook.com/${link}`} target="_blank">
+          <a
+            href={`https://www.facebook.com/${link}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {link}
           </a>
         );

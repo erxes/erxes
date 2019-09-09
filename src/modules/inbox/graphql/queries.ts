@@ -113,8 +113,8 @@ const conversationMessages = `
 `;
 
 const facebookComments = `
-  query facebookComments($postId: String! $limit: Int) {
-    facebookComments(postId: $postId, limit: $limit) {
+  query facebookComments($postId: String!, $commentId: String, $limit: Int) {
+    facebookComments(postId: $postId, limit: $limit, commentId: $commentId) {
       commentId
       postId
       recipientId

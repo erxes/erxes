@@ -15,9 +15,9 @@ type Props = {
   comment: IFacebookComment;
   replyPost: (
     data: {
-      conversationId: string;
+      postId: string;
+      commentId: string;
       content: string;
-      commentReplyToId?: string;
     },
     callback: () => void
   ) => void;
@@ -61,7 +61,7 @@ export default class FacebookComment extends React.Component<
 
   render() {
     const { comment, replyPost } = this.props;
-    const customer = comment.customer;
+    const customer = comment.customer || {};
 
     if (!comment) {
       return null;
@@ -71,7 +71,7 @@ export default class FacebookComment extends React.Component<
 
     const content = props => (
       <ReplyingMessage
-        conversationId={comment.postId}
+        postId={comment.postId}
         commentId={comment.commentId}
         currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
         replyPost={replyPost}
@@ -100,7 +100,7 @@ export default class FacebookComment extends React.Component<
             <Reply>
               <ModalTrigger
                 title="Reply"
-                trigger={<a> Reply •</a>}
+                trigger={<a href="#"> Reply •</a>}
                 content={content}
               />
             </Reply>

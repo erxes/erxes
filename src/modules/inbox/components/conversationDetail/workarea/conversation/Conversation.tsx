@@ -54,7 +54,7 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   renderConversation() {
-    const { conversation, conversationMessages } = this.props;
+    const { conversation, conversationMessages, scrollBottom } = this.props;
 
     if (!conversation) {
       return null;
@@ -72,7 +72,9 @@ class Conversation extends React.Component<Props, {}> {
     }
 
     if (conversation.post && conversation.post.postId) {
-      return <FacebookPost conversation={conversation} />;
+      return (
+        <FacebookPost scrollBottom={scrollBottom} conversation={conversation} />
+      );
     }
 
     const messages = (conversationMessages || []).slice();

@@ -46,7 +46,7 @@ class IntegrationIcon extends React.PureComponent<Props> {
 
     let icon;
     switch (integration.kind) {
-      case 'facebook':
+      case 'facebook-messenger':
         icon = 'messenger';
         break;
       case 'twitter':

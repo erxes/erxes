@@ -11,6 +11,7 @@ import UserName from './UserName';
 type Props = {
   post: IFacebookPost;
   customer: ICustomer;
+  scrollBottom: () => void;
 };
 
 export default class FacebookPost extends React.Component<Props, {}> {
@@ -23,7 +24,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
   }
 
   render() {
-    const { post, customer } = this.props;
+    const { post, customer, scrollBottom } = this.props;
 
     if (!post) {
       return null;
@@ -44,6 +45,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
         <FacebookContent
           content={post.content}
           attachments={post.attachments}
+          scrollBottom={scrollBottom}
         />
 
         {this.renderCounts(post.commentCount)}

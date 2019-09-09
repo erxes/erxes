@@ -10,7 +10,11 @@ class UserName extends React.Component<Props, {}> {
     const { username, userId } = this.props;
 
     return (
-      <a target="_blank" href={`https://facebook.com/${username}-${userId}`}>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href={`https://facebook.com/${username}-${userId}`}
+      >
         {username}
       </a>
     );
