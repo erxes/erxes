@@ -11,9 +11,14 @@ type Props = {
   isModal?: boolean;
   showDragHandler?: boolean | true;
   isDragDisabled?: boolean;
+  droppableId?: string;
 };
 
 class SortableList extends React.Component<Props> {
+  static defaultProps = {
+    droppableId: 'droppableId'
+  };
+
   onDragEnd = result => {
     const { destination, source } = result;
 
@@ -48,11 +53,14 @@ class SortableList extends React.Component<Props> {
   }
 
   render() {
-    const { fields, child, isDragDisabled } = this.props;
+    const { fields, child, isDragDisabled, droppableId } = this.props;
+
+    // tslint:disable
+    console.log('droppableId: ', droppableId);
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="droppableId-1" type="ITEMS">
+        <Droppable droppableId={droppableId} type={droppableId}>
           {provided => (
             <SortableWrapper
               {...provided.droppableProps}

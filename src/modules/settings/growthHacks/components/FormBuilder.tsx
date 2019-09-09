@@ -91,7 +91,7 @@ class FormBuilder extends React.Component<
       type: 'growthHack'
     };
 
-    if (this.props.formId) {
+    if (formId) {
       return <EditForm {...doc} formId={formId} />;
     }
 
@@ -103,7 +103,7 @@ class FormBuilder extends React.Component<
   };
 
   render() {
-    const formId = this.props.formId;
+    const { formId } = this.props;
 
     return (
       <>

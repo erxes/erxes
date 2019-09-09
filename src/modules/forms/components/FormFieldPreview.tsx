@@ -70,6 +70,7 @@ class FormFieldPreview extends React.Component<Props, State> {
           child={child}
           fields={this.state.fields || []}
           onChangeFields={this.onChangeFields}
+          droppableId="form"
         />
       </>
     );

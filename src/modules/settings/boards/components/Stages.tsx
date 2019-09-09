@@ -90,6 +90,7 @@ class Stages extends React.Component<Props, { isDragDisabled: boolean }> {
           onChangeFields={this.props.onChangeStages}
           isModal={true}
           isDragDisabled={isDragDisabled}
+          droppableId="stages"
         />
 
         <LinkButton onClick={this.add}>
