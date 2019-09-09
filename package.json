@@ -24,6 +24,8 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
+    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
+    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "release": "release-it"
   },
   "lint-staged": {
@@ -45,6 +47,7 @@
     "fbgraph": "^1.4.4",
     "googleapis": "^40.0.0",
     "meteor-random": "^0.0.3",
+    "migrate": "^1.6.2",
     "mongoose": "^5.2.16",
     "request": "^2.88.0",
     "requestify": "^0.2.5"

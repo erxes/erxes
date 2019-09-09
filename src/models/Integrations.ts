@@ -6,6 +6,7 @@ export interface IIntegration {
   accountId: string;
   erxesApiId: string;
   facebookPageIds?: string[];
+  facebookPageTokensMap?: { [key: string]: string };
   email: string;
   phoneNumber: string;
   expiration?: string;
@@ -25,6 +26,10 @@ export const integrationSchema = new Schema({
   email: String,
   expiration: String,
   gmailHistoryId: String,
+  facebookPageTokensMap: field({
+    type: Object,
+    default: {},
+  }),
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {}
