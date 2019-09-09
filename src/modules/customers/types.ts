@@ -1,5 +1,6 @@
 import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
+import { string } from 'prop-types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ISegmentDoc } from '../segments/types';

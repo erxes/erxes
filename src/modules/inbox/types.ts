@@ -31,6 +31,7 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
+  post?: IFacebookPost;
 }
 
 interface IEngageDataRules {
@@ -38,6 +39,28 @@ interface IEngageDataRules {
   text: string;
   condition: string;
   value?: string;
+}
+
+export interface IFacebookPost {
+  postId: string;
+  recipientId: string;
+  senderId: string;
+  content: string;
+  erxesApiId?: string;
+  attachments: string[];
+  timestamp: Date;
+  commentCount: number;
+}
+
+export interface IFacebookComment {
+  timestamp: Date;
+  postId: string;
+  parentId: string;
+  commentId: string;
+  content: string;
+  attachments: string[];
+  commentCount: number;
+  customer: ICustomer;
 }
 
 export interface IGmailData {
@@ -216,4 +239,11 @@ export type UnreadConversationsTotalCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
   subscribeToMore: (variables) => void;
+};
+
+export type FacebookCommentsQueryResponse = {
+  facebookComments: IFacebookComment[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: (variables) => void;
 };

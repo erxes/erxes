@@ -65,7 +65,8 @@ export const hours = [
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  FACEBOOK: 'facebook',
+  FACEBOOK_MESSENGER: 'facebook',
+  FACEBOOK_POST: 'facebook',
   GMAIL: 'gmail',
   FORM: 'form',
   CALLPRO: 'callpro',
@@ -94,7 +95,15 @@ export const INTEGRATIONS = [
         name: 'Facebook messenger',
         description: 'Connect to Facebook messages right from your Team Inbox',
         inMessenger: false,
-        kind: 'facebook',
+        kind: 'facebook-messenger',
+        logo: '/images/integrations/fb-messenger.png',
+        createModal: 'facebook'
+      },
+      {
+        name: 'Facebook post',
+        description: 'Connect to Facebook messages right from your Team Inbox',
+        inMessenger: false,
+        kind: 'facebook-post',
         logo: '/images/integrations/fb-messenger.png',
         createModal: 'facebook'
       },

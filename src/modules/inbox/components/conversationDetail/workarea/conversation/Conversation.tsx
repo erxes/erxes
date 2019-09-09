@@ -1,4 +1,5 @@
 import { IAttachmentPreview } from 'modules/common/types';
+import { FacebookPost } from 'modules/inbox/containers/conversationDetail';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -68,6 +69,10 @@ class Conversation extends React.Component<Props, {}> {
           conversationMessages={conversationMessages}
         />
       );
+    }
+
+    if (conversation.post && conversation.post.postId) {
+      return <FacebookPost conversation={conversation} />;
     }
 
     const messages = (conversationMessages || []).slice();

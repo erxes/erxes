@@ -112,6 +112,32 @@ const conversationMessages = `
   }
 `;
 
+const facebookComments = `
+  query facebookComments($postId: String! $limit: Int) {
+    facebookComments(postId: $postId, limit: $limit) {
+      commentId
+      postId
+      recipientId
+      senderId
+      attachments
+      content
+      erxesApiId
+      timestamp
+      parentId
+      commentId
+      commentCount
+      customer {
+        _id
+        visitorContactInfo
+        messengerData
+        avatar
+        firstName
+        lastName
+      }
+    }
+  }
+`;
+
 const conversationMessagesTotalCount = `
   query conversationMessagesTotalCount($conversationId: String!) {
     conversationMessagesTotalCount(conversationId: $conversationId)
@@ -289,6 +315,7 @@ export default {
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
+  facebookComments,
   conversationMessagesTotalCount,
   userList,
   channelList,
