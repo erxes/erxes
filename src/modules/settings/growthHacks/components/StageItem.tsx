@@ -1,34 +1,29 @@
 import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { colors } from 'modules/common/styles';
 import { StageItemContainer } from 'modules/settings/boards/styles';
 import React from 'react';
-import FormBuilder from './FormBuilder';
 
 type Props = {
   stage: IStage;
   remove: (stageId: string) => void;
   onChange: (stageId: string, name: string, value: string) => void;
-  onChangeDragDisabled: (isDragDisabled: boolean) => void;
+  onClick: (stage: IStage) => void;
   onKeyPress: (e: any) => void;
 };
 
 class StageItem extends React.Component<Props, {}> {
   render() {
-    const {
-      stage,
-      onChange,
-      onKeyPress,
-      remove,
-      onChangeDragDisabled
-    } = this.props;
+    const { stage, onChange, onKeyPress, remove, onClick } = this.props;
 
     const onChangeName = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
-    const onChangeForm = (stageId: string, formId: string) => {
-      if (typeof formId === 'string') {
-        onChange(stageId, 'formId', formId);
-      }
+
+    const onBuildClick = e => {
+      onClick(stage);
     };
 
     return (
@@ -43,12 +38,16 @@ class StageItem extends React.Component<Props, {}> {
           onChange={onChangeName.bind(this, stage._id)}
         />
 
-        <FormBuilder
-          stageId={stage._id}
-          onChangeDragDisabled={onChangeDragDisabled}
-          onChangeForm={onChangeForm}
-          formId={stage.formId}
-        />
+        <Button btnStyle="link" onClick={onBuildClick}>
+          <Tip text="Build a form">
+            <Icon
+              icon={stage.formId ? 'file-edit-alt' : 'file-plus-alt'}
+              color={
+                stage.formId ? colors.colorSecondary : colors.colorCoreGreen
+              }
+            />
+          </Tip>
+        </Button>
 
         <Button
           btnStyle="link"

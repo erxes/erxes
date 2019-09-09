@@ -1,7 +1,6 @@
+import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import { colors } from 'modules/common/styles';
 import { CloseModal } from 'modules/common/styles/main';
 import FormFieldPreview from 'modules/forms/components/FormFieldPreview';
 import CreateForm from 'modules/forms/containers/CreateForm';
@@ -12,22 +11,17 @@ import { Modal } from 'react-bootstrap';
 import { ContentWrapper, PreviewWrapper } from '../styles';
 
 type Props = {
-  formId: string;
-  onChangeForm: (stageId: string, formId: string) => void;
-  onChangeDragDisabled: (isDragDisabled: boolean) => void;
-  stageId: string;
+  onChange: (stageId: string, name: string, value: string) => void;
+  onHide: () => void;
+  stage: IStage;
 };
 
-class FormBuilder extends React.Component<
-  Props,
-  { isSaveForm: boolean; isOpenModal: boolean }
-> {
+class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      isSaveForm: false,
-      isOpenModal: false
+      isSaveForm: false
     };
   }
 
@@ -63,27 +57,23 @@ class FormBuilder extends React.Component<
     this.setState({ isSaveForm: true });
   };
 
-  onAfterSaveForm = formId => {
-    this.props.onChangeForm(this.props.stageId, formId);
-    this.setState({ isOpenModal: false, isSaveForm: false });
+  onAfterSaveForm = (formId: string) => {
+    const { stage, onChange, onHide } = this.props;
+
+    onChange(stage._id, 'formId', formId);
+    onHide();
+
+    this.setState({ isSaveForm: false });
   };
 
   closeModal = () => {
-    this.props.onChangeDragDisabled(false);
-
-    this.setState({ isOpenModal: false });
-  };
-
-  openModal = () => {
-    this.props.onChangeDragDisabled(true);
-
-    this.setState({ isOpenModal: true });
+    this.props.onHide();
   };
 
   renderFormContent = () => {
-    const { formId } = this.props;
+    const { stage } = this.props;
 
-    const doc = {
+    const props = {
       renderPreview: this.renderFormPreview,
       onChange: this.onAfterSaveForm,
       isSaving: this.state.isSaveForm,
@@ -91,11 +81,11 @@ class FormBuilder extends React.Component<
       type: 'growthHack'
     };
 
-    if (formId) {
-      return <EditForm {...doc} formId={formId} />;
+    if (stage.formId) {
+      return <EditForm {...props} formId={stage.formId} />;
     }
 
-    return <CreateForm {...doc} />;
+    return <CreateForm {...props} />;
   };
 
   renderContent = () => {
@@ -103,23 +93,13 @@ class FormBuilder extends React.Component<
   };
 
   render() {
-    const { formId } = this.props;
-
     return (
       <>
-        <Button btnStyle="link" onClick={this.openModal}>
-          <Tip text="Build a form">
-            <Icon
-              icon={formId ? 'file-edit-alt' : 'file-plus-alt'}
-              color={formId ? colors.colorSecondary : colors.colorCoreGreen}
-            />
-          </Tip>
-        </Button>
         <Modal
           dialogClassName="modal-1000w"
           enforceFocus={false}
           bsSize="lg"
-          show={this.state.isOpenModal}
+          show={true}
           onHide={this.closeModal}
           backdrop={false}
         >
