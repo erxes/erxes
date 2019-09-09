@@ -193,7 +193,8 @@ class Form extends React.Component<Props, State> {
           formBtnText,
           formDesc,
           fields,
-          onFieldEdit: this.onFieldEdit
+          onFieldEdit: this.onFieldEdit,
+          onFieldChange: this.onChange
         })}
       </FlexContent>
     );

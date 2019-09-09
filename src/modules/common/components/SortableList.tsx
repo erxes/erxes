@@ -55,9 +55,6 @@ class SortableList extends React.Component<Props> {
   render() {
     const { fields, child, isDragDisabled, droppableId } = this.props;
 
-    // tslint:disable
-    console.log('droppableId: ', droppableId);
-
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable droppableId={droppableId} type={droppableId}>

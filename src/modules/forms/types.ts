@@ -92,6 +92,7 @@ export interface IFormPreviewContent {
   formDesc: string;
   fields?: IField[];
   onFieldEdit?: (field: IField, props) => void;
+  onFieldChange?: (name: any, value: IField[]) => void;
 }
 
 export type FormDetailQueryResponse = {

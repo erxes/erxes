@@ -12,6 +12,7 @@ type Props = {
   fields?: IField[];
   onFieldEdit?: (field: IField, props) => void;
   onChange?: (name: any, fields: string) => void;
+  onFieldChange?: (name: string, value: IField[]) => void;
   type: string;
 };
 
@@ -25,6 +26,7 @@ class FormPreview extends React.Component<Props, {}> {
       theme,
       fields,
       onFieldEdit,
+      onFieldChange,
       onChange,
       type
     } = this.props;
@@ -42,6 +44,7 @@ class FormPreview extends React.Component<Props, {}> {
           formDesc={formDesc}
           fields={fields}
           onFieldEdit={onFieldEdit}
+          onFieldChange={onFieldChange}
           onChange={onChange}
         />
       </CommonPreview>

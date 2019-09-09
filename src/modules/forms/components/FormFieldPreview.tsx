@@ -8,6 +8,7 @@ type Props = {
   formDesc?: string;
   onFieldEdit?: (field: IField, props) => void;
   onChange?: (name: string, fields: any) => void;
+  onFieldChange?: (name: string, value: IField[]) => void;
 };
 
 type State = {
@@ -34,6 +35,8 @@ class FormFieldPreview extends React.Component<Props, State> {
   onChangeFields = (reOrderedFields: IField[]) => {
     const fields: IField[] = [];
 
+    const { onFieldChange } = this.props;
+
     reOrderedFields.forEach((field, index) => {
       fields.push({
         ...field,
@@ -41,7 +44,11 @@ class FormFieldPreview extends React.Component<Props, State> {
       });
     });
 
-    this.setState({ fields });
+    this.setState({ fields }, () => {
+      if (onFieldChange) {
+        onFieldChange('fields', this.state.fields || []);
+      }
+    });
   };
 
   renderFormDesc() {
