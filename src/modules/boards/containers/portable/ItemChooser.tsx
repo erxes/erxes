@@ -93,7 +93,8 @@ const WithQuery = ({ options }) => {
                 mainTypeId: data.mainTypeId,
                 isRelated: data.isRelated,
                 relType: data.options.type
-              }
+              },
+              fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
             };
           }
         }

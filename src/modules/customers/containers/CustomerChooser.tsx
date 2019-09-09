@@ -84,7 +84,8 @@ const WithQuery = withProps<Props>(
             mainType: data.mainType,
             mainTypeId: data.mainTypeId,
             isRelated: data.isRelated
-          }
+          },
+          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
         };
       }
     }),
