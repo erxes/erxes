@@ -1,5 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 
 import Chooser from '../../../modules/common/components/Chooser';
 
@@ -19,12 +19,5 @@ describe('Chooser component', () => {
 
   test('renders Chooser successfully', () => {
     shallow(<Chooser {...defaultProps} />);
-  });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Chooser {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
   });
 });

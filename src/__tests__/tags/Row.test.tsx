@@ -8,8 +8,8 @@ describe('Row component', () => {
   const defaultProps = {
     tag: {
       _id: 'id',
-      type: 'typ',
       name: 'name',
+      type: 'typ',
       colorCode: 'red'
     },
     type: 'type',
@@ -18,7 +18,6 @@ describe('Row component', () => {
       type: string;
       name: string;
       colorCode: string;
-      objectCount?: number;
     }) => null,
     save: (params: {
       doc: {
@@ -34,12 +33,5 @@ describe('Row component', () => {
 
   test('renders WithPermission successfully', () => {
     shallow(<Row {...defaultProps} />);
-  });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Row {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
   });
 });

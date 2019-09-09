@@ -1,5 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 
 import TeamMembers from '../../modules/insights/components/TeamMembers';
 
@@ -17,12 +17,5 @@ describe('TeamMembers component', () => {
 
   test('renders TeamMembers successfully', () => {
     shallow(<TeamMembers {...defaultProps} />);
-  });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<TeamMembers {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
   });
 });

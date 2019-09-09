@@ -1,5 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
 
 import ModifiableList from '../../../modules/common/components/ModifiableList';
 
@@ -15,22 +15,6 @@ describe('ModifiableList component', () => {
     shallow(<ModifiableList {...defaultProps} />);
   });
 
-  test('renders mount with default props', () => {
-    const control = mount(<ModifiableList {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
-
-  test('renders test 2 different props', () => {
-    defaultProps.options = ['80201929', '12312322'];
-    defaultProps.addButtonLabel = 'primary';
-
-    const rendered = mount(<ModifiableList {...defaultProps} />);
-    const props = rendered.props();
-
-    expect(defaultProps).toMatchObject(props);
-  });
   test('render mount ModifiliableList', () => {
     const wrapper = mount(<ModifiableList {...defaultProps} />);
     const added = defaultProps.options;

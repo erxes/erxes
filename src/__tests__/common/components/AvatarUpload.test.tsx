@@ -1,5 +1,6 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
+import React from 'react';
+
 import AvatarUpload from '../../../modules/common/components/AvatarUpload';
 
 describe('AvatarUpload component', () => {
@@ -14,23 +15,6 @@ describe('AvatarUpload component', () => {
     shallow(<AvatarUpload {...defaultProps} />);
   });
 
-  test('renders with Avatars default props', () => {
-    const control = mount(<AvatarUpload {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
-  });
-
-  test('renders test 2 different props', () => {
-    defaultProps.avatar = 'email';
-    defaultProps.defaultAvatar = 'icon-upload-2';
-
-    const rendered = mount(<AvatarUpload {...defaultProps} />);
-    const props = rendered.props();
-
-    expect(defaultProps).toMatchObject(props);
-  });
-
   test('render Avatar', () => {
     const rendered = mount(<AvatarUpload {...defaultProps} />);
     const found = rendered.find('i').debug();
@@ -40,16 +24,18 @@ describe('AvatarUpload component', () => {
   });
 
   test('test changed states', () => {
-    const avatarPreUrl = 'icon-upload-1';
+    const defaultStatus = {
+      avatarPreviewUrl: 'icon-upload-1'
+    };
 
     const wrapper = mount(<AvatarUpload {...defaultProps} />);
 
-    wrapper.setState({ avatarPreviewUrl: avatarPreUrl });
+    wrapper.setState({ avatarPreviewUrl: 'icon-upload-1' });
 
     expect(wrapper.state()).toEqual({
       uploadPreview: null,
       avatarPreviewStyle: {},
-      avatarPreviewUrl: avatarPreUrl
+      avatarPreviewUrl: defaultStatus.avatarPreviewUrl
     });
   });
 });

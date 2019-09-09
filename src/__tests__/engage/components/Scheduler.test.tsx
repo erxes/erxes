@@ -1,0 +1,23 @@
+// test passed
+import { mount, shallow } from 'enzyme';
+import Scheduler from 'modules/engage/components/Scheduler';
+import { IEngageScheduleDate } from 'modules/engage/types';
+import React from 'react';
+
+describe('Scheduler component', () => {
+  const testIEngageScheduleDate: IEngageScheduleDate = {
+    type: 'string',
+    month: 'string',
+    day: 'string',
+    time: new Date()
+  };
+
+  const defaultProps = {
+    scheduleDate: testIEngageScheduleDate,
+    onChange: (name: 'scheduleDate', value: IEngageScheduleDate) => null
+  };
+
+  test('renders successfully', () => {
+    shallow(<Scheduler {...defaultProps} />);
+  });
+});

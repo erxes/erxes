@@ -16,7 +16,6 @@ class FieldPreview extends React.Component<Props, {}> {
       onEdit(this.props.field);
     }
   };
-
   render() {
     const { field } = this.props;
 

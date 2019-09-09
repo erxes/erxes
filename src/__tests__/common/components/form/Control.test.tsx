@@ -1,6 +1,5 @@
 import { mount, shallow } from 'enzyme';
-import * as React from 'react';
-
+import React from 'react';
 import Control from '../../../../modules/common/components/form/Control';
 
 describe('Form control component', () => {
@@ -13,13 +12,6 @@ describe('Form control component', () => {
 
   test('renders shallowly', () => {
     shallow(<Control />);
-  });
-
-  test('renders with default props', () => {
-    const control = mount(<Control {...defaultProps} />);
-    const props = control.props();
-
-    expect(props).toMatchObject(defaultProps);
   });
 
   test('renders an input properly', () => {

@@ -1,0 +1,15 @@
+import { mount, shallow } from 'enzyme';
+import React from 'react';
+
+import Steps from '../../../../modules/common/components/step/Steps';
+
+describe('Group component', () => {
+  const defaultProps = {
+    children: [],
+    active: 0
+  };
+
+  test('renders Steps successfully', () => {
+    shallow(<Steps {...defaultProps} />);
+  });
+});

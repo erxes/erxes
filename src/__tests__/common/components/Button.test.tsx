@@ -15,24 +15,14 @@ describe('Button component', () => {
     shallow(<Button />);
   });
 
-  test('fully renders with default props', () => {
-    const rendered = mount(<Button {...defaultProps} />);
-    const props = rendered.props();
-
-    expect(defaultProps).toMatchObject(props);
-  });
-
-  test('fully renders with custom props', () => {
-    const p = {
+  test('check Element ', () => {
+    const props = {
       ...defaultProps,
-      size: 'large',
-      type: 'submit',
-      block: true
+      href: 'www.google.com'
     };
+    const rendered = mount(<Button {...props} />);
+    const href = rendered.find('a');
 
-    const rendered = mount(<Button {...p} />);
-    const props = rendered.props();
-
-    expect(p).toMatchObject(props);
+    expect(href.length).toBe(1);
   });
 });

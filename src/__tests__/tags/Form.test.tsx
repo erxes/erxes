@@ -7,7 +7,6 @@ import Form from '../../modules/tags/components/Form';
 describe('Form component', () => {
   const defaultProps = {
     type: 'typ',
-    closeModal: () => null,
     save: (params: {
       doc: {
         _id?: string;
@@ -23,12 +22,5 @@ describe('Form component', () => {
 
   test('renders Form successfully', () => {
     shallow(<Form {...defaultProps} />);
-  });
-
-  test('renders successfully with default value', () => {
-    const wrapper = mount(<Form {...defaultProps} />);
-    const props = wrapper.props();
-
-    expect(props).toMatchObject(defaultProps);
   });
 });

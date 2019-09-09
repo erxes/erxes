@@ -1,5 +1,4 @@
 import { mount, shallow } from 'enzyme';
-import toJson from 'enzyme-to-json';
 import React from 'react';
 
 import ModifiableSelect from '../../../modules/common/components/ModifiableSelect';
@@ -23,20 +22,8 @@ describe('Testing ModifiableSelect component', () => {
     select.unmount();
   });
 
-  test('matches snapshot', () => {
-    const shallowSelect = shallow(<ModifiableSelect {...defaultProps} />);
-
-    expect(toJson(shallowSelect)).toMatchSnapshot();
-  });
-
   test('renders successfully', () => {
     shallow(<ModifiableSelect {...defaultProps} />);
-  });
-
-  test('renders with default props', () => {
-    const props = select.props();
-
-    expect(props).toMatchObject(defaultProps);
   });
 
   test('properly renders add button', () => {
@@ -114,5 +101,16 @@ describe('Testing ModifiableSelect component', () => {
 
     expect(state.options).not.toContain(defaultProps.options[0]);
     expect(state.selectedOption).toBe('');
+  });
+
+  test('check state', () => {
+    const wrapper = mount(<ModifiableSelect {...defaultProps} />);
+    const addButton = wrapper.find('span').at(3);
+    addButton.simulate('click');
+
+    const saveButton = wrapper.find('button').at(1);
+    saveButton.simulate('click');
+
+    expect(wrapper.state('options')).not.toEqual(defaultProps.options);
   });
 });
