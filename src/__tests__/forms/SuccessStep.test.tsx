@@ -1,4 +1,4 @@
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import SuccessStep from 'modules/forms/components/step/SuccessStep';
 import React from 'react';
 

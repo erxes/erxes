@@ -1,5 +1,5 @@
 // test passed
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import { IUser } from 'modules/auth/types';
 import EmailForm from 'modules/engage/components/EmailForm';
 import { IEngageEmail, IEngageScheduleDate } from 'modules/engage/types';

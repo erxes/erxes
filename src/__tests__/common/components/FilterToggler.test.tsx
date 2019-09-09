@@ -1,4 +1,4 @@
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import React from 'react';
 
 import FilterToggler from '../../../modules/inbox/components/leftSidebar/FilterToggler';

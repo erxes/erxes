@@ -1,4 +1,4 @@
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import ChooseType from 'modules/forms/components/step/ChooseType';
 import React from 'react';
 

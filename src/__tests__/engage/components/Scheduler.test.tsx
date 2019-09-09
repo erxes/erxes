@@ -1,5 +1,5 @@
 // test passed
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import Scheduler from 'modules/engage/components/Scheduler';
 import { IEngageScheduleDate } from 'modules/engage/types';
 import React from 'react';

@@ -1,4 +1,4 @@
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import React from 'react';
 
 import ImageWithPreview from '../../../modules/common/components/ImageWithPreview';
@@ -12,6 +12,6 @@ describe('ImageWithPreview component', () => {
   };
 
   test('renders ImageWithPreview successfully', () => {
-    shallow(<ImageWithPreview />);
+    shallow(<ImageWithPreview {...defaultProps} />);
   });
 });

@@ -1,4 +1,4 @@
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import ProductSection from 'modules/deals/components/ProductSection';
 import { IProductData } from 'modules/deals/types';
 import { IProduct } from 'modules/settings/productService/types';
