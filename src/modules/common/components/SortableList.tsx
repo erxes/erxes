@@ -3,6 +3,7 @@ import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
 import { reorder } from '../utils';
+import EmptyState from './EmptyState';
 
 type Props = {
   fields: any[];
@@ -54,6 +55,10 @@ class SortableList extends React.Component<Props> {
 
   render() {
     const { fields, child, isDragDisabled, droppableId } = this.props;
+
+    if (fields.length === 0) {
+      return <EmptyState text="There is no fields" icon="ban" />;
+    }
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>

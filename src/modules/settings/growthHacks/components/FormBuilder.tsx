@@ -2,9 +2,11 @@ import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import FormFieldPreview from 'modules/forms/components/FormFieldPreview';
 import CreateForm from 'modules/forms/containers/CreateForm';
 import EditForm from 'modules/forms/containers/EditForm';
+import { ShowPreview } from 'modules/forms/styles';
 import { IFormPreviewContent } from 'modules/forms/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
@@ -25,11 +27,16 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
     };
   }
 
-  renderFormPreview = (props: IFormPreviewContent) => {
-    return (
-      <PreviewWrapper>
-        <FormFieldPreview {...props} />
+  renderFooter = (items: number) => {
+    if (items === 0) {
+      return null;
+    }
 
+    return (
+      <>
+        <ShowPreview>
+          <Icon icon="eye" /> {__('Form preview')}
+        </ShowPreview>
         <Modal.Footer>
           <Button
             btnStyle="simple"
@@ -49,6 +56,17 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
             Save
           </Button>
         </Modal.Footer>
+      </>
+    );
+  };
+
+  renderFormPreview = (props: IFormPreviewContent) => {
+    const { fields } = props;
+
+    return (
+      <PreviewWrapper>
+        <FormFieldPreview {...props} />
+        {this.renderFooter(fields ? fields.length : 0)}
       </PreviewWrapper>
     );
   };
