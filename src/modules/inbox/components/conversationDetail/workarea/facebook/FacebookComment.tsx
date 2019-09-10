@@ -100,7 +100,7 @@ export default class FacebookComment extends React.Component<
             <Reply>
               <ModalTrigger
                 title="Reply"
-                trigger={<a href="#"> Reply •</a>}
+                trigger={<span> Reply •</span>}
                 content={content}
               />
             </Reply>

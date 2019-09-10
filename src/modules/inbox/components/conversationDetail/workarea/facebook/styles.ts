@@ -116,14 +116,14 @@ const Reply = styled.div`
   margin-right: 5px;
   padding-left: ${coreSize};
 
-  > a {
+  > span {
     font-size: 11px;
     color: ${colors.socialFacebook};
     transition: all ease 0.9s;
     cursor: pointer;
   }
 
-  > a:hover {
+  > span:hover {
     text-decoration: underline;
     color: #3a5999;
   }
@@ -196,51 +196,6 @@ const Comment = styledTS<{ isInternal?: boolean }>(styled.div)`
   }
 `;
 
-const ReplyReaction = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${colors.colorWhite};
-  border-radius: ${coreSize};
-  font-size: 11px;
-  padding: 2px;
-  margin-left: -${coreSize};
-  z-index: 5;
-  height: 22px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
-
-  > a {
-    color: ${colors.textPrimary};
-    padding: 0 3px 0 8px;
-  }
-`;
-
-const Reaction = styledTS<{ comment?: boolean }>(styled.div)`
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-  margin-right: ${props => (props.comment ? '-5px' : '3px')};
-  background-image: url("/images/reactions.png");
-  border: 1px solid ${colors.colorWhite};
-  border-radius: ${coreSize};
-  cursor: pointer;
-
-  &.haha {
-    background-position: 84px;
-  }
-  &.wow {
-    background-position: 16px;
-  }
-  &.love {
-    background-position: 50px;
-  }
-  &.like {
-    background-position: 67px;
-  }
-  &.sad {
-    background-position: 33px;
-  }
-`;
-
 const Footer = styled.div`
   text-align: right;
 `;
@@ -275,10 +230,8 @@ export {
   ChildPost,
   Comment,
   Counts,
-  Reaction,
   Reply,
   FlexItem,
-  ReplyReaction,
   Footer,
   ContentContainer,
   LeftAlign,
