@@ -11,109 +11,69 @@ module.exports.up = async () => {
   console.log('start migration on convert conformity');
   try {
     console.log('start migration on customerCompany conformity');
-    const customerCompany = await Customers.find({ companyIds: { $exists: true } });
 
-    let insertTypes = await customerCompany.map(customer =>
-      (customer.companyIds || []).map(companyId => ({
-        mainType: 'customer',
-        mainTypeId: customer._id,
-        relType: 'company',
-        relTypeId: companyId,
-      })),
+    const executer = (mainType, relType, fieldName, entries) => {
+      const modifier: any[] = [];
+
+      for (const entry of entries) {
+        for (const subEntryId of entry.toObject()[fieldName]) {
+          modifier.push({
+            mainType,
+            mainTypeId: entry._id,
+            relType,
+            relTypeId: subEntryId,
+          });
+        }
+      }
+
+      return Conformities.insertMany(modifier);
+    };
+
+    await executer(
+      'customer',
+      'company',
+      'companyIds',
+      await Customers.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length>1' }),
     );
 
-    await Conformities.insertMany(insertTypes);
-    console.log('end migration on customerCompany conformity');
-
-    console.log('start migration on dealCustomer conformity');
-    const dealCustomer = await Deals.find({ customerIds: { $exists: true } });
-
-    insertTypes = dealCustomer.map(deal =>
-      (deal.customerIds || []).map(customerId => ({
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relType: 'customer',
-        relTypeId: customerId,
-      })),
+    await executer(
+      'deal',
+      'customer',
+      'customerIds',
+      await Deals.find({ customerIds: { $exists: true }, $where: 'this.customerIds.length>1' }),
+    );
+    await executer(
+      'deal',
+      'company',
+      'companyIds',
+      await Deals.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length>1' }),
     );
 
-    await Conformities.insertMany(insertTypes);
-    console.log('end migration on dealCustomer conformity');
-
-    console.log('start migration on dealCompany conformity');
-    const dealCompany = await Deals.find({ companyIds: { $exists: true } });
-
-    insertTypes = await dealCompany.map(deal =>
-      (deal.companyIds || []).map(companyId => ({
-        mainType: 'deal',
-        mainTypeId: deal._id,
-        relType: 'company',
-        relTypeId: companyId,
-      })),
+    await executer(
+      'ticket',
+      'customer',
+      'customerIds',
+      await Tickets.find({ customerIds: { $exists: true }, $where: 'this.customerIds.length>1' }),
+    );
+    await executer(
+      'ticket',
+      'company',
+      'companyIds',
+      await Tickets.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length>1' }),
     );
 
-    await Conformities.insertMany(insertTypes);
-    console.log('end migration on dealCompany conformity');
-
-    console.log('start migration on ticketCustomer conformity');
-    const ticketCustomer = await Tickets.find({ customerIds: { $exists: true } });
-
-    insertTypes = await ticketCustomer.map(ticket =>
-      (ticket.customerIds || []).map(customerId => ({
-        mainType: 'ticket',
-        mainTypeId: ticket._id,
-        relType: 'customer',
-        relTypeId: customerId,
-      })),
+    await executer(
+      'task',
+      'customer',
+      'customerIds',
+      await Tasks.find({ customerIds: { $exists: true }, $where: 'this.customerIds.length>1' }),
     );
-
-    await Conformities.insertMany(insertTypes);
-    console.log('end migration on ticketCustomer conformity');
-
-    console.log('start migration on ticketCompany conformity');
-    const ticketCompany = await Tickets.find({ companyIds: { $exists: true } });
-
-    insertTypes = await ticketCompany.map(ticket =>
-      (ticket.companyIds || []).map(companyId => ({
-        mainType: 'ticket',
-        mainTypeId: ticket._id,
-        relType: 'company',
-        relTypeId: companyId,
-      })),
+    await executer(
+      'task',
+      'company',
+      'companyIds',
+      await Tasks.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length>1' }),
     );
-
-    await Conformities.insertMany(insertTypes);
-    console.log('end migration on ticketCompany conformity');
-
-    console.log('start migration on taskCustomer conformity');
-    const taskCustomer = await Tasks.find({ customerIds: { $exists: true } });
-
-    insertTypes = await taskCustomer.map(task =>
-      (task.customerIds || []).map(customerId => ({
-        mainType: 'task',
-        mainTypeId: task._id,
-        relType: 'customer',
-        relTypeId: customerId,
-      })),
-    );
-
-    await Conformities.insertMany(insertTypes);
-    console.log('end migration on taskCustomer conformity');
-
-    console.log('start migration on taskCompany conformity');
-    const taskCompany = await Tasks.find({ companyIds: { $exists: true } });
-
-    insertTypes = await taskCompany.map(task =>
-      (task.companyIds || []).map(companyId => ({
-        mainType: 'task',
-        mainTypeId: task._id,
-        relType: 'company',
-        relTypeId: companyId,
-      })),
-    );
-
-    await Conformities.insertMany(insertTypes);
-    console.log('end migration on taskCompany conformity');
   } catch (e) {
     console.log('conformity migration ', e.message);
   }
