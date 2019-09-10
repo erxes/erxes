@@ -453,7 +453,7 @@ const insightQueries = {
 
     if (insightAggregateData.length === 0) {
       return {
-        avg: [{ title: 'Average all operator response time', count: 0 }],
+        avg: [{ title: 'Response time of the operator', count: 0 }],
         trend: [],
         teamMembers: [],
       };
@@ -482,7 +482,7 @@ const insightQueries = {
     }
 
     return {
-      avg: [{ title: 'Average all operator response time', count: averageTotal }],
+      avg: [{ title: 'Response time of the operator', count: averageTotal }],
       trend: summaryChart,
       teamMembers: perUserChart,
     };
@@ -529,7 +529,7 @@ const insightQueries = {
 
     return [
       {
-        title: 'Average all customer response time',
+        title: 'Response time of the customer',
         count: insightAggregateCustomer.length ? insightAggregateCustomer[0].avgSecond : 0,
       },
     ];
@@ -577,7 +577,7 @@ const insightQueries = {
 
     return [
       {
-        title: 'Average internal response time',
+        title: 'Response time of the internal message',
         count: insightAggregateInternal.length ? insightAggregateInternal[0].avgSecond : 0,
       },
     ];
@@ -684,11 +684,11 @@ const insightQueries = {
 
     return [
       {
-        title: 'Overall average',
+        title: 'Wait time between messages',
         count: insightAggregateAllAvg.length ? insightAggregateAllAvg[0].avgSecond : 0,
       },
       {
-        title: 'Summary duration average',
+        title: 'Duration time up until the conversation is resolved',
         count: insightAggregateDurationAvg.length ? insightAggregateDurationAvg[0].avgSecond : 0,
       },
     ];
