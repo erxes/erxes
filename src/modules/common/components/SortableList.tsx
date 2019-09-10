@@ -57,7 +57,7 @@ class SortableList extends React.Component<Props> {
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId={droppableId} type={droppableId}>
+        <Droppable droppableId={droppableId} type="ITEMS">
           {provided => (
             <SortableWrapper
               {...provided.droppableProps}

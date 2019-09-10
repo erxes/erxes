@@ -18,13 +18,11 @@ import {
 } from './style';
 
 type Props = {
+  formId?: string;
   type: string;
   calloutTitle?: string;
-  formTitle?: string;
-  formBtnText?: string;
   calloutBtnText?: string;
   bodyValue?: string;
-  formDesc?: string;
   color: string;
   theme: string;
   image?: string;
@@ -33,7 +31,6 @@ type Props = {
   carousel: string;
   thankContent?: string;
   skip?: boolean;
-  formData: any;
 };
 
 type State = {
@@ -71,22 +68,14 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   renderPreview() {
-    const { carousel, formData } = this.props;
+    const { carousel } = this.props;
 
     if (carousel === 'callout') {
       return <CalloutPreview {...this.props} />;
     }
 
     if (carousel === 'form') {
-      return (
-        <FormPreview
-          {...this.props}
-          formTitle={formData.title}
-          formBtnText={formData.buttonText}
-          formDesc={formData.description}
-          fields={formData.fields}
-        />
-      );
+      return <FormPreview {...this.props} />;
     }
 
     return <SuccessPreview {...this.props} />;

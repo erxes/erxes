@@ -23,7 +23,7 @@ type Props = {
 };
 
 type State = {
-  fields?: IField[];
+  fields: IField[];
   editingField?: IField;
   formTitle: string;
   formDesc: string;
@@ -38,7 +38,7 @@ class Form extends React.Component<Props, State> {
     const { form = {} as IForm } = props;
 
     this.state = {
-      fields: props.fields,
+      fields: props.fields || [],
       formTitle: form.title || '',
       formDesc: form.description || '',
       formBtnText: form.buttonText || 'Send',
@@ -79,6 +79,7 @@ class Form extends React.Component<Props, State> {
     const editingField = this.state.editingField || ({} as IField);
 
     const doc = {
+      _id: Math.random().toString(),
       contentType: 'form',
       type: editingField.type,
       validation: editingField.validation,
@@ -90,10 +91,7 @@ class Form extends React.Component<Props, State> {
     };
 
     // newly created field to fields state
-    (this.state.fields || []).push({
-      _id: Math.random().toString(),
-      ...doc
-    });
+    (this.state.fields || []).push(doc);
 
     this.setState({ fields: this.state.fields });
   };

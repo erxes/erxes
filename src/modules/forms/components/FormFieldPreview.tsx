@@ -1,14 +1,16 @@
 import SortableList from 'modules/common/components/SortableList';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
+import { IForm } from '../types';
 import FieldPreview from './FieldPreview';
 
 type Props = {
   fields?: IField[];
-  formDesc?: string;
+  form?: IForm;
   onFieldEdit?: (field: IField, props) => void;
   onChange?: (name: string, fields: any) => void;
   onFieldChange?: (name: string, value: IField[]) => void;
+  wrapper: ({ form, content }) => JSX.Element;
 };
 
 type State = {
@@ -16,6 +18,10 @@ type State = {
 };
 
 class FormFieldPreview extends React.Component<Props, State> {
+  static defaultProps = {
+    wrapper: ({ content }) => content
+  };
+
   constructor(props: Props) {
     super(props);
 
@@ -52,14 +58,14 @@ class FormFieldPreview extends React.Component<Props, State> {
   };
 
   renderFormDesc() {
-    if (!this.props.formDesc) {
-      return null;
-    }
+    const { form } = this.props;
 
-    return <p>{this.props.formDesc}</p>;
+    return <p>{form && form.description}</p>;
   }
 
   render() {
+    const { form } = this.props;
+
     const child = field => {
       return (
         <FieldPreview
@@ -70,7 +76,7 @@ class FormFieldPreview extends React.Component<Props, State> {
       );
     };
 
-    return (
+    const content = (
       <>
         {this.renderFormDesc()}
         <SortableList
@@ -81,6 +87,11 @@ class FormFieldPreview extends React.Component<Props, State> {
         />
       </>
     );
+
+    return this.props.wrapper({
+      content,
+      form
+    });
   }
 }
 

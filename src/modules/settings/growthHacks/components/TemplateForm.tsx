@@ -3,12 +3,11 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
-import Stages from 'modules/settings/boards/components/Stages';
 import React from 'react';
 import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
-import { options } from '../options';
 import { IPipelineTemplate } from '../types';
+import Stages from './Stages';
 
 type Props = {
   object?: IPipelineTemplate;
@@ -24,9 +23,14 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     const { object } = props;
+    const stages = object && object.stages ? object.stages : [];
 
     this.state = {
-      stages: object ? this.generateStages(object.stages, true) : [],
+      stages: stages.map((stage: IStage) => ({
+        _id: stage._id,
+        name: stage.name,
+        formId: stage.formId
+      })),
       content: (object && object.content) || ''
     };
   }
@@ -34,14 +38,6 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
   onEditorChange = e => {
     this.setState({ content: e.editor.getData() });
   };
-
-  generateStages(stages, hasId: boolean) {
-    return stages.map(stage => ({
-      _id: hasId ? Math.random().toString() : undefined,
-      name: stage.name,
-      formId: stage.formId
-    }));
-  }
 
   generateDoc = (values: {
     _id?: string;
@@ -61,7 +57,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       name: finalValues.name,
       description: finalValues.description,
       type: 'growthHack',
-      stages: this.generateStages(stages, false).filter(el => el.name)
+      stages: stages.filter(el => el.name)
     };
   };
 
@@ -100,7 +96,6 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
         <FormGroup>
           <ControlLabel>Stages</ControlLabel>
           <Stages
-            options={options}
             stages={this.state.stages}
             onChangeStages={this.onChangeStages}
           />

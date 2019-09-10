@@ -5,6 +5,7 @@ const pipelineTemplates = `
       name
       description
       stages {
+        _id
         name
         formId
       }
