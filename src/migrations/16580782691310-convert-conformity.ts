@@ -22,7 +22,7 @@ module.exports.up = async () => {
       })),
     );
 
-    Conformities.insertMany(insertTypes);
+    await Conformities.insertMany(insertTypes);
     console.log('end migration on customerCompany conformity');
 
     console.log('start migration on dealCustomer conformity');
@@ -37,7 +37,7 @@ module.exports.up = async () => {
       })),
     );
 
-    Conformities.insertMany(insertTypes);
+    await Conformities.insertMany(insertTypes);
     console.log('end migration on dealCustomer conformity');
 
     console.log('start migration on dealCompany conformity');
@@ -52,7 +52,7 @@ module.exports.up = async () => {
       })),
     );
 
-    Conformities.insertMany(insertTypes);
+    await Conformities.insertMany(insertTypes);
     console.log('end migration on dealCompany conformity');
 
     console.log('start migration on ticketCustomer conformity');
@@ -67,7 +67,7 @@ module.exports.up = async () => {
       })),
     );
 
-    Conformities.insertMany(insertTypes);
+    await Conformities.insertMany(insertTypes);
     console.log('end migration on ticketCustomer conformity');
 
     console.log('start migration on ticketCompany conformity');
@@ -82,7 +82,7 @@ module.exports.up = async () => {
       })),
     );
 
-    Conformities.insertMany(insertTypes);
+    await Conformities.insertMany(insertTypes);
     console.log('end migration on ticketCompany conformity');
 
     console.log('start migration on taskCustomer conformity');
@@ -97,7 +97,7 @@ module.exports.up = async () => {
       })),
     );
 
-    Conformities.insertMany(insertTypes);
+    await Conformities.insertMany(insertTypes);
     console.log('end migration on taskCustomer conformity');
 
     console.log('start migration on taskCompany conformity');
@@ -112,7 +112,7 @@ module.exports.up = async () => {
       })),
     );
 
-    Conformities.insertMany(insertTypes);
+    await Conformities.insertMany(insertTypes);
     console.log('end migration on taskCompany conformity');
   } catch (e) {
     console.log('conformity migration ', e.message);
