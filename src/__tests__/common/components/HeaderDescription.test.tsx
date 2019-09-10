@@ -11,6 +11,7 @@ describe('HeaderDescription component', () => {
   };
 
   test('renders HeaderDescription successfully', () => {
-    shallow(<HeaderDescription {...defaultProps} />);
+    const wrapper = shallow(<HeaderDescription {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

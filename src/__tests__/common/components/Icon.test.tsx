@@ -10,6 +10,7 @@ describe('Icon component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<Icon {...defaultProps} />);
+    const wrapper = shallow(<Icon {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

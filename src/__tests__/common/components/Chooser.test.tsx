@@ -18,6 +18,7 @@ describe('Chooser component', () => {
   };
 
   test('renders Chooser successfully', () => {
-    shallow(<Chooser {...defaultProps} />);
+    const wrapper = shallow(<Chooser {...defaultProps} />).debug();
+    expect(wrapper).not.toBe('');
   });
 });

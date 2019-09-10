@@ -9,6 +9,7 @@ describe('Group component', () => {
   };
 
   test('renders Group successfully', () => {
-    shallow(<Group {...defaultProps} />);
+    const wrapper = shallow(<Group {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

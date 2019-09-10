@@ -12,6 +12,7 @@ describe('FullPreviewStep component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<FullPreviewStep {...defaultProps} />);
+    const wrapper = shallow(<FullPreviewStep {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -9,6 +9,7 @@ describe('Sidebar component', () => {
   };
 
   test('renders Sidebar successfully', () => {
-    shallow(<Sidebar {...defaultProps} />);
+    const wrapper = shallow(<Sidebar {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

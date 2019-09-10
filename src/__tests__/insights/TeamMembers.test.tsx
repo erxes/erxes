@@ -16,6 +16,7 @@ describe('TeamMembers component', () => {
   };
 
   test('renders TeamMembers successfully', () => {
-    shallow(<TeamMembers {...defaultProps} />);
+    const wrapper = shallow(<TeamMembers {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

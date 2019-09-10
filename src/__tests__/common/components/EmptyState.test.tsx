@@ -9,6 +9,7 @@ describe('EmptyState component', () => {
   };
 
   test('renders EmptyState successfully', () => {
-    shallow(<EmptyState {...defaultProps} />);
+    const wrapper = shallow(<EmptyState {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

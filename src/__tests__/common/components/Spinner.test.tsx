@@ -9,6 +9,7 @@ describe('Spinner component', () => {
   };
 
   test('renders Spinner successfully', () => {
-    shallow(<Spinner {...defaultProps} />);
+    const wrapper = shallow(<Spinner {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

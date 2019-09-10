@@ -5,6 +5,7 @@ import NameCard from '../../../../modules/common/components/nameCard/NameCard';
 
 describe('NameCard component', () => {
   test('renders NameCard successfully', () => {
-    shallow(<NameCard />);
+    const wrapper = shallow(<NameCard />);
+    expect(wrapper).not.toBe('');
   });
 });

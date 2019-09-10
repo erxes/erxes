@@ -9,6 +9,7 @@ describe('Content component', () => {
   };
 
   test('renders Content successfully', () => {
-    shallow(<Content {...defaultProps} />);
+    const wrapper = shallow(<Content {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -9,6 +9,7 @@ describe('ChannelStep component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<ChannelStep {...defaultProps} />);
+    const wrapper = shallow(<ChannelStep {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

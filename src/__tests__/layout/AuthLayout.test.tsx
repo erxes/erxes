@@ -9,6 +9,7 @@ describe('AuthLayout component', () => {
   };
 
   test('renders AuthLayout successfully', () => {
-    shallow(<AuthLayout {...defaultProps} />);
+    const wrapper = shallow(<AuthLayout {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

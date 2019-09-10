@@ -13,6 +13,13 @@ describe('Attachment component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<Attachment {...defaultProps} />);
+    const wrapper = shallow(<Attachment {...defaultProps} />).debug();
+    expect(wrapper).not.toBe('');
+  });
+
+  test('render null', () => {
+    defaultProps.attachment.type = '';
+    const wrapper = shallow(<Attachment {...defaultProps} />).debug();
+    expect(wrapper).toBe('');
   });
 });

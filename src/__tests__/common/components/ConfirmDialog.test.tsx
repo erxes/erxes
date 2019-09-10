@@ -15,6 +15,7 @@ describe('ConfirmDialog component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<ConfirmDialog {...defaultProps} />);
+    const wrapper = shallow(<ConfirmDialog {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

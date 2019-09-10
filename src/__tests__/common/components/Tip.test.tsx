@@ -10,6 +10,7 @@ describe('FilterToggler component', () => {
   };
 
   test('renders FilterToggler successfully', () => {
-    shallow(<Tip {...defaultProps} />);
+    const wrapper = shallow(<Tip {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -23,6 +23,7 @@ describe('SuccessStep component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<SuccessStep {...defaultProps} />);
+    const wrapper = shallow(<SuccessStep {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

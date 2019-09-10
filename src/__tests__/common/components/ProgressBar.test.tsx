@@ -9,6 +9,7 @@ describe('ProgressBar component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<ProgressBar {...defaultProps} />);
+    const wrapper = shallow(<ProgressBar {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });
