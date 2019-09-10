@@ -2,18 +2,14 @@ import Button from 'modules/common/components/Button';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import {
-  Actions,
-  Template,
-  Templates
-} from 'modules/settings/emailTemplates/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
-import { TemplateBoxContent } from '../styles';
+import { Actions, TemplateContainer, TemplateItem } from '../styles';
 import TemplateForm from './TemplateForm';
 
 type Props = {
@@ -47,7 +43,9 @@ class TemplateList extends React.Component<Props> {
         title="Edit"
         trigger={
           <div>
-            <Icon icon="edit" /> Edit
+            <Tip text="Edit">
+              <Icon icon="edit-alt" />
+            </Tip>
           </div>
         }
         content={content}
@@ -63,36 +61,40 @@ class TemplateList extends React.Component<Props> {
     return (
       <Actions>
         {this.renderEditAction(object)}
-        <div onClick={this.duplicateTemplate.bind(this, object._id)}>
-          <Icon icon="copy" /> Duplicate
-        </div>
-        <div onClick={this.removeTemplate.bind(this, object)}>
-          <Icon icon="cancel-1" /> Delete
-        </div>
+        <Tip text="Duplicate">
+          <div onClick={this.duplicateTemplate.bind(this, object._id)}>
+            <Icon icon="copy-1" />
+          </div>
+        </Tip>
+        <Tip text="Remove">
+          <div onClick={this.removeTemplate.bind(this, object)}>
+            <Icon icon="trash-4" />
+          </div>
+        </Tip>
       </Actions>
     );
   };
 
   renderRow({ objects }) {
     return objects.map((object, index) => (
-      <Template key={index}>
-        <TemplateBoxContent>
-          {this.renderActions(object)}
+      <TemplateItem key={index}>
+        <div>
           <h5>{object.name}</h5>
           <p>{object.description}</p>
-        </TemplateBoxContent>
-      </Template>
+        </div>
+        {this.renderActions(object)}
+      </TemplateItem>
     ));
   }
 
   renderContent = props => {
-    return <Templates>{this.renderRow(props)}</Templates>;
+    return <TemplateContainer>{this.renderRow(props)}</TemplateContainer>;
   };
 
   renderButton = () => {
     return (
       <Link to="/settings/boards/growthHack">
-        <Button size="small" icon="award">
+        <Button size="small" icon="award" btnStyle="primary">
           Go to Campaign
         </Button>
       </Link>

@@ -7,6 +7,7 @@ const Templates = styled.div`
   background: ${colors.colorWhite};
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
+  display: flex;
 `;
 
 const IframePreview = styled.div`

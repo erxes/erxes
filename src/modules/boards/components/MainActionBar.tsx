@@ -89,10 +89,6 @@ class MainActionBar extends React.Component<Props, State> {
     }
   };
 
-  toggleFilter = () => {
-    this.setState({ show: !this.state.show });
-  };
-
   hideFilter = () => {
     this.setState({ show: false });
   };
@@ -266,7 +262,7 @@ class MainActionBar extends React.Component<Props, State> {
             <Button
               btnStyle={hasFilter ? 'success' : 'link'}
               className={hasFilter ? 'filter-success' : 'filter-link'}
-              icon="filter"
+              icon="filter-1"
               onClick={this.showFilter}
             >
               {hasFilter && __('Filtering is on')}
@@ -307,7 +303,7 @@ class MainActionBar extends React.Component<Props, State> {
     return (
       <>
         <HeaderButton>
-          <Icon icon="user" /> {__('Private')}
+          <Icon icon="users-alt" /> {__('Private')}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
       </>
@@ -327,7 +323,7 @@ class MainActionBar extends React.Component<Props, State> {
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
-          <Icon icon="layout" /> {__('Board')}:{' '}
+          <Icon icon="web-grid-alt" /> {__('Board')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
@@ -339,7 +335,7 @@ class MainActionBar extends React.Component<Props, State> {
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLabel>
-          <Icon icon="verticalalignment" /> {__('Pipeline')}:{' '}
+          <Icon icon="web-section-alt" /> {__('Pipeline')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
@@ -358,7 +354,7 @@ class MainActionBar extends React.Component<Props, State> {
                 currentBoard ? currentBoard._id : ''
               }`}
             >
-              <Icon icon="settings" />
+              <Icon icon="bright" />
             </Link>
           </Tip>
         </HeaderLink>

@@ -127,7 +127,7 @@ class Pipelines extends React.Component<Props, State> {
     if (options && options.additionalButton) {
       return (
         <Link to={options.additionalButton}>
-          <Button size="small" icon="arrow-to-right">
+          <Button size="small" icon="arrow-to-right" btnStyle="primary">
             {options.additionalButtonText}
           </Button>
         </Link>
