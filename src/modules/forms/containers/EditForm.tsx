@@ -26,6 +26,7 @@ type Props = {
   renderPreview: (props: IFormPreviewContent) => void;
   onChange: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
+  onInit?: (fields: IField[]) => void;
   type: string;
   isSaving: boolean;
   formId: string;
@@ -43,6 +44,14 @@ type FinalProps = {
   IRouterProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
+  componentWillReceiveProps(nextProps: FinalProps) {
+    const { onInit, fieldsQuery } = this.props;
+
+    if (fieldsQuery.loading && !nextProps.fieldsQuery.loading && onInit) {
+      onInit(nextProps.fieldsQuery.fields || []);
+    }
+  }
+
   render() {
     const {
       formId,
@@ -62,8 +71,10 @@ class EditFormContainer extends React.Component<FinalProps> {
     const dbFields = fieldsQuery.fields || [];
     const form = formDetailQuery.formDetail || {};
 
-    const save = doc => {
+    const saveForm = doc => {
       const { title, description, buttonText, fields, type } = doc;
+      // tslint:disable-next-line: no-console
+      console.log('fields container: ', fields);
 
       editFormMutation({
         variables: {
@@ -142,7 +153,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       fields: dbFields.map(field => ({ ...field })),
-      saveForm: save,
+      saveForm,
       form
     };
 

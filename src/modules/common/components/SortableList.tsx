@@ -65,8 +65,8 @@ class SortableList extends React.Component<Props> {
             >
               {fields.map((field, index) => (
                 <Draggable
-                  key={field._id}
-                  draggableId={field._id}
+                  key={field._id || index}
+                  draggableId={field._id || index}
                   index={index}
                   isDragDisabled={isDragDisabled}
                 >

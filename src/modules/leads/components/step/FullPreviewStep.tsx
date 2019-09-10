@@ -2,6 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 
 import { __ } from 'modules/common/utils';
+import { IFormData } from 'modules/forms/types';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import CalloutPreview from './preview/CalloutPreview';
@@ -18,7 +19,7 @@ import {
 } from './style';
 
 type Props = {
-  formId?: string;
+  formData: IFormData;
   type: string;
   calloutTitle?: string;
   calloutBtnText?: string;
@@ -68,14 +69,22 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   renderPreview() {
-    const { carousel } = this.props;
+    const { carousel, formData } = this.props;
 
     if (carousel === 'callout') {
       return <CalloutPreview {...this.props} />;
     }
 
     if (carousel === 'form') {
-      return <FormPreview {...this.props} />;
+      return (
+        <FormPreview
+          {...this.props}
+          formTitle={formData.title}
+          formBtnText={formData.buttonText}
+          formDesc={formData.description}
+          fields={formData.fields}
+        />
+      );
     }
 
     return <SuccessPreview {...this.props} />;

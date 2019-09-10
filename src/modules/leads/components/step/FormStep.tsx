@@ -2,6 +2,7 @@ import { Preview } from 'modules/common/components/step/styles';
 import CreateForm from 'modules/forms/containers/CreateForm';
 import EditForm from 'modules/forms/containers/EditForm';
 import { IFormData, IFormPreviewContent } from 'modules/forms/types';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import FormPreview from './preview/FormPreview';
 import { FlexItem } from './style';
@@ -14,6 +15,7 @@ type Props = {
   formId?: string;
   onChange: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
+  onInit?: (fields: IField[]) => void;
 };
 
 class FormStep extends React.Component<Props> {
@@ -26,13 +28,14 @@ class FormStep extends React.Component<Props> {
   };
 
   renderContent() {
-    const { formId, onDocChange, onChange, isSaving } = this.props;
+    const { formId, onDocChange, onChange, onInit, isSaving } = this.props;
 
     const doc = {
       renderPreview: this.renderFormPreview,
       onChange,
       onDocChange,
       isSaving,
+      onInit,
       type: 'lead'
     };
 

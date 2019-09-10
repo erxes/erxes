@@ -4,6 +4,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import { IFormData } from 'modules/forms/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
@@ -16,7 +17,7 @@ import { BackgroundSelector, ColorList, FlexItem } from './style';
 
 type Props = {
   type: string;
-  formId?: string;
+  formData: IFormData;
   color: string;
   theme: string;
   language?: string;
@@ -56,7 +57,7 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { language, brand } = this.props;
+    const { language, brand, formData } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -123,7 +124,13 @@ class OptionStep extends React.Component<Props, {}> {
         </LeftItem>
 
         <Preview>
-          <FormPreview {...this.props} />
+          <FormPreview
+            {...this.props}
+            formTitle={formData.title}
+            formBtnText={formData.buttonText}
+            formDesc={formData.description}
+            fields={formData.fields}
+          />
         </Preview>
       </FlexItem>
     );

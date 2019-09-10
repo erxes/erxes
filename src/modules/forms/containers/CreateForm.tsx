@@ -68,7 +68,6 @@ class CreateFormContainer extends React.Component<
             promises.push(
               addFieldsMutation({
                 variables: {
-                  contentType: 'form',
                   contentTypeId: formId,
                   ...field
                 }
