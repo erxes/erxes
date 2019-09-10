@@ -71,7 +71,7 @@ const PreviewWrapper = styled(WhiteBoxRoot)`
 
 const ContentWrapper = styled.div`
   ${LeftItem} {
-    padding: 30px;
+    padding: 20px 30px;
     flex: 0.5;
     min-width: auto;
   }
