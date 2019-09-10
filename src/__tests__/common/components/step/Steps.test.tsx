@@ -11,5 +11,6 @@ describe('Group component', () => {
 
   test('renders Steps successfully', () => {
     const wrapper = shallow(<Steps {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });
