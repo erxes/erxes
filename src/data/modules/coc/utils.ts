@@ -1,4 +1,4 @@
-import { Fields } from '../../../db/models';
+import { Conformities, Fields } from '../../../db/models';
 import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS } from '../../constants';
 
 // Checking field names, All field names must be configured correctly
@@ -42,4 +42,29 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
   }
 
   return properties;
+};
+
+export const conformityFilterUtils = async (baseQuery, params, relType) => {
+  if (params.conformityMainType && params.conformityMainTypeId) {
+    if (params.conformityIsRelated) {
+      const relTypeIds = await Conformities.relatedConformity({
+        mainType: params.conformityMainType || '',
+        mainTypeId: params.conformityMainTypeId || '',
+        relType,
+      });
+
+      baseQuery = { _id: { $in: relTypeIds || [] } };
+    }
+
+    if (params.conformityIsSaved) {
+      const relTypeIds = await Conformities.savedConformity({
+        mainType: params.conformityMainType || '',
+        mainTypeId: params.conformityMainTypeId || '',
+        relType,
+      });
+
+      baseQuery = { _id: { $in: relTypeIds || [] } };
+    }
+  }
+  return baseQuery;
 };

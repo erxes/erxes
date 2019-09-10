@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { Customers } from '.';
+import { Conformities, Customers } from '.';
 import { graphqlPubsub } from '../../pubsub';
 import {
   activityLogSchema,
@@ -126,14 +126,18 @@ export const loadClass = () => {
         return;
       }
 
-      if (customer.companyIds && customer.companyIds.length > 0) {
-        for (const companyId of customer.companyIds) {
-          // check against duplication
-          const log = await cocFindOne(conversation._id, companyId, ACTIVITY_CONTENT_TYPES.COMPANY);
+      const companyIds = await Conformities.savedConformity({
+        mainType: 'customer',
+        mainTypeId: customer._id,
+        relType: 'company',
+      });
 
-          if (!log) {
-            await cocCreate(conversation._id, conversation.content || '', companyId, ACTIVITY_CONTENT_TYPES.COMPANY);
-          }
+      for (const companyId of companyIds) {
+        // check against duplication
+        const log = await cocFindOne(conversation._id, companyId, ACTIVITY_CONTENT_TYPES.COMPANY);
+
+        if (!log) {
+          await cocCreate(conversation._id, conversation.content || '', companyId, ACTIVITY_CONTENT_TYPES.COMPANY);
         }
       }
 

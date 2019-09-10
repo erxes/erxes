@@ -1,15 +1,27 @@
-import { Companies, Customers, Notifications, Pipelines, Products, Stages, Users } from '../../db/models';
+import { Companies, Conformities, Customers, Notifications, Pipelines, Products, Stages, Users } from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  companies(deal: IDealDocument) {
-    return Companies.find({ _id: { $in: deal.companyIds || [] } });
+  async companies(deal: IDealDocument) {
+    const companyIds = await Conformities.savedConformity({
+      mainType: 'deal',
+      mainTypeId: deal._id,
+      relType: 'company',
+    });
+
+    return Companies.find({ _id: { $in: companyIds || [] } });
   },
 
-  customers(deal: IDealDocument) {
-    return Customers.find({ _id: { $in: deal.customerIds || [] } });
+  async customers(deal: IDealDocument) {
+    const customerIds = await Conformities.savedConformity({
+      mainType: 'deal',
+      mainTypeId: deal._id,
+      relType: 'customer',
+    });
+
+    return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
   async products(deal: IDealDocument) {

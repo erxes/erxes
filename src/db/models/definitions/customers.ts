@@ -66,6 +66,7 @@ export interface ICustomer {
   isUser?: boolean;
   integrationId?: string;
   tagIds?: string[];
+  // TODO migrate after remove 1row
   companyIds?: string[];
   mergedIds?: string[];
   status?: string;
@@ -208,7 +209,6 @@ export const customerSchema = schemaWrapper(
 
     integrationId: field({ type: String, optional: true }),
     tagIds: field({ type: [String], optional: true, index: true }),
-    companyIds: field({ type: [String], optional: true }),
 
     // Merged customer ids
     mergedIds: field({ type: [String], optional: true }),

@@ -76,9 +76,7 @@ describe('customerQueries', () => {
           github
           website
         }
-        companies { _id }
         conversations { _id }
-        deals { _id }
         getIntegrationData
         getMessengerCustomData
         getTags { _id }

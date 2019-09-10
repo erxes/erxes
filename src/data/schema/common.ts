@@ -14,3 +14,10 @@ export const types = `
     ${ruleFields}
   }
 `;
+
+export const conformityQueryFields = `
+  conformityMainType: String
+  conformityMainTypeId: String
+  conformityIsRelated: Boolean
+  conformityIsSaved: Boolean
+`;

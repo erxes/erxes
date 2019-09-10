@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { changeCompany, changeCustomer, updateOrder, watchItem } from './boardUtils';
+import { updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
 
@@ -10,8 +10,6 @@ export interface IDealModel extends Model<IDealDocument> {
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<IDealDocument[]>;
   watchDeal(_id: string, isAdd: boolean, userId: string): void;
-  changeCustomer(newCustomerId: string, oldCustomerIds: string[]): Promise<IDealDocument>;
-  changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<IDealDocument>;
 }
 
 export const loadDealClass = () => {
@@ -67,20 +65,6 @@ export const loadDealClass = () => {
      */
     public static async watchDeal(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Deals, _id, isAdd, userId);
-    }
-
-    /**
-     * Change customer
-     */
-    public static async changeCustomer(newCustomerId: string, oldCustomerIds: string[]) {
-      return changeCustomer(Deals, newCustomerId, oldCustomerIds);
-    }
-
-    /**
-     * Change company
-     */
-    public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
-      return changeCompany(Deals, newCompanyId, oldCompanyIds);
     }
   }
 

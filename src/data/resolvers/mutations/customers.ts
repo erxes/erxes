@@ -51,13 +51,6 @@ const customerMutations = {
   },
 
   /**
-   * Update customer Companies
-   */
-  async customersEditCompanies(_root, { _id, companyIds }: { _id: string; companyIds: string[] }) {
-    return Customers.updateCompanies(_id, companyIds);
-  },
-
-  /**
    * Merge customers
    */
   async customersMerge(_root, { customerIds, customerFields }: { customerIds: string[]; customerFields: ICustomer }) {
@@ -91,7 +84,6 @@ const customerMutations = {
 
 checkPermission(customerMutations, 'customersAdd', 'customersAdd');
 checkPermission(customerMutations, 'customersEdit', 'customersEdit');
-checkPermission(customerMutations, 'customersEditCompanies', 'customersEditCompanies');
 checkPermission(customerMutations, 'customersMerge', 'customersMerge');
 checkPermission(customerMutations, 'customersRemove', 'customersRemove');
 

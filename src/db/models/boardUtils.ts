@@ -37,31 +37,6 @@ export const updateOrder = async (collection: any, orders: IOrderInput[], stageI
   return collection.find({ _id: { $in: ids } }).sort({ order: 1 });
 };
 
-export const changeCustomer = async (collection: any, newCustomerId: string, oldCustomerIds: string[]) => {
-  if (oldCustomerIds) {
-    await collection.updateMany(
-      { customerIds: { $in: oldCustomerIds } },
-      { $addToSet: { customerIds: newCustomerId } },
-    );
-    await collection.updateMany(
-      { customerIds: { $in: oldCustomerIds } },
-      { $pullAll: { customerIds: oldCustomerIds } },
-    );
-  }
-
-  return collection.find({ customerIds: { $in: oldCustomerIds } });
-};
-
-export const changeCompany = async (collection: any, newCompanyId: string, oldCompanyIds: string[]) => {
-  if (oldCompanyIds) {
-    await collection.updateMany({ companyIds: { $in: oldCompanyIds } }, { $addToSet: { companyIds: newCompanyId } });
-
-    await collection.updateMany({ companyIds: { $in: oldCompanyIds } }, { $pullAll: { companyIds: oldCompanyIds } });
-  }
-
-  return collection.find({ customerIds: { $in: oldCompanyIds } });
-};
-
 export const watchItem = async (collection: any, _id: string, isAdd: boolean, userId: string) => {
   const item = await collection.findOne({ _id });
 

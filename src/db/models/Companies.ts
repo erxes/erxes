@@ -1,9 +1,8 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
+import { ActivityLogs, Conformities, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
 import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
-import Tickets from './Tickets';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
@@ -18,8 +17,6 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
   createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
 
   updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
-
-  updateCustomers(_id: string, customerIds: string[]): Promise<ICompanyDocument>;
 
   removeCompany(_id: string): void;
 
@@ -126,28 +123,13 @@ export const loadClass = () => {
     }
 
     /**
-     * Update company customers
-     */
-    public static async updateCustomers(_id: string, customerIds: string[]) {
-      // Removing companyIds from users
-      await Customers.updateMany({ companyIds: { $in: [_id] } }, { $pull: { companyIds: _id } });
-
-      // Adding companyId to the each customers
-      for (const customerId of customerIds) {
-        await Customers.findByIdAndUpdate({ _id: customerId }, { $addToSet: { companyIds: _id } }, { upsert: true });
-      }
-
-      return Companies.findOne({ _id });
-    }
-
-    /**
      * Remove company
      */
     public static async removeCompany(companyId: string) {
       // Removing modules associated with company
       await InternalNotes.removeCompanyInternalNotes(companyId);
 
-      await Customers.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
+      await Conformities.removeConformity({ mainType: 'company', mainTypeId: companyId });
 
       return Companies.deleteOne({ _id: companyId });
     }
@@ -213,15 +195,11 @@ export const loadClass = () => {
         phones,
       });
 
-      // Updating customer companies
-      await Customers.updateMany({ companyIds: { $in: companyIds } }, { $push: { companyIds: company._id } });
-
-      await Customers.updateMany({ companyIds: { $in: companyIds } }, { $pullAll: { companyIds } });
+      // Updating customer companies, deals, tasks, tickets
+      await Conformities.changeConformity({ type: 'company', newTypeId: company._id, oldTypeIds: companyIds });
 
       // Removing modules associated with current companies
       await InternalNotes.changeCompany(company._id, companyIds);
-      await Deals.changeCompany(company._id, companyIds);
-      await Tickets.changeCompany(company._id, companyIds);
 
       return company;
     }

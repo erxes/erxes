@@ -1,4 +1,4 @@
-import { Tasks } from '../../../db/models';
+import { Conformities, Tasks } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITask } from '../../../db/models/definitions/tasks';
@@ -37,11 +37,7 @@ const taskMutations = {
    * Edit task
    */
   async tasksEdit(_root, { _id, ...doc }: ITasksEdit, { user }: IContext) {
-    const oldTask = await Tasks.findOne({ _id });
-
-    if (!oldTask) {
-      throw new Error('Task not found');
-    }
+    const oldTask = await Tasks.getTask(_id);
 
     const updatedTask = await Tasks.updateTask(_id, {
       ...doc,
@@ -109,11 +105,7 @@ const taskMutations = {
    * Remove task
    */
   async tasksRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const task = await Tasks.findOne({ _id });
-
-    if (!task) {
-      throw new Error('Task not found');
-    }
+    const task = await Tasks.getTask(_id);
 
     await sendNotifications({
       item: task,
@@ -124,6 +116,8 @@ const taskMutations = {
       contentType: 'task',
     });
 
+    await Conformities.removeConformity({ mainType: 'task', mainTypeId: task._id });
+
     return task.remove();
   },
 
@@ -131,12 +125,6 @@ const taskMutations = {
    * Watch task
    */
   async tasksWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: IContext) {
-    const task = await Tasks.findOne({ _id });
-
-    if (!task) {
-      throw new Error('Task not found');
-    }
-
     return Tasks.watchTask(_id, isAdd, user._id);
   },
 };

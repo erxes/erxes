@@ -1,8 +1,10 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
+import { IConformityQueryParams } from '../../../data/modules/conformities/types';
 import { Brands, Forms, Integrations, Segments } from '../../../db/models';
 import { STATUSES } from '../../../db/models/definitions/constants';
 import QueryBuilder from '../segments/queryBuilder';
+import { conformityFilterUtils } from './utils';
 
 interface ISortParams {
   [index: string]: number;
@@ -25,7 +27,7 @@ interface IIn {
   $in: string[];
 }
 
-export interface IListArgs {
+export interface IListArgs extends IConformityQueryParams {
   page?: number;
   perPage?: number;
   segment?: string;
@@ -191,6 +193,7 @@ export class Builder {
       integration: {},
       form: {},
       integrationType: {},
+      filterConformity: {},
     };
 
     // filter by type
@@ -244,6 +247,9 @@ export class Builder {
       this.queries.searchValue = this.searchFilter(this.params.searchValue);
     }
 
+    // Filter by related Conformity
+    this.queries.filterConformity = await conformityFilterUtils(this.queries.filterConformity, this.params, 'customer');
+
     // filter by leadStatus
     if (this.params.leadStatus) {
       this.queries.leadStatus = this.leadStatusFilter(this.params.leadStatus);
@@ -270,6 +276,7 @@ export class Builder {
       ...this.queries.searchValue,
       ...this.queries.leadStatus,
       ...this.queries.lifecycleState,
+      ...this.queries.filterConformity,
     };
   }
 }

@@ -2,6 +2,7 @@ import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   companyFactory,
+  conformityFactory,
   customerFactory,
   integrationFactory,
   segmentFactory,
@@ -79,8 +80,6 @@ describe('companyQueries', () => {
 
         customFieldsData
 
-        customers { _id }
-        deals { _id }
         getTags { _id }
       }
     }
@@ -259,8 +258,20 @@ describe('companyQueries', () => {
     const company2 = await companyFactory({});
     await companyFactory({});
 
-    await customerFactory({ integrationId, companyIds: [company1._id] });
-    await customerFactory({ integrationId, companyIds: [company2._id] });
+    const customer1 = await customerFactory({ integrationId });
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer1.id,
+      relType: 'company',
+      relTypeId: company1._id,
+    });
+    const customer2 = await customerFactory({ integrationId });
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer2.id,
+      relType: 'company',
+      relTypeId: company2._id,
+    });
 
     const responses = await graphqlRequest(qryCompanies, 'companies', {
       brand: brand._id,
@@ -361,8 +372,20 @@ describe('companyQueries', () => {
     const company2 = await companyFactory({});
     await companyFactory({});
 
-    await customerFactory({ integrationId, companyIds: [company1._id] });
-    await customerFactory({ integrationId, companyIds: [company2._id] });
+    const customer1 = await customerFactory({ integrationId });
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer1.id,
+      relType: 'company',
+      relTypeId: company1._id,
+    });
+    const customer2 = await customerFactory({ integrationId });
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer2.id,
+      relType: 'company',
+      relTypeId: company2._id,
+    });
 
     const response = await graphqlRequest(qryCount, 'companyCounts', {
       only: 'byBrand',

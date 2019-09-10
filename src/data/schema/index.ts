@@ -105,6 +105,8 @@ import { mutations as TaskMutations, queries as TaskQueries, types as TaskTypes 
 
 import { queries as LogQueries, types as LogTypes } from './log';
 
+import { mutations as ConformityMutations, types as ConformityTypes } from './conformity';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -123,6 +125,7 @@ export const types = `
   ${TagTypes}
   ${FieldTypes}
   ${FormTypes}
+  ${ConformityTypes}
   ${CustomerTypes}
   ${SegmentTypes}
   ${ConversationTypes}
@@ -208,6 +211,7 @@ export const mutations = `
     ${PermissionMutations}
     ${TicketMutations}
     ${TaskMutations}
+    ${ConformityMutations}
   }
 `;
 

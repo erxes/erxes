@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { changeCompany, changeCustomer, updateOrder, watchItem } from './boardUtils';
+import { updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { ITicket, ITicketDocument, ticketSchema } from './definitions/tickets';
 
@@ -10,8 +10,6 @@ export interface ITicketModel extends Model<ITicketDocument> {
   updateTicket(_id: string, doc: ITicket): Promise<ITicketDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<ITicketDocument[]>;
   watchTicket(_id: string, isAdd: boolean, userId: string): void;
-  changeCustomer(newCustomerId: string, oldCustomerIds: string[]): Promise<ITicketDocument>;
-  changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<ITicketDocument>;
 }
 
 export const loadTicketClass = () => {
@@ -70,20 +68,6 @@ export const loadTicketClass = () => {
      */
     public static async watchTicket(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Tickets, _id, isAdd, userId);
-    }
-
-    /**
-     * Change customer
-     */
-    public static async changeCustomer(newCustomerId: string, oldCustomerIds: string[]) {
-      return changeCustomer(Tickets, newCustomerId, oldCustomerIds);
-    }
-
-    /**
-     * Change company
-     */
-    public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
-      return changeCompany(Tickets, newCompanyId, oldCompanyIds);
     }
   }
 

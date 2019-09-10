@@ -1,3 +1,5 @@
+import { conformityQueryFields } from './common';
+
 export const types = `
   type Company {
     _id: String!
@@ -5,7 +7,7 @@ export const types = `
     createdAt: Date
     modifiedAt: Date
     avatar: String
-    
+
     size: Int
     website: String
     industry: String
@@ -38,7 +40,6 @@ export const types = `
     customFieldsData: JSON
 
     customers: [Customer]
-    deals: [Deal]
     getTags: [Tag]
   }
 
@@ -69,6 +70,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   brand: String
+  ${conformityQueryFields}
 `;
 
 export const queries = `
@@ -111,7 +113,6 @@ const commonFields = `
 export const mutations = `
   companiesAdd(${commonFields}): Company
   companiesEdit(_id: String!, ${commonFields}): Company
-  companiesEditCustomers(_id: String!, customerIds: [String]): Company
   companiesRemove(companyIds: [String]): [String]
   companiesMerge(companyIds: [String], companyFields: JSON) : Company
 `;

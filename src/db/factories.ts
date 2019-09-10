@@ -10,6 +10,7 @@ import {
   Channels,
   Companies,
   Configs,
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
@@ -343,7 +344,6 @@ interface ICustomerFactoryInput {
   lifecycleState?: string;
   messengerData?: any;
   customFieldsData?: any;
-  companyIds?: string[];
   tagIds?: string[];
   ownerId?: string;
   hasValidEmail?: boolean;
@@ -364,7 +364,6 @@ export const customerFactory = (params: ICustomerFactoryInput = {}, useModelMeth
     lifecycleState: params.lifecycleState || 'lead',
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
-    companyIds: params.companyIds || [faker.random.number(), faker.random.number()],
     tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
     hasValidEmail: params.hasValidEmail || false,
@@ -717,8 +716,6 @@ interface ITicketFactoryInput {
   stageId?: string;
   productsData?: any;
   closeDate?: Date;
-  customerIds?: string[];
-  companyIds?: string[];
   noCloseDate?: boolean;
   assignedUserIds?: string[];
 }
@@ -728,8 +725,6 @@ export const dealFactory = (params: ITicketFactoryInput = {}) => {
     ...params,
     name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyIds: params.companyIds || [faker.random.word()],
-    customerIds: params.customerIds || [faker.random.word()],
     amount: faker.random.objectElement(),
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
@@ -742,8 +737,6 @@ export const dealFactory = (params: ITicketFactoryInput = {}) => {
 interface ITaskFactoryInput {
   stageId?: string;
   closeDate?: Date;
-  customerIds?: string[];
-  companyIds?: string[];
   noCloseDate?: boolean;
   assignedUserIds?: string[];
 }
@@ -753,8 +746,6 @@ export const taskFactory = (params: ITaskFactoryInput = {}) => {
     ...params,
     name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyIds: params.companyIds || [faker.random.word()],
-    customerIds: params.customerIds || [faker.random.word()],
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
@@ -766,8 +757,6 @@ export const taskFactory = (params: ITaskFactoryInput = {}) => {
 interface ITicketFactoryInput {
   stageId?: string;
   closeDate?: Date;
-  customerIds?: string[];
-  companyIds?: string[];
   noCloseDate?: boolean;
   assignedUserIds?: string[];
 }
@@ -777,8 +766,6 @@ export const ticketFactory = (params: ITicketFactoryInput = {}) => {
     ...params,
     name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyIds: params.companyIds || [faker.random.word()],
-    customerIds: params.customerIds || [faker.random.word()],
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
@@ -908,4 +895,19 @@ export const usersGroupFactory = () => {
   });
 
   return usersGroup.save();
+};
+
+interface IConformityFactoryInput {
+  mainType: string;
+  mainTypeId: string;
+  relType: string;
+  relTypeId: string;
+}
+
+export const conformityFactory = (params: IConformityFactoryInput) => {
+  const doc = {
+    ...params,
+  };
+
+  return Conformities.addConformity(doc);
 };

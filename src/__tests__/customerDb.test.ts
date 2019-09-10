@@ -1,4 +1,5 @@
 import {
+  conformityFactory,
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
@@ -7,7 +8,15 @@ import {
   integrationFactory,
   internalNoteFactory,
 } from '../db/factories';
-import { ConversationMessages, Conversations, Customers, Deals, ImportHistory, InternalNotes } from '../db/models';
+import {
+  Conformities,
+  ConversationMessages,
+  Conversations,
+  Customers,
+  Deals,
+  ImportHistory,
+  InternalNotes,
+} from '../db/models';
 import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
 import './setup.ts';
@@ -169,14 +178,6 @@ describe('Customers model tests', () => {
     }
   });
 
-  test('Update customer companies', async () => {
-    const companyIds = ['12313qwrqwe', '123', '11234'];
-
-    const customerObj = await Customers.updateCompanies(_customer._id, companyIds);
-
-    expect(customerObj.companyIds).toEqual(expect.arrayContaining(companyIds));
-  });
-
   test('removeCustomer', async () => {
     const customer = await customerFactory({});
 
@@ -228,29 +229,41 @@ describe('Customers model tests', () => {
     const integration = await integrationFactory({});
 
     const customer1 = await customerFactory({
-      companyIds: ['123', '1234', '12345'],
       tagIds: ['2343', '234', '234'],
       integrationId: integration._id,
     });
-
     const customer2 = await customerFactory({
-      companyIds: ['123', '456', '45678'],
       tagIds: ['qwe', '2343', '123'],
       integrationId: integration._id,
     });
 
-    if (!customer1 || !customer1.companyIds || !customer1.tagIds) {
+    await ['123', '1234', '12345'].map(async item => {
+      await conformityFactory({
+        mainType: 'company',
+        mainTypeId: item,
+        relType: 'customer',
+        relTypeId: customer1._id,
+      });
+    });
+
+    await ['123', '456', '45678'].map(async item => {
+      await conformityFactory({
+        mainType: 'customer',
+        mainTypeId: customer2._id,
+        relType: 'company',
+        relTypeId: item,
+      });
+    });
+
+    if (!customer1 || !customer1.tagIds) {
       throw new Error('Customer1 not found');
     }
 
-    if (!customer2 || !customer2.companyIds || !customer2.tagIds) {
+    if (!customer2 || !customer2.tagIds) {
       throw new Error('Customer2 not found');
     }
 
     const customerIds = [customer1._id, customer2._id];
-
-    // Merging both customers companyIds and tagIds
-    const mergedCompanyIds = Array.from(new Set(customer1.companyIds.concat(customer2.companyIds)));
 
     const mergedTagIds = Array.from(new Set(customer1.tagIds.concat(customer2.tagIds)));
 
@@ -276,8 +289,22 @@ describe('Customers model tests', () => {
       customerId: customerIds[0],
     });
 
-    await dealFactory({
-      customerIds,
+    const deal1 = await dealFactory({});
+
+    customerIds.map(async customerId => {
+      await conformityFactory({
+        mainType: 'deal',
+        mainTypeId: deal1._id,
+        relType: 'customer',
+        relTypeId: customerId,
+      });
+    });
+
+    // Merging both customers companyIds and tagIds
+    const mergedCompanyIds = await Conformities.filterConformity({
+      mainType: 'customer',
+      mainTypeIds: customerIds,
+      relType: 'company',
     });
 
     const doc = {
@@ -307,7 +334,14 @@ describe('Customers model tests', () => {
     expect(mergedCustomer.primaryEmail).toBe(doc.primaryEmail);
     expect(mergedCustomer.primaryPhone).toBe(doc.primaryPhone);
     expect(mergedCustomer.messengerData.toJSON()).toEqual(doc.messengerData);
-    expect(mergedCustomer.companyIds).toEqual(expect.arrayContaining(mergedCompanyIds));
+
+    const companyIds = await Conformities.savedConformity({
+      mainType: 'customer',
+      relType: 'company',
+      mainTypeId: mergedCustomer._id,
+    });
+    expect(mergedCompanyIds).toEqual(companyIds);
+
     expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
     expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);
     expect(mergedCustomer.ownerId).toBe('456');
@@ -337,18 +371,23 @@ describe('Customers model tests', () => {
 
     expect(internalNote).not.toHaveLength(0);
 
+    const relTypeIds = await Conformities.filterConformity({
+      mainType: 'customer',
+      mainTypeIds: customerIds,
+      relType: 'deal',
+    });
+    expect(relTypeIds.length).toBe(0);
+
+    const newRelTypeIds = await Conformities.savedConformity({
+      mainType: 'customer',
+      mainTypeId: mergedCustomer._id,
+      relType: 'deal',
+    });
+
     const deals = await Deals.find({
-      customerIds: { $in: customerIds },
+      _id: { $in: newRelTypeIds },
     });
 
-    expect(deals.length).toBe(0);
-
-    const deal = await Deals.findOne({
-      customerIds: { $in: [mergedCustomer._id] },
-    });
-    if (!deal) {
-      throw new Error('Deal not found');
-    }
-    expect(deal.customerIds).toContain(mergedCustomer._id);
+    expect(deals).toHaveLength(1);
   });
 });

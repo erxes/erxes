@@ -1,3 +1,5 @@
+import { conformityQueryFields } from './common';
+
 const commonTypes = `
   order: Int
   createdAt: Date
@@ -10,8 +12,6 @@ export const types = `
     name: String!
     stageId: String
     boardId: String
-    companyIds: [String]
-    customerIds: [String]
     assignedUserIds: [String]
     closeDate: Date
     description: String
@@ -46,15 +46,14 @@ export const queries = `
     noCloseDate: String
     overdue: String
     priority: [String]
+    ${conformityQueryFields}
   ): [Task]
 `;
 
 const commonParams = `
   stageId: String,
   assignedUserIds: [String],
-  companyIds: [String],
   attachments: [AttachmentInput],
-  customerIds: [String],
   closeDate: Date,
   description: String,
   order: Int,

@@ -4,6 +4,7 @@ import Brands from './Brands';
 import Channels from './Channels';
 import Companies from './Companies';
 import Configs from './Configs';
+import Conformities from './Conformities';
 import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
 import Customers from './Customers';
@@ -46,6 +47,7 @@ export {
   Customers,
   Companies,
   EmailDeliveries,
+  Conformities,
   Conversations,
   ConversationMessages,
   KnowledgeBaseArticles,

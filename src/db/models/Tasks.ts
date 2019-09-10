@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { changeCompany, changeCustomer, updateOrder, watchItem } from './boardUtils';
+import { updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { ITask, ITaskDocument, taskSchema } from './definitions/tasks';
 
@@ -10,8 +10,6 @@ export interface ITaskModel extends Model<ITaskDocument> {
   updateTask(_id: string, doc: ITask): Promise<ITaskDocument>;
   updateOrder(stageId: string, orders: IOrderInput[]): Promise<ITaskDocument[]>;
   watchTask(_id: string, isAdd: boolean, userId: string): void;
-  changeCustomer(newCustomerId: string, oldCustomerIds: string[]): Promise<ITaskDocument>;
-  changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<ITaskDocument>;
 }
 
 export const loadTaskClass = () => {
@@ -70,20 +68,6 @@ export const loadTaskClass = () => {
      */
     public static async watchTask(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Tasks, _id, isAdd, userId);
-    }
-
-    /**
-     * Change customer
-     */
-    public static async changeCustomer(newCustomerId: string, oldCustomerIds: string[]) {
-      return changeCustomer(Tasks, newCustomerId, oldCustomerIds);
-    }
-
-    /**
-     * Change company
-     */
-    public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
-      return changeCompany(Tasks, newCompanyId, oldCompanyIds);
     }
   }
 

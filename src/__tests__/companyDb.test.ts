@@ -1,5 +1,12 @@
-import { companyFactory, customerFactory, dealFactory, fieldFactory, internalNoteFactory } from '../db/factories';
-import { Companies, Customers, Deals, InternalNotes } from '../db/models';
+import {
+  companyFactory,
+  conformityFactory,
+  customerFactory,
+  dealFactory,
+  fieldFactory,
+  internalNoteFactory,
+} from '../db/factories';
+import { Companies, Conformities, Customers, Deals, InternalNotes } from '../db/models';
 import { ICompany, ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
@@ -131,25 +138,15 @@ describe('Companies model tests', () => {
     }
   });
 
-  test('Update company customers', async () => {
-    const customerIds = ['12313qwrqwe', '123', '11234'];
-
-    await Companies.updateCustomers(_company._id, customerIds);
-
-    for (const customerId of customerIds) {
-      const customerObj = await Customers.findOne({ _id: customerId });
-
-      if (!customerObj) {
-        throw new Error('Customer not found');
-      }
-
-      expect(customerObj.companyIds).toContain(_company._id);
-    }
-  });
-
   test('removeCompany', async () => {
     const company = await companyFactory({});
-    await customerFactory({ companyIds: [company._id] });
+    const customer = await customerFactory({});
+    await conformityFactory({
+      mainType: 'company',
+      mainTypeId: company._id,
+      relType: 'customer',
+      relTypeId: customer._id,
+    });
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
@@ -164,15 +161,22 @@ describe('Companies model tests', () => {
     });
 
     const customers = await Customers.find({
-      companyIds: { $in: [company._id] },
+      _id: { $in: [customer._id] },
     });
 
-    expect(customers).toHaveLength(0);
+    const conformities = await Conformities.savedConformity({
+      mainType: 'company',
+      mainTypeId: company._id,
+      relType: 'customer',
+    });
+
+    expect(customers).toHaveLength(1);
     expect(internalNote).toHaveLength(0);
+    expect(conformities).toHaveLength(0);
   });
 
   test('mergeCompanies', async () => {
-    expect.assertions(21);
+    expect.assertions(19);
 
     const company1 = await companyFactory({
       tagIds: ['123', '456', '1234'],
@@ -188,12 +192,20 @@ describe('Companies model tests', () => {
       emails: ['email2'],
     });
 
-    const customer1 = await customerFactory({
-      companyIds: [company1._id],
+    const customer1 = await customerFactory({});
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer1._id,
+      relType: 'company',
+      relTypeId: company1._id,
     });
 
-    const customer2 = await customerFactory({
-      companyIds: [company2._id],
+    const customer2 = await customerFactory({});
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer2._id,
+      relType: 'company',
+      relTypeId: company2._id,
     });
 
     const companyIds = [company1._id, company2._id];
@@ -214,8 +226,14 @@ describe('Companies model tests', () => {
       contentTypeId: companyIds[0],
     });
 
-    await dealFactory({
-      companyIds,
+    const deal1 = await dealFactory({});
+    companyIds.map(async companyId => {
+      await conformityFactory({
+        mainType: 'deal',
+        mainTypeId: deal1._id,
+        relType: 'company',
+        relTypeId: companyId,
+      });
     });
 
     const doc = {
@@ -245,22 +263,6 @@ describe('Companies model tests', () => {
     expect(oldCompany.status).toBe(STATUSES.DELETED);
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
-    const customerObj1 = await Customers.findOne({ _id: customer1._id });
-
-    if (!customerObj1) {
-      throw new Error('Customer not found');
-    }
-
-    expect(customerObj1.companyIds).not.toContain(company1._id);
-
-    const customerObj2 = await Customers.findOne({ _id: customer2._id });
-
-    if (!customerObj2) {
-      throw new Error('Customer not found');
-    }
-
-    expect(customerObj2.companyIds).not.toContain(company2._id);
-
     let internalNote = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: companyIds[0],
@@ -271,9 +273,6 @@ describe('Companies model tests', () => {
     // Checking new company datas updated
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
-    expect(customerObj1.companyIds).toContain(updatedCompany._id);
-    expect(customerObj2.companyIds).toContain(updatedCompany._id);
-
     internalNote = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: updatedCompany._id,
@@ -281,18 +280,42 @@ describe('Companies model tests', () => {
 
     expect(internalNote).not.toHaveLength(0);
 
+    const cusRelTypeIds = await Conformities.filterConformity({
+      mainType: 'company',
+      mainTypeIds: companyIds,
+      relType: 'customer',
+    });
+    expect(cusRelTypeIds.length).toBe(0);
+
+    const newCusRelTypeIds = await Conformities.savedConformity({
+      mainType: 'company',
+      mainTypeId: updatedCompany._id,
+      relType: 'customer',
+    });
+
+    const customers = await Customers.find({
+      _id: { $in: newCusRelTypeIds },
+    });
+
+    expect(customers).toHaveLength(2);
+
+    const relTypeIds = await Conformities.filterConformity({
+      mainType: 'company',
+      mainTypeIds: companyIds,
+      relType: 'deal',
+    });
+    expect(relTypeIds.length).toBe(0);
+
+    const newRelTypeIds = await Conformities.savedConformity({
+      mainType: 'company',
+      mainTypeId: updatedCompany._id,
+      relType: 'deal',
+    });
+
     const deals = await Deals.find({
-      companyIds: { $in: companyIds },
+      _id: { $in: newRelTypeIds },
     });
 
-    expect(deals.length).toBe(0);
-
-    const deal = await Deals.findOne({
-      companyIds: { $in: [updatedCompany._id] },
-    });
-    if (!deal) {
-      throw new Error('Deal not found');
-    }
-    expect(deal.companyIds).toContain(updatedCompany._id);
+    expect(deals).toHaveLength(1);
   });
 });

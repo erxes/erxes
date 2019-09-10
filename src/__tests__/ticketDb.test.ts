@@ -1,12 +1,4 @@
-import {
-  boardFactory,
-  companyFactory,
-  customerFactory,
-  pipelineFactory,
-  stageFactory,
-  ticketFactory,
-  userFactory,
-} from '../db/factories';
+import { boardFactory, pipelineFactory, stageFactory, ticketFactory, userFactory } from '../db/factories';
 import { Boards, Pipelines, Stages, Tickets } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { ITicketDocument } from '../db/models/definitions/tickets';
@@ -73,49 +65,5 @@ describe('Test Tickets model', () => {
     expect(updatedTicket.stageId).toBe(stage._id);
     expect(updatedTicket.order).toBe(3);
     expect(updatedDealToOrder.order).toBe(9);
-  });
-
-  test('Ticket change customer', async () => {
-    const newCustomer = await customerFactory({});
-
-    const customer1 = await customerFactory({});
-    const customer2 = await customerFactory({});
-    const dealObj = await ticketFactory({
-      customerIds: [customer2._id, customer1._id],
-    });
-
-    await Tickets.changeCustomer(newCustomer._id, [customer2._id, customer1._id]);
-
-    const result = await Tickets.findOne({ _id: dealObj._id });
-
-    if (!result) {
-      throw new Error('Ticket not found');
-    }
-
-    expect(result.customerIds).toContain(newCustomer._id);
-    expect(result.customerIds).not.toContain(customer1._id);
-    expect(result.customerIds).not.toContain(customer2._id);
-  });
-
-  test('Ticket change company', async () => {
-    const newCompany = await companyFactory({});
-
-    const company1 = await companyFactory({});
-    const company2 = await companyFactory({});
-    const dealObj = await ticketFactory({
-      companyIds: [company1._id, company2._id],
-    });
-
-    await Tickets.changeCompany(newCompany._id, [company1._id, company2._id]);
-
-    const result = await Tickets.findOne({ _id: dealObj._id });
-
-    if (!result) {
-      throw new Error('Ticket not found');
-    }
-
-    expect(result.companyIds).toContain(newCompany._id);
-    expect(result.companyIds).not.toContain(company1._id);
-    expect(result.companyIds).not.toContain(company2._id);
   });
 });

@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { validateEmail } from '../../data/utils';
-import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes, Tickets } from './';
+import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
 import { STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
@@ -17,7 +17,6 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
-  updateCompanies(_id: string, companyIds: string[]): Promise<ICustomerDocument>;
   removeCustomer(customerId: string): void;
   mergeCustomers(customerIds: string[], customerFields: ICustomer): Promise<ICustomerDocument>;
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
@@ -183,16 +182,6 @@ export const loadClass = () => {
     }
 
     /**
-     * Update customer companies
-     */
-    public static async updateCompanies(_id: string, companyIds: string[]) {
-      // updating companyIds field
-      await Customers.findByIdAndUpdate(_id, { $set: { companyIds } });
-
-      return Customers.findOne({ _id });
-    }
-
-    /**
      * Update customer profile score
      */
     public static async updateProfileScore(customerId: string, save: boolean) {
@@ -245,6 +234,8 @@ export const loadClass = () => {
       await EngageMessages.removeCustomerEngages(customerId);
       await InternalNotes.removeCustomerInternalNotes(customerId);
 
+      await Conformities.removeConformity({ mainType: 'customer', mainTypeId: customerId });
+
       return Customers.deleteOne({ _id: customerId });
     }
 
@@ -257,7 +248,6 @@ export const loadClass = () => {
 
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
-      let companyIds: string[] = [];
 
       let emails: string[] = [];
       let phones: string[] = [];
@@ -282,11 +272,9 @@ export const loadClass = () => {
           scopeBrandIds = [...scopeBrandIds, ...(customerObj.scopeBrandIds || [])];
 
           const customerTags: string[] = customerObj.tagIds || [];
-          const customerCompanies: string[] = customerObj.companyIds || [];
 
           // Merging customer's tag and companies into 1 array
           tagIds = tagIds.concat(customerTags);
-          companyIds = companyIds.concat(customerCompanies);
 
           // Merging emails, phones
           emails = [...emails, ...(customerObj.emails || [])];
@@ -299,7 +287,8 @@ export const loadClass = () => {
       // Removing Duplicates
       scopeBrandIds = Array.from(new Set(scopeBrandIds));
       tagIds = Array.from(new Set(tagIds));
-      companyIds = Array.from(new Set(companyIds));
+
+      // Removing Duplicated Emails from customer
       emails = Array.from(new Set(emails));
       phones = Array.from(new Set(phones));
 
@@ -308,18 +297,16 @@ export const loadClass = () => {
         ...customerFields,
         scopeBrandIds,
         tagIds,
-        companyIds,
         mergedIds: customerIds,
         emails,
         phones,
       });
 
       // Updating every modules associated with customers
+      await Conformities.changeConformity({ type: 'customer', newTypeId: customer._id, oldTypeIds: customerIds });
       await Conversations.changeCustomer(customer._id, customerIds);
       await EngageMessages.changeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);
-      await Deals.changeCustomer(customer._id, customerIds);
-      await Tickets.changeCustomer(customer._id, customerIds);
 
       return customer;
     }

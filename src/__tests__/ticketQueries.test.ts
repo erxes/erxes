@@ -1,5 +1,12 @@
 import { graphqlRequest } from '../db/connection';
-import { companyFactory, customerFactory, stageFactory, ticketFactory, userFactory } from '../db/factories';
+import {
+  companyFactory,
+  conformityFactory,
+  customerFactory,
+  stageFactory,
+  ticketFactory,
+  userFactory,
+} from '../db/factories';
 import { Tickets } from '../db/models';
 
 import './setup.ts';
@@ -9,8 +16,6 @@ describe('ticketQueries', () => {
     _id
     name
     stageId
-    companyIds
-    customerIds
     assignedUserIds
     closeDate
     description
@@ -27,7 +32,7 @@ describe('ticketQueries', () => {
 
   const qryTicketFilter = `
     query tickets(
-      $stageId: String 
+      $stageId: String
       $assignedUserIds: [String]
       $customerIds: [String]
       $companyIds: [String]
@@ -38,7 +43,7 @@ describe('ticketQueries', () => {
       $overdue: String
     ) {
       tickets(
-        stageId: $stageId 
+        stageId: $stageId
         customerIds: $customerIds
         assignedUserIds: $assignedUserIds
         companyIds: $companyIds
@@ -71,7 +76,14 @@ describe('ticketQueries', () => {
   test('Ticket filter by customers', async () => {
     const { _id } = await customerFactory();
 
-    await ticketFactory({ customerIds: [_id] });
+    const ticket = await ticketFactory({});
+
+    await conformityFactory({
+      mainType: 'ticket',
+      mainTypeId: ticket._id,
+      relType: 'customer',
+      relTypeId: _id,
+    });
 
     const response = await graphqlRequest(qryTicketFilter, 'tickets', { customerIds: [_id] });
 
@@ -81,7 +93,14 @@ describe('ticketQueries', () => {
   test('Ticket filter by companies', async () => {
     const { _id } = await companyFactory();
 
-    await ticketFactory({ companyIds: [_id] });
+    const ticket = await ticketFactory({});
+
+    await conformityFactory({
+      mainType: 'company',
+      mainTypeId: _id,
+      relType: 'ticket',
+      relTypeId: ticket._id,
+    });
 
     const response = await graphqlRequest(qryTicketFilter, 'tickets', { companyIds: [_id] });
 

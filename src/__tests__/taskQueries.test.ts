@@ -1,5 +1,12 @@
 import { graphqlRequest } from '../db/connection';
-import { companyFactory, customerFactory, stageFactory, taskFactory, userFactory } from '../db/factories';
+import {
+  companyFactory,
+  conformityFactory,
+  customerFactory,
+  stageFactory,
+  taskFactory,
+  userFactory,
+} from '../db/factories';
 import { Tasks } from '../db/models';
 
 import './setup.ts';
@@ -9,8 +16,6 @@ describe('taskQueries', () => {
     _id
     name
     stageId
-    companyIds
-    customerIds
     assignedUserIds
     closeDate
     description
@@ -27,7 +32,7 @@ describe('taskQueries', () => {
 
   const qryTaskFilter = `
     query tasks(
-      $stageId: String 
+      $stageId: String
       $assignedUserIds: [String]
       $customerIds: [String]
       $companyIds: [String]
@@ -38,7 +43,7 @@ describe('taskQueries', () => {
       $overdue: String
     ) {
       tasks(
-        stageId: $stageId 
+        stageId: $stageId
         customerIds: $customerIds
         assignedUserIds: $assignedUserIds
         companyIds: $companyIds
@@ -71,7 +76,14 @@ describe('taskQueries', () => {
   test('Task filter by customers', async () => {
     const { _id } = await customerFactory();
 
-    await taskFactory({ customerIds: [_id] });
+    const task = await taskFactory({});
+
+    await conformityFactory({
+      mainType: 'task',
+      mainTypeId: task._id,
+      relType: 'customer',
+      relTypeId: _id,
+    });
 
     const response = await graphqlRequest(qryTaskFilter, 'tasks', { customerIds: [_id] });
 
@@ -81,7 +93,14 @@ describe('taskQueries', () => {
   test('Task filter by companies', async () => {
     const { _id } = await companyFactory();
 
-    await taskFactory({ companyIds: [_id] });
+    const task = await taskFactory({});
+
+    await conformityFactory({
+      mainType: 'company',
+      mainTypeId: _id,
+      relType: 'task',
+      relTypeId: task._id,
+    });
 
     const response = await graphqlRequest(qryTaskFilter, 'tasks', { companyIds: [_id] });
 

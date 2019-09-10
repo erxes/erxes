@@ -47,7 +47,6 @@ export const moduleObjects = {
         use: [
           'companiesAdd',
           'companiesEdit',
-          'companiesEditCustomers',
           'companiesRemove',
           'companiesMerge',
           'showCompanies',
@@ -66,10 +65,6 @@ export const moduleObjects = {
       {
         name: 'companiesRemove',
         description: 'Remove companies',
-      },
-      {
-        name: 'companiesEditCustomers',
-        description: 'Edit companies customer',
       },
       {
         name: 'companiesMerge',
@@ -96,15 +91,7 @@ export const moduleObjects = {
       {
         name: 'customersAll',
         description: 'All',
-        use: [
-          'showCustomers',
-          'customersAdd',
-          'customersEdit',
-          'customersEditCompanies',
-          'customersMerge',
-          'customersRemove',
-          'exportCustomers',
-        ],
+        use: ['showCustomers', 'customersAdd', 'customersEdit', 'customersMerge', 'customersRemove', 'exportCustomers'],
       },
       {
         name: 'exportCustomers',
@@ -121,10 +108,6 @@ export const moduleObjects = {
       {
         name: 'customersEdit',
         description: 'Edit customer',
-      },
-      {
-        name: 'customersEditCompanies',
-        description: 'Update customers companies',
       },
       {
         name: 'customersMerge',

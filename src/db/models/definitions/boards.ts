@@ -11,6 +11,7 @@ interface ICommonFields {
 
 export interface IItemCommonFields {
   name?: string;
+  // TODO migrate after remove 2row
   companyIds?: string[];
   customerIds?: string[];
   closeDate?: Date;
@@ -99,8 +100,6 @@ export const commonItemFieldsSchema = {
   }),
   order: field({ type: Number }),
   name: field({ type: String }),
-  companyIds: field({ type: [String] }),
-  customerIds: field({ type: [String] }),
   closeDate: field({ type: Date }),
   description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),

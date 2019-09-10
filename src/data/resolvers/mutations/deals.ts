@@ -1,4 +1,4 @@
-import { Deals } from '../../../db/models';
+import { Conformities, Deals } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
@@ -50,11 +50,7 @@ const dealMutations = {
    * Edit deal
    */
   async dealsEdit(_root, { _id, ...doc }: IDealsEdit, { user }: IContext) {
-    const oldDeal = await Deals.findOne({ _id });
-
-    if (!oldDeal) {
-      throw new Error('Deal not found');
-    }
+    const oldDeal = await Deals.getDeal(_id);
 
     const updatedDeal = await Deals.updateDeal(_id, {
       ...doc,
@@ -102,11 +98,7 @@ const dealMutations = {
     { _id, destinationStageId }: { _id: string; destinationStageId: string },
     { user }: IContext,
   ) {
-    const deal = await Deals.findOne({ _id });
-
-    if (!deal) {
-      throw new Error('Deal not found');
-    }
+    const deal = await Deals.getDeal(_id);
 
     await Deals.updateDeal(_id, {
       modifiedAt: new Date(),
@@ -139,11 +131,7 @@ const dealMutations = {
    * Remove deal
    */
   async dealsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const deal = await Deals.findOne({ _id });
-
-    if (!deal) {
-      throw new Error('Deal not found');
-    }
+    const deal = await Deals.getDeal(_id);
 
     await sendNotifications({
       item: deal,
@@ -165,6 +153,8 @@ const dealMutations = {
       user,
     );
 
+    await Conformities.removeConformity({ mainType: 'deal', mainTypeId: deal._id });
+
     return removed;
   },
 
@@ -172,12 +162,6 @@ const dealMutations = {
    * Watch deal
    */
   async dealsWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: IContext) {
-    const deal = await Deals.findOne({ _id });
-
-    if (!deal) {
-      throw new Error('Deal not found');
-    }
-
     return Deals.watchDeal(_id, isAdd, user._id);
   },
 };
