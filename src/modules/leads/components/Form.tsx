@@ -225,8 +225,7 @@ class Form extends React.Component<Props, State> {
       title,
       successAction,
       isSkip,
-      rules,
-      formData
+      rules
     } = this.state;
 
     const { integration } = this.props;
@@ -296,7 +295,7 @@ class Form extends React.Component<Props, State> {
               brand={brand}
               theme={theme}
               language={language}
-              formData={formData}
+              formId={integration && integration.formId}
             />
           </Step>
           <Step img="/images/icons/erxes-13.svg" title="Thank content">
@@ -327,7 +326,7 @@ class Form extends React.Component<Props, State> {
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}
-              formData={formData}
+              formId={integration && integration.formId}
             />
           </Step>
         </Steps>

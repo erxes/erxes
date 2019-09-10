@@ -16,9 +16,7 @@ import { BackgroundSelector, ColorList, FlexItem } from './style';
 
 type Props = {
   type: string;
-  formTitle?: string;
-  formBtnText?: string;
-  formDesc?: string;
+  formId?: string;
   color: string;
   theme: string;
   language?: string;
@@ -28,7 +26,6 @@ type Props = {
   ) => void;
   fields?: IField[];
   brand?: IBrand;
-  formData: any;
   onFieldEdit?: () => void;
 };
 
@@ -59,7 +56,7 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { language, brand, formData } = this.props;
+    const { language, brand } = this.props;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -126,13 +123,7 @@ class OptionStep extends React.Component<Props, {}> {
         </LeftItem>
 
         <Preview>
-          <FormPreview
-            {...this.props}
-            formTitle={formData.title}
-            formBtnText={formData.buttonText}
-            formDesc={formData.description}
-            fields={formData.fields}
-          />
+          <FormPreview {...this.props} />
         </Preview>
       </FlexItem>
     );
