@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 
 import { ImportLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
+import { IField } from 'modules/settings/properties/types';
 import {
   CallOut,
   ChooseType,
@@ -209,6 +210,13 @@ class Form extends React.Component<Props, State> {
     this.setState({ formData });
   };
 
+  onFormInit = (fields: IField[]) => {
+    const formData = this.state.formData;
+    formData.fields = fields;
+
+    this.setState({ formData });
+  };
+
   render() {
     const {
       activeStep,
@@ -225,7 +233,8 @@ class Form extends React.Component<Props, State> {
       title,
       successAction,
       isSkip,
-      rules
+      rules,
+      formData
     } = this.state;
 
     const { integration } = this.props;
@@ -281,6 +290,7 @@ class Form extends React.Component<Props, State> {
               formId={integration && integration.formId}
               onChange={this.props.onChange}
               onDocChange={this.onFormDocChange}
+              onInit={this.onFormInit}
               isSaving={this.props.isSaving}
             />
           </Step>
@@ -295,7 +305,7 @@ class Form extends React.Component<Props, State> {
               brand={brand}
               theme={theme}
               language={language}
-              formId={integration && integration.formId}
+              formData={formData}
             />
           </Step>
           <Step img="/images/icons/erxes-13.svg" title="Thank content">
@@ -326,7 +336,7 @@ class Form extends React.Component<Props, State> {
               thankContent={thankContent}
               skip={isSkip}
               carousel={carousel || constant}
-              formId={integration && integration.formId}
+              formData={formData}
             />
           </Step>
         </Steps>

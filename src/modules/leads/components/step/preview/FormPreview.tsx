@@ -1,10 +1,12 @@
-import FormFieldPreview from 'modules/forms/containers/FormFieldPreview';
+import FormFieldPreview from 'modules/forms/components/FormFieldPreview';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import CommonPreview from './CommonPreview';
 
 type Props = {
-  formId?: string;
+  formTitle?: string;
+  formDesc?: string;
+  formBtnText?: string;
   color: string;
   theme: string;
   fields?: IField[];
@@ -17,40 +19,35 @@ type Props = {
 class FormPreview extends React.Component<Props, {}> {
   render() {
     const {
+      formTitle,
+      formDesc,
+      formBtnText,
       color,
       theme,
+      fields,
       onFieldEdit,
       onFieldChange,
       onChange,
-      type,
-      formId
+      type
     } = this.props;
 
-    if (!formId) {
-      return null;
-    }
-
-    const wrapper = ({ form, content }) => (
+    return (
       <CommonPreview
-        title={form.title}
+        title={formTitle}
         theme={theme}
         color={color}
-        btnText={form.btnText}
+        btnText={formBtnText}
         btnStyle="primary"
         type={type}
       >
-        {content}
+        <FormFieldPreview
+          formDesc={formDesc}
+          fields={fields}
+          onFieldEdit={onFieldEdit}
+          onFieldChange={onFieldChange}
+          onChange={onChange}
+        />
       </CommonPreview>
-    );
-
-    return (
-      <FormFieldPreview
-        formId={formId}
-        wrapper={wrapper}
-        onFieldEdit={onFieldEdit}
-        onFieldChange={onFieldChange}
-        onChange={onChange}
-      />
     );
   }
 }

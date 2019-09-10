@@ -52,6 +52,8 @@ class Form extends React.Component<Props, State> {
     const { formTitle, formBtnText, formDesc, fields } = this.state;
 
     if (nextProps.isSaving && isSaving !== nextProps.isSaving) {
+      // tslint:disable-next-line: no-console
+      console.log('fields: ', fields);
       saveForm({
         title: formTitle,
         description: formDesc,
@@ -91,16 +93,21 @@ class Form extends React.Component<Props, State> {
     };
 
     // newly created field to fields state
-    (this.state.fields || []).push(doc);
+    const fields = this.state.fields.map(field => ({ ...field }));
+    fields.push(doc);
 
-    this.setState({ fields: this.state.fields });
+    // tslint:disable-next-line: no-console
+    console.log('doc: ', doc);
+
+    // tslint:disable-next-line: no-console
+    console.log('fields submit: ', fields);
+
+    this.setState({ fields });
   };
 
   onDelete = fieldId => {
     // remove field from state
-    const fields = (this.state.fields || []).filter(
-      field => field._id !== fieldId
-    );
+    const fields = this.state.fields.filter(field => field._id !== fieldId);
 
     this.setState({ fields });
 
