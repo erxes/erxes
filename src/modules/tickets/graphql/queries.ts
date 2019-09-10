@@ -31,7 +31,7 @@ const commonParamDefs = `
   ${conformityQueryFieldDefs}
 `;
 
-const ticketFields = `
+export const ticketFields = `
   _id
   name
   stageId

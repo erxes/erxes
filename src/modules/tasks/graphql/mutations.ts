@@ -1,3 +1,5 @@
+import { taskFields } from './queries';
+
 const commonVariables = `
   $stageId: String,
   $closeDate: Date,
@@ -18,38 +20,10 @@ const commonParams = `
   attachments: $attachments
 `;
 
-const commonReturn = `
-  _id
-  name
-  stageId
-  companies {
-    _id
-    primaryName
-  }
-  customers {
-    _id
-    firstName
-    primaryEmail
-  }
-  closeDate
-  description
-  assignedUsers {
-    _id
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
-  priority
-  modifiedAt
-  modifiedBy
-`;
-
 const tasksAdd = `
   mutation tasksAdd($name: String!, ${commonVariables}) {
     tasksAdd(name: $name, ${commonParams}) {
-      ${commonReturn}
+      ${taskFields}
     }
   }
 `;
@@ -57,7 +31,7 @@ const tasksAdd = `
 const tasksEdit = `
   mutation tasksEdit($_id: String!, $name: String, ${commonVariables}) {
     tasksEdit(_id: $_id, name: $name, ${commonParams}) {
-      ${commonReturn}
+      ${taskFields}
     }
   }
 `;

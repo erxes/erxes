@@ -29,7 +29,7 @@ const commonParamDefs = `
   ${conformityQueryFieldDefs}
 `;
 
-const taskFields = `
+export const taskFields = `
   _id
   name
   stageId
