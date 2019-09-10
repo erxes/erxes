@@ -4,12 +4,13 @@ import React from 'react';
 import { IOptions } from '../../types';
 
 type Props = {
-  customerIds?: string[];
+  relType: string;
+  relTypeIds?: string[];
   options: IOptions;
 };
 
 export default (props: Props) => {
-  const { customerIds, options } = props;
+  const { relType, relTypeIds, options } = props;
 
   const trigger = <a href="#title">{options.title}</a>;
 
@@ -17,7 +18,8 @@ export default (props: Props) => {
     <AddForm
       options={options}
       {...formProps}
-      customerIds={customerIds}
+      relType={relType}
+      relTypeIds={relTypeIds}
       showSelect={true}
     />
   );

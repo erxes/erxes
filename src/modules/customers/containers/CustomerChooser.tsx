@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
-import Chooser from 'modules/common/components/Chooser';
 import { Alert, renderFullName, withProps } from 'modules/common/utils';
+import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import CustomerForm from '../containers/CustomerForm';
@@ -18,7 +18,9 @@ type Props = {
   perPage: number;
 };
 
-type FinalProps = { customersQuery: CustomersQueryResponse } & Props &
+type FinalProps = {
+  customersQuery: CustomersQueryResponse;
+} & Props &
   AddMutationResponse;
 
 const CustomerChooser = (props: WrapperProps & FinalProps) => {
@@ -46,7 +48,10 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
     data: {
       _id: data._id,
       name: data.name,
-      datas: data.customers
+      datas: data.customers,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'customer'
     },
     search,
     clearState: () => search(''),
@@ -56,26 +61,31 @@ const CustomerChooser = (props: WrapperProps & FinalProps) => {
       <CustomerForm {...formProps} action={addCustomer} />
     ),
     add: addCustomer,
-    datas: customersQuery.customers || []
+    datas: customersQuery.customers || [],
+    refetchQuery: queries.customers
   };
 
-  return <Chooser {...updatedProps} />;
+  return <ConformityChooser {...updatedProps} />;
 };
 
 const WithQuery = withProps<Props>(
   compose(
     graphql<
-      Props,
+      Props & WrapperProps,
       CustomersQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.customers), {
       name: 'customersQuery',
-      options: ({ searchValue, perPage }) => {
+      options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
             searchValue,
-            perPage
-          }
+            perPage,
+            mainType: data.mainType,
+            mainTypeId: data.mainTypeId,
+            isRelated: data.isRelated
+          },
+          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
         };
       }
     }),
@@ -90,14 +100,24 @@ const WithQuery = withProps<Props>(
 );
 
 type WrapperProps = {
-  data: { _id?: string; name: string; customers: ICustomer[] };
+  data: {
+    _id?: string;
+    name: string;
+    customers: ICustomer[];
+    mainTypeId?: string;
+    mainType?: string;
+    isRelated?: boolean;
+  };
   onSelect: (datas: ICustomer[]) => void;
   closeModal: () => void;
 };
 
 export default class Wrapper extends React.Component<
   WrapperProps,
-  { perPage: number; searchValue: string }
+  {
+    perPage: number;
+    searchValue: string;
+  }
 > {
   constructor(props) {
     super(props);
@@ -117,7 +137,6 @@ export default class Wrapper extends React.Component<
 
   render() {
     const { searchValue, perPage } = this.state;
-
     return (
       <WithQuery
         {...this.props}

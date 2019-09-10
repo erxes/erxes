@@ -1,13 +1,23 @@
-import PortableItems from 'modules/boards/containers/portable/Items';
+import PortableItems from 'modules/boards/components/portable/Items';
+import GetConformity from 'modules/conformity/containers/GetConformity';
 import React from 'react';
 import options from '../options';
 
 type IProps = {
-  customerIds?: string[];
-  companyIds?: string[];
+  mainType?: string;
+  mainTypeId?: string;
   isOpen?: boolean;
 };
 
 export default (props: IProps) => {
-  return <PortableItems options={options} {...props} />;
+  return (
+    <GetConformity
+      {...props}
+      relType="ticket"
+      component={PortableItems}
+      queryName={options.queriesName.itemsQuery}
+      itemsQuery={options.queries.itemsQuery}
+      data={{ options }}
+    />
+  );
 };
