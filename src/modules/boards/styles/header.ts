@@ -57,9 +57,9 @@ export const HeaderButton = styledTS<{
   rightIconed?: boolean;
   isActive?: boolean;
 }>(styled.div)`
-  padding: 0 12px;
-  line-height: 32px;
-  height: 34px;
+  padding: 0 10px;
+  line-height: 30px;
+  height: 32px;
   border-radius: 4px;
   transition: background 0.3s ease;
   background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
@@ -108,9 +108,9 @@ export const HeaderLink = styled(HeaderButton)`
 
   a {
     color: ${colors.colorCoreGray};
-    padding: 0 11px;
+    padding: 0 10px;
     display: block;
-    line-height: 34px;
+    line-height: 32px;
 
     &:hover {
       color: ${colors.colorCoreDarkGray};
@@ -127,9 +127,10 @@ export const HeaderLink = styled(HeaderButton)`
 
   .filter-link {
     color: ${colors.colorCoreGray};
-    padding: 0 12px;
+    padding: 0 10px;
     display: block;
-    line-height: 34px;
+    line-height: 32px;
+
     span {
       margin-left: 0;
     }
