@@ -50,13 +50,14 @@ class FormField extends React.Component<Props, State> {
     e.persist();
 
     const { editingField = {} as IField } = this.state;
+    const { onChange, onSubmit, closeModal } = this.props;
 
-    this.props.onChange(editingField, () => {
-      this.props.onSubmit(e);
+    onChange(editingField, () => {
+      onSubmit(e);
     });
 
-    if (this.props.closeModal) {
-      this.props.closeModal();
+    if (closeModal) {
+      closeModal();
     }
   };
 

@@ -2,20 +2,27 @@ import { IStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import SortableList from 'modules/common/components/SortableList';
 import { __ } from 'modules/common/utils';
+import { StageList } from 'modules/settings/boards/styles';
+import FormBuilder from 'modules/settings/growthHacks/components/FormBuilder';
 import { LinkButton } from 'modules/settings/team/styles';
 import React from 'react';
-import { StageList } from '../styles';
-import { IOption } from '../types';
 import StageItem from './StageItem';
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
   stages: any;
-  type?: string;
-  options?: IOption;
 };
 
-class Stages extends React.Component<Props, {}> {
+class Stages extends React.Component<
+  Props,
+  { isDragDisabled: boolean; currentStage?: IStage }
+> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { isDragDisabled: false, currentStage: undefined };
+  }
+
   componentDidMount() {
     if (this.props.stages.length === 0) {
       this.add();
@@ -32,12 +39,11 @@ class Stages extends React.Component<Props, {}> {
   };
 
   add = () => {
-    const { stages, onChangeStages, type } = this.props;
+    const { stages, onChangeStages } = this.props;
 
     stages.push({
       _id: Math.random().toString(),
-      name: '',
-      type
+      name: ''
     });
 
     onChangeStages(stages);
@@ -58,14 +64,22 @@ class Stages extends React.Component<Props, {}> {
     }
   };
 
+  onItemClick = (stage: IStage) => {
+    this.setState({ isDragDisabled: true, currentStage: stage });
+  };
+
+  onItemModalHide = () => {
+    this.setState({ isDragDisabled: false, currentStage: undefined });
+  };
+
   render() {
-    const { options } = this.props;
-    const Item = options ? options.StageItem : StageItem;
+    const { isDragDisabled, currentStage } = this.state;
 
     const child = stage => (
-      <Item
+      <StageItem
         stage={stage}
         onChange={this.onChange}
+        onClick={this.onItemClick}
         remove={this.remove}
         onKeyPress={this.onStageInputKeyPress}
       />
@@ -78,12 +92,21 @@ class Stages extends React.Component<Props, {}> {
           child={child}
           onChangeFields={this.props.onChangeStages}
           isModal={true}
+          isDragDisabled={isDragDisabled}
           droppableId="stages"
         />
 
         <LinkButton onClick={this.add}>
           <Icon icon="plus-1" /> {__('Add another stage')}
         </LinkButton>
+
+        {currentStage && (
+          <FormBuilder
+            stage={currentStage}
+            onHide={this.onItemModalHide}
+            onChange={this.onChange}
+          />
+        )}
       </StageList>
     );
   }
