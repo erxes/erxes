@@ -108,7 +108,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
-        name="email template"
+        name="growth hack template"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         object={this.props.object}
