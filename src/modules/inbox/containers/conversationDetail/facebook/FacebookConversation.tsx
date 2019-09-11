@@ -87,7 +87,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       return null;
     }
 
-    const post = conversation.post || ({} as IFacebookPost);
+    const post = conversation.facebookPost || ({} as IFacebookPost);
     const comments = commentsQuery.facebookComments || [];
 
     const hasMore = post.commentCount > comments.length;
@@ -115,7 +115,9 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
         options: ({ conversation }: { conversation: IConversation }) => {
           return {
             variables: {
-              postId: conversation.post ? conversation.post.postId : ''
+              postId: conversation.facebookPost
+                ? conversation.facebookPost.postId
+                : ''
             },
             fetchPolicy: 'network-only'
           };

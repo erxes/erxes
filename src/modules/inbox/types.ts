@@ -31,7 +31,7 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
-  post?: IFacebookPost;
+  facebookPost?: IFacebookPost;
 }
 
 interface IEngageDataRules {

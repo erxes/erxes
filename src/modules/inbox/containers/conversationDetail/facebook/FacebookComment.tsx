@@ -51,7 +51,7 @@ export default withProps<Props>(
       Props,
       ReplyFacebookCommentMutationResponse,
       ReplyFaceBookCommentMutationVariables
-    >(gql(mutations.replyFacebookComment), {
+    >(gql(mutations.conversationsReplyFacebookComment), {
       name: 'replyMutation'
     })
   )(FacebookCommentContainer)

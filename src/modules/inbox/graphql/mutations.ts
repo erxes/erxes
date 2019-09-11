@@ -20,13 +20,13 @@ const conversationMessageAdd = `
   }
 `;
 
-const replyFacebookComment = `
-  mutation replyFacebookComment(
+const conversationsReplyFacebookComment = `
+  mutation conversationsReplyFacebookComment(
     $conversationId: String,
     $content: String,
     $commentId: String,
   ) {
-    replyFacebookComment(
+    conversationsReplyFacebookComment(
     conversationId: $conversationId,
     content: $content,
     commentId: $commentId,
@@ -92,7 +92,7 @@ const conversationsUnassign = `
 `;
 
 export default {
-  replyFacebookComment,
+  conversationsReplyFacebookComment,
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,

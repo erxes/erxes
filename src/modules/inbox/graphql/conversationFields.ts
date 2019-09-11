@@ -55,7 +55,7 @@ export default `
     colorCode
   }
   readUserIds
-  post {
+  facebookPost {
     postId
     recipientId
     senderId

@@ -28,7 +28,6 @@ type Props = {
       limit
     }: { commentId?: string; postId?: string; limit?: number }
   ) => void;
-  // scrollBottom?: () => void;
 };
 
 export default class FacebookComment extends React.Component<
