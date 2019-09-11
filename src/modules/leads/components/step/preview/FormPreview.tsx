@@ -41,7 +41,7 @@ class FormPreview extends React.Component<Props, {}> {
         type={type}
       >
         <FormFieldPreview
-          formDesc={formDesc}
+          desc={formDesc}
           fields={fields}
           onFieldEdit={onFieldEdit}
           onFieldChange={onFieldChange}

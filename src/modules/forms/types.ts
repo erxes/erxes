@@ -87,9 +87,9 @@ export type RemoveFieldMutationResponse = {
 
 // query types
 export interface IFormPreviewContent {
-  formTitle: string;
-  formBtnText: string;
-  formDesc: string;
+  title: string;
+  btnText: string;
+  desc: string;
   fields?: IField[];
   onFieldEdit?: (field: IField, props) => void;
   onFieldChange?: (name: any, value: IField[]) => void;

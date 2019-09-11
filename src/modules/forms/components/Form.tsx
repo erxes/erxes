@@ -25,10 +25,10 @@ type Props = {
 type State = {
   fields: IField[];
   editingField?: IField;
-  formTitle: string;
-  formDesc: string;
+  title: string;
+  desc: string;
   isSaving: boolean;
-  formBtnText: string;
+  btnText: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -39,9 +39,9 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       fields: props.fields || [],
-      formTitle: form.title || '',
-      formDesc: form.description || '',
-      formBtnText: form.buttonText || 'Send',
+      title: form.title || '',
+      desc: form.description || '',
+      btnText: form.buttonText || 'Send',
       isSaving: props.isSaving,
       editingField: undefined
     };
@@ -49,13 +49,13 @@ class Form extends React.Component<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     const { saveForm, type, isSaving } = this.props;
-    const { formTitle, formBtnText, formDesc, fields } = this.state;
+    const { title, btnText, desc, fields } = this.state;
 
     if (nextProps.isSaving && isSaving !== nextProps.isSaving) {
       saveForm({
-        title: formTitle,
-        description: formDesc,
-        buttonText: formBtnText,
+        title,
+        description: desc,
+        buttonText: btnText,
         fields,
         type
       });
@@ -124,7 +124,7 @@ class Form extends React.Component<Props, State> {
       return null;
     }
 
-    const { formTitle, formBtnText, formDesc } = this.state;
+    const { title, btnText, desc } = this.state;
 
     const onChangeField = e =>
       this.onChange(e.target.name, (e.currentTarget as HTMLInputElement).value);
@@ -133,19 +133,15 @@ class Form extends React.Component<Props, State> {
       <>
         <FormGroup>
           <ControlLabel>{__('Form title')}</ControlLabel>
-          <FormControl
-            name="formTitle"
-            value={formTitle}
-            onChange={onChangeField}
-          />
+          <FormControl name="title" value={title} onChange={onChangeField} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
             componentClass="textarea"
-            name="formDesc"
-            value={formDesc}
+            name="desc"
+            value={desc}
             onChange={onChangeField}
           />
         </FormGroup>
@@ -153,8 +149,8 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>{__('Form button text')}</ControlLabel>
           <FormControl
-            name="formBtnText"
-            value={formBtnText}
+            name="btnText"
+            value={btnText}
             onChange={onChangeField}
           />
         </FormGroup>
@@ -164,13 +160,7 @@ class Form extends React.Component<Props, State> {
 
   render() {
     const { renderPreview } = this.props;
-    const {
-      formTitle,
-      formBtnText,
-      formDesc,
-      fields,
-      editingField
-    } = this.state;
+    const { title, btnText, desc, fields, editingField } = this.state;
 
     return (
       <FlexContent>
@@ -186,9 +176,9 @@ class Form extends React.Component<Props, State> {
         </LeftItem>
 
         {renderPreview({
-          formTitle,
-          formBtnText,
-          formDesc,
+          title,
+          btnText,
+          desc,
           fields,
           onFieldEdit: this.onFieldEdit,
           onFieldChange: this.onChange

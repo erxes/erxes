@@ -86,7 +86,7 @@ const integrationDetail = `
       brandId
       code
       formId
-      formData
+      leadData
       tagIds
       tags {
         _id
