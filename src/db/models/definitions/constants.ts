@@ -54,10 +54,11 @@ export const FORM_SUCCESS_ACTIONS = {
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
   FORM: 'form',
-  FACEBOOK: 'facebook',
+  FACEBOOK_MESSENGER: 'facebook-messenger',
+  FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
   CALLPRO: 'callpro',
-  ALL: ['messenger', 'form', 'facebook', 'gmail', 'callpro'],
+  ALL: ['messenger', 'form', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro'],
 };
 
 // messenger data availability constants

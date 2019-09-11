@@ -95,9 +95,16 @@ const integrationMutations = {
   ) {
     const integration = await Integrations.createExternalIntegration(doc);
 
+    let kind = doc.kind;
+
+    if (kind === 'facebook-post' || kind === 'facebook-messenger') {
+      kind = 'facebook';
+    }
+
     try {
-      await dataSources.IntegrationsAPI.createIntegration(doc.kind, {
+      await dataSources.IntegrationsAPI.createIntegration(kind, {
         accountId: doc.accountId,
+        kind: doc.kind,
         integrationId: integration._id,
         data: data ? JSON.stringify(data) : '',
       });
@@ -116,7 +123,7 @@ const integrationMutations = {
     const integration = await Integrations.findOne({ _id });
 
     if (integration) {
-      if (['facebook', 'gmail', 'callpro'].includes(integration.kind || '')) {
+      if (['facebook-messenger', 'facebook-post', 'gmail', 'callpro'].includes(integration.kind || '')) {
         await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
       }
 

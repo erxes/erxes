@@ -150,7 +150,7 @@ export const beforeEachTest = async () => {
 
   const integration = await integrationFactory({
     brandId: brand._id,
-    kind: 'facebook',
+    kind: 'facebook-messenger',
   });
 
   const formIntegration = await integrationFactory({
@@ -162,7 +162,7 @@ export const beforeEachTest = async () => {
   const secondUser = await userFactory({});
 
   const args = {
-    integrationIds: 'facebook',
+    integrationIds: 'facebook-messenger',
     brandIds: brand._id,
     startDate,
     endDate,

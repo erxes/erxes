@@ -116,10 +116,10 @@ describe('integrationQueries', () => {
   });
 
   test('Integrations filtered by channel', async () => {
-    const integration1 = await integrationFactory({ kind: 'facebook' });
-    const integration2 = await integrationFactory({ kind: 'facebook' });
+    const integration1 = await integrationFactory({ kind: 'facebook-messenger' });
+    const integration2 = await integrationFactory({ kind: 'facebook-messenger' });
 
-    await integrationFactory({ kind: 'facebook' });
+    await integrationFactory({ kind: 'facebook-messenger' });
 
     const integrationIds = [integration1._id, integration2._id];
 

@@ -222,6 +222,7 @@ export const subscriptions = `
     conversationClientMessageInserted(userId: String!): ConversationMessage
     conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
     conversationAdminMessageInserted(customerId: String!): ConversationMessage
+    conversationExternalIntegrationMessageInserted: JSON
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
     activityLogsChanged: Boolean
     importHistoryChanged(_id: String!): ImportHistory

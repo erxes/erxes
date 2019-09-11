@@ -14,7 +14,7 @@ interface IMessage {
  */
 const integrationsApiMiddleware = async (req, res) => {
   const { action, metaInfo, payload } = req.body;
-  const doc = JSON.parse(payload);
+  const doc = JSON.parse(payload || '{}');
 
   if (action === 'create-or-update-customer') {
     const integration = await Integrations.findOne({ _id: doc.integrationId });
@@ -79,6 +79,12 @@ const integrationsApiMiddleware = async (req, res) => {
     });
 
     return res.json({ _id: message._id });
+  }
+
+  if (action === 'external-integration-entry-added') {
+    graphqlPubsub.publish('conversationExternalIntegrationMessageInserted');
+
+    return res.json({ status: 'ok' });
   }
 };
 

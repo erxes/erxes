@@ -26,6 +26,7 @@ export const types = `
     tagIds: [String]
 
     messages: [ConversationMessage]
+    facebookPost: FacebookPost
     tags: [Tag]
     customer: Customer
     integration: Integration
@@ -70,6 +71,32 @@ export const types = `
     user: User
     customer: Customer
     gmailData: Gmail
+  }
+
+  type FacebookPost {
+    postId: String
+    recipientId: String
+    senderId: String
+    content:String
+    erxesApiId: String
+    attachments: [String]
+    timestamp: Date
+    commentCount: Int
+  }
+
+  type FacebookComment {
+    conversationId: String
+    commentId: String
+    postId: String
+    parentId: String
+    recipientId:String
+    senderId: String
+    attachments: [String]
+    content: String
+    erxesApiId: String
+    timestamp: Date
+    customer: Customer
+    commentCount: Int
   }
 
   type Gmail {
@@ -150,6 +177,13 @@ export const queries = `
     limit: Int
   ): [ConversationMessage]
 
+  facebookComments(
+    postId: String!
+    commentId: String
+    skip: Int
+    limit: Int
+  ): [FacebookComment]
+
   conversationMessagesTotalCount(conversationId: String!): Int
   conversationCounts(${filterParams}, only: String): JSON
   conversationsTotalCount(${filterParams}): Int
@@ -166,7 +200,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
   ): ConversationMessage
-
+  conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
