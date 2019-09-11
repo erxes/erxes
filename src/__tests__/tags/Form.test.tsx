@@ -21,6 +21,7 @@ describe('Form component', () => {
   };
 
   test('renders Form successfully', () => {
-    shallow(<Form {...defaultProps} />);
+    const wrapper = shallow(<Form {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

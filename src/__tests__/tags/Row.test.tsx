@@ -32,6 +32,7 @@ describe('Row component', () => {
   };
 
   test('renders WithPermission successfully', () => {
-    shallow(<Row {...defaultProps} />);
+    const wrapper = shallow(<Row {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

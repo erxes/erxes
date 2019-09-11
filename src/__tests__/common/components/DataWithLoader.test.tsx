@@ -10,6 +10,7 @@ describe('DataWithLoader component', () => {
   };
 
   test('renders DataWithLoader successfully', () => {
-    shallow(<DataWithLoader {...defaultProps} />);
+    const wrapper = shallow(<DataWithLoader {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

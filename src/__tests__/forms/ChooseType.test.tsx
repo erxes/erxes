@@ -11,6 +11,7 @@ describe('ChooseType component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<ChooseType {...defaultProps} />);
+    const wrapper = shallow(<ChooseType {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -5,6 +5,7 @@ import DetectBrowser from '../../modules/layout/components/DetectBrowser';
 
 describe('DetectBrowser component', () => {
   test('renders DetectBrowser successfully', () => {
-    shallow(<DetectBrowser />);
+    const wrapper = shallow(<DetectBrowser />);
+    expect(wrapper).not.toBe('');
   });
 });

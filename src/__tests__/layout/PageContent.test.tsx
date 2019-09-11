@@ -8,6 +8,7 @@ describe('PageContent component', () => {
     transparent: false
   };
   test('renders PageContent successfully', () => {
-    shallow(<PageContent {...defaultProps} />);
+    const wrapper = shallow(<PageContent {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

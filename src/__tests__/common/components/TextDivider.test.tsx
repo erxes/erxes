@@ -10,6 +10,7 @@ describe('TextDivider component', () => {
   };
 
   test('renders TextDivider successfully', () => {
-    shallow(<TextDivider {...defaultProps} />);
+    const wrapper = shallow(<TextDivider {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

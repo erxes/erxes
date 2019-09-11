@@ -10,6 +10,7 @@ describe('Summary component', () => {
   };
 
   test('renders Summary successfully', () => {
-    shallow(<Summary {...defaultProps} />);
+    const wrapper = shallow(<Summary {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -12,6 +12,7 @@ describe('FormPreview component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<FormPreview {...defaultProps} />);
+    const wrapper = shallow(<FormPreview {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

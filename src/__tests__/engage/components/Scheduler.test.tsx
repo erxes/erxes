@@ -18,6 +18,7 @@ describe('Scheduler component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<Scheduler {...defaultProps} />);
+    const wrapper = shallow(<Scheduler {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

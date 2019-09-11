@@ -56,6 +56,7 @@ describe('ProductSection component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<ProductSection {...defaultProps} />);
+    const wrapper = shallow(<ProductSection {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -9,6 +9,7 @@ describe('ActionBar component', () => {
   };
 
   test('renders ActionBar successfully', () => {
-    shallow(<ActionBar {...defaultProps} />);
+    const wrapper = shallow(<ActionBar {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

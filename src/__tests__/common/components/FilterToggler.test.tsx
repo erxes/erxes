@@ -12,6 +12,7 @@ describe('FilterToggler component', () => {
   };
 
   test('renders FilterToggler successfully', () => {
-    shallow(<FilterToggler {...defaultProps} />);
+    const wrapper = shallow(<FilterToggler {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

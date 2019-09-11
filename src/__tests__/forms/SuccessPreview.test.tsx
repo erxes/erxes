@@ -10,6 +10,7 @@ describe('SuccessPreview component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<SuccessPreview {...defaultProps} />);
+    const wrapper = shallow(<SuccessPreview {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

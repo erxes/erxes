@@ -18,6 +18,7 @@ describe('FormBase component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<FormBase {...defaultProps} />);
+    const wrapper = shallow(<FormBase {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

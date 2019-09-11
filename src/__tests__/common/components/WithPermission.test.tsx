@@ -10,6 +10,7 @@ describe('WithPermission component', () => {
   };
 
   test('renders WithPermission successfully', () => {
-    shallow(<WithPermission {...defaultProps} />);
+    const wrapper = shallow(<WithPermission {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

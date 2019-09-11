@@ -12,6 +12,7 @@ describe('ImageWithPreview component', () => {
   };
 
   test('renders ImageWithPreview successfully', () => {
-    shallow(<ImageWithPreview {...defaultProps} />);
+    const wrapper = shallow(<ImageWithPreview {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

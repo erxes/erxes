@@ -9,6 +9,7 @@ describe('HeadlinesButton component', () => {
   };
 
   test('renders HeadlinesButton successfully', () => {
-    shallow(<HeadlinesButton {...defaultProps} />);
+    const wrapper = shallow(<HeadlinesButton {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

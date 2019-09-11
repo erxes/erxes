@@ -61,6 +61,7 @@ describe('EmailForm component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<EmailForm {...defaultProps} />);
+    const wrapper = shallow(<EmailForm {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });
