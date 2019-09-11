@@ -73,8 +73,6 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     const saveForm = doc => {
       const { title, description, buttonText, fields, type } = doc;
-      // tslint:disable-next-line: no-console
-      console.log('fields container: ', fields);
 
       editFormMutation({
         variables: {

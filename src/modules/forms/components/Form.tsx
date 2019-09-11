@@ -52,8 +52,6 @@ class Form extends React.Component<Props, State> {
     const { formTitle, formBtnText, formDesc, fields } = this.state;
 
     if (nextProps.isSaving && isSaving !== nextProps.isSaving) {
-      // tslint:disable-next-line: no-console
-      console.log('fields: ', fields);
       saveForm({
         title: formTitle,
         description: formDesc,
@@ -95,12 +93,6 @@ class Form extends React.Component<Props, State> {
     // newly created field to fields state
     const fields = this.state.fields.map(field => ({ ...field }));
     fields.push(doc);
-
-    // tslint:disable-next-line: no-console
-    console.log('doc: ', doc);
-
-    // tslint:disable-next-line: no-console
-    console.log('fields submit: ', fields);
 
     this.setState({ fields });
   };
