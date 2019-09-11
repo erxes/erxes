@@ -61,6 +61,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
       } else {
         return (
           <a
+            key={index}
             href={`https://www.facebook.com/${link}`}
             target="_blank"
             rel="noopener noreferrer"

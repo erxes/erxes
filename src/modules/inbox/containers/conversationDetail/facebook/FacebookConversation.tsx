@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { withProps } from 'modules/common/utils';
 import FacebookConversation from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookConversation';
-import { queries } from 'modules/inbox/graphql';
+import { queries, subscriptions } from 'modules/inbox/graphql';
 import {
   FacebookCommentsQueryResponse,
   IConversation,
@@ -26,6 +26,38 @@ type FinalProps = {
 } & Props;
 
 class FacebookPostContainer extends React.Component<FinalProps> {
+  private subscription;
+
+  constructor(props) {
+    super(props);
+
+    this.subscription = null;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { conversation, commentsQuery } = nextProps;
+
+    // It is first time or subsequent conversation change
+    if (
+      !this.subscription ||
+      conversation._id !== this.props.conversation._id
+    ) {
+      // Unsubscribe previous subscription ==========
+      if (this.subscription) {
+        this.subscription();
+      }
+
+      this.subscription = commentsQuery.subscribeToMore({
+        document: gql(
+          subscriptions.conversationExternalIntegrationMessageInserted
+        ),
+        updateQuery: () => {
+          commentsQuery.refetch();
+        }
+      });
+    }
+  }
+
   fetchMoreComments = variables => {
     const { commentsQuery } = this.props;
 
