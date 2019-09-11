@@ -185,6 +185,7 @@ class Main extends React.Component<FinalProps> {
         STORAGE_PIPELINE_KEY,
         JSON.stringify(defaultPipelines)
       );
+
       window.location.href = `/${type}/board`;
       return null;
     }

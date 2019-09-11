@@ -67,13 +67,35 @@ export const SelectContainer = styled.div`
   background: ${colors.colorWhite};
 `;
 
+export const FormContainer = styled.div`
+  padding-right: 20px;
+`;
+
 export const ItemDate = styled.span`
   font-size: 11px;
   color: rgb(136, 136, 136);
   z-index: 10;
 `;
 
-export const ItemContainer = styledTS<{ isDragging?: boolean }>(styled.div)`
+export const NotifiedContainer = styled.div`
+  position: absolute;
+  background: ${colors.colorWhite};
+  right: 0;
+  padding-left: 5px;
+
+  > i {
+    color: ${colors.colorWhite};
+    background: ${colors.colorCoreRed};
+    border-radius: 3px;
+    padding: 3px 5px;
+    margin-right: 8px;
+  }
+`;
+
+export const ItemContainer = styledTS<{
+  isDragging?: boolean;
+}>(styled.div)`
+  position: relative;
   margin-bottom: 8px;
   background-color: rgb(255, 255, 255);
   box-shadow: ${props =>

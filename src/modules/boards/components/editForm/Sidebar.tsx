@@ -2,9 +2,7 @@ import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import CompanySection from 'modules/companies/components/common/CompanySection';
-import { ICompany } from 'modules/companies/types';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
-import { ICustomer } from 'modules/customers/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Watch } from '../../containers/editForm/';
@@ -13,8 +11,6 @@ import { IItem, IOptions } from '../../types';
 
 type Props = {
   item: IItem;
-  customers: ICustomer[];
-  companies: ICompany[];
   assignedUserIds: string[];
   onChangeField?: (
     name: 'companies' | 'customers' | 'assignedUserIds',
@@ -24,6 +20,7 @@ type Props = {
   removeItem: (itemId: string) => void;
   sidebar?: () => React.ReactNode;
   options: IOptions;
+  renderItems: () => React.ReactNode;
 };
 
 class Sidebar extends React.Component<Props> {
@@ -37,20 +34,19 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     const {
-      customers,
-      companies,
       item,
       copyItem,
       removeItem,
       sidebar,
       options,
-      assignedUserIds
+      assignedUserIds,
+      renderItems
     } = this.props;
 
-    const cmpsChange = cmps => this.onChange('companies', cmps);
-    const cmrsChange = cmrs => this.onChange('customers', cmrs);
     const onClick = () => removeItem(item._id);
     const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
+    const cmpsChange = cmps => this.onChange('companies', cmps);
+    const cmrsChange = cmrs => this.onChange('customers', cmrs);
 
     return (
       <RightContent>
@@ -67,16 +63,18 @@ class Sidebar extends React.Component<Props> {
         {sidebar && sidebar()}
 
         <CompanySection
-          name={options.title}
-          companies={companies}
+          mainType={options.type}
+          mainTypeId={item._id}
           onSelect={cmpsChange}
         />
 
         <CustomerSection
-          name={options.title}
-          customers={customers}
+          mainType={options.type}
+          mainTypeId={item._id}
           onSelect={cmrsChange}
         />
+
+        {renderItems()}
 
         <Watch item={item} options={options} />
 

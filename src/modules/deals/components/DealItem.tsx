@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
+import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { renderAmount } from 'modules/boards/utils';
@@ -14,10 +14,8 @@ import { IDeal } from '../types';
 type Props = {
   stageId: string;
   item: IDeal;
-  isDragging: boolean;
-  provided;
-  onClick: () => void;
   beforePopupClose: () => void;
+  onClick: () => void;
   options?: IOptions;
 };
 
@@ -31,7 +29,7 @@ class DealItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { beforePopupClose, stageId, item, options } = this.props;
+    const { stageId, item, options, beforePopupClose } = this.props;
 
     return (
       <EditForm
@@ -44,17 +42,12 @@ class DealItem extends React.PureComponent<Props, {}> {
   };
 
   render() {
-    const { item, isDragging, provided, onClick } = this.props;
+    const { item, onClick } = this.props;
     const products = (item.products || []).map(p => p.product);
     const { customers, companies } = item;
 
     return (
-      <ItemContainer
-        isDragging={isDragging}
-        innerRef={provided.innerRef}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-      >
+      <>
         <Content onClick={onClick}>
           <h5>{item.name}</h5>
 
@@ -103,7 +96,7 @@ class DealItem extends React.PureComponent<Props, {}> {
         </Content>
 
         {this.renderForm()}
-      </ItemContainer>
+      </>
     );
   }
 }

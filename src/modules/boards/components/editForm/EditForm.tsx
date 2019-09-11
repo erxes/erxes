@@ -1,6 +1,4 @@
 import { IUser } from 'modules/auth/types';
-import { FormFooter } from 'modules/boards/styles/item';
-import Button from 'modules/common/components/Button';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import routerUtils from 'modules/common/utils/router';
@@ -13,6 +11,7 @@ import history from '../../../../browserHistory';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
+const reactiveForiegnFields = ['companies', 'customers'];
 
 type Props = {
   options: IOptions;
@@ -109,6 +108,16 @@ class EditForm extends React.Component<Props, State> {
 
       if (reactiveFields.includes(name)) {
         this.props.saveItem({ [name]: value }, updatedItem => {
+          this.setState({ updatedItem }, () => {
+            if (name === 'stageId') {
+              this.props.onUpdate(updatedItem, this.state.prevStageId);
+            }
+          });
+        });
+      }
+
+      if (reactiveForiegnFields.includes(name)) {
+        this.props.saveItem({}, updatedItem => {
           this.setState({ updatedItem });
         });
       }
@@ -148,36 +157,13 @@ class EditForm extends React.Component<Props, State> {
     removeItem(id, this.closeModal);
   };
 
-  save = () => {
-    const { companies, customers, updatedItem, prevStageId } = this.state;
-    const { saveItem } = this.props;
-
-    const doc = {
-      companyIds: companies.map(company => company._id),
-      customerIds: customers.map(customer => customer._id)
-    };
-
-    if (updatedItem && prevStageId) {
-      this.props.onUpdate(updatedItem, prevStageId);
-
-      return this.closeModal();
-    }
-
-    saveItem(doc, result => {
-      this.props.onUpdate(result);
-      this.closeModal();
-    });
-  };
-
   copy = () => {
     const { item, addItem, options } = this.props;
 
     // copied doc
     const doc = {
       ...item,
-      assignedUserIds: item.assignedUsers.map(user => user._id),
-      companyIds: item.companies.map(company => company._id),
-      customerIds: item.customers.map(customer => customer._id)
+      assignedUserIds: item.assignedUsers.map(user => user._id)
     };
 
     addItem(doc, this.closeModal, options.texts.copySuccessText);
@@ -234,20 +220,6 @@ class EditForm extends React.Component<Props, State> {
             remove: this.remove,
             onBlurFields: this.onBlurFields
           })}
-
-          <FormFooter>
-            <Button
-              btnStyle="simple"
-              onClick={this.onHideModal}
-              icon="cancel-1"
-            >
-              Close
-            </Button>
-
-            <Button btnStyle="success" icon="checked-1" onClick={this.save}>
-              Save
-            </Button>
-          </FormFooter>
         </Modal.Body>
       </Modal>
     );
