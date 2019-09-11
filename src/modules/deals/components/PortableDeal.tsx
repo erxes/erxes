@@ -53,6 +53,7 @@ class Deal extends React.Component<Props, { isPopupVisible: boolean }> {
         onAdd={onAdd}
         onRemove={onRemove}
         onUpdate={onUpdate}
+        isPopupVisible={this.state.isPopupVisible}
         beforePopupClose={beforePopupClose}
       />
     );
