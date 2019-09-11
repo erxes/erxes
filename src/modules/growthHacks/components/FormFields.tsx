@@ -8,7 +8,6 @@ type Props = {
   onChangeFormField: (field: any) => void;
 };
 
-// tslint:disable
 class FormFields extends React.Component<Props> {
   render() {
     const { fields, formFields, onChangeFormField } = this.props;
