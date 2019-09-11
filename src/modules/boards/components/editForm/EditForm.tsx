@@ -127,10 +127,7 @@ class EditForm extends React.Component<Props, State> {
     });
   };
 
-  onBlurFields = (
-    name: 'name' | 'description' | 'hackDescription' | 'goal',
-    value: string
-  ) => {
+  onBlurFields = (name: string, value: string) => {
     if (value === this.props.item[name]) {
       return;
     }
