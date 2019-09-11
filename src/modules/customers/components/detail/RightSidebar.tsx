@@ -1,6 +1,6 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
-import CompanyAssociate from 'modules/companies/containers/CompanyAssociate';
+import CompanySection from 'modules/companies/components/common/CompanySection';
 import { List } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
@@ -9,9 +9,11 @@ import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 
-export default class RightSidebar extends React.Component<{
+type Props = {
   customer: ICustomer;
-}> {
+};
+
+export default class RightSidebar extends React.Component<Props> {
   renderContent() {
     const { customer } = this.props;
     const { integration, visitorContactInfo } = customer;
@@ -55,10 +57,10 @@ export default class RightSidebar extends React.Component<{
 
     return (
       <Sidebar>
-        <CompanyAssociate data={customer} />
-        <PortableDeals customerIds={[customer._id]} />
-        <PortableTickets customerIds={[customer._id]} />
-        <PortableTasks customerIds={[customer._id]} />
+        <CompanySection mainType="customer" mainTypeId={customer._id} />
+        <PortableDeals mainType="customer" mainTypeId={customer._id} />
+        <PortableTickets mainType="customer" mainTypeId={customer._id} />
+        <PortableTasks mainType="customer" mainTypeId={customer._id} />
         {this.renderOther()}
       </Sidebar>
     );

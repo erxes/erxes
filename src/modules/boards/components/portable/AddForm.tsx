@@ -15,8 +15,6 @@ import { invalidateCache } from '../../utils';
 
 type Props = {
   options: IOptions;
-  customerIds?: string[];
-  companyIds?: string[];
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
@@ -40,28 +38,22 @@ class AddForm extends React.Component<Props, State> {
 
     this.state = {
       disabled: false,
-      boardId: '',
-      pipelineId: '',
-      stageId: props.stageId || '',
+      boardId: this.props.boardId || '',
+      pipelineId: this.props.pipelineId || '',
+      stageId: this.props.stageId || '',
       name: ''
     };
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   save = e => {
     e.preventDefault();
 
     const { stageId, name } = this.state;
-    const {
-      companyIds,
-      customerIds,
-      saveItem,
-      closeModal,
-      callback
-    } = this.props;
+    const { saveItem, closeModal, callback } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -73,9 +65,7 @@ class AddForm extends React.Component<Props, State> {
 
     const doc = {
       name,
-      stageId,
-      customerIds: customerIds || [],
-      companyIds: companyIds || []
+      stageId
     };
 
     // before save, disable save button

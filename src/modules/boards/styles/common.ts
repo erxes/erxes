@@ -93,6 +93,10 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   }
 `;
 
+export const FormContainer = styled.div`
+  padding-right: 20px;
+`;
+
 export const ItemDate = styled.span`
   font-size: 11px;
   color: rgb(136, 136, 136);

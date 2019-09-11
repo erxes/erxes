@@ -45,9 +45,9 @@ export const INBOX_INSIGHTS = [
   },
   {
     name: 'Response Frequency Report',
-    image: '/images/icons/erxes-15.svg',
+    image: '/images/icons/erxes-02.svg',
     to: '/inbox/insights/conversation-report',
-    desc: ''
+    desc: 'The general speed of the response report for customer request'
   }
 ];
 

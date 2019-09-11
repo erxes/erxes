@@ -37,13 +37,16 @@ export default (props: Props) => {
         </DropdownToggle>
         <Dropdown.Menu>
           <li key="ticket">
-            <TicketAddTrigger customerIds={props.customerIds} />
+            <TicketAddTrigger
+              relTypeIds={props.customerIds}
+              relType="customer"
+            />
           </li>
           <li key="deal">
-            <DealAddTrigger customerIds={props.customerIds} />
+            <DealAddTrigger relTypeIds={props.customerIds} relType="customer" />
           </li>
           <li key="task">
-            <TaskAddTrigger customerIds={props.customerIds} />
+            <TaskAddTrigger relTypeIds={props.customerIds} relType="customer" />
           </li>
         </Dropdown.Menu>
       </Dropdown>

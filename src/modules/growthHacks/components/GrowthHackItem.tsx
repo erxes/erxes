@@ -14,6 +14,7 @@ import Score from './Score';
 type Props = {
   stageId: string;
   item: IGrowthHack;
+  beforePopupClose: () => void;
   onClick: () => void;
   options: IOptions;
 };
@@ -28,14 +29,14 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
   }
 
   renderForm = () => {
-    const { stageId, item, options } = this.props;
+    const { stageId, item, options, beforePopupClose } = this.props;
 
     return (
       <EditForm
+        beforePopupClose={beforePopupClose}
         options={options}
         stageId={stageId}
         itemId={item._id}
-        hideHeader={true}
       />
     );
   };

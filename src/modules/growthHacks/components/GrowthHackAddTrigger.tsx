@@ -9,5 +9,11 @@ type Props = {
 export default (props: Props) => {
   const { customerIds } = props;
 
-  return <AddTrigger options={options} customerIds={customerIds} />;
+  const extendedProps = {
+    options,
+    relType: 'growthHack',
+    relTypeIds: customerIds
+  };
+
+  return <AddTrigger {...extendedProps} />;
 };
