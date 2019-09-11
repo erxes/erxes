@@ -65,11 +65,18 @@ export const hours = [
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  FACEBOOK: 'facebook',
+  FACEBOOK_MESSENGER: 'facebook-messenger',
+  FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
   FORM: 'form',
   CALLPRO: 'callpro',
-  ALL_LIST: ['messenger', 'facebook', 'form', 'callpro']
+  ALL_LIST: [
+    'messenger',
+    'facebook-post',
+    'facebook-messenger',
+    'form',
+    'callpro'
+  ]
 };
 
 export const FORM_LOAD_TYPES = {
@@ -91,12 +98,20 @@ export const INTEGRATIONS = [
     name: 'row-1',
     rows: [
       {
+        name: 'Facebook post',
+        description: 'Connect to Facebook posts right from your Team Inbox',
+        inMessenger: false,
+        kind: 'facebook-post',
+        logo: '/images/integrations/facebook.png',
+        createModal: 'facebook-post'
+      },
+      {
         name: 'Facebook messenger',
         description: 'Connect to Facebook messages right from your Team Inbox',
         inMessenger: false,
-        kind: 'facebook',
+        kind: 'facebook-messenger',
         logo: '/images/integrations/fb-messenger.png',
-        createModal: 'facebook'
+        createModal: 'facebook-messenger'
       },
       {
         name: 'Messenger',
@@ -114,7 +129,12 @@ export const INTEGRATIONS = [
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
         createModal: 'gmail'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-2',
+    rows: [
       {
         name: 'Lead',
         description: 'Find your lead forms right here in your Widget',
@@ -123,12 +143,7 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'
-      }
-    ]
-  },
-  {
-    name: 'row-2',
-    rows: [
+      },
       {
         name: 'Knowledge Base',
         description: 'Get access to your Knowledge Base right in your Widget',

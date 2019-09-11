@@ -1,4 +1,5 @@
 import { IAttachmentPreview } from 'modules/common/types';
+import { FacebookPost } from 'modules/inbox/containers/conversationDetail';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -53,7 +54,7 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   renderConversation() {
-    const { conversation, conversationMessages } = this.props;
+    const { conversation, conversationMessages, scrollBottom } = this.props;
 
     if (!conversation) {
       return null;
@@ -67,6 +68,12 @@ class Conversation extends React.Component<Props, {}> {
           conversation={conversation}
           conversationMessages={conversationMessages}
         />
+      );
+    }
+
+    if (kind === 'facebook-post') {
+      return (
+        <FacebookPost scrollBottom={scrollBottom} conversation={conversation} />
       );
     }
 
