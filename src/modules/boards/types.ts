@@ -1,4 +1,5 @@
 import { IAttachment } from 'modules/common/types';
+import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
@@ -49,8 +50,6 @@ export interface IItemParams {
   name?: string;
   stageId?: string;
   assignedUserIds?: string[];
-  companyIds?: string[];
-  customerIds?: string[];
   closeDate?: Date;
   description?: string;
   order?: number;
@@ -190,13 +189,20 @@ export type ItemsQueryResponse = {
   fetchMore: any;
 };
 
+export type RelatedItemsQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
 export type DetailQueryResponse = {
   loading: boolean;
 };
 
-export interface IFilterParams {
+export interface IFilterParams extends ISavedConformity {
   itemId?: string;
   search?: string;
+  stageId?: string;
   customerIds?: string;
   companyIds?: string;
   assignedUserIds?: string;

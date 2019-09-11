@@ -1,4 +1,4 @@
 import AddForm from './AddForm';
-import Items from './Items';
+import ItemChooser from './ItemChooser';
 
-export { Items, AddForm };
+export { AddForm, ItemChooser };

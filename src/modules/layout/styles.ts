@@ -522,6 +522,20 @@ const CenterContent = styled.div`
   }
 `;
 
+const ButtonRelated = styled.div`
+  text-align: center;
+  button {
+    background: rgba(0, 0, 0, 0.04);
+    margin: 10px auto;
+    color: #888;
+    border: 0;
+    border-radius: 25px;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -557,5 +571,6 @@ export {
   SectionContainer,
   SectionBody,
   SectionBodyItem,
-  MobileRecommend
+  MobileRecommend,
+  ButtonRelated
 };

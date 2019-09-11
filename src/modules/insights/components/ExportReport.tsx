@@ -98,25 +98,23 @@ class ExportReport extends React.Component<Props, { userId: string }> {
           <InsightTitle>{__('Export Report')}</InsightTitle>
 
           <FlexRow>
-            <div>
-              {this.renderBox(
-                'Volume Report By Date',
-                '/images/icons/erxes-21.svg',
-                'volumeByDate'
-              )}
+            {this.renderBox(
+              'Volume Report By Date',
+              '/images/icons/erxes-21.svg',
+              'volumeByDate'
+            )}
 
-              {this.renderBox(
-                'Volume Report By Time',
-                '/images/icons/erxes-14.svg',
-                'volumeByTime'
-              )}
+            {this.renderBox(
+              'Volume Report By Time',
+              '/images/icons/erxes-14.svg',
+              'volumeByTime'
+            )}
 
-              {this.renderBox(
-                'Operator Activity Report',
-                '/images/icons/erxes-16.svg',
-                'activity'
-              )}
-            </div>
+            {this.renderBox(
+              'Operator Activity Report',
+              '/images/icons/erxes-16.svg',
+              'activity'
+            )}
           </FlexRow>
 
           <InsightTitle>
@@ -137,29 +135,27 @@ class ExportReport extends React.Component<Props, { userId: string }> {
           </InsightTitle>
 
           <FlexRow>
-            <div>
-              {this.renderBox(
-                'Duration of First Response Report',
-                '/images/icons/erxes-06.svg',
-                'firstResponseDuration'
-              )}
+            {this.renderBox(
+              'Duration of First Response Report',
+              '/images/icons/erxes-06.svg',
+              'firstResponseDuration'
+            )}
 
-              {this.renderBox(
-                'First Response Report by Operators',
-                '/images/icons/erxes-15.svg',
-                'firstResponseOperators'
-              )}
+            {this.renderBox(
+              'First Response Report by Operators',
+              '/images/icons/erxes-15.svg',
+              'firstResponseOperators'
+            )}
 
-              <Box onClick={this.exportWithUser}>
-                <a href="#img">
-                  <img
-                    src="/images/icons/erxes-16.svg"
-                    alt="First Response Report by Operator"
-                  />
-                  <span>{__('First Response Report by Operator')}</span>
-                </a>
-              </Box>
-            </div>
+            <Box onClick={this.exportWithUser}>
+              <a href="#img">
+                <img
+                  src="/images/icons/erxes-16.svg"
+                  alt="First Response Report by Operator"
+                />
+                <span>{__('First Response Report by Operator')}</span>
+              </a>
+            </Box>
           </FlexRow>
 
           <InsightTitle>
@@ -169,13 +165,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
           </InsightTitle>
 
           <FlexRow>
-            <div>
-              {this.renderBox(
-                'Tag Report',
-                '/images/icons/erxes-18.svg',
-                'tag'
-              )}
-            </div>
+            {this.renderBox('Tag Report', '/images/icons/erxes-18.svg', 'tag')}
           </FlexRow>
         </InsightContent>
       </InsightWrapper>

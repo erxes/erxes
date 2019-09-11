@@ -31,6 +31,7 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
+  facebookPost?: IFacebookPost;
 }
 
 interface IEngageDataRules {
@@ -38,6 +39,29 @@ interface IEngageDataRules {
   text: string;
   condition: string;
   value?: string;
+}
+
+export interface IFacebookPost {
+  postId: string;
+  recipientId: string;
+  senderId: string;
+  content: string;
+  erxesApiId?: string;
+  attachments: string[];
+  timestamp: Date;
+  commentCount: number;
+}
+
+export interface IFacebookComment {
+  postId: string;
+  conversationId: string;
+  parentId: string;
+  commentId: string;
+  content: string;
+  attachments: string[];
+  commentCount: number;
+  timestamp: Date;
+  customer: ICustomer;
 }
 
 export interface IGmailData {
@@ -216,4 +240,25 @@ export type UnreadConversationsTotalCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
   subscribeToMore: (variables) => void;
+};
+
+export type FacebookCommentsQueryResponse = {
+  facebookComments: IFacebookComment[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: (variables) => void;
+};
+
+export type ReplyFaceBookCommentMutationVariables = {
+  conversationId: string;
+  commentId: string;
+  content: string;
+};
+
+export type ReplyFacebookCommentMutationResponse = {
+  replyMutation: (
+    doc: {
+      variables: ReplyFaceBookCommentMutationVariables;
+    }
+  ) => Promise<any>;
 };

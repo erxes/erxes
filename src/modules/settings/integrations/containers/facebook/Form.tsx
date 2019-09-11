@@ -11,6 +11,7 @@ import { IPages } from '../../types';
 import { getRefetchQueries } from '../utils';
 
 type Props = {
+  kind: string;
   type?: string;
   closeModal: () => void;
 };
@@ -65,12 +66,14 @@ class FacebookContainer extends React.Component<FinalProps, State> {
     isSubmitted,
     callback
   }: IButtonMutateProps) => {
+    const { kind } = this.props;
+
     return (
       <ButtonMutate
         mutation={mutations.integrationsCreateExternalIntegration}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries('facebook')}
+        refetchQueries={getRefetchQueries(kind)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}
@@ -79,9 +82,10 @@ class FacebookContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { closeModal } = this.props;
+    const { closeModal, kind } = this.props;
 
     const updatedProps = {
+      kind,
       closeModal,
       accountId: this.state.accountId,
       pages: this.state.pages,

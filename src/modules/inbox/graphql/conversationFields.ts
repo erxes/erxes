@@ -32,6 +32,9 @@ export default `
     _id
     visitorContactInfo
     messengerData
+    avatar
+    firstName
+    lastName
   }
   messageCount
   participatorCount
@@ -52,4 +55,14 @@ export default `
     colorCode
   }
   readUserIds
+  facebookPost {
+    postId
+    recipientId
+    senderId
+    content
+    erxesApiId
+    attachments
+    timestamp
+    commentCount
+  }
 `;

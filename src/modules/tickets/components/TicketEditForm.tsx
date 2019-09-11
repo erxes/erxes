@@ -11,8 +11,10 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Capitalize } from 'modules/settings/permissions/styles';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
@@ -113,6 +115,15 @@ export default class TicketEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderItems = () => {
+    return (
+      <>
+        <PortableDeals mainType="ticket" mainTypeId={this.props.item._id} />
+        <PortableTasks mainType="ticket" mainTypeId={this.props.item._id} />
+      </>
+    );
+  };
+
   renderFormContent = ({
     state,
     onChangeAttachment,
@@ -129,8 +140,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
       description,
       closeDate,
       assignedUserIds,
-      customers,
-      companies,
       attachments
     } = state;
 
@@ -160,14 +169,13 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
           <Sidebar
             options={options}
-            customers={customers}
-            companies={companies}
             assignedUserIds={assignedUserIds}
             item={item}
             sidebar={this.renderSidebarFields}
             onChangeField={onChangeField}
             copyItem={copy}
             removeItem={remove}
+            renderItems={this.renderItems}
           />
         </FlexContent>
       </>

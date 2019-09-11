@@ -21,11 +21,11 @@ type WrapperProps = {
   itemId: string;
   stageId: string;
   options?: IOptions;
+  isPopupVisible?: boolean;
   beforePopupClose?: () => void;
   onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
-  isPopupVisible?: boolean;
 };
 
 type ContainerProps = {

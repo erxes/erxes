@@ -11,6 +11,8 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import PortableDeals from 'modules/deals/components/PortableDeals';
+import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ITask, ITaskParams } from '../types';
@@ -81,6 +83,15 @@ export default class TaskEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderItems = () => {
+    return (
+      <>
+        <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
+        <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
+      </>
+    );
+  };
+
   renderFormContent = ({
     state,
     onChangeAttachment,
@@ -97,8 +108,6 @@ export default class TaskEditForm extends React.Component<Props, State> {
       description,
       closeDate,
       assignedUserIds,
-      customers,
-      companies,
       attachments
     } = state;
 
@@ -128,14 +137,13 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
           <Sidebar
             options={options}
-            customers={customers}
-            companies={companies}
             assignedUserIds={assignedUserIds}
             item={item}
             sidebar={this.renderSidebarFields}
             onChangeField={onChangeField}
             copyItem={copy}
             removeItem={remove}
+            renderItems={this.renderItems}
           />
         </FlexContent>
       </>

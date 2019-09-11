@@ -11,6 +11,7 @@ import SelectBrand from '../../containers/SelectBrand';
 import { IPages } from '../../types';
 
 type Props = {
+  kind: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   onAccountSelect: (accountId?: string) => void;
   pages: IPages[];
@@ -49,12 +50,12 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
     brandId: string;
     accountId: string;
   }) => {
-    const { accountId } = this.props;
+    const { accountId, kind } = this.props;
 
     return {
       name: values.messengerName,
       brandId: values.brandId,
-      kind: 'facebook',
+      kind,
       accountId: accountId ? accountId : values.accountId,
       data: {
         pageIds: this.collectCheckboxValues('pages')
