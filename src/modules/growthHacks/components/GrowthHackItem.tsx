@@ -37,6 +37,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
         options={options}
         stageId={stageId}
         itemId={item._id}
+        hideHeader={true}
       />
     );
   };
