@@ -9,6 +9,7 @@ describe('Step component', () => {
   };
 
   test('renders Step successfully', () => {
-    shallow(<Step {...defaultProps} />);
+    const wrapper = shallow(<Step {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -8,6 +8,7 @@ describe('CalloutPreview component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<CalloutPreview {...defaultProps} />);
+    const wrapper = shallow(<CalloutPreview {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

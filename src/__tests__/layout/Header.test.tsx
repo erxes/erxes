@@ -9,6 +9,7 @@ describe('Header component', () => {
   };
 
   test('renders Header successfully', () => {
-    shallow(<Header {...defaultProps} />);
+    const wrapper = shallow(<Header {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

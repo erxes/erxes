@@ -9,6 +9,7 @@ describe('Filter component', () => {
   };
 
   test('renders Filter successfully', () => {
-    shallow(<Filter {...defaultProps} />);
+    const wrapper = shallow(<Filter {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -9,6 +9,7 @@ describe('TextInfo component', () => {
   };
 
   test('renders TextInfo successfully', () => {
-    shallow(<TextInfo {...defaultProps} />);
+    const wrapper = shallow(<TextInfo {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

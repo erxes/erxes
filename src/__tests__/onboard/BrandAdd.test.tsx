@@ -12,6 +12,7 @@ describe('BrandAdd component', () => {
   };
 
   test('renders BrandAdd successfully', () => {
-    shallow(<BrandAdd {...defaultProps} />);
+    const wrapper = shallow(<BrandAdd {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -8,6 +8,7 @@ describe('CommonPreview component', () => {
   };
 
   test('renders shallow successfully', () => {
-    shallow(<CommonPreview {...defaultProps} />);
+    const wrapper = shallow(<CommonPreview {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

@@ -5,6 +5,7 @@ import Avatar from '../../../../modules/common/components/nameCard/Avatar';
 
 describe('Avatar component', () => {
   test('renders Avatar successfully', () => {
-    shallow(<Avatar />);
+    const wrapper = shallow(<Avatar />);
+    expect(wrapper).not.toBe('');
   });
 });

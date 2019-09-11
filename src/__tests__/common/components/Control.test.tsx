@@ -12,7 +12,8 @@ describe('Form control component', () => {
   };
 
   test('renders shallowly', () => {
-    shallow(<Control />);
+    const wrapper = shallow(<Control />);
+    expect(wrapper).not.toBe('');
   });
 
   test('renders an input properly', () => {

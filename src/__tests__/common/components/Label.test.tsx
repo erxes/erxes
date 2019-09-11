@@ -13,6 +13,7 @@ describe('Label component', () => {
   };
 
   test('renders Label successfully', () => {
-    shallow(<Label {...defaultProps} />);
+    const wrapper = shallow(<Label {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

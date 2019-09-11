@@ -10,6 +10,7 @@ describe('AddConditionButton component', () => {
   };
 
   test('renders AddConditionButton successfully', () => {
-    shallow(<AddConditionButton {...defaultProps} />);
+    const wrapper = shallow(<AddConditionButton {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

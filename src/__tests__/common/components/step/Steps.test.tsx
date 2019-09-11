@@ -10,6 +10,7 @@ describe('Group component', () => {
   };
 
   test('renders Steps successfully', () => {
-    shallow(<Steps {...defaultProps} />);
+    const wrapper = shallow(<Steps {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });

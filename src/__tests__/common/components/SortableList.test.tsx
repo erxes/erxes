@@ -11,6 +11,7 @@ describe('SortableList component', () => {
   };
 
   test('renders successfully', () => {
-    shallow(<SortableList {...defaultProps} />);
+    const wrapper = shallow(<SortableList {...defaultProps} />);
+    expect(wrapper).not.toBe('');
   });
 });
