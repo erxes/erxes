@@ -47,6 +47,7 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
             firstName: response.first_name,
             lastName: response.last_name,
             avatar: response.profile_pic,
+            isUser: true,
           }),
         },
       });

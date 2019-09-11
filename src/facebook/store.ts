@@ -190,6 +190,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string) => {
           firstName: fbUser.first_name || fbUser.name,
           lastName: fbUser.last_name,
           avatar: fbUser.profile_pic || (await getFacebookUserProfilePic(userId)),
+          isUser: true,
         }),
       },
     });
