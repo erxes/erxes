@@ -53,13 +53,14 @@ export interface IFacebookPost {
 }
 
 export interface IFacebookComment {
-  timestamp: Date;
   postId: string;
+  conversationId: string;
   parentId: string;
   commentId: string;
   content: string;
   attachments: string[];
   commentCount: number;
+  timestamp: Date;
   customer: ICustomer;
 }
 
@@ -249,7 +250,7 @@ export type FacebookCommentsQueryResponse = {
 };
 
 export type ReplyFaceBookCommentMutationVariables = {
-  postId: string;
+  conversationId: string;
   commentId: string;
   content: string;
 };

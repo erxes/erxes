@@ -23,7 +23,7 @@ type FinalProps = Props & ReplyFacebookCommentMutationResponse;
 const FacebookCommentContainer = (props: FinalProps) => {
   const { replyMutation, comment } = props;
 
-  const replyPost = (
+  const replyComment = (
     variables: ReplyFaceBookCommentMutationVariables,
     callback: () => void
   ) => {
@@ -38,7 +38,7 @@ const FacebookCommentContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    replyPost,
+    replyComment,
     comment
   };
 
@@ -51,7 +51,7 @@ export default withProps<Props>(
       Props,
       ReplyFacebookCommentMutationResponse,
       ReplyFaceBookCommentMutationVariables
-    >(gql(mutations.conversationMessageAdd), {
+    >(gql(mutations.replyFacebookComment), {
       name: 'replyMutation'
     })
   )(FacebookCommentContainer)

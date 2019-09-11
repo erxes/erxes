@@ -71,7 +71,7 @@ class Conversation extends React.Component<Props, {}> {
       );
     }
 
-    if (conversation.post && conversation.post.postId) {
+    if (kind === 'facebook-post' || kind === 'facebook-comment') {
       return (
         <FacebookPost scrollBottom={scrollBottom} conversation={conversation} />
       );

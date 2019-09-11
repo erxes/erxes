@@ -20,6 +20,22 @@ const conversationMessageAdd = `
   }
 `;
 
+const replyFacebookComment = `
+  mutation replyFacebookComment(
+    $conversationId: String,
+    $content: String,
+    $commentId: String,
+  ) {
+    replyFacebookComment(
+    conversationId: $conversationId,
+    content: $content,
+    commentId: $commentId,
+  ) {
+    commentId
+  }
+}
+`;
+
 const markAsRead = `
   mutation conversationMarkAsRead(
     $_id: String
@@ -76,6 +92,7 @@ const conversationsUnassign = `
 `;
 
 export default {
+  replyFacebookComment,
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,

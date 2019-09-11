@@ -4,15 +4,16 @@ import * as React from 'react';
 import { Footer } from './styles';
 
 type Props = {
-  replyPost: (
+  replyComment: (
     data: {
-      postId: string;
+      conversationId: string;
+      commentId: string;
       content: string;
     },
     callback: () => void
   ) => void;
-  postId: string;
-  commentId?: string;
+  conversationId: string;
+  commentId: string;
   currentUserName: string;
   closeModal: () => void;
 };
@@ -47,15 +48,15 @@ class ReplyingMessage extends React.Component<Props, State> {
   doAction = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { replyPost, postId, commentId } = this.props;
+    const { replyComment, conversationId, commentId } = this.props;
 
     const replyData = {
-      postId,
+      conversationId,
       commentId,
       content: this.state.post
     };
 
-    return replyPost(replyData, () => {
+    return replyComment(replyData, () => {
       this.props.closeModal();
     });
   };

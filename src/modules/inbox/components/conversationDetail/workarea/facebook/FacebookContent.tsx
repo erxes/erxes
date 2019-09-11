@@ -24,6 +24,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
 
         return (
           <iframe
+            key={index}
             title="erxesIframe"
             src={`https://www.youtube.com/embed/${iframeSrc}`}
             width="100%"
@@ -37,6 +38,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
       if (link.includes('xx.fbcdn.net')) {
         return (
           <iframe
+            key={index}
             title="erxesIframeVideo"
             src={link}
             width="100%"

@@ -1,5 +1,5 @@
 import ConversationDetail from './ConversationDetail';
-import FacebookPost from './facebook/FacebookPost';
+import FacebookPost from './facebook/FacebookConversation';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './ResponseTemplate';
 import Sidebar from './Sidebar';

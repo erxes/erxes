@@ -13,9 +13,9 @@ import ReplyingMessage from './ReplyingMessage';
 
 type Props = {
   comment: IFacebookComment;
-  replyPost: (
+  replyComment: (
     data: {
-      postId: string;
+      conversationId: string;
       commentId: string;
       content: string;
     },
@@ -60,7 +60,7 @@ export default class FacebookComment extends React.Component<
   };
 
   render() {
-    const { comment, replyPost } = this.props;
+    const { comment, replyComment } = this.props;
     const customer = comment.customer || {};
 
     if (!comment) {
@@ -71,10 +71,10 @@ export default class FacebookComment extends React.Component<
 
     const content = props => (
       <ReplyingMessage
-        postId={comment.postId}
+        conversationId={comment.conversationId}
         commentId={comment.commentId}
         currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
-        replyPost={replyPost}
+        replyComment={replyComment}
         {...props}
       />
     );
