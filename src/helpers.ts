@@ -5,9 +5,11 @@ import {
 } from './callpro/models';
 import { debugCallPro, debugFacebook, debugGmail } from './debuggers';
 import {
+  Comments as FacebookComments,
   ConversationMessages as FacebookConversationMessages,
   Conversations as FacebookConversations,
   Customers as FacebookCustomers,
+  Posts as FacebookPosts,
 } from './facebook/models';
 import { getPageAccessToken, unsubscribePage } from './facebook/utils';
 import {
@@ -36,11 +38,14 @@ export const removeIntegration = async (id: string) => {
 
   const selector = { integrationId: _id };
 
-  if (kind === 'facebook' && account) {
+  if (kind.includes('facebook') && account) {
     debugFacebook('Removing facebook entries');
 
     for (const pageId of integration.facebookPageIds) {
       const pageTokenResponse = await getPageAccessToken(pageId, account.token);
+
+      await FacebookPosts.deleteMany({ recipientId: pageId });
+      await FacebookComments.deleteMany({ recipientId: pageId });
 
       await unsubscribePage(pageId, pageTokenResponse);
     }

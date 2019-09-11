@@ -4,9 +4,13 @@ import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
-import { Conversations } from './models';
+import { Comments, Conversations, Posts } from './models';
+import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
-import { getPageAccessToken, getPageAccessTokenFromMap, getPageList, graphRequest, subscribePage } from './utils';
+import receivePost from './receivePost';
+
+import { FACEBOOK_POST_TYPES } from './constants';
+import { getPageAccessToken, getPageAccessTokenFromMap, getPageList, sendReply, subscribePage } from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -14,18 +18,14 @@ const init = async app => {
   app.post('/facebook/create-integration', async (req, res, next) => {
     debugRequest(debugFacebook, req);
 
-    const { accountId, integrationId, data } = req.body;
+    const { accountId, integrationId, data, kind } = req.body;
+
     const facebookPageIds = JSON.parse(data).pageIds;
 
-    const account = await Accounts.findOne({ _id: accountId });
-
-    if (!account) {
-      debugFacebook('Account not found');
-      return next(new Error('Account not found'));
-    }
+    const account = await Accounts.getAccount({ _id: accountId });
 
     const integration = await Integrations.create({
-      kind: 'facebook',
+      kind,
       accountId,
       erxesApiId: integrationId,
       facebookPageIds,
@@ -48,7 +48,7 @@ const init = async app => {
           },
         });
       } catch (e) {
-        await Integrations.remove({ _id: integration._id });
+        await Integrations.deleteOne({ _id: integration._id });
         return next(e);
       }
     }
@@ -86,11 +86,7 @@ const init = async app => {
   app.get('/facebook/get-pages', async (req, res, next) => {
     debugRequest(debugFacebook, req);
 
-    const account = await Accounts.findOne({ _id: req.query.accountId });
-
-    if (!account) {
-      return next(new Error('Account not found'));
-    }
+    const account = await Accounts.getAccount({ _id: req.query.accountId });
 
     const accessToken = account.token;
 
@@ -113,40 +109,11 @@ const init = async app => {
 
     const { integrationId, conversationId, content, attachments } = req.body;
 
-    const integration = await Integrations.findOne({ erxesApiId: integrationId });
+    const conversation = await Conversations.getConversation({ erxesApiId: conversationId });
 
-    if (!integration) {
-      debugFacebook('Integration not found');
-      return next(new Error('Integration not found'));
-    }
-
-    const account = await Accounts.findOne({ _id: integration.accountId });
-
-    if (!account) {
-      debugFacebook('Account not found');
-      return next(new Error('Account not found'));
-    }
-
-    const conversation = await Conversations.findOne({ erxesApiId: conversationId });
-
-    if (!conversation) {
-      debugFacebook('Conversation not found');
-      return next(new Error('Conversation not found'));
-    }
-
-    const { facebookPageTokensMap } = integration;
     const { recipientId } = conversation;
 
-    let pageAccessToken;
-
-    try {
-      pageAccessToken = getPageAccessTokenFromMap(recipientId, facebookPageTokensMap);
-    } catch (e) {
-      debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
-      return next(e);
-    }
-
-    let attachment;
+    let attachment: { url?: string; type?: string; payload?: { url: string } } = {};
 
     if (attachments && attachments.length > 0) {
       attachment = {
@@ -166,21 +133,48 @@ const init = async app => {
     };
 
     try {
-      const response = await graphRequest.post('me/messages', pageAccessToken, data);
-      debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
-      return res.json(response);
+      const response = await sendReply('me/messages', data, recipientId, integrationId);
+      res.json(response);
     } catch (e) {
-      debugFacebook(`Error ocurred while trying to send post request to facebook ${e} data: ${JSON.stringify(data)}`);
-      // Access token has expired
-      if (e.includes('Invalid OAuth')) {
-        // Update expired token for selected page
-        const newPageAccessToken = await getPageAccessToken(recipientId, account.token);
+      return next(new Error(e));
+    }
+  });
 
-        facebookPageTokensMap[recipientId] = newPageAccessToken;
+  app.post('/facebook/reply-post', async (req, res, next) => {
+    debugRequest(debugFacebook, req);
 
-        await integration.updateOne({ facebookPageTokensMap });
-      }
+    const { integrationId, conversationId, content, attachments } = req.body;
 
+    const comment = await Comments.findOne({ commentId: conversationId });
+
+    const post = await Posts.findOne({
+      $or: [{ erxesApiId: conversationId }, { postId: comment ? comment.postId : '' }],
+    });
+
+    const { recipientId } = post;
+
+    let attachment: { url?: string; type?: string; payload?: { url: string } } = {};
+
+    if (attachments && attachments.length > 0) {
+      attachment = {
+        type: 'file',
+        payload: {
+          url: attachments[0].url,
+        },
+      };
+    }
+
+    const data = {
+      message: content,
+      attachment_url: attachment.url,
+    };
+
+    const id = comment ? comment.commentId : post.postId;
+
+    try {
+      const response = await sendReply(`${id}/comments`, data, recipientId, integrationId);
+      res.json(response);
+    } catch (e) {
       return next(new Error(e));
     }
   });
@@ -214,51 +208,159 @@ const init = async app => {
     }
   });
 
-  app.post('/facebook/receive', (req, res, next) => {
-    adapter
-      .processActivity(req, res, async context => {
-        const { activity } = context;
+  app.post('/facebook/receive', async (req, res, next) => {
+    const data = req.body;
 
-        if (activity.type === 'message') {
-          debugFacebook(`Received webhook activity ${JSON.stringify(activity)}`);
+    if (data.object !== 'page') {
+      return;
+    }
 
-          const pageId = activity.recipient.id;
+    debugFacebook(`Received webhook data ${JSON.stringify(data)}`);
 
-          const integration = await Integrations.findOne({ facebookPageIds: { $in: [pageId] } });
+    for (const entry of data.entry) {
+      // receive chat
+      if (entry.messaging) {
+        adapter
+          .processActivity(req, res, async context => {
+            const { activity } = await context;
 
-          if (!integration) {
-            debugFacebook(`Integration not found with pageId: ${pageId}`);
-            return next();
+            if (!activity) {
+              next();
+            }
+
+            const pageId = activity.recipient.id;
+
+            const integration = await Integrations.getIntegration({ facebookPageIds: { $in: [pageId] } });
+
+            await Accounts.getAccount({ _id: integration.accountId });
+
+            const { facebookPageTokensMap } = integration;
+
+            try {
+              accessTokensByPageId[pageId] = getPageAccessTokenFromMap(pageId, facebookPageTokensMap);
+            } catch (e) {
+              debugFacebook(`Error occurred while getting page access token: ${e.message}`);
+              return next();
+            }
+
+            await receiveMessage(adapter, activity);
+
+            debugFacebook(`Successfully saved activity ${JSON.stringify(activity)}`);
+          })
+
+          .catch(e => {
+            debugFacebook(`Error occurred while processing activity: ${e.message}`);
+            next();
+          });
+      }
+
+      // receive post and comment
+      if (entry.changes) {
+        for (const event of entry.changes) {
+          if (event.value.item === 'comment') {
+            await receiveComment(event.value, entry.id);
           }
 
-          const account = await Accounts.findOne({ _id: integration.accountId });
-
-          if (!account) {
-            debugFacebook(`Account not found with _id: ${integration.accountId}`);
-            return next();
+          if (FACEBOOK_POST_TYPES.includes(event.value.item)) {
+            await receivePost(event.value, entry.id);
+          } else {
+            next();
           }
 
-          const { facebookPageTokensMap } = integration;
-
-          try {
-            accessTokensByPageId[pageId] = getPageAccessTokenFromMap(pageId, facebookPageTokensMap);
-          } catch (e) {
-            debugFacebook(`Error occurred while getting page access token: ${e.message}`);
-            return next();
-          }
-
-          await receiveMessage(adapter, activity);
-
-          debugFacebook(`Successfully saved activity ${JSON.stringify(activity)}`);
+          debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
         }
+      }
+    }
+  });
 
-        next();
-      })
+  app.get('/facebook/get-post', async (req, res) => {
+    const { erxesApiId, integrationId } = req.query;
 
-      .catch(e => {
-        debugFacebook(`Error occurred while processing activity: ${e.message}`);
-        next();
-      });
+    debugFacebook(`Request to get postData with: ${erxesApiId}`);
+
+    await Integrations.getIntegration({ erxesApiId: integrationId });
+
+    const post = await Posts.getPost({ erxesApiId }, true);
+
+    const commentCount = await Comments.countDocuments({
+      $and: [{ postId: post.postId }, { parentId: { $exists: false } }],
+    });
+
+    return res.json({
+      ...post,
+      commentCount,
+    });
+  });
+
+  app.get('/facebook/get-comments', async (req, res) => {
+    const { postId, commentId } = req.query;
+
+    debugFacebook(`Request to get comments with: ${postId}`);
+
+    const query: { postId: string; parentId?: string } = { postId };
+
+    let limit = req.query.limit;
+
+    if (commentId !== 'undefined') {
+      query.parentId = commentId;
+      limit = 9999;
+    } else {
+      query.parentId = null;
+    }
+
+    const result = await Comments.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $lookup: {
+          from: 'customers_facebooks',
+          localField: 'senderId',
+          foreignField: 'userId',
+          as: 'customer',
+        },
+      },
+      {
+        $unwind: {
+          path: '$customer',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'posts_facebooks',
+          localField: 'postId',
+          foreignField: 'postId',
+          as: 'post',
+        },
+      },
+      {
+        $unwind: {
+          path: '$post',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'comments_facebooks',
+          localField: 'commentId',
+          foreignField: 'parentId',
+          as: 'replies',
+        },
+      },
+      {
+        $addFields: {
+          commentCount: { $size: '$replies' },
+          'customer.avatar': '$customer.profilePic',
+          conversationId: '$post.erxesApiId',
+        },
+      },
+
+      { $sort: { timestamp: -1 } },
+      { $limit: parseInt(limit || 4, 10) },
+    ]);
+
+    return res.json(result.reverse());
   });
 };
 

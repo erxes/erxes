@@ -32,10 +32,22 @@ export const integrationSchema = new Schema({
   }),
 });
 
-export interface IIntegrationModel extends Model<IIntegrationDocument> {}
+export interface IIntegrationModel extends Model<IIntegrationDocument> {
+  getIntegration(selector): Promise<IIntegrationDocument>;
+}
 
 export const loadClass = () => {
-  class Integration {}
+  class Integration {
+    public static async getIntegration(selector) {
+      const integration = await Integrations.findOne(selector);
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      return integration;
+    }
+  }
 
   integrationSchema.loadClass(Integration);
 

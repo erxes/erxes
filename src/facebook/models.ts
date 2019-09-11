@@ -51,7 +51,27 @@ export const conversationSchema = new Schema({
 
 conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });
 
-export interface IConversationModel extends Model<IConversationDocument> {}
+export interface IConversationModel extends Model<IConversationDocument> {
+  getConversation(selector): Promise<IConversationDocument>;
+}
+
+export const loadConversationClass = () => {
+  class Conversation {
+    public static async getConversation(selector) {
+      const conversation = await Conversations.findOne(selector);
+
+      if (!conversation) {
+        throw new Error('Conversation not found');
+      }
+
+      return conversation;
+    }
+  }
+
+  conversationSchema.loadClass(Conversation);
+
+  return conversationSchema;
+};
 
 // conversation message ===========================
 export interface IConversationMessage {
@@ -71,6 +91,113 @@ export const conversationMessageSchema = new Schema({
 
 export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
 
+export interface IPost {
+  postId: string;
+  recipientId: string;
+  senderId: string;
+  content: string;
+  erxesApiId?: string;
+  attachments: string[];
+  timestamp: Date;
+}
+
+export interface IPostDocument extends IPost, Document {}
+
+export const postSchema = new Schema({
+  _id: field({ pkey: true }),
+  postId: { type: String, index: true },
+  recipientId: { type: String, index: true },
+  senderId: String,
+  content: String,
+  attachments: [String],
+  erxesApiId: String,
+  timestamp: Date,
+});
+
+postSchema.index({ recipientId: 1, postId: 1 }, { unique: true });
+
+export interface IPostModel extends Model<IPostDocument> {
+  getPost(selector: any, isLean?: boolean): Promise<IPostDocument>;
+}
+
+export const loadPostClass = () => {
+  class Post {
+    public static async getPost(selector: any, isLean: boolean) {
+      let post = await Posts.findOne(selector);
+
+      if (isLean) {
+        post = await Posts.findOne(selector).lean();
+      }
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      return post;
+    }
+  }
+
+  postSchema.loadClass(Post);
+
+  return postSchema;
+};
+
+export interface IComment {
+  commentId: string;
+  postId: string;
+  recipientId: string;
+  parentId: string;
+  senderId: string;
+  attachments: string[];
+  content: string;
+  erxesApiId: string;
+  timestamp: Date;
+}
+
+export interface ICommentDocument extends IComment, Document {}
+
+export const commentShema = new Schema({
+  _id: field({ pkey: true }),
+  commentId: { type: String, index: true },
+  postId: { type: String, index: true },
+  recipientId: String,
+  senderId: String,
+  parentId: String,
+  attachments: [String],
+  content: String,
+  erxesApiId: String,
+  timestamp: Date,
+});
+
+commentShema.index({ postId: 1, commentId: 1 }, { unique: true });
+
+export interface ICommentModel extends Model<ICommentDocument> {
+  getComment(selector): Promise<ICommentDocument>;
+}
+
+export const loadCommentClass = () => {
+  class Comment {
+    public static async getComment(selector) {
+      const comment = await Comments.findOne(selector);
+
+      if (!comment) {
+        throw new Error('Comment not found');
+      }
+
+      return comment;
+    }
+  }
+
+  commentShema.loadClass(Comment);
+
+  return commentShema;
+};
+
+loadCommentClass();
+
+loadConversationClass();
+
+loadPostClass();
 // tslint:disable-next-line
 export const Customers = model<ICustomerDocument, ICustomerModel>('customers_facebook', customerSchema);
 
@@ -85,3 +212,9 @@ export const ConversationMessages = model<IConversationMessageDocument, IConvers
   'conversation_messages_facebook',
   conversationMessageSchema,
 );
+
+// tslint:disable-next-line
+export const Posts = model<IPostDocument, IPostModel>('posts_facebook', postSchema);
+
+// tslint:disable-next-line
+export const Comments = model<ICommentDocument, ICommentModel>('comments_facebook', commentShema);
