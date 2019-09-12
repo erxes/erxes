@@ -58,7 +58,9 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
   }
 
   onChangeExtraField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+      this.props.saveItem({ [name]: value });
+    });
   };
 
   saveFormFields = (itemId: string, stageId: string, formFields: JSON) => {
