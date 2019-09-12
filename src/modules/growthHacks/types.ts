@@ -26,6 +26,10 @@ export interface IGrowthHackParams extends IItemParams {
   priority?: string;
   formId?: string;
   formFields?: any;
+  reach?: number;
+  impact?: number;
+  confidence?: number;
+  ease?: number;
 }
 
 export interface IFormField {

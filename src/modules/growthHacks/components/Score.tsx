@@ -16,6 +16,7 @@ type Props = {
   reach: number;
   scoringType?: string;
   onChange: (e) => void;
+  onExited: () => void;
 };
 
 function Amount({
@@ -99,7 +100,14 @@ class Score extends React.Component<Props> {
   };
 
   render() {
-    const { scoringType, reach, impact, confidence, ease } = this.props;
+    const {
+      scoringType,
+      reach,
+      impact,
+      confidence,
+      ease,
+      onExited
+    } = this.props;
 
     return (
       <ScoreWrapper>
@@ -107,6 +115,7 @@ class Score extends React.Component<Props> {
           trigger="click"
           placement="bottom"
           rootClose={true}
+          onExited={onExited}
           overlay={this.renderPopover()}
         >
           <CalculatedAmount>

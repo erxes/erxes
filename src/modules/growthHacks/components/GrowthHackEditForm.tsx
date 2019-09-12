@@ -73,15 +73,24 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
   renderScore = () => {
     const { reach, impact, confidence, ease } = this.state;
+    const { saveItem, item } = this.props;
 
     const onChange = e => {
       const value = Number((e.target as HTMLInputElement).value);
       const confirmedValue = value > 10 ? 10 : value;
 
-      this.setState({ [e.target.name]: confirmedValue } as Pick<
-        State,
-        keyof State
-      >);
+      const changedValue = { [e.target.name]: confirmedValue };
+
+      this.setState(changedValue as Pick<State, keyof State>);
+    };
+
+    const onExited = () => {
+      saveItem({
+        impact,
+        confidence,
+        ease,
+        reach
+      });
     };
 
     return (
@@ -91,7 +100,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
         confidence={confidence}
         ease={ease}
         onChange={onChange}
-        scoringType={this.props.item.scoringType || 'ice'}
+        onExited={onExited}
+        scoringType={item.scoringType || 'ice'}
       />
     );
   };
