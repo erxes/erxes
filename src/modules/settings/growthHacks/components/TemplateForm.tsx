@@ -57,7 +57,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       name: finalValues.name,
       description: finalValues.description,
       type: 'growthHack',
-      stages: stages.filter(el => el.name)
+      stages: stages.filter(el => el.name && el.formId)
     };
   };
 
