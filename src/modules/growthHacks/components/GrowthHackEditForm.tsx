@@ -1,13 +1,9 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import DueDateChanger from 'modules/boards/components/DueDateChanger';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import { FlexContent, LeftContainer } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
-import { Alert } from 'modules/common/utils';
 import React from 'react';
-import { mutations } from '../graphql';
 import { IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, Right, Top } from './editForm/';
 import Actions from './editForm/Actions';
@@ -59,26 +55,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
   onChangeExtraField = <T extends keyof State>(name: T, value: State[T]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  saveFormFields = (itemId: string, stageId: string, formFields: JSON) => {
-    client
-      .mutate({
-        mutation: gql(mutations.growthHacksSaveFormFields),
-        variables: {
-          _id: itemId,
-          formFields,
-          stageId
-        }
-      })
-      .then(({ data }) => {
-        if (data && data.growthHacksSaveFormFields) {
-          this.setState({ formId: data.growthHacksSaveFormFields });
-        }
-      })
-      .catch((e: Error) => {
-        Alert.error(e.message);
-      });
   };
 
   renderDueDate = (closeDate, onDateChange: (date) => void) => {
@@ -151,7 +127,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           stageId={stageId}
           item={item}
           onChangeField={onChangeField}
-          saveFormFields={this.saveFormFields}
           dueDate={this.renderDueDate(closeDate, dateOnChange)}
           score={this.renderScore}
           onBlurFields={onBlurFields}

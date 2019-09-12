@@ -105,12 +105,6 @@ const growthHacksChange = `
   }
 `;
 
-const growthHacksSaveFormFields = `
-  mutation growthHacksSaveFormFields($_id: String!, $stageId: String!, $formFields: JSON!) {
-    growthHacksSaveFormFields(_id: $_id, stageId: $stageId, formFields: $formFields)
-  }
-`;
-
 const growthHacksUpdateOrder = `
   mutation growthHacksUpdateOrder($stageId: String!, $orders: [OrderItem]) {
     growthHacksUpdateOrder(stageId: $stageId, orders: $orders) {
@@ -134,6 +128,5 @@ export default {
   growthHacksRemove,
   growthHacksChange,
   growthHacksUpdateOrder,
-  growthHacksWatch,
-  growthHacksSaveFormFields
+  growthHacksWatch
 };

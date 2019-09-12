@@ -21,11 +21,6 @@ type Props = {
   hackStages: string[];
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
   onBlurFields: (name: 'description' | 'name', value: string) => void;
-  saveFormFields: (
-    itemId: string,
-    destinationStageId: string,
-    formFields: JSON
-  ) => void;
   score?: () => React.ReactNode;
   dueDate?: React.ReactNode;
   formFields: JSON;
@@ -33,10 +28,9 @@ type Props = {
 
 class Top extends React.Component<Props> {
   onChangeStage = stageId => {
-    const { onChangeField, saveFormFields, item, formFields } = this.props;
+    const { onChangeField } = this.props;
 
     onChangeField('stageId', stageId);
-    saveFormFields(item._id, stageId, formFields);
   };
 
   renderMove() {
