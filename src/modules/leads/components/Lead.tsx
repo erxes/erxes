@@ -74,7 +74,7 @@ type State = {
   carousel?: string;
 };
 
-class Form extends React.Component<Props, State> {
+class Lead extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -168,9 +168,7 @@ class Form extends React.Component<Props, State> {
       }
     };
 
-    this.props.save({
-      ...doc
-    });
+    this.props.save(doc);
   };
 
   renderSaveButton = () => {
@@ -345,4 +343,4 @@ class Form extends React.Component<Props, State> {
   }
 }
 
-export default Form;
+export default Lead;

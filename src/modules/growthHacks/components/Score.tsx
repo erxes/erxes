@@ -36,11 +36,16 @@ function Amount({
     if (!value) {
       return 0;
     }
+
     return Math.round(value * 100) / 100;
   };
 
   const calculateScore = () => {
     if (type === 'rice') {
+      if (e === 0) {
+        return 0;
+      }
+
       return roundToTwo((r * i * c) / e);
     }
 

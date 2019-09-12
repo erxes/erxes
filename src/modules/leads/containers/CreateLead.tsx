@@ -9,7 +9,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import Form from '../components/Form';
+import Lead from '../components/Lead';
 import { mutations } from '../graphql';
 import { ILeadData } from '../types';
 
@@ -82,7 +82,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
       isSaving: this.state.isSaving
     };
 
-    return <Form {...updatedProps} />;
+    return <Lead {...updatedProps} />;
   }
 }
 
