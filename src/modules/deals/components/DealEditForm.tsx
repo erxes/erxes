@@ -201,10 +201,12 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   render() {
+    const { beforePopupClose } = this.props;
     const { productsData } = this.state;
 
     const extendedProps = {
       ...this.props,
+      beforePopupClose,
       extraFieldsCheck: this.checkProductsData,
       extraFields: { productsData },
       amount: this.renderAmount,
