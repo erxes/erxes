@@ -238,8 +238,5 @@ export interface IEditFormContent {
   ) => void;
   copy: () => void;
   remove: (id: string) => void;
-  onBlurFields: (
-    name: 'description' | 'name' | 'hackDescription' | 'goal',
-    value: string
-  ) => void;
+  onBlurFields: (name: string, value: string) => void;
 }

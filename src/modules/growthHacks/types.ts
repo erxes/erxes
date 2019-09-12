@@ -23,6 +23,7 @@ export interface IGrowthHackParams extends IItemParams {
   hackDescription?: string;
   goal?: string;
   hackStages?: string[];
+  priority?: string;
   formId?: string;
   formFields?: any;
 }
