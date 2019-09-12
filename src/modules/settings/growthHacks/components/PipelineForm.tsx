@@ -216,9 +216,7 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <>
         <Modal.Header closeButton={true}>
-          <Modal.Title>
-            {pipeline ? 'Edit campaign' : 'Add campaign'}
-          </Modal.Title>
+          <Modal.Title>{pipeline ? 'Edit project' : 'Add project'}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -320,12 +318,7 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal
-        show={show}
-        onHide={closeModal}
-        enforceFocus={false}
-        dialogClassName="transform"
-      >
+      <Modal show={show} onHide={closeModal} enforceFocus={false}>
         <Form renderContent={this.renderContent} />
       </Modal>
     );

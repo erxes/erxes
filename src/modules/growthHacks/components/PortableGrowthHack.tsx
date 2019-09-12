@@ -47,6 +47,7 @@ class GrowthHack extends React.Component<Props, { isFormVisible: boolean }> {
         trigger={trigger}
         size="lg"
         content={content}
+        hideHeader={true}
       />
     );
   };

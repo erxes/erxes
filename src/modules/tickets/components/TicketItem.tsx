@@ -34,6 +34,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
         itemId={item._id}
         beforePopupClose={beforePopupClose}
         options={options}
+        hideHeader={true}
       />
     );
   };
