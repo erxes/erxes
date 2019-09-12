@@ -45,13 +45,13 @@ class CreateFormContainer extends React.Component<
 
     const saveForm = doc => {
       let formId;
-      const { title, description, buttonText, fields, type } = doc;
+      const { title, desc, btnText, fields, type } = doc;
 
       addFormMutation({
         variables: {
           title,
-          description,
-          buttonText,
+          description: desc,
+          buttonText: btnText,
           type
         }
       })

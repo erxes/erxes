@@ -4,9 +4,9 @@ import React from 'react';
 import CommonPreview from './CommonPreview';
 
 type Props = {
-  formTitle?: string;
-  formDesc?: string;
-  formBtnText?: string;
+  title?: string;
+  desc?: string;
+  btnText?: string;
   color: string;
   theme: string;
   fields?: IField[];
@@ -19,9 +19,9 @@ type Props = {
 class FormPreview extends React.Component<Props, {}> {
   render() {
     const {
-      formTitle,
-      formDesc,
-      formBtnText,
+      title,
+      desc,
+      btnText,
       color,
       theme,
       fields,
@@ -33,15 +33,15 @@ class FormPreview extends React.Component<Props, {}> {
 
     return (
       <CommonPreview
-        title={formTitle}
+        title={title}
         theme={theme}
         color={color}
-        btnText={formBtnText}
+        btnText={btnText}
         btnStyle="primary"
         type={type}
       >
         <FormFieldPreview
-          desc={formDesc}
+          desc={desc}
           fields={fields}
           onFieldEdit={onFieldEdit}
           onFieldChange={onFieldChange}

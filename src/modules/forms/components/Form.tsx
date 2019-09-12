@@ -54,8 +54,8 @@ class Form extends React.Component<Props, State> {
     if (nextProps.isSaving && isSaving !== nextProps.isSaving) {
       saveForm({
         title,
-        description: desc,
-        buttonText: btnText,
+        desc,
+        btnText,
         fields,
         type
       });
@@ -94,7 +94,7 @@ class Form extends React.Component<Props, State> {
     const fields = this.state.fields.map(field => ({ ...field }));
     fields.push(doc);
 
-    this.setState({ fields });
+    this.onChange('fields', fields);
   };
 
   onDelete = fieldId => {
