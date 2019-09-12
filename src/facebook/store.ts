@@ -101,7 +101,7 @@ export const getOrCreatePost = async (
       path: '/integrations-api',
       method: 'POST',
       body: {
-        action: 'create-conversation',
+        action: 'create-or-update-conversation',
         payload: JSON.stringify({
           customerId: customerErxesApiId,
           integrationId: integration.erxesApiId,

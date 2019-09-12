@@ -95,13 +95,36 @@ const init = async app => {
       }
     }
 
+    // Check state of call and update
+    if (conversation.state !== disp) {
+      await Conversations.updateOne({ callId: callID }, { $set: { state: disp } });
+
+      try {
+        await fetchMainApi({
+          path: '/integrations-api',
+          method: 'POST',
+          body: {
+            action: 'create-or-update-conversation',
+            payload: JSON.stringify({
+              content: disp,
+              conversationId: conversation.erxesApiId,
+            }),
+          },
+        });
+      } catch (e) {
+        throw new Error(e.message);
+      }
+
+      return res.send('success');
+    }
+
     // save on api
     try {
       const apiConversationResponse = await fetchMainApi({
         path: '/integrations-api',
         method: 'POST',
         body: {
-          action: 'create-conversation',
+          action: 'create-or-update-conversation',
           payload: JSON.stringify({
             customerId: customer.erxesApiId,
             content: disp,
