@@ -11,7 +11,6 @@ import NotificationIcon from './NotificationIcon';
 import {
   AvatarSection,
   Content,
-  ConversationContent,
   CreatedDate,
   CreatedUser,
   InfoSection
@@ -59,9 +58,9 @@ class NotificationRow extends React.Component<IProps> {
     }
 
     return (
-      <ConversationContent>
+      <div>
         <Content dangerouslySetInnerHTML={{ __html: xss(content) }} />
-      </ConversationContent>
+      </div>
     );
   }
 
