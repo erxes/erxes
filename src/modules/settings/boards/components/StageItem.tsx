@@ -7,6 +7,7 @@ import { StageItemContainer } from '../styles';
 
 type Props = {
   stage: IStage;
+  type: string;
   remove: (stageId: string) => void;
   onChange: (stageId: string, e: any) => void;
   onKeyPress: (e: any) => void;
@@ -14,8 +15,8 @@ type Props = {
 
 class StageItem extends React.Component<Props, {}> {
   render() {
-    const { stage, onChange, onKeyPress, remove } = this.props;
-    const probabilties = PROBABILITY.ALL;
+    const { stage, onChange, onKeyPress, remove, type } = this.props;
+    const probabilties = PROBABILITY[type].ALL;
 
     return (
       <StageItemContainer key={stage._id}>

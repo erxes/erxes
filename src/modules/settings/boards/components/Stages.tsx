@@ -63,6 +63,7 @@ class Stages extends React.Component<Props, {}> {
             stage={stage}
             onChange={this.onChange}
             remove={this.remove}
+            type={this.props.type}
             onKeyPress={this.onStageInputKeyPress}
           />
         ))}
