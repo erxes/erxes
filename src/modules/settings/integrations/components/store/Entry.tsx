@@ -6,6 +6,7 @@ import Facebook from 'modules/settings/integrations/containers/facebook/Form';
 import Gmail from 'modules/settings/integrations/containers/google/Gmail';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { KIND_CHOICES } from '../../constants';
 import Settings from '../../containers/engages/Settings';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
@@ -46,10 +47,28 @@ class Entry extends React.Component<Props> {
       return null;
     }
 
-    if (createModal === 'facebook') {
+    if (createModal === KIND_CHOICES.FACEBOOK_MESSENGER) {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
-      const content = props => <Facebook {...props} />;
+      const content = props => (
+        <Facebook kind={KIND_CHOICES.FACEBOOK_MESSENGER} {...props} />
+      );
+
+      return (
+        <ModalTrigger
+          title="Add facebook page"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.FACEBOOK_POST) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => (
+        <Facebook kind={KIND_CHOICES.FACEBOOK_POST} {...props} />
+      );
 
       return (
         <ModalTrigger
