@@ -79,9 +79,9 @@ class FullPreviewStep extends React.Component<Props, State> {
       return (
         <FormPreview
           {...this.props}
-          formTitle={formData.title}
-          formBtnText={formData.buttonText}
-          formDesc={formData.description}
+          title={formData.title}
+          btnText={formData.btnText}
+          desc={formData.desc}
           fields={formData.fields}
         />
       );

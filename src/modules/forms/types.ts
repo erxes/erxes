@@ -15,8 +15,8 @@ export interface IForm {
 
 export interface IFormData {
   title?: string;
-  description?: string;
-  buttonText?: string;
+  desc?: string;
+  btnText?: string;
   fields?: IField[];
   type?: string;
 }

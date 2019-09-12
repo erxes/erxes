@@ -126,9 +126,9 @@ class OptionStep extends React.Component<Props, {}> {
         <Preview>
           <FormPreview
             {...this.props}
-            formTitle={formData.title}
-            formBtnText={formData.buttonText}
-            formDesc={formData.description}
+            title={formData.title}
+            btnText={formData.btnText}
+            desc={formData.desc}
             fields={formData.fields}
           />
         </Preview>

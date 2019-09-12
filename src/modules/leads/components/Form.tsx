@@ -111,8 +111,8 @@ class Form extends React.Component<Props, State> {
       logo: '',
       formData: {
         title: form.title || '',
-        description: form.description || '',
-        buttonText: form.buttonText || '',
+        desc: form.description || '',
+        btnText: form.buttonText || '',
         fields: [],
         type: form.type || ''
       },
