@@ -1,6 +1,7 @@
+import Button from 'modules/common/components/Button';
 import colors from 'modules/common/styles/colors';
 import FormFields from 'modules/growthHacks/containers/FormFields';
-import { IGrowthHack } from 'modules/growthHacks/types';
+import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -28,19 +29,30 @@ const CurrentStage = styled.div`
 type Props = {
   item: IGrowthHack;
   onChangeExtraField: (name: 'formFields', value: any) => void;
+  saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
   formFields: any;
   formId: string;
 };
 
 class RigthContent extends React.Component<Props> {
   render() {
-    const { item, onChangeExtraField, formFields, formId } = this.props;
+    const {
+      item,
+      onChangeExtraField,
+      formFields,
+      formId,
+      saveItem
+    } = this.props;
 
     const stageName = item.stage && item.stage.name;
 
     const onChangeFormField = field => {
       formFields[field._id] = field.value;
       onChangeExtraField('formFields', formFields);
+    };
+
+    const saveFormField = () => {
+      saveItem({ formFields });
     };
 
     return (
@@ -55,6 +67,15 @@ class RigthContent extends React.Component<Props> {
             formId={formId}
           />
         ) : null}
+        <Button
+          style={{ float: 'right' }}
+          onClick={saveFormField}
+          type="submit"
+          btnStyle="success"
+          icon="checked-1"
+        >
+          Save
+        </Button>
       </RightContainer>
     );
   }
