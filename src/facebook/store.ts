@@ -43,7 +43,16 @@ export const generatePostDoc = (postParams: IPostParams, pageId: string, userId:
 };
 
 export const generateCommentDoc = (commentParams: ICommentParams, pageId: string, userId: string) => {
-  const { photo, video, post_id, parent_id, comment_id, created_time, message } = commentParams;
+  const {
+    photo,
+    video,
+    post_id,
+    parent_id,
+    comment_id,
+    created_time,
+    message,
+    restoredCommentCreatedAt,
+  } = commentParams;
 
   const doc = {
     postId: post_id,
@@ -69,7 +78,11 @@ export const generateCommentDoc = (commentParams: ICommentParams, pageId: string
   }
 
   if (created_time) {
-    doc.timestamp = created_time;
+    doc.timestamp = (created_time * 1000).toString();
+  }
+
+  if (restoredCommentCreatedAt) {
+    doc.timestamp = restoredCommentCreatedAt;
   }
 
   return doc;

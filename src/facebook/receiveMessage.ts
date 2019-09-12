@@ -1,11 +1,11 @@
 import { Activity } from 'botbuilder';
-import { FacebookAdapter } from 'botbuilder-adapter-facebook';
 import Integrations from '../models/Integrations';
 import { fetchMainApi } from '../utils';
-import { ConversationMessages, Conversations, Customers } from './models';
+import { ConversationMessages, Conversations } from './models';
+import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 
-const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
+const receiveMessage = async (activity: Activity) => {
   const { recipient, sender, timestamp, text, attachments, message } = activity.channelData as IChannelData;
 
   const integration = await Integrations.getIntegration({
@@ -13,52 +13,11 @@ const receiveMessage = async (adapter: FacebookAdapter, activity: Activity) => {
   });
 
   const userId = sender.id;
+  const pageId = recipient.id;
 
-  // get customer
-  let customer = await Customers.findOne({ userId });
+  // get or create customer
 
-  // create customer
-  if (!customer) {
-    const api = await adapter.getAPI(activity);
-
-    const response = await api.callAPI(`/${userId}`, 'GET', {});
-
-    try {
-      customer = await Customers.create({
-        userId,
-        firstName: response.first_name,
-        lastName: response.last_name,
-        profilePic: response.profile_pic,
-        integrationId: integration._id,
-      });
-    } catch (e) {
-      throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
-    }
-
-    // save on api
-    try {
-      const apiCustomerResponse = await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-or-update-customer',
-          payload: JSON.stringify({
-            integrationId: integration.erxesApiId,
-            firstName: response.first_name,
-            lastName: response.last_name,
-            avatar: response.profile_pic,
-            isUser: true,
-          }),
-        },
-      });
-
-      customer.erxesApiId = apiCustomerResponse._id;
-      await customer.save();
-    } catch (e) {
-      await Customers.deleteOne({ _id: customer._id });
-      throw new Error(e);
-    }
-  }
+  const customer = await getOrCreateCustomer(pageId, userId);
 
   // get conversation
   let conversation = await Conversations.findOne({

@@ -26,6 +26,7 @@ export interface ICommentParams {
   photo?: string;
   from?: any;
   message?: string;
+  restoredCommentCreatedAt?: string;
 }
 
 export interface IChannelData {

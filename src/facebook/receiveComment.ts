@@ -28,6 +28,7 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
     for (const comment of restoredComments) {
       comment.post_id = params.post_id;
       comment.comment_id = comment.id;
+      comment.restoredCommentCreatedAt = comment.created_time;
 
       const restoredUserId = comment.from.id;
 
