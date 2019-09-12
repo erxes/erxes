@@ -31,20 +31,13 @@ type Props = {
   loadMore: () => void;
   options: IOptions;
 };
-export default class Stage extends React.Component<
-  Props,
-  { isDragDisabled: boolean }
-> {
+export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
 
   constructor(props: Props) {
     super(props);
 
     this.bodyRef = React.createRef();
-
-    this.state = {
-      isDragDisabled: false
-    };
   }
 
   componentDidMount() {
@@ -165,11 +158,7 @@ export default class Stage extends React.Component<
     }
 
     return (
-      <Draggable
-        isDragDisabled={this.state.isDragDisabled}
-        draggableId={stage._id}
-        index={index}
-      >
+      <Draggable draggableId={stage._id} index={index}>
         {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
             <StageRoot isDragging={snapshot.isDragging}>
