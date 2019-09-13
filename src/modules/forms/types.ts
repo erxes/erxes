@@ -13,6 +13,12 @@ export interface IForm {
   createdDate?: Date;
 }
 
+export interface IFormSubmission {
+  formId: string;
+  formSubmissions: string;
+  contentTypeId: string;
+}
+
 export interface IFormData {
   title?: string;
   desc?: string;
@@ -97,8 +103,10 @@ export type FormsQueryResponse = {
 };
 
 export interface IFormSubmissionParams {
+  contentTypeId: string;
+  contentType: string;
   formId: string;
-  formField?: JSON;
+  formField: JSON;
 }
 
 export type SaveFormSubmissionMutation = (

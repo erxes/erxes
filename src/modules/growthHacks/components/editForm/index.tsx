@@ -1,5 +1,5 @@
 import Left from './Left';
-import Right from './Right';
+import StageForm from './StageForm';
 import Top from './Top';
 
-export { Left, Right, Top };
+export { Left, StageForm, Top };

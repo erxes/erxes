@@ -85,12 +85,14 @@ const fieldsRemove = `
 const commonFormSubmissionParamsDef = `
   $formId: String,
   $contentType: String,
+  $contentTypeId: String,
   $formSubmissions: JSON,
 `;
 
 const commonFormSubmissionParams = `
   formId: $formId,
   contentType: $contentType,
+  contentTypeId: $contentTypeId,
   formSubmissions: $formSubmissions
 `;
 
