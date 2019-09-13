@@ -78,7 +78,7 @@ class FullPreviewStep extends React.Component<Props, State> {
       const { desc, fields } = formData;
 
       const previewRenderer = () => (
-        <FieldsPreview fields={fields || []} desc={desc} />
+        <FieldsPreview fields={fields || []} formDesc={desc} />
       );
 
       return (

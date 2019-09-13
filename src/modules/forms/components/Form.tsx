@@ -141,7 +141,7 @@ class Form extends React.Component<Props, State> {
 
     this.setState(selector, () => {
       if (onDocChange) {
-        onDocChange({ fields: this.state.fields });
+        onDocChange(this.state);
       }
     });
   };
@@ -163,7 +163,7 @@ class Form extends React.Component<Props, State> {
 
   render() {
     const { renderPreviewWrapper } = this.props;
-    const { currentMode, currentField, fields } = this.state;
+    const { currentMode, currentField, fields, desc } = this.state;
 
     if (currentField) {
       return (
@@ -180,6 +180,7 @@ class Form extends React.Component<Props, State> {
     const renderer = () => {
       return (
         <FieldsPreview
+          formDesc={desc}
           fields={fields}
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}

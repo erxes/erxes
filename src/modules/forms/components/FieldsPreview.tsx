@@ -5,7 +5,7 @@ import FieldPreview from './FieldPreview';
 
 type Props = {
   fields: IField[];
-  desc?: string;
+  formDesc?: string;
   onFieldClick?: (field: IField) => void;
   onChangeFieldsOrder?: (fields: IField[]) => void;
 };
@@ -51,11 +51,11 @@ class FieldsPreview extends React.Component<Props, State> {
   };
 
   renderFormDesc() {
-    if (!this.props.desc) {
+    if (!this.props.formDesc) {
       return null;
     }
 
-    return <p>{this.props.desc}</p>;
+    return <p>{this.props.formDesc}</p>;
   }
 
   render() {

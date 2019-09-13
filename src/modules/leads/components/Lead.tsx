@@ -112,7 +112,7 @@ class Lead extends React.Component<Props, State> {
       formData: {
         title: form.title || '',
         desc: form.description || '',
-        btnText: form.buttonText || '',
+        btnText: form.buttonText || 'Send',
         fields: [],
         type: form.type || ''
       },

@@ -80,7 +80,7 @@ class OptionStep extends React.Component<Props, {}> {
       );
 
     const previewRenderer = () => (
-      <FieldsPreview fields={fields || []} desc={desc} />
+      <FieldsPreview fields={fields || []} formDesc={desc} />
     );
 
     return (
