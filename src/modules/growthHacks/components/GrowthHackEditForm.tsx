@@ -6,7 +6,7 @@ import { IEditFormContent, IOptions } from 'modules/boards/types';
 import { IFormSubmission } from 'modules/forms/types';
 import React from 'react';
 import { IGrowthHack, IGrowthHackParams } from '../types';
-import { StageForm, Left, Top } from './editForm/';
+import { Left, StageForm, Top } from './editForm/';
 import Actions from './editForm/Actions';
 import Score from './Score';
 

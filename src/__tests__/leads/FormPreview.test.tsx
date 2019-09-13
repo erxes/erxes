@@ -8,7 +8,8 @@ describe('FormPreview component', () => {
     color: 'red',
     theme: 'default',
     onChange: (name: any, fields: string) => null,
-    type: 'string'
+    type: 'string',
+    previewRenderer: () => <div />
   };
 
   test('renders shallow successfully', () => {
