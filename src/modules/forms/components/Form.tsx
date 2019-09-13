@@ -115,7 +115,7 @@ class Form extends React.Component<Props, State> {
     this.setState({
       currentMode: 'create',
       currentField: {
-        key: Math.random().toString(),
+        _id: Math.random().toString(),
         contentType: 'form',
         type: choice
       }
@@ -148,7 +148,7 @@ class Form extends React.Component<Props, State> {
 
   onFieldDelete = (field: IField) => {
     // remove field from state
-    const fields = this.state.fields.filter(f => f.key !== field.key);
+    const fields = this.state.fields.filter(f => f._id !== field._id);
 
     this.setState({ fields, currentField: undefined });
   };

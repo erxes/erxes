@@ -112,21 +112,19 @@ class FormBuilder extends React.Component<
 
   render() {
     return (
-      <>
-        <Modal
-          dialogClassName="modal-1000w"
-          enforceFocus={false}
-          bsSize="lg"
-          show={true}
-          onHide={this.closeModal}
-          backdrop={false}
-        >
-          <CloseModal onClick={this.closeModal}>
-            <Icon icon="times" />
-          </CloseModal>
-          {this.renderContent()}
-        </Modal>
-      </>
+      <Modal
+        dialogClassName="modal-1000w"
+        enforceFocus={false}
+        bsSize="lg"
+        show={true}
+        onHide={this.closeModal}
+        backdrop={false}
+      >
+        <CloseModal onClick={this.closeModal}>
+          <Icon icon="times" />
+        </CloseModal>
+        {this.renderContent()}
+      </Modal>
     );
   }
 }

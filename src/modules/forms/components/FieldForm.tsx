@@ -7,6 +7,7 @@ import { FlexItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
+import { Modal } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import {
   FlexRow,
@@ -196,31 +197,33 @@ class FieldForm extends React.Component<Props, State> {
           />
         </FlexRow>
 
-        <Button
-          btnStyle="simple"
-          size="small"
-          type="button"
-          icon="cancel-1"
-          onClick={onCancel}
-        >
-          Cancel
-        </Button>
+        <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            size="small"
+            type="button"
+            icon="cancel-1"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
 
-        {this.renderExtraButton()}
+          {this.renderExtraButton()}
 
-        <Button
-          size="small"
-          onClick={this.onSubmit}
-          btnStyle="success"
-          icon={field ? 'checked-1' : 'add'}
-        >
-          {mode === 'update' ? 'Save' : 'Add'}
-        </Button>
+          <Button
+            size="small"
+            onClick={this.onSubmit}
+            btnStyle="success"
+            icon={mode === 'update' ? 'checked-1' : 'add'}
+          >
+            {mode === 'update' ? 'Save' : 'Add'}
+          </Button>
+        </Modal.Footer>
       </>
     );
   }
 
-  render() {
+  renderContent() {
     const { field } = this.state;
 
     return (
@@ -237,6 +240,21 @@ class FieldForm extends React.Component<Props, State> {
           </Preview>
         </PreviewSection>
       </FlexItem>
+    );
+  }
+
+  render() {
+    const { mode, field, onCancel } = this.props;
+
+    return (
+      <Modal show={true} bsSize="lg" onHide={onCancel} backdrop={false}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>
+            {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{this.renderContent()}</Modal.Body>
+      </Modal>
     );
   }
 }
