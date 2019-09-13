@@ -9,6 +9,8 @@ import { Left, Right, Top } from './editForm/';
 import Actions from './editForm/Actions';
 import Score from './Score';
 
+const reactiveFields = ['priority', 'hackStages'];
+
 type Props = {
   options: IOptions;
   item: IGrowthHack;
@@ -54,7 +56,13 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
   }
 
   onChangeExtraField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+      if (reactiveFields.includes(name)) {
+        this.props.saveItem({ [name]: value }, updatedItem => {
+          this.props.onUpdate(updatedItem);
+        });
+      }
+    });
   };
 
   renderDueDate = (closeDate, onDateChange: (date) => void) => {
@@ -85,12 +93,17 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     };
 
     const onExited = () => {
-      saveItem({
-        impact,
-        confidence,
-        ease,
-        reach
-      });
+      saveItem(
+        {
+          impact,
+          confidence,
+          ease,
+          reach
+        },
+        updatedItem => {
+          this.props.onUpdate(updatedItem);
+        }
+      );
     };
 
     return (
@@ -154,7 +167,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               options={options}
               copy={copy}
               remove={remove}
-              saveItem={saveItem}
             />
             <Left
               {...this.state}

@@ -6,14 +6,13 @@ import { ColorButton } from 'modules/boards/styles/common';
 import { ActionContainer } from 'modules/boards/styles/item';
 import { IOptions } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
-import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
+import { IGrowthHack } from 'modules/growthHacks/types';
 import React from 'react';
 import { HACKSTAGES } from '../../constants';
 
 type Props = {
   item: IGrowthHack;
   onChangeField: (name: 'priority' | 'hackStages', value: any) => void;
-  saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
   closeDate: Date;
   priority: string;
   hackStages: string[];
@@ -34,14 +33,11 @@ class Actions extends React.Component<Props> {
       options,
       copy,
       remove,
-      dateOnChange,
-      saveItem
+      dateOnChange
     } = this.props;
 
     const priorityOnChange = (value: string) => {
       onChangeField('priority', value);
-
-      saveItem({ priority: value });
     };
 
     const hackStageOnChange = (value: string) => {
@@ -50,14 +46,10 @@ class Actions extends React.Component<Props> {
           return i !== value;
         });
 
-        saveItem({ hackStages: remainedValues });
-
         return onChangeField('hackStages', remainedValues);
       }
 
       const values = hackStages.concat(value);
-
-      saveItem({ hackStages: values });
 
       return onChangeField('hackStages', values);
     };

@@ -64,10 +64,12 @@ const commonReturn = `
     }
   }
   hackDescription
+  priority
   reach
   impact
   confidence
   ease
+  scoringType
   goal
   modifiedAt
   modifiedBy
