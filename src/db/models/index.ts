@@ -13,7 +13,8 @@ import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
 import EngageMessages from './Engages';
 import { Fields, FieldsGroups } from './Fields';
-import Forms from './Forms';
+import { Forms, FormSubmissions } from './Forms';
+import GrowthHacks from './GrowthHacks';
 import ImportHistory from './ImportHistory';
 import Integrations from './Integrations';
 import InternalNotes from './InternalNotes';
@@ -21,6 +22,7 @@ import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } f
 import MessengerApps from './MessengerApps';
 import { NotificationConfigurations, Notifications } from './Notifications';
 import { Permissions, UsersGroups } from './Permissions';
+import PipelineTemplates from './PipelineTemplates';
 import Products from './Products';
 import ResponseTemplates from './ResponseTemplates';
 import Scripts from './Scripts';
@@ -39,6 +41,7 @@ export {
   Brands,
   Integrations,
   Forms,
+  FormSubmissions,
   EngageMessages,
   Tags,
   Fields,
@@ -69,4 +72,6 @@ export {
   UsersGroups,
   Tickets,
   Tasks,
+  GrowthHacks,
+  PipelineTemplates,
 };

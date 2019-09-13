@@ -19,6 +19,7 @@ import { IConversationDocument } from './definitions/conversations';
 import { ICustomerDocument } from './definitions/customers';
 import { IDealDocument } from './definitions/deals';
 import { IEmailDeliveriesDocument } from './definitions/emailDeliveries';
+import { IGrowthHackDocument } from './definitions/growthHacks';
 import { IInternalNoteDocument } from './definitions/internalNotes';
 import { ISegmentDocument } from './definitions/segments';
 import { ITaskDocument } from './definitions/tasks';
@@ -45,6 +46,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   createSegmentLog(segment: ISegmentDocument, customer?: ICustomerDocument): Promise<IActivityLogDocument>;
   createTicketLog(ticket: ITicketDocument): Promise<IActivityLogDocument>;
   createTaskLog(task: ITaskDocument): Promise<IActivityLogDocument>;
+  createGrowthHackLog(growthHack: IGrowthHackDocument): Promise<IActivityLogDocument>;
 }
 
 export const loadClass = () => {
@@ -323,6 +325,31 @@ export const loadClass = () => {
         contentType: {
           type: ACTIVITY_CONTENT_TYPES.TASK,
           id: task._id,
+        },
+        performer,
+      });
+    }
+
+    public static createGrowthHackLog(growthHack: IGrowthHackDocument) {
+      let performer;
+
+      if (growthHack.userId) {
+        performer = {
+          type: ACTIVITY_PERFORMER_TYPES.USER,
+          id: growthHack.userId,
+        };
+      }
+
+      return ActivityLogs.createDoc({
+        activity: {
+          type: ACTIVITY_TYPES.GROWTH_HACK,
+          action: ACTIVITY_ACTIONS.CREATE,
+          content: growthHack.name || '',
+          id: growthHack._id,
+        },
+        contentType: {
+          type: ACTIVITY_CONTENT_TYPES.GROWTH_HACK,
+          id: growthHack._id,
         },
         performer,
       });

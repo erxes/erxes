@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { IConformityQueryParams } from '../../../data/modules/conformities/types';
-import { Brands, Forms, Integrations, Segments } from '../../../db/models';
+import { Brands, FormSubmissions, Integrations, Segments } from '../../../db/models';
 import { STATUSES } from '../../../db/models/definitions/constants';
 import QueryBuilder from '../segments/queryBuilder';
 import { conformityFilterUtils } from './utils';
@@ -157,22 +157,23 @@ export class Builder {
 
   // filter by form
   public async formFilter(formId: string, startDate?: string, endDate?: string): Promise<IIdsFilter> {
-    const formObj = await Forms.findOne({ _id: formId });
-    const { submissions = [] } = formObj || {};
+    const submissions = await FormSubmissions.find({ formId });
     const ids: string[] = [];
 
     for (const submission of submissions) {
       const { customerId, submittedAt } = submission;
 
-      // Collecting customerIds inbetween dates only
-      if (startDate && endDate && !ids.includes(customerId)) {
-        if (moment(submittedAt).isBetween(startDate, endDate)) {
+      if (customerId) {
+        // Collecting customerIds inbetween dates only
+        if (startDate && endDate && !ids.includes(customerId)) {
+          if (moment(submittedAt).isBetween(startDate, endDate)) {
+            ids.push(customerId);
+          }
+
+          // If date is not specified collecting all customers
+        } else {
           ids.push(customerId);
         }
-
-        // If date is not specified collecting all customers
-      } else {
-        ids.push(customerId);
       }
     }
 

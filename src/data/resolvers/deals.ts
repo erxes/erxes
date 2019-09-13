@@ -66,11 +66,7 @@ export default {
   },
 
   async pipeline(deal: IDealDocument) {
-    const stage = await Stages.findOne({ _id: deal.stageId });
-
-    if (!stage) {
-      return null;
-    }
+    const stage = await Stages.getStage(deal.stageId || '');
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -80,7 +76,7 @@ export default {
   },
 
   stage(deal: IDealDocument) {
-    return Stages.findOne({ _id: deal.stageId });
+    return Stages.getStage(deal.stageId || '');
   },
 
   isWatched(deal: IDealDocument, _args, { user }: IContext) {

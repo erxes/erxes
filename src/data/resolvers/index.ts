@@ -12,6 +12,7 @@ import Deal from './deals';
 import EngageMessage from './engage';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
+import GrowthHack from './growthHacks';
 import ImportHistory from './importHistory';
 import Integration from './integration';
 import InternalNote from './internalNote';
@@ -74,6 +75,7 @@ const resolvers: any = {
   Task,
   UsersGroup,
   Pipeline,
+  GrowthHack,
 };
 
 export default resolvers;

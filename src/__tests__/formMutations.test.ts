@@ -1,8 +1,9 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import { formFactory, userFactory } from '../db/factories';
-import { Forms, Users } from '../db/models';
+import { Forms, FormSubmissions, Users } from '../db/models';
 
+import { FORM_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 /*
@@ -11,6 +12,7 @@ import './setup.ts';
 const args = {
   title: faker.random.word(),
   description: faker.random.word(),
+  type: FORM_TYPES.GROWTH_HACK,
 };
 
 describe('form and formField mutations', () => {
@@ -20,11 +22,13 @@ describe('form and formField mutations', () => {
 
   const commonParamDefs = `
     $title: String!
+    $type: String!
     $description: String
   `;
 
   const commonParams = `
     title: $title
+    type: $type
     description: $description
   `;
 
@@ -40,6 +44,7 @@ describe('form and formField mutations', () => {
     // Clearing test data
     await Users.deleteMany({});
     await Forms.deleteMany({});
+    await FormSubmissions.deleteMany({});
   });
 
   test('Add form', async () => {

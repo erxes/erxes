@@ -1,4 +1,5 @@
 import { Boards, Pipelines, Stages } from '../../../db/models';
+import { BOARD_TYPES } from '../../../db/models/definitions/constants';
 import { IConformityQueryParams } from '../../modules/conformities/types';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -46,6 +47,13 @@ const boardQueries = {
    */
   pipelines(_root, { boardId }: { boardId: string; type: string }) {
     return Pipelines.find({ boardId }).sort({ order: 1, createdAt: -1 });
+  },
+
+  /**
+   *  Template list
+   */
+  growthHackTemplates() {
+    return Pipelines.find({ type: BOARD_TYPES.GROWTH_HACK }).sort({ order: 1, createdAt: -1 });
   },
 
   /**

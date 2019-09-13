@@ -21,20 +21,23 @@ export const types = `
     members: [User]
     bgColor: String
     isWatched: Boolean
+    hackScoringType: String
+    templateId: String
     ${commonTypes}
   }
 
   type Stage {
     _id: String!
     name: String!
-    probability: String
     pipelineId: String!
+    probability: String
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
     stayedDealsTotalCount: Int
     initialDealsTotalCount: Int
     inProcessDealsTotalCount: Int
+    formId: String
     ${commonTypes}
   }
 
@@ -49,6 +52,7 @@ export const queries = `
   boardGetLast(type: String!): Board
   boardDetail(_id: String!): Board
   pipelines(boardId: String!): [Pipeline]
+  growthHackTemplates: [Pipeline]
   pipelineDetail(_id: String!): Pipeline
   stages(
     isNotLost: Boolean,
@@ -79,7 +83,9 @@ const pipelineParams = `
   stages: JSON,
   visibility: String!,
   memberIds: [String],
-  bgColor: String
+  bgColor: String,
+  hackScoringType: String,
+  templateId: String
 `;
 
 export const mutations = `

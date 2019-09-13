@@ -8,8 +8,8 @@ import {
   integrationFactory,
   userFactory,
 } from '../db/factories';
-import { Brands, ConversationMessages, Fields, Forms, Integrations, Users } from '../db/models';
-import { FORM_LOAD_TYPES, KIND_CHOICES, MESSENGER_DATA_AVAILABILITY } from '../db/models/definitions/constants';
+import { Brands, ConversationMessages, Forms, Integrations, Users } from '../db/models';
+import { KIND_CHOICES, LEAD_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../db/models/definitions/constants';
 
 import './setup.ts';
 
@@ -73,15 +73,13 @@ describe('messenger integration model edit method', () => {
   });
 });
 
-describe('form integration create model test without formData', () => {
+describe('lead integration create model test without leadData', () => {
   let _brand;
   let _form;
-  let _user;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
-    _user = await userFactory({});
-    _form = await formFactory({ createdUserId: _user._id });
+    _form = await formFactory({});
   });
 
   afterEach(async () => {
@@ -91,32 +89,30 @@ describe('form integration create model test without formData', () => {
     await Forms.deleteMany({});
   });
 
-  test('check if create form integration test wihtout formData is throwing exception', async () => {
+  test('check if create lead integration test wihtout leadData is throwing exception', async () => {
     expect.assertions(1);
 
     const mainDoc = {
-      name: 'form integration test',
+      name: 'lead integration test',
       brandId: _brand._id,
       formId: _form._id,
     };
 
     try {
-      await Integrations.createFormIntegration(mainDoc);
+      await Integrations.createLeadIntegration(mainDoc);
     } catch (e) {
-      expect(e.message).toEqual('formData must be supplied');
+      expect(e.message).toEqual('leadData must be supplied');
     }
   });
 });
 
-describe('create form integration', () => {
+describe('create lead integration', () => {
   let _brand;
   let _form;
-  let _user;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
-    _user = await userFactory({});
-    _form = await formFactory({ createdUserId: _user._id });
+    _form = await formFactory({});
   });
 
   afterEach(async () => {
@@ -126,55 +122,52 @@ describe('create form integration', () => {
     await Forms.deleteMany({});
   });
 
-  test('test if create form integration is working successfully', async () => {
+  test('test if create lead integration is working successfully', async () => {
     const mainDoc = {
-      name: 'form integration test',
+      name: 'lead integration test',
       brandId: _brand._id,
       formId: _form._id,
     };
 
-    const formData = {
-      loadType: FORM_LOAD_TYPES.EMBEDDED,
+    const leadData = {
+      loadType: LEAD_LOAD_TYPES.EMBEDDED,
     };
 
-    const integration = await Integrations.createFormIntegration({
+    const integration = await Integrations.createLeadIntegration({
       ...mainDoc,
-      formData,
+      leadData,
     });
 
-    if (!integration || !integration.formData) {
+    if (!integration || !integration.leadData) {
       throw new Error('Integration not found');
     }
 
     expect(integration.formId).toEqual(_form._id);
     expect(integration.name).toEqual(mainDoc.name);
     expect(integration.brandId).toEqual(_brand._id);
-    expect(integration.formData.loadType).toEqual(FORM_LOAD_TYPES.EMBEDDED);
-    expect(integration.kind).toEqual(KIND_CHOICES.FORM);
+    expect(integration.leadData.loadType).toEqual(LEAD_LOAD_TYPES.EMBEDDED);
+    expect(integration.kind).toEqual(KIND_CHOICES.LEAD);
   });
 });
 
-describe('edit form integration', () => {
+describe('edit lead integration', () => {
   let _brand;
   let _brand2;
   let _form;
-  let _form2;
-  let _user;
-  let _formIntegration;
+  let _leadIntegration;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
     _brand2 = await brandFactory({});
-    _user = await userFactory({});
-    _form = await formFactory({ createdUserId: _user._id });
-    _form2 = await formFactory({ createdUserId: _user._id });
-    _formIntegration = await integrationFactory({
-      name: 'form integration test',
+    _form = await formFactory({});
+
+    _leadIntegration = await integrationFactory({
+      name: 'lead integration test',
       brandId: _brand._id,
       formId: _form._id,
-      kind: KIND_CHOICES.FORM,
-      formData: {
-        loadType: FORM_LOAD_TYPES.EMBEDDED,
+      kind: KIND_CHOICES.LEAD,
+      leadData: {
+        loadType: LEAD_LOAD_TYPES.EMBEDDED,
       },
     });
   });
@@ -186,30 +179,30 @@ describe('edit form integration', () => {
     await Forms.deleteMany({});
   });
 
-  test('test if integration form update method is running successfully', async () => {
+  test('test if integration lead update method is running successfully', async () => {
     const mainDoc = {
-      name: 'form integration test 2',
+      name: 'lead integration test 2',
       brandId: _brand2._id,
-      formId: _form2._id,
+      formId: _form._id,
     };
 
-    const formData = {
-      loadType: FORM_LOAD_TYPES.SHOUTBOX,
+    const leadData = {
+      loadType: LEAD_LOAD_TYPES.SHOUTBOX,
     };
 
-    const integration = await Integrations.updateFormIntegration(_formIntegration._id, {
+    const integration = await Integrations.updateLeadIntegration(_leadIntegration._id, {
       ...mainDoc,
-      formData,
+      leadData,
     });
 
-    if (!integration || !integration.formData) {
+    if (!integration || !integration.leadData) {
       throw new Error('Integration not found');
     }
 
     expect(integration.name).toEqual(mainDoc.name);
-    expect(integration.formId).toEqual(_form2._id);
+    expect(integration.formId).toEqual(_form._id);
     expect(integration.brandId).toEqual(_brand2._id);
-    expect(integration.formData.loadType).toEqual(FORM_LOAD_TYPES.SHOUTBOX);
+    expect(integration.leadData.loadType).toEqual(LEAD_LOAD_TYPES.SHOUTBOX);
   });
 });
 
@@ -221,15 +214,15 @@ describe('remove integration model method test', () => {
 
   beforeEach(async () => {
     _brand = await brandFactory({});
+    _form = await formFactory();
 
-    _form = await formFactory({});
     await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
 
     _integration = await integrationFactory({
-      name: 'form integration test',
+      name: 'lead integration test',
       brandId: _brand._id,
       formId: _form._id,
-      kind: 'form',
+      kind: 'lead',
     });
 
     _conversation = await conversationFactory({
@@ -244,18 +237,16 @@ describe('remove integration model method test', () => {
     await Brands.deleteMany({});
     await Integrations.deleteMany({});
     await Users.deleteMany({});
-    await ConversationMessages.deleteMany({});
     await Forms.deleteMany({});
-    await Fields.deleteMany({});
+    await ConversationMessages.deleteMany({});
   });
 
-  test('test if remove form integration model method is working successfully', async () => {
+  test('test if remove lead integration model method is working successfully', async () => {
     await Integrations.removeIntegration(_integration._id);
 
     expect(await Integrations.find({}).countDocuments()).toEqual(0);
     expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
     expect(await Forms.find({}).countDocuments()).toBe(0);
-    expect(await Fields.find({}).countDocuments()).toBe(0);
   });
 });
 

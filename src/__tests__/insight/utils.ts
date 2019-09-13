@@ -45,7 +45,7 @@ const generateNoConversation = async (integrationId: string, userId: string) => 
   await conversationFactory({ userId, messageCount: 1 });
 };
 
-const generateFormConversation = async (integrationId: string, userId: string) => {
+const generateLeadConversation = async (integrationId: string, userId: string) => {
   const formConversation = await conversationFactory({ integrationId });
 
   // For request
@@ -153,9 +153,9 @@ export const beforeEachTest = async () => {
     kind: 'facebook-messenger',
   });
 
-  const formIntegration = await integrationFactory({
+  const leadIntegration = await integrationFactory({
     brandId: brand._id,
-    kind: 'form',
+    kind: 'lead',
   });
 
   const user = await userFactory({});
@@ -172,7 +172,7 @@ export const beforeEachTest = async () => {
   await generateNoConversation(integration._id, user._id);
 
   // 2 form conversation with two request and two response message respectively
-  await generateFormConversation(formIntegration._id, user._id);
+  await generateLeadConversation(leadIntegration._id, user._id);
 
   // 2 closed facebook conversation with tag, two request and two response message respectively
   await generateClosedConversation(integration._id, user._id, tag._id);

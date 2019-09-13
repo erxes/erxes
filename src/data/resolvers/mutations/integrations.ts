@@ -9,7 +9,7 @@ interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
 }
 
-interface IEditFormIntegration extends IIntegration {
+interface IEditLeadIntegration extends IIntegration {
   _id: string;
 }
 
@@ -74,15 +74,15 @@ const integrationMutations = {
   /**
    * Create a new messenger integration
    */
-  integrationsCreateFormIntegration(_root, doc: IIntegration) {
-    return Integrations.createFormIntegration(doc);
+  integrationsCreateLeadIntegration(_root, doc: IIntegration) {
+    return Integrations.createLeadIntegration(doc);
   },
 
   /**
-   * Edit a form integration
+   * Edit a lead integration
    */
-  integrationsEditFormIntegration(_root, { _id, ...doc }: IEditFormIntegration) {
-    return Integrations.updateFormIntegration(_id, doc);
+  integrationsEditLeadIntegration(_root, { _id, ...doc }: IEditLeadIntegration) {
+    return Integrations.updateLeadIntegration(_id, doc);
   },
 
   /*
@@ -171,8 +171,8 @@ checkPermission(
   'integrationsSaveMessengerAppearanceData',
 );
 checkPermission(integrationMutations, 'integrationsSaveMessengerConfigs', 'integrationsSaveMessengerConfigs');
-checkPermission(integrationMutations, 'integrationsCreateFormIntegration', 'integrationsCreateFormIntegration');
-checkPermission(integrationMutations, 'integrationsEditFormIntegration', 'integrationsEditFormIntegration');
+checkPermission(integrationMutations, 'integrationsCreateLeadIntegration', 'integrationsCreateLeadIntegration');
+checkPermission(integrationMutations, 'integrationsEditLeadIntegration', 'integrationsEditLeadIntegration');
 checkPermission(integrationMutations, 'integrationsRemove', 'integrationsRemove');
 
 export default integrationMutations;

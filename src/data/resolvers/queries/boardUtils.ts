@@ -217,6 +217,13 @@ export const generateTaskCommonFilters = async (args: any, extraParams?: any) =>
   return filter;
 };
 
+export const generateGrowthHackCommonFilters = async (args: any) => {
+  args.type = 'growthHack';
+  const filter = await generateCommonFilters(args);
+
+  return filter;
+};
+
 interface IDate {
   month: number;
   year: number;

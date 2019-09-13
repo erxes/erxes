@@ -3,9 +3,9 @@ import 'mongoose-type-email';
 import { ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from './definitions/constants';
 import {
-  IFormData,
   IIntegration,
   IIntegrationDocument,
+  ILeadData,
   IMessengerData,
   integrationSchema,
   IUiOptions,
@@ -25,14 +25,14 @@ export interface IExternalIntegrationParams {
 }
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
-  generateFormDoc(mainDoc: IIntegration, formData: IFormData): IIntegration;
+  generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData): IIntegration;
   createIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(_id: string, doc: IUiOptions): Promise<IIntegrationDocument>;
   saveMessengerConfigs(_id: string, messengerData: IMessengerData): Promise<IIntegrationDocument>;
-  createFormIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
-  updateFormIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
+  createLeadIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
+  updateLeadIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
   createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
 }
@@ -40,14 +40,14 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 export const loadClass = () => {
   class Integration {
     /**
-     * Generate form integration data based on the given form data (formData)
+     * Generate lead integration data based on the given lead data (leadData)
      * and integration data (mainDoc)
      */
-    public static generateFormDoc(mainDoc: IIntegration, formData: IFormData) {
+    public static generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData) {
       return {
         ...mainDoc,
-        kind: KIND_CHOICES.FORM,
-        formData,
+        kind: KIND_CHOICES.LEAD,
+        leadData,
       };
     }
 
@@ -99,13 +99,13 @@ export const loadClass = () => {
     }
 
     /**
-     * Create a form kind integration
+     * Create a lead kind integration
      */
-    public static createFormIntegration({ formData = {}, ...mainDoc }: IIntegration) {
-      const doc = this.generateFormDoc({ ...mainDoc }, formData);
+    public static createLeadIntegration({ leadData = {}, ...mainDoc }: IIntegration) {
+      const doc = this.generateLeadDoc({ ...mainDoc }, leadData);
 
-      if (Object.keys(formData || {}).length === 0) {
-        throw new Error('formData must be supplied');
+      if (Object.keys(leadData || {}).length === 0) {
+        throw new Error('leadData must be supplied');
       }
 
       return Integrations.createIntegration(doc);
@@ -119,10 +119,10 @@ export const loadClass = () => {
     }
 
     /**
-     * Update form integration
+     * Update lead integration
      */
-    public static async updateFormIntegration(_id: string, { formData = {}, ...mainDoc }: IIntegration) {
-      const doc = this.generateFormDoc(mainDoc, formData);
+    public static async updateLeadIntegration(_id: string, { leadData = {}, ...mainDoc }: IIntegration) {
+      const doc = this.generateLeadDoc(mainDoc, leadData);
 
       await Integrations.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
@@ -156,7 +156,7 @@ export const loadClass = () => {
         await Customers.removeCustomer(customerId);
       }
 
-      // Remove form & fields
+      // Remove form
       if (integration.formId) {
         await Forms.removeForm(integration.formId);
       }

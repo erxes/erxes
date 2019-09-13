@@ -11,6 +11,7 @@ import emailTemplates from './emailTemplates';
 import engages from './engages';
 import { fieldMutations as fields, fieldsGroupsMutations as fieldsgroups } from './fields';
 import forms from './forms';
+import growthHacks from './growthHacks';
 import importHistory from './importHistory';
 import integrations from './integrations';
 import internalNotes from './internalNotes';
@@ -18,6 +19,7 @@ import knowledgeBase from './knowledgeBase';
 import messengerApps from './messengerApps';
 import notifications from './notifications';
 import { permissionMutations as permissions, usersGroupMutations as usersGroups } from './permissions';
+import pipelineTemplates from './pipelineTemplates';
 import products from './products';
 import responseTemplates from './responseTemplates';
 import scripts from './scripts';
@@ -58,4 +60,6 @@ export default {
   ...usersGroups,
   ...tickets,
   ...tasks,
+  ...growthHacks,
+  ...pipelineTemplates,
 };

@@ -1,8 +1,9 @@
-import { Deals, Stages, Tasks, Tickets } from '../../db/models';
+import { Deals, GrowthHacks, Stages, Tasks, Tickets } from '../../db/models';
 import { IStageDocument } from '../../db/models/definitions/boards';
 import { BOARD_TYPES } from '../../db/models/definitions/constants';
 import {
   generateDealCommonFilters,
+  generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters,
 } from './queries/boardUtils';
@@ -61,6 +62,11 @@ export default {
         const filter = await generateTaskCommonFilters({ ...args, stageId: stage._id }, args.extraParams);
 
         return Tasks.find(filter).countDocuments();
+      }
+      case BOARD_TYPES.GROWTH_HACK: {
+        const filter = await generateGrowthHackCommonFilters({ ...args, stageId: stage._id });
+
+        return GrowthHacks.find(filter).countDocuments();
       }
     }
   },

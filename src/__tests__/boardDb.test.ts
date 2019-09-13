@@ -84,7 +84,7 @@ describe('Test board model', () => {
     try {
       await Boards.removeBoard(board._id);
     } catch (e) {
-      expect(e.message).toEqual("Can't remove a board");
+      expect(e.message).toEqual('There is a stage that has a item');
     }
   });
 
@@ -185,7 +185,7 @@ describe('Test board model', () => {
     try {
       await Pipelines.removePipeline(pipeline._id);
     } catch (e) {
-      expect(e.message).toEqual("Can't remove a pipeline");
+      expect(e.message).toEqual('There is a stage that has a item');
     }
   });
 
@@ -212,6 +212,7 @@ describe('Test board model', () => {
       name: stageName,
       userId: user._id,
       type: 'deal',
+      pipelineId: pipeline._id,
     });
 
     expect(updatedStage).toBeDefined();

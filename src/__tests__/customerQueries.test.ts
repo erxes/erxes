@@ -1,8 +1,15 @@
 import * as faker from 'faker';
 import * as moment from 'moment';
 import { graphqlRequest } from '../db/connection';
-import { customerFactory, formFactory, integrationFactory, segmentFactory, tagsFactory } from '../db/factories';
-import { Customers, Segments, Tags } from '../db/models';
+import {
+  customerFactory,
+  formFactory,
+  formSubmissionFactory,
+  integrationFactory,
+  segmentFactory,
+  tagsFactory,
+} from '../db/factories';
+import { Customers, FormSubmissions, Segments, Tags } from '../db/models';
 
 import './setup.ts';
 
@@ -117,6 +124,7 @@ describe('customerQueries', () => {
     await Customers.deleteMany({});
     await Segments.deleteMany({});
     await Tags.deleteMany({});
+    await FormSubmissions.deleteMany({});
   });
 
   test('Customers', async () => {
@@ -378,27 +386,15 @@ describe('customerQueries', () => {
   });
 
   test('Customer filtered by submitted form', async () => {
-    const customer = await customerFactory({}, true);
-    let submissions = [{ customerId: customer._id, submittedAt: new Date() }];
-    const form = await formFactory({ submissions });
+    const customer1 = await customerFactory({}, true);
+    const customer2 = await customerFactory({}, true);
+    const form = await formFactory({});
 
-    const testCustomer = await customerFactory({}, true);
+    await formSubmissionFactory({ customerId: customer1._id, formId: form._id });
+    await formSubmissionFactory({ customerId: customer2._id, formId: form._id });
 
-    submissions = [
-      { customerId: testCustomer._id, submittedAt: new Date() },
-      { customerId: customer._id, submittedAt: new Date() },
-    ];
-
-    const testForm = await formFactory({ submissions });
-
-    let responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
+    const responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
       form: form._id,
-    });
-
-    expect(responses.list.length).toBe(1);
-
-    responses = await graphqlRequest(qryCustomersMain, 'customersMain', {
-      form: testForm._id,
     });
 
     expect(responses.list.length).toBe(2);
@@ -409,52 +405,25 @@ describe('customerQueries', () => {
     const customer1 = await customerFactory({}, true);
     const customer2 = await customerFactory({}, true);
 
-    const startDate = '2018-04-03 10:00';
-    const endDate = '2018-04-03 18:00';
+    const startDate = moment().format('YYYY-MM-DD HH:mm');
+    const endDate = moment(startDate)
+      .add(25, 'days')
+      .format('YYYY-MM-DD HH:mm');
+
+    const form = await formFactory();
 
     // Creating 3 submissions for form
-    const submissions = [
-      {
-        customerId: customer._id,
-        submittedAt: moment(startDate)
-          .add(5, 'days')
-          .toDate(),
-      },
-      {
-        customerId: customer1._id,
-        submittedAt: moment(startDate)
-          .add(20, 'days')
-          .toDate(),
-      },
-      {
-        customerId: customer2._id,
-        submittedAt: moment(startDate)
-          .add(1, 'hours')
-          .toDate(),
-      },
-    ];
+    await formSubmissionFactory({ customerId: customer._id, formId: form._id });
+    await formSubmissionFactory({ customerId: customer1._id, formId: form._id });
+    await formSubmissionFactory({ customerId: customer2._id, formId: form._id });
 
-    const form = await formFactory({ submissions });
-
-    let args = {
+    const args = {
       startDate,
       endDate,
       form: form._id,
     };
 
-    let responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
-
-    expect(responses.list.length).toBe(1);
-
-    args = {
-      startDate,
-      endDate: moment(endDate)
-        .add(25, 'days')
-        .format('YYYY-MM-DD HH:mm'),
-      form: form._id,
-    };
-
-    responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
+    const responses = await graphqlRequest(qryCustomersMain, 'customersMain', args);
 
     expect(responses.list.length).toBe(3);
   });

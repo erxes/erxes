@@ -29,11 +29,7 @@ export default {
   },
 
   async pipeline(task: ITaskDocument) {
-    const stage = await Stages.findOne({ _id: task.stageId });
-
-    if (!stage) {
-      return null;
-    }
+    const stage = await Stages.getStage(task.stageId || '');
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -43,7 +39,7 @@ export default {
   },
 
   stage(task: ITaskDocument) {
-    return Stages.findOne({ _id: task.stageId });
+    return Stages.getStage(task.stageId || '');
   },
 
   isWatched(task: ITaskDocument, _args, { user }: IContext) {

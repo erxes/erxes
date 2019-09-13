@@ -209,7 +209,7 @@ const conversationMutations = {
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    if (kind === KIND_CHOICES.FORM && email) {
+    if (kind === KIND_CHOICES.LEAD && email) {
       utils.sendEmail({
         toEmails: [email],
         title: 'Reply',

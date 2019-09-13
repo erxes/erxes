@@ -1,7 +1,8 @@
 import * as toBeType from 'jest-tobetype';
 import { customerFactory, fieldFactory, formFactory, userFactory } from '../db/factories';
-import { Customers, Fields, Forms, Users } from '../db/models';
+import { Customers, Fields, Forms, FormSubmissions, Users } from '../db/models';
 
+import { FORM_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 expect.extend(toBeType);
@@ -18,27 +19,12 @@ describe('form creation', () => {
     await Forms.deleteMany({});
   });
 
-  test(`testing if Error('createdUser must be supplied') is throwing as intended`, async () => {
-    expect.assertions(1);
-
-    try {
-      await Forms.createForm(
-        {
-          title: 'Test form',
-          description: 'Test form description',
-        },
-        undefined,
-      );
-    } catch (e) {
-      expect(e.message).toEqual('createdUser must be supplied');
-    }
-  });
-
   test('check if form creation method is working successfully', async () => {
     const form = await Forms.createForm(
       {
         title: 'Test form',
         description: 'Test form description',
+        type: FORM_TYPES.GROWTH_HACK,
       },
       _user._id,
     );
@@ -75,6 +61,7 @@ describe('form update', () => {
     const doc = {
       title: 'Test form 2',
       description: 'Test form description 2',
+      type: FORM_TYPES.GROWTH_HACK,
     };
 
     const formAfterUpdate = await Forms.updateForm(_form._id, doc);
@@ -98,6 +85,7 @@ describe('form remove', async () => {
     await Forms.deleteMany({});
     await Fields.deleteMany({});
     await Customers.deleteMany({});
+    await FormSubmissions.deleteMany({});
   });
 
   test('check if form removal is working successfully', async () => {
@@ -160,5 +148,23 @@ describe('form duplication', () => {
 
     expect(fieldsCount).toEqual(6);
     expect(duplicatedFieldsCount).toEqual(3);
+  });
+
+  test('check if formSubmission creation method is working successfully', async () => {
+    const customer = await customerFactory({});
+
+    const formSubmission = await FormSubmissions.createFormSubmission({
+      customerId: customer._id,
+      formId: _form._id,
+    });
+
+    const formSubmissionObj = await FormSubmissions.findOne({ _id: formSubmission._id });
+
+    if (!formSubmissionObj) {
+      throw new Error('Form submission not found');
+    }
+
+    expect(formSubmissionObj.customerId).toBe(customer._id);
+    expect(formSubmissionObj.formId).toBe(_form._id);
   });
 });

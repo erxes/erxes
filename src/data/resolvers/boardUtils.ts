@@ -51,17 +51,9 @@ export const sendNotifications = async ({
   invitedUsers,
   removedUsers,
 }: IBoardNotificationParams) => {
-  const stage = await Stages.findOne({ _id: item.stageId });
+  const stage = await Stages.getStage(item.stageId || '');
 
-  if (!stage) {
-    throw new Error('Stage not found');
-  }
-
-  const pipeline = await Pipelines.findOne({ _id: stage.pipelineId });
-
-  if (!pipeline) {
-    throw new Error('Pipeline not found');
-  }
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
 
   const title = `${contentType} updated`;
 
@@ -193,6 +185,15 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'taskPipelinesEdit',
     pipelinesRemove: 'taskPipelinesRemove',
     pipelinesWatch: 'taskPipelinesWatch',
+  },
+  growthHack: {
+    boardsAdd: 'growthHackBoardsAdd',
+    boardsEdit: 'growthHackBoardsEdit',
+    boardsRemove: 'growthHackBoardsRemove',
+    pipelinesAdd: 'growthHackPipelinesAdd',
+    pipelinesEdit: 'growthHackPipelinesEdit',
+    pipelinesRemove: 'growthHackPipelinesRemove',
+    pipelinesWatch: 'growthHackPipelinesWatch',
   },
 };
 

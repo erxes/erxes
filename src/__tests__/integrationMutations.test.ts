@@ -23,7 +23,7 @@ describe('mutations', () => {
     languageCode: $languageCode
   `;
 
-  const commonFormProperties = {
+  const commonLeadProperties = {
     languageCode: 'en',
     loadType: faker.random.word(),
     fromEmail: faker.internet.email(),
@@ -33,7 +33,7 @@ describe('mutations', () => {
     adminEmailContent: faker.random.word(),
     redirectUrl: faker.random.word(),
     successAction: faker.random.word(),
-    formData: {
+    leadData: {
       thankContent: faker.random.word(),
       adminEmails: [],
     },
@@ -200,63 +200,62 @@ describe('mutations', () => {
     expect(messengerConfig.messengerData.toJSON()).toEqual(args.messengerData);
   });
 
-  test('Create form integration', async () => {
+  test('Create lead integration', async () => {
     const args = {
       name: _integration.name,
       brandId: _brand._id,
       formId: _integration.formId,
-      ...commonFormProperties,
+      ...commonLeadProperties,
     };
 
     const mutation = `
-      mutation integrationsCreateFormIntegration(
+      mutation integrationsCreateLeadIntegration(
         ${commonParamDefs}
         $formId: String!
-        $formData: IntegrationFormData!
+        $leadData: IntegrationLeadData!
       ) {
-        integrationsCreateFormIntegration(
+        integrationsCreateLeadIntegration(
           ${commonParams}
           formId: $formId
-          formData: $formData
+          leadData: $leadData
         ) {
           name
           brandId
           languageCode
           formId
-          formData
+          leadData
         }
       }
     `;
 
-    const formIntegration = await graphqlRequest(mutation, 'integrationsCreateFormIntegration', args, context);
+    const leadIntegration = await graphqlRequest(mutation, 'integrationsCreateLeadIntegration', args, context);
 
-    expect(formIntegration.name).toBe(args.name);
-    expect(formIntegration.brandId).toBe(args.brandId);
-    expect(formIntegration.languageCode).toBe(args.languageCode);
-    expect(formIntegration.formId).toBe(args.formId);
-    expect(formIntegration.formData.toJSON()).toEqual(args.formData);
+    expect(leadIntegration.name).toBe(args.name);
+    expect(leadIntegration.brandId).toBe(args.brandId);
+    expect(leadIntegration.languageCode).toBe(args.languageCode);
+    expect(leadIntegration.formId).toBe(args.formId);
   });
 
-  test('Edit form integration', async () => {
+  test('Edit lead integration', async () => {
     const args = {
       _id: _integration._id,
       name: _integration.name,
       brandId: _brand._id,
       formId: _integration.formId,
-      ...commonFormProperties,
+      ...commonLeadProperties,
     };
 
     const mutation = `
-      mutation integrationsEditFormIntegration(
+      mutation integrationsEditLeadIntegration(
         $_id: String!
         $formId: String!
-        $formData: IntegrationFormData!
+        $leadData: IntegrationLeadData!
         ${commonParamDefs}
       ) {
-        integrationsEditFormIntegration(
+        integrationsEditLeadIntegration(
           _id: $_id
           formId: $formId
-          formData: $formData
+          leadData: $leadData
           ${commonParams}
         ) {
           _id
@@ -264,18 +263,17 @@ describe('mutations', () => {
           brandId
           languageCode
           formId
-          formData
+          leadData
         }
       }
     `;
 
-    const formIntegration = await graphqlRequest(mutation, 'integrationsEditFormIntegration', args, context);
+    const leadIntegration = await graphqlRequest(mutation, 'integrationsEditLeadIntegration', args, context);
 
-    expect(formIntegration._id).toBe(args._id);
-    expect(formIntegration.name).toBe(args.name);
-    expect(formIntegration.brandId).toBe(args.brandId);
-    expect(formIntegration.languageCode).toBe(args.languageCode);
-    expect(formIntegration.formId).toBe(args.formId);
-    expect(formIntegration.formData.toJSON()).toEqual(args.formData);
+    expect(leadIntegration._id).toBe(args._id);
+    expect(leadIntegration.name).toBe(args.name);
+    expect(leadIntegration.brandId).toBe(args.brandId);
+    expect(leadIntegration.languageCode).toBe(args.languageCode);
+    expect(leadIntegration.formId).toBe(args.formId);
   });
 });

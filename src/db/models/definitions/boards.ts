@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
+import { BOARD_TYPES, HACK_SCORING_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
 import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
@@ -31,7 +31,6 @@ export interface IItemCommonFields {
 
 export interface IBoard extends ICommonFields {
   name?: string;
-  isDefault?: boolean;
 }
 
 export interface IBoardDocument extends IBoard, Document {
@@ -45,6 +44,8 @@ export interface IPipeline extends ICommonFields {
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
+  hackScoringType?: string;
+  templateId?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -54,12 +55,16 @@ export interface IPipelineDocument extends IPipeline, Document {
 export interface IStage extends ICommonFields {
   name?: string;
   probability?: string;
-  pipelineId?: string;
+  pipelineId: string;
+  formId?: string;
 }
 
 export interface IStageDocument extends IStage, Document {
   _id: string;
 }
+
+// Not mongoose document, just stage shaped plain object
+export type IPipelineStage = IStage & { _id: string };
 
 export interface IOrderInput {
   _id: string;
@@ -105,7 +110,7 @@ export const commonItemFieldsSchema = {
   assignedUserIds: field({ type: [String] }),
   watchedUserIds: field({ type: [String] }),
   attachments: field({ type: [attachmentSchema] }),
-  stageId: field({ type: String, optional: true }),
+  stageId: field({ type: String }),
   initialStageId: field({ type: String, optional: true }),
   modifiedAt: field({
     type: Date,
@@ -118,10 +123,6 @@ export const boardSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String }),
-    isDefault: field({
-      type: Boolean,
-      default: false,
-    }),
     ...commonFieldsSchema,
   }),
 );
@@ -138,6 +139,11 @@ export const pipelineSchema = new Schema({
   watchedUserIds: field({ type: [String] }),
   memberIds: field({ type: [String] }),
   bgColor: field({ type: String }),
+  hackScoringType: field({
+    type: String,
+    enum: HACK_SCORING_TYPES.ALL,
+  }),
+  templateId: field({ type: String, optional: true }),
   ...commonFieldsSchema,
 });
 
@@ -149,5 +155,6 @@ export const stageSchema = new Schema({
     enum: PROBABILITY.ALL,
   }), // Win probability
   pipelineId: field({ type: String }),
+  formId: field({ type: String }),
   ...commonFieldsSchema,
 });

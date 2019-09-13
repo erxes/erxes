@@ -34,7 +34,7 @@ export const METHODS = {
   ALL: ['messenger', 'email'],
 };
 
-export const FORM_LOAD_TYPES = {
+export const LEAD_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
   EMBEDDED: 'embedded',
@@ -44,7 +44,7 @@ export const FORM_LOAD_TYPES = {
   ALL: ['', 'shoutbox', 'popup', 'embedded', 'dropdown', 'slideInLeft', 'slideInRight'],
 };
 
-export const FORM_SUCCESS_ACTIONS = {
+export const LEAD_SUCCESS_ACTIONS = {
   EMAIL: 'email',
   REDIRECT: 'redirect',
   ONPAGE: 'onPage',
@@ -53,12 +53,12 @@ export const FORM_SUCCESS_ACTIONS = {
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  FORM: 'form',
+  LEAD: 'lead',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
   CALLPRO: 'callpro',
-  ALL: ['messenger', 'form', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro'],
+  ALL: ['messenger', 'lead', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro'],
 };
 
 // messenger data availability constants
@@ -75,8 +75,9 @@ export const ACTIVITY_CONTENT_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
   TASK: 'task',
+  GROWTH_HACK: 'growthHack',
 
-  ALL: ['customer', 'company', 'user', 'deal', 'ticket', 'task'],
+  ALL: ['customer', 'company', 'user', 'deal', 'ticket', 'task', 'growthHack'],
 };
 
 export const PUBLISH_STATUSES = {
@@ -96,8 +97,21 @@ export const ACTIVITY_TYPES = {
   TICKET: 'ticket',
   TASK: 'task',
   BRAND: 'brand',
+  GROWTH_HACK: 'growthHack',
 
-  ALL: ['customer', 'company', 'internal_note', 'conversation', 'segment', 'deal', 'email', 'ticket', 'task', 'brand'],
+  ALL: [
+    'customer',
+    'company',
+    'internal_note',
+    'conversation',
+    'segment',
+    'deal',
+    'email',
+    'ticket',
+    'task',
+    'brand',
+    'growthHack',
+  ],
 };
 
 export const ACTIVITY_ACTIONS = {
@@ -129,6 +143,12 @@ export const PIPELINE_VISIBLITIES = {
   PUBLIC: 'public',
   PRIVATE: 'private',
   ALL: ['public', 'private'],
+};
+
+export const HACK_SCORING_TYPES = {
+  RICE: 'rice',
+  ICE: 'ice',
+  ALL: ['rice', 'ice'],
 };
 
 export const FIELDS_GROUPS_CONTENT_TYPES = {
@@ -281,7 +301,8 @@ export const BOARD_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
   TASK: 'task',
-  ALL: ['deal', 'ticket', 'task'],
+  GROWTH_HACK: 'growthHack',
+  ALL: ['deal', 'ticket', 'task', 'growthHack'],
 };
 
 // module constants
@@ -296,6 +317,12 @@ export const NOTIFICATION_TYPES = {
   DEAL_CHANGE: 'dealChange',
   DEAL_DUE_DATE: 'dealDueDate',
   DEAL_DELETE: 'dealDelete',
+  GROWTH_HACK_ADD: 'growthHackAdd',
+  GROWTH_HACK_REMOVE_ASSIGN: 'growthHackRemoveAssign',
+  GROWTH_HACK_EDIT: 'growthHackEdit',
+  GROWTH_HACK_CHANGE: 'growthHackChange',
+  GROWTH_HACK_DUE_DATE: 'growthHackDueDate',
+  GROWTH_HACK_DELETE: 'growthHackDelete',
   TICKET_ADD: 'ticketAdd',
   TICKET_REMOVE_ASSIGN: 'ticketRemoveAssign',
   TICKET_EDIT: 'ticketEdit',
@@ -321,6 +348,12 @@ export const NOTIFICATION_TYPES = {
     'dealChange',
     'dealDueDate',
     'dealDelete',
+    'growthHackAdd',
+    'growthHackRemoveAssign',
+    'growthHackEdit',
+    'growthHackChange',
+    'growthHackDueDate',
+    'growthHackDelete',
     'ticketAdd',
     'ticketRemoveAssign',
     'ticketEdit',
@@ -336,6 +369,12 @@ export const NOTIFICATION_TYPES = {
     'customerMention',
     'companyMention',
   ],
+};
+
+export const FORM_TYPES = {
+  LEAD: 'lead',
+  GROWTH_HACK: 'growthHack',
+  ALL: ['lead', 'growthHack'],
 };
 
 export const NOTIFICATION_CONTENT_TYPES = {
