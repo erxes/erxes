@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import SuccessPreview from 'modules/forms/components/step/preview/SuccessPreview';
+import SuccessPreview from 'modules/leads/components/step/preview/SuccessPreview';
 import React from 'react';
 
 describe('SuccessPreview component', () => {

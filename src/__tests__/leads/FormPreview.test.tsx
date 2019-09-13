@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import FormPreview from 'modules/forms/components/step/preview/FormPreview';
+import FormPreview from 'modules/leads/components/step/preview/FormPreview';
 import React from 'react';
 
 describe('FormPreview component', () => {

@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import CommonPreview from 'modules/forms/components/step/preview/CommonPreview';
+import CommonPreview from 'modules/leads/components/step/preview/CommonPreview';
 import React from 'react';
 
 describe('CommonPreview component', () => {

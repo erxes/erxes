@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import ChooseType from 'modules/forms/components/step/ChooseType';
+import ChooseType from 'modules/leads/components/step/ChooseType';
 import React from 'react';
 
 describe('ChooseType component', () => {

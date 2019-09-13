@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import SuccessStep from 'modules/forms/components/step/SuccessStep';
+import SuccessStep from 'modules/leads/components/step/SuccessStep';
 import React from 'react';
 
 describe('SuccessStep component', () => {
