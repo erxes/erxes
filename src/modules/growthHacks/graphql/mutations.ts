@@ -3,8 +3,6 @@ const commonVariables = `
   $stageId: String,
   $closeDate: Date,
   $description: String,
-  $companyIds: [String],
-  $customerIds: [String],
   $assignedUserIds: [String],
   $order: Int,
   $hackDescription: String,
@@ -21,8 +19,6 @@ const commonVariables = `
 const commonParams = `
   name: $name,
   stageId: $stageId,
-  companyIds: $companyIds,
-  customerIds: $customerIds,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
@@ -42,15 +38,6 @@ const commonReturn = `
   _id
   name
   stageId
-  companies {
-    _id
-    primaryName
-  }
-  customers {
-    _id
-    firstName
-    primaryEmail
-  }
   closeDate
   description
   assignedUsers {
