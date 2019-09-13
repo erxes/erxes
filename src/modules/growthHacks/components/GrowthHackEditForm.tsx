@@ -3,9 +3,10 @@ import DueDateChanger from 'modules/boards/components/DueDateChanger';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import { FlexContent, LeftContainer } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
+import { IFormSubmission } from 'modules/forms/types';
 import React from 'react';
 import { IGrowthHack, IGrowthHackParams } from '../types';
-import { Left, Right, Top } from './editForm/';
+import { StageForm, Left, Top } from './editForm/';
 import Actions from './editForm/Actions';
 import Score from './Score';
 
@@ -16,7 +17,7 @@ type Props = {
   item: IGrowthHack;
   users: IUser[];
   addItem: (doc: IGrowthHackParams, callback: () => void, msg?: string) => void;
-  saveFormSubmission: (formId: string, formSubmissions: JSON) => void;
+  saveFormSubmission: (doc: IFormSubmission) => void;
   saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
@@ -184,10 +185,10 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             />
           </LeftContainer>
 
-          <Right
+          <StageForm
             item={item}
             onChangeExtraField={this.onChangeExtraField}
-            saveFormSubmission={saveFormSubmission}
+            save={saveFormSubmission}
             formSubmissions={formSubmissions}
             formId={formId}
           />

@@ -4,6 +4,7 @@ import { IOptions } from 'modules/boards/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { mutations } from 'modules/forms/graphql';
 import {
+  IFormSubmission,
   IFormSubmissionParams,
   SaveFormSubmissionMutation
 } from 'modules/forms/types';
@@ -34,11 +35,20 @@ class GrowthHackEditFormContainer extends React.Component<FinalProps> {
     this.saveFormSubmission = this.saveFormSubmission.bind(this);
   }
 
-  saveFormSubmission = (formId: string, formSubmissions: JSON) => {
+  saveFormSubmission = ({
+    formId,
+    formSubmissions,
+    contentTypeId
+  }: IFormSubmission) => {
     const { saveFormSubmissionMutation } = this.props;
 
     saveFormSubmissionMutation({
-      variables: { formId, formSubmissions, contentType: 'formField' }
+      variables: {
+        formId,
+        formSubmissions,
+        contentTypeId,
+        contentType: 'growthHack'
+      }
     })
       .then(() => {
         Alert.success('You successfully updated');
