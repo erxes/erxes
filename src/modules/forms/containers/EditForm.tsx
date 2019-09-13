@@ -100,6 +100,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
             // collect fields to create
             delete field._id;
+            delete field.key;
 
             createFieldsData.push({
               ...field,
@@ -110,8 +111,8 @@ class EditFormContainer extends React.Component<FinalProps> {
 
           // collect fields to remove
           for (const dbFieldId of dbFieldIds) {
-            if (!existingIds.includes(dbFieldId)) {
-              removeFieldsData.push({ _id: dbFieldId });
+            if (!existingIds.includes(dbFieldId || '')) {
+              removeFieldsData.push({ _id: dbFieldId || '' });
             }
           }
 
@@ -149,7 +150,10 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      fields: dbFields.map(field => ({ ...field })),
+      fields: dbFields.map(field => ({
+        ...field,
+        key: Math.random().toString()
+      })),
       saveForm,
       form
     };
