@@ -23,7 +23,7 @@ type Props = {
   onBlurFields: (name: 'description' | 'name', value: string) => void;
   score?: () => React.ReactNode;
   dueDate?: React.ReactNode;
-  formFields: JSON;
+  formSubmissions: JSON;
 };
 
 class Top extends React.Component<Props> {

@@ -11,7 +11,7 @@ export interface IGrowthHack extends IItem {
   goal?: string;
   hackStages?: string[];
   formId?: string;
-  formFields?: any;
+  formSubmissions?: any;
   scoringType?: string;
   reach?: number;
   impact?: number;
@@ -25,7 +25,7 @@ export interface IGrowthHackParams extends IItemParams {
   hackStages?: string[];
   priority?: string;
   formId?: string;
-  formFields?: any;
+  formSubmissions?: any;
   reach?: number;
   impact?: number;
   confidence?: number;

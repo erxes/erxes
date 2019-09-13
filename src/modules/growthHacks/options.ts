@@ -1,6 +1,6 @@
 import { toArray } from 'modules/boards/utils';
-import GrowthHackEditForm from 'modules/growthHacks/components/GrowthHackEditForm';
 import PortableGrowthHack from 'modules/growthHacks/components/PortableGrowthHack';
+import GrowthHackEditForm from 'modules/growthHacks/containers/GrowthHackEditForm';
 import GrowthHackItem from './components/GrowthHackItem';
 import { mutations, queries } from './graphql';
 

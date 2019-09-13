@@ -12,7 +12,23 @@ const commonParams = `
   type: $type
 `;
 
-const commonVariables = `
+const addForm = `
+  mutation formsAdd(${commonParamsDef}) {
+    formsAdd(${commonParams}) {
+      _id
+    }
+  }
+`;
+
+const editForm = `
+  mutation formsEdit($_id: String!, ${commonParamsDef}) {
+    formsEdit(_id: $_id, ${commonParams}) {
+      _id
+    }
+  }
+`;
+
+const commonFieldParamsDef = `
   $type: String,
   $validation: String,
   $text: String,
@@ -32,27 +48,11 @@ const commonFieldParams = `
   order: $order
 `;
 
-const addForm = `
-  mutation formsAdd(${commonParamsDef}) {
-    formsAdd(${commonParams}) {
-      _id
-    }
-  }
-`;
-
-const editForm = `
-  mutation formsEdit($_id: String!, ${commonParamsDef}) {
-    formsEdit(_id: $_id, ${commonParams}) {
-      _id
-    }
-  }
-`;
-
 const fieldsAdd = `
   mutation fieldsAdd(
     $contentType: String!,
     $contentTypeId: String,
-    ${commonVariables}
+    ${commonFieldParamsDef}
   ) {
       fieldsAdd(
         contentType: $contentType,
@@ -66,7 +66,7 @@ const fieldsAdd = `
 `;
 
 const fieldsEdit = `
-  mutation fieldsEdit($_id: String!, ${commonVariables}) {
+  mutation fieldsEdit($_id: String!, ${commonFieldParamsDef}) {
     fieldsEdit(_id: $_id, ${commonFieldParams}) {
       _id
       contentTypeId
@@ -82,10 +82,29 @@ const fieldsRemove = `
   }
 `;
 
+const commonFormSubmissionParamsDef = `
+  $formId: String,
+  $contentType: String,
+  $formSubmissions: JSON,
+`;
+
+const commonFormSubmissionParams = `
+  formId: $formId,
+  contentType: $contentType,
+  formSubmissions: $formSubmissions
+`;
+
+const formSubmissionsSave = `
+  mutation formSubmissionsSave(${commonFormSubmissionParamsDef}) {
+    formSubmissionsSave(${commonFormSubmissionParams})
+  }
+`;
+
 export default {
   addForm,
   editForm,
   fieldsAdd,
   fieldsEdit,
-  fieldsRemove
+  fieldsRemove,
+  formSubmissionsSave
 };
