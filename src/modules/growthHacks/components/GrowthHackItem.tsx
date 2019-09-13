@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
-import { Content, ItemIndicator } from 'modules/boards/styles/stage';
+import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __, getUserAvatar } from 'modules/common/utils';
@@ -45,8 +45,6 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
   render() {
     const { item, onClick } = this.props;
     const {
-      customers,
-      companies,
       scoringType,
       reach = 0,
       impact = 0,
@@ -70,20 +68,6 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
               e={ease}
             />
           </ScoreAmount>
-
-          {customers.map((customer, index) => (
-            <div key={index}>
-              <ItemIndicator color="#F7CE53" />
-              {customer.firstName || customer.primaryEmail}
-            </div>
-          ))}
-
-          {companies.map((company, index) => (
-            <div key={index}>
-              <ItemIndicator color="#EA475D" />
-              {company.primaryName}
-            </div>
-          ))}
 
           <PriceContainer>
             <Right>
