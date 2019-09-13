@@ -8,7 +8,12 @@ describe('FullPreviewStep component', () => {
     color: 'red',
     theme: 'default',
     onChange: (name: 'carousel', value: string) => null,
-    carousel: 'carousel'
+    carousel: 'carousel',
+    formData: {
+      title: 'Title',
+      btnText: 'Save',
+      desc: 'desc'
+    }
   };
 
   test('renders shallow successfully', () => {
