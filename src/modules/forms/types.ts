@@ -85,16 +85,6 @@ export type RemoveFieldMutationResponse = {
   ) => Promise<void>;
 };
 
-// query types
-export interface IFormPreviewContent {
-  title: string;
-  btnText: string;
-  desc: string;
-  fields?: IField[];
-  onFieldEdit?: (field: IField, props) => void;
-  onFieldChange?: (name: any, value: IField[]) => void;
-}
-
 export type FormDetailQueryResponse = {
   formDetail: IForm;
   loading: boolean;

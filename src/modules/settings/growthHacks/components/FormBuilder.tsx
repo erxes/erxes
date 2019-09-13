@@ -3,11 +3,10 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import FormFieldPreview from 'modules/forms/components/FormFieldPreview';
 import CreateForm from 'modules/forms/containers/CreateForm';
 import EditForm from 'modules/forms/containers/EditForm';
 import { ShowPreview } from 'modules/forms/styles';
-import { IFormPreviewContent } from 'modules/forms/types';
+import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { ContentWrapper, PreviewWrapper } from '../styles';
@@ -18,12 +17,15 @@ type Props = {
   stage: IStage;
 };
 
-class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
+class FormBuilder extends React.Component<
+  Props,
+  { isReadyToSaveForm: boolean }
+> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      isSaveForm: false
+      isReadyToSaveForm: false
     };
   }
 
@@ -60,28 +62,26 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
     );
   };
 
-  renderFormPreview = (props: IFormPreviewContent) => {
-    const { fields } = props;
-
+  renderFormPreviewWrapper = (previewRenderer, fields: IField[]) => {
     return (
       <PreviewWrapper>
-        <FormFieldPreview {...props} />
+        {previewRenderer()}
         {this.renderFooter(fields ? fields.length : 0)}
       </PreviewWrapper>
     );
   };
 
   saveForm = () => {
-    this.setState({ isSaveForm: true });
+    this.setState({ isReadyToSaveForm: true });
   };
 
-  onAfterSaveForm = (formId: string) => {
+  afterFormDbSave = (formId: string) => {
     const { stage, onChange, onHide } = this.props;
 
     onChange(stage._id, 'formId', formId);
     onHide();
 
-    this.setState({ isSaveForm: false });
+    this.setState({ isReadyToSaveForm: false });
   };
 
   closeModal = () => {
@@ -92,9 +92,9 @@ class FormBuilder extends React.Component<Props, { isSaveForm: boolean }> {
     const { stage } = this.props;
 
     const props = {
-      renderPreview: this.renderFormPreview,
-      onChange: this.onAfterSaveForm,
-      isSaving: this.state.isSaveForm,
+      renderPreviewWrapper: this.renderFormPreviewWrapper,
+      afterDbSave: this.afterFormDbSave,
+      isReadyToSave: this.state.isReadyToSaveForm,
       hideOptionalFields: true,
       type: 'growthHack'
     };

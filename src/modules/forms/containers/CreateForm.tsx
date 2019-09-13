@@ -2,7 +2,8 @@ import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
-  AddFieldsMutationVariables
+  AddFieldsMutationVariables,
+  IField
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -13,16 +14,15 @@ import { mutations } from '../graphql';
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
-  IFormData,
-  IFormPreviewContent
+  IFormData
 } from '../types';
 
 type Props = {
-  renderPreview: (props: IFormPreviewContent) => void;
-  onChange: (formId: string) => void;
+  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
+  afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   type: string;
-  isSaving: boolean;
+  isReadyToSave: boolean;
 };
 
 type FinalProps = {} & Props &
@@ -30,18 +30,9 @@ type FinalProps = {} & Props &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
 
-class CreateFormContainer extends React.Component<
-  FinalProps,
-  { isSaving: boolean }
-> {
-  constructor(props: FinalProps) {
-    super(props);
-
-    this.state = { isSaving: props.isSaving };
-  }
-
+class CreateFormContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { addFormMutation, addFieldsMutation, onChange } = this.props;
+    const { addFormMutation, addFieldsMutation, afterDbSave } = this.props;
 
     const saveForm = doc => {
       let formId;
@@ -58,7 +49,7 @@ class CreateFormContainer extends React.Component<
         .then(({ data }) => {
           formId = data.formsAdd._id;
 
-          onChange(formId);
+          afterDbSave(formId);
         })
 
         .then(() => {

@@ -17,18 +17,17 @@ import {
   EditFormMutationVariables,
   FormDetailQueryResponse,
   IFormData,
-  IFormPreviewContent,
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
 
 type Props = {
-  renderPreview: (props: IFormPreviewContent) => void;
-  onChange: (formId: string) => void;
+  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
+  afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   onInit?: (fields: IField[]) => void;
   type: string;
-  isSaving: boolean;
+  isReadyToSave: boolean;
   formId: string;
   integration?: IIntegration;
 };
@@ -55,7 +54,7 @@ class EditFormContainer extends React.Component<FinalProps> {
   render() {
     const {
       formId,
-      onChange,
+      afterDbSave,
       addFieldMutation,
       editFieldMutation,
       editFormMutation,
@@ -139,7 +138,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           Alert.success('You successfully updated a form');
 
           fieldsQuery.refetch().then(() => {
-            onChange(formId);
+            afterDbSave(formId);
           });
         })
 

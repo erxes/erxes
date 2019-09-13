@@ -4,23 +4,22 @@ import React from 'react';
 import FieldPreview from './FieldPreview';
 
 type Props = {
-  fields?: IField[];
+  fields: IField[];
   desc?: string;
-  onFieldEdit?: (field: IField, props) => void;
-  onChange?: (name: string, fields: any) => void;
-  onFieldChange?: (name: string, value: IField[]) => void;
+  onFieldClick?: (field: IField) => void;
+  onChangeFieldsOrder?: (fields: IField[]) => void;
 };
 
 type State = {
   fields?: IField[];
 };
 
-class FormFieldPreview extends React.Component<Props, State> {
+class FieldsPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      fields: props.fields
+      fields: [...props.fields]
     };
   }
 
@@ -35,7 +34,7 @@ class FormFieldPreview extends React.Component<Props, State> {
   onChangeFields = (reOrderedFields: IField[]) => {
     const fields: IField[] = [];
 
-    const { onFieldChange } = this.props;
+    const { onChangeFieldsOrder } = this.props;
 
     reOrderedFields.forEach((field, index) => {
       fields.push({
@@ -45,8 +44,8 @@ class FormFieldPreview extends React.Component<Props, State> {
     });
 
     this.setState({ fields }, () => {
-      if (onFieldChange) {
-        onFieldChange('fields', this.state.fields || []);
+      if (onChangeFieldsOrder) {
+        onChangeFieldsOrder(this.state.fields || []);
       }
     });
   };
@@ -64,7 +63,7 @@ class FormFieldPreview extends React.Component<Props, State> {
       return (
         <FieldPreview
           key={field._id}
-          onFieldEdit={this.props.onFieldEdit}
+          onClick={this.props.onFieldClick}
           field={field}
         />
       );
@@ -73,6 +72,7 @@ class FormFieldPreview extends React.Component<Props, State> {
     return (
       <>
         {this.renderFormDesc()}
+
         <SortableList
           child={child}
           fields={this.state.fields || []}
@@ -84,4 +84,4 @@ class FormFieldPreview extends React.Component<Props, State> {
   }
 }
 
-export default FormFieldPreview;
+export default FieldsPreview;

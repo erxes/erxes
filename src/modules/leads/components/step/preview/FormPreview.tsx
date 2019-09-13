@@ -1,9 +1,9 @@
-import FormFieldPreview from 'modules/forms/components/FormFieldPreview';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import CommonPreview from './CommonPreview';
 
 type Props = {
+  previewRenderer: () => React.ReactNode;
   title?: string;
   desc?: string;
   btnText?: string;
@@ -18,18 +18,11 @@ type Props = {
 
 class FormPreview extends React.Component<Props, {}> {
   render() {
-    const {
-      title,
-      desc,
-      btnText,
-      color,
-      theme,
-      fields,
-      onFieldEdit,
-      onFieldChange,
-      onChange,
-      type
-    } = this.props;
+    const { title, btnText, color, theme, type, previewRenderer } = this.props;
+
+    if (!previewRenderer) {
+      return null;
+    }
 
     return (
       <CommonPreview
@@ -40,13 +33,7 @@ class FormPreview extends React.Component<Props, {}> {
         btnStyle="primary"
         type={type}
       >
-        <FormFieldPreview
-          desc={desc}
-          fields={fields}
-          onFieldEdit={onFieldEdit}
-          onFieldChange={onFieldChange}
-          onChange={onChange}
-        />
+        {previewRenderer()}
       </CommonPreview>
     );
   }

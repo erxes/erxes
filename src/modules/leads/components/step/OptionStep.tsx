@@ -4,6 +4,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
+import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
@@ -58,6 +59,7 @@ class OptionStep extends React.Component<Props, {}> {
 
   render() {
     const { language, brand, formData } = this.props;
+    const { fields, desc } = formData;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -76,6 +78,10 @@ class OptionStep extends React.Component<Props, {}> {
         'language',
         (e.currentTarget as HTMLInputElement).value
       );
+
+    const previewRenderer = () => (
+      <FieldsPreview fields={fields || []} desc={desc} />
+    );
 
     return (
       <FlexItem>
@@ -128,8 +134,7 @@ class OptionStep extends React.Component<Props, {}> {
             {...this.props}
             title={formData.title}
             btnText={formData.btnText}
-            desc={formData.desc}
-            fields={formData.fields}
+            previewRenderer={previewRenderer}
           />
         </Preview>
       </FlexItem>
