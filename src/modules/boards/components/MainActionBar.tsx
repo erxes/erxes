@@ -15,8 +15,6 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import SelectCompanies from 'modules/companies/containers/SelectCompanies';
-import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -215,18 +213,6 @@ class MainActionBar extends React.Component<Props, State> {
           <PopoverHeader>{__('Filter')}</PopoverHeader>
           <FilterBox>
             {extraFilter}
-            <SelectCompanies
-              label="Choose companies"
-              name="companyIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
-            <SelectCustomers
-              label="Choose customers"
-              name="customerIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
             <SelectTeamMembers
               label="Choose team members"
               name="assignedUserIds"

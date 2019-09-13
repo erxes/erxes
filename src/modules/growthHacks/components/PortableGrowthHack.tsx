@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import Details from 'modules/boards/components/portable/Details';
 import UserCounter from 'modules/boards/components/portable/UserCounter';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
@@ -74,8 +73,6 @@ class GrowthHack extends React.Component<Props, { isFormVisible: boolean }> {
             <h5>{item.name}</h5>
             {this.renderDate(item.closeDate)}
           </SpaceContent>
-          <Details color="#F7CE53" items={item.customers || []} />
-          <Details color="#EA475D" items={item.companies || []} />
         </Content>
         <PriceContainer>
           <Right>

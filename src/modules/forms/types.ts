@@ -95,3 +95,12 @@ export type FormsQueryResponse = {
   forms: IForm[];
   loading: boolean;
 };
+
+export interface IFormSubmissionParams {
+  formId: string;
+  formField?: JSON;
+}
+
+export type SaveFormSubmissionMutation = (
+  { variables: IFormSubmissionParams }
+) => Promise<any>;

@@ -16,6 +16,7 @@ type Props = {
   item: IGrowthHack;
   users: IUser[];
   addItem: (doc: IGrowthHackParams, callback: () => void, msg?: string) => void;
+  saveFormSubmission: (formId: string, formSubmissions: JSON) => void;
   saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
@@ -25,7 +26,7 @@ type Props = {
 type State = {
   hackDescription: string;
   goal: string;
-  formFields: JSON;
+  formSubmissions: JSON;
   formId: string;
   priority: string;
   hackStages: string[];
@@ -44,7 +45,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     this.state = {
       hackDescription: item.hackDescription || '',
       goal: item.goal || '',
-      formFields: item.formFields || {},
+      formSubmissions: item.formSubmissions || {},
       priority: item.priority || '',
       hackStages: item.hackStages || [],
       formId: item.formId || '',
@@ -127,8 +128,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove,
     onBlurFields
   }: IEditFormContent) => {
-    const { item, options, saveItem } = this.props;
-    const { formFields, priority, hackStages, formId } = this.state;
+    const { item, options, saveFormSubmission } = this.props;
+    const { formSubmissions, priority, hackStages, formId } = this.state;
 
     const {
       name,
@@ -186,8 +187,8 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
           <Right
             item={item}
             onChangeExtraField={this.onChangeExtraField}
-            saveItem={saveItem}
-            formFields={formFields}
+            saveFormSubmission={saveFormSubmission}
+            formSubmissions={formSubmissions}
             formId={formId}
           />
         </FlexContent>

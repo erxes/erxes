@@ -4,17 +4,17 @@ import React from 'react';
 type Props = {
   formId: string;
   fields: any;
-  formFields?: any;
+  formSubmissions?: any;
   onChangeFormField: (field: any) => void;
 };
 
 class FormFields extends React.Component<Props> {
   render() {
-    const { fields, formFields, onChangeFormField } = this.props;
+    const { fields, formSubmissions, onChangeFormField } = this.props;
 
     return fields.map(field => (
       <GenerateField
-        defaultValue={formFields[field._id]}
+        defaultValue={formSubmissions[field._id]}
         key={field._id}
         field={field}
         onValueChange={onChangeFormField}

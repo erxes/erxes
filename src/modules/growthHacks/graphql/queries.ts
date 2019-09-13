@@ -1,6 +1,4 @@
 const commonParams = `
-  $customerIds: [String],
-  $companyIds: [String],
   $assignedUserIds: [String],
   $nextDay: String,
   $nextWeek: String,
@@ -10,8 +8,6 @@ const commonParams = `
 `;
 
 const commonParamDefs = `
-  customerIds: $customerIds,
-  companyIds: $companyIds,
   assignedUserIds: $assignedUserIds,
   nextDay: $nextDay,
   nextWeek: $nextWeek,
@@ -29,17 +25,6 @@ const growthHackFields = `
     name
   }
   boardId
-  companies {
-    _id
-    primaryName
-    website
-  }
-  customers {
-    _id
-    firstName
-    primaryEmail
-    primaryPhone
-  }
   closeDate
   description
   hackDescription
@@ -70,7 +55,7 @@ const growthHackFields = `
     type
     size
   }
-  formFields
+  formSubmissions
   formId
   modifiedAt
   modifiedBy

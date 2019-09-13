@@ -1,7 +1,7 @@
 import Button from 'modules/common/components/Button';
 import colors from 'modules/common/styles/colors';
 import FormFields from 'modules/growthHacks/containers/FormFields';
-import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
+import { IGrowthHack } from 'modules/growthHacks/types';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -28,9 +28,9 @@ const CurrentStage = styled.div`
 
 type Props = {
   item: IGrowthHack;
-  onChangeExtraField: (name: 'formFields', value: any) => void;
-  saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
-  formFields: any;
+  onChangeExtraField: (name: 'formSubmissions', value: any) => void;
+  saveFormSubmission: (formId: string, formSubmissions: JSON) => void;
+  formSubmissions: any;
   formId: string;
 };
 
@@ -39,20 +39,20 @@ class RigthContent extends React.Component<Props> {
     const {
       item,
       onChangeExtraField,
-      formFields,
+      formSubmissions,
       formId,
-      saveItem
+      saveFormSubmission
     } = this.props;
 
     const stageName = item.stage && item.stage.name;
 
     const onChangeFormField = field => {
-      formFields[field._id] = field.value;
-      onChangeExtraField('formFields', formFields);
+      formSubmissions[field._id] = field.value;
+      onChangeExtraField('formSubmissions', formSubmissions);
     };
 
     const saveFormField = () => {
-      saveItem({ formFields });
+      saveFormSubmission(formId, formSubmissions);
     };
 
     return (
@@ -63,7 +63,7 @@ class RigthContent extends React.Component<Props> {
         {formId ? (
           <FormFields
             onChangeFormField={onChangeFormField}
-            formFields={formFields}
+            formSubmissions={formSubmissions}
             formId={formId}
           />
         ) : null}
