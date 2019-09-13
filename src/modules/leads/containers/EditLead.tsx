@@ -21,7 +21,7 @@ type Props = {
 
 type State = {
   isLoading: boolean;
-  isSaving: boolean;
+  isReadyToSaveForm: boolean;
   doc?: {
     brandId: string;
     name: string;
@@ -41,7 +41,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { isLoading: false, isSaving: false };
+    this.state = { isLoading: false, isReadyToSaveForm: false };
   }
 
   render() {
@@ -58,7 +58,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
     const integration = integrationDetailQuery.integrationDetail || {};
 
-    const onLeadEdit = data => {
+    const afterFormDbSave = () => {
       if (this.state.doc) {
         const { leadData, brandId, name, languageCode } = this.state.doc;
 
@@ -77,28 +77,28 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
 
             history.push('/leads');
 
-            this.setState({ isSaving: false, isLoading: false });
+            this.setState({ isReadyToSaveForm: false, isLoading: false });
           })
 
           .catch(error => {
             Alert.error(error.message);
 
-            this.setState({ isSaving: false, isLoading: false });
+            this.setState({ isReadyToSaveForm: false, isLoading: false });
           });
       }
     };
 
     const save = doc => {
-      this.setState({ isLoading: true, isSaving: true, doc });
+      this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
 
     const updatedProps = {
       ...this.props,
       integration,
       save,
-      onChange: onLeadEdit,
+      afterFormDbSave,
       isActionLoading: this.state.isLoading,
-      isSaving: this.state.isLoading
+      isReadyToSaveForm: this.state.isReadyToSaveForm
     };
 
     return <Lead {...updatedProps} />;

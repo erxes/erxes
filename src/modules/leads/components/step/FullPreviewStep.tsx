@@ -2,6 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 
 import { __ } from 'modules/common/utils';
+import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import React from 'react';
 import CalloutPreview from './preview/CalloutPreview';
@@ -74,13 +75,18 @@ class FullPreviewStep extends React.Component<Props, State> {
     }
 
     if (carousel === 'form') {
+      const { desc, fields } = formData;
+
+      const previewRenderer = () => (
+        <FieldsPreview fields={fields || []} desc={desc} />
+      );
+
       return (
         <FormPreview
           {...this.props}
           title={formData.title}
           btnText={formData.btnText}
-          desc={formData.desc}
-          fields={formData.fields}
+          previewRenderer={previewRenderer}
         />
       );
     }

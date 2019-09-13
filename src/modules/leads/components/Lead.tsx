@@ -31,8 +31,8 @@ type Props = {
   integration?: ILeadIntegration;
   loading?: boolean;
   isActionLoading: boolean;
-  isSaving: boolean;
-  onChange: (formId: string) => void;
+  isReadyToSaveForm: boolean;
+  afterFormDbSave: (formId: string) => void;
   save: (
     params: {
       name: string;
@@ -200,8 +200,8 @@ class Lead extends React.Component<Props, State> {
     );
   };
 
-  onChange = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as Pick<State, keyof State>);
+  onChange = (key: string, value: any) => {
+    this.setState({ [key]: value } as any);
   };
 
   onFormDocChange = formData => {
@@ -286,10 +286,11 @@ class Lead extends React.Component<Props, State> {
               color={color}
               theme={theme}
               formId={integration && integration.formId}
-              onChange={this.props.onChange}
+              formData={formData}
+              afterDbSave={this.props.afterFormDbSave}
               onDocChange={this.onFormDocChange}
               onInit={this.onFormInit}
-              isSaving={this.props.isSaving}
+              isReadyToSaveForm={this.props.isReadyToSaveForm}
             />
           </Step>
           <Step img="/images/icons/erxes-02.svg" title="Rule">

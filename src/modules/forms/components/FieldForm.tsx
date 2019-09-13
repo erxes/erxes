@@ -4,10 +4,10 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
-import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
+import { Modal } from 'react-bootstrap';
 import Toggle from 'react-toggle';
 import {
   FlexRow,
@@ -19,26 +19,23 @@ import {
 import FieldPreview from './FieldPreview';
 
 type Props = {
-  closeModal?: () => void;
-  afterSave?: () => void;
-  onChange: (value: IField, callback: () => void) => void;
-  onSubmit: (e: any) => void;
-  onDelete: (fieldId: string) => void;
-  field?: IField;
-  editingField?: IField;
-  type?: string;
+  onSubmit: (field: IField) => void;
+  onDelete: (field: IField) => void;
+  onCancel: () => void;
+  mode: 'create' | 'update';
+  field: IField;
 };
 
 type State = {
-  editingField?: IField;
+  field: IField;
 };
 
-class FormField extends React.Component<Props, State> {
+class FieldForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      editingField: props.field || undefined
+      field: props.field
     };
   }
 
@@ -49,33 +46,25 @@ class FormField extends React.Component<Props, State> {
   onSubmit = e => {
     e.persist();
 
-    const { editingField = {} as IField } = this.state;
-    const { onChange, onSubmit, closeModal } = this.props;
+    const { field } = this.state;
+    const { onSubmit } = this.props;
 
-    onChange(editingField, () => {
-      onSubmit(e);
-    });
-
-    if (closeModal) {
-      closeModal();
-    }
+    onSubmit(field);
   };
 
   setFieldAttrChanges(
     attributeName: string,
     value: string | boolean | string[]
   ) {
-    const { type } = this.props;
+    const { field } = this.state;
 
-    const editingField = this.state.editingField || ({ type } as IField);
+    field[attributeName] = value;
 
-    editingField[attributeName] = value;
-
-    this.setState({ editingField });
+    this.setState({ field });
   }
 
   renderValidation() {
-    const { editingField = {} as IField } = this.state;
+    const { field } = this.state;
 
     const validation = e =>
       this.onFieldChange(
@@ -90,7 +79,7 @@ class FormField extends React.Component<Props, State> {
         <FormControl
           id="validation"
           componentClass="select"
-          value={editingField.validation || ''}
+          value={field.validation || ''}
           onChange={validation}
         >
           <option />
@@ -103,8 +92,8 @@ class FormField extends React.Component<Props, State> {
     );
   }
 
-  renderOptions(type = '') {
-    const { editingField = {} as IField } = this.state;
+  renderOptions() {
+    const { field } = this.state;
 
     const onChange = e =>
       this.onFieldChange(
@@ -112,7 +101,7 @@ class FormField extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value.split('\n')
       );
 
-    if (!['select', 'check', 'radio'].includes(editingField.type || type)) {
+    if (!['select', 'check', 'radio'].includes(field.type)) {
       return null;
     }
 
@@ -123,7 +112,7 @@ class FormField extends React.Component<Props, State> {
         <FormControl
           id="options"
           componentClass="textarea"
-          value={(editingField.options || []).join('\n')}
+          value={(field.options || []).join('\n')}
           onChange={onChange}
         />
       </FormGroup>
@@ -131,20 +120,16 @@ class FormField extends React.Component<Props, State> {
   }
 
   renderExtraButton() {
-    const { field, closeModal } = this.props;
+    const { mode, field } = this.props;
 
-    if (!field) {
+    if (mode === 'create') {
       return null;
     }
 
     const onDelete = e => {
       e.preventDefault();
 
-      this.props.onDelete(field._id);
-
-      if (closeModal) {
-        closeModal();
-      }
+      this.props.onDelete(field);
     };
 
     return (
@@ -155,8 +140,8 @@ class FormField extends React.Component<Props, State> {
   }
 
   renderLeftContent() {
-    const { type, field, closeModal } = this.props;
-    const { editingField = {} as IField } = this.state;
+    const { mode, onCancel } = this.props;
+    const { field } = this.state;
 
     const text = e =>
       this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
@@ -183,7 +168,7 @@ class FormField extends React.Component<Props, State> {
           </ControlLabel>
           <FormControl
             type="text"
-            value={editingField.text || ''}
+            value={field.text || ''}
             onChange={text}
             autoFocus={true}
           />
@@ -193,17 +178,17 @@ class FormField extends React.Component<Props, State> {
           <ControlLabel htmlFor="description">Field description</ControlLabel>
           <FormControl
             componentClass="textarea"
-            value={editingField.description || ''}
+            value={field.description || ''}
             onChange={desc}
           />
         </FormGroup>
 
-        {this.renderOptions(type)}
+        {this.renderOptions()}
 
         <FlexRow>
           <label>This field is required</label>
           <Toggle
-            defaultChecked={editingField.isRequired || false}
+            defaultChecked={field.isRequired || false}
             icons={{
               checked: <span>Yes</span>,
               unchecked: <span>No</span>
@@ -212,13 +197,13 @@ class FormField extends React.Component<Props, State> {
           />
         </FlexRow>
 
-        <ModalFooter>
+        <Modal.Footer>
           <Button
             btnStyle="simple"
             size="small"
             type="button"
             icon="cancel-1"
-            onClick={closeModal}
+            onClick={onCancel}
           >
             Cancel
           </Button>
@@ -229,19 +214,17 @@ class FormField extends React.Component<Props, State> {
             size="small"
             onClick={this.onSubmit}
             btnStyle="success"
-            icon={field ? 'checked-1' : 'add'}
+            icon={mode === 'update' ? 'checked-1' : 'add'}
           >
-            {field ? 'Save' : 'Add'}
+            {mode === 'update' ? 'Save' : 'Add'}
           </Button>
-        </ModalFooter>
+        </Modal.Footer>
       </>
     );
   }
 
-  render() {
-    const { type } = this.props;
-
-    const { editingField = { type } as IField } = this.state;
+  renderContent() {
+    const { field } = this.state;
 
     return (
       <FlexItem>
@@ -249,7 +232,8 @@ class FormField extends React.Component<Props, State> {
 
         <PreviewSection>
           <Preview>
-            <FieldPreview field={editingField} type="onEdit" />
+            <FieldPreview field={field} />
+
             <ShowPreview>
               <Icon icon="eye" /> Field preview
             </ShowPreview>
@@ -258,6 +242,21 @@ class FormField extends React.Component<Props, State> {
       </FlexItem>
     );
   }
+
+  render() {
+    const { mode, field, onCancel } = this.props;
+
+    return (
+      <Modal show={true} bsSize="lg" onHide={onCancel} backdrop={false}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>
+            {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{this.renderContent()}</Modal.Body>
+      </Modal>
+    );
+  }
 }
 
-export default FormField;
+export default FieldForm;

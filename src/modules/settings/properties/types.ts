@@ -5,12 +5,12 @@ export interface IField {
   contentType: string;
   contentTypeId?: string;
   type: string;
-  validation: string;
-  text: string;
-  description: string;
-  options: string[];
+  validation?: string;
+  text?: string;
+  description?: string;
+  options?: string[];
   isRequired?: boolean;
-  order: React.ReactNode;
+  order?: React.ReactNode;
   isVisible?: boolean;
   isDefinedByErxes?: boolean;
   groupId?: string;

@@ -19,7 +19,7 @@ type Props = {} & IRouterProps &
 
 type State = {
   isLoading: boolean;
-  isSaving: boolean;
+  isReadyToSaveForm: boolean;
   doc?: {
     brandId: string;
     name: string;
@@ -33,14 +33,14 @@ class CreateLeadContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { isLoading: false, isSaving: false };
+    this.state = { isLoading: false, isReadyToSaveForm: false };
   }
 
   render() {
     const { addIntegrationMutation, history } = this.props;
 
-    const onLeadChange = id => {
-      this.setState({ isSaving: false });
+    const afterFormDbSave = id => {
+      this.setState({ isReadyToSaveForm: false });
 
       if (this.state.doc) {
         const { leadData, brandId, name, languageCode } = this.state.doc;
@@ -70,16 +70,16 @@ class CreateLeadContainer extends React.Component<Props, State> {
     };
 
     const save = doc => {
-      this.setState({ isLoading: true, isSaving: true, doc });
+      this.setState({ isLoading: true, isReadyToSaveForm: true, doc });
     };
 
     const updatedProps = {
       ...this.props,
       fields: [],
       save,
-      onChange: onLeadChange,
+      afterFormDbSave,
       isActionLoading: this.state.isLoading,
-      isSaving: this.state.isSaving
+      isReadyToSaveForm: this.state.isReadyToSaveForm
     };
 
     return <Lead {...updatedProps} />;
