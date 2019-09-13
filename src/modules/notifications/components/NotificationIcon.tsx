@@ -34,7 +34,7 @@ type Props = {
 class NotificationIcon extends React.PureComponent<Props> {
   getIcon() {
     const { notifType } = this.props.notification;
-    let icon = 'repeat-1';
+    let icon = 'users-alt';
 
     if (notifType.includes('conversation')) {
       icon = 'chat';
