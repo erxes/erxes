@@ -171,7 +171,6 @@ export default class Form extends React.Component<Props, State> {
 
   render() {
     const { form, currentStatus, sendEmail, integration } = this.props;
-    const { themeColor = "" } = form;
 
     if (currentStatus.status === "SUCCESS") {
       const {
@@ -183,8 +182,9 @@ export default class Form extends React.Component<Props, State> {
         adminEmails,
         adminEmailTitle,
         adminEmailContent,
-        thankContent
-      } = integration.formData;
+        thankContent,
+        themeColor = ""
+      } = integration.leadData;
 
       // redirect to some url
       if (successAction === "redirect") {
@@ -228,6 +228,6 @@ export default class Form extends React.Component<Props, State> {
       return this.renderSuccessForm(themeColor, thankContent);
     }
 
-    return this.renderForm(themeColor);
+    return this.renderForm(integration.leadData.themeColor || "");
   }
 }

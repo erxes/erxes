@@ -43,8 +43,8 @@ class LeadConnect extends React.PureComponent<Props, IState> {
           formCode
         }
       })
-      .then(({ data = { formConnect: {} } }) => {
-        const response = data.formConnect;
+      .then(({ data = { leadConnect: {} } }) => {
+        const response = data.leadConnect;
 
         if (!response) {
           this.setState({ hasError: true });
@@ -52,7 +52,7 @@ class LeadConnect extends React.PureComponent<Props, IState> {
         }
 
         // save connection info
-        connection.formData = response;
+        connection.leadData = response;
 
         this.setState({ loading: false });
 

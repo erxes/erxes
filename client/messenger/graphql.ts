@@ -258,8 +258,8 @@ const formQuery = `
 `;
 
 const formConnectMutation = `
-  mutation formConnect($brandCode: String!, $formCode: String!) {
-    formConnect(brandCode: $brandCode, formCode: $formCode) {
+  mutation leadConnect($brandCode: String!, $formCode: String!) {
+    leadConnect(brandCode: $brandCode, formCode: $formCode) {
       form {
         _id
         title
@@ -269,7 +269,7 @@ const formConnectMutation = `
       integration {
         _id
         name
-        formData
+        leadData
       }
     }
   }

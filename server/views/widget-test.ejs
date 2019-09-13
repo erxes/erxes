@@ -37,42 +37,20 @@
     <script>
       window.erxesSettings = {
         forms: [{
-          brand_id: "xD6qgj",
-          form_id: "yKPpuu",
+          brand_id: "wFMcjP",
+          form_id: "2xJZpp7RxNNZxJ89v",
         }],
-        messenger: {
-          brand_id: "ftnq6K",
-        },
-        knowledgeBase: {
-          topic_id: "7ivEFncj85EhWKpxR"
-        },
       };
-    (function() {
-      var script = document.createElement('script');
-      script.src = "build/messengerWidget.bundle.js";
-      script.async = true;
       
-      var entry = document.getElementsByTagName('script')[0];
-      entry.parentNode.insertBefore(script, entry);
-    })();
+      (function() {
+        var script = document.createElement('script');
+        script.src = "http://localhost:3200/build/formWidget.bundle.js";
+        script.async = true;
 
-    (function() {
-      var script = document.createElement('script');
-      script.src = "build/formWidget.bundle.js";
-      script.async = true;
-
-      var entry = document.getElementsByTagName('script')[0];
-      entry.parentNode.insertBefore(script, entry);
-    })();
-
-    (function() {
-      var script = document.createElement('script');
-      script.src = "build/knowledgebaseWidget.bundle.js";
-      script.async = true;
-
-      var entry = document.getElementsByTagName('script')[0];
-      entry.parentNode.insertBefore(script, entry);
-    })();
+        var entry = document.getElementsByTagName('script')[0];
+        entry.parentNode.insertBefore(script, entry);
+      })();
     </script>
+  
   </body>
 </html>

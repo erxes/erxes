@@ -4,9 +4,9 @@ import { AppConsumer } from "./AppContext";
 
 const container = () => (
   <AppConsumer>
-    {({ showForm, setHeight, getForm }) => {
-      const form = getForm();
-      const { callout, themeColor } = form;
+    {({ showForm, setHeight, getIntegrationConfigs }) => {
+      const leadData = getIntegrationConfigs();
+      const { callout, themeColor } = leadData;
 
       return (
         <Callout

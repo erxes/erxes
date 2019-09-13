@@ -1,3 +1,5 @@
+import { ICallout } from "./form/types";
+
 export type ENV = {
   MAIN_API_URL: string;
   API_GRAPHQL_URL: string;
@@ -111,7 +113,7 @@ export interface IIntegrationMessengerData {
   links?: IIntegrationLink;
 }
 
-export interface IIntegrationFormData {
+export interface IIntegrationLeadData {
   loadType: string;
   successAction?: string;
   fromEmail?: string;
@@ -122,6 +124,9 @@ export interface IIntegrationFormData {
   adminEmailContent?: string;
   thankContent?: string;
   redirectUrl?: string;
+  themeColor?: string;
+  callout?: ICallout;
+  rules?: IRule;
 }
 
 export interface IIntegrationUiOptions {
@@ -138,7 +143,7 @@ export interface IIntegration {
   languageCode?: string;
   tagIds?: string[];
   formId: string;
-  formData: IIntegrationFormData;
+  leadData: IIntegrationLeadData;
   messengerData: IIntegrationMessengerData;
   twitterData: IIntegrationTwitterData;
   facebookData: IIntegrationFacebookData;
