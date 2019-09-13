@@ -58,12 +58,12 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { language, brand, formData } = this.props;
+    const { language, brand, formData, color, theme } = this.props;
     const { fields, desc } = formData;
 
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker color={this.props.color} onChange={this.onColorChange} />
+        <ChromePicker color={color} onChange={this.onColorChange} />
       </Popover>
     );
 
@@ -117,7 +117,7 @@ class OptionStep extends React.Component<Props, {}> {
                 overlay={popoverTop}
               >
                 <ColorPick>
-                  <ColorPicker style={{ backgroundColor: this.props.theme }} />
+                  <ColorPicker style={{ backgroundColor: theme }} />
                 </ColorPick>
               </OverlayTrigger>
             </div>

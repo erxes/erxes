@@ -176,7 +176,7 @@ class CallOut extends React.Component<Props, State> {
   };
 
   render() {
-    const { skip } = this.props;
+    const { skip, calloutTitle, bodyValue, calloutBtnText } = this.props;
 
     const onChangeTitle = (e: React.FormEvent<HTMLElement>) =>
       this.onChangeFunction(
@@ -205,7 +205,7 @@ class CallOut extends React.Component<Props, State> {
               <FormControl
                 id="callout-title"
                 type="text"
-                value={this.props.calloutTitle}
+                value={calloutTitle}
                 disabled={skip}
                 onChange={onChangeTitle}
               />
@@ -216,7 +216,7 @@ class CallOut extends React.Component<Props, State> {
               <FormControl
                 id="callout-body"
                 componentClass="textarea"
-                value={this.props.bodyValue}
+                value={bodyValue}
                 disabled={skip}
                 onChange={onChangeBody}
               />
@@ -226,7 +226,7 @@ class CallOut extends React.Component<Props, State> {
               <ControlLabel>Callout button text</ControlLabel>
               <FormControl
                 id="callout-btn-text"
-                value={this.props.calloutBtnText}
+                value={calloutBtnText}
                 disabled={skip}
                 onChange={onChangeBtnText}
               />

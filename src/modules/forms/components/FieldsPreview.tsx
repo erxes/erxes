@@ -51,11 +51,13 @@ class FieldsPreview extends React.Component<Props, State> {
   };
 
   renderFormDesc() {
-    if (!this.props.formDesc) {
+    const { formDesc } = this.props;
+
+    if (!formDesc) {
       return null;
     }
 
-    return <p>{this.props.formDesc}</p>;
+    return <p>{formDesc}</p>;
   }
 
   render() {

@@ -10,11 +10,11 @@ type Props = {
 
 class FieldPreview extends React.Component<Props, {}> {
   render() {
-    const { field } = this.props;
+    const { field, onClick } = this.props;
 
-    const onClick = () => {
-      if (this.props.onClick) {
-        this.props.onClick(field);
+    const onClickItem = () => {
+      if (onClick) {
+        onClick(field);
       }
     };
 
@@ -22,7 +22,7 @@ class FieldPreview extends React.Component<Props, {}> {
       <FieldItem
         selectType={field.type === 'select'}
         noPadding={true}
-        onClick={onClick}
+        onClick={onClickItem}
       >
         <GenerateField field={field} />
       </FieldItem>
