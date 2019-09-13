@@ -60,7 +60,7 @@ const ItemIndicator = styledTS<{ color: string }>(styled.span)`
   height: 8px;
   border-radius: 4px;
   margin: 6px 6px 0 0;
-  background-color: ${props => props.color}
+  background-color: ${props => props.color};
 `;
 
 const StageFooter = styled.div`

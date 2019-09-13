@@ -1,38 +1,34 @@
-const commonFormParamsDef = `
-  $name: String!,
-  $brandId: String!,
-  $formId: String!,
-  $languageCode: String,
-  $formData: IntegrationFormData!
-`;
-
-const commonFormParams = `
-  name: $name,
-  brandId: $brandId,
-  formId: $formId,
-  languageCode: $languageCode,
-  formData: $formData
-`;
-
 const commonParamsDef = `
   $title: String,
   $description: String,
   $buttonText: String,
-  $themeColor: String,
-  $callout: JSON,
-  $rules:[InputRule]
+  $type: String!
 `;
 
 const commonParams = `
   title: $title,
   description: $description,
   buttonText: $buttonText,
-  themeColor: $themeColor,
-  callout: $callout
-  rules: $rules
+  type: $type
 `;
 
-const commonVariables = `
+const addForm = `
+  mutation formsAdd(${commonParamsDef}) {
+    formsAdd(${commonParams}) {
+      _id
+    }
+  }
+`;
+
+const editForm = `
+  mutation formsEdit($_id: String!, ${commonParamsDef}) {
+    formsEdit(_id: $_id, ${commonParams}) {
+      _id
+    }
+  }
+`;
+
+const commonFieldParamsDef = `
   $type: String,
   $validation: String,
   $text: String,
@@ -52,49 +48,11 @@ const commonFieldParams = `
   order: $order
 `;
 
-const integrationRemove = `
-  mutation integrationsRemove($_id: String!) {
-    integrationsRemove(_id: $_id)
-  }
-`;
-
-const integrationsCreateFormIntegration = `
-  mutation integrationsCreateFormIntegration(${commonFormParamsDef}) {
-    integrationsCreateFormIntegration(${commonFormParams}) {
-      _id
-    }
-  }
-`;
-
-const integrationsEditFormIntegration = `
-  mutation integrationsEditFormIntegration($_id: String!, ${commonFormParamsDef}) {
-    integrationsEditFormIntegration(_id: $_id, ${commonFormParams}) {
-      _id
-    }
-  }
-`;
-
-const addForm = `
-  mutation formsAdd(${commonParamsDef}) {
-    formsAdd(${commonParams}) {
-      _id
-    }
-  }
-`;
-
-const editForm = `
-  mutation formsEdit($_id: String!, ${commonParamsDef}) {
-    formsEdit(_id: $_id, ${commonParams}) {
-      _id
-    }
-  }
-`;
-
 const fieldsAdd = `
   mutation fieldsAdd(
     $contentType: String!,
     $contentTypeId: String,
-    ${commonVariables}
+    ${commonFieldParamsDef}
   ) {
       fieldsAdd(
         contentType: $contentType,
@@ -108,7 +66,7 @@ const fieldsAdd = `
 `;
 
 const fieldsEdit = `
-  mutation fieldsEdit($_id: String!, ${commonVariables}) {
+  mutation fieldsEdit($_id: String!, ${commonFieldParamsDef}) {
     fieldsEdit(_id: $_id, ${commonFieldParams}) {
       _id
       contentTypeId
@@ -124,13 +82,31 @@ const fieldsRemove = `
   }
 `;
 
+const commonFormSubmissionParamsDef = `
+  $formId: String,
+  $contentType: String,
+  $contentTypeId: String,
+  $formSubmissions: JSON,
+`;
+
+const commonFormSubmissionParams = `
+  formId: $formId,
+  contentType: $contentType,
+  contentTypeId: $contentTypeId,
+  formSubmissions: $formSubmissions
+`;
+
+const formSubmissionsSave = `
+  mutation formSubmissionsSave(${commonFormSubmissionParamsDef}) {
+    formSubmissionsSave(${commonFormSubmissionParams})
+  }
+`;
+
 export default {
-  integrationRemove,
-  integrationsEditFormIntegration,
-  integrationsCreateFormIntegration,
   addForm,
   editForm,
   fieldsAdd,
   fieldsEdit,
-  fieldsRemove
+  fieldsRemove,
+  formSubmissionsSave
 };

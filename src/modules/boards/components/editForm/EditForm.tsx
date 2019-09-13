@@ -1,4 +1,6 @@
 import { IUser } from 'modules/auth/types';
+import Icon from 'modules/common/components/Icon';
+import { CloseModal } from 'modules/common/styles/main';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import routerUtils from 'modules/common/utils/router';
@@ -30,6 +32,7 @@ type Props = {
   onUpdate: (item, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
+  hideHeader?: boolean;
 };
 
 type State = {
@@ -124,7 +127,7 @@ class EditForm extends React.Component<Props, State> {
     });
   };
 
-  onBlurFields = (name: 'name' | 'description', value: string) => {
+  onBlurFields = (name: string, value: string) => {
     if (value === this.props.item[name]) {
       return;
     }
@@ -194,23 +197,34 @@ class EditForm extends React.Component<Props, State> {
     this.closeModal();
   };
 
-  render() {
-    const { isFormVisible } = this.state;
-
-    if (!isFormVisible) {
-      return null;
+  renderHeader = () => {
+    if (this.props.hideHeader) {
+      return (
+        <CloseModal onClick={this.onHideModal}>
+          <Icon icon="times" />
+        </CloseModal>
+      );
     }
 
     return (
+      <Modal.Header closeButton={true}>
+        <Modal.Title>{__('Edit')}</Modal.Title>
+      </Modal.Header>
+    );
+  };
+
+  render() {
+    const { isFormVisible } = this.state;
+
+    return (
       <Modal
+        dialogClassName="modal-1000w"
         enforceFocus={false}
         bsSize="lg"
-        show={true}
+        show={isFormVisible}
         onHide={this.onHideModal}
       >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit')}</Modal.Title>
-        </Modal.Header>
+        {this.renderHeader()}
         <Modal.Body>
           {this.props.formContent({
             state: this.state,

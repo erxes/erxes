@@ -3,6 +3,7 @@ import { SortItem } from 'modules/common/styles/sort';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '../styles';
+import { LinkButton } from '../team/styles';
 
 const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;
@@ -47,18 +48,26 @@ const PipelineRowContainer = styled.div`
   display: flex;
   justify-content: space-between;
   flex: 1;
+  border-top: 1px solid rgb(238, 238, 238);
+  padding: 10px 20px;
 `;
 
 const StageList = styled.div`
-  > button {
-    margin-top: 10px;
+  background: ${colors.colorWhite};
+  padding: 20px;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px ${colors.shadowPrimary};
+
+  ${LinkButton} {
+    margin: 20px 0 0 30px;
+    display: block;
   }
 `;
 
 const StageItemContainer = styled(PipelineRowContainer)`
-  background-color: #fff;
-  margin-bottom: 10px;
-  padding: 5px 20px 10px;
+  background-color: ${colors.colorWhite};
+  padding: 0;
+  border-top: 0;
   align-items: center;
 
   > *:not(button) {
@@ -66,7 +75,12 @@ const StageItemContainer = styled(PipelineRowContainer)`
   }
 
   button {
-    padding: 5px 8px;
+    padding: 3px;
+    font-size: 16px;
+  }
+
+  button:hover {
+    color: ${colors.colorCoreRed};
   }
 `;
 

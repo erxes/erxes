@@ -7,15 +7,15 @@ const Home = asyncComponent(() =>
 );
 
 const DealHome = () => {
-  return <Home type="deal" />;
+  return <Home type="deal" title="Deal" />;
 };
 
 const TicketHome = () => {
-  return <Home type="ticket" />;
+  return <Home type="ticket" title="Ticket" />;
 };
 
 const TaskHome = () => {
-  return <Home type="task" />;
+  return <Home type="task" title="Task" />;
 };
 
 const routes = () => (

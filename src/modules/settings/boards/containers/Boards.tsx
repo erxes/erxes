@@ -10,16 +10,17 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import Boards from '../components/Boards';
 import { mutations, queries } from '../graphql';
-import { RemoveBoardMutationResponse } from '../types';
+import { IOption, RemoveBoardMutationResponse } from '../types';
 
 type Props = {
   history?: any;
   currentBoardId?: string;
   type: string;
+  options?: IOption;
 };
 
 type FinalProps = {
-  boardsQuery: any;
+  boardsQuery: BoardsQueryResponse;
 } & Props &
   IRouterProps &
   RemoveBoardMutationResponse;
@@ -55,9 +56,7 @@ class BoardsContainer extends React.Component<FinalProps> {
             Alert.success('You successfully deleted a board');
           })
           .catch(error => {
-            Alert.error(
-              `Please remove all pipelines in this board before delete the board`
-            );
+            Alert.error(error.message);
           });
       });
     };

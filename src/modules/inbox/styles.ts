@@ -290,10 +290,6 @@ const AssignTrigger = styled.div`
       transform: rotate(180deg);
     }
   }
-
-  img {
-    margin: 0;
-  }
 `;
 
 const MaskWrapper = styled.div`

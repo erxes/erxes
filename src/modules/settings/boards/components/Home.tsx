@@ -3,50 +3,35 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Boards from '../containers/Boards';
 import Pipelines from '../containers/Pipelines';
+import { IOption } from '../types';
 
 type Props = {
   boardId: string;
   type: string;
+  title: string;
+  options?: IOption;
 };
 
 class Home extends React.Component<Props, {}> {
   render() {
-    const { boardId, type } = this.props;
+    const { boardId, type, title, options } = this.props;
+
+    const boardName = options ? options.boardName : 'Board';
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Board') }
+      { title: __(title), link: `/settings/boards/${type}` }
     ];
-
-    switch (type) {
-      case 'deal': {
-        breadcrumb.push({ title: __('Deal'), link: '/settings/boards/deal' });
-
-        break;
-      }
-      case 'ticket': {
-        breadcrumb.push({
-          title: __('Ticket'),
-          link: '/settings/boards/ticket'
-        });
-
-        break;
-      }
-      case 'task': {
-        breadcrumb.push({
-          title: __('Task'),
-          link: '/settings/boards/task'
-        });
-
-        break;
-      }
-    }
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Board')} breadcrumb={breadcrumb} />}
-        leftSidebar={<Boards type={type} currentBoardId={boardId} />}
-        content={<Pipelines type={type} boardId={boardId} />}
+        header={
+          <Wrapper.Header title={__(boardName)} breadcrumb={breadcrumb} />
+        }
+        leftSidebar={
+          <Boards options={options} type={type} currentBoardId={boardId} />
+        }
+        content={<Pipelines options={options} type={type} boardId={boardId} />}
       />
     );
   }

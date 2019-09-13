@@ -1,5 +1,6 @@
 import { SelectContainer } from 'modules/boards/styles/common';
-import { colors } from 'modules/common/styles';
+import Button from 'modules/common/components/Button';
+import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -39,7 +40,7 @@ const Footer = styled.div`
 `;
 
 const HeaderRow = styled(FlexContent)`
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `;
 
 const HeaderContent = styled.div`
@@ -49,19 +50,40 @@ const HeaderContent = styled.div`
 const TitleRow = styled.div`
   display: flex;
   align-items: center;
-  font-size: 18px;
+  font-size: 16px;
 
   i {
-    margin-right: 10px;
+    margin-right: 8px;
   }
 
   label {
-    font-size: 15px;
+    font-size: 13px;
     text-transform: initial;
   }
 
   input {
     font-weight: bold;
+  }
+
+  textarea {
+    font-weight: bold;
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
+`;
+
+const MetaInfo = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+
+  > * {
+    margin-right: 5px;
   }
 `;
 
@@ -98,22 +120,6 @@ const HeaderContentSmall = styled.div`
   }
 `;
 
-const Button = styled.div`
-  padding: 7px 10px;
-  background: ${colors.colorWhite};
-  cursor: pointer;
-  border-bottom: 1px solid ${colors.borderDarker};
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: ${colors.bgLight};
-  }
-
-  i {
-    float: right;
-  }
-`;
-
 const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
@@ -129,7 +135,7 @@ const FooterContent = styled.div`
 `;
 
 const LeftContainer = styled.div`
-  margin-right: 20px;
+  margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
 
   textarea {
@@ -158,38 +164,45 @@ const WatchIndicator = styled.span`
 const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
+`;
 
-  > button {
-    width: 100%;
-    margin-bottom: 5px;
-    margin-left: 0;
-    padding: 8px 40px 8px 20px;
-    background: ${rgba(buttonColor, 0.04)};
+const RightButton = styled(Button)`
+  width: 100%;
+  margin-bottom: 5px;
+  margin-left: 0 !important;
+  padding: 8px 40px 8px 20px;
+  background: ${rgba(buttonColor, 0.04)};
+  color: ${colors.textPrimary};
+  text-align: left;
+  border-radius: ${borderRadius};
+  text-transform: none;
+  font-size: 13px;
+  box-shadow: none;
+  position: relative;
+
+  > i {
     color: ${colors.textPrimary};
-    text-align: left;
-    border-radius: ${borderRadius};
-    text-transform: none;
-    font-size: 13px;
+    margin-right: 5px;
+  }
+
+  &:hover {
+    color: ${colors.colorCoreDarkGray};
+    background: ${rgba(buttonColor, 0.08)};
     box-shadow: none;
-    position: relative;
-
-    > i {
-      color: ${colors.textPrimary};
-      margin-right: 5px;
-    }
-
-    &:hover {
-      color: ${colors.colorCoreDarkGray};
-      background: ${rgba(buttonColor, 0.08)};
-      box-shadow: none;
-    }
   }
 `;
 
 const MoveContainer = styled(FlexContent)`
-  display: flex;
   margin-bottom: 20px;
   align-items: center;
+`;
+
+const ActionContainer = styled(MoveContainer)`
+  flex-wrap: wrap;
+
+  > div {
+    margin: 0 ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing / 2}px 0;
+  }
 `;
 
 const MoveFormContainer = styled.div`
@@ -341,9 +354,10 @@ export {
   FooterContent,
   HeaderRow,
   TitleRow,
+  MetaInfo,
   HeaderContent,
   HeaderContentSmall,
-  Button,
+  RightButton,
   MoveFormContainer,
   PipelineName,
   FormFooter,
@@ -362,5 +376,6 @@ export {
   PriceContainer,
   Right,
   Footer,
-  WatchIndicator
+  WatchIndicator,
+  ActionContainer
 };

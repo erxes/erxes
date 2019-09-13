@@ -1,4 +1,5 @@
 import { COLORS } from 'modules/boards/constants';
+import { FlexContent } from 'modules/boards/styles/item';
 import { IPipeline, IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
@@ -8,12 +9,13 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import BlockPicker from 'react-color/lib/Block';
 import { SelectMemberStyled } from '../styles';
+import { IOption } from '../types';
 import Stages from './Stages';
 
 type Props = {
@@ -24,6 +26,9 @@ type Props = {
   stages?: IStage[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  options?: IOption;
+  renderExtraFields?: (formProps: IFormProps) => JSX.Element;
+  extraFields?: any;
 };
 
 type State = {
@@ -74,7 +79,7 @@ class PipelineForm extends React.Component<Props, State> {
     name: string;
     visibility: string;
   }) => {
-    const { pipeline, type, boardId } = this.props;
+    const { pipeline, type, boardId, extraFields } = this.props;
     const { selectedMemberIds, stages, backgroundColor } = this.state;
     const finalValues = values;
 
@@ -84,6 +89,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      ...extraFields,
       type,
       boardId: pipeline ? pipeline.boardId : boardId,
       stages: stages.filter(el => el.name),
@@ -121,9 +127,19 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { pipeline, renderButton, closeModal } = this.props;
+    const {
+      pipeline,
+      renderButton,
+      closeModal,
+      options,
+      renderExtraFields
+    } = this.props;
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
+    const pipelineName =
+      options && options.pipelineName
+        ? options.pipelineName.toLowerCase()
+        : 'pipeline';
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -140,7 +156,7 @@ class PipelineForm extends React.Component<Props, State> {
       <>
         <Modal.Header closeButton={true}>
           <Modal.Title>
-            {pipeline ? 'Edit pipeline' : 'Add pipeline'}
+            {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
           </Modal.Title>
         </Modal.Header>
 
@@ -156,44 +172,54 @@ class PipelineForm extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Background</ControlLabel>
-            <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={popoverTop}
-              >
-                <ColorPick>
-                  <ColorPicker
-                    style={{ backgroundColor: this.state.backgroundColor }}
-                  />
-                </ColorPick>
-              </OverlayTrigger>
-            </div>
-          </FormGroup>
+          {renderExtraFields && renderExtraFields(formProps)}
 
-          <FormGroup>
-            <ControlLabel required={true}>Visibility</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="visibility"
-              componentClass="select"
-              value={this.state.visibility}
-              onChange={this.onChangeVisibility}
-            >
-              <option value="public">{__('Public')}</option>
-              <option value="private">{__('Private')}</option>
-            </FormControl>
-          </FormGroup>
+          <FlexContent>
+            <ExpandWrapper>
+              <FormGroup>
+                <ControlLabel required={true}>Visibility</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="visibility"
+                  componentClass="select"
+                  value={this.state.visibility}
+                  onChange={this.onChangeVisibility}
+                >
+                  <option value="public">{__('Public')}</option>
+                  <option value="private">{__('Private')}</option>
+                </FormControl>
+              </FormGroup>
+            </ExpandWrapper>
+            <FormGroup>
+              <ControlLabel>Background</ControlLabel>
+              <div>
+                <OverlayTrigger
+                  trigger="click"
+                  rootClose={true}
+                  placement="bottom"
+                  overlay={popoverTop}
+                >
+                  <ColorPick>
+                    <ColorPicker
+                      style={{ backgroundColor: this.state.backgroundColor }}
+                    />
+                  </ColorPick>
+                </OverlayTrigger>
+              </div>
+            </FormGroup>
+          </FlexContent>
+
           {this.renderSelectMembers()}
 
-          <Stages
-            type={this.props.type}
-            stages={this.state.stages}
-            onChangeStages={this.onChangeStages}
-          />
+          <FormGroup>
+            <ControlLabel>Stages</ControlLabel>
+            <Stages
+              options={options}
+              type={this.props.type}
+              stages={this.state.stages}
+              onChangeStages={this.onChangeStages}
+            />
+          </FormGroup>
 
           <Modal.Footer>
             <Button
@@ -206,7 +232,7 @@ class PipelineForm extends React.Component<Props, State> {
             </Button>
 
             {renderButton({
-              name: 'pipeline',
+              name: pipelineName,
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,
@@ -226,12 +252,7 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal
-        show={show}
-        onHide={closeModal}
-        enforceFocus={false}
-        dialogClassName="transform"
-      >
+      <Modal show={show} onHide={closeModal} enforceFocus={false}>
         <Form renderContent={this.renderContent} />
       </Modal>
     );

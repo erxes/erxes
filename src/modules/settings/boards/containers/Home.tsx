@@ -8,17 +8,20 @@ import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import Home from '../components/Home';
 import { queries } from '../graphql';
+import { IOption } from '../types';
 
 type HomeContainerProps = {
   history?: any;
   boardId: string;
 };
 
-type TypeProps = {
+type Props = {
   type: string;
+  title: string;
+  options?: IOption;
 };
 
-class HomeContainer extends React.Component<HomeContainerProps & TypeProps> {
+class HomeContainer extends React.Component<HomeContainerProps & Props> {
   componentWillReceiveProps(nextProps) {
     const { history, boardId } = nextProps;
 
@@ -37,7 +40,7 @@ type LastBoardProps = {
 };
 
 // Getting lastBoard id to currentBoard
-const LastBoard = (props: LastBoardProps & TypeProps) => {
+const LastBoard = (props: LastBoardProps & Props) => {
   const { boardGetLastQuery } = props;
 
   if (boardGetLastQuery.loading) {
@@ -54,7 +57,7 @@ const LastBoard = (props: LastBoardProps & TypeProps) => {
   return <HomeContainer {...extendedProps} />;
 };
 
-type MainProps = IRouterProps & TypeProps;
+type MainProps = IRouterProps & Props;
 
 const LastBoardContainer = withProps<MainProps>(
   compose(

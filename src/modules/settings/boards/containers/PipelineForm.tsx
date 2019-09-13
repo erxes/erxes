@@ -8,6 +8,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import PipelineForm from '../components/PipelineForm';
 import { queries } from '../graphql';
+import { IOption } from '../types';
 
 type Props = {
   pipeline?: IPipeline;
@@ -16,6 +17,7 @@ type Props = {
   closeModal: () => void;
   show: boolean;
   type: string;
+  options?: IOption;
 };
 
 type FinalProps = {
@@ -24,7 +26,7 @@ type FinalProps = {
 
 class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, boardId, renderButton } = this.props;
+    const { stagesQuery, boardId, renderButton, options } = this.props;
 
     if (stagesQuery && stagesQuery.loading) {
       return <Spinner />;
@@ -39,7 +41,9 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       renderButton
     };
 
-    return <PipelineForm {...extendedProps} />;
+    const Form = options ? options.PipelineForm : PipelineForm;
+
+    return <Form {...extendedProps} />;
   }
 }
 

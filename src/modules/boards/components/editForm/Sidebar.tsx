@@ -1,4 +1,3 @@
-import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import CompanySection from 'modules/companies/components/common/CompanySection';
@@ -6,7 +5,7 @@ import CustomerSection from 'modules/customers/components/common/CustomerSection
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import { Watch } from '../../containers/editForm/';
-import { RightContent } from '../../styles/item';
+import { RightButton, RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
@@ -78,13 +77,13 @@ class Sidebar extends React.Component<Props> {
 
         <Watch item={item} options={options} />
 
-        <Button icon="checked-1" onClick={copyItem}>
+        <RightButton icon="checked-1" onClick={copyItem}>
           Copy
-        </Button>
+        </RightButton>
 
-        <Button icon="cancel-1" onClick={onClick}>
+        <RightButton icon="cancel-1" onClick={onClick}>
           Delete
-        </Button>
+        </RightButton>
       </RightContent>
     );
   }
