@@ -1,33 +1,44 @@
-import { WatchIndicator } from 'modules/boards/styles/item';
+import { ColorButton } from 'modules/boards/styles/common';
 import { IItem } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
+import { RightButton, WatchIndicator } from '../../styles/item';
 
 type IProps = {
   item: IItem;
   onChangeWatch: (isAdd: boolean) => void;
+  isSmall?: boolean;
 };
 
 class Watch extends React.Component<IProps> {
   render() {
     const {
       onChangeWatch,
-      item: { isWatched }
+      item: { isWatched },
+      isSmall
     } = this.props;
 
     const onClick = () => onChangeWatch(!isWatched);
 
+    if (isSmall) {
+      return (
+        <ColorButton onClick={onClick}>
+          <Icon icon={isWatched ? 'eye-2' : 'eye-slash'} />
+          {__('Watch')}
+        </ColorButton>
+      );
+    }
+
     return (
-      <Button icon="eye" onClick={onClick}>
+      <RightButton icon="eye" onClick={onClick}>
         {__('Watch')}
         {isWatched && (
           <WatchIndicator>
-            <Icon icon="check" />
+            <Icon icon="check-1" />
           </WatchIndicator>
         )}
-      </Button>
+      </RightButton>
     );
   }
 }

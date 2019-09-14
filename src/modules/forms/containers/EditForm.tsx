@@ -1,10 +1,6 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import {
-  EditIntegrationMutationResponse,
-  EditIntegrationMutationVariables,
-  FormIntegrationDetailQueryResponse
-} from 'modules/settings/integrations/types';
+import { IIntegration } from 'modules/settings/integrations/types';
 import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -19,78 +15,73 @@ import {
   EditFieldMutationVariables,
   EditFormMutationResponse,
   EditFormMutationVariables,
+  FormDetailQueryResponse,
+  IFormData,
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
 
 type Props = {
-  contentTypeId: string;
+  renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
+  afterDbSave: (formId: string) => void;
+  onDocChange?: (doc: IFormData) => void;
+  onInit?: (fields: IField[]) => void;
+  type: string;
+  isReadyToSave: boolean;
   formId: string;
-  queryParams: any;
+  integration?: IIntegration;
 };
 
 type FinalProps = {
   fieldsQuery: FieldsQueryResponse;
-  integrationDetailQuery: FormIntegrationDetailQueryResponse;
+  formDetailQuery: FormDetailQueryResponse;
 } & Props &
-  EditIntegrationMutationResponse &
   EditFormMutationResponse &
   AddFieldMutationResponse &
   EditFieldMutationResponse &
   RemoveFieldMutationResponse &
   IRouterProps;
 
-class EditFormContainer extends React.Component<
-  FinalProps,
-  { isLoading: boolean }
-> {
-  constructor(props: FinalProps) {
-    super(props);
+class EditFormContainer extends React.Component<FinalProps> {
+  componentWillReceiveProps(nextProps: FinalProps) {
+    const { onInit, fieldsQuery } = this.props;
 
-    this.state = { isLoading: false };
+    if (fieldsQuery.loading && !nextProps.fieldsQuery.loading && onInit) {
+      onInit(nextProps.fieldsQuery.fields || []);
+    }
   }
 
   render() {
     const {
       formId,
-      integrationDetailQuery,
-      editIntegrationMutation,
+      afterDbSave,
       addFieldMutation,
       editFieldMutation,
-      removeFieldMutation,
       editFormMutation,
+      removeFieldMutation,
       fieldsQuery,
-      history
+      formDetailQuery
     } = this.props;
 
-    if (fieldsQuery.loading || integrationDetailQuery.loading) {
+    if (fieldsQuery.loading || formDetailQuery.loading) {
       return false;
     }
 
     const dbFields = fieldsQuery.fields || [];
-    const integration = integrationDetailQuery.integrationDetail || {};
+    const form = formDetailQuery.formDetail || {};
 
-    const save = doc => {
-      const { form, brandId, name, languageCode, formData, fields } = doc;
+    const saveForm = doc => {
+      const { title, desc, btnText, fields, type } = doc;
 
-      this.setState({ isLoading: true });
-
-      // edit form
-      editFormMutation({ variables: { _id: formId, ...form } })
-        .then(() =>
-          // edit integration
-          editIntegrationMutation({
-            variables: {
-              _id: integration._id,
-              formData,
-              brandId,
-              name,
-              languageCode,
-              formId
-            }
-          })
-        )
-
+      editFormMutation({
+        variables: {
+          _id: formId,
+          title,
+          description: desc,
+          buttonText: btnText,
+          type
+        }
+      })
         .then(() => {
           const dbFieldIds = dbFields.map(field => field._id);
           const existingIds: string[] = [];
@@ -109,6 +100,7 @@ class EditFormContainer extends React.Component<
 
             // collect fields to create
             delete field._id;
+            delete field.key;
 
             createFieldsData.push({
               ...field,
@@ -119,8 +111,8 @@ class EditFormContainer extends React.Component<
 
           // collect fields to remove
           for (const dbFieldId of dbFieldIds) {
-            if (!existingIds.includes(dbFieldId)) {
-              removeFieldsData.push({ _id: dbFieldId });
+            if (!existingIds.includes(dbFieldId || '')) {
+              removeFieldsData.push({ _id: dbFieldId || '' });
             }
           }
 
@@ -144,28 +136,26 @@ class EditFormContainer extends React.Component<
         })
 
         .then(() => {
-          Alert.success('You successfully updated a lead');
+          Alert.success('You successfully updated a form');
 
           fieldsQuery.refetch().then(() => {
-            history.push('/forms');
+            afterDbSave(formId);
           });
-
-          this.setState({ isLoading: false });
         })
 
         .catch(error => {
           Alert.error(error.message);
-
-          this.setState({ isLoading: false });
         });
     };
 
     const updatedProps = {
       ...this.props,
-      integration,
-      fields: dbFields.map(field => ({ ...field })),
-      save,
-      isActionLoading: this.state.isLoading
+      fields: dbFields.map(field => ({
+        ...field,
+        key: Math.random().toString()
+      })),
+      saveForm,
+      form
     };
 
     return <Form {...updatedProps} />;
@@ -185,35 +175,32 @@ export default withProps<Props>(
           variables: {
             contentType: 'form',
             contentTypeId: formId
-          }
+          },
+          fetchPolicy: 'network-only'
         };
       }
     }),
-    graphql<Props, FormIntegrationDetailQueryResponse, { _id: string }>(
-      gql(queries.integrationDetail),
+    graphql<Props, FormDetailQueryResponse, { _id: string }>(
+      gql(queries.formDetail),
       {
-        name: 'integrationDetailQuery',
-        options: ({ contentTypeId }) => ({
+        name: 'formDetailQuery',
+        options: ({ formId }) => ({
           variables: {
-            _id: contentTypeId
+            _id: formId
           }
         })
       }
     ),
-    graphql<
-      Props,
-      EditIntegrationMutationResponse,
-      EditIntegrationMutationVariables
-    >(gql(mutations.integrationsEditFormIntegration), {
-      name: 'editIntegrationMutation',
-      options: {
-        refetchQueries: ['formIntegrations', 'formIntegrationCounts']
-      }
-    }),
     graphql<Props, AddFieldMutationResponse, AddFieldMutationVariables>(
       gql(mutations.fieldsAdd),
       {
         name: 'addFieldMutation'
+      }
+    ),
+    graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
+      gql(mutations.editForm),
+      {
+        name: 'editFormMutation'
       }
     ),
     graphql<Props, EditFieldMutationResponse, EditFieldMutationVariables>(
@@ -226,12 +213,6 @@ export default withProps<Props>(
       gql(mutations.fieldsRemove),
       {
         name: 'removeFieldMutation'
-      }
-    ),
-    graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
-      gql(mutations.editForm),
-      {
-        name: 'editFormMutation'
       }
     )
   )(withRouter<FinalProps>(EditFormContainer))

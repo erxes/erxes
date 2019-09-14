@@ -15,11 +15,13 @@ import {
   IFormProps
 } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { FlexContent } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import {
   ColorPick,
   ColorPicker,
+  ExpandWrapper,
   MarkdownWrapper
 } from 'modules/settings/styles';
 import React from 'react';
@@ -250,22 +252,40 @@ class KnowledgeForm extends React.Component<Props, State> {
             onChange={this.handleBrandChange}
           />
         </FormGroup>
+        <FlexContent>
+          <ExpandWrapper>
+            <FormGroup>
+              <ControlLabel>Language</ControlLabel>
 
-        <FormGroup>
-          <ControlLabel>Choose a custom color</ControlLabel>
-          <div>
-            <OverlayTrigger
-              trigger="click"
-              rootClose={true}
-              placement="bottom"
-              overlay={popoverTop}
-            >
-              <ColorPick>
-                <ColorPicker style={{ backgroundColor: color }} />
-              </ColorPick>
-            </OverlayTrigger>
-          </div>
-        </FormGroup>
+              <FormControl
+                {...formProps}
+                componentClass="select"
+                defaultValue={topic.languageCode || 'en'}
+                name="languageCode"
+              >
+                <option />
+                <option value="mn">Монгол</option>
+                <option value="en">English</option>
+              </FormControl>
+            </FormGroup>
+          </ExpandWrapper>
+
+          <FormGroup>
+            <ControlLabel>Custom color</ControlLabel>
+            <div>
+              <OverlayTrigger
+                trigger="click"
+                rootClose={true}
+                placement="bottom"
+                overlay={popoverTop}
+              >
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: color }} />
+                </ColorPick>
+              </OverlayTrigger>
+            </div>
+          </FormGroup>
+        </FlexContent>
 
         <FormGroup>
           <ControlLabel>Background image: </ControlLabel>
@@ -284,21 +304,6 @@ class KnowledgeForm extends React.Component<Props, State> {
             }
             onChange={this.onBackgroundImageChange}
           />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Language</ControlLabel>
-
-          <FormControl
-            {...formProps}
-            componentClass="select"
-            defaultValue={topic.languageCode || 'en'}
-            name="languageCode"
-          >
-            <option />
-            <option value="mn">Монгол</option>
-            <option value="en">English</option>
-          </FormControl>
         </FormGroup>
 
         {this.renderInstallCode()}

@@ -149,11 +149,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
     if (items.length === 0) {
       return (
         <EmptyContainer innerRef={dropProvided.innerRef}>
-          <EmptyState
-            icon="clipboard"
-            text={`No ${options.type}`}
-            size="small"
-          />
+          <EmptyState icon="clipboard" text="No item" size="small" />
         </EmptyContainer>
       );
     }

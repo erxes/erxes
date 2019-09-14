@@ -3,15 +3,11 @@ import { colors } from 'modules/common/styles';
 import { BoxRoot, FullContent } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { METHODS } from 'modules/engage/constants';
-import styledTS from 'styled-components-ts';
-
 import React from 'react';
 import styled from 'styled-components';
 
-const Box = styledTS<{ selected: boolean }>(styled(BoxRoot))`
+const Box = styled(BoxRoot)`
   width: 320px;
-  border: 1px solid
-    ${props => (props.selected ? colors.colorSecondary : colors.borderPrimary)};
   padding: 40px;
   background: ${colors.bgLight};
 

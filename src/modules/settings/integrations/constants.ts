@@ -68,13 +68,13 @@ export const KIND_CHOICES = {
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
-  FORM: 'form',
+  LEAD: 'lead',
   CALLPRO: 'callpro',
   ALL_LIST: [
     'messenger',
     'facebook-post',
     'facebook-messenger',
-    'form',
+    'lead',
     'callpro'
   ]
 };

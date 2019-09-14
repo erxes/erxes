@@ -7,6 +7,7 @@ const Templates = styled.div`
   background: ${colors.colorWhite};
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
+  display: flex;
 `;
 
 const IframePreview = styled.div`
@@ -27,6 +28,7 @@ const IframePreview = styled.div`
 const TemplateBox = styled.div`
   width: 100%;
   height: 140px;
+  border-radius: 2px;
   border: 1px solid ${colors.borderDarker};
   position: relative;
 `;
@@ -39,6 +41,9 @@ const Actions = styled.div`
   z-index: 3;
   width: 100%;
   height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 2px;
   transition: opacity ease 0.3s;
   justify-content: space-evenly;
   align-items: center;
@@ -53,7 +58,7 @@ const Actions = styled.div`
   }
 `;
 
-const EmailTemplate = styled.div`
+const Template = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -79,4 +84,4 @@ const EmailTemplate = styled.div`
   }
 `;
 
-export { EmailTemplate, Actions, TemplateBox, Templates, IframePreview };
+export { Template, Actions, TemplateBox, Templates, IframePreview };

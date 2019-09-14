@@ -79,6 +79,10 @@ a:hover {
   width: 85%;
 }
 
+.modal-1000w {
+  width: 1000px;
+}
+
 .modal-content {
   border-radius: 2px;
   border: 0;
@@ -189,7 +193,8 @@ a:hover {
   display: block;
 }
 
-.dropdown-menu li a {
+.dropdown-menu li a,
+.dropdown-menu li button {
   display: block;
   padding: 3px 20px;
   color: ${colors.textPrimary};
@@ -206,7 +211,9 @@ a:hover {
 .dropdown-menu > li > a:focus,
 .dropdown-menu > li > a:hover,
 .dropdown-menu li a:focus,
-.dropdown-menu li a:hover {
+.dropdown-menu li a:hover,
+.dropdown-menu li button:focus,
+.dropdown-menu li button:hover {
   color: ${colors.colorCoreDarkGray};
   background: ${colors.bgActive};
   outline: 0;
@@ -565,9 +572,9 @@ a:hover {
 /* react datetime */
 
 .rdtPicker {
-  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.15) !important;
   width: 100%;
-  border-color: ${colors.colorShadowGray};
+  border: none !important;
   min-width: 220px;
   max-width: 260px;
 }

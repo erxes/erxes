@@ -68,6 +68,8 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
+  hackScoringType?: string;
+  templateId?: string;
 }
 
 interface IStageComparisonInfo {
@@ -88,6 +90,7 @@ export interface IStage {
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
+  formId: string;
 }
 
 export interface IItem {
@@ -148,6 +151,11 @@ export type PipelinesQueryResponse = {
   pipelines: IPipeline[];
   loading: boolean;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
+};
+
+export type TemplatesQueryResponse = {
+  growthHackTemplates: IPipeline[];
+  loading: boolean;
 };
 
 export type StagesQueryResponse = {
@@ -236,5 +244,5 @@ export interface IEditFormContent {
   ) => void;
   copy: () => void;
   remove: (id: string) => void;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
+  onBlurFields: (name: string, value: string) => void;
 }
