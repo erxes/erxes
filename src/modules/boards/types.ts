@@ -53,6 +53,8 @@ export interface IItemParams {
   closeDate?: Date;
   description?: string;
   order?: number;
+  isComplete?: boolean;
+  reminderMinute?: number;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -105,6 +107,8 @@ export interface IItem {
   isWatched?: boolean;
   priority?: string;
   hasNotified?: boolean;
+  isComplete: boolean;
+  reminderMinute: number;
 }
 
 export interface IDraggableLocation {
@@ -225,7 +229,9 @@ export interface IEditFormContent {
       | 'assignedUserIds'
       | 'customers'
       | 'companies'
-      | 'attachments',
+      | 'attachments'
+      | 'isComplete'
+      | 'reminderMinute',
     value: any
   ) => void;
   copy: () => void;

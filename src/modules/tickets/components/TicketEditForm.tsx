@@ -140,7 +140,9 @@ export default class TicketEditForm extends React.Component<Props, State> {
       description,
       closeDate,
       assignedUserIds,
-      attachments
+      attachments,
+      isComplete,
+      reminderMinute
     } = state;
 
     return (
@@ -153,6 +155,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
           onBlurFields={onBlurFields}
           stageId={stageId}
           item={item}
+          isComplete={isComplete}
+          reminderMinute={reminderMinute}
           onChangeField={onChangeField}
         />
 
