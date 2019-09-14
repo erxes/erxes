@@ -64,7 +64,7 @@ class FieldsPreview extends React.Component<Props, State> {
     const child = field => {
       return (
         <FieldPreview
-          key={field.key}
+          key={field._id}
           onClick={this.props.onFieldClick}
           field={field}
         />

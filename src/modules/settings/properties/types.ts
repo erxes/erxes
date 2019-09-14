@@ -2,6 +2,7 @@ import { IUser } from 'modules/auth/types';
 
 export interface IField {
   _id: string;
+  key?: string;
   contentType: string;
   contentTypeId?: string;
   type: string;
