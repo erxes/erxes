@@ -6,8 +6,8 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { TYPES } from '../constants';
-import { IProduct } from '../types';
+import { TYPES } from '../../constants';
+import { IProduct } from '../../types';
 
 type Props = {
   product?: IProduct;

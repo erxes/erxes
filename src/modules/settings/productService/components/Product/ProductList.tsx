@@ -8,11 +8,13 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { IProduct } from '../types';
-import Form from './Form';
-import Row from './Row';
+import CategoryList from '../../containers/ProductCategory/CategoryList';
+import { IProduct } from '../../types';
+import Form from './ProductForm';
+import Row from './ProductRow';
 
 type Props = {
+  queryParams: any;
   products: IProduct[];
   productsCount: number;
   remove: (productId: string) => void;
@@ -35,7 +37,7 @@ class List extends React.Component<Props> {
   };
 
   render() {
-    const { productsCount, loading, renderButton } = this.props;
+    const { productsCount, loading, renderButton, queryParams } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -95,8 +97,8 @@ class List extends React.Component<Props> {
             right={actionBarRight}
           />
         }
+        leftSidebar={<CategoryList queryParams={queryParams} />}
         footer={<Pagination count={productsCount} />}
-        center={true}
         content={
           <DataWithLoader
             data={content}

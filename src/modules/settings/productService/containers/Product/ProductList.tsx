@@ -5,13 +5,13 @@ import { Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
+import List from '../../components/Product/ProductList';
+import { mutations, queries } from '../../graphql';
 import {
   ProductsCountQueryResponse,
   ProductsQueryResponse,
   RemoveMutationResponse
-} from '../types';
+} from '../../types';
 
 type Props = {
   queryParams: any;
@@ -25,7 +25,12 @@ type FinalProps = {
 
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
-    const { productsQuery, productsCountQuery, removeMutation } = this.props;
+    const {
+      productsQuery,
+      productsCountQuery,
+      removeMutation,
+      queryParams
+    } = this.props;
 
     const products = productsQuery.products || [];
 
@@ -71,6 +76,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
+      queryParams,
       products,
       renderButton,
       remove,

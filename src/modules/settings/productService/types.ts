@@ -7,12 +7,27 @@ export interface IProductDoc {
   createdAt?: Date;
 }
 
+export interface IProductCategoryDoc {
+  _id?: string;
+  name: string;
+  description?: string;
+  parentId?: string;
+}
+
 export interface IProduct {
   _id: string;
   name: string;
   type: string;
   description: string;
   sku: string;
+  createdAt: Date;
+}
+
+export interface IProductCategory {
+  _id: string;
+  name: string;
+  description?: string;
+  parentId?: string;
   createdAt: Date;
 }
 
@@ -26,6 +41,18 @@ export type ProductsQueryResponse = {
 
 export type ProductsCountQueryResponse = {
   productsTotalCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ProductCategoriesQueryResponse = {
+  productCategories: IProductCategory[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ProductCategoriesCountQueryResponse = {
+  productCategoriesTotalCount: number;
   loading: boolean;
   refetch: () => void;
 };

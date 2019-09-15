@@ -17,7 +17,26 @@ const productsCount = `
   }
 `;
 
+const productCategories = `
+  query productCategories($parentId: String) {
+    productCategories(parentId: $parentId) {
+      _id
+      name
+      description
+      parentId
+    }
+  }
+`;
+
+const productCategoriesCount = `
+  query productCategoriesTotalCount($parentId: String) {
+    productCategoriesTotalCount(parentId: $parentId)
+  }
+`;
+
 export default {
   products,
-  productsCount
+  productsCount,
+  productCategories,
+  productCategoriesCount
 };
