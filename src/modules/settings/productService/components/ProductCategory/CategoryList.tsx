@@ -1,35 +1,47 @@
+import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
-import GroupForm from 'modules/settings/permissions/components/GroupForm';
+import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import { IProductCategory } from '../../types';
+import Form from './CategoryForm';
 
-type Props = {
+interface IProps {
+  history: any;
   queryParams: any;
-  refetch;
+  refetch: any;
+  remove: (productCategoryId: string) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   productCategories: IProductCategory[];
   productCategoriesCount: number;
   loading: boolean;
-};
+}
 
-class List extends React.Component<Props> {
+class List extends React.Component<IProps> {
   renderForm = props => {
-    const { refetch, renderButton } = this.props;
+    const { refetch, renderButton, productCategories } = this.props;
 
     const extendedProps = { ...props, refetch };
 
-    return <GroupForm {...extendedProps} renderButton={renderButton} />;
+    return (
+      <Form
+        {...extendedProps}
+        renderButton={renderButton}
+        categories={productCategories}
+      />
+    );
   };
 
   renderFormTrigger(trigger: React.ReactNode, object?: IUserGroup) {
     const content = props => this.renderForm({ ...props, object });
 
     return (
-      <ModalTrigger title="New Group" trigger={trigger} content={content} />
+      <ModalTrigger title="Add category" trigger={trigger} content={content} />
     );
   }
 
@@ -66,10 +78,18 @@ class List extends React.Component<Props> {
   }
 
   render() {
+    const { productCategoriesCount, loading } = this.props;
+
     return (
       <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
         <SidebarList>
-          <div />
+          <DataWithLoader
+            data={<div />}
+            loading={loading}
+            count={productCategoriesCount}
+            emptyText="There is no product & service category"
+            emptyImage="/images/actions/26.svg"
+          />
         </SidebarList>
       </Sidebar>
     );

@@ -1,28 +1,40 @@
-const commonParamsDef = `
+const productParamsDef = `
   $name: String!,
   $type: String!,
   $description: String,
   $sku: String
 `;
 
-const commonParams = `
+const productCategoryParamsDef = `
+  $name: String!,
+  $parentId: String,
+  $description: String,
+`;
+
+const productParams = `
   name: $name,
   type: $type,
   description: $description,
   sku: $sku
 `;
 
+const productCategoryParams = `
+  name: $name,
+  parentId: $parentId,
+  description: $description,
+`;
+
 const productAdd = `
-  mutation productsAdd(${commonParamsDef}) {
-    productsAdd(${commonParams}) {
+  mutation productsAdd(${productParamsDef}) {
+    productsAdd(${productParams}) {
       _id
     }
   }
 `;
 
 const productEdit = `
-  mutation productsEdit($_id: String!, ${commonParamsDef}) {
-    productsEdit(_id: $_id, ${commonParams}) {
+  mutation productsEdit($_id: String!, ${productParamsDef}) {
+    productsEdit(_id: $_id, ${productParams}) {
       _id
     }
   }
@@ -34,8 +46,33 @@ const productRemove = `
   }
 `;
 
+const productCategoryAdd = `
+  mutation productCategoriesAdd(${productCategoryParamsDef}) {
+    productCategoriesAdd(${productCategoryParams}) {
+      _id
+    }
+  }
+`;
+
+const productCategoryEdit = `
+  mutation productCategoriesEdit($_id: String!, ${productCategoryParamsDef}) {
+    productCategoriesEdit(_id: $_id, ${productCategoryParams}) {
+      _id
+    }
+  }
+`;
+
+const productCategoryRemove = `
+  mutation productCategoriesRemove($_id: String!) {
+    productCategoriesRemove(_id: $_id)
+  }
+`;
+
 export default {
   productAdd,
   productEdit,
-  productRemove
+  productRemove,
+  productCategoryAdd,
+  productCategoryEdit,
+  productCategoryRemove
 };

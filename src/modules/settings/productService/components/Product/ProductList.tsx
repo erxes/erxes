@@ -14,6 +14,7 @@ import Form from './ProductForm';
 import Row from './ProductRow';
 
 type Props = {
+  history: any;
   queryParams: any;
   products: IProduct[];
   productsCount: number;
@@ -37,7 +38,13 @@ class List extends React.Component<Props> {
   };
 
   render() {
-    const { productsCount, loading, renderButton, queryParams } = this.props;
+    const {
+      productsCount,
+      loading,
+      renderButton,
+      queryParams,
+      history
+    } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -97,7 +104,9 @@ class List extends React.Component<Props> {
             right={actionBarRight}
           />
         }
-        leftSidebar={<CategoryList queryParams={queryParams} />}
+        leftSidebar={
+          <CategoryList queryParams={queryParams} history={history} />
+        }
         footer={<Pagination count={productsCount} />}
         content={
           <DataWithLoader

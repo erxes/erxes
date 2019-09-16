@@ -7,8 +7,10 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "Settings List - ProductService" */ './containers/Product/ProductList')
 );
 
-const productService = ({ location }) => {
-  return <List queryParams={queryString.parse(location.search)} />;
+const productService = ({ location, history }) => {
+  return (
+    <List queryParams={queryString.parse(location.search)} history={history} />
+  );
 };
 
 const routes = () => (

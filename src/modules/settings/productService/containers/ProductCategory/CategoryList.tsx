@@ -1,39 +1,85 @@
 import gql from 'graphql-tag';
-import { withProps } from 'modules/common/utils';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import List from '../../components/ProductCategory/CategoryList';
-import { queries } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import {
   ProductCategoriesCountQueryResponse,
-  ProductCategoriesQueryResponse
+  ProductCategoriesQueryResponse,
+  RemoveMutationResponse
 } from '../../types';
 
-type Props = {
-  queryParams: any;
-};
+type Props = { history: any; queryParams: any };
 
 type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
-} & Props;
+} & Props &
+  RemoveMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       productCategoriesQuery,
       productCategoriesCountQuery,
-
-      queryParams
+      removeMutation
     } = this.props;
+
+    const remove = productId => {
+      confirm().then(() => {
+        removeMutation({
+          variables: { _id: productId }
+        })
+          .then(() => {
+            productCategoriesQuery.refetch();
+            productCategoriesCountQuery.refetch();
+
+            Alert.success(
+              `You successfully deleted a product & service category`
+            );
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      });
+    };
+
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={
+            object
+              ? mutations.productCategoryEdit
+              : mutations.productCategoryAdd
+          }
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        />
+      );
+    };
 
     const productCategories = productCategoriesQuery.productCategories || [];
 
-    // remove action
-
     const updatedProps = {
       ...this.props,
-      queryParams,
+      remove,
+      renderButton,
+      refetch: productCategoriesQuery.refetch,
       productCategories,
       loading: productCategoriesQuery.loading,
       productCategoriesCount:
@@ -43,6 +89,22 @@ class ProductListContainer extends React.Component<FinalProps> {
     return <List {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.productCategories)
+    },
+
+    {
+      query: gql(queries.productCategoriesCount)
+    }
+  ];
+};
+
+const options = () => ({
+  refetchQueries: getRefetchQueries()
+});
 
 export default withProps<Props>(
   compose(
@@ -59,6 +121,13 @@ export default withProps<Props>(
       gql(queries.productCategoriesCount),
       {
         name: 'productCategoriesCountQuery'
+      }
+    ),
+    graphql<Props, RemoveMutationResponse, { _id: string }>(
+      gql(mutations.productCategoryRemove),
+      {
+        name: 'removeMutation',
+        options
       }
     )
   )(ProductListContainer)
