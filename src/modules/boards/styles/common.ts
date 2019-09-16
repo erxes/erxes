@@ -128,7 +128,6 @@ export const ItemContainer = styledTS<{
     props.isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
       : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
-  overflow: hidden;
   padding: 8px;
   outline: 0px;
   font-size: 12px;

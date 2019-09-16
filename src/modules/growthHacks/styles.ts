@@ -92,14 +92,13 @@ const AmountItem = styled.div`
 
 const ScoreAmount = styled.div`
   position: absolute;
-  right: 0;
-  top: 5px;
+  right: -3px;
+  top: 3px;
   border-radius: 2px;
-  background: ${colors.colorCoreTeal};
-  padding: 0 5px;
+  background: #9a73b6;
+  padding: 2px 6px;
   color: ${colors.colorWhite};
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  font-weight: 500;
 `;
 
 export {

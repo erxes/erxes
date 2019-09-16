@@ -37,8 +37,7 @@ const Content = styled('div')`
   flex-direction: column;
 
   h5 {
-    margin-top: 0;
-    margin-bottom: 15px;
+    margin: 0 10px 10px 0;
   }
 `;
 
