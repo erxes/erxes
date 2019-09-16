@@ -1,4 +1,4 @@
-import { Forms, FormSubmissions } from '../../../db/models';
+import { Fields, Forms, FormSubmissions } from '../../../db/models';
 import { IForm } from '../../../db/models/definitions/forms';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -10,7 +10,7 @@ interface IFormsEdit extends IForm {
 interface IFormSubmission {
   contentType: string;
   contentTypeId: string;
-  formSubmissions: JSON;
+  formSubmissions: { [key: string]: string };
   formId: string;
 }
 
@@ -37,11 +37,13 @@ const formMutations = {
     { formId, contentTypeId, contentType, formSubmissions }: IFormSubmission,
     { docModifier }: IContext,
   ) {
-    for (const formFieldId of Object.keys(formSubmissions)) {
+    const cleanedFormSubmissions = await Fields.cleanMulti(formSubmissions || {});
+
+    for (const formFieldId of Object.keys(cleanedFormSubmissions)) {
       const formSubmission = await FormSubmissions.findOne({ contentTypeId, contentType, formFieldId });
 
       if (formSubmission) {
-        formSubmission.value = formSubmissions[formFieldId];
+        formSubmission.value = cleanedFormSubmissions[formFieldId];
 
         formSubmission.save();
       } else {
