@@ -5,7 +5,7 @@ import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
-import { itemsChange, sendNotifications } from '../boardUtils';
+import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 import { checkUserIds } from './notifications';
 
 interface IGrowthHacksEdit extends IGrowthHack {
@@ -14,7 +14,7 @@ interface IGrowthHacksEdit extends IGrowthHack {
 
 const growthHackMutations = {
   /**
-   * Create new growthHack
+   * Create new growth hack
    */
   async growthHacksAdd(_root, doc: IGrowthHack, { user }: { user: IUserDocument }) {
     doc.initialStageId = doc.stageId;
@@ -46,7 +46,7 @@ const growthHackMutations = {
   },
 
   /**
-   * Edit growthHack
+   * Edit a growth hack
    */
   async growthHacksEdit(_root, { _id, ...doc }: IGrowthHacksEdit, { user }) {
     const oldGrowthHack = await GrowthHacks.getGrowthHack(_id);
@@ -57,21 +57,26 @@ const growthHackMutations = {
       modifiedBy: user._id,
     });
 
-    const { addedUserIds, removedUserIds } = checkUserIds(
-      oldGrowthHack.assignedUserIds || [],
-      doc.assignedUserIds || [],
-    );
-
-    await sendNotifications({
+    const notificationDoc: IBoardNotificationParams = {
       item: updatedGrowthHack,
       user,
       type: NOTIFICATION_TYPES.GROWTH_HACK_EDIT,
-      invitedUsers: addedUserIds,
-      removedUsers: removedUserIds,
-      action: `has updated growthHack`,
+      action: `has updated a growth hack`,
       content: `${updatedGrowthHack.name}`,
       contentType: 'growthHack',
-    });
+    };
+
+    if (doc.assignedUserIds) {
+      const { addedUserIds, removedUserIds } = checkUserIds(
+        oldGrowthHack.assignedUserIds || [],
+        doc.assignedUserIds || [],
+      );
+
+      notificationDoc.invitedUsers = addedUserIds;
+      notificationDoc.removedUsers = removedUserIds;
+    }
+
+    await sendNotifications(notificationDoc);
 
     if (updatedGrowthHack) {
       await putUpdateLog(
@@ -88,7 +93,7 @@ const growthHackMutations = {
   },
 
   /**
-   * Change growthHack
+   * Change a growth hack
    */
   async growthHacksChange(
     _root,
@@ -122,14 +127,14 @@ const growthHackMutations = {
   },
 
   /**
-   * Update growthHack orders (not sendNotifaction, ordered card to change)
+   * Update growth hack orders (not sendNotifaction, ordered card to change)
    */
   growthHacksUpdateOrder(_root, { stageId, orders }: { stageId: string; orders: IOrderInput[] }) {
     return GrowthHacks.updateOrder(stageId, orders);
   },
 
   /**
-   * Remove growthHack
+   * Remove a growth hack
    */
   async growthHacksRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
     const growthHack = await GrowthHacks.findOne({ _id });
@@ -162,7 +167,7 @@ const growthHackMutations = {
   },
 
   /**
-   * Watch growthHack
+   * Watch a growth hack
    */
   async growthHacksWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: { user: IUserDocument }) {
     const growthHack = await GrowthHacks.findOne({ _id });
