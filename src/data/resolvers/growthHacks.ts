@@ -1,7 +1,8 @@
-import { FormSubmissions, Pipelines, Stages, Users } from '../../db/models';
+import { Fields, FormSubmissions, Pipelines, Stages, Users } from '../../db/models';
 import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { boardId } from './boardUtils';
+import { IFieldsQuery } from './queries/fields';
 
 export default {
   async formSubmissions(growthHack: IGrowthHackDocument) {
@@ -24,6 +25,18 @@ export default {
     }
 
     return result;
+  },
+
+  async formFields(growthHack: IGrowthHackDocument) {
+    const stage = await Stages.getStage(growthHack.stageId || '');
+
+    const query: IFieldsQuery = { contentType: 'form' };
+
+    if (stage.formId) {
+      query.contentTypeId = stage.formId;
+    }
+
+    return Fields.find(query).sort({ order: 1 });
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {

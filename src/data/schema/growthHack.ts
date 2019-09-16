@@ -30,6 +30,7 @@ export const types = `
     formId: String
     scoringType: String
     formSubmissions: JSON
+    formFields: [Field]
     ${commonTypes}
   }
 `;

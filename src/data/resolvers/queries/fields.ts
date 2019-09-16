@@ -2,7 +2,7 @@ import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES, INTEGRATION_KIND_CHOI
 import { Brands, Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 
-interface IFieldsQuery {
+export interface IFieldsQuery {
   contentType: string;
   contentTypeId?: string;
 }
