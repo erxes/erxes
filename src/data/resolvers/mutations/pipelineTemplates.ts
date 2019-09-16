@@ -15,7 +15,7 @@ const pipelineTemplateMutations = {
    */
   async pipelineTemplatesAdd(_root, { stages, ...doc }: IPipelineTemplate, { user, docModifier }: IContext) {
     const pipelineTemplate = await PipelineTemplates.createPipelineTemplate(
-      docModifier({ userId: user._id, ...doc }),
+      docModifier({ createdBy: user._id, ...doc }),
       stages,
     );
 

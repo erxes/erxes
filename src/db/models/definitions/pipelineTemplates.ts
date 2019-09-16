@@ -13,6 +13,8 @@ export interface IPipelineTemplate {
   type: string;
   isDefinedByErxes: boolean;
   stages: IPipelineTemplateStage[];
+  createdBy: string;
+  createdDate: Date;
 }
 
 export interface IPipelineTemplateDocument extends IPipelineTemplate, Document {
@@ -37,4 +39,9 @@ export const pipelineTemplateSchema = new Schema({
   description: field({ type: String, optional: true }),
   stages: field({ type: [stageSchema], default: [] }),
   isDefinedByErxes: field({ type: Boolean, default: false }),
+  createdBy: field({ type: String }),
+  createdAt: field({
+    type: Date,
+    default: new Date(),
+  }),
 });

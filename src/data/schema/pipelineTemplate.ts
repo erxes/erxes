@@ -19,6 +19,8 @@ export const types = `
     type: String
     isDefinedByErxes: Boolean
     stages: [PipelineTemplateStage]
+    createdBy: String
+    createdAt: Date
   }
 `;
 
