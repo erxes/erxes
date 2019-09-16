@@ -858,8 +858,8 @@ export const moduleObjects = {
           'integrationsEditMessengerIntegration',
           'integrationsSaveMessengerAppearanceData',
           'integrationsSaveMessengerConfigs',
-          'integrationsCreateFormIntegration',
-          'integrationsEditFormIntegration',
+          'integrationsCreateLeadIntegration',
+          'integrationsEditLeadIntegration',
           'integrationsRemove',
         ],
       },
@@ -884,12 +884,12 @@ export const moduleObjects = {
         description: 'Save messenger config',
       },
       {
-        name: 'integrationsCreateFormIntegration',
-        description: 'Create form integration',
+        name: 'integrationsCreateLeadIntegration',
+        description: 'Create lead integration',
       },
       {
-        name: 'integrationsEditFormIntegration',
-        description: 'Edit form integration',
+        name: 'integrationsEditLeadIntegration',
+        description: 'Edit lead integration',
       },
       {
         name: 'integrationsRemove',
