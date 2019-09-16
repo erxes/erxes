@@ -1,4 +1,5 @@
 import { IItem, IItemParams } from 'modules/boards/types';
+import { IField } from 'modules/settings/properties/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 
 export type ActivityLogQueryResponse = {
@@ -16,6 +17,7 @@ export interface IGrowthHack extends IItem {
   reach?: number;
   impact?: number;
   confidence?: number;
+  formFields?: IField[];
   ease?: number;
 }
 

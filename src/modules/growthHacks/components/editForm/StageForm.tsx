@@ -1,8 +1,8 @@
 import Button from 'modules/common/components/Button';
 import colors from 'modules/common/styles/colors';
 import { IFormSubmission } from 'modules/forms/types';
-import FormFields from 'modules/growthHacks/containers/FormFields';
 import { IGrowthHack } from 'modules/growthHacks/types';
+import GenerateField from 'modules/settings/properties/components/GenerateField';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -36,15 +36,36 @@ type Props = {
 };
 
 class StageForm extends React.Component<Props> {
-  render() {
-    const { item, onChangeExtraField, formSubmissions, formId } = this.props;
+  renderFormFields() {
+    const {
+      formId,
+      item: { formFields = [], formSubmissions },
+      onChangeExtraField
+    } = this.props;
 
-    const stageName = item.stage && item.stage.name;
+    if (!formId) {
+      return null;
+    }
 
-    const onChangeFormField = field => {
+    const onChangeFormField = (field: { _id: string; value: string }) => {
       formSubmissions[field._id] = field.value;
       onChangeExtraField('formSubmissions', formSubmissions);
     };
+
+    return formFields.map(field => (
+      <GenerateField
+        defaultValue={formSubmissions[field._id]}
+        key={field._id}
+        field={field}
+        onValueChange={onChangeFormField}
+      />
+    ));
+  }
+
+  render() {
+    const { item, formSubmissions, formId } = this.props;
+
+    const stageName = item.stage && item.stage.name;
 
     const save = () => {
       this.props.save({ contentTypeId: item._id, formId, formSubmissions });
@@ -55,13 +76,7 @@ class StageForm extends React.Component<Props> {
         <CurrentStage>
           Currently on <h4>{stageName}</h4>
         </CurrentStage>
-        {formId ? (
-          <FormFields
-            onChangeFormField={onChangeFormField}
-            formSubmissions={formSubmissions}
-            formId={formId}
-          />
-        ) : null}
+        {this.renderFormFields()}
         <Button
           style={{ float: 'right' }}
           onClick={save}

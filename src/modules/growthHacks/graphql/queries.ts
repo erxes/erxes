@@ -56,6 +56,16 @@ const growthHackFields = `
     size
   }
   formSubmissions
+  formFields {
+    _id
+    type
+    validation
+    text
+    description
+    options
+    isRequired
+    order
+  }
   formId
   modifiedAt
   modifiedBy
