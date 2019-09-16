@@ -93,7 +93,7 @@ const AmountItem = styled.div`
 const ScoreAmount = styled.div`
   position: absolute;
   right: -3px;
-  top: 3px;
+  top: 5px;
   border-radius: 2px;
   background: #9a73b6;
   padding: 2px 6px;
