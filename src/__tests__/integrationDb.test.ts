@@ -6,7 +6,6 @@ import {
   fieldFactory,
   formFactory,
   integrationFactory,
-  userFactory,
 } from '../db/factories';
 import { Brands, ConversationMessages, Forms, Integrations, Users } from '../db/models';
 import { KIND_CHOICES, LEAD_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../db/models/definitions/constants';
