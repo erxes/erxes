@@ -5,6 +5,7 @@ export interface IRouterProps {
 }
 
 export interface IAttachment {
+  index?: number;
   name: string;
   type: string;
   url: string;

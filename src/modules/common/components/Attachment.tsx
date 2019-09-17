@@ -79,7 +79,7 @@ const AttachmentName = styled.span`
 `;
 
 type Props = {
-  attachments: IAttachment[];
+  attachments?: IAttachment[];
   attachment: IAttachment;
   scrollBottom?: () => void;
   additionalItem?: React.ReactNode;
@@ -141,9 +141,8 @@ class Attachment extends React.Component<Props> {
           <PreviewWrapper>
             <ImageWithPreview
               onLoad={this.onLoadImage}
-              alt={attachment.url}
-              src={attachment.url}
-              attachments={this.props.attachments}
+              attachment={attachment}
+              attachments={this.props.attachments || []}
             />
           </PreviewWrapper>
           <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>

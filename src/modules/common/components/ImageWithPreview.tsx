@@ -69,12 +69,13 @@ type Props = {
   alt?: string;
   onLoad?: () => void;
   full?: boolean;
-  attachments: IAttachment[];
+  attachments?: IAttachment[];
+  attachment?: IAttachment;
 };
 
 type State = {
   visible: boolean;
-  attachments: any[];
+  attachments?: IAttachment[];
   attachment: any;
 };
 
@@ -85,19 +86,22 @@ class ImageWithPreview extends React.Component<Props, State> {
     this.state = {
       visible: false,
       attachments: props.attachments,
-      attachment: props.attachments[0]
+      attachment: props.attachment
     };
   }
 
   // tslint:disable
   toggleImage = () => {
-    this.setState({ visible: !this.state.visible });
+    this.setState({
+      visible: !this.state.visible,
+      attachment: this.props.attachment
+    });
   };
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeydown);
 
-    this.state.attachments.map((attachment, index) =>
+    (this.state.attachments || []).map((attachment, index) =>
       Object.assign(attachment, { index })
     );
   }
@@ -107,26 +111,28 @@ class ImageWithPreview extends React.Component<Props, State> {
   }
 
   previous() {
-    let newIndex = this.state.attachment.index - 1;
+    const { attachment, attachments } = this.state;
+    let newIndex = attachment.index - 1;
 
-    if (this.state.attachment.index === 0) {
-      newIndex = 0;
+    if (attachment.index === 0) {
+      newIndex = (attachments || []).length - 1;
     }
 
     this.setState({
-      attachment: this.state.attachments[newIndex]
+      attachment: (attachments || [])[newIndex]
     });
   }
 
   next() {
-    let newIndex = this.state.attachment.index + 1;
+    const { attachment, attachments } = this.state;
+    let newIndex = attachment.index + 1;
 
-    if (this.state.attachment.index === this.state.attachments.length - 1) {
+    if (attachment.index === (attachments || []).length - 1) {
       newIndex = 0;
     }
 
     this.setState({
-      attachment: this.state.attachments[newIndex]
+      attachment: (attachments || [])[newIndex]
     });
   }
 
@@ -144,21 +150,25 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   render() {
-    const { src, alt, onLoad } = this.props;
-    const { attachment } = this.state;
+    const { attachment, src, alt, onLoad } = this.props;
 
     return (
       <>
         <Image
           {...this.props}
-          src={readFile(src || '')}
+          src={readFile(attachment ? attachment.url : src || '')}
           onLoad={onLoad}
           onClick={this.toggleImage}
         />
         {this.state.visible && (
           <PreviewPortal>
             <PreviewWrapper onClick={this.toggleImage}>
-              <img alt={alt} src={readFile(attachment.url || '')} />
+              <img
+                alt={attachment ? attachment.url : alt}
+                src={readFile(
+                  attachment ? this.state.attachment.url : src || ''
+                )}
+              />
             </PreviewWrapper>
 
             <PreviousButton className="preview" onClick={this.previous}>

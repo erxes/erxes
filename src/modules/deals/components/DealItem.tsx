@@ -42,20 +42,6 @@ class DealItem extends React.PureComponent<Props, {}> {
     );
   };
 
-  renderAttachment() {
-    const { attachments = [] } = this.props.item;
-
-    if (attachments.length === 0) {
-      return null;
-    }
-
-    return (
-      <div>
-        <Icon icon="attach" /> {attachments.length}
-      </div>
-    );
-  }
-
   render() {
     const { item, onClick } = this.props;
     const products = (item.products || []).map(p => p.product);
@@ -105,7 +91,6 @@ class DealItem extends React.PureComponent<Props, {}> {
           </PriceContainer>
 
           <Footer>
-            {this.renderAttachment()}
             {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
             <Right>{this.renderDate(item.modifiedAt)}</Right>
           </Footer>
