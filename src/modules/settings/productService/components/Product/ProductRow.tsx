@@ -7,8 +7,8 @@ import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import Form from '../../containers/Product/ProductForm';
 import { IProduct } from '../../types';
-import Form from './ProductForm';
 
 type Props = {
   product: IProduct;

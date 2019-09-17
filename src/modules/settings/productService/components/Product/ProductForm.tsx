@@ -7,17 +7,18 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { TYPES } from '../../constants';
-import { IProduct } from '../../types';
+import { IProduct, IProductCategory } from '../../types';
 
 type Props = {
   product?: IProduct;
+  productCategories: IProductCategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 class Form extends React.Component<Props> {
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, product } = this.props;
+    const { renderButton, closeModal, product, productCategories } = this.props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
 
@@ -52,6 +53,23 @@ class Form extends React.Component<Props> {
             {types.map((typeName, index) => (
               <option key={index} value={typeName}>
                 {typeName}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Category</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="categoryId"
+            componentClass="select"
+            defaultValue={object.categoryId}
+            required={true}
+          >
+            {productCategories.map((category, index) => (
+              <option key={index} value={category._id}>
+                {category.name}
               </option>
             ))}
           </FormControl>

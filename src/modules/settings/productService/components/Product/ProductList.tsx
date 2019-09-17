@@ -8,9 +8,9 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
+import Form from '../../containers/Product/ProductForm';
 import CategoryList from '../../containers/ProductCategory/CategoryList';
 import { IProduct } from '../../types';
-import Form from './ProductForm';
 import Row from './ProductRow';
 
 type Props = {

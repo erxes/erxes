@@ -90,10 +90,15 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = queryParams => {
+  const variables = {
+    categoryId: queryParams.categoryId,
+    ...generatePaginationParams(queryParams)
+  };
+
   return [
     {
       query: gql(queries.products),
-      variables: generatePaginationParams(queryParams)
+      variables
     },
     {
       query: gql(queries.products),
@@ -116,7 +121,10 @@ export default withProps<Props>(
       {
         name: 'productsQuery',
         options: ({ queryParams }) => ({
-          variables: generatePaginationParams(queryParams)
+          variables: {
+            categoryId: queryParams.categoryId,
+            ...generatePaginationParams(queryParams)
+          }
         })
       }
     ),

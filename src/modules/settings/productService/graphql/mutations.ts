@@ -1,12 +1,14 @@
 const productParamsDef = `
   $name: String!,
   $type: String!,
+  $categoryId: String!,
   $description: String,
   $sku: String
 `;
 
 const productCategoryParamsDef = `
   $name: String!,
+  $code: String!,
   $parentId: String,
   $description: String,
 `;
@@ -14,12 +16,14 @@ const productCategoryParamsDef = `
 const productParams = `
   name: $name,
   type: $type,
+  categoryId: $categoryId,
   description: $description,
   sku: $sku
 `;
 
 const productCategoryParams = `
   name: $name,
+  code: $code,
   parentId: $parentId,
   description: $description,
 `;

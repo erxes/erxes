@@ -4,14 +4,13 @@ import CommonForm from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { IProductCategory } from '../../types';
 
 type Props = {
   categories: IProductCategory[];
-  productCategory?: IProductCategory;
+  category?: IProductCategory;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -25,12 +24,13 @@ class Form extends React.Component<Props> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, productCategory } = this.props;
+    const { renderButton, closeModal, category } = this.props;
     const { values, isSubmitted } = formProps;
-    const object = productCategory || ({} as IProductCategory);
 
-    if (productCategory) {
-      values._id = productCategory._id;
+    const object = category || ({} as IProductCategory);
+
+    if (category) {
+      values._id = category._id;
     }
 
     return (
@@ -42,6 +42,16 @@ class Form extends React.Component<Props> {
             name="name"
             defaultValue={object.name}
             autoFocus={true}
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.description}
             required={true}
           />
         </FormGroup>
@@ -65,7 +75,6 @@ class Form extends React.Component<Props> {
             name="parentId"
             componentClass="select"
             defaultValue={object.parentId}
-            required={true}
             options={[
               { value: '', label: '' },
               ...this.generateCategoriesChoices()
@@ -83,7 +92,7 @@ class Form extends React.Component<Props> {
             values,
             isSubmitted,
             callback: closeModal,
-            object: productCategory
+            object: category
           })}
         </Modal.Footer>
       </>

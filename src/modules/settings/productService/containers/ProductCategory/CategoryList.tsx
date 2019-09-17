@@ -111,10 +111,7 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery',
-        options: ({ queryParams }) => ({
-          variables: queryParams.parentId
-        })
+        name: 'productCategoriesQuery'
       }
     ),
     graphql<Props, ProductCategoriesCountQueryResponse>(

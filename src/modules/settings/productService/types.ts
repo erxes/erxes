@@ -18,6 +18,7 @@ export interface IProduct {
   _id: string;
   name: string;
   type: string;
+  categoryId: string;
   description: string;
   sku: string;
   createdAt: Date;
@@ -26,6 +27,7 @@ export interface IProduct {
 export interface IProductCategory {
   _id: string;
   name: string;
+  order: string;
   description?: string;
   parentId?: string;
   createdAt: Date;

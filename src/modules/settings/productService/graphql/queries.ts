@@ -1,9 +1,10 @@
 const products = `
-  query products($type: String, $searchValue: String, $perPage: Int, $page: Int $ids: [String]) {
-    products(type: $type, searchValue: $searchValue, perPage: $perPage, page: $page ids: $ids) {
+  query products($type: String, $categoryId: String, $searchValue: String, $perPage: Int, $page: Int $ids: [String]) {
+    products(type: $type, categoryId: $categoryId, searchValue: $searchValue, perPage: $perPage, page: $page ids: $ids) {
       _id
       name
       type
+      categoryId
       description
       sku
       createdAt
@@ -18,12 +19,12 @@ const productsCount = `
 `;
 
 const productCategories = `
-  query productCategories($parentId: String) {
-    productCategories(parentId: $parentId) {
+  query productCategories {
+    productCategories {
       _id
       name
+      order
       description
-      parentId
     }
   }
 `;
