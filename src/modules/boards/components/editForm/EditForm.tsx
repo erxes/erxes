@@ -166,6 +166,7 @@ class EditForm extends React.Component<Props, State> {
     // copied doc
     const doc = {
       ...item,
+      attachments: item.attachments && extractAttachment(item.attachments),
       assignedUserIds: item.assignedUsers.map(user => user._id)
     };
 
