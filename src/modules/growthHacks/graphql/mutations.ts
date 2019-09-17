@@ -1,5 +1,4 @@
 const commonVariables = `
-  $name: String,
   $stageId: String,
   $closeDate: Date,
   $description: String,
@@ -17,7 +16,6 @@ const commonVariables = `
 `;
 
 const commonParams = `
-  name: $name,
   stageId: $stageId,
   closeDate: $closeDate,
   description: $description,
@@ -61,16 +59,16 @@ const commonReturn = `
 `;
 
 const growthHacksAdd = `
-  mutation growthHacksAdd(${commonVariables}) {
-    growthHacksAdd(${commonParams}) {
+  mutation growthHacksAdd($name: String!, ${commonVariables}) {
+    growthHacksAdd(name: $name, ${commonParams}) {
       ${commonReturn}
     }
   }
 `;
 
 const growthHacksEdit = `
-  mutation growthHacksEdit($_id: String!, ${commonVariables}) {
-    growthHacksEdit(_id: $_id, ${commonParams}) {
+  mutation growthHacksEdit($_id: String!, $name: String, ${commonVariables}) {
+    growthHacksEdit(name: $name, _id: $_id, ${commonParams}) {
       ${commonReturn}
     }
   }
