@@ -115,8 +115,8 @@ export const generateCommonFilters = async (args: any) => {
     const tommorrow = moment().add(1, 'days');
 
     filter.closeDate = {
-      $gte: new Date(tommorrow.startOf('day').format('YYYY-MM-DD')),
-      $lte: new Date(tommorrow.endOf('day').format('YYYY-MM-DD')),
+      $gte: new Date(tommorrow.startOf('day').toISOString()),
+      $lte: new Date(tommorrow.endOf('day').toISOString()),
     };
   }
 
