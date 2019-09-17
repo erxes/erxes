@@ -121,7 +121,11 @@ class Uploader extends React.Component<Props, State> {
 
     return (
       <Item key={item.url}>
-        <Attachment attachment={item} additionalItem={remove} />
+        <Attachment
+          attachment={item}
+          attachments={this.state.attachments}
+          additionalItem={remove}
+        />
       </Item>
     );
   };
