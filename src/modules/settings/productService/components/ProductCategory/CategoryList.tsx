@@ -98,6 +98,12 @@ class List extends React.Component<IProps> {
         space = '\u00A0 '.repeat(m.length);
       }
 
+      const name = category.hasChild ? (
+        <strong>{category.name}</strong>
+      ) : (
+        category.name
+      );
+
       result.push(
         <SidebarListItem
           key={category._id}
@@ -105,7 +111,7 @@ class List extends React.Component<IProps> {
         >
           <Link to={`?categoryId=${category._id}`}>
             {space}
-            <strong>{category.name}</strong>
+            {name}
           </Link>
           <ActionButtons>
             {this.renderEditAction(category)}

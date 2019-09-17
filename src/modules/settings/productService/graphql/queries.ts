@@ -24,6 +24,7 @@ const productCategories = `
       _id
       name
       order
+      hasChild
       description
     }
   }

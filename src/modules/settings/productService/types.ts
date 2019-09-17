@@ -28,6 +28,7 @@ export interface IProductCategory {
   _id: string;
   name: string;
   order: string;
+  hasChild: boolean;
   description?: string;
   parentId?: string;
   createdAt: Date;
