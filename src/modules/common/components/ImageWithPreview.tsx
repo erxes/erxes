@@ -45,7 +45,9 @@ const Image = styled.img`
 `;
 
 const KEYCODES = {
-  ESCAPE: 27
+  ESCAPE: 27,
+  LEFT: 37,
+  RIGHT: 39
 };
 
 type Props = {

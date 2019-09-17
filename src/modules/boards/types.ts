@@ -104,6 +104,7 @@ export interface IItem {
   companies: ICompany[];
   customers: ICustomer[];
   pipeline: IPipeline;
+  attachments?: IAttachment[];
   stage?: IStage;
   isWatched?: boolean;
   priority?: string;
