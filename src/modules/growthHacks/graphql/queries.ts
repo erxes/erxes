@@ -1,23 +1,23 @@
 const commonParams = `
+  $pipelineId: String,
   $assignedUserIds: [String],
   $nextDay: String,
   $nextWeek: String,
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
-  $sortField: String,
-  $sortDirection: Int,
+  $search: String,
 `;
 
 const commonParamDefs = `
+  pipelineId: $pipelineId,
   assignedUserIds: $assignedUserIds,
   nextDay: $nextDay,
   nextWeek: $nextWeek,
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
   overdue: $overdue,
-  sortField: $sortField,
-  sortDirection: $sortDirection,
+  search: $search,
 `;
 
 const growthHackFields = `
@@ -75,19 +75,29 @@ const growthHackFields = `
 
 const growthHacks = `
   query growthHacks(
-    $pipelineId: String,
     $stageId: String,
     $skip: Int,
-    $search: String,
-    $viewType: String,
     ${commonParams}
   ) {
     growthHacks(
-      pipelineId: $pipelineId,
       stageId: $stageId,
       skip: $skip,
-      search: $search,
-      viewType: $viewType,
+      ${commonParamDefs}
+    ) {
+      ${growthHackFields}
+    }
+  }
+`;
+
+const growthHacksPriorityMatrix = `
+  query growthHacksPriorityMatrix(
+    $sortField: String,
+    $sortDirection: Int,
+    ${commonParams}
+  ) {
+    growthHacksPriorityMatrix(
+      sortField: $sortField,
+      sortDirection: $sortDirection,
       ${commonParamDefs}
     ) {
       ${growthHackFields}
@@ -105,5 +115,6 @@ const growthHackDetail = `
 
 export default {
   growthHacks,
+  growthHacksPriorityMatrix,
   growthHackDetail
 };

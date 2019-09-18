@@ -17,7 +17,7 @@ class LeftContainer extends React.Component<FinalProps> {
   render() {
     const { growthHacksQuery } = this.props;
 
-    const growthHacks = growthHacksQuery.growthHacks || [];
+    const growthHacks = growthHacksQuery.growthHacksPriorityMatrix || [];
 
     const extendedProps = {
       ...this.props,
@@ -30,12 +30,18 @@ class LeftContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.growthHacks), {
+    graphql<Props>(gql(queries.growthHacksPriorityMatrix), {
       name: 'growthHacksQuery',
       options: ({ queryParams = {} }) => ({
         variables: {
+          search: queryParams.search,
+          assignedUserIds: queryParams.assignedUserIds,
+          nextDay: queryParams.nextDay,
+          nextWeek: queryParams.nextWeek,
+          nextMonth: queryParams.nextMonth,
+          noCloseDate: queryParams.noCloseDate,
+          overdue: queryParams.overdue,
           pipelineId: queryParams.pipelineId,
-          viewType: 'priorityMatrix',
           sortField: queryParams.sortField,
           sortDirection: parseInt(queryParams.sortDirection, 10)
         }
