@@ -17,13 +17,10 @@ type Props = {
     name: 'description' | 'closeDate' | 'assignedUserIds',
     value: any
   ) => void;
-  onChangeExtraField: (name: 'hackDescription' | 'goal', value: any) => void;
   onBlurFields: (name: 'description' | 'name', value: string) => void;
   type: string;
   assignedUserIds: string[];
   description: string;
-  hackDescription: string;
-  goal: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
   attachments: IAttachment[];
   options: IOptions;
@@ -34,22 +31,16 @@ class Left extends React.Component<Props> {
     const {
       item,
       onChangeField,
-      onChangeExtraField,
       onBlurFields,
       attachments,
       onChangeAttachment,
       description,
-      hackDescription,
-      goal,
       type,
       assignedUserIds
     } = this.props;
 
     const onChange = e =>
       onChangeField(e.target.name, (e.target as HTMLInputElement).value);
-
-    const onChangeExtra = e =>
-      onChangeExtraField(e.target.name, (e.target as HTMLInputElement).value);
 
     const onSave = e => {
       onBlurFields(e.target.name, e.target.value);
@@ -74,22 +65,6 @@ class Left extends React.Component<Props> {
             filterParams={{ status: 'verified' }}
           />
         </FormGroup>
-        <FormGroup>
-          <TitleRow>
-            <ControlLabel>
-              <Icon icon="idea" />
-              Hack Description
-            </ControlLabel>
-          </TitleRow>
-
-          <FormControl
-            componentClass="textarea"
-            name="hackDescription"
-            defaultValue={hackDescription}
-            onChange={onChangeExtra}
-            onBlur={onSave}
-          />
-        </FormGroup>
 
         <FormGroup>
           <TitleRow>
@@ -104,23 +79,6 @@ class Left extends React.Component<Props> {
             name="description"
             defaultValue={description}
             onChange={onChange}
-            onBlur={onSave}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <TitleRow>
-            <ControlLabel>
-              <Icon icon="sign-out-alt" />
-              Goal
-            </ControlLabel>
-          </TitleRow>
-
-          <FormControl
-            componentClass="textarea"
-            defaultValue={goal}
-            name="goal"
-            onChange={onChangeExtra}
             onBlur={onSave}
           />
         </FormGroup>
