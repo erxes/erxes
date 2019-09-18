@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { IFilterParams } from 'modules/boards/types';
 import { withProps } from 'modules/common/utils';
 import Left from 'modules/growthHacks/components/priorityMatrix/Left';
 import React from 'react';
@@ -11,16 +12,20 @@ type Props = {
 
 type FinalProps = {
   growthHacksQuery: any;
+  growthHacksPriorityMatrixQuery: any;
 } & Props;
 
 class LeftContainer extends React.Component<FinalProps> {
   render() {
-    const { growthHacksQuery } = this.props;
+    const { growthHacksQuery, growthHacksPriorityMatrixQuery } = this.props;
 
-    const growthHacks = growthHacksQuery.growthHacksPriorityMatrix || [];
+    const growthHacksPriorityMatrix =
+      growthHacksPriorityMatrixQuery.growthHacksPriorityMatrix || [];
+    const growthHacks = growthHacksQuery.growthHacks || [];
 
     const extendedProps = {
       ...this.props,
+      growthHacksPriorityMatrix,
       growthHacks
     };
 
@@ -28,20 +33,43 @@ class LeftContainer extends React.Component<FinalProps> {
   }
 }
 
+interface IGrowthHackFilterParams extends IFilterParams {
+  pipelineId?: string;
+}
+
+const getFilterParams = (queryParams: IGrowthHackFilterParams) => {
+  if (!queryParams) {
+    return {};
+  }
+
+  return {
+    pipelineId: queryParams.pipelineId,
+    search: queryParams.search,
+    assignedUserIds: queryParams.assignedUserIds,
+    nextDay: queryParams.nextDay,
+    nextWeek: queryParams.nextWeek,
+    nextMonth: queryParams.nextMonth,
+    noCloseDate: queryParams.noCloseDate,
+    overdue: queryParams.overdue
+  };
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.growthHacksPriorityMatrix), {
+      name: 'growthHacksPriorityMatrixQuery',
+      options: ({ queryParams = {} }) => ({
+        variables: {
+          ...getFilterParams(queryParams)
+        }
+      })
+    }),
+    graphql<Props>(gql(queries.growthHacks), {
       name: 'growthHacksQuery',
       options: ({ queryParams = {} }) => ({
         variables: {
-          search: queryParams.search,
-          assignedUserIds: queryParams.assignedUserIds,
-          nextDay: queryParams.nextDay,
-          nextWeek: queryParams.nextWeek,
-          nextMonth: queryParams.nextMonth,
-          noCloseDate: queryParams.noCloseDate,
-          overdue: queryParams.overdue,
-          pipelineId: queryParams.pipelineId,
+          ...getFilterParams(queryParams),
+
           sortField: queryParams.sortField,
           sortDirection: parseInt(queryParams.sortDirection, 10)
         }

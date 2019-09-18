@@ -77,11 +77,15 @@ const growthHacks = `
   query growthHacks(
     $stageId: String,
     $skip: Int,
+    $sortField: String,
+    $sortDirection: Int,
     ${commonParams}
   ) {
     growthHacks(
       stageId: $stageId,
       skip: $skip,
+      sortField: $sortField,
+      sortDirection: $sortDirection,
       ${commonParamDefs}
     ) {
       ${growthHackFields}
@@ -91,13 +95,9 @@ const growthHacks = `
 
 const growthHacksPriorityMatrix = `
   query growthHacksPriorityMatrix(
-    $sortField: String,
-    $sortDirection: Int,
     ${commonParams}
   ) {
     growthHacksPriorityMatrix(
-      sortField: $sortField,
-      sortDirection: $sortDirection,
       ${commonParamDefs}
     ) {
       ${growthHackFields}
