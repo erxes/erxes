@@ -27,10 +27,8 @@ const growthHackFields = `
   boardId
   closeDate
   description
-  hackDescription
   hackStages
   priority
-  goal
   reach
   impact
   confidence

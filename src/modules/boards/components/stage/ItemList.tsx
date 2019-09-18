@@ -41,8 +41,11 @@ class DraggableContainer extends React.Component<
   constructor(props: DraggableContainerProps) {
     super(props);
 
+    // if popup shows, draggable will disable
+    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
+
     this.state = {
-      isDragDisabled: false,
+      isDragDisabled: Boolean(itemIdQueryParam),
       hasNotified: props.item.hasNotified === false ? false : true
     };
   }

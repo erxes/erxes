@@ -1,12 +1,9 @@
 const commonVariables = `
-  $name: String,
   $stageId: String,
   $closeDate: Date,
   $description: String,
   $assignedUserIds: [String],
   $order: Int,
-  $hackDescription: String,
-  $goal: String,
   $hackStages: [String],
   $priority: String,
   $reach: Int,
@@ -17,14 +14,11 @@ const commonVariables = `
 `;
 
 const commonParams = `
-  name: $name,
   stageId: $stageId,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
   order: $order,
-  hackDescription: $hackDescription,
-  goal: $goal,
   hackStages: $hackStages,
   priority: $priority,
   attachments: $attachments,
@@ -48,29 +42,27 @@ const commonReturn = `
       avatar
     }
   }
-  hackDescription
   priority
   reach
   impact
   confidence
   ease
   scoringType
-  goal
   modifiedAt
   modifiedBy
 `;
 
 const growthHacksAdd = `
-  mutation growthHacksAdd(${commonVariables}) {
-    growthHacksAdd(${commonParams}) {
+  mutation growthHacksAdd($name: String!, ${commonVariables}) {
+    growthHacksAdd(name: $name, ${commonParams}) {
       ${commonReturn}
     }
   }
 `;
 
 const growthHacksEdit = `
-  mutation growthHacksEdit($_id: String!, ${commonVariables}) {
-    growthHacksEdit(_id: $_id, ${commonParams}) {
+  mutation growthHacksEdit($_id: String!, $name: String, ${commonVariables}) {
+    growthHacksEdit(name: $name, _id: $_id, ${commonParams}) {
       ${commonReturn}
     }
   }

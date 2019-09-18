@@ -103,6 +103,7 @@ export interface IItem {
   assignedUsers: IUser[];
   companies: ICompany[];
   customers: ICustomer[];
+  attachments?: IAttachment[];
   pipeline: IPipeline;
   stage?: IStage;
   isWatched?: boolean;
@@ -232,8 +233,7 @@ export interface IEditFormContent {
       | 'closeDate'
       | 'assignedUserIds'
       | 'customers'
-      | 'companies'
-      | 'attachments',
+      | 'companies',
     value: any
   ) => void;
   copy: () => void;

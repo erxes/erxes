@@ -77,12 +77,22 @@ const ContentWrapper = styled.div`
   }
 `;
 
+const Bottom = styled.div`
+  overflow: hidden;
+`;
+
+const Created = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+  float: left;
+`;
+
 const Actions = styled.div`
-  display: flex;
+  float: right;
   margin-top: ${dimensions.coreSpacing}px;
   justify-content: flex-end;
 
   > div {
+    float: left;
     padding: 3px 6px;
     width: 26px;
     height: 26px;
@@ -101,8 +111,10 @@ const Actions = styled.div`
 export {
   TemplateItem,
   Box,
+  Bottom,
   PreviewWrapper,
   ContentWrapper,
   TemplateContainer,
-  Actions
+  Actions,
+  Created
 };

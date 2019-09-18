@@ -8,8 +8,6 @@ export type ActivityLogQueryResponse = {
 };
 
 export interface IGrowthHack extends IItem {
-  hackDescription?: string;
-  goal?: string;
   hackStages?: string[];
   formId?: string;
   formSubmissions?: any;
@@ -22,8 +20,6 @@ export interface IGrowthHack extends IItem {
 }
 
 export interface IGrowthHackParams extends IItemParams {
-  hackDescription?: string;
-  goal?: string;
   hackStages?: string[];
   priority?: string;
   formId?: string;
