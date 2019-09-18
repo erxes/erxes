@@ -4,8 +4,6 @@ const commonVariables = `
   $description: String,
   $assignedUserIds: [String],
   $order: Int,
-  $hackDescription: String,
-  $goal: String,
   $hackStages: [String],
   $priority: String,
   $reach: Int,
@@ -21,8 +19,6 @@ const commonParams = `
   description: $description,
   assignedUserIds: $assignedUserIds,
   order: $order,
-  hackDescription: $hackDescription,
-  goal: $goal,
   hackStages: $hackStages,
   priority: $priority,
   attachments: $attachments,
@@ -46,14 +42,12 @@ const commonReturn = `
       avatar
     }
   }
-  hackDescription
   priority
   reach
   impact
   confidence
   ease
   scoringType
-  goal
   modifiedAt
   modifiedBy
 `;
