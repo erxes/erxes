@@ -67,7 +67,7 @@ const GrowthHackMainActionBar = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    link: '/growthHack/board',
+    link: `/growthHack/${viewType}`,
     rightContent: viewChooser
   };
 
