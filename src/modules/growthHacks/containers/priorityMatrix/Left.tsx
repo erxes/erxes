@@ -33,7 +33,10 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.growthHacks), {
       name: 'growthHacksQuery',
       options: ({ queryParams = {} }) => ({
-        variables: { pipelineId: queryParams.pipelineId }
+        variables: {
+          pipelineId: queryParams.pipelineId,
+          viewType: 'priorityMatrix'
+        }
       })
     })
   )(LeftContainer)

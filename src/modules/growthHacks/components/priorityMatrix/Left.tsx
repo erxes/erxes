@@ -6,10 +6,6 @@ type Props = {
 
 class Left extends React.Component<Props> {
   render() {
-    const { growthHacks } = this.props;
-    // tslint:disable-next-line: no-console
-    console.log('growthHacks: ', growthHacks);
-
     return <div>Left</div>;
   }
 }

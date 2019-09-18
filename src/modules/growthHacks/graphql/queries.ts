@@ -75,17 +75,17 @@ const growthHacks = `
   query growthHacks(
     $pipelineId: String,
     $stageId: String,
-    $date: ItemDate,
     $skip: Int,
     $search: String,
+    $viewType: String,
     ${commonParams}
   ) {
     growthHacks(
       pipelineId: $pipelineId,
       stageId: $stageId,
-      date: $date,
       skip: $skip,
       search: $search,
+      viewType: $viewType,
       ${commonParamDefs}
     ) {
       ${growthHackFields}
