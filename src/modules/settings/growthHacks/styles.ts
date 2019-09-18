@@ -79,19 +79,19 @@ const ContentWrapper = styled.div`
 `;
 
 const Bottom = styled.div`
-  overflow: hidden;
+  margin-top: ${dimensions.coreSpacing}px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const Created = styled.div`
-  margin-top: ${dimensions.coreSpacing}px;
-  float: left;
+  font-size: 12px;
+  color: ${colors.textSecondary};
+  font-style: italic;
 `;
 
 const Actions = styled.div`
-  float: right;
-  margin-top: ${dimensions.coreSpacing}px;
-  justify-content: flex-end;
-
   > div {
     float: left;
     padding: 3px 6px;
