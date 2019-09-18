@@ -83,7 +83,7 @@ export const loadClass = () => {
         firstRespondedDate?: Date;
       } = {};
 
-      if (!doc.fromBot) {
+      if (!doc.fromBot && !doc.internal) {
         modifier.content = doc.content;
       }
 
