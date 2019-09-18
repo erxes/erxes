@@ -29,6 +29,7 @@ const TemplateItem = styled.div`
   p {
     margin: 0;
     color: ${colors.colorCoreGray};
+    word-break: break-word;
   }
 `;
 
