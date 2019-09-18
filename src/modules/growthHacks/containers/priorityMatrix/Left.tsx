@@ -35,7 +35,9 @@ export default withProps<Props>(
       options: ({ queryParams = {} }) => ({
         variables: {
           pipelineId: queryParams.pipelineId,
-          viewType: 'priorityMatrix'
+          viewType: 'priorityMatrix',
+          sortField: queryParams.sortField,
+          sortDirection: parseInt(queryParams.sortDirection, 10)
         }
       })
     })

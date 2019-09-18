@@ -5,6 +5,8 @@ const commonParams = `
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
+  $sortField: String,
+  $sortDirection: Int,
 `;
 
 const commonParamDefs = `
@@ -14,6 +16,8 @@ const commonParamDefs = `
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
   overdue: $overdue,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
 `;
 
 const growthHackFields = `
