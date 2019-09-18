@@ -51,7 +51,7 @@ class Form extends React.Component<Props> {
           <FormControl
             {...formProps}
             name="code"
-            defaultValue={object.description}
+            defaultValue={object.code}
             required={true}
           />
         </FormGroup>

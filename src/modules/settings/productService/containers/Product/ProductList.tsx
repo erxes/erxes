@@ -101,6 +101,14 @@ const getRefetchQueries = queryParams => {
       variables
     },
     {
+      query: gql(queries.productCategories),
+      variables
+    },
+    {
+      query: gql(queries.productCategoriesCount),
+      variables
+    },
+    {
       query: gql(queries.products),
       variables: { perPage: 20 }
     },

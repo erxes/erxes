@@ -24,8 +24,12 @@ const productCategories = `
       _id
       name
       order
-      hasChild
+      code
+      parentId
       description
+      
+      isRoot
+      productCount
     }
   }
 `;

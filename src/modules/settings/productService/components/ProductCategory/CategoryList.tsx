@@ -98,10 +98,12 @@ class List extends React.Component<IProps> {
         space = '\u00A0 '.repeat(m.length);
       }
 
-      const name = category.hasChild ? (
-        <strong>{category.name}</strong>
+      const name = category.isRoot ? (
+        <strong>
+          {category.name} ({category.productCount})
+        </strong>
       ) : (
-        category.name
+        `${category.name} (${category.productCount})`
       );
 
       result.push(

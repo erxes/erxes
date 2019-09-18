@@ -28,10 +28,12 @@ export interface IProductCategory {
   _id: string;
   name: string;
   order: string;
-  hasChild: boolean;
+  code: string;
   description?: string;
   parentId?: string;
   createdAt: Date;
+  productCount: number;
+  isRoot: boolean;
 }
 
 // query types
