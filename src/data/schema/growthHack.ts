@@ -13,8 +13,6 @@ export const types = `
     assignedUserIds: [String]
     closeDate: Date
     description: String
-    hackDescription: String
-    goal: String
     hackStages: [String]
     priority: String
     reach: Int
@@ -63,9 +61,6 @@ const commonParams = `
   closeDate: Date,
   description: String,
   order: Int,
-  goal: String,
-  hackDescription: String,
-
   hackStages: [String],
   priority: String,
   reach: Int,
