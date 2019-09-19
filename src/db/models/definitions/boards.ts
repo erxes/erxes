@@ -110,6 +110,8 @@ export const commonItemFieldsSchema = {
   order: field({ type: Number }),
   name: field({ type: String }),
   closeDate: field({ type: Date }),
+  reminderMinute: field({ type: Number }),
+  isComplete: field({ type: Boolean, default: false }),
   description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
   watchedUserIds: field({ type: [String] }),
