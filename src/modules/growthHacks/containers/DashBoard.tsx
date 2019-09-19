@@ -12,7 +12,6 @@ import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import queryString from 'query-string';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -20,6 +19,7 @@ import DashBoard from '../components/Dashboard';
 
 type Props = {
   id: string;
+  state: string;
 } & IRouterProps;
 
 type FinalProps = {
@@ -28,10 +28,6 @@ type FinalProps = {
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
-const generateQueryParams = ({ location }) => {
-  return queryString.parse(location.search);
-};
-
 class DashBoardContainer extends React.Component<FinalProps> {
   render() {
     const {
@@ -39,6 +35,7 @@ class DashBoardContainer extends React.Component<FinalProps> {
       location,
       boardsQuery,
       boardGetLastQuery,
+      state,
       boardDetailQuery
     } = this.props;
 
@@ -46,7 +43,6 @@ class DashBoardContainer extends React.Component<FinalProps> {
       return <PageHeader />;
     }
 
-    const queryParams = generateQueryParams({ location });
     const boardId = getBoardId({ location });
 
     const { defaultBoards } = getDefaultBoardAndPipelines();
@@ -105,10 +101,16 @@ class DashBoardContainer extends React.Component<FinalProps> {
       return null;
     }
 
+    let pipelines = currentBoard ? currentBoard.pipelines || [] : [];
+
+    if (state) {
+      pipelines = pipelines.filter(pipeline => pipeline.state === state);
+    }
+
     const props = {
-      queryParams,
-      history,
+      boardId,
       currentBoard,
+      pipelines,
       boards: boardsQuery.boards || []
     };
 

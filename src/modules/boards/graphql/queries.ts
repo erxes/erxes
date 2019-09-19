@@ -40,6 +40,7 @@ const boardDetail = `
         isWatched
         startDate
         endDate
+        state
         members {
           _id
           email

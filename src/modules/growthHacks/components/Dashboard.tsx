@@ -1,12 +1,14 @@
 import dayjs from 'dayjs';
-import { IBoard } from 'modules/boards/types';
+import { IBoard, IPipeline } from 'modules/boards/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 type Props = {
   currentBoard?: IBoard;
+  pipelines: IPipeline[];
   boards: IBoard[];
+  boardId: string;
 };
 
 class DashBoard extends React.Component<Props> {
@@ -20,27 +22,35 @@ class DashBoard extends React.Component<Props> {
     ));
   }
 
-  renderState(pipeline) {
-    if (pipeline.startDate && pipeline.endDate) {
-      const timestamp = new Date().getTime();
+  renderFilter() {
+    const { boardId } = this.props;
 
-      if (timestamp > pipeline.endDate) {
-        return 'Completed';
-      } else if (
-        timestamp < pipeline.endDate &&
-        timestamp > pipeline.startDate
-      ) {
-        return 'In progress';
-      }
-    }
-
-    return null;
+    return (
+      <ul>
+        <li>
+          <Link to={`/growthHack/dashBoard?id=${boardId}`}>All</Link>
+        </li>
+        <li>
+          <Link to={`/growthHack/dashBoard?id=${boardId}&state=In progress`}>
+            In progress
+          </Link>
+        </li>
+        <li>
+          <Link to={`/growthHack/dashBoard?id=${boardId}&state=Not started`}>
+            Not started
+          </Link>
+        </li>
+        <li>
+          <Link to={`/growthHack/dashBoard?id=${boardId}&state=Completed`}>
+            Completed
+          </Link>
+        </li>
+      </ul>
+    );
   }
 
   renderPipelines() {
-    const { currentBoard } = this.props;
-
-    const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
+    const { currentBoard, pipelines } = this.props;
 
     if (pipelines.length === 0) {
       return <EmptyState icon="stop" text="No other pipeline" size="small" />;
@@ -64,7 +74,8 @@ class DashBoard extends React.Component<Props> {
             <br />
             End date: {dayjs(pipeline.endDate).format('MMM DD, YYYY')}
             <br />
-            State: {this.renderState(pipeline)}
+            State: {pipeline.state}
+            <br />
           </Link>
         </li>
       );
@@ -77,6 +88,7 @@ class DashBoard extends React.Component<Props> {
         <h1>Boards</h1>
         {this.renderBoards()}
         <h2>Pipelines</h2>
+        {this.renderFilter()}
         {this.renderPipelines()}
       </div>
     );

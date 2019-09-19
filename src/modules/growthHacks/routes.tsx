@@ -22,10 +22,13 @@ const boards = ({ location }) => {
   return <GrowthHackBoard queryParams={queryParams} />;
 };
 
-const dashBoard = () => {
+const dashBoard = ({ location }) => {
   const { defaultBoards } = getDefaultBoardAndPipelines();
+  const queryParams = queryString.parse(location.search);
 
-  return <GrowthHackDashBoard id={defaultBoards.growthHack} />;
+  const state = queryParams.state || '';
+
+  return <GrowthHackDashBoard state={state} id={defaultBoards.growthHack} />;
 };
 
 const routes = () => {
