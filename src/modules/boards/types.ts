@@ -68,6 +68,10 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
+  // growth hack
+  startDate?: Date;
+  endDate?: Date;
+  metric?: string;
   hackScoringType?: string;
   templateId?: string;
 }

@@ -67,6 +67,7 @@ class Score extends React.Component<Props> {
           onChange={this.props.onChange}
           name={name === 'effort' ? 'ease' : name}
           type="number"
+          min={0}
           max={10}
         />
       </AmountItem>

@@ -1,5 +1,5 @@
 import { LeftItem } from 'modules/common/components/step/styles';
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import styled from 'styled-components';
@@ -29,6 +29,7 @@ const TemplateItem = styled.div`
   p {
     margin: 0;
     color: ${colors.colorCoreGray};
+    word-break: break-word;
   }
 `;
 
@@ -78,19 +79,19 @@ const ContentWrapper = styled.div`
 `;
 
 const Bottom = styled.div`
-  overflow: hidden;
+  margin-top: ${dimensions.coreSpacing}px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const Created = styled.div`
-  margin-top: ${dimensions.coreSpacing}px;
-  float: left;
+  font-size: 12px;
+  color: ${colors.textSecondary};
+  font-style: italic;
 `;
 
 const Actions = styled.div`
-  float: right;
-  margin-top: ${dimensions.coreSpacing}px;
-  justify-content: flex-end;
-
   > div {
     float: left;
     padding: 3px 6px;
@@ -108,6 +109,26 @@ const Actions = styled.div`
   }
 `;
 
+const DateItem = styled.div`
+  flex: 1;
+  margin-right: 20px;
+
+  .form-control {
+    box-shadow: none;
+    border-radius: 0;
+    border: none;
+    background: none;
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    padding: 5px 0;
+    font-size: ${typography.fontSizeBody}px;
+
+    &:focus {
+      box-shadow: none;
+      border-color: ${colors.colorSecondary};
+    }
+  }
+`;
+
 export {
   TemplateItem,
   Box,
@@ -116,5 +137,6 @@ export {
   ContentWrapper,
   TemplateContainer,
   Actions,
-  Created
+  Created,
+  DateItem
 };

@@ -6,7 +6,9 @@ import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-export const DateWrapper = styledTS<{ color: string }>(styled.div)`
+export const DateWrapper = styledTS<{ color: string; hasValue?: boolean }>(
+  styled.div
+)`
 	position: relative;
 
 	input {
@@ -20,7 +22,7 @@ export const DateWrapper = styledTS<{ color: string }>(styled.div)`
 		border-radius: 2px;
 		font-weight: 500;
 		line-height: 25px;
-		width: 110px;
+		width: ${props => (props.hasValue ? '130px' : '100px')};
 		font-size: 12px;
 
 		&:hover {
@@ -45,21 +47,43 @@ export const DateWrapper = styledTS<{ color: string }>(styled.div)`
 		position: absolute;
 		left: 7px;
 	}
+
+	> button {
+		position: absolute;
+		right: 2px;
+		top: 2px;
+		bottom: 2px;
+		padding: 0;
+		width: 20px;
+		border: none;
+		color: ${props => props.color};
+		border-radius: 2px;
+		background-color: ${props => rgba(props.color, 0.15)};
+
+		&:hover {
+			background: ${props => rgba(props.color, 0.3)};
+			cursor: pointer;
+		}
+	}
 `;
 
 type IProps = {
-  onChange: ((value?: string | Date) => void);
+  onChange: ((value?: string | Date | null) => void);
   value: Date;
   isWarned?: boolean;
 };
 
 class DueDateChanger extends React.Component<IProps> {
+  clearDate = () => this.props.onChange(null);
+
+  hasValue = () => (this.props.value ? true : false);
+
   render() {
     const { onChange, value, isWarned } = this.props;
     const color = isWarned ? colors.colorCoreRed : colors.colorPrimaryDark;
 
     return (
-      <DateWrapper color={color}>
+      <DateWrapper color={color} hasValue={this.hasValue()}>
         <Icon icon="clock-eight" />
         <Datetime
           inputProps={{ placeholder: 'Due date' }}
@@ -70,6 +94,11 @@ class DueDateChanger extends React.Component<IProps> {
           onChange={onChange}
           utc={true}
         />
+        {this.hasValue() && (
+          <button onClick={this.clearDate}>
+            <Icon icon="times" />
+          </button>
+        )}
       </DateWrapper>
     );
   }
