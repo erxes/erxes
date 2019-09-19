@@ -8,27 +8,24 @@ const GrowthHackBoard = asyncComponent(() =>
   import(/* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard')
 );
 
-const growthHacks = () => {
-  let link = '/growthHack/board';
+const GrowthHackDashBoard = asyncComponent(() =>
+  import(/* webpackChunkName: "GrowthHackDashBoard" */ './containers/DashBoard')
+);
 
-  const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
-
-  const [defaultBoardId, defaultPipelineId] = [
-    defaultBoards.growthHack,
-    defaultPipelines.growthHack
-  ];
-
-  if (defaultBoardId && defaultPipelineId) {
-    link = `/growthHack/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
-  }
-
-  return <Redirect to={link} />;
+const growthHack = () => {
+  return <Redirect to="/growthHack/dashboard" />;
 };
 
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <GrowthHackBoard queryParams={queryParams} />;
+};
+
+const dashBoard = () => {
+  const { defaultBoards } = getDefaultBoardAndPipelines();
+
+  return <GrowthHackDashBoard id={defaultBoards.growthHack} />;
 };
 
 const routes = () => {
@@ -38,7 +35,7 @@ const routes = () => {
         key="/growthHack"
         exact={true}
         path="/growthHack"
-        render={growthHacks}
+        render={growthHack}
       />
 
       <Route
@@ -46,6 +43,13 @@ const routes = () => {
         exact={true}
         path="/growthHack/board"
         component={boards}
+      />
+
+      <Route
+        key="/growthHack/dashboard"
+        exact={true}
+        path="/growthHack/dashboard"
+        component={dashBoard}
       />
     </>
   );
