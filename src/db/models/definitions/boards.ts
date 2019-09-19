@@ -44,6 +44,10 @@ export interface IPipeline extends ICommonFields {
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
+  // growth hack
+  startDate?: Date;
+  endDate?: Date;
+  metric?: string;
   hackScoringType?: string;
   templateId?: string;
 }
@@ -139,6 +143,10 @@ export const pipelineSchema = new Schema({
   watchedUserIds: field({ type: [String] }),
   memberIds: field({ type: [String] }),
   bgColor: field({ type: String }),
+  // Growth hack
+  startDate: field({ type: Date, optional: true }),
+  endDate: field({ type: Date, optional: true }),
+  metric: field({ type: String, optional: true }),
   hackScoringType: field({
     type: String,
     enum: HACK_SCORING_TYPES.ALL,
