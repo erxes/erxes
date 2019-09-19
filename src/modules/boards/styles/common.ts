@@ -57,17 +57,6 @@ export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   user-select: none;
 `;
 
-export const SelectContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  left: 0;
-  width: 300px;
-  padding: 20px;
-  z-index: 100;
-  box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
-  background: ${colors.colorWhite};
-`;
-
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   height: 25px;
   border-radius: 2px;

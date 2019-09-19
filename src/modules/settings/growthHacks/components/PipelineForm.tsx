@@ -1,3 +1,4 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { COLORS } from 'modules/boards/constants';
@@ -18,8 +19,9 @@ import React from 'react';
 import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
 import BlockPicker from 'react-color/lib/Block';
 import Select from 'react-select-plus';
+import { metricOptions } from '../constants';
 import { queries } from '../graphql';
-import { Box } from '../styles';
+import { Box, DateItem } from '../styles';
 
 type Props = {
   type: string;
@@ -37,6 +39,9 @@ type State = {
   hackScoringType: string;
   templates: any[];
   templateId?: string;
+  metric?: string;
+  startDate?: Date;
+  endDate?: Date;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -52,7 +57,10 @@ class PipelineForm extends React.Component<Props, State> {
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       hackScoringType: (pipeline && pipeline.hackScoringType) || 'ice',
       templates: [],
-      templateId: pipeline ? pipeline.templateId : ''
+      templateId: pipeline ? pipeline.templateId : '',
+      metric: pipeline ? pipeline.metric : '',
+      startDate: pipeline ? pipeline.startDate : undefined,
+      endDate: pipeline ? pipeline.endDate : undefined
     };
   }
 
@@ -92,8 +100,22 @@ class PipelineForm extends React.Component<Props, State> {
     });
   };
 
+  onChangeMetric = (value: any) => {
+    this.setState({
+      metric: value ? value.value : ''
+    });
+  };
+
   onChangeMembers = items => {
     this.setState({ selectedMemberIds: items });
+  };
+
+  onDateInputChange = (type: string, date) => {
+    if (type === 'endDate') {
+      this.setState({ endDate: date });
+    } else {
+      this.setState({ startDate: date });
+    }
   };
 
   collectValues = items => {
@@ -114,7 +136,10 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds,
       backgroundColor,
       templateId,
-      hackScoringType
+      hackScoringType,
+      startDate,
+      endDate,
+      metric
     } = this.state;
     const finalValues = values;
 
@@ -129,7 +154,10 @@ class PipelineForm extends React.Component<Props, State> {
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       templateId,
-      hackScoringType
+      hackScoringType,
+      startDate,
+      endDate,
+      metric
     };
   };
 
@@ -201,6 +229,7 @@ class PipelineForm extends React.Component<Props, State> {
     const { pipeline, renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
+    const { startDate, endDate, metric, visibility } = this.state;
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -248,6 +277,46 @@ class PipelineForm extends React.Component<Props, State> {
             </FlexContent>
           </FormGroup>
 
+          <FormGroup>
+            <FlexContent>
+              <DateItem>
+                <ControlLabel>Start date</ControlLabel>
+                <Datetime
+                  inputProps={{ placeholder: 'Start date' }}
+                  dateFormat="MMM,DD YYYY"
+                  timeFormat={false}
+                  value={startDate}
+                  closeOnSelect={true}
+                  onChange={this.onDateInputChange.bind(this, 'startDate')}
+                  utc={true}
+                />
+              </DateItem>
+              <DateItem>
+                <ControlLabel>End date</ControlLabel>
+                <Datetime
+                  inputProps={{ placeholder: 'End date' }}
+                  dateFormat="MMM,DD YYYY"
+                  timeFormat={false}
+                  value={endDate}
+                  closeOnSelect={true}
+                  onChange={this.onDateInputChange.bind(this, 'endDate')}
+                  utc={true}
+                />
+              </DateItem>
+            </FlexContent>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Metric</ControlLabel>
+            <Select
+              placeholder={__('Choose a metric')}
+              value={metric}
+              options={metricOptions}
+              onChange={this.onChangeMetric}
+              clearable={false}
+            />
+          </FormGroup>
+
           <FlexContent>
             <ExpandWrapper>
               <FormGroup>
@@ -256,7 +325,7 @@ class PipelineForm extends React.Component<Props, State> {
                   {...formProps}
                   name="visibility"
                   componentClass="select"
-                  value={this.state.visibility}
+                  value={visibility}
                   onChange={this.onChangeVisibility}
                 >
                   <option value="public">{__('Public')}</option>

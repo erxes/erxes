@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
@@ -16,6 +17,7 @@ type Props = {
   beforePopupClose: () => void;
   options?: IOptions;
 };
+
 class TicketItem extends React.PureComponent<Props, {}> {
   renderDate(date) {
     if (!date) {
@@ -41,7 +43,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
 
   render() {
     const { item, onClick } = this.props;
-    const { customers, companies } = item;
+    const { customers, companies, closeDate, isComplete } = item;
 
     return (
       <>
@@ -79,6 +81,8 @@ class TicketItem extends React.PureComponent<Props, {}> {
               ))}
             </Right>
           </PriceContainer>
+
+          <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
           <Footer>
             {__('Last updated')}:

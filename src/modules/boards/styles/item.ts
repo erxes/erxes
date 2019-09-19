@@ -1,4 +1,3 @@
-import { SelectContainer } from 'modules/boards/styles/common';
 import Button from 'modules/common/components/Button';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
@@ -218,6 +217,11 @@ const PipelineName = styled.div`
   }
 `;
 
+const PipelinePopoverContent = styled.div`
+  padding: 30px 10px 10px 30px;
+  width: 300px;
+`;
+
 const Stages = styled.ul`
   flex: 1;
   list-style: none;
@@ -297,16 +301,7 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const AddContainer = styled.form`
-  ${SelectContainer} {
-    position: relative;
-    top: 0;
-    width: 100%;
-    padding: 0;
-    background: none;
-    box-shadow: none;
-  }
-`;
+const AddContainer = styled.form``;
 
 const Status = styled.div`
   margin-bottom: 4px;
@@ -377,5 +372,6 @@ export {
   Right,
   Footer,
   WatchIndicator,
-  ActionContainer
+  ActionContainer,
+  PipelinePopoverContent
 };

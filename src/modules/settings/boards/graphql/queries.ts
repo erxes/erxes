@@ -27,6 +27,9 @@ const pipelines = `
       bgColor
       hackScoringType
       templateId
+      startDate
+      endDate
+      metric
     }
   }
 `;

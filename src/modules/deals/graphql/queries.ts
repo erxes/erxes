@@ -76,6 +76,8 @@ export const dealFields = `
   }
   modifiedAt
   modifiedBy
+  reminderMinute
+  isComplete
 `;
 
 const dealsTotalAmounts = `

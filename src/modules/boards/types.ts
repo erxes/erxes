@@ -53,6 +53,8 @@ export interface IItemParams {
   closeDate?: Date;
   description?: string;
   order?: number;
+  isComplete?: boolean;
+  reminderMinute?: number;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -66,6 +68,10 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
+  // growth hack
+  startDate?: Date;
+  endDate?: Date;
+  metric?: string;
   hackScoringType?: string;
   templateId?: string;
 }
@@ -109,6 +115,8 @@ export interface IItem {
   isWatched?: boolean;
   priority?: string;
   hasNotified?: boolean;
+  isComplete: boolean;
+  reminderMinute: number;
 }
 
 export interface IDraggableLocation {
@@ -233,7 +241,9 @@ export interface IEditFormContent {
       | 'closeDate'
       | 'assignedUserIds'
       | 'customers'
-      | 'companies',
+      | 'companies'
+      | 'isComplete'
+      | 'reminderMinute',
     value: any
   ) => void;
   copy: () => void;
