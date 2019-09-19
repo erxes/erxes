@@ -108,7 +108,9 @@ export default class TaskEditForm extends React.Component<Props, State> {
       description,
       closeDate,
       assignedUserIds,
-      attachments
+      attachments,
+      isComplete,
+      reminderMinute
     } = state;
 
     return (
@@ -122,6 +124,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
           item={item}
           onChangeField={onChangeField}
           onBlurFields={onBlurFields}
+          isComplete={isComplete}
+          reminderMinute={reminderMinute}
         />
 
         <FlexContent>

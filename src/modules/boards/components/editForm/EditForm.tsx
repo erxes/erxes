@@ -12,7 +12,14 @@ import { Modal } from 'react-bootstrap';
 import history from '../../../../browserHistory';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
-const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
+const reactiveFields = [
+  'closeDate',
+  'stageId',
+  'assignedUserIds',
+  'isComplete',
+  'reminderMinute'
+];
+
 const reactiveForiegnFields = ['companies', 'customers'];
 
 type Props = {
@@ -47,6 +54,8 @@ type State = {
   attachments?: IAttachment[];
   updatedItem?;
   prevStageId?;
+  reminderMinute?: number;
+  isComplete?: boolean;
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -75,7 +84,9 @@ class EditForm extends React.Component<Props, State> {
       closeDate: item.closeDate,
       description: item.description || '',
       attachments: item.attachments && extractAttachment(item.attachments),
-      assignedUserIds: (item.assignedUsers || []).map(user => user._id)
+      assignedUserIds: (item.assignedUsers || []).map(user => user._id),
+      reminderMinute: item.reminderMinute || 0,
+      isComplete: item.isComplete
     };
   }
 
