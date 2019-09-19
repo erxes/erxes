@@ -30,8 +30,12 @@ type State = {
 };
 
 class Move extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
+
+    this.ref = React.createRef();
 
     const {
       item: { pipeline, boardId }
@@ -122,12 +126,13 @@ class Move extends React.Component<Props, State> {
 
     return (
       <MoveContainer>
-        <MoveFormContainer>
+        <MoveFormContainer innerRef={this.ref}>
           <OverlayTrigger
             trigger="click"
             placement="bottom"
             overlay={this.renderBoardSelect()}
             rootClose={true}
+            container={this.ref.current}
           >
             <PipelineName onClick={this.toggleForm}>
               {pipeline && pipeline.name} <Icon icon="angle-down" />

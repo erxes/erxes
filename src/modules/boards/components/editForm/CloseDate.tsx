@@ -30,8 +30,12 @@ type State = {
 };
 
 class CloseDate extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
+
+    this.ref = React.createRef();
 
     this.state = {
       dueDate: props.closeDate
@@ -145,12 +149,13 @@ class CloseDate extends React.Component<Props, State> {
     );
 
     return (
-      <CloseDateWrapper>
+      <CloseDateWrapper innerRef={this.ref}>
         <OverlayTrigger
           trigger="click"
           placement="bottom"
           overlay={this.renderContent()}
           rootClose={true}
+          container={this.ref.current}
         >
           <div>
             {closeDate && (
