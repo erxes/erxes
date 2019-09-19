@@ -4,7 +4,7 @@ import { __ } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
 import { MainContent } from 'modules/layout/styles';
 import React from 'react';
-import Left from '../../containers/priorityMatrix/Left';
+import Content from '../../containers/priorityMatrix/Content';
 import GrowthHackMainActionBar from '../GrowthHackMainActionBar';
 
 type Props = {
@@ -12,21 +12,11 @@ type Props = {
 };
 
 class PriorityMatrix extends React.Component<Props> {
-  renderContent() {
-    const { queryParams } = this.props;
+  renderContent = () => <Content queryParams={this.props.queryParams} />;
 
-    return (
-      <>
-        <Left queryParams={queryParams} />
-      </>
-    );
-  }
-
-  renderActionBar() {
-    return (
-      <MainActionBar type="growthHack" component={GrowthHackMainActionBar} />
-    );
-  }
+  renderActionBar = () => (
+    <MainActionBar type="growthHack" component={GrowthHackMainActionBar} />
+  );
 
   render() {
     const breadcrumb = [{ title: __('Growth hack') }];

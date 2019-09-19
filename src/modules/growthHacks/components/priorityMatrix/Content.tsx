@@ -1,4 +1,5 @@
 import { ScatterPlot } from '@nivo/scatterplot';
+import { ContentContainer, Left, Right } from 'modules/growthHacks/styles';
 import React from 'react';
 
 type Props = {
@@ -6,7 +7,7 @@ type Props = {
   growthHacksPriorityMatrix: any[];
 };
 
-class Left extends React.Component<Props> {
+class Content extends React.Component<Props> {
   renderChart = () => {
     return (
       <ScatterPlot
@@ -60,16 +61,18 @@ class Left extends React.Component<Props> {
     );
 
     return (
-      <div>
-        {this.renderChart()}
-        <b>growthHacksPriorityMatrix:</b>
-        <br /> {growthHacksPriorityMatrix}
-        <br />
-        <b>growthHacks:</b>
-        <br /> {growthHacks}
-      </div>
+      <ContentContainer>
+        <Left>
+          <b>growthHacks:</b>
+          <br /> {growthHacks}
+        </Left>
+        <Right>
+          <b>growthHacksPriorityMatrix:</b>
+          <br /> {growthHacksPriorityMatrix}
+        </Right>
+      </ContentContainer>
     );
   }
 }
 
-export default Left;
+export default Content;

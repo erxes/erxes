@@ -194,6 +194,7 @@ const RightButton = styled(Button)`
 const MoveContainer = styled(FlexContent)`
   margin-bottom: 20px;
   align-items: center;
+  position: relatice;
 `;
 
 const ActionContainer = styled(MoveContainer)`

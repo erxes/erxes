@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { IFilterParams } from 'modules/boards/types';
 import { withProps } from 'modules/common/utils';
-import Left from 'modules/growthHacks/components/priorityMatrix/Left';
+import Content from 'modules/growthHacks/components/priorityMatrix/Content';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
@@ -29,7 +29,7 @@ class LeftContainer extends React.Component<FinalProps> {
       growthHacks
     };
 
-    return <Left {...extendedProps} />;
+    return <Content {...extendedProps} />;
   }
 }
 

@@ -101,11 +101,27 @@ const ScoreAmount = styled.div`
   font-weight: 500;
 `;
 
+const ContentContainer = styled.div`
+  display: flex;
+  flex: 1;
+`;
+
+const Left = styled.div`
+  flex: 1;
+`;
+
+const Right = styled.div`
+  flex: 2;
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
   Amounts,
   AmountItem,
   Factor,
-  ScoreAmount
+  ScoreAmount,
+  ContentContainer,
+  Left,
+  Right
 };
