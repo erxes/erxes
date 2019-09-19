@@ -105,6 +105,7 @@ export interface IItem {
   assignedUsers: IUser[];
   companies: ICompany[];
   customers: ICustomer[];
+  attachments?: IAttachment[];
   pipeline: IPipeline;
   stage?: IStage;
   isWatched?: boolean;
@@ -237,7 +238,6 @@ export interface IEditFormContent {
       | 'assignedUserIds'
       | 'customers'
       | 'companies'
-      | 'attachments'
       | 'isComplete'
       | 'reminderMinute',
     value: any

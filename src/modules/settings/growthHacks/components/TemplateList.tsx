@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
@@ -9,7 +10,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
-import { Actions, TemplateContainer, TemplateItem } from '../styles';
+import {
+  Actions,
+  Bottom,
+  Created,
+  TemplateContainer,
+  TemplateItem
+} from '../styles';
 import TemplateForm from './TemplateForm';
 
 type Props = {
@@ -82,7 +89,10 @@ class TemplateList extends React.Component<Props> {
           <h5>{object.name}</h5>
           <p>{object.description}</p>
         </div>
-        {this.renderActions(object)}
+        <Bottom>
+          <Created>{dayjs(object.createdAt).format('DD MMM YYYY')}</Created>
+          {this.renderActions(object)}
+        </Bottom>
       </TemplateItem>
     ));
   }

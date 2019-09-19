@@ -25,8 +25,6 @@ type Props = {
 };
 
 type State = {
-  hackDescription: string;
-  goal: string;
   formSubmissions: JSON;
   formId: string;
   priority: string;
@@ -44,8 +42,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     const item = props.item;
 
     this.state = {
-      hackDescription: item.hackDescription || '',
-      goal: item.goal || '',
       formSubmissions: item.formSubmissions || {},
       priority: item.priority || '',
       hackStages: item.hackStages || [],
@@ -178,7 +174,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               attachments={attachments}
               item={item}
               onChangeField={onChangeField}
-              onChangeExtraField={this.onChangeExtraField}
               options={options}
               assignedUserIds={assignedUserIds}
               onBlurFields={onBlurFields}
