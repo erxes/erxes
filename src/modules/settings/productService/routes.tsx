@@ -3,18 +3,45 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings List - ProductService" */ './containers/Product/ProductList')
+const ProductList = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList')
 );
+
+const ProductDeatils = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails')
+);
+
+const details = ({ match }) => {
+  const id = match.params.id;
+
+  return <ProductDeatils id={id} />;
+};
 
 const productService = ({ location, history }) => {
   return (
-    <List queryParams={queryString.parse(location.search)} history={history} />
+    <ProductList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
   );
 };
 
 const routes = () => (
-  <Route path="/settings/product-service/" component={productService} />
+  <React.Fragment>
+    <Route
+      path="/settings/product-service/details/:id"
+      exact={true}
+      key="/settings/product-service/details/:id"
+      component={details}
+    />
+
+    <Route
+      path="/settings/product-service/"
+      exact={true}
+      key="/settings/product-service/"
+      component={productService}
+    />
+  </React.Fragment>
 );
 
 export default routes;

@@ -1,13 +1,18 @@
-const products = `
-  query products($type: String, $categoryId: String, $searchValue: String, $perPage: Int, $page: Int $ids: [String]) {
-    products(type: $type, categoryId: $categoryId, searchValue: $searchValue, perPage: $perPage, page: $page ids: $ids) {
+const productFields = `
       _id
       name
       type
       categoryId
       description
+      categoryName
       sku
       createdAt
+`;
+
+const products = `
+  query products($type: String, $categoryId: String, $searchValue: String, $perPage: Int, $page: Int $ids: [String]) {
+    products(type: $type, categoryId: $categoryId, searchValue: $searchValue, perPage: $perPage, page: $page ids: $ids) {
+      ${productFields}
     }
   }
 `;
@@ -40,8 +45,18 @@ const productCategoriesCount = `
   }
 `;
 
+const productDetail = `
+  query productDetail($_id: String) {
+    productDetail(_id: $_id) {
+      ${productFields}
+      customFieldsData
+    }
+  }
+`;
+
 export default {
   products,
+  productDetail,
   productsCount,
   productCategories,
   productCategoriesCount

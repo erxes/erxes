@@ -12,6 +12,8 @@ describe('ProductSection component', () => {
       type: 's1',
       description: 'blabla',
       sku: 'sku1',
+      categoryId: 'categoryId',
+      categoryName: 'categoryName',
       createdAt: new Date()
     },
     {
@@ -20,6 +22,8 @@ describe('ProductSection component', () => {
       type: 's2',
       description: 'blablabla',
       sku: 'sku2',
+      categoryId: 'categoryId',
+      categoryName: 'categoryName',
       createdAt: new Date()
     }
   ];

@@ -1,9 +1,10 @@
 const productParamsDef = `
-  $name: String!,
-  $type: String!,
-  $categoryId: String!,
+  $name: String,
+  $type: String,
+  $categoryId: String,
   $description: String,
   $sku: String
+  $customFieldsData: JSON
 `;
 
 const productCategoryParamsDef = `
@@ -19,6 +20,7 @@ const productParams = `
   categoryId: $categoryId,
   description: $description,
   sku: $sku
+  customFieldsData: $customFieldsData
 `;
 
 const productCategoryParams = `
@@ -44,9 +46,9 @@ const productEdit = `
   }
 `;
 
-const productRemove = `
-  mutation productsRemove($_id: String!) {
-    productsRemove(_id: $_id)
+const productsRemove = `
+  mutation productsRemove($productIds: [String!]) {
+    productsRemove(productIds: $productIds)
   }
 `;
 
@@ -75,7 +77,7 @@ const productCategoryRemove = `
 export default {
   productAdd,
   productEdit,
-  productRemove,
+  productsRemove,
   productCategoryAdd,
   productCategoryEdit,
   productCategoryRemove

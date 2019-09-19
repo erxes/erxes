@@ -6,31 +6,27 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { IProductCategory } from '../../types';
+import { TYPES } from '../../constants';
+import { IProduct, IProductCategory } from '../../types';
+import { generateCategoryOptions } from '../../utils';
 
 type Props = {
-  categories: IProductCategory[];
-  category?: IProductCategory;
+  product?: IProduct;
+  productCategories: IProductCategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 class Form extends React.Component<Props> {
-  generateCategoriesChoices = () => {
-    return this.props.categories.map(category => ({
-      value: category._id,
-      label: category.name
-    }));
-  };
-
   renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, category } = this.props;
+    const { renderButton, closeModal, product, productCategories } = this.props;
     const { values, isSubmitted } = formProps;
+    const object = product || ({} as IProduct);
 
-    const object = category || ({} as IProductCategory);
+    const types = TYPES.ALL;
 
-    if (category) {
-      values._id = category._id;
+    if (product) {
+      values._id = product._id;
     }
 
     return (
@@ -47,13 +43,33 @@ class Form extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Code</ControlLabel>
+          <ControlLabel required={true}>Type</ControlLabel>
           <FormControl
             {...formProps}
-            name="code"
-            defaultValue={object.code}
+            name="type"
+            componentClass="select"
+            defaultValue={object.type}
             required={true}
-          />
+          >
+            {types.map((typeName, index) => (
+              <option key={index} value={typeName}>
+                {typeName}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Category</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="categoryId"
+            componentClass="select"
+            defaultValue={object.categoryId}
+            required={true}
+          >
+            {generateCategoryOptions(productCategories)}
+          </FormControl>
         </FormGroup>
 
         <FormGroup>
@@ -68,18 +84,8 @@ class Form extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Category</ControlLabel>
-
-          <FormControl
-            {...formProps}
-            name="parentId"
-            componentClass="select"
-            defaultValue={object.parentId}
-            options={[
-              { value: '', label: '' },
-              ...this.generateCategoriesChoices()
-            ]}
-          />
+          <ControlLabel>SKU</ControlLabel>
+          <FormControl {...formProps} name="sku" defaultValue={object.sku} />
         </FormGroup>
 
         <Modal.Footer>
@@ -88,11 +94,11 @@ class Form extends React.Component<Props> {
           </Button>
 
           {renderButton({
-            name: 'product & service category',
+            name: 'product and service',
             values,
             isSubmitted,
             callback: closeModal,
-            object: category
+            object: product
           })}
         </Modal.Footer>
       </>

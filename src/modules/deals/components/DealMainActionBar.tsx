@@ -6,7 +6,7 @@ import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
-import SelectProducts from 'modules/settings/productService/containers/Product/SelectProducts';
+import SelectProducts from 'modules/settings/productService/containers/product/SelectProducts';
 import React from 'react';
 import { Link } from 'react-router-dom';
 

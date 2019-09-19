@@ -1,9 +1,7 @@
 import gql from 'graphql-tag';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Chooser from 'modules/common/components/Chooser';
-import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
-import ProductForm from 'modules/settings/productService/containers/Product/ProductForm';
+import ProductForm from 'modules/settings/productService/containers/product/ProductForm';
 import {
   mutations as productMutations,
   queries as productQueries
@@ -64,28 +62,6 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       });
   };
 
-  renderButton = ({
-    name,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={productMutations.productAdd}
-        variables={values}
-        callback={callback}
-        refetchQueries={this.props.productsQuery.refetch()}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${name}`}
-      />
-    );
-  };
-
   render() {
     const { data, productsQuery, onSelect } = this.props;
 
@@ -96,7 +72,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       title: 'Product',
       renderName: (product: IProduct) => product.name,
       renderForm: ({ closeModal }: { closeModal: () => void }) => (
-        <ProductForm closeModal={closeModal} renderButton={this.renderButton} />
+        <ProductForm closeModal={closeModal} />
       ),
       perPage: this.state.perPage,
       add: this.addProduct,

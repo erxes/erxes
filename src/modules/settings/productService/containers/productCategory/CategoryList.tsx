@@ -4,12 +4,12 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import List from '../../components/ProductCategory/CategoryList';
+import List from '../../components/productCategory/CategoryList';
 import { mutations, queries } from '../../graphql';
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoriesQueryResponse,
-  RemoveMutationResponse
+  ProductCategoryRemoveMutationResponse
 } from '../../types';
 
 type Props = { history: any; queryParams: any };
@@ -18,19 +18,19 @@ type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   productCategoriesCountQuery: ProductCategoriesCountQueryResponse;
 } & Props &
-  RemoveMutationResponse;
+  ProductCategoryRemoveMutationResponse;
 
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       productCategoriesQuery,
       productCategoriesCountQuery,
-      removeMutation
+      productCategoryRemove
     } = this.props;
 
     const remove = productId => {
       confirm().then(() => {
-        removeMutation({
+        productCategoryRemove({
           variables: { _id: productId }
         })
           .then(() => {
@@ -91,15 +91,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.productCategories)
-    },
-
-    {
-      query: gql(queries.productCategoriesCount)
-    }
-  ];
+  return ['productCategories', 'productCategoriesCount'];
 };
 
 const options = () => ({
@@ -120,10 +112,10 @@ export default withProps<Props>(
         name: 'productCategoriesCountQuery'
       }
     ),
-    graphql<Props, RemoveMutationResponse, { _id: string }>(
+    graphql<Props, ProductCategoryRemoveMutationResponse, { _id: string }>(
       gql(mutations.productCategoryRemove),
       {
-        name: 'removeMutation',
+        name: 'productCategoryRemove',
         options
       }
     )

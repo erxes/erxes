@@ -3,14 +3,14 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import From from '../../components/Product/ProductForm';
-import { queries } from '../../graphql';
+import From from '../../components/product/ProductForm';
+import { mutations, queries } from '../../graphql';
 
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IProduct, ProductCategoriesQueryResponse } from '../../types';
 
 type Props = {
   product?: IProduct;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
@@ -26,17 +26,43 @@ class ProductFormContainer extends React.Component<FinalProps> {
       return null;
     }
 
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={object ? mutations.productEdit : mutations.productAdd}
+          variables={values}
+          callback={callback}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        />
+      );
+    };
+
     const productCategories = productCategoriesQuery.productCategories || [];
 
     const updatedProps = {
       ...this.props,
-
+      renderButton,
       productCategories
     };
 
     return <From {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = () => {
+  return ['products', 'productDetail', 'productsTotalCount'];
+};
 
 export default withProps<Props>(
   compose(

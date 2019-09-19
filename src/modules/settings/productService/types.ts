@@ -5,6 +5,7 @@ export interface IProductDoc {
   description?: string;
   sku?: string;
   createdAt?: Date;
+  customFieldsData?: any;
 }
 
 export interface IProductCategoryDoc {
@@ -21,7 +22,10 @@ export interface IProduct {
   categoryId: string;
   description: string;
   sku: string;
+  customFieldsData?: any;
   createdAt: Date;
+
+  categoryName: string;
 }
 
 export interface IProductCategory {
@@ -81,6 +85,19 @@ export type EditMutationResponse = {
   editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
 };
 
-export type RemoveMutationResponse = {
-  removeMutation: (mutation: { variables: { _id: string } }) => Promise<any>;
+export type ProductRemoveMutationResponse = {
+  productsRemove: (
+    mutation: { variables: { productIds: string[] } }
+  ) => Promise<any>;
+};
+
+export type ProductCategoryRemoveMutationResponse = {
+  productCategoryRemove: (
+    mutation: { variables: { _id: string } }
+  ) => Promise<any>;
+};
+
+export type DetailQueryResponse = {
+  productDetail: IProduct;
+  loading: boolean;
 };
