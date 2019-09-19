@@ -53,7 +53,6 @@ export const CheckBoxWrapper = styled.span`
 
 export const CalenderWrapper = styled.div`
   width: 250px;
-  height: 290px;
   margin-bottom: 20px;
 `;
 
