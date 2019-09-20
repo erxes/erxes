@@ -264,7 +264,6 @@ const formConnectMutation = `
         _id
         title
         description
-        callout
       }
       integration {
         _id
