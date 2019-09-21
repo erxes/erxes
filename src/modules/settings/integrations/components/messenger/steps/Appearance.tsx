@@ -9,9 +9,9 @@ import {
   SubItem,
   WidgetBackgrounds
 } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
+import ChromePicker from 'react-color/lib/Chrome';
 
 type Props = {
   onChange: (

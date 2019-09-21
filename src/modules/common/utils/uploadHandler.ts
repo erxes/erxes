@@ -78,20 +78,25 @@ const uploadHandler = (params: Params) => {
         credentials: 'include'
       })
         .then(response => {
-          return response[responseType]();
+          response[responseType]()
+            .then(text => {
+              if (!response.ok) {
+                return afterUpload({
+                  status: 'error',
+                  response: text,
+                  fileInfo
+                });
+              }
+
+              // after upload
+              if (afterUpload) {
+                afterUpload({ status: 'ok', response: text, fileInfo });
+              }
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
         })
-
-        .then(response => {
-          if (!response.ok) {
-            return afterUpload({ status: 'error', response, fileInfo });
-          }
-
-          // after upload
-          if (afterUpload) {
-            afterUpload({ status: 'ok', response, fileInfo });
-          }
-        })
-
         .catch(error => {
           Alert.error(error.message);
         });

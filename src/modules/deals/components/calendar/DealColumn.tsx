@@ -1,12 +1,14 @@
-import { EmptyState, Icon } from 'modules/common/components';
+import { AddNew } from 'modules/boards/styles/stage';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { IDateColumn } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { AddNew } from 'modules/deals/styles/stage';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import options from '../../options';
 import { IDeal, IDealTotalAmount } from '../../types';
-import { Deal } from '../portable';
+import Deal from '../PortableDeal';
 
 type Props = {
   deals: IDeal[];
@@ -57,7 +59,6 @@ const Amount = styled.ul`
     }
 
     &:after {
-      content: '/';
       margin-left: 5px;
     }
 
@@ -81,23 +82,44 @@ class DealColumn extends React.Component<Props, {}> {
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (
-      <Deal key={index} deal={deal} onRemove={onRemove} onUpdate={onUpdate} />
+      <Deal
+        options={options}
+        key={index}
+        item={deal}
+        onRemove={onRemove}
+        onUpdate={onUpdate}
+      />
     ));
 
     return <ContentBody>{contents}</ContentBody>;
   }
 
+  renderAmount(currencies: [{ name: string; amount: number }]) {
+    return currencies.map((total, index) => (
+      <>
+        {total.amount.toLocaleString()}{' '}
+        <span>
+          {total.name}
+          {index < currencies.length - 1 && ', '}
+        </span>
+      </>
+    ));
+  }
+
   renderTotalAmount() {
     const { dealTotalAmounts } = this.props;
-    const totals = dealTotalAmounts.dealAmounts || [];
+    const totalForType = dealTotalAmounts.totalForType || [];
 
-    const content = totals.map(deal => (
-      <li key={deal._id}>
-        {deal.amount.toLocaleString()} <span>{deal.currency}</span>
-      </li>
-    ));
-
-    return <Amount>{content}</Amount>;
+    return (
+      <Amount>
+        {totalForType.map(type => (
+          <li key={type._id}>
+            <span>{type.name}: </span>
+            {this.renderAmount(type.currencies)}
+          </li>
+        ))}
+      </Amount>
+    );
   }
 
   renderFooter() {

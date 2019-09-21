@@ -1,7 +1,7 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import {
   Box,
   BoxContent,
@@ -35,11 +35,7 @@ class EmailStatistics extends React.Component<Props> {
 
   render() {
     const stats = this.props.message.stats || ({} as IEngageStats);
-
-    const deliveryReports = Object.values(
-      this.props.message.deliveryReports || {}
-    );
-    const totalCount = deliveryReports.length;
+    const totalCount = stats.total;
 
     const content = (
       <EngageBox>
@@ -60,7 +56,10 @@ class EmailStatistics extends React.Component<Props> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={[{ title: __('Show statistics') }]} />
+          <Wrapper.Header
+            title={__('Show statistics')}
+            breadcrumb={[{ title: __('Show statistics') }]}
+          />
         }
         content={content}
       />

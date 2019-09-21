@@ -1,12 +1,8 @@
-import * as React from 'react';
+import React from 'react';
 import { IMessage } from '../../../../../types';
-import {
-  AppMessage,
-  FacebookMessage,
-  FormMessage,
-  SimpleMessage,
-  TwitterMessage
-} from './';
+import AppMessage from './AppMessage';
+import FormMessage from './FormMessage';
+import SimpleMessage from './SimpleMessage';
 
 type Props = {
   message: IMessage;
@@ -19,14 +15,6 @@ function Message(props: Props) {
 
   if (message.formWidgetData) {
     return <FormMessage {...props} />;
-  }
-
-  if (message.facebookData) {
-    return <FacebookMessage {...props} />;
-  }
-
-  if (message.twitterData) {
-    return <TwitterMessage {...props} />;
   }
 
   if (message.messengerAppData) {

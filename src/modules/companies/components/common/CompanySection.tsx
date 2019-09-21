@@ -1,11 +1,14 @@
-import { EmptyState, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { __, urlParser } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { CompanyChooser } from '../../containers';
+import CompanyChooser from '../../containers/CompanyChooser';
 
 type Props = {
   name: string;
@@ -29,9 +32,9 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
   };
 
   const companyTrigger = (
-    <a>
+    <button>
       <Icon icon="add" />
-    </a>
+    </button>
   );
 
   const quickButtons = (
@@ -47,12 +50,12 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
     <SectionBody>
       {companies.map((company, index) => (
         <SectionBodyItem key={index}>
-          <Link to={`/companies/details/${company._id}`}>
+          <Link to={`/contacts/companies/details/${company._id}`}>
             <Icon icon="logout-2" />
           </Link>
-          <span>{company.primaryName || 'N/A'}</span>
+          <span>{company.primaryName || 'Unknown'}</span>
           <Tip text={company.website || ''}>
-            <a target="_blank" href={`//${company.website}`}>
+            <a href={`//${company.website}`}>
               {urlParser.extractRootDomain(company.website || '')}
             </a>
           </Tip>

@@ -1,29 +1,23 @@
 import { IUser } from 'modules/auth/types';
-import { Button, Icon, ModalTrigger, Tip } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChannelForm } from '../containers';
-import { MemberImg, Members, More } from '../styles';
+import ChannelForm from '../containers/ChannelForm';
 import { IChannel } from '../types';
+import MemberAvatars from './MemberAvatars';
 
 type Props = {
   channel: IChannel;
   members: IUser[];
   remove: (id: string) => void;
-  save: (
-    params: {
-      doc: {
-        name: string;
-        description: string;
-        memberIds: string[];
-      };
-    },
-    callback: () => void,
-    channel?: IChannel
-  ) => void;
   isActive: boolean;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class ChannelRow extends React.Component<Props, {}> {
@@ -33,7 +27,7 @@ class ChannelRow extends React.Component<Props, {}> {
   };
 
   renderEditAction = () => {
-    const { channel, save, members } = this.props;
+    const { channel, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -44,7 +38,7 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <ChannelForm {...props} save={save} members={members} channel={channel} />
+      <ChannelForm {...props} channel={channel} renderButton={renderButton} />
     );
 
     return (
@@ -52,58 +46,18 @@ class ChannelRow extends React.Component<Props, {}> {
     );
   };
 
-  renderMember = member => {
-    return (
-      <Tip key={member._id} text={member.details.fullName} placement="top">
-        <MemberImg
-          key={member._id}
-          src={
-            (member.details && member.details.avatar) ||
-            '/images/avatar-colored.svg'
-          }
-        />
-      </Tip>
-    );
-  };
-
-  renderMembers() {
-    const { channel, members } = this.props;
-
-    let selectedMembers: IUser[] = [];
-
-    if (channel) {
-      selectedMembers = members.filter(user =>
-        channel.memberIds.includes(user._id)
-      );
-    }
-
-    const length = selectedMembers.length;
-    const limit = 8;
-
-    // render members ================
-    const limitedMembers = selectedMembers.slice(0, limit);
-    const renderedMembers = limitedMembers.map(member =>
-      this.renderMember(member)
-    );
-
-    // render readmore ===============
-    let readMore: React.ReactNode;
-
-    if (length - limit > 0) {
-      readMore = <More key="readmore">{`+${length - limit}`}</More>;
-    }
-
-    return [renderedMembers, readMore];
-  }
-
   render() {
-    const { channel, isActive } = this.props;
+    const { channel, isActive, members } = this.props;
+    const selectedMemberIds = channel.memberIds || [];
 
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
         <Link to={`?_id=${channel._id}`}>
           {channel.name}
-          <Members>{this.renderMembers()}</Members>
+          <MemberAvatars
+            allMembers={members}
+            selectedMemberIds={selectedMemberIds}
+          />
         </Link>
         <ActionButtons>
           {this.renderEditAction()}

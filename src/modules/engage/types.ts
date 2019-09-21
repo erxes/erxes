@@ -1,6 +1,7 @@
+import { IConditionsRule } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
-import { ISegment, ISegmentCondition } from '../segments/types';
+import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types';
 import { IBrand } from '../settings/brands/types';
 import { ITag } from '../tags/types';
 
@@ -11,20 +12,12 @@ export interface IEngageScheduleDate {
   time: Date;
 }
 
-export interface IEngageRule {
-  _id: string;
-  kind?: string;
-  text: string;
-  condition: string;
-  value: string;
-}
-
 export interface IEngageMessenger {
   brandId: string;
   kind?: string;
   sentAs: string;
   content: string;
-  rules?: IEngageRule[];
+  rules?: IConditionsRule[];
 }
 
 export interface IEngageEmail {
@@ -43,12 +36,15 @@ export interface IEngageStats {
   bounce: number;
   renderingfailure: number;
   reject: number;
+  total: number;
 }
 
 export interface IEngageMessageDoc {
   kind?: string;
   type?: string;
-  segmentId?: string;
+  segmentIds?: string[];
+  tagIds?: string[];
+  brandIds?: string[];
   customerIds?: string[];
   title: string;
   fromUserId?: string;
@@ -65,7 +61,6 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stopDate: Date;
   createdDate: Date;
   messengerReceivedCustomerIds?: string[];
-  deliveryReports?: JSON;
   stats?: IEngageStats;
   brand: IBrand;
   segment: ISegment;
@@ -170,4 +165,13 @@ export type AddMutationResponse = {
   messagesAddMutation: (
     params: { variables: IEngageMessageDoc }
   ) => Promise<any>;
+};
+
+export type TagAdd = (
+  params: { doc: { name: string; description: string } }
+) => void;
+export type SegmentAdd = (params: { doc: ISegmentDoc }) => void;
+
+export type TargetCount = {
+  [key: string]: number;
 };

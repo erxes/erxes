@@ -1,17 +1,17 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { CountQueryResponse as CompanyCountQueryResponse } from '../../companies/types';
-import { CountQueryResponse as CustomerCountQueryResponse } from '../../customers/types';
 import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
-import { SegmentsForm } from '../components';
+import SegmentsForm from '../components/SegmentsForm';
 import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
-  AddMutationVariables,
   EditMutationResponse,
   HeadSegmentsQueryResponse,
   ISegmentDoc,
@@ -28,50 +28,87 @@ type FinalProps = {
   segmentDetailQuery: SegmentDetailQueryResponse;
   headSegmentsQuery: HeadSegmentsQueryResponse;
   combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
-  counts: CustomerCountQueryResponse | CompanyCountQueryResponse;
 } & Props &
   AddMutationResponse &
   EditMutationResponse;
 
-class SegmentsFormContainer extends React.Component<FinalProps> {
-  create = ({ doc }) => {
-    const { contentType, segmentsAdd, history } = this.props;
+class SegmentsFormContainer extends React.Component<
+  FinalProps,
+  { total: { byFakeSegment?: number }; loading: boolean }
+> {
+  constructor(props) {
+    super(props);
 
-    if (!doc.name) {
-      return Alert.error('Enter a name');
-    }
+    this.state = {
+      total: {
+        byFakeSegment: 0
+      },
+      loading: false
+    };
+  }
 
-    segmentsAdd({ variables: { contentType, ...doc } })
-      .then(() => {
-        Alert.success('You successfully added a segment');
-        history.push(`/segments/${contentType}`);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  };
+  renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    const { contentType, history } = this.props;
 
-  edit = ({ _id, doc }) => {
-    const { contentType, segmentsEdit, history } = this.props;
+    const callBackResponse = () => {
+      history.push(`/segments/${contentType}`);
 
-    segmentsEdit({ variables: { _id, ...doc } })
-      .then(() => {
-        Alert.success('You successfully updated a segment');
-        history.push(`/segments/${contentType}`);
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+      if (callback) {
+        callback();
+      }
+    };
+
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.segmentsEdit : mutations.segmentsAdd}
+        variables={values}
+        callback={callBackResponse}
+        refetchQueries={getRefetchQueries(contentType)}
+        isSubmitted={isSubmitted}
+        btnSize="small"
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
   };
 
   count = (segment: ISegmentDoc) => {
-    const { counts } = this.props;
+    const { contentType } = this.props;
 
-    try {
-      counts.refetch({ byFakeSegment: segment });
-    } catch (error) {
-      Alert.error(error.message);
+    this.setState({ loading: true });
+
+    let query = companyQueries.companyCounts;
+
+    if (contentType === 'customer') {
+      query = customerQueries.customerCounts;
     }
+
+    client
+      .query({
+        query: gql(query),
+        variables: {
+          contentType,
+          byFakeSegment: segment
+        }
+      })
+      .then(({ data }: any) => {
+        this.setState({
+          total: data[`${contentType}Counts`]
+        });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+
+    this.setState({ loading: false });
   };
 
   render() {
@@ -79,44 +116,49 @@ class SegmentsFormContainer extends React.Component<FinalProps> {
       contentType,
       segmentDetailQuery,
       headSegmentsQuery,
-      combinedFieldsQuery,
-      counts
+      combinedFieldsQuery
     } = this.props;
 
-    if (
-      segmentDetailQuery.loading ||
-      headSegmentsQuery.loading ||
-      combinedFieldsQuery.loading
-    ) {
+    if (segmentDetailQuery.loading || combinedFieldsQuery.loading) {
       return null;
     }
 
-    const fields = combinedFieldsQuery.fieldsCombinedByContentType.map(
-      ({ name, label }) => ({
+    const fields = (combinedFieldsQuery.fieldsCombinedByContentType || []).map(
+      ({ name, label, brandName, brandId }) => ({
         _id: name,
         title: label,
+        brandName,
+        brandId,
         selectedBy: 'none'
       })
     );
 
     const segment = segmentDetailQuery.segmentDetail;
-    const headSegments = headSegmentsQuery.segmentsGetHeads;
+    const headSegments = headSegmentsQuery.segmentsGetHeads || [];
 
     const updatedProps = {
       ...this.props,
       fields,
       segment,
       headSegments: headSegments.filter(s => s.contentType === contentType),
-      create: this.create,
+      renderButton: this.renderButton,
       count: this.count,
-      counterLoading: counts.loading,
-      total: counts[`${contentType}Counts`] || {},
-      edit: this.edit
+      counterLoading: this.state.loading,
+      total: this.state.total
     };
 
     return <SegmentsForm {...updatedProps} />;
   }
 }
+
+const getRefetchQueries = (contentType: string) => {
+  return [
+    {
+      query: gql(generateRefetchQuery({ contentType })),
+      variables: { only: 'bySegment' }
+    }
+  ];
+};
 
 const generateRefetchQuery = ({ contentType }) => {
   if (contentType === 'customer') {
@@ -137,24 +179,6 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, CustomerCountQueryResponse>(
-      gql(customerQueries.customerCounts),
-      {
-        name: 'counts',
-        skip: ({ contentType }) => {
-          return contentType === 'company';
-        }
-      }
-    ),
-    graphql<Props, CompanyCountQueryResponse>(
-      gql(companyQueries.companyCounts),
-      {
-        name: 'counts',
-        skip: ({ contentType }) => {
-          return contentType === 'customer';
-        }
-      }
-    ),
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
       gql(queries.headSegments),
       {
@@ -166,30 +190,6 @@ export default withProps<Props>(
       options: ({ contentType }) => ({
         variables: { contentType }
       })
-    }),
-    // mutations
-    graphql<Props, AddMutationResponse, AddMutationVariables>(
-      gql(mutations.segmentsAdd),
-      {
-        name: 'segmentsAdd',
-        options: ({ contentType }) => {
-          return {
-            refetchQueries: [
-              {
-                query: gql(generateRefetchQuery({ contentType })),
-                variables: { only: 'bySegment' }
-              }
-            ]
-          };
-        }
-      }
-    ),
-    graphql<
-      Props,
-      EditMutationResponse,
-      { _id: string } & AddMutationVariables
-    >(gql(mutations.segmentsEdit), {
-      name: 'segmentsEdit'
     })
   )(SegmentsFormContainer)
 );

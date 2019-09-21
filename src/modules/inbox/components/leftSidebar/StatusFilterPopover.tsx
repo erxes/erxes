@@ -1,17 +1,19 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Icon, Spinner } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import Spinner from 'modules/common/components/Spinner';
 import { __, Alert, router } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 type Props = {
   history: any;
   queryParams: any;
+  refetchRequired: string;
 };
 
 type State = {
@@ -20,6 +22,8 @@ type State = {
 };
 
 export default class StatusFilterPopover extends React.Component<Props, State> {
+  private overlayTrigger;
+
   constructor(props) {
     super(props);
 
@@ -29,13 +33,14 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
     };
   }
 
-  onClick = () => {
+  fetchData = (ignoreCache = false) => {
     const { queryParams } = this.props;
 
     client
       .query({
         query: gql(queries.conversationCounts),
-        variables: generateParams(queryParams)
+        variables: generateParams(queryParams),
+        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first'
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         this.setState({ counts: data.conversationCounts, loading });
@@ -43,6 +48,16 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       .catch(e => {
         Alert.error(e.message);
       });
+  };
+
+  componentDidUpdate(prevProps) {
+    if (this.props.refetchRequired !== prevProps.refetchRequired) {
+      this.fetchData(true);
+    }
+  }
+
+  onClick = () => {
+    this.fetchData();
   };
 
   clearStatusFilter = () => {
@@ -57,7 +72,6 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
   renderSingleFilter = (
     paramName: string,
     paramValue: string,
-    countName: string,
     text: string,
     count: number
   ) => {
@@ -67,11 +81,13 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       // clear previous values
       this.clearStatusFilter();
       router.setParams(history, { [paramName]: paramValue });
+      this.overlayTrigger.hide();
     };
 
     return (
       <li>
         <a
+          href="#link"
           className={
             router.getParam(history, [paramName]) === paramValue ? 'active' : ''
           }
@@ -101,14 +117,12 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
           {this.renderSingleFilter(
             'unassigned',
             'true',
-            'unassiged',
             'Unassigned',
             counts.unassigned
           )}
           {this.renderSingleFilter(
             'participating',
             'true',
-            'participating',
             'Participating',
             counts.participating
           )}
@@ -116,7 +130,6 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
           {this.renderSingleFilter(
             'status',
             'closed',
-            'resolved',
             'Resolved',
             counts.resolved
           )}
@@ -128,6 +141,9 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
   render() {
     return (
       <OverlayTrigger
+        ref={overlayTrigger => {
+          this.overlayTrigger = overlayTrigger;
+        }}
         trigger="click"
         placement="bottom"
         overlay={this.renderPopover()}
@@ -136,7 +152,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       >
         <PopoverButton onClick={this.onClick}>
           {__('Status')}
-          <Icon icon="downarrow" />
+          <Icon icon="angle-down" />
         </PopoverButton>
       </OverlayTrigger>
     );

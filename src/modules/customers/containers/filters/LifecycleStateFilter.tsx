@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { LifecycleStateFilter } from '../../components';
+import LifecycleStateFilter from '../../components/list/LifecycleStateFilter';
 import { queries } from '../../graphql';
 import { CountQueryResponse } from '../../types';
 
@@ -14,11 +14,12 @@ class LifecycleStateFilterContainer extends React.Component<Props> {
   render() {
     const { customersCountQuery } = this.props;
 
-    const counts =
-      (customersCountQuery ? customersCountQuery.customerCounts : null) || {};
+    const counts = (customersCountQuery
+      ? customersCountQuery.customerCounts
+      : null) || { byLifecycleState: {} };
 
     const updatedProps = {
-      counts,
+      counts: counts.byLifecycleState || {},
       loading: customersCountQuery ? customersCountQuery.loading : false
     };
 

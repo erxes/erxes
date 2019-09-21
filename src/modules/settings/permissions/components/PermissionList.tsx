@@ -1,35 +1,26 @@
-import { IUser } from 'modules/auth/types';
-import {
-  ActionButtons,
-  Button,
-  DataWithLoader,
-  FormControl,
-  Icon,
-  ModalTrigger,
-  Pagination,
-  Table,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
 import { __, router } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import { BarItems } from 'modules/layout/styles';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
+import Wrapper from 'modules/layout/components/Wrapper';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React from 'react';
 import Select from 'react-select-plus';
-import { FilterItem, FilterWrapper } from '../styles';
-import {
-  IActions,
-  IModule,
-  IPermissionDocument,
-  IPermissionParams,
-  IUserGroup
-} from '../types';
+import { isObject } from 'util';
+import GroupList from '../containers/GroupList';
+import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
+import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
 import PermissionForm from './PermissionForm';
 import {
   correctValue,
   filterActions,
   generatedList,
-  generateListParams,
   generateModuleParams
 } from './utils';
 
@@ -43,11 +34,10 @@ type Props = {
 type commonProps = {
   modules: IModule[];
   actions: IActions[];
-  users: IUser[];
   groups: IUserGroup[];
   permissions: IPermissionDocument[];
-  save: (doc: IPermissionParams, callback: () => void) => void;
   remove: (id: string) => void;
+  refetchQueries: any;
 };
 
 class PermissionList extends React.Component<Props> {
@@ -55,7 +45,7 @@ class PermissionList extends React.Component<Props> {
     const { history } = this.props;
 
     router.setParams(history, {
-      [name]: correctValue(item),
+      [name]: isObject(item) ? correctValue(item) : item,
       page: null,
       perPage: null
     });
@@ -71,16 +61,18 @@ class PermissionList extends React.Component<Props> {
 
       return (
         <tr key={object._id}>
-          <td>{object.module}</td>
+          <td>
+            <Capitalize>{object.module}</Capitalize>
+          </td>
           <td>{permissionAction.map(action => action.label)}</td>
           <td>{object.user ? object.user.email : ''}</td>
           <td>{object.group ? object.group.name : ''}</td>
           <td>
-            <FormControl
-              componentClass="checkbox"
-              disabled={true}
-              defaultChecked={object.allowed}
-            />
+            {object.allowed ? (
+              <TextInfo textStyle="success">{__('Allowed')}</TextInfo>
+            ) : (
+              <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
+            )}
           </td>
           <td>
             <ActionButtons>
@@ -115,43 +107,41 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderForm = props => {
-    const { modules, actions, users, groups, save } = this.props;
+    const { modules, actions, groups, refetchQueries } = this.props;
 
     const extendedProps = {
       ...props,
       modules,
       actions,
-      users,
       groups,
-      save
+      refetchQueries
     };
 
     return <PermissionForm {...extendedProps} />;
   };
 
   renderActionBar() {
-    const { queryParams, modules, actions, groups, users } = this.props;
+    const { queryParams, modules, actions } = this.props;
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">
-        New Permission
+        New permission
       </Button>
     );
 
+    const usersOnChange = users => {
+      this.setFilter('userId', users);
+    };
+
     const actionBarRight = (
-      <BarItems>
+      <NotWrappable>
         <ModalTrigger
-          title="New Permission"
-          size={'lg'}
+          title="New permission"
+          size="lg"
           trigger={trigger}
           content={this.renderForm}
         />
-        <Link to="/settings/users/groups">
-          <Button type="success" size="small" icon="users">
-            User groups
-          </Button>
-        </Link>
-      </BarItems>
+      </NotWrappable>
     );
 
     const actionBarLeft = (
@@ -174,20 +164,13 @@ class PermissionList extends React.Component<Props> {
           />
         </FilterItem>
         <FilterItem>
-          <Select
-            placeholder={__('Choose group')}
-            options={generateListParams(groups)}
-            onChange={this.setFilter.bind(this, 'groupId')}
-            value={queryParams.groupId}
-          />
-        </FilterItem>
-
-        <FilterItem>
-          <Select
-            placeholder={__('Choose user')}
-            options={generateListParams(users)}
-            onChange={this.setFilter.bind(this, 'userId')}
+          <SelectTeamMembers
+            label="Choose users"
+            name="userId"
             value={queryParams.userId}
+            onSelect={usersOnChange}
+            filterParams={{ status: 'verified' }}
+            multi={false}
           />
         </FilterItem>
       </FilterWrapper>
@@ -197,24 +180,27 @@ class PermissionList extends React.Component<Props> {
   }
 
   render() {
-    const { isLoading, totalCount } = this.props;
+    const { isLoading, totalCount, queryParams } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
-      { title: 'Permissions' }
+      { title: __('Permissions') }
     ];
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('Permissions')} breadcrumb={breadcrumb} />
+        }
         actionBar={this.renderActionBar()}
+        leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={this.renderContent()}
             loading={isLoading}
             count={totalCount}
-            emptyText="There is no data."
+            emptyText="There is no permissions in this group"
             emptyImage="/images/actions/11.svg"
           />
         }

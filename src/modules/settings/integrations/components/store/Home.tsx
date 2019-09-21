@@ -1,8 +1,8 @@
-import { HeaderDescription } from 'modules/common/components';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import Row from './Row';
 import { IntegrationWrapper } from './styles';
 
@@ -10,9 +10,9 @@ type Props = {
   totalCount: {
     messenger: number;
     form: number;
-    twitter: number;
     facebook: number;
     gmail: number;
+    callpro: number;
   };
   queryParams: any;
 };
@@ -41,7 +41,9 @@ class Home extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('App store')} breadcrumb={breadcrumb} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

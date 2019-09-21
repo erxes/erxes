@@ -1,13 +1,16 @@
 import { IUser } from 'modules/auth/types';
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   Preview,
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
 import { __, Alert } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
+import { LANGUAGES } from 'modules/settings/general/constants';
 import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
 import {
   IIntegration,
@@ -15,9 +18,8 @@ import {
   IMessengerData,
   IUiOptions
 } from 'modules/settings/integrations/types';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { LANGUAGES } from '../../constants';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import CommonPreview from './widgetPreview/CommonPreview';
 
@@ -57,7 +59,10 @@ type State = {
   youtube: string;
   messages: IMessages;
   isStepActive?: boolean;
-  requireAuth: boolean;
+  requireAuth?: boolean;
+  showChat?: boolean;
+  showLauncher?: boolean;
+  forceLogoutWhenResolve?: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -66,7 +71,13 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const integration = props.integration || ({} as IIntegration);
     const languageCode = integration.languageCode || 'en';
-    const configData = integration.messengerData || {};
+    const configData = integration.messengerData || {
+      notifyCustomer: false,
+      requireAuth: true,
+      showChat: true,
+      showLauncher: true,
+      forceLogoutWhenResolve: false
+    };
     const links = configData.links || {};
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
@@ -79,7 +90,10 @@ class CreateMessenger extends React.Component<Props, State> {
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
-      requireAuth: configData.requireAuth ? true : false,
+      requireAuth: configData.requireAuth,
+      showChat: configData.showChat,
+      showLauncher: configData.showLauncher,
+      forceLogoutWhenResolve: configData.forceLogoutWhenResolve,
       supporterIds: configData.supporterIds || [],
       availabilityMethod: configData.availabilityMethod || 'manual',
       isOnline: configData.isOnline || false,
@@ -135,7 +149,10 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook,
       twitter,
       youtube,
-      requireAuth
+      requireAuth,
+      showChat,
+      showLauncher,
+      forceLogoutWhenResolve
     } = this.state;
 
     if (!languageCode) {
@@ -169,6 +186,9 @@ class CreateMessenger extends React.Component<Props, State> {
         supporterIds: this.state.supporterIds,
         messages,
         requireAuth,
+        showChat,
+        showLauncher,
+        forceLogoutWhenResolve,
         links
       },
       uiOptions: {
@@ -232,7 +252,10 @@ class CreateMessenger extends React.Component<Props, State> {
       youtube,
       messages,
       isStepActive,
-      requireAuth
+      requireAuth,
+      showChat,
+      showLauncher,
+      forceLogoutWhenResolve
     } = this.state;
 
     const message = messages[languageCode];
@@ -248,7 +271,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Messenger')} breadcrumb={breadcrumb} />
 
         <TitleContainer>
           <div>{__('Title')}</div>
@@ -257,6 +280,7 @@ class CreateMessenger extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderButtons()}
         </TitleContainer>
 
         <Row>
@@ -268,11 +292,13 @@ class CreateMessenger extends React.Component<Props, State> {
             >
               <Options
                 onChange={this.onChange}
-                brands={this.props.brands}
                 brandId={brandId}
                 notifyCustomer={notifyCustomer}
                 languageCode={languageCode}
                 requireAuth={requireAuth}
+                showChat={showChat}
+                showLauncher={showLauncher}
+                forceLogoutWhenResolve={forceLogoutWhenResolve}
               />
             </Step>
 
@@ -323,7 +349,7 @@ class CreateMessenger extends React.Component<Props, State> {
               img="/images/icons/erxes-04.svg"
               title="Appearance"
               onClick={this.onStepClick.bind(null, 'appearance')}
-              nextButton={this.renderButtons()}
+              noButton={true}
             >
               <Appearance
                 onChange={this.onChange}

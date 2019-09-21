@@ -1,13 +1,14 @@
 import { IBreadCrumbItem } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { IEngageMessageDoc } from '../types';
 
 type Props = {
   kind: string;
   content: (
     params: {
-      renderTitle: () => IBreadCrumbItem[];
+      renderTitle: () => string;
+      breadcrumbs: IBreadCrumbItem[];
       validateDoc: (
         type: string,
         doc: IEngageMessageDoc
@@ -32,12 +33,36 @@ class FormBase extends React.Component<Props> {
       return this.sendError(__('Choose a sender'));
     }
 
-    if (doc.messenger && !doc.messenger.brandId) {
-      return this.sendError(__('Choose a brand'));
+    if (doc.messenger) {
+      const { brandId, sentAs, content } = doc.messenger;
+
+      if (!brandId) {
+        return this.sendError(__('Choose a brand'));
+      }
+
+      if (!sentAs) {
+        return this.sendError(__('Choose a sent as'));
+      }
+
+      if (!content) {
+        return this.sendError(__('Write a content'));
+      }
     }
 
-    if (doc.messenger && !doc.messenger.sentAs) {
-      return this.sendError(__('Choose a sent as'));
+    if (doc.email) {
+      const { subject, content } = doc.email;
+
+      if (!subject) {
+        return this.sendError(__('Write an email subject'));
+      }
+
+      if (!content) {
+        return this.sendError(__('Write a content'));
+      }
+    }
+
+    if (this.props.kind === 'auto' && !doc.scheduleDate.type) {
+      return this.sendError(__('Choose a schedule'));
     }
 
     if (doc.scheduleDate) {
@@ -90,14 +115,20 @@ class FormBase extends React.Component<Props> {
       title = __('Visitor auto message');
     }
 
-    return [{ title: __('Engage'), link: '/engage' }, { title }];
+    return title;
   }
 
   render() {
+    const breadcrumbs = [
+      { title: __('Engage'), link: '/engage' },
+      { title: this.renderTitle() }
+    ];
+
     return (
       <React.Fragment>
         {this.props.content({
           renderTitle: () => this.renderTitle(),
+          breadcrumbs,
           validateDoc: this.validateDoc
         })}
       </React.Fragment>

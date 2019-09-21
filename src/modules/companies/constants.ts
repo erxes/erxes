@@ -117,10 +117,8 @@ export const COMPANY_INDUSTRY_TYPES = [
 
 export const COMPANY_BUSINESS_TYPES = [
   '',
-  'Analyst',
   'Competitor',
   'Customer',
-  'Integrator',
   'Investor',
   'Partner',
   'Press',

@@ -1,9 +1,11 @@
+import dayjs from 'dayjs';
 import _ from 'lodash';
-import { FormControl, NameCard, Tags } from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tags from 'modules/common/components/Tags';
 import { isTimeStamp, urlParser } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
-import * as moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';
 
@@ -25,7 +27,11 @@ function createLinkFromUrl(url) {
     window.open(url);
   };
 
-  return <a onClick={onClick}>{urlParser.extractRootDomain(url)}</a>;
+  return (
+    <a href="#website" onClick={onClick}>
+      {urlParser.extractRootDomain(url)}
+    </a>
+  );
 }
 
 function formatValue(value) {
@@ -37,11 +43,8 @@ function formatValue(value) {
     return createLinkFromUrl(value);
   }
 
-  if (
-    value &&
-    (moment(value, moment.ISO_8601).isValid() || isTimeStamp(value))
-  ) {
-    return <Date>{moment(value).format('lll')}</Date>;
+  if (value && (dayjs(value).isValid() || isTimeStamp(value))) {
+    return <Date>{dayjs(value).format('lll')}</Date>;
   }
 
   return value || '-';
@@ -82,7 +85,7 @@ function CompanyRow({
   };
 
   const onTrClick = () => {
-    history.push(`companies/details/${company._id}`);
+    history.push(`/contacts/companies/details/${company._id}`);
   };
 
   return (

@@ -4,6 +4,13 @@ const importHistoriesRemove = `
   }
 `;
 
+const importCancel = `
+  mutation importHistoriesCancel($_id: String!) {
+    importHistoriesCancel(_id: $_id)
+  }
+`;
+
 export default {
-  importHistoriesRemove
+  importHistoriesRemove,
+  importCancel
 };

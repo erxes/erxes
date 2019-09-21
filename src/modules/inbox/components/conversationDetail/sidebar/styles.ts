@@ -25,7 +25,7 @@ const FlexRow = styled.div`
     border: none;
     background: none;
     border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 17px 14px;
+    padding: 5px 0;
     font-size: ${typography.fontSizeBody}px;
 
     &:focus {
@@ -145,7 +145,7 @@ const SidebarCollapse = styled.a`
   position: absolute;
   top: ${dimensions.unitSpacing}px;
   right: ${dimensions.coreSpacing}px;
-  font-size: 15px;
+  font-size: 14px;
 
   &:hover {
     cursor: pointer;

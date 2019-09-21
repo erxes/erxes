@@ -66,17 +66,19 @@ const LogoContainer = styled.div`
   }
 `;
 
-const ColorPick = styledTS<{ full?: boolean }>(styled.div)`
-  border-radius: 4px;
-  display: ${props => (props.full ? 'block' : 'inline-block')};
+const ColorPick = styled.div`
+  border-radius: 50%;
+  display: inline-block;
   padding: 5px;
   border: 1px solid ${colors.borderPrimary};
   cursor: pointer;
+  margin-top: ${dimensions.unitSpacing}px;
 `;
 
-const ColorPicker = styledTS<{ full?: boolean }>(styled.div)`
-  width: ${props => (props.full ? '100%' : '80px')};
-  height: 15px;
+const ColorPicker = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
 `;
 
 const WidgetApperance = styled.div`
@@ -115,6 +117,7 @@ const MarkdownWrapper = styled.div`
   background: ${colors.colorWhite};
   border: 1px solid ${colors.colorShadowGray};
   border-radius: 2px;
+  margin: ${dimensions.unitSpacing - 5}px 0;
 
   > div {
     background: none;
@@ -130,6 +133,7 @@ const MarkdownWrapper = styled.div`
     border: none;
     background: none;
     margin: 0;
+    padding: 20px;
   }
 `;
 
@@ -248,7 +252,6 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 
 const Description = styled.div`
   color: ${colors.colorCoreGray};
-  padding: ${dimensions.coreSpacing}px 0;
   font-size: 12px;
 `;
 

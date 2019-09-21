@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
-import { CompanyDetails } from '../../components';
+import CompanyDetails from '../../components/detail/CompanyDetails';
 import { queries } from '../../graphql';
 import { DetailQueryResponse } from '../../types';
 
@@ -22,6 +23,12 @@ const CompanyDetailsContainer = (props: FinalProps) => {
 
   if (companyDetailQuery.loading) {
     return <Spinner objective={true} />;
+  }
+
+  if (!companyDetailQuery.companyDetail) {
+    return (
+      <EmptyState text="Company not found" image="/images/actions/24.svg" />
+    );
   }
 
   const companyDetail = companyDetailQuery.companyDetail || {};

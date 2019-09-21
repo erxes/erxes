@@ -23,6 +23,7 @@ body {
     display: flex;
     flex: 1;
     height: 100%;
+    flex-direction: column;
   }
 }
 
@@ -70,6 +71,10 @@ a:hover {
   margin: 0 auto;
 }
 
+.modal-dialog.middle {
+  width: 65%;
+}
+
 .modal-dialog.full {
   width: 85%;
 }
@@ -86,11 +91,13 @@ a:hover {
   border: 0;
   border-radius: 2px;
   background: #673FBD;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .modal-header .close {
   outline: 0;
-  margin-top: -5px;
+  margin-top: -4px;
   font-weight: 200;
 }
 
@@ -101,13 +108,17 @@ a:hover {
 }
 
 .modal-body {
-  padding: 40px 40px 30px 40px;
+  padding: 30px 40px;
 }
 
 .modal-footer {
   padding: 0;
-  margin-top: 40px;
+  margin-top: 30px;
   border: none;
+}
+
+.wide-modal {
+  width: 90%;
 }
 
 .close {
@@ -143,11 +154,30 @@ a:hover {
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
+.slide-in-small-appear,
+.slide-in-small-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-in-small-appear-active,
+.slide-in-small-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-small-exit,
+.slide-in-small-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
 /* dropdown */
 
 .dropdown-menu {
   margin-top: 0 !important;
-  border-radius: 0;
   border: none;
   font-size: ${typography.fontSizeBody}px;
   color: ${colors.textPrimary};
@@ -194,7 +224,7 @@ a:hover {
   box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
 }
 
-.tooltip.bottom .tooltip-arrow, {
+.tooltip.bottom .tooltip-arrow {
   border-bottom-color: ${colors.colorWhite};
 }
 
@@ -230,7 +260,7 @@ a:hover {
 .popover {
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
   border: none;
-  border-radius: 0;
+  border-radius: 4px;
   font-size: inherit;
   padding: 0;
   color: ${colors.textPrimary};
@@ -271,7 +301,7 @@ a:hover {
   font-size: ${typography.fontSizeUppercase}px;
   text-transform: uppercase;
   color: ${colors.colorCoreGray};
-  border-radius: 0;
+  border-radius: 4px 4px 0 0;
 }
 
 .popover-content {
@@ -317,6 +347,7 @@ a:hover {
 /* select  */
 
 .Select-control {
+  height: 34px;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid ${colors.borderDarker};
@@ -324,12 +355,14 @@ a:hover {
   background: none;
 }
 
+.Select-input {
+  height: 33px;
+}
+
 .Select-control:hover {
   cursor: pointer;
   box-shadow: none;
 }
-
-
 
 .Select.is-focused > .Select-control,
 .Select.is-open > .Select-control {
@@ -349,17 +382,20 @@ a:hover {
   padding: 10px 0 12px;
 }
 
+.Select.is-disabled > .Select-control {
+  cursor: not-allowed;
+}
+
 .Select-placeholder,
 .Select-input,
 .Select--single > .Select-control .Select-value {
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .Select-clear {
   font-size: ${typography.fontSizeHeading6}px;
   line-height: 1.4;
-  margin-top: 1px;
 }
 
 .Select-clear-zone:hover {
@@ -367,11 +403,11 @@ a:hover {
 }
 
 .Select--multi .Select-multi-value-wrapper {
-  padding: 0 5px;
+  padding: 0 5px 0 0;
 }
 
 .Select--multi .Select-input {
-  margin-left: 5px;
+  margin-left: 0;
 }
 
 .Select--multi .Select-value {
@@ -422,7 +458,8 @@ a:hover {
 }
 
 .Select-arrow-zone {
-  padding-right: 10px;
+  padding-right: 0;
+  width: 20px;
 }
 
 .Select-arrow-zone > .Select-arrow {
@@ -753,6 +790,62 @@ a:hover {
 ::-webkit-scrollbar-track:active {
   background: rgba(10, 45, 65, .1);
 }
+
+/* svg */
+
+.checkmark {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .1s forwards;
+}
+
+.svg-spinner-path {
+  stroke: ${colors.colorCoreGray};
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 0, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -30;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -100;
+  }
+}
+
+/* ckEditor */
+  .editor-avatar {
+    width: 25px;
+    margin-right: 4px;
+    border-radius: 11px;
+  }
+  .editor-id {
+    display: none;
+  }
+
+  .rdt {
+    display: block !important;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;

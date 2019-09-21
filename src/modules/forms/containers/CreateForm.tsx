@@ -8,42 +8,43 @@ import {
   AddFieldsMutationResponse,
   AddFieldsMutationVariables
 } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { BrandsQueryResponse } from '../../settings/brands/types';
-import { Form } from '../components';
-import { mutations, queries } from '../graphql';
+import Form from '../components/Form';
+import { mutations } from '../graphql';
 import { AddFormMutationResponse, AddFormMutationVariables } from '../types';
 
-type Props = {
-  brandsQuery: BrandsQueryResponse;
-} & IRouterProps &
+type Props = {} & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse &
   AddFormMutationResponse;
 
-class CreateFormContainer extends React.Component<Props, {}> {
+class CreateFormContainer extends React.Component<
+  Props,
+  { isLoading: boolean }
+> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { isLoading: false };
+  }
+
   render() {
     const {
-      brandsQuery,
       addIntegrationMutation,
       addFormMutation,
       addFieldsMutation,
       history
     } = this.props;
 
-    if (brandsQuery.loading) {
-      return false;
-    }
-
-    const brands = brandsQuery.brands || [];
-
     const save = doc => {
       let formId;
 
       const { form, brandId, name, languageCode, formData, fields } = doc;
+
+      this.setState({ isLoading: true });
 
       addFormMutation({
         variables: form
@@ -77,18 +78,22 @@ class CreateFormContainer extends React.Component<Props, {}> {
         .then(() => {
           Alert.success('You successfully added a lead');
           history.push('/forms');
+
+          this.setState({ isLoading: false });
         })
 
         .catch(error => {
           Alert.error(error.message);
+
+          this.setState({ isLoading: false });
         });
     };
 
     const updatedProps = {
       ...this.props,
-      brands,
       fields: [],
-      save
+      save,
+      isActionLoading: this.state.isLoading
     };
 
     return <Form {...updatedProps} />;
@@ -97,9 +102,6 @@ class CreateFormContainer extends React.Component<Props, {}> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
-    }),
     graphql<
       {},
       AddIntegrationMutationResponse,

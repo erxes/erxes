@@ -1,14 +1,14 @@
 import Icon from 'modules/common/components/Icon';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { slideDown } from 'modules/common/utils/animations';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const types = {
   info: {
     background: colors.colorCoreBlue,
-    icon: 'information'
+    icon: 'megaphone'
   },
 
   warning: {
@@ -27,7 +27,7 @@ const types = {
   }
 };
 
-const AlertItem = styledTS<{ type: string }>(styled.div)`
+export const AlertItem = styledTS<{ type: string }>(styled.div)`
   display: table;
   margin: 29px auto;
   transition: all 0.5s;
@@ -63,6 +63,7 @@ export default class AlertStyled extends React.Component<Props, State> {
   static defaultProps = {
     type: 'information'
   };
+
   private timeout?: NodeJS.Timer = undefined;
 
   constructor(props: Props) {

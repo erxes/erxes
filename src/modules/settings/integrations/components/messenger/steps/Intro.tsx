@@ -1,13 +1,11 @@
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import { IMessages } from 'modules/settings/integrations/types';
 import { SubHeading } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 
 type Props = {
   onChange: (
@@ -45,7 +43,7 @@ class Intro extends React.Component<Props, State> {
 
   render() {
     const { languageCode } = this.props;
-    const message = this.state.messages[languageCode];
+    const message = this.state.messages[languageCode] || {};
 
     const welcomeOnChange = e =>
       this.onMessageChange('welcome', (e.target as HTMLInputElement).value);

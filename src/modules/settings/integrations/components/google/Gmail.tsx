@@ -1,29 +1,25 @@
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Spinner
-} from 'modules/common/components';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Spinner from 'modules/common/components/Spinner';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import * as React from 'react';
-import { SelectBrand } from '..';
 import Accounts from '../../containers/Accounts';
-import { CreateGmailMutationVariables } from '../../types';
+import SelectBrand from '../../containers/SelectBrand';
 
 type Props = {
-  save: (params: CreateGmailMutationVariables, callback: () => void) => void;
-  brands: IBrand[];
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  onAccountSelect: (accountId?: string) => void;
+  onRemoveAccount: (accountId: string) => void;
   closeModal: () => void;
+  accountId: string;
+  email: string;
 };
 
-class Gmail extends React.Component<
-  Props,
-  { loading: boolean; accountId?: string }
-> {
-  constructor(props) {
+class Gmail extends React.Component<Props, { loading: boolean }> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -31,65 +27,53 @@ class Gmail extends React.Component<
     };
   }
 
-  onRemoveAccount = () => {
-    this.setState({ accountId: '' });
-  };
+  generateDoc = (values: { name: string; brandId: string }) => {
+    const { accountId, email } = this.props;
 
-  onSelectAccount = (accountId?: string) => {
-    this.setState({ accountId });
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
-
-    const { accountId } = this.state;
-
-    if (!accountId) {
-      return;
-    }
-
-    const doc: CreateGmailMutationVariables = {
-      name: (document.getElementById('name') as HTMLInputElement).value,
-      brandId: (document.getElementById('selectBrand') as HTMLInputElement)
-        .value,
-      accountId
+    return {
+      ...values,
+      kind: 'gmail',
+      accountId,
+      data: { email }
     };
-
-    this.setState({ loading: true });
-
-    this.props.save(doc, () => {
-      this.setState({ loading: false }, () => this.props.closeModal());
-    });
   };
 
-  render() {
-    const { brands } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { onRemoveAccount, onAccountSelect, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <>
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-
-          <FormControl id="name" type="text" required={true} />
+          <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
 
-        <SelectBrand brands={brands} />
+        <SelectBrand isRequired={true} formProps={formProps} />
 
         <Accounts
           kind="gmail"
-          addLink="gmailLogin"
-          onRemove={this.onRemoveAccount}
-          onSelect={this.onSelectAccount}
+          addLink="gmaillogin"
+          onSelect={onAccountSelect}
+          onRemove={onRemoveAccount}
+          formProps={formProps}
         />
 
         <ModalFooter>
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'integration',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: this.props.closeModal
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

@@ -1,11 +1,15 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
-import * as React from 'react';
+import React from 'react';
 import { Route } from 'react-router-dom';
 import { INSIGHT_TYPES } from './constants';
 
 const AsyncExportReport = asyncComponent(() =>
   import(/* webpackChunkName: "AsyncExportReport" */ './containers/ExportReport')
+);
+
+const AsyncConversationReport = asyncComponent(() =>
+  import(/* webpackChunkName: "AsyncConversationReport" */ './containers/ConversationReport')
 );
 
 const AsyncSummaryReport = asyncComponent(() =>
@@ -26,7 +30,7 @@ const AsyncInsightPage = asyncComponent(() =>
   import('./components/InsightPage')
 );
 
-const AsyncDealVolumeReport = asyncComponent(([]) =>
+const AsyncDealVolumeReport = asyncComponent(() =>
   import(/* webpackChunkName: "DealVolumeReport" */ './containers/DealVolumeReport')
 );
 
@@ -74,6 +78,14 @@ const exportReport = ({ history, location }) => {
   return <AsyncExportReport queryParams={queryParams} history={history} />;
 };
 
+const conversationReport = ({ history, location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <AsyncConversationReport queryParams={queryParams} history={history} />
+  );
+};
+
 const dealVolumeReport = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -108,52 +120,59 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/insights/response-report"
+        key="/inbox/insights/response-report"
         exact={true}
-        path="/insights/response-report"
+        path="/inbox/insights/response-report"
         component={responseReport}
       />
 
       <Route
-        key="/insights/response-close-report"
+        key="/inbox/insights/response-close-report"
         exact={true}
-        path="/insights/response-close-report"
+        path="/inbox/insights/response-close-report"
         component={responseCloseReport}
       />
 
       <Route
-        key="/insights/first-response"
+        key="/inbox/insights/first-response"
         exact={true}
-        path="/insights/first-response"
+        path="/inbox/insights/first-response"
         component={firstResponse}
       />
 
       <Route
-        key="/insights/volume-report"
+        key="/inbox/insights/volume-report"
         exact={true}
-        path="/insights/volume-report"
+        path="/inbox/insights/volume-report"
         component={volumeReport}
       />
 
       <Route
-        key="/insights"
+        key="/inbox/insights"
         exact={true}
-        path="/insights"
+        path="/inbox/insights"
         component={InboxInsightPage}
       />
 
       <Route
-        key="/insights/summary-report"
+        key="/inbox/insights/summary-report"
         exact={true}
-        path="/insights/summary-report"
+        path="/inbox/insights/summary-report"
         component={summaryReport}
       />
 
       <Route
-        key="/insights/export-report"
+        key="/inbox/insights/export-report"
         exact={true}
-        path="/insights/export-report"
+        path="/inbox/insights/export-report"
         component={exportReport}
+      />
+
+      <Route
+        key="/inbox/insights/conversation-report"
+        exact={true}
+        path="/inbox/insights/conversation-report"
+        component={conversationReport}
       />
 
       <Route

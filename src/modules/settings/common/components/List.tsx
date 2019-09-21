@@ -1,17 +1,15 @@
-import {
-  Button,
-  DataWithLoader,
-  ModalTrigger,
-  Pagination
-} from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
 
 type Props = {
-  title?: string;
+  title: string;
+  formTitle?: string;
   size?: string;
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
@@ -25,6 +23,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
   render() {
     const {
       title,
+      formTitle,
       size,
       renderContent,
       renderForm,
@@ -42,7 +41,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
 
     const trigger = (
       <Button btnStyle="success" size="small" icon="add">
-        {title}
+        {formTitle}
       </Button>
     );
 
@@ -52,8 +51,9 @@ class List extends React.Component<Props & ICommonListProps, {}> {
 
     const actionBarRight = (
       <ModalTrigger
-        title={title || ''}
+        title={formTitle || ''}
         size={size}
+        enforceFocus={false}
         trigger={trigger}
         content={content}
       />
@@ -61,7 +61,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb || []} />}
+        header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         actionBar={
           <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} />
         }

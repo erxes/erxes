@@ -1,6 +1,6 @@
 import T from 'i18n-react';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import AlertStyled from './Alert';
 

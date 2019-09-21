@@ -1,75 +1,97 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import { queries as brandQueries } from 'modules/settings/brands/graphql';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { Alert } from 'modules/common/utils';
 import Gmail from 'modules/settings/integrations/components/google/Gmail';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../../brands/types';
-import { mutations } from '../../graphql';
-import {
-  CreateGmailMutationResponse,
-  CreateGmailMutationVariables
-} from '../../types';
+import { withRouter } from 'react-router';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type?: string;
   closeModal: () => void;
 };
 
-type FinalProps = {
-  brandsQuery: BrandsQueryResponse;
-  queryParams: any;
-} & IRouterProps &
-  Props &
-  CreateGmailMutationResponse;
+type FinalProps = {} & IRouterProps & Props;
 
-class GmailContainer extends React.Component<FinalProps> {
-  render() {
-    const { brandsQuery, saveMutation, closeModal } = this.props;
+type State = {
+  email: string;
+  accountId: string;
+};
 
-    if (brandsQuery.loading) {
-      return <Spinner objective={true} />;
+class GmailContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = { email: '', accountId: '' };
+  }
+
+  onAccountSelect = (accountId?: string) => {
+    if (!accountId) {
+      return this.setState({ email: '', accountId: '' });
     }
 
-    const brands = brandsQuery.brands;
+    client
+      .query({
+        query: gql(queries.fetchApi),
+        variables: {
+          path: '/gmail/get-email',
+          params: { accountId }
+        }
+      })
+      .then(({ data, loading }: any) => {
+        if (!loading) {
+          this.setState({
+            email: data.integrationsFetchApi,
+            accountId
+          });
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
 
-    const save = (
-      variables: CreateGmailMutationVariables,
-      callback: () => void
-    ) => {
-      saveMutation({ variables })
-        .then(() => {
-          Alert.success('You successfully added an integration');
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+  onRemoveAccount = () => {
+    this.setState({ email: '' });
+  };
+
+  renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.integrationsCreateExternalIntegration}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries('gmail')}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully added a ${name}`}
+      />
+    );
+  };
+
+  render() {
+    const { closeModal } = this.props;
+    const { accountId, email } = this.state;
 
     const updatedProps = {
       closeModal,
-      brands,
-      save
+      accountId,
+      email,
+      onAccountSelect: this.onAccountSelect,
+      onRemoveAccount: this.onRemoveAccount,
+      renderButton: this.renderButton
     };
 
     return <Gmail {...updatedProps} />;
   }
 }
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
-      name: 'brandsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, CreateGmailMutationResponse, CreateGmailMutationVariables>(
-      gql(mutations.integrationsCreateGmailIntegration),
-      { name: 'saveMutation' }
-    )
-  )(GmailContainer)
-);
+export default withRouter<FinalProps>(GmailContainer);

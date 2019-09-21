@@ -1,11 +1,5 @@
-import { Button, FormControl, Icon, Tip } from 'modules/common/components';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
-import * as React from 'react';
-
-import {
-  MessengerApp,
-  ResponseTemplate
-} from 'modules/inbox/containers/conversationDetail';
+import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
+import React from 'react';
 
 import {
   Attachment,
@@ -19,12 +13,22 @@ import {
   RespondBoxStyled
 } from 'modules/inbox/styles';
 
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
-import Editor from './Editor';
+
+const Editor = asyncComponent(
+  () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
+  { height: '137px', width: '100%', color: '#fff' }
+);
 
 type Props = {
   conversation: IConversation;
@@ -32,6 +36,7 @@ type Props = {
     message: AddMessageMutationVariables,
     callback: (error: Error) => void
   ) => void;
+  onSearchChange: (value: string) => void;
   showInternal: boolean;
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
@@ -65,6 +70,33 @@ class RespondBox extends React.Component<Props, State> {
     };
   }
 
+  isContentWritten() {
+    const { content } = this.state;
+
+    // draftjs empty content
+    if (content === '<p><br></p>' || content === '') {
+      return false;
+    }
+
+    return true;
+  }
+
+  shouldComponentUpdate(nextProps: Props) {
+    if (this.props.conversation._id !== nextProps.conversation._id) {
+      if (this.isContentWritten()) {
+        localStorage.setItem(this.props.conversation._id, this.state.content);
+      } else {
+        // if clear content
+        localStorage.removeItem(this.props.conversation._id);
+      }
+
+      // clear previous content
+      this.setState({ content: '' });
+    }
+
+    return true;
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { sending, content } = this.state;
 
@@ -87,6 +119,10 @@ class RespondBox extends React.Component<Props, State> {
     }
   }
 
+  getUnsendMessage = (id: string) => {
+    return localStorage.getItem(id) || '';
+  };
+
   // save editor current content to state
   onEditorContentChange = (content: string) => {
     this.setState({ content });
@@ -95,6 +131,10 @@ class RespondBox extends React.Component<Props, State> {
   // save mentioned user to state
   onAddMention = (mentionedUserIds: string[]) => {
     this.setState({ mentionedUserIds });
+  };
+
+  onSearchChange = (value: string) => {
+    this.props.onSearchChange(value);
   };
 
   checkIsActive(conversation: IConversation) {
@@ -136,11 +176,6 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
-  // on shift + enter press in editor
-  onShifEnter = () => {
-    this.addMessage();
-  };
-
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
@@ -178,7 +213,7 @@ class RespondBox extends React.Component<Props, State> {
     return text.replace(/&nbsp;/g, ' ');
   }
 
-  addMessage() {
+  addMessage = () => {
     const { conversation, sendMessage } = this.props;
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
     const message = {
@@ -206,7 +241,7 @@ class RespondBox extends React.Component<Props, State> {
         });
       });
     }
-  }
+  };
 
   toggleForm = () => {
     this.setState({
@@ -224,7 +259,9 @@ class RespondBox extends React.Component<Props, State> {
               <AttachmentThumb>
                 {attachment.type.startsWith('image') && (
                   <PreviewImg
-                    style={{ backgroundImage: `url('${attachment.url}')` }}
+                    style={{
+                      backgroundImage: `url(${readFile(attachment.url)})`
+                    }}
                   />
                 )}
               </AttachmentThumb>
@@ -261,6 +298,7 @@ class RespondBox extends React.Component<Props, State> {
     const { responseTemplates, conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);
+    const disabled = integration.kind === 'gmail';
 
     const Buttons = (
       <EditorActions>
@@ -268,6 +306,7 @@ class RespondBox extends React.Component<Props, State> {
           className="toggle-message"
           componentClass="checkbox"
           checked={isInternal}
+          disabled={disabled}
           onChange={this.toggleForm}
         >
           {__('Internal note')}
@@ -279,8 +318,6 @@ class RespondBox extends React.Component<Props, State> {
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
-
-        <MessengerApp conversation={conversation} />
 
         <ResponseTemplate
           brandId={integration.brandId}
@@ -318,10 +355,13 @@ class RespondBox extends React.Component<Props, State> {
           isInactive={this.state.isInactive}
         >
           <Editor
+            currentConversation={conversation._id}
+            defaultContent={this.getUnsendMessage(conversation._id)}
             key={this.state.editorKey}
             onChange={this.onEditorContentChange}
             onAddMention={this.onAddMention}
-            onShifEnter={this.onShifEnter}
+            onAddMessage={this.addMessage}
+            onSearchChange={this.onSearchChange}
             placeholder={placeholder}
             mentions={this.props.teamMembers}
             showMentions={isInternal}

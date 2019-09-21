@@ -1,26 +1,28 @@
-import {
-  Button,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  SortHandler,
-  Table
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import SortHandler from 'modules/common/components/SortHandler';
+import Table from 'modules/common/components/table';
 import { __, Alert, confirm, router } from 'modules/common/utils';
+import { menuContacts } from 'modules/common/utils/menus';
 import { CompaniesTableWrapper } from 'modules/companies/styles';
-import { TableHeadContent } from 'modules/customers/styles';
-import { Wrapper } from 'modules/layout/components';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
-import { ManageColumns } from 'modules/settings/properties/containers';
-import { TaggerPopover } from 'modules/tags/components';
-import * as React from 'react';
+import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import React from 'react';
+import { Dropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router';
-import { CompaniesMerge } from '..';
+import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import { IConfigColumn } from '../../../settings/properties/types';
-import { CompanyForm } from '../../containers';
+import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
+import CompaniesMerge from '../detail/CompaniesMerge';
 import CompanyRow from './CompanyRow';
 import Sidebar from './Sidebar';
 
@@ -42,6 +44,7 @@ interface IProps extends IRouterProps {
   ) => void;
   mergeCompanies: () => void;
   queryParams: any;
+  exportCompanies: (bulk: string[]) => void;
 }
 
 type State = {
@@ -107,7 +110,8 @@ class CompaniesList extends React.Component<IProps, State> {
       emptyBulk,
       totalCount,
       mergeCompanies,
-      queryParams
+      queryParams,
+      exportCompanies
     } = this.props;
 
     const mainContent = (
@@ -124,10 +128,7 @@ class CompaniesList extends React.Component<IProps, State> {
               </th>
               {columnsConfig.map(({ name, label }) => (
                 <th key={name}>
-                  <TableHeadContent>
-                    <SortHandler sortField={name} />
-                    {__(label)}
-                  </TableHeadContent>
+                  <SortHandler sortField={name} label={__(label)} />
                 </th>
               ))}
               <th>{__('Tags')}</th>
@@ -155,11 +156,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = (
-      <Button btnStyle="simple" size="small" icon="filter">
-        Edit columns
-      </Button>
-    );
+    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -175,7 +172,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle="simple" size="small" icon="downarrow">
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );
@@ -244,11 +241,39 @@ class CompaniesList extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <ModalTrigger
-          title="Choose which column you see"
-          trigger={editColumns}
-          content={manageColumns}
-        />
+
+        <Dropdown id="dropdown-engage" pullRight={true}>
+          <DropdownToggle bsRole="toggle">
+            <Button btnStyle="simple" size="small">
+              {__('Customize ')} <Icon icon="angle-down" />
+            </Button>
+          </DropdownToggle>
+          <Dropdown.Menu>
+            <li>
+              <ModalTrigger
+                title="Manage Columns"
+                trigger={editColumns}
+                content={manageColumns}
+                dialogClassName="transform"
+              />
+            </li>
+            <li>
+              <Link to="/settings/properties?type=company">
+                {__('Properties')}
+              </Link>
+            </li>
+            <li>
+              <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
+                {__('Export companies')}
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+        <Link to="/settings/importHistories?type=company">
+          <Button btnStyle="primary" size="small" icon="arrow-from-right">
+            {__('Go to import')}
+          </Button>
+        </Link>
         <ModalTrigger
           title="New company"
           trigger={addTrigger}
@@ -262,12 +287,15 @@ class CompaniesList extends React.Component<IProps, State> {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-    const breadcrumb = [{ title: __(`Companies`) + ` (${totalCount})` }];
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header breadcrumb={breadcrumb} queryParams={queryParams} />
+          <Wrapper.Header
+            title={__(`Companies`) + ` (${totalCount})`}
+            queryParams={queryParams}
+            submenu={menuContacts}
+          />
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}

@@ -1,17 +1,15 @@
-import {
-  ActionButtons,
-  Button,
-  EmptyState,
-  Icon,
-  Label,
-  ModalTrigger,
-  Table,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { InstallCode } from 'modules/settings/integrations/components';
+import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { IIntegration } from '../../types';
 
@@ -24,20 +22,20 @@ class IntegrationList extends React.Component<Props> {
   getTypeName(integration) {
     const kind = integration.kind;
 
-    if (kind === KIND_CHOICES.TWITTER) {
-      return 'twitter';
-    }
-
     if (kind === KIND_CHOICES.FACEBOOK) {
       return 'facebook';
+    }
+
+    if (kind === KIND_CHOICES.GMAIL) {
+      return 'gmail';
     }
 
     if (kind === KIND_CHOICES.FORM) {
       return 'form';
     }
 
-    if (kind === KIND_CHOICES.GMAIL) {
-      return 'gmail';
+    if (kind === KIND_CHOICES.CALLPRO) {
+      return 'callpro';
     }
 
     return 'default';
@@ -71,6 +69,7 @@ class IntegrationList extends React.Component<Props> {
 
           <ModalTrigger
             title="Install code"
+            size="lg"
             trigger={editTrigger}
             content={content}
           />
@@ -98,15 +97,9 @@ class IntegrationList extends React.Component<Props> {
   }
 
   renderRow(integration) {
-    const twitterData = (integration || {}).twitterData || {};
-
     return (
       <tr key={integration._id}>
-        <td>
-          {integration.name}
-          {integration.kind === 'twitter' &&
-            ` (${twitterData.info && twitterData.info.screen_name})`}
-        </td>
+        <td>{integration.name}</td>
         <td>
           <Label className={`label-${this.getTypeName(integration)}`}>
             {integration.kind}

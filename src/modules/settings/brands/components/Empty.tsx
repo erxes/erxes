@@ -1,8 +1,8 @@
-import { EmptyState } from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
-import { Sidebar } from '../containers';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import Sidebar from '../containers/Sidebar';
 
 type Props = {
   queryParams: any;
@@ -27,7 +27,7 @@ class Empty extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={__('Brands')} breadcrumb={breadcrumb} />}
         leftSidebar={<Sidebar queryParams={queryParams} />}
         content={content}
       />

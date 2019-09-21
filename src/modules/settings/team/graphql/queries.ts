@@ -29,12 +29,6 @@ const userDetail = `
   }
 `;
 
-const totalUsersCount = `
-  query totalUsersCount {
-    usersTotalCount
-  }
-`;
-
 const userConversations = `
   query userConversations($_id: String!, $perPage: Int) {
     userConversations(_id: $_id, perPage: $perPage) {
@@ -54,36 +48,28 @@ const userConversations = `
   }
 `;
 
-const channels = `
-  query channels($memberIds: [String]) {
-    channels(memberIds: $memberIds) {
-      _id
-      name
-      description
-      memberIds
-    }
-  }
-`;
-
 const listParamsDef = `
   $searchValue: String,
-  $isActive: Boolean
+  $isActive: Boolean,
+  $ids: [String]
 `;
 
 const listParamsValue = `
   searchValue: $searchValue,
-  isActive: $isActive
+  isActive: $isActive,
+  ids: $ids
 `;
 
 const users = `
-  query users($page: Int, $perPage: Int, ${listParamsDef}) {
-    users(page: $page, perPage: $perPage, ${listParamsValue}) {
+  query users($page: Int, $perPage: Int, $status: String ${listParamsDef}) {
+    users(page: $page, perPage: $perPage, status: $status ${listParamsValue}) {
       _id
       username
       email
       status
       isActive
       groupIds
+      brandIds
       details {
         avatar
         fullName
@@ -104,6 +90,20 @@ const users = `
   }
 `;
 
+const allUsers = `
+  query allUsers {
+    allUsers {
+      _id
+      email
+      username
+      details {
+        avatar
+        fullName
+      }
+    }
+  }
+`;
+
 const usersTotalCount = `
   query usersTotalCount(${listParamsDef}) {
     usersTotalCount(${listParamsValue})
@@ -112,8 +112,8 @@ const usersTotalCount = `
 
 export default {
   userDetail,
-  channels,
   userConversations,
   users,
-  usersTotalCount
+  usersTotalCount,
+  allUsers
 };

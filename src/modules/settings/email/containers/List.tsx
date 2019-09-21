@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../brands/types';
-import { List } from '../components';
+import List from '../components/List';
 
 type Props = {
   listQuery: BrandsQueryResponse;

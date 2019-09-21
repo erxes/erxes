@@ -1,21 +1,20 @@
-import { Label, Tip, WithPermission } from 'modules/common/components';
+import Label from 'modules/common/components/Label';
+import Tip from 'modules/common/components/Tip';
+import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
-import {
-  STORAGE_BOARD_KEY,
-  STORAGE_PIPELINE_KEY
-} from 'modules/deals/constants';
-import * as React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
   background: ${colors.colorPrimaryDark};
+  box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
   z-index: 10;
   flex-shrink: 0;
   overflow: hidden;
-  position: fixed;
+  position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
@@ -131,21 +130,12 @@ class Navigation extends React.Component<{
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __('Inbox').toString());
+      setBadge(unreadCount, __('Team Inbox').toString());
     }
   }
 
   render() {
     const { unreadConversationsCount } = this.props;
-
-    let dealsLink = '/deals/board';
-
-    const lastBoardId = localStorage.getItem(STORAGE_BOARD_KEY);
-    const lastPipelineId = localStorage.getItem(STORAGE_PIPELINE_KEY);
-
-    if (lastBoardId && lastPipelineId) {
-      dealsLink = `/deals/board?id=${lastBoardId}&pipelineId=${lastPipelineId}`;
-    }
 
     return (
       <LeftNavigation>
@@ -154,7 +144,7 @@ class Navigation extends React.Component<{
         </NavLink>
         <Nav>
           <WithPermission action="showConversations">
-            <Tip placement="right" text={__('Inbox').toString()}>
+            <Tip placement="right" text={__('Conversation').toString()}>
               <NavLink to="/inbox">
                 <NavIcon className="icon-chat" />
                 {unreadConversationsCount !== 0 && (
@@ -166,27 +156,20 @@ class Navigation extends React.Component<{
             </Tip>
           </WithPermission>
           <WithPermission action="showDeals">
-            <Tip placement="right" text={__('Deal').toString()}>
-              <NavLink to={dealsLink}>
+            <Tip placement="right" text={__('Sales').toString()}>
+              <NavLink to="/deal">
                 <NavIcon className="icon-piggy-bank" />
               </NavLink>
             </Tip>
           </WithPermission>
           <WithPermission action="showCustomers">
-            <Tip placement="right" text={__('Customers').toString()}>
-              <NavLink to="/customers">
+            <Tip placement="right" text={__('Contacts').toString()}>
+              <NavLink to="/contacts">
                 <NavIcon className="icon-users" />
               </NavLink>
             </Tip>
           </WithPermission>
-          <WithPermission action="showCompanies">
-            <Tip placement="right" text={__('Companies').toString()}>
-              <NavLink to="/companies">
-                <NavIcon className="icon-briefcase" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showFields">
+          <WithPermission action="showForms">
             <Tip placement="right" text={__('Leads').toString()}>
               <NavLink to="/forms">
                 <NavIcon className="icon-laptop" />
@@ -203,7 +186,7 @@ class Navigation extends React.Component<{
           <WithPermission action="showKnowledgeBase">
             <Tip placement="right" text={__('Knowledge Base').toString()}>
               <NavLink to="/knowledgeBase">
-                <NavIcon className="icon-clipboard" />
+                <NavIcon className="icon-book" />
               </NavLink>
             </Tip>
             <WithPermission action="showIntegrations">

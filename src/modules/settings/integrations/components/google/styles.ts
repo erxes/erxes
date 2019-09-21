@@ -36,28 +36,14 @@ const Uploading = styled.div`
 `;
 
 const ControlWrapper = styled.div`
-  display: flex;
-  margin-bottom: ${dimensions.unitSpacing}px;
-
-  span {
-    border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 6px 10px 0 0;
-    font-weight: 500;
-  }
-
-  input {
-    padding-left: 0;
-
-    &:hover,
-    &:focus {
-      border-color: ${colors.colorShadowGray};
-    }
-  }
+  position: relative;
 `;
 
 const LeftSection = styled.div`
-  border-bottom: 1px solid ${colors.colorShadowGray};
-  padding: 5px 10px 0 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 5px 10px 0 0;
 `;
 
 const MailEditorWrapper = styled.div`

@@ -1,10 +1,12 @@
 import { AvatarWrapper } from 'modules/activityLogs/styles';
-import { Icon, ModalTrigger, NameCard } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { renderFullName } from 'modules/common/utils';
-import { CustomerForm } from 'modules/customers/containers';
+import CustomerForm from 'modules/customers/containers/CustomerForm';
 import { ICustomer } from 'modules/customers/types';
-import * as React from 'react';
+import React from 'react';
 import { Name } from '../../styles';
 
 type Props = {
@@ -26,7 +28,7 @@ class InfoSection extends React.Component<Props> {
     }
 
     return (
-      <a href={link} target="_blank">
+      <a target="_blank" href={link} rel="noopener noreferrer">
         <Icon icon={icon} />
       </a>
     );
@@ -35,10 +37,10 @@ class InfoSection extends React.Component<Props> {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.facebook, 'facebook-official')}
         {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.linkedIn, 'linkedin-logo')}
-        {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.youtube, 'youtube-play')}
         {this.renderLink(links.github, 'github-circled')}
         {this.renderLink(links.website, 'earthgrid')}
       </Links>

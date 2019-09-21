@@ -1,7 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import {
   InsightContent,
@@ -11,7 +11,11 @@ import {
 } from '../styles';
 import { IChartParams, IQueryParams } from '../types';
 import { convertTime } from '../utils';
-import { Chart, InboxFilter, Sidebar, Summary, TeamMembers } from './';
+import Chart from './Chart';
+import InboxFilter from './filter/InboxFilter';
+import Sidebar from './Sidebar';
+import Summary from './Summary';
+import TeamMembers from './TeamMembers';
 
 type Props = {
   brands: IBrand[];
@@ -76,23 +80,16 @@ class FirstResponse extends React.Component<Props> {
     );
   }
 
-  renderBreadCrumnb() {
-    return [
-      { title: __('Insights'), link: '/insights' },
-      { title: __('First Response Report') }
-    ];
-  }
-
   render() {
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            breadcrumb={this.renderBreadCrumnb()}
+            title={__('First Response Report')}
             submenu={menuInbox}
           />
         }
-        leftSidebar={<Sidebar />}
+        leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}
       />
     );

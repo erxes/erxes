@@ -1,11 +1,13 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
-import { WorkArea as DumbWorkArea } from 'modules/inbox/components/conversationDetail';
+import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
+import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import strip from 'strip';
 import { IUser } from '../../../auth/types';
-import { withProps } from '../../../common/utils';
+import { sendDesktopNotification, withProps } from '../../../common/utils';
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
@@ -33,17 +35,19 @@ type FinalProps = {
 
 type State = {
   loadingMessages: boolean;
+  typingInfo?: string;
 };
 
 class WorkArea extends React.Component<FinalProps, State> {
-  private prevSubscription;
+  private prevMessageInsertedSubscription;
+  private prevTypingInfoSubscription;
 
   constructor(props) {
     super(props);
 
-    this.state = { loadingMessages: false };
+    this.state = { loadingMessages: false, typingInfo: '' };
 
-    this.prevSubscription = null;
+    this.prevMessageInsertedSubscription = null;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -52,24 +56,31 @@ class WorkArea extends React.Component<FinalProps, State> {
     const { currentId, currentConversation, messagesQuery } = nextProps;
 
     // It is first time or subsequent conversation change
-    if (!this.prevSubscription || currentId !== this.props.currentId) {
+    if (
+      !this.prevMessageInsertedSubscription ||
+      currentId !== this.props.currentId
+    ) {
       // Unsubscribe previous subscription ==========
-      if (this.prevSubscription) {
-        this.prevSubscription();
+      if (this.prevMessageInsertedSubscription) {
+        this.prevMessageInsertedSubscription();
+      }
+
+      if (this.prevTypingInfoSubscription) {
+        this.prevTypingInfoSubscription();
       }
 
       // Start new subscriptions =============
-      this.prevSubscription = messagesQuery.subscribeToMore({
+      this.prevMessageInsertedSubscription = messagesQuery.subscribeToMore({
         document: gql(subscriptions.conversationMessageInserted),
         variables: { _id: currentId },
         updateQuery: (prev, { subscriptionData }) => {
           const message = subscriptionData.data.conversationMessageInserted;
+          const kind = currentConversation.integration.kind;
 
           // current user's message is being showed after insert message
           // mutation. So to prevent from duplication we are ignoring current
           // user's messages from subscription
-          const isMessenger =
-            currentConversation.integration.kind === 'messenger';
+          const isMessenger = kind === 'messenger';
 
           if (isMessenger && message.userId === currentUser._id) {
             return;
@@ -99,7 +110,30 @@ class WorkArea extends React.Component<FinalProps, State> {
             conversationMessages: [...messages, message]
           };
 
+          // send desktop notification
+          sendDesktopNotification({
+            title: NOTIFICATION_TYPE[kind],
+            content: strip(message.content) || ''
+          });
+
           return next;
+        }
+      });
+
+      this.prevTypingInfoSubscription = messagesQuery.subscribeToMore({
+        document: gql(subscriptions.conversationClientTypingStatusChanged),
+        variables: { _id: currentId },
+        updateQuery: (
+          prev,
+          {
+            subscriptionData: {
+              data: { conversationClientTypingStatusChanged }
+            }
+          }
+        ) => {
+          this.setState({
+            typingInfo: conversationClientTypingStatusChanged.text
+          });
         }
       });
     }
@@ -108,13 +142,11 @@ class WorkArea extends React.Component<FinalProps, State> {
   addMessage = ({
     variables,
     optimisticResponse,
-    callback,
-    kind
+    callback
   }: {
     variables: any;
     optimisticResponse: any;
     callback?: (e?) => void;
-    kind: string;
   }) => {
     const { addMessageMutation, currentId } = this.props;
 
@@ -170,6 +202,9 @@ class WorkArea extends React.Component<FinalProps, State> {
       .then(() => {
         if (callback) {
           callback();
+
+          // clear saved messages from storage
+          localStorage.removeItem(currentId || '');
         }
       })
       .catch(e => {
@@ -182,7 +217,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   loadMoreMessages = () => {
     const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
-    const { conversationMessages } = messagesQuery;
+    const conversationMessages = messagesQuery.conversationMessages || [];
 
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
     const hasMore =
@@ -207,9 +242,8 @@ class WorkArea extends React.Component<FinalProps, State> {
             return prev;
           }
 
-          const prevMessageIds = (prev.conversationMessages || []).map(
-            m => m._id
-          );
+          const prevConversationMessages = prev.conversationMessages || [];
+          const prevMessageIds = prevConversationMessages.map(m => m._id);
 
           const fetchedMessages: IMessage[] = [];
 
@@ -223,7 +257,7 @@ class WorkArea extends React.Component<FinalProps, State> {
             ...prev,
             conversationMessages: [
               ...fetchedMessages,
-              ...prev.conversationMessages
+              ...prevConversationMessages
             ]
           };
         }
@@ -232,7 +266,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { loadingMessages } = this.state;
+    const { loadingMessages, typingInfo } = this.state;
     const { messagesQuery } = this.props;
     const conversationMessages = messagesQuery.conversationMessages || [];
 
@@ -241,7 +275,8 @@ class WorkArea extends React.Component<FinalProps, State> {
       conversationMessages,
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
-      loading: messagesQuery.loading || loadingMessages
+      loading: messagesQuery.loading || loadingMessages,
+      typingInfo
     };
 
     return <DumbWorkArea {...updatedProps} />;
@@ -278,7 +313,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       gql(queries.conversationMessagesTotalCount),
       {
         name: 'messagesTotalCountQuery',
-        options: ({ currentId }) => ({
+        options: ({ currentId, currentConversation }) => ({
           variables: { conversationId: currentId },
           fetchPolicy: 'network-only'
         })

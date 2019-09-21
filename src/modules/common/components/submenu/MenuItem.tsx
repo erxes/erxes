@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors } from '../../styles';
@@ -15,9 +15,16 @@ const Item = styled.li`
     color: ${colors.colorCoreDarkGray};
     padding: 14px 0;
     display: block;
+    position: relative;
 
-    &.active {
-      border-bottom: 2px solid ${colors.colorSecondary};
+    &.active::after {
+      content: '';
+      background: ${colors.colorSecondary};
+      width: 100%;
+      height: 2px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
     }
   }
 `;
@@ -33,7 +40,7 @@ function MenuItem({ to, title, children, ...props }: Props) {
 
   return (
     <Item>
-      <NavLink {...props} {...linkProps} activeClassName="active">
+      <NavLink {...props} {...linkProps} exact={true}>
         {children}
       </NavLink>
     </Item>

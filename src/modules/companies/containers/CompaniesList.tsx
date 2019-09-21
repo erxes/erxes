@@ -1,13 +1,15 @@
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Bulk } from 'modules/common/components';
-import { __, Alert, withProps } from 'modules/common/utils';
+import Bulk from 'modules/common/components/Bulk';
+import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import * as React from 'react';
+import queryString from 'query-string';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
 import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/types';
-import { CompaniesList } from '../components';
+import CompaniesList from '../components/list/CompaniesList';
 import { mutations, queries } from '../graphql';
 import {
   ListConfigQueryResponse,
@@ -86,7 +88,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
           Alert.success('You successfully merged companies');
           callback();
           history.push(
-            `/companies/details/${response.data.companiesMerge._id}`
+            `/contacts/companies/details/${response.data.companiesMerge._id}`
           );
         })
         .catch(e => {
@@ -98,6 +100,26 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     const { list = [], totalCount = 0 } =
       companiesMainQuery.companiesMain || {};
 
+    const exportCompanies = bulk => {
+      const { REACT_APP_API_URL } = getEnv();
+      const { queryParams } = this.props;
+
+      // queryParams page parameter needs convert to int.
+      if (queryParams.page) {
+        queryParams.page = parseInt(queryParams.page, 10);
+      }
+
+      if (bulk.length > 0) {
+        queryParams.ids = bulk.map(company => company._id);
+      }
+
+      const stringified = queryString.stringify({
+        ...queryParams,
+        type: 'companies'
+      });
+      window.open(`${REACT_APP_API_URL}/coc-export?${stringified}`, '_blank');
+    };
+
     const updatedProps = {
       ...this.props,
       columnsConfig,
@@ -105,6 +127,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       searchValue,
       companies: list,
       loading: companiesMainQuery.loading || this.state.loading,
+      exportCompanies,
       removeCompanies,
       mergeCompanies
     };

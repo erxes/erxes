@@ -1,9 +1,8 @@
-import { Icon } from 'modules/common/components';
+import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IConversationFacebookData } from '../../inbox/types';
 import { IIntegration } from '../../settings/integrations/types';
 import { darken } from '../styles/color';
 
@@ -38,21 +37,17 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
 
 type Props = {
   integration: IIntegration;
-  facebookData?: IConversationFacebookData;
   size?: number;
 };
 
 class IntegrationIcon extends React.PureComponent<Props> {
   getIcon() {
-    const { integration, facebookData } = this.props;
+    const { integration } = this.props;
 
     let icon;
     switch (integration.kind) {
       case 'facebook':
-        icon =
-          facebookData && facebookData.kind === 'feed'
-            ? 'facebook-1'
-            : 'messenger';
+        icon = 'messenger';
         break;
       case 'twitter':
         icon = 'twitter-1';
@@ -62,6 +57,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
         break;
       case 'gmail':
         icon = 'mail-alt';
+        break;
+      case 'callpro':
+        icon = 'phone-call';
         break;
       default:
         icon = 'doc-text-inv-1';

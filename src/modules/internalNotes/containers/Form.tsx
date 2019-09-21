@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import { queries } from 'modules/activityLogs/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Form } from '../components';
+import Form from '../components/Form';
 import { mutations } from '../graphql';
 import {
   InternalNotesAddMutationResponse,
@@ -20,13 +20,16 @@ const FormContainer = (props: FinalProps) => {
   const { contentType, contentTypeId, internalNotesAdd } = props;
 
   // create internalNote
-  const create = content => {
+  const create = (content: string, mentionedUserIds, callback: () => void) => {
     internalNotesAdd({
       variables: {
         contentType,
         contentTypeId,
+        mentionedUserIds,
         content
       }
+    }).then(() => {
+      callback();
     });
   };
 

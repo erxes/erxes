@@ -1,54 +1,49 @@
 import { getEnv } from 'apolloClient';
-import {
-  Button,
-  ControlLabel,
-  EmptyState,
-  FormControl,
-  FormGroup
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import Uploader from 'modules/common/components/Uploader';
 import colors from 'modules/common/styles/colors';
 import { ModalFooter } from 'modules/common/styles/main';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import {
   ColorPick,
   ColorPicker,
   MarkdownWrapper
 } from 'modules/settings/styles';
-import * as React from 'react';
+import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { ChromePicker } from 'react-color';
+import ChromePicker from 'react-color/lib/Chrome';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
-import SelectBrand from '../SelectBrand';
 
 type Props = {
   topic: ITopic;
   brands: IBrand[];
-
-  save: (
-    params: {
-      doc: {
-        doc: {
-          title: string;
-          description: string;
-          brandId: string;
-          languageCode: string;
-          color: string;
-        };
-      };
-    },
-    callback: () => void,
-    topic: ITopic
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove?: (knowledgeBaseId: string) => void;
   closeModal: () => void;
 };
 
 type State = {
   copied: boolean;
+  tagCopied: boolean;
   code: string;
+  tag: string;
   color: string;
+  backgroundImage: string;
 };
 
 class KnowledgeForm extends React.Component<Props, State> {
@@ -58,7 +53,7 @@ class KnowledgeForm extends React.Component<Props, State> {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${REACT_APP_CDN_HOST}/build/knowledgeBaseWidget.bundle.js";
+        script.src = "${REACT_APP_CDN_HOST}/build/knowledgebaseWidget.bundle.js";
         script.async = true;
         var entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
@@ -79,22 +74,37 @@ class KnowledgeForm extends React.Component<Props, State> {
     `;
   }
 
+  static getInstallTag() {
+    return `
+      <div data-erxes-kbase></div>
+    `;
+  }
+
   constructor(props: Props) {
     super(props);
 
     let code = '';
+    let tag = '';
     let color = colors.colorPrimary;
+    let backgroundImage = '';
+
+    const { topic } = props;
 
     // showed install code automatically in edit mode
-    if (props.topic) {
-      code = KnowledgeForm.getInstallCode(props.topic._id);
-      color = props.topic.color;
+    if (topic) {
+      code = KnowledgeForm.getInstallCode(topic._id);
+      tag = KnowledgeForm.getInstallTag();
+      color = topic.color;
+      backgroundImage = topic.backgroundImage;
     }
 
     this.state = {
       copied: false,
+      tagCopied: false,
       code,
-      color
+      tag,
+      color,
+      backgroundImage
     };
   }
 
@@ -102,14 +112,16 @@ class KnowledgeForm extends React.Component<Props, State> {
     this.setState({ color: e.hex });
   };
 
-  save = e => {
-    e.preventDefault();
+  onCopy = (name: string) => {
+    if (name === 'code') {
+      return this.setState({ copied: true });
+    }
 
-    this.props.save(
-      this.generateDoc(),
-      () => this.props.closeModal(),
-      this.props.topic
-    );
+    return this.setState({ tagCopied: true });
+  };
+
+  onBackgroundImageChange = ([file]: IAttachment[]) => {
+    this.setState({ backgroundImage: file ? file.url : '' });
   };
 
   remove = () => {
@@ -120,30 +132,47 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
+  renderScript(code: string, copied: boolean, name: string) {
+    return (
+      <MarkdownWrapper>
+        <ReactMarkdown source={code} />
+        {code ? (
+          <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
+            <Button size="small" btnStyle="primary" icon="copy">
+              {copied ? 'Copied' : 'Copy to clipboard'}
+            </Button>
+          </CopyToClipboard>
+        ) : (
+          <EmptyState icon="copy" text="No copyable code" size="small" />
+        )}
+      </MarkdownWrapper>
+    );
+  }
+
   renderInstallCode() {
     if (this.props.topic && this.props.topic._id) {
-      const onCopy = () => this.setState({ copied: true });
+      const { code, tag, copied, tagCopied } = this.state;
 
       return (
-        <FormGroup>
-          <ControlLabel>Install code</ControlLabel>
-          <MarkdownWrapper>
-            <ReactMarkdown source={this.state.code} />
-            {this.state.code ? (
-              <CopyToClipboard text={this.state.code} onCopy={onCopy}>
-                <Button size="small" btnStyle="primary" icon="copy">
-                  {this.state.copied ? 'Copied' : 'Copy to clipboard'}
-                </Button>
-              </CopyToClipboard>
-            ) : (
-              <EmptyState icon="copy" text="No copyable code" size="small" />
-            )}
-          </MarkdownWrapper>
-        </FormGroup>
+        <>
+          <FormGroup>
+            <ControlLabel>Install code</ControlLabel>
+            {this.renderScript(code, copied, 'code')}
+          </FormGroup>
+
+          <FormGroup>
+            <Info>
+              {__(
+                'Paste the tag below where you want erxes knowledgebase to appear'
+              )}
+            </Info>
+            {this.renderScript(tag, tagCopied, 'tag')}
+          </FormGroup>
+        </>
       );
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   handleBrandChange = () => {
@@ -153,50 +182,52 @@ class KnowledgeForm extends React.Component<Props, State> {
     }
   };
 
-  generateDoc() {
+  generateDoc = (values: {
+    _id?: string;
+    title: string;
+    description: string;
+    brandId: string;
+    languageCode: string;
+  }) => {
     const { topic } = this.props;
+    const { color, backgroundImage } = this.state;
+    const finalValues = values;
+
+    if (topic) {
+      finalValues._id = topic._id;
+    }
 
     return {
-      ...topic,
+      _id: finalValues._id,
       doc: {
-        doc: {
-          title: (document.getElementById(
-            'knowledgebase-title'
-          ) as HTMLInputElement).value,
-          description: (document.getElementById(
-            'knowledgebase-description'
-          ) as HTMLInputElement).value,
-          brandId: (document.getElementById('selectBrand') as HTMLInputElement)
-            .value,
-          languageCode: (document.getElementById(
-            'languageCode'
-          ) as HTMLInputElement).value,
-          color: this.state.color
-        }
+        brandId: finalValues.brandId,
+        description: finalValues.description,
+        languageCode: finalValues.languageCode,
+        title: finalValues.title,
+        color,
+        backgroundImage
       }
     };
-  }
+  };
 
-  renderContent(
-    topic = { title: '', description: '', languageCode: '', brand: { _id: '' } }
-  ) {
-    const { brands } = this.props;
+  renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
+    const { color, backgroundImage } = this.state;
     const { brand } = topic;
     const brandId = brand != null ? brand._id : '';
 
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker color={this.state.color} onChange={this.onColorChange} />
+        <ChromePicker color={color} onChange={this.onColorChange} />
       </Popover>
     );
 
     return (
       <React.Fragment>
         <FormGroup>
-          <ControlLabel>Title</ControlLabel>
+          <ControlLabel required={true}>Title</ControlLabel>
           <FormControl
-            id="knowledgebase-title"
-            type="text"
+            {...formProps}
+            name="title"
             defaultValue={topic.title}
             required={true}
           />
@@ -205,16 +236,17 @@ class KnowledgeForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
-            id="knowledgebase-description"
-            type="text"
+            {...formProps}
+            name="description"
             defaultValue={topic.description}
           />
         </FormGroup>
 
         <FormGroup>
           <SelectBrand
-            brands={brands}
+            isRequired={true}
             defaultValue={brandId}
+            formProps={formProps}
             onChange={this.handleBrandChange}
           />
         </FormGroup>
@@ -228,23 +260,40 @@ class KnowledgeForm extends React.Component<Props, State> {
               placement="bottom"
               overlay={popoverTop}
             >
-              <ColorPick full={true}>
-                <ColorPicker
-                  style={{ backgroundColor: this.state.color }}
-                  full={true}
-                />
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: color }} />
               </ColorPick>
             </OverlayTrigger>
           </div>
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Background image: </ControlLabel>
+          <Uploader
+            multiple={false}
+            defaultFileList={
+              backgroundImage
+                ? [
+                    {
+                      name: 'backgroundImage',
+                      url: backgroundImage,
+                      type: 'img'
+                    }
+                  ]
+                : []
+            }
+            onChange={this.onBackgroundImageChange}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Language</ControlLabel>
 
           <FormControl
+            {...formProps}
             componentClass="select"
             defaultValue={topic.languageCode || 'en'}
-            id="languageCode"
+            name="languageCode"
           >
             <option />
             <option value="mn">Монгол</option>
@@ -257,18 +306,20 @@ class KnowledgeForm extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    const { topic, closeModal } = this.props;
+  renderContent = (formProps: IFormProps) => {
+    const { topic, closeModal, renderButton } = this.props;
+    const { values, isSubmitted } = formProps;
 
     return (
-      <form onSubmit={this.save}>
-        {this.renderContent(
+      <>
+        {this.renderFormContent(
           topic || {
             title: '',
             description: '',
             languageCode: '',
             brand: { _id: '' }
-          }
+          },
+          { ...formProps }
         )}
         <ModalFooter>
           <Button
@@ -289,12 +340,20 @@ class KnowledgeForm extends React.Component<Props, State> {
               Delete
             </Button>
           )}
-          <Button btnStyle="success" type="submit" icon="checked-1">
-            Save
-          </Button>
+          {renderButton({
+            name: 'knowledge base',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: topic
+          })}
         </ModalFooter>
-      </form>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

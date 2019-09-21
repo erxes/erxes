@@ -1,17 +1,23 @@
-import { Button, FormControl, Step, Steps } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
+import { IConditionsRule } from 'modules/common/types';
 import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
+import { IFormIntegration } from 'modules/forms/types';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { IFormData } from 'modules/settings/integrations/types';
 import { IField } from 'modules/settings/properties/types';
-import * as React from 'react';
+
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { IBrand } from '../../settings/brands/types';
-import { IFormIntegration } from '../types';
+
+import { ImportLoader } from 'modules/common/components/ButtonMutate';
 import {
   CallOut,
   ChooseType,
@@ -23,10 +29,9 @@ import {
 
 type Props = {
   integration?: IFormIntegration;
-  brands: IBrand[];
   fields: IField[];
   loading?: boolean;
-
+  isActionLoading: boolean;
   save: (
     params: {
       name: string;
@@ -59,6 +64,7 @@ type State = {
   logoPreviewStyle?: { opacity?: string };
   defaultValue: { [key: string]: boolean };
   logo?: string;
+  rules?: IConditionsRule[];
 
   successAction?: string;
   fromEmail?: string;
@@ -96,6 +102,7 @@ class Form extends React.Component<Props, State> {
       adminEmailContent: formData.adminEmailContent || '',
       thankContent: formData.thankContent || 'Thank you.',
       redirectUrl: formData.redirectUrl || '',
+      rules: integration.form ? integration.form.rules : [],
 
       brand: integration.brandId,
       language: integration.languageCode,
@@ -120,7 +127,7 @@ class Form extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title } = this.state;
+    const { brand, calloutTitle, title, rules } = this.state;
 
     if (!title) {
       return Alert.error('Write title');
@@ -157,13 +164,22 @@ class Form extends React.Component<Props, State> {
           buttonText: this.state.calloutBtnText,
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
-        }
+        },
+        rules: (rules || []).map(rule => ({
+          _id: rule._id,
+          kind: rule.kind,
+          text: rule.text,
+          condition: rule.condition,
+          value: rule.value
+        }))
       },
       fields: this.state.fields
     });
   };
 
   renderSaveButton = () => {
+    const { isActionLoading } = this.props;
+
     const cancelButton = (
       <Link to="/forms">
         <Button btnStyle="simple" size="small" icon="cancel-1">
@@ -176,11 +192,13 @@ class Form extends React.Component<Props, State> {
       <Button.Group>
         {cancelButton}
         <Button
+          disabled={isActionLoading}
           btnStyle="success"
           size="small"
-          icon="checked-1"
+          icon={isActionLoading ? undefined : 'checked-1'}
           onClick={this.handleSubmit}
         >
+          {isActionLoading && <ImportLoader />}
           Save
         </Button>
       </Button.Group>
@@ -210,10 +228,11 @@ class Form extends React.Component<Props, State> {
       title,
       successAction,
       formBtnText,
-      isSkip
+      isSkip,
+      rules
     } = this.state;
 
-    const { integration, brands } = this.props;
+    const { integration } = this.props;
 
     const formData = integration && integration.formData;
     const brand = integration && integration.brand;
@@ -225,7 +244,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <StepWrapper>
-        <Wrapper.Header breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
@@ -233,6 +252,7 @@ class Form extends React.Component<Props, State> {
             onChange={onChange}
             defaultValue={title}
           />
+          {this.renderSaveButton()}
         </TitleContainer>
         <Steps active={activeStep || 1}>
           <Step img="/images/icons/erxes-04.svg" title="Type">
@@ -270,6 +290,9 @@ class Form extends React.Component<Props, State> {
               fields={fields}
             />
           </Step>
+          <Step img="/images/icons/erxes-02.svg" title="Rule">
+            <ConditionsRule rules={rules || []} onChange={this.onChange} />
+          </Step>
           <Step img="/images/icons/erxes-06.svg" title="Options">
             <OptionStep
               onChange={this.onChange}
@@ -280,7 +303,6 @@ class Form extends React.Component<Props, State> {
               color={color}
               brand={brand}
               theme={theme}
-              brands={brands}
               fields={fields}
               language={language}
             />
@@ -297,9 +319,9 @@ class Form extends React.Component<Props, State> {
             />
           </Step>
           <Step
-            img="/images/icons/erxes-14.svg"
+            img="/images/icons/erxes-19.svg"
             title="Full Preview"
-            nextButton={this.renderSaveButton()}
+            noButton={true}
           >
             <FullPreviewStep
               onChange={this.onChange}

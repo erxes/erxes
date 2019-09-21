@@ -13,9 +13,9 @@ import {
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
-import * as React from 'react';
+import React from 'react';
 import strip from 'strip';
-import * as xss from 'xss';
+import xss from 'xss';
 
 import {
   ResponseSuggestionItem,
@@ -24,9 +24,12 @@ import {
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 
 type EditorProps = {
+  currentConversation: string;
+  defaultContent?: string;
   onChange: (content: string) => void;
   onAddMention: (mentions: any) => void;
-  onShifEnter: () => void;
+  onAddMessage: () => void;
+  onSearchChange: (value: string) => void;
   showMentions: boolean;
   responseTemplate: string;
   responseTemplates: IResponseTemplate[];
@@ -138,7 +141,7 @@ class TemplateList extends React.Component<TemplateListProps, {}> {
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, template.name))
                 }}
-              />
+              />{' '}
               <span
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, strip(template.content)))
@@ -159,7 +162,10 @@ export default class Editor extends React.Component<EditorProps, State> {
     super(props);
 
     this.state = {
-      editorState: EditorState.createEmpty(),
+      editorState: createStateFromHTML(
+        EditorState.createEmpty(),
+        props.defaultContent
+      ),
       collectedMentions: [],
       suggestions: this.props.mentions.toArray(),
       templatesState: null
@@ -182,6 +188,16 @@ export default class Editor extends React.Component<EditorProps, State> {
       this.props.onChange(this.getContent(editorState));
 
       // set editor state from response template
+      this.setState({ editorState });
+    }
+
+    // check switch conversation and fill default content
+    if (nextProps.currentConversation !== this.props.currentConversation) {
+      const editorState = createStateFromHTML(
+        EditorState.createEmpty(),
+        nextProps.defaultContent
+      );
+
       this.setState({ editorState });
     }
   }
@@ -305,6 +321,8 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   onSearchChange = ({ value }) => {
+    this.props.onSearchChange(value);
+
     this.setState({
       suggestions: defaultSuggestionsFilter(
         value,
@@ -369,7 +387,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       }
 
       // call parent's method to save content
-      this.props.onShifEnter();
+      this.props.onAddMessage();
 
       // clear content
       const state = this.state.editorState;

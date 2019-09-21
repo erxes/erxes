@@ -1,16 +1,16 @@
-import {
-  Button,
-  ControlLabel,
-  FormGroup,
-  HeaderDescription
-} from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import CURRENCIES from 'modules/common/constants/currencies';
 import { __ } from 'modules/common/utils';
-import { ActionBar, Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import ActionBar from 'modules/layout/components/ActionBar';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
-import { CURRENCIES, LANGUAGES, MEASUREMENTS } from '../constants';
+import { LANGUAGES, MEASUREMENTS } from '../constants';
 
 type Props = {
   currentLanguage: string;
@@ -43,8 +43,11 @@ class List extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    this.props.save('dealCurrency', this.state.currencies);
-    this.props.save('dealUOM', this.state.uom);
+    const { currencies, uom, language } = this.state;
+
+    this.props.save('dealCurrency', currencies);
+    this.props.save('dealUOM', uom);
+    this.props.changeLanguage(language);
   };
 
   onCurrenciesChange = currencies => {
@@ -56,8 +59,7 @@ class List extends React.Component<Props, State> {
   };
 
   onLanguageChange = language => {
-    this.setState({ language });
-    this.props.changeLanguage(language.value);
+    this.setState({ language: language.value });
   };
 
   render() {
@@ -127,7 +129,9 @@ class List extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header title={__('General')} breadcrumb={breadcrumb} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={

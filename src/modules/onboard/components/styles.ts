@@ -40,26 +40,6 @@ const MainContainer = styled.div`
 const ContentContainer = styled.div`
   display: flex;
   flex: 1;
-
-  .slide-in-small-appear,
-  .slide-in-small-enter {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  .slide-in-small-appear-active,
-  .slide-in-small-enter-active {
-    opacity: 1;
-    transform: translateY(0);
-    transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
-  }
-
-  .slide-in-small-exit,
-  .slide-in-small-exit-active {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
-  }
 `;
 
 const RightContent = styled.div`
@@ -128,7 +108,7 @@ const LeftContent = styled.div`
 `;
 
 const TopContent = styled.div`
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   position: relative;
 
   h2 {
@@ -193,6 +173,16 @@ const Item = styledTS<{ active?: boolean }>(styled.div)`
 
   h4 {
     color: ${props => props.active && colors.colorWhite};
+    display: flex;
+    align-items: center;
+
+    span {
+      color: ${colors.colorCoreYellow};
+      font-size: 18px;
+      margin-left: 8px;
+      display: flex;
+      justify-content: center;
+    }
   }
 
   p {

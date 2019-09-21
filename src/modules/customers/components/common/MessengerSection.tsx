@@ -1,9 +1,10 @@
-import { EmptyState, Label } from 'modules/common/components';
-import { __ } from 'modules/common/utils';
-import { Sidebar } from 'modules/layout/components';
+import dayjs from 'dayjs';
+import EmptyState from 'modules/common/components/EmptyState';
+import Label from 'modules/common/components/Label';
+import { __, isTimeStamp, isValidDate } from 'modules/common/utils';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import * as moment from 'moment';
-import * as React from 'react';
+import React from 'react';
 import { ICustomer } from '../../types';
 
 type Props = {
@@ -13,6 +14,14 @@ type Props = {
 };
 
 class MessengerSection extends React.Component<Props> {
+  renderCustomValue = (value: string) => {
+    if (isValidDate(value) || isTimeStamp(value)) {
+      return dayjs(value).format('lll');
+    }
+
+    return value;
+  };
+
   renderContent() {
     const { customer } = this.props;
     const { messengerData } = customer;
@@ -38,7 +47,7 @@ class MessengerSection extends React.Component<Props> {
         <li>
           {__('Last online')}
           <SidebarCounter>
-            {moment(messengerData.lastSeenAt).format('lll')}
+            {dayjs(messengerData.lastSeenAt).format('lll')}
           </SidebarCounter>
         </li>
         <li>
@@ -48,7 +57,9 @@ class MessengerSection extends React.Component<Props> {
         {customData.map((data, index) => (
           <li key={index}>
             {data.name}
-            <SidebarCounter>{data.value}</SidebarCounter>
+            <SidebarCounter>
+              {this.renderCustomValue(data.value)}
+            </SidebarCounter>
           </li>
         ))}
       </SidebarList>

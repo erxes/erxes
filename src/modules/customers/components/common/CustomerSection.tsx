@@ -1,16 +1,14 @@
-import {
-  EmptyState,
-  Icon,
-  ModalTrigger,
-  Spinner
-} from 'modules/common/components';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Spinner from 'modules/common/components/Spinner';
 import { __, renderFullName } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { Sidebar } from 'modules/layout/components';
+import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { CustomerChooser } from '../../containers';
+import CustomerChooser from '../../containers/CustomerChooser';
 
 type Props = {
   name: string;
@@ -25,7 +23,7 @@ function CustomerSection({ name, customers, onSelect }: Props) {
   const mailTo = email => {
     if (email) {
       return (
-        <a target="_blank" href={`mailto:${email}`}>
+        <a target="_parent" href={`mailto:${email}`} rel="noopener noreferrer">
           {email}
         </a>
       );
@@ -42,7 +40,7 @@ function CustomerSection({ name, customers, onSelect }: Props) {
       <SectionBody>
         {customersObj.map((customer, index) => (
           <SectionBodyItem key={index}>
-            <Link to={`/customers/details/${customer._id}`}>
+            <Link to={`/contacts/customers/details/${customer._id}`}>
               <Icon icon="logout-2" />
             </Link>
             <span>{renderFullName(customer)}</span>
@@ -76,9 +74,9 @@ function CustomerSection({ name, customers, onSelect }: Props) {
           title="Associate"
           size="lg"
           trigger={
-            <a>
+            <button>
               <Icon icon="add" />
-            </a>
+            </button>
           }
           content={customerChooser}
         />

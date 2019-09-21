@@ -1,8 +1,9 @@
-import { Spinner } from 'modules/common/components';
-import * as React from 'react';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { Summary } from '.';
 import {
+  ChartWrapper,
   FullName,
   InsightUserData,
   LoaderWrapper,
@@ -11,6 +12,7 @@ import {
 import { IChartParams } from '../types';
 import { convertTime } from '../utils';
 import Chart from './Chart';
+import Summary from './Summary';
 
 type Props = {
   datas: IChartParams[];
@@ -29,12 +31,11 @@ class TeamMembers extends React.Component<Props> {
 
         <InsightUserData>
           <UserProfile>
-            <a>
-              <img
-                src={data.avatar || '/images/avatar-colored.svg'}
-                alt={data.fullName}
-              />
-            </a>
+            <img
+              src={data.avatar || '/images/avatar-colored.svg'}
+              alt={data.fullName}
+            />
+
             <FullName>{data.fullName}</FullName>
 
             {userData.time ? (
@@ -55,6 +56,14 @@ class TeamMembers extends React.Component<Props> {
         <LoaderWrapper>
           <Spinner objective={true} />
         </LoaderWrapper>
+      );
+    }
+
+    if (datas.length === 0) {
+      return (
+        <ChartWrapper>
+          <EmptyState text="There is no data" size="full" icon="piechart" />
+        </ChartWrapper>
       );
     }
 

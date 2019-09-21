@@ -8,13 +8,27 @@ export interface IImportHistory {
   contentType: string;
   date: Date;
   user: IUser;
+  status: string;
+  percentage: number;
+  errorMsgs: string[];
 }
 
+export interface IImportHistoryItem {
+  list: IImportHistory[];
+  count: number;
+}
 // query types
 
 export type ImportHistoriesQueryResponse = {
-  importHistories: IImportHistory[];
+  importHistories: IImportHistoryItem;
   loading: boolean;
+  refetch: () => void;
+};
+
+export type ImportHistoryDetailQueryResponse = {
+  importHistoryDetail: IImportHistory;
+  loading: boolean;
+  subscribeToMore: any;
   refetch: () => void;
 };
 
@@ -24,4 +38,8 @@ export type RemoveMutationResponse = {
   importHistoriesRemove: (
     params: { variables: { _id: string } }
   ) => Promise<any>;
+};
+
+export type CancelMutationResponse = {
+  importCancel: (params: { variables: { _id: string } }) => Promise<any>;
 };

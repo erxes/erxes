@@ -1,9 +1,11 @@
-import { ActivityInputs } from 'modules/activityLogs/components';
-import { ActivityLogs } from 'modules/activityLogs/containers';
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
+import Icon from 'modules/common/components/Icon';
+import { TabTitle } from 'modules/common/components/tabs';
 import { __, renderFullName } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
-import { IUser } from '../../../auth/types';
+import Widget from 'modules/engage/containers/Widget';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
@@ -14,11 +16,53 @@ type Props = {
 };
 
 class CustomerDetails extends React.Component<Props> {
+  renderEmailTab = () => {
+    const { customer } = this.props;
+
+    if (!customer.primaryEmail) {
+      return null;
+    }
+
+    const triggerEmail = (
+      <TabTitle>
+        <Icon icon="email-4" /> {__('New email')}
+      </TabTitle>
+    );
+
+    return (
+      <Widget
+        customers={[this.props.customer]}
+        modalTrigger={triggerEmail}
+        channelType="email"
+      />
+    );
+  };
+
+  renderExtraTabs = () => {
+    const triggerMessenger = (
+      <TabTitle>
+        <Icon icon="speech-bubble-3" /> {__('New message')}
+      </TabTitle>
+    );
+
+    return (
+      <>
+        <Widget
+          customers={[this.props.customer]}
+          modalTrigger={triggerMessenger}
+          channelType="messenger"
+        />
+        {this.renderEmailTab()}
+      </>
+    );
+  };
+
   render() {
     const { customer, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
-      { title: __('Customers'), link: '/customers' },
+      { title: __('Contacts'), link: '/contacts' },
+      { title: __('Customers'), link: '/contacts/customers/all' },
       { title: renderFullName(customer) }
     ];
 
@@ -28,7 +72,8 @@ class CustomerDetails extends React.Component<Props> {
           contentTypeId={customer._id}
           contentType="customer"
           toEmail={customer.primaryEmail}
-          showEmail={true}
+          showEmail={false}
+          extraTabs={this.renderExtraTabs()}
         />
         <ActivityLogs
           target={customer.firstName}
@@ -44,7 +89,12 @@ class CustomerDetails extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={breadcrumb} />}
+        header={
+          <Wrapper.Header
+            title={renderFullName(customer)}
+            breadcrumb={breadcrumb}
+          />
+        }
         leftSidebar={
           <LeftSidebar
             wide={true}

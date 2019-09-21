@@ -11,39 +11,63 @@ const commonParams = `
 `;
 
 const sendGmailFields = `
-  $integrationId: String!,
-  $cocType: String!,
-  $cocId: String!,
+  $erxesApiId: String!,
+  $headerId: String,
+  $threadId: String,
   $subject: String!,
-  $body: String!,
-  $toEmails: String!,
+  $textHtml: String!,
+  $textPlain: String!,
+  $references: String
+  $to: String!,
   $cc: String,
   $bcc: String,
+  $from: String!,
   $attachments: [gmailAttachmentData],
-  $headerId: String,
-  $references: String,
-  $threadId: String
 `;
 
 const sendGmailVariables = `
-  integrationId: $integrationId,
-  cocType: $cocType,
-  cocId: $cocId,
+  erxesApiId: $erxesApiId,
+  headerId: $headerId,
+  threadId: $threadId,
   subject: $subject,
-  body: $body,
-  toEmails: $toEmails,
+  references: $references,
+  textHtml: $textHtml,
+  textPlain: $textPlain,
+  to: $to,
   cc: $cc,
   bcc: $bcc,
+  from: $from,
   attachments: $attachments,
-  headerId: $headerId,
-  references: $references,
-  threadId: $threadId
+`;
+
+const integrationSendMail = ` 
+  mutation integrationSendMail(${sendGmailFields}) {
+    integrationSendMail(${sendGmailVariables})
+  }
 `;
 
 const integrationsCreateMessenger = `
   mutation integrationsCreateMessengerIntegration(${commonParamsDef}) {
     integrationsCreateMessengerIntegration(${commonParams}) {
       _id
+      brand {
+        _id
+        name
+        code
+      }
+    }
+  }
+`;
+
+const integrationsCreateExternalIntegration = `
+  mutation integrationsCreateExternalIntegration($name: String!, $brandId: String!, $accountId: String, $kind: String!, $data: JSON) {
+    integrationsCreateExternalIntegration(name: $name, brandId: $brandId, accountId: $accountId, kind: $kind, data: $data) {
+      _id
+      brand {
+        _id
+        name
+        code
+      }
     }
   }
 `;
@@ -75,58 +99,19 @@ const integrationsSaveMessengerAppearance = `
   }
 `;
 
-const integrationsSendGmail = ` 
-  mutation integrationsSendGmail(${sendGmailFields}) {
-    integrationsSendGmail(${sendGmailVariables}) {
-      status
-      statusText
-    }
-  }
-`;
-
-const integrationsCreateGmail = ` 
-  mutation integrationsCreateGmailIntegration(
-    $code: String!
-    $brandId: String!
-  ) {
-    integrationsCreateGmailIntegration(code: $code, brandId: $brandId) {
-      _id
-    }
-  }
-`;
-
-const integrationsCreateFacebook = `
-  mutation integrationsCreateFacebookIntegration(
-    $brandId: String!
-    $name: String!
-    $accountId: String!
-    $pageIds: [String!]!
-  ) {
-    integrationsCreateFacebookIntegration(
-      brandId: $brandId
-      name: $name
-      pageIds: $pageIds
-      accountId: $accountId
-    ) {
-      _id
-    }
-  }
-`;
-
-const integrationsCreateTwitter = `
-  mutation save($brandId: String!, $accountId: String!) {
-    integrationsCreateTwitterIntegration(
-      brandId: $brandId
-      accountId: $accountId
-    ) {
-      _id
-    }
-  }
-`;
-
 const integrationsRemove = `
   mutation integrationsRemove($_id: String!) {
     integrationsRemove(_id: $_id)
+  }
+`;
+
+const engagesConfigSave = `
+  mutation engagesConfigSave($secretAccessKey: String!, $accessKeyId: String!, $region: String!) {
+    engagesConfigSave(secretAccessKey: $secretAccessKey, accessKeyId: $accessKeyId, region: $region) {
+      accessKeyId
+      secretAccessKey
+      region
+    }
   }
 `;
 
@@ -169,52 +154,22 @@ const messengerAppsRemove = `
 `;
 
 const removeAccount = `
-  mutation accountsRemove($_id: String!) {
-    accountsRemove(_id: $_id)
-  }
-`;
-
-const messengerAppsAddGoogleMeet = `
-  mutation messengerAppsAddGoogleMeet(
-    $name: String!
-    $accountId: String!
-  ) {
-    messengerAppsAddGoogleMeet(name: $name, accountId: $accountId) {
-      _id
-    }
-  }
-`;
-
-const integrationsCreateGmailIntegration = `
-  mutation integrationsCreateGmailIntegration(
-    $brandId: String!
-    $name: String!
-    $accountId: String!
-  ) {
-    integrationsCreateGmailIntegration(
-      brandId: $brandId
-      name: $name
-      accountId: $accountId
-    ) {
-      _id
-    }
+  mutation integrationsRemoveAccount($_id: String!) {
+    integrationsRemoveAccount(_id: $_id)
   }
 `;
 
 export default {
   integrationsCreateMessenger,
+  integrationsCreateExternalIntegration,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
-  integrationsSendGmail,
-  integrationsCreateGmail,
-  integrationsCreateFacebook,
-  integrationsCreateTwitter,
   integrationsRemove,
+  engagesConfigSave,
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
   removeAccount,
-  messengerAppsAddGoogleMeet,
-  integrationsCreateGmailIntegration
+  integrationSendMail
 };

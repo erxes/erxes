@@ -19,23 +19,6 @@ const StyledTable = styledTS<{
     border-collapse: collapse;
     white-space: ${props.whiteSpace || ''};
 
-    th {
-      .table-sorter {
-        float: left;
-        padding-right: 10px;
-        color: ${colors.colorSecondary};
-
-        i {
-          display: block;
-          line-height: 8px;
-
-          &:hover {
-            cursor: pointer;
-          }
-        }
-      }
-    }
-
     th,
     td {
       border-top: 1px solid ${colors.borderPrimary};

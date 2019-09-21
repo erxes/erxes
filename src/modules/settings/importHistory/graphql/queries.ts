@@ -1,21 +1,54 @@
 const histories = `
   query importHistories($type: String!, $perPage: Int, $page: Int) {
     importHistories(type: $type, perPage: $perPage, page: $page) {
+      list {
+        _id
+        success
+        failed
+        total
+        contentType
+        date
+        user {
+          details {
+            fullName
+          }
+        }
+      }
+      count 
+    }
+  }
+`;
+
+const historyDetail = `
+  query importHistoryDetail($_id: String!) {
+    importHistoryDetail(_id: $_id) {
       _id
       success
       failed
       total
       contentType
       date
-      user {
-        details {
-          fullName
-        }
-      }
+      errorMsgs
+      percentage
+      status
+    }
+  }
+`;
+
+const historyDetailForLoad = `
+  query importHistoryDetail($_id: String!) {
+    importHistoryDetail(_id: $_id) {
+      _id
+      errorMsgs
+      percentage
+      status
+      contentType
     }
   }
 `;
 
 export default {
-  histories
+  histories,
+  historyDetail,
+  historyDetailForLoad
 };

@@ -1,17 +1,16 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
   FormIntegrationDetailQueryResponse
 } from 'modules/settings/integrations/types';
 import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { Form } from '../components';
+import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
   AddFieldMutationResponse,
@@ -32,7 +31,6 @@ type Props = {
 
 type FinalProps = {
   fieldsQuery: FieldsQueryResponse;
-  brandsQuery: BrandsQueryResponse;
   integrationDetailQuery: FormIntegrationDetailQueryResponse;
 } & Props &
   EditIntegrationMutationResponse &
@@ -42,11 +40,19 @@ type FinalProps = {
   RemoveFieldMutationResponse &
   IRouterProps;
 
-class EditFormContainer extends React.Component<FinalProps, {}> {
+class EditFormContainer extends React.Component<
+  FinalProps,
+  { isLoading: boolean }
+> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = { isLoading: false };
+  }
+
   render() {
     const {
       formId,
-      brandsQuery,
       integrationDetailQuery,
       editIntegrationMutation,
       addFieldMutation,
@@ -57,20 +63,17 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
       history
     } = this.props;
 
-    if (
-      fieldsQuery.loading ||
-      brandsQuery.loading ||
-      integrationDetailQuery.loading
-    ) {
+    if (fieldsQuery.loading || integrationDetailQuery.loading) {
       return false;
     }
 
-    const brands = brandsQuery.brands || [];
     const dbFields = fieldsQuery.fields || [];
     const integration = integrationDetailQuery.integrationDetail || {};
 
     const save = doc => {
       const { form, brandId, name, languageCode, formData, fields } = doc;
+
+      this.setState({ isLoading: true });
 
       // edit form
       editFormMutation({ variables: { _id: formId, ...form } })
@@ -146,19 +149,23 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
           fieldsQuery.refetch().then(() => {
             history.push('/forms');
           });
+
+          this.setState({ isLoading: false });
         })
 
         .catch(error => {
           Alert.error(error.message);
+
+          this.setState({ isLoading: false });
         });
     };
 
     const updatedProps = {
       ...this.props,
-      brands,
       integration,
       fields: dbFields.map(field => ({ ...field })),
-      save
+      save,
+      isActionLoading: this.state.isLoading
     };
 
     return <Form {...updatedProps} />;
@@ -167,9 +174,6 @@ class EditFormContainer extends React.Component<FinalProps, {}> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
-    }),
     graphql<
       Props,
       FieldsQueryResponse,

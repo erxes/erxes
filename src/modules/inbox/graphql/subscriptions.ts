@@ -20,6 +20,15 @@ const conversationClientMessageInserted = `
   subscription conversationClientMessageInserted($userId: String!) {
     conversationClientMessageInserted(userId: $userId) {
       _id
+      content
+    }
+  }
+`;
+
+const conversationClientTypingStatusChanged = `
+  subscription conversationClientTypingStatusChanged($_id: String!) {
+    conversationClientTypingStatusChanged(_id: $_id) {
+      text
     }
   }
 `;
@@ -37,5 +46,6 @@ export default {
   conversationChanged,
   conversationMessageInserted,
   conversationClientMessageInserted,
+  conversationClientTypingStatusChanged,
   customerConnectionChanged
 };

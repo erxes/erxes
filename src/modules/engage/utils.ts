@@ -1,4 +1,5 @@
 import { generatePaginationParams } from 'modules/common/utils/router';
+import { TargetCount } from 'modules/engage/types';
 
 export const generateListQueryVariables = ({ queryParams }) => ({
   ...generatePaginationParams(queryParams),
@@ -17,4 +18,19 @@ export const crudMutationsOptions = () => {
       'statusCounts'
     ]
   };
+};
+
+/**
+ * Sum selected item's customers count
+ * @param ids - customer ids
+ * @param countValues - customer counts
+ */
+export const sumCounts = (ids: string[], countValues: TargetCount): number => {
+  let sum = 0;
+
+  for (const id of ids) {
+    sum += countValues[id];
+  }
+
+  return sum;
 };

@@ -14,7 +14,7 @@ export interface ITagSaveParams {
     type: string;
     colorCode: string;
   };
-  callback: () => void;
+  callback?: () => void;
 }
 
 export type ITagTypes =

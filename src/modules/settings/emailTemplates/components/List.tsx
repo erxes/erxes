@@ -1,11 +1,10 @@
-import {
-  HeaderDescription,
-  Icon,
-  ModalTrigger
-} from 'modules/common/components';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import { List } from '../../common/components';
+import React from 'react';
+import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
 import {
   Actions,
@@ -16,9 +15,13 @@ import {
 } from '../styles';
 import Form from './Form';
 
-class EmailTemplateList extends React.Component<ICommonListProps> {
+type Props = {
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+} & ICommonListProps;
+
+class EmailTemplateList extends React.Component<Props> {
   renderForm = props => {
-    return <Form {...props} />;
+    return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
   removeTemplate = object => {
@@ -34,6 +37,7 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
 
     return (
       <ModalTrigger
+        enforceFocus={false}
         title="Edit"
         size="lg"
         trigger={
@@ -72,12 +76,13 @@ class EmailTemplateList extends React.Component<ICommonListProps> {
   render() {
     return (
       <List
-        title="New email template"
+        formTitle="New email template"
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Email templates') }
         ]}
+        title={__('Email templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/22.svg"

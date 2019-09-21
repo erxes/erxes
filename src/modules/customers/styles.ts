@@ -95,11 +95,6 @@ const Date = styled.time`
   font-size: 12px;
 `;
 
-const TableHeadContent = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 export {
   InfoTitle,
   InfoDetail,
@@ -110,6 +105,5 @@ export {
   Contact,
   Name,
   Date,
-  TabContent,
-  TableHeadContent
+  TabContent
 };

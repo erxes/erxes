@@ -2,9 +2,11 @@ import { IUser } from 'modules/auth/types';
 import { WebPreview } from 'modules/engage/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import { IMessagesItem } from 'modules/settings/integrations/types';
-import * as React from 'react';
-import { GreetingContent, TopBar, WidgetContent } from './';
+import React from 'react';
+import GreetingContent from './GreetingContent';
 import { Launcher, WidgetPreviewStyled } from './styles';
+import TopBar from './TopBar';
+import WidgetContent from './WidgetContent';
 
 type Props = {
   teamMembers: IUser[];

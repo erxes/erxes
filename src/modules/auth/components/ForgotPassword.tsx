@@ -1,6 +1,8 @@
-import { Button, FormControl, FormGroup } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
 import { __ } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { AuthBox, Links } from '../styles';
 

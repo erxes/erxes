@@ -1,22 +1,24 @@
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
-import { Spinner } from 'modules/common/components';
+import Spinner from 'modules/common/components/Spinner';
+import { IFormProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { Accounts } from '../components';
+import Accounts from '../components/Accounts';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {
-  kind: 'facebook' | 'twitter' | 'gmail';
+  kind: 'facebook' | 'gmail';
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
+  formProps: IFormProps;
 };
 
 type FinalProps = {
-  accountsQuery: AccountsQueryResponse;
+  fetchApiQuery: AccountsQueryResponse;
 } & Props &
   RemoveAccountMutationResponse;
 
@@ -25,7 +27,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
     const { addLink } = this.props;
 
     const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/${addLink}`;
+    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}`;
 
     window.location.replace(url);
   };
@@ -44,13 +46,19 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { accountsQuery, onSelect } = this.props;
+    const { fetchApiQuery, onSelect, formProps } = this.props;
 
-    if (accountsQuery.loading) {
+    if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    const accounts = accountsQuery.accounts || [];
+    if (fetchApiQuery.error) {
+      return (
+        <span style={{ color: 'red' }}>Integrations api is not running</span>
+      );
+    }
+
+    const accounts = fetchApiQuery.integrationsFetchApi || [];
 
     return (
       <Accounts
@@ -58,6 +66,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
         removeAccount={this.removeAccount}
         onSelect={onSelect}
         accounts={accounts}
+        formProps={formProps}
       />
     );
   }
@@ -70,15 +79,16 @@ export default withProps<Props>(
       {
         name: 'removeAccount',
         options: {
-          refetchQueries: ['accounts']
+          refetchQueries: ['integrationsFetchApi']
         }
       }
     ),
-    graphql<Props, AccountsQueryResponse>(gql(queries.accounts), {
-      name: 'accountsQuery',
+    graphql<Props, AccountsQueryResponse>(gql(queries.fetchApi), {
+      name: 'fetchApiQuery',
       options: ({ kind }) => ({
         variables: {
-          kind
+          path: '/accounts',
+          params: { kind }
         }
       })
     })

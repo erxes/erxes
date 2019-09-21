@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Formgroup } from './styles';
 
 function FormGroup({ children }: { children: React.ReactNode }) {

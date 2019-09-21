@@ -1,15 +1,14 @@
-import {
-  ActionButtons,
-  Button,
-  Label,
-  Table,
-  Tip
-} from 'modules/common/components';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Label from 'modules/common/components/Label';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { Wrapper } from 'modules/layout/components';
-import * as React from 'react';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
+import Sidebar from './Sidebar';
 
 type Props = {
   contentType?: string;
@@ -95,9 +94,15 @@ class SegmentsList extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header breadcrumb={[{ title: __('Segments') }]} />}
+        header={
+          <Wrapper.Header
+            title={__('Segments')}
+            breadcrumb={[{ title: __('Segments') }]}
+          />
+        }
         actionBar={actionBar}
         content={this.renderContent()}
+        leftSidebar={<Sidebar />}
       />
     );
   }

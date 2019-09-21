@@ -1,9 +1,11 @@
 import debounce from 'lodash/debounce';
-import { Button, ControlLabel, FormControl } from 'modules/common/components';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import { dateUnits, operators, types } from 'modules/customers/constants';
 import { FlexContent, FlexItem, FlexRightItem } from 'modules/layout/styles';
-import * as React from 'react';
+import React from 'react';
 import { ISegmentCondition } from '../types';
 import { ConditionItem } from './styles';
 
@@ -142,15 +144,31 @@ class Condition extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  renderFieldTitle() {
     const { fields, condition } = this.props;
 
-    const field = fields.find(fieldItem => fieldItem._id === condition.field);
+    const field = fields.find(
+      fieldItem =>
+        fieldItem._id === condition.field &&
+        fieldItem.brandId === condition.brandId
+    );
 
+    if (field) {
+      if (field.brandName) {
+        return `${field.brandName}: ${field.title}`;
+      }
+
+      return field.title;
+    }
+
+    return null;
+  }
+
+  render() {
     return (
       <ConditionItem>
         <ControlLabel ignoreTrans={true}>
-          {field ? field.title : ''}
+          {this.renderFieldTitle()}
         </ControlLabel>
         <br />
         <FlexContent>

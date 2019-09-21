@@ -45,6 +45,13 @@ const integrations = `
           featuredImage
           skip
         }
+        rules {
+          _id
+          kind
+          text
+          condition
+          value
+        }
       }
     }
   }
@@ -89,19 +96,14 @@ const integrationDetail = `
           featuredImage
           skip
         }
+        rules {
+          _id
+          kind
+          text
+          condition
+          value
+        }
       }
-    }
-  }
-`;
-
-const brands = `
-  query brands($page: Int, $perPage: Int) {
-    brands(page: $page, perPage: $perPage) {
-      _id
-      code
-      name
-      createdAt
-      description
     }
   }
 `;
@@ -171,7 +173,6 @@ export default {
   integrationDetail,
   integrationsTotalCount,
   fields,
-  brands,
   tags,
   forms,
   fieldsCombinedByContentType,

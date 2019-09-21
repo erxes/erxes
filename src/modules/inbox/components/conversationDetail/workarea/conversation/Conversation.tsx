@@ -1,14 +1,11 @@
-import { Spinner } from 'modules/common/components';
 import { IAttachmentPreview } from 'modules/common/types';
-import { FacebookConversation } from 'modules/inbox/containers/conversationDetail';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
+import GmailConversation from '../gmail/GmailConversation';
 import AttachmentPreview from './AttachmentPreview';
-import { GmailConversation } from './gmail';
-import { Message } from './messages';
-import { TwitterConversation } from './twitter';
+import Message from './messages/Message';
 
 type Props = {
   conversation: IConversation;
@@ -56,51 +53,19 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   renderConversation() {
-    const {
-      loading,
-      conversation,
-      conversationMessages,
-      scrollBottom
-    } = this.props;
-    const { kind } = conversation.integration;
+    const { conversation, conversationMessages } = this.props;
 
     if (!conversation) {
       return null;
     }
 
-    if ((kind === 'facebook' || kind === 'twitter') && loading) {
-      return <Spinner objective={true} />;
-    }
+    const { kind } = conversation.integration;
 
-    const twitterData = conversation.twitterData;
-    const facebookData = conversation.facebookData;
-    const isTweet = twitterData && !twitterData.isDirectMessage;
-    const isFacebookPost = facebookData && facebookData.kind !== 'messenger';
-
-    if (conversation.gmailData) {
+    if (kind === 'gmail') {
       return (
         <GmailConversation
           conversation={conversation}
           conversationMessages={conversationMessages}
-        />
-      );
-    }
-
-    if (isTweet) {
-      return (
-        <TwitterConversation
-          conversation={conversation}
-          conversationMessages={conversationMessages}
-          scrollBottom={scrollBottom}
-        />
-      );
-    }
-
-    if (isFacebookPost) {
-      return (
-        <FacebookConversation
-          conversation={conversation}
-          scrollBottom={scrollBottom}
         />
       );
     }
@@ -112,10 +77,10 @@ class Conversation extends React.Component<Props, {}> {
   }
 
   render() {
-    const { attachmentPreview, scrollBottom, conversation } = this.props;
+    const { attachmentPreview, scrollBottom } = this.props;
 
     return (
-      <Wrapper isEmail={conversation.gmailData ? true : false}>
+      <Wrapper isEmail={false}>
         {this.renderConversation()}
         <AttachmentPreview
           onLoad={scrollBottom}

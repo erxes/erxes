@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
-import { GroupList } from '../components';
+import GroupList from '../components/GroupList';
 import { mutations, queries } from '../graphql';
 import {
   UsersGroupsAddMutation,
@@ -19,8 +19,11 @@ const commonOptions = () => ({
   refetchQueries: [{ query: gql(queries.usersGroups) }]
 });
 
-export default commonListComposer({
-  name: 'usersGroups',
+export default commonListComposer<Props>({
+  label: 'usersGroups',
+  text: 'user group',
+  stringEditMutation: mutations.usersGroupsEdit,
+  stringAddMutation: mutations.usersGroupsAdd,
 
   gqlListQuery: graphql<Props, UsersGroupsQueryResponse>(
     gql(queries.usersGroups),
@@ -30,8 +33,7 @@ export default commonListComposer({
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
-            page: queryParams.page,
-            perPage: queryParams.perPage || 20
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           }
         };
       }

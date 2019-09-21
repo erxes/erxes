@@ -1,3 +1,4 @@
+import { IConditionsRule } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { IBrand } from '../settings/brands/types';
 import { IIntegration } from '../settings/integrations/types';
@@ -20,6 +21,7 @@ export interface IForm {
   buttonText?: string;
   themeColor?: string;
   callout?: ICallout;
+  rules?: IConditionsRule[];
   createdUserId?: string;
   createdUser?: IUser;
   createdDate?: Date;

@@ -1,13 +1,14 @@
 import { IUser } from 'modules/auth/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import * as React from 'react';
-import { EmailForm, MessengerForm } from '../';
+import React from 'react';
 import {
   IEngageEmail,
   IEngageMessenger,
   IEngageScheduleDate
 } from '../../types';
+import EmailForm from '../EmailForm';
+import MessengerForm from '../MessengerForm';
 
 type Props = {
   brands: IBrand[];

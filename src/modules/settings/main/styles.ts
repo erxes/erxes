@@ -7,13 +7,17 @@ const rowTitleSize = 250;
 const boxSize = 150;
 
 const MenusContainer = styled.div`
-  padding: ${dimensions.coreSpacing * 1.5}px 0;
+  padding: ${dimensions.coreSpacing}px 0;
 `;
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
   padding-top: ${dimensions.coreSpacing}px;
+
+  @media (max-width: 1170px) {
+    flex-direction: column;
+  }
 `;
 
 const RowTitle = styled.h3`
@@ -31,6 +35,10 @@ const RowTitle = styled.h3`
 const Box = styled(BoxRoot)`
   width: ${boxSize}px;
   height: ${boxSize}px;
+
+  img {
+    height: 83px;
+  }
 `;
 
 const Divider = styled.div`

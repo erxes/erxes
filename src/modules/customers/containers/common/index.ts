@@ -1,4 +1,5 @@
 import ActionSection from './ActionSection';
 import CustomFieldsSection from './CustomFieldsSection';
+import SelectCustomers from './SelectCustomers';
 
-export { CustomFieldsSection, ActionSection };
+export { CustomFieldsSection, ActionSection, SelectCustomers };

@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
 import { Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../common/types';
-import { ResetPassword } from '../components';
+import ResetPassword from '../components/ResetPassword';
 import { mutations } from '../graphql';
 import {
   ResetPasswordMutationResponse,

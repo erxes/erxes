@@ -22,7 +22,7 @@ const StepWrapper = styled.div`
 `;
 
 const StepItem = styledTS<{ show: boolean }>(styled.div)`
-  transition: all 0.3s ease;
+  transition: all .3s ease;
   width: ${props => (props.show ? '100%' : '70px')};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
 `;

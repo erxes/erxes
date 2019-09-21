@@ -16,14 +16,14 @@ export type UsersAddMutationResponse = {
   ) => Promise<void>;
 };
 
-export type UserRemoveMutationVariables = {
+export type UserStatusChangeMutationVariables = {
   _id: string;
 };
 
-export type UserRemoveMutationResponse = {
-  removeMutation: (
+export type UserStatusChangeMutationResponse = {
+  statusChangedMutation: (
     params: {
-      variables: UserRemoveMutationVariables;
+      variables: UserStatusChangeMutationVariables;
     }
   ) => Promise<void>;
 };

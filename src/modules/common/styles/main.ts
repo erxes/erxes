@@ -135,7 +135,7 @@ const ColumnTitle = styled.h4`
 
 const ModalFooter = styled.div`
   text-align: right;
-  margin-top: 40px;
+  margin-top: 30px;
 `;
 
 const CenterContent = styled.div`

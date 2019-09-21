@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
-import * as React from 'react';
+import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
   GetNotificationByEmailMutationResponse,
@@ -11,7 +11,7 @@ import {
   SaveNotificationConfigMutationResponse,
   SaveNotificationConfigMutationVariables
 } from '../../../notifications/types';
-import { NotificationSettings } from '../components';
+import NotificationSettings from '../components/NotificationSettings';
 
 type Props = {
   notificationModulesQuery: NotificationModulesQueryResponse;
@@ -59,7 +59,7 @@ const NotificationSettingsContainer = (props: Props) => {
   let getNotificationByEmail = currentUser.getNotificationByEmail;
 
   if (getNotificationByEmail === undefined || getNotificationByEmail === null) {
-    getNotificationByEmail = true;
+    getNotificationByEmail = false;
   }
 
   const updatedProps = {
