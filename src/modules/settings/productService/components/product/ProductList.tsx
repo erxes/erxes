@@ -10,6 +10,7 @@ import { __, Alert, confirm } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IProduct } from '../../types';
@@ -83,11 +84,18 @@ class List extends React.Component<IProps> {
     const modalContent = props => <Form {...props} />;
 
     let actionBarRight = (
-      <ModalTrigger
-        title="Add Product / Service"
-        trigger={trigger}
-        content={modalContent}
-      />
+      <BarItems>
+        <Link to="/settings/importHistories?type=customer">
+          <Button btnStyle="primary" size="small" icon="arrow-from-right">
+            {__('Go to import')}
+          </Button>
+        </Link>
+        <ModalTrigger
+          title="Add Product / Service"
+          trigger={trigger}
+          content={modalContent}
+        />
+      </BarItems>
     );
 
     const content = (
