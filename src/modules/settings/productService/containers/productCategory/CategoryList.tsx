@@ -91,7 +91,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories', 'productCategoriesCount'];
+  return ['productCategories', 'productCategoriesTotalCount'];
 };
 
 const options = () => ({
