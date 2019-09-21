@@ -11,7 +11,7 @@ export const graphRequest = {
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
         if (error) {
-          return reject(error.message);
+          return reject(error);
         }
         return resolve(response);
       });
