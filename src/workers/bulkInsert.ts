@@ -32,7 +32,7 @@ export const importXlsFile = async (
       return reject(new Error('Please upgrade node version above 10.5.0 support worker_threads!'));
     }
 
-    const readStream = fs.createReadStream(path.basename(file.path));
+    const readStream = fs.createReadStream(file.path);
 
     // Directory to save file
     const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
