@@ -41,8 +41,8 @@ const productCategories = `
 `;
 
 const productCategoriesCount = `
-  query productCategoriesTotalCount($parentId: String) {
-    productCategoriesTotalCount(parentId: $parentId)
+  query productCategoriesTotalCount {
+    productCategoriesTotalCount
   }
 `;
 
