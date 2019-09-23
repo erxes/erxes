@@ -2,6 +2,7 @@ const productFields = `
       _id
       name
       type
+      code
       categoryId
       description
       categoryName

@@ -82,6 +82,7 @@ class BasicInfo extends React.Component<Props> {
         {this.renderAction()}
 
         <SidebarList className="no-link">
+          {this.renderRow('Code', product.code)}
           {this.renderRow('Type', product.type)}
           {this.renderRow('Category', product.categoryName)}
           {this.renderRow('Sku', product.sku)}

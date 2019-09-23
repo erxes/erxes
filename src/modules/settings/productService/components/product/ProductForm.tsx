@@ -60,6 +60,16 @@ class Form extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel required={true}>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>Category</ControlLabel>
           <FormControl
             {...formProps}

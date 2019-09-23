@@ -22,6 +22,7 @@ export interface IProduct {
   categoryId: string;
   description: string;
   sku: string;
+  code: string;
   customFieldsData?: any;
   createdAt: Date;
 

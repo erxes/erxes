@@ -3,8 +3,9 @@ const productParamsDef = `
   $type: String,
   $categoryId: String,
   $description: String,
-  $sku: String
-  $customFieldsData: JSON
+  $sku: String,
+  $code: String
+  $customFieldsData: JSON,
 `;
 
 const productCategoryParamsDef = `
@@ -20,6 +21,7 @@ const productParams = `
   categoryId: $categoryId,
   description: $description,
   sku: $sku
+  code: $code
   customFieldsData: $customFieldsData
 `;
 
