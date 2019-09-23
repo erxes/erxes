@@ -23,7 +23,7 @@ import MessengerApps from './MessengerApps';
 import { NotificationConfigurations, Notifications } from './Notifications';
 import { Permissions, UsersGroups } from './Permissions';
 import PipelineTemplates from './PipelineTemplates';
-import Products from './Products';
+import { ProductCategories, Products } from './Products';
 import ResponseTemplates from './ResponseTemplates';
 import Scripts from './Scripts';
 import Segments from './Segments';
@@ -64,6 +64,7 @@ export {
   Stages,
   Deals,
   Products,
+  ProductCategories,
   Configs,
   FieldsGroups,
   ImportHistory,

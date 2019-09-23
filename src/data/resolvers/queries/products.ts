@@ -1,4 +1,4 @@
-import { Products } from '../../../db/models';
+import { ProductCategories, Products } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -11,16 +11,21 @@ const productQueries = {
     _root,
     {
       type,
+      categoryId,
       searchValue,
       ids,
       ...pagintationArgs
-    }: { ids: string[]; type: string; searchValue: string; page: number; perPage: number },
+    }: { ids: string[]; type: string; categoryId: string; searchValue: string; page: number; perPage: number },
     { commonQuerySelector }: IContext,
   ) {
     const filter: any = commonQuerySelector;
 
     if (type) {
       filter.type = type;
+    }
+
+    if (categoryId) {
+      filter.categoryId = categoryId;
     }
 
     if (ids) {
@@ -46,6 +51,32 @@ const productQueries = {
     }
 
     return Products.find(filter).countDocuments();
+  },
+
+  productCategories(
+    _root,
+    { parentId, searchValue }: { parentId: string; searchValue: string },
+    { commonQuerySelector }: IContext,
+  ) {
+    const filter: any = commonQuerySelector;
+
+    if (parentId) {
+      filter.parentId = parentId;
+    }
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    return ProductCategories.find(filter).sort({ order: 1 });
+  },
+
+  productCategoriesTotalCount(_root) {
+    return ProductCategories.find().countDocuments();
+  },
+
+  productDetail(_root, { _id }: { _id: string }) {
+    return Products.findOne({ _id });
   },
 };
 

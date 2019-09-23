@@ -1,15 +1,17 @@
-import { dealFactory, productFactory } from '../db/factories';
-import { Deals, Products } from '../db/models';
+import { dealFactory, productCategoryFactory, productFactory } from '../db/factories';
+import { Deals, ProductCategories, Products } from '../db/models';
 
 import './setup.ts';
 
 describe('Test products model', () => {
   let product;
   let deal;
+  let productCategory;
 
   beforeEach(async () => {
     // Creating test data
     product = await productFactory({ type: 'service' });
+    productCategory = await productCategoryFactory({});
     deal = await dealFactory({ productsData: [{ productId: product._id }] });
   });
 
@@ -17,6 +19,7 @@ describe('Test products model', () => {
     // Clearing test data
     await Products.deleteMany({});
     await Deals.deleteMany({});
+    await ProductCategories.deleteMany({});
   });
 
   test('Create product', async () => {
@@ -25,6 +28,8 @@ describe('Test products model', () => {
       type: product.type,
       description: product.description,
       sku: product.sku,
+      categoryId: productCategory._id,
+      code: '123',
     });
 
     expect(productObj).toBeDefined();
@@ -40,6 +45,8 @@ describe('Test products model', () => {
       type: `${product.type}-update`,
       description: `${product.description}-update`,
       sku: `${product.sku}-update`,
+      categoryId: productCategory._id,
+      code: '321',
     });
 
     expect(productObj).toBeDefined();

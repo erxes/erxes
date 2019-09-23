@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Companies, Customers, ImportHistory } from '../db/models';
+import { Companies, Customers, ImportHistory, Products } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 import { connect } from './utils';
 
@@ -13,6 +13,10 @@ connect().then(async () => {
 
   if (contentType === 'customer') {
     collection = Customers;
+  }
+
+  if (contentType === 'product') {
+    collection = Products;
   }
 
   await collection.deleteMany({ _id: { $in: result } });

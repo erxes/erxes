@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
-import { checkFieldNames } from '../data/modules/coc/utils';
+import { checkFieldNames } from '../data/modules/fields/utils';
 import { can } from '../data/permissions/utils';
 import { ImportHistory } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -43,10 +43,9 @@ export const importXlsFile = async (
         stream.on('finish', resolver);
         stream.on('error', rejecter);
       });
-
     // Creating streams
     const writeStream = fs.createWriteStream(downloadDir);
-    const streamObj = readStream.pipe(writeStream);
+    const streamObj = await readStream.pipe(writeStream);
 
     pipe(streamObj)
       .then(async () => {

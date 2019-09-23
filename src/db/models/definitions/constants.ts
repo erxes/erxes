@@ -75,9 +75,10 @@ export const ACTIVITY_CONTENT_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
   TASK: 'task',
+  PRODUCT: 'product',
   GROWTH_HACK: 'growthHack',
 
-  ALL: ['customer', 'company', 'user', 'deal', 'ticket', 'task', 'growthHack'],
+  ALL: ['customer', 'company', 'user', 'deal', 'ticket', 'task', 'product', 'growthHack'],
 };
 
 export const PUBLISH_STATUSES = {
@@ -154,7 +155,8 @@ export const HACK_SCORING_TYPES = {
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL: ['customer', 'company'],
+  PRODUCT: 'product',
+  ALL: ['customer', 'company', 'product'],
 };
 
 export const CUSTOMER_LEAD_STATUS_TYPES = [

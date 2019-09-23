@@ -1,28 +1,63 @@
 export const types = `
+  type ProductCategory {
+    _id: String!
+    name: String
+    description: String
+    parentId: String
+    code: String!
+    order: String!
+    
+    isRoot: Boolean
+    productCount: Int
+  }
+
   type Product {
     _id: String!
     name: String
+    code: String
     type: String
     description: String
     sku: String
+    categoryId: String
+    customFieldsData: JSON
     createdAt: Date
+
+    category: ProductCategory
   }
 `;
 
-const params = `
-  name: String!,
+const productParams = `
+  name: String,
+  categoryId: String,
   type: String,
   description: String,
   sku: String,
+  code: String,
+  customFieldsData: JSON
+`;
+
+const productCategoryParams = `
+  name: String!,
+  code: String!,
+  description: String,
+  parentId: String,
 `;
 
 export const queries = `
-  products(type: String, searchValue: String, page: Int, perPage: Int ids: [String]): [Product]
+  productCategories(parentId: String, searchValue: String): [ProductCategory]
+  productCategoriesTotalCount: Int
+
+  products(type: String, categoryId: String, searchValue: String, page: Int, perPage: Int ids: [String]): [Product]
   productsTotalCount(type: String): Int
+  productDetail(_id: String): Product
 `;
 
 export const mutations = `
-  productsAdd(${params}): Product
-  productsEdit(_id: String!, ${params}): Product
-  productsRemove(_id: String!): JSON
+  productsAdd(${productParams}): Product
+  productsEdit(_id: String!, ${productParams}): Product
+  productsRemove(productIds: [String!]): JSON
+
+  productCategoriesAdd(${productCategoryParams}): ProductCategory
+  productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
+  productCategoriesRemove(_id: String!): JSON
 `;

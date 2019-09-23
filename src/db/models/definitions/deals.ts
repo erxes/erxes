@@ -5,13 +5,30 @@ import { field } from './utils';
 
 export interface IProduct {
   name: string;
+  categoryId?: string;
+  categoryCode?: string;
   type?: string;
   description?: string;
   sku?: string;
+  code: string;
+  customFieldsData?: any;
   productId?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {
+  _id: string;
+  createdAt: Date;
+}
+
+export interface IProductCategory {
+  name: string;
+  code: string;
+  order: string;
+  description?: string;
+  parentId?: string;
+}
+
+export interface IProductCategoryDocument extends IProductCategory, Document {
   _id: string;
   createdAt: Date;
 }
@@ -42,6 +59,8 @@ export interface IDealDocument extends IDeal, Document {
 export const productSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String }),
+  code: field({ type: String, unique: true }),
+  categoryId: field({ type: String }),
   type: field({
     type: String,
     enum: PRODUCT_TYPES.ALL,
@@ -49,6 +68,22 @@ export const productSchema = new Schema({
   }),
   description: field({ type: String, optional: true }),
   sku: field({ type: String, optional: true }), // Stock Keeping Unit
+  customFieldsData: field({
+    type: Object,
+  }),
+  createdAt: field({
+    type: Date,
+    default: new Date(),
+  }),
+});
+
+export const productCategorySchema = new Schema({
+  _id: field({ pkey: true }),
+  name: field({ type: String }),
+  code: field({ type: String, unique: true }),
+  order: field({ type: String }),
+  parentId: field({ type: String, optional: true }),
+  description: field({ type: String, optional: true }),
   createdAt: field({
     type: Date,
     default: new Date(),
