@@ -131,6 +131,10 @@ const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
   p:last-of-type {
     margin-bottom: 0;
   }
+
+  img {
+    width: 100%;
+  }
 `;
 
 const EmailContent = styled.div`
