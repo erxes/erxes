@@ -85,7 +85,7 @@ class List extends React.Component<IProps> {
 
     let actionBarRight = (
       <BarItems>
-        <Link to="/settings/importHistories?type=customer">
+        <Link to="/settings/importHistories?type=product">
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
