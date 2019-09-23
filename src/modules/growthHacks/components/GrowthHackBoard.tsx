@@ -24,11 +24,11 @@ class GrowthHackBoard extends React.Component<Props> {
   }
 
   render() {
-    const breadcrumb = [{ title: __('Growth hack') }];
+    const breadcrumb = [{ title: __('Growth hacking') }];
 
     return (
       <BoardContainer>
-        <Header title={__('Growth hack')} breadcrumb={breadcrumb} />
+        <Header title={__('Growth hacking')} breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}
