@@ -5,6 +5,7 @@ const ruleFields = `
   condition: String!,
   value: String,
 `;
+
 export const types = `
   type Rule {
     ${ruleFields}
@@ -20,4 +21,19 @@ export const conformityQueryFields = `
   conformityMainTypeId: String
   conformityIsRelated: Boolean
   conformityIsSaved: Boolean
+`;
+
+export const commonTypes = `
+  order: Int
+  createdAt: Date
+  hasNotified: Boolean
+  name: String!
+  stageId: String
+  assignedUserIds: [String]
+  closeDate: Date
+  description: String
+  modifiedAt: Date
+  modifiedBy: String
+  reminderMinute: Int,
+  isComplete: Boolean,
 `;

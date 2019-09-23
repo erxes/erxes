@@ -21,6 +21,10 @@ export const types = `
     members: [User]
     bgColor: String
     isWatched: Boolean
+    
+    startDate: Date
+    endDate: Date
+    metric: String
     hackScoringType: String
     templateId: String
     ${commonTypes}
@@ -84,6 +88,9 @@ const pipelineParams = `
   visibility: String!,
   memberIds: [String],
   bgColor: String,
+  startDate: Date,
+  endDate: Date,
+  metric: String,
   hackScoringType: String,
   templateId: String
 `;

@@ -1,29 +1,16 @@
-import { conformityQueryFields } from './common';
-
-const commonTypes = `
-  order: Int
-  createdAt: Date
-  hasNotified: Boolean
-`;
+import { commonTypes, conformityQueryFields } from './common';
 
 export const types = `
   type Deal {
     _id: String!
-    name: String!
-    stageId: String
     pipeline: Pipeline
     boardId: String
-    assignedUserIds: [String]
     amount: JSON
-    closeDate: Date
-    description: String
     companies: [Company]
     customers: [Customer]
     products: JSON
     productsData: JSON
     assignedUsers: [User]
-    modifiedAt: Date
-    modifiedBy: String
     stage: Stage
     attachments: [Attachment]
     isWatched: Boolean
@@ -91,7 +78,9 @@ const commonParams = `
   closeDate: Date,
   description: String,
   order: Int,
-  productsData: JSON
+  productsData: JSON,
+  reminderMinute: Int,
+  isComplete: Boolean
 `;
 
 export const mutations = `
