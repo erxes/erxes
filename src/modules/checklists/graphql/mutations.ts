@@ -1,12 +1,12 @@
 import { checklistFields } from './queries';
 
-const commonVariables = `
+export const commonVariables = `
   $contentType: String,
   $contentTypeId: String,
   $title: String
 `;
 
-const commonParams = `
+export const commonParams = `
   contentType: $contentType,
   contentTypeId: $contentTypeId,
   title: $title

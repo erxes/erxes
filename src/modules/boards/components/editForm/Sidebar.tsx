@@ -1,4 +1,4 @@
-import ChecklistAdd from 'modules/checklists/containers/AddForm';
+import ChecklistAdd from 'modules/checklists/components/AddButton';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import CompanySection from 'modules/companies/components/common/CompanySection';

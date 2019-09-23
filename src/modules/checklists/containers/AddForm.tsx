@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IItem, IOptions } from 'modules/boards/types';
-import { renderWithProps } from 'modules/common/utils';
+import { Alert, renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import AddForm from '../components/AddForm';
@@ -10,6 +10,7 @@ import { AddMutationResponse, IChecklistDoc } from '../types';
 type IProps = {
   item: IItem;
   options: IOptions;
+  closeModal: () => void;
 };
 
 type FinalProps = {
@@ -17,9 +18,16 @@ type FinalProps = {
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
+  saveItem = (doc: IChecklistDoc) => {
+    const { addMutation } = this.props;
+
+    addMutation({ variables: doc });
+  };
+
   render() {
     const updatedProps = {
-      ...this.props
+      ...this.props,
+      saveItem: this.saveItem
     };
 
     return <AddForm {...updatedProps} />;
