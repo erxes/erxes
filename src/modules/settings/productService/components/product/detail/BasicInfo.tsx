@@ -84,7 +84,10 @@ class BasicInfo extends React.Component<Props> {
         <SidebarList className="no-link">
           {this.renderRow('Code', product.code)}
           {this.renderRow('Type', product.type)}
-          {this.renderRow('Category', product.categoryName)}
+          {this.renderRow(
+            'Category',
+            product.category ? product.category.name : ''
+          )}
           {this.renderRow('Sku', product.sku)}
           <SidebarFlexRow>
             {__(`Description`)}:<span>{product.description || '-'}</span>

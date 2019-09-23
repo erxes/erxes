@@ -5,9 +5,11 @@ const productFields = `
       code
       categoryId
       description
-      categoryName
       sku
       createdAt
+      category {
+        name
+      }
 `;
 
 const products = `

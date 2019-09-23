@@ -42,7 +42,7 @@ class Row extends React.Component<Props> {
           <TextInfo>{product.type}</TextInfo>
         </td>
         <td>{product.description}</td>
-        <td>{product.categoryName}</td>
+        <td>{product.category ? product.category.name : ''}</td>
         <td>{product.sku}</td>
       </tr>
     );

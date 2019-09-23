@@ -26,7 +26,7 @@ export interface IProduct {
   customFieldsData?: any;
   createdAt: Date;
 
-  categoryName: string;
+  category: IProductCategory;
 }
 
 export interface IProductCategory {
