@@ -63,7 +63,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     }
 
     if (currentType === 'product') {
-      url = 'https://s3.amazonaws.com/erxes/product_template.xlsx';
+      url = 'https://erxes.s3.amazonaws.com/product_template.xlsx';
     }
 
     return (
