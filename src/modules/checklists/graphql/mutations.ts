@@ -1,0 +1,110 @@
+import { checklistFields } from './queries';
+
+const commonVariables = `
+  $contentType: String,
+  $contentTypeId: String,
+  $title: String
+`;
+
+const commonParams = `
+  contentType: $contentType,
+  contentTypeId: $contentTypeId,
+  title: $title
+`;
+
+const checklistsAdd = `
+  mutation checklistsAdd(
+    ${commonVariables}
+  ) {
+      checklistsAdd(
+        ${commonParams}
+      ) {
+        ${checklistFields}
+      }
+  }
+`;
+
+const checklistsEdit = `
+  mutation checklistsEdit(
+    $_id: String!,
+    ${commonVariables}
+  ) {
+      checklistsEdit(
+        _id: $_id,
+        ${commonParams}
+      ) {
+        ${checklistFields}
+      }
+  }
+`;
+
+const checklistsRemove = `
+  mutation checklistsRemove($_id: String!) {
+    checklistsRemove(_id: $_id) {
+      _id
+    }
+  }
+`;
+
+// checklist items
+
+const commonItemVariables = `
+  $checklistId: String!,
+  $isChecked: Boolean,
+  $content: String,
+  $mentionedUserIds: [String]
+`;
+
+const commonItemParams = `
+  checklistId: $checklistId,
+  isChecked: $isChecked,
+  content: $title,
+  mentionedUserIds: $mentionedUserIds,
+`;
+
+const checklistItemsAdd = `
+  mutation checklistsAdd(
+    ${commonItemVariables}
+  ) {
+      checklistsAdd(
+        ${commonItemParams}
+      ) {
+        _id
+        isChecked
+        content
+      }
+  }
+`;
+
+const checklistItemsEdit = `
+  mutation checklistsAdd(
+    $_id: String!,
+    ${commonItemVariables}
+  ) {
+      checklistsAdd(
+        _id: $_id,
+        ${commonItemParams}
+      ) {
+        _id
+        isChecked
+        content
+      }
+  }
+`;
+
+const checklistItemsRemove = `
+  mutation checklistsRemove($_id: String!) {
+    checklistsRemove(_id: $_id) {
+      _id
+    }
+  }
+`;
+
+export default {
+  checklistsAdd,
+  checklistsEdit,
+  checklistsRemove,
+  checklistItemsAdd,
+  checklistItemsEdit,
+  checklistItemsRemove
+};
