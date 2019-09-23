@@ -11,7 +11,6 @@ import * as path from 'path';
 import * as request from 'request';
 import { filterXSS } from 'xss';
 import apolloServer from './apolloClient';
-import './cronJobs';
 import { companiesExport, customersExport } from './data/modules/coc/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
