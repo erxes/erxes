@@ -1,8 +1,9 @@
 import { IItem, IOptions } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
 import ControlLabel from 'modules/common/components/form/Label';
-import { __ } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import * as React from 'react';
 import {
   AddContainer,
@@ -15,28 +16,41 @@ import { IChecklistDoc } from '../types';
 type IProps = {
   item: IItem;
   options: IOptions;
-  saveItem: (doc: IChecklistDoc) => void;
+  add: (doc: IChecklistDoc, callback: () => void) => void;
+  // saveItem: () => void;
   closeModal: () => void;
 };
 
 type State = {
-  disabled: false;
+  disabled: boolean;
   title: string;
 };
 
 class AddForm extends React.Component<IProps, State> {
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
-  };
+  constructor(props) {
+    super(props);
 
-  onChangeName = e =>
-    this.onChangeField('title', (e.target as HTMLInputElement).value);
+    this.state = {
+      disabled: false,
+      title: ''
+    };
+  }
 
-  save = e => {
+  onChangeTitle = e =>
+    this.setState({ title: (e.currentTarget as HTMLInputElement).value });
+
+  onSubmit = e => {
     e.preventDefault();
 
     const { title } = this.state;
-    const { item, options, saveItem, closeModal } = this.props;
+    const { add, closeModal, options, item } = this.props;
+
+    if (!title) {
+      return Alert.error('Enter title');
+    }
+
+    // before save, disable save button
+    this.setState({ disabled: true });
 
     const doc = {
       title,
@@ -44,27 +58,23 @@ class AddForm extends React.Component<IProps, State> {
       contentTypeId: item._id
     };
 
-    // before save, disable save button
-    // this.setState({ disabled: true });
+    add(doc, () => {
+      // after save, enable save button
+      this.setState({ disabled: false });
 
-    saveItem(doc);
-    // after save, enable save button
-    this.setState({ disabled: false });
-
-    closeModal();
+      closeModal();
+    });
   };
 
-  render() {
-    const { item, options } = this.props;
+  renderContent = () => {
     return (
-      <AddContainer onSubmit={this.save}>
+      <AddContainer onSubmit={this.onSubmit}>
         <HeaderRow>
           <HeaderContent>
-            <ControlLabel required={true}>Title</ControlLabel>
-            <FormControl autoFocus={true} onChange={this.onChangeName} />
+            <ControlLabel required={true}>Name</ControlLabel>
+            <FormControl autoFocus={true} onChange={this.onChangeTitle} />
           </HeaderContent>
         </HeaderRow>
-
         <FormFooter>
           <Button
             btnStyle="simple"
@@ -85,6 +95,10 @@ class AddForm extends React.Component<IProps, State> {
         </FormFooter>
       </AddContainer>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 

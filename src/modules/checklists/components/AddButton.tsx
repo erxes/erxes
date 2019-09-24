@@ -1,5 +1,6 @@
 import { RightButton } from 'modules/boards/styles/item';
 import { IItem, IOptions } from 'modules/boards/types';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import AddForm from '../containers/AddForm';
@@ -11,13 +12,20 @@ type IProps = {
 
 class ChecklistAdd extends React.Component<IProps> {
   render() {
-    const onClick = () => {
+    const addTrigger = (
+      <RightButton icon="checked">{__('Add Checklist')}</RightButton>
+    );
+
+    const renderForm = () => {
       return <AddForm {...this.props} />;
     };
+
     return (
-      <RightButton icon="checklist" onClick={onClick}>
-        {__('Add Checklist')}
-      </RightButton>
+      <ModalTrigger
+        title="New checklist"
+        trigger={addTrigger}
+        content={renderForm}
+      />
     );
   }
 }

@@ -16,11 +16,11 @@ const checklistsAdd = `
   mutation checklistsAdd(
     ${commonVariables}
   ) {
-      checklistsAdd(
-        ${commonParams}
-      ) {
-        ${checklistFields}
-      }
+    checklistsAdd(
+      ${commonParams}
+    ) {
+      ${checklistFields}
+    }
   }
 `;
 
@@ -29,12 +29,12 @@ const checklistsEdit = `
     $_id: String!,
     ${commonVariables}
   ) {
-      checklistsEdit(
-        _id: $_id,
-        ${commonParams}
-      ) {
-        ${checklistFields}
-      }
+    checklistsEdit(
+      _id: $_id,
+      ${commonParams}
+    ) {
+      ${checklistFields}
+    }
   }
 `;
 
@@ -63,32 +63,32 @@ const commonItemParams = `
 `;
 
 const checklistItemsAdd = `
-  mutation checklistsAdd(
+  mutation checklistItemsAdd(
     ${commonItemVariables}
   ) {
-      checklistsAdd(
-        ${commonItemParams}
-      ) {
-        _id
-        isChecked
-        content
-      }
+    checklistItemsAdd(
+      ${commonItemParams}
+    ) {
+      _id
+      isChecked
+      content
+    }
   }
 `;
 
 const checklistItemsEdit = `
-  mutation checklistsAdd(
+  mutation checklistItemsEdit(
     $_id: String!,
     ${commonItemVariables}
   ) {
-      checklistsAdd(
-        _id: $_id,
-        ${commonItemParams}
-      ) {
-        _id
-        isChecked
-        content
-      }
+    checklistItemsEdit(
+      _id: $_id,
+      ${commonItemParams}
+    ) {
+      _id
+      isChecked
+      content
+    }
   }
 `;
 

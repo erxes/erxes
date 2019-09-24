@@ -8,9 +8,20 @@ export interface IChecklist extends IChecklistDoc {
   _id: string;
 }
 
-export type AddMutationResponse = {
-  checklistsAdd: (params: { variables: IChecklistDoc }) => Promise<any>;
+export interface IChecklistsParam {
+  contentType: string;
+  contentTypeId: string;
+}
+
+export type ChecklistsQueryResponse = {
+  checklists: IChecklist[];
+  loading: boolean;
+  refetch: () => void;
 };
+
+export type AddMutationResponse = (
+  { variables: IChecklistDoc }
+) => Promise<any>;
 
 export type EditMutationVariables = {
   _id: string;

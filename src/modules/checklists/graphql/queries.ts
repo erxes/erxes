@@ -15,7 +15,6 @@ export const checklistFields = `
   title
   createdUserId
   createdDate
-  createdUser
   checklistItems {
     _id
     isChecked

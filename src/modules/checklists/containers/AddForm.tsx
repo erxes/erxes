@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { IItem, IOptions } from 'modules/boards/types';
-import { Alert, renderWithProps } from 'modules/common/utils';
+import { renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import AddForm from '../components/AddForm';
@@ -10,24 +10,30 @@ import { AddMutationResponse, IChecklistDoc } from '../types';
 type IProps = {
   item: IItem;
   options: IOptions;
-  closeModal: () => void;
 };
 
 type FinalProps = {
   addMutation: AddMutationResponse;
+  closeModal: () => void;
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
-  saveItem = (doc: IChecklistDoc) => {
+  add = (doc: IChecklistDoc, callback: () => void) => {
     const { addMutation } = this.props;
 
-    addMutation({ variables: doc });
+    addMutation({ variables: doc })
+      .then(() => {
+        console.log('zzzzzzz');
+        callback();
+      })
+      .catch(error => {
+        console.log(error);
+      });
   };
-
   render() {
     const updatedProps = {
       ...this.props,
-      saveItem: this.saveItem
+      add: this.add
     };
 
     return <AddForm {...updatedProps} />;
@@ -35,26 +41,24 @@ class AddFormContainer extends React.Component<FinalProps> {
 }
 
 export default (props: IProps) => {
-  const { options } = props;
-
   return renderWithProps<IProps>(
     props,
     compose(
       graphql<IProps, AddMutationResponse, IChecklistDoc>(
         gql(mutations.checklistsAdd),
         {
-          name: 'addMutation',
-          options: ({ item }: { item: IItem }) => ({
-            refetchQueries: [
-              {
-                query: gql(options.queries.detailQuery),
-                variables: {
-                  contentType: options.type,
-                  contentTypeId: item._id
-                }
-              }
-            ]
-          })
+          name: 'addMutation'
+          // options: ({ item }: { item: IItem }) => ({
+          //   refetchQueries: [
+          //     {
+          //       query: gql(options.queries.detailQuery),
+          //       variables: {
+          //         contentType: options.type,
+          //         contentTypeId: item._id
+          //       }
+          //     }
+          //   ]
+          // })
         }
       )
     )(AddFormContainer)
