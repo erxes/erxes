@@ -5,6 +5,16 @@ import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 
 describe('ProductSection component', () => {
+  const category = {
+    _id: 'id',
+    order: 'order',
+    code: 'code',
+    name: 'categoryName',
+    productCount: 1,
+    isRoot: true,
+    createdAt: new Date()
+  };
+
   const testProducts: IProduct[] = [
     {
       _id: 'pro123',
@@ -12,6 +22,9 @@ describe('ProductSection component', () => {
       type: 's1',
       description: 'blabla',
       sku: 'sku1',
+      categoryId: 'categoryId',
+      category,
+      code: '123',
       createdAt: new Date()
     },
     {
@@ -20,6 +33,9 @@ describe('ProductSection component', () => {
       type: 's2',
       description: 'blablabla',
       sku: 'sku2',
+      categoryId: 'categoryId',
+      category,
+      code: '321',
       createdAt: new Date()
     }
   ];

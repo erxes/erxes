@@ -1,8 +1,8 @@
 import SelectWithSearch from 'modules/common/components/SelectWithSearch';
 import { IOption, IQueryParams } from 'modules/common/types';
 import React from 'react';
-import { queries } from '../graphql';
-import { IProduct } from '../types';
+import { queries } from '../../graphql';
+import { IProduct } from '../../types';
 
 // get config options for react-select-plus
 export function generateProductOptions(array: IProduct[] = []): IOption[] {
