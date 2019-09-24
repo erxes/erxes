@@ -115,6 +115,15 @@ const LeftContent = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
   z-index: 2;
   overflow: auto;
+
+  input {
+    width: 40px;
+    text-align: center;
+    outline: 0;
+    border: 1px solid ${colors.borderPrimary};
+    border-radius: 2px;
+    font-size: 12px;
+  }
 `;
 
 const RightContent = styled.div`

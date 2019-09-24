@@ -24,11 +24,15 @@ class Left extends React.Component<Props> {
               return (
                 <tr key={growthHack._id}>
                   <td>{growthHack.name}</td>
-                  <td className="center">
-                    <b>{growthHack.impact}</b>
+                  <td>
+                    <b>
+                      <input defaultValue={growthHack.impact} />
+                    </b>
                   </td>
-                  <td className="center">
-                    <b>{growthHack.ease}</b>
+                  <td>
+                    <b>
+                      <input defaultValue={growthHack.ease} />
+                    </b>
                   </td>
                 </tr>
               );

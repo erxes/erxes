@@ -27,10 +27,6 @@ const StyledTable = styledTS<{
       display: table-cell;
       vertical-align: ${props.alignTop && 'top'};
 
-      &.center {
-        text-align: center!important;
-      }
-
       & ${FormLabel}, & ${Input} {
         margin: 0px;
       }
