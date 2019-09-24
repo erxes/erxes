@@ -58,7 +58,7 @@ const GrowthHackMainActionBar = (props: Props) => {
             to={priorityMatrixLink}
             className={viewType === 'priorityMatrix' ? 'active' : ''}
           >
-            <Icon icon="process" />
+            <Icon icon="arrows-up-right" />
           </Link>
         </Tip>
       </ButtonGroup>

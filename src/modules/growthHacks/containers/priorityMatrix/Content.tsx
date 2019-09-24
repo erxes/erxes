@@ -15,7 +15,7 @@ type FinalProps = {
   growthHacksPriorityMatrixQuery: any;
 } & Props;
 
-class LeftContainer extends React.Component<FinalProps> {
+class ContentContainer extends React.Component<FinalProps> {
   render() {
     const { growthHacksQuery, growthHacksPriorityMatrixQuery } = this.props;
 
@@ -75,5 +75,5 @@ export default withProps<Props>(
         }
       })
     })
-  )(LeftContainer)
+  )(ContentContainer)
 );

@@ -19,7 +19,6 @@
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@nivo/line": "0.35.0",
     "@nivo/pie": "0.35.0",
-    "@nivo/scatterplot": "^0.59.3",
     "add-graphql-subscriptions": "^1.0.1",
     "apollo-cache-inmemory": "^1.1.5",
     "apollo-client": "^2.3.7",

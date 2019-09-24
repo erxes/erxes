@@ -104,14 +104,23 @@ const ScoreAmount = styled.div`
 const ContentContainer = styled.div`
   display: flex;
   flex: 1;
+  background: ${colors.bgLight};
+  overflow: auto;
+  border-top: 1px solid ${colors.borderPrimary};
 `;
 
-const Left = styled.div`
+const LeftContent = styled.div`
   flex: 1;
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
+  z-index: 2;
+  overflow: auto;
 `;
 
-const Right = styled.div`
+const RightContent = styled.div`
   flex: 2;
+  padding: 20px 80px 40px 80px;
+  overflow: hidden;
 `;
 
 export {
@@ -122,6 +131,6 @@ export {
   Factor,
   ScoreAmount,
   ContentContainer,
-  Left,
-  Right
+  LeftContent,
+  RightContent
 };
