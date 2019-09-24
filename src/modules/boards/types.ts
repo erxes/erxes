@@ -53,6 +53,8 @@ export interface IItemParams {
   closeDate?: Date;
   description?: string;
   order?: number;
+  isComplete?: boolean;
+  reminderMinute?: number;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -66,6 +68,12 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
+  // growth hack
+  startDate?: Date;
+  endDate?: Date;
+  metric?: string;
+  hackScoringType?: string;
+  templateId?: string;
 }
 
 interface IStageComparisonInfo {
@@ -86,6 +94,7 @@ export interface IStage {
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
+  formId: string;
 }
 
 export interface IItem {
@@ -100,11 +109,14 @@ export interface IItem {
   assignedUsers: IUser[];
   companies: ICompany[];
   customers: ICustomer[];
+  attachments?: IAttachment[];
   pipeline: IPipeline;
   stage?: IStage;
   isWatched?: boolean;
   priority?: string;
   hasNotified?: boolean;
+  isComplete: boolean;
+  reminderMinute: number;
 }
 
 export interface IDraggableLocation {
@@ -144,6 +156,11 @@ export type PipelinesQueryResponse = {
   pipelines: IPipeline[];
   loading: boolean;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
+};
+
+export type TemplatesQueryResponse = {
+  growthHackTemplates: IPipeline[];
+  loading: boolean;
 };
 
 export type StagesQueryResponse = {
@@ -225,10 +242,11 @@ export interface IEditFormContent {
       | 'assignedUserIds'
       | 'customers'
       | 'companies'
-      | 'attachments',
+      | 'isComplete'
+      | 'reminderMinute',
     value: any
   ) => void;
   copy: () => void;
   remove: (id: string) => void;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
+  onBlurFields: (name: string, value: string) => void;
 }

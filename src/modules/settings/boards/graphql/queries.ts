@@ -25,6 +25,11 @@ const pipelines = `
       visibility
       memberIds
       bgColor
+      hackScoringType
+      templateId
+      startDate
+      endDate
+      metric
     }
   }
 `;
@@ -36,6 +41,7 @@ const stages = `
       name
       probability
       pipelineId
+      formId
     }
   }
 `;

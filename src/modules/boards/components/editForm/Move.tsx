@@ -3,6 +3,7 @@ import {
   MoveContainer,
   MoveFormContainer,
   PipelineName,
+  PipelinePopoverContent,
   StageItem,
   Stages
 } from 'modules/boards/styles/item';
@@ -10,6 +11,7 @@ import { IStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
@@ -28,8 +30,12 @@ type State = {
 };
 
 class Move extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
+
+    this.ref = React.createRef();
 
     const {
       item: { pipeline, boardId }
@@ -93,24 +99,24 @@ class Move extends React.Component<Props, State> {
   }
 
   renderBoardSelect() {
-    if (!this.state.show) {
-      return null;
-    }
-
     const { stageId, onChangeStage, options } = this.props;
     const { boardId, pipelineId } = this.state;
 
     return (
-      <BoardSelect
-        type={options.type}
-        stageId={stageId}
-        boardId={boardId}
-        pipelineId={pipelineId}
-        callback={this.toggleForm}
-        onChangeStage={onChangeStage}
-        onChangePipeline={this.onChangePipeline}
-        onChangeBoard={this.onChangeBoard}
-      />
+      <Popover id="pipeline-popover">
+        <PipelinePopoverContent>
+          <BoardSelect
+            type={options.type}
+            stageId={stageId}
+            boardId={boardId}
+            pipelineId={pipelineId}
+            callback={this.toggleForm}
+            onChangeStage={onChangeStage}
+            onChangePipeline={this.onChangePipeline}
+            onChangeBoard={this.onChangeBoard}
+          />
+        </PipelinePopoverContent>
+      </Popover>
     );
   }
 
@@ -120,14 +126,19 @@ class Move extends React.Component<Props, State> {
 
     return (
       <MoveContainer>
-        <MoveFormContainer>
-          <PipelineName onClick={this.toggleForm}>
-            {pipeline && pipeline.name} <Icon icon="angle-down" />
-          </PipelineName>
-
-          {this.renderBoardSelect()}
+        <MoveFormContainer innerRef={this.ref}>
+          <OverlayTrigger
+            trigger="click"
+            placement="bottom"
+            overlay={this.renderBoardSelect()}
+            rootClose={true}
+            container={this.ref.current}
+          >
+            <PipelineName onClick={this.toggleForm}>
+              {pipeline && pipeline.name} <Icon icon="angle-down" />
+            </PipelineName>
+          </OverlayTrigger>
         </MoveFormContainer>
-
         {this.renderStages()}
       </MoveContainer>
     );

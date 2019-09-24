@@ -34,8 +34,8 @@ class IntegrationList extends React.Component<Props> {
       return 'gmail';
     }
 
-    if (kind === KIND_CHOICES.FORM) {
-      return 'form';
+    if (kind === KIND_CHOICES.LEAD) {
+      return 'lead';
     }
 
     if (kind === KIND_CHOICES.CALLPRO) {

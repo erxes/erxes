@@ -89,6 +89,22 @@ const ItemText = styledTS<{ align?: string }>(styled.div)`
   }
 `;
 
+const ProductButton = styled.div`
+  padding: 7px 10px;
+  background: ${colors.colorWhite};
+  cursor: pointer;
+  border-bottom: 1px solid ${colors.borderDarker};
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
+
+  i {
+    float: right;
+  }
+`;
+
 export {
   FormContainer,
   FooterInfo,
@@ -97,5 +113,6 @@ export {
   ProductItem,
   ContentRow,
   ContentColumn,
-  TotalAmount
+  TotalAmount,
+  ProductButton
 };

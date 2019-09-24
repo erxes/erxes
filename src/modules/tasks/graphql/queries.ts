@@ -73,6 +73,8 @@ export const taskFields = `
   }
   modifiedAt
   modifiedBy
+  reminderMinute
+  isComplete
 `;
 
 const tasks = `

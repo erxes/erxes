@@ -13,7 +13,7 @@ import { IScript } from '../types';
 
 type Props = {
   object?: IScript;
-  forms: IIntegration[];
+  leads: IIntegration[];
   messengers: IIntegration[];
   kbTopics: ITopic[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -68,7 +68,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { forms, messengers, kbTopics } = this.props;
+    const { leads, messengers, kbTopics } = this.props;
     const object = this.props.object || ({} as IScript);
 
     return (
@@ -110,7 +110,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             placeholder={__('Select leads')}
             onChange={this.onChangeLeads}
             value={this.state.leads}
-            options={this.generateLeadOptions(forms)}
+            options={this.generateLeadOptions(leads)}
             multi={true}
           />
         </FormGroup>

@@ -23,7 +23,7 @@ class ActivityList extends React.Component<Props> {
 
     return (
       <div key={index}>
-        <ActivityTitle> {data} </ActivityTitle>
+        <ActivityTitle>{data}</ActivityTitle>
         {data.map(key => this.renderItem(activity[key]))}
       </div>
     );

@@ -15,8 +15,6 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import SelectCompanies from 'modules/companies/containers/SelectCompanies';
-import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -87,10 +85,6 @@ class MainActionBar extends React.Component<Props, State> {
       const target = e.currentTarget as HTMLInputElement;
       this.props.onSearch(target.value || '');
     }
-  };
-
-  toggleFilter = () => {
-    this.setState({ show: !this.state.show });
   };
 
   hideFilter = () => {
@@ -219,18 +213,6 @@ class MainActionBar extends React.Component<Props, State> {
           <PopoverHeader>{__('Filter')}</PopoverHeader>
           <FilterBox>
             {extraFilter}
-            <SelectCompanies
-              label="Choose companies"
-              name="companyIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
-            <SelectCustomers
-              label="Choose customers"
-              name="customerIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
             <SelectTeamMembers
               label="Choose team members"
               name="assignedUserIds"
@@ -266,7 +248,7 @@ class MainActionBar extends React.Component<Props, State> {
             <Button
               btnStyle={hasFilter ? 'success' : 'link'}
               className={hasFilter ? 'filter-success' : 'filter-link'}
-              icon="filter"
+              icon="filter-1"
               onClick={this.showFilter}
             >
               {hasFilter && __('Filtering is on')}
@@ -307,7 +289,7 @@ class MainActionBar extends React.Component<Props, State> {
     return (
       <>
         <HeaderButton>
-          <Icon icon="user" /> {__('Private')}
+          <Icon icon="users-alt" /> {__('Private')}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
       </>
@@ -327,7 +309,7 @@ class MainActionBar extends React.Component<Props, State> {
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
-          <Icon icon="layout" /> {__('Board')}:{' '}
+          <Icon icon="web-grid-alt" /> {__('Board')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
@@ -339,7 +321,7 @@ class MainActionBar extends React.Component<Props, State> {
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLabel>
-          <Icon icon="verticalalignment" /> {__('Pipeline')}:{' '}
+          <Icon icon="web-section-alt" /> {__('Pipeline')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
@@ -353,8 +335,12 @@ class MainActionBar extends React.Component<Props, State> {
         </Dropdown>
         <HeaderLink>
           <Tip text={__('Manage Board & Pipeline')}>
-            <Link to={`/settings/boards/${type}`}>
-              <Icon icon="settings" />
+            <Link
+              to={`/settings/boards/${type}?boardId=${
+                currentBoard ? currentBoard._id : ''
+              }`}
+            >
+              <Icon icon="bright" />
             </Link>
           </Tip>
         </HeaderLink>

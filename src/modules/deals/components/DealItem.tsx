@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
@@ -37,6 +38,7 @@ class DealItem extends React.PureComponent<Props, {}> {
         options={options}
         stageId={stageId}
         itemId={item._id}
+        hideHeader={true}
       />
     );
   };
@@ -44,7 +46,7 @@ class DealItem extends React.PureComponent<Props, {}> {
   render() {
     const { item, onClick } = this.props;
     const products = (item.products || []).map(p => p.product);
-    const { customers, companies } = item;
+    const { customers, companies, closeDate, isComplete } = item;
 
     return (
       <>
@@ -88,6 +90,8 @@ class DealItem extends React.PureComponent<Props, {}> {
               ))}
             </Right>
           </PriceContainer>
+
+          <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
           <Footer>
             {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}

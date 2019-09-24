@@ -1,4 +1,3 @@
-import { Button as DealButton } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -15,6 +14,7 @@ import {
   ContentColumn,
   ContentRow,
   ItemText,
+  ProductButton,
   ProductItem,
   TotalAmount
 } from '../../styles';
@@ -109,7 +109,7 @@ class ProductItemForm extends React.Component<Props> {
       );
     }
 
-    return <DealButton>{content}</DealButton>;
+    return <ProductButton>{content}</ProductButton>;
   }
 
   renderProductModal(productData: IProductData) {

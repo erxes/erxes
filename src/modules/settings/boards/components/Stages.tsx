@@ -1,13 +1,18 @@
 import { IStage } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import SortableList from 'modules/common/components/SortableList';
+import { __ } from 'modules/common/utils';
+import { LinkButton } from 'modules/settings/team/styles';
 import React from 'react';
 import { StageList } from '../styles';
+import { IOption } from '../types';
 import StageItem from './StageItem';
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
   stages: any;
-  type: string;
+  type?: string;
+  options?: IOption;
 };
 
 class Stages extends React.Component<Props, {}> {
@@ -17,8 +22,7 @@ class Stages extends React.Component<Props, {}> {
     }
   }
 
-  onChange = (stageId, e) => {
-    const { name, value } = e.target;
+  onChange = (stageId: string, name: string, value: string) => {
     const { stages, onChangeStages } = this.props;
 
     const stage = stages.find(s => s._id === stageId);
@@ -55,21 +59,32 @@ class Stages extends React.Component<Props, {}> {
   };
 
   render() {
+    const { options, type } = this.props;
+    const Item = options ? options.StageItem : StageItem;
+
+    const child = stage => (
+      <Item
+        stage={stage}
+        type={type}
+        onChange={this.onChange}
+        remove={this.remove}
+        onKeyPress={this.onStageInputKeyPress}
+      />
+    );
+
     return (
       <StageList>
-        {this.props.stages.map((stage: IStage) => (
-          <StageItem
-            key={stage._id}
-            stage={stage}
-            onChange={this.onChange}
-            remove={this.remove}
-            type={this.props.type}
-            onKeyPress={this.onStageInputKeyPress}
-          />
-        ))}
-        <Button onClick={this.add} btnStyle="success" size="small" icon="add">
-          Add stage
-        </Button>
+        <SortableList
+          fields={this.props.stages}
+          child={child}
+          onChangeFields={this.props.onChangeStages}
+          isModal={true}
+          droppableId="stages"
+        />
+
+        <LinkButton onClick={this.add}>
+          <Icon icon="plus-1" /> {__('Add another stage')}
+        </LinkButton>
       </StageList>
     );
   }

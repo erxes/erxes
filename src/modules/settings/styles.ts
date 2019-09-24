@@ -67,18 +67,17 @@ const LogoContainer = styled.div`
 `;
 
 const ColorPick = styled.div`
-  border-radius: 50%;
+  border-radius: 4px;
   display: inline-block;
-  padding: 5px;
-  border: 1px solid ${colors.borderPrimary};
+  padding: 3px;
+  border: 1px solid ${colors.borderDarker};
   cursor: pointer;
-  margin-top: ${dimensions.unitSpacing}px;
 `;
 
 const ColorPicker = styled.div`
-  width: 30px;
-  height: 30px;
-  border-radius: 15px;
+  width: 80px;
+  height: 27px;
+  border-radius: 2px;
 `;
 
 const WidgetApperance = styled.div`
@@ -255,6 +254,11 @@ const Description = styled.div`
   font-size: 12px;
 `;
 
+const ExpandWrapper = styled.div`
+  flex: 1;
+  margin-right: 20px;
+`;
+
 export {
   ContentBox,
   ModuleBox,
@@ -270,5 +274,6 @@ export {
   LogoContainer,
   SidebarListItem,
   ActionButtons,
-  Description
+  Description,
+  ExpandWrapper
 };

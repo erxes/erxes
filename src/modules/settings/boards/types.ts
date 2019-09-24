@@ -62,3 +62,30 @@ export type UpdateOrderPipelineMutationResponse = {
     }
   ) => Promise<void>;
 };
+
+export type PipelineCopyMutationVariables = {
+  _id: string;
+  boardId: string;
+  type: string;
+};
+
+export type PipelineCopyMutationResponse = {
+  pipelinesCopyMutation: (
+    params: {
+      variables: PipelineCopyMutationVariables;
+    }
+  ) => Promise<void>;
+};
+
+export type PipelineCopyMutation = (
+  { variables: PipelineCopyMutationVariables }
+) => Promise<any>;
+
+export type IOption = {
+  boardName: string;
+  pipelineName: string;
+  StageItem: any;
+  PipelineForm: any;
+  additionalButton?: string;
+  additionalButtonText?: string;
+};

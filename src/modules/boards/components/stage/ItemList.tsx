@@ -41,8 +41,11 @@ class DraggableContainer extends React.Component<
   constructor(props: DraggableContainerProps) {
     super(props);
 
+    // if popup shows, draggable will disable
+    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
+
     this.state = {
-      isDragDisabled: false,
+      isDragDisabled: Boolean(itemIdQueryParam),
       hasNotified: props.item.hasNotified === false ? false : true
     };
   }
@@ -149,11 +152,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
     if (items.length === 0) {
       return (
         <EmptyContainer innerRef={dropProvided.innerRef}>
-          <EmptyState
-            icon="clipboard"
-            text={`No ${options.type}`}
-            size="small"
-          />
+          <EmptyState icon="clipboard" text="No item" size="small" />
         </EmptyContainer>
       );
     }

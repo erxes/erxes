@@ -3,6 +3,8 @@ import { PRIORITIES } from 'modules/boards/constants';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import SelectCompanies from 'modules/companies/containers/SelectCompanies';
+import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
@@ -48,7 +50,7 @@ const TicketMainActionBar = (props: Props) => {
   const extraFilter = (
     <>
       <Select
-        placeholder="Select a priority"
+        placeholder="Choose a priority"
         value={priorities}
         options={priorityValues}
         name="priority"
@@ -58,13 +60,27 @@ const TicketMainActionBar = (props: Props) => {
       />
 
       <Select
-        placeholder="Select a source"
+        placeholder="Choose a source"
         value={sources}
         options={sourceValues}
         name="source"
         onChange={onSourceSelect}
         multi={true}
         loadingPlaceholder={__('Loading...')}
+      />
+
+      <SelectCompanies
+        label="Choose companies"
+        name="companyIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+
+      <SelectCustomers
+        label="Choose customers"
+        name="customerIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
       />
     </>
   );

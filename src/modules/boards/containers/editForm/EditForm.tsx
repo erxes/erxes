@@ -26,6 +26,7 @@ type WrapperProps = {
   onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
+  hideHeader?: boolean;
 };
 
 type ContainerProps = {

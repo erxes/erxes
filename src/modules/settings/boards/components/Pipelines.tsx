@@ -3,13 +3,14 @@ import { collectOrders } from 'modules/boards/utils';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
-import SortableList from 'modules/common/components/SortableList';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
 import { PipelineContainer } from '../styles';
+import { IOption } from '../types';
 import PipelineRow from './PipelineRow';
 
 type Props = {
@@ -19,6 +20,8 @@ type Props = {
   updateOrder?: any;
   remove: (pipelineId: string) => void;
   boardId: string;
+  options?: IOption;
+  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
 };
 
 type State = {
@@ -45,12 +48,13 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderAddForm = () => {
-    const { boardId, renderButton, type } = this.props;
+    const { boardId, renderButton, type, options } = this.props;
 
     const closeModal = () => this.setState({ showModal: false });
 
     return (
       <PipelineForm
+        options={options}
         type={type}
         boardId={boardId}
         renderButton={renderButton}
@@ -79,41 +83,31 @@ class Pipelines extends React.Component<Props, State> {
   };
 
   renderRows() {
-    const { renderButton, type } = this.props;
-
-    const child = pipeline => {
-      return (
-        <PipelineRow
-          key={pipeline._id}
-          pipeline={pipeline}
-          renderButton={renderButton}
-          remove={this.props.remove}
-          type={type}
-          onTogglePopup={this.onTogglePopup}
-        />
-      );
-    };
-
+    const { renderButton, type, options } = this.props;
     const { pipelines } = this.state;
 
-    return (
-      <SortableList
-        fields={pipelines}
-        child={child}
-        onChangeFields={this.onChangePipelines}
-        isDragDisabled={this.state.isDragDisabled}
+    return pipelines.map(pipeline => (
+      <PipelineRow
+        key={pipeline._id}
+        pipeline={pipeline}
+        renderButton={renderButton}
+        remove={this.props.remove}
+        type={type}
+        options={options}
+        onTogglePopup={this.onTogglePopup}
       />
-    );
+    ));
   }
 
   renderContent() {
-    const { pipelines } = this.props;
+    const { pipelines, options } = this.props;
+    const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (pipelines.length === 0) {
       return (
         <EmptyState
           size="full"
-          text="Get started on your pipeline"
+          text={`Get started on your ${pipelineName.toLowerCase()}`}
           image="/images/actions/16.svg"
         />
       );
@@ -121,37 +115,63 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <PipelineContainer>
-        <h3>{__('Pipeline')}</h3>
+        <h3>{__(pipelineName)}</h3>
         {this.renderRows()}
       </PipelineContainer>
     );
   }
 
+  renderAdditionalButton = () => {
+    const { options } = this.props;
+
+    if (options && options.additionalButton) {
+      return (
+        <Link to={options.additionalButton}>
+          <Button size="small" icon="arrow-to-right" btnStyle="primary">
+            {options.additionalButtonText}
+          </Button>
+        </Link>
+      );
+    }
+
+    return null;
+  };
+
   renderButton() {
-    if (!this.props.boardId) {
+    const { options, boardId } = this.props;
+    const pipelineName = options ? options.pipelineName : 'pipeline';
+
+    if (!boardId) {
       return null;
     }
 
     return (
-      <Button
-        btnStyle="success"
-        size="small"
-        icon="add"
-        onClick={this.addPipeline}
-      >
-        Add pipeline
-      </Button>
+      <>
+        {this.renderAdditionalButton()}
+        <Button
+          btnStyle="success"
+          size="small"
+          icon="add"
+          onClick={this.addPipeline}
+        >
+          Add {pipelineName}
+        </Button>
+      </>
     );
   }
 
   render() {
+    const { options } = this.props;
+    const pipelineName = options ? options.pipelineName : 'Pipeline';
+    const boardName = options ? options.boardName : 'Board';
+
     return (
-      <React.Fragment>
+      <>
         <Wrapper.ActionBar
           left={
             <HeaderDescription
               icon="/images/actions/34.svg"
-              title={'Boards & Pipelines'}
+              title={`${boardName} & ${pipelineName}`}
               description="Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check."
             />
           }
@@ -160,7 +180,7 @@ class Pipelines extends React.Component<Props, State> {
 
         {this.renderContent()}
         {this.renderAddForm()}
-      </React.Fragment>
+      </>
     );
   }
 }

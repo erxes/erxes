@@ -11,19 +11,17 @@ const integrations = `
         code
       }
       languageCode
-      formData
-      formId
+      leadData
+      leadId
       tags {
         _id
         name
         colorCode
       }
       tagIds
-      form {
+      lead {
         _id
-        title
-        code
-        description
+        formId
         createdDate
         createdUserId
         createdUser {
@@ -34,6 +32,74 @@ const integrations = `
             position
           }
         }
+        themeColor
+        contactsGathered
+        viewCount
+        callout {
+          title
+          body
+          buttonText
+          featuredImage
+          skip
+        }
+        rules {
+          _id
+          kind
+          text
+          condition
+          value
+        }
+        form {
+          _id
+          title
+          code
+          description
+          type
+          buttonText
+          createdDate
+          createdUserId
+          createdUser {
+            _id
+            details {
+              avatar
+              fullName
+              position
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const integrationDetail = `
+  query integrationDetail($_id: String!) {
+    integrationDetail(_id: $_id) {
+      _id
+      name
+      brand {
+        _id
+        name
+        code
+      }
+      languageCode
+      brandId
+      code
+      formId
+      leadData
+      tagIds
+      tags {
+        _id
+        name
+        colorCode
+      }
+      form {
+        _id
+        title
+        code
+        description
+        createdDate
+        createdUserId
         buttonText
         themeColor
         contactsGathered
@@ -57,51 +123,23 @@ const integrations = `
   }
 `;
 
-const integrationDetail = `
-  query integrationDetail($_id: String!) {
-    integrationDetail(_id: $_id) {
+const formDetail = `
+  query formDetail($_id: String!) {
+    formDetail(_id: $_id) {
       _id
-      name
-      brand {
-        _id
-        name
-        code
-      }
-      languageCode
-      brandId
+      title
       code
-      formId
-      formData
-      tagIds
-      tags {
+      type
+      description
+      buttonText
+      createdDate
+      createdUserId
+      createdUser {
         _id
-        name
-        colorCode
-      }
-      form {
-        _id
-        title
-        code
-        description
-        createdDate
-        createdUserId
-        buttonText
-        themeColor
-        contactsGathered
-        viewCount
-        callout {
-          title
-          body
-          buttonText
-          featuredImage
-          skip
-        }
-        rules {
-          _id
-          kind
-          text
-          condition
-          value
+        details {
+          avatar
+          fullName
+          position
         }
       }
     }
@@ -173,6 +211,7 @@ export default {
   integrationDetail,
   integrationsTotalCount,
   fields,
+  formDetail,
   tags,
   forms,
   fieldsCombinedByContentType,

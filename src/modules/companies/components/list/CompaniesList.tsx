@@ -254,7 +254,6 @@ class CompaniesList extends React.Component<IProps, State> {
                 title="Manage Columns"
                 trigger={editColumns}
                 content={manageColumns}
-                dialogClassName="transform"
               />
             </li>
             <li>

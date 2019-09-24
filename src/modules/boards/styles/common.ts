@@ -1,4 +1,5 @@
 import { colors } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { Contents, MainContent } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -56,15 +57,29 @@ export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   user-select: none;
 `;
 
-export const SelectContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  left: 0;
-  width: 300px;
-  padding: 20px;
-  z-index: 100;
-  box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
-  background: ${colors.colorWhite};
+export const ColorButton = styledTS<{ color?: string }>(styled.div)`
+  height: 25px;
+  border-radius: 2px;
+  font-weight: 500;
+  line-height: 25px;
+  font-size: 12px;
+  background-color: ${props => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${props => props.color || colors.colorPrimaryDark};
+  padding: 0 10px;
+  transition: background 0.3s ease;
+
+  > i {
+    margin-right: 5px;
+  }
+
+  > span {
+    margin-right: 10px;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
+  }
 `;
 
 export const FormContainer = styled.div`
@@ -102,7 +117,6 @@ export const ItemContainer = styledTS<{
     props.isDragging
       ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
       : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
-  overflow: hidden;
   padding: 8px;
   outline: 0px;
   font-size: 12px;

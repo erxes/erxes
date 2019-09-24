@@ -46,7 +46,7 @@ const PopoverList = styledTS<{ selectable?: boolean }>(styled.ul)`
 
     &:before {
       font-family: 'erxes';
-      font-size: ${dimensions.unitSpacing}px;
+      font-size: 12px;
       width: 15px;
       height: 15px;
       z-index: 30;
@@ -59,11 +59,11 @@ const PopoverList = styledTS<{ selectable?: boolean }>(styled.ul)`
     }
 
     &.all:before {
-      content: '\\e80f';
+      content: '\\ea3f';
     }
 
     &.some:before {
-      content: '\\e856';
+      content: '\\ebe8';
     }
   }
 `;
@@ -85,10 +85,10 @@ const PopoverFooter = styled.div`
 `;
 
 const AvatarImg = styled.img`
-  width: ${dimensions.coreSpacing + 10}px;
-  height: ${dimensions.coreSpacing + 10}px;
-  line-height: ${dimensions.coreSpacing + 10}px;
-  border-radius: ${(dimensions.coreSpacing + 10) / 2}px;
+  width: ${dimensions.coreSpacing + 6}px;
+  height: ${dimensions.coreSpacing + 6}px;
+  line-height: ${dimensions.coreSpacing + 6}px;
+  border-radius: ${(dimensions.coreSpacing + 6) / 2}px;
   vertical-align: middle;
   background: ${colors.bgActive};
   margin-right: ${dimensions.unitSpacing}px;

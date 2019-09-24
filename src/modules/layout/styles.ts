@@ -103,6 +103,10 @@ const BarItems = styled.div`
 const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`
   align-self: center;
   margin-left: ${props => props.rightAligned && 'auto'};
+
+  > * + * {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const SideContent = styledTS<{

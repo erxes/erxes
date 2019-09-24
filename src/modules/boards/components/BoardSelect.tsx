@@ -3,7 +3,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import { FormContainer, SelectContainer } from '../styles/common';
+import { FormContainer } from '../styles/common';
 import { IBoard, IPipeline, IStage } from '../types';
 import { selectOptions } from '../utils';
 
@@ -94,11 +94,7 @@ class BoardSelect extends React.Component<Props> {
   }
 
   render() {
-    if (this.props.inSidebar) {
-      return <FormContainer>{this.renderContent()}</FormContainer>;
-    }
-
-    return <SelectContainer>{this.renderContent()}</SelectContainer>;
+    return <FormContainer>{this.renderContent()}</FormContainer>;
   }
 }
 

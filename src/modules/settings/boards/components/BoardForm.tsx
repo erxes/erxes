@@ -45,6 +45,7 @@ class BoardForm extends React.Component<Props, {}> {
             name="name"
             defaultValue={object.name}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 

@@ -297,6 +297,6 @@ export {
   FormLabel,
   Label,
   Formgroup,
-  Error,
-  FlexWrapper
+  FlexWrapper,
+  Error
 };
