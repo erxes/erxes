@@ -290,7 +290,9 @@ export const PROBABILITY = {
   NINETY: '90%',
   WON: 'Won',
   LOST: 'Lost',
-  ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost'],
+  DONE: 'Done',
+  RESOLVED: 'Resolved',
+  ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost', 'Done', 'Resolved'],
 };
 
 export const STATUSES = {
