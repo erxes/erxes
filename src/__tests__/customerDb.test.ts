@@ -340,7 +340,7 @@ describe('Customers model tests', () => {
       relType: 'company',
       mainTypeId: mergedCustomer._id,
     });
-    expect(mergedCompanyIds).toEqual(companyIds);
+    expect(mergedCompanyIds.sort()).toEqual(companyIds.sort());
 
     expect(mergedCustomer.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
     expect(mergedCustomer.visitorContactInfo.toJSON()).toEqual(doc.visitorContactInfo);

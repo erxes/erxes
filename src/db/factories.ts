@@ -981,9 +981,5 @@ interface IConformityFactoryInput {
 }
 
 export const conformityFactory = (params: IConformityFactoryInput) => {
-  const doc = {
-    ...params,
-  };
-
-  return Conformities.addConformity(doc);
+  return Conformities.addConformity(params);
 };
