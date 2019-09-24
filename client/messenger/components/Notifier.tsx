@@ -1,8 +1,8 @@
 import * as classNames from "classnames";
 import * as React from "react";
 import * as RTG from "react-transition-group";
-import * as stripTags from "strip_tags";
 import { iconClose } from "../../icons/Icons";
+import { striptags } from "../../utils";
 import { EngageMessage } from "../components";
 import { User } from "../components/common";
 import { IEngageData, IMessage } from "../types";
@@ -60,7 +60,7 @@ class Notifier extends React.PureComponent<Props, State> {
           <User user={user} />
           {fullName}
         </div>
-        <div className="notification-body">{stripTags(content)}</div>
+        <div className="notification-body">{striptags(content)}</div>
       </div>
     );
   }

@@ -1,7 +1,7 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as stripTags from "strip_tags";
 import { IUser } from "../../types";
+import { striptags } from "../../utils";
 import { User } from "../components/common";
 import { IEngageData } from "../types";
 
@@ -40,7 +40,7 @@ class EngageMessage extends Component<Props> {
             {sentAs === "fullMessage" ? (
               <span dangerouslySetInnerHTML={{ __html: content }} />
             ) : (
-              stripTags(content)
+              striptags(content)
             )}
           </div>
         </div>

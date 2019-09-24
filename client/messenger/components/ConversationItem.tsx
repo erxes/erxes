@@ -1,9 +1,8 @@
 import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
-import * as striptags from "striptags";
 import { defaultAvatar } from "../../icons/Icons";
-import { __, readFile } from "../../utils";
+import { __, readFile, striptags } from "../../utils";
 import { IConversation } from "../types";
 
 type Props = {
