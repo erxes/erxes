@@ -40,7 +40,7 @@ const options = {
     updateSuccessText: 'You successfully updated an experiments',
     deleteSuccessText: 'You successfully deleted an experiments',
     copySuccessText: 'You successfully copied an experiments',
-    changeSuccessText: 'You successfully changedn a experiments'
+    changeSuccessText: 'You successfully changed a experiments'
   },
   isMove: false,
   getExtraParams: (queryParams: any) => {
