@@ -42,6 +42,7 @@ const options = {
     copySuccessText: 'You successfully copied an experiments',
     changeSuccessText: 'You successfully changedn a experiments'
   },
+  isMove: false,
   getExtraParams: (queryParams: any) => {
     const { priority } = queryParams;
     const extraParams: any = {};
