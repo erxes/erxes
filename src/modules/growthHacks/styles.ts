@@ -1,5 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ScoreWrapper = styled.div``;
 
@@ -41,7 +42,11 @@ const Factor = styled.div`
   display: flex;
 `;
 
-const AmountItem = styled.div`
+export interface IAmountItem {
+  type?: string;
+}
+
+const AmountItem = styledTS<IAmountItem>(styled.div)`
   margin-left: ${dimensions.coreSpacing}px;
   position: relative;
   text-align: center;
@@ -81,13 +86,18 @@ const AmountItem = styled.div`
   }
 
   &:after {
-    content: '\\ecdb';
+    ${props =>
+      props.type === 'pie' ? "content: '\\ec2d'" : "content: '\\ecdb'"};
     font-family: 'erxes';
     position: absolute;
     left: -17px;
     bottom: 7px;
     color: ${colors.colorCoreGray};
   }
+`;
+
+const Text = styled.div`
+  margin: 25px 0 0 10px;
 `;
 
 const ScoreAmount = styled.div`
@@ -105,6 +115,7 @@ export {
   ScoreWrapper,
   CalculatedAmount,
   Amounts,
+  Text,
   AmountItem,
   Factor,
   ScoreAmount
