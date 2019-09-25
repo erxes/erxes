@@ -26,7 +26,9 @@ type Props = {
 
 const GrowthHackMainActionBar = (props: Props) => {
   // get selected type from URL
-  const viewType = window.location.href.includes('board')
+  const viewType = window.location.href.includes('weightedScore')
+    ? 'weightedScore'
+    : window.location.href.includes('board')
     ? 'board'
     : 'priorityMatrix';
 
@@ -45,6 +47,7 @@ const GrowthHackMainActionBar = (props: Props) => {
 
     const boardLink = onFilterClick('board');
     const priorityMatrixLink = onFilterClick('priorityMatrix');
+    const weightedScoreLink = onFilterClick('weightedScore');
 
     return (
       <ButtonGroup>
@@ -59,6 +62,14 @@ const GrowthHackMainActionBar = (props: Props) => {
             className={viewType === 'priorityMatrix' ? 'active' : ''}
           >
             <Icon icon="arrows-up-right" />
+          </Link>
+        </Tip>
+        <Tip text={__('Weighted scoring')} placement="bottom">
+          <Link
+            to={weightedScoreLink}
+            className={viewType === 'weightedScore' ? 'active' : ''}
+          >
+            <Icon icon="parcel" />
           </Link>
         </Tip>
       </ButtonGroup>

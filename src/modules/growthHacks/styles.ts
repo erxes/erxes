@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { FixedContent } from 'modules/deals/components/conversion/style';
 import styled from 'styled-components';
 
 const ScoreWrapper = styled.div``;
@@ -101,6 +102,16 @@ const ScoreAmount = styled.div`
   font-weight: 500;
 `;
 
+const FixedContainer = styled(FixedContent)`
+  flex: 1;
+  background: ${colors.colorWhite};
+  overflow: auto;
+  padding: 0;
+  margin: 10px auto;
+  border-radius: 2px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+`;
+
 const ContentContainer = styled.div`
   display: flex;
   flex: 1;
@@ -115,15 +126,6 @@ const LeftContent = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
   z-index: 2;
   overflow: auto;
-
-  input {
-    width: 40px;
-    text-align: center;
-    outline: 0;
-    border: 1px solid ${colors.borderPrimary};
-    border-radius: 2px;
-    font-size: 12px;
-  }
 `;
 
 const RightContent = styled.div`
@@ -141,5 +143,6 @@ export {
   ScoreAmount,
   ContentContainer,
   LeftContent,
-  RightContent
+  RightContent,
+  FixedContainer
 };

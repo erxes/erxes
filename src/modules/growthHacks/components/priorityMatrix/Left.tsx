@@ -14,25 +14,21 @@ class Left extends React.Component<Props> {
         <Table hover={true}>
           <thead>
             <tr>
-              <th>{__('Task')}</th>
-              <th>{__('Impact')}</th>
-              <th>{__('Effort')}</th>
+              <th>{__('Task name')}</th>
+              <th style={{ width: 40 }}>{__('Impact')}</th>
+              <th style={{ width: 40 }}>{__('Effort')}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="with-input">
             {this.props.growthHacks.map(growthHack => {
               return (
                 <tr key={growthHack._id}>
                   <td>{growthHack.name}</td>
                   <td>
-                    <b>
-                      <input defaultValue={growthHack.impact} />
-                    </b>
+                    <input defaultValue={growthHack.impact} />
                   </td>
                   <td>
-                    <b>
-                      <input defaultValue={growthHack.ease} />
-                    </b>
+                    <input defaultValue={growthHack.ease} />
                   </td>
                 </tr>
               );

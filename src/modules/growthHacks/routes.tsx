@@ -3,10 +3,17 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import PriorityMatrix from './components/priorityMatrix/PriorityMatrix';
 
 const GrowthHackBoard = asyncComponent(() =>
   import(/* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard')
+);
+
+const PriorityMatrix = asyncComponent(() =>
+  import(/* webpackChunkName: "GrowthHackBoard" */ './components/priorityMatrix/PriorityMatrix')
+);
+
+const WeightedScore = asyncComponent(() =>
+  import(/* webpackChunkName: "GrowthHackBoard" */ './containers/weightedScore/WeightedScore')
 );
 
 const growthHacks = () => {
@@ -38,6 +45,12 @@ const priorityMatrix = ({ location }) => {
   return <PriorityMatrix queryParams={queryParams} />;
 };
 
+const weightdScore = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <WeightedScore queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <>
@@ -60,6 +73,13 @@ const routes = () => {
         exact={true}
         path="/growthHack/priorityMatrix"
         component={priorityMatrix}
+      />
+
+      <Route
+        key="/growthHack/weightedScore"
+        exact={true}
+        path="/growthHack/weightedScore"
+        component={weightdScore}
       />
     </>
   );
