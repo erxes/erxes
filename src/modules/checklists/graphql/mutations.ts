@@ -58,7 +58,7 @@ const commonItemVariables = `
 const commonItemParams = `
   checklistId: $checklistId,
   isChecked: $isChecked,
-  content: $title,
+  content: $content,
   mentionedUserIds: $mentionedUserIds,
 `;
 
@@ -93,8 +93,8 @@ const checklistItemsEdit = `
 `;
 
 const checklistItemsRemove = `
-  mutation checklistsRemove($_id: String!) {
-    checklistsRemove(_id: $_id) {
+  mutation checklistItemsRemove($_id: String!) {
+    checklistItemsRemove(_id: $_id) {
       _id
     }
   }

@@ -1,10 +1,17 @@
 import gql from 'graphql-tag';
-import { renderWithProps } from 'modules/common/utils';
+import { confirm, renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Checklists from '../components/Checklists';
-import { queries } from '../graphql';
-import { ChecklistsQueryResponse, IChecklistsParam } from '../types';
+import { mutations, queries } from '../graphql';
+import {
+  ChecklistsQueryResponse,
+  EditItemMutationResponse,
+  EditItemMutationVariables,
+  IChecklistsParam,
+  RemoveItemMutationResponse,
+  RemoveMutationResponse
+} from '../types';
 
 type IProps = {
   contentType: string;
@@ -13,6 +20,9 @@ type IProps = {
 
 type FinalProps = {
   checklistsQuery: ChecklistsQueryResponse;
+  editItemMutation: EditItemMutationResponse;
+  removeMutation: RemoveMutationResponse;
+  removeItemMutation: RemoveItemMutationResponse;
 } & IProps;
 
 class ChecklistsContainer extends React.Component<FinalProps> {
@@ -21,6 +31,19 @@ class ChecklistsContainer extends React.Component<FinalProps> {
 
   //     checklistsQuery.refetch();
   //   };
+  removeChecklist = (checklistId: string) => {
+    const { removeMutation } = this.props;
+
+    confirm().then(() => removeMutation({ variables: { _id: checklistId } }));
+  };
+
+  removeChecklistItem = (checklistItemId: string) => {
+    const { removeItemMutation } = this.props;
+
+    confirm().then(() =>
+      removeItemMutation({ variables: { _id: checklistItemId } })
+    );
+  };
 
   render() {
     const { checklistsQuery } = this.props;
@@ -30,11 +53,12 @@ class ChecklistsContainer extends React.Component<FinalProps> {
     }
 
     const checklists = checklistsQuery.checklists || [];
-    console.log('checklists', checklists);
 
     const extendedProps = {
       ...this.props,
-      checklists
+      checklists,
+      removeChecklist: this.removeChecklist,
+      removeChecklistItem: this.removeChecklistItem
     };
 
     return <Checklists {...extendedProps} />;
@@ -55,6 +79,24 @@ export default (props: IProps) =>
               contentTypeId: props.contentTypeId
             }
           })
+        }
+      ),
+      graphql<IProps, EditItemMutationResponse, EditItemMutationVariables>(
+        gql(mutations.checklistItemsRemove),
+        {
+          name: 'editItemMutation'
+        }
+      ),
+      graphql<IProps, RemoveMutationResponse, { _id: string }>(
+        gql(mutations.checklistsRemove),
+        {
+          name: 'removeMutation'
+        }
+      ),
+      graphql<IProps, RemoveItemMutationResponse, { _id: string }>(
+        gql(mutations.checklistItemsRemove),
+        {
+          name: 'removeItemMutation'
         }
       )
     )(ChecklistsContainer)
