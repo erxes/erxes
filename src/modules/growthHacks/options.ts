@@ -35,12 +35,12 @@ const options = {
     watchMutation: mutations.growthHacksWatch
   },
   texts: {
-    addText: 'Add an experiments',
-    addSuccessText: 'You successfully added an experiments',
-    updateSuccessText: 'You successfully updated an experiments',
-    deleteSuccessText: 'You successfully deleted an experiments',
-    copySuccessText: 'You successfully copied an experiments',
-    changeSuccessText: 'You successfully changed a experiments'
+    addText: 'Add an experiment',
+    addSuccessText: 'You successfully added an experiment',
+    updateSuccessText: 'You successfully updated an experiment',
+    deleteSuccessText: 'You successfully deleted an experiment',
+    copySuccessText: 'You successfully copied an experiment',
+    changeSuccessText: 'You successfully changed an experiment'
   },
   isMove: false,
   getExtraParams: (queryParams: any) => {
