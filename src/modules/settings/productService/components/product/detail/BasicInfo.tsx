@@ -88,6 +88,7 @@ class BasicInfo extends React.Component<Props> {
             'Category',
             product.category ? product.category.name : ''
           )}
+          {this.renderRow('Unit price', product.unitPrice)}
           {this.renderRow('Sku', product.sku)}
           <SidebarFlexRow>
             {__(`Description`)}:<span>{product.description || '-'}</span>
