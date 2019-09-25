@@ -131,11 +131,19 @@ const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
   p:last-of-type {
     margin-bottom: 0;
   }
+
+  img {
+    max-width: 100%;
+  }
 `;
 
 const EmailContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0 60px;
   overflow: hidden;
+
+  img {
+    max-width: 100%;
+  }
 `;
 
 const IconWrapper = styled.div`
