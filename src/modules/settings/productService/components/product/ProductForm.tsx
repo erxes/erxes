@@ -94,6 +94,17 @@ class Form extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel required={true}>Unit price</ControlLabel>
+          <FormControl
+            {...formProps}
+            type="number"
+            name="unitPrice"
+            defaultValue={object.unitPrice}
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>SKU</ControlLabel>
           <FormControl {...formProps} name="sku" defaultValue={object.sku} />
         </FormGroup>
