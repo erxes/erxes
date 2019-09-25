@@ -10,6 +10,7 @@ export interface IProduct {
   type?: string;
   description?: string;
   sku?: string;
+  unitPrice?: number;
   code: string;
   customFieldsData?: any;
   productId?: string;
@@ -69,6 +70,7 @@ export const productSchema = schemaWrapper(
     }),
     description: field({ type: String, optional: true }),
     sku: field({ type: String, optional: true }), // Stock Keeping Unit
+    unitPrice: field({ type: Number, optional: true }),
     customFieldsData: field({
       type: Object,
     }),

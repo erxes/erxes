@@ -18,6 +18,7 @@ export const types = `
     type: String
     description: String
     sku: String
+    unitPrice: Float
     categoryId: String
     customFieldsData: JSON
     createdAt: Date
@@ -32,6 +33,7 @@ const productParams = `
   type: String,
   description: String,
   sku: String,
+  unitPrice: Float,
   code: String,
   customFieldsData: JSON
 `;
