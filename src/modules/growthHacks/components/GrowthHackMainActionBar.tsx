@@ -26,11 +26,27 @@ type Props = {
 
 const GrowthHackMainActionBar = (props: Props) => {
   // get selected type from URL
-  const viewType = window.location.href.includes('weightedScore')
-    ? 'weightedScore'
-    : window.location.href.includes('board')
-    ? 'board'
-    : 'priorityMatrix';
+  const getCurrentType = () => {
+    const currentUrl = window.location.href;
+
+    if (currentUrl.includes('board')) {
+      return 'board';
+    } else if (currentUrl.includes('weightedScore')) {
+      return 'weightedScore';
+    } else if (currentUrl.includes('priorityMatrix')) {
+      return 'priorityMatrix';
+    }
+
+    return 'funnelImpact';
+  };
+
+  const getActiveClass = (currentTab: string) => {
+    if (window.location.href.includes(currentTab)) {
+      return 'active';
+    }
+
+    return '';
+  };
 
   const viewChooser = () => {
     const onFilterClick = (type: string) => {
@@ -45,31 +61,35 @@ const GrowthHackMainActionBar = (props: Props) => {
       return `/growthHack/${type}`;
     };
 
-    const boardLink = onFilterClick('board');
-    const priorityMatrixLink = onFilterClick('priorityMatrix');
-    const weightedScoreLink = onFilterClick('weightedScore');
-
     return (
       <ButtonGroup>
         <Tip text={__('Board')} placement="bottom">
-          <Link to={boardLink} className={viewType === 'board' ? 'active' : ''}>
+          <Link to={onFilterClick('board')} className={getActiveClass('board')}>
             <Icon icon="window-section" />
           </Link>
         </Tip>
         <Tip text={__('Weighted scoring')} placement="bottom">
           <Link
-            to={weightedScoreLink}
-            className={viewType === 'weightedScore' ? 'active' : ''}
+            to={onFilterClick('weightedScore')}
+            className={getActiveClass('weightedScore')}
           >
             <Icon icon="web-section-alt" />
           </Link>
         </Tip>
         <Tip text={__('Priority matrix')} placement="bottom">
           <Link
-            to={priorityMatrixLink}
-            className={viewType === 'priorityMatrix' ? 'active' : ''}
+            to={onFilterClick('priorityMatrix')}
+            className={getActiveClass('priorityMatrix')}
           >
             <Icon icon="th" />
+          </Link>
+        </Tip>
+        <Tip text={__('Funnel Impact')} placement="bottom">
+          <Link
+            to={onFilterClick('funnelImpact')}
+            className={getActiveClass('funnelImpact')}
+          >
+            <Icon icon="window-maximize" />
           </Link>
         </Tip>
       </ButtonGroup>
@@ -78,7 +98,7 @@ const GrowthHackMainActionBar = (props: Props) => {
 
   const extendedProps = {
     ...props,
-    link: `/growthHack/${viewType}`,
+    link: `/growthHack/${getCurrentType()}`,
     rightContent: viewChooser
   };
 
