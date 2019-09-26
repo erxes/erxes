@@ -60,8 +60,8 @@ const integrationsCreateMessenger = `
 `;
 
 const integrationsCreateExternalIntegration = `
-  mutation integrationsCreateExternalIntegration($name: String!, $brandId: String!, $accountId: String, $kind: String!, $data: JSON) {
-    integrationsCreateExternalIntegration(name: $name, brandId: $brandId, accountId: $accountId, kind: $kind, data: $data) {
+  mutation integrationsCreateExternalIntegration($name: String!, $platform: String, $brandId: String!, $accountId: String, $kind: String!, $data: JSON) {
+    integrationsCreateExternalIntegration(name: $name, platform: $platform, brandId: $brandId, accountId: $accountId, kind: $kind, data: $data) {
       _id
       brand {
         _id
