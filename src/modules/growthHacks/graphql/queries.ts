@@ -76,20 +76,32 @@ const growthHackFields = `
 const growthHacks = `
   query growthHacks(
     $stageId: String,
-    $skip: Int,
+    $limit: Int,
     $sortField: String,
     $sortDirection: Int,
     ${commonParams}
   ) {
     growthHacks(
       stageId: $stageId,
-      skip: $skip,
+      limit: $limit,
       sortField: $sortField,
       sortDirection: $sortDirection,
       ${commonParamDefs}
     ) {
       ${growthHackFields}
     }
+  }
+`;
+
+const growthHacksTotalCount = `
+  query growthHacksTotalCount(
+    $stageId: String,
+    ${commonParams}
+  ) {
+    growthHacksTotalCount(
+      stageId: $stageId,
+      ${commonParamDefs}
+    )
   }
 `;
 
@@ -100,7 +112,9 @@ const growthHacksPriorityMatrix = `
     growthHacksPriorityMatrix(
       ${commonParamDefs}
     ) {
-      ${growthHackFields}
+      name
+      impact
+      ease
     }
   }
 `;
@@ -116,5 +130,6 @@ const growthHackDetail = `
 export default {
   growthHacks,
   growthHacksPriorityMatrix,
-  growthHackDetail
+  growthHackDetail,
+  growthHacksTotalCount
 };
