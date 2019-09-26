@@ -130,7 +130,7 @@ class Left extends React.Component<IProps> {
             })}
           </tbody>
         </Table>
-        <LoadMore perPage={2} all={totalCount} loading={loading} />
+        <LoadMore perPage={10} all={totalCount} loading={loading} />
       </LeftContent>
     );
   }
