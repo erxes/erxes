@@ -8,6 +8,7 @@ import {
   AddItemMutationResponse,
   EditMutationResponse,
   EditMutationVariables,
+  IChecklistItem,
   IChecklistItemDoc
 } from '../types';
 import {
@@ -55,6 +56,14 @@ class ChecklistsContainer extends React.Component<FinalProps> {
     });
   };
 
+  editItem = (doc: IChecklistItem, callback: () => void) => {
+    const { editItemMutation } = this.props;
+
+    editItemMutation({ variables: doc }).then(() => {
+      callback();
+    });
+  };
+
   removeItem = (checklistItemId: string) => {
     const { removeItemMutation } = this.props;
 
@@ -78,6 +87,7 @@ class ChecklistsContainer extends React.Component<FinalProps> {
       edit: this.edit,
       remove: this.remove,
       addItem: this.addItem,
+      editItem: this.editItem,
       removeItem: this.removeItem
     };
 

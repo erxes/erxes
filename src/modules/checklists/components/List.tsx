@@ -11,7 +11,12 @@ import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { AddContainer } from '../styles/item';
-import { EditMutationVariables, IChecklist, IChecklistItemDoc } from '../types';
+import {
+  EditMutationVariables,
+  IChecklist,
+  IChecklistItem,
+  IChecklistItemDoc
+} from '../types';
 import Item from './Item';
 
 type Props = {
@@ -19,6 +24,7 @@ type Props = {
   edit: (doc: EditMutationVariables, callbak: () => void) => void;
   remove: (checklistId: string) => void;
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
+  editItem: (doc: IChecklistItem, callback: () => void) => void;
   removeItem: (checklistItemId: string) => void;
 };
 
@@ -56,6 +62,7 @@ class List extends React.Component<Props, State> {
               <Item
                 key={item._id}
                 item={item}
+                editItem={this.props.editItem}
                 removeItem={this.props.removeItem}
               />
             </>

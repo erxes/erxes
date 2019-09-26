@@ -1,5 +1,10 @@
 import React from 'react';
-import { EditMutationVariables, IChecklist, IChecklistItemDoc } from '../types';
+import {
+  EditMutationVariables,
+  IChecklist,
+  IChecklistItem,
+  IChecklistItemDoc
+} from '../types';
 import List from './List';
 
 type Props = {
@@ -7,6 +12,7 @@ type Props = {
   edit: (doc: EditMutationVariables, callbak: () => void) => void;
   remove: (checklistId: string) => void;
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
+  editItem: (doc: IChecklistItem, callback: () => void) => void;
   removeItem: (checklistItemId: string) => void;
 };
 
@@ -38,6 +44,7 @@ class Checklists extends React.Component<Props, State> {
         edit={this.props.edit}
         remove={this.props.remove}
         addItem={this.props.addItem}
+        editItem={this.props.editItem}
         removeItem={this.props.removeItem}
       />
     ));

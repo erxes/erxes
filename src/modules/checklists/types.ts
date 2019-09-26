@@ -68,11 +68,9 @@ export type EditItemMutationVariables = {
   mentionedUserIds: string[];
 };
 
-export type EditItemMutationResponse = {
-  checklistItemsEdit: (
-    params: { variables: EditItemMutationVariables }
-  ) => Promise<any>;
-};
+export type EditItemMutationResponse = (
+  { variables: EditItemMutationVariables }
+) => Promise<any>;
 
 export type RemoveItemMutationVariables = {
   _id: string;
