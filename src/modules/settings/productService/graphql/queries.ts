@@ -5,6 +5,7 @@ const productFields = `
       code
       categoryId
       description
+      unitPrice
       sku
       createdAt
       category {

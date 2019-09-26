@@ -36,6 +36,7 @@ export interface IOptions {
     copySuccessText: string;
     changeSuccessText: string;
   };
+  isMove: boolean;
   getExtraParams: (queryParams: any) => any;
 }
 

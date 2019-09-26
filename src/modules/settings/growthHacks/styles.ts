@@ -129,6 +129,11 @@ const DateItem = styled.div`
   }
 `;
 
+const Warning = styled.div`
+  margin-bottom: 20px;
+  color: ${colors.colorCoreRed};
+`;
+
 export {
   TemplateItem,
   Box,
@@ -138,5 +143,6 @@ export {
   TemplateContainer,
   Actions,
   Created,
-  DateItem
+  DateItem,
+  Warning
 };

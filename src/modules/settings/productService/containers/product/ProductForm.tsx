@@ -33,6 +33,8 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
+      values.unitPrice = Number(values.unitPrice);
+
       return (
         <ButtonMutate
           mutation={object ? mutations.productEdit : mutations.productAdd}
