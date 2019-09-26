@@ -163,9 +163,9 @@ export const getOrCreateComment = async (commentParams: ICommentParams, pageId: 
   }
 };
 
-export const getOrCreateCustomer = async (pageId: string, userId: string) => {
+export const getOrCreateCustomer = async (pageId: string, userId: string, kind: string) => {
   const integration = await Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
   });
 
   const account = await Accounts.getAccount({ _id: integration.accountId });

@@ -14,10 +14,11 @@ const receiveMessage = async (activity: Activity) => {
 
   const userId = sender.id;
   const pageId = recipient.id;
+  const kind = 'facebook-messenger';
 
   // get or create customer
 
-  const customer = await getOrCreateCustomer(pageId, userId);
+  const customer = await getOrCreateCustomer(pageId, userId, kind);
 
   // get conversation
   let conversation = await Conversations.findOne({

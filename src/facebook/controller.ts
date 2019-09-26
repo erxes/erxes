@@ -274,7 +274,7 @@ const init = async app => {
               return next(new Error(e));
             }
           } else {
-            next();
+            res.end('success');
           }
 
           debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);

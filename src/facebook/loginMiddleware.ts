@@ -11,7 +11,7 @@ const loginMiddleware = (req, res) => {
     FACEBOOK_PERMISSIONS = 'manage_pages, pages_show_list, pages_messaging',
   } = process.env;
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = 'https://769a9a8f.ngrok.io';
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   const conf = {
