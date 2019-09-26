@@ -7,7 +7,9 @@ const commonVariables = `
   $assignedUserIds: [String],
   $order: Int,
   $priority: String,
-  $attachments: [AttachmentInput]
+  $attachments: [AttachmentInput],
+  $reminderMinute: Int,
+  $isComplete: Boolean
 `;
 
 const commonParams = `
@@ -17,7 +19,9 @@ const commonParams = `
   assignedUserIds: $assignedUserIds,
   order: $order,
   priority: $priority,
-  attachments: $attachments
+  attachments: $attachments,
+  reminderMinute: $reminderMinute,
+  isComplete: $isComplete
 `;
 
 const tasksAdd = `

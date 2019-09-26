@@ -127,9 +127,21 @@ const growthHackDetail = `
   }
 `;
 
+const pipelineDetail = `
+  query pipelineDetail($_id: String!) {
+    pipelineDetail(_id: $_id) {
+      _id
+      name
+      bgColor
+      hackScoringType
+    }
+  }
+`;
+
 export default {
   growthHacks,
   growthHacksPriorityMatrix,
   growthHackDetail,
-  growthHacksTotalCount
+  growthHacksTotalCount,
+  pipelineDetail
 };

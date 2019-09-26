@@ -156,7 +156,7 @@ class Navigation extends React.Component<{
             </Tip>
           </WithPermission>
           <WithPermission action="showGrowthHacks">
-            <Tip placement="right" text={__('Growth Hack').toString()}>
+            <Tip placement="right" text={__('Growth Hacking').toString()}>
               <NavLink to="/growthHack">
                 <NavIcon className="icon-idea" />
               </NavLink>

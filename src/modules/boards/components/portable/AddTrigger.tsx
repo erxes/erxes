@@ -12,7 +12,7 @@ type Props = {
 export default (props: Props) => {
   const { relType, relTypeIds, options } = props;
 
-  const trigger = <a href="#title">{options.title}</a>;
+  const trigger = <a href="#title">{options.texts.addText}</a>;
 
   const content = formProps => (
     <AddForm

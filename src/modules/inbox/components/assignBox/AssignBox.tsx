@@ -34,8 +34,6 @@ type State = {
 };
 
 class AssignBox extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-
   constructor(props: Props) {
     super(props);
 

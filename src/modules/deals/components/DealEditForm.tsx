@@ -157,7 +157,9 @@ export default class DealEditForm extends React.Component<Props, State> {
       description,
       closeDate,
       assignedUserIds,
-      attachments
+      attachments,
+      isComplete,
+      reminderMinute
     } = state;
 
     return (
@@ -171,6 +173,8 @@ export default class DealEditForm extends React.Component<Props, State> {
           stageId={stageId}
           onBlurFields={onBlurFields}
           item={item}
+          isComplete={isComplete}
+          reminderMinute={reminderMinute}
           onChangeField={onChangeField}
         />
 

@@ -1,5 +1,5 @@
 import { LeftItem } from 'modules/common/components/step/styles';
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import styled from 'styled-components';
@@ -35,15 +35,16 @@ const TemplateItem = styled.div`
 
 const Box = styled(BoxRoot)`
   flex: 1;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing * 1.5}px;
   text-align: left;
   background: ${colors.colorWhite};
-  margin: 10px 20px 0 0;
+  margin: 10px 10px 0 0;
 
   b {
-    font-size: 30px;
+    font-size: 26px;
     text-transform: uppercase;
     color: ${colors.colorCoreLightGray};
+    line-height: 30px;
   }
 
   p {
@@ -109,6 +110,31 @@ const Actions = styled.div`
   }
 `;
 
+const DateItem = styled.div`
+  flex: 1;
+  margin-right: 20px;
+
+  .form-control {
+    box-shadow: none;
+    border-radius: 0;
+    border: none;
+    background: none;
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    padding: 5px 0;
+    font-size: ${typography.fontSizeBody}px;
+
+    &:focus {
+      box-shadow: none;
+      border-color: ${colors.colorSecondary};
+    }
+  }
+`;
+
+const Warning = styled.div`
+  margin-bottom: 20px;
+  color: ${colors.colorCoreRed};
+`;
+
 export {
   TemplateItem,
   Box,
@@ -117,5 +143,7 @@ export {
   ContentWrapper,
   TemplateContainer,
   Actions,
-  Created
+  Created,
+  DateItem,
+  Warning
 };

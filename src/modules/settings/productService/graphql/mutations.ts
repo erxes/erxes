@@ -1,41 +1,88 @@
-const commonParamsDef = `
-  $name: String!,
-  $type: String!,
+const productParamsDef = `
+  $name: String,
+  $type: String,
+  $categoryId: String,
   $description: String,
-  $sku: String
+  $sku: String,
+  $unitPrice: Float,
+  $code: String
+  $customFieldsData: JSON,
 `;
 
-const commonParams = `
+const productCategoryParamsDef = `
+  $name: String!,
+  $code: String!,
+  $parentId: String,
+  $description: String,
+`;
+
+const productParams = `
   name: $name,
   type: $type,
+  categoryId: $categoryId,
   description: $description,
   sku: $sku
+  unitPrice: $unitPrice
+  code: $code
+  customFieldsData: $customFieldsData
+`;
+
+const productCategoryParams = `
+  name: $name,
+  code: $code,
+  parentId: $parentId,
+  description: $description,
 `;
 
 const productAdd = `
-  mutation productsAdd(${commonParamsDef}) {
-    productsAdd(${commonParams}) {
+  mutation productsAdd(${productParamsDef}) {
+    productsAdd(${productParams}) {
       _id
     }
   }
 `;
 
 const productEdit = `
-  mutation productsEdit($_id: String!, ${commonParamsDef}) {
-    productsEdit(_id: $_id, ${commonParams}) {
+  mutation productsEdit($_id: String!, ${productParamsDef}) {
+    productsEdit(_id: $_id, ${productParams}) {
       _id
     }
   }
 `;
 
-const productRemove = `
-  mutation productsRemove($_id: String!) {
-    productsRemove(_id: $_id)
+const productsRemove = `
+  mutation productsRemove($productIds: [String!]) {
+    productsRemove(productIds: $productIds)
+  }
+`;
+
+const productCategoryAdd = `
+  mutation productCategoriesAdd(${productCategoryParamsDef}) {
+    productCategoriesAdd(${productCategoryParams}) {
+      _id
+    }
+  }
+`;
+
+const productCategoryEdit = `
+  mutation productCategoriesEdit($_id: String!, ${productCategoryParamsDef}) {
+    productCategoriesEdit(_id: $_id, ${productCategoryParams}) {
+      _id
+    }
+  }
+`;
+
+const productCategoryRemove = `
+  mutation productCategoriesRemove($_id: String!) {
+    productCategoriesRemove(_id: $_id)
   }
 `;
 
 export default {
   productAdd,
   productEdit,
-  productRemove
+  productsRemove,
+  productCategoryAdd,
+  productCategoryEdit,
+  productCategoryRemove
 };

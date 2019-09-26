@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
@@ -41,7 +42,7 @@ class TaskItem extends React.PureComponent<Props, {}> {
 
   render() {
     const { onClick, item } = this.props;
-    const { customers, companies } = item;
+    const { customers, companies, closeDate, isComplete } = item;
 
     return (
       <>
@@ -79,6 +80,8 @@ class TaskItem extends React.PureComponent<Props, {}> {
               ))}
             </Right>
           </PriceContainer>
+
+          <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
           <Footer>
             {__('Last updated')}:

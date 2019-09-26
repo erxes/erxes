@@ -853,6 +853,10 @@ a:hover {
   .rdt {
     display: block !important;
   }
+
+  .modal-close-date {
+    width: 330px;
+  }
 `;
 
 const globalStyle = [`${style}`] as any;

@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { FixedContent } from 'modules/deals/components/conversion/style';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ScoreWrapper = styled.div``;
 
@@ -42,7 +43,11 @@ const Factor = styled.div`
   display: flex;
 `;
 
-const AmountItem = styled.div`
+export interface IAmountItem {
+  type?: string;
+}
+
+const AmountItem = styledTS<IAmountItem>(styled.div)`
   margin-left: ${dimensions.coreSpacing}px;
   position: relative;
   text-align: center;
@@ -82,13 +87,18 @@ const AmountItem = styled.div`
   }
 
   &:after {
-    content: '\\ecdb';
+    ${props =>
+      props.type === 'pie' ? "content: '\\ec2d'" : "content: '\\ecdb'"};
     font-family: 'erxes';
     position: absolute;
     left: -17px;
     bottom: 7px;
     color: ${colors.colorCoreGray};
   }
+`;
+
+const Text = styled.div`
+  margin: 25px 0 0 10px;
 `;
 
 const ScoreAmount = styled.div`
@@ -110,6 +120,25 @@ const FixedContainer = styled(FixedContent)`
   margin: 10px auto;
   border-radius: 2px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+  display: flex;
+  flex-direction: column;
+
+  > a {
+    text-align: center;
+    padding: 10px 20px;
+    background: ${colors.bgLight};
+    color: ${colors.textPrimary};
+    border-top: 1px solid ${colors.borderPrimary};
+
+    &:hover {
+      background: ${colors.bgActive};
+    }
+  }
+`;
+
+const ScrollContent = styled.div`
+  flex: 1;
+  overflow: auto;
 `;
 
 const ContentContainer = styled.div`
@@ -140,10 +169,15 @@ const Sort = styled.div`
   padding: 10px 20px;
 `;
 
+const TableHead = styled.th`
+  width: 50px;
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
   Amounts,
+  Text,
   AmountItem,
   Factor,
   ScoreAmount,
@@ -151,5 +185,7 @@ export {
   LeftContent,
   RightContent,
   FixedContainer,
-  Sort
+  Sort,
+  ScrollContent,
+  TableHead
 };
