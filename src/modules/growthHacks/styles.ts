@@ -120,6 +120,25 @@ const FixedContainer = styled(FixedContent)`
   margin: 10px auto;
   border-radius: 2px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+  display: flex;
+  flex-direction: column;
+
+  > a {
+    text-align: center;
+    padding: 10px 20px;
+    background: ${colors.bgLight};
+    color: ${colors.textPrimary};
+    border-top: 1px solid ${colors.borderPrimary};
+
+    &:hover {
+      background: ${colors.bgActive};
+    }
+  }
+`;
+
+const ScrollContent = styled.div`
+  flex: 1;
+  overflow: auto;
 `;
 
 const ContentContainer = styled.div`
@@ -144,6 +163,10 @@ const RightContent = styled.div`
   overflow: hidden;
 `;
 
+const TableHead = styled.th`
+  width: 50px;
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
@@ -155,5 +178,7 @@ export {
   ContentContainer,
   LeftContent,
   RightContent,
-  FixedContainer
+  FixedContainer,
+  ScrollContent,
+  TableHead
 };

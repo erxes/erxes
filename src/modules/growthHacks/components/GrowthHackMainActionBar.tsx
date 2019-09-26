@@ -56,20 +56,20 @@ const GrowthHackMainActionBar = (props: Props) => {
             <Icon icon="window-section" />
           </Link>
         </Tip>
-        <Tip text={__('Priority matrix')} placement="bottom">
-          <Link
-            to={priorityMatrixLink}
-            className={viewType === 'priorityMatrix' ? 'active' : ''}
-          >
-            <Icon icon="arrows-up-right" />
-          </Link>
-        </Tip>
         <Tip text={__('Weighted scoring')} placement="bottom">
           <Link
             to={weightedScoreLink}
             className={viewType === 'weightedScore' ? 'active' : ''}
           >
-            <Icon icon="parcel" />
+            <Icon icon="web-section-alt" />
+          </Link>
+        </Tip>
+        <Tip text={__('Priority matrix')} placement="bottom">
+          <Link
+            to={priorityMatrixLink}
+            className={viewType === 'priorityMatrix' ? 'active' : ''}
+          >
+            <Icon icon="th" />
           </Link>
         </Tip>
       </ButtonGroup>
