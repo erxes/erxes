@@ -1,92 +1,29 @@
-import { TitleRow } from 'modules/boards/styles/item';
-import { FormControl } from 'modules/common/components/form';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
 import React from 'react';
-import AddItemForm from '../containers/AddItemForm';
-import { IChecklist } from '../types';
+import { EditMutationVariables, IChecklist, IChecklistItemDoc } from '../types';
+import List from './List';
 
 type Props = {
   checklists: IChecklist[];
-  removeChecklist: (checklistId: string) => void;
-  removeChecklistItem: (checklistItemId: string) => void;
+  edit: (doc: EditMutationVariables, callbak: () => void) => void;
+  remove: (checklistId: string) => void;
+  addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
+  removeItem: (checklistItemId: string) => void;
 };
 
-class Checklists extends React.Component<Props> {
-  renderChecklistItem = item => {
-    const { removeChecklistItem } = this.props;
+type State = {
+  titleEdit: boolean;
+  contentEdit: boolean;
+};
 
-    const onClick = () => removeChecklistItem(item._id);
+class Checklists extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-    return (
-      <TitleRow>
-        <FormControl
-          componentClass="checkbox"
-          checked={item.isChecked}
-          value="{item.content}"
-          placeholder={item.content}
-        />
-        <button onClick={onClick}>
-          <Icon icon="times-circle" />
-        </button>
-      </TitleRow>
-    );
-  };
-
-  renderAddItem = checklist => {
-    const trigger = (
-      <button>
-        <Icon icon="focus-add" />
-        {__('Add item')}
-      </button>
-    );
-
-    const renderAddItem = () => {
-      return <AddItemForm checklist={checklist} />;
+    this.state = {
+      titleEdit: false,
+      contentEdit: false
     };
-
-    return (
-      <ModalTrigger
-        title="Add Item"
-        trigger={trigger}
-        content={renderAddItem}
-      />
-    );
-  };
-
-  renderChecklistItems = checklist => {
-    if (!checklist.checklistItems) {
-      return null;
-    }
-
-    return checklist.checklistItems.map(item => this.renderChecklistItem(item));
-  };
-
-  renderChecklist = checklist => {
-    const { removeChecklist } = this.props;
-
-    const onClick = () => removeChecklist(checklist._id);
-    return (
-      <>
-        <TitleRow>
-          <ControlLabel>
-            <Icon icon="checked" />
-            {__(`${checklist.title}`)}
-          </ControlLabel>
-          <button onClick={onClick}>
-            <Icon icon="cancel" />
-          </button>
-        </TitleRow>
-        <TitleRow>
-          <ControlLabel>{__(`${checklist.checklistPercent}`)}</ControlLabel>
-        </TitleRow>
-        <TitleRow>{this.renderChecklistItems(checklist)}</TitleRow>
-        <TitleRow>{this.renderAddItem(checklist)}</TitleRow>
-      </>
-    );
-  };
+  }
 
   render() {
     const { checklists } = this.props;
@@ -94,7 +31,16 @@ class Checklists extends React.Component<Props> {
       return null;
     }
 
-    return checklists.map(checklist => this.renderChecklist(checklist));
+    return checklists.map(list => (
+      <List
+        key={list._id}
+        list={list}
+        edit={this.props.edit}
+        remove={this.props.remove}
+        addItem={this.props.addItem}
+        removeItem={this.props.removeItem}
+      />
+    ));
   }
 }
 

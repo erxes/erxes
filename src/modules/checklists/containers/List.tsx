@@ -5,6 +5,12 @@ import { compose, graphql } from 'react-apollo';
 import Checklists from '../components/Checklists';
 import { mutations, queries } from '../graphql';
 import {
+  AddItemMutationResponse,
+  EditMutationResponse,
+  EditMutationVariables,
+  IChecklistItemDoc
+} from '../types';
+import {
   ChecklistsQueryResponse,
   EditItemMutationResponse,
   EditItemMutationVariables,
@@ -20,24 +26,36 @@ type IProps = {
 
 type FinalProps = {
   checklistsQuery: ChecklistsQueryResponse;
+  editMutation: EditMutationResponse;
+  addItemMutation: AddItemMutationResponse;
   editItemMutation: EditItemMutationResponse;
   removeMutation: RemoveMutationResponse;
   removeItemMutation: RemoveItemMutationResponse;
 } & IProps;
 
 class ChecklistsContainer extends React.Component<FinalProps> {
-  //   onChangeItems = () => {
-  //     const { checklistsQuery } = this.props;
+  edit = (doc: EditMutationVariables, callback: () => void) => {
+    const { editMutation } = this.props;
+    editMutation({ variables: doc }).then(() => {
+      callback();
+    });
+  };
 
-  //     checklistsQuery.refetch();
-  //   };
-  removeChecklist = (checklistId: string) => {
+  remove = (checklistId: string) => {
     const { removeMutation } = this.props;
 
     confirm().then(() => removeMutation({ variables: { _id: checklistId } }));
   };
 
-  removeChecklistItem = (checklistItemId: string) => {
+  addItem = (doc: IChecklistItemDoc, callback: () => void) => {
+    const { addItemMutation } = this.props;
+
+    addItemMutation({ variables: doc }).then(() => {
+      callback();
+    });
+  };
+
+  removeItem = (checklistItemId: string) => {
     const { removeItemMutation } = this.props;
 
     confirm().then(() =>
@@ -57,13 +75,29 @@ class ChecklistsContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       checklists,
-      removeChecklist: this.removeChecklist,
-      removeChecklistItem: this.removeChecklistItem
+      edit: this.edit,
+      remove: this.remove,
+      addItem: this.addItem,
+      removeItem: this.removeItem
     };
 
     return <Checklists {...extendedProps} />;
   }
 }
+
+const options = param => {
+  return {
+    refetchQueries: [
+      {
+        query: gql(queries.checklists),
+        variables: {
+          contentType: param.contentType,
+          contentTypeId: param.contentTypeId
+        }
+      }
+    ]
+  };
+};
 
 export default (props: IProps) =>
   renderWithProps<IProps>(
@@ -81,22 +115,39 @@ export default (props: IProps) =>
           })
         }
       ),
-      graphql<IProps, EditItemMutationResponse, EditItemMutationVariables>(
-        gql(mutations.checklistItemsRemove),
+      graphql<IProps, EditMutationResponse, EditMutationVariables>(
+        gql(mutations.checklistsEdit),
         {
-          name: 'editItemMutation'
+          name: 'editMutation',
+          options
+        }
+      ),
+      graphql<IProps, AddItemMutationResponse, IChecklistItemDoc>(
+        gql(mutations.checklistItemsAdd),
+        {
+          name: 'addItemMutation',
+          options
+        }
+      ),
+      graphql<IProps, EditItemMutationResponse, EditItemMutationVariables>(
+        gql(mutations.checklistItemsEdit),
+        {
+          name: 'editItemMutation',
+          options
         }
       ),
       graphql<IProps, RemoveMutationResponse, { _id: string }>(
         gql(mutations.checklistsRemove),
         {
-          name: 'removeMutation'
+          name: 'removeMutation',
+          options
         }
       ),
       graphql<IProps, RemoveItemMutationResponse, { _id: string }>(
         gql(mutations.checklistItemsRemove),
         {
-          name: 'removeItemMutation'
+          name: 'removeItemMutation',
+          options
         }
       )
     )(ChecklistsContainer)

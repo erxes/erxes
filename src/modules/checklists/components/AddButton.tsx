@@ -16,8 +16,8 @@ class ChecklistAdd extends React.Component<IProps> {
       <RightButton icon="checked">{__('Add Checklist')}</RightButton>
     );
 
-    const renderForm = () => {
-      return <AddForm {...this.props} />;
+    const renderForm = props => {
+      return <AddForm {...props} {...this.props} />;
     };
 
     return (

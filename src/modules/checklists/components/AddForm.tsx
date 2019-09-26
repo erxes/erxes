@@ -17,7 +17,6 @@ type IProps = {
   item: IItem;
   options: IOptions;
   add: (doc: IChecklistDoc, callback: () => void) => void;
-  // saveItem: () => void;
   closeModal: () => void;
 };
 

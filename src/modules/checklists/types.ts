@@ -30,13 +30,11 @@ export type AddMutationResponse = (
 export type EditMutationVariables = {
   _id: string;
   title: string;
-};
+} & IChecklistsParam;
 
-export type EditMutationResponse = {
-  checklistsEdit: (
-    params: { variables: EditMutationVariables }
-  ) => Promise<any>;
-};
+export type EditMutationResponse = (
+  { variables: EditMutationVariables }
+) => Promise<any>;
 
 export type RemoveMutationVariables = {
   _id: string;
@@ -52,7 +50,7 @@ export interface IChecklistItemDoc {
   checklistId: string;
   isChecked: boolean;
   content: string;
-  mentionedUserIds: string[];
+  mentionedUserIds?: string[];
 }
 
 export interface IChecklistItem extends IChecklistItemDoc {

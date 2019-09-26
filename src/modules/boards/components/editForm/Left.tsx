@@ -3,7 +3,7 @@ import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
 
 import { IItem } from 'modules/boards/types';
-import Checklists from 'modules/checklists/containers/Checklists';
+import Checklists from 'modules/checklists/containers/List';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
