@@ -108,7 +108,7 @@ export const COMPANY_BASIC_INFOS = [
   'doNotDisturb',
 ];
 
-export const PRODUCT_BASIC_INFOS = ['name', 'categoryCode', 'type', 'description', 'sku', 'code'];
+export const PRODUCT_BASIC_INFOS = ['name', 'categoryCode', 'type', 'description', 'sku', 'code', 'unitPrice'];
 
 export const INSIGHT_BASIC_INFOS = {
   count: 'Customer count',

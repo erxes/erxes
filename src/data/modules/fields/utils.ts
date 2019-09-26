@@ -15,10 +15,12 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 
   const properties: any[] = [];
 
-  for (const fieldName of fields) {
+  for (let fieldName of fields) {
     if (!fieldName) {
       return properties;
     }
+
+    fieldName = fieldName.trim();
 
     const property: { [key: string]: any } = {};
 
