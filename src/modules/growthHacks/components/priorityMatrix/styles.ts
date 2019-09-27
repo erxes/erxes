@@ -41,8 +41,9 @@ const Point = styledTS<{ x: number; y: number }>(styled.div)`
   font-size: 10px;
   line-height: 16px;
   border: 1px solid ${colors.borderDarker};
-  margin-bottom: -${dimensions.unitSpacing}px;
-  margin-left: -${dimensions.unitSpacing}px;
+  margin-bottom: -${dimensions.unitSpacing - 2}px;
+  margin-left: -${dimensions.unitSpacing - 2}px;
+  z-index: 10;
 
   &:before {
     content: '';

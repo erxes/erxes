@@ -10,7 +10,7 @@ import { mutations, queries } from '../../graphql';
 
 type Props = {
   queryParams: any;
-  priorityMatrixRefetch: () => void;
+  priorityMatrixRefetch?: () => void;
 };
 
 type FinalProps = {
@@ -31,36 +31,23 @@ class LeftContainer extends React.Component<FinalProps> {
         .then(() => {
           Alert.success('You successfully updated an experiment');
 
-          priorityMatrixRefetch();
+          if (priorityMatrixRefetch) {
+            priorityMatrixRefetch();
+          }
         })
         .catch(error => {
           Alert.error(error.message);
         });
     };
 
-    const add = (doc: IGrowthHackParams) => {
-      const { addMutation } = this.props;
-
-      addMutation({ variables: { ...doc } })
-        .then(() => {
-          Alert.success('You successfully added an experiment');
-
-          growthHacksQuery.refetch();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
-
-    const growthHacks = growthHacksQuery.growthHacks || [];
+    const { growthHacks = [], loading, refetch } = growthHacksQuery;
 
     const extendedProps = {
       ...this.props,
       growthHacks,
-      loading: growthHacksQuery.loading,
+      loading,
       edit,
-      add,
-      refetch: growthHacksQuery.refetch(),
+      refetch,
       totalCount: growthHacksTotalCountQuery.growthHacksTotalCount
     };
 
@@ -76,20 +63,14 @@ export default withProps<Props>(
         name: 'editMutation'
       }
     ),
-    graphql<Props, SaveMutation, IGrowthHackParams>(
-      gql(mutations.growthHacksAdd),
-      {
-        name: 'addMutation'
-      }
-    ),
     graphql<Props>(gql(queries.growthHacks), {
       name: 'growthHacksQuery',
       options: ({ queryParams = {} }) => ({
         variables: {
           ...getFilterParams(queryParams),
-          limit: parseInt(queryParams.limit, 10),
-          sortField: queryParams.sortField,
-          sortDirection: parseInt(queryParams.sortDirection, 10)
+          limit: parseInt(queryParams.limit, 10) || 15,
+          sortField: queryParams.sortField || '',
+          sortDirection: parseInt(queryParams.sortDirection, 10) || 1
         }
       })
     }),

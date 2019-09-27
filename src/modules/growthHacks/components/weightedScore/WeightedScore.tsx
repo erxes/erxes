@@ -1,5 +1,6 @@
 import MainActionBar from 'modules/boards/containers/MainActionBar';
 import { BoardContainer } from 'modules/boards/styles/common';
+import LoadMore from 'modules/common/components/LoadMore';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import {
@@ -20,6 +21,9 @@ type Props = {
   growthHacks: IGrowthHack[];
   bgColor?: string;
   hackScoringType: string;
+  refetch?: () => void;
+  totalCount: number;
+  loading: boolean;
 };
 
 class WeightedScore extends React.Component<Props> {
@@ -75,6 +79,8 @@ class WeightedScore extends React.Component<Props> {
   renderContent = () => {
     const getValue = (value?: number) => value || 0;
 
+    const { totalCount, loading } = this.props;
+
     return (
       <FixedContainer>
         <ScrollContent>
@@ -126,8 +132,9 @@ class WeightedScore extends React.Component<Props> {
               })}
             </tbody>
           </Table>
+          <LoadMore perPage={15} all={totalCount} loading={loading} />
         </ScrollContent>
-        <GrowthHackAddTrigger />
+        <GrowthHackAddTrigger refetch={this.props.refetch} />
       </FixedContainer>
     );
   };

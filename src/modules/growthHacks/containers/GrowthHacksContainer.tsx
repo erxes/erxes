@@ -7,31 +7,50 @@ import { withProps } from 'modules/common/utils';
 import WeightedScore from 'modules/growthHacks/components/weightedScore/WeightedScore';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { queries } from '../../graphql';
+import GrowthHacks from '../components/funnelImpact/GrowthHacks';
+import { queries } from '../graphql';
 
 type Props = {
   queryParams: any;
+  hackStage?: string;
 };
 
 type FinalProps = {
   growthHacksQuery: any;
   pipelineDetailQuery: PipelineDetailQueryResponse;
+  growthHacksTotalCountQuery: any;
 } & Props;
 
-class WeightedScoreContainer extends React.Component<FinalProps> {
+class GrowthHacksContainer extends React.Component<FinalProps> {
   render() {
-    const { growthHacksQuery, pipelineDetailQuery } = this.props;
+    const {
+      growthHacksQuery,
+      pipelineDetailQuery,
+      growthHacksTotalCountQuery,
+      hackStage
+    } = this.props;
 
-    const growthHacks = growthHacksQuery.growthHacks || [];
+    const { growthHacks = [], loading, refetch } = growthHacksQuery;
+
+    const commonProps = {
+      ...this.props,
+      growthHacks,
+      loading,
+      refetch,
+      totalCount: growthHacksTotalCountQuery.growthHacksTotalCount
+    };
+
+    if (hackStage) {
+      return <GrowthHacks {...commonProps} />;
+    }
+
     const pipeline = pipelineDetailQuery.pipelineDetail || {};
-
     const { hackScoringType = '', bgColor = '' } = pipeline;
 
     const extendedProps = {
-      ...this.props,
+      ...commonProps,
       hackScoringType,
-      bgColor,
-      growthHacks
+      bgColor
     };
 
     return <WeightedScore {...extendedProps} />;
@@ -63,10 +82,11 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.growthHacks), {
       name: 'growthHacksQuery',
-      options: ({ queryParams = {} }) => ({
+      options: ({ queryParams = {}, hackStage }) => ({
         variables: {
           ...getFilterParams(queryParams),
-
+          hackStage,
+          limit: parseInt(queryParams.limit, 10) || 15,
           sortField: queryParams.sortField,
           sortDirection: parseInt(queryParams.sortDirection, 10)
         }
@@ -78,6 +98,15 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: { _id: queryParams && queryParams.pipelineId }
       })
+    }),
+    graphql<Props>(gql(queries.growthHacksTotalCount), {
+      name: 'growthHacksTotalCountQuery',
+      options: ({ queryParams = {}, hackStage }) => ({
+        variables: {
+          ...getFilterParams(queryParams),
+          hackStage
+        }
+      })
     })
-  )(WeightedScoreContainer)
+  )(GrowthHacksContainer)
 );

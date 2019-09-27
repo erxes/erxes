@@ -13,7 +13,11 @@ const PriorityMatrix = asyncComponent(() =>
 );
 
 const WeightedScore = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackBoard" */ './containers/weightedScore/WeightedScore')
+  import(/* webpackChunkName: "GrowthHackBoard" */ './containers/GrowthHacksContainer')
+);
+
+const FunnelImpact = asyncComponent(() =>
+  import(/* webpackChunkName: "GrowthHackBoard" */ './components/funnelImpact/FunnelImpact')
 );
 
 const growthHacks = () => {
@@ -51,6 +55,12 @@ const weightdScore = ({ location }) => {
   return <WeightedScore queryParams={queryParams} />;
 };
 
+const funnelImpact = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <FunnelImpact queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <>
@@ -80,6 +90,13 @@ const routes = () => {
         exact={true}
         path="/growthHack/weightedScore"
         component={weightdScore}
+      />
+
+      <Route
+        key="/growthHack/funnelImpact"
+        exact={true}
+        path="/growthHack/funnelImpact"
+        component={funnelImpact}
       />
     </>
   );

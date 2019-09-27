@@ -80,6 +80,7 @@ const growthHacks = `
     $limit: Int,
     $sortField: String,
     $sortDirection: Int,
+    $hackStage: String,
     ${commonParams}
   ) {
     growthHacks(
@@ -88,6 +89,7 @@ const growthHacks = `
       limit: $limit,
       sortField: $sortField,
       sortDirection: $sortDirection,
+      hackStage: $hackStage,
       ${commonParamDefs}
     ) {
       ${growthHackFields}

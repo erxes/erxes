@@ -1,9 +1,8 @@
 import LoadMore from 'modules/common/components/LoadMore';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
-import { router } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
-import { LeftContent, Sort } from 'modules/growthHacks/styles';
+import { router, __ } from 'modules/common/utils';
+import { LeftContent, ScrollContent, Sort } from 'modules/growthHacks/styles';
 import { IGrowthHackParams } from 'modules/growthHacks/types';
 import React from 'react';
 import { withRouter } from 'react-router';
@@ -96,48 +95,53 @@ class Left extends React.Component<IProps> {
             clearable={false}
           />
         </Sort>
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th>{__('Task name')}</th>
-              <th style={{ width: 40 }}>{__('Impact')}</th>
-              <th style={{ width: 40 }}>{__('Effort')}</th>
-            </tr>
-          </thead>
-          <tbody className="with-input">
-            {growthHacks.map(growthHack => {
-              return (
-                <tr key={growthHack._id}>
-                  <td>{growthHack.name}</td>
-                  <td>
-                    <input
-                      type="number"
-                      min={0}
-                      max={10}
-                      defaultValue={growthHack.impact}
-                      onChange={this.onEdit.bind(
-                        this,
-                        growthHack._id,
-                        'impact'
-                      )}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      min={0}
-                      max={10}
-                      defaultValue={growthHack.ease}
-                      onChange={this.onEdit.bind(this, growthHack._id, 'ease')}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-        <LoadMore perPage={10} all={totalCount} loading={loading} />
-
+        <ScrollContent>
+          <Table hover={true}>
+            <thead>
+              <tr>
+                <th>{__('Task name')}</th>
+                <th style={{ width: 40 }}>{__('Impact')}</th>
+                <th style={{ width: 40 }}>{__('Effort')}</th>
+              </tr>
+            </thead>
+            <tbody className="with-input">
+              {growthHacks.map(growthHack => {
+                return (
+                  <tr key={growthHack._id}>
+                    <td>{growthHack.name}</td>
+                    <td>
+                      <input
+                        type="number"
+                        min={0}
+                        max={10}
+                        defaultValue={growthHack.impact}
+                        onChange={this.onEdit.bind(
+                          this,
+                          growthHack._id,
+                          'impact'
+                        )}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        min={0}
+                        max={10}
+                        defaultValue={growthHack.ease}
+                        onChange={this.onEdit.bind(
+                          this,
+                          growthHack._id,
+                          'ease'
+                        )}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+          <LoadMore perPage={15} all={totalCount} loading={loading} />
+        </ScrollContent>
         <GrowthHackAddTrigger refetch={refetch} />
       </LeftContent>
     );

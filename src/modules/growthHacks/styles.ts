@@ -5,6 +5,18 @@ import styledTS from 'styled-components-ts';
 
 const ScoreWrapper = styled.div``;
 
+const AddButton = `
+  text-align: center;
+  padding: 10px 20px;
+  background: ${colors.bgLight};
+  color: ${colors.textPrimary};
+  border-top: 1px solid ${colors.borderPrimary};
+
+  &:hover {
+    background: ${colors.bgActive};
+  }
+`;
+
 const CalculatedAmount = styled.div`
   font-size: 32px;
   font-weight: bold;
@@ -124,15 +136,7 @@ const FixedContainer = styled(FixedContent)`
   flex-direction: column;
 
   > a {
-    text-align: center;
-    padding: 10px 20px;
-    background: ${colors.bgLight};
-    color: ${colors.textPrimary};
-    border-top: 1px solid ${colors.borderPrimary};
-
-    &:hover {
-      background: ${colors.bgActive};
-    }
+    ${AddButton}
   }
 `;
 
@@ -155,6 +159,12 @@ const LeftContent = styled.div`
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
   z-index: 2;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
+
+  > a {
+    ${AddButton}
+  }
 `;
 
 const RightContent = styled.div`
@@ -173,6 +183,17 @@ const TableHead = styled.th`
   width: 50px;
 `;
 
+const FunnelContent = styled.div`
+  background: ${colors.colorWhite};
+  border-radius: 2px;
+  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
+`;
+
+const Title = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
@@ -187,5 +208,7 @@ export {
   FixedContainer,
   Sort,
   ScrollContent,
-  TableHead
+  TableHead,
+  FunnelContent,
+  Title
 };
