@@ -1,8 +1,12 @@
+import { AddForm } from 'modules/boards/components/portable';
+import { AddNew } from 'modules/boards/styles/stage';
+import Icon from 'modules/common/components/Icon';
 import LoadMore from 'modules/common/components/LoadMore';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { LeftContent, Sort } from 'modules/growthHacks/styles';
 import { IGrowthHackParams } from 'modules/growthHacks/types';
 import React from 'react';
@@ -14,15 +18,16 @@ interface IProps extends IRouterProps {
   growthHacks: any[];
   totalCount: number;
   loading: boolean;
-  save(id: string, doc: IGrowthHackParams): void;
+  add(doc: IGrowthHackParams): void;
+  edit(id: string, doc: IGrowthHackParams): void;
 }
 
 class Left extends React.Component<IProps> {
-  onSave = (id: string, name: string, e) => {
+  onEdit = (id: string, name: string, e) => {
     const { value } = e.target;
     const doc = { [name]: value ? parseInt(value, 0) : 0 };
 
-    this.props.save(id, doc);
+    this.props.edit(id, doc);
   };
 
   onChangeSort = value => {
@@ -55,10 +60,7 @@ class Left extends React.Component<IProps> {
 
           break;
         }
-        default: {
-          // tslint:disable-next-line: no-console
-          console.log('value: ', value.value);
-        }
+        default:
       }
 
       router.setParams(this.props.history, {
@@ -68,6 +70,29 @@ class Left extends React.Component<IProps> {
       });
     }
   };
+
+  renderAddItemTrigger() {
+    const addText = 'Add an experiment';
+
+    const formProps = {
+      showSelect: true,
+      saveItem: this.props.add,
+      options: {
+        type: 'growthHack'
+      }
+    };
+
+    const trigger = (
+      <AddNew>
+        <Icon icon="plus-1" />
+        {addText}
+      </AddNew>
+    );
+
+    const content = props => <AddForm {...formProps} {...props} />;
+
+    return <ModalTrigger title={addText} trigger={trigger} content={content} />;
+  }
 
   render() {
     const { totalCount, growthHacks, loading, queryParams } = this.props;
@@ -84,10 +109,11 @@ class Left extends React.Component<IProps> {
       <LeftContent>
         <Sort>
           <Select
-            value={queryParams.sortType}
+            value={queryParams.sortType || 1}
             placeholder="Sort"
             onChange={this.onChangeSort}
             options={selectOptions}
+            clearable={false}
           />
         </Sort>
         <Table hover={true}>
@@ -109,7 +135,7 @@ class Left extends React.Component<IProps> {
                       min={0}
                       max={10}
                       defaultValue={growthHack.impact}
-                      onChange={this.onSave.bind(
+                      onChange={this.onEdit.bind(
                         this,
                         growthHack._id,
                         'impact'
@@ -122,7 +148,7 @@ class Left extends React.Component<IProps> {
                       min={0}
                       max={10}
                       defaultValue={growthHack.ease}
-                      onChange={this.onSave.bind(this, growthHack._id, 'ease')}
+                      onChange={this.onEdit.bind(this, growthHack._id, 'ease')}
                     />
                   </td>
                 </tr>
@@ -131,6 +157,8 @@ class Left extends React.Component<IProps> {
           </tbody>
         </Table>
         <LoadMore perPage={10} all={totalCount} loading={loading} />
+
+        {this.renderAddItemTrigger()}
       </LeftContent>
     );
   }

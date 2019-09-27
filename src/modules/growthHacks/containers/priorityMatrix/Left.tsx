@@ -17,11 +17,14 @@ type FinalProps = {
   growthHacksQuery: any;
   growthHacksTotalCountQuery: any;
   editMutation: SaveMutation;
+  addMutation: SaveMutation;
 } & Props;
 
 class LeftContainer extends React.Component<FinalProps> {
   render() {
-    const save = (id: string, doc: IGrowthHackParams) => {
+    const { growthHacksTotalCountQuery, growthHacksQuery } = this.props;
+
+    const edit = (id: string, doc: IGrowthHackParams) => {
       const { editMutation, priorityMatrixRefetch } = this.props;
 
       editMutation({ variables: { _id: id, ...doc } })
@@ -35,7 +38,19 @@ class LeftContainer extends React.Component<FinalProps> {
         });
     };
 
-    const { growthHacksTotalCountQuery, growthHacksQuery } = this.props;
+    const add = (doc: IGrowthHackParams) => {
+      const { addMutation } = this.props;
+
+      addMutation({ variables: { ...doc } })
+        .then(() => {
+          Alert.success('You successfully added an experiment');
+
+          growthHacksQuery.refetch();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
     const growthHacks = growthHacksQuery.growthHacks || [];
 
@@ -43,7 +58,8 @@ class LeftContainer extends React.Component<FinalProps> {
       ...this.props,
       growthHacks,
       loading: growthHacksQuery.loading,
-      save,
+      edit,
+      add,
       totalCount: growthHacksTotalCountQuery.growthHacksTotalCount
     };
 
@@ -57,6 +73,12 @@ export default withProps<Props>(
       gql(mutations.growthHacksEdit),
       {
         name: 'editMutation'
+      }
+    ),
+    graphql<Props, SaveMutation, IGrowthHackParams>(
+      gql(mutations.growthHacksAdd),
+      {
+        name: 'addMutation'
       }
     ),
     graphql<Props>(gql(queries.growthHacks), {

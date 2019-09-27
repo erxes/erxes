@@ -76,6 +76,7 @@ const growthHackFields = `
 const growthHacks = `
   query growthHacks(
     $stageId: String,
+    $skip: Int,
     $limit: Int,
     $sortField: String,
     $sortDirection: Int,
@@ -83,6 +84,7 @@ const growthHacks = `
   ) {
     growthHacks(
       stageId: $stageId,
+      skip: $skip,
       limit: $limit,
       sortField: $sortField,
       sortDirection: $sortDirection,
