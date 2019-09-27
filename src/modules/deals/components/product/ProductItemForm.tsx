@@ -31,7 +31,15 @@ type Props = {
   updateTotal?: () => void;
 };
 
-class ProductItemForm extends React.Component<Props> {
+class ProductItemForm extends React.Component<Props, { categoryId: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      categoryId: ''
+    };
+  }
+
   calculateAmount = (type: string, productData: IProductData) => {
     const amount = productData.unitPrice * productData.quantity;
 
@@ -68,6 +76,10 @@ class ProductItemForm extends React.Component<Props> {
     if (updateTotal) {
       updateTotal();
     }
+  };
+
+  onChangeCategory = (categoryId: string) => {
+    this.setState({ categoryId });
   };
 
   onChangeField = (
@@ -125,6 +137,8 @@ class ProductItemForm extends React.Component<Props> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
+        onChangeCategory={this.onChangeCategory}
+        categoryId={this.state.categoryId}
         data={{
           name: 'Product',
           products: productData.product ? [productData.product] : []
