@@ -1,15 +1,12 @@
-import {
-  FormFooter,
-  HeaderContent,
-  HeaderRow,
-  TitleRow
-} from 'modules/boards/styles/item';
+import { TitleRow } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import xss from 'xss';
+import EditorCK from '../../common/containers/EditorCK';
 import { AddContainer } from '../styles/item';
 import {
   EditMutationVariables,
@@ -58,14 +55,14 @@ class List extends React.Component<Props, State> {
       <>
         {checklist.checklistItems.map(item => {
           return (
-            <>
+            <TitleRow key={item._id}>
               <Item
                 key={item._id}
                 item={item}
                 editItem={this.props.editItem}
                 removeItem={this.props.removeItem}
               />
-            </>
+            </TitleRow>
           );
         })}
       </>
@@ -89,11 +86,14 @@ class List extends React.Component<Props, State> {
     return (
       <>
         <ControlLabel>
-          <label onClick={onClick}>{__(`${title}`)}</label>
+          <label
+            onClick={onClick}
+            dangerouslySetInnerHTML={{ __html: xss(title) }}
+          />
         </ControlLabel>
-        <button onClick={removeClick}>
-          <Icon icon="cancel" />
-        </button>
+        <Button btnStyle="simple" onClick={removeClick}>
+          <Icon icon="cancel-1" />
+        </Button>
       </>
     );
   };
@@ -134,29 +134,19 @@ class List extends React.Component<Props, State> {
 
     return (
       <AddContainer onSubmit={onSubmit}>
-        <HeaderRow>
-          <HeaderContent>
-            <FormControl
-              autoFocus={true}
-              onChange={onChangeTitle}
-              value={title}
-            />
-          </HeaderContent>
-        </HeaderRow>
-        <FormFooter>
-          <Button btnStyle="simple" onClick={isEditingChange} icon="cancel-1">
-            Close
-          </Button>
+        <FormControl autoFocus={true} onChange={onChangeTitle} value={title} />
+        <Button btnStyle="simple" onClick={isEditingChange}>
+          <Icon icon="cancel" />
+        </Button>
 
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-          >
-            Save
-          </Button>
-        </FormFooter>
+        <Button
+          disabled={this.state.disabled}
+          btnStyle="success"
+          icon="checked-1"
+          type="submit"
+        >
+          Save
+        </Button>
       </AddContainer>
     );
   };
@@ -188,7 +178,7 @@ class List extends React.Component<Props, State> {
 
     const onChangeContent = e =>
       this.setState({
-        newItemContent: (e.currentTarget as HTMLInputElement).value
+        newItemContent: e.editor.getData()
       });
 
     const isAddItemChange = () => this.setState({ isAddItem: false });
@@ -216,29 +206,26 @@ class List extends React.Component<Props, State> {
 
     return (
       <AddContainer onSubmit={onSubmit}>
-        <HeaderRow>
-          <HeaderContent>
-            <FormControl
-              autoFocus={true}
-              onChange={onChangeContent}
-              placeholder="Add Item"
-            />
-          </HeaderContent>
-        </HeaderRow>
-        <FormFooter>
-          <Button btnStyle="simple" onClick={isAddItemChange} icon="cancel-1">
-            Close
-          </Button>
+        <EditorCK
+          showMentions={true}
+          content=""
+          onChange={onChangeContent}
+          height={100}
+          toolbar={[]}
+          toolbarCanCollapse={false}
+        />
+        <Button btnStyle="simple" onClick={isAddItemChange} icon="cancel-1">
+          Close
+        </Button>
 
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-          >
-            Save
-          </Button>
-        </FormFooter>
+        <Button
+          disabled={this.state.disabled}
+          btnStyle="success"
+          icon="checked-1"
+          type="submit"
+        >
+          Save
+        </Button>
       </AddContainer>
     );
   };
@@ -254,9 +241,11 @@ class List extends React.Component<Props, State> {
           {this.renderInput()}
         </TitleRow>
         <TitleRow>
-          <ControlLabel>{__(`${list.checklistPercent}`)}</ControlLabel>
+          <ControlLabel>
+            {__(`${list.checklistPercent.toFixed(2)}`)} %
+          </ControlLabel>
         </TitleRow>
-        <TitleRow>{this.renderChecklistItems(list)}</TitleRow>
+        {this.renderChecklistItems(list)}
         <TitleRow>
           {this.renderAddItemBtn()}
           {this.renderAddItem()}

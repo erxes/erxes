@@ -63,6 +63,7 @@ export type AddItemMutationResponse = (
 
 export type EditItemMutationVariables = {
   _id: string;
+  checklistId: string;
   content: string;
   isChecked: boolean;
   mentionedUserIds: string[];

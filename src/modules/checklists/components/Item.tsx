@@ -1,13 +1,8 @@
-import {
-  AddContainer,
-  FormFooter,
-  HeaderContent,
-  HeaderRow,
-  TitleRow
-} from 'modules/boards/styles/item';
+import { AddContainer } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import { ControlLabel, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IChecklistItem } from '../types';
@@ -22,6 +17,7 @@ type State = {
   isEditing: boolean;
   content: string;
   disabled: boolean;
+  isChecked: boolean;
 };
 
 class Checklists extends React.Component<Props, State> {
@@ -31,7 +27,8 @@ class Checklists extends React.Component<Props, State> {
     this.state = {
       isEditing: false,
       content: props.item.content,
-      disabled: false
+      disabled: false,
+      isChecked: props.item.isChecked
     };
   }
 
@@ -54,9 +51,9 @@ class Checklists extends React.Component<Props, State> {
         <ControlLabel>
           <label onClick={onClick}>{__(`${content}`)}</label>
         </ControlLabel>
-        <button onClick={removeClick}>
-          <Icon icon="cancel" />
-        </button>
+        <Button btnStyle="simple" onClick={removeClick}>
+          <Icon icon="cancel-1" />
+        </Button>
       </>
     );
   };
@@ -68,8 +65,11 @@ class Checklists extends React.Component<Props, State> {
       return null;
     }
 
-    const onChangecontent = e =>
-      this.setState({ content: (e.currentTarget as HTMLInputElement).value });
+    const onChangeContent = e => {
+      this.setState({
+        content: e.editor.getData()
+      });
+    };
 
     const isEditingChange = () => this.setState({ isEditing: false });
 
@@ -97,51 +97,62 @@ class Checklists extends React.Component<Props, State> {
 
     return (
       <AddContainer onSubmit={onSubmit}>
-        <HeaderRow>
-          <HeaderContent>
-            <FormControl
-              autoFocus={true}
-              onChange={onChangecontent}
-              value={content}
-            />
-          </HeaderContent>
-        </HeaderRow>
-        <FormFooter>
-          <Button btnStyle="simple" onClick={isEditingChange} icon="cancel-1">
-            Close
-          </Button>
+        <EditorCK
+          showMentions={true}
+          content={this.state.content}
+          onChange={onChangeContent}
+          height={100}
+          toolbar={[]}
+          toolbarCanCollapse={false}
+        />
+        <Button btnStyle="simple" onClick={isEditingChange}>
+          <Icon icon="cancel" />
+        </Button>
 
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-          >
-            Save
-          </Button>
-        </FormFooter>
+        <Button
+          disabled={this.state.disabled}
+          btnStyle="success"
+          icon="checked-1"
+          type="submit"
+        >
+          Save
+        </Button>
       </AddContainer>
     );
   };
 
+  onCheckChange = e => {
+    const { editItem, item } = this.props;
+
+    const checked = (e.currentTarget as HTMLInputElement).checked;
+
+    const doc = {
+      _id: item._id,
+      checklistId: item.checklistId,
+      content: item.content,
+      isChecked: checked
+    };
+
+    editItem(doc, () => {
+      this.setState({ isChecked: checked });
+    });
+  };
+
   render = () => {
-    const { item } = this.props;
-    const { content } = this.state;
+    const { content, isChecked } = this.state;
 
     return (
-      <TitleRow>
+      <>
         <FormControl
           componentClass="checkbox"
-          checked={item.isChecked}
+          checked={isChecked}
           value="{item.content}"
           placeholder={content}
+          onChange={this.onCheckChange}
         />
-        <TitleRow>
-          <Icon icon="checked" />
-          {this.renderContent()}
-          {this.renderInput()}
-        </TitleRow>
-      </TitleRow>
+        {this.renderContent()}
+        {this.renderInput()}
+      </>
     );
   };
 }

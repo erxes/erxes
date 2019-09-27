@@ -49,7 +49,7 @@ const checklistsRemove = `
 // checklist items
 
 const commonItemVariables = `
-  $checklistId: String!,
+  $checklistId: String,
   $isChecked: Boolean,
   $content: String,
   $mentionedUserIds: [String]

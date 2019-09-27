@@ -31,7 +31,7 @@ class AddForm extends React.Component<IProps, State> {
 
     this.state = {
       disabled: false,
-      title: ''
+      title: 'Checklist'
     };
   }
 
@@ -71,7 +71,12 @@ class AddForm extends React.Component<IProps, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl autoFocus={true} onChange={this.onChangeTitle} />
+            <FormControl
+              autoFocus={true}
+              onChange={this.onChangeTitle}
+              value={this.state.title}
+              placeholder="Checklist"
+            />
           </HeaderContent>
         </HeaderRow>
         <FormFooter>
