@@ -16,8 +16,8 @@ const fieldMutations = {
   /**
    * Adds field object
    */
-  fieldsAdd(_root, args: IField, { user }: IContext) {
-    return Fields.createField({ ...args, lastUpdatedUserId: user._id });
+  fieldsAdd(_root, args: IField, { user, docModifier }: IContext) {
+    return Fields.createField(docModifier({ ...args, lastUpdatedUserId: user._id }));
   },
 
   /**

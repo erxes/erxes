@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
-import { field } from './utils';
+import { field, schemaWrapper } from './utils';
 
 export interface IField {
   contentType?: string;
@@ -37,36 +37,38 @@ export interface IFieldGroupDocument extends IFieldGroup, Document {
 }
 
 // Mongoose schemas =============
-export const fieldSchema = new Schema({
-  _id: field({ pkey: true }),
+export const fieldSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
 
-  // form, customer, company
-  contentType: field({ type: String }),
+    // form, customer, company
+    contentType: field({ type: String }),
 
-  // formId when contentType is form
-  contentTypeId: field({ type: String }),
+    // formId when contentType is form
+    contentTypeId: field({ type: String }),
 
-  type: field({ type: String }),
-  validation: field({
-    type: String,
-    optional: true,
+    type: field({ type: String }),
+    validation: field({
+      type: String,
+      optional: true,
+    }),
+    text: field({ type: String }),
+    description: field({
+      type: String,
+      optional: true,
+    }),
+    options: field({
+      type: [String],
+      optional: true,
+    }),
+    isRequired: field({ type: Boolean }),
+    isDefinedByErxes: field({ type: Boolean }),
+    order: field({ type: Number }),
+    groupId: field({ type: String }),
+    isVisible: field({ type: Boolean, default: true }),
+    lastUpdatedUserId: field({ type: String }),
   }),
-  text: field({ type: String }),
-  description: field({
-    type: String,
-    optional: true,
-  }),
-  options: field({
-    type: [String],
-    optional: true,
-  }),
-  isRequired: field({ type: Boolean }),
-  isDefinedByErxes: field({ type: Boolean }),
-  order: field({ type: Number }),
-  groupId: field({ type: String }),
-  isVisible: field({ type: Boolean, default: true }),
-  lastUpdatedUserId: field({ type: String }),
-});
+);
 
 export const fieldGroupSchema = new Schema({
   _id: field({ pkey: true }),
