@@ -60,6 +60,7 @@ class LeftContainer extends React.Component<FinalProps> {
       loading: growthHacksQuery.loading,
       edit,
       add,
+      refetch: growthHacksQuery.refetch(),
       totalCount: growthHacksTotalCountQuery.growthHacksTotalCount
     };
 

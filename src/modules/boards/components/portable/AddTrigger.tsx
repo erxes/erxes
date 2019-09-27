@@ -7,10 +7,11 @@ type Props = {
   relType: string;
   relTypeIds?: string[];
   options: IOptions;
+  refetch?: () => void;
 };
 
 export default (props: Props) => {
-  const { relType, relTypeIds, options } = props;
+  const { relType, relTypeIds, options, refetch } = props;
 
   const trigger = <a href="#title">{options.texts.addText}</a>;
 
@@ -18,6 +19,7 @@ export default (props: Props) => {
     <AddForm
       options={options}
       {...formProps}
+      refetch={refetch}
       relType={relType}
       relTypeIds={relTypeIds}
       showSelect={true}

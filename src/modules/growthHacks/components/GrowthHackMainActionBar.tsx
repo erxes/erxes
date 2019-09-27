@@ -4,6 +4,7 @@ import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
+import queryString from 'query-string';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -23,6 +24,16 @@ type Props = {
   assignedUserIds?: string[];
   type: string;
 };
+
+const FILTER_PARAMS = [
+  'search',
+  'assignedUserIds',
+  'nextWeek',
+  'nextDay',
+  'nextMonth',
+  'noCloseDate',
+  'overdue'
+];
 
 const GrowthHackMainActionBar = (props: Props) => {
   // get selected type from URL
@@ -46,6 +57,19 @@ const GrowthHackMainActionBar = (props: Props) => {
     }
 
     return '';
+  };
+
+  const isFiltered = (): boolean => {
+    const { location } = props.history;
+    const params = queryString.parse(location.search);
+
+    for (const param in params) {
+      if (FILTER_PARAMS.includes(param)) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   const viewChooser = () => {
@@ -98,6 +122,7 @@ const GrowthHackMainActionBar = (props: Props) => {
 
   const extendedProps = {
     ...props,
+    isFiltered,
     link: `/growthHack/${getCurrentType()}`,
     rightContent: viewChooser
   };

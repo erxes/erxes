@@ -1,8 +1,4 @@
-import { AddForm } from 'modules/boards/components/portable';
-import { AddNew } from 'modules/boards/styles/stage';
-import Icon from 'modules/common/components/Icon';
 import LoadMore from 'modules/common/components/LoadMore';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
@@ -12,13 +8,14 @@ import { IGrowthHackParams } from 'modules/growthHacks/types';
 import React from 'react';
 import { withRouter } from 'react-router';
 import Select from 'react-select-plus';
+import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
 
 interface IProps extends IRouterProps {
   queryParams: any;
   growthHacks: any[];
   totalCount: number;
   loading: boolean;
-  add(doc: IGrowthHackParams): void;
+  refetch(): void;
   edit(id: string, doc: IGrowthHackParams): void;
 }
 
@@ -71,31 +68,14 @@ class Left extends React.Component<IProps> {
     }
   };
 
-  renderAddItemTrigger() {
-    const addText = 'Add an experiment';
-
-    const formProps = {
-      showSelect: true,
-      saveItem: this.props.add,
-      options: {
-        type: 'growthHack'
-      }
-    };
-
-    const trigger = (
-      <AddNew>
-        <Icon icon="plus-1" />
-        {addText}
-      </AddNew>
-    );
-
-    const content = props => <AddForm {...formProps} {...props} />;
-
-    return <ModalTrigger title={addText} trigger={trigger} content={content} />;
-  }
-
   render() {
-    const { totalCount, growthHacks, loading, queryParams } = this.props;
+    const {
+      totalCount,
+      growthHacks,
+      loading,
+      queryParams,
+      refetch
+    } = this.props;
 
     const selectOptions = [
       { value: 1, label: 'Original order' },
@@ -158,7 +138,7 @@ class Left extends React.Component<IProps> {
         </Table>
         <LoadMore perPage={10} all={totalCount} loading={loading} />
 
-        {this.renderAddItemTrigger()}
+        <GrowthHackAddTrigger refetch={refetch} />
       </LeftContent>
     );
   }
