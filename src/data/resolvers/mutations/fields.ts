@@ -16,8 +16,8 @@ const fieldMutations = {
   /**
    * Adds field object
    */
-  fieldsAdd(_root, args: IField, { user, docModifier }: IContext) {
-    return Fields.createField(docModifier({ ...args, lastUpdatedUserId: user._id }));
+  fieldsAdd(_root, args: IField, { user }: IContext) {
+    return Fields.createField({ ...args, lastUpdatedUserId: user._id });
   },
 
   /**
@@ -53,18 +53,21 @@ const fieldsGroupsMutations = {
   /**
    * Create a new group for fields
    */
-  fieldsGroupsAdd(_root, doc: IFieldGroup, { user }: IContext) {
-    return FieldsGroups.createGroup({ ...doc, lastUpdatedUserId: user._id });
+  fieldsGroupsAdd(_root, doc: IFieldGroup, { user, docModifier }: IContext) {
+    return FieldsGroups.createGroup(docModifier({ ...doc, lastUpdatedUserId: user._id }));
   },
 
   /**
    * Update group for fields
    */
-  fieldsGroupsEdit(_root, { _id, ...doc }: IFieldsGroupsEdit, { user }: IContext) {
-    return FieldsGroups.updateGroup(_id, {
-      ...doc,
-      lastUpdatedUserId: user._id,
-    });
+  fieldsGroupsEdit(_root, { _id, ...doc }: IFieldsGroupsEdit, { user, docModifier }: IContext) {
+    return FieldsGroups.updateGroup(
+      _id,
+      docModifier({
+        ...doc,
+        lastUpdatedUserId: user._id,
+      }),
+    );
   },
 
   /**

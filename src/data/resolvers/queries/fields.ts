@@ -1,6 +1,7 @@
 import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES, INTEGRATION_KIND_CHOICES } from '../../../data/constants';
 import { Brands, Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 export interface IFieldsQuery {
   contentType: string;
@@ -168,8 +169,8 @@ const fieldsGroupQueries = {
   /**
    * Fields group list
    */
-  fieldsGroups(_root, { contentType }: { contentType: string }) {
-    const query: any = {};
+  fieldsGroups(_root, { contentType }: { contentType: string }, { commonQuerySelector }: IContext) {
+    const query: any = commonQuerySelector;
 
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
