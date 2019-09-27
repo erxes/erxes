@@ -1,10 +1,11 @@
 import { AddContainer } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
+import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { ControlLabel, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import EditorCK from 'modules/common/containers/EditorCK';
-import { __ } from 'modules/common/utils';
 import React from 'react';
+import xss from 'xss';
 import { IChecklistItem } from '../types';
 
 type Props = {
@@ -49,7 +50,10 @@ class Checklists extends React.Component<Props, State> {
     return (
       <>
         <ControlLabel>
-          <label onClick={onClick}>{__(`${content}`)}</label>
+          <label
+            onClick={onClick}
+            dangerouslySetInnerHTML={{ __html: xss(content) }}
+          />
         </ControlLabel>
         <Button btnStyle="simple" onClick={removeClick}>
           <Icon icon="cancel-1" />
@@ -80,11 +84,14 @@ class Checklists extends React.Component<Props, State> {
       // before save, disable save button
       this.setState({ disabled: true });
 
+      const mentionedUserIds = getMentionedUserIds(content);
+
       const doc = {
         _id: item._id,
         checklistId: item.checklistId,
         content,
-        isChecked: item.isChecked
+        isChecked: item.isChecked,
+        mentionedUserIds
       };
 
       editItem(doc, () => {

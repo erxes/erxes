@@ -1,13 +1,13 @@
 import { TitleRow } from 'modules/boards/styles/item';
+import { AddContainer } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
+import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import xss from 'xss';
 import EditorCK from '../../common/containers/EditorCK';
-import { AddContainer } from '../styles/item';
 import {
   EditMutationVariables,
   IChecklist,
@@ -86,10 +86,7 @@ class List extends React.Component<Props, State> {
     return (
       <>
         <ControlLabel>
-          <label
-            onClick={onClick}
-            dangerouslySetInnerHTML={{ __html: xss(title) }}
-          />
+          <label onClick={onClick}>{title}</label>
         </ControlLabel>
         <Button btnStyle="simple" onClick={removeClick}>
           <Icon icon="cancel-1" />
@@ -190,10 +187,13 @@ class List extends React.Component<Props, State> {
       // before save, disable save button
       this.setState({ disabled: true });
 
+      const mentionedUserIds = getMentionedUserIds(newItemContent);
+
       const doc = {
         checklistId: list._id,
         content: newItemContent,
-        isChecked: false
+        isChecked: false,
+        mentionedUserIds
       };
 
       addItem(doc, () => {

@@ -1,16 +1,15 @@
-import { IItem, IOptions } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import ControlLabel from 'modules/common/components/form/Label';
-import { Alert } from 'modules/common/utils';
-import * as React from 'react';
 import {
   AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
-} from '../styles/item';
+} from 'modules/boards/styles/item';
+import { IItem, IOptions } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
+import { Alert } from 'modules/common/utils';
+import * as React from 'react';
 import { IChecklistDoc } from '../types';
 
 type IProps = {
@@ -65,7 +64,7 @@ class AddForm extends React.Component<IProps, State> {
     });
   };
 
-  renderContent = () => {
+  render() {
     return (
       <AddContainer onSubmit={this.onSubmit}>
         <HeaderRow>
@@ -99,10 +98,6 @@ class AddForm extends React.Component<IProps, State> {
         </FormFooter>
       </AddContainer>
     );
-  };
-
-  render() {
-    return <Form renderContent={this.renderContent} />;
   }
 }
 
