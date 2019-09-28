@@ -100,10 +100,12 @@ const growthHacks = `
 const growthHacksTotalCount = `
   query growthHacksTotalCount(
     $stageId: String,
+    $hackStage: String,
     ${commonParams}
   ) {
     growthHacksTotalCount(
       stageId: $stageId,
+      hackStage: $hackStage,
       ${commonParamDefs}
     )
   }

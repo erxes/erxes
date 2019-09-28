@@ -1,19 +1,45 @@
 import MainActionBar from 'modules/boards/containers/MainActionBar';
-import { BoardContainer } from 'modules/boards/styles/common';
+import withPipeline from 'modules/boards/containers/withPipeline';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
+import { IPipeline } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import { HACKSTAGES } from 'modules/growthHacks/constants';
+import FunnelGroupContainer from 'modules/growthHacks/containers/FunnelGroupContainer';
 import { FixedContainer, ScrollContent } from 'modules/growthHacks/styles';
 import Header from 'modules/layout/components/Header';
-import { MainContent } from 'modules/layout/styles';
 import React from 'react';
 import GrowthHackMainActionBar from '../GrowthHackMainActionBar';
-import FunnelGroup from './FunnelGroup';
 
 type Props = {
   queryParams: any;
+  bgColor?: string;
+  pipeline: IPipeline;
 };
 
-class FunnelImpact extends React.Component<Props> {
+type States = {
+  hackStages: any;
+};
+
+class FunnelImpact extends React.Component<Props, States> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      hackStages: HACKSTAGES.reduce((hackStages, gh, index) => {
+        hackStages[gh] = index === 0;
+
+        return hackStages;
+      }, {})
+    };
+  }
+
+  onChangeOpen = (hackStage: string, isOpen: boolean) => {
+    const hackStages = this.state.hackStages;
+    hackStages[hackStage] = !isOpen;
+
+    this.setState({ hackStages });
+  };
+
   renderContent = () => {
     const queryParams = this.props.queryParams;
 
@@ -21,7 +47,13 @@ class FunnelImpact extends React.Component<Props> {
       <FixedContainer>
         <ScrollContent>
           {HACKSTAGES.map(gh => (
-            <FunnelGroup key={gh} queryParams={queryParams} hackStage={gh} />
+            <FunnelGroupContainer
+              onChangeOpen={this.onChangeOpen}
+              isOpen={this.state.hackStages[gh]}
+              key={gh}
+              queryParams={queryParams}
+              hackStage={gh}
+            />
           ))}
         </ScrollContent>
       </FixedContainer>
@@ -38,13 +70,13 @@ class FunnelImpact extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Growth hack')} breadcrumb={breadcrumb} />
-        <MainContent transparent={true} style={{ margin: 0 }}>
+        <BoardContent transparent={true} bgColor={this.props.pipeline.bgColor}>
           {this.renderActionBar()}
           {this.renderContent()}
-        </MainContent>
+        </BoardContent>
       </BoardContainer>
     );
   }
 }
 
-export default FunnelImpact;
+export default withPipeline(FunnelImpact);

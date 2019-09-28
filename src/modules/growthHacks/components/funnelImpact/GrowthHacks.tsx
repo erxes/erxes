@@ -6,10 +6,10 @@ import React from 'react';
 
 type Props = {
   queryParams: any;
-  growthHacks: IGrowthHack[];
+  growthHacks?: IGrowthHack[];
   totalCount: number;
-  loading: boolean;
-  refetch(): void;
+  loading?: boolean;
+  refetch?(): void;
 };
 class GrowthHacks extends React.Component<Props> {
   render() {
@@ -26,7 +26,7 @@ class GrowthHacks extends React.Component<Props> {
             </tr>
           </thead>
           <tbody>
-            {this.props.growthHacks.map(growthHack => (
+            {(this.props.growthHacks || []).map(growthHack => (
               <tr key={growthHack._id}>
                 <td>{growthHack.name}</td>
                 <td>{growthHack.description}</td>

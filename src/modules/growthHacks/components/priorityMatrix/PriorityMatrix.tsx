@@ -1,8 +1,7 @@
 import MainActionBar from 'modules/boards/containers/MainActionBar';
-import { BoardContainer } from 'modules/boards/styles/common';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
-import { MainContent } from 'modules/layout/styles';
 import React from 'react';
 import Content from '../../containers/priorityMatrix/Content';
 import GrowthHackMainActionBar from '../GrowthHackMainActionBar';
@@ -24,10 +23,10 @@ class PriorityMatrix extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Growth hack')} breadcrumb={breadcrumb} />
-        <MainContent transparent={true} style={{ margin: 0 }}>
+        <BoardContent transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}
-        </MainContent>
+        </BoardContent>
       </BoardContainer>
     );
   }

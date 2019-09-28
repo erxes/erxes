@@ -36,9 +36,7 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.growthHacksPriorityMatrix), {
       name: 'growthHacksPriorityMatrixQuery',
       options: ({ queryParams = {} }) => ({
-        variables: {
-          ...getFilterParams(queryParams)
-        }
+        variables: getFilterParams(queryParams)
       })
     })
   )(ContentContainer)

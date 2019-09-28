@@ -9,15 +9,15 @@ const GrowthHackBoard = asyncComponent(() =>
 );
 
 const PriorityMatrix = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackBoard" */ './components/priorityMatrix/PriorityMatrix')
+  import(/* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix')
 );
 
 const WeightedScore = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackBoard" */ './containers/GrowthHacksContainer')
+  import(/* webpackChunkName: "WeightedScore" */ './containers/WeigthedScoreContainer')
 );
 
 const FunnelImpact = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackBoard" */ './components/funnelImpact/FunnelImpact')
+  import(/* webpackChunkName: "FunnelImpact" */ './components/funnelImpact/FunnelImpact')
 );
 
 const growthHacks = () => {

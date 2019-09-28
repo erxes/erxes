@@ -1,5 +1,7 @@
 import MainActionBar from 'modules/boards/containers/MainActionBar';
-import { BoardContainer } from 'modules/boards/styles/common';
+import withPipeline from 'modules/boards/containers/withPipeline';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
+import { IPipeline } from 'modules/boards/types';
 import LoadMore from 'modules/common/components/LoadMore';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
@@ -10,7 +12,6 @@ import {
 } from 'modules/growthHacks/styles';
 import { IGrowthHack } from 'modules/growthHacks/types';
 import Header from 'modules/layout/components/Header';
-import { MainContent } from 'modules/layout/styles';
 import React from 'react';
 import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
 import GrowthHackMainActionBar from '../GrowthHackMainActionBar';
@@ -19,11 +20,10 @@ import Score from '../Score';
 type Props = {
   queryParams: any;
   growthHacks: IGrowthHack[];
-  bgColor?: string;
-  hackScoringType: string;
   refetch?: () => void;
   totalCount: number;
   loading: boolean;
+  pipeline: IPipeline;
 };
 
 class WeightedScore extends React.Component<Props> {
@@ -32,7 +32,7 @@ class WeightedScore extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const { hackScoringType } = this.props;
+    const { hackScoringType } = this.props.pipeline;
 
     if (hackScoringType === 'rice') {
       return (
@@ -65,7 +65,7 @@ class WeightedScore extends React.Component<Props> {
   };
 
   renderExtraInput = (value: number) => {
-    if (this.props.hackScoringType === 'rice') {
+    if (this.props.pipeline.hackScoringType === 'rice') {
       return (
         <td className="with-input">
           <input value={value} onChange={this.onChangeValue} />
@@ -119,7 +119,7 @@ class WeightedScore extends React.Component<Props> {
                     <td className="with-input">
                       <strong>
                         <Score.Amount
-                          type={this.props.hackScoringType}
+                          type={this.props.pipeline.hackScoringType}
                           r={getValue(growthHack.reach)}
                           i={getValue(growthHack.impact)}
                           c={getValue(growthHack.confidence)}
@@ -149,16 +149,13 @@ class WeightedScore extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Growth hack')} breadcrumb={breadcrumb} />
-        <MainContent
-          transparent={true}
-          style={{ margin: 0, backgroundColor: this.props.bgColor }}
-        >
+        <BoardContent transparent={true} bgColor={this.props.pipeline.bgColor}>
           {this.renderActionBar()}
           {this.renderContent()}
-        </MainContent>
+        </BoardContent>
       </BoardContainer>
     );
   }
 }
 
-export default WeightedScore;
+export default withPipeline(WeightedScore);
