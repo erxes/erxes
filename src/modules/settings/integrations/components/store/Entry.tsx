@@ -10,6 +10,7 @@ import { KIND_CHOICES } from '../../constants';
 import Settings from '../../containers/engages/Settings';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
+import Twitter from '../../containers/twitter/Twitter';
 import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
@@ -146,6 +147,16 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'twitter') {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <Twitter {...props} />;
+
+      return (
+        <ModalTrigger title="Add twitter" trigger={trigger} content={content} />
       );
     }
 

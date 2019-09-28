@@ -70,12 +70,14 @@ export const KIND_CHOICES = {
   GMAIL: 'gmail',
   LEAD: 'lead',
   CALLPRO: 'callpro',
+  TWITTER_DM: 'twitter-dm',
   ALL_LIST: [
     'messenger',
     'facebook-post',
     'facebook-messenger',
     'lead',
-    'callpro'
+    'callpro',
+    'twitter-dm'
   ]
 };
 
@@ -173,8 +175,21 @@ export const INTEGRATIONS = [
     ]
   },
   {
-    title: 'Coming soon',
     name: 'row-3',
+    rows: [
+      {
+        name: 'Twitter',
+        description: 'Connect to your twitter DMs here in your Inbox',
+        inMessenger: false,
+        kind: 'twitter',
+        logo: '/images/integrations/twitter.png',
+        createModal: 'twitter'
+      }
+    ]
+  },
+  {
+    title: 'Coming soon',
+    name: 'row-4',
     rows: [
       {
         name: 'Viber',

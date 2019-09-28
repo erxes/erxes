@@ -10,7 +10,7 @@ import Accounts from '../components/Accounts';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {
-  kind: 'facebook' | 'gmail';
+  kind: 'facebook' | 'gmail' | 'twitter';
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
