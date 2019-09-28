@@ -23,5 +23,17 @@ export const metricOptions = [
       { value: 'monthly-revenue', label: 'Monthly Revenue' },
       { value: 'repeat-recurring-revenue', label: 'Repeat Recurring Revenue' }
     ]
+  },
+  {
+    label: 'GROWTH MATRIX',
+    options: [
+      { value: 'viral-coefficient', label: 'Viral coefficient' },
+      {
+        value: 'free-to-paid-conversion-rate',
+        label: 'Free-to-paid conversion rate'
+      },
+      { value: 'number-of-deals-created', label: 'Number of deals created' },
+      { value: 'deal-to-close-rate', label: 'Deal-to-close rate' }
+    ]
   }
 ];
