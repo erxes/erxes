@@ -181,7 +181,7 @@ export const INTEGRATIONS = [
         name: 'Twitter',
         description: 'Connect to your twitter DMs here in your Inbox',
         inMessenger: false,
-        kind: 'twitter',
+        kind: 'twitter-dm',
         logo: '/images/integrations/twitter.png',
         createModal: 'twitter'
       }
