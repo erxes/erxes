@@ -22,16 +22,20 @@ class IntegrationList extends React.Component<Props> {
   getTypeName(integration) {
     const kind = integration.kind;
 
-    if (kind === KIND_CHOICES.FACEBOOK) {
-      return 'facebook';
+    if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
+      return 'facebook messenger';
+    }
+
+    if (kind === KIND_CHOICES.FACEBOOK_POST) {
+      return 'facebook post';
     }
 
     if (kind === KIND_CHOICES.GMAIL) {
       return 'gmail';
     }
 
-    if (kind === KIND_CHOICES.FORM) {
-      return 'form';
+    if (kind === KIND_CHOICES.LEAD) {
+      return 'lead';
     }
 
     if (kind === KIND_CHOICES.CALLPRO) {

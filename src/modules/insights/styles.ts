@@ -58,6 +58,13 @@ const FlexRow = styled.div`
   align-items: center;
 `;
 
+const Row = styled(FlexRow)`
+  align-items: normal;
+  flex-wrap: wrap;
+  margin-left: -1%;
+  margin-right: -1%;
+`;
+
 const FlexItem = styled.div`
   flex: 1;
   margin: 0;
@@ -99,7 +106,7 @@ const LoaderWrapper = styled(ChartWrapper)`
 `;
 
 const SummaryTitle = styled.div`
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   text-transform: uppercase;
 
   span {
@@ -110,21 +117,31 @@ const SummaryTitle = styled.div`
 const SummaryCount = styled.span`
   font-weight: bold;
   font-size: ${typography.fontSizeHeading5}px;
+
+  > span {
+    font-size: 14px;
+    padding-left: ${dimensions.unitSpacing - 5}px;
+    font-weight: normal;
+  }
 `;
 
 const SummaryItem = styledTS<{ isSmall?: boolean }>(styled.div)`
-  text-align: center;
   border-radius: 5px;
-  margin-bottom: 30px;
-  padding: 12px;
+  margin: 0 1% 2% 1%;
+  padding: 15px 20px;
+  flex: 1;
+  flex-basis: 23%;
+  flex-grow: 0;
   background: ${colors.bgLight};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   box-shadow: 0 3px 15px 0 ${rgba(colors.colorBlack, 0.2)};
 
   ${props =>
     props &&
     props.isSmall &&
     `
-    margin-bottom: 12px;
     padding: 8px;
     line-height: ${typography.fontSizeHeading7}px;
 
@@ -175,7 +192,7 @@ const BoxContainer = styled.div`
 `;
 
 const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
-  width: 320px;
+  width: 30%;
   border: ${props => props.selected && `1px solid ${colors.colorSecondary}`};
   margin: 10px;
   flex-shrink: 0;
@@ -279,5 +296,6 @@ export {
   PunchCircle,
   PunchDates,
   PunchCardWrapper,
-  PunchHours
+  PunchHours,
+  Row
 };

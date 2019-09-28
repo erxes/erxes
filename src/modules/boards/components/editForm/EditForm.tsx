@@ -1,6 +1,6 @@
 import { IUser } from 'modules/auth/types';
-import { FormFooter } from 'modules/boards/styles/item';
-import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import { CloseModal } from 'modules/common/styles/main';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import routerUtils from 'modules/common/utils/router';
@@ -12,7 +12,15 @@ import { Modal } from 'react-bootstrap';
 import history from '../../../../browserHistory';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
-const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
+const reactiveFields = [
+  'closeDate',
+  'stageId',
+  'assignedUserIds',
+  'isComplete',
+  'reminderMinute'
+];
+
+const reactiveForiegnFields = ['companies', 'customers'];
 
 type Props = {
   options: IOptions;
@@ -31,6 +39,7 @@ type Props = {
   onUpdate: (item, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
+  hideHeader?: boolean;
 };
 
 type State = {
@@ -45,6 +54,8 @@ type State = {
   attachments?: IAttachment[];
   updatedItem?;
   prevStageId?;
+  reminderMinute?: number;
+  isComplete?: boolean;
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -73,7 +84,9 @@ class EditForm extends React.Component<Props, State> {
       closeDate: item.closeDate,
       description: item.description || '',
       attachments: item.attachments && extractAttachment(item.attachments),
-      assignedUserIds: (item.assignedUsers || []).map(user => user._id)
+      assignedUserIds: (item.assignedUsers || []).map(user => user._id),
+      reminderMinute: item.reminderMinute || 0,
+      isComplete: item.isComplete
     };
   }
 
@@ -116,10 +129,16 @@ class EditForm extends React.Component<Props, State> {
           });
         });
       }
+
+      if (reactiveForiegnFields.includes(name)) {
+        this.props.saveItem({}, updatedItem => {
+          this.setState({ updatedItem });
+        });
+      }
     });
   };
 
-  onBlurFields = (name: 'name' | 'description', value: string) => {
+  onBlurFields = (name: string, value: string) => {
     if (value === this.props.item[name]) {
       return;
     }
@@ -152,36 +171,14 @@ class EditForm extends React.Component<Props, State> {
     removeItem(id, this.closeModal);
   };
 
-  save = () => {
-    const { companies, customers, updatedItem, prevStageId } = this.state;
-    const { saveItem } = this.props;
-
-    const doc = {
-      companyIds: companies.map(company => company._id),
-      customerIds: customers.map(customer => customer._id)
-    };
-
-    if (updatedItem && prevStageId) {
-      this.props.onUpdate(updatedItem, prevStageId);
-
-      return this.closeModal();
-    }
-
-    saveItem(doc, result => {
-      this.props.onUpdate(result);
-      this.closeModal();
-    });
-  };
-
   copy = () => {
     const { item, addItem, options } = this.props;
 
     // copied doc
     const doc = {
       ...item,
-      assignedUserIds: item.assignedUsers.map(user => user._id),
-      companyIds: item.companies.map(company => company._id),
-      customerIds: item.customers.map(customer => customer._id)
+      attachments: item.attachments && extractAttachment(item.attachments),
+      assignedUserIds: item.assignedUsers.map(user => user._id)
     };
 
     addItem(doc, this.closeModal, options.texts.copySuccessText);
@@ -212,23 +209,34 @@ class EditForm extends React.Component<Props, State> {
     this.closeModal();
   };
 
-  render() {
-    const { isFormVisible } = this.state;
-
-    if (!isFormVisible) {
-      return null;
+  renderHeader = () => {
+    if (this.props.hideHeader) {
+      return (
+        <CloseModal onClick={this.onHideModal}>
+          <Icon icon="times" />
+        </CloseModal>
+      );
     }
 
     return (
+      <Modal.Header closeButton={true}>
+        <Modal.Title>{__('Edit')}</Modal.Title>
+      </Modal.Header>
+    );
+  };
+
+  render() {
+    const { isFormVisible } = this.state;
+
+    return (
       <Modal
+        dialogClassName="modal-1000w"
         enforceFocus={false}
         bsSize="lg"
-        show={true}
+        show={isFormVisible}
         onHide={this.onHideModal}
       >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit')}</Modal.Title>
-        </Modal.Header>
+        {this.renderHeader()}
         <Modal.Body>
           {this.props.formContent({
             state: this.state,
@@ -238,20 +246,6 @@ class EditForm extends React.Component<Props, State> {
             remove: this.remove,
             onBlurFields: this.onBlurFields
           })}
-
-          <FormFooter>
-            <Button
-              btnStyle="simple"
-              onClick={this.onHideModal}
-              icon="cancel-1"
-            >
-              Close
-            </Button>
-
-            <Button btnStyle="success" icon="checked-1" onClick={this.save}>
-              Save
-            </Button>
-          </FormFooter>
         </Modal.Body>
       </Modal>
     );

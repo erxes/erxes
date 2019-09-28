@@ -74,7 +74,7 @@ const integrations = `
         name
         code
       }
-      formData
+      leadData
       formId
       tagIds
       tags {

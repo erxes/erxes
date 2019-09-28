@@ -51,9 +51,15 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   let selectedBrands: IBrand[] = [];
 
   if (object._id) {
-    selectedChannels = channels.filter(c => c.memberIds.includes(object._id));
-    selectedGroups = groups.filter(g => object.groupIds.includes(g._id));
-    selectedBrands = brands.filter(b => object.brandIds.includes(b._id));
+    selectedChannels = channels.filter(c =>
+      (c.memberIds || []).includes(object._id)
+    );
+    selectedGroups = groups.filter(g =>
+      (object.groupIds || []).includes(g._id)
+    );
+    selectedBrands = brands.filter(b =>
+      (object.brandIds || []).includes(b._id)
+    );
   }
 
   const updatedProps = {

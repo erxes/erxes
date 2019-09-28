@@ -2,6 +2,8 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import RTG from 'react-transition-group';
+import { CloseModal } from '../styles/main';
+import Icon from './Icon';
 
 type Props = {
   title: string;
@@ -12,6 +14,8 @@ type Props = {
   dialogClassName?: string;
   backDrop?: string;
   enforceFocus?: boolean;
+  hideHeader?: boolean;
+  isOpen?: boolean;
 };
 
 type State = {
@@ -22,7 +26,7 @@ class ModalTrigger extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { isOpen: false };
+    this.state = { isOpen: props.isOpen || false };
   }
 
   openModal = () => {
@@ -33,12 +37,28 @@ class ModalTrigger extends React.Component<Props, State> {
     this.setState({ isOpen: false });
   };
 
+  renderHeader = () => {
+    if (this.props.hideHeader) {
+      return (
+        <CloseModal onClick={this.closeModal}>
+          <Icon icon="times" />
+        </CloseModal>
+      );
+    }
+
+    const { title, ignoreTrans } = this.props;
+
+    return (
+      <Modal.Header closeButton={true}>
+        <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
+      </Modal.Header>
+    );
+  };
+
   render() {
     const {
-      title,
       trigger,
       size,
-      ignoreTrans,
       dialogClassName,
       content,
       backDrop,
@@ -67,9 +87,7 @@ class ModalTrigger extends React.Component<Props, State> {
           backdrop={backDrop}
           enforceFocus={enforceFocus}
         >
-          <Modal.Header closeButton={true}>
-            <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
-          </Modal.Header>
+          {this.renderHeader()}
           <Modal.Body>
             <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
               {content({ closeModal: this.closeModal })}

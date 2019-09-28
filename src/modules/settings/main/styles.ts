@@ -17,6 +17,7 @@ const Row = styled.div`
 
   @media (max-width: 1170px) {
     flex-direction: column;
+    padding-left: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -30,14 +31,32 @@ const RowTitle = styled.h3`
   color: ${colors.colorCoreDarkGray};
   flex-shrink: 0;
   width: ${rowTitleSize}px;
+
+  @media (max-width: 1170px) {
+    align-self: baseline;
+    padding: 0;
+  }
 `;
 
 const Box = styled(BoxRoot)`
   width: ${boxSize}px;
   height: ${boxSize}px;
+  border-color: transparent;
 
   img {
     height: 83px;
+  }
+
+  > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+
+    &:focus {
+      text-decoration: none;
+    }
   }
 `;
 
@@ -46,10 +65,15 @@ const Divider = styled.div`
   padding-bottom: ${dimensions.coreSpacing}px;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
     ${rowTitleSize}px;
+
+  @media (max-width: 1170px) {
+    margin-left: ${dimensions.coreSpacing}px;
+  }
 `;
 
 const BoxName = styled.span`
   font-size: ${typography.fontSizeUppercase}px;
+  margin: 0 !important;
 `;
 
 export { Row, RowTitle, Box, Divider, BoxName, MenusContainer };

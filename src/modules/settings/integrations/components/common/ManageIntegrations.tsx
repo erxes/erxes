@@ -98,10 +98,12 @@ class ManageIntegrations extends React.Component<Props, State> {
     const kind = integration.kind;
     let type = 'messenger';
 
-    if (kind === KIND_CHOICES.FORM) {
-      type = 'form';
-    } else if (kind === KIND_CHOICES.FACEBOOK) {
-      type = 'facebook';
+    if (kind === KIND_CHOICES.LEAD) {
+      type = 'lead';
+    } else if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
+      type = 'facebook-messenger';
+    } else if (kind === KIND_CHOICES.FACEBOOK_POST) {
+      type = 'facebook-post';
     } else if (kind === KIND_CHOICES.CALLPRO) {
       type = 'callpro';
     }
@@ -113,9 +115,11 @@ class ManageIntegrations extends React.Component<Props, State> {
     const kind = integration.kind;
     let icon = 'comment-alt';
 
-    if (kind === KIND_CHOICES.FORM) {
+    if (kind === KIND_CHOICES.LEAD) {
       icon = 'doc-text-inv-1';
-    } else if (kind === KIND_CHOICES.FACEBOOK) {
+    } else if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
+      icon = 'facebook-official';
+    } else if (kind === KIND_CHOICES.FACEBOOK_POST) {
       icon = 'facebook-official';
     } else if (kind === KIND_CHOICES.GMAIL) {
       icon = 'mail-alt';

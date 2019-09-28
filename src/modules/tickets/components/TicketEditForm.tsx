@@ -10,8 +10,11 @@ import { IEditFormContent, IOptions } from 'modules/boards/types';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Capitalize } from 'modules/settings/permissions/styles';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
@@ -51,13 +54,13 @@ export default class TicketEditForm extends React.Component<Props, State> {
   renderSidebarFields = () => {
     const { priority, source } = this.state;
 
-    const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+    const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
     const sourceValues = KIND_CHOICES.ALL_LIST.map(key => ({
-      label: key,
+      label: __(key),
       value: key
     }));
     sourceValues.push({
-      label: 'other',
+      label: __('other'),
       value: 'other'
     });
 
@@ -89,7 +92,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Priority</ControlLabel>
           <Select
-            placeholder="Select a priority"
+            placeholder={__('Select a priority')}
             value={priority}
             options={priorityValues}
             onChange={onChangePriority}
@@ -100,7 +103,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Source</ControlLabel>
           <Select
-            placeholder="Select a source"
+            placeholder={__('Select a source')}
             value={source}
             options={sourceValues}
             onChange={onChangeSource}
@@ -108,6 +111,15 @@ export default class TicketEditForm extends React.Component<Props, State> {
             valueRenderer={sourceValueRenderer}
           />
         </FormGroup>
+      </>
+    );
+  };
+
+  renderItems = () => {
+    return (
+      <>
+        <PortableDeals mainType="ticket" mainTypeId={this.props.item._id} />
+        <PortableTasks mainType="ticket" mainTypeId={this.props.item._id} />
       </>
     );
   };
@@ -128,9 +140,9 @@ export default class TicketEditForm extends React.Component<Props, State> {
       description,
       closeDate,
       assignedUserIds,
-      customers,
-      companies,
-      attachments
+      attachments,
+      isComplete,
+      reminderMinute
     } = state;
 
     return (
@@ -143,6 +155,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
           onBlurFields={onBlurFields}
           stageId={stageId}
           item={item}
+          isComplete={isComplete}
+          reminderMinute={reminderMinute}
           onChangeField={onChangeField}
         />
 
@@ -159,14 +173,13 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
           <Sidebar
             options={options}
-            customers={customers}
-            companies={companies}
             assignedUserIds={assignedUserIds}
             item={item}
             sidebar={this.renderSidebarFields}
             onChangeField={onChangeField}
             copyItem={copy}
             removeItem={remove}
+            renderItems={this.renderItems}
           />
         </FlexContent>
       </>
@@ -177,7 +190,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
     const extendedProps = {
       ...this.props,
       formContent: this.renderFormContent,
-      sidebar: this.renderSidebarFields,
       extraFields: this.state
     };
 

@@ -42,6 +42,7 @@ const options = {
     changeSuccessText: 'You successfully changed a deal',
     copySuccessText: 'You successfully copied a deal'
   },
+  isMove: true,
   getExtraParams: (queryParams: any) => {
     const extraParams: any = {};
 

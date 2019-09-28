@@ -71,6 +71,13 @@ const Meta = styled.div`
   }
 `;
 
+const AttachmentName = styled.span`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 200px;
+`;
+
 type Props = {
   attachment: IAttachment;
   scrollBottom?: () => void;
@@ -84,7 +91,7 @@ class Attachment extends React.Component<Props> {
     return (
       <>
         <h5>
-          {name}
+          <AttachmentName>{name}</AttachmentName>
           <Download
             rel="noopener noreferrer"
             href={readFile(attachment.url)}

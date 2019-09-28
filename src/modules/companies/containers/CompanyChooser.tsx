@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
-import Chooser from 'modules/common/components/Chooser';
 import { Alert, withProps } from 'modules/common/utils';
+import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
@@ -25,6 +25,7 @@ type FinalProps = {
 
 const CompanyChooser = (props: WrapperProps & FinalProps) => {
   const { data, companiesQuery, companiesAdd, search } = props;
+
   // add company
   const addCompany = ({ doc, callback }) => {
     companiesAdd({
@@ -51,7 +52,10 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
     data: {
       _id: data._id,
       name: renderName(data),
-      datas: data.companies
+      datas: data.companies,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'company'
     },
     search,
     clearState: () => search(''),
@@ -59,26 +63,31 @@ const CompanyChooser = (props: WrapperProps & FinalProps) => {
     renderForm: formProps => <CompanyForm {...formProps} action={addCompany} />,
     renderName,
     add: addCompany,
-    datas: companiesQuery.companies || []
+    datas: companiesQuery.companies || [],
+    refetchQuery: queries.companies
   };
 
-  return <Chooser {...updatedProps} />;
+  return <ConformityChooser {...updatedProps} />;
 };
 
 const WithQuery = withProps<Props>(
   compose(
     graphql<
-      Props,
+      Props & WrapperProps,
       CompaniesQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.companies), {
       name: 'companiesQuery',
-      options: ({ searchValue, perPage }) => {
+      options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
             searchValue,
-            perPage
-          }
+            perPage,
+            mainType: data.mainType,
+            mainTypeId: data.mainTypeId,
+            isRelated: data.isRelated
+          },
+          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
         };
       }
     }),
@@ -90,14 +99,24 @@ const WithQuery = withProps<Props>(
 );
 
 type WrapperProps = {
-  data: { _id?: string; name: string; companies: ICompany[] };
+  data: {
+    _id?: string;
+    name: string;
+    companies: ICompany[];
+    mainTypeId?: string;
+    mainType?: string;
+    isRelated?: boolean;
+  };
   onSelect: (datas: ICompany[]) => void;
   closeModal: () => void;
 };
 
 export default class Wrapper extends React.Component<
   WrapperProps,
-  { perPage: number; searchValue: string }
+  {
+    perPage: number;
+    searchValue: string;
+  }
 > {
   constructor(props) {
     super(props);

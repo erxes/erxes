@@ -8,8 +8,8 @@ import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
 import {
   Actions,
-  EmailTemplate,
   IframePreview,
+  Template,
   TemplateBox,
   Templates
 } from '../styles';
@@ -52,7 +52,7 @@ class EmailTemplateList extends React.Component<Props> {
 
   renderRow({ objects }) {
     return objects.map((object, index) => (
-      <EmailTemplate key={index}>
+      <Template key={index}>
         <TemplateBox>
           <Actions>
             {this.renderEditAction(object)}
@@ -65,7 +65,7 @@ class EmailTemplateList extends React.Component<Props> {
           </IframePreview>
         </TemplateBox>
         <h5>{object.name}</h5>
-      </EmailTemplate>
+      </Template>
     ));
   }
 

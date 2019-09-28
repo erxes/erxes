@@ -1,4 +1,5 @@
 import { IAttachment } from 'modules/common/types';
+import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
@@ -35,6 +36,7 @@ export interface IOptions {
     copySuccessText: string;
     changeSuccessText: string;
   };
+  isMove: boolean;
   getExtraParams: (queryParams: any) => any;
 }
 
@@ -49,11 +51,11 @@ export interface IItemParams {
   name?: string;
   stageId?: string;
   assignedUserIds?: string[];
-  companyIds?: string[];
-  customerIds?: string[];
   closeDate?: Date;
   description?: string;
   order?: number;
+  isComplete?: boolean;
+  reminderMinute?: number;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -67,6 +69,12 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
+  // growth hack
+  startDate?: Date;
+  endDate?: Date;
+  metric?: string;
+  hackScoringType?: string;
+  templateId?: string;
 }
 
 interface IStageComparisonInfo {
@@ -87,6 +95,7 @@ export interface IStage {
   inProcessDealsTotalCount: number;
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
+  formId: string;
 }
 
 export interface IItem {
@@ -101,11 +110,14 @@ export interface IItem {
   assignedUsers: IUser[];
   companies: ICompany[];
   customers: ICustomer[];
+  attachments?: IAttachment[];
   pipeline: IPipeline;
   stage?: IStage;
   isWatched?: boolean;
   priority?: string;
   hasNotified?: boolean;
+  isComplete: boolean;
+  reminderMinute: number;
 }
 
 export interface IDraggableLocation {
@@ -145,6 +157,11 @@ export type PipelinesQueryResponse = {
   pipelines: IPipeline[];
   loading: boolean;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
+};
+
+export type TemplatesQueryResponse = {
+  growthHackTemplates: IPipeline[];
+  loading: boolean;
 };
 
 export type StagesQueryResponse = {
@@ -190,13 +207,20 @@ export type ItemsQueryResponse = {
   fetchMore: any;
 };
 
+export type RelatedItemsQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};
+
 export type DetailQueryResponse = {
   loading: boolean;
 };
 
-export interface IFilterParams {
+export interface IFilterParams extends ISavedConformity {
   itemId?: string;
   search?: string;
+  stageId?: string;
   customerIds?: string;
   companyIds?: string;
   assignedUserIds?: string;
@@ -219,10 +243,11 @@ export interface IEditFormContent {
       | 'assignedUserIds'
       | 'customers'
       | 'companies'
-      | 'attachments',
+      | 'isComplete'
+      | 'reminderMinute',
     value: any
   ) => void;
   copy: () => void;
   remove: (id: string) => void;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
+  onBlurFields: (name: string, value: string) => void;
 }

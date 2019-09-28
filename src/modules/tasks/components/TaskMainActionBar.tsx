@@ -3,6 +3,8 @@ import { PRIORITIES } from 'modules/boards/constants';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import SelectCompanies from 'modules/companies/containers/SelectCompanies';
+import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import React from 'react';
 import Select from 'react-select-plus';
 
@@ -34,15 +36,29 @@ const TaskMainActionBar = (props: Props) => {
     onSelect(ops.map(option => option.value), 'priority');
 
   const extraFilter = (
-    <Select
-      placeholder="Select a priority"
-      value={priorities}
-      options={priorityValues}
-      name="priority"
-      onChange={onPrioritySelect}
-      multi={true}
-      loadingPlaceholder={__('Loading...')}
-    />
+    <>
+      <Select
+        placeholder="Choose a priority"
+        value={priorities}
+        options={priorityValues}
+        name="priority"
+        onChange={onPrioritySelect}
+        multi={true}
+        loadingPlaceholder={__('Loading...')}
+      />
+      <SelectCompanies
+        label="Choose companies"
+        name="companyIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+      <SelectCustomers
+        label="Choose customers"
+        name="customerIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+    </>
   );
 
   const extendedProps = {

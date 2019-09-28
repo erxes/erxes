@@ -40,8 +40,9 @@ const options = {
     updateSuccessText: 'You successfully updated a task',
     deleteSuccessText: 'You successfully deleted a task',
     copySuccessText: 'You successfully copied a task',
-    changeSuccessText: 'You successfully changed a ticket'
+    changeSuccessText: 'You successfully changed a task'
   },
+  isMove: true,
   getExtraParams: (queryParams: any) => {
     const { priority } = queryParams;
     const extraParams: any = {};

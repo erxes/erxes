@@ -136,3 +136,24 @@ export const renderPriority = (priority?: string) => {
 
   return <PriorityIndicator value={priority} />;
 };
+
+export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
+  let colorName = '';
+
+  if (isComplete) {
+    colorName = 'green';
+  } else if (closeDate) {
+    const now = new Date();
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    if (new Date(closeDate).getTime() - now.getTime() < oneDay) {
+      colorName = 'yellow';
+    }
+
+    if (now > closeDate) {
+      colorName = 'red';
+    }
+  }
+
+  return colorName;
+};
