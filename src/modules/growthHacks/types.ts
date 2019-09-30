@@ -42,6 +42,13 @@ export type GrowthHacksQueryResponse = {
   refetch: () => void;
 };
 
+// query types
+export type GrowthHacksPriorityQueryResponse = {
+  growthHacksPriorityMatrix: any[];
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type GrowthHacksCountQueryResponse = {
   growthHacksTotalCount: number;
 };
