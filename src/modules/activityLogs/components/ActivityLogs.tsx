@@ -100,6 +100,12 @@ class ActivityLogs extends React.PureComponent<Props, State> {
           >
             {__('Notes')}
           </TabTitle>
+          <TabTitle
+            className={currentTab === 'tasks' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'tasks')}
+          >
+            {__('Tasks')}
+          </TabTitle>
           {this.renderExtraTabs()}
         </Tabs>
 
