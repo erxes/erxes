@@ -2,20 +2,19 @@ import gql from 'graphql-tag';
 import { confirm, renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import Checklists from '../components/Checklists';
+import Lists from '../components/Lists';
 import { mutations, queries } from '../graphql';
 import {
   AddItemMutationResponse,
-  EditMutationResponse,
-  EditMutationVariables,
-  IChecklistItem,
-  IChecklistItemDoc
-} from '../types';
-import {
   ChecklistsQueryResponse,
   EditItemMutationResponse,
   EditItemMutationVariables,
+  EditMutationResponse,
+  EditMutationVariables,
+  IChecklistItem,
+  IChecklistItemDoc,
   IChecklistsParam,
+  IChecklistsState,
   RemoveItemMutationResponse,
   RemoveMutationResponse
 } from '../types';
@@ -23,6 +22,8 @@ import {
 type IProps = {
   contentType: string;
   contentTypeId: string;
+  onSelect: (checklistsState: IChecklistsState) => void;
+  checklistsState: IChecklistsState;
 };
 
 type FinalProps = {
@@ -91,7 +92,7 @@ class ChecklistsContainer extends React.Component<FinalProps> {
       removeItem: this.removeItem
     };
 
-    return <Checklists {...extendedProps} />;
+    return <Lists {...extendedProps} />;
   }
 }
 

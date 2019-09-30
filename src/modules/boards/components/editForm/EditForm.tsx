@@ -10,6 +10,7 @@ import queryString from 'query-string';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import history from '../../../../browserHistory';
+import { IChecklistsState } from '../../../checklists/types';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 const reactiveFields = [
@@ -20,7 +21,7 @@ const reactiveFields = [
   'reminderMinute'
 ];
 
-const reactiveForiegnFields = ['companies', 'customers'];
+const reactiveForiegnFields = ['companies', 'customers', 'checklistsState'];
 
 type Props = {
   options: IOptions;
@@ -56,6 +57,7 @@ type State = {
   prevStageId?;
   reminderMinute?: number;
   isComplete?: boolean;
+  checklistsState: IChecklistsState;
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -86,7 +88,8 @@ class EditForm extends React.Component<Props, State> {
       attachments: item.attachments && extractAttachment(item.attachments),
       assignedUserIds: (item.assignedUsers || []).map(user => user._id),
       reminderMinute: item.reminderMinute || 0,
-      isComplete: item.isComplete
+      isComplete: item.isComplete,
+      checklistsState: item.checklistsState || {}
     };
   }
 
@@ -113,6 +116,7 @@ class EditForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+    console.log(name, value);
     this.setState({ [name]: value } as Pick<State, keyof State>, () => {
       if (this.props.item.stageId !== this.state.stageId) {
         this.setState({

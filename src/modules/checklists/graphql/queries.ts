@@ -15,12 +15,12 @@ export const checklistFields = `
   title
   createdUserId
   createdDate
-  checklistItems {
+  items {
     _id
     isChecked
     content
   }
-  checklistPercent
+  percent
 `;
 
 const checklists = `

@@ -1,3 +1,8 @@
+export interface IChecklistsState {
+  complete: number;
+  all: number;
+}
+
 export interface IChecklistDoc {
   contentType: string;
   contentTypeId: string;
@@ -8,8 +13,8 @@ export interface IChecklist extends IChecklistDoc {
   _id: string;
   createdUserId: string;
   createdDate: Date;
-  checklistItems: IChecklistItem[];
-  checklistPercent: number;
+  items: IChecklistItem[];
+  percent: number;
 }
 
 export interface IChecklistsParam {

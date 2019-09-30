@@ -78,6 +78,10 @@ export const ticketFields = `
   modifiedBy
   reminderMinute
   isComplete
+  checklistsState {
+    completed
+    all
+  }
 `;
 
 const tickets = `

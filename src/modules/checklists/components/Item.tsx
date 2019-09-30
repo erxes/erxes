@@ -3,16 +3,17 @@ import Button from 'modules/common/components/Button';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { ControlLabel, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
-import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
 import xss from 'xss';
-import { IChecklistItem } from '../types';
+import { IChecklistItem, IChecklistsState } from '../types';
 
 type Props = {
   item: IChecklistItem;
   isHidden: boolean;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
   removeItem: (checklistItemId: string) => void;
+  onSelect: (checklistsState: IChecklistsState) => void;
+  checklistsState: IChecklistsState;
 };
 
 type State = {
@@ -20,6 +21,7 @@ type State = {
   content: string;
   disabled: boolean;
   isChecked: boolean;
+  checklistsState: IChecklistsState;
 };
 
 class Checklists extends React.Component<Props, State> {
@@ -30,7 +32,8 @@ class Checklists extends React.Component<Props, State> {
       isEditing: false,
       content: props.item.content,
       disabled: false,
-      isChecked: props.item.isChecked
+      isChecked: props.item.isChecked,
+      checklistsState: props.checklistsState || { complete: 0, all: 0 }
     };
   }
 
@@ -46,7 +49,18 @@ class Checklists extends React.Component<Props, State> {
       this.setState({ isEditing: true });
     };
 
-    const removeClick = () => removeItem(item._id);
+    const removeClick = () => {
+      removeItem(item._id);
+
+      this.setState({
+        checklistsState: {
+          complete: this.state.checklistsState.complete,
+          all: this.state.checklistsState.all - 1
+        }
+      });
+      this.props.onSelect(this.state.checklistsState);
+      // this.props.onSelect({complete: this.props.checklistsState.complete, all: this.props.checklistsState.all - 1});
+    };
 
     return (
       <>
@@ -72,7 +86,7 @@ class Checklists extends React.Component<Props, State> {
 
     const onChangeContent = e => {
       this.setState({
-        content: e.editor.getData()
+        content: (e.currentTarget as HTMLInputElement).value
       });
     };
 
@@ -105,13 +119,10 @@ class Checklists extends React.Component<Props, State> {
 
     return (
       <AddContainer onSubmit={onSubmit}>
-        <EditorCK
-          showMentions={true}
-          content={this.state.content}
+        <FormControl
+          autoFocus={true}
           onChange={onChangeContent}
-          height={100}
-          toolbar={[]}
-          toolbarCanCollapse={false}
+          value={this.state.content}
         />
         <Button btnStyle="simple" onClick={isEditingChange}>
           <Icon icon="cancel" />
@@ -144,6 +155,17 @@ class Checklists extends React.Component<Props, State> {
     editItem(doc, () => {
       this.setState({ isChecked: checked });
     });
+
+    const complete = this.props.checklistsState.complete;
+    this.setState({
+      checklistsState: {
+        complete: checked ? complete + 1 : complete - 1,
+        all: this.state.checklistsState.all
+      }
+    });
+    this.props.onSelect(this.state.checklistsState);
+
+    // this.props.onSelect({complete: checked ? complete + 1: complete -1, all: this.props.checklistsState.all});
   };
 
   render = () => {

@@ -3,7 +3,7 @@ import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
 
 import { IItem } from 'modules/boards/types';
-import Checklists from 'modules/checklists/containers/List';
+import Checklists from 'modules/checklists/containers/Lists';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -15,7 +15,7 @@ import { LeftContainer, TitleRow } from '../../styles/item';
 
 type Props = {
   item: IItem;
-  onChangeField: (name: 'description', value: any) => void;
+  onChangeField: (name: 'description' | 'checklistsState', value: any) => void;
   type: string;
   description: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
@@ -24,6 +24,14 @@ type Props = {
 };
 
 class Left extends React.Component<Props> {
+  onChange = (type, value) => {
+    const { onChangeField } = this.props;
+
+    if (onChangeField) {
+      onChangeField(type, value);
+    }
+  };
+
   render() {
     const {
       item,
@@ -33,12 +41,15 @@ class Left extends React.Component<Props> {
       description,
       type
     } = this.props;
+    console.log(item.checklistsState);
 
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);
 
     const descriptionOnBlur = e =>
       this.props.onBlurFields('description', e.target.value);
+
+    const chlsChange = chls => this.onChange('checklistsState', chls);
 
     return (
       <LeftContainer>
@@ -72,7 +83,12 @@ class Left extends React.Component<Props> {
           />
         </FormGroup>
 
-        <Checklists contentType={type} contentTypeId={item._id} />
+        <Checklists
+          contentType={type}
+          contentTypeId={item._id}
+          onSelect={chlsChange}
+          checklistsState={item.checklistsState}
+        />
 
         <ActivityInputs
           contentTypeId={item._id}

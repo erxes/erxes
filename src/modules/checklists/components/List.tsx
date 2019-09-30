@@ -7,12 +7,12 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import EditorCK from '../../common/containers/EditorCK';
 import {
   EditMutationVariables,
   IChecklist,
   IChecklistItem,
-  IChecklistItemDoc
+  IChecklistItemDoc,
+  IChecklistsState
 } from '../types';
 import Item from './Item';
 
@@ -23,6 +23,8 @@ type Props = {
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
   removeItem: (checklistItemId: string) => void;
+  onSelect: (checklistsState: IChecklistsState) => void;
+  checklistsState: IChecklistsState;
 };
 
 type State = {
@@ -32,6 +34,7 @@ type State = {
   newItemContent: string;
   disabled: boolean;
   isHidden: boolean;
+  checklistsState: IChecklistsState;
 };
 
 class List extends React.Component<Props, State> {
@@ -44,18 +47,19 @@ class List extends React.Component<Props, State> {
       isAddItem: false,
       newItemContent: '',
       disabled: false,
-      isHidden: false
+      isHidden: false,
+      checklistsState: props.checklistsState || { complete: 0, all: 0 }
     };
   }
 
-  renderChecklistItems = checklist => {
-    if (!checklist.checklistItems) {
+  renderItems = checklist => {
+    if (!checklist.items) {
       return null;
     }
 
     return (
       <>
-        {checklist.checklistItems.map(item => {
+        {checklist.items.map(item => {
           return (
             <TitleRow key={item._id}>
               <Item
@@ -64,6 +68,8 @@ class List extends React.Component<Props, State> {
                 isHidden={this.state.isHidden}
                 editItem={this.props.editItem}
                 removeItem={this.props.removeItem}
+                onSelect={this.props.onSelect}
+                checklistsState={this.props.checklistsState}
               />
             </TitleRow>
           );
@@ -85,7 +91,7 @@ class List extends React.Component<Props, State> {
     };
 
     const renderHideButton = () => {
-      if (!list.checklistPercent) {
+      if (!list.percent) {
         return null;
       }
 
@@ -207,7 +213,7 @@ class List extends React.Component<Props, State> {
 
     const onChangeContent = e =>
       this.setState({
-        newItemContent: e.editor.getData()
+        newItemContent: (e.currentTarget as HTMLInputElement).value
       });
 
     const isAddItemChange = () => this.setState({ isAddItem: false });
@@ -234,18 +240,20 @@ class List extends React.Component<Props, State> {
 
         isAddItemChange();
       });
+
+      this.setState({
+        checklistsState: {
+          complete: this.state.checklistsState.complete,
+          all: this.state.checklistsState.all + 1
+        }
+      });
+      this.props.onSelect(this.state.checklistsState);
+      // this.props.onSelect({complete: this.props.checklistsState.complete, all: this.props.checklistsState.all + 1});
     };
 
     return (
       <AddContainer onSubmit={onSubmit}>
-        <EditorCK
-          showMentions={true}
-          content=""
-          onChange={onChangeContent}
-          height={100}
-          toolbar={[]}
-          toolbarCanCollapse={false}
-        />
+        <FormControl autoFocus={true} onChange={onChangeContent} />
         <Button btnStyle="simple" onClick={isAddItemChange} icon="cancel-1">
           Close
         </Button>
@@ -273,11 +281,9 @@ class List extends React.Component<Props, State> {
           {this.renderInput()}
         </TitleRow>
         <TitleRow>
-          <ControlLabel>
-            {__(`${list.checklistPercent.toFixed(2)} %`)}
-          </ControlLabel>
+          <ControlLabel>{__(`${list.percent.toFixed(2)} %`)}</ControlLabel>
         </TitleRow>
-        {this.renderChecklistItems(list)}
+        {this.renderItems(list)}
         <TitleRow>
           {this.renderAddItemBtn()}
           {this.renderAddItem()}

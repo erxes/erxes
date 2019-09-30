@@ -1,6 +1,7 @@
 import { IAttachment } from 'modules/common/types';
 import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
+import { IChecklistsState } from '../checklists/types';
 import { ICompany } from '../companies/types';
 import { ICustomer } from '../customers/types';
 
@@ -118,6 +119,7 @@ export interface IItem {
   hasNotified?: boolean;
   isComplete: boolean;
   reminderMinute: number;
+  checklistsState: IChecklistsState;
 }
 
 export interface IDraggableLocation {

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import ChecklistsLabel from 'modules/boards/components/ChecklistLabel';
 import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
@@ -43,7 +44,13 @@ class TicketItem extends React.PureComponent<Props, {}> {
 
   render() {
     const { item, onClick } = this.props;
-    const { customers, companies, closeDate, isComplete } = item;
+    const {
+      customers,
+      companies,
+      closeDate,
+      isComplete,
+      checklistsState
+    } = item;
 
     return (
       <>
@@ -83,6 +90,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
           </PriceContainer>
 
           <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
+          <ChecklistsLabel checklistsState={checklistsState} />
 
           <Footer>
             {__('Last updated')}:

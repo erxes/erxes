@@ -3,7 +3,8 @@ import {
   EditMutationVariables,
   IChecklist,
   IChecklistItem,
-  IChecklistItemDoc
+  IChecklistItemDoc,
+  IChecklistsState
 } from '../types';
 import List from './List';
 
@@ -14,6 +15,8 @@ type Props = {
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
   removeItem: (checklistItemId: string) => void;
+  onSelect: (checklistsState: IChecklistsState) => void;
+  checklistsState: IChecklistsState;
 };
 
 type State = {
@@ -21,7 +24,7 @@ type State = {
   contentEdit: boolean;
 };
 
-class Checklists extends React.Component<Props, State> {
+class Lists extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -46,9 +49,11 @@ class Checklists extends React.Component<Props, State> {
         addItem={this.props.addItem}
         editItem={this.props.editItem}
         removeItem={this.props.removeItem}
+        onSelect={this.props.onSelect}
+        checklistsState={this.props.checklistsState}
       />
     ));
   }
 }
 
-export default Checklists;
+export default Lists;
