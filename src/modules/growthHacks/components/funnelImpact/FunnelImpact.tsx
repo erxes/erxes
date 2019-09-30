@@ -4,7 +4,7 @@ import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { IPipeline } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import { HACKSTAGES } from 'modules/growthHacks/constants';
-import FunnelGroupContainer from 'modules/growthHacks/containers/FunnelGroupContainer';
+import FunnelGroup from 'modules/growthHacks/containers/FunnelGroup';
 import { FixedContainer, ScrollContent } from 'modules/growthHacks/styles';
 import Header from 'modules/layout/components/Header';
 import React from 'react';
@@ -47,7 +47,7 @@ class FunnelImpact extends React.Component<Props, States> {
       <FixedContainer>
         <ScrollContent>
           {HACKSTAGES.map(gh => (
-            <FunnelGroupContainer
+            <FunnelGroup
               onChangeOpen={this.onChangeOpen}
               isOpen={this.state.hackStages[gh]}
               key={gh}

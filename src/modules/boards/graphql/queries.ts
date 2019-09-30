@@ -69,6 +69,7 @@ const pipelineDetail = `
       name
       bgColor
       isWatched
+      hackScoringType
     }
   }
 `;

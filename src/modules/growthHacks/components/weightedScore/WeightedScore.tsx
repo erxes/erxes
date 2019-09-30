@@ -10,7 +10,7 @@ import {
   ScrollContent,
   TableHead
 } from 'modules/growthHacks/styles';
-import { IGrowthHack } from 'modules/growthHacks/types';
+import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
 import Header from 'modules/layout/components/Header';
 import React from 'react';
 import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
@@ -24,12 +24,18 @@ type Props = {
   totalCount: number;
   loading: boolean;
   pipeline: IPipeline;
+  save(id: string, doc: IGrowthHackParams): void;
 };
 
 class WeightedScore extends React.Component<Props> {
-  onChangeValue = () => {
-    return null;
+  onSave = (id: string, name: string, e) => {
+    const { value } = e.target;
+    const doc = { [name]: value ? parseInt(value, 0) : 0 };
+
+    this.props.save(id, doc);
   };
+
+  getValue = (value?: number) => value || 0;
 
   renderHeader = () => {
     const { hackScoringType } = this.props.pipeline;
@@ -64,22 +70,28 @@ class WeightedScore extends React.Component<Props> {
     );
   };
 
-  renderExtraInput = (value: number) => {
-    if (this.props.pipeline.hackScoringType === 'rice') {
-      return (
-        <td className="with-input">
-          <input value={value} onChange={this.onChangeValue} />
-        </td>
-      );
+  renderInput(growthHack: IGrowthHack, type: string) {
+    const { hackScoringType } = this.props.pipeline;
+
+    if (hackScoringType !== 'rice' && type === 'reach') {
+      return null;
     }
 
-    return null;
-  };
+    return (
+      <td className="with-input">
+        <input
+          type="number"
+          min={0}
+          max={10}
+          value={this.getValue(growthHack[type])}
+          onChange={this.onSave.bind(this, growthHack._id, type)}
+        />
+      </td>
+    );
+  }
 
   renderContent = () => {
-    const getValue = (value?: number) => value || 0;
-
-    const { totalCount, loading } = this.props;
+    const { totalCount, loading, pipeline, growthHacks } = this.props;
 
     return (
       <FixedContainer>
@@ -93,37 +105,22 @@ class WeightedScore extends React.Component<Props> {
               </tr>
             </thead>
             <tbody>
-              {this.props.growthHacks.map(growthHack => {
+              {growthHacks.map(growthHack => {
                 return (
                   <tr key={growthHack._id}>
                     <td>{growthHack.name}</td>
-                    {this.renderExtraInput(getValue(growthHack.reach))}
-                    <td className="with-input">
-                      <input
-                        value={getValue(growthHack.impact)}
-                        onChange={this.onChangeValue}
-                      />
-                    </td>
-                    <td className="with-input">
-                      <input
-                        value={getValue(growthHack.confidence)}
-                        onChange={this.onChangeValue}
-                      />
-                    </td>
-                    <td className="with-input">
-                      <input
-                        value={getValue(growthHack.ease)}
-                        onChange={this.onChangeValue}
-                      />
-                    </td>
+                    {this.renderInput(growthHack, 'reach')}
+                    {this.renderInput(growthHack, 'impact')}
+                    {this.renderInput(growthHack, 'confidence')}
+                    {this.renderInput(growthHack, 'ease')}
                     <td className="with-input">
                       <strong>
                         <Score.Amount
-                          type={this.props.pipeline.hackScoringType}
-                          r={getValue(growthHack.reach)}
-                          i={getValue(growthHack.impact)}
-                          c={getValue(growthHack.confidence)}
-                          e={getValue(growthHack.ease)}
+                          type={pipeline.hackScoringType}
+                          r={this.getValue(growthHack.reach)}
+                          i={this.getValue(growthHack.impact)}
+                          c={this.getValue(growthHack.confidence)}
+                          e={this.getValue(growthHack.ease)}
                         />
                       </strong>
                     </td>

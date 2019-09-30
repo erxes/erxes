@@ -32,7 +32,7 @@ class Chart extends React.PureComponent<Props> {
 
     return (
       <OverlayTrigger
-        trigger="click"
+        trigger="hover"
         placement="bottom"
         rootClose={true}
         overlay={this.renderPopover(data)}

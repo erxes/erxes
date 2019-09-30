@@ -17,14 +17,13 @@ type FinalProps = {
   growthHacksQuery: any;
   growthHacksTotalCountQuery: any;
   editMutation: SaveMutation;
-  addMutation: SaveMutation;
 } & Props;
 
 class LeftContainer extends React.Component<FinalProps> {
   render() {
     const { growthHacksTotalCountQuery, growthHacksQuery } = this.props;
 
-    const edit = (id: string, doc: IGrowthHackParams) => {
+    const save = (id: string, doc: IGrowthHackParams) => {
       const { editMutation, priorityMatrixRefetch } = this.props;
 
       editMutation({ variables: { _id: id, ...doc } })
@@ -46,7 +45,7 @@ class LeftContainer extends React.Component<FinalProps> {
       ...this.props,
       growthHacks,
       loading,
-      edit,
+      save,
       refetch,
       totalCount: growthHacksTotalCountQuery.growthHacksTotalCount
     };

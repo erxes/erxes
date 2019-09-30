@@ -53,7 +53,6 @@ export default withProps<Props>(
         variables: {
           ...getFilterParams(queryParams),
           hackStage,
-          limit: parseInt(queryParams.limit, 10) || 15,
           sortField: queryParams.sortField,
           sortDirection: parseInt(queryParams.sortDirection, 10)
         }

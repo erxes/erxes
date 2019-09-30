@@ -173,12 +173,6 @@ const RightContent = styled.div`
   overflow: hidden;
 `;
 
-const Sort = styled.div`
-  position: relative;
-  z-index: 2;
-  padding: 10px 20px;
-`;
-
 const TableHead = styled.th`
   width: 50px;
 `;
@@ -206,7 +200,6 @@ export {
   LeftContent,
   RightContent,
   FixedContainer,
-  Sort,
   ScrollContent,
   TableHead,
   FunnelContent,

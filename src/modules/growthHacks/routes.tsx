@@ -13,7 +13,7 @@ const PriorityMatrix = asyncComponent(() =>
 );
 
 const WeightedScore = asyncComponent(() =>
-  import(/* webpackChunkName: "WeightedScore" */ './containers/WeigthedScoreContainer')
+  import(/* webpackChunkName: "WeightedScore" */ './containers/WeigthedScore')
 );
 
 const FunnelImpact = asyncComponent(() =>

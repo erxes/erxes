@@ -3,12 +3,14 @@ import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
+import { IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
+import Select from 'react-select-plus';
 
-type Props = {
+interface IProps extends IRouterProps {
   onSearch: (search: string) => void;
   onSelect: (values: string[] | string, name: string) => void;
   onDateFilterSelect: (name: string, value: string) => void;
@@ -23,7 +25,7 @@ type Props = {
   queryParams: any;
   assignedUserIds?: string[];
   type: string;
-};
+}
 
 const FILTER_PARAMS = [
   'search',
@@ -35,7 +37,7 @@ const FILTER_PARAMS = [
   'overdue'
 ];
 
-const GrowthHackMainActionBar = (props: Props) => {
+const GrowthHackMainActionBar = (props: IProps) => {
   // get selected type from URL
   const getCurrentType = () => {
     const currentUrl = window.location.href;
@@ -120,9 +122,70 @@ const GrowthHackMainActionBar = (props: Props) => {
     );
   };
 
+  const onChangeSort = value => {
+    let sortField = '';
+    let sortDirection = '';
+    let sortType = '';
+
+    if (value) {
+      switch (value.value) {
+        case 1: {
+          sortField = 'impact';
+          sortDirection = '1';
+
+          break;
+        }
+        case 2: {
+          sortField = 'impact';
+          sortDirection = '-1';
+
+          break;
+        }
+        case 3: {
+          sortField = 'ease';
+          sortDirection = '1';
+
+          break;
+        }
+        case 4: {
+          sortField = 'ease';
+          sortDirection = '-1';
+
+          break;
+        }
+        default:
+      }
+
+      sortType = value.value;
+    }
+
+    router.setParams(props.history, {
+      sortField,
+      sortDirection,
+      sortType
+    });
+  };
+
+  const sortOptions = [
+    { value: 1, label: 'Low impact' },
+    { value: 2, label: 'High impact' },
+    { value: 3, label: 'Low effort' },
+    { value: 4, label: 'High effort' }
+  ];
+
+  const extraFilter = (
+    <Select
+      value={props.queryParams.sortType}
+      placeholder="Sort"
+      onChange={onChangeSort}
+      options={sortOptions}
+    />
+  );
+
   const extendedProps = {
     ...props,
     isFiltered,
+    extraFilter,
     link: `/growthHack/${getCurrentType()}`,
     rightContent: viewChooser
   };
@@ -130,4 +193,4 @@ const GrowthHackMainActionBar = (props: Props) => {
   return <MainActionBar {...extendedProps} />;
 };
 
-export default GrowthHackMainActionBar;
+export default withRouter<IProps>(GrowthHackMainActionBar);
