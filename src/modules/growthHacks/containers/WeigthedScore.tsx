@@ -5,7 +5,11 @@ import WeightedScore from 'modules/growthHacks/components/weightedScore/Weighted
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
-import { IGrowthHackParams } from '../types';
+import {
+  GrowthHacksCountQueryResponse,
+  GrowthHacksQueryResponse,
+  IGrowthHackParams
+} from '../types';
 import { getFilterParams } from '../utils';
 
 type Props = {
@@ -14,8 +18,8 @@ type Props = {
 };
 
 type FinalProps = {
-  growthHacksQuery: any;
-  growthHacksTotalCountQuery: any;
+  growthHacksQuery: GrowthHacksQueryResponse;
+  growthHacksTotalCountQuery: GrowthHacksCountQueryResponse;
   editMutation: SaveMutation;
 } & Props;
 

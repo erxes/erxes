@@ -4,40 +4,37 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import FunnelGroup from '../components/funnelImpact/FunnelGroup';
 import { queries } from '../graphql';
+import {
+  GrowthHacksCountQueryResponse,
+  GrowthHacksQueryResponse,
+  IGrowthHack
+} from '../types';
 import { getFilterParams } from '../utils';
 
 type Props = {
   queryParams: any;
   isOpen: boolean;
   hackStage: string;
-  onChangeOpen(hackStage: string, isOpen: boolean): void;
+  toggle(hackStage: string, isOpen: boolean): void;
 };
 
 type FinalProps = {
-  growthHacksQuery?: any;
-  growthHacksTotalCountQuery: any;
+  growthHacksQuery?: GrowthHacksQueryResponse;
+  growthHacksTotalCountQuery: GrowthHacksCountQueryResponse;
 } & Props;
 
 class FunnelGroupContainer extends React.Component<FinalProps> {
   render() {
     const { growthHacksQuery, growthHacksTotalCountQuery } = this.props;
 
-    let growthHacks = [];
-    let loading = false;
-    let refetch;
-
-    if (growthHacksQuery) {
-      growthHacks = growthHacksQuery.growthHacks || [];
-      loading = growthHacksQuery.loading || false;
-      refetch = growthHacksQuery.retetch;
-    }
+    const growthHacks: IGrowthHack[] = growthHacksQuery
+      ? growthHacksQuery.growthHacks || []
+      : [];
 
     const props = {
       ...this.props,
       growthHacks,
-      loading,
-      refetch,
-      totalCount: growthHacksTotalCountQuery.growthHacksTotalCount
+      totalCount: growthHacksTotalCountQuery.growthHacksTotalCount || 0
     };
 
     return <FunnelGroup {...props} />;

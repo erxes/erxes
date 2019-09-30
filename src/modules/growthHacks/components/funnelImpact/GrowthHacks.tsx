@@ -6,10 +6,8 @@ import React from 'react';
 
 type Props = {
   queryParams: any;
-  growthHacks?: IGrowthHack[];
+  growthHacks: IGrowthHack[];
   totalCount: number;
-  loading?: boolean;
-  refetch?(): void;
 };
 class GrowthHacks extends React.Component<Props> {
   render() {

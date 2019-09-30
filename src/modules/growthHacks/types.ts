@@ -34,3 +34,14 @@ export interface IFormField {
   name: string;
   value: string;
 }
+
+// query types
+export type GrowthHacksQueryResponse = {
+  growthHacks: IGrowthHack[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type GrowthHacksCountQueryResponse = {
+  growthHacksTotalCount: number;
+};

@@ -7,33 +7,24 @@ type Props = {
   queryParams: any;
   hackStage: string;
   isOpen: boolean;
-  growthHacks?: IGrowthHack[];
+  growthHacks: IGrowthHack[];
   totalCount: number;
-  loading: boolean;
-  onChangeOpen(hackStage: string, isOpen: boolean): void;
-  refetch?(): void;
+  toggle(hackStage: string, isOpen: boolean): void;
 };
 
 class FunnelGroup extends React.Component<Props> {
-  onChangeOpen = () => {
-    const { onChangeOpen, isOpen, hackStage } = this.props;
+  onToggle = () => {
+    const { toggle, isOpen, hackStage } = this.props;
 
-    onChangeOpen(hackStage, isOpen);
+    toggle(hackStage, isOpen);
   };
 
   render() {
-    const {
-      hackStage,
-      queryParams,
-      growthHacks,
-      totalCount,
-      loading,
-      refetch
-    } = this.props;
+    const { hackStage, queryParams, growthHacks, totalCount } = this.props;
 
     return (
       <FunnelContent>
-        <Title onClick={this.onChangeOpen}>
+        <Title onClick={this.onToggle}>
           {hackStage} ({totalCount})
         </Title>
 
@@ -42,8 +33,6 @@ class FunnelGroup extends React.Component<Props> {
             queryParams={queryParams}
             growthHacks={growthHacks}
             totalCount={totalCount}
-            loading={loading}
-            refetch={refetch}
           />
         ) : null}
       </FunnelContent>
