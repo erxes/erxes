@@ -31,6 +31,7 @@ type State = {
   isAddItem: boolean;
   newItemContent: string;
   disabled: boolean;
+  isHidden: boolean;
 };
 
 class List extends React.Component<Props, State> {
@@ -42,7 +43,8 @@ class List extends React.Component<Props, State> {
       title: this.props.list.title,
       isAddItem: false,
       newItemContent: '',
-      disabled: false
+      disabled: false,
+      isHidden: false
     };
   }
 
@@ -59,6 +61,7 @@ class List extends React.Component<Props, State> {
               <Item
                 key={item._id}
                 item={item}
+                isHidden={this.state.isHidden}
                 editItem={this.props.editItem}
                 removeItem={this.props.removeItem}
               />
@@ -71,7 +74,7 @@ class List extends React.Component<Props, State> {
 
   renderTitle = () => {
     const { remove, list } = this.props;
-    const { isEditing, title } = this.state;
+    const { isEditing, title, isHidden } = this.state;
 
     if (isEditing) {
       return null;
@@ -81,6 +84,34 @@ class List extends React.Component<Props, State> {
       this.setState({ isEditing: true });
     };
 
+    const renderHideButton = () => {
+      if (!list.checklistPercent) {
+        return null;
+      }
+
+      if (isHidden) {
+        return (
+          <Button btnStyle="simple" onClick={showClick}>
+            {__(`Show checked items`)}
+          </Button>
+        );
+      } else {
+        return (
+          <Button btnStyle="simple" onClick={hideClick}>
+            {__(`Hide completed items`)}
+          </Button>
+        );
+      }
+    };
+
+    const hideClick = () => {
+      this.setState({ isHidden: true });
+    };
+
+    const showClick = () => {
+      this.setState({ isHidden: false });
+    };
+
     const removeClick = () => remove(list._id);
 
     return (
@@ -88,6 +119,7 @@ class List extends React.Component<Props, State> {
         <ControlLabel>
           <label onClick={onClick}>{title}</label>
         </ControlLabel>
+        {renderHideButton()}
         <Button btnStyle="simple" onClick={removeClick}>
           <Icon icon="cancel-1" />
         </Button>
@@ -242,7 +274,7 @@ class List extends React.Component<Props, State> {
         </TitleRow>
         <TitleRow>
           <ControlLabel>
-            {__(`${list.checklistPercent.toFixed(2)}`)} %
+            {__(`${list.checklistPercent.toFixed(2)} %`)}
           </ControlLabel>
         </TitleRow>
         {this.renderChecklistItems(list)}

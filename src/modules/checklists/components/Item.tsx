@@ -10,6 +10,7 @@ import { IChecklistItem } from '../types';
 
 type Props = {
   item: IChecklistItem;
+  isHidden: boolean;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
   removeItem: (checklistItemId: string) => void;
 };
@@ -146,6 +147,12 @@ class Checklists extends React.Component<Props, State> {
   };
 
   render = () => {
+    const { isHidden, item } = this.props;
+
+    if (isHidden && item.isChecked) {
+      return null;
+    }
+
     const { content, isChecked } = this.state;
 
     return (
@@ -153,7 +160,6 @@ class Checklists extends React.Component<Props, State> {
         <FormControl
           componentClass="checkbox"
           checked={isChecked}
-          value="{item.content}"
           placeholder={content}
           onChange={this.onCheckChange}
         />
