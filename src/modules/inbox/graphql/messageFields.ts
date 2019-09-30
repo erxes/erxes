@@ -51,26 +51,20 @@ export default `
       colorCode
     }
   }
-  gmailData {
+  details {
     messageId
-    headerId
-    from
-    to
-    cc
-    bcc
-    reply
-    references
     threadId
     subject
-    textPlain
-    textHtml
+    body
     integrationEmail
-    attachments {
-      size
-      filename
-      mimeType
-      attachmentId
-      data
-    }
+    to
+    from
+    cc
+    bcc
+    accountId
+    replyToMessageId
+    reply
+    references
+    headerId
   }
 `;
