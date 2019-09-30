@@ -5,23 +5,13 @@ import Chart from './Chart';
 
 type Props = {
   queryParams: any;
-  growthHacksPriorityMatrix: any[];
+  datas: any[];
   priorityMatrixRefetch: () => void;
 };
 
 class Content extends React.Component<Props> {
   render() {
-    const {
-      growthHacksPriorityMatrix,
-      priorityMatrixRefetch,
-      queryParams
-    } = this.props;
-
-    const datas = growthHacksPriorityMatrix.map(gh => ({
-      y: gh.impact,
-      x: gh.ease,
-      name: gh.name
-    }));
+    const { datas, priorityMatrixRefetch, queryParams } = this.props;
 
     return (
       <ContentContainer>

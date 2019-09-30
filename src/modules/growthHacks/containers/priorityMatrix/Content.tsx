@@ -18,12 +18,12 @@ class ContentContainer extends React.Component<FinalProps> {
   render() {
     const { growthHacksPriorityMatrixQuery } = this.props;
 
-    const growthHacksPriorityMatrix =
+    const datas =
       growthHacksPriorityMatrixQuery.growthHacksPriorityMatrix || [];
 
     const extendedProps = {
       ...this.props,
-      growthHacksPriorityMatrix,
+      datas,
       priorityMatrixRefetch: growthHacksPriorityMatrixQuery.refetch
     };
 

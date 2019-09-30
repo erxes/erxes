@@ -117,11 +117,7 @@ const growthHacksPriorityMatrix = `
   ) {
     growthHacksPriorityMatrix(
       ${commonParamDefs}
-    ) {
-      name
-      impact
-      ease
-    }
+    )
   }
 `;
 

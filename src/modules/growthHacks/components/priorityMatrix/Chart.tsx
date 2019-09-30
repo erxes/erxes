@@ -1,6 +1,7 @@
 import { __ } from 'modules/common/utils';
 import { RightContent } from 'modules/growthHacks/styles';
 import React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { AxisX, AxisY, ChartAxis, ChartLegends, Point } from './styles';
 
 type Props = {
@@ -8,15 +9,46 @@ type Props = {
 };
 
 class Chart extends React.PureComponent<Props> {
+  renderPopover = data => {
+    return (
+      <Popover id="chart-popover">
+        <ul>
+          {data.names.map((name, index) => (
+            <li key={index}>{name}</li>
+          ))}
+        </ul>
+      </Popover>
+    );
+  };
+
+  renderPoint = data => {
+    if (data.count === 1) {
+      return (
+        <Point key={Math.random()} y={data.y} x={data.x}>
+          <span>{data.names[0]}</span>
+        </Point>
+      );
+    }
+
+    return (
+      <OverlayTrigger
+        trigger="click"
+        placement="bottom"
+        rootClose={true}
+        overlay={this.renderPopover(data)}
+      >
+        <Point key={Math.random()} y={data.y} x={data.x}>
+          <span>{`Tasks (${data.count})`}</span>
+        </Point>
+      </OverlayTrigger>
+    );
+  };
+
   render() {
     return (
       <RightContent>
         <ChartAxis>
-          {this.props.datas.map(data => (
-            <Point key={Math.random()} x={data.x} y={data.y}>
-              <span>{data.name}</span>
-            </Point>
-          ))}
+          {this.props.datas.map(data => this.renderPoint(data))}
 
           <ChartLegends>
             <span className="top-left">{__('Big Bets')}</span>
