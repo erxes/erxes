@@ -60,19 +60,25 @@ class TemplateList extends React.Component<Props> {
     );
   };
 
+  renderDuplicateAction(object) {
+    return (
+      <Tip text="Duplicate">
+        <div onClick={this.duplicateTemplate.bind(this, object._id)}>
+          <Icon icon="copy-1" />
+        </div>
+      </Tip>
+    );
+  }
+
   renderActions = object => {
     if (object.isDefinedByErxes) {
-      return null;
+      return <Actions>{this.renderDuplicateAction(object)}</Actions>;
     }
 
     return (
       <Actions>
         {this.renderEditAction(object)}
-        <Tip text="Duplicate">
-          <div onClick={this.duplicateTemplate.bind(this, object._id)}>
-            <Icon icon="copy-1" />
-          </div>
-        </Tip>
+        {this.renderDuplicateAction(object)}
         <Tip text="Remove">
           <div onClick={this.removeTemplate.bind(this, object)}>
             <Icon icon="trash-4" />

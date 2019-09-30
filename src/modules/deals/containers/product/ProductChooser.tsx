@@ -1,11 +1,13 @@
 import gql from 'graphql-tag';
 import Chooser from 'modules/common/components/Chooser';
 import { Alert, withProps } from 'modules/common/utils';
+import ProductCategoryChooser from 'modules/deals/components/product/ProductCategoryChooser';
 import ProductForm from 'modules/settings/productService/containers/product/ProductForm';
 import {
   mutations as productMutations,
   queries as productQueries
 } from 'modules/settings/productService/graphql';
+import { ProductCategoriesQueryResponse } from 'modules/settings/productService/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { IProduct, IProductDoc } from '../../../settings/productService/types';
@@ -13,11 +15,16 @@ import { ProductAddMutationResponse, ProductsQueryResponse } from '../../types';
 
 type Props = {
   data: { name: string; products: IProduct[] };
+  categoryId: string;
+  onChangeCategory: (catgeoryId: string) => void;
   closeModal: () => void;
   onSelect: (products: IProduct[]) => void;
 };
 
-type FinalProps = { productsQuery: ProductsQueryResponse } & Props &
+type FinalProps = {
+  productsQuery: ProductsQueryResponse;
+  productCategoriesQuery: ProductCategoriesQueryResponse;
+} & Props &
   ProductAddMutationResponse;
 
 class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
@@ -62,6 +69,17 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       });
   };
 
+  renderProductCategoryChooser = () => {
+    const { productCategoriesQuery, onChangeCategory } = this.props;
+
+    return (
+      <ProductCategoryChooser
+        categories={productCategoriesQuery.productCategories || []}
+        onChangeCategory={onChangeCategory}
+      />
+    );
+  };
+
   render() {
     const { data, productsQuery, onSelect } = this.props;
 
@@ -81,21 +99,34 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       onSelect
     };
 
-    return <Chooser {...updatedProps} />;
+    return (
+      <Chooser
+        {...updatedProps}
+        renderSidebar={this.renderProductCategoryChooser}
+      />
+    );
   }
 }
 
 export default withProps<Props>(
   compose(
-    graphql<{}, ProductsQueryResponse, { perPage: number }>(
-      gql(productQueries.products),
-      {
-        name: 'productsQuery',
-        options: {
-          variables: {
-            perPage: 20
-          }
+    graphql<
+      { categoryId: string },
+      ProductsQueryResponse,
+      { perPage: number; categoryId: string }
+    >(gql(productQueries.products), {
+      name: 'productsQuery',
+      options: props => ({
+        variables: {
+          perPage: 20,
+          categoryId: props.categoryId
         }
+      })
+    }),
+    graphql<{}, ProductCategoriesQueryResponse, {}>(
+      gql(productQueries.productCategories),
+      {
+        name: 'productCategoriesQuery'
       }
     ),
     // mutations
