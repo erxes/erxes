@@ -123,59 +123,34 @@ const GrowthHackMainActionBar = (props: IProps) => {
   };
 
   const onChangeSort = value => {
-    let sortField = '';
-    let sortDirection = '';
-    let sortType = '';
+    let field;
+    let direction;
 
     if (value) {
-      switch (value.value) {
-        case 1: {
-          sortField = 'impact';
-          sortDirection = '1';
+      const values = value.value.split(',');
 
-          break;
-        }
-        case 2: {
-          sortField = 'impact';
-          sortDirection = '-1';
-
-          break;
-        }
-        case 3: {
-          sortField = 'ease';
-          sortDirection = '1';
-
-          break;
-        }
-        case 4: {
-          sortField = 'ease';
-          sortDirection = '-1';
-
-          break;
-        }
-        default:
-      }
-
-      sortType = value.value;
+      field = values[0];
+      direction = values[1];
     }
 
     router.setParams(props.history, {
-      sortField,
-      sortDirection,
-      sortType
+      sortField: field,
+      sortDirection: direction
     });
   };
 
   const sortOptions = [
-    { value: 1, label: 'Low impact' },
-    { value: 2, label: 'High impact' },
-    { value: 3, label: 'Low effort' },
-    { value: 4, label: 'High effort' }
+    { value: 'impact,1', label: 'Low impact' },
+    { value: 'impact,-1', label: 'High impact' },
+    { value: 'ease,1', label: 'Low effort' },
+    { value: 'ease,-1', label: 'High effort' }
   ];
+
+  const { sortField, sortDirection } = props.queryParams;
 
   const extraFilter = (
     <Select
-      value={props.queryParams.sortType}
+      value={`${sortField},${sortDirection}`}
       placeholder="Sort"
       onChange={onChangeSort}
       options={sortOptions}
