@@ -33,7 +33,7 @@ class FunnelImpact extends React.Component<Props, States> {
     };
   }
 
-  onChangeOpen = (hackStage: string, isOpen: boolean) => {
+  toggle = (hackStage: string, isOpen: boolean) => {
     const hackStages = this.state.hackStages;
     hackStages[hackStage] = !isOpen;
 
@@ -48,7 +48,7 @@ class FunnelImpact extends React.Component<Props, States> {
         <ScrollContent>
           {HACKSTAGES.map(gh => (
             <FunnelGroup
-              onChangeOpen={this.onChangeOpen}
+              toggle={this.toggle}
               isOpen={this.state.hackStages[gh]}
               key={gh}
               queryParams={queryParams}

@@ -2,7 +2,11 @@ import gql from 'graphql-tag';
 import { SaveMutation } from 'modules/boards/types';
 import { Alert, withProps } from 'modules/common/utils';
 import Left from 'modules/growthHacks/components/priorityMatrix/Left';
-import { IGrowthHackParams } from 'modules/growthHacks/types';
+import {
+  GrowthHacksCountQueryResponse,
+  GrowthHacksQueryResponse,
+  IGrowthHackParams
+} from 'modules/growthHacks/types';
 import { getFilterParams } from 'modules/growthHacks/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -14,8 +18,8 @@ type Props = {
 };
 
 type FinalProps = {
-  growthHacksQuery: any;
-  growthHacksTotalCountQuery: any;
+  growthHacksQuery: GrowthHacksQueryResponse;
+  growthHacksTotalCountQuery: GrowthHacksCountQueryResponse;
   editMutation: SaveMutation;
 } & Props;
 

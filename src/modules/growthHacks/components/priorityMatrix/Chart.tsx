@@ -24,7 +24,7 @@ class Chart extends React.PureComponent<Props> {
   renderPoint = data => {
     if (data.count === 1) {
       return (
-        <Point key={Math.random()} y={data.y} x={data.x}>
+        <Point key={Math.random()} x={data.x} y={data.y}>
           <span>{data.names[0]}</span>
         </Point>
       );
@@ -32,12 +32,13 @@ class Chart extends React.PureComponent<Props> {
 
     return (
       <OverlayTrigger
-        trigger="hover"
+        trigger={['hover', 'focus']}
         placement="bottom"
         rootClose={true}
         overlay={this.renderPopover(data)}
+        key={Math.random()}
       >
-        <Point key={Math.random()} y={data.y} x={data.x}>
+        <Point x={data.x} y={data.y}>
           <span>{`Tasks (${data.count})`}</span>
         </Point>
       </OverlayTrigger>
