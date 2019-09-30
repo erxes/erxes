@@ -34,7 +34,10 @@ class FunnelGroup extends React.Component<Props> {
     return (
       <FunnelContent>
         <Title onClick={this.onChangeOpen}>
-          {hackStage} ({totalCount})
+          {hackStage}
+          <span>
+            Count: <b>{totalCount}</b>
+          </span>
         </Title>
 
         {this.props.isOpen ? (

@@ -65,7 +65,10 @@ class FunnelImpact extends React.Component<Props, States> {
   );
 
   render() {
-    const breadcrumb = [{ title: __('Growth hack') }];
+    const breadcrumb = [
+      { title: __('Growth hacking'), link: '/growthHack/board' },
+      { title: __('Funnel Impact') }
+    ];
 
     return (
       <BoardContainer>

@@ -127,8 +127,8 @@ const ScoreAmount = styled.div`
 const FixedContainer = styled(FixedContent)`
   flex: 1;
   background: ${colors.colorWhite};
+  padding: ${dimensions.coreSpacing}px;
   overflow: auto;
-  padding: 0;
   margin: 10px auto;
   border-radius: 2px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
@@ -178,14 +178,17 @@ const TableHead = styled.th`
 `;
 
 const FunnelContent = styled.div`
-  background: ${colors.colorWhite};
-  border-radius: 2px;
-  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.borderPrimary};
+  margin-bottom: ${dimensions.unitSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 5}px;
 `;
 
 const Title = styled.div`
-  font-size: 16px;
-  font-weight: bold;
+  padding: ${dimensions.unitSpacing}px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
 `;
 
 export {
