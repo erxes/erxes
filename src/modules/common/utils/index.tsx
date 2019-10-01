@@ -12,17 +12,17 @@ import uploadHandler from './uploadHandler';
 import urlParser from './urlParser';
 
 export const renderFullName = data => {
+  const { visitorContactInfo } = data;
+
   if (data.firstName || data.lastName) {
     return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
   if (data.primaryEmail || data.primaryPhone) {
-    return data.primaryEmail || data.primaryPhone || 'Unknown';
+    return data.primaryEmail || data.primaryPhone;
   }
 
-  if (data.visitorContactInfo) {
-    const { visitorContactInfo } = data;
-
+  if (visitorContactInfo) {
     return visitorContactInfo.phone || visitorContactInfo.email || 'Unknown';
   }
 
