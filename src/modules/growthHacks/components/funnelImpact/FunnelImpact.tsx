@@ -17,7 +17,7 @@ type Props = {
 };
 
 type States = {
-  hackStages: any;
+  hackStages: { [key: string]: boolean };
 };
 
 class FunnelImpact extends React.Component<Props, States> {

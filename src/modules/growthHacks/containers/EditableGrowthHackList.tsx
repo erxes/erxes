@@ -13,8 +13,9 @@ import {
 import { getFilterParams } from '../utils';
 
 type Props = {
+  component: any;
   queryParams: any;
-  priorityMatrixRefetch?: () => void;
+  refetch?: () => void;
 };
 
 type FinalProps = {
@@ -23,19 +24,19 @@ type FinalProps = {
   editMutation: SaveMutation;
 } & Props;
 
-class WeigthedScoreContainer extends React.Component<FinalProps> {
+class EditableGrowthHackList extends React.Component<FinalProps> {
   render() {
     const { growthHacksQuery, growthHacksTotalCountQuery } = this.props;
 
     const save = (id: string, doc: IGrowthHackParams) => {
-      const { editMutation, priorityMatrixRefetch } = this.props;
+      const { editMutation } = this.props;
 
       editMutation({ variables: { _id: id, ...doc } })
         .then(() => {
           Alert.success('You successfully updated an experiment');
 
-          if (priorityMatrixRefetch) {
-            priorityMatrixRefetch();
+          if (this.props.refetch) {
+            this.props.refetch();
           }
         })
         .catch(error => {
@@ -54,7 +55,9 @@ class WeigthedScoreContainer extends React.Component<FinalProps> {
       totalCount: growthHacksTotalCountQuery.growthHacksTotalCount
     };
 
-    return <WeightedScore {...props} />;
+    const Component = this.props.component || WeightedScore;
+
+    return <Component {...props} />;
   }
 }
 
@@ -83,5 +86,5 @@ export default withProps<Props>(
         variables: getFilterParams(queryParams)
       })
     })
-  )(WeigthedScoreContainer)
+  )(EditableGrowthHackList)
 );

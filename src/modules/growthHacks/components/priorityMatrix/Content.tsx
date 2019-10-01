@@ -1,4 +1,5 @@
-import Left from 'modules/growthHacks/containers/priorityMatrix/Left';
+import Left from 'modules/growthHacks/components/priorityMatrix/Left';
+import EditableGrowthHackList from 'modules/growthHacks/containers/EditableGrowthHackList';
 import { ContentContainer } from 'modules/growthHacks/styles';
 import React from 'react';
 import Chart from './Chart';
@@ -15,8 +16,9 @@ class Content extends React.Component<Props> {
 
     return (
       <ContentContainer>
-        <Left
-          priorityMatrixRefetch={priorityMatrixRefetch}
+        <EditableGrowthHackList
+          component={Left}
+          refetch={priorityMatrixRefetch}
           queryParams={queryParams}
         />
         <Chart datas={datas} />

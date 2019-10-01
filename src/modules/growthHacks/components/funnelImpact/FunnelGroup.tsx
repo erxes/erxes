@@ -32,11 +32,7 @@ class FunnelGroup extends React.Component<Props> {
         </Title>
 
         {this.props.isOpen ? (
-          <GrowthHacks
-            queryParams={queryParams}
-            growthHacks={growthHacks}
-            totalCount={totalCount}
-          />
+          <GrowthHacks queryParams={queryParams} growthHacks={growthHacks} />
         ) : null}
       </FunnelContent>
     );

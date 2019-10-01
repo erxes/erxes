@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import Content from 'modules/growthHacks/components/priorityMatrix/Content';
+import { GrowthHacksPriorityQueryResponse } from 'modules/growthHacks/types';
 import { getFilterParams } from 'modules/growthHacks/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -11,7 +12,7 @@ type Props = {
 };
 
 type FinalProps = {
-  growthHacksPriorityMatrixQuery: any;
+  growthHacksPriorityMatrixQuery: GrowthHacksPriorityQueryResponse;
 } & Props;
 
 class ContentContainer extends React.Component<FinalProps> {
