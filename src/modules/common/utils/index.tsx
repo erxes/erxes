@@ -16,7 +16,17 @@ export const renderFullName = data => {
     return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
-  return data.primaryEmail || data.primaryPhone || 'Unknown';
+  if (data.primaryEmail || data.primaryPhone) {
+    return data.primaryEmail || data.primaryPhone || 'Unknown';
+  }
+
+  if (data.visitorContactInfo) {
+    const { visitorContactInfo } = data;
+
+    return visitorContactInfo.phone || visitorContactInfo.email || 'Unknown';
+  }
+
+  return 'Unknown';
 };
 
 export const setTitle = (title: string, force: boolean) => {
