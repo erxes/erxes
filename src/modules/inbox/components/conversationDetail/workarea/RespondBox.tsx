@@ -27,7 +27,11 @@ import { AddMessageMutationVariables, IConversation } from '../../../types';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
-  { height: '137px', width: '100%', color: '#fff' }
+  {
+    height: '137px',
+    width: '100%',
+    color: '#fff'
+  }
 );
 
 type Props = {
@@ -178,10 +182,18 @@ class RespondBox extends React.Component<Props, State> {
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
-    const { setAttachmentPreview } = this.props;
+    const { setAttachmentPreview, conversation } = this.props;
+    const { integration } = conversation;
+
+    const extraFormData: any = [];
+
+    if (integration.kind === 'twitter-dm') {
+      extraFormData.push({ key: 'kind', value: 'twitter-dm' });
+    }
 
     uploadHandler({
       files,
+      extraFormData,
 
       beforeUpload: () => {
         return;
