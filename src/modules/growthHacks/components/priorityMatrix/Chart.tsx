@@ -2,7 +2,15 @@ import { __ } from 'modules/common/utils';
 import { RightContent } from 'modules/growthHacks/styles';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { AxisX, AxisY, ChartAxis, ChartLegends, Point } from './styles';
+import {
+  AxisX,
+  AxisY,
+  ChartAxis,
+  ChartLegends,
+  Point,
+  PopoverHeader,
+  TaskList
+} from './styles';
 
 type Props = {
   datas: any[];
@@ -12,11 +20,12 @@ class Chart extends React.PureComponent<Props> {
   renderPopover = data => {
     return (
       <Popover id="chart-popover">
-        <ul>
+        <PopoverHeader>Task names</PopoverHeader>
+        <TaskList>
           {data.names.map((name, index) => (
             <li key={index}>{name}</li>
           ))}
-        </ul>
+        </TaskList>
       </Popover>
     );
   };

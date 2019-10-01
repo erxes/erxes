@@ -34,12 +34,12 @@ const ChartAxis = styled.div`
 const Point = styledTS<{ x: number; y: number }>(styled.div)`
   left: ${props => props.x * 10}%;
   bottom: ${props => props.y * 10}%;
-  padding: 0px 5px 0px 16px;
+  padding: 0px 5px 0px ${dimensions.coreSpacing + 5}px;
   border-radius: 12px;
   position: absolute;
   background: ${colors.bgLight};
-  font-size: 10px;
-  line-height: 16px;
+  font-size: 12px;
+  line-height: ${dimensions.coreSpacing + 4}px;
   border: 1px solid ${colors.borderDarker};
   margin-bottom: -${dimensions.unitSpacing - 2}px;
   margin-left: -${dimensions.unitSpacing - 2}px;
@@ -47,9 +47,9 @@ const Point = styledTS<{ x: number; y: number }>(styled.div)`
 
   &:before {
     content: '';
-    width: ${dimensions.unitSpacing}px;
-    height: ${dimensions.unitSpacing}px;
-    border-radius: 5px;
+    width: ${dimensions.unitSpacing + 8}px;
+    height: ${dimensions.unitSpacing + 8}px;
+    border-radius: ${dimensions.unitSpacing}px;
     background: ${colors.colorCoreBlue};
     position: absolute;
     left: 3px;
@@ -129,4 +129,31 @@ const AxisX = styled(Axis)`
   margin-left: -${dimensions.coreSpacing}px;
 `;
 
-export { ChartAxis, ChartLegends, Point, AxisX, AxisY };
+const TaskList = styled.ul`
+  list-style: none;
+  padding-left: ${dimensions.coreSpacing}px;
+
+  li {
+    padding-bottom: ${dimensions.unitSpacing - 5}px;
+  }
+`;
+
+const PopoverHeader = styled.h3`
+  padding: ${dimensions.unitSpacing}px;
+  margin: 0;
+  font-size: 14px;
+  background-color: #f7f7f7;
+  font-weight: 400;
+  text-align: center;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+export {
+  ChartAxis,
+  ChartLegends,
+  Point,
+  AxisX,
+  AxisY,
+  TaskList,
+  PopoverHeader
+};

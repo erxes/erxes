@@ -18,7 +18,10 @@ class PriorityMatrix extends React.Component<Props> {
   );
 
   render() {
-    const breadcrumb = [{ title: __('Growth hack') }];
+    const breadcrumb = [
+      { title: __('Growth hacking'), link: '/growthHack/board' },
+      { title: __('Priority matrix') }
+    ];
 
     return (
       <BoardContainer>

@@ -4,6 +4,7 @@ import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { IPipeline } from 'modules/boards/types';
 import LoadMore from 'modules/common/components/LoadMore';
 import Table from 'modules/common/components/table';
+import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import {
   FixedContainer,
@@ -104,7 +105,7 @@ class WeightedScore extends React.Component<Props> {
                 <TableHead>{__('Score')}</TableHead>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="weighted-score-table-body">
               {growthHacks.map(growthHack => {
                 return (
                   <tr key={growthHack._id}>
@@ -141,12 +142,15 @@ class WeightedScore extends React.Component<Props> {
   );
 
   render() {
-    const breadcrumb = [{ title: __('Growth hack') }];
+    const breadcrumb = [
+      { title: __('Growth hacking'), link: '/growthHack/board' },
+      { title: __('Weighted scoring') }
+    ];
 
     return (
       <BoardContainer>
         <Header title={__('Growth hack')} breadcrumb={breadcrumb} />
-        <BoardContent transparent={true} bgColor={this.props.pipeline.bgColor}>
+        <BoardContent transparent={true} bgColor={colors.bgMain}>
           {this.renderActionBar()}
           {this.renderContent()}
         </BoardContent>

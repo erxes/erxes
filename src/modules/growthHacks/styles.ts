@@ -127,8 +127,8 @@ const ScoreAmount = styled.div`
 const FixedContainer = styled(FixedContent)`
   flex: 1;
   background: ${colors.colorWhite};
-  padding: ${dimensions.coreSpacing}px;
   overflow: auto;
+  padding-top: 0;
   margin: 10px auto;
   border-radius: 2px;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
@@ -143,6 +143,13 @@ const FixedContainer = styled(FixedContent)`
 const ScrollContent = styled.div`
   flex: 1;
   overflow: auto;
+
+  .weighted-score-table-body {
+    .with-input:last-child {
+      background-color: ${colors.bgUnread};
+      border-left: 1px solid ${colors.borderPrimary};
+    }
+  }
 `;
 
 const ContentContainer = styled.div`
@@ -175,12 +182,17 @@ const RightContent = styled.div`
 
 const TableHead = styled.th`
   width: 50px;
+
+  &:last-child {
+    background-color: ${colors.bgUnread};
+    border-left: 1px solid ${colors.borderPrimary};
+  }
 `;
 
 const FunnelContent = styled.div`
   background: ${colors.bgLight};
   border: 1px solid ${colors.borderPrimary};
-  margin-bottom: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
 `;
 

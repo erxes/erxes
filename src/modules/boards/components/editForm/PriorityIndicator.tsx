@@ -13,7 +13,7 @@ const FullBackgrounded = styledTS<{ color: string }>(styled.span)`
   margin-left: 5px;
   padding: 5px 10px;
   border-radius: 300px;
-  color: ${colors.colorCoreDarkGray};
+  color: ${colors.colorWhite};
   font-weight: 450;
   font-size: 12px;
 `;

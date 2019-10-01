@@ -2,6 +2,7 @@ import MainActionBar from 'modules/boards/containers/MainActionBar';
 import withPipeline from 'modules/boards/containers/withPipeline';
 import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { IPipeline } from 'modules/boards/types';
+import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import { HACKSTAGES } from 'modules/growthHacks/constants';
 import FunnelGroup from 'modules/growthHacks/containers/FunnelGroup';
@@ -73,7 +74,7 @@ class FunnelImpact extends React.Component<Props, States> {
     return (
       <BoardContainer>
         <Header title={__('Growth hack')} breadcrumb={breadcrumb} />
-        <BoardContent transparent={true} bgColor={this.props.pipeline.bgColor}>
+        <BoardContent transparent={true} bgColor={colors.bgMain}>
           {this.renderActionBar()}
           {this.renderContent()}
         </BoardContent>
