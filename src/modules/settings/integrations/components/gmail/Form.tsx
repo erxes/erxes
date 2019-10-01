@@ -33,7 +33,6 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
     return {
       ...values,
       kind: 'gmail',
-      platform: 'nylas',
       accountId,
       data: { email }
     };
@@ -55,8 +54,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
 
         <Accounts
           kind="gmail"
-          platform="nylas"
-          addLink="nylas/oauth2/callback"
+          addLink="gmaillogin"
           onSelect={onAccountSelect}
           onRemove={onRemoveAccount}
           formProps={formProps}

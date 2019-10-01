@@ -6,7 +6,7 @@ import { __, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import MailForm from '../../components/google/MailForm';
+import MailForm from '../../components/mail/MailForm';
 import { IntegrationsQueryResponse } from '../../types';
 
 type Props = {
@@ -20,7 +20,11 @@ type Props = {
   cc?: any;
   bcc?: any;
   subject?: string;
+  content?: string;
   integrationEmail?: string;
+  kind: string;
+  platform?: string;
+  messageId?: string;
   closeModal?: () => void;
 };
 
@@ -35,12 +39,16 @@ const MailFormContainer = (props: FinalProps) => {
     threadId,
     subject,
     gmailIntegrationsQuery,
+    messageId,
     refetchQueries,
+    content,
     fromEmail,
     to,
     cc,
     bcc,
     integrationEmail,
+    kind,
+    platform,
     closeModal
   } = props;
 
@@ -80,9 +88,13 @@ const MailFormContainer = (props: FinalProps) => {
     bcc,
     to,
     closeModal,
+    content,
     headerId,
     threadId,
     subject,
+    messageId,
+    kind,
+    platform,
     integrationEmail
   };
 
@@ -95,11 +107,9 @@ export default withProps<Props>(
       gql(queries.integrations),
       {
         name: 'gmailIntegrationsQuery',
-        options: () => {
+        options: ({ kind, platform }) => {
           return {
-            variables: {
-              kind: 'gmail'
-            },
+            variables: { kind, platform },
             fetchPolicy: 'network-only'
           };
         }

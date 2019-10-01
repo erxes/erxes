@@ -1,13 +1,10 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
-import Gmail from 'modules/settings/integrations/components/google/Gmail';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import Form from 'modules/settings/integrations/components/mail/gmail/Form';
+import { mutations } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import { getRefetchQueries } from '../utils';
+import { getRefetchQueries } from '../../utils';
 
 type Props = {
   type?: string;
@@ -17,45 +14,26 @@ type Props = {
 type FinalProps = {} & IRouterProps & Props;
 
 type State = {
-  email: string;
   accountId: string;
 };
 
-class GmailContainer extends React.Component<FinalProps, State> {
+class FormContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { email: '', accountId: '' };
+    this.state = { accountId: '' };
   }
 
   onAccountSelect = (accountId?: string) => {
     if (!accountId) {
-      return this.setState({ email: '', accountId: '' });
+      return this.setState({ accountId: '' });
     }
 
-    client
-      .query({
-        query: gql(queries.fetchApi),
-        variables: {
-          path: '/gmail/get-email',
-          params: { accountId }
-        }
-      })
-      .then(({ data, loading }: any) => {
-        if (!loading) {
-          this.setState({
-            email: data.integrationsFetchApi,
-            accountId
-          });
-        }
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+    this.setState({ accountId });
   };
 
   onRemoveAccount = () => {
-    this.setState({ email: '' });
+    this.setState({ accountId: '' });
   };
 
   renderButton = ({
@@ -79,19 +57,18 @@ class GmailContainer extends React.Component<FinalProps, State> {
 
   render() {
     const { closeModal } = this.props;
-    const { accountId, email } = this.state;
+    const { accountId } = this.state;
 
     const updatedProps = {
       closeModal,
       accountId,
-      email,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
       renderButton: this.renderButton
     };
 
-    return <Gmail {...updatedProps} />;
+    return <Form {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(GmailContainer);
+export default withRouter<FinalProps>(FormContainer);

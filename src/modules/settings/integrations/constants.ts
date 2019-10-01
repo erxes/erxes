@@ -68,6 +68,7 @@ export const KIND_CHOICES = {
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
+  NYLAS_GMAIL: 'nylas-gmail',
   LEAD: 'lead',
   CALLPRO: 'callpro',
   ALL_LIST: [
@@ -124,7 +125,7 @@ export const INTEGRATIONS = [
       {
         name: 'Gmail',
         description:
-          'Connect straight to your Gmail and get those emails going',
+          'connect straight to your gmail and get those emails going',
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
@@ -135,6 +136,15 @@ export const INTEGRATIONS = [
   {
     name: 'row-2',
     rows: [
+      {
+        name: 'Gmail by Nylas',
+        description:
+          'Connect straight to your gmail and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-gmail',
+        logo: '/images/integrations/gmail.png',
+        createModal: 'nylas-gmail'
+      },
       {
         name: 'Lead',
         description: 'Find your lead forms right here in your Widget',
@@ -161,7 +171,12 @@ export const INTEGRATIONS = [
         kind: 'amazon-ses',
         logo: '/images/integrations/aws-ses.png',
         createModal: 'sesconfig'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-3',
+    rows: [
       {
         name: 'Call Pro',
         description: 'Connect your call pro phone number',
@@ -174,7 +189,7 @@ export const INTEGRATIONS = [
   },
   {
     title: 'Coming soon',
-    name: 'row-3',
+    name: 'row-4',
     rows: [
       {
         name: 'Viber',

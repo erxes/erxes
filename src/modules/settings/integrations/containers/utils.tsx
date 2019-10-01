@@ -8,25 +8,27 @@ export const integrationsListParams = queryParams => ({
   kind: queryParams.kind
 });
 
-export const getRefetchQueries = (kind: string) => {
+export const getRefetchQueries = (kind: string, platform?: string) => {
   return [
     {
       query: gql(queries.integrations),
       variables: {
         ...integrationsListParams({}),
-        kind
+        kind,
+        platform
       }
     },
     {
       query: gql(queries.integrationTotalCount),
       variables: {
         ...integrationsListParams({}),
-        kind
+        kind,
+        platform
       }
     }
   ];
 };
 
 export const formatStr = (str: string) => {
-  return str ? str.split(/[ ,]+/).join(', ') : '';
+  return str ? str.split(/[,]+/).join(',') : '';
 };

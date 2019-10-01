@@ -63,6 +63,7 @@ export default `
     bcc
     accountId
     replyToMessageId
+    replyTo
     reply
     references
     headerId

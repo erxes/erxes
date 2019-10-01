@@ -10,14 +10,16 @@ const commonParams = `
   languageCode: $languageCode
 `;
 
-const sendGmailFields = `
+const mailParamsDef = `
   $erxesApiId: String!,
   $headerId: String,
   $threadId: String,
-  $subject: String!,
-  $textHtml: String!,
-  $textPlain: String!,
+  $messageId: String,
   $references: String
+  $replyToMessageId: String,
+  $subject: String!,
+  $kind: String,
+  $body: String!,
   $to: String!,
   $cc: String,
   $bcc: String,
@@ -25,14 +27,16 @@ const sendGmailFields = `
   $attachments: [gmailAttachmentData],
 `;
 
-const sendGmailVariables = `
+const mailParams = `
   erxesApiId: $erxesApiId,
   headerId: $headerId,
   threadId: $threadId,
-  subject: $subject,
+  messageId: $messageId,
+  kind: $kind,
   references: $references,
-  textHtml: $textHtml,
-  textPlain: $textPlain,
+  replyToMessageId: $replyToMessageId,
+  subject: $subject,
+  body: $body,
   to: $to,
   cc: $cc,
   bcc: $bcc,
@@ -41,8 +45,8 @@ const sendGmailVariables = `
 `;
 
 const integrationSendMail = ` 
-  mutation integrationSendMail(${sendGmailFields}) {
-    integrationSendMail(${sendGmailVariables})
+  mutation integrationSendMail(${mailParamsDef}) {
+    integrationSendMail(${mailParams})
   }
 `;
 

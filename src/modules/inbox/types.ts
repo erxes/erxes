@@ -64,24 +64,30 @@ export interface IFacebookComment {
   customer: ICustomer;
 }
 
-export interface IGmailData {
+interface IEmail {
+  name: string;
+  email: string;
+}
+
+export interface IMail {
   integrationEmail: string;
   messageId?: string;
   headerId?: string;
-  from?: string;
-  to?: string;
-  cc?: string;
-  bcc?: string;
+  accountId?: string;
+  replyToMessageId?: string;
+  from: IEmail[];
+  to: IEmail[];
+  cc?: IEmail[];
+  bcc?: IEmail[];
   reply?: string;
   references?: string;
   threadId?: string;
   subject?: string;
-  textPlain?: string;
-  textHtml?: string;
-  attachments?: IGmailAttachment[];
+  body?: string;
+  attachments?: IMailAttachment[];
 }
 
-export interface IGmailAttachment {
+export interface IMailAttachment {
   filename?: string;
   mimeType?: string;
   size: number;
@@ -112,7 +118,7 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
-  gmailData?: IGmailData;
+  details?: IMail;
 
   _id: string;
   user?: IUser;

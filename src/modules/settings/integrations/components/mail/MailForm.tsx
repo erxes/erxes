@@ -11,12 +11,8 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { FileName } from 'modules/inbox/styles';
-import {
-  IGmailAttachment,
-  IIntegration
-} from 'modules/settings/integrations/types';
+import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
-import strip from 'strip';
 import { formatStr } from '../../containers/utils';
 import {
   AttachmentContainer,
@@ -35,12 +31,16 @@ type Props = {
   headerId?: string;
   threadId?: string;
   subject?: string;
+  platform?: string;
+  kind: string;
   references?: string;
   fromEmail?: string;
+  content?: string;
   to?: string;
   cc?: string;
   bcc?: string;
   integrationEmail?: string;
+  messageId?: string;
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
@@ -65,23 +65,23 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { cc, bcc } = props;
+    const { fromEmail = '', cc, bcc, subject = '', integrations } = props;
 
     this.state = {
-      fromEmail: props.fromEmail || '',
       cc: cc || '',
       bcc: bcc || '',
       isCc: cc ? cc.length > 0 : false,
       isBcc: bcc ? bcc.length > 0 : false,
+      fromEmail,
+      subject,
+      content: '',
 
       status: 'draft',
       isUploading: false,
-      content: '',
       from: '',
-      subject: props.subject || '',
       attachments: [],
       totalFileSize: 0,
-      integrations: props.integrations
+      integrations
     };
   }
 
@@ -92,23 +92,32 @@ class MailForm extends React.Component<Props, State> {
     subject: string;
     from: string;
   }) => {
-    const { headerId, threadId, references } = this.props;
+    const {
+      integrationId,
+      kind,
+      platform,
+      headerId,
+      threadId,
+      references,
+      messageId
+    } = this.props;
     const { content, attachments } = this.state;
     const { to, cc, bcc, from, subject } = values;
 
     const doc = {
       headerId,
+      references,
       threadId,
+      replyToMessageId: messageId,
       to: formatStr(to),
       cc: formatStr(cc),
       bcc: formatStr(bcc),
+      from: integrationId ? integrationId : from,
       subject,
-      from,
       attachments,
-      textHtml: content,
-      textPlain: strip(content),
-      erxesApiId: from,
-      references
+      kind: platform ? platform : kind,
+      body: content,
+      erxesApiId: from
     };
 
     return doc;
@@ -122,7 +131,7 @@ class MailForm extends React.Component<Props, State> {
     this.setState(({ [name]: true } as unknown) as Pick<State, keyof State>);
   };
 
-  onRemoveAttach = (attachment: IGmailAttachment) => {
+  onRemoveAttach = (attachment: any) => {
     const { attachments } = this.state;
 
     this.setState({
@@ -338,76 +347,106 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  renderContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
-    const { integrationId } = this.props;
-    const { fromEmail, isBcc, isCc, content, subject } = this.state;
-
+  renderTo(formProps) {
+    const { fromEmail } = this.state;
     const sender = this.getEmailSender(fromEmail);
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>To:</ControlLabel>
+        <FormControl
+          {...formProps}
+          defaultValue={sender}
+          name="to"
+          required={true}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderLeftSection() {
+    const { isCc, isBcc } = this.state;
 
     const onClickIsCC = () => this.onClick('isCc');
     const onClickIsBCC = () => this.onClick('isBcc');
 
     return (
-      <ControlWrapper>
-        <FormGroup>
-          <ControlLabel required={true}>To:</ControlLabel>
-          <FormControl
-            {...formProps}
-            defaultValue={sender}
-            name="to"
-            required={true}
+      <LeftSection>
+        <Resipients onClick={onClickIsCC} isActive={isCc}>
+          Cc
+        </Resipients>
+        <Resipients onClick={onClickIsBCC} isActive={isBcc}>
+          Bcc
+        </Resipients>
+      </LeftSection>
+    );
+  }
+
+  renderFrom(formProps) {
+    const { integrationId } = this.props;
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>From:</ControlLabel>
+        <FormControl
+          required={true}
+          defaultValue={integrationId}
+          disabled={integrationId && integrationId.length > 0}
+          componentClass="select"
+          {...formProps}
+          name="from"
+        >
+          <option />
+          {this.renderFromOption()}
+        </FormControl>
+      </FormGroup>
+    );
+  }
+
+  renderSubject(formProps) {
+    const { subject } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Subject:</ControlLabel>
+        <FormControl
+          {...formProps}
+          name="subject"
+          required={true}
+          defaultValue={subject}
+          disabled={(subject && true) || false}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderBody() {
+    return (
+      <FormGroup>
+        <MailEditorWrapper>
+          <EditorCK
+            insertItems={EMAIL_CONTENT}
+            content={this.state.content}
+            onChange={this.onEditorChange}
+            height={300}
           />
-        </FormGroup>
+        </MailEditorWrapper>
+      </FormGroup>
+    );
+  }
 
-        <LeftSection>
-          <Resipients onClick={onClickIsCC} isActive={isCc}>
-            Cc
-          </Resipients>
-          <Resipients onClick={onClickIsBCC} isActive={isBcc}>
-            Bcc
-          </Resipients>
-        </LeftSection>
+  renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
 
+    return (
+      <ControlWrapper>
+        {this.renderTo(formProps)}
+        {this.renderLeftSection()}
         {this.renderCC(formProps)}
         {this.renderBCC(formProps)}
-
-        <FormGroup>
-          <ControlLabel required={true}>From:</ControlLabel>
-          <FormControl
-            required={true}
-            defaultValue={integrationId || ''}
-            componentClass="select"
-            {...formProps}
-            name="from"
-          >
-            <option />
-            {this.renderFromOption()}
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Subject:</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="subject"
-            required={true}
-            defaultValue={subject}
-            disabled={(subject && true) || false}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <MailEditorWrapper>
-            <EditorCK
-              insertItems={EMAIL_CONTENT}
-              content={content}
-              onChange={this.onEditorChange}
-              height={300}
-            />
-          </MailEditorWrapper>
-        </FormGroup>
-
+        {this.renderFrom(formProps)}
+        {this.renderSubject(formProps)}
+        {this.renderBody()}
         {this.renderAttachments()}
         {this.renderButtons(values, isSubmitted)}
       </ControlWrapper>
