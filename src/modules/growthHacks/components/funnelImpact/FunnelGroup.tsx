@@ -1,3 +1,5 @@
+import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
+import Icon from 'modules/common/components/Icon';
 import { FunnelContent, Title } from 'modules/growthHacks/styles';
 import { IGrowthHack } from 'modules/growthHacks/types';
 import React from 'react';
@@ -20,14 +22,23 @@ class FunnelGroup extends React.Component<Props> {
   };
 
   render() {
-    const { hackStage, queryParams, growthHacks, totalCount } = this.props;
+    const {
+      hackStage,
+      queryParams,
+      growthHacks,
+      totalCount,
+      isOpen
+    } = this.props;
 
     return (
       <FunnelContent>
         <Title onClick={this.onToggle}>
-          {hackStage}
+          <div>
+            <Icon icon={isOpen ? 'downarrow' : 'rightarrow-2'} />
+            <PriorityIndicator value={hackStage} isFullBackground={true} />
+          </div>
           <span>
-            Count: <b>{totalCount}</b>
+            Count <b>{totalCount}</b>
           </span>
         </Title>
 

@@ -189,11 +189,43 @@ const Title = styled.div`
   cursor: pointer;
   display: flex;
   justify-content: space-between;
+
+  i {
+    font-size: 13px;
+    padding-right: ${dimensions.unitSpacing - 5}px;
+    transition: all ease 0.3s;
+  }
+
+  > span {
+    font-size: 11px;
+    color: ${colors.colorCoreGray};
+
+    b {
+      font-weight: 600;
+      padding-left: 2px;
+    }
+  }
+`;
+
+const TableContainer = styled.div`
+  background: ${colors.colorWhite};
+  border-top: 1px solid ${colors.borderPrimary};
+`;
+
+const GrowthRow = styled.tr`
+  .description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
 `;
 
 export {
   ScoreWrapper,
   CalculatedAmount,
+  GrowthRow,
+  TableContainer,
   Amounts,
   Text,
   AmountItem,
