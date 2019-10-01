@@ -36,8 +36,6 @@ class WeightedScore extends React.Component<Props> {
     this.props.save(id, doc);
   };
 
-  getValue = (value?: number) => value || 0;
-
   renderHeader = () => {
     const { hackScoringType } = this.props.pipeline;
 
@@ -84,7 +82,7 @@ class WeightedScore extends React.Component<Props> {
           type="number"
           min={0}
           max={10}
-          value={this.getValue(growthHack[type])}
+          value={growthHack[type]}
           onChange={this.onSave.bind(this, growthHack._id, type)}
         />
       </td>
@@ -118,10 +116,10 @@ class WeightedScore extends React.Component<Props> {
                       <strong>
                         <Score.Amount
                           type={pipeline.hackScoringType}
-                          r={this.getValue(growthHack.reach)}
-                          i={this.getValue(growthHack.impact)}
-                          c={this.getValue(growthHack.confidence)}
-                          e={this.getValue(growthHack.ease)}
+                          r={growthHack.reach || 0}
+                          i={growthHack.impact || 0}
+                          c={growthHack.confidence || 0}
+                          e={growthHack.ease || 0}
                         />
                       </strong>
                     </td>

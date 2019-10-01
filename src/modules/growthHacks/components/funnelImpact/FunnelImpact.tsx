@@ -1,6 +1,5 @@
 import MainActionBar from 'modules/boards/containers/MainActionBar';
 import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
-import { IPipeline } from 'modules/boards/types';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import { HACKSTAGES } from 'modules/growthHacks/constants';
