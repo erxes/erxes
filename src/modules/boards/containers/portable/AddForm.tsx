@@ -20,7 +20,7 @@ type IProps = {
   relType?: string;
   relTypeIds?: string[];
   closeModal: () => void;
-  callback?: () => void;
+  refetch?: () => void;
 };
 
 type FinalProps = {
@@ -35,7 +35,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       options,
       relType,
       relTypeIds,
-      editConformity
+      editConformity,
+      refetch
     } = this.props;
 
     addMutation({ variables: doc })
@@ -54,6 +55,10 @@ class AddFormContainer extends React.Component<FinalProps> {
         }
 
         callback(data[options.mutationsName.addMutation]);
+
+        if (refetch) {
+          refetch();
+        }
       })
       .catch(error => {
         Alert.error(error.message);

@@ -8,6 +8,22 @@ const GrowthHackBoard = asyncComponent(() =>
   import(/* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard')
 );
 
+const PriorityMatrix = asyncComponent(() =>
+  import(/* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix')
+);
+
+const EditableGrowthHackList = asyncComponent(() =>
+  import(/* webpackChunkName: "EditableGrowthHackList" */ './containers/EditableGrowthHackList')
+);
+
+const WeightedScore = asyncComponent(() =>
+  import(/* webpackChunkName: "WeightedScore" */ './components/weightedScore/WeightedScore')
+);
+
+const FunnelImpact = asyncComponent(() =>
+  import(/* webpackChunkName: "FunnelImpact" */ './components/funnelImpact/FunnelImpact')
+);
+
 const growthHacks = () => {
   let link = '/growthHack/board';
 
@@ -31,6 +47,29 @@ const boards = ({ location }) => {
   return <GrowthHackBoard queryParams={queryParams} />;
 };
 
+const priorityMatrix = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <PriorityMatrix queryParams={queryParams} />;
+};
+
+const weightedScore = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <EditableGrowthHackList
+      queryParams={queryParams}
+      component={WeightedScore}
+    />
+  );
+};
+
+const funnelImpact = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <FunnelImpact queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <>
@@ -46,6 +85,27 @@ const routes = () => {
         exact={true}
         path="/growthHack/board"
         component={boards}
+      />
+
+      <Route
+        key="/growthHack/priorityMatrix"
+        exact={true}
+        path="/growthHack/priorityMatrix"
+        component={priorityMatrix}
+      />
+
+      <Route
+        key="/growthHack/weightedScore"
+        exact={true}
+        path="/growthHack/weightedScore"
+        component={weightedScore}
+      />
+
+      <Route
+        key="/growthHack/funnelImpact"
+        exact={true}
+        path="/growthHack/funnelImpact"
+        component={funnelImpact}
       />
     </>
   );

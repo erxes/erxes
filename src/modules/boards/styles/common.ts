@@ -17,9 +17,12 @@ export const BoardContainer = styled(Contents)`
   }
 `;
 
-export const BoardContent = styled(MainContent)`
+export const BoardContent = styledTS<{
+  bgColor?: string;
+  transparent?: boolean;
+}>(styled(MainContent))`
   margin: 0;
-  background-color: ${colors.colorSecondary};
+  background-color: ${({ bgColor }) => bgColor || colors.colorSecondary};
 `;
 
 export const ScrolledContent = styled.div`
