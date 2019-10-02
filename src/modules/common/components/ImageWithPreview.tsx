@@ -91,15 +91,13 @@ class ImageWithPreview extends React.Component<Props, State> {
     }
     if ((e.keyCode === 37 || e.keyCode === 39) && this.state.visible) {
       if (e.keyCode === 39) {
-        if (this.props.index && this.props.switchItem) {
+        if (this.props.switchItem) {
           if (this.props.imagesLength > this.state.num + 1) {
             this.setState({ num: this.state.num + 1 });
-            const switchedUrl = this.props.switchItem(this.state.num);
-
+            const switchedUrl = this.props.switchItem(this.state.num) || '';
             this.setState({
               src: switchedUrl,
-              alt: switchedUrl,
-              visible: true
+              alt: switchedUrl
             });
           } else {
             this.setState({ num: 0 });
@@ -107,22 +105,20 @@ class ImageWithPreview extends React.Component<Props, State> {
 
             this.setState({
               src: switchedUrl,
-              alt: switchedUrl,
-              visible: true
+              alt: switchedUrl
             });
           }
         }
       }
       if (e.keyCode === 37) {
-        if (this.props.index && this.props.switchItem) {
+        if (this.props.switchItem) {
           if (0 <= this.state.num - 1) {
             this.setState({ num: this.state.num - 1 });
             const switchedUrl = this.props.switchItem(this.state.num);
 
             this.setState({
               src: switchedUrl,
-              alt: switchedUrl,
-              visible: true
+              alt: switchedUrl
             });
           } else {
             this.setState({ num: this.props.imagesLength - 1 });
@@ -132,8 +128,7 @@ class ImageWithPreview extends React.Component<Props, State> {
 
             this.setState({
               src: switchedUrl,
-              alt: switchedUrl,
-              visible: true
+              alt: switchedUrl
             });
           }
         }
@@ -142,8 +137,9 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   render() {
-    const { onLoad } = this.props;
-    const { src, alt } = this.state;
+    const { onLoad, alt } = this.props;
+    const { src } = this.state;
+    console.log(this.props);
 
     return (
       <>
