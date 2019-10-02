@@ -1,4 +1,5 @@
 import MainActionBar from 'modules/boards/components/MainActionBar';
+import withPipeline from 'modules/boards/containers/withPipeline';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
@@ -25,9 +26,12 @@ interface IProps extends IRouterProps {
   queryParams: any;
   assignedUserIds?: string[];
   type: string;
+  pipeline: IPipeline;
 }
 
 const FILTER_PARAMS = [
+  'sortField',
+  'sortDirection',
   'search',
   'assignedUserIds',
   'nextWeek',
@@ -38,10 +42,10 @@ const FILTER_PARAMS = [
 ];
 
 const GrowthHackMainActionBar = (props: IProps) => {
+  const currentUrl = window.location.href;
+
   // get selected type from URL
   const getCurrentType = () => {
-    const currentUrl = window.location.href;
-
     if (currentUrl.includes('board')) {
       return 'board';
     } else if (currentUrl.includes('weightedScore')) {
@@ -123,8 +127,8 @@ const GrowthHackMainActionBar = (props: IProps) => {
   };
 
   const onChangeSort = value => {
-    let field;
-    let direction;
+    let field: string = '';
+    let direction: string = '';
 
     if (value) {
       const values = value.value.split(',');
@@ -139,11 +143,15 @@ const GrowthHackMainActionBar = (props: IProps) => {
     });
   };
 
+  const { hackScoringType } = props.pipeline;
+
+  const effort = hackScoringType === 'rice' ? 'effort' : 'ease';
+
   const sortOptions = [
     { value: 'impact,1', label: 'Low impact' },
     { value: 'impact,-1', label: 'High impact' },
-    { value: 'ease,1', label: 'Low effort' },
-    { value: 'ease,-1', label: 'High effort' }
+    { value: 'ease,1', label: `Low ${effort}` },
+    { value: 'ease,-1', label: `High ${effort}` }
   ];
 
   const { sortField, sortDirection } = props.queryParams;
@@ -160,7 +168,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
   const extendedProps = {
     ...props,
     isFiltered,
-    extraFilter,
+    extraFilter: currentUrl.includes('board') ? null : extraFilter,
     link: `/growthHack/${getCurrentType()}`,
     rightContent: viewChooser
   };
@@ -168,4 +176,4 @@ const GrowthHackMainActionBar = (props: IProps) => {
   return <MainActionBar {...extendedProps} />;
 };
 
-export default withRouter<IProps>(GrowthHackMainActionBar);
+export default withPipeline(withRouter<IProps>(GrowthHackMainActionBar));
