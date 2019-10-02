@@ -63,6 +63,7 @@ type State = {
   src: string;
   alt?: string;
   num: number;
+  preImageUrl: number;
 };
 
 class ImageWithPreview extends React.Component<Props, State> {
@@ -70,11 +71,16 @@ class ImageWithPreview extends React.Component<Props, State> {
     visible: false,
     src: this.props.src || 'a',
     alt: this.props.src || 'a',
-    num: this.props.index || 0
+    num: this.props.index || 0,
+    preImageUrl: this.props.index || 0
   };
 
   toggleImage = () => {
     this.setState({ visible: !this.state.visible });
+    if (this.props.index && this.props.switchItem) {
+      const prevItem = this.props.switchItem(this.state.preImageUrl);
+      this.setState({ src: prevItem });
+    }
   };
 
   componentDidMount() {
@@ -90,47 +96,40 @@ class ImageWithPreview extends React.Component<Props, State> {
       this.setState({ visible: false, src: this.props.src || '' });
     }
     if ((e.keyCode === 37 || e.keyCode === 39) && this.state.visible) {
+      let switchedUrl;
+
       if (e.keyCode === 39) {
         if (this.props.switchItem) {
           if (this.props.imagesLength > this.state.num + 1) {
             this.setState({ num: this.state.num + 1 });
-            const switchedUrl = this.props.switchItem(this.state.num) || '';
-            this.setState({
-              src: switchedUrl,
-              alt: switchedUrl
-            });
+
+            switchedUrl = this.props.switchItem(this.state.num) || '';
           } else {
             this.setState({ num: 0 });
-            const switchedUrl = this.props.switchItem(0);
 
-            this.setState({
-              src: switchedUrl,
-              alt: switchedUrl
-            });
+            switchedUrl = this.props.switchItem(0);
           }
+          this.setState({
+            src: switchedUrl,
+            alt: switchedUrl
+          });
         }
       }
       if (e.keyCode === 37) {
         if (this.props.switchItem) {
           if (0 <= this.state.num - 1) {
             this.setState({ num: this.state.num - 1 });
-            const switchedUrl = this.props.switchItem(this.state.num);
 
-            this.setState({
-              src: switchedUrl,
-              alt: switchedUrl
-            });
+            switchedUrl = this.props.switchItem(this.state.num);
           } else {
             this.setState({ num: this.props.imagesLength - 1 });
-            const switchedUrl = this.props.switchItem(
-              this.props.imagesLength - 1
-            );
 
-            this.setState({
-              src: switchedUrl,
-              alt: switchedUrl
-            });
+            switchedUrl = this.props.switchItem(this.props.imagesLength - 1);
           }
+          this.setState({
+            src: switchedUrl,
+            alt: switchedUrl
+          });
         }
       }
     }
