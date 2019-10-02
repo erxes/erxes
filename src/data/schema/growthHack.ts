@@ -36,10 +36,27 @@ export const types = `
 export const queries = `
   growthHackDetail(_id: String!): GrowthHack
   growthHacks(
-    initialStageId: String
     pipelineId: String
+    initialStageId: String
     stageId: String
-    date: ItemDate
+    skip: Int
+    limit: Int
+    search: String
+    assignedUserIds: [String]
+    nextDay: String
+    nextWeek: String
+    nextMonth: String
+    noCloseDate: String
+    overdue: String
+    hackStage: String
+    sortField: String
+    sortDirection: Int
+  ): [GrowthHack]
+
+  growthHacksTotalCount(
+    pipelineId: String
+    initialStageId: String
+    stageId: String
     skip: Int
     search: String
     assignedUserIds: [String]
@@ -48,7 +65,19 @@ export const queries = `
     nextMonth: String
     noCloseDate: String
     overdue: String
-  ): [GrowthHack]
+    hackStage: String
+  ): Int
+
+  growthHacksPriorityMatrix(
+    pipelineId: String
+    search: String
+    assignedUserIds: [String]
+    nextDay: String
+    nextWeek: String
+    nextMonth: String
+    noCloseDate: String
+    overdue: String
+  ): JSON
 `;
 
 const commonParams = `

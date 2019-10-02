@@ -149,7 +149,8 @@ export const PIPELINE_VISIBLITIES = {
 export const HACK_SCORING_TYPES = {
   RICE: 'rice',
   ICE: 'ice',
-  ALL: ['rice', 'ice'],
+  PIE: 'pie',
+  ALL: ['rice', 'ice', 'pie'],
 };
 
 export const FIELDS_GROUPS_CONTENT_TYPES = {

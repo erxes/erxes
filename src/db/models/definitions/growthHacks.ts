@@ -20,8 +20,8 @@ export const growthHackSchema = new Schema({
 
   hackStages: field({ type: [String], optional: true }),
   priority: field({ type: String, optional: true }),
-  reach: field({ type: Number, optional: true }),
-  impact: field({ type: Number, optional: true }),
-  confidence: field({ type: Number, optional: true }),
-  ease: field({ type: Number, optional: true }),
+  reach: field({ type: Number, default: 0, optional: true }),
+  impact: field({ type: Number, default: 0, optional: true }),
+  confidence: field({ type: Number, default: 0, optional: true }),
+  ease: field({ type: Number, default: 0, optional: true }),
 });
