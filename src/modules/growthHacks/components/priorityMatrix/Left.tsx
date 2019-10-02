@@ -34,7 +34,7 @@ class Left extends React.Component<IProps> {
           <Table hover={true}>
             <thead>
               <tr>
-                <th>{__('Task name')}</th>
+                <th>{__('Experiment name')}</th>
                 <th style={{ width: 40 }}>{__('Impact')}</th>
                 <th style={{ width: 40 }}>{__('Effort')}</th>
               </tr>

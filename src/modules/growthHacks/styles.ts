@@ -225,11 +225,25 @@ const TableContainer = styled.div`
 `;
 
 const GrowthRow = styled.tr`
-  .description {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
+  td {
+    &:first-child {
+      max-width: 200px;
+    }
+
+    &:nth-child(2) {
+      max-width: 300px;
+    }
+
+    &:first-child,
+    &:nth-child(2) {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &:last-child {
+      max-width: 100px;
+    }
   }
 `;
 

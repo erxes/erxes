@@ -129,9 +129,9 @@ const AxisX = styled(Axis)`
   margin-left: -${dimensions.coreSpacing}px;
 `;
 
-const TaskList = styled.ul`
-  list-style: none;
+const ExperimentList = styled.ul`
   padding-left: ${dimensions.coreSpacing}px;
+  margin-left: ${dimensions.coreSpacing}px;
 
   li {
     padding-bottom: ${dimensions.unitSpacing - 5}px;
@@ -154,6 +154,6 @@ export {
   Point,
   AxisX,
   AxisY,
-  TaskList,
+  ExperimentList,
   PopoverHeader
 };

@@ -7,9 +7,9 @@ import {
   AxisY,
   ChartAxis,
   ChartLegends,
+  ExperimentList,
   Point,
-  PopoverHeader,
-  TaskList
+  PopoverHeader
 } from './styles';
 
 type Props = {
@@ -20,12 +20,12 @@ class Chart extends React.PureComponent<Props> {
   renderPopover = data => {
     return (
       <Popover id="chart-popover">
-        <PopoverHeader>Task names</PopoverHeader>
-        <TaskList>
+        <PopoverHeader>Experiment names</PopoverHeader>
+        <ExperimentList>
           {data.names.map((name, index) => (
             <li key={index}>{name}</li>
           ))}
-        </TaskList>
+        </ExperimentList>
       </Popover>
     );
   };
@@ -48,7 +48,7 @@ class Chart extends React.PureComponent<Props> {
         key={Math.random()}
       >
         <Point x={data.x} y={data.y}>
-          <span>{`Tasks (${data.count})`}</span>
+          <span>{`(${data.count}) Experiments`}</span>
         </Point>
       </OverlayTrigger>
     );

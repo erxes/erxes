@@ -98,7 +98,7 @@ class WeightedScore extends React.Component<Props> {
           <Table hover={true}>
             <thead>
               <tr>
-                <th>{__('Task name')}</th>
+                <th>{__('Experiment name')}</th>
                 {this.renderHeader()}
                 <TableHead>{__('Score')}</TableHead>
               </tr>

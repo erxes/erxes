@@ -28,7 +28,7 @@ class GrowthHacks extends React.Component<Props> {
     return (
       <GrowthRow key={growthHack._id}>
         <td>{growthHack.name}</td>
-        <td className="description">{growthHack.description}</td>
+        <td>{growthHack.description}</td>
         <td>{growthHack.stage && growthHack.stage.name}</td>
         <td>{this.renderPriority(growthHack.priority)}</td>
         <td>
