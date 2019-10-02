@@ -15,7 +15,7 @@ type Props = {
   remove: (checklistId: string, callback: () => void) => void;
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
-  updateOrder: (doc: [UpdateOrderItemsVariables], callback: () => void) => void;
+  updateOrder: (doc: [UpdateOrderItemsVariables]) => void;
   removeItem: (checklistItemId: string, callback: () => void) => void;
   onSelect: (checklistsState: IChecklistsState) => void;
   checklistsState: IChecklistsState;
