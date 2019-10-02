@@ -116,7 +116,6 @@ class EditForm extends React.Component<Props, State> {
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    console.log(name, value);
     this.setState({ [name]: value } as Pick<State, keyof State>, () => {
       if (this.props.item.stageId !== this.state.stageId) {
         this.setState({
