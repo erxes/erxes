@@ -33,7 +33,7 @@ class GrowthHacks extends React.Component<Props> {
         <td>
           <Participators
             participatedUsers={growthHack.assignedUsers}
-            limit={5}
+            limit={3}
           />
         </td>
       </GrowthRow>
