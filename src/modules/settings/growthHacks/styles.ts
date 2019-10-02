@@ -35,15 +35,16 @@ const TemplateItem = styled.div`
 
 const Box = styled(BoxRoot)`
   flex: 1;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing * 1.5}px;
   text-align: left;
   background: ${colors.colorWhite};
-  margin: 10px 20px 0 0;
+  margin: 10px 10px 0 0;
 
   b {
-    font-size: 30px;
+    font-size: 26px;
     text-transform: uppercase;
     color: ${colors.colorCoreLightGray};
+    line-height: 30px;
   }
 
   p {
