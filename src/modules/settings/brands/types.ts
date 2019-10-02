@@ -31,7 +31,7 @@ export type BrandsQueryResponse = {
   refetch: () => void;
 };
 
-export type AllUsersQueryResponse = {
+export type AllBrandsQueryResponse = {
   allBrands: IBrand[];
   loading: boolean;
   refetch: () => void;
