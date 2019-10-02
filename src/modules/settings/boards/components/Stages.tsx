@@ -59,12 +59,13 @@ class Stages extends React.Component<Props, {}> {
   };
 
   render() {
-    const { options } = this.props;
+    const { options, type } = this.props;
     const Item = options ? options.StageItem : StageItem;
 
     const child = stage => (
       <Item
         stage={stage}
+        type={type}
         onChange={this.onChange}
         remove={this.remove}
         onKeyPress={this.onStageInputKeyPress}

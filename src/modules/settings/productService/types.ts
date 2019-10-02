@@ -23,6 +23,7 @@ export interface IProduct {
   description: string;
   sku: string;
   code: string;
+  unitPrice: number;
   customFieldsData?: any;
   createdAt: Date;
 

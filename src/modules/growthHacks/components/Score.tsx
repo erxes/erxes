@@ -6,7 +6,8 @@ import {
   Amounts,
   CalculatedAmount,
   Factor,
-  ScoreWrapper
+  ScoreWrapper,
+  Text
 } from '../styles';
 
 type Props = {
@@ -16,7 +17,6 @@ type Props = {
   reach: number;
   scoringType?: string;
   onChange: (e) => void;
-  onExited: () => void;
 };
 
 function Amount({
@@ -49,7 +49,12 @@ function Amount({
       return roundToTwo((r * i * c) / e);
     }
 
-    return i * c * e;
+    if (type === 'ice') {
+      return i * c * e;
+    }
+
+    // PIE
+    return roundToTwo((i + c + e) / 3);
   };
 
   return <span>{calculateScore()}</span>;
@@ -58,14 +63,14 @@ function Amount({
 class Score extends React.Component<Props> {
   static Amount = Amount;
 
-  renderInput = (name: string, value: number) => {
+  renderInput = (text: string, name: string, value: number) => {
     return (
-      <AmountItem>
-        <span>{name}</span>
+      <AmountItem type={this.props.scoringType}>
+        <span>{text}</span>
         <FormControl
           value={value}
           onChange={this.props.onChange}
-          name={name === 'effort' ? 'ease' : name}
+          name={name}
           type="number"
           min={0}
           max={10}
@@ -80,19 +85,32 @@ class Score extends React.Component<Props> {
     if (scoringType === 'rice') {
       return (
         <Factor>
-          {this.renderInput('reach', reach)}
-          {this.renderInput('impact', impact)}
-          {this.renderInput('confidence', confidence)}
-          {this.renderInput('effort', ease)}
+          {this.renderInput('Reach', 'reach', reach)}
+          {this.renderInput('Impact', 'impact', impact)}
+          {this.renderInput('Confidence', 'confidence', confidence)}
+          {this.renderInput('Effort', 'ease', ease)}
+        </Factor>
+      );
+    }
+
+    if (scoringType === 'ice') {
+      return (
+        <Factor>
+          {this.renderInput('Impact', 'impact', impact)}
+          {this.renderInput('Confidence', 'confidence', confidence)}
+          {this.renderInput('Ease', 'ease', ease)}
         </Factor>
       );
     }
 
     return (
       <Factor>
-        {this.renderInput('impact', impact)}
-        {this.renderInput('confidence', confidence)}
-        {this.renderInput('ease', ease)}
+        {this.renderInput('Potential', 'impact', impact)}
+        {this.renderInput('Importance', 'confidence', confidence)}
+        {this.renderInput('Ease', 'ease', ease)}
+        <AmountItem>
+          <Text>3</Text>
+        </AmountItem>
       </Factor>
     );
   };
@@ -106,14 +124,7 @@ class Score extends React.Component<Props> {
   };
 
   render() {
-    const {
-      scoringType,
-      reach,
-      impact,
-      confidence,
-      ease,
-      onExited
-    } = this.props;
+    const { scoringType, reach, impact, confidence, ease } = this.props;
 
     return (
       <ScoreWrapper>
@@ -121,7 +132,6 @@ class Score extends React.Component<Props> {
           trigger="click"
           placement="bottom"
           rootClose={true}
-          onExited={onExited}
           overlay={this.renderPopover()}
         >
           <CalculatedAmount>

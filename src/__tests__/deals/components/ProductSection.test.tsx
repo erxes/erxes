@@ -25,6 +25,7 @@ describe('ProductSection component', () => {
       categoryId: 'categoryId',
       category,
       code: '123',
+      unitPrice: 123,
       createdAt: new Date()
     },
     {
@@ -36,6 +37,7 @@ describe('ProductSection component', () => {
       categoryId: 'categoryId',
       category,
       code: '321',
+      unitPrice: 123,
       createdAt: new Date()
     }
   ];
