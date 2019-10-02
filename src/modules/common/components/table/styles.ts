@@ -74,6 +74,20 @@ const StyledTable = styledTS<{
       text-align: right;
     }
 
+    td.with-input {
+      text-align: center;
+    }
+
+    .with-input input {
+      width: 40px;
+      text-align: center;
+      outline: 0;
+      border: 1px solid ${colors.borderDarker};
+      border-radius: 2px;
+      font-size: 12px;
+      height: 24px;
+    }
+
     @media (min-width: 1170px) {
       th,
       td {

@@ -1,7 +1,6 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { renderFullName } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
@@ -56,7 +55,7 @@ function ProductSection({
       <SectionBody>
         {products.map((product, index) => (
           <SectionBodyItem key={index}>
-            <span>{product.name || renderFullName(product)}</span>
+            <span>{product.name}</span>
           </SectionBodyItem>
         ))}
         {products.length === 0 && (

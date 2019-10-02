@@ -36,6 +36,7 @@ export interface IOptions {
     copySuccessText: string;
     changeSuccessText: string;
   };
+  isMove: boolean;
   getExtraParams: (queryParams: any) => any;
 }
 
@@ -53,6 +54,8 @@ export interface IItemParams {
   closeDate?: Date;
   description?: string;
   order?: number;
+  isComplete?: boolean;
+  reminderMinute?: number;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -114,6 +117,8 @@ export interface IItem {
   isWatched?: boolean;
   priority?: string;
   hasNotified?: boolean;
+  isComplete: boolean;
+  reminderMinute: number;
 }
 
 export interface IDraggableLocation {
@@ -238,7 +243,9 @@ export interface IEditFormContent {
       | 'closeDate'
       | 'assignedUserIds'
       | 'customers'
-      | 'companies',
+      | 'companies'
+      | 'isComplete'
+      | 'reminderMinute',
     value: any
   ) => void;
   copy: () => void;

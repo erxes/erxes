@@ -76,6 +76,8 @@ export const ticketFields = `
   }
   modifiedAt
   modifiedBy
+  reminderMinute
+  isComplete
 `;
 
 const tickets = `

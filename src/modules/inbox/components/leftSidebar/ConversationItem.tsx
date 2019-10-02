@@ -8,6 +8,7 @@ import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
+import { renderFullName } from 'modules/common/utils';
 import { CallLabel } from 'modules/inbox/styles';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
@@ -69,24 +70,6 @@ class ConversationItem extends React.Component<Props> {
     e.stopPropagation();
   };
 
-  renderFullName(visitor: { [key: string]: any }) {
-    if (visitor.firstName || visitor.lastName) {
-      return (visitor.firstName || '') + ' ' + (visitor.lastName || '');
-    }
-
-    return null;
-  }
-
-  getVisitorInfo(customer: ICustomer) {
-    if (customer.visitorContactInfo) {
-      const visitor = customer.visitorContactInfo;
-
-      return this.renderFullName(visitor) || visitor.email || visitor.phone;
-    }
-
-    return null;
-  }
-
   showMessageContent(kind: string, content: string) {
     if (kind === 'callpro') {
       return (
@@ -141,12 +124,7 @@ class ConversationItem extends React.Component<Props> {
               )}
               <FlexContent>
                 <CustomerName>
-                  {isExistingCustomer &&
-                    (this.renderFullName(customer) ||
-                      customer.primaryEmail ||
-                      customer.primaryPhone ||
-                      this.getVisitorInfo(customer) ||
-                      'Unnamed')}
+                  {isExistingCustomer && renderFullName(customer)}
                 </CustomerName>
 
                 <SmallTextOneLine>

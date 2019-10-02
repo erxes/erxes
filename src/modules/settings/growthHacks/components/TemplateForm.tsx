@@ -6,6 +6,7 @@ import { IFormProps } from 'modules/common/types';
 import React from 'react';
 import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
+import { Warning } from '../styles';
 import { IPipelineTemplate } from '../types';
 import Stages from './Stages';
 
@@ -65,11 +66,25 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
     this.setState({ stages });
   };
 
+  renderWarning() {
+    if (!this.props.object) {
+      return null;
+    }
+
+    return (
+      <Warning>
+        The previous projects using that template will not change. Only changes
+        to the newly chosen projects.
+      </Warning>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as IPipelineTemplate);
 
     return (
       <>
+        {this.renderWarning()}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
