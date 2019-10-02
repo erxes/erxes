@@ -67,5 +67,11 @@ export default `
     reply
     references
     headerId
+    attachments {
+      filename
+      mimeType
+      size
+      attachmentId
+    }
   }
 `;

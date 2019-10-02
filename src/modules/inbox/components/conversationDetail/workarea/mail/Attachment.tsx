@@ -75,6 +75,10 @@ class Attachments extends React.PureComponent<Props, {}> {
   render() {
     const { attachments } = this.props;
 
+    if (!attachments || attachments.length === 0) {
+      return;
+    }
+
     return (
       <AttachmentsContainer>
         {attachments.map(attach => {
