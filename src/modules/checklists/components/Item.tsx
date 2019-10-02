@@ -1,7 +1,7 @@
 import { AddContainer } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
-import { ControlLabel, FormControl } from 'modules/common/components/form';
+import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import xss from 'xss';
@@ -9,7 +9,6 @@ import { IChecklistItem } from '../types';
 
 type Props = {
   item: IChecklistItem;
-  isHidden: boolean;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
   removeItem: (checklistItemId: string, callback: () => void) => void;
   setChecklistState: (diffComplete, diffAll) => void;
@@ -54,12 +53,10 @@ class ChecklistItem extends React.Component<Props, State> {
 
     return (
       <>
-        <ControlLabel>
-          <label
-            onClick={onClick}
-            dangerouslySetInnerHTML={{ __html: xss(content) }}
-          />
-        </ControlLabel>
+        <label
+          onClick={onClick}
+          dangerouslySetInnerHTML={{ __html: xss(content) }}
+        />
         <Button btnStyle="simple" onClick={removeClick}>
           <Icon icon="cancel-1" />
         </Button>
@@ -151,20 +148,13 @@ class ChecklistItem extends React.Component<Props, State> {
   };
 
   render = () => {
-    const { isHidden, item } = this.props;
-
-    if (isHidden && item.isChecked) {
-      return null;
-    }
-
-    const { content, isChecked } = this.state;
+    const { isChecked } = this.state;
 
     return (
       <>
         <FormControl
           componentClass="checkbox"
           checked={isChecked}
-          placeholder={content}
           onChange={this.onCheckChange}
         />
         {this.renderContent()}

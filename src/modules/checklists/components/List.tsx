@@ -24,7 +24,7 @@ type Props = {
   remove: (checklistId: string, callback: () => void) => void;
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
-  updateOrder: (doc: [UpdateOrderItemsVariables], callback: () => void) => void;
+  updateOrder: (doc: [UpdateOrderItemsVariables]) => void;
   removeItem: (checklistItemId: string, callback: () => void) => void;
   onSelect: (checklistsState: IChecklistsState) => void;
   checklistsState: IChecklistsState;
@@ -72,30 +72,27 @@ class List extends React.Component<Props, State> {
       return null;
     }
 
-    const child = item => {
+    const child = showedItem => {
       return (
-        <TitleRow key={item._id}>
-          <Item
-            key={item._id}
-            item={item}
-            isHidden={this.state.isHidden}
-            editItem={this.props.editItem}
-            removeItem={this.props.removeItem}
-            setChecklistState={this.setChecklistState}
-          />
-        </TitleRow>
+        <Item
+          key={showedItem._id}
+          item={showedItem}
+          editItem={this.props.editItem}
+          removeItem={this.props.removeItem}
+          setChecklistState={this.setChecklistState}
+        />
       );
     };
 
-    const onChangeFields = sortedItems => {
+    const onChangeOrder = sortedItems => {
       const { updateOrder } = this.props;
 
-      const orders = sortedItems.map((item, index) => {
-        return { _id: item._id, order: index };
-      });
+      this.setState({ showedItems: sortedItems }, () => {
+        const orders = sortedItems.map((item, index) => {
+          return { _id: item._id, order: index };
+        });
 
-      updateOrder(orders, () => {
-        this.setState({ showedItems: sortedItems });
+        updateOrder(orders);
       });
     };
 
@@ -103,8 +100,10 @@ class List extends React.Component<Props, State> {
       <SortableList
         fields={this.state.showedItems}
         child={child}
-        onChangeFields={onChangeFields}
-        isModal={false}
+        onChangeFields={onChangeOrder}
+        isModal={true}
+        droppableId="checklistItem"
+        showDragHandler={false}
       />
     );
   };
@@ -150,7 +149,11 @@ class List extends React.Component<Props, State> {
 
     const showClick = () => {
       this.setState({ isHidden: false });
-      this.setState({ showedItems: this.state.items });
+      this.setState({
+        showedItems: this.state.items.sort((a, b) =>
+          a.order < b.order ? -1 : 1
+        )
+      });
     };
 
     const removeClick = () => {

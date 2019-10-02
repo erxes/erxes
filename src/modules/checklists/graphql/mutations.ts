@@ -74,6 +74,7 @@ const checklistItemsAdd = `
       _id
       isChecked
       content
+      order
     }
   }
 `;
@@ -90,6 +91,7 @@ const checklistItemsEdit = `
       _id
       isChecked
       content
+      order
     }
   }
 `;

@@ -70,12 +70,10 @@ class ChecklistsContainer extends React.Component<FinalProps> {
     });
   };
 
-  updateOrder = (orders: [UpdateOrderItemsVariables], callback: () => void) => {
+  updateOrder = (orders: [UpdateOrderItemsVariables]) => {
     const { updateOrderMutation } = this.props;
 
-    updateOrderMutation({ variables: { orders } }).then(() => {
-      callback();
-    });
+    updateOrderMutation({ variables: { orders } });
   };
 
   removeItem = (checklistItemId: string, callback: () => void) => {

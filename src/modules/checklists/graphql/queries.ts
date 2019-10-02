@@ -19,6 +19,7 @@ export const checklistFields = `
     _id
     isChecked
     content
+    order
   }
   percent
 `;
