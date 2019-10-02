@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { confirm, renderWithProps } from 'modules/common/utils';
+import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Lists from '../components/Lists';
@@ -16,7 +16,9 @@ import {
   IChecklistsParam,
   IChecklistsState,
   RemoveItemMutationResponse,
-  RemoveMutationResponse
+  RemoveMutationResponse,
+  UpdateOrderItemsMutationResponse,
+  UpdateOrderItemsVariables
 } from '../types';
 
 type IProps = {
@@ -31,6 +33,7 @@ type FinalProps = {
   editMutation: EditMutationResponse;
   addItemMutation: AddItemMutationResponse;
   editItemMutation: EditItemMutationResponse;
+  updateOrderMutation: UpdateOrderItemsMutationResponse;
   removeMutation: RemoveMutationResponse;
   removeItemMutation: RemoveItemMutationResponse;
 } & IProps;
@@ -43,10 +46,12 @@ class ChecklistsContainer extends React.Component<FinalProps> {
     });
   };
 
-  remove = (checklistId: string) => {
+  remove = (checklistId: string, callback: () => void) => {
     const { removeMutation } = this.props;
 
-    confirm().then(() => removeMutation({ variables: { _id: checklistId } }));
+    removeMutation({ variables: { _id: checklistId } }).then(() => {
+      callback();
+    });
   };
 
   addItem = (doc: IChecklistItemDoc, callback: () => void) => {
@@ -65,12 +70,20 @@ class ChecklistsContainer extends React.Component<FinalProps> {
     });
   };
 
-  removeItem = (checklistItemId: string) => {
+  updateOrder = (orders: [UpdateOrderItemsVariables], callback: () => void) => {
+    const { updateOrderMutation } = this.props;
+
+    updateOrderMutation({ variables: { orders } }).then(() => {
+      callback();
+    });
+  };
+
+  removeItem = (checklistItemId: string, callback: () => void) => {
     const { removeItemMutation } = this.props;
 
-    confirm().then(() =>
-      removeItemMutation({ variables: { _id: checklistItemId } })
-    );
+    removeItemMutation({ variables: { _id: checklistItemId } }).then(() => {
+      callback();
+    });
   };
 
   render() {
@@ -89,6 +102,7 @@ class ChecklistsContainer extends React.Component<FinalProps> {
       remove: this.remove,
       addItem: this.addItem,
       editItem: this.editItem,
+      updateOrder: this.updateOrder,
       removeItem: this.removeItem
     };
 
@@ -147,6 +161,14 @@ export default (props: IProps) =>
           options
         }
       ),
+      graphql<
+        IProps,
+        UpdateOrderItemsMutationResponse,
+        UpdateOrderItemsVariables
+      >(gql(mutations.updateOrderItems), {
+        name: 'updateOrderMutation',
+        options
+      }),
       graphql<IProps, RemoveMutationResponse, { _id: string }>(
         gql(mutations.checklistsRemove),
         {

@@ -246,7 +246,8 @@ export interface IEditFormContent {
       | 'customers'
       | 'companies'
       | 'isComplete'
-      | 'reminderMinute',
+      | 'reminderMinute'
+      | 'checklistsState',
     value: any
   ) => void;
   copy: () => void;

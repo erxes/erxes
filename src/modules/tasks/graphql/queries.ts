@@ -76,7 +76,7 @@ export const taskFields = `
   reminderMinute
   isComplete
   checklistsState {
-    completed
+    complete
     all
   }
 `;

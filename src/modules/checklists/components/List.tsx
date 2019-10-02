@@ -5,6 +5,7 @@ import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
+import SortableList from 'modules/common/components/SortableList';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import {
@@ -12,22 +13,26 @@ import {
   IChecklist,
   IChecklistItem,
   IChecklistItemDoc,
-  IChecklistsState
+  IChecklistsState,
+  UpdateOrderItemsVariables
 } from '../types';
 import Item from './Item';
 
 type Props = {
   list: IChecklist;
   edit: (doc: EditMutationVariables, callbak: () => void) => void;
-  remove: (checklistId: string) => void;
+  remove: (checklistId: string, callback: () => void) => void;
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
-  removeItem: (checklistItemId: string) => void;
+  updateOrder: (doc: [UpdateOrderItemsVariables], callback: () => void) => void;
+  removeItem: (checklistItemId: string, callback: () => void) => void;
   onSelect: (checklistsState: IChecklistsState) => void;
   checklistsState: IChecklistsState;
 };
 
 type State = {
+  items: IChecklistItem[];
+  showedItems: IChecklistItem[];
   isEditing: boolean;
   title: string;
   isAddItem: boolean;
@@ -42,6 +47,8 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      items: this.props.list.items,
+      showedItems: this.props.list.items,
       isEditing: false,
       title: this.props.list.title,
       isAddItem: false,
@@ -52,29 +59,53 @@ class List extends React.Component<Props, State> {
     };
   }
 
-  renderItems = checklist => {
-    if (!checklist.items) {
+  setChecklistState = (diffComplete: number, diffAll: number) => {
+    this.setState({
+      checklistsState: { complete: +diffComplete, all: +diffAll }
+    });
+    this.props.onSelect(this.state.checklistsState);
+  };
+
+  renderItems = () => {
+    const { showedItems } = this.state;
+    if (showedItems.length === 0) {
       return null;
     }
 
+    const child = item => {
+      return (
+        <TitleRow key={item._id}>
+          <Item
+            key={item._id}
+            item={item}
+            isHidden={this.state.isHidden}
+            editItem={this.props.editItem}
+            removeItem={this.props.removeItem}
+            setChecklistState={this.setChecklistState}
+          />
+        </TitleRow>
+      );
+    };
+
+    const onChangeFields = sortedItems => {
+      const { updateOrder } = this.props;
+
+      const orders = sortedItems.map((item, index) => {
+        return { _id: item._id, order: index };
+      });
+
+      updateOrder(orders, () => {
+        this.setState({ showedItems: sortedItems });
+      });
+    };
+
     return (
-      <>
-        {checklist.items.map(item => {
-          return (
-            <TitleRow key={item._id}>
-              <Item
-                key={item._id}
-                item={item}
-                isHidden={this.state.isHidden}
-                editItem={this.props.editItem}
-                removeItem={this.props.removeItem}
-                onSelect={this.props.onSelect}
-                checklistsState={this.props.checklistsState}
-              />
-            </TitleRow>
-          );
-        })}
-      </>
+      <SortableList
+        fields={this.state.showedItems}
+        child={child}
+        onChangeFields={onChangeFields}
+        isModal={false}
+      />
     );
   };
 
@@ -112,13 +143,24 @@ class List extends React.Component<Props, State> {
 
     const hideClick = () => {
       this.setState({ isHidden: true });
+      this.setState({
+        showedItems: this.state.items.filter(item => !item.isChecked)
+      });
     };
 
     const showClick = () => {
       this.setState({ isHidden: false });
+      this.setState({ showedItems: this.state.items });
     };
 
-    const removeClick = () => remove(list._id);
+    const removeClick = () => {
+      remove(list._id, () => {
+        this.setChecklistState(
+          -this.state.items.filter(item => item.isChecked).length,
+          -this.state.items.length
+        );
+      });
+    };
 
     return (
       <>
@@ -206,7 +248,7 @@ class List extends React.Component<Props, State> {
   };
 
   renderAddItem = () => {
-    const { isAddItem, newItemContent } = this.state;
+    const { isAddItem, newItemContent, items } = this.state;
     if (!isAddItem) {
       return null;
     }
@@ -231,7 +273,8 @@ class List extends React.Component<Props, State> {
         checklistId: list._id,
         content: newItemContent,
         isChecked: false,
-        mentionedUserIds
+        mentionedUserIds,
+        order: items.length
       };
 
       addItem(doc, () => {
@@ -241,14 +284,7 @@ class List extends React.Component<Props, State> {
         isAddItemChange();
       });
 
-      this.setState({
-        checklistsState: {
-          complete: this.state.checklistsState.complete,
-          all: this.state.checklistsState.all + 1
-        }
-      });
-      this.props.onSelect(this.state.checklistsState);
-      // this.props.onSelect({complete: this.props.checklistsState.complete, all: this.props.checklistsState.all + 1});
+      this.setChecklistState(0, 1);
     };
 
     return (
@@ -283,7 +319,7 @@ class List extends React.Component<Props, State> {
         <TitleRow>
           <ControlLabel>{__(`${list.percent.toFixed(2)} %`)}</ControlLabel>
         </TitleRow>
-        {this.renderItems(list)}
+        {this.renderItems()}
         <TitleRow>
           {this.renderAddItemBtn()}
           {this.renderAddItem()}

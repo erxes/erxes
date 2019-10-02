@@ -79,7 +79,7 @@ export const ticketFields = `
   reminderMinute
   isComplete
   checklistsState {
-    completed
+    complete
     all
   }
 `;

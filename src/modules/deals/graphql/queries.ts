@@ -79,7 +79,7 @@ export const dealFields = `
   reminderMinute
   isComplete
   checklistsState {
-    completed
+    complete
     all
   }
 `;

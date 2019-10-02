@@ -1,22 +1,23 @@
 import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
+import { IChecklistsState } from '../../checklists/types';
 
 type IProps = {
-  checklistsState: any;
+  checklistsState: IChecklistsState;
 };
 
 class ChecklistsLabel extends React.Component<IProps> {
   render() {
     const { checklistsState } = this.props;
 
-    if (!checklistsState) {
+    if (!checklistsState || checklistsState.all === 0) {
       return null;
     }
 
     return (
       <label>
         <Icon icon="check-square" />
-        {checklistsState.completed} / {checklistsState.all}
+        {checklistsState.complete} / {checklistsState.all}
       </label>
     );
   }

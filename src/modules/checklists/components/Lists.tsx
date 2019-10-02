@@ -4,17 +4,19 @@ import {
   IChecklist,
   IChecklistItem,
   IChecklistItemDoc,
-  IChecklistsState
+  IChecklistsState,
+  UpdateOrderItemsVariables
 } from '../types';
 import List from './List';
 
 type Props = {
   checklists: IChecklist[];
   edit: (doc: EditMutationVariables, callbak: () => void) => void;
-  remove: (checklistId: string) => void;
+  remove: (checklistId: string, callback: () => void) => void;
   addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
   editItem: (doc: IChecklistItem, callback: () => void) => void;
-  removeItem: (checklistItemId: string) => void;
+  updateOrder: (doc: [UpdateOrderItemsVariables], callback: () => void) => void;
+  removeItem: (checklistItemId: string, callback: () => void) => void;
   onSelect: (checklistsState: IChecklistsState) => void;
   checklistsState: IChecklistsState;
 };
@@ -48,6 +50,7 @@ class Lists extends React.Component<Props, State> {
         remove={this.props.remove}
         addItem={this.props.addItem}
         editItem={this.props.editItem}
+        updateOrder={this.props.updateOrder}
         removeItem={this.props.removeItem}
         onSelect={this.props.onSelect}
         checklistsState={this.props.checklistsState}

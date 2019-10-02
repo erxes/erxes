@@ -41,7 +41,6 @@ class Left extends React.Component<Props> {
       description,
       type
     } = this.props;
-    console.log(item.checklistsState);
 
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);

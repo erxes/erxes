@@ -52,7 +52,8 @@ const commonItemVariables = `
   $checklistId: String,
   $isChecked: Boolean,
   $content: String,
-  $mentionedUserIds: [String]
+  $mentionedUserIds: [String],
+  $order: Int
 `;
 
 const commonItemParams = `
@@ -60,6 +61,7 @@ const commonItemParams = `
   isChecked: $isChecked,
   content: $content,
   mentionedUserIds: $mentionedUserIds,
+  order: $order
 `;
 
 const checklistItemsAdd = `
@@ -92,6 +94,14 @@ const checklistItemsEdit = `
   }
 `;
 
+const updateOrderItems = `
+  mutation updateOrderItems($orders: [OrderInput]) {
+    updateOrderItems(orders: $orders) {
+      _id
+    }
+  }
+`;
+
 const checklistItemsRemove = `
   mutation checklistItemsRemove($_id: String!) {
     checklistItemsRemove(_id: $_id) {
@@ -106,5 +116,6 @@ export default {
   checklistsRemove,
   checklistItemsAdd,
   checklistItemsEdit,
+  updateOrderItems,
   checklistItemsRemove
 };
