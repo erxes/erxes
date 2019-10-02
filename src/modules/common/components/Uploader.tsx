@@ -115,13 +115,25 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
+  switchItem = index => {
+    const item = this.state.attachments[index];
+
+    return item.url;
+  };
+
   renderItem = (item: IAttachment, index: number) => {
     const removeAttachment = () => this.removeAttachment(index);
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
-
+    const imagesLength = this.state.attachments.length;
     return (
       <Item key={item.url}>
-        <Attachment attachment={item} additionalItem={remove} />
+        <Attachment
+          attachment={item}
+          additionalItem={remove}
+          index={index}
+          switchItem={this.switchItem}
+          imagesLength={imagesLength}
+        />
       </Item>
     );
   };

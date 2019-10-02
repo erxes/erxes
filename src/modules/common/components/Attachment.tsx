@@ -82,12 +82,14 @@ type Props = {
   attachment: IAttachment;
   scrollBottom?: () => void;
   additionalItem?: React.ReactNode;
+  index?: number;
+  switchItem?: (index: number) => string;
+  imagesLength: number;
 };
 
 class Attachment extends React.Component<Props> {
   renderOtherInfo = attachment => {
     const name = attachment.name || attachment.url || '';
-
     return (
       <>
         <h5>
@@ -142,6 +144,9 @@ class Attachment extends React.Component<Props> {
               onLoad={this.onLoadImage}
               alt={attachment.url}
               src={attachment.url}
+              index={this.props.index}
+              switchItem={this.props.switchItem}
+              imagesLength={this.props.imagesLength}
             />
           </PreviewWrapper>
           <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
