@@ -139,7 +139,6 @@ class ImageWithPreview extends React.Component<Props, State> {
   render() {
     const { onLoad, alt } = this.props;
     const { src } = this.state;
-    console.log(this.props);
 
     return (
       <>
