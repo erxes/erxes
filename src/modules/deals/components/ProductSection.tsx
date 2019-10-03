@@ -62,6 +62,7 @@ function ProductSection({
         </Tip>
       );
     }
+
     return <ProductName>{product.name}</ProductName>;
   };
 
