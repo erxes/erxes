@@ -60,8 +60,7 @@ type Props = {
 
 type State = {
   visible: boolean;
-  src: string;
-  alt?: string;
+  srcUrl: string;
   num: number;
   preImageUrl: number;
 };
@@ -74,10 +73,9 @@ class ImageWithPreview extends React.Component<Props, State> {
 
     this.state = {
       visible: false,
-      src: src || 'a',
-      alt: src || 'a',
+      srcUrl: src || 'a',
       num: index || 0,
-      preImageUrl: this.props.index || 0
+      preImageUrl: index || 0
     };
   }
 
@@ -85,7 +83,7 @@ class ImageWithPreview extends React.Component<Props, State> {
     this.setState({ visible: !this.state.visible });
     if (this.props.index && this.props.switchItem) {
       const prevItem = this.props.switchItem(this.state.preImageUrl);
-      this.setState({ src: prevItem });
+      this.setState({ srcUrl: prevItem });
     }
   };
 
@@ -98,43 +96,44 @@ class ImageWithPreview extends React.Component<Props, State> {
   }
 
   handleKeydown = e => {
-    if (e.keyCode === KEYCODES.ESCAPE && this.state.visible) {
-      this.setState({ visible: false, src: this.props.src || '' });
+    const { switchItem, imagesLength, src } = this.props;
+    const { visible } = this.state;
+
+    if (e.keyCode === KEYCODES.ESCAPE && visible) {
+      this.setState({ visible: false, srcUrl: src || '' });
     }
-    if ((e.keyCode === 37 || e.keyCode === 39) && this.state.visible) {
+    if ((e.keyCode === 37 || e.keyCode === 39) && visible) {
       let switchedUrl;
 
       if (e.keyCode === 39) {
-        if (this.props.switchItem) {
-          if (this.props.imagesLength > this.state.num + 1) {
+        if (switchItem) {
+          if (imagesLength > this.state.num + 1) {
             this.setState({ num: this.state.num + 1 });
 
-            switchedUrl = this.props.switchItem(this.state.num) || '';
+            switchedUrl = switchItem(this.state.num) || '';
           } else {
             this.setState({ num: 0 });
 
-            switchedUrl = this.props.switchItem(0);
+            switchedUrl = switchItem(0);
           }
           this.setState({
-            src: switchedUrl,
-            alt: switchedUrl
+            srcUrl: switchedUrl
           });
         }
       }
       if (e.keyCode === 37) {
-        if (this.props.switchItem) {
+        if (switchItem) {
           if (0 <= this.state.num - 1) {
             this.setState({ num: this.state.num - 1 });
 
-            switchedUrl = this.props.switchItem(this.state.num);
+            switchedUrl = switchItem(this.state.num);
           } else {
-            this.setState({ num: this.props.imagesLength - 1 });
+            this.setState({ num: imagesLength - 1 });
 
-            switchedUrl = this.props.switchItem(this.props.imagesLength - 1);
+            switchedUrl = switchItem(imagesLength - 1);
           }
           this.setState({
-            src: switchedUrl,
-            alt: switchedUrl
+            srcUrl: switchedUrl
           });
         }
       }
@@ -143,7 +142,7 @@ class ImageWithPreview extends React.Component<Props, State> {
 
   render() {
     const { onLoad, alt } = this.props;
-    const { src } = this.state;
+    const { srcUrl } = this.state;
 
     return (
       <>
@@ -156,7 +155,7 @@ class ImageWithPreview extends React.Component<Props, State> {
         {this.state.visible && (
           <PreviewPortal>
             <PreviewWrapper onClick={this.toggleImage}>
-              <img alt={alt} src={readFile(src || '')} />
+              <img alt={alt} src={readFile(srcUrl || '')} />
             </PreviewWrapper>
           </PreviewPortal>
         )}
