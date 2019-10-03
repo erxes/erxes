@@ -67,13 +67,19 @@ type State = {
 };
 
 class ImageWithPreview extends React.Component<Props, State> {
-  state = {
-    visible: false,
-    src: this.props.src || 'a',
-    alt: this.props.src || 'a',
-    num: this.props.index || 0,
-    preImageUrl: this.props.index || 0
-  };
+  constructor(props) {
+    super(props);
+
+    const { src, index } = props;
+
+    this.state = {
+      visible: false,
+      src: src || 'a',
+      alt: src || 'a',
+      num: index || 0,
+      preImageUrl: this.props.index || 0
+    };
+  }
 
   toggleImage = () => {
     this.setState({ visible: !this.state.visible });
