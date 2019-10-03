@@ -3,14 +3,14 @@ import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { Alert, getCookie, setCookie, withProps } from 'modules/common/utils';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
-import { BrandsQueryResponse } from 'modules/settings/brands/types';
+import { AllBrandsQueryResponse } from 'modules/settings/brands/types';
 import { queries as generalQueries } from 'modules/settings/general/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import QuickNavigation from '../components/QuickNavigation';
 
 type Props = {
-  brandsQuery: BrandsQueryResponse;
+  brandsQuery: AllBrandsQueryResponse;
   getEnvQuery: any;
 };
 
@@ -73,7 +73,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
             <QuickNavigation
               showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}
               onChangeBrands={this.onChangeBrands}
-              brands={brandsQuery.brands || []}
+              brands={brandsQuery.allBrands || []}
               selectedBrands={this.state.selectedBrands}
               logout={this.logout}
               currentUser={currentUser}
@@ -93,7 +93,7 @@ export default withProps(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<{}, BrandsQueryResponse>(gql(brandQueries.brands), {
+    graphql<{}, AllBrandsQueryResponse>(gql(brandQueries.allBrands), {
       name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

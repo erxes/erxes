@@ -227,15 +227,11 @@ const TableContainer = styled.div`
 const GrowthRow = styled.tr`
   td {
     &:first-child {
-      max-width: 200px;
+      min-width: 250px;
+      max-width: 250px;
     }
 
-    &:nth-child(2) {
-      max-width: 300px;
-    }
-
-    &:first-child,
-    &:nth-child(2) {
+    &:first-child {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
