@@ -42,19 +42,16 @@ function ProductSection({
     const result: React.ReactNode[] = [];
 
     const { customFieldsData } = product;
-    if (customFieldsData) {
-      Object.keys(customFieldsData).forEach(name => {
-        result.push(
-          <CustomField>
-            <b>{name}:</b> {customFieldsData[name]}
-          </CustomField>
-        );
-      });
 
-      return result;
-    }
+    Object.keys(customFieldsData).forEach(name => {
+      result.push(
+        <CustomField>
+          <b>{name}:</b> {customFieldsData[name]}
+        </CustomField>
+      );
+    });
 
-    return '';
+    return result;
   };
 
   const renderProduct = (product: IProduct) => {
