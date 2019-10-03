@@ -309,7 +309,7 @@ const init = async app => {
 
     const query: { postId: string; parentId?: string } = { postId };
 
-    let limit = req.query.limit;
+    let limit = 10;
 
     if (commentId !== 'undefined') {
       query.parentId = commentId;
@@ -367,7 +367,7 @@ const init = async app => {
       },
 
       { $sort: { timestamp: -1 } },
-      { $limit: parseInt(limit || 10, 10) },
+      { $limit: limit },
     ]);
 
     return res.json(result.reverse());
