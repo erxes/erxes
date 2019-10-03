@@ -367,7 +367,7 @@ const init = async app => {
       },
 
       { $sort: { timestamp: -1 } },
-      { $limit: parseInt(limit || 4, 10) },
+      { $limit: parseInt(limit || 10, 10) },
     ]);
 
     return res.json(result.reverse());
