@@ -7,7 +7,7 @@ export interface IField {
   contentTypeId?: string;
   type?: string;
   validation?: string;
-  text?: string;
+  text: string;
   description?: string;
   options?: string[];
   isRequired?: boolean;

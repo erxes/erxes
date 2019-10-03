@@ -1,4 +1,14 @@
-import { Companies, Conformities, Customers, Notifications, Pipelines, Products, Stages, Users } from '../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Fields,
+  Notifications,
+  Pipelines,
+  Products,
+  Stages,
+  Users,
+} from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
@@ -28,7 +38,26 @@ export default {
     const products: any = [];
 
     for (const data of deal.productsData || []) {
-      const product = await Products.findOne({ _id: data.productId });
+      const product = await Products.getProduct({ _id: data.productId });
+
+      const { customFieldsData } = product;
+
+      if (customFieldsData) {
+        const customFields = {};
+        const fieldIds: string[] = [];
+
+        Object.keys(customFieldsData).forEach(_id => {
+          fieldIds.push(_id);
+        });
+
+        const fields = await Fields.find({ _id: { $in: fieldIds }, contentType: 'product' });
+
+        for (const field of fields) {
+          customFields[field.text] = customFieldsData[field._id];
+        }
+
+        product.customFieldsData = customFields;
+      }
 
       // Add product object to resulting list
       if (data && product) {

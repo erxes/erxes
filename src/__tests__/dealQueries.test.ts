@@ -137,7 +137,8 @@ describe('dealQueries', () => {
   });
 
   test('Deal filter by products', async () => {
-    const { productId } = await productFactory();
+    const product = await productFactory();
+    const productId = product._id;
 
     await dealFactory({ productsData: { productId } });
 

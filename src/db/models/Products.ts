@@ -10,6 +10,7 @@ import {
 } from './definitions/deals';
 
 export interface IProductModel extends Model<IProductDocument> {
+  getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
   removeProduct(_id: string): void;
@@ -17,6 +18,21 @@ export interface IProductModel extends Model<IProductDocument> {
 
 export const loadProductClass = () => {
   class Product {
+    /**
+     *
+     * Get Product Cagegory
+     */
+
+    public static async getProduct(selector: any) {
+      const product = await Products.findOne(selector);
+
+      if (!product) {
+        throw new Error('Product not found');
+      }
+
+      return product;
+    }
+
     /**
      * Create a product
      */
