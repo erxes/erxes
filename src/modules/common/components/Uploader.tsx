@@ -124,7 +124,10 @@ class Uploader extends React.Component<Props, State> {
   renderItem = (item: IAttachment, index: number) => {
     const removeAttachment = () => this.removeAttachment(index);
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
-    const imagesLength = this.state.attachments.length;
+    let imagesLength;
+    if (this.state.attachments.length > 0) {
+      imagesLength = this.state.attachments.length;
+    }
     return (
       <Item key={item.url}>
         <Attachment
