@@ -39,7 +39,6 @@ export default class FacebookComment extends React.Component<
     super(props);
 
     const data = props.comment;
-
     let hasReplies = false;
 
     if (data && data.commentCount && data.commentCount > 0) {
@@ -59,6 +58,10 @@ export default class FacebookComment extends React.Component<
     this.setState({ hasReplies: false });
   };
 
+  changeHasRepy = () => {
+    this.setState({ hasReplies: true });
+  };
+
   render() {
     const { comment, replyComment, isReply } = this.props;
     const customer = comment.customer || {};
@@ -71,6 +74,7 @@ export default class FacebookComment extends React.Component<
 
     const content = props => (
       <ReplyingMessage
+        changeHasRepy={this.changeHasRepy}
         conversationId={comment.conversationId}
         commentId={comment.commentId}
         currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
