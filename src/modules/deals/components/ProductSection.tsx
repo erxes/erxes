@@ -7,6 +7,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
+import { CustomField, ProductName } from '../styles';
 import { IProductData } from '../types';
 import ProductForm from './product/ProductForm';
 
@@ -42,11 +43,11 @@ function ProductSection({
 
     const { customFieldsData } = product;
     if (customFieldsData) {
-      Object.keys(customFieldsData).forEach(key => {
+      Object.keys(customFieldsData).forEach(name => {
         result.push(
-          <span>
-            {key} {customFieldsData[key]}
-          </span>
+          <CustomField>
+            <b>{name}:</b> {customFieldsData[name]}
+          </CustomField>
         );
       });
 
@@ -54,6 +55,17 @@ function ProductSection({
     }
 
     return '';
+  };
+
+  const renderProduct = (product: IProduct) => {
+    if (product.customFieldsData) {
+      return (
+        <Tip text={tipItems(product)} placement="top">
+          <ProductName>{product.name}</ProductName>
+        </Tip>
+      );
+    }
+    return <ProductName>{product.name}</ProductName>;
   };
 
   return (
@@ -75,9 +87,7 @@ function ProductSection({
       <SectionBody>
         {products.map((product, index) => (
           <SectionBodyItem key={index}>
-            <Tip text={tipItems(product)} placement="top">
-              <span>{product.name}</span>
-            </Tip>
+            {renderProduct(product)}
           </SectionBodyItem>
         ))}
         {products.length === 0 && (
