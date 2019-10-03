@@ -243,6 +243,12 @@ const GrowthRow = styled.tr`
   }
 `;
 
+const Vote = styled.div`
+  i {
+    margin-right: 5px;
+  }
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
@@ -260,5 +266,6 @@ export {
   ScrollContent,
   TableHead,
   FunnelContent,
-  Title
+  Title,
+  Vote
 };
