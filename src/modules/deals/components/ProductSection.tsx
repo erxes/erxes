@@ -1,6 +1,7 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
@@ -36,6 +37,25 @@ function ProductSection({
     />
   );
 
+  const tipItems = (product: IProduct) => {
+    const result: React.ReactNode[] = [];
+
+    const { customFieldsData } = product;
+    if (customFieldsData) {
+      Object.keys(customFieldsData).forEach(key => {
+        result.push(
+          <span>
+            {key} {customFieldsData[key]}
+          </span>
+        );
+      });
+
+      return result;
+    }
+
+    return '';
+  };
+
   return (
     <Section>
       <Title>{__('Product & Service')}</Title>
@@ -55,7 +75,9 @@ function ProductSection({
       <SectionBody>
         {products.map((product, index) => (
           <SectionBodyItem key={index}>
-            <span>{product.name}</span>
+            <Tip text={tipItems(product)} placement="top">
+              <span>{product.name}</span>
+            </Tip>
           </SectionBodyItem>
         ))}
         {products.length === 0 && (
