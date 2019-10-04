@@ -53,13 +53,12 @@ export default class FilterList extends React.PureComponent<Props, State> {
     // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
-
       client
         .query({
           query: gql(queries[queryName]),
           variables
         })
-        .then(({ data }) => {
+        .then(({ data }: any) => {
           if (this.mounted) {
             this.setState({ fields: data[dataName] });
           }
