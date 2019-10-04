@@ -1,96 +1,87 @@
-import dayjs from 'dayjs';
-import { IBoard, IPipeline } from 'modules/boards/types';
-import EmptyState from 'modules/common/components/EmptyState';
+import { IBoard } from 'modules/boards/types';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { SidebarList } from 'modules/layout/styles';
+import { SidebarListItem } from 'modules/settings/styles';
+import LeftSidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FilterList, FilterListItem } from '../styles';
+import DashboardPipelineList from '../containers/DashboardPipelineList';
 
 type Props = {
-  currentBoard?: IBoard;
-  pipelines: IPipeline[];
+  state: string;
   boards: IBoard[];
   boardId: string;
 };
 
 class DashBoard extends React.Component<Props> {
   renderBoards() {
-    const { boards } = this.props;
+    const { boardId, boards } = this.props;
 
     return boards.map(board => (
-      <li key={board._id}>
+      <SidebarListItem key={board._id} isActive={boardId === board._id}>
         <Link to={`/growthHack/dashboard?id=${board._id}`}>{board.name}</Link>
-      </li>
+      </SidebarListItem>
     ));
   }
 
   renderFilter() {
-    const { boardId } = this.props;
+    const { boardId, state } = this.props;
 
     return (
-      <ul>
-        <li>
+      <FilterList>
+        <FilterListItem isActive={!state}>
           <Link to={`/growthHack/dashBoard?id=${boardId}`}>All</Link>
-        </li>
-        <li>
+        </FilterListItem>
+        <FilterListItem isActive={state === 'In progress'}>
           <Link to={`/growthHack/dashBoard?id=${boardId}&state=In progress`}>
             In progress
           </Link>
-        </li>
-        <li>
+        </FilterListItem>
+        <FilterListItem isActive={state === 'Not started'}>
           <Link to={`/growthHack/dashBoard?id=${boardId}&state=Not started`}>
             Not started
           </Link>
-        </li>
-        <li>
+        </FilterListItem>
+        <FilterListItem isActive={state === 'Completed'}>
           <Link to={`/growthHack/dashBoard?id=${boardId}&state=Completed`}>
             Completed
           </Link>
-        </li>
-      </ul>
+        </FilterListItem>
+      </FilterList>
     );
   }
 
-  renderPipelines() {
-    const { currentBoard, pipelines } = this.props;
-
-    if (pipelines.length === 0) {
-      return <EmptyState icon="stop" text="No other pipeline" size="small" />;
-    }
-
-    if (!currentBoard) {
-      return null;
-    }
-
-    return pipelines.map(pipeline => {
-      return (
-        <li key={pipeline._id}>
-          <Link
-            to={`/growthHack/board?id=${currentBoard._id}&pipelineId=${
-              pipeline._id
-            }`}
-          >
-            {pipeline.name}
-            <br />
-            Start date: {dayjs(pipeline.startDate).format('MMM DD, YYYY')}
-            <br />
-            End date: {dayjs(pipeline.endDate).format('MMM DD, YYYY')}
-            <br />
-            State: {pipeline.state}
-            <br />
-          </Link>
-        </li>
-      );
-    });
+  renderSidebarHeader() {
+    const { Header } = LeftSidebar;
+    return <Header uppercase={true}>{'Campaign'}</Header>;
   }
 
   render() {
+    const breadcrumb = [{ title: 'Growth Hacking', link: '/growthHack' }];
     return (
-      <div>
-        <h1>Boards</h1>
-        {this.renderBoards()}
-        <h2>Pipelines</h2>
-        {this.renderFilter()}
-        {this.renderPipelines()}
-      </div>
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={`${'Campaign' || ''}`}
+            breadcrumb={breadcrumb}
+          />
+        }
+        leftSidebar={
+          <LeftSidebar
+            wide={true}
+            full={true}
+            header={this.renderSidebarHeader()}
+          >
+            <SidebarList>{this.renderBoards()}</SidebarList>
+          </LeftSidebar>
+        }
+        actionBar={
+          <Wrapper.ActionBar left={'PROJECTS'} right={this.renderFilter()} />
+        }
+        transparent={true}
+        content={<DashboardPipelineList state={this.props.state} />}
+      />
     );
   }
 }

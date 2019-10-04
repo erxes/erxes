@@ -4,7 +4,6 @@ import { getBoardId } from 'modules/boards/containers/MainActionBar';
 import { queries } from 'modules/boards/graphql';
 import { PageHeader } from 'modules/boards/styles/header';
 import {
-  BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse
 } from 'modules/boards/types';
@@ -25,7 +24,6 @@ type Props = {
 type FinalProps = {
   boardsQuery: BoardsQueryResponse;
   boardGetLastQuery?: BoardsGetLastQueryResponse;
-  boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
 class DashBoardContainer extends React.Component<FinalProps> {
@@ -35,8 +33,7 @@ class DashBoardContainer extends React.Component<FinalProps> {
       location,
       boardsQuery,
       boardGetLastQuery,
-      state,
-      boardDetailQuery
+      state
     } = this.props;
 
     if (boardsQuery.loading) {
@@ -53,17 +50,11 @@ class DashBoardContainer extends React.Component<FinalProps> {
       localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
     }
 
-    // wait for load
-    if (boardDetailQuery && boardDetailQuery.loading) {
-      return <Spinner />;
-    }
-
     if (boardGetLastQuery && boardGetLastQuery.loading) {
       return <Spinner />;
     }
 
     const lastBoard = boardGetLastQuery && boardGetLastQuery.boardGetLast;
-    const currentBoard = boardDetailQuery && boardDetailQuery.boardDetail;
 
     // if there is no boardId in queryparams and there is one in localstorage
     // then put those in queryparams
@@ -90,27 +81,9 @@ class DashBoardContainer extends React.Component<FinalProps> {
       return null;
     }
 
-    // If there is an invalid boardId localstorage then remove invalid keys
-    // and reload the page
-    if (!currentBoard && boardId) {
-      delete defaultBoards.growthHack;
-
-      localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
-
-      window.location.href = `/growthHack/dashboard`;
-      return null;
-    }
-
-    let pipelines = currentBoard ? currentBoard.pipelines || [] : [];
-
-    if (state) {
-      pipelines = pipelines.filter(pipeline => pipeline.state === state);
-    }
-
     const props = {
+      state,
       boardId,
-      currentBoard,
-      pipelines,
       boards: boardsQuery.boards || []
     };
 
@@ -133,17 +106,7 @@ export default withRouter(
         options: () => ({
           variables: { type: 'growthHack' }
         })
-      }),
-      graphql<Props, BoardDetailQueryResponse, { _id: string }>(
-        gql(queries.boardDetail),
-        {
-          name: 'boardDetailQuery',
-          skip: props => !getBoardId(props),
-          options: props => ({
-            variables: { _id: getBoardId(props) }
-          })
-        }
-      )
+      })
     )(DashBoardContainer)
   )
 );

@@ -243,6 +243,57 @@ const GrowthRow = styled.tr`
   }
 `;
 
+const PipelineRow = styled.div`
+  background-color: ${colors.colorWhite};
+  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 20px 20px 20px 30px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const PipelineMeta = styled.div`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+  i {
+    margin-right: ${dimensions.unitSpacing / 2}px;
+  }
+`;
+
+const PipelineName = styled.h5`
+  margin: 0 0 10px;
+  font-weight: bold;
+  color: ${colors.colorCoreDarkGray};
+`;
+
+const PipelineActions = styled.div`
+  margin-top: 10px;
+  text-align: right;
+  a {
+    box-shadow: none;
+  }
+`;
+
+const FilterList = styled.ul`
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+`;
+
+const FilterListItem = styledTS<{ isActive: boolean }>(styled.li)`
+  margin: 0 5px;
+  a{
+    color: ${colors.textSecondary};
+    color: ${props => props.isActive && colors.colorWhite};
+    padding: 5px 10px;
+    border: 1px solid ${colors.borderDarker};
+    background: ${props => props.isActive && colors.colorSecondary};
+  }
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
@@ -260,5 +311,11 @@ export {
   ScrollContent,
   TableHead,
   FunnelContent,
-  Title
+  Title,
+  PipelineRow,
+  PipelineName,
+  PipelineMeta,
+  PipelineActions,
+  FilterList,
+  FilterListItem
 };
