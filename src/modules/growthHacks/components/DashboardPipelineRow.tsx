@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
+import { IBoard, IPipeline } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
-import { IPipeline, IBoard } from 'modules/boards/types';
 import React from 'react';
 import {
-  PipelineRow,
+  PipelineActions,
   PipelineMeta,
   PipelineName,
-  PipelineActions
+  PipelineRow
 } from '../styles';
 
 type Props = {

@@ -1,7 +1,7 @@
-import { IPipeline, IBoard } from 'modules/boards/types';
+import { IBoard, IPipeline } from 'modules/boards/types';
 import EmptyState from 'modules/common/components/EmptyState';
-import DashboardPipelineRow from './DashboardPipelineRow';
 import React from 'react';
+import DashboardPipelineRow from './DashboardPipelineRow';
 
 type Props = {
   currentBoard?: IBoard;

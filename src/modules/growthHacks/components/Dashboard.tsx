@@ -1,12 +1,12 @@
 import { IBoard } from 'modules/boards/types';
+import LeftSidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarList } from 'modules/layout/styles';
 import { SidebarListItem } from 'modules/settings/styles';
-import LeftSidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FilterList, FilterListItem } from '../styles';
 import DashboardPipelineList from '../containers/DashboardPipelineList';
+import { FilterList, FilterListItem } from '../styles';
 
 type Props = {
   state: string;
