@@ -33,39 +33,33 @@ export const types = `
   }
 `;
 
+const commonQueryFields = `
+  pipelineId: String
+  initialStageId: String
+  stageId: String
+  skip: Int
+  limit: Int
+  search: String
+  assignedUserIds: [String]
+  nextDay: String
+  nextWeek: String
+  nextMonth: String
+  noCloseDate: String
+  overdue: String
+  hackStage: String
+  priority: String
+`;
+
 export const queries = `
   growthHackDetail(_id: String!): GrowthHack
   growthHacks(
-    pipelineId: String
-    initialStageId: String
-    stageId: String
-    skip: Int
-    limit: Int
-    search: String
-    assignedUserIds: [String]
-    nextDay: String
-    nextWeek: String
-    nextMonth: String
-    noCloseDate: String
-    overdue: String
-    hackStage: String
+    ${commonQueryFields}
     sortField: String
     sortDirection: Int
   ): [GrowthHack]
 
   growthHacksTotalCount(
-    pipelineId: String
-    initialStageId: String
-    stageId: String
-    skip: Int
-    search: String
-    assignedUserIds: [String]
-    nextDay: String
-    nextWeek: String
-    nextMonth: String
-    noCloseDate: String
-    overdue: String
-    hackStage: String
+    ${commonQueryFields}
   ): Int
 
   growthHacksPriorityMatrix(
