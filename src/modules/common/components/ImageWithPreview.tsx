@@ -78,12 +78,18 @@ class ImageWithPreview extends React.Component<Props, State> {
       preImageUrl: index || 0
     };
   }
+  arrowButton() {
+    console.log('asdf');
+  }
 
   toggleImage = () => {
     this.setState({ visible: !this.state.visible });
     if (this.props.index && this.props.switchItem) {
       const prevItem = this.props.switchItem(this.state.preImageUrl);
       this.setState({ srcUrl: prevItem });
+    }
+    if (this.state.visible === false) {
+      this.arrowButton();
     }
   };
 
