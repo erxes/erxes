@@ -9,7 +9,7 @@ import {
   PipelineMeta,
   PipelineName,
   PipelineRow
-} from '../styles';
+} from '../../styles';
 
 type Props = {
   pipeline: IPipeline;

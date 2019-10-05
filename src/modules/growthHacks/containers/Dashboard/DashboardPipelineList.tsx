@@ -10,7 +10,7 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import DashboardPipelineList from '../components/DashboardPipelineList';
+import DashboardPipelineList from '../../components/Dashboard/DashboardPipelineList';
 
 type Props = {
   state: string;
