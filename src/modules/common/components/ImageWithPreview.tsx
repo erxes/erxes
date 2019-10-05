@@ -33,6 +33,17 @@ const PreviewWrapper = styled.div`
     animation-duration: 0.3s;
     animation-timing-function: ease;
   }
+
+  .rightArrow {
+    display: flex;
+    position: fixed;
+    right: 0%;
+  }
+
+  .leftArrow {
+    position: fixed;
+    left: 0%;
+  }
 `;
 
 const Image = styled.img`
@@ -78,18 +89,12 @@ class ImageWithPreview extends React.Component<Props, State> {
       preImageUrl: index || 0
     };
   }
-  arrowButton() {
-    console.log('asdf');
-  }
 
   toggleImage = () => {
     this.setState({ visible: !this.state.visible });
     if (this.props.index && this.props.switchItem) {
       const prevItem = this.props.switchItem(this.state.preImageUrl);
       this.setState({ srcUrl: prevItem });
-    }
-    if (this.state.visible === false) {
-      this.arrowButton();
     }
   };
 
@@ -101,47 +106,65 @@ class ImageWithPreview extends React.Component<Props, State> {
     document.removeEventListener('keydown', this.handleKeydown);
   }
 
+  rightClick = () => {
+    const { switchItem, imagesLength } = this.props;
+    const { visible } = this.state;
+
+    let switchedUrl;
+    if (visible) {
+      if (switchItem) {
+        if (imagesLength > this.state.num + 1) {
+          this.setState({ num: this.state.num + 1 });
+
+          switchedUrl = switchItem(this.state.num) || '';
+        } else {
+          this.setState({ num: 0 });
+
+          switchedUrl = switchItem(0);
+        }
+        this.setState({
+          srcUrl: switchedUrl
+        });
+      }
+    }
+  };
+
+  leftClick = () => {
+    const { switchItem, imagesLength } = this.props;
+    const { visible } = this.state;
+
+    let switchedUrl;
+    if (visible) {
+      if (switchItem) {
+        if (0 <= this.state.num - 1) {
+          this.setState({ num: this.state.num - 1 });
+
+          switchedUrl = switchItem(this.state.num);
+        } else {
+          this.setState({ num: imagesLength - 1 });
+
+          switchedUrl = switchItem(imagesLength - 1);
+        }
+        this.setState({
+          srcUrl: switchedUrl
+        });
+      }
+    }
+  };
+
   handleKeydown = e => {
-    const { switchItem, imagesLength, src } = this.props;
+    const { src } = this.props;
     const { visible } = this.state;
 
     if (e.keyCode === KEYCODES.ESCAPE && visible) {
       this.setState({ visible: false, srcUrl: src || '' });
     }
     if ((e.keyCode === 37 || e.keyCode === 39) && visible) {
-      let switchedUrl;
-
       if (e.keyCode === 39) {
-        if (switchItem) {
-          if (imagesLength > this.state.num + 1) {
-            this.setState({ num: this.state.num + 1 });
-
-            switchedUrl = switchItem(this.state.num) || '';
-          } else {
-            this.setState({ num: 0 });
-
-            switchedUrl = switchItem(0);
-          }
-          this.setState({
-            srcUrl: switchedUrl
-          });
-        }
+        this.rightClick();
       }
       if (e.keyCode === 37) {
-        if (switchItem) {
-          if (0 <= this.state.num - 1) {
-            this.setState({ num: this.state.num - 1 });
-
-            switchedUrl = switchItem(this.state.num);
-          } else {
-            this.setState({ num: imagesLength - 1 });
-
-            switchedUrl = switchItem(imagesLength - 1);
-          }
-          this.setState({
-            srcUrl: switchedUrl
-          });
-        }
+        this.leftClick();
       }
     }
   };
@@ -160,8 +183,18 @@ class ImageWithPreview extends React.Component<Props, State> {
         />
         {this.state.visible && (
           <PreviewPortal>
-            <PreviewWrapper onClick={this.toggleImage}>
-              <img alt={alt} src={readFile(srcUrl || '')} />
+            <PreviewWrapper>
+              <img
+                alt={alt}
+                onClick={this.toggleImage}
+                src={readFile(srcUrl || '')}
+              />
+              <button onClick={this.rightClick} className="rightArrow">
+                &#8594;
+              </button>
+              <button onClick={this.leftClick} className="leftArrow">
+                &#8592;
+              </button>
             </PreviewWrapper>
           </PreviewPortal>
         )}
