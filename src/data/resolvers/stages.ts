@@ -64,7 +64,7 @@ export default {
         return Tasks.find(filter).countDocuments();
       }
       case BOARD_TYPES.GROWTH_HACK: {
-        const filter = await generateGrowthHackCommonFilters({ ...args, stageId: stage._id });
+        const filter = await generateGrowthHackCommonFilters({ ...args, stageId: stage._id }, args.extraParams);
 
         return GrowthHacks.find(filter).countDocuments();
       }

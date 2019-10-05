@@ -217,10 +217,10 @@ export const generateTaskCommonFilters = async (args: any, extraParams?: any) =>
   return filter;
 };
 
-export const generateGrowthHackCommonFilters = async (args: any) => {
+export const generateGrowthHackCommonFilters = async (args: any, extraParams?: any) => {
   args.type = 'growthHack';
 
-  const { hackStage, priority, pipelineId, stageId } = args;
+  const { hackStage, priority, pipelineId, stageId } = extraParams || args;
 
   const filter = await generateCommonFilters(args);
 
