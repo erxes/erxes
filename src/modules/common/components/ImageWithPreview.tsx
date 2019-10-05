@@ -92,7 +92,7 @@ class ImageWithPreview extends React.Component<Props, State> {
 
   toggleImage = () => {
     this.setState({ visible: !this.state.visible });
-    if (this.props.index && this.props.switchItem) {
+    if (this.props.switchItem) {
       const prevItem = this.props.switchItem(this.state.preImageUrl);
       this.setState({ srcUrl: prevItem });
     }
@@ -111,6 +111,7 @@ class ImageWithPreview extends React.Component<Props, State> {
     const { visible } = this.state;
 
     let switchedUrl;
+
     if (visible) {
       if (switchItem) {
         if (imagesLength > this.state.num + 1) {
@@ -134,6 +135,7 @@ class ImageWithPreview extends React.Component<Props, State> {
     const { visible } = this.state;
 
     let switchedUrl;
+
     if (visible) {
       if (switchItem) {
         if (0 <= this.state.num - 1) {
