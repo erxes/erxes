@@ -277,6 +277,10 @@ class MailForm extends React.Component<Props, State> {
   renderAttachments() {
     const { attachments, isUploading } = this.state;
 
+    if (attachments.length === 0) {
+      return;
+    }
+
     return (
       <Attachments>
         {attachments.map((attachment, index) => (

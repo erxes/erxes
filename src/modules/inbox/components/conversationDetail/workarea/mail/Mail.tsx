@@ -9,13 +9,15 @@ import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
 import {
+  SmallContent,
   Content,
   Date,
   Details,
-  EmailItem,
   Meta,
   RightSide,
-  Subject
+  Subject,
+  Message,
+  Reply
 } from './style';
 
 import Attachments from './Attachment';
@@ -28,7 +30,19 @@ type Props = {
   kind: string;
 };
 
-class Mail extends React.PureComponent<Props, {}> {
+class Mail extends React.PureComponent<
+  Props,
+  { isReply: boolean; toggle: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isReply: false,
+      toggle: false
+    };
+  }
+
   getEmails(details: IMail) {
     const to = details.to || [];
     const cc = details.cc || [];
@@ -57,6 +71,14 @@ class Mail extends React.PureComponent<Props, {}> {
     return emails;
   }
 
+  onToggle = () => {
+    this.setState({ toggle: !this.state.toggle });
+  };
+
+  onReply = () => {
+    this.setState({ isReply: true });
+  };
+
   cleanHtml(mailContent: string) {
     return sanitizeHtml(mailContent, {
       allowedTags: false,
@@ -71,6 +93,35 @@ class Mail extends React.PureComponent<Props, {}> {
         return n.tag === 'meta' || n.tag === 'head' || n.tag === 'style';
       }
     });
+  }
+
+  renderReplyForm() {
+    if (!this.state.isReply) {
+      return null;
+    }
+
+    return (
+      <Message isReply={true}>
+        <Meta>{/* {this.renderDetails(details)} */}</Meta>
+      </Message>
+    );
+  }
+
+  renderReplyButton(details) {
+    if (this.state.isReply) {
+      return null;
+    }
+
+    return (
+      <Button
+        icon="reply"
+        btnStyle="primary"
+        size="small"
+        onClick={this.onReply}
+      >
+        Reply
+      </Button>
+    );
   }
 
   renderMailForm(details) {
@@ -99,7 +150,7 @@ class Mail extends React.PureComponent<Props, {}> {
     );
 
     const trigger = (
-      <Button icon="reply" btnStyle="simple" size="small">
+      <Button icon="reply" btnStyle="primary" size="small">
         Reply
       </Button>
     );
@@ -114,9 +165,13 @@ class Mail extends React.PureComponent<Props, {}> {
     );
   }
 
-  renderAddress(title: string, values: any) {
+  renderAddress(title: string, values: any, body) {
     if (!values || values.length === 0) {
       return null;
+    }
+
+    if (this.state.toggle) {
+      return <SmallContent>{body.replace(/<\/?[^>]+(>|$)/g, '')}</SmallContent>;
     }
 
     const emails = values.map((val, idx) => <span key={idx}>{val.email}</span>);
@@ -130,34 +185,48 @@ class Mail extends React.PureComponent<Props, {}> {
 
   renderDetails(details) {
     const [{ email }] = details.from;
+    const { body = '' } = details;
 
     return (
       <Details>
         <strong>{email}</strong>
-        {this.renderAddress('To:', details.to)}
-        {this.renderAddress('Cc:', details.cc)}
-        {this.renderAddress('Bcc:', details.bcc)}
+        {this.renderAddress('To:', details.to, juice(body))}
+        {this.renderAddress('Cc:', details.cc, juice(body))}
+        {this.renderAddress('Bcc:', details.bcc, juice(body))}
       </Details>
     );
   }
 
-  renderRightSide(showAttachmentIcon, details, createdAt) {
+  renderRightSide(showAttachmentIcon, createdAt) {
     return (
       <RightSide>
         {showAttachmentIcon && <Icon icon="attach" />}
         <Date>{dayjs(createdAt).format('lll')}</Date>
-        {this.renderMailForm(details)}
       </RightSide>
     );
   }
 
-  renderBody(body) {
+  renderBody(body, details) {
+    if (this.state.toggle) {
+      return null;
+    }
+
     return (
-      <Content dangerouslySetInnerHTML={{ __html: this.cleanHtml(body) }} />
+      <>
+        <Content
+          dangerouslySetInnerHTML={{ __html: this.cleanHtml(body) }}
+          toggle={this.state.toggle}
+        />
+        <Reply>{this.renderReplyButton(details)}</Reply>
+      </>
     );
   }
 
   renderAttachments(attachments, messageId) {
+    if (attachments.length === 0) {
+      return;
+    }
+
     const { kind, integrationId } = this.props;
 
     return (
@@ -182,17 +251,20 @@ class Mail extends React.PureComponent<Props, {}> {
     const showAttachmentIcon = attachments.length > 0;
 
     return (
-      <EmailItem key={messageId}>
+      <>
         <Subject>{subject}</Subject>
-        <Meta>
-          <Avatar customer={customer} size={32} />
-          {this.renderDetails(details)}
-          {this.renderRightSide(showAttachmentIcon, details, createdAt)}
-        </Meta>
-        {this.renderBody(juice(body))}
-        {this.renderAttachments(attachments, messageId)}
-        <div className="clearfix" />
-      </EmailItem>
+        <Message toggle={this.state.toggle} onClick={this.onToggle}>
+          <Meta toggle={this.state.toggle}>
+            <Avatar customer={customer} size={32} />
+            {this.renderDetails(details)}
+            {this.renderRightSide(showAttachmentIcon, createdAt)}
+          </Meta>
+          {this.renderBody(juice(body), details)}
+          {this.renderAttachments(attachments, messageId)}
+          <div className="clearfix" />
+        </Message>
+        {this.renderReplyForm()}
+      </>
     );
   };
 

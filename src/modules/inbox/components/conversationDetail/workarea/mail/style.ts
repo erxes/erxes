@@ -1,8 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
-
-const dateColor = '#666';
-const subjectColor = '#202124';
+import { rgba } from 'modules/common/styles/color';
+import styledTS from 'styled-components-ts';
 
 const EmailItem = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -12,9 +11,9 @@ const EmailItem = styled.div`
   }
 `;
 
-const Content = styled.div`
+const Content = styledTS<{ toggle?: boolean }>(styled.div)`
   font-size: 13px;
-  padding: 0 45px;
+  padding: ${dimensions.unitSpacing + 5}px;
   blockquote {
     font-size: 13px;
   }
@@ -24,19 +23,27 @@ const Content = styled.div`
   }
 `;
 
-const Subject = styled.h2`
-  font-size: 26px;
-  color: ${subjectColor};
-  font-weight: 400;
-  margin: 0 0 ${dimensions.coreSpacing}px;
-  padding-left: 45px;
+const SmallContent = styledTS<{ toggle?: boolean }>(styled.div)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 425px;
 `;
 
-const Meta = styled.div`
-  margin-bottom: ${dimensions.coreSpacing}px;
+const Subject = styled.h2`
+  font-size: ${dimensions.coreSpacing}px;
+  color: ${colors.colorCoreDarkGray};
+  font-weight: 500;
+  margin: 0 0 ${dimensions.coreSpacing}px;
+`;
+
+const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
+  padding: ${dimensions.unitSpacing}px 15px;
   display: flex;
-  flex-direction: row;
   align-items: center;
+  border-bottom: ${props =>
+    props.toggle ? 0 : `1px solid ${colors.borderPrimary}`};
+  
   strong {
     display: block;
   }
@@ -54,7 +61,7 @@ const Details = styled.div`
 const Date = styled.div`
   margin: 0 10px;
   font-size: 12px;
-  color: ${dateColor};
+  color: ${colors.colorCoreGray};
 `;
 
 const RightSide = styled.div`
@@ -151,13 +158,35 @@ const FileIcon = styled.div`
   background: ${colors.colorWhite};
 `;
 
+const Message = styledTS<{ isReply?: boolean; toggle?: boolean }>(styled.div)`
+  position: relative;
+  background: ${colors.colorWhite};
+  border-radius: ${dimensions.coreSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
+  margin-bottom: ${props => props.isReply && '20px'};
+  opacity: ${props => props.toggle && '0.6'};
+  transition: all ease 0.5s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const Reply = styled.div`
+  padding: 0 15px ${dimensions.coreSpacing}px;
+`;
+
 export {
   EmailItem,
   Subject,
   Meta,
   Date,
   Details,
+  SmallContent,
   Content,
+  Message,
+  Reply,
   RightSide,
   AttachmentItem,
   AttachmentsContainer,
