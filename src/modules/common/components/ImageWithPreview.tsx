@@ -35,14 +35,23 @@ const PreviewWrapper = styled.div`
   }
 
   .rightArrow {
-    display: flex;
     position: fixed;
     right: 0%;
+    background: rgba(48, 50, 80);
+
+    &:hover {
+      background: #141a47;
+    }
   }
 
   .leftArrow {
     position: fixed;
     left: 0%;
+    background: rgba(50, 50, 80);
+
+    &:hover {
+      background: #141a47;
+    }
   }
 `;
 
@@ -91,6 +100,7 @@ class ImageWithPreview extends React.Component<Props, State> {
   }
 
   toggleImage = () => {
+    console.log('asdf');
     this.setState({ visible: !this.state.visible });
     if (this.props.switchItem) {
       const prevItem = this.props.switchItem(this.state.preImageUrl);
@@ -109,7 +119,7 @@ class ImageWithPreview extends React.Component<Props, State> {
   rightClick = () => {
     const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
-
+    console.log('asdf');
     let switchedUrl;
 
     if (visible) {
@@ -185,7 +195,7 @@ class ImageWithPreview extends React.Component<Props, State> {
         />
         {this.state.visible && (
           <PreviewPortal>
-            <PreviewWrapper>
+            <PreviewWrapper onClick={this.toggleImage}>
               <img
                 alt={alt}
                 onClick={this.toggleImage}
