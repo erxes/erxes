@@ -14,7 +14,7 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import DashBoard from '../components/Dashboard';
+import DashBoard from '../../components/Dashboard/Dashboard';
 
 type Props = {
   id: string;

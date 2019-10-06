@@ -5,8 +5,8 @@ import { SidebarList } from 'modules/layout/styles';
 import { SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import DashboardPipelineList from '../containers/DashboardPipelineList';
-import { FilterList, FilterListItem } from '../styles';
+import DashboardPipelineList from '../../containers/Dashboard/DashboardPipelineList';
+import { FilterList, FilterListItem } from '../../styles';
 
 type Props = {
   state: string;
