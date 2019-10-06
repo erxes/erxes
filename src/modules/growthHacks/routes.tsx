@@ -28,7 +28,20 @@ const FunnelImpact = asyncComponent(() =>
 );
 
 const growthHack = () => {
-  return <Redirect to="/growthHack/dashboard" />;
+  let growthHacksLink = '/growthHack/dashboard';
+
+  const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
+
+  const [defaultBoardId, defaultPipelineId] = [
+    defaultBoards.growthHack,
+    defaultPipelines.growthHack
+  ];
+
+  if (defaultBoardId && defaultPipelineId) {
+    growthHacksLink = `/growthHack/dashboard?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+  }
+
+  return <Redirect to={growthHacksLink} />;
 };
 
 const boards = ({ location }) => {
