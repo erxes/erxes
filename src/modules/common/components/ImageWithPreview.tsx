@@ -188,6 +188,23 @@ class ImageWithPreview extends React.Component<Props, State> {
     }
   };
 
+  renderBtn = () => {
+    if (this.props.imagesLength > 1) {
+      return (
+        <>
+          <button onClick={this.rightClick} className="rightArrow">
+            &#8594;
+          </button>
+          <button onClick={this.leftClick} className="leftArrow">
+            &#8592;
+          </button>
+        </>
+      );
+    } else {
+      return null;
+    }
+  };
+
   render() {
     const { onLoad, alt } = this.props;
     const { srcUrl } = this.state;
@@ -208,12 +225,7 @@ class ImageWithPreview extends React.Component<Props, State> {
                 onClick={this.toggleImage}
                 src={readFile(srcUrl || '')}
               />
-              <button onClick={this.rightClick} className="rightArrow">
-                &#8594;
-              </button>
-              <button onClick={this.leftClick} className="leftArrow">
-                &#8592;
-              </button>
+              {this.renderBtn()}
             </PreviewWrapper>
           </PreviewPortal>
         )}
