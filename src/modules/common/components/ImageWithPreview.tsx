@@ -83,6 +83,7 @@ type State = {
   srcUrl: string;
   num: number;
   preImageUrl: number;
+  arrows: string;
 };
 
 class ImageWithPreview extends React.Component<Props, State> {
@@ -95,12 +96,12 @@ class ImageWithPreview extends React.Component<Props, State> {
       visible: false,
       srcUrl: src || 'a',
       num: index || 0,
-      preImageUrl: index || 0
+      preImageUrl: index || 0,
+      arrows: ''
     };
   }
 
   toggleImage = () => {
-    console.log('asdf');
     this.setState({ visible: !this.state.visible });
     if (this.props.switchItem) {
       const prevItem = this.props.switchItem(this.state.preImageUrl);
@@ -116,10 +117,12 @@ class ImageWithPreview extends React.Component<Props, State> {
     document.removeEventListener('keydown', this.handleKeydown);
   }
 
-  rightClick = () => {
+  rightClick = e => {
+    e.stopPropagation();
+
     const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
-    console.log('asdf');
+
     let switchedUrl;
 
     if (visible) {
@@ -140,7 +143,7 @@ class ImageWithPreview extends React.Component<Props, State> {
     }
   };
 
-  leftClick = () => {
+  leftClick = e => {
     const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
 
@@ -173,10 +176,10 @@ class ImageWithPreview extends React.Component<Props, State> {
     }
     if ((e.keyCode === 37 || e.keyCode === 39) && visible) {
       if (e.keyCode === 39) {
-        this.rightClick();
+        this.rightClick(e);
       }
       if (e.keyCode === 37) {
-        this.leftClick();
+        this.leftClick(e);
       }
     }
   };
