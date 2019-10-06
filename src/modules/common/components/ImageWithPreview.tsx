@@ -83,7 +83,6 @@ type State = {
   srcUrl: string;
   num: number;
   preImageUrl: number;
-  arrows: string;
 };
 
 class ImageWithPreview extends React.Component<Props, State> {
@@ -96,8 +95,7 @@ class ImageWithPreview extends React.Component<Props, State> {
       visible: false,
       srcUrl: src || 'a',
       num: index || 0,
-      preImageUrl: index || 0,
-      arrows: ''
+      preImageUrl: index || 0
     };
   }
 
@@ -144,6 +142,8 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   leftClick = e => {
+    e.stopPropagation();
+
     const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
 
