@@ -121,10 +121,7 @@ class ImageWithPreview extends React.Component<Props, State> {
 
     const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
-    if (this.props.switchItem) {
-      const prevItem = this.props.switchItem(this.state.preImageUrl);
-      this.setState({ srcUrl: prevItem });
-    }
+
     let switchedUrl;
 
     if (visible) {
