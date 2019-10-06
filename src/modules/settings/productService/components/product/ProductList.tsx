@@ -112,7 +112,8 @@ class List extends React.Component<IProps> {
             <th>{__('Name')}</th>
             <th>{__('Type')}</th>
             <th>{__('Description')}</th>
-            <th>{__('CATEGORY')}</th>
+            <th>{__('Category')}</th>
+            <th>{__('Unit Price')}</th>
             <th>{__('SKU')}</th>
           </tr>
         </thead>

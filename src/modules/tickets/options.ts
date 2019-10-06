@@ -42,6 +42,7 @@ const options = {
     copySuccessText: 'You successfully copied a ticket',
     changeSuccessText: 'You successfully changed a ticket'
   },
+  isMove: true,
   getExtraParams: (queryParams: any) => {
     const { priority, source } = queryParams;
     const extraParams: any = {};

@@ -1,19 +1,23 @@
 const commonParams = `
+  $pipelineId: String,
   $assignedUserIds: [String],
   $nextDay: String,
   $nextWeek: String,
   $nextMonth: String,
   $noCloseDate: String,
   $overdue: String,
+  $search: String,
 `;
 
 const commonParamDefs = `
+  pipelineId: $pipelineId,
   assignedUserIds: $assignedUserIds,
   nextDay: $nextDay,
   nextWeek: $nextWeek,
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
   overdue: $overdue,
+  search: $search,
 `;
 
 const growthHackFields = `
@@ -71,23 +75,53 @@ const growthHackFields = `
 
 const growthHacks = `
   query growthHacks(
-    $pipelineId: String,
     $stageId: String,
-    $date: ItemDate,
     $skip: Int,
-    $search: String,
+    $limit: Int,
+    $sortField: String,
+    $sortDirection: Int,
+    $hackStage: String,
+    $priority: String,
     ${commonParams}
   ) {
     growthHacks(
-      pipelineId: $pipelineId,
       stageId: $stageId,
-      date: $date,
       skip: $skip,
-      search: $search,
+      limit: $limit,
+      sortField: $sortField,
+      sortDirection: $sortDirection,
+      hackStage: $hackStage,
+      priority: $priority,
       ${commonParamDefs}
     ) {
       ${growthHackFields}
     }
+  }
+`;
+
+const growthHacksTotalCount = `
+  query growthHacksTotalCount(
+    $stageId: String,
+    $hackStage: String,
+    $priority: String,
+    ${commonParams}
+  ) {
+    growthHacksTotalCount(
+      stageId: $stageId,
+      hackStage: $hackStage,
+      priority: $priority,
+      ${commonParamDefs}
+    )
+  }
+`;
+
+const growthHacksPriorityMatrix = `
+  query growthHacksPriorityMatrix(
+    ${commonParams}
+  ) {
+    growthHacksPriorityMatrix(
+      ${commonParamDefs}
+    )
   }
 `;
 
@@ -99,7 +133,21 @@ const growthHackDetail = `
   }
 `;
 
+const pipelineDetail = `
+  query pipelineDetail($_id: String!) {
+    pipelineDetail(_id: $_id) {
+      _id
+      name
+      bgColor
+      hackScoringType
+    }
+  }
+`;
+
 export default {
   growthHacks,
-  growthHackDetail
+  growthHacksPriorityMatrix,
+  growthHackDetail,
+  growthHacksTotalCount,
+  pipelineDetail
 };

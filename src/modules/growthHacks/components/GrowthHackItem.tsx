@@ -1,7 +1,13 @@
 import dayjs from 'dayjs';
+import { PriorityIndicator } from 'modules/boards/components/editForm';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
-import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
+import {
+  Footer,
+  Left,
+  PriceContainer,
+  Right
+} from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
@@ -42,6 +48,17 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
     );
   };
 
+  renderHackStage() {
+    const { hackStages = [] } = this.props.item;
+
+    return hackStages.map(i => (
+      <div key={i}>
+        <PriorityIndicator value={i} />
+        {i}
+      </div>
+    ));
+  }
+
   render() {
     const { item, onClick } = this.props;
     const {
@@ -70,6 +87,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
           </ScoreAmount>
 
           <PriceContainer>
+            <Left>{this.renderHackStage()}</Left>
             <Right>
               {(item.assignedUsers || []).map((user, index) => (
                 <img

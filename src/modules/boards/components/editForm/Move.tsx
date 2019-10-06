@@ -120,25 +120,35 @@ class Move extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  renderMoveOut() {
+    if (!this.props.options.isMove) {
+      return null;
+    }
+
     const item = this.props.item || ({} as IItem);
     const { pipeline } = item;
 
     return (
+      <MoveFormContainer innerRef={this.ref}>
+        <OverlayTrigger
+          trigger="click"
+          placement="bottom"
+          overlay={this.renderBoardSelect()}
+          rootClose={true}
+          container={this.ref.current}
+        >
+          <PipelineName onClick={this.toggleForm}>
+            {pipeline && pipeline.name} <Icon icon="angle-down" />
+          </PipelineName>
+        </OverlayTrigger>
+      </MoveFormContainer>
+    );
+  }
+
+  render() {
+    return (
       <MoveContainer>
-        <MoveFormContainer innerRef={this.ref}>
-          <OverlayTrigger
-            trigger="click"
-            placement="bottom"
-            overlay={this.renderBoardSelect()}
-            rootClose={true}
-            container={this.ref.current}
-          >
-            <PipelineName onClick={this.toggleForm}>
-              {pipeline && pipeline.name} <Icon icon="angle-down" />
-            </PipelineName>
-          </OverlayTrigger>
-        </MoveFormContainer>
+        {this.renderMoveOut()}
         {this.renderStages()}
       </MoveContainer>
     );

@@ -1,6 +1,7 @@
 import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
+import { ControlLabel } from 'modules/common/components/form';
 import Info from 'modules/common/components/Info';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -21,7 +22,10 @@ type Props = {
 type State = {
   basicCode: string;
   singlePageCode: string;
-  erxesSdkCode: string;
+  erxesSdkOpenSource: string;
+  erxesSdkSaas: string;
+  objectiveSdkOpenSource: string;
+  objectiveSdkSaas: string;
   copied: boolean;
   singleCopied: boolean;
   contentCopied: boolean;
@@ -82,23 +86,50 @@ const singlePageInstall = brandCode => {
   `;
 };
 
-const erxesSDK = brandCode => {
-  return `
-    Erxes.setBrandCode(code: "${brandCode}")
-    Erxes.setHosts(apiHost: "https://your_erxes-widgets-api_url_here/graphql",
-          subsHost: "wss://your_erxes-api_url_here/subscriptions",
-          uploadUrl: "https://your_erxes-api_url_here/upload-file")
-  `;
+const openSourceSDK = brandCode => {
+  return `Erxes.setup(erxesWidgetsApiUrl: "your_erxes-widgets-api_url_here", erxesApiUrl: 
+    "your_erxes-api_url_here", brandCode: "${brandCode}")`;
 };
 
+const saasSDK = brandCode => {
+  return `Erxes.setupSaas(companyName: "Registered_Company_Name", brandCode: "${brandCode}")`;
+};
+
+const openSourceObjective = brandCode => {
+  return `[Erxes setupWithErxesWidgetsApiUrl:@"your_erxes-widgets-api_url_here" 
+  erxesApiUrl:@"your_erxes-api_url_here" brandCode:@"${brandCode}"];`;
+};
+
+const saasObjective = brandCode => {
+  return `[Erxes setupSaasWithCompanyName:@"Registered_Company_Name" 
+  brandCode:@"${brandCode}"]`;
+};
+
+const objectiveSDK = `target '<Your Target Name>' do
+use_frameworks!
+pod 'ErxesSDK'
+
+
+end
+pre_install do |installer|
+  installer.analysis_result.specifications.each do |s|
+    s.swift_version = '4.2' unless s.swift_version
+  end
+end
+`;
+
 const iosSDK = `target {'<Your Target Name>'} do
-    pod 'ErxesSDK'
-  end`;
+  pod 'ErxesSDK'
+end`;
 
 const withUserData = `var data = [String : Any]()
     data["key"] = "value"
     data["another key"] = "another value"
-  Erxes.start(email: "email@.com", phone: "+1234567890", data:data)`;
+  Erxes.start(data: data)`;
+
+const withUserDataObjective = `NSDictionary *data = @{ @"key" : @"value", @"another key" : @"another value"};
+
+[Erxes startWithData:data];`;
 
 const buildgradle = `allprojects {
     repositories {
@@ -140,7 +171,10 @@ class InstallCode extends React.PureComponent<Props, State> {
 
     let basicCode = '';
     let singlePageCode = '';
-    let erxesSdkCode = '';
+    let erxesSdkOpenSource = '';
+    let erxesSdkSaas = '';
+    let objectiveSdkOpenSource = '';
+    let objectiveSdkSaas = '';
     const integration = props.integration || {};
 
     // showed install code automatically in edit mode
@@ -149,13 +183,19 @@ class InstallCode extends React.PureComponent<Props, State> {
 
       basicCode = getInstallCode(brand.code);
       singlePageCode = singlePageInstall(brand.code);
-      erxesSdkCode = erxesSDK(brand.code);
+      erxesSdkOpenSource = openSourceSDK(brand.code);
+      erxesSdkSaas = saasSDK(brand.code);
+      objectiveSdkOpenSource = openSourceObjective(brand.code);
+      objectiveSdkSaas = saasObjective(brand.code);
     }
 
     this.state = {
       basicCode,
-      erxesSdkCode,
+      erxesSdkOpenSource,
+      erxesSdkSaas,
       singlePageCode,
+      objectiveSdkOpenSource,
+      objectiveSdkSaas,
       currentTab: 'basic',
       copied: false,
       singleCopied: false,
@@ -217,49 +257,116 @@ class InstallCode extends React.PureComponent<Props, State> {
 
     if (currentTab === 'ios') {
       return (
-        <ol>
-          <li>
-            Add Erxes SDK to your iOS project in Xcode:
-            <MarkdownWrapper>
-              <pre>{iosSDK}</pre>
-            </MarkdownWrapper>
-            then run <b>pod install</b> in terminal
-          </li>
-          <li>
-            Add a "Privacy - Photo Library Usage Description" entry to your
-            Info.plist. This is
-            <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
-              {' '}
-              required by Apple{' '}
-            </a>
-            and gives your users permission to upload images.
-          </li>
-          <li>
-            Import ErxesSDK into AppDelegate.swift then paste the code below
-            into didFinishLaunchingWithOptions method:
-            <MarkdownWrapper>
-              <pre>{this.state.erxesSdkCode}</pre>
-            </MarkdownWrapper>
-          </li>
-          <li>
-            Import ErxesSDK into your UIViewController class and you can start
-            Erxes with following options: <br />
-            <ol type="a">
-              <li>
-                <b>Without user data</b>
-                <MarkdownWrapper>
-                  <pre>Erxes.start()</pre>
-                </MarkdownWrapper>
-              </li>
-              <li>
-                <b>With user data</b>
-                <MarkdownWrapper>
-                  <pre>{withUserData}</pre>
-                </MarkdownWrapper>
-              </li>
-            </ol>
-          </li>
-        </ol>
+        <>
+          <h4>
+            <b>Swift</b>
+          </h4>
+          <ol>
+            <li>
+              Add Erxes SDK to your iOS project in Xcode:
+              <MarkdownWrapper>
+                <pre>{iosSDK}</pre>
+              </MarkdownWrapper>
+              then run <b>pod install</b> in terminal
+            </li>
+            <li>
+              Add a "Privacy - Photo Library Usage Description" entry to your
+              Info.plist. This is
+              <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
+                {' '}
+                required by Apple{' '}
+              </a>
+              and gives your users permission to upload images.
+            </li>
+            <li>
+              Import ErxesSDK into AppDelegate.swift then paste the following
+              code into <b>didFinishLaunchingWithOptions method:</b>
+              <br />
+              <br />
+              <ControlLabel>Open source:</ControlLabel>
+              <MarkdownWrapper>
+                <pre>{this.state.erxesSdkOpenSource}</pre>
+              </MarkdownWrapper>
+              <ControlLabel>Saas:</ControlLabel>
+              <MarkdownWrapper>
+                <pre>{this.state.erxesSdkSaas}</pre>
+              </MarkdownWrapper>
+            </li>
+            <li>
+              Import ErxesSDK into your UIViewController class and you can start
+              Erxes with following options: <br />
+              <ol type="a">
+                <li>
+                  <b>Without user data</b>
+                  <MarkdownWrapper>
+                    <pre>Erxes.start()</pre>
+                  </MarkdownWrapper>
+                </li>
+                <li>
+                  <b>With user data</b>
+                  <MarkdownWrapper>
+                    <pre>{withUserData}</pre>
+                  </MarkdownWrapper>
+                </li>
+              </ol>
+            </li>
+          </ol>
+          <br />
+          <h4>
+            <b>Objective-C</b>
+          </h4>
+          <ol>
+            <li>
+              Add Erxes SDK to your iOS project in Xcode:
+              <MarkdownWrapper>
+                <pre>{objectiveSDK}</pre>
+              </MarkdownWrapper>
+            </li>
+            <li>
+              Add a "Privacy - Photo Library Usage Description" entry to your
+              Info.plist. This is
+              <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
+                {' '}
+                required by Apple{' '}
+              </a>
+              and gives your users permission to upload images.
+            </li>
+            <li>
+              {`#import <ErxesSDK/ErxesSDK-Swift.h> into`} AppDelegate.swift
+              then paste the following code into{' '}
+              <b>didFinishLaunchingWithOptions method:</b>
+              <br />
+              <br />
+              <ControlLabel>Open source:</ControlLabel>
+              <MarkdownWrapper>
+                <pre>{this.state.objectiveSdkOpenSource}</pre>
+              </MarkdownWrapper>
+              <ControlLabel>Saas:</ControlLabel>
+              <MarkdownWrapper>
+                <pre>{this.state.objectiveSdkSaas}</pre>
+              </MarkdownWrapper>
+            </li>
+            <li>
+              {`#import <ErxesSDK/ErxesSDK-Swift.h> into`} into your
+              UIViewController.m class and you can start Erxes with following
+              options: <br />
+              <ol type="a">
+                <li>
+                  <b>Without user data</b>
+                  <MarkdownWrapper>
+                    <pre>[Erxes startWithData:nil];</pre>
+                  </MarkdownWrapper>
+                </li>
+                <li>
+                  <b>With user data</b>
+                  <MarkdownWrapper>
+                    <pre>{withUserDataObjective}</pre>
+                  </MarkdownWrapper>
+                </li>
+              </ol>
+            </li>
+          </ol>
+        </>
       );
     }
 

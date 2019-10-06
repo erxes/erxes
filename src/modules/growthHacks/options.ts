@@ -1,4 +1,3 @@
-import { toArray } from 'modules/boards/utils';
 import PortableGrowthHack from 'modules/growthHacks/components/PortableGrowthHack';
 import GrowthHackEditForm from 'modules/growthHacks/containers/GrowthHackEditForm';
 import GrowthHackItem from './components/GrowthHackItem';
@@ -35,19 +34,24 @@ const options = {
     watchMutation: mutations.growthHacksWatch
   },
   texts: {
-    addText: 'Add an experiments',
-    addSuccessText: 'You successfully added an experiments',
-    updateSuccessText: 'You successfully updated an experiments',
-    deleteSuccessText: 'You successfully deleted an experiments',
-    copySuccessText: 'You successfully copied an experiments',
-    changeSuccessText: 'You successfully changedn a experiments'
+    addText: 'Add an experiment',
+    addSuccessText: 'You successfully added an experiment',
+    updateSuccessText: 'You successfully updated an experiment',
+    deleteSuccessText: 'You successfully deleted an experiment',
+    copySuccessText: 'You successfully copied an experiment',
+    changeSuccessText: 'You successfully changed an experiment'
   },
+  isMove: false,
   getExtraParams: (queryParams: any) => {
-    const { priority } = queryParams;
+    const { priority, hackStage } = queryParams;
     const extraParams: any = {};
 
     if (priority) {
-      extraParams.priority = toArray(priority);
+      extraParams.priority = priority;
+    }
+
+    if (hackStage) {
+      extraParams.hackStage = hackStage;
     }
 
     return extraParams;

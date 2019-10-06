@@ -1,6 +1,5 @@
 import { IUser } from 'modules/auth/types';
 import { IRouterProps } from 'modules/common/types';
-import Welcome from 'modules/onboard/containers/Welcome';
 import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
 import React from 'react';
 import { withRouter } from 'react-router';
@@ -42,7 +41,6 @@ class MainLayout extends React.Component<IProps> {
 
   render() {
     const { currentUser, children, isShownIndicator } = this.props;
-    const hasSeenOnboard = (currentUser && currentUser.hasSeenOnBoard) || false;
 
     return (
       <>
@@ -50,7 +48,6 @@ class MainLayout extends React.Component<IProps> {
         <Layout isSqueezed={isShownIndicator}>
           {currentUser && <Navigation currentUser={currentUser} />}
           {children}
-          <Welcome hasSeen={hasSeenOnboard} />
           <DetectBrowser />
         </Layout>
       </>
