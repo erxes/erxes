@@ -24,23 +24,16 @@ import {
   Resipients,
   Uploading
 } from './styles';
+import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
+import { IMail } from 'modules/inbox/types';
 
 type Props = {
   integrationId?: string;
   integrations: IIntegration[];
-  headerId?: string;
-  threadId?: string;
-  subject?: string;
   platform?: string;
   kind: string;
-  references?: string;
   fromEmail?: string;
-  content?: string;
-  to?: string;
-  cc?: string;
-  bcc?: string;
-  integrationEmail?: string;
-  messageId?: string;
+  conversationDetails?: IMail;
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
@@ -65,7 +58,12 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { fromEmail = '', cc, bcc, subject = '', integrations } = props;
+    const {
+      fromEmail = '',
+      conversationDetails = {} as IMail,
+      integrations
+    } = props;
+    const { cc, bcc } = this.getEmails(conversationDetails);
 
     this.state = {
       cc: cc || '',
@@ -73,7 +71,7 @@ class MailForm extends React.Component<Props, State> {
       isCc: cc ? cc.length > 0 : false,
       isBcc: bcc ? bcc.length > 0 : false,
       fromEmail,
-      subject,
+      subject: conversationDetails.subject || '',
       content: '',
 
       status: 'draft',
@@ -85,24 +83,45 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  generateDoc = (values: {
-    to: string;
-    cc: string;
-    bcc: string;
-    subject: string;
-    from: string;
-  }) => {
+  getEmails(details: IMail) {
+    const to = details.to || [];
+    const cc = details.cc || [];
+    const bcc = details.bcc || [];
+
+    const [from] = details.from;
+
+    const emails = {} as {
+      to: string;
+      from: string;
+      cc?: string;
+      bcc?: string;
+    };
+
+    emails.to = to.map(t => t.email).join(' ');
+    emails.from = from.email;
+
+    if (cc.length > 0) {
+      emails.cc = cc.map(c => c.email).join(',');
+    }
+
+    if (bcc.length > 0) {
+      emails.bcc = bcc.map(c => c.email).join(',');
+    }
+
+    return emails;
+  }
+
+  generateDoc = () => {
     const {
       integrationId,
       kind,
       platform,
-      headerId,
-      threadId,
-      references,
-      messageId
+      conversationDetails = {} as IMail
     } = this.props;
     const { content, attachments } = this.state;
-    const { to, cc, bcc, from, subject } = values;
+    const { to, cc = '', bcc = '', from } = this.getEmails(conversationDetails);
+    const { references, headerId, threadId, messageId } =
+      conversationDetails || ({} as IMail);
 
     const doc = {
       headerId,
@@ -113,7 +132,7 @@ class MailForm extends React.Component<Props, State> {
       cc: formatStr(cc),
       bcc: formatStr(bcc),
       from: integrationId ? integrationId : from,
-      subject,
+      subject: conversationDetails.subject,
       attachments,
       kind: platform ? platform : kind,
       body: content,
@@ -142,7 +161,10 @@ class MailForm extends React.Component<Props, State> {
   };
 
   getEmailSender = (fromEmail?: string) => {
-    const { to = '', integrationEmail } = this.props;
+    const { conversationDetails = {} as IMail } = this.props;
+
+    const { integrationEmail } = conversationDetails;
+    const { to } = this.getEmails(conversationDetails);
 
     // new email
     if (!to && !integrationEmail) {
@@ -325,7 +347,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons(values, isSubmitted) {
     const { closeModal, renderButton } = this.props;
-
+    console.log(values);
     return (
       <EditorFooter>
         <Tip text={__('Attach file')}>
@@ -342,29 +364,12 @@ class MailForm extends React.Component<Props, State> {
           {this.renderCancelButton()}
           {renderButton({
             name: 'mailForm',
-            values: this.generateDoc(values),
+            values: this.generateDoc(),
             callback: closeModal,
             isSubmitted
           })}
         </div>
       </EditorFooter>
-    );
-  }
-
-  renderTo(formProps) {
-    const { fromEmail } = this.state;
-    const sender = this.getEmailSender(fromEmail);
-
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>To:</ControlLabel>
-        <FormControl
-          {...formProps}
-          defaultValue={sender}
-          name="to"
-          required={true}
-        />
-      </FormGroup>
     );
   }
 
@@ -383,27 +388,6 @@ class MailForm extends React.Component<Props, State> {
           Bcc
         </Resipients>
       </LeftSection>
-    );
-  }
-
-  renderFrom(formProps) {
-    const { integrationId } = this.props;
-
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>From:</ControlLabel>
-        <FormControl
-          required={true}
-          defaultValue={integrationId}
-          disabled={integrationId && integrationId.length > 0}
-          componentClass="select"
-          {...formProps}
-          name="from"
-        >
-          <option />
-          {this.renderFromOption()}
-        </FormControl>
-      </FormGroup>
     );
   }
 
@@ -457,8 +441,96 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
+  renderLeftSide(formProps: IFormProps) {
+    const { integrationId } = this.props;
+    const { fromEmail } = this.state;
+    const sender = this.getEmailSender(fromEmail);
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>From:</ControlLabel>
+          <FormControl
+            required={true}
+            defaultValue={integrationId}
+            // disabled={integrationId && integrationId.length > 0}
+            componentClass="select"
+            {...formProps}
+            name="from"
+          >
+            <option />
+            {this.renderFromOption()}
+          </FormControl>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>To:</ControlLabel>
+          <FormControl
+            {...formProps}
+            defaultValue={sender}
+            name="to"
+            required={true}
+          />
+        </FormGroup>
+      </>
+    );
+  }
+
+  renderRightSide(formProps: IFormProps) {}
+
+  renderFrom(formProps) {
+    const { integrationId } = this.props;
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>From:</ControlLabel>
+        <FormControl
+          required={true}
+          defaultValue={integrationId}
+          disabled={integrationId && integrationId.length > 0}
+          componentClass="select"
+          {...formProps}
+          name="from"
+        >
+          <option />
+          {this.renderFromOption()}
+        </FormControl>
+      </FormGroup>
+    );
+  }
+
+  renderTo(formProps) {
+    const { fromEmail } = this.state;
+    const sender = this.getEmailSender(fromEmail);
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>To:</ControlLabel>
+        <FormControl
+          {...formProps}
+          defaultValue={sender}
+          name="to"
+          required={true}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderFormContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+
+    return (
+      <ControlWrapper>
+        <Meta>
+          {this.renderLeftSide(formProps)}
+          {this.renderRightSide(formProps)}
+        </Meta>
+        {this.renderButtons(values, isSubmitted)}
+      </ControlWrapper>
+    );
+  };
+
   render() {
-    return <Form renderContent={this.renderContent} />;
+    return <Form renderContent={this.renderFormContent} />;
   }
 }
 

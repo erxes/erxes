@@ -2,9 +2,8 @@ import dayjs from 'dayjs';
 import juice from 'juice';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Avatar from 'modules/common/components/nameCard/Avatar';
-import { IMail, IMessage } from 'modules/inbox/types';
+import { IMessage } from 'modules/inbox/types';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
@@ -43,34 +42,6 @@ class Mail extends React.PureComponent<
     };
   }
 
-  getEmails(details: IMail) {
-    const to = details.to || [];
-    const cc = details.cc || [];
-    const bcc = details.bcc || [];
-
-    const [from] = details.from;
-
-    const emails = {} as {
-      to: string;
-      from: string;
-      cc?: string;
-      bcc?: string;
-    };
-
-    emails.to = to.map(t => t.email).join(' ');
-    emails.from = from.email;
-
-    if (cc.length > 0) {
-      emails.cc = cc.map(c => c.email).join(',');
-    }
-
-    if (bcc.length > 0) {
-      emails.bcc = bcc.map(c => c.email).join(',');
-    }
-
-    return emails;
-  }
-
   onToggle = () => {
     this.setState({ toggle: !this.state.toggle });
   };
@@ -95,18 +66,6 @@ class Mail extends React.PureComponent<
     });
   }
 
-  renderReplyForm() {
-    if (!this.state.isReply) {
-      return null;
-    }
-
-    return (
-      <Message isReply={true}>
-        <Meta>{/* {this.renderDetails(details)} */}</Meta>
-      </Message>
-    );
-  }
-
   renderReplyButton(details) {
     if (this.state.isReply) {
       return null;
@@ -126,42 +85,21 @@ class Mail extends React.PureComponent<
 
   renderMailForm(details) {
     const { integrationId, platform, kind } = this.props;
-    const { integrationEmail, references, headerId, threadId } = details;
-    const { to, from, cc, bcc } = this.getEmails(details);
 
-    const content = props => (
-      <MailForm
-        to={to}
-        cc={cc}
-        bcc={bcc}
-        fromEmail={from}
-        kind={kind}
-        platform={platform}
-        messageId={details.messageId}
-        integrationEmail={integrationEmail}
-        references={references}
-        integrationId={integrationId}
-        refetchQueries={['detailQuery']}
-        headerId={headerId}
-        threadId={threadId}
-        closeModal={props.closeModal}
-        subject={details.subject}
-      />
-    );
-
-    const trigger = (
-      <Button icon="reply" btnStyle="primary" size="small">
-        Reply
-      </Button>
-    );
+    if (!this.state.isReply) {
+      return null;
+    }
 
     return (
-      <ModalTrigger
-        title={`Replying: ${details.subject}`}
-        trigger={trigger}
-        size="lg"
-        content={content}
-      />
+      <Message toggle={this.state.toggle}>
+        <MailForm
+          kind={kind}
+          platform={platform}
+          integrationId={integrationId}
+          refetchQueries={['detailQuery']}
+          conversationDetails={details}
+        />
+      </Message>
     );
   }
 
@@ -253,8 +191,8 @@ class Mail extends React.PureComponent<
     return (
       <>
         <Subject>{subject}</Subject>
-        <Message toggle={this.state.toggle} onClick={this.onToggle}>
-          <Meta toggle={this.state.toggle}>
+        <Message toggle={this.state.toggle}>
+          <Meta toggle={this.state.toggle} onClick={this.onToggle}>
             <Avatar customer={customer} size={32} />
             {this.renderDetails(details)}
             {this.renderRightSide(showAttachmentIcon, createdAt)}
@@ -263,7 +201,7 @@ class Mail extends React.PureComponent<
           {this.renderAttachments(attachments, messageId)}
           <div className="clearfix" />
         </Message>
-        {this.renderReplyForm()}
+        {this.renderMailForm(details)}
       </>
     );
   };

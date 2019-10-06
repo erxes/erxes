@@ -8,23 +8,15 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import MailForm from '../../components/mail/MailForm';
 import { IntegrationsQueryResponse } from '../../types';
+import { IMail } from 'modules/inbox/types';
 
 type Props = {
   integrationId?: string;
   refetchQueries?: string[];
-  headerId?: string;
-  threadId?: string;
-  references?: string;
   fromEmail?: string;
-  to?: any;
-  cc?: any;
-  bcc?: any;
-  subject?: string;
-  content?: string;
-  integrationEmail?: string;
   kind: string;
   platform?: string;
-  messageId?: string;
+  conversationDetails?: IMail;
   closeModal?: () => void;
 };
 
@@ -34,19 +26,11 @@ type FinalProps = {
 
 const MailFormContainer = (props: FinalProps) => {
   const {
-    headerId,
+    conversationDetails,
     integrationId,
-    threadId,
-    subject,
     gmailIntegrationsQuery,
-    messageId,
     refetchQueries,
-    content,
     fromEmail,
-    to,
-    cc,
-    bcc,
-    integrationEmail,
     kind,
     platform,
     closeModal
@@ -59,7 +43,6 @@ const MailFormContainer = (props: FinalProps) => {
   const integrations = gmailIntegrationsQuery.integrations || [];
 
   const renderButton = ({
-    name,
     values,
     isSubmitted,
     callback
@@ -84,18 +67,10 @@ const MailFormContainer = (props: FinalProps) => {
     integrations,
     integrationId,
     fromEmail,
-    cc,
-    bcc,
-    to,
     closeModal,
-    content,
-    headerId,
-    threadId,
-    subject,
-    messageId,
     kind,
     platform,
-    integrationEmail
+    conversationDetails
   };
 
   return <MailForm {...updatedProps} />;

@@ -158,13 +158,13 @@ const FileIcon = styled.div`
   background: ${colors.colorWhite};
 `;
 
-const Message = styledTS<{ isReply?: boolean; toggle?: boolean }>(styled.div)`
+const Message = styledTS<{ toggle?: boolean }>(styled.div)`
   position: relative;
   background: ${colors.colorWhite};
   border-radius: ${dimensions.coreSpacing}px;
   border: 1px solid ${colors.borderPrimary};
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
-  margin-bottom: ${props => props.isReply && '20px'};
+  margin-bottom: ${dimensions.unitSpacing}px;
   opacity: ${props => props.toggle && '0.6'};
   transition: all ease 0.5s;
 
