@@ -54,6 +54,7 @@ const MailFormContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={refetchQueries}
         isSubmitted={isSubmitted}
+        btnSize="small"
         type="submit"
         successMessage="You have successfully sent a email"
       >
