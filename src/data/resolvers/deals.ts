@@ -53,7 +53,10 @@ export default {
         const fields = await Fields.find({ _id: { $in: fieldIds }, contentType: 'product' });
 
         for (const field of fields) {
-          customFields[field.text] = customFieldsData[field._id];
+          customFields[field._id] = {
+            text: field.text,
+            data: customFieldsData[field._id],
+          };
         }
 
         product.customFieldsData = customFields;
