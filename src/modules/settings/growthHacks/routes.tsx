@@ -9,7 +9,7 @@ const Home = asyncComponent(() =>
 );
 
 const GrowthHackHome = () => {
-  return <Home type="growthHack" title="Growth hack" options={options} />;
+  return <Home type="growthHack" title="Growth hacking" options={options} />;
 };
 
 const TemplateList = asyncComponent(() =>
