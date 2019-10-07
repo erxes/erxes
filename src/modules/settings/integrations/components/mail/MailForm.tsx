@@ -429,18 +429,6 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  renderContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
-
-    return (
-      <ControlWrapper>
-        {this.renderBody()}
-        {this.renderAttachments()}
-        {this.renderButtons(values, isSubmitted)}
-      </ControlWrapper>
-    );
-  };
-
   renderLeftSide(formProps: IFormProps) {
     const { integrationId } = this.props;
     const { fromEmail } = this.state;
@@ -477,7 +465,7 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  renderRightSide(formProps: IFormProps) {
+  renderRightSide() {
     const { hasCc, hasBcc, hasSubject } = this.state;
 
     const onClickHasCc = () => this.onClick('hasCc');
@@ -507,7 +495,7 @@ class MailForm extends React.Component<Props, State> {
         <Meta>
           <SpaceBetweenRow>
             {this.renderLeftSide(formProps)}
-            {this.renderRightSide(formProps)}
+            {this.renderRightSide()}
           </SpaceBetweenRow>
         </Meta>
         {this.renderSubject(formProps)}

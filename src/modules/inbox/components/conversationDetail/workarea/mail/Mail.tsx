@@ -90,7 +90,7 @@ class Mail extends React.PureComponent<
     }
 
     return (
-      <Message toggle={this.state.toggle}>
+      <Message>
         <MailForm
           kind={kind}
           integrationId={integrationId}
