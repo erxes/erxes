@@ -29,6 +29,24 @@ type Props = {
 };
 
 class Left extends React.Component<Props> {
+  renderVoters() {
+    const { item } = this.props;
+    if (item.voteCount === 0) {
+      return null;
+    }
+    return (
+      <FormGroup>
+        <TitleRow>
+          <ControlLabel>
+            <Icon icon="like-1" />
+            Votes
+          </ControlLabel>
+        </TitleRow>
+        <Votes count={item.voteCount || 0} users={item.votedUsers || []} />
+      </FormGroup>
+    );
+  }
+
   render() {
     const {
       item,
@@ -52,15 +70,7 @@ class Left extends React.Component<Props> {
 
     return (
       <>
-        <FormGroup>
-          <TitleRow>
-            <ControlLabel>
-              <Icon icon="like-1" />
-              Votes
-            </ControlLabel>
-          </TitleRow>
-          <Votes count={item.voteCount || 0} users={item.votedUsers || []} />
-        </FormGroup>
+        {this.renderVoters()}
 
         <FormGroup>
           <TitleRow>
