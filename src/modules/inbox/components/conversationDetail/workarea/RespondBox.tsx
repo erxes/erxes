@@ -7,11 +7,11 @@ import {
   AttachmentThumb,
   EditorActions,
   FileName,
+  MailRespondBox,
   Mask,
   MaskWrapper,
   PreviewImg,
   RespondBoxStyled,
-  MailRespondBox,
   SmallEditor
 } from 'modules/inbox/styles';
 
@@ -19,15 +19,15 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
+import { FlexRow } from 'modules/settings/integrations/components/mail/styles';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
 import { AddMessageMutationVariables, IConversation } from '../../../types';
-import { FlexRow } from 'modules/settings/integrations/components/mail/styles';
-import NameCard from 'modules/common/components/nameCard/NameCard';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -334,7 +334,7 @@ class RespondBox extends React.Component<Props, State> {
   renderCheckbox(kind: string) {
     const { isInternal } = this.state;
 
-    if (kind === 'gmail') {
+    if (kind.includes('gmail')) {
       return null;
     }
 
@@ -411,7 +411,7 @@ class RespondBox extends React.Component<Props, State> {
     );
   }
 
-  renderGmailRespondBox() {
+  renderMailRespondBox() {
     const { currentUser } = this.props;
 
     return (
@@ -428,10 +428,10 @@ class RespondBox extends React.Component<Props, State> {
     const { conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);
-    const gmailIntegration = integration.kind === 'gmail';
+    const mailIntegration = integration.kind.includes('gmail');
 
-    if (gmailIntegration) {
-      return this.renderGmailRespondBox();
+    if (mailIntegration) {
+      return this.renderMailRespondBox();
     }
 
     return this.renderContent();
