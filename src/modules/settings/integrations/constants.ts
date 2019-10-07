@@ -96,6 +96,22 @@ export const FORM_SUCCESS_ACTIONS = {
   ALL_LIST: ['', 'email', 'redirect', 'onPage']
 };
 
+export const MAIL_TOOLBARS_CONFIG = [
+  { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+  { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+  { name: 'tools', items: ['Maximize'] },
+  {
+    name: 'basicstyles',
+    groups: ['basicstyles', 'cleanup'],
+    items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
+  },
+  {
+    name: 'paragraph',
+    groups: ['list', 'indent', 'blocks', 'align', 'bidi'],
+    items: ['NumberedList', 'BulletedList']
+  }
+];
+
 export const INTEGRATIONS = [
   {
     name: 'row-1',

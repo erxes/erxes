@@ -12,7 +12,8 @@ import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/
 import { FileName } from 'modules/inbox/styles';
 import { IMail } from 'modules/inbox/types';
 import { IIntegration } from 'modules/settings/integrations/types';
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
+import { MAIL_TOOLBARS_CONFIG } from '../../constants';
 import { formatStr } from '../../containers/utils';
 import {
   AttachmentContainer,
@@ -480,6 +481,8 @@ class MailForm extends React.Component<Props, State> {
       <MailEditorWrapper>
         <EditorCK
           insertItems={EMAIL_CONTENT}
+          toolbar={MAIL_TOOLBARS_CONFIG}
+          removePlugins="elementspath"
           content={this.state.content}
           onChange={this.onEditorChange}
           height={100}
