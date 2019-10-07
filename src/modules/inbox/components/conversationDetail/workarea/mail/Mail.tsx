@@ -169,7 +169,7 @@ class Mail extends React.PureComponent<
 
     return (
       <Attachments
-        kind={kind.includes('nylas') ? 'nylas' : kind}
+        kind={kind}
         integrationId={integrationId}
         attachments={attachments}
         messageId={messageId}

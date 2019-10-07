@@ -50,18 +50,26 @@ class Attachments extends React.PureComponent<Props, {}> {
   }
 
   renderAttach(attachment: IMailAttachment) {
-    const { size, attachmentId, mimeType = '', filename = '' } = attachment;
+    const {
+      id,
+      size,
+      attachmentId,
+      content_type,
+      mimeType = '',
+      filename = ''
+    } = attachment;
+    const type = mimeType ? mimeType : content_type;
 
     return (
       <AttachmentItem key={filename}>
-        <FileIcon>{this.getIcon(mimeType, 32)}</FileIcon>
+        <FileIcon>{this.getIcon(type || '', 32)}</FileIcon>
         <FileInfo>
-          {this.getIcon(mimeType, 14)}
+          {this.getIcon(type || '', 14)}
           <FileName>{filename}</FileName>
           <span>{this.formatSize(size)}</span>
           <Tip text={__('Download')}>
             <Download
-              href={this.createLink(attachmentId, filename)}
+              href={this.createLink(id || attachmentId, filename)}
               target="_blank"
             >
               <Icon icon="download" />
@@ -81,9 +89,7 @@ class Attachments extends React.PureComponent<Props, {}> {
 
     return (
       <AttachmentsContainer>
-        {attachments.map(attach => {
-          return this.renderAttach(attach);
-        })}
+        {attachments.map(attach => this.renderAttach(attach))}
       </AttachmentsContainer>
     );
   }

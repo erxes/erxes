@@ -68,6 +68,8 @@ export default `
     references
     headerId
     attachments {
+      id
+      content_type
       filename
       mimeType
       size

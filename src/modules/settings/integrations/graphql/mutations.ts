@@ -24,7 +24,7 @@ const mailParamsDef = `
   $cc: String,
   $bcc: String,
   $from: String!,
-  $attachments: [gmailAttachmentData],
+  $attachments: [JSON],
 `;
 
 const mailParams = `

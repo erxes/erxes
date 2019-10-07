@@ -7,7 +7,7 @@ import Spinner from 'modules/common/components/Spinner';
 import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
+import { __, Alert, uploadHandler } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
@@ -15,7 +15,7 @@ import { IMail } from 'modules/inbox/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '../../constants';
-import { formatStr } from '../../containers/utils';
+import { formatObj, formatStr } from '../../containers/utils';
 import {
   AttachmentContainer,
   Attachments,
@@ -56,6 +56,7 @@ type State = {
   content: string;
   integrations: IIntegration[];
   attachments: any[];
+  fileIds: string[];
   totalFileSize: number;
   isUploading: boolean;
 };
@@ -64,59 +65,35 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const {
-      fromEmail = '',
-      conversationDetails = {} as IMail,
-      integrations
-    } = props;
+    const details = props.conversationDetails || ({} as IMail);
 
-    const { to, cc, bcc, from } = this.getEmails(conversationDetails);
+    const to = formatObj(details.to);
+    const cc = formatObj(details.cc || []);
+    const bcc = formatObj(details.bcc || []);
+    const [from] = details.from;
 
     this.state = {
-      cc: cc || '',
-      bcc: bcc || '',
-      to: to || '',
+      cc,
+      bcc,
+      to,
+
       hasCc: cc ? cc.length > 0 : false,
       hasBcc: bcc ? bcc.length > 0 : false,
       hasSubject: bcc ? bcc.length > 0 : false,
-      fromEmail: from || fromEmail,
-      subject: conversationDetails.subject || '',
+
+      fromEmail: from.email || props.fromEmail,
+      subject: details.subject || '',
       content: '',
+
       status: 'draft',
       isUploading: false,
-      from: '',
+
       attachments: [],
+      fileIds: [],
       totalFileSize: 0,
-      integrations
+
+      integrations: props.integrations
     };
-  }
-
-  getEmails(details: IMail) {
-    const to = details.to || [];
-    const cc = details.cc || [];
-    const bcc = details.bcc || [];
-
-    const [from] = details.from;
-
-    const emails = {} as {
-      to: string;
-      from: string;
-      cc?: string;
-      bcc?: string;
-    };
-
-    emails.to = to.map(t => t.email).join(' ');
-    emails.from = from.email;
-
-    if (cc.length > 0) {
-      emails.cc = cc.map(c => c.email).join(',');
-    }
-
-    if (bcc.length > 0) {
-      emails.bcc = bcc.map(c => c.email).join(',');
-    }
-
-    return emails;
   }
 
   generateDoc = (values: {
@@ -126,15 +103,11 @@ class MailForm extends React.Component<Props, State> {
     subject: string;
     from: string;
   }) => {
-    const {
-      integrationId,
-      kind,
-      conversationDetails = {} as IMail
-    } = this.props;
+    const { integrationId, kind } = this.props;
+    const details = this.props.conversationDetails || ({} as IMail);
     const { to, cc, bcc, from, subject } = values;
     const { content, attachments } = this.state;
-    const { references, headerId, threadId, messageId } =
-      conversationDetails || ({} as IMail);
+    const { references, headerId, threadId, messageId } = details;
 
     const doc = {
       headerId,
@@ -145,7 +118,7 @@ class MailForm extends React.Component<Props, State> {
       cc: formatStr(cc),
       bcc: formatStr(bcc),
       from: integrationId ? integrationId : from,
-      subject: subject || conversationDetails.subject,
+      subject: subject || details.subject,
       attachments,
       kind,
       body: content,
@@ -174,10 +147,10 @@ class MailForm extends React.Component<Props, State> {
   };
 
   getEmailSender = (fromEmail?: string) => {
-    const { conversationDetails = {} as IMail } = this.props;
+    const details = this.props.conversationDetails || ({} as IMail);
+    const { integrationEmail } = details;
 
-    const { integrationEmail } = conversationDetails;
-    const { to } = this.getEmails(conversationDetails);
+    const to = formatObj(details.to);
 
     // new email
     if (!to && !integrationEmail) {
@@ -208,6 +181,32 @@ class MailForm extends React.Component<Props, State> {
     }
 
     return receiver;
+  };
+
+  onAttachment = (e: React.FormEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+
+    const extraFormData = [
+      { key: 'kind', value: 'nylas' },
+      { key: 'erxesApiId', value: this.props.integrationId || '' }
+    ];
+
+    uploadHandler({
+      files,
+      extraFormData,
+
+      beforeUpload: () => {
+        this.setState({ isUploading: true });
+      },
+      afterUpload: ({ response }) => {
+        const resObj = JSON.parse(response);
+
+        this.setState({
+          isUploading: false,
+          attachments: [...this.state.attachments, { ...resObj }]
+        });
+      }
+    });
   };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -369,7 +368,7 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderAttachments() {
-    const { attachments, isUploading } = this.state;
+    const { attachments } = this.state;
 
     if (attachments.length === 0) {
       return;
@@ -379,7 +378,7 @@ class MailForm extends React.Component<Props, State> {
       <Attachments>
         {attachments.map((attachment, index) => (
           <AttachmentContainer key={index}>
-            <FileName>{attachment.filename}</FileName>
+            <FileName>{attachment.filename || attachment.name}</FileName>
             {attachment.size ? (
               <div>
                 ({Math.round(attachment.size / 1000)}
@@ -393,11 +392,6 @@ class MailForm extends React.Component<Props, State> {
             />
           </AttachmentContainer>
         ))}
-        {isUploading ? (
-          <Uploading>
-            <Spinner /> <span>uploading ...</span>
-          </Uploading>
-        ) : null}
       </Attachments>
     );
   }
@@ -443,7 +437,7 @@ class MailForm extends React.Component<Props, State> {
 
     const inputProps = {
       type: 'file',
-      onChange: this.handleFileInput,
+      onChange: this.onAttachment,
       multiple: true
     };
 
@@ -462,12 +456,19 @@ class MailForm extends React.Component<Props, State> {
               onClick: toggleReply
             })}
           </ToolBar>
-          {renderButton({
-            name: 'mailForm',
-            values: this.generateDoc(values),
-            callback: closeModal,
-            isSubmitted
-          })}
+          {this.state.isUploading ? (
+            <Uploading>
+              <Spinner />
+              <span>Uploading...</span>
+            </Uploading>
+          ) : (
+            renderButton({
+              name: 'mailForm',
+              values: this.generateDoc(values),
+              callback: closeModal,
+              isSubmitted
+            })
+          )}
         </SpaceBetweenRow>
       </EditorFooter>
     );
@@ -543,6 +544,7 @@ class MailForm extends React.Component<Props, State> {
         {this.renderMeta(formProps)}
         {this.renderSubject(formProps)}
         {this.renderBody()}
+        {this.renderAttachments()}
         {this.renderButtons(values, isSubmitted)}
       </ControlWrapper>
     );

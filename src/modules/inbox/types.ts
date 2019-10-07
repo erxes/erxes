@@ -64,7 +64,7 @@ export interface IFacebookComment {
   customer: ICustomer;
 }
 
-interface IEmail {
+export interface IEmail {
   name: string;
   email: string;
 }
@@ -88,7 +88,9 @@ export interface IMail {
 }
 
 export interface IMailAttachment {
+  id?: string;
   filename?: string;
+  content_type?: string;
   mimeType?: string;
   size: number;
   attachmentId: string;
