@@ -390,8 +390,11 @@ export const sendNotification = async (doc: ISendNotification) => {
   const { createdUser, receivers, title, content, notifType, action, contentType, contentTypeId } = doc;
   let link = doc.link;
 
+  // remove duplicated ids
+  const receiverIds = [...new Set(receivers)];
+
   // collecting emails
-  const recipients = await Users.find({ _id: { $in: receivers } });
+  const recipients = await Users.find({ _id: { $in: receiverIds } });
 
   // collect recipient emails
   const toEmails: string[] = [];
@@ -403,7 +406,7 @@ export const sendNotification = async (doc: ISendNotification) => {
   }
 
   // loop through receiver ids
-  for (const receiverId of receivers) {
+  for (const receiverId of receiverIds) {
     try {
       // send web and mobile notification
       const notification = await Notifications.createNotification(

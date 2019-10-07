@@ -50,12 +50,8 @@ export const loadNotificationClass = () => {
         notifType: doc.notifType,
       });
 
-      if (!config) {
-        return Notifications.create({ ...doc, createdUser: createdUserId });
-      }
-
       // receiver disabled this notification
-      if (!config.isAllowed) {
+      if (config && !config.isAllowed) {
         throw new Error('Configuration does not exist');
       }
 

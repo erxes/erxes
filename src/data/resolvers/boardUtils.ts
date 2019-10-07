@@ -91,7 +91,6 @@ export const sendNotifications = async ({
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
       action: `removed you from ${contentType}`,
       content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
       receivers: removedUsers.filter(id => id !== user._id),
     });
   }
@@ -102,7 +101,6 @@ export const sendNotifications = async ({
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
       action: `invited you to the ${contentType}: `,
       content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
       receivers: invitedUsers.filter(id => id !== user._id),
     });
   }

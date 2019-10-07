@@ -1,5 +1,13 @@
 import { graphqlRequest } from '../db/connection';
-import { customerFactory, internalNoteFactory, notificationConfigurationFactory, userFactory } from '../db/factories';
+import {
+  customerFactory,
+  dealFactory,
+  internalNoteFactory,
+  notificationConfigurationFactory,
+  pipelineFactory,
+  stageFactory,
+  userFactory,
+} from '../db/factories';
 import { InternalNotes, Notifications, Users } from '../db/models';
 
 import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
@@ -33,7 +41,7 @@ describe('InternalNotes mutations', () => {
       throw new Error('User not found');
     }
 
-    const args = {
+    let args = {
       contentType: 'customer',
       contentTypeId: customer._id,
       content: `@${user.details.fullName}`,
@@ -60,14 +68,57 @@ describe('InternalNotes mutations', () => {
       }
     `;
 
-    const internalNote = await graphqlRequest(mutation, 'internalNotesAdd', args, context);
+    let internalNote = await graphqlRequest(mutation, 'internalNotesAdd', args, context);
 
-    const notification = await Notifications.findOne({ receiver: user._id });
+    let notification = await Notifications.findOne({ receiver: user._id });
 
     if (!notification) {
       throw new Error('Notification not found');
     }
 
+    expect(notification).toBeDefined();
+
+    expect(internalNote.contentType).toBe(args.contentType);
+    expect(internalNote.contentTypeId).toBe(args.contentTypeId);
+    expect(internalNote.content).toBe(args.content);
+
+    // add internalNote on deal
+    const mentionedUser = await userFactory({});
+    const watchedUser = await userFactory({});
+    const assignedUser = await userFactory({});
+    const modifiedUser = await userFactory({});
+
+    if (!mentionedUser || !mentionedUser.details) {
+      throw new Error('User not found');
+    }
+
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const deal = await dealFactory({
+      watchedUserIds: [watchedUser._id],
+      assignedUserIds: [assignedUser._id],
+      modifiedBy: modifiedUser._id,
+      stageId: stage._id,
+    });
+
+    await notificationConfigurationFactory({ isAllowed: true, user, notifType: NOTIFICATION_TYPES.DEAL_EDIT });
+
+    args = {
+      contentType: 'deal',
+      contentTypeId: deal._id,
+      content: `@${mentionedUser.details.fullName}`,
+      mentionedUserIds: mentionedUser._id,
+    };
+
+    internalNote = await graphqlRequest(mutation, 'internalNotesAdd', args, context);
+
+    notification = await Notifications.findOne({ receiver: assignedUser._id });
+    expect(notification).toBeDefined();
+
+    notification = await Notifications.findOne({ receiver: user._id });
+    expect(notification).toBeDefined();
+
+    notification = await Notifications.findOne({ receiver: assignedUser._id });
     expect(notification).toBeDefined();
 
     expect(internalNote.contentType).toBe(args.contentType);

@@ -16,9 +16,12 @@ const taskMutations = {
    * Create new task
    */
   async tasksAdd(_root, doc: ITask, { user }: IContext) {
+    doc.watchedUserIds = [user._id];
+
     const task = await Tasks.createTask({
       ...doc,
       modifiedBy: user._id,
+      userId: user._id,
     });
 
     await sendNotifications({

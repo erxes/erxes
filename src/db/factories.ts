@@ -749,6 +749,8 @@ interface IDealFactoryInput {
   closeDate?: Date;
   noCloseDate?: boolean;
   assignedUserIds?: string[];
+  watchedUserIds?: string[];
+  modifiedBy?: string;
 }
 
 export const dealFactory = (params: IDealFactoryInput = {}) => {
