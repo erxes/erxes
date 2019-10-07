@@ -24,6 +24,7 @@ const Container = styled.div`
 
 type Props = {
   customerIds?: string[];
+  assignedUserIds?: string[];
 };
 
 export default (props: Props) => {
@@ -38,15 +39,24 @@ export default (props: Props) => {
         <Dropdown.Menu>
           <li key="ticket">
             <TicketAddTrigger
+              assignedUserIds={props.assignedUserIds}
               relTypeIds={props.customerIds}
               relType="customer"
             />
           </li>
           <li key="deal">
-            <DealAddTrigger relTypeIds={props.customerIds} relType="customer" />
+            <DealAddTrigger
+              assignedUserIds={props.assignedUserIds}
+              relTypeIds={props.customerIds}
+              relType="customer"
+            />
           </li>
           <li key="task">
-            <TaskAddTrigger relTypeIds={props.customerIds} relType="customer" />
+            <TaskAddTrigger
+              assignedUserIds={props.assignedUserIds}
+              relTypeIds={props.customerIds}
+              relType="customer"
+            />
           </li>
         </Dropdown.Menu>
       </Dropdown>

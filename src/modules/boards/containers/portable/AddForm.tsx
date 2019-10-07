@@ -19,6 +19,7 @@ type IProps = {
   showSelect?: boolean;
   relType?: string;
   relTypeIds?: string[];
+  assignedUserIds?: string[];
   closeModal: () => void;
   refetch?: () => void;
 };
@@ -36,8 +37,11 @@ class AddFormContainer extends React.Component<FinalProps> {
       relType,
       relTypeIds,
       editConformity,
-      refetch
+      refetch,
+      assignedUserIds
     } = this.props;
+
+    doc.assignedUserIds = assignedUserIds;
 
     addMutation({ variables: doc })
       .then(({ data }) => {

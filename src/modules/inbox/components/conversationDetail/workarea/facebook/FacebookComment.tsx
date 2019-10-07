@@ -13,6 +13,7 @@ import ReplyingMessage from './ReplyingMessage';
 
 type Props = {
   comment: IFacebookComment;
+  isReply?: boolean;
   replyComment: (
     data: {
       conversationId: string;
@@ -38,7 +39,6 @@ export default class FacebookComment extends React.Component<
     super(props);
 
     const data = props.comment;
-
     let hasReplies = false;
 
     if (data && data.commentCount && data.commentCount > 0) {
@@ -58,8 +58,12 @@ export default class FacebookComment extends React.Component<
     this.setState({ hasReplies: false });
   };
 
+  changeHasReply = () => {
+    this.setState({ hasReplies: true });
+  };
+
   render() {
-    const { comment, replyComment } = this.props;
+    const { comment, replyComment, isReply } = this.props;
     const customer = comment.customer || {};
 
     if (!comment) {
@@ -70,6 +74,7 @@ export default class FacebookComment extends React.Component<
 
     const content = props => (
       <ReplyingMessage
+        changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
         commentId={comment.commentId}
         currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
@@ -96,13 +101,15 @@ export default class FacebookComment extends React.Component<
               </Comment>
             </FlexItem>
 
-            <Reply>
-              <ModalTrigger
-                title="Reply"
-                trigger={<span> Reply •</span>}
-                content={content}
-              />
-            </Reply>
+            {!isReply ? (
+              <Reply>
+                <ModalTrigger
+                  title="Reply"
+                  trigger={<span> Reply •</span>}
+                  content={content}
+                />
+              </Reply>
+            ) : null}
 
             <Date timestamp={comment.timestamp} />
           </User>

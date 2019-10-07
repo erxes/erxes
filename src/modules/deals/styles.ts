@@ -110,10 +110,21 @@ const CategoryContainer = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
+const CustomField = styled.div`
+  text-align: left;
+  padding: ${dimensions.unitSpacing}px;
+`;
+
+const ProductName = styled.div`
+  cursor: pointer;
+`;
+
 export {
+  ProductName,
   FormContainer,
   CategoryContainer,
   FooterInfo,
+  CustomField,
   Add,
   ItemText,
   ProductItem,

@@ -12,6 +12,7 @@ import { compose, graphql } from 'react-apollo';
 
 type Props = {
   comment: IFacebookComment;
+  isReply?: boolean;
 
   fetchFacebook: (
     { commentId, postId }: { commentId?: string; postId?: string }

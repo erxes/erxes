@@ -5,7 +5,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ColumnTitle } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
+import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import Select from 'react-select-plus';
@@ -15,10 +15,8 @@ import { ICommonFormProps } from '../../common/types';
 
 type Props = {
   channels: IChannel[];
-  brands: IBrand[];
   groups: IUserGroup[];
   selectedChannels: IChannel[];
-  selectedBrands: IBrand[];
   selectedGroups: IUserGroup[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
@@ -27,8 +25,8 @@ type Props = {
 type State = {
   avatar: string;
   selectedChannels: IChannel[];
-  selectedBrands: IBrand[];
   selectedGroups: IUserGroup[];
+  selectedBrands: string[];
 };
 
 class UserForm extends React.Component<Props, State> {
@@ -42,7 +40,7 @@ class UserForm extends React.Component<Props, State> {
       avatar: user.details.avatar || defaultAvatar,
       selectedChannels: this.generateParams(props.selectedChannels),
       selectedGroups: this.generateParams(props.selectedGroups),
-      selectedBrands: this.generateParams(props.selectedBrands)
+      selectedBrands: user.brandIds || []
     };
   }
 
@@ -87,7 +85,7 @@ class UserForm extends React.Component<Props, State> {
 
   renderBrands() {
     const self = this;
-    const { showBrands, brands } = this.props;
+    const { showBrands } = this.props;
 
     if (!showBrands) {
       return null;
@@ -102,11 +100,11 @@ class UserForm extends React.Component<Props, State> {
         <ControlLabel>Choose the brands</ControlLabel>
         <br />
 
-        <Select
-          placeholder={__('Choose brands')}
+        <SelectBrands
+          label="Brand"
           value={self.state.selectedBrands}
-          options={self.generateParams(brands)}
-          onChange={onChange}
+          onSelect={onChange}
+          name="selectedBrands"
           multi={true}
         />
       </FormGroup>
@@ -168,7 +166,7 @@ class UserForm extends React.Component<Props, State> {
         website: finalValues.website
       },
       groupIds: this.collectValues(selectedGroups),
-      brandIds: this.collectValues(selectedBrands)
+      brandIds: selectedBrands
     };
   };
 

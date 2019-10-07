@@ -1,4 +1,3 @@
-import { toArray } from 'modules/boards/utils';
 import PortableGrowthHack from 'modules/growthHacks/components/PortableGrowthHack';
 import GrowthHackEditForm from 'modules/growthHacks/containers/GrowthHackEditForm';
 import GrowthHackItem from './components/GrowthHackItem';
@@ -9,7 +8,7 @@ const options = {
   PortableItem: PortableGrowthHack,
   Item: GrowthHackItem,
   type: 'growthHack',
-  title: 'Growth hack',
+  title: 'Growth hacking',
   queriesName: {
     itemsQuery: 'growthHacks',
     detailQuery: 'growthHackDetail'
@@ -44,11 +43,15 @@ const options = {
   },
   isMove: false,
   getExtraParams: (queryParams: any) => {
-    const { priority } = queryParams;
+    const { priority, hackStage } = queryParams;
     const extraParams: any = {};
 
     if (priority) {
-      extraParams.priority = toArray(priority);
+      extraParams.priority = priority;
+    }
+
+    if (hackStage) {
+      extraParams.hackStage = hackStage;
     }
 
     return extraParams;
