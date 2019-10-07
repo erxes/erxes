@@ -21,14 +21,14 @@ type Props = {
 };
 
 type FinalProps = {
-  gmailIntegrationsQuery: IntegrationsQueryResponse;
+  integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
 const MailFormContainer = (props: FinalProps) => {
   const {
     conversationDetails,
     integrationId,
-    gmailIntegrationsQuery,
+    integrationsQuery,
     refetchQueries,
     fromEmail,
     kind,
@@ -36,11 +36,11 @@ const MailFormContainer = (props: FinalProps) => {
     closeModal
   } = props;
 
-  if (gmailIntegrationsQuery.loading) {
+  if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const integrations = gmailIntegrationsQuery.integrations || [];
+  const integrations = integrationsQuery.integrations || [];
 
   const renderButton = ({
     values,
@@ -82,7 +82,7 @@ export default withProps<Props>(
     graphql<Props, IntegrationsQueryResponse, { kind: string }>(
       gql(queries.integrations),
       {
-        name: 'gmailIntegrationsQuery',
+        name: 'integrationsQuery',
         options: ({ kind }) => {
           return {
             variables: { kind },
