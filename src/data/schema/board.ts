@@ -21,12 +21,14 @@ export const types = `
     members: [User]
     bgColor: String
     isWatched: Boolean
+    itemsTotalCount: Int
     
     startDate: Date
     endDate: Date
     metric: String
     hackScoringType: String
     templateId: String
+    state: String
     ${commonTypes}
   }
 
