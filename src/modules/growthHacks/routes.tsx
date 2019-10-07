@@ -8,8 +8,8 @@ const GrowthHackBoard = asyncComponent(() =>
   import(/* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard')
 );
 
-const GrowthHackDashBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackDashBoard" */ './containers/home/Home')
+const GrowthHackHome = asyncComponent(() =>
+  import(/* webpackChunkName: "GrowthHackHome" */ './containers/home/Home')
 );
 const PriorityMatrix = asyncComponent(() =>
   import(/* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix')
@@ -28,7 +28,7 @@ const FunnelImpact = asyncComponent(() =>
 );
 
 const growthHack = () => {
-  let growthHacksLink = '/growthHack/dashboard';
+  let growthHacksLink = '/growthHack/home';
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
@@ -38,7 +38,7 @@ const growthHack = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    growthHacksLink = `/growthHack/dashboard?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    growthHacksLink = `/growthHack/home?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={growthHacksLink} />;
@@ -50,13 +50,13 @@ const boards = ({ location }) => {
   return <GrowthHackBoard queryParams={queryParams} />;
 };
 
-const dashBoard = ({ location }) => {
+const home = ({ location }) => {
   const { defaultBoards } = getDefaultBoardAndPipelines();
   const queryParams = queryString.parse(location.search);
 
   const state = queryParams.state || '';
 
-  return <GrowthHackDashBoard state={state} id={defaultBoards.growthHack} />;
+  return <GrowthHackHome state={state} id={defaultBoards.growthHack} />;
 };
 
 const priorityMatrix = ({ location }) => {
@@ -100,10 +100,10 @@ const routes = () => {
       />
 
       <Route
-        key="/growthHack/dashboard"
+        key="/growthHack/home"
         exact={true}
-        path="/growthHack/dashboard"
-        component={dashBoard}
+        path="/growthHack/home"
+        component={home}
       />
 
       <Route

@@ -54,7 +54,7 @@ class PipelineListContainer extends React.Component<FinalProps> {
 
       localStorage.setItem(STORAGE_BOARD_KEY, JSON.stringify(defaultBoards));
 
-      window.location.href = `/growthHack/dashboard`;
+      window.location.href = `/growthHack/home`;
       return null;
     }
 

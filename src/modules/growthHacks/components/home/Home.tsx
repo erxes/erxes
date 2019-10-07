@@ -24,7 +24,7 @@ class Home extends React.Component<Props> {
       <li key={board._id}>
         <Link
           className={boardId === board._id ? 'active' : ''}
-          to={`/growthHack/dashboard?id=${board._id}`}
+          to={`/growthHack/home?id=${board._id}`}
         >
           {board.name}
           <SidebarCounter>
@@ -56,7 +56,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={!state ? 'active' : ''}
-                to={`/growthHack/dashBoard?id=${boardId}`}
+                to={`/growthHack/home?id=${boardId}`}
               >
                 All
               </Link>
@@ -64,7 +64,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={state === 'In progress' ? 'active' : ''}
-                to={`/growthHack/dashBoard?id=${boardId}&state=In progress`}
+                to={`/growthHack/home?id=${boardId}&state=In progress`}
               >
                 In progress
               </Link>
@@ -72,7 +72,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={state === 'Not started' ? 'active' : ''}
-                to={`/growthHack/dashBoard?id=${boardId}&state=Not started`}
+                to={`/growthHack/home?id=${boardId}&state=Not started`}
               >
                 Not started
               </Link>
@@ -80,7 +80,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={state === 'Completed' ? 'active' : ''}
-                to={`/growthHack/dashBoard?id=${boardId}&state=Completed`}
+                to={`/growthHack/home?id=${boardId}&state=Completed`}
               >
                 Completed
               </Link>

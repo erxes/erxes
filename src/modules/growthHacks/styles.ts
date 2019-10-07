@@ -263,7 +263,7 @@ const PipelineMeta = styled.div`
     margin-right: ${dimensions.unitSpacing / 2}px;
   }
   span {
-    margin-right: ${dimensions.unitSpacing}px;
+    margin: 0 15px;
     color: ${colors.colorCoreDarkGray};
   }
 `;

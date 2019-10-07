@@ -36,6 +36,7 @@ class PipelineRow extends React.Component<Props, {}> {
       <PipelineListRow key={pipeline._id}>
         <PipelineMeta>
           <PipelineName>{pipeline.name}</PipelineName>
+          <Icon icon="light-bulb" />0
           <Label lblStyle={this.renderLabel(pipeline.state)}>
             {pipeline.state}
           </Label>
