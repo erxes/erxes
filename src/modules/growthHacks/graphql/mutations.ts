@@ -41,6 +41,7 @@ const commonReturn = `
     }
   }
   priority
+  hackStages
   reach
   impact
   confidence

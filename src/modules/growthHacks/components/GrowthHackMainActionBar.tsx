@@ -1,6 +1,5 @@
 import MainActionBar from 'modules/boards/components/MainActionBar';
 import { PRIORITIES } from 'modules/boards/constants';
-import withPipeline from 'modules/boards/containers/withPipeline';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
@@ -28,7 +27,6 @@ interface IProps extends IRouterProps {
   queryParams: any;
   assignedUserIds?: string[];
   type: string;
-  pipeline: IPipeline;
 }
 
 const FILTER_PARAMS = [
@@ -167,7 +165,9 @@ const GrowthHackMainActionBar = (props: IProps) => {
     onChangeFilter('priority', value);
   };
 
-  const { hackScoringType } = props.pipeline;
+  const { hackScoringType } = props.currentPipeline || {
+    hackScoringType: 'ice'
+  };
 
   const effort = hackScoringType === 'rice' ? 'effort' : 'ease';
 
@@ -224,4 +224,4 @@ const GrowthHackMainActionBar = (props: IProps) => {
   return <MainActionBar {...extendedProps} />;
 };
 
-export default withPipeline(withRouter<IProps>(GrowthHackMainActionBar));
+export default withRouter<IProps>(GrowthHackMainActionBar);
