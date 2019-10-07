@@ -1,13 +1,13 @@
 import { IBoard, IPipeline } from 'modules/boards/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import React from 'react';
-import DashboardPipelineRow from './DashboardPipelineRow';
+import PipelineRow from './PipelineRow';
 
 type Props = {
   currentBoard?: IBoard;
   pipelines: IPipeline[];
 };
-class DashboardPipelineList extends React.Component<Props, {}> {
+class PipelineList extends React.Component<Props, {}> {
   render() {
     const { pipelines, currentBoard } = this.props;
     if (pipelines.length === 0) {
@@ -17,8 +17,9 @@ class DashboardPipelineList extends React.Component<Props, {}> {
     if (!currentBoard) {
       return null;
     }
+
     return pipelines.map(pipeline => (
-      <DashboardPipelineRow
+      <PipelineRow
         key={pipeline._id}
         pipeline={pipeline}
         currentBoard={currentBoard}
@@ -27,4 +28,4 @@ class DashboardPipelineList extends React.Component<Props, {}> {
   }
 }
 
-export default DashboardPipelineList;
+export default PipelineList;

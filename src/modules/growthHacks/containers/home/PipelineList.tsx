@@ -10,7 +10,7 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import DashboardPipelineList from '../../components/Dashboard/DashboardPipelineList';
+import PipelineList from '../../components/home/PipelineList';
 
 type Props = {
   state: string;
@@ -20,7 +20,7 @@ type FinalProps = {
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
-class DashboardPipelineListContainer extends React.Component<FinalProps> {
+class PipelineListContainer extends React.Component<FinalProps> {
   render() {
     const { history, location, state, boardDetailQuery } = this.props;
 
@@ -69,7 +69,7 @@ class DashboardPipelineListContainer extends React.Component<FinalProps> {
       pipelines
     };
 
-    return <DashboardPipelineList {...props} />;
+    return <PipelineList {...props} />;
   }
 }
 
@@ -86,6 +86,6 @@ export default withRouter(
           })
         }
       )
-    )(DashboardPipelineListContainer)
+    )(PipelineListContainer)
   )
 );

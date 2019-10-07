@@ -1,14 +1,15 @@
 import dayjs from 'dayjs';
 import { IBoard, IPipeline } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
+import { __ } from 'modules/common/utils';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   PipelineActions,
+  PipelineListRow,
   PipelineMeta,
-  PipelineName,
-  PipelineRow
+  PipelineName
 } from '../../styles';
 
 type Props = {
@@ -16,7 +17,7 @@ type Props = {
   currentBoard: IBoard;
 };
 
-class DashboardPipelineRow extends React.Component<Props, {}> {
+class PipelineRow extends React.Component<Props, {}> {
   renderLabel(state) {
     switch (state) {
       case 'Completed':
@@ -30,33 +31,32 @@ class DashboardPipelineRow extends React.Component<Props, {}> {
 
   render() {
     const { pipeline, currentBoard } = this.props;
+
     return (
-      <PipelineRow key={pipeline._id}>
-        <div>
+      <PipelineListRow key={pipeline._id}>
+        <PipelineMeta>
           <PipelineName>{pipeline.name}</PipelineName>
           <Label lblStyle={this.renderLabel(pipeline.state)}>
             {pipeline.state}
           </Label>
-        </div>
-        <PipelineMeta>
           <Icon icon="wallclock" />
           {dayjs(pipeline.startDate).format('ll')} {' - '}
           {dayjs(pipeline.endDate).format('ll')}
-          <PipelineActions>
-            <Button
-              href={`/growthHack/board?id=${currentBoard._id}&pipelineId=${
-                pipeline._id
-              }`}
-              size="small"
-              icon="arrow-to-right"
-            >
-              {'Go to project'}
-            </Button>
-          </PipelineActions>
         </PipelineMeta>
-      </PipelineRow>
+
+        <PipelineActions>
+          <Link
+            to={`/growthHack/board?id=${currentBoard._id}&pipelineId=${
+              pipeline._id
+            }`}
+          >
+            <Icon icon="arrow-to-right" />
+            {__(' Go to project')}
+          </Link>
+        </PipelineActions>
+      </PipelineListRow>
     );
   }
 }
 
-export default DashboardPipelineRow;
+export default PipelineRow;

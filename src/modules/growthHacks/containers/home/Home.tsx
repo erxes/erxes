@@ -14,7 +14,7 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import DashBoard from '../../components/Dashboard/Dashboard';
+import Home from '../../components/home/Home';
 
 type Props = {
   id: string;
@@ -26,7 +26,7 @@ type FinalProps = {
   boardGetLastQuery?: BoardsGetLastQueryResponse;
 } & Props;
 
-class DashBoardContainer extends React.Component<FinalProps> {
+class HomeContainer extends React.Component<FinalProps> {
   render() {
     const {
       history,
@@ -87,7 +87,7 @@ class DashBoardContainer extends React.Component<FinalProps> {
       boards: boardsQuery.boards || []
     };
 
-    return <DashBoard {...props} />;
+    return <Home {...props} />;
   }
 }
 
@@ -107,6 +107,6 @@ export default withRouter(
           variables: { type: 'growthHack' }
         })
       })
-    )(DashBoardContainer)
+    )(HomeContainer)
   )
 );

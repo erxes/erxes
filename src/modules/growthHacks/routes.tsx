@@ -9,7 +9,7 @@ const GrowthHackBoard = asyncComponent(() =>
 );
 
 const GrowthHackDashBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackDashBoard" */ './containers/Dashboard/DashBoard')
+  import(/* webpackChunkName: "GrowthHackDashBoard" */ './containers/home/Home')
 );
 const PriorityMatrix = asyncComponent(() =>
   import(/* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix')
