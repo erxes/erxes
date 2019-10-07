@@ -1,5 +1,6 @@
 import { ColorButton } from 'modules/boards/styles/common';
 import Icon from 'modules/common/components/Icon';
+import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { IGrowthHack } from '../../types';
@@ -17,9 +18,8 @@ class Vote extends React.Component<IProps> {
     } = this.props;
 
     const onClick = () => onChangeVote(!isVoted);
-
     return (
-      <ColorButton onClick={onClick}>
+      <ColorButton onClick={onClick} color={isVoted ? colors.colorCoreRed : ''}>
         <Icon icon="like-1" />
         {__(isVoted ? 'Unvote' : 'Vote')}
       </ColorButton>

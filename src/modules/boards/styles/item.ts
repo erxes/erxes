@@ -374,7 +374,6 @@ export {
   Status,
   UserCounterContainer,
   PriceContainer,
-  Left,
   Right,
   Left,
   Footer,

@@ -249,6 +249,33 @@ const Vote = styled.div`
   }
 `;
 
+const VotersHeader = styled.span`
+  display: block;
+  text-align: center;
+  padding: ${dimensions.unitSpacing}px 0;
+  border-bottom: 1px solid ${colors.borderDarker};
+  margin: 0 ${dimensions.unitSpacing}px;
+`;
+
+const VotersContent = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px 0;
+  img,
+  span {
+    margin-left: -1px;
+  }
+`;
+
+const VotersCount = styled.span`
+  cursor: pointer;
+  padding: 0px ${dimensions.unitSpacing}px;
+  display: inline-block;
+  margin-top: ${dimensions.unitSpacing / 2}px;
+  border: 1px solid ${colors.colorPrimary};
+  color: ${colors.colorPrimary};
+  border-radius: ${dimensions.unitSpacing * 2}px;
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
@@ -267,5 +294,8 @@ export {
   TableHead,
   FunnelContent,
   Title,
-  Vote
+  Vote,
+  VotersHeader,
+  VotersContent,
+  VotersCount
 };
