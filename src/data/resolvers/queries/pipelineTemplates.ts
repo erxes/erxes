@@ -1,18 +1,28 @@
 import { PipelineTemplates } from '../../../db/models';
-import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
+import { checkPermission } from '../boardUtils';
 
 const pipelineTemplateQueries = {
   /**
    *  Pipeline template list
    */
-  pipelineTemplates(_root, { type }: { type: string }) {
+  async pipelineTemplates(_root, { type }: { type: string }, { user }: IContext) {
+    await checkPermission(type, user, 'showTemplates');
+
     return PipelineTemplates.find({ type });
   },
 
   /**
    *  Pipeline template detail
    */
-  pipelineTemplateDetail(_root, { _id }: { _id: string }) {
+  async pipelineTemplateDetail(_root, { _id }: { _id: string }, { user }: IContext) {
+    const pipelineTemplate = await PipelineTemplates.findOne({ _id });
+
+    if (pipelineTemplate) {
+      await checkPermission(pipelineTemplate.type, user, 'showTemplates');
+    }
+
     return PipelineTemplates.findOne({ _id });
   },
 
@@ -25,7 +35,5 @@ const pipelineTemplateQueries = {
 };
 
 moduleRequireLogin(pipelineTemplateQueries);
-
-checkPermission(pipelineTemplateQueries, 'pipelineTemplates', 'showPipelineTemplates', []);
 
 export default pipelineTemplateQueries;

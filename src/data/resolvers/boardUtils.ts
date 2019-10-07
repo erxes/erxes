@@ -194,6 +194,11 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'growthHackPipelinesEdit',
     pipelinesRemove: 'growthHackPipelinesRemove',
     pipelinesWatch: 'growthHackPipelinesWatch',
+    templatesAdd: 'growthHackTemplatesAdd',
+    templatesEdit: 'growthHackTemplatesEdit',
+    templatesRemove: 'growthHackTemplatesRemove',
+    templatesDuplicate: 'growthHackTemplatesDuplicate',
+    showTemplates: 'showGrowthHackTemplates',
   },
 };
 

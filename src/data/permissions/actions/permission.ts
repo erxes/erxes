@@ -119,25 +119,6 @@ export const moduleObjects = {
       },
     ],
   },
-  pipelineTemplates: {
-    name: 'pipelineTemplates',
-    description: 'Pipeline templates',
-    actions: [
-      {
-        name: 'pipelineTemplatesAll',
-        description: 'All',
-        use: ['showPipelineTemplates', 'managePipelineTemplates'],
-      },
-      {
-        name: 'showPipelineTemplates',
-        description: 'Show pipeline templates',
-      },
-      {
-        name: 'managePipelineTemplates',
-        description: 'Manage a pipeline template',
-      },
-    ],
-  },
   deals: {
     name: 'deals',
     description: 'Deals',
@@ -336,7 +317,7 @@ export const moduleObjects = {
   },
   growthHacks: {
     name: 'growthHacks',
-    description: 'GrowthHacks',
+    description: 'Growth hacking',
     actions: [
       {
         name: 'growthHacksAll',
@@ -360,35 +341,40 @@ export const moduleObjects = {
           'growthHacksRemove',
           'growthHacksUpdateOrder',
           'growthHacksWatch',
+          'growthHackTemplatesAdd',
+          'growthHackTemplatesEdit',
+          'growthHackTemplatesRemove',
+          'growthHackTemplatesDuplicate',
+          'showGrowthHackTemplates',
         ],
       },
       {
         name: 'showGrowthHacks',
-        description: 'Show growthHacks',
+        description: 'Show growth hacks',
       },
       {
         name: 'growthHackBoardsAdd',
-        description: 'Add growthHack board',
+        description: 'Add growth hacking board',
       },
       {
         name: 'growthHackBoardsRemove',
-        description: 'Remove growthHack board',
+        description: 'Remove growth hacking board',
       },
       {
         name: 'growthHackPipelinesAdd',
-        description: 'Add growthHack pipeline',
+        description: 'Add growth hacking pipeline',
       },
       {
         name: 'growthHackPipelinesEdit',
-        description: 'Edit growthHack pipeline',
+        description: 'Edit growth hacking pipeline',
       },
       {
         name: 'growthHackPipelinesRemove',
-        description: 'Remove growthHack pipeline',
+        description: 'Remove growth hacking pipeline',
       },
       {
         name: 'growthHackPipelinesWatch',
-        description: 'Growth hack pipeline watch',
+        description: 'Growth hacking pipeline watch',
       },
       {
         name: 'growthHackPipelinesUpdateOrder',
@@ -396,11 +382,11 @@ export const moduleObjects = {
       },
       {
         name: 'growthHackStagesAdd',
-        description: 'Add growthHack stage',
+        description: 'Add growth hacking stage',
       },
       {
         name: 'growthHackStagesEdit',
-        description: 'Edit growthHack stage',
+        description: 'Edit growth hacking stage',
       },
       {
         name: 'growthHackStagesUpdateOrder',
@@ -408,27 +394,47 @@ export const moduleObjects = {
       },
       {
         name: 'growthHackStagesRemove',
-        description: 'Remove growthHack stage',
+        description: 'Remove growth hacking stage',
       },
       {
         name: 'growthHacksAdd',
-        description: 'Add growthHack',
+        description: 'Add growth hacking',
       },
       {
         name: 'growthHacksEdit',
-        description: 'Edit growthHack',
+        description: 'Edit growth hacking',
       },
       {
         name: 'growthHacksUpdateOrder',
-        description: 'Update growthHack order',
+        description: 'Update growth hacking order',
       },
       {
         name: 'growthHacksRemove',
-        description: 'Remove growthHack',
+        description: 'Remove growth hacking',
       },
       {
         name: 'growthHacksWatch',
-        description: 'Watch growthHack',
+        description: 'Watch growth hacking',
+      },
+      {
+        name: 'growthHackTemplatesAdd',
+        description: 'Add growth hacking template',
+      },
+      {
+        name: 'growthHackTemplatesEdit',
+        description: 'Edit growth hacking template',
+      },
+      {
+        name: 'growthHackTemplatesRemove',
+        description: 'Remove growth hacking template',
+      },
+      {
+        name: 'growthHackTemplatesDuplicate',
+        description: 'Duplicate growth hacking template',
+      },
+      {
+        name: 'showGrowthHackTemplates',
+        description: 'Show growth hacking template',
       },
     ],
   },
