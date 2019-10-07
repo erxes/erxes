@@ -58,7 +58,7 @@ export default class FacebookComment extends React.Component<
     this.setState({ hasReplies: false });
   };
 
-  changeHasRepy = () => {
+  changeHasReply = () => {
     this.setState({ hasReplies: true });
   };
 
@@ -74,7 +74,7 @@ export default class FacebookComment extends React.Component<
 
     const content = props => (
       <ReplyingMessage
-        changeHasRepy={this.changeHasRepy}
+        changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
         commentId={comment.commentId}
         currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
