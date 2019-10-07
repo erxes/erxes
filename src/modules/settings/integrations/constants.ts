@@ -101,6 +101,10 @@ export const MAIL_TOOLBARS_CONFIG = [
   { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
   { name: 'tools', items: ['Maximize'] },
   {
+    name: 'insert',
+    items: ['Image', 'HorizontalRule', 'EmojiPanel']
+  },
+  {
     name: 'basicstyles',
     groups: ['basicstyles', 'cleanup'],
     items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
