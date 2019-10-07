@@ -42,6 +42,7 @@ const commonReturn = `
   }
   voteCount
   priority
+  hackStages
   reach
   impact
   confidence

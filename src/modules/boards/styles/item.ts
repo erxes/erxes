@@ -376,6 +376,7 @@ export {
   PriceContainer,
   Left,
   Right,
+  Left,
   Footer,
   WatchIndicator,
   ActionContainer,
