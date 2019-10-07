@@ -7,14 +7,15 @@ import { restorePost } from './utils';
 const receiveComment = async (params: ICommentParams, pageId: string) => {
   const userId = params.from.id;
   const postId = params.post_id;
+  const kind = 'facebook-post';
 
   const integration = await Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
   });
 
   const account = await Accounts.getAccount({ _id: integration.accountId });
 
-  await getOrCreateCustomer(pageId, userId);
+  await getOrCreateCustomer(pageId, userId, kind);
 
   const post = await Posts.findOne({ postId });
 
@@ -32,11 +33,11 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
 
       const restoredUserId = comment.from.id;
 
-      await getOrCreateCustomer(pageId, restoredUserId);
+      await getOrCreateCustomer(pageId, restoredUserId, kind);
       await getOrCreateComment(comment, pageId, restoredUserId);
     }
 
-    const customer = await getOrCreateCustomer(pageId, restoredPostId);
+    const customer = await getOrCreateCustomer(pageId, restoredPostId, kind);
 
     return await getOrCreatePost(postResponse, pageId, userId, customer.erxesApiId);
   }

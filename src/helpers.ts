@@ -52,7 +52,11 @@ export const removeIntegration = async (id: string) => {
 
     const conversationIds = await FacebookConversations.find(selector).distinct('_id');
 
-    await FacebookCustomers.deleteMany(selector);
+    await Integrations.deleteOne({
+      $or: [{ erxesApiId: id }, { accountId: id }],
+    });
+
+    await FacebookCustomers.deleteMany({ integrationId: id });
     await FacebookConversations.deleteMany(selector);
     await FacebookConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }

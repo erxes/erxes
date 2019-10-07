@@ -122,7 +122,7 @@ export const sendReply = async (url: string, data: any, recipientId: string, int
     return response;
   } catch (e) {
     debugFacebook(`Error ocurred while trying to send post request to facebook ${e} data: ${JSON.stringify(data)}`);
-    if (e.includes('Invalid OAuth')) {
+    if (e.message.includes('Invalid OAuth')) {
       // Update expired token for selected page
       const newPageAccessToken = await getPageAccessToken(recipientId, account.token);
 
@@ -131,6 +131,6 @@ export const sendReply = async (url: string, data: any, recipientId: string, int
       await integration.updateOne({ facebookPageTokensMap });
     }
 
-    throw new Error(e);
+    throw new Error(e.message);
   }
 };

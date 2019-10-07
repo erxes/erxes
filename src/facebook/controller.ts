@@ -274,7 +274,7 @@ const init = async app => {
               return next(new Error(e));
             }
           } else {
-            next();
+            res.end('success');
           }
 
           debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
@@ -293,7 +293,7 @@ const init = async app => {
     const post = await Posts.getPost({ erxesApiId }, true);
 
     const commentCount = await Comments.countDocuments({
-      $and: [{ postId: post.postId }, { parentId: { $exists: false } }],
+      $and: [{ postId: post.postId }, { parentId: null }],
     });
 
     return res.json({
@@ -309,7 +309,7 @@ const init = async app => {
 
     const query: { postId: string; parentId?: string } = { postId };
 
-    let limit = req.query.limit;
+    let limit = 10;
 
     if (commentId !== 'undefined') {
       query.parentId = commentId;
@@ -367,7 +367,7 @@ const init = async app => {
       },
 
       { $sort: { timestamp: -1 } },
-      { $limit: parseInt(limit || 4, 10) },
+      { $limit: limit },
     ]);
 
     return res.json(result.reverse());
