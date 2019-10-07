@@ -1,6 +1,7 @@
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
+import { Label } from 'modules/common/components/form/styles';
 import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
 import Tip from 'modules/common/components/Tip';
@@ -34,7 +35,7 @@ type Props = {
   integrationId?: string;
   integrations: IIntegration[];
   kind: string;
-  isReply?: boolean;
+  toggleReply?: () => void;
   fromEmail?: string;
   conversationDetails?: IMail;
   closeModal?: () => void;
@@ -52,7 +53,6 @@ type State = {
   hasCc?: boolean;
   hasBcc?: boolean;
   hasSubject?: boolean;
-  isReply: boolean;
   content: string;
   integrations: IIntegration[];
   attachments: any[];
@@ -82,7 +82,6 @@ class MailForm extends React.Component<Props, State> {
       fromEmail: from || fromEmail,
       subject: conversationDetails.subject || '',
       content: '',
-      isReply: props.isReply || false,
       status: 'draft',
       isUploading: false,
       from: '',
@@ -431,18 +430,22 @@ class MailForm extends React.Component<Props, State> {
   }) => {
     return (
       <Tip text={__(text)}>
-        <label onClick={onClick}>
-          <Icon icon={icon} />
+        <Label>
+          <Icon icon={icon} onClick={onClick} />
           {element}
-        </label>
+        </Label>
       </Tip>
     );
   };
 
   renderButtons(values, isSubmitted) {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, toggleReply, renderButton } = this.props;
 
-    const onClick = () => this.setState({ isReply: false });
+    const inputProps = {
+      type: 'file',
+      onChange: this.handleFileInput,
+      multiple: true
+    };
 
     return (
       <EditorFooter>
@@ -451,18 +454,12 @@ class MailForm extends React.Component<Props, State> {
             {this.renderIcon({
               text: 'Attach file',
               icon: 'attach',
-              element: (
-                <input
-                  type="file"
-                  onChange={this.handleFileInput}
-                  multiple={true}
-                />
-              )
+              element: <input {...inputProps} />
             })}
             {this.renderIcon({
               text: 'Delete',
               icon: 'trash',
-              onClick
+              onClick: toggleReply
             })}
           </ToolBar>
           {renderButton({

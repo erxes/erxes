@@ -42,8 +42,8 @@ class Mail extends React.PureComponent<
     this.setState({ toggle: !this.state.toggle });
   };
 
-  onReply = () => {
-    this.setState({ isReply: true });
+  toggleReply = () => {
+    this.setState({ isReply: !this.state.isReply });
   };
 
   cleanHtml(mailContent: string) {
@@ -72,7 +72,7 @@ class Mail extends React.PureComponent<
         icon="reply"
         btnStyle="primary"
         size="small"
-        onClick={this.onReply}
+        onClick={this.toggleReply}
       >
         Reply
       </Button>
@@ -80,9 +80,10 @@ class Mail extends React.PureComponent<
   }
 
   renderMailForm(details) {
+    const { isReply } = this.state;
     const { integrationId, kind } = this.props;
 
-    if (!this.state.isReply) {
+    if (!isReply) {
       return null;
     }
 
@@ -90,10 +91,10 @@ class Mail extends React.PureComponent<
       <Message>
         <MailForm
           kind={kind}
+          toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
           conversationDetails={details}
-          isReply={this.state.isReply}
         />
       </Message>
     );
@@ -168,7 +169,7 @@ class Mail extends React.PureComponent<
 
     return (
       <Attachments
-        kind={kind}
+        kind={kind.includes('nylas') ? 'nylas' : kind}
         integrationId={integrationId}
         attachments={attachments}
         messageId={messageId}

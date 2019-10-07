@@ -14,7 +14,7 @@ type Props = {
   integrationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
-  isReply?: boolean;
+  toggleReply?: () => void;
   kind: string;
   conversationDetails?: IMail;
   closeModal?: () => void;
@@ -32,7 +32,7 @@ const MailFormContainer = (props: FinalProps) => {
     refetchQueries,
     fromEmail,
     kind,
-    isReply,
+    toggleReply,
     closeModal
   } = props;
 
@@ -70,7 +70,7 @@ const MailFormContainer = (props: FinalProps) => {
     fromEmail,
     closeModal,
     kind,
-    isReply,
+    toggleReply,
     conversationDetails
   };
 
