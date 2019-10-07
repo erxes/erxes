@@ -2,6 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CallPro from 'modules/settings/integrations/containers/callpro/Form';
+import Gmail from 'modules/settings/integrations/containers/gmail/Form';
 import NylasGmail from 'modules/settings/integrations/containers/mail/gmail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -10,7 +11,6 @@ import Settings from '../../containers/engages/Settings';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import Facebook from '../facebook/Form';
-import Gmail from '../gmail/Form';
 import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
@@ -141,7 +141,7 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (KIND_CHOICES.NYLAS_GMAIL) {
+    if (createModal === KIND_CHOICES.NYLAS_GMAIL) {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <NylasGmail {...props} />;

@@ -345,7 +345,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons(values, isSubmitted) {
     const { closeModal, renderButton } = this.props;
-    console.log(values);
+
     return (
       <EditorFooter>
         <Tip text={__('Attach file')}>

@@ -131,7 +131,8 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
-        createModal: 'gmail'
+        createModal: 'gmail',
+        createUrl: '/settings/integrations/gmail'
       }
     ]
   },
@@ -145,7 +146,8 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'nylas-gmail',
         logo: '/images/integrations/gmail.png',
-        createModal: 'nylas_gmail'
+        createModal: 'nylas-gmail',
+        createUrl: '/settings/integrations/nylas-gmail'
       },
       {
         name: 'Lead',
