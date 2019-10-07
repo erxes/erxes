@@ -1,8 +1,6 @@
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
 import Tip from 'modules/common/components/Tip';
@@ -19,18 +17,23 @@ import { formatStr } from '../../containers/utils';
 import {
   AttachmentContainer,
   Attachments,
+  Column,
   ControlWrapper,
+  // LeftSection,
   EditorFooter,
-  LeftSection,
   MailEditorWrapper,
   Resipients,
+  SpaceBetweenRow,
+  ToolBar,
   Uploading
 } from './styles';
+import { FlexRow, Subject } from './styles';
 
 type Props = {
   integrationId?: string;
   integrations: IIntegration[];
   kind: string;
+  isReply?: boolean;
   fromEmail?: string;
   conversationDetails?: IMail;
   closeModal?: () => void;
@@ -41,11 +44,14 @@ type State = {
   status?: string;
   cc?: any;
   bcc?: any;
+  to?: any;
   fromEmail?: string;
   from?: string;
   subject?: string;
-  isCc?: boolean;
-  isBcc?: boolean;
+  hasCc?: boolean;
+  hasBcc?: boolean;
+  hasSubject?: boolean;
+  isReply: boolean;
   content: string;
   integrations: IIntegration[];
   attachments: any[];
@@ -62,17 +68,19 @@ class MailForm extends React.Component<Props, State> {
       conversationDetails = {} as IMail,
       integrations
     } = props;
-    const { cc, bcc } = this.getEmails(conversationDetails);
+    const { to, cc, bcc, from } = this.getEmails(conversationDetails);
 
     this.state = {
       cc: cc || '',
       bcc: bcc || '',
-      isCc: cc ? cc.length > 0 : false,
-      isBcc: bcc ? bcc.length > 0 : false,
-      fromEmail,
+      to: to || '',
+      hasCc: cc ? cc.length > 0 : false,
+      hasBcc: bcc ? bcc.length > 0 : false,
+      hasSubject: bcc ? bcc.length > 0 : false,
+      fromEmail: from || fromEmail,
       subject: conversationDetails.subject || '',
       content: '',
-
+      isReply: props.isReply || false,
       status: 'draft',
       isUploading: false,
       from: '',
@@ -110,14 +118,20 @@ class MailForm extends React.Component<Props, State> {
     return emails;
   }
 
-  generateDoc = () => {
+  generateDoc = (values: {
+    to: string;
+    cc: string;
+    bcc: string;
+    subject: string;
+    from: string;
+  }) => {
     const {
       integrationId,
       kind,
       conversationDetails = {} as IMail
     } = this.props;
+    const { to, cc, bcc, from, subject } = values;
     const { content, attachments } = this.state;
-    const { to, cc = '', bcc = '', from } = this.getEmails(conversationDetails);
     const { references, headerId, threadId, messageId } =
       conversationDetails || ({} as IMail);
 
@@ -130,7 +144,7 @@ class MailForm extends React.Component<Props, State> {
       cc: formatStr(cc),
       bcc: formatStr(bcc),
       from: integrationId ? integrationId : from,
-      subject: conversationDetails.subject,
+      subject: subject || conversationDetails.subject,
       attachments,
       kind,
       body: content,
@@ -265,32 +279,55 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderCC(formProps: IFormProps) {
-    const { cc, isCc } = this.state;
+    const { cc, hasCc } = this.state;
 
-    if (!isCc) {
+    if (!hasCc) {
       return null;
     }
 
     return (
-      <FormGroup>
-        <ControlLabel>Cc:</ControlLabel>
+      <FlexRow>
+        <label>Cc:</label>
         <FormControl {...formProps} name="cc" defaultValue={cc} />
-      </FormGroup>
+      </FlexRow>
     );
   }
 
   renderBCC(formProps: IFormProps) {
-    const { bcc, isBcc } = this.state;
+    const { bcc, hasBcc } = this.state;
 
-    if (!isBcc) {
+    if (!hasBcc) {
       return null;
     }
 
     return (
-      <FormGroup>
-        <ControlLabel>Bcc:</ControlLabel>
+      <FlexRow>
+        <label>Bcc:</label>
         <FormControl {...formProps} name="bcc" defaultValue={bcc} />
-      </FormGroup>
+      </FlexRow>
+    );
+  }
+
+  renderSubject(formProps) {
+    const { subject, hasSubject } = this.state;
+
+    if (!hasSubject) {
+      return null;
+    }
+
+    return (
+      <Subject>
+        <FlexRow>
+          <label>Subject:</label>
+          <FormControl
+            {...formProps}
+            name="subject"
+            required={true}
+            defaultValue={subject}
+            disabled={(subject && true) || false}
+          />
+        </FlexRow>
+      </Subject>
     );
   }
 
@@ -346,78 +383,49 @@ class MailForm extends React.Component<Props, State> {
   renderButtons(values, isSubmitted) {
     const { closeModal, renderButton } = this.props;
 
+    const onClick = () => this.setState({ isReply: false });
+
     return (
       <EditorFooter>
-        <Tip text={__('Attach file')}>
-          <label>
-            <Icon icon="attach" />
-            <input
-              type="file"
-              onChange={this.handleFileInput}
-              multiple={true}
-            />
-          </label>
-        </Tip>
-        <div>
-          {this.renderCancelButton()}
+        <SpaceBetweenRow>
+          <ToolBar>
+            <Tip text={__('Attach file')}>
+              <label>
+                <Icon icon="attach" />
+                <input
+                  type="file"
+                  onChange={this.handleFileInput}
+                  multiple={true}
+                />
+              </label>
+            </Tip>
+            <Tip text={__('Delete')}>
+              <label onClick={onClick}>
+                <Icon icon="trash" />
+              </label>
+            </Tip>
+          </ToolBar>
           {renderButton({
             name: 'mailForm',
-            values: this.generateDoc(),
+            values: this.generateDoc(values),
             callback: closeModal,
             isSubmitted
           })}
-        </div>
+        </SpaceBetweenRow>
       </EditorFooter>
-    );
-  }
-
-  renderLeftSection() {
-    const { isCc, isBcc } = this.state;
-
-    const onClickIsCC = () => this.onClick('isCc');
-    const onClickIsBCC = () => this.onClick('isBcc');
-
-    return (
-      <LeftSection>
-        <Resipients onClick={onClickIsCC} isActive={isCc}>
-          Cc
-        </Resipients>
-        <Resipients onClick={onClickIsBCC} isActive={isBcc}>
-          Bcc
-        </Resipients>
-      </LeftSection>
-    );
-  }
-
-  renderSubject(formProps) {
-    const { subject } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>Subject:</ControlLabel>
-        <FormControl
-          {...formProps}
-          name="subject"
-          required={true}
-          defaultValue={subject}
-          disabled={(subject && true) || false}
-        />
-      </FormGroup>
     );
   }
 
   renderBody() {
     return (
-      <FormGroup>
-        <MailEditorWrapper>
-          <EditorCK
-            insertItems={EMAIL_CONTENT}
-            content={this.state.content}
-            onChange={this.onEditorChange}
-            height={300}
-          />
-        </MailEditorWrapper>
-      </FormGroup>
+      <MailEditorWrapper>
+        <EditorCK
+          insertItems={EMAIL_CONTENT}
+          content={this.state.content}
+          onChange={this.onEditorChange}
+          height={100}
+        />
+      </MailEditorWrapper>
     );
   }
 
@@ -426,12 +434,6 @@ class MailForm extends React.Component<Props, State> {
 
     return (
       <ControlWrapper>
-        {this.renderTo(formProps)}
-        {this.renderLeftSection()}
-        {this.renderCC(formProps)}
-        {this.renderBCC(formProps)}
-        {this.renderFrom(formProps)}
-        {this.renderSubject(formProps)}
         {this.renderBody()}
         {this.renderAttachments()}
         {this.renderButtons(values, isSubmitted)}
@@ -445,13 +447,13 @@ class MailForm extends React.Component<Props, State> {
     const sender = this.getEmailSender(fromEmail);
 
     return (
-      <>
-        <FormGroup>
-          <ControlLabel required={true}>From:</ControlLabel>
+      <Column>
+        <FlexRow>
+          <label>From:</label>
           <FormControl
             required={true}
             defaultValue={integrationId}
-            // disabled={integrationId && integrationId.length > 0}
+            disabled={integrationId ? integrationId.length > 0 : false}
             componentClass="select"
             {...formProps}
             name="from"
@@ -459,57 +461,41 @@ class MailForm extends React.Component<Props, State> {
             <option />
             {this.renderFromOption()}
           </FormControl>
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>To:</ControlLabel>
+        </FlexRow>
+        <FlexRow>
+          <label>To:</label>
           <FormControl
             {...formProps}
             defaultValue={sender}
             name="to"
             required={true}
           />
-        </FormGroup>
+        </FlexRow>
+        {this.renderCC(formProps)}
+        {this.renderBCC(formProps)}
+      </Column>
+    );
+  }
+
+  renderRightSide(formProps: IFormProps) {
+    const { hasCc, hasBcc, hasSubject } = this.state;
+
+    const onClickHasCc = () => this.onClick('hasCc');
+    const onClickHasBCC = () => this.onClick('hasBcc');
+    const onClickSubject = () => this.onClick('hasSubject');
+
+    return (
+      <>
+        <Resipients onClick={onClickHasCc} isActive={hasCc}>
+          Cc
+        </Resipients>
+        <Resipients onClick={onClickHasBCC} isActive={hasBcc}>
+          Bcc
+        </Resipients>
+        <Resipients onClick={onClickSubject} isActive={hasSubject}>
+          Subject
+        </Resipients>
       </>
-    );
-  }
-
-  renderRightSide(formProps: IFormProps) {}
-
-  renderFrom(formProps) {
-    const { integrationId } = this.props;
-
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>From:</ControlLabel>
-        <FormControl
-          required={true}
-          defaultValue={integrationId}
-          disabled={integrationId && integrationId.length > 0}
-          componentClass="select"
-          {...formProps}
-          name="from"
-        >
-          <option />
-          {this.renderFromOption()}
-        </FormControl>
-      </FormGroup>
-    );
-  }
-
-  renderTo(formProps) {
-    const { fromEmail } = this.state;
-    const sender = this.getEmailSender(fromEmail);
-
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>To:</ControlLabel>
-        <FormControl
-          {...formProps}
-          defaultValue={sender}
-          name="to"
-          required={true}
-        />
-      </FormGroup>
     );
   }
 
@@ -519,9 +505,13 @@ class MailForm extends React.Component<Props, State> {
     return (
       <ControlWrapper>
         <Meta>
-          {this.renderLeftSide(formProps)}
-          {this.renderRightSide(formProps)}
+          <SpaceBetweenRow>
+            {this.renderLeftSide(formProps)}
+            {this.renderRightSide(formProps)}
+          </SpaceBetweenRow>
         </Meta>
+        {this.renderSubject(formProps)}
+        {this.renderBody()}
         {this.renderButtons(values, isSubmitted)}
       </ControlWrapper>
     );

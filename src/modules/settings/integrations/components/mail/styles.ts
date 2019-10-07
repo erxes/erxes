@@ -53,20 +53,43 @@ const MailEditorWrapper = styled.div`
 `;
 
 const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
-  padding-left: 10px;
-  font-weight: 500;
+  padding-left: ${dimensions.unitSpacing}px;
+  font-size: 12px;
+  color: ${colors.colorCoreLightGray};
   display: ${props => props.isActive && 'none'};
 
   &:hover {
     cursor: pointer;
-    text-decoration: underline;
+    color: ${colors.colorCoreGray};
   }
 `;
 
 const EditorFooter = styled.div`
+  margin: -${dimensions.unitSpacing}px 15px 15px;
+`;
+
+const Attachments = styled.div`
   display: flex;
-  justify-content: flex-end;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: -10px 0 ${dimensions.coreSpacing}px -5px;
+`;
+
+const FlexRow = styled.div`
+  display: flex;
   align-items: center;
+
+  > label {
+    margin-right: ${dimensions.unitSpacing}px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+const ToolBar = styled.div`
+  i {
+    font-size: 18px;
+    color: ${colors.colorLightGray};
+  }
 
   label {
     color: ${colors.colorCoreGray};
@@ -83,20 +106,35 @@ const EditorFooter = styled.div`
   }
 `;
 
-const Attachments = styled.div`
+const SpaceBetweenRow = styled.div`
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin: -10px 0 ${dimensions.coreSpacing}px -5px;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Column = styled.div`
+  flex: 1;
+  margin-bottom: ${dimensions.unitSpacing}px;
+`;
+
+const Subject = styled.div`
+  padding: ${dimensions.unitSpacing}px 15px;
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 export {
   Attachments,
+  FlexRow,
+  Column,
+  Subject,
+  ToolBar,
   MailEditorWrapper,
   ControlWrapper,
   LeftSection,
   Resipients,
   Uploading,
   AttachmentContainer,
+  SpaceBetweenRow,
   EditorFooter
 };

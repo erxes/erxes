@@ -96,6 +96,7 @@ class Mail extends React.PureComponent<
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
           conversationDetails={details}
+          isReply={this.state.isReply}
         />
       </Message>
     );

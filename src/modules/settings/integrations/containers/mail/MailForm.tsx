@@ -14,6 +14,7 @@ type Props = {
   integrationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
+  isReply?: boolean;
   kind: string;
   conversationDetails?: IMail;
   closeModal?: () => void;
@@ -31,6 +32,7 @@ const MailFormContainer = (props: FinalProps) => {
     refetchQueries,
     fromEmail,
     kind,
+    isReply,
     closeModal
   } = props;
 
@@ -52,6 +54,7 @@ const MailFormContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={refetchQueries}
         isSubmitted={isSubmitted}
+        btnSize="small"
         type="submit"
         successMessage="You have successfully sent a email"
       >
@@ -67,6 +70,7 @@ const MailFormContainer = (props: FinalProps) => {
     fromEmail,
     closeModal,
     kind,
+    isReply,
     conversationDetails
   };
 
