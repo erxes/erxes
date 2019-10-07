@@ -1,4 +1,8 @@
 import {
+  RichEditorControlsRoot,
+  RichEditorRoot
+} from 'modules/common/components/editor/styles';
+import {
   PopoverFooter as RootFooter,
   PopoverList as RootList
 } from 'modules/common/components/filterableList/styles';
@@ -6,10 +10,6 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '../common/styles';
 import { darken, rgba } from '../common/styles/color';
-import {
-  RichEditorRoot,
-  RichEditorControlsRoot
-} from 'modules/common/components/editor/styles';
 
 const PopoverButton = styled.div`
   display: inline-block;

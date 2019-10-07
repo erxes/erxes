@@ -3,10 +3,11 @@ import juice from 'juice';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Avatar from 'modules/common/components/nameCard/Avatar';
-import { IMessage } from 'modules/inbox/types';
+import { IMail, IMessage } from 'modules/inbox/types';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
+import Attachments from './Attachment';
 import {
   Content,
   Date,
@@ -15,16 +16,12 @@ import {
   Meta,
   Reply,
   RightSide,
-  SmallContent,
-  Subject
+  SmallContent
 } from './style';
-
-import Attachments from './Attachment';
 
 type Props = {
   message: IMessage;
   integrationId: string;
-  staff?: boolean;
   kind: string;
 };
 
@@ -134,33 +131,36 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderRightSide(showAttachmentIcon, createdAt) {
+  renderRightSide(showIcon, createdAt) {
     return (
       <RightSide>
-        {showAttachmentIcon && <Icon icon="attach" />}
+        {showIcon && <Icon icon="attach" />}
         <Date>{dayjs(createdAt).format('lll')}</Date>
       </RightSide>
     );
   }
 
-  renderBody(body, details) {
-    if (this.state.toggle) {
+  renderBody(details) {
+    const { toggle } = this.state;
+
+    if (toggle) {
       return null;
     }
 
+    const innerHTML = { __html: this.cleanHtml(details.body || '') };
+
     return (
       <>
-        <Content
-          dangerouslySetInnerHTML={{ __html: this.cleanHtml(body) }}
-          toggle={this.state.toggle}
-        />
+        <Content toggle={toggle} dangerouslySetInnerHTML={innerHTML} />
         <Reply>{this.renderReplyButton(details)}</Reply>
       </>
     );
   }
 
-  renderAttachments(attachments, messageId) {
-    if (attachments.length === 0) {
+  renderAttachments(details) {
+    const { messageId, attachments = [] } = details;
+
+    if (!attachments || attachments.length === 0) {
       return;
     }
 
@@ -176,43 +176,47 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderMessage = (message: IMessage) => {
-    const { details, createdAt, customer } = message;
+  renderMeta = (message: IMessage) => {
+    const { customer, createdAt, details = {} as IMail } = message;
 
-    if (!details) {
-      return null;
-    }
-
-    const { messageId = '', body = '', subject = '' } = details;
-    const attachments = details.attachments || [];
-    const showAttachmentIcon = attachments.length > 0;
+    const showIcon = (details.attachments || []).length > 0;
 
     return (
-      <>
-        <Subject>{subject}</Subject>
-        <Message toggle={this.state.toggle}>
-          <Meta toggle={this.state.toggle} onClick={this.onToggle}>
-            <Avatar customer={customer} size={32} />
-            {this.renderDetails(details)}
-            {this.renderRightSide(showAttachmentIcon, createdAt)}
-          </Meta>
-          {this.renderBody(juice(body), details)}
-          {this.renderAttachments(attachments, messageId)}
-          <div className="clearfix" />
-        </Message>
-        {this.renderMailForm(details)}
-      </>
+      <Meta toggle={this.state.toggle} onClick={this.onToggle}>
+        <Avatar customer={customer} size={32} />
+        {this.renderDetails(details)}
+        {this.renderRightSide(showIcon, createdAt)}
+      </Meta>
+    );
+  };
+
+  renderMessage = (message: IMessage) => {
+    const { details } = message;
+
+    return (
+      <Message toggle={this.state.toggle}>
+        {this.renderMeta(message)}
+        {this.renderBody(details)}
+        {this.renderAttachments(details)}
+        <div className="clearfix" />
+      </Message>
     );
   };
 
   render() {
-    const { message } = this.props;
+    const { message = {} as IMessage } = this.props;
+    const details = message.details || {};
 
-    if (!message) {
+    if (!message || !details) {
       return null;
     }
 
-    return this.renderMessage(message);
+    return (
+      <>
+        {this.renderMessage(message)}
+        {this.renderMailForm(details)}
+      </>
+    );
   }
 }
 

@@ -33,8 +33,8 @@ class MailConversation extends React.Component<Props, {}> {
       return (
         <Mail
           key={message._id}
-          message={message}
           kind={kind}
+          message={message}
           integrationId={_id}
         />
       );
