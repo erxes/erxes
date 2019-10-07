@@ -385,6 +385,16 @@ class RespondBox extends React.Component<Props, State> {
     );
   }
 
+  renderBody() {
+    return (
+      <>
+        {this.renderEditor()}
+        {this.renderIncicator()}
+        {this.renderButtons()}
+      </>
+    );
+  }
+
   renderContent() {
     const { isInternal } = this.state;
 
@@ -395,9 +405,7 @@ class RespondBox extends React.Component<Props, State> {
           isInternal={isInternal}
           isInactive={this.state.isInactive}
         >
-          {this.renderEditor()}
-          {this.renderIncicator()}
-          {this.renderButtons()}
+          {this.renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>
     );
@@ -410,11 +418,7 @@ class RespondBox extends React.Component<Props, State> {
       <MailRespondBox>
         <FlexRow>
           <NameCard.Avatar user={currentUser} size={30} />
-          <SmallEditor>
-            {this.renderEditor()}
-            {this.renderIncicator()}
-            {this.renderButtons()}
-          </SmallEditor>
+          <SmallEditor>{this.renderBody()}</SmallEditor>
         </FlexRow>
       </MailRespondBox>
     );
