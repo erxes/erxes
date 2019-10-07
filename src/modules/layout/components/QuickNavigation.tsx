@@ -63,10 +63,6 @@ const NavItem = styledTS<{ odd?: boolean }>(styled.div)`
   }
 `;
 
-const WorkFlowImage = styled.img`
-  width: 100%;
-`;
-
 const QuickNavigation = ({
   logout,
   currentUser,
@@ -84,13 +80,6 @@ const QuickNavigation = ({
 }) => {
   const passContent = props => <ChangePassword {...props} />;
   const signatureContent = props => <Signature {...props} />;
-  const workflowContent = props => (
-    <WorkFlowImage
-      alt="workflow-diagram"
-      src="/images/workflow-diagram.svg"
-      {...props}
-    />
-  );
 
   const notificationContent = props => (
     <NotificationSettings currentUser={currentUser} {...props} />
@@ -155,10 +144,6 @@ const QuickNavigation = ({
               <Link to="/profile">{__('View Profile')}</Link>
             </li>
 
-            <li>
-              <Link to="/getting-started">{__('Initial setup')}</Link>
-            </li>
-
             <ModalTrigger
               title="Change Password"
               trigger={
@@ -187,18 +172,6 @@ const QuickNavigation = ({
                 </li>
               }
               content={notificationContent}
-            />
-
-            <MenuItem divider={true} />
-            <ModalTrigger
-              title="Workflow: Brand > Integration > Channel > Team member > Team Inbox"
-              dialogClassName="middle"
-              trigger={
-                <li>
-                  <a href="#flow">{__('Workflow')}</a>
-                </li>
-              }
-              content={workflowContent}
             />
 
             <MenuItem divider={true} />

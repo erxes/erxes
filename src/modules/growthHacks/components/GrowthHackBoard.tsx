@@ -24,7 +24,10 @@ class GrowthHackBoard extends React.Component<Props> {
   }
 
   render() {
-    const breadcrumb = [{ title: __('Growth hacking') }];
+    const breadcrumb = [
+      { title: __('Growth hacking'), link: '/growthHack/board' },
+      { title: __('Board') }
+    ];
 
     return (
       <BoardContainer>
