@@ -41,6 +41,7 @@ const boardDetail = `
         startDate
         endDate
         state
+        itemsTotalCount
         members {
           _id
           email

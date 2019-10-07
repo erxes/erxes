@@ -18,7 +18,7 @@ type Props = {
 };
 
 class PipelineRow extends React.Component<Props, {}> {
-  renderLabel(state) {
+  renderText(state: string) {
     switch (state) {
       case 'Completed':
         return 'success';
@@ -29,6 +29,30 @@ class PipelineRow extends React.Component<Props, {}> {
     }
   }
 
+  renderState(state?: string) {
+    if (state) {
+      return <Label lblStyle={this.renderText(state)}>{state}</Label>;
+    }
+
+    return null;
+  }
+
+  renderDate(pipeline) {
+    const { startDate, endDate } = pipeline;
+
+    if (!startDate && !endDate) {
+      return null;
+    }
+
+    return (
+      <>
+        <Icon icon="wallclock" />
+        {dayjs(startDate).format('ll')} {' - '}
+        {dayjs(endDate).format('ll')}
+      </>
+    );
+  }
+
   render() {
     const { pipeline, currentBoard } = this.props;
 
@@ -36,13 +60,10 @@ class PipelineRow extends React.Component<Props, {}> {
       <PipelineListRow key={pipeline._id}>
         <PipelineMeta>
           <PipelineName>{pipeline.name}</PipelineName>
-          <Icon icon="light-bulb" />0
-          <Label lblStyle={this.renderLabel(pipeline.state)}>
-            {pipeline.state}
-          </Label>
-          <Icon icon="wallclock" />
-          {dayjs(pipeline.startDate).format('ll')} {' - '}
-          {dayjs(pipeline.endDate).format('ll')}
+          <Icon icon="light-bulb" />
+          {pipeline.itemsTotalCount}
+          {this.renderState(pipeline.state)}
+          {this.renderDate(pipeline)}
         </PipelineMeta>
 
         <PipelineActions>
