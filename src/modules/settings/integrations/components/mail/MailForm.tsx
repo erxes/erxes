@@ -34,6 +34,7 @@ type Props = {
   integrations: IIntegration[];
   platform?: string;
   kind: string;
+  isReply?: boolean;
   fromEmail?: string;
   conversationDetails?: IMail;
   closeModal?: () => void;
@@ -44,12 +45,14 @@ type State = {
   status?: string;
   cc?: any;
   bcc?: any;
+  to?: any;
   fromEmail?: string;
   from?: string;
   subject?: string;
   hasCc?: boolean;
   hasBcc?: boolean;
   hasSubject?: boolean;
+  isReply: boolean;
   content: string;
   integrations: IIntegration[];
   attachments: any[];
@@ -66,18 +69,19 @@ class MailForm extends React.Component<Props, State> {
       conversationDetails = {} as IMail,
       integrations
     } = props;
-    const { cc, bcc } = this.getEmails(conversationDetails);
+    const { to, cc, bcc, from } = this.getEmails(conversationDetails);
 
     this.state = {
       cc: cc || '',
       bcc: bcc || '',
+      to: to || '',
       hasCc: cc ? cc.length > 0 : false,
       hasBcc: bcc ? bcc.length > 0 : false,
       hasSubject: bcc ? bcc.length > 0 : false,
-      fromEmail,
+      fromEmail: from || fromEmail,
       subject: conversationDetails.subject || '',
       content: '',
-
+      isReply: props.isReply || false,
       status: 'draft',
       isUploading: false,
       from: '',
@@ -115,15 +119,21 @@ class MailForm extends React.Component<Props, State> {
     return emails;
   }
 
-  generateDoc = () => {
+  generateDoc = (values: {
+    to: string;
+    cc: string;
+    bcc: string;
+    subject: string;
+    from: string;
+  }) => {
     const {
       integrationId,
       kind,
       platform,
       conversationDetails = {} as IMail
     } = this.props;
+    const { to, cc, bcc, from, subject } = values;
     const { content, attachments } = this.state;
-    const { to, cc = '', bcc = '', from } = this.getEmails(conversationDetails);
     const { references, headerId, threadId, messageId } =
       conversationDetails || ({} as IMail);
 
@@ -136,7 +146,7 @@ class MailForm extends React.Component<Props, State> {
       cc: formatStr(cc),
       bcc: formatStr(bcc),
       from: integrationId ? integrationId : from,
-      subject: conversationDetails.subject,
+      subject: subject || conversationDetails.subject,
       attachments,
       kind: platform ? platform : kind,
       body: content,
@@ -374,7 +384,8 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons(values, isSubmitted) {
     const { closeModal, renderButton } = this.props;
-    console.log(values);
+    const onClick = () => this.setState({ isReply: false });
+
     return (
       <EditorFooter>
         <SpaceBetweenRow>
@@ -390,14 +401,14 @@ class MailForm extends React.Component<Props, State> {
               </label>
             </Tip>
             <Tip text={__('Delete')}>
-              <label>
+              <label onClick={onClick}>
                 <Icon icon="trash" />
               </label>
             </Tip>
           </ToolBar>
           {renderButton({
             name: 'mailForm',
-            values: this.generateDoc(),
+            values: this.generateDoc(values),
             callback: closeModal,
             isSubmitted
           })}
