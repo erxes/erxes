@@ -47,7 +47,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         mutation={mutations.integrationsCreateExternalIntegration}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries('gmail')}
+        refetchQueries={getRefetchQueries('nylas-gmail')}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}

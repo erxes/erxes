@@ -10,8 +10,7 @@ import Accounts from '../components/Accounts';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {
-  kind: 'facebook' | 'gmail';
-  platform?: string;
+  kind: 'facebook' | 'gmail' | 'nylas-gmail';
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
@@ -25,10 +24,10 @@ type FinalProps = {
 
 class AccountContainer extends React.Component<FinalProps, {}> {
   onAdd = () => {
-    const { addLink, kind, platform } = this.props;
+    const { addLink, kind } = this.props;
 
     const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}&platform=${platform}`;
+    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
 
     window.location.replace(url);
   };
@@ -86,10 +85,10 @@ export default withProps<Props>(
     ),
     graphql<Props, AccountsQueryResponse>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
-      options: ({ kind, platform }) => ({
+      options: ({ kind }) => ({
         variables: {
           path: '/accounts',
-          params: { kind, platform }
+          params: { kind }
         }
       })
     })

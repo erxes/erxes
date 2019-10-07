@@ -71,7 +71,6 @@ export interface IIntegration {
   _id: string;
   kind: string;
   name: string;
-  platform?: string;
   brandId?: string;
   code: string;
   formId: string;

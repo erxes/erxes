@@ -8,15 +8,15 @@ import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
 import {
-  SmallContent,
   Content,
   Date,
   Details,
-  Meta,
-  RightSide,
-  Subject,
   Message,
-  Reply
+  Meta,
+  Reply,
+  RightSide,
+  SmallContent,
+  Subject
 } from './style';
 
 import Attachments from './Attachment';
@@ -25,7 +25,6 @@ type Props = {
   message: IMessage;
   integrationId: string;
   staff?: boolean;
-  platform?: string;
   kind: string;
 };
 
@@ -84,7 +83,7 @@ class Mail extends React.PureComponent<
   }
 
   renderMailForm(details) {
-    const { integrationId, platform, kind } = this.props;
+    const { integrationId, kind } = this.props;
 
     if (!this.state.isReply) {
       return null;
@@ -94,7 +93,6 @@ class Mail extends React.PureComponent<
       <Message toggle={this.state.toggle}>
         <MailForm
           kind={kind}
-          platform={platform}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
           conversationDetails={details}

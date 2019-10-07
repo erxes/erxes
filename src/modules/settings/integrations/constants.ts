@@ -76,7 +76,9 @@ export const KIND_CHOICES = {
     'facebook-post',
     'facebook-messenger',
     'lead',
-    'callpro'
+    'callpro',
+    'gmail',
+    'nylas-gmail'
   ]
 };
 
@@ -143,7 +145,7 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'nylas-gmail',
         logo: '/images/integrations/gmail.png',
-        createModal: 'nylas-gmail'
+        createModal: 'nylas_gmail'
       },
       {
         name: 'Lead',

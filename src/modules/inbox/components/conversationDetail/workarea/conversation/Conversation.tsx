@@ -62,7 +62,7 @@ class Conversation extends React.Component<Props, {}> {
 
     const { kind } = conversation.integration;
 
-    if (kind === 'gmail') {
+    if (kind.includes('gmail')) {
       return (
         <MailConversation
           conversation={conversation}

@@ -19,7 +19,7 @@ class MailConversation extends React.Component<Props, {}> {
 
     const messages = conversationMessages || [];
     const { integration } = conversation;
-    const { _id, platform, kind } = integration;
+    const { _id, kind } = integration;
 
     return messages.map(message => {
       if (message.internal) {
@@ -35,7 +35,6 @@ class MailConversation extends React.Component<Props, {}> {
           key={message._id}
           message={message}
           kind={kind}
-          platform={platform}
           integrationId={_id}
         />
       );

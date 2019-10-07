@@ -32,8 +32,7 @@ class Form extends React.Component<Props, { loading: boolean }> {
 
     return {
       ...values,
-      kind: 'gmail',
-      platform: 'nylas',
+      kind: 'nylas-gmail',
       accountId,
       data: { email }
     };
@@ -54,8 +53,7 @@ class Form extends React.Component<Props, { loading: boolean }> {
         <SelectBrand isRequired={true} formProps={formProps} />
 
         <Accounts
-          kind="gmail"
-          platform="nylas"
+          kind="nylas-gmail"
           addLink="nylas/oauth2/callback"
           onSelect={onAccountSelect}
           onRemove={onRemoveAccount}

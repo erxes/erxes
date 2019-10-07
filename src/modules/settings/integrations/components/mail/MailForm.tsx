@@ -10,7 +10,9 @@ import EditorCK from 'modules/common/containers/EditorCK';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
+import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
+import { IMail } from 'modules/inbox/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
 import { formatStr } from '../../containers/utils';
@@ -24,13 +26,10 @@ import {
   Resipients,
   Uploading
 } from './styles';
-import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
-import { IMail } from 'modules/inbox/types';
 
 type Props = {
   integrationId?: string;
   integrations: IIntegration[];
-  platform?: string;
   kind: string;
   fromEmail?: string;
   conversationDetails?: IMail;
@@ -115,7 +114,6 @@ class MailForm extends React.Component<Props, State> {
     const {
       integrationId,
       kind,
-      platform,
       conversationDetails = {} as IMail
     } = this.props;
     const { content, attachments } = this.state;
@@ -134,7 +132,7 @@ class MailForm extends React.Component<Props, State> {
       from: integrationId ? integrationId : from,
       subject: conversationDetails.subject,
       attachments,
-      kind: platform ? platform : kind,
+      kind,
       body: content,
       erxesApiId: from
     };

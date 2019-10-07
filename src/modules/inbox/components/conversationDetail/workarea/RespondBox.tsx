@@ -298,7 +298,7 @@ class RespondBox extends React.Component<Props, State> {
     const { responseTemplates, conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);
-    const disabled = integration.kind === 'gmail';
+    const disabled = integration.kind.includes('gmail');
 
     const Buttons = (
       <EditorActions>

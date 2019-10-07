@@ -3,19 +3,18 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, withProps } from 'modules/common/utils';
+import { IMail } from 'modules/inbox/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import MailForm from '../../components/mail/MailForm';
 import { IntegrationsQueryResponse } from '../../types';
-import { IMail } from 'modules/inbox/types';
 
 type Props = {
   integrationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
   kind: string;
-  platform?: string;
   conversationDetails?: IMail;
   closeModal?: () => void;
 };
@@ -32,7 +31,6 @@ const MailFormContainer = (props: FinalProps) => {
     refetchQueries,
     fromEmail,
     kind,
-    platform,
     closeModal
   } = props;
 
@@ -69,7 +67,6 @@ const MailFormContainer = (props: FinalProps) => {
     fromEmail,
     closeModal,
     kind,
-    platform,
     conversationDetails
   };
 
@@ -82,9 +79,9 @@ export default withProps<Props>(
       gql(queries.integrations),
       {
         name: 'gmailIntegrationsQuery',
-        options: ({ kind, platform }) => {
+        options: ({ kind }) => {
           return {
-            variables: { kind, platform },
+            variables: { kind },
             fetchPolicy: 'network-only'
           };
         }

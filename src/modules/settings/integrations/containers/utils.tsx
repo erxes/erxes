@@ -8,22 +8,20 @@ export const integrationsListParams = queryParams => ({
   kind: queryParams.kind
 });
 
-export const getRefetchQueries = (kind: string, platform?: string) => {
+export const getRefetchQueries = (kind: string) => {
   return [
     {
       query: gql(queries.integrations),
       variables: {
         ...integrationsListParams({}),
-        kind,
-        platform
+        kind
       }
     },
     {
       query: gql(queries.integrationTotalCount),
       variables: {
         ...integrationsListParams({}),
-        kind,
-        platform
+        kind
       }
     }
   ];

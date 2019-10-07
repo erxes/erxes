@@ -17,7 +17,6 @@ export default `
   integration {
     _id
     kind
-    platform
     brandId,
     brand {
       _id

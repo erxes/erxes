@@ -2,8 +2,6 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CallPro from 'modules/settings/integrations/containers/callpro/Form';
-import Facebook from 'modules/settings/integrations/containers/facebook/Form';
-import Gmail from 'modules/settings/integrations/containers/gmail/Form';
 import NylasGmail from 'modules/settings/integrations/containers/mail/gmail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -11,6 +9,8 @@ import { KIND_CHOICES } from '../../constants';
 import Settings from '../../containers/engages/Settings';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
+import Facebook from '../facebook/Form';
+import Gmail from '../gmail/Form';
 import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
@@ -141,7 +141,7 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (createModal === KIND_CHOICES.NYLAS_GMAIL) {
+    if (KIND_CHOICES.NYLAS_GMAIL) {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <NylasGmail {...props} />;
@@ -182,6 +182,7 @@ class Entry extends React.Component<Props> {
 
   render() {
     const { integration, getClassName } = this.props;
+    const { createUrl, createModal } = integration;
 
     return (
       <IntegrationItem
@@ -198,7 +199,7 @@ class Entry extends React.Component<Props> {
             {this.renderType(integration.inMessenger)}
           </p>
         </Box>
-        {this.renderCreate(integration.createUrl, integration.createModal)}
+        {this.renderCreate(createUrl, createModal)}
       </IntegrationItem>
     );
   }
