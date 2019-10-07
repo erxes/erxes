@@ -1,6 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
-import styled from 'styled-components';
 import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const EmailItem = styled.div`
