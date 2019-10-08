@@ -18,6 +18,7 @@ class Vote extends React.Component<IProps> {
     } = this.props;
 
     const onClick = () => onChangeVote(!isVoted);
+
     return (
       <ColorButton
         onClick={onClick}

@@ -31,9 +31,11 @@ type Props = {
 class Left extends React.Component<Props> {
   renderVoters() {
     const { item } = this.props;
+
     if (item.voteCount === 0) {
       return null;
     }
+
     return (
       <FormGroup>
         <TitleRow>

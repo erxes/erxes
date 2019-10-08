@@ -66,6 +66,7 @@ class Actions extends React.Component<Props> {
         {__('Priority')}
       </ColorButton>
     );
+
     const hackStageTrigger = (
       <ColorButton>
         <Icon icon="diary" />
