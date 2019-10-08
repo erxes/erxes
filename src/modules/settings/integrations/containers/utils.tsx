@@ -33,5 +33,9 @@ export const formatStr = (emailString: string) => {
 };
 
 export const formatObj = (emailArray: IEmail[]) => {
+  if (!emailArray || emailArray.length === 0) {
+    return;
+  }
+
   return emailArray ? emailArray.map(s => s.email).join(',') : '';
 };

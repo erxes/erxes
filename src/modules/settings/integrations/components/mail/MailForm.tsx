@@ -34,9 +34,9 @@ type Props = {
   integrationId?: string;
   integrations: IIntegration[];
   kind: string;
-  toggleReply?: () => void;
   fromEmail?: string;
   conversationDetails?: IMail;
+  toggleReply?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -68,7 +68,7 @@ class MailForm extends React.Component<Props, State> {
     const to = formatObj(details.to);
     const cc = formatObj(details.cc || []);
     const bcc = formatObj(details.bcc || []);
-    const [from] = details.from;
+    const [from] = details.from || [{}];
 
     this.state = {
       cc,
@@ -148,10 +148,10 @@ class MailForm extends React.Component<Props, State> {
     const details = this.props.conversationDetails || ({} as IMail);
     const { integrationEmail } = details;
 
-    const to = formatObj(details.to);
+    const to = formatObj(details.to) || '';
 
     // new email
-    if (!to && !integrationEmail) {
+    if ((!to || to.length === 0) && !integrationEmail) {
       return fromEmail;
     }
 
