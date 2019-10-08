@@ -11,7 +11,13 @@ class PipelineList extends React.Component<Props, {}> {
   render() {
     const { pipelines, currentBoard } = this.props;
     if (pipelines.length === 0) {
-      return <EmptyState icon="stop" text="No other pipeline" size="small" />;
+      return (
+        <EmptyState
+          text="No other pipeline"
+          size="small"
+          image="/images/actions/16.svg"
+        />
+      );
     }
 
     if (!currentBoard) {
