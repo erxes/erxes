@@ -156,7 +156,7 @@ export interface IComment {
 
 export interface ICommentDocument extends IComment, Document {}
 
-export const commentShema = new Schema({
+export const commentSchema = new Schema({
   _id: field({ pkey: true }),
   commentId: { type: String, index: true },
   postId: { type: String, index: true },
@@ -169,7 +169,7 @@ export const commentShema = new Schema({
   timestamp: Date,
 });
 
-commentShema.index({ postId: 1, commentId: 1 }, { unique: true });
+commentSchema.index({ postId: 1, commentId: 1 }, { unique: true });
 
 export interface ICommentModel extends Model<ICommentDocument> {
   getComment(selector): Promise<ICommentDocument>;
@@ -188,9 +188,9 @@ export const loadCommentClass = () => {
     }
   }
 
-  commentShema.loadClass(Comment);
+  commentSchema.loadClass(Comment);
 
-  return commentShema;
+  return commentSchema;
 };
 
 loadCommentClass();
@@ -217,4 +217,4 @@ export const ConversationMessages = model<IConversationMessageDocument, IConvers
 export const Posts = model<IPostDocument, IPostModel>('posts_facebook', postSchema);
 
 // tslint:disable-next-line
-export const Comments = model<ICommentDocument, ICommentModel>('comments_facebook', commentShema);
+export const Comments = model<ICommentDocument, ICommentModel>('comments_facebook', commentSchema);
