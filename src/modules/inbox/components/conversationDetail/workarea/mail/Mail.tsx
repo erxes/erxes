@@ -132,7 +132,7 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderRightSide(showIcon, createdAt) {
+  renderRightSide(showIcon: boolean, createdAt: Date) {
     return (
       <RightSide>
         {showIcon && <Icon icon="attach" />}
@@ -179,8 +179,9 @@ class Mail extends React.PureComponent<
 
   renderMeta = (message: IMessage) => {
     const { customer, createdAt, details = {} as IMail } = message;
+    const attachments = details.attachments || [];
 
-    const showIcon = (details.attachments || []).length > 0;
+    const showIcon = attachments.length > 0;
 
     return (
       <Meta toggle={this.state.toggle} onClick={this.onToggle}>
