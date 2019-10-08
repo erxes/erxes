@@ -1,4 +1,5 @@
 import { RobotEntries } from '../../../db/models';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { OnboardingHistories } from '../../../db/models/Robot';
 import { moduleObjects } from '../../permissions/actions/permission';
 import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
@@ -69,7 +70,18 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
   },
 };
 
-const checkShowModule = (actionsMap, moduleName: string): { showModule: boolean; showSettings: boolean } => {
+const checkShowModule = (
+  user: IUserDocument,
+  actionsMap,
+  moduleName: string,
+): { showModule: boolean; showSettings: boolean } => {
+  if (user.isOwner) {
+    return {
+      showModule: true,
+      showSettings: true,
+    };
+  }
+
   const module: IModuleMap = moduleObjects[moduleName];
 
   let showModule = false;
@@ -139,7 +151,7 @@ const robotQueries = {
         continue;
       }
 
-      const { showModule, showSettings } = checkShowModule(actionsMap, feature);
+      const { showModule, showSettings } = checkShowModule(user, actionsMap, feature);
 
       if (showModule) {
         let steps: string[] = [];
