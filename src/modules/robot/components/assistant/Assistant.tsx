@@ -1,99 +1,73 @@
-import { Popover } from 'modules/common/styles/main';
-import { PopoverContent } from 'modules/notifications/components/styles';
+import { HomeContainer } from 'modules/common/styles/main';
 import ModulItem from 'modules/robot/components/ModulItem';
-import { Bot, Greeting } from 'modules/robot/components/styles';
+import { Content, Greeting } from 'modules/robot/components/styles';
 import * as React from 'react';
-import { OverlayTrigger } from 'react-bootstrap';
-import AssistantDetail from './AssistantDetail';
+import RTG from 'react-transition-group';
 
-class Assistant extends React.Component<{}, { isDetail: boolean }> {
-  constructor(props) {
-    super(props);
+type Props = {
+  changeRoute: (route: string) => void;
+  show: boolean;
+};
 
-    this.update = this.update.bind(this);
-
-    this.state = {
-      isDetail: false
-    };
-  }
-
-  update() {
-    // rerender component
-    this.forceUpdate();
-  }
-
-  goDetail = () => {
-    this.setState({ isDetail: true });
+class Assistant extends React.Component<Props> {
+  startOnboard = () => {
+    this.props.changeRoute('onboard');
   };
-
-  renderHome = () => {
-    if (this.state.isDetail) {
-      return <AssistantDetail />;
-    }
-
-    return (
-      <>
-        <Greeting>
-          Good morning!{' '}
-          <b>
-            Ganzorig{' '}
-            <span role="img" aria-label="Wave">
-              👋
-            </span>
-          </b>
-          <br /> What module do you use usually?
-        </Greeting>
-
-        <ModulItem
-          onClick={this.goDetail}
-          title="Customer merge"
-          description="Combine client and team"
-          icon="users"
-          color="#ec542b"
-        />
-        <ModulItem
-          title="Company meta"
-          description="Combine client and team"
-          color="#3599cb"
-          icon="briefcase"
-        />
-
-        <ModulItem
-          title="Customer Scoring"
-          description="Combine client and team"
-          color="#27b553"
-          icon="user-2"
-        />
-        <ModulItem
-          title="Start onboarding"
-          description="Combine client and team"
-          color="#de59b2"
-          icon="list-2"
-        />
-      </>
-    );
-  };
-
-  renderPopoverContent() {
-    return <PopoverContent>{this.renderHome()}</PopoverContent>;
-  }
 
   render() {
-    const content = <Popover>{this.renderPopoverContent()}</Popover>;
-
     return (
-      <OverlayTrigger
-        trigger="click"
-        rootClose={true}
-        placement="top"
-        containerPadding={15}
-        overlay={content}
-        shouldUpdatePosition={true}
+      <RTG.CSSTransition
+        in={this.props.show}
+        appear={true}
+        timeout={600}
+        classNames="slide-in-small"
+        unmountOnExit={true}
       >
-        <Bot>
-          <img src="/images/erxes-bot.svg" alt="ai robot" />
-        </Bot>
-      </OverlayTrigger>
+        <Content>
+          <HomeContainer>
+            <Greeting>
+              Good morning!{' '}
+              <b>
+                Ganzorig{' '}
+                <span role="img" aria-label="Wave">
+                  👋
+                </span>
+              </b>
+              <br /> What module do you use usually?
+            </Greeting>
+
+            <ModulItem
+              title="Customer merge"
+              description="Combine client and team"
+              icon="users"
+              color="#ec542b"
+              disabled={true}
+            />
+            <ModulItem
+              title="Company meta"
+              description="Combine client and team"
+              color="#3599cb"
+              icon="briefcase"
+              disabled={true}
+            />
+
+            <ModulItem
+              title="Customer Scoring"
+              description="Combine client and team"
+              color="#27b553"
+              icon="user-2"
+              disabled={true}
+            />
+            <ModulItem
+              title="Start onboarding"
+              description="Combine client and team"
+              color="#de59b2"
+              icon="list-2"
+              onClick={this.startOnboard}
+            />
+          </HomeContainer>
+        </Content>
+      </RTG.CSSTransition>
     );
   }
 }

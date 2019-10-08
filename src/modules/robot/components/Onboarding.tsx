@@ -5,7 +5,7 @@ import RTG from 'react-transition-group';
 import FeatureDetail from '../containers/FeatureDetail';
 import { IFeature } from '../types';
 import ModulItem from './ModulItem';
-import { Bot, Content, Greeting, NavButton } from './styles';
+import { Content, Greeting, NavButton } from './styles';
 import Suggestion from './Suggestion';
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
   changeStep: (step: string) => void;
   forceComplete: () => void;
   currentUser: IUser;
+  show: boolean;
 };
 
 class Onboarding extends React.Component<
@@ -139,39 +140,27 @@ class Onboarding extends React.Component<
   };
 
   showOnboard = () => {
-    return this.props.currentStep ? true : false;
+    const { show, currentStep } = this.props;
+
+    return !currentStep ? false : show;
   };
 
   render() {
     return (
-      <>
-        <RTG.CSSTransition
-          in={this.showOnboard()}
-          appear={true}
-          timeout={600}
-          classNames="slide-in-small"
-          unmountOnExit={true}
-        >
-          <Content>
-            <NavButton onClick={this.onHide} right={true}>
-              <Icon icon="times" size={17} />
-            </NavButton>
-            {this.renderContent()}
-          </Content>
-        </RTG.CSSTransition>
-
-        <RTG.CSSTransition
-          in={this.showOnboard()}
-          appear={true}
-          timeout={800}
-          classNames="robot"
-          unmountOnExit={true}
-        >
-          <Bot>
-            <img src="/images/erxes-bot.svg" alt="ai robot" />
-          </Bot>
-        </RTG.CSSTransition>
-      </>
+      <RTG.CSSTransition
+        in={this.showOnboard()}
+        appear={true}
+        timeout={600}
+        classNames="slide-in-small"
+        unmountOnExit={true}
+      >
+        <Content>
+          <NavButton onClick={this.onHide} right={true}>
+            <Icon icon="times" size={17} />
+          </NavButton>
+          {this.renderContent()}
+        </Content>
+      </RTG.CSSTransition>
     );
   }
 }

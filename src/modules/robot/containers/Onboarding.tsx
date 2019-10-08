@@ -15,7 +15,9 @@ import {
   IFeature
 } from '../types';
 
-type Props = {};
+type Props = {
+  show: boolean;
+};
 
 type FinalProps = Props &
   ForceCompleteMutationResponse & {
@@ -88,7 +90,7 @@ class OnboardingContainer extends React.Component<
 
   render() {
     const { currentStep } = this.state;
-    const { getAvailableFeaturesQuery } = this.props;
+    const { getAvailableFeaturesQuery, show } = this.props;
 
     const availableFeatures: IFeature[] = (getAvailableFeaturesQuery
       ? getAvailableFeaturesQuery.onboardingGetAvailableFeatures || []
@@ -107,6 +109,7 @@ class OnboardingContainer extends React.Component<
         {({ currentUser }) =>
           currentUser && (
             <Onboarding
+              show={show}
               currentUser={currentUser}
               currentStep={currentStep}
               changeStep={this.changeStep}

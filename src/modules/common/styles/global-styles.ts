@@ -208,6 +208,7 @@ a:hover {
 .robot-enter-active {
   animation-name: ${robotAnimation};
   animation-duration: 0.8s;
+  animation-delay: 1s;
 }
 
 .robot-exit,
