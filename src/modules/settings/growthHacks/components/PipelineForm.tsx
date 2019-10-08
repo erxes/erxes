@@ -1,4 +1,3 @@
-import Datetime from '@nateradebaugh/react-datetime';
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { COLORS } from 'modules/boards/constants';
@@ -6,6 +5,7 @@ import { FlexContent } from 'modules/boards/styles/item';
 import { IPipeline } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import DateControl from 'modules/common/components/form/DateControl';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -285,27 +285,25 @@ class PipelineForm extends React.Component<Props, State> {
           <FormGroup>
             <FlexContent>
               <DateItem>
-                <ControlLabel>Start date</ControlLabel>
-                <Datetime
-                  inputProps={{ placeholder: 'Start date' }}
-                  dateFormat="MMM,DD YYYY"
-                  timeFormat={false}
+                <ControlLabel required={true}>Start date</ControlLabel>
+                <DateControl
+                  {...formProps}
+                  required={true}
+                  name="startDate"
+                  placeholder={'Start date'}
                   value={startDate}
-                  closeOnSelect={true}
                   onChange={this.onDateInputChange.bind(this, 'startDate')}
-                  utc={true}
                 />
               </DateItem>
               <DateItem>
-                <ControlLabel>End date</ControlLabel>
-                <Datetime
-                  inputProps={{ placeholder: 'End date' }}
-                  dateFormat="MMM,DD YYYY"
-                  timeFormat={false}
+                <ControlLabel required={true}>End date</ControlLabel>
+                <DateControl
+                  {...formProps}
+                  required={true}
+                  name="endDate"
+                  placeholder={'End date'}
                   value={endDate}
-                  closeOnSelect={true}
                   onChange={this.onDateInputChange.bind(this, 'endDate')}
-                  utc={true}
                 />
               </DateItem>
             </FlexContent>
