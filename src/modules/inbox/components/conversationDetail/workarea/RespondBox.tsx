@@ -334,7 +334,7 @@ class RespondBox extends React.Component<Props, State> {
   renderCheckbox(kind: string) {
     const { isInternal } = this.state;
 
-    if (kind.includes('gmail')) {
+    if (kind.includes('nylas') || kind === 'gmail') {
       return null;
     }
 
@@ -353,7 +353,8 @@ class RespondBox extends React.Component<Props, State> {
   renderButtons() {
     const { conversation } = this.props;
     const integration = conversation.integration || ({} as IIntegration);
-    const disabled = integration.kind.includes('gmail');
+    const disabled =
+      integration.kind.includes('nylas') || integration.kind === 'gmail';
 
     return (
       <EditorActions>

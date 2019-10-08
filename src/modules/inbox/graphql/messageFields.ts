@@ -57,10 +57,18 @@ export default `
     subject
     body
     integrationEmail
-    to
-    from
-    cc
-    bcc
+    to {
+      email
+    } 
+    from {
+      email
+    }
+    cc {
+      email
+    } 
+    bcc {
+      email
+    }
     accountId
     replyToMessageId
     replyTo
