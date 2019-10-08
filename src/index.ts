@@ -17,7 +17,7 @@ import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils'
 import { checkFile, getEnv, readFileRequest, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
-import './messageQueue';
+import './messageBroker';
 
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';

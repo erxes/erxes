@@ -22,6 +22,7 @@ import { permissionMutations as permissions, usersGroupMutations as usersGroups 
 import pipelineTemplates from './pipelineTemplates';
 import products from './products';
 import responseTemplates from './responseTemplates';
+import robot from './robot';
 import scripts from './scripts';
 import segments from './segments';
 import tags from './tags';
@@ -62,4 +63,5 @@ export default {
   ...tasks,
   ...growthHacks,
   ...pipelineTemplates,
+  ...robot,
 };

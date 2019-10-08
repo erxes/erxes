@@ -11,7 +11,7 @@ import { METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
-import { sendMessage } from '../../../messageQueue';
+import { sendMessage } from '../../../messageBroker';
 import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../../constants';
 import { Builder as CustomerQueryBuilder } from '../../modules/coc/customers';
 import QueryBuilder from '../../modules/segments/queryBuilder';

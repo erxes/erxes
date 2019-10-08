@@ -53,7 +53,6 @@ export const types = `
     details: UserDetailsType
     links: UserLinksType
     status: String
-    hasSeenOnBoard: Boolean
     emailSignatures: JSON
     getNotificationByEmail: Boolean
     groupIds: [String]

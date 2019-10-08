@@ -92,7 +92,19 @@ const boardMutations = {
   async pipelinesAdd(_root, { stages, ...doc }: IPipelinesAdd, { user }: IContext) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
-    return Pipelines.createPipeline({ userId: user._id, ...doc }, stages);
+    const pipeline = await Pipelines.createPipeline({ userId: user._id, ...doc }, stages);
+
+    await putCreateLog(
+      {
+        type: 'pipeline',
+        newData: JSON.stringify(doc),
+        description: `${doc.name} has been created`,
+        object: pipeline,
+      },
+      user,
+    );
+
+    return pipeline;
   },
 
   /**

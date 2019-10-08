@@ -25,6 +25,7 @@ import { Permissions, UsersGroups } from './Permissions';
 import PipelineTemplates from './PipelineTemplates';
 import { ProductCategories, Products } from './Products';
 import ResponseTemplates from './ResponseTemplates';
+import { RobotEntries } from './Robot';
 import Scripts from './Scripts';
 import Segments from './Segments';
 import Tags from './Tags';
@@ -73,6 +74,7 @@ export {
   UsersGroups,
   Tickets,
   Tasks,
+  RobotEntries,
   GrowthHacks,
   PipelineTemplates,
 };

@@ -244,26 +244,6 @@ describe('User mutations', () => {
     spyEmail.mockRestore();
   });
 
-  test('usersSeenOnBoard', async () => {
-    const mutation = `
-      mutation usersSeenOnBoard {
-        usersSeenOnBoard {
-          _id
-        }
-      }
-  `;
-
-    await graphqlRequest(mutation, 'usersSeenOnBoard', {}, context);
-    const userObj = await Users.findOne({ _id: _user._id });
-
-    if (!userObj) {
-      throw new Error('User not found');
-    }
-
-    // send email call
-    expect(userObj.hasSeenOnBoard).toBeTruthy();
-  });
-
   test('usersConfirmInvitation', async () => {
     await userFactory({
       email: 'test@example.com',

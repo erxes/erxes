@@ -9,7 +9,8 @@ import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { debugEmail, debugExternalApi } from '../debuggers';
+import { OnboardingHistories } from '../db/models/Robot';
+import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
 import { graphqlPubsub } from '../pubsub';
 
 /*
@@ -572,6 +573,16 @@ export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) 
  */
 export const putCreateLog = (params: ILogParams, user: IUserDocument) => {
   const doc = { ...params, action: 'create', object: JSON.stringify(params.object) };
+
+  OnboardingHistories.getOrCreate({ type: doc.type, user })
+    .then(({ status }) => {
+      if (status === 'created') {
+        graphqlPubsub.publish('onboardingChanged', {
+          onboardingChanged: { userId: user._id, type: doc.type },
+        });
+      }
+    })
+    .catch(e => debugBase(e));
 
   return putLog(doc, user);
 };

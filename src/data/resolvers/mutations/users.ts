@@ -180,13 +180,6 @@ const userMutations = {
     return token;
   },
 
-  /*
-   * User has seen onboard
-   */
-  async usersSeenOnBoard(_root, {}, { user }: IContext) {
-    return Users.updateOnBoardSeen({ _id: user._id });
-  },
-
   async usersConfirmInvitation(
     _root,
     {

@@ -2,7 +2,7 @@ import { Permissions, Users } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { get, set } from '../../redisClient';
 
-export interface IModulesMap {
+export interface IModuleMap {
   name: string;
   description?: string;
   actions?: IActionsMap[];
@@ -16,7 +16,7 @@ export interface IActionsMap {
 }
 
 // Schema: {name: description}
-export const modulesMap: IModulesMap[] = [];
+export const modulesMap: IModuleMap[] = [];
 
 /*
 Schema:
@@ -88,7 +88,7 @@ export const can = async (action: string, user: IUserDocument): Promise<boolean>
     return true;
   }
 
-  const actionMap: IActionMap = await getUserAllowedActions(user);
+  const actionMap: IActionMap = await getUserActionsMap(user);
 
   return actionMap[action] === true;
 };
@@ -102,7 +102,7 @@ const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
 /*
  * Get given users permission map from redis or database
  */
-export const getUserAllowedActions = async (user: IUserDocument): Promise<IActionMap> => {
+export const getUserActionsMap = async (user: IUserDocument): Promise<IActionMap> => {
   const key = getKey(user);
   const permissionCache = await get(key);
 
@@ -111,12 +111,29 @@ export const getUserAllowedActions = async (user: IUserDocument): Promise<IActio
   if (permissionCache && permissionCache !== '{}') {
     actionMap = JSON.parse(permissionCache);
   } else {
-    actionMap = await userAllowedActions(user);
+    actionMap = await userActionsMap(user);
 
     set(key, JSON.stringify(actionMap));
   }
 
   return actionMap;
+};
+
+/*
+ * Get allowed actions
+ */
+export const getUserAllowedActions = async (user: IUserDocument): Promise<string[]> => {
+  const map = await getUserActionsMap(user);
+
+  const allowedActions: string[] = [];
+
+  for (const key of Object.keys(map)) {
+    if (map[key]) {
+      allowedActions.push(key);
+    }
+  }
+
+  return allowedActions;
 };
 
 /*
@@ -132,7 +149,7 @@ export const resetPermissionsCache = async () => {
   }
 };
 
-export const userAllowedActions = async (user: IUserDocument): Promise<IActionMap> => {
+export const userActionsMap = async (user: IUserDocument): Promise<IActionMap> => {
   const userPermissions = await Permissions.find({ userId: user._id });
   const groupPermissions = await Permissions.find({ groupId: { $in: user.groupIds } });
 
