@@ -1,4 +1,3 @@
-import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import { Label } from 'modules/common/components/form/styles';
@@ -38,7 +37,6 @@ type Props = {
   toggleReply?: () => void;
   fromEmail?: string;
   conversationDetails?: IMail;
-  closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -396,21 +394,6 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  renderCancelButton() {
-    const { closeModal } = this.props;
-
-    return (
-      <Button
-        btnStyle="danger"
-        size="small"
-        onClick={closeModal}
-        icon="cancel-1"
-      >
-        Close
-      </Button>
-    );
-  }
-
   renderIcon = ({
     text,
     icon,
@@ -433,12 +416,14 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderButtons(values, isSubmitted) {
-    const { closeModal, toggleReply, renderButton } = this.props;
+    const { kind, toggleReply, renderButton } = this.props;
 
     const inputProps = {
       type: 'file',
-      onChange: this.onAttachment,
-      multiple: true
+      multiple: true,
+      onChange: kind.includes('nylas')
+        ? this.onAttachment
+        : this.handleFileInput
     };
 
     return (
@@ -465,7 +450,7 @@ class MailForm extends React.Component<Props, State> {
             renderButton({
               name: 'mailForm',
               values: this.generateDoc(values),
-              callback: closeModal,
+              callback: toggleReply,
               isSubmitted
             })
           )}
