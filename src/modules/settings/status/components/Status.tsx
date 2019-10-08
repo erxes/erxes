@@ -6,7 +6,9 @@ import React from 'react';
 import { Box, Group, Title } from '../styles';
 import { ProjectVersions, Version } from '../types';
 
-class Status extends React.PureComponent<{ versions: ProjectVersions }> {
+class Status extends React.PureComponent<{
+  versions: ProjectVersions;
+}> {
   renderData(title: string, version?: Version) {
     const ver = version || ({} as Version);
 
