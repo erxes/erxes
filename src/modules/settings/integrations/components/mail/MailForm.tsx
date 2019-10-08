@@ -36,6 +36,8 @@ type Props = {
   kind: string;
   fromEmail?: string;
   conversationDetails?: IMail;
+  isReply?: boolean;
+  closeModal?: () => void;
   toggleReply?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
@@ -77,7 +79,7 @@ class MailForm extends React.Component<Props, State> {
 
       hasCc: cc ? cc.length > 0 : false,
       hasBcc: bcc ? bcc.length > 0 : false,
-      hasSubject: bcc ? bcc.length > 0 : false,
+      hasSubject: !props.isReply,
 
       fromEmail: from.email || props.fromEmail,
       subject: details.subject || '',
@@ -416,7 +418,7 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderButtons(values, isSubmitted) {
-    const { kind, toggleReply, renderButton } = this.props;
+    const { kind, closeModal, toggleReply, renderButton } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -450,7 +452,7 @@ class MailForm extends React.Component<Props, State> {
             renderButton({
               name: 'mailForm',
               values: this.generateDoc(values),
-              callback: toggleReply,
+              callback: closeModal || toggleReply,
               isSubmitted
             })
           )}

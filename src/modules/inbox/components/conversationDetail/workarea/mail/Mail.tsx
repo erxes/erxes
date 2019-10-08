@@ -91,6 +91,7 @@ class Mail extends React.PureComponent<
       <Message>
         <MailForm
           kind={kind}
+          isReply={isReply}
           toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
@@ -179,9 +180,7 @@ class Mail extends React.PureComponent<
 
   renderMeta = (message: IMessage) => {
     const { customer, createdAt, details = {} as IMail } = message;
-    const attachments = details.attachments || [];
-
-    const showIcon = attachments.length > 0;
+    const showIcon = details ? (details.attachments || []).length > 0 : false;
 
     return (
       <Meta toggle={this.state.toggle} onClick={this.onToggle}>
