@@ -1,4 +1,5 @@
 import { HomeContainer } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
 import ModulItem from 'modules/robot/components/ModulItem';
 import { Content, Greeting } from 'modules/robot/components/styles';
 import * as React from 'react';
@@ -7,6 +8,7 @@ import RTG from 'react-transition-group';
 type Props = {
   changeRoute: (route: string) => void;
   show: boolean;
+  currentUserName: string;
 };
 
 class Assistant extends React.Component<Props> {
@@ -15,9 +17,11 @@ class Assistant extends React.Component<Props> {
   };
 
   render() {
+    const { show, currentUserName } = this.props;
+
     return (
       <RTG.CSSTransition
-        in={this.props.show}
+        in={show}
         appear={true}
         timeout={600}
         classNames="slide-in-small"
@@ -26,26 +30,26 @@ class Assistant extends React.Component<Props> {
         <Content>
           <HomeContainer>
             <Greeting>
-              Good morning!{' '}
+              Hello!{' '}
               <b>
-                Ganzorig{' '}
+                {currentUserName}
                 <span role="img" aria-label="Wave">
                   👋
                 </span>
               </b>
-              <br /> What module do you use usually?
+              <br /> Select the action and see specific!
             </Greeting>
 
             <ModulItem
               title="Customer merge"
-              description="Combine client and team"
+              description={__('Automatically merge same people')}
               icon="users"
               color="#ec542b"
               disabled={true}
             />
             <ModulItem
               title="Company meta"
-              description="Combine client and team"
+              description={__('Automatically retrive company info')}
               color="#3599cb"
               icon="briefcase"
               disabled={true}
@@ -53,14 +57,14 @@ class Assistant extends React.Component<Props> {
 
             <ModulItem
               title="Customer Scoring"
-              description="Combine client and team"
+              description={__('Customer scoring depends on activity')}
               color="#27b553"
               icon="user-2"
               disabled={true}
             />
             <ModulItem
               title="Start onboarding"
-              description="Combine client and team"
+              description={__('Your step by step guide')}
               color="#de59b2"
               icon="list-2"
               onClick={this.startOnboard}

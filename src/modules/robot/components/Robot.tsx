@@ -1,12 +1,15 @@
+import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import RTG from 'react-transition-group';
 import Onboarding from '../containers/Onboarding';
 import { IEntry } from '../types';
+import { getCurrentUserName } from '../utils';
 import Assistant from './assistant/Assistant';
 import { Bot } from './styles';
 
 type Props = {
   entries: IEntry[];
+  currentUser: IUser;
 };
 
 type State = {
@@ -26,14 +29,20 @@ class Robot extends React.Component<Props, State> {
 
   renderContent = () => {
     const { currentRoute } = this.state;
+    const { currentUser } = this.props;
 
     return (
       <>
         <Assistant
           show={currentRoute === 'assistant'}
           changeRoute={this.changeRoute}
+          currentUserName={getCurrentUserName(currentUser)}
         />
-        <Onboarding show={currentRoute === 'onboard'} />
+        <Onboarding
+          changeRoute={this.changeRoute}
+          show={currentRoute === 'onboard'}
+          currentUser={currentUser}
+        />
       </>
     );
   };
@@ -53,7 +62,7 @@ class Robot extends React.Component<Props, State> {
         <RTG.CSSTransition
           in={true}
           appear={true}
-          timeout={1800}
+          timeout={2600}
           classNames="robot"
         >
           <Bot onClick={this.changeContent}>

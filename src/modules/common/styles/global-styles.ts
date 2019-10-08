@@ -207,14 +207,14 @@ a:hover {
 .robot-appear-active,
 .robot-enter-active {
   animation-name: ${robotAnimation};
-  animation-duration: 0.8s;
-  animation-delay: 1s;
+  animation-duration: 0.6s;
+  animation-delay: 2s;
 }
 
 .robot-exit,
 .robot-exit-active {
   animation-name: ${robotAnimation};
-  animation-duration: 0.8s;
+  animation-duration: 0.6s;
   animation-direction: reverse;
 }
 

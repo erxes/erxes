@@ -176,7 +176,7 @@ export const FEATURE_DETAILS = {
   insights: {
     text: 'Insights',
     description:
-      'You can find stats that defines the average response time by each team member.',
+      "You'll have a full view of reports, which include the number of visits, performance report of your customers' relations employee, sales updates, conversion rate, product report, etc.",
     color: '#7b48ff',
     icon: 'bar-chart',
     videoUrl: 'url',
@@ -186,7 +186,8 @@ export const FEATURE_DETAILS = {
     text: 'Import Histories',
     color: colors.colorCoreRed,
     icon: 'download-3',
-    description: 'importHistories',
+    description:
+      'Import history contains the lists of customer data and product information by the dates inserted to the platform and also will allow you to delete them one by one',
     videoUrl: 'url',
     settingsDetails: {}
   },

@@ -1,5 +1,4 @@
 import apolloClient from 'apolloClient';
-import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
@@ -17,12 +16,13 @@ import {
 
 type Props = {
   show: boolean;
+  changeRoute: (route: string) => void;
+  currentUser: IUser;
 };
 
 type FinalProps = Props &
   ForceCompleteMutationResponse & {
     getAvailableFeaturesQuery?: GetAvailableFeaturesQueryResponse;
-    currentUser: IUser;
   };
 
 class OnboardingContainer extends React.Component<
@@ -90,7 +90,12 @@ class OnboardingContainer extends React.Component<
 
   render() {
     const { currentStep } = this.state;
-    const { getAvailableFeaturesQuery, show } = this.props;
+    const {
+      getAvailableFeaturesQuery,
+      currentUser,
+      changeRoute,
+      show
+    } = this.props;
 
     const availableFeatures: IFeature[] = (getAvailableFeaturesQuery
       ? getAvailableFeaturesQuery.onboardingGetAvailableFeatures || []
@@ -105,20 +110,15 @@ class OnboardingContainer extends React.Component<
     });
 
     return (
-      <AppConsumer>
-        {({ currentUser }) =>
-          currentUser && (
-            <Onboarding
-              show={show}
-              currentUser={currentUser}
-              currentStep={currentStep}
-              changeStep={this.changeStep}
-              forceComplete={this.forceComplete}
-              availableFeatures={availableFeatures}
-            />
-          )
-        }
-      </AppConsumer>
+      <Onboarding
+        show={show}
+        currentUser={currentUser}
+        currentStep={currentStep}
+        changeStep={this.changeStep}
+        changeRoute={changeRoute}
+        forceComplete={this.forceComplete}
+        availableFeatures={availableFeatures}
+      />
     );
   }
 }
