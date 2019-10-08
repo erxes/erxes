@@ -208,13 +208,13 @@ class Mail extends React.PureComponent<
     const { message = {} as IMessage } = this.props;
 
     if (!message) {
-      return;
+      return null;
     }
 
     const { details } = message;
 
     if (!details) {
-      return;
+      return null;
     }
 
     return (
