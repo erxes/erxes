@@ -43,10 +43,10 @@ function ProductSection({
 
     const { customFieldsData } = product;
 
-    Object.keys(customFieldsData).forEach(name => {
+    Object.values(customFieldsData).forEach((field: any) => {
       result.push(
         <CustomField>
-          <b>{name}:</b> {customFieldsData[name]}
+          <b>{field.text}:</b> {field.data}
         </CustomField>
       );
     });
