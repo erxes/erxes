@@ -19,7 +19,6 @@ import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import LeadRoutes from './modules/leads/routes';
 import { NotifProvider } from './modules/notifications/context';
 import NotificationRoutes from './modules/notifications/routes';
-import OnboardRoutes from './modules/onboard/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
@@ -38,7 +37,6 @@ const renderRoutes = currentUser => {
   if (currentUser) {
     return (
       <>
-        <OnboardRoutes />
         <MainLayout currentUser={currentUser}>
           <MainWrapper>
             <NotifProvider currentUser={currentUser}>
