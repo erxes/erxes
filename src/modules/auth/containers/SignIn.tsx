@@ -13,7 +13,7 @@ const SignInContainer = (props: IRouterProps) => {
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
-      history.push('/');
+      history.push('/?signedIn=true');
     };
 
     return (

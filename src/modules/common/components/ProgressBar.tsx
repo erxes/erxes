@@ -2,6 +2,7 @@ import { colors } from 'modules/common/styles';
 import { stripe } from 'modules/common/utils/animations';
 import React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ContentContainer = styled.div`
   position: relative;
@@ -10,12 +11,12 @@ const ContentContainer = styled.div`
   text-align: center;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styledTS<{ height?: string }>(styled.div)`
   position: relative;
   padding: 8px 30px;
   background: ${colors.bgMain};
   width: 100%;
-  height: 36px;
+  height: ${props => (props.height ? props.height : '36px')};
   box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.05);
 
   a:hover {
@@ -32,9 +33,9 @@ const Wrapper = styled.div`
   }
 `;
 
-const Progress = styled.div`
+const Progress = styledTS<{ color?: string }>(styled.div)`
   position: absolute;
-  background: #dddeff;
+  background: ${props => props.color};
   left: 0;
   top: 0;
   bottom: 0;
@@ -58,12 +59,20 @@ type Props = {
   children?: React.ReactNode;
   close?: React.ReactNode;
   percentage: number;
+  color?: string;
+  height?: string;
 };
 
-function ProgressBar({ percentage, children, close }: Props) {
+function ProgressBar({
+  percentage,
+  children,
+  close,
+  color = '#dddeff',
+  height
+}: Props) {
   return (
-    <Wrapper>
-      <Progress style={{ width: `${percentage}%` }} />
+    <Wrapper height={height}>
+      <Progress style={{ width: `${percentage}%` }} color={color} />
       <ContentContainer>{children}</ContentContainer>
       {close}
     </Wrapper>
