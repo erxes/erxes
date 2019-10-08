@@ -183,6 +183,11 @@ export default class WorkArea extends React.Component<Props, State> {
               ? [currentConversation.customerId]
               : []
           }
+          assignedUserIds={
+            currentConversation.assignedUserId
+              ? [currentConversation.assignedUserId]
+              : []
+          }
         />
 
         <Resolver conversations={[currentConversation]} />

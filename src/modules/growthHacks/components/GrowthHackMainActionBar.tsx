@@ -1,5 +1,5 @@
 import MainActionBar from 'modules/boards/components/MainActionBar';
-import withPipeline from 'modules/boards/containers/withPipeline';
+import { PRIORITIES } from 'modules/boards/constants';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
@@ -10,6 +10,7 @@ import queryString from 'query-string';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import Select from 'react-select-plus';
+import { HACKSTAGES } from '../constants';
 
 interface IProps extends IRouterProps {
   onSearch: (search: string) => void;
@@ -26,7 +27,6 @@ interface IProps extends IRouterProps {
   queryParams: any;
   assignedUserIds?: string[];
   type: string;
-  pipeline: IPipeline;
 }
 
 const FILTER_PARAMS = [
@@ -38,7 +38,9 @@ const FILTER_PARAMS = [
   'nextDay',
   'nextMonth',
   'noCloseDate',
-  'overdue'
+  'overdue',
+  'hackStage',
+  'priority'
 ];
 
 const GrowthHackMainActionBar = (props: IProps) => {
@@ -135,15 +137,37 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
       field = values[0];
       direction = values[1];
-    }
 
-    router.setParams(props.history, {
-      sortField: field,
-      sortDirection: direction
-    });
+      router.setParams(props.history, {
+        sortField: field,
+        sortDirection: direction
+      });
+    } else {
+      router.removeParams(props.history, 'sortField', 'sortDirection');
+    }
   };
 
-  const { hackScoringType } = props.pipeline;
+  const onChangeFilter = (name: string, value: any) => {
+    if (value) {
+      router.setParams(props.history, {
+        [name]: value.value
+      });
+    } else {
+      router.removeParams(props.history, name);
+    }
+  };
+
+  const onChangeHackStage = value => {
+    onChangeFilter('hackStage', value);
+  };
+
+  const onChangePriority = value => {
+    onChangeFilter('priority', value);
+  };
+
+  const { hackScoringType } = props.currentPipeline || {
+    hackScoringType: 'ice'
+  };
 
   const effort = hackScoringType === 'rice' ? 'effort' : 'ease';
 
@@ -156,19 +180,45 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
   const { sortField, sortDirection } = props.queryParams;
 
+  const growthHackFilter = (
+    <>
+      <Select
+        value={props.queryParams.hackStage}
+        placeholder="Growth funnel"
+        onChange={onChangeHackStage}
+        options={HACKSTAGES.map(hs => ({ value: hs, label: hs }))}
+      />
+
+      <Select
+        value={props.queryParams.priority}
+        placeholder="Priority"
+        onChange={onChangePriority}
+        options={PRIORITIES.map(priority => ({
+          value: priority,
+          label: priority
+        }))}
+      />
+    </>
+  );
+
   const extraFilter = (
-    <Select
-      value={`${sortField},${sortDirection}`}
-      placeholder="Sort"
-      onChange={onChangeSort}
-      options={sortOptions}
-    />
+    <>
+      {growthHackFilter}
+      <Select
+        value={`${sortField},${sortDirection}`}
+        placeholder="Sort"
+        onChange={onChangeSort}
+        options={sortOptions}
+      />
+    </>
   );
 
   const extendedProps = {
     ...props,
+    boardText: 'Campaign',
+    pipelineText: 'Project',
     isFiltered,
-    extraFilter: currentUrl.includes('board') ? null : extraFilter,
+    extraFilter: currentUrl.includes('board') ? growthHackFilter : extraFilter,
     link: `/growthHack/${getCurrentType()}`,
     rightContent: viewChooser
   };
@@ -176,4 +226,4 @@ const GrowthHackMainActionBar = (props: IProps) => {
   return <MainActionBar {...extendedProps} />;
 };
 
-export default withPipeline(withRouter<IProps>(GrowthHackMainActionBar));
+export default withRouter<IProps>(GrowthHackMainActionBar);

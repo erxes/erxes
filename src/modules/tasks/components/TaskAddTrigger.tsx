@@ -5,12 +5,18 @@ import options from '../options';
 type Props = {
   relType: string;
   relTypeIds?: string[];
+  assignedUserIds?: string[];
 };
 
 export default (props: Props) => {
-  const { relType, relTypeIds } = props;
+  const { relType, relTypeIds, assignedUserIds } = props;
 
   return (
-    <AddTrigger options={options} relTypeIds={relTypeIds} relType={relType} />
+    <AddTrigger
+      options={options}
+      relTypeIds={relTypeIds}
+      relType={relType}
+      assignedUserIds={assignedUserIds}
+    />
   );
 };
