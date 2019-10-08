@@ -120,12 +120,12 @@ class Mail extends React.PureComponent<
   }
 
   renderDetails(details) {
-    const [{ email }] = details.from;
+    const [from] = details.from || [{}];
     const { body = '' } = details;
 
     return (
       <Details>
-        <strong>{email}</strong>
+        <strong>{from.email || ''}</strong>
         {this.renderAddress('To:', details.to, juice(body))}
         {this.renderAddress('Cc:', details.cc, juice(body))}
         {this.renderAddress('Bcc:', details.bcc, juice(body))}
@@ -206,10 +206,15 @@ class Mail extends React.PureComponent<
 
   render() {
     const { message = {} as IMessage } = this.props;
-    const details = message.details || {};
 
-    if (!message || !details) {
-      return null;
+    if (!message) {
+      return;
+    }
+
+    const { details } = message;
+
+    if (!details) {
+      return;
     }
 
     return (
