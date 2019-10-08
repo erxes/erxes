@@ -1,4 +1,5 @@
 import { injectGlobal } from 'styled-components';
+import { robotAnimation } from '../utils/animations';
 import { colors, typography } from './';
 
 const style = `
@@ -158,6 +159,26 @@ a:hover {
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
+.slide-in-appear,
+.slide-in-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-in-appear-active,
+.slide-in-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95) 0.2s;
+}
+
+.slide-in-exit,
+.slide-in-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
 .slide-in-small-appear,
 .slide-in-small-enter {
   opacity: 0;
@@ -176,6 +197,24 @@ a:hover {
   opacity: 0;
   transform: translateY(10px);
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.robot-appear,
+.robot-enter {
+  opacity: 0;
+}
+
+.robot-appear-active,
+.robot-enter-active {
+  animation-name: ${robotAnimation};
+  animation-duration: 0.8s;
+}
+
+.robot-exit,
+.robot-exit-active {
+  animation-name: ${robotAnimation};
+  animation-duration: 0.8s;
+  animation-direction: reverse;
 }
 
 /* dropdown */
@@ -544,11 +583,11 @@ a:hover {
 
 .react-toggle-track {
   background-color: ${colors.colorCoreBlack};
-}
+[}
 
 .react-toggle-track span {
   display: none;
-}
+}]
 
 .react-toggle--checked .react-toggle-thumb,
 .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
@@ -757,6 +796,156 @@ a:hover {
 
 .sidebar-accordion .popover-list {
   max-height: none;
+}
+
+/* carousel */
+.carousel {
+  position: relative;
+}
+.carousel-inner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+.carousel-inner > .item {
+  position: relative;
+  display: none;
+  -webkit-transition: .6s ease-in-out left;
+       -o-transition: .6s ease-in-out left;
+          transition: .6s ease-in-out left;
+}
+.carousel-inner > .item > img,
+.carousel-inner > .item > a > img {
+  line-height: 1;
+}
+.carousel-inner > .active,
+.carousel-inner > .next,
+.carousel-inner > .prev {
+  display: block;
+}
+.carousel-inner > .active {
+  left: 0;
+}
+.carousel-inner > .next,
+.carousel-inner > .prev {
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.carousel-inner > .next {
+  left: 100%;
+}
+.carousel-inner > .prev {
+  left: -100%;
+}
+.carousel-inner > .next.left,
+.carousel-inner > .prev.right {
+  left: 0;
+}
+.carousel-inner > .active.left {
+  left: -100%;
+}
+.carousel-inner > .active.right {
+  left: 100%;
+}
+.carousel-control {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 15%;
+  font-size: 20px;
+  color: #6569DF;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+.carousel-control.right {
+  right: 0;
+  left: auto;
+}
+.carousel-control:hover,
+.carousel-control:focus {
+  color: #6569DF;
+  text-decoration: none;
+  filter: alpha(opacity=90);
+  outline: 0;
+  opacity: .9;
+}
+.carousel-control .icon-prev,
+.carousel-control .icon-next {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  display: inline-block;
+  margin-top: -10px;
+}
+.carousel-control .icon-prev {
+  left: 50%;
+  margin-left: -10px;
+}
+.carousel-control .icon-next {
+  right: 50%;
+  margin-right: -10px;
+}
+.carousel-control .icon-prev,
+.carousel-control .icon-next {
+  width: 20px;
+  height: 20px;
+  font-family: serif;
+  line-height: 1;
+}
+.carousel-control .icon-prev:before {
+  content: '<';
+}
+.carousel-control .icon-next:before {
+  content: '>';
+}
+.carousel-indicators {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  z-index: 15;
+  width: 60%;
+  padding-left: 0;
+  margin-left: -30%;
+  text-align: center;
+  list-style: none;
+  margin-bottom: 0;
+}
+.carousel-indicators li {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 1px;
+  text-indent: -999px;
+  cursor: pointer;
+  background-color: #000;
+  background-color: rgba(0, 0, 0, 0);
+  border: 1px solid #EA475D;
+  border-radius: 8px;
+}
+.carousel-indicators .active {
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  background-color: #EA475D;
+}
+@media screen and (min-width: 768px) {
+  .carousel-control .icon-prev,
+  .carousel-control .icon-next {
+    width: 30px;
+    height: 30px;
+    margin-top: -15px;
+    font-size: 30px;
+  },
+  .carousel-control .icon-prev {
+    margin-left: -15px;
+  }
+  .carousel-control .icon-next {
+    margin-right: -15px;
+  }
 }
 
 /* icon select */

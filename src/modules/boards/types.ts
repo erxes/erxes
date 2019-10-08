@@ -75,6 +75,8 @@ export interface IPipeline {
   metric?: string;
   hackScoringType?: string;
   templateId?: string;
+  state?: string;
+  itemsTotalCount?: number;
 }
 
 interface IStageComparisonInfo {

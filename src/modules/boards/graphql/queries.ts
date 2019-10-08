@@ -38,6 +38,10 @@ const boardDetail = `
         visibility
         memberIds
         isWatched
+        startDate
+        endDate
+        state
+        itemsTotalCount
         members {
           _id
           email

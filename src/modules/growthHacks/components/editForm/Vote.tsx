@@ -19,7 +19,10 @@ class Vote extends React.Component<IProps> {
 
     const onClick = () => onChangeVote(!isVoted);
     return (
-      <ColorButton onClick={onClick} color={isVoted ? colors.colorCoreRed : ''}>
+      <ColorButton
+        onClick={onClick}
+        color={isVoted ? colors.colorCoreGreen : ''}
+      >
         <Icon icon="like-1" />
         {__(isVoted ? 'Unvote' : 'Vote')}
       </ColorButton>
