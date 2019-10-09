@@ -38,7 +38,7 @@ class CloseDate extends React.Component<Props, State> {
     this.ref = React.createRef();
 
     this.state = {
-      dueDate: props.closeDate
+      dueDate: props.closeDate || dayjs()
     };
   }
 
@@ -50,14 +50,22 @@ class CloseDate extends React.Component<Props, State> {
     this.setState({ dueDate: date });
   };
 
+  hideContent = () => {
+    const overlay: any = this.refs.overlay;
+
+    overlay.hide();
+  };
+
   onSave = () => {
     const { dueDate } = this.state;
 
     this.props.onChangeField('closeDate', dueDate);
+    this.hideContent();
   };
 
   remove = () => {
     this.props.onChangeField('closeDate', null);
+    this.hideContent();
   };
 
   renderContent() {
@@ -151,6 +159,7 @@ class CloseDate extends React.Component<Props, State> {
     return (
       <CloseDateWrapper innerRef={this.ref}>
         <OverlayTrigger
+          ref="overlay"
           trigger="click"
           placement="bottom"
           overlay={this.renderContent()}
