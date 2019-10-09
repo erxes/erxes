@@ -63,6 +63,7 @@ type Props = {
   description?: string;
   onClick?: () => void;
   isComplete?: boolean;
+  disabled?: boolean;
 };
 
 type State = {
@@ -78,11 +79,17 @@ class ModulItem extends React.Component<Props, State> {
       color,
       onClick,
       vertical,
-      isComplete
+      isComplete,
+      disabled
     } = this.props;
 
     return (
-      <Modul onClick={onClick} vertical={vertical} isComplete={isComplete}>
+      <Modul
+        onClick={onClick}
+        vertical={vertical}
+        isComplete={isComplete}
+        disabled={disabled}
+      >
         <IconContainer color={color}>
           <Icon icon={icon} />
         </IconContainer>

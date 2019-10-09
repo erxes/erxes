@@ -1,20 +1,17 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { darken, lighten } from 'modules/common/styles/color';
-import { Popover } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-
-const PopoverHome = styled(Popover)`
-  width: 493px;
-`;
 
 const Group = styled.div`
   margin-bottom: 10px;
 `;
 
-const GroupHead = styledTS<{ vertical?: boolean; isComplete?: boolean }>(
-  styled.div
-)`
+const GroupHead = styledTS<{
+  disabled?: boolean;
+  vertical?: boolean;
+  isComplete?: boolean;
+}>(styled.div)`
   display: inline-flex;
   background: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
@@ -25,7 +22,7 @@ const GroupHead = styledTS<{ vertical?: boolean; isComplete?: boolean }>(
   flex-direction: ${props => props.vertical && 'column'};
 
   &:hover {
-    cursor: pointer;
+    cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
     box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.15);
   }
 `;
@@ -70,4 +67,4 @@ const NotifyItem = styled.li`
   }
 `;
 
-export { GroupHead, Count, Title, Group, NotifyList, NotifyItem, PopoverHome };
+export { GroupHead, Count, Title, Group, NotifyList, NotifyItem };
