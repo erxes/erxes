@@ -181,6 +181,13 @@ const growthHackMutations = {
 
     return GrowthHacks.watchGrowthHack(_id, isAdd, user._id);
   },
+
+  /**
+   * Vote a growth hack
+   */
+  growthHacksVote(_root, { _id, isVote }: { _id: string; isVote: boolean }, { user }: { user: IUserDocument }) {
+    return GrowthHacks.voteGrowthHack(_id, isVote, user._id);
+  },
 };
 
 checkPermission(growthHackMutations, 'growthHacksAdd', 'growthHacksAdd');

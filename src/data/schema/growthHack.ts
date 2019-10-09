@@ -25,6 +25,9 @@ export const types = `
     stage: Stage
     attachments: [Attachment]
     isWatched: Boolean
+    voteCount: Int
+    votedUsers: [User]
+    isVoted: Boolean
     formId: String
     scoringType: String
     formSubmissions: JSON
@@ -96,4 +99,5 @@ export const mutations = `
   growthHacksUpdateOrder(stageId: String!, orders: [OrderItem]): [GrowthHack]
   growthHacksRemove(_id: String!): GrowthHack
   growthHacksWatch(_id: String, isAdd: Boolean): GrowthHack
+  growthHacksVote(_id: String!, isVote: Boolean): GrowthHack
 `;

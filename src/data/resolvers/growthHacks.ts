@@ -43,6 +43,14 @@ export default {
     return Users.find({ _id: { $in: growthHack.assignedUserIds } });
   },
 
+  votedUsers(growthHack: IGrowthHackDocument) {
+    return Users.find({ _id: { $in: growthHack.votedUserIds } });
+  },
+
+  isVoted(growthHack: IGrowthHackDocument, _args, { user }: { user: IUserDocument }) {
+    return growthHack.votedUserIds ? growthHack.votedUserIds.indexOf(user._id) !== -1 : false;
+  },
+
   async pipeline(growthHack: IGrowthHackDocument) {
     const stage = await Stages.getStage(growthHack.stageId || '');
 
