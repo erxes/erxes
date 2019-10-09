@@ -1,4 +1,6 @@
+import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
@@ -8,6 +10,7 @@ import { EntriesQueryResponse } from '../types';
 
 type Props = {
   entriesQuery: EntriesQueryResponse;
+  currentUser: IUser;
 };
 
 class RobotContainer extends React.Component<Props> {
@@ -19,7 +22,13 @@ class RobotContainer extends React.Component<Props> {
       entries: entriesQuery.robotEntries || []
     };
 
-    return <Robot {...updatedProps} />;
+    return (
+      <AppConsumer>
+        {({ currentUser }) =>
+          currentUser && <Robot {...updatedProps} currentUser={currentUser} />
+        }
+      </AppConsumer>
+    );
   }
 }
 
