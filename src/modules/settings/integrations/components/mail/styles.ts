@@ -75,6 +75,11 @@ const MailEditorWrapper = styled.div`
       min-height: 140px !important;
     }
   }
+
+  .cke_toolgroup {
+    border: 0;
+    padding-left: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`

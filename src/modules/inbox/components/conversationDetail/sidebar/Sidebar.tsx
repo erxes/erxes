@@ -249,6 +249,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     return (
       <Actions>
         <ModalTrigger
+          dialogClassName="middle"
           title="Email"
           trigger={
             <Button disabled={primaryEmail ? false : true} size="small">
