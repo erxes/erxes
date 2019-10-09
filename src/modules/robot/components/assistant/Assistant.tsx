@@ -30,15 +30,21 @@ class Assistant extends React.Component<Props> {
         <Content>
           <HomeContainer>
             <Greeting>
-              Hello!{' '}
-              <b>
-                {currentUserName}
-                <span role="img" aria-label="Wave">
-                  👋
-                </span>
-              </b>
-              <br /> Select the action and see specific!
+              Hello! <b>{currentUserName} </b>
+              <span role="img" aria-label="Wave">
+                👋
+              </span>
+              <br /> I'm a bot that help you declutter database and focus on
+              what's most important
             </Greeting>
+
+            <ModulItem
+              title="Start onboarding"
+              description={__('Your step by step guide')}
+              color="#de59b2"
+              icon="list-2"
+              onClick={this.startOnboard}
+            />
 
             <ModulItem
               title="Customer merge"
@@ -61,13 +67,6 @@ class Assistant extends React.Component<Props> {
               color="#27b553"
               icon="user-2"
               disabled={true}
-            />
-            <ModulItem
-              title="Start onboarding"
-              description={__('Your step by step guide')}
-              color="#de59b2"
-              icon="list-2"
-              onClick={this.startOnboard}
             />
           </HomeContainer>
         </Content>
