@@ -4,7 +4,7 @@ import { mutations, queries } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
-import { BrandsQueryResponse } from '../../../settings/brands/types';
+import { AllBrandsQueryResponse } from '../../../settings/brands/types';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
@@ -20,7 +20,7 @@ type Props = {
 };
 
 type FinalProps = {
-  brandsQuery: BrandsQueryResponse;
+  brandsQuery: AllBrandsQueryResponse;
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
 } & Props &
   SaveResponseTemplateMutationResponse;
@@ -52,7 +52,7 @@ const ResponseTemplateContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    brands: brandsQuery.brands,
+    brands: brandsQuery.allBrands,
     saveResponseTemplate,
     responseTemplates: responseTemplatesQuery.responseTemplates
   };
@@ -62,7 +62,7 @@ const ResponseTemplateContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BrandsQueryResponse>(gql(queries.brandList), {
+    graphql<Props, AllBrandsQueryResponse>(gql(queries.brandList), {
       name: 'brandsQuery'
     }),
     graphql(gql(queries.responseTemplateList), {

@@ -70,7 +70,7 @@ class FunnelImpact extends React.Component<Props, States> {
 
     return (
       <BoardContainer>
-        <Header title={__('Growth hack')} breadcrumb={breadcrumb} />
+        <Header title={__('Growth hacking')} breadcrumb={breadcrumb} />
         <BoardContent transparent={true} bgColor={colors.bgMain}>
           {this.renderActionBar()}
           {this.renderContent()}

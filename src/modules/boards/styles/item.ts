@@ -19,6 +19,10 @@ const PriceContainer = styled.div`
   }
 `;
 
+const Left = styled.div`
+  float: left;
+`;
+
 const Right = styled.div`
   float: right;
 `;
@@ -371,6 +375,7 @@ export {
   UserCounterContainer,
   PriceContainer,
   Right,
+  Left,
   Footer,
   WatchIndicator,
   ActionContainer,

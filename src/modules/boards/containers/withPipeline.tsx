@@ -8,6 +8,7 @@ import { IOptions, PipelineDetailQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
+  showComponent?: boolean;
   options?: IOptions;
 };
 
@@ -17,9 +18,13 @@ type ContainerProps = {
 
 const withPipeline = Component => {
   const Container = (props: ContainerProps) => {
-    const { pipelineDetailQuery } = props;
+    const { pipelineDetailQuery, showComponent } = props;
 
-    if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
+    if (!pipelineDetailQuery) {
+      if (showComponent) {
+        return <Component {...props} />;
+      }
+
       return (
         <EmptyState
           image="/images/actions/18.svg"
