@@ -29,7 +29,7 @@ const growthHackMutations = {
     await sendNotifications({
       item: growthHack,
       user,
-      type: NOTIFICATION_TYPES.GROWTH_HACK_ADD,
+      type: NOTIFICATION_TYPES.GROWTHHACK_ADD,
       action: 'invited you to the growthHack',
       content: `'${growthHack.name}'.`,
       contentType: 'growthHack',
@@ -63,7 +63,7 @@ const growthHackMutations = {
     const notificationDoc: IBoardNotificationParams = {
       item: updatedGrowthHack,
       user,
-      type: NOTIFICATION_TYPES.GROWTH_HACK_EDIT,
+      type: NOTIFICATION_TYPES.GROWTHHACK_EDIT,
       action: `has updated a growth hack`,
       content: `${updatedGrowthHack.name}`,
       contentType: 'growthHack',
@@ -120,7 +120,7 @@ const growthHackMutations = {
     await sendNotifications({
       item: growthHack,
       user,
-      type: NOTIFICATION_TYPES.GROWTH_HACK_CHANGE,
+      type: NOTIFICATION_TYPES.GROWTHHACK_CHANGE,
       content,
       action,
       contentType: 'growthHack',
@@ -149,7 +149,7 @@ const growthHackMutations = {
     await sendNotifications({
       item: growthHack,
       user,
-      type: NOTIFICATION_TYPES.GROWTH_HACK_DELETE,
+      type: NOTIFICATION_TYPES.GROWTHHACK_DELETE,
       action: `deleted growth hack:`,
       content: `'${growthHack.name}'`,
       contentType: 'growthHack',
