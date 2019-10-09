@@ -13,7 +13,7 @@ type Props = {
 
 class Assistant extends React.Component<Props> {
   startOnboard = () => {
-    this.props.changeRoute('onboard');
+    this.props.changeRoute('onboardStart');
   };
 
   render() {

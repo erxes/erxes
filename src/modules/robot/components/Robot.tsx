@@ -20,7 +20,7 @@ class Robot extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentRoute: 'onboard' };
+    this.state = { currentRoute: 'onboardInitial' };
   }
 
   changeRoute = (currentRoute: string) => {
@@ -40,8 +40,11 @@ class Robot extends React.Component<Props, State> {
         />
         <Onboarding
           changeRoute={this.changeRoute}
-          show={currentRoute === 'onboard'}
+          show={currentRoute.includes('onboard')}
           currentUser={currentUser}
+          currentStep={
+            currentRoute === 'onboardStart' ? 'featureList' : undefined
+          }
         />
       </>
     );

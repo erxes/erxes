@@ -68,8 +68,6 @@ class Onboarding extends React.Component<
       currentUserName: getCurrentUserName(currentUser)
     };
 
-    console.log(currentStep);
-
     if (currentStep === 'initial') {
       const onClick = () => {
         changeStep('featureList');
