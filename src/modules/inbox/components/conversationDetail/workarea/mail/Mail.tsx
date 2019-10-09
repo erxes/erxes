@@ -62,7 +62,7 @@ class Mail extends React.PureComponent<
     });
   }
 
-  renderReplyButton(details) {
+  renderReplyButton(mailData) {
     if (this.state.isReply) {
       return null;
     }
@@ -79,7 +79,7 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderMailForm(details) {
+  renderMailForm(mailData) {
     const { isReply } = this.state;
     const { integrationId, kind } = this.props;
 
@@ -95,7 +95,7 @@ class Mail extends React.PureComponent<
           toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
-          conversationDetails={details}
+          conversationDetails={mailData}
         />
       </Message>
     );
@@ -119,16 +119,16 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderDetails(details) {
-    const [from] = details.from || [{}];
-    const { body = '' } = details;
+  renderDetails(mailData) {
+    const [from] = mailData.from || [{}];
+    const { body = '' } = mailData;
 
     return (
       <Details>
         <strong>{from.email || ''}</strong>
-        {this.renderAddress('To:', details.to, juice(body))}
-        {this.renderAddress('Cc:', details.cc, juice(body))}
-        {this.renderAddress('Bcc:', details.bcc, juice(body))}
+        {this.renderAddress('To:', mailData.to, juice(body))}
+        {this.renderAddress('Cc:', mailData.cc, juice(body))}
+        {this.renderAddress('Bcc:', mailData.bcc, juice(body))}
       </Details>
     );
   }
@@ -142,25 +142,25 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderBody(details) {
+  renderBody(mailData) {
     const { toggle } = this.state;
 
     if (toggle) {
       return null;
     }
 
-    const innerHTML = { __html: this.cleanHtml(details.body || '') };
+    const innerHTML = { __html: this.cleanHtml(mailData.body || '') };
 
     return (
       <>
         <Content toggle={toggle} dangerouslySetInnerHTML={innerHTML} />
-        <Reply>{this.renderReplyButton(details)}</Reply>
+        <Reply>{this.renderReplyButton(mailData)}</Reply>
       </>
     );
   }
 
-  renderAttachments(details) {
-    const { messageId, attachments = [] } = details;
+  renderAttachments(mailData) {
+    const { messageId, attachments = [] } = mailData;
 
     if (!attachments || attachments.length === 0) {
       return;
@@ -179,26 +179,26 @@ class Mail extends React.PureComponent<
   }
 
   renderMeta = (message: IMessage) => {
-    const { customer, createdAt, details = {} as IMail } = message;
-    const showIcon = details ? (details.attachments || []).length > 0 : false;
+    const { customer, createdAt, mailData = {} as IMail } = message;
+    const showIcon = mailData ? (mailData.attachments || []).length > 0 : false;
 
     return (
       <Meta toggle={this.state.toggle} onClick={this.onToggle}>
         <Avatar customer={customer} size={32} />
-        {this.renderDetails(details)}
+        {this.renderDetails(mailData)}
         {this.renderRightSide(showIcon, createdAt)}
       </Meta>
     );
   };
 
   renderMessage = (message: IMessage) => {
-    const { details } = message;
+    const { mailData } = message;
 
     return (
       <Message toggle={this.state.toggle}>
         {this.renderMeta(message)}
-        {this.renderBody(details)}
-        {this.renderAttachments(details)}
+        {this.renderBody(mailData)}
+        {this.renderAttachments(mailData)}
         <div className="clearfix" />
       </Message>
     );
@@ -211,16 +211,16 @@ class Mail extends React.PureComponent<
       return null;
     }
 
-    const { details } = message;
+    const { mailData } = message;
 
-    if (!details) {
+    if (!mailData) {
       return null;
     }
 
     return (
       <>
         {this.renderMessage(message)}
-        {this.renderMailForm(details)}
+        {this.renderMailForm(mailData)}
       </>
     );
   }

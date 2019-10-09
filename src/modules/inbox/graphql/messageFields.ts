@@ -51,7 +51,7 @@ export default `
       colorCode
     }
   }
-  details {
+  mailData {
     messageId
     threadId
     subject

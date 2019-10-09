@@ -120,7 +120,7 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
-  details?: IMail;
+  mailData?: IMail;
 
   _id: string;
   user?: IUser;
