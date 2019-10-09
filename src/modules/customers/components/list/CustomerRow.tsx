@@ -32,12 +32,12 @@ function formatValue(value) {
     );
   }
 
-  if (isValidDate(value) || isTimeStamp(value)) {
-    return <Date>{dayjs(value).format('lll')}</Date>;
-  }
-
   if (typeof value === 'string') {
     return value;
+  }
+
+  if (isValidDate(value) || isTimeStamp(value)) {
+    return <Date>{dayjs(value).format('lll')}</Date>;
   }
 
   return value;
