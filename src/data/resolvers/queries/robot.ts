@@ -7,14 +7,25 @@ import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 const features: { [key: string]: { settings: string[]; settingsPermissions: string[] } } = {
+  growthHacks: {
+    settings: ['boardCreate', 'pipelineCreate', 'growthHackCreate'],
+    settingsPermissions: ['growthHackBoardsAdd', 'growthHackPipelinesAdd', 'growthHackStagesAdd'],
+  },
   inbox: {
     settings: ['brandCreate', 'channelCreate', 'integrationCreate'],
     settingsPermissions: ['manageBrands', 'manageChannels', 'integrationCreate'],
   },
-  customers: { settings: [], settingsPermissions: [] },
   deals: {
     settings: ['boardCreate', 'pipelineCreate', 'dealCreate'],
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd'],
+  },
+  leads: {
+    settings: [],
+    settingsPermissions: [],
+  },
+  engages: {
+    settings: ['emailTemplateCreate', 'tagCreate'],
+    settingsPermissions: ['manageEmailTemplate', 'manageTags'],
   },
   tasks: {
     settings: ['boardCreate', 'pipelineCreate', 'taskCreate'],
@@ -24,35 +35,16 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settings: ['boardCreate', 'pipelineCreate', 'ticketCreate'],
     settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd', 'ticketStagesAdd'],
   },
-  growthHacks: {
-    settings: ['boardCreate', 'pipelineCreate', 'growthHackCreate'],
-    settingsPermissions: ['growthHackBoardsAdd', 'growthHackPipelinesAdd', 'growthHackStagesAdd'],
-  },
-  engages: {
-    settings: ['emailTemplateCreate', 'tagCreate'],
-    settingsPermissions: ['manageEmailTemplate', 'manageTags'],
-  },
-  leads: {
-    settings: [],
-    settingsPermissions: [],
-  },
   knowledgeBase: {
     settings: ['knowledgeBaseTopicCreate', 'knowledgeBaseCategoryCreate', 'knowledgeBaseArticleCreate'],
     settingsPermissions: ['manageKnowledgeBase'],
   },
-  tags: {
-    settings: [],
-    settingsPermissions: [],
-  },
-  insights: {
-    settings: [],
-    settingsPermissions: [],
-  },
-  importHistories: {
-    settings: [],
-    settingsPermissions: [],
-  },
+  customers: { settings: [], settingsPermissions: [] },
   segments: {
+    settings: [],
+    settingsPermissions: [],
+  },
+  tags: {
     settings: [],
     settingsPermissions: [],
   },
@@ -67,6 +59,14 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
   integrations: {
     settings: ['brandCreate', 'channelCreate'],
     settingsPermissions: ['manageBrands', 'manageChannels'],
+  },
+  insights: {
+    settings: [],
+    settingsPermissions: [],
+  },
+  importHistories: {
+    settings: [],
+    settingsPermissions: [],
   },
 };
 
