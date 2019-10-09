@@ -52,15 +52,15 @@ export const FEATURE_DETAILS = {
     videoUrl: 'url',
     settingsDetails: {
       boardCreate: {
-        name: 'Create board',
+        name: 'Create a sales board',
         url: '/settings/boards/deal'
       },
       pipelineCreate: {
-        name: 'Create pipeline',
+        name: 'Create a sales pipeline',
         url: '/settings/boards/deal'
       },
       dealCreate: {
-        name: 'Create deal',
+        name: 'Now add deal',
         url: '/deal/board'
       }
     }
@@ -87,7 +87,7 @@ export const FEATURE_DETAILS = {
         url: '/settings/email-templates'
       },
       tagCreate: {
-        name: 'Create tag',
+        name: 'Create email tag',
         url: '/tags/engageMessage'
       }
     }
@@ -129,7 +129,7 @@ export const FEATURE_DETAILS = {
         url: '/settings/boards/ticket'
       },
       ticketCreate: {
-        name: 'Now add ticket',
+        name: 'Now add tickets',
         url: '/inbox/ticket/board'
       }
     }
@@ -210,7 +210,7 @@ export const FEATURE_DETAILS = {
     videoUrl: 'url',
     settingsDetails: {
       brandCreate: {
-        name: 'Manage brands',
+        name: 'Manage   ',
         url: '/settings/brands'
       },
       channelCreate: {
