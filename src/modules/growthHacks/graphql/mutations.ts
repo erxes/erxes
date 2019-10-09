@@ -40,6 +40,7 @@ const commonReturn = `
       avatar
     }
   }
+  voteCount
   priority
   hackStages
   reach
@@ -100,11 +101,20 @@ const growthHacksWatch = `
   }
 `;
 
+const growthHacksVote = `
+  mutation growthHacksVote($_id: String!, $isVote: Boolean!) {
+    growthHacksVote(_id: $_id, isVote: $isVote) {
+      ${commonReturn}
+    }
+  }
+`;
+
 export default {
   growthHacksAdd,
   growthHacksEdit,
   growthHacksRemove,
   growthHacksChange,
   growthHacksUpdateOrder,
-  growthHacksWatch
+  growthHacksWatch,
+  growthHacksVote
 };
