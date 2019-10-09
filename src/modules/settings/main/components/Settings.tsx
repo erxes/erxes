@@ -121,10 +121,10 @@ class Settings extends React.PureComponent {
         </Row>
         <Divider />
         <Row>
-          <RowTitle>{__('Growth hack Settings')}</RowTitle>
+          <RowTitle>{__('Growth Hacking Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Campaigns & Projects',
+              'Marketing campaigns',
               '/images/icons/erxes-20.svg',
               '/settings/boards/growthHack'
             )}
@@ -140,7 +140,7 @@ class Settings extends React.PureComponent {
           <RowTitle>{__('Deal Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Boards & Pipelines',
+              'Sales board & Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/deal'
             )}
@@ -156,7 +156,7 @@ class Settings extends React.PureComponent {
           <RowTitle>{__('Ticket Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Boards & Pipelines',
+              'Ticket Boards & Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/ticket'
             )}
@@ -167,7 +167,7 @@ class Settings extends React.PureComponent {
           <RowTitle>{__('Task Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Boards & Pipelines',
+              'Task Boards & Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/task'
             )}
