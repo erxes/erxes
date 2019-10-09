@@ -1,3 +1,4 @@
+import { SelectWrapper } from 'modules/common/components/form/styles';
 import { colors, dimensions } from 'modules/common/styles';
 import { Attachment } from 'modules/inbox/styles';
 import styled from 'styled-components';
@@ -49,7 +50,31 @@ const LeftSection = styled.div`
 const MailEditorWrapper = styled.div`
   position: relative;
   background: ${colors.colorWhite};
-  margin: ${dimensions.coreSpacing}px 0;
+
+  .cke {
+    border-top: 0;
+  }
+
+  .cke_bottom {
+    display: none;
+  }
+
+  .cke_inner {
+    position: relative;
+
+    .cke_top {
+      position: absolute;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      border-bottom: 0;
+      border-top: 1px solid ${colors.borderPrimary};
+    }
+
+    .cke_contents {
+      min-height: 140px !important;
+    }
+  }
 `;
 
 const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
@@ -65,7 +90,7 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
 `;
 
 const EditorFooter = styled.div`
-  margin: -${dimensions.unitSpacing}px 15px 15px;
+  margin: 10px 15px;
 `;
 
 const Attachments = styled.div`
@@ -111,16 +136,31 @@ const SpaceBetweenRow = styled.div`
   flex: 1;
   justify-content: space-between;
   align-items: center;
+
+  input,
+  ${SelectWrapper} {
+    height: ${dimensions.coreSpacing}px;
+    border-bottom: 0;
+    padding: 0;
+
+    select {
+      height: ${dimensions.coreSpacing}px;
+    }
+  }
 `;
 
 const Column = styled.div`
   flex: 1;
-  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 const Subject = styled.div`
   padding: ${dimensions.unitSpacing}px 15px;
   border-bottom: 1px solid ${colors.borderPrimary};
+
+  input {
+    height: ${dimensions.coreSpacing}px;
+    border-bottom: 0;
+  }
 `;
 
 export {
