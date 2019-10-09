@@ -31,6 +31,7 @@ type State = {
 
 class CloseDate extends React.Component<Props, State> {
   private ref;
+  private overlay: any;
 
   constructor(props) {
     super(props);
@@ -42,6 +43,10 @@ class CloseDate extends React.Component<Props, State> {
     };
   }
 
+  setOverlay = (overlay: HTMLFormElement) => {
+    this.overlay = overlay;
+  };
+
   minuteOnChange = ({ value }: { value: string }) => {
     this.props.onChangeField('reminderMinute', parseInt(value, 10));
   };
@@ -51,9 +56,7 @@ class CloseDate extends React.Component<Props, State> {
   };
 
   hideContent = () => {
-    const overlay: any = this.refs.overlay;
-
-    overlay.hide();
+    this.overlay.hide();
   };
 
   onSave = () => {
@@ -159,7 +162,7 @@ class CloseDate extends React.Component<Props, State> {
     return (
       <CloseDateWrapper innerRef={this.ref}>
         <OverlayTrigger
-          ref="overlay"
+          ref={this.setOverlay}
           trigger="click"
           placement="bottom"
           overlay={this.renderContent()}
