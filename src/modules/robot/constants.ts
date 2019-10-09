@@ -24,7 +24,7 @@ export const FEATURE_DETAILS = {
     }
   },
   inbox: {
-    text: 'Shared inbox for teams',
+    text: 'Team inbox',
     description:
       'Combine real-time client and team communication with in-app messaging, live chat, email, and social networks, so your customers can reach you however and whenever they want.',
     videoUrl: 'url',
@@ -52,15 +52,15 @@ export const FEATURE_DETAILS = {
     videoUrl: 'url',
     settingsDetails: {
       boardCreate: {
-        name: 'Create board',
+        name: 'Create a sales board',
         url: '/settings/boards/deal'
       },
       pipelineCreate: {
-        name: 'Create pipeline',
+        name: 'Create a sales pipeline',
         url: '/settings/boards/deal'
       },
       dealCreate: {
-        name: 'Create deal',
+        name: 'Now add deal',
         url: '/deal/board'
       }
     }
@@ -70,7 +70,7 @@ export const FEATURE_DETAILS = {
     color: '#c84b49',
     icon: 'laptop',
     description:
-      'Convert visitors into qualified leads. Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.',
+      'Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.',
     videoUrl: 'url',
     settingsDetails: {}
   },
@@ -87,7 +87,7 @@ export const FEATURE_DETAILS = {
         url: '/settings/email-templates'
       },
       tagCreate: {
-        name: 'Create tag',
+        name: 'Create email tag',
         url: '/tags/engageMessage'
       }
     }
@@ -129,7 +129,7 @@ export const FEATURE_DETAILS = {
         url: '/settings/boards/ticket'
       },
       ticketCreate: {
-        name: 'Now add ticket',
+        name: 'Now add tickets',
         url: '/inbox/ticket/board'
       }
     }
@@ -210,7 +210,7 @@ export const FEATURE_DETAILS = {
     videoUrl: 'url',
     settingsDetails: {
       brandCreate: {
-        name: 'Manage brands',
+        name: 'Manage   ',
         url: '/settings/brands'
       },
       channelCreate: {
