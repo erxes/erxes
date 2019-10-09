@@ -60,6 +60,7 @@ export default class FacebookConversation extends React.Component<Props> {
     return replies.map(reply => (
       <React.Fragment key={reply.commentId}>
         <FacebookComment
+          isReply={true}
           comment={reply}
           fetchFacebook={this.props.fetchFacebook}
         />

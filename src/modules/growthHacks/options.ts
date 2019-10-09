@@ -8,7 +8,7 @@ const options = {
   PortableItem: PortableGrowthHack,
   Item: GrowthHackItem,
   type: 'growthHack',
-  title: 'Growth hack',
+  title: 'Growth hacking',
   queriesName: {
     itemsQuery: 'growthHacks',
     detailQuery: 'growthHackDetail'

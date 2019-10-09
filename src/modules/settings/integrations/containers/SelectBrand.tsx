@@ -6,7 +6,7 @@ import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import React from 'react';
 import { ChildProps, compose, graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../brands/types';
+import { AllBrandsQueryResponse } from '../../brands/types';
 import SelectBrand from '../components/SelectBrand';
 
 type Props = {
@@ -18,13 +18,14 @@ type Props = {
 };
 
 type FinalProps = {
-  brandsQuery: BrandsQueryResponse;
+  brandsQuery: AllBrandsQueryResponse;
 } & Props;
 
 const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
   const { brandsQuery, formProps } = props;
 
-  const brands = brandsQuery.brands || [];
+  const brands = brandsQuery.allBrands || [];
+
   if (brandsQuery.loading) {
     return <Spinner objective={true} />;
   }
@@ -68,14 +69,14 @@ const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
 const getRefetchQueries = () => {
   return [
     {
-      query: gql(brandQueries.brands),
+      query: gql(brandQueries.allBrands),
       variables: {}
     }
   ];
 };
 
 export default compose(
-  graphql<BrandsQueryResponse>(gql(brandQueries.brands), {
+  graphql<AllBrandsQueryResponse>(gql(brandQueries.allBrands), {
     name: 'brandsQuery',
     options: () => ({
       refetchQueries: getRefetchQueries

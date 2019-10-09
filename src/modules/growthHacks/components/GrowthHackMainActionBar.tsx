@@ -215,6 +215,8 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
   const extendedProps = {
     ...props,
+    boardText: 'Campaign',
+    pipelineText: 'Project',
     isFiltered,
     extraFilter: currentUrl.includes('board') ? growthHackFilter : extraFilter,
     link: `/growthHack/${getCurrentType()}`,

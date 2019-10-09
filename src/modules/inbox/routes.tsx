@@ -8,8 +8,8 @@ const Inbox = asyncComponent(() =>
   import(/* webpackChunkName: "Inbox" */ './containers/Inbox')
 );
 
-const index = () => {
-  return <Redirect to="/inbox/index" />;
+const index = ({ location }) => {
+  return <Redirect to={`/inbox/index${location.search}`} />;
 };
 
 const inbox = (props: IRouterProps) => {

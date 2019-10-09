@@ -12,6 +12,7 @@ type Props = {
     },
     callback: () => void
   ) => void;
+  changeHasReply: () => void;
   conversationId: string;
   commentId: string;
   currentUserName: string;
@@ -57,6 +58,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     };
 
     return replyComment(replyData, () => {
+      this.props.changeHasReply();
       this.props.closeModal();
     });
   };

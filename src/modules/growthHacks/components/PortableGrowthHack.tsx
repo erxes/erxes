@@ -42,7 +42,7 @@ class GrowthHack extends React.Component<Props, { isFormVisible: boolean }> {
 
     return (
       <ModalTrigger
-        title="Edit growth hack"
+        title="Edit an experiment"
         trigger={trigger}
         size="lg"
         content={content}

@@ -29,8 +29,6 @@ type Props = {
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
-  extraFields?: any;
-  extraFieldsCheck?: () => boolean;
   amount?: () => React.ReactNode;
   sidebar?: () => React.ReactNode;
   formContent: (

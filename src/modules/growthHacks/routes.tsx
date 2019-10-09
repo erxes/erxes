@@ -8,6 +8,9 @@ const GrowthHackBoard = asyncComponent(() =>
   import(/* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard')
 );
 
+const GrowthHackHome = asyncComponent(() =>
+  import(/* webpackChunkName: "GrowthHackHome" */ './containers/home/Home')
+);
 const PriorityMatrix = asyncComponent(() =>
   import(/* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix')
 );
@@ -24,8 +27,8 @@ const FunnelImpact = asyncComponent(() =>
   import(/* webpackChunkName: "FunnelImpact" */ './components/funnelImpact/FunnelImpact')
 );
 
-const growthHacks = () => {
-  let link = '/growthHack/board';
+const growthHack = () => {
+  let growthHacksLink = '/growthHack/home';
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
@@ -35,16 +38,25 @@ const growthHacks = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    link = `/growthHack/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    growthHacksLink = `/growthHack/home?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Redirect to={link} />;
+  return <Redirect to={growthHacksLink} />;
 };
 
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <GrowthHackBoard queryParams={queryParams} />;
+};
+
+const home = ({ location }) => {
+  const { defaultBoards } = getDefaultBoardAndPipelines();
+  const queryParams = queryString.parse(location.search);
+
+  const state = queryParams.state || '';
+
+  return <GrowthHackHome state={state} id={defaultBoards.growthHack} />;
 };
 
 const priorityMatrix = ({ location }) => {
@@ -77,7 +89,7 @@ const routes = () => {
         key="/growthHack"
         exact={true}
         path="/growthHack"
-        render={growthHacks}
+        render={growthHack}
       />
 
       <Route
@@ -85,6 +97,13 @@ const routes = () => {
         exact={true}
         path="/growthHack/board"
         component={boards}
+      />
+
+      <Route
+        key="/growthHack/home"
+        exact={true}
+        path="/growthHack/home"
+        component={home}
       />
 
       <Route

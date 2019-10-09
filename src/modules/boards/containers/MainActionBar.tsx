@@ -28,7 +28,7 @@ type FinalProps = {
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
-const getBoardId = ({ location }) => {
+export const getBoardId = ({ location }) => {
   const queryParams = generateQueryParams({ location });
   return queryParams.id;
 };
