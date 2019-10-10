@@ -64,8 +64,16 @@ export const FEATURE_DETAILS = {
         url: '/settings/boards/deal'
       },
       dealCreate: {
-        name: 'Now add deal',
+        name: 'Now add deals',
         url: '/deal/board'
+      },
+      'configure.dealCurrency': {
+        name: 'Configure currencies',
+        url: '/settings/general'
+      },
+      'configure.dealUOM': {
+        name: 'Configure unit of measurement',
+        url: '/settings/general'
       }
     }
   },
