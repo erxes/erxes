@@ -10,7 +10,7 @@ export const FEATURE_DETAILS = {
     videoUrl: 'url',
     settingsDetails: {
       growthHackBoardsCreate: {
-        name: 'Create board',
+        name: 'Create a marketing campaign',
         url: '/settings/boards/growthHack'
       },
       growthHackPipelinesCreate: {
