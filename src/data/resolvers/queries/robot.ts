@@ -13,7 +13,12 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
   },
   inbox: {
     settings: ['brandCreate', 'channelCreate', 'integrationCreate', 'responseTemplateCreate'],
-    settingsPermissions: ['manageBrands', 'manageChannels', 'integrationCreate', 'manageResponseTemplate'],
+    settingsPermissions: [
+      'manageBrands',
+      'manageChannels',
+      'integrationsCreateMessengerIntegration',
+      'manageResponseTemplate',
+    ],
   },
   deals: {
     settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
@@ -131,29 +136,6 @@ const robotQueries = {
 
     for (const feature of Object.keys(features)) {
       const { settings } = features[feature];
-
-      if (['leads', 'properties'].includes(feature)) {
-        const selector = { userId: user._id, completedSteps: { $all: [`${feature}Show`] } };
-        const isComplete = (await OnboardingHistories.find(selector).countDocuments()) > 0;
-
-        const params = {
-          name: feature,
-          settings,
-          showSettings: false,
-          isComplete,
-        };
-
-        if (actionsMap.includes('integrationsCreateLeadIntegration')) {
-          results.push(params);
-        }
-
-        if (actionsMap.includes('manageForms')) {
-          results.push(params);
-        }
-
-        continue;
-      }
-
       const { showModule, showSettings } = checkShowModule(user, actionsMap, feature);
 
       if (showModule) {
