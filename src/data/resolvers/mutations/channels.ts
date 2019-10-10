@@ -4,7 +4,7 @@ import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/mode
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils, { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import utils, { putCreateLog, putDeleteLog, putUpdateLog, registerOnboardHistory } from '../../utils';
 import { checkUserIds } from './notifications';
 
 interface IChannelsEdit extends IChannel {
@@ -82,16 +82,18 @@ const channelMutations = {
 
     const updated = await Channels.updateChannel(_id, doc);
 
-    if (channel) {
-      await putUpdateLog(
-        {
-          type: 'channel',
-          object: channel,
-          newData: JSON.stringify(doc),
-          description: `${channel.name} has been updated`,
-        },
-        user,
-      );
+    await putUpdateLog(
+      {
+        type: 'channel',
+        object: channel,
+        newData: JSON.stringify(doc),
+        description: `${channel.name} has been updated`,
+      },
+      user,
+    );
+
+    if ((channel.integrationIds || []).toString() !== (updated.integrationIds || []).toString()) {
+      registerOnboardHistory({ type: 'connectIntegrationsToChannel', user });
     }
 
     return updated;

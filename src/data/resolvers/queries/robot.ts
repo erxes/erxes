@@ -12,7 +12,13 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['growthHackBoardsAdd', 'growthHackPipelinesAdd', 'growthHackStagesAdd'],
   },
   inbox: {
-    settings: ['brandCreate', 'channelCreate', 'integrationCreate', 'responseTemplateCreate'],
+    settings: [
+      'brandCreate',
+      'channelCreate',
+      'messengerIntegrationCreate',
+      'responseTemplateCreate',
+      'connectIntegrationsToChannel',
+    ],
     settingsPermissions: [
       'manageBrands',
       'manageChannels',
