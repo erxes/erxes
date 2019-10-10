@@ -9,11 +9,11 @@ export const FEATURE_DETAILS = {
       'From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.',
     videoUrl: 'url',
     settingsDetails: {
-      boardCreate: {
+      growthHackBoardsCreate: {
         name: 'Create board',
         url: '/settings/boards/growthHack'
       },
-      pipelineCreate: {
+      growthHackPipelinesCreate: {
         name: 'Then create a project',
         url: '/settings/boards/growthHack'
       },
@@ -51,11 +51,11 @@ export const FEATURE_DETAILS = {
       'Control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.',
     videoUrl: 'url',
     settingsDetails: {
-      boardCreate: {
+      dealBoardsCreate: {
         name: 'Create a sales board',
         url: '/settings/boards/deal'
       },
-      pipelineCreate: {
+      dealPipelinesCreate: {
         name: 'Create a sales pipeline',
         url: '/settings/boards/deal'
       },
@@ -100,11 +100,11 @@ export const FEATURE_DETAILS = {
       "Organize your own tasks or your team's sprints effectively with erxes Task. It involves planning, testing, tracking, and reporting.",
     videoUrl: 'url',
     settingsDetails: {
-      boardCreate: {
+      taskBoardsCreate: {
         name: 'Create a task board',
         url: '/settings/boards/task'
       },
-      pipelineCreate: {
+      taskPipelinesCreate: {
         name: 'Create a task pipeline',
         url: '/settings/boards/task'
       },
@@ -120,11 +120,11 @@ export const FEATURE_DETAILS = {
       'Easily scale and streamline your customer service and drastically improve your customer’s experience.',
     videoUrl: 'url',
     settingsDetails: {
-      boardCreate: {
+      ticketBoardsCreate: {
         name: 'Create a ticket board',
         url: '/settings/boards/ticket'
       },
-      pipelineCreate: {
+      ticketPipelinesCreate: {
         name: 'Create a ticket pipeline',
         url: '/settings/boards/ticket'
       },
