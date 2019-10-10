@@ -262,13 +262,13 @@ export const FEATURE_DETAILS = {
       'All your tools in one connected shared team inbox. Integrations help your team get more done in erxes.',
     videoUrl: 'url',
     settingsDetails: {
-      brandCreate: {
-        name: 'Manage',
-        url: '/settings/brands'
+      messengerIntegrationCreate: {
+        name: 'Create your Messenger',
+        url: '/settings/integrations/createMessenger'
       },
-      channelCreate: {
-        name: 'Manage channels',
-        url: '/settings/channels'
+      facebookIntegrationCreate: {
+        name: 'Connect your Facebook messenger',
+        url: '/settings/integrations'
       }
     }
   },
