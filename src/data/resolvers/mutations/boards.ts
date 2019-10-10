@@ -27,7 +27,7 @@ const boardMutations = {
 
     await putCreateLog(
       {
-        type: 'board',
+        type: `${doc.type}Boards`,
         newData: JSON.stringify(doc),
         description: `${doc.name} has been created`,
         object: board,
@@ -50,7 +50,7 @@ const boardMutations = {
     if (board) {
       await putUpdateLog(
         {
-          type: 'board',
+          type: `${doc.type}Boards`,
           newData: JSON.stringify(doc),
           description: `${doc.name} has been edited`,
           object: board,
@@ -66,18 +66,20 @@ const boardMutations = {
    * Remove board
    */
   async boardsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const board = await Boards.findOne({ _id });
+    const board = await Boards.getBoard(_id);
 
     if (board) {
       await checkPermission(board.type, user, 'boardsRemove');
     }
 
+    const type = `${board.type}Boards`;
+
     const removed = await Boards.removeBoard(_id);
 
-    if (board && removed) {
+    if (removed) {
       await putDeleteLog(
         {
-          type: 'board',
+          type,
           object: board,
           description: `${board.name} has been removed`,
         },
@@ -96,7 +98,7 @@ const boardMutations = {
 
     await putCreateLog(
       {
-        type: 'pipeline',
+        type: `${doc.type}Pipelines`,
         newData: JSON.stringify(doc),
         description: `${doc.name} has been created`,
         object: pipeline,

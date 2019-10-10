@@ -8,7 +8,7 @@ import { IContext } from '../../types';
 
 const features: { [key: string]: { settings: string[]; settingsPermissions: string[] } } = {
   growthHacks: {
-    settings: ['boardCreate', 'pipelineCreate', 'growthHackCreate'],
+    settings: ['growthHackBoardsCreate', 'growthHackPipelinesCreate', 'growthHackCreate'],
     settingsPermissions: ['growthHackBoardsAdd', 'growthHackPipelinesAdd', 'growthHackStagesAdd'],
   },
   inbox: {
@@ -16,7 +16,7 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['manageBrands', 'manageChannels', 'integrationCreate'],
   },
   deals: {
-    settings: ['boardCreate', 'pipelineCreate', 'dealCreate'],
+    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd'],
   },
   leads: {
@@ -28,11 +28,11 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['manageEmailTemplate', 'manageTags'],
   },
   tasks: {
-    settings: ['boardCreate', 'pipelineCreate', 'taskCreate'],
+    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
     settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd', 'taskStagesAdd'],
   },
   tickets: {
-    settings: ['boardCreate', 'pipelineCreate', 'ticketCreate'],
+    settings: ['ticketBoardsCreate', 'ticketPipelinesCreate', 'ticketCreate'],
     settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd', 'ticketStagesAdd'],
   },
   knowledgeBase: {

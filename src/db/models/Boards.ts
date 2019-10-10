@@ -100,7 +100,7 @@ export interface IBoardModel extends Model<IBoardDocument> {
   getBoard(_id: string): Promise<IBoardDocument>;
   createBoard(doc: IBoard): Promise<IBoardDocument>;
   updateBoard(_id: string, doc: IBoard): Promise<IBoardDocument>;
-  removeBoard(_id: string): void;
+  removeBoard(_id: string): object;
 }
 
 export const loadBoardClass = () => {
