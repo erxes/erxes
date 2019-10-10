@@ -36,7 +36,7 @@ const More = styled(ParticipatorImg.withComponent('span'))`
 
 type Props = {
   participatedUsers: IUser[];
-  limit: number;
+  limit?: number;
 };
 
 class Participators extends React.Component<Props, { toggle: boolean }> {
@@ -59,7 +59,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
 
     const Tooltip = (
       <Tip placement="top" text={__('View more')}>
-        <More>{`+${length - limit}`}</More>
+        <More>{`+${limit && length - limit}`}</More>
       </Tip>
     );
 

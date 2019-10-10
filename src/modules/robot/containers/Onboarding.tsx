@@ -18,6 +18,7 @@ type Props = {
   show: boolean;
   changeRoute: (route: string) => void;
   currentUser: IUser;
+  currentStep?: string;
 };
 
 type FinalProps = Props &
@@ -32,7 +33,7 @@ class OnboardingContainer extends React.Component<
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { currentStep: undefined };
+    this.state = { currentStep: props.currentStep };
   }
 
   changeStep = (step: string) => {
@@ -86,6 +87,12 @@ class OnboardingContainer extends React.Component<
         }
       }
     });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.currentStep !== this.props.currentStep) {
+      this.setState({ currentStep: nextProps.currentStep });
+    }
   }
 
   render() {

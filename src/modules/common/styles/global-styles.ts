@@ -584,11 +584,11 @@ a:hover {
 
 .react-toggle-track {
   background-color: ${colors.colorCoreBlack};
-[}
+}
 
 .react-toggle-track span {
   display: none;
-}]
+}
 
 .react-toggle--checked .react-toggle-thumb,
 .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
