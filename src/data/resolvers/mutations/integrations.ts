@@ -20,17 +20,15 @@ const integrationMutations = {
   async integrationsCreateMessengerIntegration(_root, doc: IMessengerIntegration, { user }: IContext) {
     const integration = await Integrations.createMessengerIntegration(doc);
 
-    if (integration) {
-      await putCreateLog(
-        {
-          type: 'messengerIntegration',
-          newData: JSON.stringify(doc),
-          object: integration,
-          description: `${integration.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'messengerIntegration',
+        newData: JSON.stringify(doc),
+        object: integration,
+        description: `${integration.name} has been created`,
+      },
+      user,
+    );
 
     return integration;
   },
@@ -74,8 +72,20 @@ const integrationMutations = {
   /**
    * Create a new messenger integration
    */
-  integrationsCreateLeadIntegration(_root, doc: IIntegration) {
-    return Integrations.createLeadIntegration(doc);
+  async integrationsCreateLeadIntegration(_root, doc: IIntegration, { user }: IContext) {
+    const integration = await Integrations.createLeadIntegration(doc);
+
+    await putCreateLog(
+      {
+        type: 'leadIntegration',
+        newData: JSON.stringify(doc),
+        object: integration,
+        description: `${integration.name} has been created`,
+      },
+      user,
+    );
+
+    return integration;
   },
 
   /**

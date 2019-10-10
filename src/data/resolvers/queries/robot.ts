@@ -25,8 +25,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd'],
   },
   leads: {
-    settings: [],
-    settingsPermissions: [],
+    settings: ['leadIntegrationCreate'],
+    settingsPermissions: ['integrationsCreateLeadIntegration'],
   },
   engages: {
     settings: ['emailTemplateCreate', 'tagCreate', 'engageCreate'],
