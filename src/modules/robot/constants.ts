@@ -40,6 +40,10 @@ export const FEATURE_DETAILS = {
       integrationCreate: {
         name: 'Then create an integration',
         url: '/settings/integrations'
+      },
+      responseTemplateCreate: {
+        name: 'Add a response template',
+        url: '/settings/response-templates'
       }
     }
   },
@@ -89,6 +93,10 @@ export const FEATURE_DETAILS = {
       tagCreate: {
         name: 'Create email tag',
         url: '/tags/engageMessage'
+      },
+      engageCreate: {
+        name: 'Now create manual email newsletter',
+        url: '/engage/messages/create?kind=manual'
       }
     }
   },
@@ -163,7 +171,20 @@ export const FEATURE_DETAILS = {
     description:
       'Access our all-in-one CRM & product, and service system in one go so that it’s easier to coordinate and manage your interactions with your customers.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerCreate: {
+        name: 'Create a contact',
+        url: '/contacts/customers/all'
+      },
+      companyCreate: {
+        name: 'Create a company',
+        url: '/contacts/companies'
+      },
+      productCreate: {
+        name: 'Create a product or service',
+        url: '/settings/product-service'
+      }
+    }
   },
   segments: {
     text: 'Segments',
@@ -172,7 +193,16 @@ export const FEATURE_DETAILS = {
     description:
       'Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerSegmentCreate: {
+        name: 'Create a customer segment',
+        url: '/segments/new/customer'
+      },
+      companySegmentCreate: {
+        name: 'Create a company segment',
+        url: '/segments/new/company'
+      }
+    }
   },
   tags: {
     text: 'Tags',
@@ -181,7 +211,16 @@ export const FEATURE_DETAILS = {
     description:
       'Tag means to categorize things into one abstract group. In other words, organizations can create and classify their own abstract categories.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerTagCreate: {
+        name: 'Create a customer tag',
+        url: '/tags/customer'
+      },
+      companyTagCreate: {
+        name: 'Create a company tag',
+        url: '/tags/company'
+      }
+    }
   },
   properties: {
     text: 'Properties',
@@ -199,7 +238,12 @@ export const FEATURE_DETAILS = {
     description:
       'Permissions cover areas where the app wants data or resources that involve the users private information, or could potentially affect the users stored data.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      permissionCreate: {
+        name: 'Manage permission',
+        url: '/settings/permissions'
+      }
+    }
   },
   integrations: {
     text: 'integrations',
@@ -210,7 +254,7 @@ export const FEATURE_DETAILS = {
     videoUrl: 'url',
     settingsDetails: {
       brandCreate: {
-        name: 'Manage   ',
+        name: 'Manage',
         url: '/settings/brands'
       },
       channelCreate: {
@@ -226,7 +270,12 @@ export const FEATURE_DETAILS = {
     color: '#7b48ff',
     icon: 'bar-chart',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      showInsights: {
+        name: 'Check out team inbox insight',
+        url: '/inbox/insights'
+      }
+    }
   },
   importHistories: {
     text: 'Import/Export',
@@ -235,6 +284,15 @@ export const FEATURE_DETAILS = {
     description:
       'Import contains the lists of customer & company data and product information by the dates inserted to the platform and also will allow you to delete them one by one',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      'customer_template.xlsxDownload': {
+        name: 'Download customer import template',
+        url: '/settings/importHistories?type=customer'
+      },
+      'company_template.xlsxDownload': {
+        name: 'Download company import template',
+        url: '/settings/importHistories?type=company'
+      }
+    }
   }
 };
