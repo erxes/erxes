@@ -34,8 +34,10 @@ class Assistant extends React.Component<Props> {
               <span role="img" aria-label="Wave">
                 👋
               </span>
-              <br /> I'm a bot that help you declutter database and focus on
-              what's most important
+              <p>
+                I'm a bot that help you declutter database and focus on what's
+                most important
+              </p>
             </Greeting>
 
             <ModulItem

@@ -10,7 +10,7 @@ export const FEATURE_DETAILS = {
     videoUrl: 'url',
     settingsDetails: {
       growthHackBoardsCreate: {
-        name: 'Create board',
+        name: 'Create a marketing campaign',
         url: '/settings/boards/growthHack'
       },
       growthHackPipelinesCreate: {
@@ -76,7 +76,16 @@ export const FEATURE_DETAILS = {
     description:
       'Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      leadIntegrationCreate: {
+        name: 'Create pop ups',
+        url: '/leads/create'
+      },
+      leadIntegrationInstalled: {
+        name: 'Install on website',
+        url: '/leads/create'
+      }
+    }
   },
   engages: {
     text: 'Engages',
@@ -229,7 +238,16 @@ export const FEATURE_DETAILS = {
     description:
       'You may need additional properties to gather information from customers, companies, and products/services.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerFieldCreate: {
+        name: 'Create a custom customer properties',
+        url: '/settings/properties?type=customer'
+      },
+      companyFieldCreate: {
+        name: 'Create a custom company properties',
+        url: '/settings/properties?type=company'
+      }
+    }
   },
   permissions: {
     text: 'Permissions',
@@ -253,13 +271,13 @@ export const FEATURE_DETAILS = {
       'All your tools in one connected shared team inbox. Integrations help your team get more done in erxes.',
     videoUrl: 'url',
     settingsDetails: {
-      brandCreate: {
-        name: 'Manage',
-        url: '/settings/brands'
+      messengerIntegrationCreate: {
+        name: 'Create your Messenger',
+        url: '/settings/integrations/createMessenger'
       },
-      channelCreate: {
-        name: 'Manage channels',
-        url: '/settings/channels'
+      facebookIntegrationCreate: {
+        name: 'Connect your Facebook messenger',
+        url: '/settings/integrations'
       }
     }
   },
