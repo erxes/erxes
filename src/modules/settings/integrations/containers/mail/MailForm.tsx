@@ -3,55 +3,48 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, withProps } from 'modules/common/utils';
+import { IMail } from 'modules/inbox/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import MailForm from '../../components/google/MailForm';
+import MailForm from '../../components/mail/MailForm';
 import { IntegrationsQueryResponse } from '../../types';
 
 type Props = {
   integrationId?: string;
   refetchQueries?: string[];
-  headerId?: string;
-  threadId?: string;
-  references?: string;
   fromEmail?: string;
-  to?: any;
-  cc?: any;
-  bcc?: any;
-  subject?: string;
-  integrationEmail?: string;
+  kind: string;
+  mailData?: IMail;
+  isReply?: boolean;
+  toggleReply?: () => void;
   closeModal?: () => void;
 };
 
 type FinalProps = {
-  gmailIntegrationsQuery: IntegrationsQueryResponse;
+  integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
 const MailFormContainer = (props: FinalProps) => {
   const {
-    headerId,
+    mailData,
     integrationId,
-    threadId,
-    subject,
-    gmailIntegrationsQuery,
+    integrationsQuery,
     refetchQueries,
     fromEmail,
-    to,
-    cc,
-    bcc,
-    integrationEmail,
+    kind,
+    isReply,
+    toggleReply,
     closeModal
   } = props;
 
-  if (gmailIntegrationsQuery.loading) {
+  if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const integrations = gmailIntegrationsQuery.integrations || [];
+  const integrations = integrationsQuery.integrations || [];
 
   const renderButton = ({
-    name,
     values,
     isSubmitted,
     callback
@@ -63,6 +56,7 @@ const MailFormContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={refetchQueries}
         isSubmitted={isSubmitted}
+        btnSize="small"
         type="submit"
         successMessage="You have successfully sent a email"
       >
@@ -76,14 +70,11 @@ const MailFormContainer = (props: FinalProps) => {
     integrations,
     integrationId,
     fromEmail,
-    cc,
-    bcc,
-    to,
     closeModal,
-    headerId,
-    threadId,
-    subject,
-    integrationEmail
+    kind,
+    isReply,
+    toggleReply,
+    mailData
   };
 
   return <MailForm {...updatedProps} />;
@@ -94,12 +85,10 @@ export default withProps<Props>(
     graphql<Props, IntegrationsQueryResponse, { kind: string }>(
       gql(queries.integrations),
       {
-        name: 'gmailIntegrationsQuery',
-        options: () => {
+        name: 'integrationsQuery',
+        options: ({ kind }) => {
           return {
-            variables: {
-              kind: 'gmail'
-            },
+            variables: { kind },
             fetchPolicy: 'network-only'
           };
         }

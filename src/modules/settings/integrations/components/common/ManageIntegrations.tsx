@@ -106,6 +106,10 @@ class ManageIntegrations extends React.Component<Props, State> {
       type = 'facebook-post';
     } else if (kind === KIND_CHOICES.CALLPRO) {
       type = 'callpro';
+    } else if (kind === KIND_CHOICES.GMAIL) {
+      type = 'gmail';
+    } else if (kind === KIND_CHOICES.NYLAS_GMAIL) {
+      type = 'nylas-gmail';
     }
 
     return type;
@@ -121,7 +125,7 @@ class ManageIntegrations extends React.Component<Props, State> {
       icon = 'facebook-official';
     } else if (kind === KIND_CHOICES.FACEBOOK_POST) {
       icon = 'facebook-official';
-    } else if (kind === KIND_CHOICES.GMAIL) {
+    } else if (kind.includes(KIND_CHOICES.GMAIL)) {
       icon = 'mail-alt';
     } else if (kind === KIND_CHOICES.CALLPRO) {
       icon = 'phone-call';

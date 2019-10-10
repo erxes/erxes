@@ -4,7 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
-import GmailConversation from '../gmail/GmailConversation';
+import MailConversation from '../mail/MailConversation';
 import AttachmentPreview from './AttachmentPreview';
 import Message from './messages/Message';
 
@@ -62,9 +62,9 @@ class Conversation extends React.Component<Props, {}> {
 
     const { kind } = conversation.integration;
 
-    if (kind === 'gmail') {
+    if (kind.includes('gmail')) {
       return (
-        <GmailConversation
+        <MailConversation
           conversation={conversation}
           conversationMessages={conversationMessages}
         />

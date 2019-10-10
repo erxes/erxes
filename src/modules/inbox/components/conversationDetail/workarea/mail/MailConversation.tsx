@@ -9,7 +9,7 @@ type Props = {
   conversationMessages: IMessage[];
 };
 
-class GmailConversation extends React.Component<Props, {}> {
+class MailConversation extends React.Component<Props, {}> {
   render() {
     const { conversation, conversationMessages } = this.props;
 
@@ -18,6 +18,8 @@ class GmailConversation extends React.Component<Props, {}> {
     }
 
     const messages = conversationMessages || [];
+    const { integration } = conversation;
+    const { _id, kind } = integration;
 
     return messages.map(message => {
       if (message.internal) {
@@ -31,12 +33,13 @@ class GmailConversation extends React.Component<Props, {}> {
       return (
         <Mail
           key={message._id}
+          kind={kind}
           message={message}
-          integrationId={conversation.integration._id}
+          integrationId={_id}
         />
       );
     });
   }
 }
 
-export default GmailConversation;
+export default MailConversation;
