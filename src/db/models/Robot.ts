@@ -123,12 +123,10 @@ export interface IOnboardingHistoryModel extends Model<IOnboardingHistoryDocumen
 export const loadOnboardingHistoryClass = () => {
   class OnboardingHistory {
     public static async getOrCreate({ type, user }: IGetOrCreateDoc): Promise<IGetOrCreateResponse> {
-      const step = `${type}Create`;
-
       const prevEntry = await OnboardingHistories.findOne({ userId: user._id });
 
       if (!prevEntry) {
-        const entry = await OnboardingHistories.create({ userId: user._id, completedSteps: [step] });
+        const entry = await OnboardingHistories.create({ userId: user._id, completedSteps: [type] });
         return { status: 'created', entry };
       }
 
@@ -136,13 +134,13 @@ export const loadOnboardingHistoryClass = () => {
         return { status: 'completed', entry: prevEntry };
       }
 
-      if (prevEntry.completedSteps.includes(step)) {
+      if (prevEntry.completedSteps.includes(type)) {
         return { status: 'prev', entry: prevEntry };
       }
 
       const updatedEntry = await OnboardingHistories.updateOne(
         { userId: user._id },
-        { $push: { completedSteps: step } },
+        { $push: { completedSteps: type } },
       );
 
       return { status: 'created', entry: updatedEntry };

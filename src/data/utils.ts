@@ -574,18 +574,21 @@ export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) 
 export const putCreateLog = (params: ILogParams, user: IUserDocument) => {
   const doc = { ...params, action: 'create', object: JSON.stringify(params.object) };
 
-  OnboardingHistories.getOrCreate({ type: doc.type, user })
+  registerOnboardHistory({ type: `${doc.type}Create`, user });
+
+  return putLog(doc, user);
+};
+
+export const registerOnboardHistory = ({ type, user }: { type: string; user: IUserDocument }) =>
+  OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
       if (status === 'created') {
         graphqlPubsub.publish('onboardingChanged', {
-          onboardingChanged: { userId: user._id, type: doc.type },
+          onboardingChanged: { userId: user._id, type },
         });
       }
     })
     .catch(e => debugBase(e));
-
-  return putLog(doc, user);
-};
 
 /**
  * Prepares a create log request to log server

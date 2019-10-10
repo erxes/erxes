@@ -12,8 +12,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['growthHackBoardsAdd', 'growthHackPipelinesAdd', 'growthHackStagesAdd'],
   },
   inbox: {
-    settings: ['brandCreate', 'channelCreate', 'integrationCreate'],
-    settingsPermissions: ['manageBrands', 'manageChannels', 'integrationCreate'],
+    settings: ['brandCreate', 'channelCreate', 'integrationCreate', 'responseTemplateCreate'],
+    settingsPermissions: ['manageBrands', 'manageChannels', 'integrationCreate', 'manageResponseTemplate'],
   },
   deals: {
     settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
@@ -24,8 +24,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: [],
   },
   engages: {
-    settings: ['emailTemplateCreate', 'tagCreate'],
-    settingsPermissions: ['manageEmailTemplate', 'manageTags'],
+    settings: ['emailTemplateCreate', 'tagCreate', 'engageCreate'],
+    settingsPermissions: ['manageEmailTemplate', 'manageTags', 'engageMessageAdd'],
   },
   tasks: {
     settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
@@ -39,34 +39,37 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settings: ['knowledgeBaseTopicCreate', 'knowledgeBaseCategoryCreate', 'knowledgeBaseArticleCreate'],
     settingsPermissions: ['manageKnowledgeBase'],
   },
-  customers: { settings: [], settingsPermissions: [] },
+  customers: {
+    settings: ['customerCreate', 'companyCreate', 'productCreate'],
+    settingsPermissions: ['customersAdd', 'companiesAdd', 'manageProducts'],
+  },
   segments: {
-    settings: [],
-    settingsPermissions: [],
+    settings: ['customerSegmentCreate', 'companySegmentCreate'],
+    settingsPermissions: ['manageSegments'],
   },
   tags: {
-    settings: [],
-    settingsPermissions: [],
+    settings: ['customerTagCreate', 'companyTagCreate'],
+    settingsPermissions: ['manageTags'],
   },
   properties: {
     settings: [],
     settingsPermissions: [],
   },
   permissions: {
-    settings: [],
-    settingsPermissions: [],
+    settings: ['permissionCreate'],
+    settingsPermissions: ['managePermissions'],
   },
   integrations: {
     settings: ['brandCreate', 'channelCreate'],
     settingsPermissions: ['manageBrands', 'manageChannels'],
   },
   insights: {
-    settings: [],
-    settingsPermissions: [],
+    settings: ['showInsights'],
+    settingsPermissions: ['showInsights'],
   },
   importHistories: {
-    settings: [],
-    settingsPermissions: [],
+    settings: ['customer_template.xlsxDownload', 'company_template.xlsxDownload'],
+    settingsPermissions: ['importXlsFile'],
   },
 };
 

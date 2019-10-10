@@ -19,7 +19,7 @@ const tagMutations = {
     if (tag) {
       await putCreateLog(
         {
-          type: 'tag',
+          type: `${doc.type}Tag`,
           newData: JSON.stringify(tag),
           object: tag,
           description: `${tag.name} has been created`,

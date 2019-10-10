@@ -18,7 +18,7 @@ const segmentMutations = {
     if (segment) {
       await putCreateLog(
         {
-          type: 'segment',
+          type: `${doc.contentType}Segment`,
           newData: JSON.stringify(doc),
           object: segment,
           description: `${segment.name} has been created`,

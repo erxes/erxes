@@ -14,7 +14,7 @@ import apolloServer from './apolloClient';
 import { companiesExport, customersExport } from './data/modules/coc/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
-import { checkFile, getEnv, readFileRequest, uploadFile } from './data/utils';
+import { checkFile, getEnv, readFileRequest, registerOnboardHistory, uploadFile } from './data/utils';
 import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
 import './messageBroker';
@@ -74,6 +74,14 @@ app.use(cors(corsOptions));
 app.use(userMiddleware);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
+
+app.get('/download-template', (req: any, res) => {
+  const name = req.query.name;
+
+  registerOnboardHistory({ type: `${name}Download`, user: req.user });
+
+  return res.redirect(`/static/importTemplates/${name}`);
+});
 
 // for health check
 app.get('/status', async (_req, res) => {
