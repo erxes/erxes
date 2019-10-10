@@ -57,8 +57,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['manageTags'],
   },
   properties: {
-    settings: [],
-    settingsPermissions: [],
+    settings: ['customerFieldCreate', 'companyFieldCreate'],
+    settingsPermissions: ['manageForms'],
   },
   permissions: {
     settings: ['permissionCreate'],
@@ -92,10 +92,28 @@ const checkShowModule = (
 
   const module: IModuleMap = moduleObjects[moduleName];
 
+  interface IAction {
+    name: string;
+    description?: string;
+  }
+
+  let actions: IAction[] = [];
   let showModule = false;
   let showSettings = true;
 
-  for (const action of module.actions || []) {
+  if (!module) {
+    if (moduleName === 'leads') {
+      actions = [{ name: 'integrationsCreateLeadIntegration' }];
+    }
+
+    if (moduleName === 'properties') {
+      actions = [{ name: 'manageForms' }];
+    }
+  } else {
+    actions = module.actions as IAction[];
+  }
+
+  for (const action of actions) {
     if (actionsMap.includes(action.name || '')) {
       showModule = true;
       break;
