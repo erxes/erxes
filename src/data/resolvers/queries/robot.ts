@@ -28,7 +28,7 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
   },
   deals: {
     settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate', 'configure.dealCurrency', 'configure.dealUOM'],
-    settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd', 'generalSettings'],
+    settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd', 'manageGeneralSettings'],
   },
   leads: {
     settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
