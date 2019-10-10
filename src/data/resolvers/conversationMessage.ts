@@ -11,7 +11,7 @@ export default {
     return Customers.findOne({ _id: message.customerId });
   },
 
-  async gmailData(message: IMessageDocument, _args, { dataSources }: IContext) {
+  async mailData(message: IMessageDocument, _args, { dataSources }: IContext) {
     const conversation = await Conversations.findOne({ _id: message.conversationId }).lean();
 
     if (!conversation || message.internal) {
@@ -20,11 +20,20 @@ export default {
 
     const integration = await Integrations.findOne({ _id: conversation.integrationId }).lean();
 
-    if (integration.kind !== 'gmail') {
+    if (!integration) {
       return null;
     }
 
-    return dataSources.IntegrationsAPI.fetchApi('/gmail/get-message', {
+    const { kind } = integration;
+
+    // Not mail
+    if (!kind.includes('gmail')) {
+      return null;
+    }
+
+    const path = kind.includes('nylas') ? `/nylas/get-message` : `/${kind}/get-message`;
+
+    return dataSources.IntegrationsAPI.fetchApi(path, {
       erxesApiMessageId: message._id,
       integrationId: integration._id,
     });

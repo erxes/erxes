@@ -19,6 +19,7 @@ import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
 import './messageBroker';
 
+import { IntegrationsAPI } from './data/dataSources';
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import { initRedis } from './redisClient';
@@ -137,16 +138,18 @@ app.get('/read-file', async (req: any, res) => {
   }
 });
 
-// get gmail attachment file
-app.get('/read-gmail-attachment', async (req: any, res) => {
-  const { messageId, attachmentId, integrationId, filename } = req.query;
+// get mail attachment file
+app.get('/read-mail-attachment', async (req: any, res) => {
+  const { messageId, attachmentId, kind, integrationId, filename } = req.query;
 
   if (!messageId || !attachmentId || !integrationId) {
     return res.status(404).send('Attachment not found');
   }
 
+  const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
+
   res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/gmail/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}`,
+    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}`,
   );
 });
 
@@ -154,7 +157,7 @@ app.get('/read-gmail-attachment', async (req: any, res) => {
 app.post('/upload-file', async (req, res) => {
   const form = new formidable.IncomingForm();
 
-  form.parse(req, async (_error, _fields, response) => {
+  form.parse(req, async (_error, fields, response) => {
     const file = response.file || response.upload;
 
     // check file ====
@@ -162,6 +165,17 @@ app.post('/upload-file', async (req, res) => {
 
     if (status === 'ok') {
       try {
+        if (fields && fields.kind === 'nylas') {
+          const nylasApi = new IntegrationsAPI();
+
+          const apiResponse = await nylasApi.nylasUpload({
+            ...file,
+            erxesApiId: fields.erxesApiId,
+          });
+
+          return res.send(apiResponse);
+        }
+
         const result = await uploadFile(file, response.upload ? true : false);
 
         return res.send(result);
@@ -180,9 +194,9 @@ app.get('/connect-integration', async (req: any, res, _next) => {
     return res.end('forbidden');
   }
 
-  const link = req.query.link;
+  const { link, kind } = req.query;
 
-  return res.redirect(`${INTEGRATIONS_API_DOMAIN}/${link}`);
+  return res.redirect(`${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}`);
 });
 
 // file import
