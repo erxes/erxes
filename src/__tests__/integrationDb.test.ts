@@ -6,6 +6,7 @@ import {
   fieldFactory,
   formFactory,
   integrationFactory,
+  userFactory,
 } from '../db/factories';
 import { Brands, ConversationMessages, Forms, Integrations, Users } from '../db/models';
 import { KIND_CHOICES, LEAD_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../db/models/definitions/constants';
@@ -14,9 +15,11 @@ import './setup.ts';
 
 describe('messenger integration model add method', () => {
   let _brand;
+  let _user;
 
   beforeEach(async () => {
     _brand = await brandFactory({});
+    _user = await userFactory({});
   });
 
   afterEach(async () => {
@@ -30,7 +33,7 @@ describe('messenger integration model add method', () => {
       brandId: _brand._id,
     };
 
-    const integration = await Integrations.createMessengerIntegration(doc);
+    const integration = await Integrations.createMessengerIntegration(doc, _user._id);
 
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
@@ -73,10 +76,12 @@ describe('messenger integration model edit method', () => {
 });
 
 describe('lead integration create model test without leadData', () => {
+  let _user;
   let _brand;
   let _form;
 
   beforeEach(async () => {
+    _user = await userFactory({});
     _brand = await brandFactory({});
     _form = await formFactory({});
   });
@@ -98,7 +103,7 @@ describe('lead integration create model test without leadData', () => {
     };
 
     try {
-      await Integrations.createLeadIntegration(mainDoc);
+      await Integrations.createLeadIntegration(mainDoc, _user._id);
     } catch (e) {
       expect(e.message).toEqual('leadData must be supplied');
     }
@@ -106,10 +111,12 @@ describe('lead integration create model test without leadData', () => {
 });
 
 describe('create lead integration', () => {
+  let _user;
   let _brand;
   let _form;
 
   beforeEach(async () => {
+    _user = await userFactory({});
     _brand = await brandFactory({});
     _form = await formFactory({});
   });
@@ -132,10 +139,13 @@ describe('create lead integration', () => {
       loadType: LEAD_LOAD_TYPES.EMBEDDED,
     };
 
-    const integration = await Integrations.createLeadIntegration({
-      ...mainDoc,
-      leadData,
-    });
+    const integration = await Integrations.createLeadIntegration(
+      {
+        ...mainDoc,
+        leadData,
+      },
+      _user._id,
+    );
 
     if (!integration || !integration.leadData) {
       throw new Error('Integration not found');

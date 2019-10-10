@@ -1,8 +1,8 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import { conversationNotifReceivers } from './data/resolvers/mutations/conversations';
-import { sendMobileNotification } from './data/utils';
-import { ActivityLogs, Conversations, Customers, RobotEntries } from './db/models';
+import { registerOnboardHistory, sendMobileNotification } from './data/utils';
+import { ActivityLogs, Conversations, Customers, Integrations, RobotEntries, Users } from './db/models';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
 import { get, set } from './redisClient';
@@ -83,6 +83,22 @@ const receiveWidgetNotification = async ({ action, data }: IWidgetMessage) => {
 
   if (action === 'activityLog') {
     ActivityLogs.createLogFromWidget(data.type, data.payload);
+  }
+
+  if (action === 'leadInstalled') {
+    const integration = await Integrations.findOne({ _id: data.payload.integrationId });
+
+    if (!integration) {
+      return;
+    }
+
+    const user = await Users.findOne({ _id: integration.createdUserId });
+
+    if (!user) {
+      return;
+    }
+
+    registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
   }
 };
 
