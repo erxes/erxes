@@ -24,7 +24,7 @@ const Row = styled.div`
 const RowTitle = styled.h3`
   font-size: ${typography.fontSizeHeading8}px;
   font-weight: ${typography.fontWeightMedium};
-  padding: 0 ${dimensions.coreSpacing * 2}px;
+  padding: 0 ${dimensions.coreSpacing * 2}px 0 ${dimensions.coreSpacing * 1.5}px;
   text-transform: uppercase;
   align-self: center;
   margin: 0 0 ${dimensions.coreSpacing}px;

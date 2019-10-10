@@ -116,7 +116,7 @@ class Onboarding extends React.Component<
                 👋
               </span>
             </b>
-            <br /> What module do you use usually?
+            <br /> Which feature do you want to set up
           </Greeting>
           {availableFeatures.map(availabeFeature =>
             this.renderFeature(availabeFeature)
