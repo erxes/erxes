@@ -76,7 +76,12 @@ export const FEATURE_DETAILS = {
     description:
       'Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      leadIntegrationCreate: {
+        name: 'Create pop ups',
+        url: '/leads/create'
+      }
+    }
   },
   engages: {
     text: 'Engages',
