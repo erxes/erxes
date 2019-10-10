@@ -68,6 +68,7 @@ export const KIND_CHOICES = {
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
+  NYLAS_GMAIL: 'nylas-gmail',
   LEAD: 'lead',
   CALLPRO: 'callpro',
   ALL_LIST: [
@@ -75,7 +76,9 @@ export const KIND_CHOICES = {
     'facebook-post',
     'facebook-messenger',
     'lead',
-    'callpro'
+    'callpro',
+    'gmail',
+    'nylas-gmail'
   ]
 };
 
@@ -92,6 +95,26 @@ export const FORM_SUCCESS_ACTIONS = {
   ONPAGE: 'onPage',
   ALL_LIST: ['', 'email', 'redirect', 'onPage']
 };
+
+export const MAIL_TOOLBARS_CONFIG = [
+  { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+  { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+  { name: 'tools', items: ['Maximize'] },
+  {
+    name: 'insert',
+    items: ['Image', 'HorizontalRule', 'EmojiPanel']
+  },
+  {
+    name: 'basicstyles',
+    groups: ['basicstyles', 'cleanup'],
+    items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
+  },
+  {
+    name: 'paragraph',
+    groups: ['list', 'indent', 'blocks', 'align', 'bidi'],
+    items: ['NumberedList', 'BulletedList']
+  }
+];
 
 export const INTEGRATIONS = [
   {
@@ -124,17 +147,28 @@ export const INTEGRATIONS = [
       {
         name: 'Gmail',
         description:
-          'Connect straight to your Gmail and get those emails going',
+          'connect straight to your gmail and get those emails going',
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
-        createModal: 'gmail'
+        createModal: 'gmail',
+        createUrl: '/settings/integrations/gmail'
       }
     ]
   },
   {
     name: 'row-2',
     rows: [
+      {
+        name: 'Gmail by Nylas',
+        description:
+          'Connect straight to your gmail and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-gmail',
+        logo: '/images/integrations/gmail.png',
+        createModal: 'nylas-gmail',
+        createUrl: '/settings/integrations/nylas-gmail'
+      },
       {
         name: 'Lead',
         description: 'Find your lead forms right here in your Widget',
@@ -161,7 +195,12 @@ export const INTEGRATIONS = [
         kind: 'amazon-ses',
         logo: '/images/integrations/aws-ses.png',
         createModal: 'sesconfig'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-3',
+    rows: [
       {
         name: 'Call Pro',
         description: 'Connect your call pro phone number',
@@ -174,7 +213,7 @@ export const INTEGRATIONS = [
   },
   {
     title: 'Coming soon',
-    name: 'row-3',
+    name: 'row-4',
     rows: [
       {
         name: 'Viber',
