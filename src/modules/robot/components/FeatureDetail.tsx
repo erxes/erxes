@@ -146,7 +146,7 @@ class FeatureDetail extends React.Component<Props> {
   renderVideo() {
     const { feature } = this.props;
 
-    if (feature.videoUrl && feature.videoUrl !== 'url')
+    if (feature.videoUrl && feature.videoUrl !== 'url') {
       return (
         <iframe
           key={feature.name}
@@ -154,6 +154,7 @@ class FeatureDetail extends React.Component<Props> {
           src={feature.videoUrl}
         />
       );
+    }
 
     return;
   }
