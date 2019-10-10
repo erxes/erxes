@@ -162,7 +162,7 @@ class BasicInfo extends React.Component<Props> {
           )}
           {this.renderRow('Phone', company.primaryPhone)}
           {this.renderRow(
-            'Lead Status',
+            'Pop Ups Status',
             LEAD_STATUS_TYPES[company.leadStatus || '']
           )}
           {this.renderRow(

@@ -188,7 +188,7 @@ class CustomerForm extends React.Component<Props, State> {
               defaultValue: customer.position || ''
             })}
 
-            {this.renderFormGroup('Lead Status', {
+            {this.renderFormGroup('Pop Ups Status', {
               ...formProps,
               name: 'leadStatus',
               componentClass: 'select',

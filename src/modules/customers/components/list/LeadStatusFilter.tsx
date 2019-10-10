@@ -62,7 +62,7 @@ class LeadStatusFilter extends React.Component<IProps> {
 
     return (
       <Section collapsible={true}>
-        <Section.Title>{__('Filter by lead status')}</Section.Title>
+        <Section.Title>{__('Filter by pop ups status')}</Section.Title>
         <Section.QuickButtons>
           {router.getParam(history, 'leadStatus') ? (
             <a href="#cancel" tabIndex={0} onClick={onClear}>
