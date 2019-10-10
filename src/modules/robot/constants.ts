@@ -37,13 +37,17 @@ export const FEATURE_DETAILS = {
         name: 'Create a channel',
         url: '/settings/channels'
       },
-      integrationCreate: {
+      messengerIntegrationCreate: {
         name: 'Then create an integration',
         url: '/settings/integrations'
       },
       responseTemplateCreate: {
         name: 'Add a response template',
         url: '/settings/response-templates'
+      },
+      connectIntegrationsToChannel: {
+        name: 'Connect integration to channel',
+        url: '/settings/channels'
       }
     }
   },
