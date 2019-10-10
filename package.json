@@ -41,6 +41,7 @@
     "botbuilder": "^4.4.0",
     "botbuilder-adapter-facebook": "^1.0.3",
     "botkit": "^4.0.2",
+    "crypto": "^1.0.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "express": "^4.16.4",
@@ -49,6 +50,8 @@
     "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",
     "mongoose": "^5.2.16",
+    "nylas": "^4.7.0",
+    "querystring": "^0.2.0",
     "request": "^2.88.0",
     "requestify": "^0.2.5"
   },

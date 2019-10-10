@@ -3,16 +3,27 @@ import { debugBase, debugExternalRequests } from './debuggers';
 
 interface IRequestParams {
   url?: string;
+  dataType?: string;
   path?: string;
   method: string;
   params?: { [key: string]: string };
-  body?: { [key: string]: string };
+  body?: { [key: string]: string | string[] };
 }
+
+/**
+ * Check and throw error when concurrent
+ * @param {Object} e - error
+ * @param {String} name - model
+ * @returns throw Error
+ */
+export const checkConcurrentError = (e: any, name: string) => {
+  throw new Error(e.message.includes('duplicate') ? `Concurrent request: nylas ${name} duplication` : e);
+};
 
 /**
  * Send request
  */
-export const sendRequest = async ({ url, method, body, params }: IRequestParams) => {
+export const sendRequest = async ({ url, dataType, method, body, params }: IRequestParams) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   const reqBody = JSON.stringify(body || {});
@@ -32,6 +43,7 @@ export const sendRequest = async ({ url, method, body, params }: IRequestParams)
       headers: { 'Content-Type': 'application/json', origin: DOMAIN },
       body,
       params,
+      dataType: dataType || 'json',
     });
 
     const responseBody = response.getBody();
@@ -77,3 +89,10 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
 
   return value || '';
 };
+
+/**
+ * Compose functions
+ * @param {Functions} fns
+ * @returns {Promise} fns value
+ */
+export const compose = (...fns) => arg => fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));

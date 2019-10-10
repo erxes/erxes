@@ -123,24 +123,40 @@ const processReceivedEmails = async (
 
     const email = extractEmailFromString(from);
 
-    const customer = await createOrGetCustomer(email, integration.erxesApiId, integration._id);
-    const conversation = await createOrGetConversation(
+    const integrationIds = {
+      id: integration._id,
+      erxesApiId: integration.erxesApiId,
+    };
+
+    // Customer ========
+    const customer = await createOrGetCustomer(email, integrationIds);
+
+    // Conversation =========
+    const conversationDoc = {
       email,
-      reply,
-      integration.erxesApiId,
-      integration._id,
-      customer.erxesApiId,
       subject,
       receivedEmail,
-    );
+      integrationIds,
+      reply,
+      customerErxesApiId: customer.erxesApiId,
+    };
 
-    await createOrGetConversationMessage(
+    const conversation = await createOrGetConversation(conversationDoc);
+
+    // Conversation message ==========
+    const conversationIds = {
+      id: conversation._id,
+      erxesApiId: conversation.erxesApiId,
+    };
+
+    const messageDoc = {
       messageId,
-      conversation.erxesApiId,
-      customer.erxesApiId,
-      conversation._id,
-      updatedMessage,
-    );
+      conversationIds,
+      message: updatedMessage,
+      customerErxesApiId: customer.erxesApiId,
+    };
+
+    await createOrGetConversationMessage(messageDoc);
   });
 };
 

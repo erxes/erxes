@@ -58,7 +58,7 @@ const init = async app => {
           path: '/integrations-api',
           method: 'POST',
           body: {
-            action: 'create-or-update-customer',
+            action: 'get-create-update-customer',
             payload: JSON.stringify({
               integrationId: integration.erxesApiId,
               primaryPhone: numberFrom,

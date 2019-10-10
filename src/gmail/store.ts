@@ -1,8 +1,15 @@
 import { fetchMainApi } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
-import { extractEmailFromString } from './util';
+import { buildEmail } from './util';
 
-const createOrGetCustomer = async (email: string, integrationIdErxesApiId: string, integrationId: string) => {
+interface IIntegrationIds {
+  id: string;
+  erxesApiId: string;
+}
+
+const createOrGetCustomer = async (email: string, integrationIds: IIntegrationIds) => {
+  const { erxesApiId, id } = integrationIds;
+
   let customer = await Customers.findOne({ email });
 
   if (!customer) {
@@ -11,7 +18,7 @@ const createOrGetCustomer = async (email: string, integrationIdErxesApiId: strin
         email,
         firstName: '',
         lastName: '',
-        integrationId,
+        integrationId: id,
       });
     } catch (e) {
       throw new Error(e.message.includes('duplicate') ? `Concurrent request: customer duplication` : e);
@@ -22,13 +29,13 @@ const createOrGetCustomer = async (email: string, integrationIdErxesApiId: strin
         path: '/integrations-api',
         method: 'POST',
         body: {
-          action: 'create-or-update-customer',
+          action: 'get-create-update-customer',
           payload: JSON.stringify({
             emails: [email],
             firstName: '',
             lastName: '',
             primaryEmail: email,
-            integrationId: integrationIdErxesApiId,
+            integrationId: erxesApiId,
           }),
         },
       });
@@ -44,15 +51,17 @@ const createOrGetCustomer = async (email: string, integrationIdErxesApiId: strin
   return customer;
 };
 
-const createOrGetConversation = async (
-  email: string,
-  reply: string[],
-  integrationIdErxesApiId: string,
-  integrationId: string,
-  customerId: string,
-  subject: string,
-  receivedEmail: string,
-) => {
+const createOrGetConversation = async (args: {
+  email: string;
+  subject: string;
+  reply: string[];
+  receivedEmail: string;
+  integrationIds: IIntegrationIds;
+  customerErxesApiId: string;
+}) => {
+  const { subject, reply, email, integrationIds, receivedEmail, customerErxesApiId } = args;
+  const { id, erxesApiId } = integrationIds;
+
   let conversation;
 
   if (reply) {
@@ -72,7 +81,7 @@ const createOrGetConversation = async (
       conversation = await Conversations.create({
         to: receivedEmail,
         from: email,
-        integrationId,
+        integrationId: id,
       });
     } catch (e) {
       throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
@@ -86,8 +95,8 @@ const createOrGetConversation = async (
         body: {
           action: 'create-or-update-conversation',
           payload: JSON.stringify({
-            customerId,
-            integrationId: integrationIdErxesApiId,
+            customerId: customerErxesApiId,
+            integrationId: erxesApiId,
             content: subject,
           }),
         },
@@ -104,24 +113,40 @@ const createOrGetConversation = async (
   return conversation;
 };
 
-const createOrGetConversationMessage = async (
-  messageId: string,
-  conversationErxesApiId: string,
-  customerErxesApiId: string,
-  conversationId: string,
-  data: any,
-) => {
+const createOrGetConversationMessage = async (args: {
+  messageId: string;
+  message: any;
+  customerErxesApiId: string;
+  conversationIds: {
+    id: string;
+    erxesApiId: string;
+  };
+}) => {
+  const { messageId, message, customerErxesApiId, conversationIds } = args;
+  const { id, erxesApiId } = conversationIds;
+
   const conversationMessage = await ConversationMessages.findOne({ messageId });
 
-  if (!conversationMessage) {
-    data.from = extractEmailFromString(data.from);
-    data.to = extractEmailFromString(data.to);
+  const doc = {
+    conversationId: id,
+    messageId,
+    threadId: message.threadId,
+    headerId: message.headerId,
+    labelIds: message.labelIds,
+    reference: message.reference,
+    to: buildEmail(message.to),
+    from: buildEmail(message.from),
+    cc: buildEmail(message.cc),
+    bcc: buildEmail(message.bcc),
+    subject: message.subject,
+    body: message.textHtml,
+    reply: message.reply,
+    attachments: message.attachments,
+    customerId: customerErxesApiId,
+  };
 
-    const newConversationMessage = await ConversationMessages.create({
-      conversationId,
-      customerId: customerErxesApiId,
-      ...data,
-    });
+  if (!conversationMessage) {
+    const newConversationMessage = await ConversationMessages.create(doc);
 
     try {
       const apiMessageResponse = await fetchMainApi({
@@ -131,9 +156,9 @@ const createOrGetConversationMessage = async (
           action: 'create-conversation-message',
           metaInfo: 'replaceContent',
           payload: JSON.stringify({
-            conversationId: conversationErxesApiId,
+            conversationId: erxesApiId,
             customerId: customerErxesApiId,
-            content: data.subject,
+            content: doc.subject,
           }),
         },
       });

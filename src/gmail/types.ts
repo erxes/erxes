@@ -20,22 +20,27 @@ export interface IAttachmentParams {
   attachmentId?: string;
 }
 
+interface IGmail {
+  name: string;
+  email: string;
+}
+
 export interface IMailParams {
-  labelIds?: string[];
-  subject?: string;
-  body?: string;
-  to?: string;
-  cc?: string;
-  bcc?: string;
-  attachments?: IAttachmentParams[];
+  conversationId: string;
+  erxesApiMessageId: string;
+  messageId: string;
+  threadId: string;
+  subject: string;
+  body: string;
+  to: [IGmail];
+  cc: [IGmail];
+  bcc: [IGmail];
+  from: [IGmail];
   references?: string;
   headerId?: string;
-  from?: string;
+  labelIds?: string[];
   reply?: string[];
-  messageId?: string;
-  textHtml?: string;
-  textPlain?: string;
-  threadId?: string;
+  attachments?: IAttachmentParams[];
 }
 
 export interface IMessage {

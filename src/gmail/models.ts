@@ -29,6 +29,7 @@ export const Customers = model<ICustomerDocument, ICustomerModel>('customers_gma
 export interface IConversation {
   to: string;
   from: string;
+  threadId: string;
   content: string;
   customerId: string;
   erxesApiId: string;
@@ -42,6 +43,7 @@ export const conversationSchema = new Schema({
   _id: field({ pkey: true }),
   to: { type: String, index: true },
   from: { type: String, index: true },
+  threadId: { type: String, index: true },
   content: String,
   customerId: String,
   erxesApiId: String,
@@ -57,7 +59,7 @@ export const Conversations = model<IConversationDocument, IConversatonModel>('co
 export interface IConversationMessage extends IMailParams {
   conversationId: string;
   erxesApiMessageId: string;
-  createdAt: string;
+  createdAt: Date;
 }
 
 export interface IConversationMessageDocument extends IConversationMessage, Document {}
@@ -70,24 +72,28 @@ export const attachmentSchema = new Schema({
   attachmentId: String,
 });
 
+const emailSchema = {
+  _id: false,
+  name: String,
+  email: String,
+};
+
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   conversationId: String,
   erxesApiMessageId: String,
-  labelIds: [String],
+  messageId: { type: String, unique: true },
+  threadId: String,
   subject: String,
   body: String,
-  to: String,
-  cc: String,
-  bcc: String,
+  to: [emailSchema],
+  cc: [emailSchema],
+  bcc: [emailSchema],
+  from: [emailSchema],
   references: String,
   headerId: String,
-  from: String,
-  threadId: String,
+  labelIds: [String],
   reply: [String],
-  messageId: { type: String, unique: true },
-  textHtml: String,
-  textPlain: String,
   attachments: [attachmentSchema],
   createdAt: field({ type: Date, index: true, default: new Date() }),
 });
