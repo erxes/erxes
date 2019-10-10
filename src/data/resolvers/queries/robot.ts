@@ -65,8 +65,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['managePermissions'],
   },
   integrations: {
-    settings: ['brandCreate', 'channelCreate'],
-    settingsPermissions: ['manageBrands', 'manageChannels'],
+    settings: ['messengerIntegrationCreate', 'facebookIntegrationCreate'],
+    settingsPermissions: ['integrationsCreateMessengerIntegration'],
   },
   insights: {
     settings: ['showInsights'],

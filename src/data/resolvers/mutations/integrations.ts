@@ -23,7 +23,7 @@ const integrationMutations = {
     if (integration) {
       await putCreateLog(
         {
-          type: 'integration',
+          type: 'messengerIntegration',
           newData: JSON.stringify(doc),
           object: integration,
           description: `${integration.name} has been created`,
@@ -91,7 +91,7 @@ const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { dataSources }: IContext,
+    { user, dataSources }: IContext,
   ) {
     const integration = await Integrations.createExternalIntegration(doc);
 
@@ -112,6 +112,16 @@ const integrationMutations = {
         integrationId: integration._id,
         data: data ? JSON.stringify(data) : '',
       });
+
+      await putCreateLog(
+        {
+          type: `${kind}Integration`,
+          newData: JSON.stringify(doc),
+          object: integration,
+          description: `${integration.name} has been created`,
+        },
+        user,
+      );
     } catch (e) {
       await Integrations.remove({ _id: integration._id });
       throw new Error(e);
