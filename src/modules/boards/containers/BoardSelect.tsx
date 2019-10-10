@@ -21,6 +21,7 @@ type Props = {
   onChangeStage?: (stageId: string) => void;
   onChangePipeline: (pipelineId: string, stages: IStage[]) => void;
   onChangeBoard: (boardId: string) => void;
+  notAutoStage?: boolean;
 };
 
 type FinalProps = {
@@ -57,7 +58,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
 
         this.props.onChangePipeline(pipelineId, stages);
 
-        if (stages.length > 0) {
+        if (stages.length > 0 && !this.props.notAutoStage) {
           this.onChangeStage(stages[0]._id);
         }
       })
