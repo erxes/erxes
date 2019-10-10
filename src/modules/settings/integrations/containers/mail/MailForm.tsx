@@ -15,7 +15,7 @@ type Props = {
   refetchQueries?: string[];
   fromEmail?: string;
   kind: string;
-  conversationDetails?: IMail;
+  mailData?: IMail;
   isReply?: boolean;
   toggleReply?: () => void;
   closeModal?: () => void;
@@ -27,7 +27,7 @@ type FinalProps = {
 
 const MailFormContainer = (props: FinalProps) => {
   const {
-    conversationDetails,
+    mailData,
     integrationId,
     integrationsQuery,
     refetchQueries,
@@ -74,7 +74,7 @@ const MailFormContainer = (props: FinalProps) => {
     kind,
     isReply,
     toggleReply,
-    conversationDetails
+    mailData
   };
 
   return <MailForm {...updatedProps} />;

@@ -95,7 +95,7 @@ class Mail extends React.PureComponent<
           toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}
-          conversationDetails={mailData}
+          mailData={mailData}
         />
       </Message>
     );

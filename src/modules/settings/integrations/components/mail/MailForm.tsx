@@ -35,7 +35,7 @@ type Props = {
   integrations: IIntegration[];
   kind: string;
   fromEmail?: string;
-  conversationDetails?: IMail;
+  mailData?: IMail;
   isReply?: boolean;
   closeModal?: () => void;
   toggleReply?: () => void;
@@ -65,12 +65,12 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const details = props.conversationDetails || ({} as IMail);
+    const mailData = props.mailData || ({} as IMail);
 
-    const to = formatObj(details.to);
-    const cc = formatObj(details.cc || []);
-    const bcc = formatObj(details.bcc || []);
-    const [from] = details.from || [{}];
+    const to = formatObj(mailData.to);
+    const cc = formatObj(mailData.cc || []);
+    const bcc = formatObj(mailData.bcc || []);
+    const [from] = mailData.from || [{}];
 
     this.state = {
       cc,
@@ -82,7 +82,8 @@ class MailForm extends React.Component<Props, State> {
       hasSubject: !props.isReply,
 
       fromEmail: from.email || props.fromEmail,
-      subject: details.subject || '',
+      from: this.getIntegrationId(props.integrations, props.integrationId),
+      subject: mailData.subject || '',
       content: '',
 
       status: 'draft',
@@ -96,18 +97,25 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
+  getIntegrationId = (integrations, integrationId?: string) => {
+    if (integrationId) {
+      return integrationId;
+    }
+
+    return integrations.length > 0 ? integrations[0]._id : '';
+  };
+
   generateDoc = (values: {
     to: string;
     cc: string;
     bcc: string;
     subject: string;
-    from: string;
   }) => {
     const { integrationId, kind } = this.props;
-    const details = this.props.conversationDetails || ({} as IMail);
-    const { to, cc, bcc, from, subject } = values;
-    const { content, attachments } = this.state;
-    const { references, headerId, threadId, messageId } = details;
+    const mailData = this.props.mailData || ({} as IMail);
+    const { to, cc, bcc, subject } = values;
+    const { content, from, attachments } = this.state;
+    const { references, headerId, threadId, messageId } = mailData;
 
     const doc = {
       headerId,
@@ -118,7 +126,7 @@ class MailForm extends React.Component<Props, State> {
       cc: formatStr(cc),
       bcc: formatStr(bcc),
       from: integrationId ? integrationId : from,
-      subject: subject || details.subject,
+      subject: subject || mailData.subject,
       attachments,
       kind,
       body: content,
@@ -136,6 +144,10 @@ class MailForm extends React.Component<Props, State> {
     this.setState(({ [name]: true } as unknown) as Pick<State, keyof State>);
   };
 
+  onChange = e => {
+    this.setState({ from: e.currentTarget.value });
+  };
+
   onRemoveAttach = (attachment: any) => {
     const { attachments } = this.state;
 
@@ -147,10 +159,10 @@ class MailForm extends React.Component<Props, State> {
   };
 
   getEmailSender = (fromEmail?: string) => {
-    const details = this.props.conversationDetails || ({} as IMail);
-    const { integrationEmail } = details;
+    const mailData = this.props.mailData || ({} as IMail);
+    const { integrationEmail } = mailData;
 
-    const to = formatObj(details.to) || '';
+    const to = formatObj(mailData.to) || '';
 
     // new email
     if ((!to || to.length === 0) && !integrationEmail) {
@@ -185,10 +197,11 @@ class MailForm extends React.Component<Props, State> {
 
   onAttachment = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
+    const { attachments, from } = this.state;
 
     const extraFormData = [
       { key: 'kind', value: 'nylas' },
-      { key: 'erxesApiId', value: this.props.integrationId || '' }
+      { key: 'erxesApiId', value: this.props.integrationId || from || '' }
     ];
 
     uploadHandler({
@@ -203,7 +216,7 @@ class MailForm extends React.Component<Props, State> {
 
         this.setState({
           isUploading: false,
-          attachments: [...this.state.attachments, { ...resObj }]
+          attachments: [...attachments, { ...resObj }]
         });
       }
     });
@@ -281,18 +294,18 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderFrom(formProps: IFormProps, integrationId?: string) {
-    const extendedProps = {
-      name: 'from',
-      componentClass: 'select',
-      required: true,
-      defaultValue: integrationId,
-      disabled: integrationId ? integrationId.length > 0 : false
-    };
-
     return (
       <FlexRow>
         <label>From:</label>
-        <FormControl {...formProps} {...extendedProps}>
+        <FormControl
+          {...formProps}
+          name="from"
+          onChange={this.onChange}
+          componentClass="select"
+          required={true}
+          defaultValue={this.state.from}
+          disabled={integrationId ? integrationId.length > 0 : false}
+        >
           <option />
           {this.renderFromOption()}
         </FormControl>

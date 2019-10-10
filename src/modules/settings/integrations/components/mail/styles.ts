@@ -102,7 +102,6 @@ const Attachments = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin: -10px 0 ${dimensions.coreSpacing}px -5px;
 `;
 
 const FlexRow = styled.div`
