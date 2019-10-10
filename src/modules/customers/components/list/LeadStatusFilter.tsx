@@ -75,7 +75,7 @@ class LeadStatusFilter extends React.Component<IProps> {
           loading={this.props.loading}
           count={Object.keys(LEAD_STATUS_TYPES).length}
           data={this.renderCounts()}
-          emptyText="No leads"
+          emptyText="No Pop Ups"
           emptyIcon="type"
           size="small"
           objective={true}

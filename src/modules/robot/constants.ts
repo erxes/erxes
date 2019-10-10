@@ -134,7 +134,7 @@ export const FEATURE_DETAILS = {
     }
   },
   leads: {
-    text: 'Leads',
+    text: 'Pop Ups',
     color: '#c84b49',
     icon: 'laptop',
     description:

@@ -54,7 +54,7 @@ const Indicator = styled.div`
 `;
 
 const ItemIndicator = styledTS<{ color: string }>(styled.span)`
-  display: inline-block;
+  display: block;
   width: 8px;
   height: 8px;
   border-radius: 4px;
