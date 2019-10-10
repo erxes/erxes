@@ -80,6 +80,10 @@ export const FEATURE_DETAILS = {
       leadIntegrationCreate: {
         name: 'Create pop ups',
         url: '/leads/create'
+      },
+      leadIntegrationInstalled: {
+        name: 'Install on website',
+        url: '/leads/create'
       }
     }
   },
