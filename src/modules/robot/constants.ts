@@ -229,7 +229,16 @@ export const FEATURE_DETAILS = {
     description:
       'You may need additional properties to gather information from customers, companies, and products/services.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerFieldCreate: {
+        name: 'Create a custom customer properties',
+        url: '/settings/properties?type=customer'
+      },
+      companyFieldCreate: {
+        name: 'Create a custom company properties',
+        url: '/settings/properties?type=company'
+      }
+    }
   },
   permissions: {
     text: 'Permissions',
