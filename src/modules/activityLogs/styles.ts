@@ -48,6 +48,7 @@ const FlexContent = styled.div`
 const FlexBody = styled.div`
   flex: 1;
   align-self: center;
+  word-break: break-word;
 
   p {
     margin: 0;
