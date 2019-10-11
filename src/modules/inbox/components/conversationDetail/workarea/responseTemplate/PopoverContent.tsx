@@ -17,12 +17,12 @@ import React from 'react';
 
 import { Link } from 'react-router-dom';
 import strip from 'strip';
-import { IAttachment } from '../../../../../common/types';
-import { IBrand } from '../../../../../settings/brands/types';
+import { IAttachment } from 'modules/common/types';
+import { IBrand } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
   SaveResponsTemplateMutationVariables
-} from '../../../../../settings/responseTemplates/types';
+} from 'modules/settings/responseTemplates/types';
 import Button from 'modules/common/components/Button';
 
 type Props = {

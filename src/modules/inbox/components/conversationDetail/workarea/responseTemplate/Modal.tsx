@@ -6,7 +6,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { IBrand } from '../../../../../settings/brands/types';
+import { IBrand } from 'modules/settings/brands/types';
 
 type Props = {
   onSave: (brandId: string, name: string) => void;

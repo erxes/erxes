@@ -7,15 +7,15 @@ import { ResponseTemplateStyled } from 'modules/inbox/styles';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import strip from 'strip';
-import { IAttachment } from '../../../../../common/types';
-import { IBrand } from '../../../../../settings/brands/types';
+import { IAttachment } from 'modules/common/types';
+import { IBrand } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
   SaveResponsTemplateMutationVariables
-} from '../../../../../settings/responseTemplates/types';
+} from 'modules/settings/responseTemplates/types';
 import ResponseTemplateModal from './Modal';
 
-import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
+import PopoverContent from 'modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent';
 
 type Props = {
   brandId?: string;

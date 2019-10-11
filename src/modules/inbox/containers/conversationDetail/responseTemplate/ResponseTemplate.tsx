@@ -3,14 +3,14 @@ import ResponseTemplate from 'modules/inbox/components/conversationDetail/workar
 import { mutations, queries } from 'modules/inbox/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { withProps } from '../../../../common/utils';
-import { AllBrandsQueryResponse } from '../../../../settings/brands/types';
+import { withProps } from 'modules/common/utils';
+import { AllBrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
   SaveResponseTemplateMutationResponse,
   SaveResponsTemplateMutationVariables
-} from '../../../../settings/responseTemplates/types';
+} from 'modules/settings/responseTemplates/types';
 
 type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
