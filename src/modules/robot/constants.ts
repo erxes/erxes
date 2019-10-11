@@ -7,10 +7,10 @@ export const FEATURE_DETAILS = {
     color: '#f7802e',
     description:
       'From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.',
-    videoUrl: 'url',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U',
     settingsDetails: {
       growthHackBoardsCreate: {
-        name: 'Create board',
+        name: 'Create a marketing campaign',
         url: '/settings/boards/growthHack'
       },
       growthHackPipelinesCreate: {
@@ -37,13 +37,17 @@ export const FEATURE_DETAILS = {
         name: 'Create a channel',
         url: '/settings/channels'
       },
-      integrationCreate: {
+      messengerIntegrationCreate: {
         name: 'Then create an integration',
         url: '/settings/integrations'
       },
       responseTemplateCreate: {
         name: 'Add a response template',
         url: '/settings/response-templates'
+      },
+      connectIntegrationsToChannel: {
+        name: 'Connect integration to channel',
+        url: '/settings/channels'
       }
     }
   },
@@ -64,8 +68,16 @@ export const FEATURE_DETAILS = {
         url: '/settings/boards/deal'
       },
       dealCreate: {
-        name: 'Now add deal',
+        name: 'Now add deals',
         url: '/deal/board'
+      },
+      'configure.dealCurrency': {
+        name: 'Configure currencies',
+        url: '/settings/general'
+      },
+      'configure.dealUOM': {
+        name: 'Configure unit of measurement',
+        url: '/settings/general'
       }
     }
   },
@@ -74,9 +86,18 @@ export const FEATURE_DETAILS = {
     color: '#c84b49',
     icon: 'laptop',
     description:
-      'Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.',
+      'Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      leadIntegrationCreate: {
+        name: 'Create pop ups',
+        url: '/leads/create'
+      },
+      leadIntegrationInstalled: {
+        name: 'Install on website',
+        url: '/leads/create'
+      }
+    }
   },
   engages: {
     text: 'Engages',

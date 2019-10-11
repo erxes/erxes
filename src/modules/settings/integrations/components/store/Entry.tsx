@@ -8,9 +8,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { KIND_CHOICES } from '../../constants';
 import Settings from '../../containers/engages/Settings';
+import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
-import Facebook from '../facebook/Form';
 import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
@@ -91,7 +91,7 @@ class Entry extends React.Component<Props> {
       const content = props => <Lead {...props} />;
 
       return (
-        <ModalTrigger title="Add lead" trigger={trigger} content={content} />
+        <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} />
       );
     }
 
