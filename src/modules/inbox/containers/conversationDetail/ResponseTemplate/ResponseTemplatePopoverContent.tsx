@@ -16,6 +16,7 @@ import {
   SaveResponseTemplateMutationResponse,
   SaveResponsTemplateMutationVariables
 } from '../../../../settings/responseTemplates/types';
+
 import { AppConsumer } from 'appContext';
 
 type Props = {
@@ -86,8 +87,8 @@ const withQuery = () =>
             return {
               variables: {
                 perPage: 200,
-                searchValue: searchValue,
-                brandId: brandId
+                searchValue,
+                brandId
               }
             };
           }

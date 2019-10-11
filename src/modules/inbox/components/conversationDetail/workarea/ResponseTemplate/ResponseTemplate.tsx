@@ -14,6 +14,7 @@ import {
   SaveResponsTemplateMutationVariables
 } from '../../../../../settings/responseTemplates/types';
 import ResponseTemplateModal from './ResponseTemplateModal';
+
 import PopoverContent from '../../../../containers/conversationDetail/ResponseTemplate/ResponseTemplatePopoverContent';
 
 type Props = {
