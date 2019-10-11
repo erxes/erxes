@@ -122,6 +122,10 @@ class ResponseTemplatePopoverContent extends React.Component<Props, State> {
   render() {
     const { brands } = this.props;
 
+    const onChangeSearchValue = e => this.onChangeFilter(e, 'searchValue');
+
+    const onChangeBrand = e => this.onChangeFilter(e, 'searchValue');
+
     return (
       <>
         <PopoverHeader>
@@ -130,7 +134,7 @@ class ResponseTemplatePopoverContent extends React.Component<Props, State> {
               <FormControl
                 type="text"
                 placeholder={__('Search') as string}
-                onChange={e => this.onChangeFilter(e, 'searchValue')}
+                onChange={onChangeSearchValue}
                 defaultValue={this.state.searchValue}
                 autoFocus={true}
               />
@@ -139,7 +143,7 @@ class ResponseTemplatePopoverContent extends React.Component<Props, State> {
               <FormControl
                 componentClass="select"
                 placeholder={__('Select Brand') as string}
-                onChange={e => this.onChangeFilter(e, 'brandId')}
+                onChange={onChangeBrand}
                 defaultValue={this.state.brandId}
               >
                 {brands.map(brand => (
