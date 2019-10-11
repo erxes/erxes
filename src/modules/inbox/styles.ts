@@ -188,10 +188,18 @@ const PopoverList = styledTS<{ center?: boolean }>(styled(RootList))`
       color: ${colors.colorCoreDarkGray};
     }
     
-    button {
-      color: ${colors.colorCoreDarkGray};
-    }
-    
+  }
+`;
+
+const PopoverLoadMore = styled.li`
+  text-align: center;
+
+  button {
+    box-shadow: none;
+    border-radius: 30px;
+    font-size: 10px;
+    padding: 5px 15px;
+    text-transform: uppercase;
   }
 `;
 
@@ -399,6 +407,7 @@ export {
   InlineHeaderSpan,
   PopoverBody,
   PopoverList,
+  PopoverLoadMore,
   TemplateTitle,
   TemplateContent,
   PopoverFooter,

@@ -10,7 +10,8 @@ import {
   PopoverHeader,
   PopoverList,
   TemplateContent,
-  TemplateTitle
+  TemplateTitle,
+  PopoverLoadMore
 } from 'modules/inbox/styles';
 import React from 'react';
 
@@ -122,6 +123,22 @@ class PopoverContent extends React.Component<Props, State> {
     });
   }
 
+  renderLoadMore = () => {
+    const { hasMore } = this.props;
+
+    if (!hasMore) {
+      return;
+    }
+
+    return (
+      <PopoverLoadMore>
+        <Button btnStyle="simple" onClick={() => this.fetchTemplates()}>
+          {__('LoadMore')}
+        </Button>
+      </PopoverLoadMore>
+    );
+  };
+
   fetchTemplates = () => {
     const { responseTemplates } = this.props;
 
@@ -133,7 +150,7 @@ class PopoverContent extends React.Component<Props, State> {
   };
 
   render() {
-    const { brands, hasMore } = this.props;
+    const { brands } = this.props;
 
     const onChangeSearchValue = e => this.onChangeFilter(e, 'searchValue');
 
@@ -170,17 +187,13 @@ class PopoverContent extends React.Component<Props, State> {
         </PopoverHeader>
 
         <PopoverBody>
-          <PopoverList>{this.renderItems()}</PopoverList>
+          <PopoverList>
+            {this.renderItems()}
+            {this.renderLoadMore()}
+          </PopoverList>
         </PopoverBody>
         <PopoverFooter>
           <PopoverList center={true}>
-            {hasMore ? (
-              <li>
-                <Button onClick={() => this.fetchTemplates()}>
-                  {__('LoadMore')}
-                </Button>
-              </li>
-            ) : null}
             <li>
               <Link to="/settings/response-templates">
                 {__('Manage templates')}
