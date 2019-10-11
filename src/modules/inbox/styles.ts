@@ -199,7 +199,6 @@ const PopoverLoadMore = styled.li`
     border-radius: 30px;
     font-size: 10px;
     padding: 5px 15px;
-    text-transform: uppercase;
   }
 `;
 

@@ -133,7 +133,7 @@ class PopoverContent extends React.Component<Props, State> {
     return (
       <PopoverLoadMore>
         <Button btnStyle="simple" onClick={() => this.fetchTemplates()}>
-          {__('LoadMore')}
+          {__('Load more')}
         </Button>
       </PopoverLoadMore>
     );
