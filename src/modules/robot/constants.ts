@@ -86,7 +86,7 @@ export const FEATURE_DETAILS = {
     color: '#c84b49',
     icon: 'laptop',
     description:
-      'Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.',
+      'Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.',
     videoUrl: 'url',
     settingsDetails: {
       leadIntegrationCreate: {

@@ -3,7 +3,7 @@ import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { KIND_CHOICES_WITH_TEXT } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { withRouter } from 'react-router';
 
@@ -20,20 +20,20 @@ function IntegrationFilter({ history, counts }: IProps) {
 
   const data = (
     <SidebarList capitalize={true}>
-      {KIND_CHOICES.ALL_LIST.map((kind, index) => (
+      {KIND_CHOICES_WITH_TEXT.map((kind, index) => (
         <li key={index}>
           <a
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(history, 'integrationType') === kind
+              router.getParam(history, 'integrationType') === kind.value
                 ? 'active'
                 : ''
             }
-            onClick={onClick.bind(null, kind)}
+            onClick={onClick.bind(null, kind.value)}
           >
-            {kind === 'facebook' ? 'facebook messenger' : kind}
-            <SidebarCounter>{counts[kind]}</SidebarCounter>
+            {kind.text}
+            <SidebarCounter>{counts[kind.value] || 0}</SidebarCounter>
           </a>
         </li>
       ))}
@@ -47,7 +47,7 @@ function IntegrationFilter({ history, counts }: IProps) {
       <DataWithLoader
         data={data}
         loading={false}
-        count={KIND_CHOICES.ALL_LIST.length}
+        count={KIND_CHOICES_WITH_TEXT.length}
         emptyText="No integrations"
         emptyIcon="puzzle"
         size="small"

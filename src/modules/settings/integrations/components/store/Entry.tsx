@@ -91,7 +91,7 @@ class Entry extends React.Component<Props> {
       const content = props => <Lead {...props} />;
 
       return (
-        <ModalTrigger title="Add lead" trigger={trigger} content={content} />
+        <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} />
       );
     }
 
