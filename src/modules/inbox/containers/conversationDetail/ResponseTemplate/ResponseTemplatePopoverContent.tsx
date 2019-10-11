@@ -1,34 +1,42 @@
 import gql from 'graphql-tag';
-import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/ResponseTemplate';
+import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/ResponseTemplate/ResponseTemplatePopoverContent';
 import { mutations, queries } from 'modules/inbox/graphql';
 import { queries as responseTemplateQuery } from 'modules/settings/responseTemplates/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import { AllBrandsQueryResponse } from '../../../settings/brands/types';
+import { withProps } from '../../../../common/utils';
+import {
+  AllBrandsQueryResponse,
+  IBrand
+} from '../../../../settings/brands/types';
+
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
   SaveResponseTemplateMutationResponse,
   SaveResponsTemplateMutationVariables
-} from '../../../settings/responseTemplates/types';
+} from '../../../../settings/responseTemplates/types';
 import { AppConsumer } from 'appContext';
 
 type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
+  brands: IBrand[];
   brandId?: string;
-  attachments: any[];
-  content: string;
+  searchValue?: string;
+  onSelectTemplate: () => void;
 };
 
 type FinalProps = {
+  search: (name: string, value: string) => void;
   brandsQuery: AllBrandsQueryResponse;
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
 } & Props &
   SaveResponseTemplateMutationResponse;
 
-const ResponseTemplateContainer = (props: FinalProps) => {
+const ResponseTemplatePopoverContentContainer = (props: FinalProps) => {
   const {
+    brands,
+    search,
     brandsQuery,
     responseTemplatesQuery,
     saveResponseTemplateMutation
@@ -37,6 +45,10 @@ const ResponseTemplateContainer = (props: FinalProps) => {
   if (responseTemplatesQuery.loading || brandsQuery.loading) {
     return null;
   }
+
+  const onSearchChange = (name: string, value: string) => {
+    search(name, value);
+  };
 
   const saveResponseTemplate = (
     variables: SaveResponsTemplateMutationVariables,
@@ -54,7 +66,8 @@ const ResponseTemplateContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    brands: brandsQuery.allBrands,
+    onSearchChange,
+    brands,
     saveResponseTemplate,
     responseTemplates: responseTemplatesQuery.responseTemplates
   };
@@ -80,11 +93,6 @@ const withQuery = () =>
           }
         }
       ),
-
-      graphql<Props, AllBrandsQueryResponse>(gql(queries.brandList), {
-        name: 'brandsQuery'
-      }),
-
       graphql<
         Props,
         SaveResponseTemplateMutationResponse,
@@ -101,14 +109,15 @@ const withQuery = () =>
           ]
         }
       })
-    )(ResponseTemplateContainer)
+    )(ResponseTemplatePopoverContentContainer)
   );
 
-class Wrapper extends React.Component<
-  Props,
-  { searchValue: string; brandId: string },
-  { WithQuery: React.ReactNode }
-> {
+type WrapperState = {
+  searchValue: string;
+  brandId: string;
+};
+
+class Wrapper extends React.Component<Props, WrapperState> {
   private withQuery;
 
   constructor(props) {
@@ -116,13 +125,19 @@ class Wrapper extends React.Component<
 
     this.withQuery = withQuery();
 
-    this.state = { searchValue: '', brandId: '' };
+    this.state = { searchValue: '', brandId: props.brandId };
   }
 
-  search = (type: string, value: string) => this.setState({ [type]: value });
+  search = <T extends keyof WrapperState>(name: T, value: WrapperState[T]) => {
+    this.setState(({ [name]: value } as unknown) as Pick<
+      WrapperState,
+      keyof WrapperState
+    >);
+  };
 
   render() {
     const { searchValue, brandId } = this.state;
+
     const Component = this.withQuery;
 
     return (
