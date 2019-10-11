@@ -1,19 +1,18 @@
 import gql from 'graphql-tag';
+import { withProps } from 'modules/common/utils';
 import PopoverContent from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/PopoverContent';
 import { mutations, queries } from 'modules/inbox/graphql';
+import { IBrand } from 'modules/settings/brands/types';
 import { queries as responseTemplateQuery } from 'modules/settings/responseTemplates/graphql';
-import React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { withProps } from 'modules/common/utils';
-import { AllBrandsQueryResponse, IBrand } from 'modules/settings/brands/types';
-
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
+  ResponseTemplatesTotalCountQueryResponse,
   SaveResponseTemplateMutationResponse,
-  SaveResponsTemplateMutationVariables,
-  ResponseTemplatesTotalCountQueryResponse
+  SaveResponsTemplateMutationVariables
 } from 'modules/settings/responseTemplates/types';
+import React from 'react';
+import { compose, graphql } from 'react-apollo';
 
 import { AppConsumer } from 'appContext';
 
@@ -27,7 +26,6 @@ type Props = {
 
 type FinalProps = {
   search: (name: string, value: string) => void;
-  brandsQuery: AllBrandsQueryResponse;
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
   responseTemplatesTotalCountQuery: ResponseTemplatesTotalCountQueryResponse;
 } & Props &
@@ -37,7 +35,7 @@ const PopoverContentContainer = (props: FinalProps) => {
   const {
     brands,
     search,
-    brandsQuery,
+
     responseTemplatesQuery,
     responseTemplatesTotalCountQuery,
     saveResponseTemplateMutation
@@ -45,7 +43,6 @@ const PopoverContentContainer = (props: FinalProps) => {
 
   if (
     responseTemplatesQuery.loading ||
-    brandsQuery.loading ||
     responseTemplatesTotalCountQuery.loading
   ) {
     return null;

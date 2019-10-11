@@ -5,8 +5,8 @@ import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import React from 'react';
 import { IBrand } from 'modules/settings/brands/types';
+import React from 'react';
 
 type Props = {
   onSave: (brandId: string, name: string) => void;

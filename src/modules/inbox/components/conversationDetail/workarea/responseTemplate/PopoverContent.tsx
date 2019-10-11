@@ -1,6 +1,7 @@
+import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
-
+import { IAttachment } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import {
   InlineColumn,
@@ -9,21 +10,18 @@ import {
   PopoverFooter,
   PopoverHeader,
   PopoverList,
+  PopoverLoadMore,
   TemplateContent,
-  TemplateTitle,
-  PopoverLoadMore
+  TemplateTitle
 } from 'modules/inbox/styles';
-import React from 'react';
-
-import { Link } from 'react-router-dom';
-import strip from 'strip';
-import { IAttachment } from 'modules/common/types';
 import { IBrand } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
   SaveResponsTemplateMutationVariables
 } from 'modules/settings/responseTemplates/types';
-import Button from 'modules/common/components/Button';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import strip from 'strip';
 
 type Props = {
   brandId?: string;
@@ -132,7 +130,7 @@ class PopoverContent extends React.Component<Props, State> {
 
     return (
       <PopoverLoadMore>
-        <Button btnStyle="simple" onClick={() => this.fetchTemplates()}>
+        <Button btnStyle="simple" onClick={this.fetchTemplates}>
           {__('Load more')}
         </Button>
       </PopoverLoadMore>

@@ -1,9 +1,8 @@
 import gql from 'graphql-tag';
+import { withProps } from 'modules/common/utils';
 import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/ResponseTemplate';
 import { mutations, queries } from 'modules/inbox/graphql';
-import React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { withProps } from 'modules/common/utils';
+import { queries as brandQuery } from 'modules/settings/brands/graphql';
 import { AllBrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
@@ -11,6 +10,8 @@ import {
   SaveResponseTemplateMutationResponse,
   SaveResponsTemplateMutationVariables
 } from 'modules/settings/responseTemplates/types';
+import React from 'react';
+import { compose, graphql } from 'react-apollo';
 
 type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
@@ -61,14 +62,11 @@ const ResponseTemplateContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AllBrandsQueryResponse>(gql(queries.brandList), {
+    graphql<Props, AllBrandsQueryResponse>(gql(brandQuery.allBrands), {
       name: 'brandsQuery'
     }),
     graphql(gql(queries.responseTemplateList), {
-      name: 'responseTemplatesQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
+      name: 'responseTemplatesQuery'
     }),
     graphql<
       Props,

@@ -1,21 +1,19 @@
 import Button from 'modules/common/components/Button';
-
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import { __, Alert } from 'modules/common/utils';
-import { ResponseTemplateStyled } from 'modules/inbox/styles';
-import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-import strip from 'strip';
 import { IAttachment } from 'modules/common/types';
+import { __, Alert } from 'modules/common/utils';
+import PopoverContent from 'modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent';
+import { ResponseTemplateStyled } from 'modules/inbox/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
   SaveResponsTemplateMutationVariables
 } from 'modules/settings/responseTemplates/types';
+import React from 'react';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import strip from 'strip';
 import ResponseTemplateModal from './Modal';
-
-import PopoverContent from 'modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent';
 
 type Props = {
   brandId?: string;
