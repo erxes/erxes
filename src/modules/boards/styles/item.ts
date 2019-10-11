@@ -48,6 +48,17 @@ const HeaderRow = styled(FlexContent)`
 
 const HeaderContent = styled.div`
   flex: 1;
+  font-size: 16px;
+
+  textarea {
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
 `;
 
 const TitleRow = styled.div`
