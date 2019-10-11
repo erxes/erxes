@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/ResponseTemplate/ResponseTemplatePopoverContent';
+import PopoverContent from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/PopoverContent';
 import { mutations, queries } from 'modules/inbox/graphql';
 import { queries as responseTemplateQuery } from 'modules/settings/responseTemplates/graphql';
 import React from 'react';
@@ -14,7 +14,8 @@ import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
   SaveResponseTemplateMutationResponse,
-  SaveResponsTemplateMutationVariables
+  SaveResponsTemplateMutationVariables,
+  ResponseTemplatesTotalCountQueryResponse
 } from '../../../../settings/responseTemplates/types';
 
 import { AppConsumer } from 'appContext';
@@ -31,21 +32,56 @@ type FinalProps = {
   search: (name: string, value: string) => void;
   brandsQuery: AllBrandsQueryResponse;
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
+  responseTemplatesTotalCountQuery: ResponseTemplatesTotalCountQueryResponse;
 } & Props &
   SaveResponseTemplateMutationResponse;
 
-const ResponseTemplatePopoverContentContainer = (props: FinalProps) => {
+const PopoverContentContainer = (props: FinalProps) => {
   const {
     brands,
     search,
     brandsQuery,
     responseTemplatesQuery,
+    responseTemplatesTotalCountQuery,
     saveResponseTemplateMutation
   } = props;
 
-  if (responseTemplatesQuery.loading || brandsQuery.loading) {
+  if (
+    responseTemplatesQuery.loading ||
+    brandsQuery.loading ||
+    responseTemplatesTotalCountQuery.loading
+  ) {
     return null;
   }
+
+  const fetchMore = variables => {
+    console.log(variables);
+    responseTemplatesQuery.fetchMore({
+      variables,
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        const prevTemplates = prev.responseTemplates || [];
+
+        const prevTemplateIds = prevTemplates.map(
+          (template: IResponseTemplate) => template._id
+        );
+
+        const fetchedTemplates: IResponseTemplate[] = [];
+        for (const template of fetchMoreResult.responseTemplates) {
+          if (!prevTemplateIds.includes(template._id)) {
+            fetchedTemplates.push(template);
+          }
+        }
+        return {
+          ...prev,
+          responseTemplates: [...fetchedTemplates, ...prevTemplates]
+        };
+      }
+    });
+  };
 
   const onSearchChange = (name: string, value: string) => {
     search(name, value);
@@ -65,19 +101,26 @@ const ResponseTemplatePopoverContentContainer = (props: FinalProps) => {
       });
   };
 
+  const responseTemplates = responseTemplatesQuery.responseTemplates;
+  const count = responseTemplatesTotalCountQuery.responseTemplatesTotalCount;
+
+  const hasMore = count > responseTemplates.length;
+
   const updatedProps = {
     ...props,
     onSearchChange,
     brands,
     saveResponseTemplate,
+    fetchMore,
+    hasMore,
     responseTemplates: responseTemplatesQuery.responseTemplates
   };
 
-  return <ResponseTemplate {...updatedProps} />;
+  return <PopoverContent {...updatedProps} />;
 };
 
 const withQuery = () =>
-  withProps<Props & { searchValue: string; brandId: string }>(
+  withProps<Props & { searchValue: string; brandId: string; limit: number }>(
     compose(
       graphql<Props & { searchValue: string }, ResponseTemplatesQueryResponse>(
         gql(responseTemplateQuery.responseTemplates),
@@ -86,7 +129,6 @@ const withQuery = () =>
           options: ({ searchValue, brandId }) => {
             return {
               variables: {
-                perPage: 200,
                 searchValue,
                 brandId
               }
@@ -94,6 +136,9 @@ const withQuery = () =>
           }
         }
       ),
+      graphql(gql(responseTemplateQuery.responseTemplatesTotalCount), {
+        name: 'responseTemplatesTotalCountQuery'
+      }),
       graphql<
         Props,
         SaveResponseTemplateMutationResponse,
@@ -110,7 +155,7 @@ const withQuery = () =>
           ]
         }
       })
-    )(ResponseTemplatePopoverContentContainer)
+    )(PopoverContentContainer)
   );
 
 type WrapperState = {

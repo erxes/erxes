@@ -187,6 +187,11 @@ const PopoverList = styledTS<{ center?: boolean }>(styled(RootList))`
     a {
       color: ${colors.colorCoreDarkGray};
     }
+    
+    button {
+      color: ${colors.colorCoreDarkGray};
+    }
+    
   }
 `;
 

@@ -22,11 +22,13 @@ import {
   IResponseTemplate,
   SaveResponsTemplateMutationVariables
 } from '../../../../../settings/responseTemplates/types';
+import Button from 'modules/common/components/Button';
 
 type Props = {
   brandId?: string;
   searchValue?: string;
   responseTemplates: IResponseTemplate[];
+  hasMore: boolean;
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   onSearchChange: (name: string, value: string) => void;
   onSelectTemplate: () => void;
@@ -34,6 +36,7 @@ type Props = {
     doc: SaveResponsTemplateMutationVariables,
     callback: (error?: Error) => void
   ) => void;
+  fetchMore: ({ perPage }: { perPage?: number }) => void;
 
   attachments?: IAttachment[];
   brands: IBrand[];
@@ -46,7 +49,7 @@ type State = {
   options: IResponseTemplate[];
 };
 
-class ResponseTemplatePopoverContent extends React.Component<Props, State> {
+class PopoverContent extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -119,12 +122,22 @@ class ResponseTemplatePopoverContent extends React.Component<Props, State> {
     });
   }
 
+  fetchTemplates = () => {
+    const { responseTemplates } = this.props;
+
+    const perPage = responseTemplates.length + 5;
+
+    this.props.fetchMore({
+      perPage
+    });
+  };
+
   render() {
-    const { brands } = this.props;
+    const { brands, hasMore } = this.props;
 
     const onChangeSearchValue = e => this.onChangeFilter(e, 'searchValue');
 
-    const onChangeBrand = e => this.onChangeFilter(e, 'searchValue');
+    const onChangeBrand = e => this.onChangeFilter(e, 'brandId');
 
     return (
       <>
@@ -161,6 +174,13 @@ class ResponseTemplatePopoverContent extends React.Component<Props, State> {
         </PopoverBody>
         <PopoverFooter>
           <PopoverList center={true}>
+            {hasMore ? (
+              <li>
+                <Button onClick={() => this.fetchTemplates()}>
+                  {__('LoadMore')}
+                </Button>
+              </li>
+            ) : null}
             <li>
               <Link to="/settings/response-templates">
                 {__('Manage templates')}
@@ -173,4 +193,4 @@ class ResponseTemplatePopoverContent extends React.Component<Props, State> {
   }
 }
 
-export default ResponseTemplatePopoverContent;
+export default PopoverContent;

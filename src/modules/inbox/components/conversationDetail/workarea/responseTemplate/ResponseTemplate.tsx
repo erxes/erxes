@@ -13,9 +13,9 @@ import {
   IResponseTemplate,
   SaveResponsTemplateMutationVariables
 } from '../../../../../settings/responseTemplates/types';
-import ResponseTemplateModal from './ResponseTemplateModal';
+import ResponseTemplateModal from './Modal';
 
-import PopoverContent from '../../../../containers/conversationDetail/ResponseTemplate/ResponseTemplatePopoverContent';
+import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
 
 type Props = {
   brandId?: string;
