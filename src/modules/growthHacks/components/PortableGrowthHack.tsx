@@ -68,7 +68,7 @@ class GrowthHack extends React.Component<Props, { isFormVisible: boolean }> {
 
     const content = (
       <ItemContainer>
-        <Content>
+        <Content type="growthHack">
           <SpaceContent>
             <h5>{item.name}</h5>
             {this.renderDate(item.closeDate)}

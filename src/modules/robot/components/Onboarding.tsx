@@ -1,12 +1,13 @@
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import RTG from 'react-transition-group';
 import FeatureDetail from '../containers/FeatureDetail';
 import { IFeature } from '../types';
 import { getCurrentUserName } from '../utils';
 import ModulItem from './ModulItem';
-import { Content, Greeting, NavButton } from './styles';
+import { Content, Greeting, NavButton, SeeAll } from './styles';
 import Suggestion from './Suggestion';
 
 type Props = {
@@ -19,14 +20,16 @@ type Props = {
   show: boolean;
 };
 
-class Onboarding extends React.Component<
-  Props,
-  { selectedFeature?: IFeature }
-> {
+type State = {
+  selectedFeature?: IFeature;
+  featureLimit: number;
+};
+
+class Onboarding extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { selectedFeature: undefined };
+    this.state = { selectedFeature: undefined, featureLimit: 9 };
   }
 
   renderFeature(feature: IFeature) {
@@ -118,8 +121,15 @@ class Onboarding extends React.Component<
             </b>
             <br /> Which feature do you want to set up
           </Greeting>
-          {availableFeatures.map(availabeFeature =>
-            this.renderFeature(availabeFeature)
+          {availableFeatures
+            .filter((feature, index) => index < this.state.featureLimit)
+            .map(availabeFeature => this.renderFeature(availabeFeature))}
+
+          {this.state.featureLimit === 9 && (
+            <SeeAll onClick={this.seeAllFeatures}>
+              {__('Explore more features')}
+              <Icon icon="angle-double-right" />
+            </SeeAll>
           )}
         </>
       );
@@ -130,6 +140,10 @@ class Onboarding extends React.Component<
 
   onHide = () => {
     this.props.changeRoute('');
+  };
+
+  seeAllFeatures = () => {
+    this.setState({ featureLimit: this.props.availableFeatures.length });
   };
 
   showOnboard = () => {

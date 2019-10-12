@@ -17,6 +17,11 @@ const Greeting = styled.div`
   span {
     margin-left: 5px;
   }
+
+  p {
+    margin-top: ${dimensions.unitSpacing}px;
+    font-size: 14px;
+  }
 `;
 
 const Bot = styled.div`
@@ -79,4 +84,13 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
-export { Bot, ModulRow, Greeting, Title, NavButton, Content };
+const SeeAll = styled.a`
+  display: block;
+  text-align: center;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+export { Bot, ModulRow, Greeting, Title, NavButton, Content, SeeAll };
