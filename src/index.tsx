@@ -11,7 +11,6 @@ import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import 'erxes-icon/css/erxes.min.css';
 // global style
 import 'modules/common/styles/global-styles.ts';
-import 'react-toggle/style.css';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
