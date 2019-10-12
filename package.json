@@ -62,7 +62,7 @@
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-select-plus": "^1.0.0-rc.5",
-    "react-toggle": "^4.0.2",
+    "react-toggle": "^4.1.1",
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.19.1",
