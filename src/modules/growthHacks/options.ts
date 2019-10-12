@@ -1,11 +1,9 @@
-import PortableGrowthHack from 'modules/growthHacks/components/PortableGrowthHack';
 import GrowthHackEditForm from 'modules/growthHacks/containers/GrowthHackEditForm';
 import GrowthHackItem from './components/GrowthHackItem';
 import { mutations, queries } from './graphql';
 
 const options = {
   EditForm: GrowthHackEditForm,
-  PortableItem: PortableGrowthHack,
   Item: GrowthHackItem,
   type: 'growthHack',
   title: 'Growth hacking',

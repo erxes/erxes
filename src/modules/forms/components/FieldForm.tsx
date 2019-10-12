@@ -4,11 +4,11 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { FlexItem } from 'modules/common/components/step/styles';
+import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import Toggle from 'react-toggle';
 import {
   FlexRow,
   LeftSection,
