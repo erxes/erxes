@@ -67,6 +67,7 @@ class Top extends React.Component<Props> {
             <TitleRow>
               <Icon icon="creditcard" />
               <FormControl
+                componentClass="textarea"
                 defaultValue={name}
                 required={true}
                 onChange={nameOnChange}
