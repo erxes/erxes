@@ -143,6 +143,22 @@ class FeatureDetail extends React.Component<Props> {
     );
   }
 
+  renderVideo() {
+    const { feature } = this.props;
+
+    if (feature.videoUrl && feature.videoUrl !== 'url') {
+      return (
+        <iframe
+          key={feature.name}
+          title={feature.name}
+          src={feature.videoUrl}
+        />
+      );
+    }
+
+    return;
+  }
+
   onVideoClick = () => {
     this.props.completeShowStep();
   };
@@ -153,6 +169,7 @@ class FeatureDetail extends React.Component<Props> {
     return (
       <Wrapper>
         <Title>{feature.text}</Title>
+        {this.renderVideo()}
         <p>{feature.description}</p>
         {this.renderProgress()}
         {this.renderSettings()}

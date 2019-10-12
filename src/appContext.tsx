@@ -97,8 +97,10 @@ export class AppProvider extends React.Component<
   changeLanguage = (languageCode): void => {
     const currentLanguage = languageCode || 'en';
 
-    localStorage.setItem('currentLanguage', currentLanguage);
-    window.location.reload();
+    if (currentLanguage !== languageCode) {
+      localStorage.setItem('currentLanguage', currentLanguage);
+      window.location.reload();
+    }
   };
 
   public render() {
