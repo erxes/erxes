@@ -22,6 +22,8 @@ export const types = `
     categoryId: String
     customFieldsData: JSON
     createdAt: Date
+    tags: [Tag]
+    tagIds: [String]
 
     category: ProductCategory
   }

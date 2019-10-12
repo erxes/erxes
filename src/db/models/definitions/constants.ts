@@ -11,7 +11,8 @@ export const TAG_TYPES = {
   ENGAGE_MESSAGE: 'engageMessage',
   COMPANY: 'company',
   INTEGRATION: 'integration',
-  ALL: ['conversation', 'customer', 'engageMessage', 'company', 'integration'],
+  PRODUCT: 'product',
+  ALL: ['conversation', 'customer', 'engageMessage', 'company', 'integration', 'product'],
 };
 
 export const MESSENGER_KINDS = {
