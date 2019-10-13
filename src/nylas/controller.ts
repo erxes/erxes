@@ -5,9 +5,10 @@ import { Accounts, Integrations } from '../models';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
 import { connectGoogleToNylas } from './auth';
 import { getOAuthCredentials } from './loginMiddleware';
+import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
 import { INylasAttachment } from './types';
-import { buildEmailAddress, getNylasModel, verifyNylasSignature } from './utils';
+import { buildEmailAddress, verifyNylasSignature } from './utils';
 
 // load config
 dotenv.config();
@@ -89,9 +90,9 @@ const init = async app => {
 
     const account = await Accounts.findOne({ _id: integration.accountId }).lean();
 
-    const { ConversationMessages } = getNylasModel(account.kind);
+    const conversationMessages = NYLAS_MODELS[account.kind].conversationMessages;
 
-    const message = await ConversationMessages.findOne({ erxesApiMessageId }).lean();
+    const message = await conversationMessages.findOne({ erxesApiMessageId }).lean();
 
     if (!message) {
       return next('Conversation message not found');

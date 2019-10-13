@@ -1,4 +1,4 @@
-import { INylasConversationMessage } from './models';
+import { IAttachments, IEmail, ILabels, INylasConversationMessage } from './models';
 
 export interface IFilter {
   [key: string]: string;
@@ -29,11 +29,13 @@ export interface IMessageDraft {
 }
 
 export interface IGetOrCreateArguments {
+  kind: string;
+  collectionName: string;
   selector: { [key: string]: string };
-  apiField: string;
-  name: string;
-  metaInfo?: string;
-  fields: any;
+  fields: {
+    doc: { [key: string]: string | string[] | IEmail[] | IAttachments[] | ILabels[] };
+    api: IAPIConversation | IAPIConversationMessage | IAPICustomer;
+  };
 }
 
 export interface IIntegrateProvider {

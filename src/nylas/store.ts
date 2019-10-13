@@ -1,7 +1,7 @@
 import { debugNylas } from '../debuggers';
 import { fetchMainApi } from '../utils';
 import { checkConcurrentError } from '../utils';
-import { ACTIONS } from './constants';
+import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from './models';
 import {
   IAPIConversation,
   IAPIConversationMessage,
@@ -11,7 +11,14 @@ import {
   INylasConversationMessageArguments,
   INylasCustomerArguments,
 } from './types';
-import { getNylasModel } from './utils';
+
+const NYLAS_MODELS = {
+  gmail: {
+    customers: NylasGmailCustomers,
+    conversations: NylasGmailConversations,
+    conversationMessages: NylasGmailConversationMessages,
+  },
+};
 
 /**
  * Create or get nylas customer
@@ -22,14 +29,11 @@ import { getNylasModel } from './utils';
  * @param {Object} message
  * @returns {Promise} customer object
  */
-const createOrGetNylasCustomer = async (args: INylasCustomerArguments) => {
-  const { kind, toEmail, integrationIds, message } = args;
+const createOrGetNylasCustomer = async ({ kind, toEmail, integrationIds, message }: INylasCustomerArguments) => {
   const { id, erxesApiId } = integrationIds;
   const [{ email, name }] = message.from;
 
   debugNylas('Create or get nylas customer function called...');
-
-  const { Customers } = getNylasModel(kind);
 
   const common = { kind, firstName: name, lastName: '' };
 
@@ -47,14 +51,12 @@ const createOrGetNylasCustomer = async (args: INylasCustomerArguments) => {
     ...common,
   };
 
-  const params = {
-    name: 'customer',
-    apiField: 'erxesApiId',
+  const customer = await getOrCreate({
+    kind,
+    collectionName: 'customers',
     selector: { email },
     fields: { doc, api },
-  };
-
-  const customer = await getOrCreate(Customers, params);
+  });
 
   return {
     kind,
@@ -78,11 +80,15 @@ const createOrGetNylasCustomer = async (args: INylasCustomerArguments) => {
  * @param {Object} integrationIds - id, erxesApiId
  * @returns {Promise} conversation object
  */
-const createOrGetNylasConversation = async (args: INylasConversationArguments) => {
-  const { kind, customerId, integrationIds, emails, message } = args;
+const createOrGetNylasConversation = async ({
+  kind,
+  customerId,
+  integrationIds,
+  emails,
+  message,
+}: INylasConversationArguments) => {
   const { toEmail, fromEmail } = emails;
   const { id, erxesApiId } = integrationIds;
-  const { Conversations } = getNylasModel(kind);
 
   debugNylas(`Creating nylas conversation kind: ${kind}`);
 
@@ -100,14 +106,12 @@ const createOrGetNylasConversation = async (args: INylasConversationArguments) =
     integrationId: erxesApiId,
   };
 
-  const params = {
-    name: 'conversation',
-    apiField: 'erxesApiId',
+  const conversation = await getOrCreate({
+    kind,
+    collectionName: 'conversations',
     fields: { doc, api },
     selector: { threadId: message.thread_id },
-  };
-
-  const conversation = await getOrCreate(Conversations, params);
+  });
 
   return {
     kind,
@@ -128,13 +132,15 @@ const createOrGetNylasConversation = async (args: INylasConversationArguments) =
  * @param {String} customerId
  * @returns {Promise} - conversationMessage object
  */
-const createOrGetNylasConversationMessage = async (args: INylasConversationMessageArguments) => {
-  const { kind, conversationIds, message, customerId } = args;
+const createOrGetNylasConversationMessage = async ({
+  kind,
+  conversationIds,
+  message,
+  customerId,
+}: INylasConversationMessageArguments) => {
   const { id, erxesApiId } = conversationIds;
 
   debugNylas(`Creating nylas conversation message kind: ${kind}`);
-
-  const { ConversationMessages } = getNylasModel(kind);
 
   const doc = {
     customerId,
@@ -164,15 +170,12 @@ const createOrGetNylasConversationMessage = async (args: INylasConversationMessa
     conversationId: erxesApiId,
   };
 
-  const params = {
-    name: 'conversationMessage',
+  const conversationMessage = await getOrCreate({
+    kind,
+    collectionName: 'conversationMessages',
     selector: { messageId: message.id },
-    apiField: 'erxesApiMessageId',
     fields: { doc, api },
-    metaInfo: 'replaceContent',
-  };
-
-  const conversationMessage = await getOrCreate(ConversationMessages, params);
+  });
 
   return conversationMessage;
 };
@@ -183,31 +186,46 @@ const createOrGetNylasConversationMessage = async (args: INylasConversationMessa
  * @param {Object} args - doc, selector, apiField, name
  * @param {Promise} selected model
  */
-const getOrCreate = async (model, args: IGetOrCreateArguments) => {
-  const { selector, fields, apiField, name, metaInfo } = args;
+const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCreateArguments) => {
+  const map = {
+    customers: {
+      action: 'get-create-update-customer',
+      apiField: 'erxesApiId',
+    },
+    conversations: {
+      action: 'create-or-update-conversation',
+      apiField: 'erxesApiId',
+    },
+    conversationMessages: {
+      action: 'create-conversation-message',
+      apiField: 'erxesApiMessageId',
+    },
+  };
 
-  let selectedModel = await model.findOne(selector);
+  const model = NYLAS_MODELS[kind][collectionName];
 
-  if (!selectedModel) {
+  let selectedObj = await model.findOne(selector);
+
+  if (!selectedObj) {
     try {
-      selectedModel = await model.create(fields.doc);
+      selectedObj = await model.create(fields.doc);
     } catch (e) {
-      checkConcurrentError(e, name);
+      checkConcurrentError(e, collectionName);
     }
 
     try {
-      const response = await requestMainApi(ACTIONS[name], fields.api, metaInfo);
+      const response = await requestMainApi(map[collectionName].action, fields.api);
 
-      selectedModel[apiField] = response._id;
+      selectedObj[map[collectionName].apiField] = response._id;
 
-      await selectedModel.save();
+      await selectedObj.save();
     } catch (e) {
-      await model.deleteOne({ _id: selectedModel._id });
+      await model.deleteOne({ _id: selectedObj._id });
       throw new Error(e);
     }
   }
 
-  return selectedModel;
+  return selectedObj;
 };
 
 /**
@@ -215,20 +233,16 @@ const getOrCreate = async (model, args: IGetOrCreateArguments) => {
  * @param {String} action
  * @returns {Promise} main api response
  */
-const requestMainApi = (
-  action: string,
-  params: IAPICustomer | IAPIConversation | IAPIConversationMessage,
-  metaInfo?: string,
-) => {
+const requestMainApi = (action: string, params: IAPICustomer | IAPIConversation | IAPIConversationMessage) => {
   return fetchMainApi({
     path: '/integrations-api',
     method: 'POST',
     body: {
       action,
-      metaInfo,
+      metaInfo: action.includes('message') ? 'replaceContent' : null,
       payload: JSON.stringify(params),
     },
   });
 };
 
-export { createOrGetNylasCustomer, createOrGetNylasConversation, createOrGetNylasConversationMessage };
+export { createOrGetNylasCustomer, createOrGetNylasConversation, createOrGetNylasConversationMessage, NYLAS_MODELS };

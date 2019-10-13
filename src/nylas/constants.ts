@@ -5,13 +5,6 @@ dotenv.config();
 
 const { MAIN_APP_DOMAIN } = process.env;
 
-// Integration action
-export const ACTIONS = {
-  customer: 'get-create-update-customer',
-  conversation: 'create-or-update-conversation',
-  conversationMessage: 'create-conversation-message',
-};
-
 // Google
 export const GOOGLE_OAUTH_TOKEN_VALIDATION_URL = 'https://www.googleapis.com/oauth2/v2/tokeninfo';
 export const GOOGLE_OAUTH_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth?';

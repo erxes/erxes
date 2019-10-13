@@ -4,7 +4,6 @@ import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
 import { getEnv } from '../utils';
 import { GOOGLE_OAUTH_ACCESS_TOKEN_URL, GOOGLE_OAUTH_AUTH_URL, GOOGLE_SCOPES } from './constants';
-import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from './models';
 import { IMessageDraft } from './types';
 
 // load config
@@ -90,21 +89,6 @@ const getClientConfig = (kind: string): string[] => {
 };
 
 /**
- * Get nylas model according to kind
- * @param {String} kind
- * @returns {Object} - Models - (gmail)
- */
-const getNylasModel = (kind: string) => {
-  if (kind === 'gmail') {
-    return {
-      Customers: NylasGmailCustomers,
-      Conversations: NylasGmailConversations,
-      ConversationMessages: NylasGmailConversationMessages,
-    };
-  }
-};
-
-/**
  * Get provider specific values
  * @param {String} kind
  * @returns {Object} configs
@@ -180,7 +164,6 @@ const nylasSendMessage = async (accessToken: string, args: IMessageDraft) => {
 
 export {
   setNylasToken,
-  getNylasModel,
   nylasSendMessage,
   getProviderSettings,
   getClientConfig,

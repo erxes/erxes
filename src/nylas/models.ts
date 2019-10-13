@@ -70,9 +70,24 @@ export const NylasGmailConversations = model<INylasConversationDocument, INylasC
 );
 
 // Conversation message ===========
-interface IEmail {
+export interface IEmail {
   name: string;
   email: string;
+}
+
+export interface IAttachments {
+  id: string;
+  object: string;
+  content_type: string;
+  size: number;
+  filename: string;
+  message_ids: string[];
+}
+
+export interface ILabels {
+  id: string;
+  name: string;
+  displayName: string;
 }
 
 export interface INylasConversationMessage {
@@ -92,32 +107,34 @@ export interface INylasConversationMessage {
   thread_id: string;
   snippet: string;
   body: string;
-  files: [
-    {
-      id: string;
-      object: string;
-      content_type: string;
-      size: number;
-      filename: string;
-      message_ids: string[];
-    }
-  ];
-  labels: [
-    {
-      id: string;
-      name: string;
-      displayName: string;
-    }
-  ];
+  files: [IAttachments];
+  labels: [ILabels];
 }
 
 export interface INylasConversationMessageDocument extends INylasConversationMessage, Document {}
 
-const emailSchema = {
-  _id: false,
-  name: String,
-  email: String,
-};
+const emailSchema = new Schema({ name: String, email: String }, { _id: false });
+
+const attachmentsSchema = new Schema(
+  {
+    id: String,
+    object: String,
+    content_type: String,
+    size: Number,
+    filename: String,
+    message_ids: [String],
+  },
+  { _id: false },
+);
+
+const labelsSchema = new Schema(
+  {
+    id: String,
+    name: String,
+    displayName: String,
+  },
+  { _id: false },
+);
 
 const conversationMessageCommonSchema = {
   _id: field({ pkey: true }),
@@ -137,27 +154,8 @@ const conversationMessageCommonSchema = {
   date: String,
   threadId: String,
   snipped: String,
-  attachments: [
-    {
-      _id: false,
-      id: String,
-      object: String,
-      content_type: String,
-      size: Number,
-      filename: String,
-      message_ids: [String],
-    },
-  ],
-  labels: {
-    _id: false,
-    type: [
-      {
-        id: String,
-        name: String,
-        displayName: String,
-      },
-    ],
-  },
+  attachments: [attachmentsSchema],
+  labels: [labelsSchema],
 };
 
 export const nylasConversationMessageSchema = new Schema(conversationMessageCommonSchema);
