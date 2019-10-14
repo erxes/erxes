@@ -86,7 +86,7 @@ const commonSelector = `
 
 export const queries = `
   users(page: Int, perPage: Int, status: String ${commonSelector}): [User]
-  allUsers: [User]
+  allUsers(isActive: Boolean): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User

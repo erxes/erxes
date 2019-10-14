@@ -13,6 +13,10 @@ interface IListArgs {
   status?: string;
 }
 
+interface IUserParams {
+  isActive?: boolean;
+}
+
 const queryBuilder = async (params: IListArgs) => {
   const { searchValue, isActive, ids, status } = params;
 
@@ -59,10 +63,14 @@ const userQueries = {
   /**
    * All users
    */
-  allUsers() {
-    const sort = { username: 1 };
+  allUsers(_root, args: IUserParams) {
+    const selector: { isActive?: boolean } = {};
 
-    return Users.find().sort(sort);
+    if (args.isActive) {
+      selector.isActive = true;
+    }
+
+    return Users.find(selector).sort({ username: 1 });
   },
 
   /**
