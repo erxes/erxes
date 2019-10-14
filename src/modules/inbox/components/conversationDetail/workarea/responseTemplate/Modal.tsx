@@ -4,27 +4,46 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
+import { IAttachment } from 'modules/common/types';
+import { __, Alert } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import { SaveResponseTemplateMutationVariables } from 'modules/settings/responseTemplates/types';
 import React from 'react';
-import { IBrand } from '../../../../settings/brands/types';
 
 type Props = {
-  onSave: (brandId: string, name: string) => void;
+  saveResponseTemplate: (
+    doc: SaveResponseTemplateMutationVariables,
+    callback: (error?: Error) => void
+  ) => void;
   brands: IBrand[];
   trigger: React.ReactNode;
   brandId?: string;
+  files?: IAttachment[];
+  content?: string;
 };
 
-class ResponseTemplateModal extends React.Component<Props, {}> {
+class Modal extends React.Component<Props, {}> {
   onSave = () => {
+    const { content, files } = this.props;
+
     const doc = {
+      content,
+      files,
       brandId: (document.getElementById(
         'template-brand-id'
       ) as HTMLInputElement).value,
       name: (document.getElementById('template-name') as HTMLInputElement).value
     };
 
-    this.props.onSave(doc.brandId, doc.name);
+    this.props.saveResponseTemplate(doc, error => {
+      if (error) {
+        return Alert.error(error.message);
+      }
+
+      const element = document.querySelector('button.close') as HTMLElement;
+
+      return element.click();
+    });
   };
 
   renderForm = () => {
@@ -76,4 +95,4 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
   }
 }
 
-export default ResponseTemplateModal;
+export default Modal;

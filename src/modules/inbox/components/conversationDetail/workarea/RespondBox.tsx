@@ -22,7 +22,7 @@ import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
-import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
 import { FlexRow } from 'modules/settings/integrations/components/mail/styles';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
@@ -155,6 +155,10 @@ class RespondBox extends React.Component<Props, State> {
     this.setState({ isInactive: false });
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
+
+    if (!element) {
+      return;
+    }
 
     element.click();
   };
