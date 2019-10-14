@@ -1,15 +1,12 @@
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import PopoverContent from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/PopoverContent';
-import { mutations, queries } from 'modules/inbox/graphql';
 import { IBrand } from 'modules/settings/brands/types';
 import { queries as responseTemplateQuery } from 'modules/settings/responseTemplates/graphql';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
-  ResponseTemplatesTotalCountQueryResponse,
-  SaveResponseTemplateMutationResponse,
-  SaveResponsTemplateMutationVariables
+  ResponseTemplatesTotalCountQueryResponse
 } from 'modules/settings/responseTemplates/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -28,16 +25,13 @@ type FinalProps = {
   search: (name: string, value: string) => void;
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
   responseTemplatesTotalCountQuery: ResponseTemplatesTotalCountQueryResponse;
-} & Props &
-  SaveResponseTemplateMutationResponse;
-
+} & Props;
 const PopoverContentContainer = (props: FinalProps) => {
   const {
     brands,
     search,
     responseTemplatesQuery,
-    responseTemplatesTotalCountQuery,
-    saveResponseTemplateMutation
+    responseTemplatesTotalCountQuery
   } = props;
 
   if (
@@ -57,11 +51,7 @@ const PopoverContentContainer = (props: FinalProps) => {
 
         const prevTemplates = prev.responseTemplates || [];
 
-        const fetchedTemplates: IResponseTemplate[] = [];
-
-        for (const template of fetchMoreResult.responseTemplates) {
-          fetchedTemplates.push(template);
-        }
+        const fetchedTemplates = [...fetchMoreResult.responseTemplates];
 
         return {
           ...prev,
@@ -75,20 +65,6 @@ const PopoverContentContainer = (props: FinalProps) => {
     search(name, value);
   };
 
-  const saveResponseTemplate = (
-    variables: SaveResponsTemplateMutationVariables,
-    callback: (e?: Error) => void
-  ) => {
-    saveResponseTemplateMutation({ variables })
-      .then(() => {
-        responseTemplatesQuery.refetch();
-        callback();
-      })
-      .catch(e => {
-        callback(e);
-      });
-  };
-
   const responseTemplates = responseTemplatesQuery.responseTemplates;
   const count = responseTemplatesTotalCountQuery.responseTemplatesTotalCount;
 
@@ -98,7 +74,6 @@ const PopoverContentContainer = (props: FinalProps) => {
     ...props,
     onSearchChange,
     brands,
-    saveResponseTemplate,
     fetchMore,
     hasMore,
     responseTemplates: responseTemplatesQuery.responseTemplates
@@ -108,7 +83,7 @@ const PopoverContentContainer = (props: FinalProps) => {
 };
 
 const withQuery = () =>
-  withProps<Props & { searchValue: string; brandId: string; limit: number }>(
+  withProps<Props & { searchValue: string; brandId: string }>(
     compose(
       graphql<Props & { searchValue: string }, ResponseTemplatesQueryResponse>(
         gql(responseTemplateQuery.responseTemplates),
@@ -126,22 +101,6 @@ const withQuery = () =>
       ),
       graphql(gql(responseTemplateQuery.responseTemplatesTotalCount), {
         name: 'responseTemplatesTotalCountQuery'
-      }),
-      graphql<
-        Props,
-        SaveResponseTemplateMutationResponse,
-        SaveResponsTemplateMutationVariables
-      >(gql(mutations.saveResponseTemplate), {
-        name: 'saveResponseTemplateMutation',
-        options: {
-          refetchQueries: [
-            {
-              query: gql`
-                ${queries.responseTemplateList}
-              `
-            }
-          ]
-        }
       })
     )(PopoverContentContainer)
   );

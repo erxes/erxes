@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import { IAttachment } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import {
   InlineColumn,
   InlineHeader,
@@ -15,10 +15,7 @@ import {
   TemplateTitle
 } from 'modules/inbox/styles';
 import { IBrand } from 'modules/settings/brands/types';
-import {
-  IResponseTemplate,
-  SaveResponsTemplateMutationVariables
-} from 'modules/settings/responseTemplates/types';
+import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import strip from 'strip';
@@ -31,10 +28,6 @@ type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   onSearchChange: (name: string, value: string) => void;
   onSelectTemplate: () => void;
-  saveResponseTemplate: (
-    doc: SaveResponsTemplateMutationVariables,
-    callback: (error?: Error) => void
-  ) => void;
   fetchMore: ({ page, perPage }: { perPage?: number; page: number }) => void;
 
   attachments?: IAttachment[];
@@ -58,27 +51,6 @@ class PopoverContent extends React.Component<Props, State> {
       options: props.responseTemplates
     };
   }
-
-  onSave = (brandId: string, name: string) => {
-    const doc = {
-      brandId,
-      name,
-      content: this.props.content,
-      files: this.props.attachments
-    };
-
-    this.props.saveResponseTemplate(doc, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
-
-      Alert.success('You successfully saved a response template');
-
-      const element = document.querySelector('button.close') as HTMLElement;
-
-      return element.click();
-    });
-  };
 
   onSelect = (responseTemplateId: string) => {
     const { responseTemplates, onSelect } = this.props;
@@ -140,8 +112,8 @@ class PopoverContent extends React.Component<Props, State> {
   fetchTemplates = () => {
     const { responseTemplates } = this.props;
 
-    const perPage = responseTemplates.length;
-    const page = responseTemplates.length / 20 + 1;
+    const perPage = 20;
+    const page = responseTemplates.length / perPage + 1;
 
     this.props.fetchMore({
       perPage,
