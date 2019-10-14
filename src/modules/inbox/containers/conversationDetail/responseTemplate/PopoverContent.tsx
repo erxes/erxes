@@ -51,7 +51,7 @@ const PopoverContentContainer = (props: FinalProps) => {
 
         const prevTemplates = prev.responseTemplates || [];
 
-        const fetchedTemplates = [...fetchMoreResult.responseTemplates];
+        const fetchedTemplates = fetchMoreResult.responseTemplates || [];
 
         return {
           ...prev,
