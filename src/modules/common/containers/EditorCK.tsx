@@ -27,7 +27,7 @@ const EditorContainer = (props: FinalProps) => {
   const mentionUsers: IMentionUser[] = [];
 
   for (const user of users) {
-    if (user.details && user.details.fullName) {
+    if (user.details && user.details.fullName && user.isActive) {
       mentionUsers.push({
         id: user._id,
         avatar: user.details.avatar || '/images/avatar.svg',

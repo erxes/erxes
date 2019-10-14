@@ -96,6 +96,7 @@ const allUsers = `
       _id
       email
       username
+      isActive
       details {
         avatar
         fullName
