@@ -12,10 +12,17 @@ export interface IResponseTemplate {
 export type ResponseTemplatesQueryResponse = {
   loading: boolean;
   responseTemplates: IResponseTemplate[];
+  fetchMore: (variables) => void;
   refetch: () => void;
 };
 
-export type SaveResponsTemplateMutationVariables = {
+export type ResponseTemplatesTotalCountQueryResponse = {
+  loading: boolean;
+  responseTemplatesTotalCount: number;
+  refetch: () => void;
+};
+
+export type SaveResponseTemplateMutationVariables = {
   brandId: string;
   name: string;
   content?: string;
@@ -25,7 +32,7 @@ export type SaveResponsTemplateMutationVariables = {
 export type SaveResponseTemplateMutationResponse = {
   saveResponseTemplateMutation: (
     doc: {
-      variables: SaveResponsTemplateMutationVariables;
+      variables: SaveResponseTemplateMutationVariables;
     }
   ) => Promise<any>;
 };
