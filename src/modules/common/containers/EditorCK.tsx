@@ -42,7 +42,10 @@ const EditorContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, AllUsersQueryResponse>(gql(queries.allUsers), {
-      name: 'usersQuery'
+      name: 'usersQuery',
+      options: () => ({
+        variables: { isActive: true }
+      })
     })
   )(EditorContainer)
 );
