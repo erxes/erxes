@@ -112,8 +112,8 @@ class PopoverContent extends React.Component<Props, State> {
   fetchTemplates = () => {
     const { responseTemplates } = this.props;
 
-    const perPage = 20;
-    const page = responseTemplates.length / perPage + 1;
+    const perPage = 10;
+    const page = Math.round(responseTemplates.length / perPage + 1);
 
     this.props.fetchMore({
       perPage,

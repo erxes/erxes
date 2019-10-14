@@ -91,6 +91,7 @@ const withQuery = () =>
           options: ({ searchValue, brandId }) => {
             return {
               variables: {
+                perPage: 10,
                 searchValue,
                 brandId
               }
