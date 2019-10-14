@@ -28,7 +28,7 @@ type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   onSearchChange: (name: string, value: string) => void;
   onSelectTemplate: () => void;
-  fetchMore: ({ page, perPage }: { perPage?: number; page: number }) => void;
+  fetchMore: (variables: { perPage: number; page: number }) => void;
 
   attachments?: IAttachment[];
   brands: IBrand[];

@@ -3,7 +3,7 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { IAttachment } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
-import ResponseTemplateModal from 'modules/inbox/containers/conversationDetail/responseTemplate/Modal';
+import Modal from 'modules/inbox/containers/conversationDetail/responseTemplate/Modal';
 import PopoverContent from 'modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent';
 import { ResponseTemplateStyled } from 'modules/inbox/styles';
 import { IBrand } from 'modules/settings/brands/types';
@@ -104,7 +104,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           </Button>
         </OverlayTrigger>
 
-        <ResponseTemplateModal
+        <Modal
           trigger={strip(content) ? saveTrigger : <span />}
           content={content}
           files={attachments}

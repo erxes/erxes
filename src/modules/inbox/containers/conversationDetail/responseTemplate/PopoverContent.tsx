@@ -41,7 +41,7 @@ const PopoverContentContainer = (props: FinalProps) => {
     return null;
   }
 
-  const fetchMore = variables => {
+  const fetchMore = (variables: { page: number; perPage: number }) => {
     responseTemplatesQuery.fetchMore({
       variables,
       updateQuery: (prev, { fetchMoreResult }) => {

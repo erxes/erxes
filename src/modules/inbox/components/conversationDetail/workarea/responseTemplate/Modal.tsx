@@ -22,7 +22,7 @@ type Props = {
   content?: string;
 };
 
-class ResponseTemplateModal extends React.Component<Props, {}> {
+class Modal extends React.Component<Props, {}> {
   onSave = () => {
     const { content, files } = this.props;
 
@@ -95,4 +95,4 @@ class ResponseTemplateModal extends React.Component<Props, {}> {
   }
 }
 
-export default ResponseTemplateModal;
+export default Modal;

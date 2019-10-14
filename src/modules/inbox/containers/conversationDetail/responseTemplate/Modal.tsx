@@ -21,7 +21,7 @@ type Props = {
 
 type FinalProps = Props & SaveResponseTemplateMutationResponse;
 
-const ResponseTemplateContainer = (props: FinalProps) => {
+const ModalContainer = (props: FinalProps) => {
   const { saveResponseTemplateMutation } = props;
 
   const saveResponseTemplate = (
@@ -64,5 +64,5 @@ export default withProps<Props>(
         ]
       }
     })
-  )(ResponseTemplateContainer)
+  )(ModalContainer)
 );
