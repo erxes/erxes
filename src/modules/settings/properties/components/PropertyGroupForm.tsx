@@ -3,10 +3,10 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Toggle from 'modules/common/components/Toggle';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import Toggle from 'react-toggle';
 import { IFieldGroup } from '../types';
 
 type Props = {

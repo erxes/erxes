@@ -2,11 +2,11 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import Toggle from 'modules/common/components/Toggle';
 import timezones from 'modules/common/constants/timezones';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import Toggle from 'react-toggle';
 import { IOnlineHour } from '../../../types';
 import OnlineHours from './OnlineHours';
 
@@ -68,7 +68,6 @@ class Availability extends React.Component<Props> {
         <ControlLabel>Visible online to visitor or customer</ControlLabel>
         <div>
           <Toggle
-            className="wide"
             checked={this.props.isOnline}
             onChange={onChange}
             icons={{

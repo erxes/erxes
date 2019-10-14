@@ -1,10 +1,14 @@
 import {
+  RichEditorControlsRoot,
+  RichEditorRoot
+} from 'modules/common/components/editor/styles';
+import {
   PopoverFooter as RootFooter,
   PopoverList as RootList
 } from 'modules/common/components/filterableList/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '../common/styles';
+import { colors, dimensions } from '../common/styles';
 import { darken, rgba } from '../common/styles/color';
 
 const PopoverButton = styled.div`
@@ -86,6 +90,11 @@ const RespondBoxStyled = styledTS<{
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
   filter: ${props => props.isInactive && 'blur(2px)'};
+`;
+
+const MailRespondBox = styled(RespondBoxStyled)`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  background: ${colors.bgInternal};
 `;
 
 const ResponseTemplateStyled = styled.div`
@@ -319,6 +328,53 @@ const NoHeight = styled.div`
   height: auto;
 `;
 
+const SmallEditor = styled.div`
+  flex: 1;
+  background: ${colors.colorWhite};
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 300px;
+  margin: 0 ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
+  overflow: hidden;
+
+  ${RichEditorRoot} {
+    padding-top: 0;
+
+    .RichEditor-editor {
+      border: 0;
+
+      .public-DraftEditor-content,
+      .public-DraftEditorPlaceholder-root {
+        min-height: auto;
+        padding: 0px 15px;
+      }
+    }
+  }
+
+  ${RichEditorControlsRoot} {
+    display: none;
+  }
+
+  ${EditorActions} {
+    position: absolute;
+    right: 2%;
+    top: 30%;
+
+    label:first-of-type {
+      position: initial;
+    }
+  }
+
+  ${AttachmentIndicator} {
+    margin: 5px ${dimensions.unitSpacing}px 0;
+  }
+
+  ${PreviewImg} {
+    width: 13px;
+    height: 13px;
+  }
+`;
+
 const CallLabel = styledTS<{ type: string }>(styled.span)`
   color: ${props => (props.type === 'answered' ? 'green' : 'red')};
 `;
@@ -352,5 +408,7 @@ export {
   Mask,
   MaskWrapper,
   NoHeight,
-  CallLabel
+  SmallEditor,
+  CallLabel,
+  MailRespondBox
 };

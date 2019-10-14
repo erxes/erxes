@@ -1,13 +1,20 @@
 import dayjs from 'dayjs';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
-import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
+import {
+  Footer,
+  Left,
+  PriceContainer,
+  Right
+} from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
-import { __, getUserAvatar } from 'modules/common/utils';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
-import { ScoreAmount } from '../styles';
+import { ScoreAmount, Vote } from '../styles';
 import { IGrowthHack } from '../types';
 import Score from './Score';
 
@@ -54,7 +61,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
 
     return (
       <>
-        <Content onClick={onClick}>
+        <Content onClick={onClick} type="growthHack">
           <h5>
             {renderPriority(item.priority)}
             {item.name}
@@ -70,17 +77,14 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
           </ScoreAmount>
 
           <PriceContainer>
+            <Left>
+              <Vote>
+                <Icon icon="like-1" />
+                {item.voteCount}
+              </Vote>
+            </Left>
             <Right>
-              {(item.assignedUsers || []).map((user, index) => (
-                <img
-                  alt="Avatar"
-                  key={index}
-                  src={getUserAvatar(user)}
-                  width="22px"
-                  height="22px"
-                  style={{ marginLeft: '2px', borderRadius: '11px' }}
-                />
-              ))}
+              <Participators participatedUsers={item.assignedUsers} limit={3} />
             </Right>
           </PriceContainer>
 

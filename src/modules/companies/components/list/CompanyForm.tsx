@@ -214,7 +214,7 @@ class CompanyForm extends React.Component<Props, State> {
               />
             </FormGroup>
 
-            {this.renderFormGroup('Lead Status', {
+            {this.renderFormGroup('Pop Ups Status', {
               ...formProps,
               name: 'leadStatus',
               componentClass: 'select',

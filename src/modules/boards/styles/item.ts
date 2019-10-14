@@ -19,6 +19,10 @@ const PriceContainer = styled.div`
   }
 `;
 
+const Left = styled.div`
+  float: left;
+`;
+
 const Right = styled.div`
   float: right;
 `;
@@ -44,6 +48,17 @@ const HeaderRow = styled(FlexContent)`
 
 const HeaderContent = styled.div`
   flex: 1;
+  font-size: 16px;
+
+  textarea {
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
 `;
 
 const TitleRow = styled.div`
@@ -194,6 +209,7 @@ const RightButton = styled(Button)`
 const MoveContainer = styled(FlexContent)`
   margin-bottom: 20px;
   align-items: center;
+  position: relative;
 `;
 
 const ActionContainer = styled(MoveContainer)`
@@ -370,6 +386,7 @@ export {
   UserCounterContainer,
   PriceContainer,
   Right,
+  Left,
   Footer,
   WatchIndicator,
   ActionContainer,

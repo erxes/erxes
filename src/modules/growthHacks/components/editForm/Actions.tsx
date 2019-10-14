@@ -6,9 +6,11 @@ import { ColorButton } from 'modules/boards/styles/common';
 import { ActionContainer } from 'modules/boards/styles/item';
 import { IOptions } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
 import { IGrowthHack } from 'modules/growthHacks/types';
 import React from 'react';
 import { HACKSTAGES } from '../../constants';
+import Vote from '../../containers/Vote';
 
 type Props = {
   item: IGrowthHack;
@@ -20,6 +22,7 @@ type Props = {
   options: IOptions;
   copy: () => void;
   remove: (id: string) => void;
+  onUpdate: (item, prevStageId?: string) => void;
 };
 
 class Actions extends React.Component<Props> {
@@ -33,7 +36,8 @@ class Actions extends React.Component<Props> {
       options,
       copy,
       remove,
-      dateOnChange
+      dateOnChange,
+      onUpdate
     } = this.props;
 
     const priorityOnChange = (value: string) => {
@@ -59,13 +63,14 @@ class Actions extends React.Component<Props> {
     const priorityTrigger = (
       <ColorButton>
         <Icon icon="sort-amount-up" />
-        Priority
+        {__('Priority')}
       </ColorButton>
     );
+
     const hackStageTrigger = (
       <ColorButton>
         <Icon icon="diary" />
-        Hack Stage
+        {__('Growth funnel')}
       </ColorButton>
     );
 
@@ -85,14 +90,15 @@ class Actions extends React.Component<Props> {
           trigger={hackStageTrigger}
           multiple={true}
         />
+        <Vote item={item} onUpdate={onUpdate} />
         <Watch item={item} options={options} isSmall={true} />
         <ColorButton onClick={copy}>
           <Icon icon="copy-1" />
-          Copy
+          {__('Copy')}
         </ColorButton>
         <ColorButton onClick={onRemove}>
           <Icon icon="times-circle" />
-          Delete
+          {__('Delete')}
         </ColorButton>
       </ActionContainer>
     );

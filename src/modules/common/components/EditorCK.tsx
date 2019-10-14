@@ -30,6 +30,7 @@ class EditorCK extends React.Component<IEditorProps> {
       height,
       insertItems,
       removeButtons,
+      removePlugins,
       toolbar,
       toolbarCanCollapse,
       mentionUsers = []
@@ -119,6 +120,7 @@ class EditorCK extends React.Component<IEditorProps> {
             }
           ],
           removeButtons,
+          removePlugins,
           codemirror: {
             enableCodeFormatting: false,
             enableCodeFolding: false,

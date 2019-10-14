@@ -21,7 +21,6 @@ const currentUser = `
         github
         website
       }
-      hasSeenOnBoard
       emailSignatures
       getNotificationByEmail
       permissionActions

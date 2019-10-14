@@ -19,8 +19,7 @@ import Participators from 'modules/inbox/components/conversationDetail/workarea/
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Overlay, Popover } from 'react-bootstrap';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Overlay, Popover } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import PipelineWatch from '../containers/PipelineWatch';
 import {
@@ -50,6 +49,8 @@ type Props = {
   extraFilter?: React.ReactNode;
   link: string;
   rightContent?: () => React.ReactNode;
+  boardText?: string;
+  pipelineText?: string;
 };
 
 type State = {
@@ -64,7 +65,9 @@ const teamMemberCustomOption = {
 
 class MainActionBar extends React.Component<Props, State> {
   static defaultProps = {
-    viewType: 'board'
+    viewType: 'board',
+    boardText: 'Board',
+    pipelineText: 'Pipeline'
   };
 
   constructor(props) {
@@ -303,13 +306,15 @@ class MainActionBar extends React.Component<Props, State> {
       middleContent,
       queryParams,
       type,
-      rightContent
+      rightContent,
+      boardText,
+      pipelineText
     } = this.props;
 
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
-          <Icon icon="web-grid-alt" /> {__('Board')}:{' '}
+          <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
@@ -321,7 +326,7 @@ class MainActionBar extends React.Component<Props, State> {
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLabel>
-          <Icon icon="web-section-alt" /> {__('Pipeline')}:{' '}
+          <Icon icon="web-section-alt" /> {__(pipelineText || '')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">

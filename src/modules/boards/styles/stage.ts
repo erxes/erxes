@@ -30,14 +30,17 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   `};
 `;
 
-const Content = styled('div')`
+const Content = styledTS<{ type?: string }>(styled.div)`
   flex-grow: 1;
   flex-basis: 100%;
   display: flex;
   flex-direction: column;
 
   h5 {
-    margin: 0 20px 10px 0;
+    ${props => css`
+      margin: ${props.type === 'growthHack' ? '0 20px 10px 0' : '0 0 10px 0'};
+    `};
+    word-break: break-word;
   }
 `;
 

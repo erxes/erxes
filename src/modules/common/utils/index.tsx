@@ -16,7 +16,17 @@ export const renderFullName = data => {
     return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
-  return data.primaryEmail || data.primaryPhone || 'Unknown';
+  if (data.primaryEmail || data.primaryPhone) {
+    return data.primaryEmail || data.primaryPhone;
+  }
+
+  const { visitorContactInfo } = data;
+
+  if (visitorContactInfo) {
+    return visitorContactInfo.phone || visitorContactInfo.email || 'Unknown';
+  }
+
+  return 'Unknown';
 };
 
 export const setTitle = (title: string, force: boolean) => {
@@ -280,4 +290,12 @@ export const sendDesktopNotification = (doc: {
       }
     });
   }
+};
+
+export const roundToTwo = value => {
+  if (!value) {
+    return 0;
+  }
+
+  return Math.round(value * 100) / 100;
 };

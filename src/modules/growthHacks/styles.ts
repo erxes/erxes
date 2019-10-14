@@ -1,8 +1,21 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { FixedContent } from 'modules/deals/components/conversion/style';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const ScoreWrapper = styled.div``;
+
+const AddButton = `
+  text-align: center;
+  padding: 10px 20px;
+  background: ${colors.bgLight};
+  color: ${colors.textPrimary};
+  border-top: 1px solid ${colors.borderPrimary};
+
+  &:hover {
+    background: ${colors.bgActive};
+  }
+`;
 
 const CalculatedAmount = styled.div`
   font-size: 32px;
@@ -111,12 +124,252 @@ const ScoreAmount = styled.div`
   font-weight: 500;
 `;
 
+const FixedContainer = styled(FixedContent)`
+  flex: 1;
+  background: ${colors.colorWhite};
+  overflow: auto;
+  padding-top: 0;
+  margin: 10px auto;
+  border-radius: 2px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+  display: flex;
+  flex-direction: column;
+
+  > a {
+    ${AddButton}
+  }
+`;
+
+const ScrollContent = styled.div`
+  flex: 1;
+  overflow: auto;
+
+  .weighted-score-table-body {
+    .with-input:last-child {
+      background-color: ${colors.bgUnread};
+      border-left: 1px solid ${colors.borderPrimary};
+    }
+  }
+`;
+
+const ContentContainer = styled.div`
+  display: flex;
+  flex: 1;
+  background: ${colors.bgLight};
+  overflow: auto;
+  border-top: 1px solid ${colors.borderPrimary};
+`;
+
+const LeftContent = styled.div`
+  flex: 1;
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
+  z-index: 2;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+
+  > a {
+    ${AddButton}
+  }
+`;
+
+const RightContent = styled.div`
+  flex: 2;
+  padding: 20px 80px 40px 80px;
+  overflow: hidden;
+`;
+
+const TableHead = styled.th`
+  width: 50px;
+
+  &:last-child {
+    background-color: ${colors.bgUnread};
+    border-left: 1px solid ${colors.borderPrimary};
+  }
+`;
+
+const FunnelContent = styled.div`
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.borderPrimary};
+  margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 5}px;
+`;
+
+const Title = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+
+  i {
+    font-size: 13px;
+    padding-right: ${dimensions.unitSpacing - 5}px;
+    transition: all ease 0.3s;
+  }
+
+  > span {
+    font-size: 11px;
+    color: ${colors.colorCoreGray};
+
+    b {
+      font-weight: 600;
+      padding-left: 2px;
+    }
+  }
+`;
+
+const TableContainer = styled.div`
+  background: ${colors.colorWhite};
+  border-top: 1px solid ${colors.borderPrimary};
+`;
+
+const GrowthRow = styled.tr`
+  td {
+    &:first-child {
+      min-width: 250px;
+      max-width: 250px;
+    }
+
+    &:first-child {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &:last-child {
+      max-width: 100px;
+    }
+  }
+`;
+
+const Vote = styled.div`
+  i {
+    margin-right: 5px;
+  }
+`;
+
+const VotersHeader = styled.span`
+  display: block;
+  text-align: center;
+  padding: ${dimensions.unitSpacing}px 0;
+  border-bottom: 1px solid ${colors.borderDarker};
+  margin: 0 ${dimensions.unitSpacing}px;
+`;
+
+const VotersContent = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px 0;
+  img,
+  span {
+    margin-left: -1px;
+  }
+`;
+
+const VotersCount = styled.span`
+  cursor: pointer;
+  padding: 0px ${dimensions.unitSpacing}px;
+  display: inline-block;
+  margin-top: ${dimensions.unitSpacing / 2}px;
+  border: 1px solid ${colors.colorPrimary};
+  color: ${colors.colorPrimary};
+  border-radius: ${dimensions.unitSpacing * 2}px;
+`;
+
+const PipelineListRow = styled.div`
+  background-color: ${colors.colorWhite};
+  margin-bottom: ${dimensions.unitSpacing}px;
+  padding: 20px 20px 20px 30px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const PipelineMeta = styled.div`
+  font-size: 11px;
+  margin-bottom: ${dimensions.unitSpacing / 2}px;
+  color: ${colors.colorCoreGray};
+  i {
+    margin-right: ${dimensions.unitSpacing / 2}px;
+  }
+  span {
+    margin: 0 15px;
+    color: ${colors.colorCoreDarkGray};
+  }
+`;
+
+const PipelineName = styled.h5`
+  margin: ${dimensions.unitSpacing}px 0 15px;
+  font-weight: bold;
+  color: ${colors.colorCoreDarkGray};
+`;
+
+const PipelineActions = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+  text-align: right;
+  a {
+    box-shadow: none;
+    background-color: ${colors.colorSecondary};
+    border-radius: 30px;
+    color: ${colors.colorWhite};
+    font-size: ${dimensions.unitSpacing}px;
+    padding: ${dimensions.unitSpacing / 2}px 15px;
+    text-transform: uppercase;
+  }
+`;
+
+const FilterList = styled.ul`
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+`;
+
+const FilterListItem = styledTS<{ isActive: boolean }>(styled.li)`
+  margin: 0 ${dimensions.unitSpacing / 2}px;
+  a{
+    color: ${colors.textSecondary};
+    color: ${props => props.isActive && colors.colorWhite};
+    padding: ${dimensions.unitSpacing / 2}px; ${dimensions.unitSpacing}px;;
+    border: 1px solid ${colors.borderDarker};
+    background: ${props => props.isActive && colors.colorSecondary};
+  }
+`;
+
+const LeftActionBar = styled.h3`
+  font-size: 12px;
+  text-transform: uppercase;
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
+  GrowthRow,
+  TableContainer,
   Amounts,
   Text,
   AmountItem,
   Factor,
-  ScoreAmount
+  ScoreAmount,
+  ContentContainer,
+  LeftContent,
+  RightContent,
+  FixedContainer,
+  ScrollContent,
+  TableHead,
+  FunnelContent,
+  Title,
+  Vote,
+  VotersHeader,
+  VotersContent,
+  VotersCount,
+  PipelineListRow,
+  PipelineName,
+  PipelineMeta,
+  PipelineActions,
+  FilterList,
+  FilterListItem,
+  LeftActionBar
 };

@@ -83,25 +83,16 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
     const onChange = e => {
       const value = Number((e.target as HTMLInputElement).value);
+
       const confirmedValue = value > 10 ? 10 : value;
 
       const changedValue = { [e.target.name]: confirmedValue };
 
       this.setState(changedValue as Pick<State, keyof State>);
-    };
 
-    const onExited = () => {
-      saveItem(
-        {
-          impact,
-          confidence,
-          ease,
-          reach
-        },
-        updatedItem => {
-          this.props.onUpdate(updatedItem);
-        }
-      );
+      saveItem(changedValue, updatedItem => {
+        this.props.onUpdate(updatedItem);
+      });
     };
 
     return (
@@ -111,7 +102,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
         confidence={confidence}
         ease={ease}
         onChange={onChange}
-        onExited={onExited}
         scoringType={item.scoringType || 'ice'}
       />
     );
@@ -125,7 +115,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove,
     onBlurFields
   }: IEditFormContent) => {
-    const { item, options, saveFormSubmission } = this.props;
+    const { item, options, saveFormSubmission, onUpdate } = this.props;
     const { formSubmissions, priority, hackStages, formId } = this.state;
 
     const {
@@ -165,6 +155,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               options={options}
               copy={copy}
               remove={remove}
+              onUpdate={onUpdate}
             />
             <Left
               {...this.state}

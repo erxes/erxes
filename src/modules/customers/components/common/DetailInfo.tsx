@@ -56,7 +56,7 @@ class DetailInfo extends React.PureComponent<Props> {
         )}
         {this.renderRow('Department', customer.department)}
         {this.renderRow(
-          'Lead Status',
+          'Pop Ups Status',
           LEAD_STATUS_TYPES[customer.leadStatus || '']
         )}
         {this.renderRow(
