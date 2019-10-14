@@ -3,6 +3,7 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { IAttachment } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
+import ResponseTemplateModal from 'modules/inbox/containers/conversationDetail/responseTemplate/Modal';
 import PopoverContent from 'modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent';
 import { ResponseTemplateStyled } from 'modules/inbox/styles';
 import { IBrand } from 'modules/settings/brands/types';
@@ -13,7 +14,6 @@ import {
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import strip from 'strip';
-import ResponseTemplateModal from './Modal';
 
 type Props = {
   brandId?: string;
@@ -63,7 +63,7 @@ class ResponseTemplate extends React.Component<Props, State> {
   };
 
   render() {
-    const { brands, content, brandId } = this.props;
+    const { brands, content, brandId, attachments } = this.props;
 
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
@@ -106,9 +106,10 @@ class ResponseTemplate extends React.Component<Props, State> {
 
         <ResponseTemplateModal
           trigger={strip(content) ? saveTrigger : <span />}
+          content={content}
+          files={attachments}
           brands={brands}
           brandId={brandId}
-          onSave={this.onSave}
         />
       </ResponseTemplateStyled>
     );

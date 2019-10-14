@@ -35,7 +35,7 @@ type Props = {
     doc: SaveResponsTemplateMutationVariables,
     callback: (error?: Error) => void
   ) => void;
-  fetchMore: ({ perPage }: { perPage?: number }) => void;
+  fetchMore: ({ page, perPage }: { perPage?: number; page: number }) => void;
 
   attachments?: IAttachment[];
   brands: IBrand[];
@@ -140,10 +140,12 @@ class PopoverContent extends React.Component<Props, State> {
   fetchTemplates = () => {
     const { responseTemplates } = this.props;
 
-    const perPage = responseTemplates.length + 5;
+    const perPage = responseTemplates.length;
+    const page = responseTemplates.length / 20 + 1;
 
     this.props.fetchMore({
-      perPage
+      perPage,
+      page
     });
   };
 

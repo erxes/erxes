@@ -35,7 +35,6 @@ const PopoverContentContainer = (props: FinalProps) => {
   const {
     brands,
     search,
-
     responseTemplatesQuery,
     responseTemplatesTotalCountQuery,
     saveResponseTemplateMutation
@@ -58,19 +57,15 @@ const PopoverContentContainer = (props: FinalProps) => {
 
         const prevTemplates = prev.responseTemplates || [];
 
-        const prevTemplateIds = prevTemplates.map(
-          (template: IResponseTemplate) => template._id
-        );
-
         const fetchedTemplates: IResponseTemplate[] = [];
+
         for (const template of fetchMoreResult.responseTemplates) {
-          if (!prevTemplateIds.includes(template._id)) {
-            fetchedTemplates.push(template);
-          }
+          fetchedTemplates.push(template);
         }
+
         return {
           ...prev,
-          responseTemplates: [...fetchedTemplates, ...prevTemplates]
+          responseTemplates: [...prevTemplates, ...fetchedTemplates]
         };
       }
     });
