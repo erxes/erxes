@@ -46,6 +46,10 @@ class IntegrationList extends React.Component<Props> {
       return 'nylas gmail';
     }
 
+    if (kind === KIND_CHOICES.TWITTER_DM) {
+      return 'twitter';
+    }
+
     return 'default';
   }
 
