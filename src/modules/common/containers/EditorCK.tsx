@@ -27,7 +27,7 @@ const EditorContainer = (props: FinalProps) => {
   const mentionUsers: IMentionUser[] = [];
 
   for (const user of users) {
-    if (user.details && user.details.fullName && user.isActive) {
+    if (user.details && user.details.fullName) {
       mentionUsers.push({
         id: user._id,
         avatar: user.details.avatar || '/images/avatar.svg',
@@ -42,7 +42,10 @@ const EditorContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, AllUsersQueryResponse>(gql(queries.allUsers), {
-      name: 'usersQuery'
+      name: 'usersQuery',
+      options: () => ({
+        variables: { isActive: true }
+      })
     })
   )(EditorContainer)
 );
