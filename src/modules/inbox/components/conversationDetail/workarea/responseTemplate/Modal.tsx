@@ -7,12 +7,12 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IAttachment } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
-import { SaveResponsTemplateMutationVariables } from 'modules/settings/responseTemplates/types';
+import { SaveResponseTemplateMutationVariables } from 'modules/settings/responseTemplates/types';
 import React from 'react';
 
 type Props = {
   saveResponseTemplate: (
-    doc: SaveResponsTemplateMutationVariables,
+    doc: SaveResponseTemplateMutationVariables,
     callback: (error?: Error) => void
   ) => void;
   brands: IBrand[];

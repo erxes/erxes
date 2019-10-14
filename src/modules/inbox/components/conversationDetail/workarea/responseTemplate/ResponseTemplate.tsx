@@ -2,25 +2,18 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { IAttachment } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import Modal from 'modules/inbox/containers/conversationDetail/responseTemplate/Modal';
 import PopoverContent from 'modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent';
 import { ResponseTemplateStyled } from 'modules/inbox/styles';
 import { IBrand } from 'modules/settings/brands/types';
-import {
-  IResponseTemplate,
-  SaveResponsTemplateMutationVariables
-} from 'modules/settings/responseTemplates/types';
+import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import strip from 'strip';
 
 type Props = {
   brandId?: string;
-  saveResponseTemplate: (
-    doc: SaveResponsTemplateMutationVariables,
-    callback: (error?: Error) => void
-  ) => void;
   onSelect: (responseTemplate?: IResponseTemplate) => void;
   brands: IBrand[];
   attachments?: IAttachment[];
@@ -36,27 +29,6 @@ type State = {
 
 class ResponseTemplate extends React.Component<Props, State> {
   private overlayRef;
-
-  onSave = (brandId: string, name: string) => {
-    const doc = {
-      brandId,
-      name,
-      content: this.props.content,
-      files: this.props.attachments
-    };
-
-    this.props.saveResponseTemplate(doc, error => {
-      if (error) {
-        return Alert.error(error.message);
-      }
-
-      Alert.success('You successfully saved a response template');
-
-      const element = document.querySelector('button.close') as HTMLElement;
-
-      return element.click();
-    });
-  };
 
   onSelectTemplate = () => {
     this.overlayRef.hide();

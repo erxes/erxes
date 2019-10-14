@@ -6,7 +6,7 @@ import { mutations, queries } from 'modules/inbox/graphql';
 import { IBrand } from 'modules/settings/brands/types';
 import {
   SaveResponseTemplateMutationResponse,
-  SaveResponsTemplateMutationVariables
+  SaveResponseTemplateMutationVariables
 } from 'modules/settings/responseTemplates/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -25,7 +25,7 @@ const ModalContainer = (props: FinalProps) => {
   const { saveResponseTemplateMutation } = props;
 
   const saveResponseTemplate = (
-    variables: SaveResponsTemplateMutationVariables,
+    variables: SaveResponseTemplateMutationVariables,
     callback: (e?: Error) => void
   ) => {
     saveResponseTemplateMutation({ variables })
@@ -51,7 +51,7 @@ export default withProps<Props>(
     graphql<
       Props,
       SaveResponseTemplateMutationResponse,
-      SaveResponsTemplateMutationVariables
+      SaveResponseTemplateMutationVariables
     >(gql(mutations.saveResponseTemplate), {
       name: 'saveResponseTemplateMutation',
       options: {

@@ -1,14 +1,13 @@
 import gql from 'graphql-tag';
 import { withProps } from 'modules/common/utils';
 import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/ResponseTemplate';
-import { mutations, queries } from 'modules/inbox/graphql';
+import { queries } from 'modules/inbox/graphql';
 import { queries as brandQuery } from 'modules/settings/brands/graphql';
 import { AllBrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
-  SaveResponseTemplateMutationResponse,
-  SaveResponsTemplateMutationVariables
+  SaveResponseTemplateMutationResponse
 } from 'modules/settings/responseTemplates/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -27,34 +26,15 @@ type FinalProps = {
   SaveResponseTemplateMutationResponse;
 
 const ResponseTemplateContainer = (props: FinalProps) => {
-  const {
-    brandsQuery,
-    responseTemplatesQuery,
-    saveResponseTemplateMutation
-  } = props;
+  const { brandsQuery } = props;
 
   if (brandsQuery.loading) {
     return null;
   }
 
-  const saveResponseTemplate = (
-    variables: SaveResponsTemplateMutationVariables,
-    callback: (e?: Error) => void
-  ) => {
-    saveResponseTemplateMutation({ variables })
-      .then(() => {
-        responseTemplatesQuery.refetch();
-        callback();
-      })
-      .catch(e => {
-        callback(e);
-      });
-  };
-
   const updatedProps = {
     ...props,
-    brands: brandsQuery.allBrands,
-    saveResponseTemplate
+    brands: brandsQuery.allBrands
   };
 
   return <ResponseTemplate {...updatedProps} />;
@@ -67,22 +47,6 @@ export default withProps<Props>(
     }),
     graphql(gql(queries.responseTemplateList), {
       name: 'responseTemplatesQuery'
-    }),
-    graphql<
-      Props,
-      SaveResponseTemplateMutationResponse,
-      SaveResponsTemplateMutationVariables
-    >(gql(mutations.saveResponseTemplate), {
-      name: 'saveResponseTemplateMutation',
-      options: {
-        refetchQueries: [
-          {
-            query: gql`
-              ${queries.responseTemplateList}
-            `
-          }
-        ]
-      }
     })
   )(ResponseTemplateContainer)
 );

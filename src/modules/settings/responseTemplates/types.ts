@@ -22,7 +22,7 @@ export type ResponseTemplatesTotalCountQueryResponse = {
   refetch: () => void;
 };
 
-export type SaveResponsTemplateMutationVariables = {
+export type SaveResponseTemplateMutationVariables = {
   brandId: string;
   name: string;
   content?: string;
@@ -32,7 +32,7 @@ export type SaveResponsTemplateMutationVariables = {
 export type SaveResponseTemplateMutationResponse = {
   saveResponseTemplateMutation: (
     doc: {
-      variables: SaveResponsTemplateMutationVariables;
+      variables: SaveResponseTemplateMutationVariables;
     }
   ) => Promise<any>;
 };
