@@ -114,7 +114,7 @@ class Move extends React.Component<Props, State> {
             onChangeStage={onChangeStage}
             onChangePipeline={this.onChangePipeline}
             onChangeBoard={this.onChangeBoard}
-            notAutoStage={true}
+            autoSelectStage={false}
           />
         </PipelinePopoverContent>
       </Popover>
