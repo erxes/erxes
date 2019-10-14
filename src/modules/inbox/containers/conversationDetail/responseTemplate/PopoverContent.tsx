@@ -67,7 +67,6 @@ const PopoverContentContainer = (props: FinalProps) => {
 
   const responseTemplates = responseTemplatesQuery.responseTemplates;
   const count = responseTemplatesTotalCountQuery.responseTemplatesTotalCount;
-
   const hasMore = count > responseTemplates.length;
 
   const updatedProps = {
