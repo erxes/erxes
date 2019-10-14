@@ -82,6 +82,16 @@ export const KIND_CHOICES = {
   ]
 };
 
+export const KIND_CHOICES_WITH_TEXT = [
+  { text: 'Messenger', value: 'messenger' },
+  { text: 'Facebook post', value: 'facebook-post' },
+  { text: 'facebook messenger', value: 'facebook-messenger' },
+  { text: 'Pop Ups', value: 'lead' },
+  { text: 'Callpro', value: 'callpro' },
+  { text: 'Gmail', value: 'gmail' },
+  { text: 'Nylas gmail', value: 'nylas-gmail' }
+];
+
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',

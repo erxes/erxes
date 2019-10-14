@@ -48,6 +48,7 @@ const FlexContent = styled.div`
 const FlexBody = styled.div`
   flex: 1;
   align-self: center;
+  word-break: break-word;
 
   p {
     margin: 0;
@@ -127,6 +128,7 @@ const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
   background: ${props =>
     props.isInternalNote ? colors.bgInternal : colors.borderPrimary};
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
+  word-break:break-word;
 
   p:last-of-type {
     margin-bottom: 0;

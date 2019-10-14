@@ -61,7 +61,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
 
     return (
       <>
-        <Content onClick={onClick}>
+        <Content onClick={onClick} type="growthHack">
           <h5>
             {renderPriority(item.priority)}
             {item.name}

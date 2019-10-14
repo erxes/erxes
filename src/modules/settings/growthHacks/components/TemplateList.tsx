@@ -120,16 +120,16 @@ class TemplateList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New growth hack template"
+        formTitle="New Growth Hacking Templates"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Growth hack templates') }
+          { title: __('Growth Hacking Templates') }
         ]}
-        title={__('Growth hack templates')}
+        title={__('Growth Hacking Templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/34.svg"
-            title="Growth hack templates"
+            title="Growth Hacking Templates"
             description={`Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.`}
           />
         }

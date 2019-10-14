@@ -1,6 +1,6 @@
+import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import Toggle from 'react-toggle';
 import {
   NotificationConfig,
   NotificationModule
