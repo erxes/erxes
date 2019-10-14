@@ -73,7 +73,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
             <QuickNavigation
               showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}
               onChangeBrands={this.onChangeBrands}
-              brands={brandsQuery.allBrands || []}
+              brands={brandsQuery.brands || []}
               selectedBrands={this.state.selectedBrands}
               logout={this.logout}
               currentUser={currentUser}
@@ -93,7 +93,7 @@ export default withProps(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<{}, AllBrandsQueryResponse>(gql(brandQueries.allBrands), {
+    graphql<{}, AllBrandsQueryResponse>(gql(brandQueries.brands), {
       name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'
