@@ -116,9 +116,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     this.setState(
       { productsData: filteredProductsData, products, amount },
       () => {
-        saveItem({ productsData: this.state.productsData }, updatedItem => {
-          this.props.onUpdate(updatedItem);
-        });
+        saveItem({ productsData: this.state.productsData });
       }
     );
   };
