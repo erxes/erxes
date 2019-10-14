@@ -156,6 +156,10 @@ class RespondBox extends React.Component<Props, State> {
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
+    if (!element) {
+      return;
+    }
+
     element.click();
   };
 
