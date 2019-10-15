@@ -57,6 +57,8 @@ const NavButton = styledTS<{ right?: boolean }>(styled.div)`
   margin-top: -5px;
   float: ${props => props.right && 'right'};
   background: ${props => props.right && colors.bgActive};
+  position: sticky;
+  top: 0;
 
   &:hover {
     background: ${props =>
