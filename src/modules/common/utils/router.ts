@@ -107,12 +107,12 @@ const onParamSelect = (
 };
 
 /**
- * Get hash from URL check
+ * Get hash from URL and check
  * given key exists in hash
  * @param {Object} history - location
  * @returns {Boolean} hashKey
  */
-const getHash = ({ location }, hashKey?: string) => {
+const checkHashKeyInURL = ({ location }, hashKey?: string) => {
   if (!hashKey) {
     return false;
   }
@@ -129,5 +129,5 @@ export default {
   replaceParam,
   removeParams,
   refetchIfUpdated,
-  getHash
+  checkHashKeyInURL
 };
