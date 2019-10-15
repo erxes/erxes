@@ -57,7 +57,11 @@ function ProductSection({
   const renderProduct = (product: IProduct) => {
     if (product.customFieldsData) {
       return (
-        <Tip text={tipItems(product)} placement="top">
+        <Tip
+          text={tipItems(product)}
+          placement="bottom
+        "
+        >
           <ProductName>{product.name}</ProductName>
         </Tip>
       );
