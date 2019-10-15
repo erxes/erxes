@@ -39,7 +39,7 @@ class Home extends React.Component<Props> {
     const { boardId, state } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <Section>
           <Section.Title>{__('Marketing campaign')}</Section.Title>
           <Section.QuickButtons>
@@ -87,7 +87,7 @@ class Home extends React.Component<Props> {
             </li>
           </SidebarList>
         </Section>
-      </React.Fragment>
+      </>
     );
   }
 
