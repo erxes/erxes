@@ -17,7 +17,6 @@ pipeline:
         - master
         - develop
         - staging
-        - italian-locale
       event:
         - push
 
@@ -67,7 +66,7 @@ pipeline:
 
   docker_publish:
     image: plugins/docker
-    repo: ${DRONE_REPO,,}
+    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
     dockerfile: Dockerfile
     secrets:
       - source: docker_hub_username
@@ -81,7 +80,6 @@ pipeline:
         - master
         - develop
         - staging
-        - italian-locale
       event:
         - push
 
