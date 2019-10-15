@@ -3,11 +3,11 @@ import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 
 const Templates = styled.div`
-  height: 100%;
+  width: 100%;
+  display: table;
   background: ${colors.colorWhite};
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
-  display: flex;
 `;
 
 const IframePreview = styled.div`
@@ -59,12 +59,9 @@ const Actions = styled.div`
 `;
 
 const Template = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 18%;
   float: left;
-  margin-right: ${dimensions.coreSpacing}px;
+  width: 20%;
+  padding: 5px;
 
   > h5 {
     text-align: center;
