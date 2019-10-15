@@ -53,8 +53,8 @@ const userQueries = {
   /**
    * Users list
    */
-  async users(_root, args: IListArgs) {
-    const selector = await queryBuilder(args);
+  async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
     const sort = { username: 1 };
 
     return paginate(Users.find(selector).sort(sort), args);
@@ -63,8 +63,8 @@ const userQueries = {
   /**
    * All users
    */
-  allUsers(_root, args: IUserParams) {
-    const selector: { isActive?: boolean } = {};
+  allUsers(_root, args: IUserParams, { userBrandIdsSelector }: IContext) {
+    const selector: { isActive?: boolean } = userBrandIdsSelector;
 
     if (args.isActive) {
       selector.isActive = true;
@@ -83,8 +83,8 @@ const userQueries = {
   /**
    * Get all users count. We will use it in pager
    */
-  async usersTotalCount(_root, args: IListArgs) {
-    const selector = await queryBuilder(args);
+  async usersTotalCount(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
 
     return Users.find(selector).countDocuments();
   },

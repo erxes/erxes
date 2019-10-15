@@ -58,6 +58,7 @@ export const types = `
     groupIds: [String]
     brandIds: [String]
 
+    brands: [Brand]
     isOwner: Boolean
     permissionActions: JSON
   }
