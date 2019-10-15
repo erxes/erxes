@@ -31,10 +31,7 @@ class ModalTrigger extends React.Component<Props, State> {
   static getDerivedStateFromProps(props, state) {
     if (props.autoOpenKey !== state.autoOpenKey) {
       if (routerUtils.getHash(props.history, props.autoOpenKey)) {
-        return {
-          isOpen: true,
-          autoOpenKey: props.autoOpenKey
-        };
+        return { isOpen: true };
       }
     }
 

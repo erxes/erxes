@@ -31,7 +31,7 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       brandCreate: {
         name: 'Create a brand',
-        url: '/settings/brands'
+        url: '/settings/brands#showBrandAddModal=true'
       },
       channelCreate: {
         name: 'Create a channel',
@@ -173,15 +173,15 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       knowledgeBaseTopicCreate: {
         name: 'Create topic',
-        url: '/knowledgebase'
+        url: '/knowledgebase#showKBAddModal=true'
       },
       knowledgeBaseCategoryCreate: {
         name: 'Create category',
-        url: '/knowledgebase'
+        url: '/knowledgebase#showKBAddCategoryModal=true'
       },
       knowledgeBaseArticleCreate: {
         name: 'Now write articles',
-        url: '/knowledgebase'
+        url: '/knowledgebase#showKBAddArticleModal=true'
       }
     }
   },
