@@ -94,6 +94,7 @@ class Signature extends React.Component<Props, State> {
         </p>
 
         <EditorCK
+          onCtrlEnter={this.handleSubmit}
           content={this.state.content}
           onChange={this.onChangeContent}
         />
