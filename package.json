@@ -30,7 +30,7 @@
     "apollo-utilities": "^1.0.5",
     "autolinker": "^3.0.0",
     "bat-draft-js-mention-plugin": "^2.0.1",
-    "ckeditor4-react": "^1.0.0-beta",
+    "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",
     "color": "^3.0.0",
     "crypto": "^1.0.1",
