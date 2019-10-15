@@ -67,7 +67,7 @@ pipeline:
 
   docker_publish:
     image: plugins/docker
-    repo: ${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
+    repo: ${DRONE_REPO,,}
     dockerfile: Dockerfile
     secrets:
       - source: docker_hub_username
