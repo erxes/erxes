@@ -34,7 +34,7 @@ const ResponseTemplateContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    brands: brandsQuery.allBrands
+    brands: brandsQuery.brands
   };
 
   return <ResponseTemplate {...updatedProps} />;
@@ -42,7 +42,7 @@ const ResponseTemplateContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AllBrandsQueryResponse>(gql(brandQuery.allBrands), {
+    graphql<Props, AllBrandsQueryResponse>(gql(brandQuery.brands), {
       name: 'brandsQuery'
     }),
     graphql(gql(queries.responseTemplateList), {

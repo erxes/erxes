@@ -24,7 +24,7 @@ type FinalProps = {
 const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
   const { brandsQuery, formProps } = props;
 
-  const brands = brandsQuery.allBrands || [];
+  const brands = brandsQuery.brands || [];
 
   if (brandsQuery.loading) {
     return <Spinner objective={true} />;
@@ -69,14 +69,14 @@ const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
 const getRefetchQueries = () => {
   return [
     {
-      query: gql(brandQueries.allBrands),
+      query: gql(brandQueries.brands),
       variables: {}
     }
   ];
 };
 
 export default compose(
-  graphql<AllBrandsQueryResponse>(gql(brandQueries.allBrands), {
+  graphql<AllBrandsQueryResponse>(gql(brandQueries.brands), {
     name: 'brandsQuery',
     options: () => ({
       refetchQueries: getRefetchQueries

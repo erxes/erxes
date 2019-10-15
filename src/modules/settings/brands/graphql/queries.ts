@@ -28,15 +28,6 @@ const brands = `
   }
 `;
 
-const allBrands = `
-  query allBrands {
-    allBrands {
-      _id
-      name
-    }
-  }
-`;
-
 const brandsCount = `
   query totalBrandsCount {
     brandsTotalCount
@@ -62,7 +53,6 @@ const brandsGetLast = `
 export default {
   brandsGetLast,
   brands,
-  allBrands,
   brandDetail,
   brandsCount,
   integrationsCount
