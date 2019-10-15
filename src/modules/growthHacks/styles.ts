@@ -287,7 +287,7 @@ const VotersCount = styled.span`
 const PipelineListRow = styled.div`
   background-color: ${colors.colorWhite};
   margin-bottom: ${dimensions.unitSpacing}px;
-  padding: 20px 20px 20px 30px;
+  padding: 20px;
   overflow: hidden;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   position: relative;
@@ -297,12 +297,13 @@ const PipelineListRow = styled.div`
 `;
 
 const PipelineMeta = styled.div`
-  font-size: 11px;
-  margin-bottom: ${dimensions.unitSpacing / 2}px;
+  font-size: 12px;
   color: ${colors.colorCoreGray};
+
   i {
     margin-right: ${dimensions.unitSpacing / 2}px;
   }
+
   span {
     margin: 0 15px;
     color: ${colors.colorCoreDarkGray};
@@ -310,8 +311,9 @@ const PipelineMeta = styled.div`
 `;
 
 const PipelineName = styled.h5`
-  margin: ${dimensions.unitSpacing}px 0 15px;
+  margin: 0 0 15px;
   font-weight: bold;
+  font-size: 15px;
   color: ${colors.colorCoreDarkGray};
 `;
 
@@ -346,9 +348,10 @@ const FilterListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
-const LeftActionBar = styled.h3`
+const ContentTitle = styled.h3`
   font-size: 12px;
   text-transform: uppercase;
+  margin: 0;
 `;
 
 export {
@@ -379,5 +382,5 @@ export {
   PipelineActions,
   FilterList,
   FilterListItem,
-  LeftActionBar
+  ContentTitle
 };

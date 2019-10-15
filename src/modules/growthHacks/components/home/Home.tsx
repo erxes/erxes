@@ -1,12 +1,12 @@
 import { IBoard } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
+import { ContentTitle } from 'modules/growthHacks/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PipelineList from '../../containers/home/PipelineList';
-import { LeftActionBar } from '../../styles';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -102,7 +102,7 @@ class Home extends React.Component<Props> {
         }
         leftSidebar={<Wrapper.Sidebar>{this.renderSidebar()}</Wrapper.Sidebar>}
         actionBar={
-          <Wrapper.ActionBar left={<LeftActionBar>Projects</LeftActionBar>} />
+          <Wrapper.ActionBar left={<ContentTitle>Projects</ContentTitle>} />
         }
         transparent={true}
         content={<PipelineList state={this.props.state} />}

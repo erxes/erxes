@@ -21,9 +21,9 @@ class PipelineRow extends React.Component<Props, {}> {
   renderText(state: string) {
     switch (state) {
       case 'Completed':
-        return 'success';
+        return 'primary';
       case 'In progress':
-        return 'warning';
+        return 'success';
       default:
         return 'simple';
     }
@@ -46,7 +46,7 @@ class PipelineRow extends React.Component<Props, {}> {
 
     return (
       <>
-        <Icon icon="wallclock" />
+        <Icon icon="clock-eight" />
         {dayjs(startDate).format('ll')} {' - '}
         {dayjs(endDate).format('ll')}
       </>
@@ -58,13 +58,15 @@ class PipelineRow extends React.Component<Props, {}> {
 
     return (
       <PipelineListRow key={pipeline._id}>
-        <PipelineMeta>
+        <div>
           <PipelineName>{pipeline.name}</PipelineName>
-          <Icon icon="light-bulb" />
-          {pipeline.itemsTotalCount}
-          {this.renderState(pipeline.state)}
-          {this.renderDate(pipeline)}
-        </PipelineMeta>
+          <PipelineMeta>
+            <Icon icon="lightbulb-alt" />
+            {pipeline.itemsTotalCount}
+            {this.renderState(pipeline.state)}
+            {this.renderDate(pipeline)}
+          </PipelineMeta>
+        </div>
 
         <PipelineActions>
           <Link

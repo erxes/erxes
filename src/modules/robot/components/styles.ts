@@ -36,7 +36,7 @@ const Bot = styled.div`
   }
 
   img {
-    width: 45px;
+    width: 42px;
   }
 `;
 

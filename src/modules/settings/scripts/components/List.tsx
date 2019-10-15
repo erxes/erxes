@@ -45,10 +45,16 @@ class ScriptList extends React.Component<Props> {
       return (
         <tr key={index}>
           <td>{object.name}</td>
-          <td>{object.messenger ? object.messenger.name : ''}</td>
-          <td>{object.kbTopic ? object.kbTopic.title : ''}</td>
           <td>
-            {object.leads ? object.leads.map(lead => `${lead.name} `) : ''}
+            <small>{object.messenger ? object.messenger.name : ''}</small>
+          </td>
+          <td>
+            <small>{object.kbTopic ? object.kbTopic.title : ''}</small>
+          </td>
+          <td>
+            <small>
+              {object.leads ? object.leads.map(lead => `${lead.name} `) : ''}
+            </small>
           </td>
           <RowActions
             {...this.props}
@@ -70,7 +76,7 @@ class ScriptList extends React.Component<Props> {
             <th>{__('Messenger')}</th>
             <th>{__('Knowledgebase topic')}</th>
             <th>{__('Leads')}</th>
-            <th>{__('Actions')}</th>
+            <th style={{ width: 100 }}>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
