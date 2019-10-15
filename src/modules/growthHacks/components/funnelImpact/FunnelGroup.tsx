@@ -21,30 +21,32 @@ class FunnelGroup extends React.Component<Props> {
     toggle(hackStage, isOpen);
   };
 
+  renderGrowthHacks = () => {
+    if (!this.props.isOpen) {
+      return null;
+    }
+
+    const { queryParams, growthHacks } = this.props;
+
+    return <GrowthHacks queryParams={queryParams} growthHacks={growthHacks} />;
+  };
+
   render() {
-    const {
-      hackStage,
-      queryParams,
-      growthHacks,
-      totalCount,
-      isOpen
-    } = this.props;
+    const { hackStage, totalCount, isOpen } = this.props;
 
     return (
       <FunnelContent>
         <Title onClick={this.onToggle}>
           <div>
-            <Icon icon={isOpen ? 'downarrow' : 'rightarrow-2'} />
+            <Icon icon={isOpen ? 'angle-down' : 'angle-right'} />
             <PriorityIndicator value={hackStage} isFullBackground={true} />
           </div>
           <span>
-            Count <b>{totalCount}</b>
+            Count: <b>{totalCount}</b>
           </span>
         </Title>
 
-        {this.props.isOpen ? (
-          <GrowthHacks queryParams={queryParams} growthHacks={growthHacks} />
-        ) : null}
+        {this.renderGrowthHacks()}
       </FunnelContent>
     );
   }

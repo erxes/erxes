@@ -193,19 +193,28 @@ const FunnelContent = styled.div`
   background: ${colors.bgLight};
   border: 1px solid ${colors.borderPrimary};
   margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.unitSpacing - 5}px;
+  border-radius: ${dimensions.unitSpacing - 6}px;
+  overflow: hidden;
+
+  &:first-child {
+    margin-top: 20px;
+  }
+
+  &:last-child {
+    margin-bottom: 20px;
+  }
 `;
 
 const Title = styled.div`
-  padding: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px
+    ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px;
   cursor: pointer;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 
   i {
-    font-size: 13px;
-    padding-right: ${dimensions.unitSpacing - 5}px;
-    transition: all ease 0.3s;
+    font-size: 14px;
   }
 
   > span {
@@ -213,8 +222,7 @@ const Title = styled.div`
     color: ${colors.colorCoreGray};
 
     b {
-      font-weight: 600;
-      padding-left: 2px;
+      margin-left: 2px;
     }
   }
 `;
