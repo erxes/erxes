@@ -11,11 +11,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       growthHackBoardsCreate: {
         name: 'Create a marketing campaign',
-        url: '/settings/boards/growthHack'
+        url: '/settings/boards/growthHack#showBoardAddModal=true'
       },
       growthHackPipelinesCreate: {
         name: 'Then create a project',
-        url: '/settings/boards/growthHack'
+        url: '/settings/boards/growthHack#showPipelineModal=true'
       },
       growthHackCreate: {
         name: 'Now add an experiments',
@@ -195,15 +195,15 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       customerCreate: {
         name: 'Create a contact',
-        url: '/contacts/customers/all'
+        url: '/contacts/customers/all#showCustomerModal=true'
       },
       companyCreate: {
         name: 'Create a company',
-        url: '/contacts/companies'
+        url: '/contacts/companies#showCompanyModal=true'
       },
       productCreate: {
         name: 'Create a product or service',
-        url: '/settings/product-service'
+        url: '/settings/product-service#showProductModal=true'
       }
     }
   },
@@ -235,11 +235,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       customerTagCreate: {
         name: 'Create a customer tag',
-        url: '/tags/customer'
+        url: '/tags/customer#showTagcustomerModal=true'
       },
       companyTagCreate: {
         name: 'Create a company tag',
-        url: '/tags/company'
+        url: '/tags/company#showTagcompanyModal=true'
       }
     }
   },
@@ -253,11 +253,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       customerFieldCreate: {
         name: 'Create a custom customer properties',
-        url: '/settings/properties?type=customer'
+        url: '/settings/properties?type=customer#showPropertycustomerModal=true'
       },
       companyFieldCreate: {
         name: 'Create a custom company properties',
-        url: '/settings/properties?type=company'
+        url: '/settings/properties?type=company#showPropertycompanyModal=true'
       }
     }
   },
@@ -289,7 +289,7 @@ export const FEATURE_DETAILS = {
       },
       facebookIntegrationCreate: {
         name: 'Connect your Facebook messenger',
-        url: '/settings/integrations'
+        url: '/settings/integrations#showFacebookMessengerModal=true'
       }
     }
   },

@@ -107,8 +107,10 @@ const onParamSelect = (
 };
 
 /**
- * Get hash from URL
+ * Get hash from URL check
+ * given key exists in hash
  * @param {Object} history - location
+ * @returns {Boolean} hashKey
  */
 const getHash = ({ location }, hashKey?: string) => {
   if (!hashKey) {
