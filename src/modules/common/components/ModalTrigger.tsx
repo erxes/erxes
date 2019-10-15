@@ -1,13 +1,17 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
+import { withRouter } from 'react-router';
 import RTG from 'react-transition-group';
 import { CloseModal } from '../styles/main';
+import { IRouterProps } from '../types';
+import routerUtils from '../utils/router';
 import Icon from './Icon';
 
 type Props = {
   title: string;
   trigger: React.ReactNode;
+  autoOpenKey?: string;
   content: ({ closeModal }: { closeModal: () => void }) => void;
   size?: string;
   ignoreTrans?: boolean;
@@ -16,7 +20,8 @@ type Props = {
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
-};
+  history: any;
+} & IRouterProps;
 
 type State = {
   isOpen?: boolean;
@@ -28,6 +33,14 @@ class ModalTrigger extends React.Component<Props, State> {
 
     this.state = { isOpen: props.isOpen || false };
   }
+
+  componentDidMount = () => {
+    const { history, autoOpenKey } = this.props;
+
+    if (routerUtils.getHash(history, autoOpenKey)) {
+      this.openModal();
+    }
+  };
 
   openModal = () => {
     this.setState({ isOpen: true });
@@ -99,4 +112,4 @@ class ModalTrigger extends React.Component<Props, State> {
   }
 }
 
-export default ModalTrigger;
+export default withRouter(ModalTrigger);

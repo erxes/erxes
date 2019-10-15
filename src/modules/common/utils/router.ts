@@ -106,11 +106,26 @@ const onParamSelect = (
   router.setParams(history, { [name]: values });
 };
 
+/**
+ * Get hash from URL
+ * @param {Object} history - location
+ */
+const getHash = ({ location }, hashKey?: string) => {
+  if (!hashKey) {
+    return false;
+  }
+
+  const parsedHash = queryString.parse(location.hash);
+
+  return hashKey in parsedHash;
+};
+
 export default {
   onParamSelect,
   setParams,
   getParam,
   replaceParam,
   removeParams,
-  refetchIfUpdated
+  refetchIfUpdated,
+  getHash
 };
