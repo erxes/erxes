@@ -3,11 +3,11 @@ import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 
 const Templates = styled.div`
-  height: 100%;
+  display: flex;
   background: ${colors.colorWhite};
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
-  display: flex;
+  flex-wrap: wrap;
 `;
 
 const IframePreview = styled.div`
@@ -59,12 +59,14 @@ const Actions = styled.div`
 `;
 
 const Template = styled.div`
+  flex-basis: 300px;
+  padding: 10px 10px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 18%;
-  float: left;
-  margin-right: ${dimensions.coreSpacing}px;
+  justify-content: space-between;
+  border-radius: 6px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
 
   > h5 {
     text-align: center;
