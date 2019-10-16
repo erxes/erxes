@@ -1,8 +1,11 @@
 import gql from 'graphql-tag';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
+import { IDeal } from 'modules/deals/types';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { AllUsersQueryResponse } from 'modules/settings/team/types';
+import { ITask } from 'modules/tasks/types';
+import { ITicket } from 'modules/tickets/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
@@ -17,7 +20,7 @@ import { invalidateCache } from '../../utils';
 import { PipelineConsumer } from '../PipelineContext';
 
 type WrapperProps = {
-  item: any;
+  item: IDeal | ITicket | ITask;
   stageId: string;
   options?: IOptions;
   isPopupVisible?: boolean;
