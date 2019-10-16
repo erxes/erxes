@@ -187,19 +187,10 @@ class RespondBox extends React.Component<Props, State> {
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
-    const { setAttachmentPreview, conversation } = this.props;
-    const { integration } = conversation;
-
-    const extraFormData: any = [];
-
-    if (integration.kind === 'twitter-dm') {
-      extraFormData.push({ key: 'kind', value: 'twitter-dm' });
-    }
+    const { setAttachmentPreview } = this.props;
 
     uploadHandler({
       files,
-      extraFormData,
-
       beforeUpload: () => {
         return;
       },
