@@ -25,13 +25,17 @@ type Props = {
 
 type State = {
   isOpen?: boolean;
+  autoOpenKey?: string;
 };
 
 class ModalTrigger extends React.Component<Props, State> {
   static getDerivedStateFromProps(props, state) {
     if (props.autoOpenKey !== state.autoOpenKey) {
       if (routerUtils.checkHashKeyInURL(props.history, props.autoOpenKey)) {
-        return { isOpen: true };
+        return {
+          isOpen: true,
+          autoOpenKey: props.autoOpenKey
+        };
       }
     }
 
@@ -42,7 +46,8 @@ class ModalTrigger extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isOpen: props.isOpen || false
+      isOpen: props.isOpen || false,
+      autoOpenKey: ''
     };
   }
 

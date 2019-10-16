@@ -112,7 +112,7 @@ const onParamSelect = (
  * @param {Object} history - location
  * @returns {Boolean} hashKey
  */
-const checkHashKeyInURL = ({ location }, hashKey?: string) => {
+const checkHashKeyInURL = ({ location }, hashKey?: string): boolean => {
   if (!hashKey) {
     return false;
   }
