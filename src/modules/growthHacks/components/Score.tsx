@@ -1,4 +1,5 @@
 import FormControl from 'modules/common/components/form/Control';
+import { roundToTwo } from 'modules/common/utils';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import {
@@ -32,14 +33,6 @@ function Amount({
   c: number;
   e: number;
 }) {
-  const roundToTwo = value => {
-    if (!value) {
-      return 0;
-    }
-
-    return Math.round(value * 100) / 100;
-  };
-
   const calculateScore = () => {
     if (type === 'rice') {
       if (e === 0) {

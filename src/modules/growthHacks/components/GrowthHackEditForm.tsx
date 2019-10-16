@@ -115,7 +115,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
     remove,
     onBlurFields
   }: IEditFormContent) => {
-    const { item, options, saveFormSubmission } = this.props;
+    const { item, options, saveFormSubmission, onUpdate } = this.props;
     const { formSubmissions, priority, hackStages, formId } = this.state;
 
     const {
@@ -155,6 +155,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               options={options}
               copy={copy}
               remove={remove}
+              onUpdate={onUpdate}
             />
             <Left
               {...this.state}

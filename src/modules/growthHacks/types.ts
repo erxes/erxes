@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import { IItem, IItemParams } from 'modules/boards/types';
 import { IField } from 'modules/settings/properties/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
@@ -11,6 +12,9 @@ export interface IGrowthHack extends IItem {
   hackStages?: string[];
   formId?: string;
   formSubmissions?: any;
+  voteCount?: number;
+  isVoted?: boolean;
+  votedUsers?: IUser[];
   scoringType?: string;
   reach?: number;
   impact?: number;
@@ -52,3 +56,10 @@ export type GrowthHacksPriorityQueryResponse = {
 export type GrowthHacksCountQueryResponse = {
   growthHacksTotalCount: number;
 };
+
+export type VoteVariables = {
+  _id: string;
+  isVote: boolean;
+};
+
+export type VoteMutation = ({ variables: VoteVariables }) => Promise<any>;

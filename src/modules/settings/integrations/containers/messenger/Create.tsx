@@ -20,7 +20,7 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
-import { BrandsQueryResponse } from '../../../brands/types';
+import { AllBrandsQueryResponse } from '../../../brands/types';
 import { UsersQueryResponse } from '../../../team/types';
 
 type Props = {
@@ -30,7 +30,7 @@ type Props = {
 
 type FinalProps = {
   usersQuery: UsersQueryResponse;
-  brandsQuery: BrandsQueryResponse;
+  brandsQuery: AllBrandsQueryResponse;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & Props &
   IRouterProps &
@@ -113,7 +113,7 @@ export default withProps<Props>(
     graphql<Props, UsersQueryResponse>(gql(queries.users), {
       name: 'usersQuery'
     }),
-    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
+    graphql<Props, AllBrandsQueryResponse>(gql(brandQueries.brands), {
       name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

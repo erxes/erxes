@@ -107,7 +107,7 @@ class Lead extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Lead</ControlLabel>
+          <ControlLabel required={true}>Pop Ups</ControlLabel>
           <Select
             name="leadIntegration"
             value={this.state.selectedLead}

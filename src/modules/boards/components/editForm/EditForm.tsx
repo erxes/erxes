@@ -29,8 +29,6 @@ type Props = {
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
-  extraFields?: any;
-  extraFieldsCheck?: () => boolean;
   amount?: () => React.ReactNode;
   sidebar?: () => React.ReactNode;
   formContent: (
@@ -144,24 +142,13 @@ class EditForm extends React.Component<Props, State> {
     }
 
     this.props.saveItem({ [name]: value }, updatedItem => {
-      this.setState(
-        {
-          updatedItem
-        },
-        () => {
-          if (this.state.isFormVisible === false) {
-            this.props.onUpdate(updatedItem);
-          }
-        }
-      );
+      this.setState({ updatedItem });
     });
   };
 
   onChangeAttachment = (attachments: IAttachment[]) => {
     this.setState({ attachments }, () => {
-      this.props.saveItem({ attachments }, updatedItem => {
-        this.setState({ updatedItem });
-      });
+      this.props.saveItem({ attachments });
     });
   };
 

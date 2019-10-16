@@ -56,7 +56,7 @@ export const CUSTOMER_BASIC_INFO = {
   primaryPhone: 'Primary Phone',
   position: 'Position',
   department: 'Department',
-  leadStatus: 'Lead Status',
+  leadStatus: 'Pop Ups Status',
   lifecycleState: 'Lifecycle state',
   hasAuthority: 'Has Authority',
   description: 'Description',
@@ -70,7 +70,7 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'primaryPhone', label: 'Primary Phone' },
     { field: 'position', label: 'Position' },
     { field: 'department', label: 'Department' },
-    { field: 'leadStatus', label: 'Lead Status' },
+    { field: 'leadStatus', label: 'Pop Ups Status' },
     { field: 'lifecycleState', label: 'Lifecycle state' },
     { field: 'hasAuthority', label: 'Has Authority' },
     { field: 'description', label: 'Description' },
@@ -102,7 +102,7 @@ export const LEAD_STATUS_TYPES = {
 
 export const LIFECYCLE_STATE_TYPES = {
   subscriber: 'Subscriber',
-  lead: 'Lead',
+  lead: 'Pop Ups',
   marketingQualifiedLead: 'Marketing Qualified Lead',
   salesQualifiedLead: 'Sales Qualified Lead',
   opportunity: 'Opportunity',

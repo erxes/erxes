@@ -4,13 +4,13 @@ import { BoxRoot } from 'modules/common/styles/main';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import styled from 'styled-components';
 
-const TemplateContainer = styled.div`
+const BoxContainer = styled.div`
   display: flex;
   padding: 20px 0 20px 20px;
   flex-wrap: wrap;
 `;
 
-const TemplateItem = styled.div`
+const BoxItem = styled.div`
   flex-basis: 300px;
   padding: 25px 30px;
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
@@ -19,6 +19,7 @@ const TemplateItem = styled.div`
   justify-content: space-between;
   border-radius: 6px;
   box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
 
   h5 {
     margin: 0 0 5px;
@@ -136,12 +137,12 @@ const Warning = styled.div`
 `;
 
 export {
-  TemplateItem,
+  BoxItem,
   Box,
   Bottom,
   PreviewWrapper,
   ContentWrapper,
-  TemplateContainer,
+  BoxContainer,
   Actions,
   Created,
   DateItem,

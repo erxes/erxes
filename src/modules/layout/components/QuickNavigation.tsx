@@ -8,7 +8,6 @@ import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
-import { IBrand } from 'modules/settings/brands/types';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
 import { Dropdown, MenuItem } from 'react-bootstrap';
@@ -63,38 +62,27 @@ const NavItem = styledTS<{ odd?: boolean }>(styled.div)`
   }
 `;
 
-const WorkFlowImage = styled.img`
-  width: 100%;
-`;
-
 const QuickNavigation = ({
   logout,
   currentUser,
   showBrands,
-  brands,
   selectedBrands,
   onChangeBrands
 }: {
   logout: () => void;
   currentUser: IUser;
   showBrands: boolean;
-  brands: IBrand[];
   selectedBrands: string[];
   onChangeBrands: (value: string) => void;
 }) => {
   const passContent = props => <ChangePassword {...props} />;
   const signatureContent = props => <Signature {...props} />;
-  const workflowContent = props => (
-    <WorkFlowImage
-      alt="workflow-diagram"
-      src="/images/workflow-diagram.svg"
-      {...props}
-    />
-  );
 
   const notificationContent = props => (
     <NotificationSettings currentUser={currentUser} {...props} />
   );
+
+  const brands = currentUser.brands || [];
 
   const brandOptions = brands.map(brand => ({
     value: brand._id,
@@ -155,10 +143,6 @@ const QuickNavigation = ({
               <Link to="/profile">{__('View Profile')}</Link>
             </li>
 
-            <li>
-              <Link to="/getting-started">{__('Initial setup')}</Link>
-            </li>
-
             <ModalTrigger
               title="Change Password"
               trigger={
@@ -187,18 +171,6 @@ const QuickNavigation = ({
                 </li>
               }
               content={notificationContent}
-            />
-
-            <MenuItem divider={true} />
-            <ModalTrigger
-              title="Workflow: Brand > Integration > Channel > Team member > Team Inbox"
-              dialogClassName="middle"
-              trigger={
-                <li>
-                  <a href="#flow">{__('Workflow')}</a>
-                </li>
-              }
-              content={workflowContent}
             />
 
             <MenuItem divider={true} />

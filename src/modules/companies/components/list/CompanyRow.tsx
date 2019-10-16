@@ -43,6 +43,10 @@ function formatValue(value) {
     return createLinkFromUrl(value);
   }
 
+  if (typeof value === 'string') {
+    return value;
+  }
+
   if (value && (dayjs(value).isValid() || isTimeStamp(value))) {
     return <Date>{dayjs(value).format('lll')}</Date>;
   }

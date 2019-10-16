@@ -84,7 +84,7 @@ class List extends React.Component<Props, {}> {
     const actionBarRight = (
       <Link to="/leads/create">
         <Button btnStyle="success" size="small" icon="add">
-          {__('Create lead')}
+          {__('Create Pop Ups')}
         </Button>
       </Link>
     );
@@ -134,8 +134,8 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Leads')}
-            breadcrumb={[{ title: __('Leads') }]}
+            title={__('Pop Ups')}
+            breadcrumb={[{ title: __('Pop Ups') }]}
           />
         }
         leftSidebar={sidebar}
@@ -146,7 +146,7 @@ class List extends React.Component<Props, {}> {
             data={content}
             loading={loading}
             count={integrations.length}
-            emptyText="There is always a lead!"
+            emptyText="There is always a pop ups!"
             emptyImage="/images/actions/3.svg"
           />
         }

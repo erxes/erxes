@@ -16,7 +16,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICustomer } from 'modules/customers/types';
-import MailForm from 'modules/settings/integrations/containers/google/MailForm';
+import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(
@@ -233,11 +233,13 @@ class Index extends React.Component<IndexProps, IndexState> {
   };
 
   renderActions() {
-    const { customer } = this.props;
+    const { customer, conversation } = this.props;
     const { primaryPhone, primaryEmail } = customer;
+    const { kind } = conversation.integration;
 
     const content = props => (
       <MailForm
+        kind={kind}
         fromEmail={primaryEmail}
         refetchQueries={['activityLogsCustomer']}
         closeModal={props.closeModal}
@@ -247,6 +249,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     return (
       <Actions>
         <ModalTrigger
+          dialogClassName="middle"
           title="Email"
           trigger={
             <Button disabled={primaryEmail ? false : true} size="small">

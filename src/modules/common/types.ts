@@ -95,6 +95,7 @@ export type IEditorProps = {
   height?: number | string;
   insertItems?: any;
   removeButtons?: string;
+  removePlugins?: string;
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
   toolbar?: any[];

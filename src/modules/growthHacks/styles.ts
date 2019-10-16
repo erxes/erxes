@@ -1,5 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { FixedContent } from 'modules/deals/components/conversion/style';
+import { BoxItem } from 'modules/settings/growthHacks/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -193,19 +194,28 @@ const FunnelContent = styled.div`
   background: ${colors.bgLight};
   border: 1px solid ${colors.borderPrimary};
   margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.unitSpacing - 5}px;
+  border-radius: ${dimensions.unitSpacing - 6}px;
+  overflow: hidden;
+
+  &:first-child {
+    margin-top: 20px;
+  }
+
+  &:last-child {
+    margin-bottom: 20px;
+  }
 `;
 
 const Title = styled.div`
-  padding: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px
+    ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px;
   cursor: pointer;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 
   i {
-    font-size: 13px;
-    padding-right: ${dimensions.unitSpacing - 5}px;
-    transition: all ease 0.3s;
+    font-size: 14px;
   }
 
   > span {
@@ -213,8 +223,7 @@ const Title = styled.div`
     color: ${colors.colorCoreGray};
 
     b {
-      font-weight: 600;
-      padding-left: 2px;
+      margin-left: 2px;
     }
   }
 `;
@@ -243,6 +252,106 @@ const GrowthRow = styled.tr`
   }
 `;
 
+const Vote = styled.div`
+  i {
+    margin-right: 5px;
+  }
+`;
+
+const VotersHeader = styled.span`
+  display: block;
+  text-align: center;
+  padding: ${dimensions.unitSpacing}px 0;
+  border-bottom: 1px solid ${colors.borderDarker};
+  margin: 0 ${dimensions.unitSpacing}px;
+`;
+
+const VotersContent = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px 0;
+  img,
+  span {
+    margin-left: -1px;
+  }
+`;
+
+const VotersCount = styled.span`
+  cursor: pointer;
+  padding: 0px ${dimensions.unitSpacing}px;
+  display: inline-block;
+  margin-top: ${dimensions.unitSpacing / 2}px;
+  border: 1px solid ${colors.colorPrimary};
+  color: ${colors.colorPrimary};
+  border-radius: ${dimensions.unitSpacing * 2}px;
+`;
+
+const PipelineMeta = styled.div`
+  font-size: 12px;
+  color: ${colors.colorCoreGray};
+
+  i {
+    margin-right: ${dimensions.unitSpacing / 2}px;
+  }
+
+  span {
+    color: ${colors.colorCoreDarkGray};
+  }
+`;
+
+const ProjectItem = styled(BoxItem)`
+  padding: 0;
+  overflow: hidden;
+
+  h5 {
+    margin-bottom: ${dimensions.unitSpacing}px;
+    color: ${colors.textPrimary};
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    span {
+      margin-left: 5px;
+    }
+  }
+`;
+
+const TopContent = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+`;
+
+const BottomAction = styled.div`
+  border-top: 1px solid ${colors.borderPrimary};
+
+  a {
+    display: block;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    background: ${colors.bgLight};
+  }
+`;
+
+const FilterList = styled.ul`
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+`;
+
+const FilterListItem = styledTS<{ isActive: boolean }>(styled.li)`
+  margin: 0 ${dimensions.unitSpacing / 2}px;
+  a{
+    color: ${colors.textSecondary};
+    color: ${props => props.isActive && colors.colorWhite};
+    padding: ${dimensions.unitSpacing / 2}px; ${dimensions.unitSpacing}px;;
+    border: 1px solid ${colors.borderDarker};
+    background: ${props => props.isActive && colors.colorSecondary};
+  }
+`;
+
+const ContentTitle = styled.h3`
+  font-size: 12px;
+  text-transform: uppercase;
+  margin: 0;
+`;
+
 export {
   ScoreWrapper,
   CalculatedAmount,
@@ -260,5 +369,16 @@ export {
   ScrollContent,
   TableHead,
   FunnelContent,
-  Title
+  Title,
+  Vote,
+  VotersHeader,
+  VotersContent,
+  VotersCount,
+  PipelineMeta,
+  FilterList,
+  FilterListItem,
+  ContentTitle,
+  BottomAction,
+  ProjectItem,
+  TopContent
 };

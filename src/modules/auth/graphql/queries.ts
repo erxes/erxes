@@ -5,6 +5,10 @@ const currentUser = `
       username
       email
       isOwner
+      brands {
+        _id
+        name
+      }
       details {
         avatar
         fullName
@@ -21,7 +25,6 @@ const currentUser = `
         github
         website
       }
-      hasSeenOnBoard
       emailSignatures
       getNotificationByEmail
       permissionActions

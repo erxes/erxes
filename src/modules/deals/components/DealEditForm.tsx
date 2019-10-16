@@ -6,7 +6,6 @@ import Top from 'modules/boards/components/editForm/Top';
 import { FlexContent, HeaderContentSmall } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
 import ControlLabel from 'modules/common/components/form/Label';
-import { Alert } from 'modules/common/utils';
 import ProductSection from 'modules/deals/components/ProductSection';
 import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
@@ -117,19 +116,11 @@ export default class DealEditForm extends React.Component<Props, State> {
     this.setState(
       { productsData: filteredProductsData, products, amount },
       () => {
-        saveItem({ productsData: this.state.productsData });
+        saveItem({ productsData: this.state.productsData }, updatedItem => {
+          this.props.onUpdate(updatedItem);
+        });
       }
     );
-  };
-
-  checkProductsData = () => {
-    if (this.state.productsData.length === 0) {
-      Alert.error('Select product & service');
-
-      return false;
-    }
-
-    return true;
   };
 
   renderItems = () => {
@@ -205,14 +196,8 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { beforePopupClose } = this.props;
-    const { productsData } = this.state;
-
     const extendedProps = {
       ...this.props,
-      beforePopupClose,
-      extraFieldsCheck: this.checkProductsData,
-      extraFields: { productsData },
       amount: this.renderAmount,
       sidebar: this.renderProductSection,
       formContent: this.renderFormContent
