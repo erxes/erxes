@@ -1,6 +1,6 @@
+import Details from '../Details';
 import AddForm from './AddForm';
 import AddTrigger from './AddTrigger';
-import Details from './Details';
 import ItemChooser from './ItemChooser';
 import Items from './Items';
 

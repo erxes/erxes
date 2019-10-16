@@ -28,16 +28,17 @@ class Items extends React.Component<Props> {
       return <EmptyState icon="folder" text={`No ${data.options.type}`} />;
     }
 
-    const PortableItem = data.options.PortableItem;
+    const Item = data.options.Item;
 
     return items.map((item, index) => (
-      <PortableItem
+      <Item
         options={data.options}
         key={index}
         item={item}
         onAdd={onChangeItems}
         onUpdate={onChangeItems}
         onRemove={onChangeItems}
+        portable={true}
       />
     ));
   };
