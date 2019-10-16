@@ -76,7 +76,7 @@ type Props = {
   full?: boolean;
   index?: number;
   switchItem?: (index: number) => string;
-  imageSize?: any;
+  imagesLength?: number;
 };
 
 type State = {
@@ -124,25 +124,27 @@ class ImageWithPreview extends React.Component<Props, State> {
   rightClick = e => {
     e.stopPropagation();
 
-    const { switchItem, imageSize } = this.props;
+    const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
 
     let switchedUrl;
 
     if (visible) {
       if (switchItem) {
-        if (imageSize > this.state.num + 1) {
-          this.setState({ num: this.state.num + 1 });
+        if (imagesLength !== undefined) {
+          if (imagesLength > this.state.num + 1) {
+            this.setState({ num: this.state.num + 1 });
 
-          switchedUrl = switchItem(this.state.num) || '';
-        } else {
-          this.setState({ num: 0 });
+            switchedUrl = switchItem(this.state.num) || '';
+          } else {
+            this.setState({ num: 0 });
 
-          switchedUrl = switchItem(0);
+            switchedUrl = switchItem(0);
+          }
+          this.setState({
+            srcUrl: switchedUrl
+          });
         }
-        this.setState({
-          srcUrl: switchedUrl
-        });
       }
     }
   };
@@ -150,25 +152,27 @@ class ImageWithPreview extends React.Component<Props, State> {
   leftClick = e => {
     e.stopPropagation();
 
-    const { switchItem, imageSize } = this.props;
+    const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
 
     let switchedUrl;
 
     if (visible) {
       if (switchItem) {
-        if (0 <= this.state.num - 1) {
-          this.setState({ num: this.state.num - 1 });
+        if (imagesLength !== undefined) {
+          if (0 <= this.state.num - 1) {
+            this.setState({ num: this.state.num - 1 });
 
-          switchedUrl = switchItem(this.state.num);
-        } else {
-          this.setState({ num: imageSize - 1 });
+            switchedUrl = switchItem(this.state.num);
+          } else {
+            this.setState({ num: imagesLength - 1 });
 
-          switchedUrl = switchItem(imageSize - 1);
+            switchedUrl = switchItem(imagesLength - 1);
+          }
+          this.setState({
+            srcUrl: switchedUrl
+          });
         }
-        this.setState({
-          srcUrl: switchedUrl
-        });
       }
     }
   };
@@ -193,20 +197,23 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   renderBtn = () => {
-    if (this.props.imageSize > 1) {
-      return (
-        <>
-          <button onClick={this.rightClick} className="rightArrow">
-            &#8594;
-          </button>
-          <button onClick={this.leftClick} className="leftArrow">
-            &#8592;
-          </button>
-        </>
-      );
-    } else {
-      return null;
+    if (this.props.imagesLength !== undefined) {
+      if (this.props.imagesLength > 1) {
+        return (
+          <>
+            <button onClick={this.rightClick} className="rightArrow">
+              &#8594;
+            </button>
+            <button onClick={this.leftClick} className="leftArrow">
+              &#8592;
+            </button>
+          </>
+        );
+      } else {
+        return null;
+      }
     }
+    return null;
   };
 
   render() {

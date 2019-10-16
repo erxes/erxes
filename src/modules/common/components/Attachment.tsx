@@ -84,7 +84,7 @@ type Props = {
   additionalItem?: React.ReactNode;
   index?: number;
   switchItem?: (index: number) => string;
-  imageSize?: any;
+  imagesLength?: number;
 };
 
 class Attachment extends React.Component<Props> {
@@ -146,7 +146,7 @@ class Attachment extends React.Component<Props> {
               src={attachment.url}
               index={this.props.index}
               switchItem={this.props.switchItem}
-              imageSize={this.props.imageSize || 0}
+              imagesLength={this.props.imagesLength || 0}
             />
           </PreviewWrapper>
           <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
