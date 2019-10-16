@@ -78,9 +78,12 @@ export default class GenerateField extends React.Component<Props, State> {
 
     if (validation === 'date') {
       attrs.type = 'date';
+      attrs.max = '9999-12-31';
 
       if (value) {
-        attrs.value = new Date(value).toISOString().slice(0, 10);
+        const date = value.split('-');
+
+        attrs.value = date[0] + '-' + date[1] + '-' + date[2].slice(0, 2);
       }
     }
 
