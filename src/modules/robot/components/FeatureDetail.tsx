@@ -66,6 +66,11 @@ const Progress = styled.div`
   }
 `;
 
+const Iframe = styled.iframe`
+  border: none;
+  background: ${colors.colorWhite};
+`;
+
 type Props = {
   feature: IFeature;
   completeShowStep: () => void;
@@ -148,7 +153,7 @@ class FeatureDetail extends React.Component<Props> {
 
     if (feature.videoUrl && feature.videoUrl !== 'url') {
       return (
-        <iframe
+        <Iframe
           key={feature.name}
           title={feature.name}
           src={feature.videoUrl}

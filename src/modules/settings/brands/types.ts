@@ -32,7 +32,7 @@ export type BrandsQueryResponse = {
 };
 
 export type AllBrandsQueryResponse = {
-  allBrands: IBrand[];
+  brands: IBrand[];
   loading: boolean;
   refetch: () => void;
 };
