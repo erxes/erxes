@@ -124,12 +124,33 @@ const checkHashKeyInURL = ({ location }, hashKey?: string): boolean => {
   return hashKey in parsedHash;
 };
 
+/**
+ * Remove selected hash from URL
+ * @param {Object} history - location
+ * @param {String} hashKey
+ */
+const removeHash = (history: any, hashKey?: string) => {
+  const location = Object.assign({}, history.location);
+
+  // convert to {hashKey: value}
+  const parsedHash = queryString.parse(location.hash);
+
+  // remove given hashKey
+  delete parsedHash[hashKey];
+
+  // convert back to hashKey=value
+  const stringified = queryString.stringify(parsedHash);
+
+  history.push(`${location.pathname}?${stringified}`);
+};
+
 export default {
   onParamSelect,
   setParams,
   getParam,
   replaceParam,
   removeParams,
+  removeHash,
   refetchIfUpdated,
   checkHashKeyInURL
 };

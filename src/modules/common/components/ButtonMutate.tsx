@@ -30,6 +30,7 @@ type Props = {
   callback?: (data?: any) => void;
   children?: React.ReactNode;
   refetchQueries?: any;
+  awaitRefetchQueries?: boolean;
   isSubmitted?: boolean;
   type?: string;
   disabled?: boolean;
@@ -63,7 +64,8 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       callback,
       variables,
       successMessage = '',
-      refetchQueries
+      refetchQueries,
+      awaitRefetchQueries = false
     } = this.props;
 
     this.setState({ isLoading: true });
@@ -72,7 +74,8 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       .mutate({
         mutation: gql(mutation),
         variables,
-        refetchQueries
+        refetchQueries,
+        awaitRefetchQueries
       })
 
       .then(({ data }) => {

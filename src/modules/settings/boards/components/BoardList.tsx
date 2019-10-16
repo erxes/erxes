@@ -2,13 +2,10 @@ import { IBoard } from 'modules/boards/types';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { IOption } from '../types';
-import BoardForm from './BoardForm';
 import BoardRow from './BoardRow';
-import HeaderSidebar from './HeaderSidebar';
 
 type Props = {
   currentBoardId?: string;
@@ -36,22 +33,6 @@ class Boards extends React.Component<Props, {}> {
     ));
   };
 
-  renderBoardForm(props) {
-    return <BoardForm {...props} />;
-  }
-
-  renderSidebarHeader() {
-    const { type, renderButton, options } = this.props;
-
-    return (
-      <HeaderSidebar
-        type={type}
-        renderButton={renderButton}
-        options={options}
-      />
-    );
-  }
-
   render() {
     const { loading, boards, options } = this.props;
 
@@ -59,16 +40,14 @@ class Boards extends React.Component<Props, {}> {
       options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>
-        <DataWithLoader
-          data={<List>{this.renderItems()}</List>}
-          loading={loading}
-          count={boards.length}
-          emptyText={`There is no ${boardName}`}
-          emptyImage="/images/actions/18.svg"
-          objective={true}
-        />
-      </Sidebar>
+      <DataWithLoader
+        data={<List>{this.renderItems()}</List>}
+        loading={loading}
+        count={boards.length}
+        emptyText={`There is no ${boardName}`}
+        emptyImage="/images/actions/18.svg"
+        objective={true}
+      />
     );
   }
 }

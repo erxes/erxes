@@ -74,6 +74,7 @@ class BoardsContainer extends React.Component<FinalProps> {
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
+          awaitRefetchQueries={true}
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
