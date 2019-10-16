@@ -159,7 +159,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
           <FilterToggler groupText="Brands" toggleName="showBrands">
             <FilterList
-              query={{ queryName: 'brandList', dataName: 'allBrands' }}
+              query={{ queryName: 'brandList', dataName: 'brands' }}
               counts="byBrands"
               queryParams={queryParams}
               paramKey="brandId"

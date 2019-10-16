@@ -142,24 +142,13 @@ class EditForm extends React.Component<Props, State> {
     }
 
     this.props.saveItem({ [name]: value }, updatedItem => {
-      this.setState(
-        {
-          updatedItem
-        },
-        () => {
-          if (this.state.isFormVisible === false) {
-            this.props.onUpdate(updatedItem);
-          }
-        }
-      );
+      this.setState({ updatedItem });
     });
   };
 
   onChangeAttachment = (attachments: IAttachment[]) => {
     this.setState({ attachments }, () => {
-      this.props.saveItem({ attachments }, updatedItem => {
-        this.setState({ updatedItem });
-      });
+      this.props.saveItem({ attachments });
     });
   };
 

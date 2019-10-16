@@ -1,4 +1,5 @@
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
+import EmptyState from 'modules/common/components/EmptyState';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import { GrowthRow, TableContainer } from 'modules/growthHacks/styles';
@@ -44,7 +45,9 @@ class GrowthHacks extends React.Component<Props> {
     const { growthHacks } = this.props;
 
     if (growthHacks.length === 0) {
-      return null;
+      return (
+        <EmptyState icon="comment-info-alt" text="There is no experiments" />
+      );
     }
 
     return (

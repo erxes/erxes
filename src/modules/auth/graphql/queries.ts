@@ -5,6 +5,10 @@ const currentUser = `
       username
       email
       isOwner
+      brands {
+        _id
+        name
+      }
       details {
         avatar
         fullName
