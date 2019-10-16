@@ -207,13 +207,14 @@ a:hover {
 .robot-appear-active,
 .robot-enter-active {
   animation-name: ${robotAnimation};
-  animation-duration: 0.8s;
+  animation-duration: 0.6s;
+  animation-delay: 2s;
 }
 
 .robot-exit,
 .robot-exit-active {
   animation-name: ${robotAnimation};
-  animation-duration: 0.8s;
+  animation-duration: 0.6s;
   animation-direction: reverse;
 }
 
@@ -573,25 +574,6 @@ a:hover {
   font-size: 10px;
   line-height: 20px;
   cursor: pointer;
-}
-
-/* react toggle */
-
-.react-toggle--checked .react-toggle-track {
-  background-color: ${colors.colorCoreGreen};
-}
-
-.react-toggle-track {
-  background-color: ${colors.colorCoreBlack};
-[}
-
-.react-toggle-track span {
-  display: none;
-}]
-
-.react-toggle--checked .react-toggle-thumb,
-.react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-  border-color: ${colors.colorCoreGreen};
 }
 
 /* punch card */

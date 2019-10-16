@@ -1,18 +1,20 @@
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import { TitleRow } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
+import { IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
+import { IGrowthHack } from 'modules/growthHacks/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
+import Votes from './Votes';
 
 type Props = {
-  item: IItem;
+  item: IGrowthHack;
   onChangeField: (
     name: 'description' | 'closeDate' | 'assignedUserIds',
     value: any
@@ -27,6 +29,26 @@ type Props = {
 };
 
 class Left extends React.Component<Props> {
+  renderVoters() {
+    const { item } = this.props;
+
+    if (item.voteCount === 0) {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <TitleRow>
+          <ControlLabel>
+            <Icon icon="like-1" />
+            Votes
+          </ControlLabel>
+        </TitleRow>
+        <Votes count={item.voteCount || 0} users={item.votedUsers || []} />
+      </FormGroup>
+    );
+  }
+
   render() {
     const {
       item,
@@ -50,6 +72,8 @@ class Left extends React.Component<Props> {
 
     return (
       <>
+        {this.renderVoters()}
+
         <FormGroup>
           <TitleRow>
             <ControlLabel>

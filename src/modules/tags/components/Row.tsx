@@ -47,7 +47,7 @@ function Row({ tag, type, count, renderButton, remove }: Props) {
       <td>
         <ActionButtons>
           <ModalTrigger
-            title="Edit response"
+            title="Edit tag"
             trigger={editTrigger}
             content={content}
           />

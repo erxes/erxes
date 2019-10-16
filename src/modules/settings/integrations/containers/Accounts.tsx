@@ -10,7 +10,7 @@ import Accounts from '../components/Accounts';
 import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
 
 type Props = {
-  kind: 'facebook' | 'gmail';
+  kind: 'facebook' | 'gmail' | 'nylas-gmail';
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
@@ -24,10 +24,10 @@ type FinalProps = {
 
 class AccountContainer extends React.Component<FinalProps, {}> {
   onAdd = () => {
-    const { addLink } = this.props;
+    const { addLink, kind } = this.props;
 
     const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}`;
+    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
 
     window.location.replace(url);
   };
