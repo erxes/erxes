@@ -8,7 +8,7 @@ import React from 'react';
 import styled from 'styled-components';
 import options from '../../options';
 import { IDeal, IDealTotalAmount } from '../../types';
-import Deal from '../PortableDeal';
+import Deal from '../DealItem';
 
 type Props = {
   deals: IDeal[];
@@ -88,6 +88,7 @@ class DealColumn extends React.Component<Props, {}> {
         item={deal}
         onRemove={onRemove}
         onUpdate={onUpdate}
+        portable={true}
       />
     ));
 
