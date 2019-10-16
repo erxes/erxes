@@ -1,12 +1,14 @@
 import { IBoard } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { BoxContainer } from 'modules/settings/growthHacks/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PipelineList from '../../containers/home/PipelineList';
-import { LeftActionBar } from '../../styles';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -39,7 +41,7 @@ class Home extends React.Component<Props> {
     const { boardId, state } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <Section>
           <Section.Title>{__('Marketing campaign')}</Section.Title>
           <Section.QuickButtons>
@@ -87,11 +89,27 @@ class Home extends React.Component<Props> {
             </li>
           </SidebarList>
         </Section>
-      </React.Fragment>
+      </>
     );
   }
 
+  renderContent = () => {
+    return (
+      <BoxContainer>
+        <PipelineList state={this.props.state} />
+      </BoxContainer>
+    );
+  };
+
   render() {
+    const actionBarRight = (
+      <Link to="/settings/boards/growthHack">
+        <Button btnStyle="success" size="small" icon="diagram">
+          {__('Campaign & Project')}
+        </Button>
+      </Link>
+    );
+
     return (
       <Wrapper
         header={
@@ -102,10 +120,18 @@ class Home extends React.Component<Props> {
         }
         leftSidebar={<Wrapper.Sidebar>{this.renderSidebar()}</Wrapper.Sidebar>}
         actionBar={
-          <Wrapper.ActionBar left={<LeftActionBar>Projects</LeftActionBar>} />
+          <Wrapper.ActionBar
+            left={
+              <HeaderDescription
+                icon="/images/actions/31.svg"
+                title="Projects"
+                description={`From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.`}
+              />
+            }
+            right={actionBarRight}
+          />
         }
-        transparent={true}
-        content={<PipelineList state={this.props.state} />}
+        content={this.renderContent()}
       />
     );
   }

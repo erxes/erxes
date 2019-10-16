@@ -3,7 +3,6 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tags from 'modules/common/components/Tags';
-import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -41,9 +40,7 @@ function Row({ tag, type, count, renderButton, remove }: Props) {
       <td>
         <Tags tags={[tag]} size="medium" />
       </td>
-      <td>
-        <TextInfo>{count || '0'}</TextInfo>
-      </td>
+      <td>{count || '0'}</td>
       <td>
         <ActionButtons>
           <ModalTrigger

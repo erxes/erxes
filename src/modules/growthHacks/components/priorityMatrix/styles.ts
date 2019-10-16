@@ -38,7 +38,6 @@ const Point = styledTS<{ x: number; y: number }>(styled.div)`
   border-radius: 12px;
   position: absolute;
   background: ${colors.bgLight};
-  font-size: 12px;
   line-height: ${dimensions.coreSpacing + 4}px;
   border: 1px solid ${colors.borderDarker};
   margin-bottom: -${dimensions.unitSpacing - 2}px;
@@ -57,6 +56,7 @@ const Point = styledTS<{ x: number; y: number }>(styled.div)`
   }
 
   span {
+    font-size: 12px;
     width: 65px;
     overflow: hidden;
     display: block;
