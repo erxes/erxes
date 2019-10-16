@@ -24,6 +24,7 @@ type Props = {
   beforePopupClose: () => void;
   onClick: () => void;
   options: IOptions;
+  isFormVisible: boolean;
 };
 
 export default class GrowthHackItem extends React.PureComponent<Props> {
@@ -36,7 +37,17 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
   }
 
   renderForm = () => {
-    const { stageId, item, options, beforePopupClose } = this.props;
+    const {
+      beforePopupClose,
+      stageId,
+      item,
+      options,
+      isFormVisible
+    } = this.props;
+
+    if (!isFormVisible) {
+      return null;
+    }
 
     return (
       <EditForm
@@ -45,6 +56,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
         stageId={stageId}
         itemId={item._id}
         hideHeader={true}
+        isPopupVisible={isFormVisible}
       />
     );
   };

@@ -6,10 +6,10 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  PipelineActions,
-  PipelineListRow,
+  BottomAction,
   PipelineMeta,
-  PipelineName
+  ProjectItem,
+  TopContent
 } from '../../styles';
 
 type Props = {
@@ -21,9 +21,9 @@ class PipelineRow extends React.Component<Props, {}> {
   renderText(state: string) {
     switch (state) {
       case 'Completed':
-        return 'success';
+        return 'primary';
       case 'In progress':
-        return 'warning';
+        return 'success';
       default:
         return 'simple';
     }
@@ -45,11 +45,11 @@ class PipelineRow extends React.Component<Props, {}> {
     }
 
     return (
-      <>
-        <Icon icon="wallclock" />
+      <div>
+        <Icon icon="clock-eight" />
         {dayjs(startDate).format('ll')} {' - '}
         {dayjs(endDate).format('ll')}
-      </>
+      </div>
     );
   }
 
@@ -57,26 +57,32 @@ class PipelineRow extends React.Component<Props, {}> {
     const { pipeline, currentBoard } = this.props;
 
     return (
-      <PipelineListRow key={pipeline._id}>
-        <PipelineMeta>
-          <PipelineName>{pipeline.name}</PipelineName>
-          <Icon icon="light-bulb" />
-          {pipeline.itemsTotalCount}
-          {this.renderState(pipeline.state)}
-          {this.renderDate(pipeline)}
-        </PipelineMeta>
+      <ProjectItem key={pipeline._id}>
+        <TopContent>
+          <h5>
+            {pipeline.name}
+            {this.renderState(pipeline.state)}
+          </h5>
+          <PipelineMeta>
+            {this.renderDate(pipeline)}
+            <div>
+              <Icon icon="files-landscapes" />
+              {pipeline.itemsTotalCount}
+            </div>
+          </PipelineMeta>
+        </TopContent>
 
-        <PipelineActions>
+        <BottomAction>
           <Link
             to={`/growthHack/board?id=${currentBoard._id}&pipelineId=${
               pipeline._id
             }`}
           >
-            <Icon icon="arrow-to-right" />
             {__(' Go to project')}
+            <Icon icon="angle-double-right" />
           </Link>
-        </PipelineActions>
-      </PipelineListRow>
+        </BottomAction>
+      </ProjectItem>
     );
   }
 }

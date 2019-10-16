@@ -90,6 +90,7 @@ export type IMentionUser = {
 };
 
 export type IEditorProps = {
+  onCtrlEnter?: (evt?: any) => void;
   content: string;
   onChange: (evt: any) => void;
   height?: number | string;

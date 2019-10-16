@@ -17,9 +17,10 @@ type Props = {
   onClick: () => void;
   beforePopupClose: () => void;
   options?: IOptions;
+  isFormVisible: boolean;
 };
 
-class TicketItem extends React.PureComponent<Props, {}> {
+class TicketItem extends React.PureComponent<Props> {
   renderDate(date) {
     if (!date) {
       return null;
@@ -29,7 +30,17 @@ class TicketItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { beforePopupClose, stageId, item, options } = this.props;
+    const {
+      beforePopupClose,
+      stageId,
+      item,
+      options,
+      isFormVisible
+    } = this.props;
+
+    if (!isFormVisible) {
+      return null;
+    }
 
     return (
       <EditForm
@@ -38,6 +49,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
         beforePopupClose={beforePopupClose}
         options={options}
         hideHeader={true}
+        isPopupVisible={isFormVisible}
       />
     );
   };

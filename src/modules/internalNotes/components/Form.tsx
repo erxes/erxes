@@ -99,6 +99,7 @@ class Form extends React.PureComponent<Prop, State> {
     return (
       <EditorWrapper>
         <EditorCK
+          onCtrlEnter={this.onSend}
           showMentions={true}
           content={this.state.content}
           onChange={this.onEditorChange}

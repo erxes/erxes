@@ -93,7 +93,7 @@ class Row extends React.Component<Props> {
     if (message.segment) {
       return (
         <HelperText>
-          <Icon icon="piechart" /> {message.segment.name}
+          <Icon icon="chart-pie-alt" /> {message.segment.name}
         </HelperText>
       );
     }
@@ -103,7 +103,7 @@ class Row extends React.Component<Props> {
 
     return rules.map(rule => (
       <HelperText key={rule._id}>
-        <Icon icon="piechart" /> {rule.text} {rule.condition} {rule.value}
+        <Icon icon="chart-pie-alt" /> {rule.text} {rule.condition} {rule.value}
       </HelperText>
     ));
   }
@@ -149,17 +149,17 @@ class Row extends React.Component<Props> {
         </td>
         <td>{status}</td>
         <td className="text-primary">
-          <Icon icon="cube" />
+          <Icon icon="cube-2" />
           <b> {totalCount}</b>
         </td>
         <td>
           {message.email ? (
             <div>
-              <Icon icon="email-3" /> {__('Email')}
+              <Icon icon="envelope" /> {__('Email')}
             </div>
           ) : (
             <div>
-              <Icon icon="chat" /> {__('Messenger')}
+              <Icon icon="comment-1" /> {__('Messenger')}
             </div>
           )}
         </td>

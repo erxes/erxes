@@ -63,6 +63,7 @@ const ItemIndicator = styledTS<{ color: string }>(styled.span)`
   border-radius: 4px;
   margin: 6px 6px 0 0;
   background-color: ${props => props.color};
+  word-break:break-word;
 `;
 
 const StageFooter = styled.div`

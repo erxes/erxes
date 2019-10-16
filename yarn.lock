@@ -3244,10 +3244,10 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-ckeditor4-react@^1.0.0-beta:
-  version "1.0.0-beta"
-  resolved "https://registry.yarnpkg.com/ckeditor4-react/-/ckeditor4-react-1.0.0-beta.tgz#8cc69e7935afd3b33abd50f623a217ab3d92f8cf"
-  integrity sha512-HJNkE+iLvTDzpd3EIoixmkXC8mnzRUxI/Mgi1mzwGH/XCWWrUT4z1G3ONo625xMf2QSbFU9SuoyXqU3ci/jSeA==
+ckeditor4-react@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-react/-/ckeditor4-react-1.0.0.tgz#06596f1b8ef1d93faebbcdc82324d19429805cb3"
+  integrity sha512-2D+TBzrEP1RgaT+YQbsDVbhl8GmSclD5zO+GXlKVBQNGUdYI3M0GXoX9MUO/JVTlmgg65QjN00R6g54uxhpb7Q==
   dependencies:
     load-script "^1.0.0"
     prop-types "^15.6.2"

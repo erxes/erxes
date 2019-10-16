@@ -457,6 +457,7 @@ const SectionContainer = styled.div`
   overflow: hidden;
   padding: 10px 10px 0px 10px;
   border-top: 1px solid ${colors.borderPrimary};
+  word-break: break-word;
 `;
 
 const SectionBody = styled.div`
@@ -472,6 +473,7 @@ const SectionBody = styled.div`
 const SectionBodyItem = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
   padding: 10px 20px;
+  word-break: break-word;
 
   span {
     display: inline-block;
