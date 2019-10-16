@@ -15,6 +15,7 @@ import {
   Wrapper
 } from '../../styles/common';
 import { IItem, IOptions } from '../../types';
+import Item from './Item';
 
 type Props = {
   listId: string;
@@ -86,7 +87,6 @@ class DraggableContainer extends React.Component<
   render() {
     const { stageId, item, index, options } = this.props;
     const { isDragDisabled } = this.state;
-    const ItemComponent = options.Item;
 
     return (
       <Draggable
@@ -103,7 +103,7 @@ class DraggableContainer extends React.Component<
             {...dragProvided.dragHandleProps}
           >
             {this.renderHasNotified()}
-            <ItemComponent
+            <Item
               key={item._id}
               stageId={stageId}
               item={item}

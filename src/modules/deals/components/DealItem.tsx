@@ -4,13 +4,12 @@ import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
+import { IOptions } from 'modules/boards/types';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
-
-import { IOptions } from 'modules/boards/types';
 import { IDeal } from '../types';
 
 type Props = {
@@ -19,9 +18,10 @@ type Props = {
   beforePopupClose: () => void;
   onClick: () => void;
   options?: IOptions;
+  isFormVisible: boolean;
 };
 
-class DealItem extends React.PureComponent<Props, {}> {
+class DealItem extends React.PureComponent<Props> {
   renderDate(date) {
     if (!date) {
       return null;
@@ -31,11 +31,22 @@ class DealItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { stageId, item, options, beforePopupClose } = this.props;
+    const {
+      stageId,
+      item,
+      options,
+      beforePopupClose,
+      isFormVisible
+    } = this.props;
+
+    if (!isFormVisible) {
+      return null;
+    }
 
     return (
       <EditForm
         beforePopupClose={beforePopupClose}
+        isPopupVisible={isFormVisible}
         options={options}
         stageId={stageId}
         itemId={item._id}

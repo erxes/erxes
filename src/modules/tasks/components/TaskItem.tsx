@@ -17,9 +17,10 @@ type Props = {
   onClick: () => void;
   beforePopupClose: () => void;
   options?: IOptions;
+  isFormVisible: boolean;
 };
 
-class TaskItem extends React.PureComponent<Props, {}> {
+class TaskItem extends React.PureComponent<Props> {
   renderDate(date) {
     if (!date) {
       return null;
@@ -29,7 +30,17 @@ class TaskItem extends React.PureComponent<Props, {}> {
   }
 
   renderForm = () => {
-    const { beforePopupClose, stageId, item, options } = this.props;
+    const {
+      beforePopupClose,
+      stageId,
+      item,
+      options,
+      isFormVisible
+    } = this.props;
+
+    if (isFormVisible) {
+      return null;
+    }
 
     return (
       <EditForm
@@ -37,6 +48,7 @@ class TaskItem extends React.PureComponent<Props, {}> {
         stageId={stageId}
         itemId={item._id}
         beforePopupClose={beforePopupClose}
+        isPopupVisible={isFormVisible}
       />
     );
   };
