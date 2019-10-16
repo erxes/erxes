@@ -44,10 +44,14 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
   }
 
   beforePopupClose = () => {
-    if (this.props.beforePopupClose) {
-      this.props.beforePopupClose();
-    } else {
+    const { portable, beforePopupClose } = this.props;
+
+    if (portable) {
       this.setState({ isPopupVisible: false });
+    } else {
+      if (beforePopupClose) {
+        beforePopupClose();
+      }
     }
   };
 
