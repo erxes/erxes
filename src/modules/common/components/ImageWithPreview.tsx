@@ -1,3 +1,4 @@
+import colorShadowGray from 'modules/common/styles/colors';
 import { fadeIn, slideDown } from 'modules/common/utils/animations';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -37,20 +38,20 @@ const PreviewWrapper = styled.div`
   .rightArrow {
     position: fixed;
     right: 0%;
-    background: rgba(48, 50, 80);
+    background: ${colorShadowGray};
 
     &:hover {
-      background: #141a47;
+      background: #aaa;
     }
   }
 
   .leftArrow {
     position: fixed;
     left: 0%;
-    background: rgba(50, 50, 80);
+    background: ${colorShadowGray};
 
     &:hover {
-      background: #141a47;
+      background: #aaa;
     }
   }
 `;
@@ -75,7 +76,7 @@ type Props = {
   full?: boolean;
   index?: number;
   switchItem?: (index: number) => string;
-  imagesLength?: any;
+  imageSize?: any;
 };
 
 type State = {
@@ -123,14 +124,14 @@ class ImageWithPreview extends React.Component<Props, State> {
   rightClick = e => {
     e.stopPropagation();
 
-    const { switchItem, imagesLength } = this.props;
+    const { switchItem, imageSize } = this.props;
     const { visible } = this.state;
 
     let switchedUrl;
 
     if (visible) {
       if (switchItem) {
-        if (imagesLength > this.state.num + 1) {
+        if (imageSize > this.state.num + 1) {
           this.setState({ num: this.state.num + 1 });
 
           switchedUrl = switchItem(this.state.num) || '';
@@ -149,7 +150,7 @@ class ImageWithPreview extends React.Component<Props, State> {
   leftClick = e => {
     e.stopPropagation();
 
-    const { switchItem, imagesLength } = this.props;
+    const { switchItem, imageSize } = this.props;
     const { visible } = this.state;
 
     let switchedUrl;
@@ -161,9 +162,9 @@ class ImageWithPreview extends React.Component<Props, State> {
 
           switchedUrl = switchItem(this.state.num);
         } else {
-          this.setState({ num: imagesLength - 1 });
+          this.setState({ num: imageSize - 1 });
 
-          switchedUrl = switchItem(imagesLength - 1);
+          switchedUrl = switchItem(imageSize - 1);
         }
         this.setState({
           srcUrl: switchedUrl
@@ -192,7 +193,7 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   renderBtn = () => {
-    if (this.props.imagesLength > 1) {
+    if (this.props.imageSize > 1) {
       return (
         <>
           <button onClick={this.rightClick} className="rightArrow">
@@ -228,7 +229,7 @@ class ImageWithPreview extends React.Component<Props, State> {
                 onClick={this.toggleImage}
                 src={readFile(srcUrl || '')}
               />
-              {this.renderBtn()}
+              {this.renderBtn()}x{' '}
             </PreviewWrapper>
           </PreviewPortal>
         )}

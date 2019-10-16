@@ -124,10 +124,13 @@ class Uploader extends React.Component<Props, State> {
   renderItem = (item: IAttachment, index: number) => {
     const removeAttachment = () => this.removeAttachment(index);
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
-    let imagesLength;
+
+    let imageSize;
+
     if (this.state.attachments.length > 0) {
-      imagesLength = this.state.attachments.length;
+      imageSize = this.state.attachments.length;
     }
+
     return (
       <Item key={item.url}>
         <Attachment
@@ -135,7 +138,7 @@ class Uploader extends React.Component<Props, State> {
           additionalItem={remove}
           index={index}
           switchItem={this.switchItem}
-          imagesLength={imagesLength}
+          imageSize={imageSize}
         />
       </Item>
     );
