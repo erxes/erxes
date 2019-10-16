@@ -1,14 +1,15 @@
 import { IBoard } from 'modules/boards/types';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarList as List } from 'modules/layout/styles';
+import { HelperButtons, SidebarList as List } from 'modules/layout/styles';
 import React from 'react';
 import { IOption } from '../types';
 import BoardForm from './BoardForm';
 import BoardRow from './BoardRow';
-import HeaderSidebar from './HeaderSidebar';
 
 type Props = {
   currentBoardId?: string;
@@ -41,14 +42,34 @@ class Boards extends React.Component<Props, {}> {
   }
 
   renderSidebarHeader() {
-    const { type, renderButton, options } = this.props;
+    const { renderButton, type, options } = this.props;
+    const { Header } = Sidebar;
+
+    const boardName = options ? options.boardName : 'Board';
+
+    const addBoard = (
+      <HelperButtons>
+        <button>
+          <Icon icon="add" />
+        </button>
+      </HelperButtons>
+    );
+
+    const content = props => {
+      return this.renderBoardForm({ ...props, renderButton, type });
+    };
 
     return (
-      <HeaderSidebar
-        type={type}
-        renderButton={renderButton}
-        options={options}
-      />
+      <Header uppercase={true}>
+        {__(boardName)}
+
+        <ModalTrigger
+          title={`New ${boardName}`}
+          trigger={addBoard}
+          autoOpenKey="showBoardModal"
+          content={content}
+        />
+      </Header>
     );
   }
 

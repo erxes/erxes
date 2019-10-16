@@ -56,11 +56,7 @@ class ModalTrigger extends React.Component<Props, State> {
   };
 
   closeModal = () => {
-    this.setState({ isOpen: false }, () => {
-      const { history, autoOpenKey } = this.props;
-
-      routerUtils.removeHash(history, autoOpenKey);
-    });
+    this.setState({ isOpen: false });
   };
 
   renderHeader = () => {
