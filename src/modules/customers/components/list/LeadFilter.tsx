@@ -46,13 +46,13 @@ function Leads({ history, counts, integrations, loading }: IProps) {
 
   return (
     <Section collapsible={integrations.length > 5}>
-      <Header uppercase={true}>{__('Filter by lead')}</Header>
+      <Header uppercase={true}>{__('Filter by Pop Ups')}</Header>
 
       <DataWithLoader
         data={data}
         loading={loading}
         count={integrations.length}
-        emptyText="Search and filter customers by lead"
+        emptyText="Search and filter customers by pop ups"
         emptyIcon="monitor"
         size="small"
         objective={true}

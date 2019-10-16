@@ -112,7 +112,7 @@ class Manage extends React.Component<Props, State> {
         <br />
         <Info>
           {__(
-            'If your flow type is embedded paste the code below additionally that you want erxes lead to appear'
+            'If your flow type is embedded paste the code below additionally that you want erxes pop ups to appear'
           )}
         </Info>
         <MarkdownWrapper>
@@ -136,7 +136,7 @@ class Manage extends React.Component<Props, State> {
       <>
         <Info>
           {__(
-            'Paste the code below before the body tag on every page you want erxes lead to appear'
+            'Paste the code below before the body tag on every page you want erxes pop ups to appear'
           )}
         </Info>
 

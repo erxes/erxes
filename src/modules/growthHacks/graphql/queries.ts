@@ -23,6 +23,27 @@ const commonParamDefs = `
 const growthHackFields = `
   _id
   name
+  priority
+  reach
+  impact
+  confidence
+  ease
+  scoringType
+  assignedUsers {
+    _id
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  voteCount
+  modifiedAt
+`;
+
+const growthHackDetailFields = `
+  _id
+  name
   stageId
   pipeline {
     _id
@@ -69,6 +90,15 @@ const growthHackFields = `
     order
   }
   formId
+  voteCount
+  votedUsers {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+  isVoted
   modifiedAt
   modifiedBy
 `;
@@ -128,7 +158,7 @@ const growthHacksPriorityMatrix = `
 const growthHackDetail = `
   query growthHackDetail($_id: String!) {
     growthHackDetail(_id: $_id) {
-      ${growthHackFields}
+      ${growthHackDetailFields}
     }
   }
 `;

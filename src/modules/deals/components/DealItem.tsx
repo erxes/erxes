@@ -6,7 +6,8 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
-import { __, getUserAvatar } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 
 import { IOptions } from 'modules/boards/types';
@@ -78,16 +79,7 @@ class DealItem extends React.PureComponent<Props, {}> {
             {renderAmount(item.amount)}
 
             <Right>
-              {(item.assignedUsers || []).map((user, index) => (
-                <img
-                  alt="Avatar"
-                  key={index}
-                  src={getUserAvatar(user)}
-                  width="22px"
-                  height="22px"
-                  style={{ marginLeft: '2px', borderRadius: '11px' }}
-                />
-              ))}
+              <Participators participatedUsers={item.assignedUsers} limit={3} />
             </Right>
           </PriceContainer>
 

@@ -6,7 +6,7 @@ import { ICustomer } from '../customers/types';
 
 export interface IOptions {
   EditForm: any;
-  PortableItem: any;
+  PortableItem?: any;
   Item: any;
   type: string;
   title: string;

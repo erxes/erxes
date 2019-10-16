@@ -48,6 +48,17 @@ const HeaderRow = styled(FlexContent)`
 
 const HeaderContent = styled.div`
   flex: 1;
+  font-size: 16px;
+
+  textarea {
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
 `;
 
 const TitleRow = styled.div`
@@ -321,34 +332,6 @@ const Status = styled.div`
   }
 `;
 
-const UserCounterContainer = styled.ul`
-  margin: 0;
-  list-style: none;
-  padding: 0;
-  flex-shrink: 0;
-  align-self: flex-end;
-
-  li {
-    float: left;
-    border: 2px solid ${colors.colorWhite};
-    width: 28px;
-    height: 28px;
-    line-height: 26px;
-    border-radius: 14px;
-    background: ${colors.colorCoreLightGray};
-    text-align: center;
-    color: ${colors.colorWhite};
-    overflow: hidden;
-    margin-left: -12px;
-    font-size: 10px;
-
-    img {
-      width: 100%;
-      vertical-align: top;
-    }
-  }
-`;
-
 export {
   SpaceContent,
   FooterContent,
@@ -372,7 +355,6 @@ export {
   Avatar,
   AddContainer,
   Status,
-  UserCounterContainer,
   PriceContainer,
   Right,
   Left,

@@ -1,117 +1,101 @@
 import colors from 'modules/common/styles/colors';
 
 export const FEATURE_DETAILS = {
-  inbox: {
-    text: 'Team Inbox',
-    description:
-      'Shared inbox for teams. Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and whenever they want.',
-    videoUrl: 'url',
-    settingsDetails: {
-      brandCreate: {
-        name: 'Manage brands',
-        url: '/settings/brands'
-      },
-      channelCreate: {
-        name: 'Manage channels',
-        url: '/settings/channels'
-      },
-      integrationCreate: {
-        name: 'Manage integrations',
-        url: '/settings/integrations'
-      }
-    }
-  },
-  customers: {
-    text: 'Contact',
-    icon: 'users',
-    color: colors.colorCoreBlue,
-    description:
-      'All-in-one CRM. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your interactions with your customers.',
-    videoUrl: 'url',
-    settingsDetails: {}
-  },
-  deals: {
-    text: 'Deals',
-    color: '#379ecb',
-    icon: 'piggy-bank',
-    description:
-      'Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.',
-    videoUrl: 'url',
-    settingsDetails: {
-      boardCreate: {
-        name: 'Create board',
-        url: '/settings/boards/deal'
-      },
-      pipelineCreate: {
-        name: 'Create pipeline',
-        url: '/settings/boards/deal'
-      },
-      dealCreate: {
-        name: 'Create deal',
-        url: '/deal/board'
-      }
-    }
-  },
-  tickets: {
-    text: 'Tickets',
-    description: 'Ticket',
-    videoUrl: 'url',
-    settingsDetails: {
-      boardCreate: {
-        name: 'Create board',
-        url: '/settings/boards/ticket'
-      },
-      pipelineCreate: {
-        name: 'Create pipeline',
-        url: '/settings/boards/ticket'
-      },
-      ticketCreate: {
-        name: 'Create ticket',
-        url: '/inbox/ticket/board'
-      }
-    }
-  },
-  tasks: {
-    text: 'Tasks',
-    color: colors.colorCoreTeal,
-    icon: 'clipboard',
-    description:
-      "Organize your own tasks or your team's sprints effectively with erxes Task. It involves planning, testing, tracking, and reporting.",
-    videoUrl: 'url',
-    settingsDetails: {
-      boardCreate: {
-        name: 'Create board',
-        url: '/settings/boards/task'
-      },
-      pipelineCreate: {
-        name: 'Create pipeline',
-        url: '/settings/boards/task'
-      },
-      taskCreate: {
-        name: 'Create task',
-        url: '/task/board'
-      }
-    }
-  },
   growthHacks: {
-    text: 'Growth Hacks',
+    text: 'Growth hacking',
     icon: 'idea',
     color: '#f7802e',
     description:
-      'Manage your entire growth operation. From the ideation and prioritization of hypothesis up to testing and analysis of your learnings, everything centralized, unified and stored under the same workspace, built and designed for growth!',
-    videoUrl: 'url',
+      'From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U',
     settingsDetails: {
-      boardCreate: {
-        name: 'Create board',
+      growthHackBoardsCreate: {
+        name: 'Create a marketing campaign',
         url: '/settings/boards/growthHack'
       },
-      pipelineCreate: {
-        name: 'Create pipeline',
+      growthHackPipelinesCreate: {
+        name: 'Then create a project',
         url: '/settings/boards/growthHack'
       },
       growthHackCreate: {
-        name: 'Create growthHack',
+        name: 'Now add an experiments',
         url: '/growthHack/board'
+      }
+    }
+  },
+  inbox: {
+    text: 'Team inbox',
+    description:
+      'Combine real-time client and team communication with in-app messaging, live chat, email, and social networks, so your customers can reach you however and whenever they want.',
+    videoUrl: 'url',
+    settingsDetails: {
+      brandCreate: {
+        name: 'Create a brand',
+        url: '/settings/brands'
+      },
+      channelCreate: {
+        name: 'Create a channel',
+        url: '/settings/channels'
+      },
+      messengerIntegrationCreate: {
+        name: 'Then create an integration',
+        url: '/settings/integrations'
+      },
+      responseTemplateCreate: {
+        name: 'Add a response template',
+        url: '/settings/response-templates'
+      },
+      connectIntegrationsToChannel: {
+        name: 'Connect integration to channel',
+        url: '/settings/channels'
+      }
+    }
+  },
+  deals: {
+    text: 'Sales pipeline',
+    color: '#379ecb',
+    icon: 'piggy-bank',
+    description:
+      'Control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.',
+    videoUrl: 'url',
+    settingsDetails: {
+      dealBoardsCreate: {
+        name: 'Create a sales board',
+        url: '/settings/boards/deal'
+      },
+      dealPipelinesCreate: {
+        name: 'Create a sales pipeline',
+        url: '/settings/boards/deal'
+      },
+      dealCreate: {
+        name: 'Now add deals',
+        url: '/deal/board'
+      },
+      'configure.dealCurrency': {
+        name: 'Configure currencies',
+        url: '/settings/general'
+      },
+      'configure.dealUOM': {
+        name: 'Configure unit of measurement',
+        url: '/settings/general'
+      }
+    }
+  },
+  leads: {
+    text: 'Pop Ups',
+    color: '#c84b49',
+    icon: 'laptop',
+    description:
+      'Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.',
+    videoUrl: 'url',
+    settingsDetails: {
+      leadIntegrationCreate: {
+        name: 'Create pop ups',
+        url: '/leads/create'
+      },
+      leadIntegrationInstalled: {
+        name: 'Install on website',
+        url: '/leads/create'
       }
     }
   },
@@ -120,7 +104,7 @@ export const FEATURE_DETAILS = {
     color: '#e359ae',
     icon: 'megaphone',
     description:
-      'Turn leads into loyal customers. Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close.',
+      'Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close.',
     videoUrl: 'url',
     settingsDetails: {
       emailTemplateCreate: {
@@ -128,26 +112,63 @@ export const FEATURE_DETAILS = {
         url: '/settings/email-templates'
       },
       tagCreate: {
-        name: 'Create tag',
+        name: 'Create email tag',
         url: '/tags/engageMessage'
+      },
+      engageCreate: {
+        name: 'Now create manual email newsletter',
+        url: '/engage/messages/create?kind=manual'
       }
     }
   },
-  leads: {
-    text: 'Leads',
-    color: '#c84b49',
-    icon: 'laptop',
+  tasks: {
+    text: 'Task',
+    color: colors.colorCoreTeal,
+    icon: 'clipboard',
     description:
-      'Convert visitors into qualified leads. Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.',
+      "Organize your own tasks or your team's sprints effectively with erxes Task. It involves planning, testing, tracking, and reporting.",
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      taskBoardsCreate: {
+        name: 'Create a task board',
+        url: '/settings/boards/task'
+      },
+      taskPipelinesCreate: {
+        name: 'Create a task pipeline',
+        url: '/settings/boards/task'
+      },
+      taskCreate: {
+        name: 'Now add tasks',
+        url: '/task/board'
+      }
+    }
+  },
+  tickets: {
+    text: 'Tickets',
+    description:
+      'Easily scale and streamline your customer service and drastically improve your customer’s experience.',
+    videoUrl: 'url',
+    settingsDetails: {
+      ticketBoardsCreate: {
+        name: 'Create a ticket board',
+        url: '/settings/boards/ticket'
+      },
+      ticketPipelinesCreate: {
+        name: 'Create a ticket pipeline',
+        url: '/settings/boards/ticket'
+      },
+      ticketCreate: {
+        name: 'Now add tickets',
+        url: '/inbox/ticket/board'
+      }
+    }
   },
   knowledgeBase: {
     text: 'Knowledge base',
     icon: 'book',
     color: '#45b94c',
     description:
-      'Real-time & two-way help center. Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions',
+      'Educate both your customers and staff by creating a help center related to your brands, products and services to reach a higher level of satisfaction.',
     videoUrl: 'url',
     settingsDetails: {
       knowledgeBaseTopicCreate: {
@@ -159,37 +180,32 @@ export const FEATURE_DETAILS = {
         url: '/knowledgebase'
       },
       knowledgeBaseArticleCreate: {
-        name: 'Create article',
+        name: 'Now write articles',
         url: '/knowledgebase'
       }
     }
   },
-  tags: {
-    text: 'Tags',
-    color: '#89472e',
-    icon: 'tag',
+  customers: {
+    text: 'Database',
+    icon: 'users',
+    color: colors.colorCoreBlue,
     description:
-      'Tag means to categorize things into one abstract group. In other words, organizations can create and classify their own abstract categories. It can also classify every messages that is not restricted to clients.',
+      'Access our all-in-one CRM & product, and service system in one go so that it’s easier to coordinate and manage your interactions with your customers.',
     videoUrl: 'url',
-    settingsDetails: {}
-  },
-  insights: {
-    text: 'Insights',
-    description:
-      "You'll have a full view of reports, which include the number of visits, performance report of your customers' relations employee, sales updates, conversion rate, product report, etc.",
-    color: '#7b48ff',
-    icon: 'bar-chart',
-    videoUrl: 'url',
-    settingsDetails: {}
-  },
-  importHistories: {
-    text: 'Import Histories',
-    color: colors.colorCoreRed,
-    icon: 'download-3',
-    description:
-      'Import history contains the lists of customer data and product information by the dates inserted to the platform and also will allow you to delete them one by one',
-    videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerCreate: {
+        name: 'Create a contact',
+        url: '/contacts/customers/all'
+      },
+      companyCreate: {
+        name: 'Create a company',
+        url: '/contacts/companies'
+      },
+      productCreate: {
+        name: 'Create a product or service',
+        url: '/settings/product-service'
+      }
+    }
   },
   segments: {
     text: 'Segments',
@@ -198,41 +214,114 @@ export const FEATURE_DETAILS = {
     description:
       'Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerSegmentCreate: {
+        name: 'Create a customer segment',
+        url: '/segments/new/customer'
+      },
+      companySegmentCreate: {
+        name: 'Create a company segment',
+        url: '/segments/new/company'
+      }
+    }
+  },
+  tags: {
+    text: 'Tags',
+    color: '#89472e',
+    icon: 'tag',
+    description:
+      'Tag means to categorize things into one abstract group. In other words, organizations can create and classify their own abstract categories.',
+    videoUrl: 'url',
+    settingsDetails: {
+      customerTagCreate: {
+        name: 'Create a customer tag',
+        url: '/tags/customer'
+      },
+      companyTagCreate: {
+        name: 'Create a company tag',
+        url: '/tags/company'
+      }
+    }
   },
   properties: {
     text: 'Properties',
     color: colors.colorCoreGray,
     icon: 'folder-1',
     description:
-      "You may need additional properties to gather information for your business's marketing, sales, and support processes. You can have up to unlimited properties per contacts or products.",
+      'You may need additional properties to gather information from customers, companies, and products/services.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      customerFieldCreate: {
+        name: 'Create a custom customer properties',
+        url: '/settings/properties?type=customer'
+      },
+      companyFieldCreate: {
+        name: 'Create a custom company properties',
+        url: '/settings/properties?type=company'
+      }
+    }
   },
   permissions: {
     text: 'Permissions',
     color: colors.colorPrimaryDark,
     icon: 'shield',
     description:
-      'All-in-one CRM. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your interactions with your customers.',
+      'Permissions cover areas where the app wants data or resources that involve the users private information, or could potentially affect the users stored data.',
     videoUrl: 'url',
-    settingsDetails: {}
+    settingsDetails: {
+      permissionCreate: {
+        name: 'Manage permission',
+        url: '/settings/permissions'
+      }
+    }
   },
   integrations: {
     text: 'integrations',
     color: colors.colorCoreYellow,
     icon: 'puzzle',
     description:
-      'Publish an integration app on the erxes App Store among powerful tools like Gmail, Facebook page, Messenger, Twitter and Google Meet.',
+      'All your tools in one connected shared team inbox. Integrations help your team get more done in erxes.',
     videoUrl: 'url',
     settingsDetails: {
-      brandCreate: {
-        name: 'Manage brands',
-        url: '/settings/brands'
+      messengerIntegrationCreate: {
+        name: 'Create your Messenger',
+        url: '/settings/integrations/createMessenger'
       },
-      channelCreate: {
-        name: 'Manage channels',
-        url: '/settings/channels'
+      facebookIntegrationCreate: {
+        name: 'Connect your Facebook messenger',
+        url: '/settings/integrations'
+      }
+    }
+  },
+  insights: {
+    text: 'Insights',
+    description:
+      "You'll have a full view of reports, which include the number of visits, performance report of your customers' relations employee, sales updates, conversion rate, product report, etc.",
+    color: '#7b48ff',
+    icon: 'bar-chart',
+    videoUrl: 'url',
+    settingsDetails: {
+      showInsights: {
+        name: 'Check out team inbox insight',
+        url: '/inbox/insights'
+      }
+    }
+  },
+  importHistories: {
+    text: 'Import/Export',
+    color: colors.colorCoreRed,
+    icon: 'download-3',
+    description:
+      'Import contains the lists of customer & company data and product information by the dates inserted to the platform and also will allow you to delete them one by one',
+    videoUrl: 'url',
+    settingsDetails: {
+      'customer_template.xlsxDownload': {
+        name: 'Download customer import template',
+        url: '/settings/importHistories?type=customer'
+      },
+      'company_template.xlsxDownload': {
+        name: 'Download company import template',
+        url: '/settings/importHistories?type=company'
       }
     }
   }

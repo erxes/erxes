@@ -10,13 +10,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
-import {
-  Actions,
-  Bottom,
-  Created,
-  TemplateContainer,
-  TemplateItem
-} from '../styles';
+import { Actions, Bottom, BoxContainer, BoxItem, Created } from '../styles';
 import TemplateForm from './TemplateForm';
 
 type Props = {
@@ -90,7 +84,7 @@ class TemplateList extends React.Component<Props> {
 
   renderRow({ objects }) {
     return objects.map((object, index) => (
-      <TemplateItem key={index}>
+      <BoxItem key={index}>
         <div>
           <h5>{object.name}</h5>
           <p>{object.description}</p>
@@ -99,12 +93,12 @@ class TemplateList extends React.Component<Props> {
           <Created>{dayjs(object.createdAt).format('DD MMM YYYY')}</Created>
           {this.renderActions(object)}
         </Bottom>
-      </TemplateItem>
+      </BoxItem>
     ));
   }
 
   renderContent = props => {
-    return <TemplateContainer>{this.renderRow(props)}</TemplateContainer>;
+    return <BoxContainer>{this.renderRow(props)}</BoxContainer>;
   };
 
   renderButton = () => {
@@ -120,16 +114,16 @@ class TemplateList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New growth hack template"
+        formTitle="New Growth Hacking Templates"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Growth hack templates') }
+          { title: __('Growth Hacking Templates') }
         ]}
-        title={__('Growth hack templates')}
+        title={__('Growth Hacking Templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/34.svg"
-            title="Growth hack templates"
+            title="Growth Hacking Templates"
             description={`Manage your boards and pipelines so that its easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.`}
           />
         }

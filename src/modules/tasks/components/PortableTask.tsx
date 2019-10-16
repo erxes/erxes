@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import Details from 'modules/boards/components/portable/Details';
-import UserCounter from 'modules/boards/components/portable/UserCounter';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import {
@@ -13,6 +12,7 @@ import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
+import { Participators } from 'modules/inbox/components/conversationDetail';
 import React from 'react';
 import { ITask } from '../types';
 
@@ -82,7 +82,10 @@ class Task extends React.Component<Props, { isPopupVisible: boolean }> {
           </Content>
           <PriceContainer>
             <Right>
-              <UserCounter users={item.assignedUsers || []} />
+              <Participators
+                participatedUsers={item.assignedUsers || []}
+                limit={3}
+              />
             </Right>
           </PriceContainer>
 

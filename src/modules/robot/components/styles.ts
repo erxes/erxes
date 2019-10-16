@@ -17,6 +17,11 @@ const Greeting = styled.div`
   span {
     margin-left: 5px;
   }
+
+  p {
+    margin-top: ${dimensions.unitSpacing}px;
+    font-size: 14px;
+  }
 `;
 
 const Bot = styled.div`
@@ -31,7 +36,7 @@ const Bot = styled.div`
   }
 
   img {
-    width: 45px;
+    width: 42px;
   }
 `;
 
@@ -52,6 +57,8 @@ const NavButton = styledTS<{ right?: boolean }>(styled.div)`
   margin-top: -5px;
   float: ${props => props.right && 'right'};
   background: ${props => props.right && colors.bgActive};
+  position: sticky;
+  top: 0;
 
   &:hover {
     background: ${props =>
@@ -79,4 +86,13 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
-export { Bot, ModulRow, Greeting, Title, NavButton, Content };
+const SeeAll = styled.a`
+  display: block;
+  text-align: center;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+export { Bot, ModulRow, Greeting, Title, NavButton, Content, SeeAll };

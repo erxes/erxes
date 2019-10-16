@@ -66,6 +66,11 @@ const Progress = styled.div`
   }
 `;
 
+const Iframe = styled.iframe`
+  border: none;
+  background: ${colors.colorWhite};
+`;
+
 type Props = {
   feature: IFeature;
   completeShowStep: () => void;
@@ -143,6 +148,22 @@ class FeatureDetail extends React.Component<Props> {
     );
   }
 
+  renderVideo() {
+    const { feature } = this.props;
+
+    if (feature.videoUrl && feature.videoUrl !== 'url') {
+      return (
+        <Iframe
+          key={feature.name}
+          title={feature.name}
+          src={feature.videoUrl}
+        />
+      );
+    }
+
+    return;
+  }
+
   onVideoClick = () => {
     this.props.completeShowStep();
   };
@@ -153,6 +174,7 @@ class FeatureDetail extends React.Component<Props> {
     return (
       <Wrapper>
         <Title>{feature.text}</Title>
+        {this.renderVideo()}
         <p>{feature.description}</p>
         {this.renderProgress()}
         {this.renderSettings()}
