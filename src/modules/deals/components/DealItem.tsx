@@ -6,7 +6,7 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { renderAmount } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
+import { __, renderFullName } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 
@@ -64,7 +64,7 @@ class DealItem extends React.PureComponent<Props, {}> {
           {customers.map((customer, index) => (
             <div key={index}>
               <ItemIndicator color="#F7CE53" />
-              {customer.firstName || customer.primaryEmail}
+              {renderFullName(customer)}
             </div>
           ))}
 

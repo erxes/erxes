@@ -48,9 +48,11 @@ export const ticketFields = `
   }
   customers {
     _id
+    lastName
     firstName
     primaryEmail
     primaryPhone
+    visitorContactInfo
   }
   closeDate
   description
