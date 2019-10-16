@@ -153,6 +153,7 @@ class FeatureDetail extends React.Component<Props> {
           onVideoClick={this.props.completeShowStep}
           name={feature.name}
           videoUrl={feature.videoUrl}
+          thumbImage={feature.videoThumb}
         />
       );
     }
