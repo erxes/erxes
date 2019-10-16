@@ -49,7 +49,7 @@ const apolloServer = new ApolloServer({
     if (USE_BRAND_RESTRICTIONS !== 'true') {
       return {
         brandIdSelector: {},
-        usersBrandIdSelector: {},
+        userBrandIdsSelector: {},
         docModifier: doc => doc,
         commonQuerySelector: {},
         user,
