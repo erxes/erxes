@@ -1,13 +1,19 @@
-import { TitleRow } from 'modules/boards/styles/item';
-import { AddContainer } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { FormControl } from 'modules/common/components/form';
-import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import SortableList from 'modules/common/components/SortableList';
+import ProgressBar from 'modules/common/components/ProgressBar';
+import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import {
+  AddItem,
+  ChecklistActions,
+  ChecklistTitle,
+  ChecklistTitleWrapper,
+  ChecklistWrapper,
+  Progress
+} from '../styles';
 import {
   EditMutationVariables,
   IChecklist,
@@ -72,40 +78,15 @@ class List extends React.Component<Props, State> {
       return null;
     }
 
-    const child = showedItem => {
-      return (
-        <Item
-          key={showedItem._id}
-          item={showedItem}
-          editItem={this.props.editItem}
-          removeItem={this.props.removeItem}
-          setChecklistState={this.setChecklistState}
-        />
-      );
-    };
-
-    const onChangeOrder = sortedItems => {
-      const { updateOrder } = this.props;
-
-      this.setState({ showedItems: sortedItems }, () => {
-        const orders = sortedItems.map((item, index) => {
-          return { _id: item._id, order: index };
-        });
-
-        updateOrder(orders);
-      });
-    };
-
-    return (
-      <SortableList
-        fields={this.state.showedItems}
-        child={child}
-        onChangeFields={onChangeOrder}
-        isModal={true}
-        droppableId="checklistItem"
-        showDragHandler={false}
+    return showedItems.map(showedItem => (
+      <Item
+        key={showedItem._id}
+        item={showedItem}
+        editItem={this.props.editItem}
+        removeItem={this.props.removeItem}
+        setChecklistState={this.setChecklistState}
       />
-    );
+    ));
   };
 
   renderTitle = () => {
@@ -127,13 +108,13 @@ class List extends React.Component<Props, State> {
 
       if (isHidden) {
         return (
-          <Button btnStyle="simple" onClick={showClick}>
+          <Button btnStyle="simple" size="small" onClick={showClick}>
             {__(`Show checked items`)}
           </Button>
         );
       } else {
         return (
-          <Button btnStyle="simple" onClick={hideClick}>
+          <Button btnStyle="simple" size="small" onClick={hideClick}>
             {__(`Hide completed items`)}
           </Button>
         );
@@ -166,15 +147,15 @@ class List extends React.Component<Props, State> {
     };
 
     return (
-      <>
-        <ControlLabel>
-          <label onClick={onClick}>{title}</label>
-        </ControlLabel>
-        {renderHideButton()}
-        <Button btnStyle="simple" onClick={removeClick}>
-          <Icon icon="cancel-1" />
-        </Button>
-      </>
+      <ChecklistTitle>
+        <h5 onClick={onClick}>{title}</h5>
+        <ChecklistActions>
+          {renderHideButton()}
+          <Button btnStyle="simple" size="small" onClick={removeClick}>
+            Delete
+          </Button>
+        </ChecklistActions>
+      </ChecklistTitle>
     );
   };
 
@@ -186,7 +167,7 @@ class List extends React.Component<Props, State> {
     }
 
     const onChangeTitle = e =>
-      this.setState({ title: (e.currentTarget as HTMLInputElement).value });
+      this.setState({ title: (e.currentTarget as HTMLTextAreaElement).value });
 
     const isEditingChange = () => this.setState({ isEditing: false });
 
@@ -213,8 +194,13 @@ class List extends React.Component<Props, State> {
     };
 
     return (
-      <AddContainer onSubmit={onSubmit}>
-        <FormControl autoFocus={true} onChange={onChangeTitle} value={title} />
+      <AddItem onSubmit={onSubmit}>
+        <FormControl
+          autoFocus={true}
+          componentClass="textarea"
+          onChange={onChangeTitle}
+          value={title}
+        />
         <Button btnStyle="simple" onClick={isEditingChange}>
           <Icon icon="cancel" />
         </Button>
@@ -227,7 +213,7 @@ class List extends React.Component<Props, State> {
         >
           Save
         </Button>
-      </AddContainer>
+      </AddItem>
     );
   };
 
@@ -243,10 +229,10 @@ class List extends React.Component<Props, State> {
     };
 
     return (
-      <button onClick={onClick}>
+      <Button size="small" btnStyle="simple" onClick={onClick}>
         <Icon icon="focus-add" />
-        {__('Add item')}
-      </button>
+        {__(' Add an item')}
+      </Button>
     );
   };
 
@@ -258,7 +244,7 @@ class List extends React.Component<Props, State> {
 
     const onChangeContent = e =>
       this.setState({
-        newItemContent: (e.currentTarget as HTMLInputElement).value
+        newItemContent: (e.currentTarget as HTMLTextAreaElement).value
       });
 
     const isAddItemChange = () => this.setState({ isAddItem: false });
@@ -291,9 +277,18 @@ class List extends React.Component<Props, State> {
     };
 
     return (
-      <AddContainer onSubmit={onSubmit}>
-        <FormControl autoFocus={true} onChange={onChangeContent} />
-        <Button btnStyle="simple" onClick={isAddItemChange} icon="cancel-1">
+      <AddItem isNewItem={true} onSubmit={onSubmit}>
+        <FormControl
+          autoFocus={true}
+          componentClass="textarea"
+          onChange={onChangeContent}
+        />
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={isAddItemChange}
+          icon="cancel-1"
+        >
           Close
         </Button>
 
@@ -302,31 +297,38 @@ class List extends React.Component<Props, State> {
           btnStyle="success"
           icon="checked-1"
           type="submit"
+          size="small"
         >
           Save
         </Button>
-      </AddContainer>
+      </AddItem>
     );
   };
 
   render() {
     const { list } = this.props;
-
     return (
       <>
-        <TitleRow>
+        <ChecklistTitleWrapper>
           <Icon icon="checked" />
           {this.renderTitle()}
           {this.renderInput()}
-        </TitleRow>
-        <TitleRow>
-          <ControlLabel>{__(`${list.percent.toFixed(2)} %`)}</ControlLabel>
-        </TitleRow>
-        {this.renderItems()}
-        <TitleRow>
+        </ChecklistTitleWrapper>
+
+        <Progress>
+          <span>{list.percent.toFixed(0)}%</span>
+          <ProgressBar
+            percentage={list.percent}
+            color={colors.colorPrimary}
+            height="8px"
+          />
+        </Progress>
+
+        <ChecklistWrapper>
+          {this.renderItems()}
           {this.renderAddItemBtn()}
           {this.renderAddItem()}
-        </TitleRow>
+        </ChecklistWrapper>
       </>
     );
   }

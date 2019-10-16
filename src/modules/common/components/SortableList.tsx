@@ -13,6 +13,7 @@ type Props = {
   showDragHandler?: boolean | true;
   isDragDisabled?: boolean;
   droppableId?: string;
+  isChecklistItem?: boolean;
 };
 
 class SortableList extends React.Component<Props> {
@@ -33,7 +34,6 @@ class SortableList extends React.Component<Props> {
     }
 
     const { fields, onChangeFields } = this.props;
-
     const reorderedFields = reorder(fields, source.index, destination.index);
 
     onChangeFields(reorderedFields);
@@ -54,7 +54,13 @@ class SortableList extends React.Component<Props> {
   }
 
   render() {
-    const { fields, child, isDragDisabled, droppableId } = this.props;
+    const {
+      fields,
+      child,
+      isDragDisabled,
+      droppableId,
+      isChecklistItem
+    } = this.props;
 
     if (fields.length === 0) {
       return <EmptyState text="There is no fields" icon="ban" />;
@@ -81,6 +87,7 @@ class SortableList extends React.Component<Props> {
                       {...dragProvided.draggableProps}
                       {...dragProvided.dragHandleProps}
                       isDragging={snapshot.isDragging}
+                      isChecklistItem={isChecklistItem}
                     >
                       {this.renderDragHandler()}
                       {child(field)}

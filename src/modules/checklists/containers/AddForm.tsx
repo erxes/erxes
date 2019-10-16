@@ -10,7 +10,7 @@ import { AddMutationResponse, IChecklistDoc } from '../types';
 type IProps = {
   item: IItem;
   options: IOptions;
-  closeModal: () => void;
+  afterSave: () => void;
 };
 
 type FinalProps = {
@@ -32,12 +32,9 @@ class AddFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { closeModal } = this.props;
-
     const updatedProps = {
       ...this.props,
-      add: this.add,
-      closeModal
+      add: this.add
     };
 
     return <AddForm {...updatedProps} />;

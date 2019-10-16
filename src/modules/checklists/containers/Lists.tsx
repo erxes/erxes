@@ -71,9 +71,8 @@ class ChecklistsContainer extends React.Component<FinalProps> {
   };
 
   updateOrder = (orders: [UpdateOrderItemsVariables]) => {
-    const { updateOrderMutation } = this.props;
-
-    updateOrderMutation({ variables: { orders } });
+    // const { updateOrderMutation } = this.props;
+    // updateOrderMutation({ variables: { orders } });
   };
 
   removeItem = (checklistItemId: string, callback: () => void) => {
@@ -159,14 +158,6 @@ export default (props: IProps) =>
           options
         }
       ),
-      graphql<
-        IProps,
-        UpdateOrderItemsMutationResponse,
-        UpdateOrderItemsVariables
-      >(gql(mutations.updateOrderItems), {
-        name: 'updateOrderMutation',
-        options
-      }),
       graphql<IProps, RemoveMutationResponse, { _id: string }>(
         gql(mutations.checklistsRemove),
         {
@@ -180,6 +171,14 @@ export default (props: IProps) =>
           name: 'removeItemMutation',
           options
         }
-      )
+      ),
+      graphql<
+        IProps,
+        UpdateOrderItemsMutationResponse,
+        UpdateOrderItemsVariables
+      >(gql(mutations.updateOrderItems), {
+        name: 'updateOrderMutation',
+        options
+      })
     )(ChecklistsContainer)
   );

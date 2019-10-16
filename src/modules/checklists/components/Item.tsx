@@ -1,10 +1,10 @@
-import { AddContainer } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import xss from 'xss';
+import { AddItem, ChecklistRow, ChecklistText } from '../styles';
 import { IChecklistItem } from '../types';
 
 type Props = {
@@ -52,15 +52,15 @@ class ChecklistItem extends React.Component<Props, State> {
     };
 
     return (
-      <>
+      <ChecklistText>
         <label
           onClick={onClick}
           dangerouslySetInnerHTML={{ __html: xss(content) }}
         />
-        <Button btnStyle="simple" onClick={removeClick}>
-          <Icon icon="cancel-1" />
+        <Button btnStyle="simple" size="small" onClick={removeClick}>
+          <Icon icon="cancel" />
         </Button>
-      </>
+      </ChecklistText>
     );
   };
 
@@ -73,7 +73,7 @@ class ChecklistItem extends React.Component<Props, State> {
 
     const onChangeContent = e => {
       this.setState({
-        content: (e.currentTarget as HTMLInputElement).value
+        content: (e.currentTarget as HTMLTextAreaElement).value
       });
     };
 
@@ -106,13 +106,14 @@ class ChecklistItem extends React.Component<Props, State> {
     };
 
     return (
-      <AddContainer onSubmit={onSubmit}>
+      <AddItem onSubmit={onSubmit}>
         <FormControl
+          componentClass="textarea"
           autoFocus={true}
           onChange={onChangeContent}
           value={this.state.content}
         />
-        <Button btnStyle="simple" onClick={isEditingChange}>
+        <Button btnStyle="simple" size="small" onClick={isEditingChange}>
           <Icon icon="cancel" />
         </Button>
 
@@ -121,10 +122,11 @@ class ChecklistItem extends React.Component<Props, State> {
           btnStyle="success"
           icon="checked-1"
           type="submit"
+          size="small"
         >
           Save
         </Button>
-      </AddContainer>
+      </AddItem>
     );
   };
 
@@ -151,7 +153,7 @@ class ChecklistItem extends React.Component<Props, State> {
     const { isChecked } = this.state;
 
     return (
-      <>
+      <ChecklistRow>
         <FormControl
           componentClass="checkbox"
           checked={isChecked}
@@ -159,7 +161,7 @@ class ChecklistItem extends React.Component<Props, State> {
         />
         {this.renderContent()}
         {this.renderInput()}
-      </>
+      </ChecklistRow>
     );
   };
 }

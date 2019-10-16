@@ -16,7 +16,7 @@ type IProps = {
   item: IItem;
   options: IOptions;
   add: (doc: IChecklistDoc, callback: () => void) => void;
-  closeModal: () => void;
+  afterSave?: () => void;
 };
 
 type State = {
@@ -27,7 +27,6 @@ type State = {
 class AddForm extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
-
     this.state = {
       disabled: false,
       title: 'Checklist'
@@ -37,11 +36,19 @@ class AddForm extends React.Component<IProps, State> {
   onChangeTitle = e =>
     this.setState({ title: (e.currentTarget as HTMLInputElement).value });
 
+  close = () => {
+    const { afterSave } = this.props;
+
+    if (afterSave) {
+      afterSave();
+    }
+  };
+
   onSubmit = e => {
     e.preventDefault();
 
     const { title } = this.state;
-    const { add, closeModal, options, item } = this.props;
+    const { add, options, item } = this.props;
 
     if (!title) {
       return Alert.error('Enter title');
@@ -60,7 +67,7 @@ class AddForm extends React.Component<IProps, State> {
       // after save, enable save button
       this.setState({ disabled: false });
 
-      closeModal();
+      this.close();
     });
   };
 
@@ -81,8 +88,9 @@ class AddForm extends React.Component<IProps, State> {
         <FormFooter>
           <Button
             btnStyle="simple"
-            onClick={this.props.closeModal}
             icon="cancel-1"
+            onClick={this.close}
+            size="small"
           >
             Close
           </Button>
@@ -92,6 +100,7 @@ class AddForm extends React.Component<IProps, State> {
             btnStyle="success"
             icon="checked-1"
             type="submit"
+            size="small"
           >
             Save
           </Button>
