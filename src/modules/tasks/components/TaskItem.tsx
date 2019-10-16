@@ -7,8 +7,11 @@ import { Content, ItemIndicator } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __ } from 'modules/common/utils';
+import routerUtils from 'modules/common/utils/router';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
+import queryString from 'query-string';
 import React from 'react';
+import history from '../../../browserHistory';
 import { ITask } from '../types';
 
 type Props = {
@@ -19,7 +22,43 @@ type Props = {
   options?: IOptions;
 };
 
-class TaskItem extends React.PureComponent<Props, {}> {
+class TaskItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
+  unlisten?: () => void;
+
+  constructor(props) {
+    super(props);
+
+    const { item } = props;
+
+    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
+
+    let isFormVisible = false;
+
+    if (itemIdQueryParam === item._id || props.isPopupVisible) {
+      isFormVisible = true;
+    }
+
+    this.state = {
+      isFormVisible
+    };
+  }
+
+  componentDidMount() {
+    this.unlisten = history.listen(location => {
+      const queryParams = queryString.parse(location.search);
+
+      if (queryParams.itemId === this.props.item._id) {
+        return this.setState({ isFormVisible: true });
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unlisten) {
+      this.unlisten();
+    }
+  }
+
   renderDate(date) {
     if (!date) {
       return null;
@@ -31,12 +70,29 @@ class TaskItem extends React.PureComponent<Props, {}> {
   renderForm = () => {
     const { beforePopupClose, stageId, item, options } = this.props;
 
+    if (!this.state.isFormVisible) {
+      return null;
+    }
+
+    const beforePopupCloseCb = () => {
+      this.setState({ isFormVisible: false }, () => {
+        const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
+
+        if (itemIdQueryParam) {
+          routerUtils.removeParams(history, 'itemId');
+        }
+
+        beforePopupClose();
+      });
+    };
+
     return (
       <EditForm
         options={options}
         stageId={stageId}
         itemId={item._id}
-        beforePopupClose={beforePopupClose}
+        beforePopupClose={beforePopupCloseCb}
+        isPopupVisible={this.state.isFormVisible}
       />
     );
   };
