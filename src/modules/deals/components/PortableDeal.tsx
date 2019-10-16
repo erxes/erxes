@@ -49,7 +49,7 @@ class Deal extends React.Component<Props, { isPopupVisible: boolean }> {
         {...this.props}
         options={options}
         stageId={item.stageId}
-        itemId={item._id}
+        item={item}
         onAdd={onAdd}
         onRemove={onRemove}
         onUpdate={onUpdate}

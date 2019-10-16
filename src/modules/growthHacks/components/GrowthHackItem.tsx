@@ -43,7 +43,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
         beforePopupClose={beforePopupClose}
         options={options}
         stageId={stageId}
-        itemId={item._id}
+        item={item}
         hideHeader={true}
       />
     );

@@ -35,7 +35,7 @@ class TaskItem extends React.PureComponent<Props, {}> {
       <EditForm
         options={options}
         stageId={stageId}
-        itemId={item._id}
+        item={item}
         beforePopupClose={beforePopupClose}
       />
     );

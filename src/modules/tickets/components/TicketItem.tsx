@@ -34,7 +34,7 @@ class TicketItem extends React.PureComponent<Props, {}> {
     return (
       <EditForm
         stageId={stageId}
-        itemId={item._id}
+        item={item}
         beforePopupClose={beforePopupClose}
         options={options}
         hideHeader={true}

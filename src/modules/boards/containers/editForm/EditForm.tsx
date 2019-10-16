@@ -7,7 +7,6 @@ import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import {
-  DetailQueryResponse,
   IItem,
   IItemParams,
   IOptions,
@@ -18,7 +17,7 @@ import { invalidateCache } from '../../utils';
 import { PipelineConsumer } from '../PipelineContext';
 
 type WrapperProps = {
-  itemId: string;
+  item: any;
   stageId: string;
   options?: IOptions;
   isPopupVisible?: boolean;
@@ -37,7 +36,6 @@ type ContainerProps = {
 } & WrapperProps;
 
 type FinalProps = {
-  detailQuery: DetailQueryResponse;
   usersQuery: AllUsersQueryResponse;
   // Using this mutation to copy item in edit form
   addMutation: SaveMutation;
@@ -77,9 +75,9 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 
   saveItem = (doc: IItemParams, callback: (item) => void) => {
-    const { itemId, editMutation, options } = this.props;
+    const { item, editMutation, options } = this.props;
 
-    editMutation({ variables: { _id: itemId, ...doc } })
+    editMutation({ variables: { _id: item._id, ...doc } })
       .then(({ data }) => {
         Alert.success(options.texts.updateSuccessText);
 
@@ -118,22 +116,16 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { usersQuery, detailQuery, options } = this.props;
+    const { usersQuery, options } = this.props;
 
-    if (usersQuery.loading || detailQuery.loading) {
+    if (usersQuery.loading) {
       return <Spinner />;
     }
 
     const users = usersQuery.allUsers;
-    const item = detailQuery[options.queriesName.detailQuery];
-
-    if (!item) {
-      return null;
-    }
 
     const extendedProps = {
       ...this.props,
-      item,
       addItem: this.addItem,
       removeItem: this.removeItem,
       saveItem: this.saveItem,
@@ -151,20 +143,6 @@ const withQuery = (props: ContainerProps) => {
 
   return withProps<ContainerProps>(
     compose(
-      graphql<ContainerProps, DetailQueryResponse, { _id: string }>(
-        gql(options.queries.detailQuery),
-        {
-          name: 'detailQuery',
-          options: ({ itemId }: { itemId: string }) => {
-            return {
-              variables: {
-                _id: itemId
-              },
-              fetchPolicy: 'network-only'
-            };
-          }
-        }
-      ),
       graphql<ContainerProps, AllUsersQueryResponse>(
         gql(userQueries.allUsers),
         {
