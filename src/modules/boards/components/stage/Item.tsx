@@ -15,7 +15,7 @@ type Props = {
   options: IOptions;
 };
 
-class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
+class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   unlisten?: () => void;
 
   constructor(props) {
@@ -27,7 +27,7 @@ class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
 
     let isFormVisible = false;
 
-    if (itemIdQueryParam === item._id || props.isPopupVisible) {
+    if (itemIdQueryParam === item._id) {
       isFormVisible = true;
     }
 
@@ -81,4 +81,4 @@ class DealItem extends React.PureComponent<Props, { isFormVisible: boolean }> {
   }
 }
 
-export default DealItem;
+export default Item;

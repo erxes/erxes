@@ -53,8 +53,6 @@ type State = {
 };
 
 class EditForm extends React.Component<Props, State> {
-  unlisten?: () => void;
-
   constructor(props) {
     super(props);
 
