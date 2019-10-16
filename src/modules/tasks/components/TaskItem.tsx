@@ -17,6 +17,7 @@ type Props = {
   stageId: string;
   item: ITask;
   onClick?: () => void;
+  isFormVisible?: boolean;
   beforePopupClose?: () => void;
   options?: IOptions;
   portable?: boolean;
@@ -30,8 +31,16 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
     super(props);
 
     this.state = {
-      isPopupVisible: false
+      isPopupVisible: props.isFormVisible || false
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isFormVisible !== this.props.isFormVisible) {
+      this.setState({
+        isPopupVisible: nextProps.isFormVisible
+      });
+    }
   }
 
   beforePopupClose = () => {
@@ -56,6 +65,11 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
   renderForm = () => {
     const { item } = this.props;
+    const { isPopupVisible } = this.state;
+
+    if (!isPopupVisible) {
+      return null;
+    }
 
     return (
       <EditForm
@@ -63,7 +77,7 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
         itemId={item._id}
         hideHeader={true}
         beforePopupClose={this.beforePopupClose}
-        isPopupVisible={this.state.isPopupVisible}
+        isPopupVisible={isPopupVisible}
       />
     );
   };

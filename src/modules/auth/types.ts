@@ -1,3 +1,4 @@
+import { IBrand } from 'modules/settings/brands/types';
 import { IEmailSignature } from 'modules/settings/email/types';
 
 export interface IUserDetails {
@@ -38,7 +39,7 @@ export interface IUserDoc {
 
 export interface IUser extends IUserDoc {
   _id: string;
-  hasSeenOnBoard?: boolean;
+  brands?: IBrand[];
   emailSignatures?: IEmailSignature[];
 }
 

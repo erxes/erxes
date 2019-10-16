@@ -7,6 +7,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import { __, Alert, confirm } from 'modules/common/utils';
+import { Date } from 'modules/customers/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ILeadIntegration } from '../types';
@@ -108,14 +109,16 @@ class Row extends React.Component<Props, {}> {
         <td>{lead.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>
         <td>
-          {lead.contactsGathered || 0}{' '}
           <Tip text={__('View')}>
             <Link to={`/contacts/customers/all?form=${integration.formId}`}>
-              <Icon icon="eye" />
+              <Icon icon="eye-2" />
             </Link>
-          </Tip>
+          </Tip>{' '}
+          {lead.contactsGathered || 0}
         </td>
-        <td>{dayjs(form.createdDate).format('ll')}</td>
+        <td>
+          <Date>{dayjs(form.createdDate).format('ll')}</Date>
+        </td>
         <td>
           <div key={createdUser._id}>
             {createdUser.details && createdUser.details.fullName}

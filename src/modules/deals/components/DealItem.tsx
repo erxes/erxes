@@ -27,6 +27,7 @@ type Props = {
   beforePopupClose?: () => void;
   onClick?: () => void;
   options?: IOptions;
+  isFormVisible?: boolean;
   portable?: boolean;
   onAdd?: (stageId: string, item: IDeal) => void;
   onRemove?: (dealId: string, stageId: string) => void;
@@ -38,8 +39,16 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
     super(props);
 
     this.state = {
-      isPopupVisible: false
+      isPopupVisible: props.isFormVisible || false
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isFormVisible !== this.props.isFormVisible) {
+      this.setState({
+        isPopupVisible: nextProps.isFormVisible
+      });
+    }
   }
 
   beforePopupClose = () => {
@@ -52,6 +61,11 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
   renderForm = () => {
     const { stageId, item } = this.props;
+    const { isPopupVisible } = this.state;
+
+    if (!isPopupVisible) {
+      return null;
+    }
 
     return (
       <EditForm
@@ -60,7 +74,7 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
         itemId={item._id}
         hideHeader={true}
         beforePopupClose={this.beforePopupClose}
-        isPopupVisible={this.state.isPopupVisible}
+        isPopupVisible={isPopupVisible}
       />
     );
   };

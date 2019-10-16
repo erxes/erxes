@@ -170,8 +170,8 @@ const channelList = `
 `;
 
 const brandList = `
-  query allBrands {
-    allBrands {
+  query brands {
+    brands {
       _id
       name
     }

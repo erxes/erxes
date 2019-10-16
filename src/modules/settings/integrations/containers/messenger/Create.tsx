@@ -54,7 +54,7 @@ const CreateMessenger = (props: FinalProps) => {
   }
 
   const users = usersQuery.users || [];
-  const brands = brandsQuery.allBrands || [];
+  const brands = brandsQuery.brands || [];
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
   const save = doc => {
@@ -113,7 +113,7 @@ export default withProps<Props>(
     graphql<Props, UsersQueryResponse>(gql(queries.users), {
       name: 'usersQuery'
     }),
-    graphql<Props, AllBrandsQueryResponse>(gql(brandQueries.allBrands), {
+    graphql<Props, AllBrandsQueryResponse>(gql(brandQueries.brands), {
       name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

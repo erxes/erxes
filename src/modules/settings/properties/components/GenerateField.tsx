@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -79,9 +78,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
     if (validation === 'date') {
       attrs.type = 'date';
+      attrs.max = '9999-12-31';
 
       if (value) {
-        attrs.value = dayjs(value).format('YYYY-MM-DD');
+        attrs.value = value;
       }
     }
 

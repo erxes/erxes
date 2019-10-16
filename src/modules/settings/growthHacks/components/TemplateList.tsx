@@ -10,13 +10,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
-import {
-  Actions,
-  Bottom,
-  Created,
-  TemplateContainer,
-  TemplateItem
-} from '../styles';
+import { Actions, Bottom, BoxContainer, BoxItem, Created } from '../styles';
 import TemplateForm from './TemplateForm';
 
 type Props = {
@@ -90,7 +84,7 @@ class TemplateList extends React.Component<Props> {
 
   renderRow({ objects }) {
     return objects.map((object, index) => (
-      <TemplateItem key={index}>
+      <BoxItem key={index}>
         <div>
           <h5>{object.name}</h5>
           <p>{object.description}</p>
@@ -99,12 +93,12 @@ class TemplateList extends React.Component<Props> {
           <Created>{dayjs(object.createdAt).format('DD MMM YYYY')}</Created>
           {this.renderActions(object)}
         </Bottom>
-      </TemplateItem>
+      </BoxItem>
     ));
   }
 
   renderContent = props => {
-    return <TemplateContainer>{this.renderRow(props)}</TemplateContainer>;
+    return <BoxContainer>{this.renderRow(props)}</BoxContainer>;
   };
 
   renderButton = () => {

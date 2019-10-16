@@ -17,6 +17,7 @@ type Props = {
   stageId: string;
   item: ITicket;
   onClick?: () => void;
+  isFormVisible?: boolean;
   beforePopupClose?: () => void;
   options?: IOptions;
   portable?: boolean;
@@ -33,8 +34,16 @@ class TicketItem extends React.PureComponent<
     super(props);
 
     this.state = {
-      isPopupVisible: false
+      isPopupVisible: props.isFormVisible || false
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isFormVisible !== this.props.isFormVisible) {
+      this.setState({
+        isPopupVisible: nextProps.isFormVisible
+      });
+    }
   }
 
   beforePopupClose = () => {
@@ -59,6 +68,11 @@ class TicketItem extends React.PureComponent<
 
   renderForm = () => {
     const { item } = this.props;
+    const { isPopupVisible } = this.state;
+
+    if (!isPopupVisible) {
+      return null;
+    }
 
     return (
       <EditForm
@@ -66,7 +80,7 @@ class TicketItem extends React.PureComponent<
         itemId={item._id}
         beforePopupClose={this.beforePopupClose}
         hideHeader={true}
-        isPopupVisible={this.state.isPopupVisible}
+        isPopupVisible={isPopupVisible}
       />
     );
   };
