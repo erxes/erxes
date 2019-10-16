@@ -59,8 +59,6 @@ const Actions = styled.div`
 `;
 
 const Template = styled.div`
-  flex-basis: 300px;
-  padding: 10px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
