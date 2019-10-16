@@ -18,10 +18,12 @@ const setParams = (history: any, query: any, replace: boolean = false) => {
 
   // go to new url
   if (replace) {
-    return history.replace(`${location.pathname}?${stringified}`);
+    return history.replace(
+      `${location.pathname}?${stringified}${location.hash}`
+    );
   }
 
-  return history.push(`${location.pathname}?${stringified}`);
+  return history.push(`${location.pathname}?${stringified}${location.hash}`);
 };
 
 /**

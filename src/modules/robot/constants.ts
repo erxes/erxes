@@ -11,7 +11,7 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       growthHackBoardsCreate: {
         name: 'Create a marketing campaign',
-        url: '/settings/boards/growthHack#showBoardAddModal=true'
+        url: '/settings/boards/growthHack#showBoardModal=true'
       },
       growthHackPipelinesCreate: {
         name: 'Then create a project',
@@ -35,7 +35,7 @@ export const FEATURE_DETAILS = {
       },
       channelCreate: {
         name: 'Create a channel',
-        url: '/settings/channels'
+        url: '/settings/channels#showChannelAddModal=true'
       },
       messengerIntegrationCreate: {
         name: 'Then create an integration',
@@ -43,11 +43,11 @@ export const FEATURE_DETAILS = {
       },
       responseTemplateCreate: {
         name: 'Add a response template',
-        url: '/settings/response-templates'
+        url: '/settings/response-templates#showListFormModal=true'
       },
       connectIntegrationsToChannel: {
         name: 'Connect integration to channel',
-        url: '/settings/channels'
+        url: '/settings/channels#showManageIntegrationModal=true'
       }
     }
   },
@@ -61,11 +61,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       dealBoardsCreate: {
         name: 'Create a sales board',
-        url: '/settings/boards/deal'
+        url: '/settings/boards/deal#showBoardModal=true'
       },
       dealPipelinesCreate: {
         name: 'Create a sales pipeline',
-        url: '/settings/boards/deal'
+        url: '/settings/boards/deal#showPipelineModal=true'
       },
       dealCreate: {
         name: 'Now add deals',
@@ -95,7 +95,7 @@ export const FEATURE_DETAILS = {
       },
       leadIntegrationInstalled: {
         name: 'Install on website',
-        url: '/leads/create'
+        url: '/leads'
       }
     }
   },
@@ -109,11 +109,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       emailTemplateCreate: {
         name: 'Create email template',
-        url: '/settings/email-templates'
+        url: '/settings/email-templates#showListFormModal=true'
       },
       tagCreate: {
         name: 'Create email tag',
-        url: '/tags/engageMessage'
+        url: '/tags/engageMessage#showTagengageMessageModal=true'
       },
       engageCreate: {
         name: 'Now create manual email newsletter',
@@ -131,11 +131,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       taskBoardsCreate: {
         name: 'Create a task board',
-        url: '/settings/boards/task'
+        url: '/settings/boards/task#showBoardModal=true'
       },
       taskPipelinesCreate: {
         name: 'Create a task pipeline',
-        url: '/settings/boards/task'
+        url: '/settings/boards/task#showPipelineModal=true'
       },
       taskCreate: {
         name: 'Now add tasks',
@@ -151,11 +151,11 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       ticketBoardsCreate: {
         name: 'Create a ticket board',
-        url: '/settings/boards/ticket'
+        url: '/settings/boards/ticket#showBoardModal=true'
       },
       ticketPipelinesCreate: {
         name: 'Create a ticket pipeline',
-        url: '/settings/boards/ticket'
+        url: '/settings/boards/ticket#showPipelineModal=true'
       },
       ticketCreate: {
         name: 'Now add tickets',

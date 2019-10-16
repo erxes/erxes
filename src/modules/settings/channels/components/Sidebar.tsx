@@ -58,6 +58,7 @@ class Sidebar extends React.Component<Props, {}> {
         {__('Channels')}
         <ModalTrigger
           title="New Channel"
+          autoOpenKey="showChannelAddModal"
           trigger={addChannel}
           content={content}
         />
