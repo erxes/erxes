@@ -38,7 +38,7 @@ class TaskItem extends React.PureComponent<Props> {
       isFormVisible
     } = this.props;
 
-    if (isFormVisible) {
+    if (!isFormVisible) {
       return null;
     }
 
