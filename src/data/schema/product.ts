@@ -22,7 +22,7 @@ export const types = `
     categoryId: String
     customFieldsData: JSON
     createdAt: Date
-    tags: [Tag]
+    getTags: [Tag]
     tagIds: [String]
 
     category: ProductCategory
@@ -51,9 +51,10 @@ export const queries = `
   productCategories(parentId: String, searchValue: String): [ProductCategory]
   productCategoriesTotalCount: Int
 
-  products(type: String, categoryId: String, searchValue: String, page: Int, perPage: Int ids: [String]): [Product]
+  products(type: String, categoryId: String, searchValue: String, tag: String, page: Int, perPage: Int ids: [String]): [Product]
   productsTotalCount(type: String): Int
   productDetail(_id: String): Product
+  productCountByTags: JSON
 `;
 
 export const mutations = `

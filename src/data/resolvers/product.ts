@@ -6,7 +6,7 @@ export default {
     return ProductCategories.findOne({ _id: product.categoryId });
   },
 
-  tags(product: IProductDocument) {
+  getTags(product: IProductDocument) {
     return Tags.find({ _id: { $in: product.tagIds || [] } });
   },
 };

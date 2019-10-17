@@ -132,6 +132,7 @@ export const loadClass = () => {
       count += await EngageMessages.find({ tagIds: { $in: ids } }).countDocuments();
       count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
       count += await Integrations.find({ tagIds: { $in: ids } }).countDocuments();
+      count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
 
       if (count > 0) {
         throw new Error("Can't remove a tag with tagged object(s)");
