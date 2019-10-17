@@ -1,3 +1,5 @@
+import { ITag } from 'modules/tags/types';
+
 export interface IProductDoc {
   _id?: string;
   type: string;
@@ -21,6 +23,7 @@ export interface IProduct {
   type: string;
   categoryId: string;
   description: string;
+  getTags?: ITag[];
   sku: string;
   code: string;
   unitPrice: number;
@@ -101,5 +104,10 @@ export type ProductCategoryRemoveMutationResponse = {
 
 export type DetailQueryResponse = {
   productDetail: IProduct;
+  loading: boolean;
+};
+
+export type CountByTagsQueryResponse = {
+  productCountByTags: { [key: string]: number };
   loading: boolean;
 };

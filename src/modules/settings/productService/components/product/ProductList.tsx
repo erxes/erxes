@@ -9,6 +9,7 @@ import { IRouterProps } from 'modules/common/types';
 import { __, Alert, confirm } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Form from '../../containers/product/ProductForm';
@@ -67,7 +68,8 @@ class List extends React.Component<IProps> {
       queryParams,
       isAllSelected,
       history,
-      bulk
+      bulk,
+      emptyBulk
     } = this.props;
 
     const breadcrumb = [
@@ -111,10 +113,10 @@ class List extends React.Component<IProps> {
             </th>
             <th>{__('Name')}</th>
             <th>{__('Type')}</th>
-            <th>{__('Description')}</th>
             <th>{__('Category')}</th>
             <th>{__('Unit Price')}</th>
             <th>{__('SKU')}</th>
+            <th>{__('Tags')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
@@ -122,6 +124,12 @@ class List extends React.Component<IProps> {
     );
 
     if (bulk.length > 0) {
+      const tagButton = (
+        <Button btnStyle="simple" size="small" icon="tag-alt">
+          Tag
+        </Button>
+      );
+
       const onClick = () =>
         confirm()
           .then(() => {
@@ -133,6 +141,13 @@ class List extends React.Component<IProps> {
 
       actionBarRight = (
         <BarItems>
+          <TaggerPopover
+            type="product"
+            successCallback={emptyBulk}
+            targets={bulk}
+            trigger={tagButton}
+            refetchQueries={['productCountByTags']}
+          />
           <Button
             btnStyle="danger"
             size="small"
@@ -156,13 +171,11 @@ class List extends React.Component<IProps> {
         actionBar={
           <Wrapper.ActionBar
             left={
-              <React.Fragment>
-                <HeaderDescription
-                  icon="/images/actions/30.svg"
-                  title={'Product & Service'}
-                  description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
-                />
-              </React.Fragment>
+              <HeaderDescription
+                icon="/images/actions/30.svg"
+                title={'Product & Service'}
+                description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+              />
             }
             right={actionBarRight}
           />
