@@ -119,6 +119,7 @@ export type ByKind = {
   facebook: number;
   gmail: number;
   callpro: number;
+  chatfuel: number;
 };
 
 type IntegrationsCount = {

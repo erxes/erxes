@@ -13,6 +13,7 @@ type Props = {
     facebook: number;
     gmail: number;
     callpro: number;
+    chatfuel: number;
   };
   queryParams: any;
 };
