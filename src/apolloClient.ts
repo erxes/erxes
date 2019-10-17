@@ -49,6 +49,7 @@ const apolloServer = new ApolloServer({
     if (USE_BRAND_RESTRICTIONS !== 'true') {
       return {
         brandIdSelector: {},
+        userBrandIdsSelector: {},
         docModifier: doc => doc,
         commonQuerySelector: {},
         user,
@@ -56,24 +57,31 @@ const apolloServer = new ApolloServer({
       };
     }
 
+    let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
     let brandIds = [];
     let brandIdSelector = {};
+    let commonQuerySelector = {};
+    let userBrandIdsSelector = {};
 
-    if (user && !user.isOwner) {
+    if (user) {
       brandIds = user.brandIds || [];
-      brandIdSelector = { _id: { $in: brandIds } };
-    }
 
-    let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+      if (scopeBrandIds.length === 0) {
+        scopeBrandIds = brandIds;
+      }
 
-    if (scopeBrandIds.length === 0) {
-      scopeBrandIds = brandIds;
+      if (!user.isOwner) {
+        brandIdSelector = { _id: { $in: scopeBrandIds } };
+        commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+        userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+      }
     }
 
     return {
       brandIdSelector,
       docModifier: doc => ({ ...doc, scopeBrandIds }),
-      commonQuerySelector: { scopeBrandIds: { $in: scopeBrandIds } },
+      commonQuerySelector,
+      userBrandIdsSelector,
       user,
       res,
     };

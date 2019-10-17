@@ -26,14 +26,14 @@ export interface IExternalIntegrationParams {
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData): IIntegration;
-  createIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
-  createMessengerIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
+  createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
+  createMessengerIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(_id: string, doc: IUiOptions): Promise<IIntegrationDocument>;
   saveMessengerConfigs(_id: string, messengerData: IMessengerData): Promise<IIntegrationDocument>;
-  createLeadIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
+  createLeadIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   updateLeadIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
-  createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument>;
+  createExternalIntegration(doc: IExternalIntegrationParams, userId: string): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
 }
 
@@ -54,18 +54,15 @@ export const loadClass = () => {
     /**
      * Create an integration, intended as a private method
      */
-    public static createIntegration(doc: IIntegration) {
-      return Integrations.create(doc);
+    public static createIntegration(doc: IIntegration, userId: string) {
+      return Integrations.create({ ...doc, createdUserId: userId });
     }
 
     /**
      * Create a messenger kind integration
      */
-    public static createMessengerIntegration(doc: IMessengerIntegration) {
-      return this.createIntegration({
-        ...doc,
-        kind: KIND_CHOICES.MESSENGER,
-      });
+    public static createMessengerIntegration(doc: IMessengerIntegration, userId: string) {
+      return this.createIntegration({ ...doc, kind: KIND_CHOICES.MESSENGER }, userId);
     }
 
     /**
@@ -101,21 +98,24 @@ export const loadClass = () => {
     /**
      * Create a lead kind integration
      */
-    public static createLeadIntegration({ leadData = {}, ...mainDoc }: IIntegration) {
+    public static createLeadIntegration({ leadData = {}, ...mainDoc }: IIntegration, userId: string) {
       const doc = this.generateLeadDoc({ ...mainDoc }, leadData);
 
       if (Object.keys(leadData || {}).length === 0) {
         throw new Error('leadData must be supplied');
       }
 
-      return Integrations.createIntegration(doc);
+      return Integrations.createIntegration(doc, userId);
     }
 
     /**
      * Create external integrations like facebook, twitter integration
      */
-    public static createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument> {
-      return Integrations.createIntegration(doc);
+    public static createExternalIntegration(
+      doc: IExternalIntegrationParams,
+      userId: string,
+    ): Promise<IIntegrationDocument> {
+      return Integrations.createIntegration(doc, userId);
     }
 
     /**

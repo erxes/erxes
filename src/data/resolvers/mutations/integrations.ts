@@ -18,7 +18,7 @@ const integrationMutations = {
    * Create a new messenger integration
    */
   async integrationsCreateMessengerIntegration(_root, doc: IMessengerIntegration, { user }: IContext) {
-    const integration = await Integrations.createMessengerIntegration(doc);
+    const integration = await Integrations.createMessengerIntegration(doc, user._id);
 
     await putCreateLog(
       {
@@ -73,7 +73,7 @@ const integrationMutations = {
    * Create a new messenger integration
    */
   async integrationsCreateLeadIntegration(_root, doc: IIntegration, { user }: IContext) {
-    const integration = await Integrations.createLeadIntegration(doc);
+    const integration = await Integrations.createLeadIntegration(doc, user._id);
 
     await putCreateLog(
       {
@@ -103,7 +103,7 @@ const integrationMutations = {
     { data, ...doc }: IExternalIntegrationParams & { data: object },
     { user, dataSources }: IContext,
   ) {
-    const integration = await Integrations.createExternalIntegration(doc);
+    const integration = await Integrations.createExternalIntegration(doc, user._id);
 
     let kind = doc.kind;
 

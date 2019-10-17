@@ -102,6 +102,7 @@ export interface IIntegration {
 
 export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
+  createdUserId: string;
   // TODO: remove
   formData?: ILeadData;
   messengerData?: IMessengerDataDocument;
@@ -252,6 +253,7 @@ const uiOptionsSchema = new Schema(
 // schema for integration document
 export const integrationSchema = new Schema({
   _id: field({ pkey: true }),
+  createdUserId: field({ type: String }),
 
   kind: field({
     type: String,
