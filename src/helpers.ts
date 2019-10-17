@@ -49,11 +49,16 @@ export const removeIntegration = async (id: string) => {
     debugFacebook('Removing facebook entries');
 
     for (const pageId of integration.facebookPageIds) {
-      const pageTokenResponse = await getPageAccessToken(pageId, account.token);
+      let pageTokenResponse;
+
+      try {
+        pageTokenResponse = await getPageAccessToken(pageId, account.token);
+      } catch (e) {
+        debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
+      }
 
       await FacebookPosts.deleteMany({ recipientId: pageId });
       await FacebookComments.deleteMany({ recipientId: pageId });
-
       await unsubscribePage(pageId, pageTokenResponse);
     }
 
