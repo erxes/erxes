@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
-import { Companies, Conversations, Customers, EngageMessages, Integrations } from '.';
+import { Companies, Conversations, Customers, EngageMessages, Integrations, Products } from '.';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
 interface ITagObjectParams {
@@ -132,6 +132,7 @@ export const loadClass = () => {
       count += await EngageMessages.find({ tagIds: { $in: ids } }).countDocuments();
       count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
       count += await Integrations.find({ tagIds: { $in: ids } }).countDocuments();
+      count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
 
       if (count > 0) {
         throw new Error("Can't remove a tag with tagged object(s)");
@@ -158,6 +159,9 @@ export const loadClass = () => {
           break;
         case 'integration':
           collection = Integrations;
+          break;
+        case 'product':
+          collection = Products;
           break;
       }
 

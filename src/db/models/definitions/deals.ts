@@ -14,6 +14,7 @@ export interface IProduct {
   code: string;
   customFieldsData?: any;
   productId?: string;
+  tagIds?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -68,6 +69,7 @@ export const productSchema = schemaWrapper(
       enum: PRODUCT_TYPES.ALL,
       default: PRODUCT_TYPES.PRODUCT,
     }),
+    tagIds: field({ type: [String], optional: true }),
     description: field({ type: String, optional: true }),
     sku: field({ type: String, optional: true }), // Stock Keeping Unit
     unitPrice: field({ type: Number, optional: true }),
