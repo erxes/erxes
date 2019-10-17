@@ -65,6 +65,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'callpro':
         icon = 'phone-call';
         break;
+      case 'chatfuel':
+        icon = 'comment-dots';
+        break;
       default:
         icon = 'doc-text-inv-1';
     }

@@ -54,7 +54,7 @@ class Sidebar extends React.Component<Props> {
                 className={this.getClassName('product')}
                 to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.PRODUCT}`}
               >
-                {__('Product & service')}
+                {__('Product & Service')}
               </Link>
             </li>
           </List>

@@ -37,6 +37,11 @@ function TagsSidebar() {
               {__('Integration')}
             </NavLink>
           </li>
+          <li>
+            <NavLink activeClassName="active" to="/tags/product">
+              {__('Product & Service')}
+            </NavLink>
+          </li>
         </SidebarList>
       </Sidebar.Section>
     </Sidebar>

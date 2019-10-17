@@ -7,7 +7,8 @@ export const FEATURE_DETAILS = {
     color: '#f7802e',
     description:
       'From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.',
-    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U',
+    videoUrl: 'https://www.youtube.com/embed/Z5KI5YuvZ7U?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Z5KI5YuvZ7U/mqdefault.jpg',
     settingsDetails: {
       growthHackBoardsCreate: {
         name: 'Create a marketing campaign',
