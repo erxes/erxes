@@ -6,6 +6,7 @@ import * as express from 'express';
 dotenv.config();
 
 import initCallPro from './callpro/controller';
+import initChatfuel from './chatfuel/controller';
 import { connect } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
@@ -93,6 +94,9 @@ initGmail(app);
 
 // init callpro
 initCallPro(app);
+
+// init chatfuel
+initChatfuel(app);
 
 // init nylas
 initNylas(app);

@@ -3,6 +3,11 @@ import {
   Conversations as CallProConversations,
   Customers as CallProCustomers,
 } from './callpro/models';
+import {
+  ConversationMessages as ChatfuelConversationMessages,
+  Conversations as ChatfuelConversations,
+  Customers as ChatfuelCustomers,
+} from './chatfuel/models';
 import { debugCallPro, debugFacebook, debugGmail, debugNylas } from './debuggers';
 import {
   Comments as FacebookComments,
@@ -97,6 +102,16 @@ export const removeIntegration = async (id: string) => {
     await CallProCustomers.deleteMany(selector);
     await CallProConversations.deleteMany(selector);
     await CallProConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  if (kind === 'chatfuel') {
+    debugCallPro('Removing chatfuel entries');
+
+    const conversationIds = await ChatfuelConversations.find(selector).distinct('_id');
+
+    await ChatfuelCustomers.deleteMany(selector);
+    await ChatfuelConversations.deleteMany(selector);
+    await ChatfuelConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
   return Integrations.deleteOne({ _id });

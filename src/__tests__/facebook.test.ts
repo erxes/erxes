@@ -4,20 +4,6 @@ import { facebookConversationFactory, facebookCustomerFactory, integrationFactor
 import Integrations from '../models/Integrations';
 import './setup.ts';
 
-const adapter: any = {
-  getAPI: _activity => {
-    return {
-      callAPI: () => {
-        return new Promise(resolve => {
-          setTimeout(() => {
-            return resolve({});
-          }, 100);
-        });
-      },
-    };
-  },
-};
-
 const activity: any = {
   channelData: {
     sender: { id: '_id' },
@@ -52,11 +38,7 @@ describe('Duplications', () => {
       expect.assertions(1);
 
       try {
-        await Promise.all([
-          receiveMessage(adapter, activity),
-          receiveMessage(adapter, activity),
-          receiveMessage(adapter, activity),
-        ]);
+        await Promise.all([receiveMessage(activity), receiveMessage(activity), receiveMessage(activity)]);
       } catch (e) {
         expect(await Customers.find().countDocuments()).toBe(1);
       }
@@ -70,11 +52,7 @@ describe('Duplications', () => {
       await facebookCustomerFactory({ userId: '_id' });
 
       try {
-        await Promise.all([
-          receiveMessage(adapter, activity),
-          receiveMessage(adapter, activity),
-          receiveMessage(adapter, activity),
-        ]);
+        await Promise.all([receiveMessage(activity), receiveMessage(activity), receiveMessage(activity)]);
       } catch (e) {
         expect(await Conversations.find({}).countDocuments()).toBe(1);
       }
@@ -89,11 +67,7 @@ describe('Duplications', () => {
       await facebookConversationFactory({ senderId: '_id', recipientId: 'pageId' });
 
       try {
-        await Promise.all([
-          receiveMessage(adapter, activity),
-          receiveMessage(adapter, activity),
-          receiveMessage(adapter, activity),
-        ]);
+        await Promise.all([receiveMessage(activity), receiveMessage(activity), receiveMessage(activity)]);
       } catch (e) {
         expect(await ConversationMessages.find({}).countDocuments()).toBe(1);
       }
