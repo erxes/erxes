@@ -47,8 +47,10 @@ export const taskFields = `
   customers {
     _id
     firstName
+    lastName
     primaryEmail
     primaryPhone
+    visitorContactInfo
   }
   closeDate
   description

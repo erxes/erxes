@@ -16,6 +16,7 @@ type Props = {
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
+  onExit?: () => void;
 };
 
 type State = {
@@ -62,7 +63,8 @@ class ModalTrigger extends React.Component<Props, State> {
       dialogClassName,
       content,
       backDrop,
-      enforceFocus
+      enforceFocus,
+      onExit
     } = this.props;
 
     const { isOpen } = this.state;
@@ -86,6 +88,7 @@ class ModalTrigger extends React.Component<Props, State> {
           onHide={this.closeModal}
           backdrop={backDrop}
           enforceFocus={enforceFocus}
+          onExit={onExit}
         >
           {this.renderHeader()}
           <Modal.Body>

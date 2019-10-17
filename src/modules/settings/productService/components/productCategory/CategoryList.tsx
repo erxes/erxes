@@ -6,12 +6,16 @@ import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { HelperButtons, SidebarList } from 'modules/layout/styles';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import TagFilter from '../../containers/TagFilter';
 import { IProductCategory } from '../../types';
 import Form from './CategoryForm';
+
+const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   history: any;
@@ -154,20 +158,60 @@ class List extends React.Component<IProps> {
     );
   }
 
-  render() {
+  renderCategoryHeader() {
+    const trigger = (
+      <a href="#add">
+        <Tip text={__('Create group')}>
+          <Icon icon="add" />
+        </Tip>
+      </a>
+    );
+
+    return (
+      <>
+        <Section.Title>{__('Product & Service Category')} </Section.Title>
+        <Section.QuickButtons>
+          {this.renderFormTrigger(trigger)}
+          {router.getParam(this.props.history, 'categoryId') && (
+            <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
+              <Tip text={__('Clear filter')}>
+                <Icon icon="cancel-1" />
+              </Tip>
+            </a>
+          )}
+        </Section.QuickButtons>
+      </>
+    );
+  }
+
+  renderCategoryList() {
     const { productCategoriesCount, loading } = this.props;
 
     return (
-      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
-        <SidebarList>
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={loading}
-            count={productCategoriesCount}
-            emptyText="There is no product & service category"
-            emptyImage="/images/actions/26.svg"
-          />
-        </SidebarList>
+      <SidebarList>
+        <DataWithLoader
+          data={this.renderContent()}
+          loading={loading}
+          count={productCategoriesCount}
+          emptyText="There is no product & service category"
+          emptyImage="/images/actions/26.svg"
+        />
+      </SidebarList>
+    );
+  }
+
+  render() {
+    return (
+      <Sidebar wide={true}>
+        <Section
+          maxHeight={488}
+          collapsible={this.props.productCategoriesCount > 9}
+        >
+          {this.renderCategoryHeader()}
+          {this.renderCategoryList()}
+        </Section>
+
+        <TagFilter />
       </Sidebar>
     );
   }

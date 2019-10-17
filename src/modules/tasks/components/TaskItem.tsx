@@ -1,11 +1,13 @@
 import dayjs from 'dayjs';
+import Details from 'modules/boards/components/Details';
 import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemDate } from 'modules/boards/styles/common';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
-import { Content, ItemIndicator } from 'modules/boards/styles/stage';
+import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
+import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
@@ -14,84 +16,126 @@ import { ITask } from '../types';
 type Props = {
   stageId: string;
   item: ITask;
-  onClick: () => void;
-  beforePopupClose: () => void;
+  onClick?: () => void;
+  isFormVisible?: boolean;
+  beforePopupClose?: () => void;
   options?: IOptions;
-  isFormVisible: boolean;
+  portable?: boolean;
+  onAdd?: (stageId: string, item: ITask) => void;
+  onRemove?: (taskId: string, stageId: string) => void;
+  onUpdate?: (item: ITask) => void;
 };
 
-class TaskItem extends React.PureComponent<Props> {
-  renderDate(date) {
+class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isPopupVisible: props.isFormVisible || false
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isFormVisible !== this.props.isFormVisible) {
+      this.setState({
+        isPopupVisible: nextProps.isFormVisible
+      });
+    }
+  }
+
+  beforePopupClose = () => {
+    const { portable, beforePopupClose } = this.props;
+
+    if (portable) {
+      this.setState({ isPopupVisible: false });
+    } else {
+      if (beforePopupClose) {
+        beforePopupClose();
+      }
+    }
+  };
+
+  renderDate(date, format = 'YYYY-MM-DD') {
     if (!date) {
       return null;
     }
 
-    return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
+    return (
+      <Tip text={dayjs(date).format(format)}>
+        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
+      </Tip>
+    );
   }
 
   renderForm = () => {
-    const {
-      beforePopupClose,
-      stageId,
-      item,
-      options,
-      isFormVisible
-    } = this.props;
+    const { item } = this.props;
+    const { isPopupVisible } = this.state;
 
-    if (!isFormVisible) {
+    if (!isPopupVisible) {
       return null;
     }
 
     return (
       <EditForm
-        options={options}
-        stageId={stageId}
+        {...this.props}
         itemId={item._id}
-        beforePopupClose={beforePopupClose}
-        isPopupVisible={isFormVisible}
+        hideHeader={true}
+        beforePopupClose={this.beforePopupClose}
+        isPopupVisible={isPopupVisible}
       />
     );
   };
 
-  render() {
-    const { onClick, item } = this.props;
+  renderContent() {
+    const { item } = this.props;
     const { customers, companies, closeDate, isComplete } = item;
 
     return (
       <>
-        <Content onClick={onClick}>
-          <h5>
-            {renderPriority(item.priority)}
-            {item.name}
-          </h5>
+        <h5>
+          {renderPriority(item.priority)}
+          {item.name}
+        </h5>
 
-          {customers.map((customer, index) => (
-            <div key={index}>
-              <ItemIndicator color="#F7CE53" />
-              {customer.firstName || customer.primaryEmail}
-            </div>
-          ))}
+        <Details color="#F7CE53" items={customers || []} />
+        <Details color="#EA475D" items={companies || []} />
 
-          {companies.map((company, index) => (
-            <div key={index}>
-              <ItemIndicator color="#EA475D" />
-              {company.primaryName}
-            </div>
-          ))}
+        <PriceContainer>
+          <Right>
+            <Participators participatedUsers={item.assignedUsers} limit={3} />
+          </Right>
+        </PriceContainer>
 
-          <PriceContainer>
-            <Right>
-              <Participators participatedUsers={item.assignedUsers} limit={3} />
-            </Right>
-          </PriceContainer>
+        <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
-          <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
+        <Footer>
+          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
+        </Footer>
+      </>
+    );
+  }
 
-          <Footer>
-            {__('Last updated')}:
-            <Right>{this.renderDate(item.modifiedAt)}</Right>
-          </Footer>
-        </Content>
+  render() {
+    const { portable } = this.props;
+
+    if (portable) {
+      const onClick = () => {
+        this.setState({ isPopupVisible: true });
+      };
+
+      return (
+        <>
+          <ItemContainer onClick={onClick}>
+            <Content>{this.renderContent()}</Content>
+          </ItemContainer>
+          {this.renderForm()}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
     );
