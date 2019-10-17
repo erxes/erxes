@@ -1,6 +1,6 @@
 import { debugChatfuel, debugRequest } from '../debuggers';
 import { Integrations } from '../models';
-import { fetchMainApi, getEnv, sendRequest } from '../utils';
+import { fetchMainApi, sendRequest } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 
 const init = async app => {
@@ -189,8 +189,6 @@ const init = async app => {
   app.post('/chatfuel/reply', async (req, res, next) => {
     debugRequest(debugChatfuel, req);
 
-    const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
-
     const { content, attachments, conversationId } = req.body;
 
     const conversation = await Conversations.findOne({ erxesApiId: conversationId });
@@ -202,9 +200,7 @@ const init = async app => {
     const integration = await Integrations.getIntegration({ _id: conversation.integrationId });
     const configs = integration.chatfuelConfigs || {};
 
-    const attachmentUrls = (attachments || [])
-      .map(attachment => `${MAIN_API_DOMAIN}/read-file?key=${attachment.url}`)
-      .toString();
+    const attachmentUrls = (attachments || []).map(attachment => attachment.url).toString();
 
     await sendRequest({
       url: `https://api.chatfuel.com/bots/${configs.botId}/users/${conversation.chatfuelUserId}/send?chatfuel_token=${
