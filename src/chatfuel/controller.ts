@@ -58,6 +58,8 @@ const init = async app => {
       }
     }
 
+    debugChatfuel(`Sending messages to broadcast ${JSON.stringify(messages)}`);
+
     return res.json({ messages });
   });
 
