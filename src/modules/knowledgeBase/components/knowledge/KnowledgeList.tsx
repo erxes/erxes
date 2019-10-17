@@ -72,6 +72,7 @@ class KnowledgeList extends React.Component<Props> {
         {__('Knowledge base')}
         <ModalTrigger
           title="Add Knowledge base"
+          autoOpenKey="showKBAddModal"
           trigger={trigger}
           content={content}
         />

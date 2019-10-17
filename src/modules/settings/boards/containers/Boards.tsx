@@ -5,6 +5,7 @@ import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
+import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -30,6 +31,14 @@ class BoardsContainer extends React.Component<FinalProps> {
     const { history, boardsQuery, removeMutation, type } = this.props;
 
     const boards = boardsQuery.boards || [];
+
+    const removeHash = () => {
+      const { location } = history;
+
+      if (location.hash.includes('showBoardModal')) {
+        routerUtils.removeHash(history, 'showBoardModal');
+      }
+    };
 
     // remove action
     const remove = boardId => {
@@ -76,6 +85,7 @@ class BoardsContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
+          beforeSubmit={removeHash}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -88,6 +98,7 @@ class BoardsContainer extends React.Component<FinalProps> {
       boards,
       renderButton,
       remove,
+      removeHash,
       loading: boardsQuery.loading
     };
 

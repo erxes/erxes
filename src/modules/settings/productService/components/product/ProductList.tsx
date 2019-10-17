@@ -95,6 +95,7 @@ class List extends React.Component<IProps> {
         <ModalTrigger
           title="Add Product / Service"
           trigger={trigger}
+          autoOpenKey="showProductModal"
           content={modalContent}
         />
       </BarItems>

@@ -55,7 +55,12 @@ class Sidebar extends React.Component<Props, {}> {
       <Header uppercase={true}>
         {__('Brands')}
 
-        <ModalTrigger title="New Brand" trigger={addBrand} content={content} />
+        <ModalTrigger
+          title="New Brand"
+          autoOpenKey="showBrandAddModal"
+          trigger={addBrand}
+          content={content}
+        />
       </Header>
     );
   }

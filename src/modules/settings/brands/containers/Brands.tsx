@@ -92,6 +92,7 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
     } = nextProps;
 
     if (
+      !history.location.hash &&
       lastBrandQuery &&
       !_id &&
       lastBrandQuery.brandsGetLast &&

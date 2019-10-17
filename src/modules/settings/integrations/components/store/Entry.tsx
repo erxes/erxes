@@ -61,6 +61,7 @@ class Entry extends React.Component<Props> {
       return (
         <ModalTrigger
           title="Add facebook page"
+          autoOpenKey="showFacebookMessengerModal"
           trigger={trigger}
           content={content}
         />

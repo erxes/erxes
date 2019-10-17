@@ -111,6 +111,7 @@ class KnowledgeRow extends React.Component<Props, State> {
             <ModalTrigger
               title="Add Category"
               trigger={addCategory}
+              autoOpenKey="showKBAddCategoryModal"
               content={categoryContent}
             />
           </Dropdown.Menu>
