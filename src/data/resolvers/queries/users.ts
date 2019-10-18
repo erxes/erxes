@@ -8,6 +8,7 @@ interface IListArgs {
   perPage?: number;
   searchValue?: string;
   isActive?: boolean;
+  requireUsername: boolean;
   ids?: string[];
   email?: string;
   status?: string;
@@ -18,7 +19,7 @@ interface IUserParams {
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  const { searchValue, isActive, ids, status } = params;
+  const { searchValue, isActive, requireUsername, ids, status } = params;
 
   const selector: any = {
     isActive,
@@ -32,6 +33,10 @@ const queryBuilder = async (params: IListArgs) => {
     ];
 
     selector.$or = fields;
+  }
+
+  if (requireUsername) {
+    selector.username = { $ne: null };
   }
 
   if (isActive === undefined || isActive === null) {
