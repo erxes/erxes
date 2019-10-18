@@ -219,27 +219,30 @@ const conversationMutations = {
       });
     }
 
-    if (kind === KIND_CHOICES.FACEBOOK_POST) {
-      return dataSources.IntegrationsAPI.replyFacebookPost({
-        conversationId: conversation._id,
-        integrationId: integration._id,
-        content: strip(doc.content),
-        attachments: doc.attachments || [],
-      })
-        .then(response => {
-          debugExternalApi(response);
-        })
-        .catch(e => {
-          debugExternalApi(e.message);
-          return e;
-        });
-    }
-
     const message = await ConversationMessages.addMessage(doc, user._id);
+
+    let isFacebook = false;
+    let requestName;
+
+    if (kind === KIND_CHOICES.FACEBOOK_POST) {
+      isFacebook = true;
+      requestName = 'replyFacebookPost';
+    }
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      dataSources.IntegrationsAPI.replyFacebook({
+      isFacebook = true;
+      requestName = 'replyFacebook';
+    }
+
+    // send reply to chatfuel
+    if (kind === KIND_CHOICES.CHATFUEL) {
+      isFacebook = true;
+      requestName = 'replyChatfuel';
+    }
+
+    if (isFacebook) {
+      dataSources.IntegrationsAPI[requestName]({
         conversationId: conversation._id,
         integrationId: integration._id,
         content: strip(doc.content),

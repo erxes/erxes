@@ -38,7 +38,9 @@ const integrationsApiMiddleware = async (req, res) => {
       }
     }
 
-    customer = await getCustomer({ primaryEmail });
+    if (primaryEmail) {
+      customer = await getCustomer({ primaryEmail });
+    }
 
     if (customer) {
       return res.json({ _id: customer._id });
