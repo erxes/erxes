@@ -29,11 +29,6 @@ const FirstLine = styled.a`
   }
 `;
 
-const SecondLine = styled.div`
-  font-size: 12px;
-  color: ${colors.colorLightGray};
-`;
-
 type Props = {
   user?: IUser;
   customer?: ICustomer;
@@ -49,7 +44,7 @@ class NameCard extends React.Component<Props> {
   static Avatar = Avatar;
 
   renderUserName() {
-    const { user, singleLine, secondLine } = this.props;
+    const { user } = this.props;
 
     if (!user) {
       return null;
@@ -59,15 +54,11 @@ class NameCard extends React.Component<Props> {
       return user.details.fullName;
     }
 
-    if (!singleLine) {
-      return secondLine || `@${user.username}`;
-    }
-
     return null;
   }
 
   renderCustomerName() {
-    const { customer, singleLine, secondLine } = this.props;
+    const { customer, singleLine } = this.props;
 
     if (!customer) {
       return null;
@@ -77,26 +68,19 @@ class NameCard extends React.Component<Props> {
       return customer.firstName || customer.primaryEmail || 'Unknown';
     }
 
-    if (!singleLine) {
-      return secondLine || customer.primaryEmail || 'Unknown';
-    }
-
     return null;
   }
 
   render() {
-    const { user, customer, firstLine, secondLine, avatarSize } = this.props;
+    const { user, customer, firstLine, avatarSize } = this.props;
     let first;
-    let second;
 
-    if (user || firstLine || secondLine) {
+    if (user || firstLine) {
       first = firstLine || this.renderUserName();
-      second = secondLine || (user && user.email) || this.renderUserName();
     }
 
     if (customer) {
       first = firstLine || customer.firstName || this.renderCustomerName();
-      second = this.renderCustomerName();
     }
 
     return (
@@ -104,7 +88,6 @@ class NameCard extends React.Component<Props> {
         <Avatar user={user} customer={customer} size={avatarSize} />
         <NameCardText>
           <FirstLine>{first}</FirstLine>
-          <SecondLine>{second}</SecondLine>
         </NameCardText>
       </NameCardStyled>
     );
