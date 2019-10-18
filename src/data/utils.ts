@@ -111,7 +111,7 @@ const createGCS = () => {
 /*
  * Save binary data to amazon s3
  */
-export const uploadFileAWS = async (file: { name: string; path: string }): Promise<string> => {
+export const uploadFileAWS = async (file: { name: string; path: string; type: string }): Promise<string> => {
   const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
   const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
   const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
@@ -129,6 +129,7 @@ export const uploadFileAWS = async (file: { name: string; path: string }): Promi
   const response: any = await new Promise((resolve, reject) => {
     s3.upload(
       {
+        ContentType: file.type,
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: buffer,
@@ -193,7 +194,7 @@ export const uploadFileGCS = async (file: { name: string; path: string; type: st
  * Read file from GCS, AWS
  */
 export const readFileRequest = async (key: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_T`YPE', defaultValue: 'AWS' });
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
     const GCS_BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
