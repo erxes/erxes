@@ -111,30 +111,45 @@ const init = async app => {
 
     const conversation = await Conversations.getConversation({ erxesApiId: conversationId });
 
-    const { recipientId } = conversation;
+    const { recipientId, senderId } = conversation;
 
-    let attachment: { url?: string; type?: string; payload?: { url: string } } = {};
-
-    if (attachments && attachments.length > 0) {
-      attachment = {
-        type: 'file',
-        payload: {
-          url: attachments[0].url,
-        },
-      };
-    }
-
-    const data = {
-      recipient: { id: conversation.senderId },
-      message: {
-        text: content,
-        attachment,
-      },
+    const data: any = {
+      recipient: { id: senderId },
     };
 
     try {
-      const response = await sendReply('me/messages', data, recipientId, integrationId);
-      res.json(response);
+      if (content) {
+        data.message = {
+          text: content,
+        };
+
+        const response = await sendReply('me/messages', data, recipientId, integrationId);
+
+        res.json(response);
+      }
+
+      if (attachments && attachments.length > 0) {
+        const attachment = attachments[0];
+
+        let type = 'file';
+
+        if (attachment.type.startsWith('image')) {
+          type = 'image';
+        }
+
+        data.message = {
+          attachment: {
+            type,
+            payload: {
+              url: attachments[0].url,
+            },
+          },
+        };
+
+        const response = await sendReply('me/messages', data, recipientId, integrationId);
+
+        res.json(response);
+      }
     } catch (e) {
       return next(new Error(e));
     }
