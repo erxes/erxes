@@ -12,6 +12,10 @@ export default {
   },
 
   brands(user: IUserDocument) {
+    if (user.isOwner) {
+      return Brands.find({});
+    }
+
     return Brands.find({ _id: { $in: user.brandIds } });
   },
 

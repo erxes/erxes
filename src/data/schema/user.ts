@@ -82,6 +82,7 @@ const commonParams = `
 const commonSelector = `
   searchValue: String,
   isActive: Boolean,
+  requireUsername: Boolean,
   ids: [String]
 `;
 
