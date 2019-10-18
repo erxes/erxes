@@ -55,7 +55,8 @@ class AssignBox extends React.Component<Props, State> {
           query: gql(queries.userList),
           variables: {
             perPage: 20,
-            searchValue
+            searchValue,
+            requireUsername: true
           }
         })
         .then(({ data }: { data: { users?: IUser[] } }) => {
