@@ -43,9 +43,9 @@ function ProductSection({
 
     const { customFieldsData } = product;
 
-    Object.values(customFieldsData).forEach((field: any) => {
+    Object.values(customFieldsData).forEach((field: any, index: number) => {
       result.push(
-        <CustomField>
+        <CustomField key={index}>
           <b>{field.text}:</b> {field.data}
         </CustomField>
       );
