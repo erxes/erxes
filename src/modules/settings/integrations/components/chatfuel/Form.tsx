@@ -43,6 +43,23 @@ class Chatfuel extends React.Component<Props, { loading: boolean }> {
     };
   };
 
+  renderField = ({
+    label,
+    name,
+    formProps
+  }: {
+    label: string;
+    name: string;
+    formProps: IFormProps;
+  }) => {
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>{label}</ControlLabel>
+        <FormControl {...formProps} name={name} required={true} />
+      </FormGroup>
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -50,30 +67,20 @@ class Chatfuel extends React.Component<Props, { loading: boolean }> {
     return (
       <>
         {this.state.loading && <Spinner />}
-        <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name="name" required={true} />
-        </FormGroup>
 
-        <FormGroup>
-          <ControlLabel required={true}>Code</ControlLabel>
-          <FormControl {...formProps} name="code" required={true} />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Broadcast token</ControlLabel>
-          <FormControl {...formProps} name="broadcastToken" required={true} />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Bot ID</ControlLabel>
-          <FormControl {...formProps} name="botId" required={true} />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel required={true}>Block name</ControlLabel>
-          <FormControl {...formProps} name="blockName" required={true} />
-        </FormGroup>
+        {this.renderField({ label: 'Name', name: 'name', formProps })}
+        {this.renderField({ label: 'Code', name: 'code', formProps })}
+        {this.renderField({
+          label: 'Broadcast token',
+          name: 'broadcastToken',
+          formProps
+        })}
+        {this.renderField({ label: 'Bot ID', name: 'botId', formProps })}
+        {this.renderField({
+          label: 'Block name',
+          name: 'blockName',
+          formProps
+        })}
 
         <SelectBrand isRequired={true} formProps={formProps} />
 
