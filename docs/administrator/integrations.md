@@ -61,7 +61,7 @@ To take this permission, you must complete the following 3 steps.
         1. Navigate to <www.example.com>
         2. Login using by username: admin password: password
         3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
-        4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <manage_pages> permission will give our users to reply back to their posts and comments.
+        4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <publish_pages> permission will give our users to reply back to their posts and comments.
 
 2. **Tell facebook how you will use this permission.** In this step, you must provide
     - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
