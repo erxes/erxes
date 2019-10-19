@@ -141,6 +141,13 @@ const integrationMutations = {
   },
 
   /**
+   * Create account
+   */
+  async integrationAddImapAccount(_root, data, { dataSources }) {
+    return dataSources.IntegrationsAPI.createImapAccount(data);
+  },
+
+  /**
    * Delete an integration
    */
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
@@ -148,7 +155,7 @@ const integrationMutations = {
 
     if (integration) {
       if (
-        ['facebook-messenger', 'facebook-post', 'gmail', 'callpro', 'nylas-gmail', 'chatfuel'].includes(
+        ['facebook-messenger', 'facebook-post', 'gmail', 'callpro', 'nylas-gmail', 'nylas-imap', 'chatfuel'].includes(
           integration.kind || '',
         )
       ) {

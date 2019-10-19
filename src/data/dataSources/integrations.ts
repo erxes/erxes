@@ -27,6 +27,10 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post('/integrations/remove', params);
   }
 
+  public async createImapAccount(params) {
+    return this.post('/nylas/auth/imap', params);
+  }
+
   public async removeAccount(params) {
     return this.post('/accounts/remove', params);
   }
