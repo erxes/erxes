@@ -34,7 +34,14 @@ Requirements:
 
 manage page permission iig ogohiin tuld fb 2 zuil shaarddag
 
-### ehnii shaardlaga bol hereglegch website ruu newterch orood yaj integration uusgeh yaj ashiglah yagad ene permission heregtei bolhiig daraalliin daguu bichij oruulhiig shaarddag uund ingej hariulj boln
+ehnii shaardlaga bol hereglegch website ruu newterch orood yaj integration uusgeh yaj ashiglah yagad ene permission heregtei bolhiig daraalliin daguu bichij oruulhiig shaarddag.
+
+Ene shaardlagad hariulhiin tuld
+
+1. ehleed ta ooriin app iin link bolon fb iin hun orj turshij uzeh newtreh erhiig ogoh ystoi
+2. 2dugaart newterj ymr2 uildel hiij turshij uzhiig daraalald oruulan bichih ystoi
+
+example:
 
 1. Navigate to <www.staging.erxes.io>
 2. Logi using by username: admin@erxes.io password: erxes
@@ -44,6 +51,12 @@ manage page permission iig ogohiin tuld fb 2 zuil shaarddag
    <publish_pages> permission will give our users to reply back to their posts and comments.
 
 ### 2 doh shaardlaga bol edgeer bichsen uildluude haruulsan screenrecord hiij ywuulah
+
+download
+
+<aside class="notice">
+  Sreen record deer ashiglaj bui fb app erh awhiig hussen fb app bh ystoi
+</aside>
 
 - publish_pages:
 
