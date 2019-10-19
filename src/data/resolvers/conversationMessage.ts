@@ -27,7 +27,7 @@ export default {
     const { kind } = integration;
 
     // Not mail
-    if (!kind.includes('gmail')) {
+    if (!kind.includes('nylas') && kind !== 'gmail') {
       return null;
     }
 

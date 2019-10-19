@@ -158,4 +158,9 @@ export const mutations = `
     references: String
     attachments: [JSON]
   ): JSON
+
+  integrationAddImapAccount(
+    email: String!
+    password: String!
+  ): JSON
 `;

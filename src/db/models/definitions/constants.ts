@@ -59,9 +59,20 @@ export const KIND_CHOICES = {
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
   NYLAS_GMAIL: 'nylas-gmail',
+  NYLAS_imap: 'nylas-imap',
   CALLPRO: 'callpro',
   CHATFUEL: 'chatfuel',
-  ALL: ['messenger', 'lead', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro', 'chatfuel', 'nylas-gmail'],
+  ALL: [
+    'messenger',
+    'lead',
+    'facebook-messenger',
+    'facebook-post',
+    'gmail',
+    'callpro',
+    'chatfuel',
+    'nylas-gmail',
+    'nylas-imap',
+  ],
 };
 
 // messenger data availability constants
