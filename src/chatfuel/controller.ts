@@ -1,4 +1,5 @@
 import { debugChatfuel, debugRequest } from '../debuggers';
+import { generateAttachmentMessages } from '../facebook/utils';
 import { Integrations } from '../models';
 import { fetchMainApi, sendRequest } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
@@ -46,15 +47,10 @@ const init = async app => {
     ];
 
     if (body.attachments) {
-      const attachments = body.attachments.split(',');
+      const attachments = JSON.parse(body.attachments);
 
-      for (const attachment of attachments) {
-        messages.push({
-          attachment: {
-            type: 'file',
-            payload: { url: attachment },
-          },
-        });
+      for (const message of generateAttachmentMessages(attachments)) {
+        messages.push(message);
       }
     }
 
@@ -202,14 +198,12 @@ const init = async app => {
     const integration = await Integrations.getIntegration({ _id: conversation.integrationId });
     const configs = integration.chatfuelConfigs || {};
 
-    const attachmentUrls = (attachments || []).map(attachment => attachment.url).toString();
-
     await sendRequest({
       url: `https://api.chatfuel.com/bots/${configs.botId}/users/${conversation.chatfuelUserId}/send?chatfuel_token=${
         configs.broadcastToken
       }&chatfuel_message_tag=NON_PROMOTIONAL_SUBSCRIPTION&chatfuel_block_name=${
         configs.blockName
-      }&content=${content}&attachments=${attachmentUrls}`,
+      }&content=${content}&attachments=${JSON.stringify(attachments)}`,
       method: 'POST',
     });
 

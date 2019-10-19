@@ -10,7 +10,14 @@ import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
 
 import { FACEBOOK_POST_TYPES } from './constants';
-import { getPageAccessToken, getPageAccessTokenFromMap, getPageList, sendReply, subscribePage } from './utils';
+import {
+  generateAttachmentMessages,
+  getPageAccessToken,
+  getPageAccessTokenFromMap,
+  getPageList,
+  sendReply,
+  subscribePage,
+} from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -113,43 +120,23 @@ const init = async app => {
 
     const { recipientId, senderId } = conversation;
 
-    const data: any = {
-      recipient: { id: senderId },
-    };
-
     try {
       if (content) {
-        data.message = {
-          text: content,
-        };
+        const response = await sendReply(
+          'me/messages',
+          { recipient: { id: senderId }, message: { text: content } },
+          recipientId,
+          integrationId,
+        );
 
-        const response = await sendReply('me/messages', data, recipientId, integrationId);
-
-        res.json(response);
+        return res.json(response);
       }
 
-      if (attachments && attachments.length > 0) {
-        const attachment = attachments[0];
-
-        let type = 'file';
-
-        if (attachment.type.startsWith('image')) {
-          type = 'image';
-        }
-
-        data.message = {
-          attachment: {
-            type,
-            payload: {
-              url: attachments[0].url,
-            },
-          },
-        };
-
-        const response = await sendReply('me/messages', data, recipientId, integrationId);
-
-        res.json(response);
+      for (const message of generateAttachmentMessages(attachments)) {
+        await sendReply('me/messages', { recipient: { id: senderId }, message }, recipientId, integrationId);
       }
+
+      return res.json({ status: 'success' });
     } catch (e) {
       return next(new Error(e));
     }

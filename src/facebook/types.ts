@@ -42,3 +42,17 @@ export interface IChannelData {
     mid: string;
   };
 }
+
+export interface IAttachment {
+  type: string;
+  url: string;
+}
+
+export interface IAttachmentMessage {
+  attachment: {
+    type: string;
+    payload: {
+      url: string;
+    };
+  };
+}

@@ -1,6 +1,7 @@
 import * as graph from 'fbgraph';
 import { debugFacebook } from '../debuggers';
 import { Accounts, Integrations } from '../models';
+import { IAttachment, IAttachmentMessage } from './types';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -133,4 +134,27 @@ export const sendReply = async (url: string, data: any, recipientId: string, int
 
     throw new Error(e.message);
   }
+};
+
+export const generateAttachmentMessages = (attachments: IAttachment[]) => {
+  const messages: IAttachmentMessage[] = [];
+
+  for (const attachment of attachments || []) {
+    let type = 'file';
+
+    if (attachment.type.startsWith('image')) {
+      type = 'image';
+    }
+
+    messages.push({
+      attachment: {
+        type,
+        payload: {
+          url: attachment.url,
+        },
+      },
+    });
+  }
+
+  return messages;
 };
