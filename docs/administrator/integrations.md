@@ -32,20 +32,23 @@ Requirements:
 
 - manage_pages:
 
-    Grants an app permission to retrieve Page Access Tokens for the Pages and Apps that the app user administers. Apps that allow users to publish as a Page must also have the **publish_pages** permission.
+  Grants an app permission to retrieve Page Access Tokens for the Pages and Apps that the app user administers. Apps that allow users to publish as a Page must also have the **publish_pages** permission.
 
-    To take this permission, you must complete the following 2 steps.
-    1. **Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features.** To do so,
-        - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
-        - Then you provide each steps required to test your integration. For example:
-            1. Navigate to <www.staging.erxes.io>
-            2. Login using by username: admin@erxes.io password: erxes
-            3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
-            4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <manage_pages> permission will give our users to reply back to their posts and comments.
+  To take this permission, you must complete the following 2 steps.
 
-    2. **Tell facebook how you will use this permission.** In this step, you must provide
-        - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
-        - b. a step-by-step video walkthrough of above.
+  1. **Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features.** To do so,
+
+     - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
+     - Then you provide each steps required to test your integration. For example:
+       1. Navigate to <www.staging.erxes.io>
+       2. Login using by username: admin@erxes.io password: erxes
+       3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
+       4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <manage_pages> permission will give our users to reply back to their posts and comments.
+
+  2. **Tell facebook how you will use this permission.** In this step, you must provide
+     - detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
+     - step-by-step video walkthrough of above.
+     - download example video [here](https://bit.ly/2J6j5Oi)!
 
 ## Twitter Integration
 
