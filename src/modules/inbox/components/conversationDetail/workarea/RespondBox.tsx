@@ -433,9 +433,11 @@ class RespondBox extends React.Component<Props, State> {
     const { conversation } = this.props;
 
     const integration = conversation.integration || ({} as IIntegration);
-    const mailIntegration = integration.kind.includes('gmail');
+    const { kind } = integration;
 
-    if (mailIntegration) {
+    const isMail = kind.includes('nylas') || kind === 'gmail';
+
+    if (isMail) {
       return this.renderMailRespondBox();
     }
 

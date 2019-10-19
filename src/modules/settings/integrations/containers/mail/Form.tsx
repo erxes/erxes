@@ -1,13 +1,15 @@
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import Form from 'modules/settings/integrations/components/mail/gmail/Form';
+import Form from 'modules/settings/integrations/components/mail/Form';
 import { mutations } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { withRouter } from 'react-router';
-import { getRefetchQueries } from '../../utils';
+import { IntegrationTypes } from '../../types';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type?: string;
+  kind: IntegrationTypes;
   closeModal: () => void;
 };
 
@@ -47,7 +49,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         mutation={mutations.integrationsCreateExternalIntegration}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries('nylas-gmail')}
+        refetchQueries={getRefetchQueries(this.props.kind)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}
@@ -56,10 +58,11 @@ class FormContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { closeModal } = this.props;
+    const { kind, closeModal } = this.props;
     const { accountId } = this.state;
 
     const updatedProps = {
+      kind,
       closeModal,
       accountId,
       onAccountSelect: this.onAccountSelect,
