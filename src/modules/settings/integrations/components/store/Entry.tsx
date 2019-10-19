@@ -3,7 +3,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CallPro from 'modules/settings/integrations/containers/callpro/Form';
 import Gmail from 'modules/settings/integrations/containers/gmail/Form';
-import NylasGmail from 'modules/settings/integrations/containers/mail/gmail/Form';
+import NylasForm from 'modules/settings/integrations/containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { KIND_CHOICES } from '../../constants';
@@ -27,6 +27,7 @@ type Props = {
     callpro: number;
     chatfuel: number;
     gmail: number;
+    imap: number;
   };
 };
 
@@ -158,10 +159,20 @@ class Entry extends React.Component<Props> {
       );
     }
 
+    if (createModal === KIND_CHOICES.NYLAS_IMAP) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add IMAP" trigger={trigger} content={content} />
+      );
+    }
+
     if (createModal === KIND_CHOICES.NYLAS_GMAIL) {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
-      const content = props => <NylasGmail {...props} />;
+      const content = props => <NylasForm kind={createModal} {...props} />;
 
       return (
         <ModalTrigger title="Add gmail" trigger={trigger} content={content} />

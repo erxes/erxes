@@ -20,6 +20,7 @@ type Props = {
     gmail: number;
     callpro: number;
     chatfuel: number;
+    imap: number;
   };
 };
 

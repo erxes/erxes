@@ -6,13 +6,15 @@ import { IFormProps } from 'modules/common/types';
 import { __, confirm } from 'modules/common/utils';
 import React from 'react';
 import { Row } from '../styles';
-import { IAccount } from '../types';
+import { IAccount, IntegrationTypes } from '../types';
 
 type Props = {
   onSelect: (accountId?: string) => void;
   accounts: IAccount[];
   formProps: IFormProps;
   onAdd: () => void;
+  kind: IntegrationTypes;
+  renderForm?: () => JSX.Element;
   removeAccount: (accountId: string) => void;
 };
 
@@ -41,15 +43,19 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   }
 
   renderAccountAction() {
-    const { onAdd } = this.props;
+    const { renderForm, onAdd } = this.props;
     const { accountId } = this.state;
 
     if (!accountId || accountId === '') {
-      return (
-        <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
-          Add Account
-        </Button>
-      );
+      if (!renderForm) {
+        return (
+          <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
+            Add Account
+          </Button>
+        );
+      }
+
+      return renderForm();
     }
 
     return (
