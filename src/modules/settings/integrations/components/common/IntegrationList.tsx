@@ -50,6 +50,10 @@ class IntegrationList extends React.Component<Props> {
       return 'nylas gmail';
     }
 
+    if (kind === KIND_CHOICES.NYLAS_IMAP) {
+      return 'nylas imap';
+    }
+
     return 'default';
   }
 
