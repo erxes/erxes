@@ -3,8 +3,8 @@ import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
-import { connectGoogleToNylas } from './auth';
-import { getOAuthCredentials } from './loginMiddleware';
+import { connectGoogleToNylas, connectImapToNylas } from './auth';
+import { authenticateIMAP, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
 import { INylasAttachment } from './types';
@@ -15,6 +15,8 @@ dotenv.config();
 
 const init = async app => {
   app.get('/nylas/oauth2/callback', getOAuthCredentials);
+
+  app.post('/nylas/auth/imap', authenticateIMAP);
 
   app.get('/nylas/webhook', (req, res) => {
     // Validation endpoint for webhook
@@ -64,8 +66,14 @@ const init = async app => {
       erxesApiId: integrationId,
     });
 
-    if (kind === 'gmail') {
-      await connectGoogleToNylas(kind, account);
+    // Connect provider to nylas ===========
+    switch (kind) {
+      case 'gmail':
+        await connectGoogleToNylas(kind, account);
+        break;
+      case 'imap':
+        await connectImapToNylas(kind, account);
+        break;
     }
 
     debugNylas(`Successfully created the integration and connected to nylas`);

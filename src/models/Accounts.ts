@@ -4,6 +4,7 @@ import { field } from './utils';
 export interface IAccount {
   kind: string;
   email: string;
+  password: string;
   nylasToken: string;
   nylasTokenSecret: string;
   token: string;
@@ -23,6 +24,10 @@ export const accountSchema = new Schema({
   },
   email: {
     type: String,
+  },
+  password: {
+    type: String,
+    optional: true,
   },
   nylasToken: {
     type: String,

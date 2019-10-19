@@ -9,7 +9,9 @@ import { IMessageDraft } from './types';
 // load config
 dotenv.config();
 
-const { NYLAS_CLIENT_SECRET } = process.env;
+const { NYLAS_CLIENT_SECRET, ENCRYPTION_KEY } = process.env;
+
+const algorithm = 'aes-256-cbc';
 
 /**
  * Verify request by nylas signature
@@ -162,6 +164,42 @@ const nylasSendMessage = async (accessToken: string, args: IMessageDraft) => {
     .catch(error => debugNylas(error.message));
 };
 
+/**
+ * Encrypt password
+ * @param {String} password
+ * @returns {String} encrypted password
+ */
+const encryptPassword = (password: string): string => {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(ENCRYPTION_KEY), iv);
+
+  let encrypted = cipher.update(password);
+
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+  return iv.toString('hex') + ':' + encrypted.toString('hex');
+};
+
+/**
+ * Decrypt password
+ * @param {String} password
+ * @returns {String} decrypted password
+ */
+const decryptPassword = (password: string): string => {
+  const passwordParts = password.split(':');
+  const ivKey = Buffer.from(passwordParts.shift(), 'hex');
+
+  const encryptedPassword = Buffer.from(passwordParts.join(':'), 'hex');
+
+  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(ENCRYPTION_KEY), ivKey);
+
+  let decrypted = decipher.update(encryptedPassword);
+
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+  return decrypted.toString();
+};
+
 export {
   setNylasToken,
   nylasSendMessage,
@@ -171,4 +209,6 @@ export {
   checkCredentials,
   buildEmailAddress,
   verifyNylasSignature,
+  encryptPassword,
+  decryptPassword,
 };

@@ -1,16 +1,17 @@
 import * as dotenv from 'dotenv';
 import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
-import Accounts, { IAccount } from '../models/Accounts';
+import { IAccount } from '../models/Accounts';
 import { sendRequest } from '../utils';
 import { CONNECT_AUTHORIZE_URL, CONNECT_TOKEN_URL } from './constants';
+import { updateAccount } from './store';
 import { IIntegrateProvider } from './types';
-import { getClientConfig } from './utils';
+import { decryptPassword, getClientConfig } from './utils';
 
 // loading config
 dotenv.config();
 
-const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
+const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET, IMAP_HOST, IMAP_PORT, SMTP_HOST, SMTP_PORT } = process.env;
 
 /**
  * Connect google to nylas with token
@@ -32,14 +33,41 @@ const connectGoogleToNylas = async (kind: string, account: IAccount & { _id: str
 
   const { access_token, account_id } = await integrateProviderToNylas(params);
 
-  const selector = { _id: account._id };
-  const updateFields = { $set: { uid: account_id, nylasToken: access_token } };
+  await updateAccount(account._id, account_id, access_token);
+};
 
-  try {
-    await Accounts.updateOne(selector, updateFields);
-  } catch (e) {
-    throw new Error(e.mesasge);
+/**
+ * Connect IMAP to Nylas
+ * @param {String} kind
+ * @param {Object} account
+ */
+const connectImapToNylas = async (kind: string, account: IAccount & { _id: string }) => {
+  if (!IMAP_HOST || !IMAP_PORT || !SMTP_HOST || !SMTP_PORT) {
+    throw new Error('Missing imap env config');
   }
+
+  const { email, password } = account;
+
+  const decryptedPassword = decryptPassword(password);
+
+  const { access_token, account_id } = await integrateProviderToNylas({
+    email,
+    kind,
+    scopes: 'email',
+    settings: {
+      imap_username: email,
+      imap_password: decryptedPassword,
+      smtp_username: email,
+      smtp_password: decryptedPassword,
+      imap_host: IMAP_HOST,
+      imap_port: Number(IMAP_PORT),
+      smtp_host: SMTP_HOST,
+      smtp_port: Number(SMTP_PORT),
+      ssl_required: true,
+    },
+  });
+
+  await updateAccount(account._id, account_id, access_token);
 };
 
 /**
@@ -50,7 +78,7 @@ const connectGoogleToNylas = async (kind: string, account: IAccount & { _id: str
  * @param {Object} settings
  */
 const integrateProviderToNylas = async (args: IIntegrateProvider) => {
-  const { email, kind, settings, scope } = args;
+  const { email, kind, settings, scopes } = args;
 
   const code = await getNylasCode({
     provider: kind,
@@ -58,7 +86,7 @@ const integrateProviderToNylas = async (args: IIntegrateProvider) => {
     name: 'erxes',
     email_address: email,
     client_id: NYLAS_CLIENT_ID,
-    ...(scope ? { scope } : {}),
+    ...(scopes ? { scopes } : {}),
   });
 
   return getNylasAccessToken({
@@ -122,4 +150,4 @@ const getNylasAccessToken = async data => {
   });
 };
 
-export { revokeAccount, enableOrDisableAccount, integrateProviderToNylas, connectGoogleToNylas };
+export { revokeAccount, enableOrDisableAccount, integrateProviderToNylas, connectGoogleToNylas, connectImapToNylas };

@@ -25,11 +25,18 @@ const customerCommonSchema = {
 };
 
 export const nylasGmailCustomerSchema = new Schema(customerCommonSchema);
+export const nylasImapCustomerSchema = new Schema(customerCommonSchema);
 
 // tslint:disable-next-line
 export const NylasGmailCustomers = model<INylasCustomerDocument, INylasCustomerModel>(
   'customers_nylas_gmail',
   nylasGmailCustomerSchema,
+);
+
+// tslint:disable-next-line
+export const NylasImapCustomers = model<INylasCustomerDocument, INylasCustomerModel>(
+  'customers_nylas_imap',
+  nylasImapCustomerSchema,
 );
 
 export interface INylasConversation {
@@ -62,11 +69,18 @@ const conversationCommonSchema = {
 export interface INylasConversatonModel extends Model<INylasConversationDocument> {}
 
 export const nylasGmailConversationSchema = new Schema(conversationCommonSchema);
+export const nylasImapConversationSchema = new Schema(conversationCommonSchema);
 
 // tslint:disable-next-line
 export const NylasGmailConversations = model<INylasConversationDocument, INylasConversatonModel>(
   'conversations_nylas_gmail',
   nylasGmailConversationSchema,
+);
+
+// tslint:disable-next-line
+export const NylasImapConversations = model<INylasConversationDocument, INylasConversatonModel>(
+  'conversations_nylas_imap',
+  nylasImapConversationSchema,
 );
 
 // Conversation message ===========
@@ -158,12 +172,19 @@ const conversationMessageCommonSchema = {
   labels: [labelsSchema],
 };
 
-export const nylasConversationMessageSchema = new Schema(conversationMessageCommonSchema);
+export const nylasGmailConversationMessageSchema = new Schema(conversationMessageCommonSchema);
+export const nylasImapConversationMessageSchema = new Schema(conversationMessageCommonSchema);
 
 export interface INylasConversationMessageModel extends Model<INylasConversationMessageDocument> {}
 
 // tslint:disable-next-line
 export const NylasGmailConversationMessages = model<INylasConversationMessageDocument, INylasConversationMessageModel>(
   'conversation_messages_nylas_gmail',
-  nylasConversationMessageSchema,
+  nylasGmailConversationMessageSchema,
+);
+
+// tslint:disable-next-line
+export const NylasImapConversationMessages = model<INylasConversationMessageDocument, INylasConversationMessageModel>(
+  'conversation_messages_nylas_imap',
+  nylasImapConversationMessageSchema,
 );

@@ -16,6 +16,11 @@ export interface INylasAttachment {
   accessToken: string;
 }
 
+export interface IMapArgument {
+  email: string;
+  password: string;
+}
+
 export interface IMessageDraft {
   to?: ICommonType[];
   from?: ICommonType[];
@@ -42,10 +47,19 @@ export interface IIntegrateProvider {
   email: string;
   kind: string;
   settings: IProviderSettings;
-  scope?: string;
+  scopes?: string;
 }
 
 export interface IProviderSettings {
+  imap_username?: string;
+  imap_password?: string;
+  smtp_username?: string;
+  smtp_password?: string;
+  imap_host?: string;
+  imap_port?: number;
+  smtp_host?: string;
+  smtp_port?: number;
+  ssl_required?: boolean;
   redirect_uri?: string;
   google_refresh_token?: string;
   google_client_id?: string;
