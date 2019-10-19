@@ -175,7 +175,7 @@ export const INTEGRATIONS = [
     name: 'row-2',
     rows: [
       {
-        name: 'IMAP',
+        name: 'IMAP by Nylas',
         description: 'Connect your custom mail server',
         inMessenger: false,
         kind: 'nylas-imap',
