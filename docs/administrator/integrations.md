@@ -32,7 +32,18 @@ Requirements:
 
 - manage_pages:
 
+manage page permission iig ogohiin tuld fb 2 zuil shaarddag
 
+### ehnii shaardlaga bol hereglegch website ruu newterch orood yaj integration uusgeh yaj ashiglah yagad ene permission heregtei bolhiig daraalliin daguu bichij oruulhiig shaarddag uund ingej hariulj boln
+
+1. Navigate to <www.staging.erxes.io>
+2. Logi using by username: admin@erxes.io password: erxes
+3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
+4. Then click the <Channels> button navigated in <Settings> to sort their pages
+   After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes.
+   <publish_pages> permission will give our users to reply back to their posts and comments.
+
+### 2 doh shaardlaga bol edgeer bichsen uildluude haruulsan screenrecord hiij ywuulah
 
 - publish_pages:
 
