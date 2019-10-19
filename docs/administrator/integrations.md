@@ -17,7 +17,7 @@ Requirements:
 1. Go to https://developers.facebook.com and create new app.<br />
    ( Your application status must be "Live" )
 2. Your application must have these permissions: <br />
-   `manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_subscriptions` <br />
+   `manage_pages, pages_show_list, pages_messaging, publish_pages` <br />
    (You can get these permissions through your App Review)
 3. Go to you `erxes-api` directory and edit `.env` file like below: <br />
    `FACEBOOK_APP_ID='Your Facebook application's ID'` <br />
@@ -27,6 +27,49 @@ Requirements:
 5. Go to `Facebook Login` => `Settings` fill the field names `Valid OAuth Redirect URIs` like below: <br />
    `<your erxes-api domain>/fblogin`
 6. Now we are done on configurations. Go to your `App Store` => `Linked Accounts` to link your facebook accounts
+
+## Getting facebook permissions (*manage_pages*, *publish_pages*)
+
+**manage_pages:**
+
+Grants an app permission to retrieve Page Access Tokens for the Pages and Apps that the app user administers. Apps that allow users to publish as a Page must also have the ***publish_pages*** permission.
+
+To take this permission, you must complete the following 2 steps.
+
+1. **Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features.** To do so,
+    - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
+    - Then you provide each steps required to test your integration. For example:
+        1. Navigate to <www.example.com>
+        2. Login using by username: admin password: password
+        3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
+        4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <manage_pages> permission will give our users to reply back to their posts and comments.
+
+2. **Tell facebook how you will use this permission.** In this step, you must provide
+    - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
+    - b. a step-by-step video walkthrough of above.
+    - c. [Here](https://bit.ly/2J6j5Oi) is a sample video.
+
+**publish_pages:**
+
+Grants your app permission to publish posts, comments, and like Pages managed by a person using your app. Also requires the ***manage_pages*** permission.
+
+To take this permission, you must complete the following 3 steps.
+
+1. **Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features.** To do so,
+    - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
+    - Then you provide each steps required to test your integration. For example:
+        1. Navigate to <www.example.com>
+        2. Login using by username: admin password: password
+        3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
+        4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <manage_pages> permission will give our users to reply back to their posts and comments.
+
+2. **Tell facebook how you will use this permission.** In this step, you must provide
+    - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
+    - b. a step-by-step video walkthrough of above.
+    - c. your subbmission must include ***manage_pages*** permission
+    - d. [Here](https://bit.ly/2J6j5Oi) is a sample video.
+
+3. **Tell facebook how you will use *manage_pages* permission if you haven't taken it yet.**
 
 ## Twitter Integration
 
