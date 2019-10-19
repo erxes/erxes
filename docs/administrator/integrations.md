@@ -17,7 +17,7 @@ Requirements:
 1. Go to https://developers.facebook.com and create new app.<br />
    ( Your application status must be "Live" )
 2. Your application must have these permissions: <br />
-   `manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_subscriptions` <br />
+   `manage_pages, pages_show_list, pages_messaging, publish_pages` <br />
    (You can get these permissions through your App Review)
 3. Go to you `erxes-api` directory and edit `.env` file like below: <br />
    `FACEBOOK_APP_ID='Your Facebook application's ID'` <br />
@@ -27,6 +27,14 @@ Requirements:
 5. Go to `Facebook Login` => `Settings` fill the field names `Valid OAuth Redirect URIs` like below: <br />
    `<your erxes-api domain>/fblogin`
 6. Now we are done on configurations. Go to your `App Store` => `Linked Accounts` to link your facebook accounts
+
+## Get facebook permissions
+
+- manage_pages:
+
+
+
+- publish_pages:
 
 ## Twitter Integration
 
