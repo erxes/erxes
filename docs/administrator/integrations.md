@@ -32,33 +32,20 @@ Requirements:
 
 - manage_pages:
 
-manage page permission iig ogohiin tuld fb 2 zuil shaarddag
+    Grants an app permission to retrieve Page Access Tokens for the Pages and Apps that the app user administers. Apps that allow users to publish as a Page must also have the **publish_pages** permission.
 
-ehnii shaardlaga bol hereglegch website ruu newterch orood yaj integration uusgeh yaj ashiglah yagad ene permission heregtei bolhiig daraalliin daguu bichij oruulhiig shaarddag.
+    To take this permission, you must complete the following 2 steps.
+    1. **Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features.** To do so,
+        - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
+        - Then you provide each steps required to test your integration. For example:
+            1. Navigate to <www.staging.erxes.io>
+            2. Login using by username: admin@erxes.io password: erxes
+            3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
+            4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <manage_pages> permission will give our users to reply back to their posts and comments.
 
-Ene shaardlagad hariulhiin tuld
-
-1. ehleed ta ooriin app iin link bolon fb iin hun orj turshij uzeh newtreh erhiig ogoh ystoi
-2. 2dugaart newterj ymr2 uildel hiij turshij uzhiig daraalald oruulan bichih ystoi
-
-example:
-
-1. Navigate to <www.staging.erxes.io>
-2. Logi using by username: admin@erxes.io password: erxes
-3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
-4. Then click the <Channels> button navigated in <Settings> to sort their pages
-   After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes.
-   <publish_pages> permission will give our users to reply back to their posts and comments.
-
-### 2 doh shaardlaga bol edgeer bichsen uildluude haruulsan screenrecord hiij ywuulah
-
-download
-
-<aside class="notice">
-  Sreen record deer ashiglaj bui fb app erh awhiig hussen fb app bh ystoi
-</aside>
-
-- publish_pages:
+    2. **Tell facebook how you will use this permission.** In this step, you must provide
+        - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
+        - b. a step-by-step video walkthrough of above.
 
 ## Twitter Integration
 
