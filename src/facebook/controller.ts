@@ -245,7 +245,9 @@ const init = async app => {
 
             const pageId = activity.recipient.id;
 
-            const integration = await Integrations.getIntegration({ facebookPageIds: { $in: [pageId] } });
+            const integration = await Integrations.getIntegration({
+              $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-messenger' }],
+            });
 
             await Accounts.getAccount({ _id: integration.accountId });
 
