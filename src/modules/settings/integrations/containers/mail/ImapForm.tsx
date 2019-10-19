@@ -24,7 +24,7 @@ class ImapContainer extends React.Component<FinalProps> {
         mutation={mutations.addImapAccount}
         variables={values}
         callback={callback}
-        refetchQueries={['fetchApiQuery']}
+        refetchQueries={['integrationsFetchApi']}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}
