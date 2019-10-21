@@ -64,15 +64,7 @@ class NameCard extends React.Component<Props> {
       return null;
     }
 
-    if (secondLine) {
-      return secondLine;
-    }
-
-    if (user.email) {
-      return user.email;
-    }
-
-    return null;
+    return secondLine || user.email || null;
   }
 
   render() {
