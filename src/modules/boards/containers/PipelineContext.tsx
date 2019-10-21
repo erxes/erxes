@@ -44,6 +44,7 @@ interface IStore {
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
+  loadComplete: boolean;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -335,8 +336,29 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
+  allStagesLoaded(stageLoadMap: StageLoadMap, stageIds: string[] = []) {
+    const mappedStageCount = Object.keys(stageLoadMap).length;
+    let loadComplete = false;
+
+    if (mappedStageCount === stageIds.length) {
+      const loadedStages = Object.keys(stageLoadMap)
+        .map(stageId => ({
+          stageId,
+          status: stageLoadMap[stageId]
+        }))
+        .filter(item => item.status === 'loaded');
+
+      if (loadedStages.length === stageIds.length) {
+        loadComplete = true;
+      }
+    }
+
+    return loadComplete;
+  }
+
   render() {
     const { itemMap, stageLoadMap, stageIds } = this.state;
+    const loadComplete = this.allStagesLoaded(stageLoadMap, stageIds);
 
     return (
       <PipelineContext.Provider
@@ -350,7 +372,8 @@ export class PipelineProvider extends React.Component<Props, State> {
           onUpdateItem: this.onUpdateItem,
           itemMap,
           stageLoadMap,
-          stageIds
+          stageIds,
+          loadComplete
         }}
       >
         {this.props.children}

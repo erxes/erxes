@@ -26,6 +26,7 @@ type Props = {
   // may not be provided - and might be null
   ignoreContainerClipping?: boolean;
   options: IOptions;
+  loadComplete: boolean;
 };
 
 type DraggableContainerProps = {
@@ -33,6 +34,7 @@ type DraggableContainerProps = {
   item: IItem;
   index: number;
   options: IOptions;
+  loadComplete: boolean;
 };
 
 class DraggableContainer extends React.Component<
@@ -85,7 +87,7 @@ class DraggableContainer extends React.Component<
   }
 
   render() {
-    const { stageId, item, index, options } = this.props;
+    const { stageId, item, index, options, loadComplete } = this.props;
     const { isDragDisabled } = this.state;
 
     return (
@@ -93,7 +95,7 @@ class DraggableContainer extends React.Component<
         key={item._id}
         draggableId={item._id}
         index={index}
-        isDragDisabled={isDragDisabled}
+        isDragDisabled={isDragDisabled || !loadComplete}
       >
         {(dragProvided, dragSnapshot) => (
           <ItemContainer
@@ -122,9 +124,10 @@ class InnerItemList extends React.PureComponent<{
   stageId: string;
   items: IItem[];
   options: IOptions;
+  loadComplete: boolean;
 }> {
   render() {
-    const { stageId, items, options } = this.props;
+    const { stageId, items, options, loadComplete } = this.props;
 
     return items.map((item, index: number) => (
       <DraggableContainer
@@ -133,6 +136,7 @@ class InnerItemList extends React.PureComponent<{
         item={item}
         index={index}
         options={options}
+        loadComplete={loadComplete}
       />
     ));
   }
@@ -143,11 +147,12 @@ type InnerListProps = {
   stageId: string;
   items: IItem[];
   options: IOptions;
+  loadComplete: boolean;
 };
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const { stageId, items, dropProvided, options } = this.props;
+    const { stageId, items, dropProvided, options, loadComplete } = this.props;
 
     if (items.length === 0) {
       return (
@@ -159,7 +164,12 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
     return (
       <DropZone innerRef={dropProvided.innerRef}>
-        <InnerItemList stageId={stageId} items={items} options={options} />
+        <InnerItemList
+          stageId={stageId}
+          items={items}
+          options={options}
+          loadComplete={loadComplete}
+        />
         {dropProvided.placeholder}
       </DropZone>
     );
@@ -178,7 +188,8 @@ export default class ItemList extends React.Component<Props> {
       style,
       stageId,
       items,
-      options
+      options,
+      loadComplete
     } = this.props;
 
     return (
@@ -197,6 +208,7 @@ export default class ItemList extends React.Component<Props> {
               items={items}
               dropProvided={dropProvided}
               options={options}
+              loadComplete={loadComplete}
             />
             {dropProvided.placeholder}
           </Wrapper>

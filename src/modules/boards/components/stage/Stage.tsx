@@ -30,6 +30,7 @@ type Props = {
   onAddItem: (stageId: string, item: IItem) => void;
   loadMore: () => void;
   options: IOptions;
+  loadComplete: boolean;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -114,14 +115,22 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   shouldComponentUpdate(nextProps: Props) {
-    const { stage, index, length, items, loadingItems } = this.props;
+    const {
+      stage,
+      index,
+      length,
+      items,
+      loadingItems,
+      loadComplete
+    } = this.props;
 
     if (
       index !== nextProps.index ||
       loadingItems !== nextProps.loadingItems ||
       length !== nextProps.length ||
       JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
-      JSON.stringify(items) !== JSON.stringify(nextProps.items)
+      JSON.stringify(items) !== JSON.stringify(nextProps.items) ||
+      loadComplete !== nextProps.loadComplete
     ) {
       return true;
     }
@@ -130,7 +139,7 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   renderItemList() {
-    const { stage, items, loadingItems, options } = this.props;
+    const { stage, items, loadingItems, options, loadComplete } = this.props;
 
     if (loadingItems) {
       return (
@@ -146,19 +155,24 @@ export default class Stage extends React.Component<Props, {}> {
         stageId={stage._id}
         items={items}
         options={options}
+        loadComplete={loadComplete}
       />
     );
   }
 
   render() {
-    const { index, stage } = this.props;
+    const { index, stage, loadComplete } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
     }
 
     return (
-      <Draggable draggableId={stage._id} index={index}>
+      <Draggable
+        draggableId={stage._id}
+        index={index}
+        isDragDisabled={!loadComplete}
+      >
         {(provided, snapshot) => (
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
             <StageRoot isDragging={snapshot.isDragging}>
