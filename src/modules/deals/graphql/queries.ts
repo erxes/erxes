@@ -47,8 +47,10 @@ export const dealFields = `
   customers {
     _id
     firstName
+    lastName
     primaryEmail
     primaryPhone
+    visitorContactInfo
   }
   products
   productsData

@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IFeature } from '../types';
 import { Title } from './styles';
+import VideoPopup from './VideoPopup';
 
 const Wrapper = styled.div`
   width: 315px;
@@ -148,20 +149,17 @@ class FeatureDetail extends React.Component<Props> {
 
     if (feature.videoUrl && feature.videoUrl !== 'url') {
       return (
-        <iframe
-          key={feature.name}
-          title={feature.name}
-          src={feature.videoUrl}
+        <VideoPopup
+          onVideoClick={this.props.completeShowStep}
+          name={feature.name}
+          videoUrl={feature.videoUrl}
+          thumbImage={feature.videoThumb}
         />
       );
     }
 
     return;
   }
-
-  onVideoClick = () => {
-    this.props.completeShowStep();
-  };
 
   render() {
     const { feature } = this.props;

@@ -43,9 +43,9 @@ function ProductSection({
 
     const { customFieldsData } = product;
 
-    Object.values(customFieldsData).forEach((field: any) => {
+    Object.values(customFieldsData).forEach((field: any, index: number) => {
       result.push(
-        <CustomField>
+        <CustomField key={index}>
           <b>{field.text}:</b> {field.data}
         </CustomField>
       );
@@ -57,7 +57,7 @@ function ProductSection({
   const renderProduct = (product: IProduct) => {
     if (product.customFieldsData) {
       return (
-        <Tip text={tipItems(product)} placement="top">
+        <Tip text={tipItems(product)} placement="bottom">
           <ProductName>{product.name}</ProductName>
         </Tip>
       );

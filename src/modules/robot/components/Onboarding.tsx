@@ -26,10 +26,12 @@ type State = {
 };
 
 class Onboarding extends React.Component<Props, State> {
+  private limit = 9;
+
   constructor(props) {
     super(props);
 
-    this.state = { selectedFeature: undefined, featureLimit: 9 };
+    this.state = { selectedFeature: undefined, featureLimit: this.limit };
   }
 
   renderFeature(feature: IFeature) {
@@ -125,12 +127,12 @@ class Onboarding extends React.Component<Props, State> {
             .filter((feature, index) => index < this.state.featureLimit)
             .map(availabeFeature => this.renderFeature(availabeFeature))}
 
-          {this.state.featureLimit === 9 && (
-            <SeeAll onClick={this.seeAllFeatures}>
-              {__('Explore more features')}
-              <Icon icon="angle-double-right" />
-            </SeeAll>
-          )}
+          <SeeAll onClick={this.toggleFeatures}>
+            {this.isCollapsed()
+              ? __('Explore more features')
+              : __('Hide some features')}
+            <Icon icon="angle-double-right" />
+          </SeeAll>
         </>
       );
     }
@@ -142,8 +144,14 @@ class Onboarding extends React.Component<Props, State> {
     this.props.changeRoute('');
   };
 
-  seeAllFeatures = () => {
-    this.setState({ featureLimit: this.props.availableFeatures.length });
+  isCollapsed = () => {
+    return this.state.featureLimit === this.limit;
+  };
+
+  toggleFeatures = () => {
+    const all = this.props.availableFeatures.length;
+
+    this.setState({ featureLimit: this.isCollapsed() ? all : this.limit });
   };
 
   showOnboard = () => {

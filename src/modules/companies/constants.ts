@@ -87,6 +87,7 @@ export const COMPANY_INDUSTRY_TYPES = [
   'Finance, Insurance & Real Estate',
   'Food & Beverage',
   'Foundations, Philanthropists & Non-Profits',
+  'Government Organization',
   'Health',
   'Hotels, Motels & Tourism',
   'Insurance',

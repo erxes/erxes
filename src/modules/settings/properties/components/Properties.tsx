@@ -66,7 +66,7 @@ class Properties extends React.Component<Props> {
   };
 
   renderActionBar = () => {
-    const { queryParams, fieldsGroups } = this.props;
+    const { queryParams, fieldsGroups, currentType } = this.props;
 
     const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
     const addField = <MenuItem>{__('Add Property')}</MenuItem>;
@@ -105,6 +105,7 @@ class Properties extends React.Component<Props> {
           <ModalTrigger
             title="Add Group"
             trigger={addGroup}
+            autoOpenKey={`showProperty${currentType}Modal`}
             content={groupContent}
           />
           <ModalTrigger

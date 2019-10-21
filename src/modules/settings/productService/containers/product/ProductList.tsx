@@ -74,7 +74,8 @@ const getRefetchQueries = () => {
     'products',
     'productCategorires',
     'productCategoriesCount',
-    'productsTotalCount'
+    'productsTotalCount',
+    'productCountByTags'
   ];
 };
 
@@ -91,6 +92,7 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
+            tag: queryParams.tag,
             ...generatePaginationParams(queryParams)
           }
         })
