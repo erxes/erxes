@@ -3,6 +3,7 @@ export const LANGUAGES = [
   { label: 'Mongolian', value: 'mn' },
   { label: 'French', value: 'fr' },
   { label: 'Deustch', value: 'de' },
+  { label: 'Italian', value: 'it' },
   { label: 'Korean', value: 'ko' },
   { label: 'Spanish', value: 'es' },
   { label: 'Portuguese', value: 'pt-br' },

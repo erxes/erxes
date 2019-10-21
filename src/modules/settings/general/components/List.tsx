@@ -47,6 +47,7 @@ class List extends React.Component<Props, State> {
 
     this.props.save('dealCurrency', currencies);
     this.props.save('dealUOM', uom);
+
     this.props.changeLanguage(language);
   };
 

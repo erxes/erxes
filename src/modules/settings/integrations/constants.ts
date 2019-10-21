@@ -69,6 +69,7 @@ export const KIND_CHOICES = {
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
   NYLAS_GMAIL: 'nylas-gmail',
+  NYLAS_IMAP: 'nylas-imap',
   LEAD: 'lead',
   CALLPRO: 'callpro',
   CHATFUEL: 'chatfuel',
@@ -80,7 +81,8 @@ export const KIND_CHOICES = {
     'callpro',
     'chatfuel',
     'gmail',
-    'nylas-gmail'
+    'nylas-gmail',
+    'nylas-imap'
   ]
 };
 
@@ -173,6 +175,15 @@ export const INTEGRATIONS = [
     name: 'row-2',
     rows: [
       {
+        name: 'IMAP by Nylas',
+        description: 'Connect your custom mail server',
+        inMessenger: false,
+        kind: 'nylas-imap',
+        logo: '/images/integrations/email.png',
+        createModal: 'nylas-imap',
+        createUrl: '/settings/integrations/nylas-imap'
+      },
+      {
         name: 'Gmail by Nylas',
         description:
           'Connect straight to your gmail and get those emails going powered by Nylas',
@@ -199,7 +210,12 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/knowledge-base.png',
         createModal: 'knowledgeBase',
         createUrl: '/settings/integrations/knowledgeBase'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-3',
+    rows: [
       {
         name: 'Engage config',
         description:
@@ -208,12 +224,7 @@ export const INTEGRATIONS = [
         kind: 'amazon-ses',
         logo: '/images/integrations/aws-ses.png',
         createModal: 'sesconfig'
-      }
-    ]
-  },
-  {
-    name: 'row-3',
-    rows: [
+      },
       {
         name: 'Call Pro',
         description: 'Connect your call pro phone number',

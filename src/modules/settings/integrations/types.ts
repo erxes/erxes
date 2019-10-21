@@ -99,6 +99,12 @@ export type QueryVariables = {
   searchValue?: string;
 };
 
+export type IntegrationTypes =
+  | 'facebook'
+  | 'gmail'
+  | 'nylas-gmail'
+  | 'nylas-imap';
+
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
   loading: boolean;
@@ -120,6 +126,7 @@ export type ByKind = {
   gmail: number;
   callpro: number;
   chatfuel: number;
+  imap: number;
 };
 
 type IntegrationsCount = {
