@@ -5,7 +5,13 @@ import NameCard from '../../../../modules/common/components/nameCard/NameCard';
 
 describe('NameCard component', () => {
   test('renders NameCard successfully', () => {
-    const wrapper = shallow(<NameCard />);
+    const user = {
+      _id: Math.random().toString(),
+      username: 'username',
+      email: 'email'
+    };
+
+    const wrapper = shallow(<NameCard user={user} />);
     expect(wrapper).not.toBe('');
   });
 });

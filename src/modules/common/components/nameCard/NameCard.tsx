@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { IUser } from '../../../auth/types';
-import { ICustomer } from '../../../customers/types';
 import { colors } from '../../styles';
 import Avatar from './Avatar';
 
@@ -29,65 +28,62 @@ const FirstLine = styled.a`
   }
 `;
 
+const SecondLine = styled.div`
+  font-size: 12px;
+  color: ${colors.colorLightGray};
+`;
+
 type Props = {
-  user?: IUser;
-  customer?: ICustomer;
+  user: IUser;
   singleLine?: boolean;
-  firstLine?: React.ReactNode;
   secondLine?: React.ReactNode;
   avatarSize?: number;
-  url?: string;
-  isUser?: boolean;
 };
 
 class NameCard extends React.Component<Props> {
   static Avatar = Avatar;
 
-  renderUserName() {
+  renderFirstLine() {
     const { user } = this.props;
-
-    if (!user) {
-      return null;
-    }
 
     if (user.details) {
       return user.details.fullName;
     }
 
+    if (user.username) {
+      return `@${user.username}`;
+    }
+
     return null;
   }
 
-  renderCustomerName() {
-    const { customer, singleLine } = this.props;
+  renderSecondLine() {
+    const { user, singleLine, secondLine } = this.props;
 
-    if (!customer) {
+    if (singleLine) {
       return null;
     }
 
-    if (singleLine) {
-      return customer.firstName || customer.primaryEmail || 'Unknown';
+    if (secondLine) {
+      return secondLine;
+    }
+
+    if (user.email) {
+      return user.email;
     }
 
     return null;
   }
 
   render() {
-    const { user, customer, firstLine, avatarSize } = this.props;
-    let first;
-
-    if (user || firstLine) {
-      first = firstLine || this.renderUserName();
-    }
-
-    if (customer) {
-      first = firstLine || customer.firstName || this.renderCustomerName();
-    }
+    const { user, avatarSize } = this.props;
 
     return (
       <NameCardStyled>
-        <Avatar user={user} customer={customer} size={avatarSize} />
+        <Avatar user={user} size={avatarSize} />
         <NameCardText>
-          <FirstLine>{first}</FirstLine>
+          <FirstLine>{this.renderFirstLine()}</FirstLine>
+          <SecondLine>{this.renderSecondLine()}</SecondLine>
         </NameCardText>
       </NameCardStyled>
     );
