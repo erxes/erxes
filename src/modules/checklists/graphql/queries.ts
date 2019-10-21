@@ -31,11 +31,33 @@ const checklists = `
     checklists(
       ${commonParamDefs}
     ) {
-      ${checklistFields}
+      _id
     }
   }
 `;
 
+const checklistDetail = `
+  query checklistDetail($_id: String!) {
+    checklistDetail(_id: $_id) {
+      _id
+      contentType
+      contentTypeId
+      title
+      createdUserId
+      createdDate
+      items {
+        _id
+        checklistId
+        isChecked
+        content
+        order
+      }
+      percent
+        }
+  }
+`;
+
 export default {
-  checklists
+  checklists,
+  checklistDetail
 };

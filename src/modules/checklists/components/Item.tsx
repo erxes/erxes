@@ -1,27 +1,29 @@
 import Button from 'modules/common/components/Button';
-import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import xss from 'xss';
-import { AddItem, ChecklistRow, ChecklistText } from '../styles';
+import { ChecklistRow, ChecklistText, FormWrapper } from '../styles';
 import { IChecklistItem } from '../types';
 
 type Props = {
   item: IChecklistItem;
-  editItem: (doc: IChecklistItem, callback: () => void) => void;
-  removeItem: (checklistItemId: string, callback: () => void) => void;
-  setChecklistState: (diffComplete, diffAll) => void;
+  editItem: (
+    doc: { content: string; isChecked: boolean },
+    callback: () => void
+  ) => void;
+  removeItem: (checklistItemId: string) => void;
 };
 
 type State = {
   isEditing: boolean;
   content: string;
-  disabled: boolean;
   isChecked: boolean;
+  disabled: boolean;
+  beforeContent: string;
 };
 
-class ChecklistItem extends React.Component<Props, State> {
+class ListRow extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -29,35 +31,74 @@ class ChecklistItem extends React.Component<Props, State> {
       isEditing: false,
       content: props.item.content,
       disabled: false,
-      isChecked: props.item.isChecked
+      isChecked: props.item.isChecked,
+      beforeContent: props.item.content
     };
   }
 
+  onClick = () => {
+    this.setState({ isEditing: true });
+  };
+
+  onKeyPress = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      this.handleSave();
+    }
+  };
+
+  onSubmit = e => {
+    e.preventDefault();
+
+    this.handleSave();
+  };
+
+  handleSave = () => {
+    const { content, isChecked } = this.state;
+    const { editItem } = this.props;
+
+    this.setState({ disabled: true });
+
+    editItem({ content, isChecked }, () => {
+      this.setState({ disabled: false, isEditing: false });
+    });
+  };
+
+  removeClick = () => {
+    const { removeItem, item } = this.props;
+
+    removeItem(item._id);
+  };
+
+  onCheckChange = e => {
+    const { editItem } = this.props;
+
+    const checked = (e.currentTarget as HTMLInputElement).checked;
+
+    this.setState({ isChecked: checked }, () => {
+      const { content, isChecked } = this.state;
+
+      editItem({ content, isChecked }, () => {
+        this.setState({ isEditing: false });
+      });
+    });
+  };
+
   renderContent = () => {
-    const { removeItem, item, setChecklistState } = this.props;
-    const { isEditing, content, isChecked } = this.state;
+    const { isEditing, content } = this.state;
 
     if (isEditing) {
       return null;
     }
 
-    const onClick = () => {
-      this.setState({ isEditing: true });
-    };
-
-    const removeClick = () => {
-      removeItem(item._id, () => {
-        setChecklistState(isChecked ? -1 : 0, -1);
-      });
-    };
-
     return (
       <ChecklistText>
         <label
-          onClick={onClick}
+          onClick={this.onClick}
           dangerouslySetInnerHTML={{ __html: xss(content) }}
         />
-        <Button btnStyle="simple" size="small" onClick={removeClick}>
+        <Button btnStyle="simple" size="small" onClick={this.removeClick}>
           <Icon icon="cancel" />
         </Button>
       </ChecklistText>
@@ -65,7 +106,7 @@ class ChecklistItem extends React.Component<Props, State> {
   };
 
   renderInput = () => {
-    const { isEditing, content } = this.state;
+    const { isEditing } = this.state;
 
     if (!isEditing) {
       return null;
@@ -77,43 +118,20 @@ class ChecklistItem extends React.Component<Props, State> {
       });
     };
 
-    const isEditingChange = () => this.setState({ isEditing: false });
-
-    const onSubmit = e => {
-      e.preventDefault();
-      const { editItem, item } = this.props;
-
-      // before save, disable save button
-      this.setState({ disabled: true });
-
-      const mentionedUserIds = getMentionedUserIds(content);
-
-      const doc = {
-        _id: item._id,
-        checklistId: item.checklistId,
-        content,
-        isChecked: item.isChecked,
-        mentionedUserIds,
-        order: item.order
-      };
-
-      editItem(doc, () => {
-        // after save, enable save button
-        this.setState({ disabled: false });
-
-        isEditingChange();
-      });
+    const onClickEdit = () => {
+      this.setState({ isEditing: false, content: this.state.beforeContent });
     };
 
     return (
-      <AddItem onSubmit={onSubmit}>
+      <FormWrapper onSubmit={this.onSubmit}>
         <FormControl
           componentClass="textarea"
           autoFocus={true}
           onChange={onChangeContent}
           value={this.state.content}
+          onKeyPress={this.onKeyPress}
         />
-        <Button btnStyle="simple" size="small" onClick={isEditingChange}>
+        <Button btnStyle="simple" size="small" onClick={onClickEdit}>
           <Icon icon="cancel" />
         </Button>
 
@@ -126,27 +144,8 @@ class ChecklistItem extends React.Component<Props, State> {
         >
           Save
         </Button>
-      </AddItem>
+      </FormWrapper>
     );
-  };
-
-  onCheckChange = e => {
-    const { editItem, item, setChecklistState } = this.props;
-
-    const checked = (e.currentTarget as HTMLInputElement).checked;
-
-    const doc = {
-      _id: item._id,
-      checklistId: item.checklistId,
-      content: item.content,
-      isChecked: checked,
-      order: item.order
-    };
-
-    editItem(doc, () => {
-      this.setState({ isChecked: checked });
-      setChecklistState(checked ? 1 : -1, 0);
-    });
   };
 
   render = () => {
@@ -166,4 +165,4 @@ class ChecklistItem extends React.Component<Props, State> {
   };
 }
 
-export default ChecklistItem;
+export default ListRow;

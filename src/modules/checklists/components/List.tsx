@@ -1,51 +1,36 @@
 import Button from 'modules/common/components/Button';
-import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import Item from '../containers/Item';
 import {
-  AddItem,
   ChecklistActions,
   ChecklistTitle,
   ChecklistTitleWrapper,
   ChecklistWrapper,
+  FormWrapper,
   Progress
 } from '../styles';
-import {
-  EditMutationVariables,
-  IChecklist,
-  IChecklistItem,
-  IChecklistItemDoc,
-  IChecklistsState,
-  UpdateOrderItemsVariables
-} from '../types';
-import Item from './Item';
+import { IChecklist } from '../types';
 
 type Props = {
   list: IChecklist;
-  edit: (doc: EditMutationVariables, callbak: () => void) => void;
-  remove: (checklistId: string, callback: () => void) => void;
-  addItem: (doc: IChecklistItemDoc, callback: () => void) => void;
-  editItem: (doc: IChecklistItem, callback: () => void) => void;
-  updateOrder: (doc: [UpdateOrderItemsVariables]) => void;
-  removeItem: (checklistItemId: string, callback: () => void) => void;
-  onSelect: (checklistsState: IChecklistsState) => void;
-  checklistsState: IChecklistsState;
+  addItem: (doc: { content: string }) => void;
+  edit: (doc: { title: string }) => void;
+  remove: (checklistId: string) => void;
 };
 
 type State = {
-  items: IChecklistItem[];
-  showedItems: IChecklistItem[];
-  isEditing: boolean;
+  isEditingTitle: boolean;
   title: string;
-  isAddItem: boolean;
-  newItemContent: string;
+  beforeTitle: string;
   disabled: boolean;
+  isAddingItem: boolean;
+  addFormContent: string;
   isHidden: boolean;
-  checklistsState: IChecklistsState;
 };
 
 class List extends React.Component<Props, State> {
@@ -53,105 +38,82 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      items: this.props.list.items,
-      showedItems: this.props.list.items,
-      isEditing: false,
-      title: this.props.list.title,
-      isAddItem: false,
-      newItemContent: '',
-      disabled: false,
+      isEditingTitle: false,
+      isAddingItem: false,
       isHidden: false,
-      checklistsState: props.checklistsState || { complete: 0, all: 0 }
+      addFormContent: '',
+      title: this.props.list.title,
+      beforeTitle: this.props.list.title,
+      disabled: false
     };
   }
 
-  setChecklistState = (diffComplete: number, diffAll: number) => {
-    this.setState({
-      checklistsState: { complete: +diffComplete, all: +diffAll }
-    });
-    this.props.onSelect(this.state.checklistsState);
+  onAddItemClick = () => {
+    this.setState({ isAddingItem: true });
   };
 
-  renderItems = () => {
-    const { showedItems } = this.state;
-    if (showedItems.length === 0) {
-      return null;
-    }
+  removeClick = () => {
+    const { remove, list } = this.props;
 
-    return showedItems.map(showedItem => (
-      <Item
-        key={showedItem._id}
-        item={showedItem}
-        editItem={this.props.editItem}
-        removeItem={this.props.removeItem}
-        setChecklistState={this.setChecklistState}
-      />
-    ));
+    remove(list._id);
+  };
+
+  saveAddItemMutation = () => {
+    const { addItem } = this.props;
+
+    this.setState({ isAddingItem: false }, () => {
+      addItem({
+        content: this.state.addFormContent
+      });
+    });
+  };
+
+  onSubmitAddItem = e => {
+    e.preventDefault();
+
+    this.saveAddItemMutation();
+  };
+
+  onKeyPressAddItem = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      this.saveAddItemMutation();
+    }
+  };
+
+  renderIsCheckedBtn = () => {
+    const { list } = this.props;
+    const { isHidden } = this.state;
+
+    const onClickHideShowBtn = () => this.setState({ isHidden: !isHidden });
+    const btnText = isHidden ? 'Show checked items' : 'Hide completed items';
+
+    if (list && list.percent) {
+      return (
+        <Button btnStyle="simple" size="small" onClick={onClickHideShowBtn}>
+          {__(btnText)}
+        </Button>
+      );
+    }
+    return null;
   };
 
   renderTitle = () => {
-    const { remove, list } = this.props;
-    const { isEditing, title, isHidden } = this.state;
+    const { isEditingTitle, title } = this.state;
 
-    if (isEditing) {
+    const onClick = () => this.setState({ isEditingTitle: true });
+
+    if (isEditingTitle) {
       return null;
     }
-
-    const onClick = () => {
-      this.setState({ isEditing: true });
-    };
-
-    const renderHideButton = () => {
-      if (!list.percent) {
-        return null;
-      }
-
-      if (isHidden) {
-        return (
-          <Button btnStyle="simple" size="small" onClick={showClick}>
-            {__(`Show checked items`)}
-          </Button>
-        );
-      } else {
-        return (
-          <Button btnStyle="simple" size="small" onClick={hideClick}>
-            {__(`Hide completed items`)}
-          </Button>
-        );
-      }
-    };
-
-    const hideClick = () => {
-      this.setState({ isHidden: true });
-      this.setState({
-        showedItems: this.state.items.filter(item => !item.isChecked)
-      });
-    };
-
-    const showClick = () => {
-      this.setState({ isHidden: false });
-      this.setState({
-        showedItems: this.state.items.sort((a, b) =>
-          a.order < b.order ? -1 : 1
-        )
-      });
-    };
-
-    const removeClick = () => {
-      remove(list._id, () => {
-        this.setChecklistState(
-          -this.state.items.filter(item => item.isChecked).length,
-          -this.state.items.length
-        );
-      });
-    };
 
     return (
       <ChecklistTitle>
         <h5 onClick={onClick}>{title}</h5>
         <ChecklistActions>
-          {renderHideButton()}
-          <Button btnStyle="simple" size="small" onClick={removeClick}>
+          {this.renderIsCheckedBtn()}
+          <Button btnStyle="simple" size="small" onClick={this.removeClick}>
             Delete
           </Button>
         </ChecklistActions>
@@ -159,49 +121,34 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderInput = () => {
-    const { isEditing, title } = this.state;
+  renderTitleInput = () => {
+    const { isEditingTitle, title } = this.state;
+    const { edit } = this.props;
 
-    if (!isEditing) {
+    if (!isEditingTitle) {
       return null;
     }
 
-    const onChangeTitle = e =>
+    const cancelEditing = () =>
+      this.setState({ isEditingTitle: false, title: this.state.beforeTitle });
+    const onChange = e =>
       this.setState({ title: (e.currentTarget as HTMLTextAreaElement).value });
 
-    const isEditingChange = () => this.setState({ isEditing: false });
-
-    const onSubmit = e => {
-      e.preventDefault();
-      const { edit, list } = this.props;
-
-      // before save, disable save button
-      this.setState({ disabled: true });
-
-      const doc = {
-        _id: list._id,
-        title,
-        contentType: list.contentType,
-        contentTypeId: list.contentTypeId
-      };
-
-      edit(doc, () => {
-        // after save, enable save button
-        this.setState({ disabled: false });
-
-        isEditingChange();
+    const onSubmit = () => {
+      this.setState({ isEditingTitle: false }, () => {
+        edit({ title: this.state.title });
       });
     };
 
     return (
-      <AddItem onSubmit={onSubmit}>
+      <FormWrapper onSubmit={onSubmit}>
         <FormControl
           autoFocus={true}
           componentClass="textarea"
-          onChange={onChangeTitle}
+          onChange={onChange}
           value={title}
         />
-        <Button btnStyle="simple" onClick={isEditingChange}>
+        <Button btnStyle="simple" onClick={cancelEditing} size="small">
           <Icon icon="cancel" />
         </Button>
 
@@ -210,87 +157,41 @@ class List extends React.Component<Props, State> {
           btnStyle="success"
           icon="checked-1"
           type="submit"
+          size="small"
         >
           Save
         </Button>
-      </AddItem>
+      </FormWrapper>
     );
   };
 
-  renderAddItemBtn = () => {
-    const { isAddItem } = this.state;
+  renderAddItemForm = () => {
+    const { isAddingItem } = this.state;
 
-    if (isAddItem) {
+    if (!isAddingItem) {
       return null;
     }
 
-    const onClick = () => {
-      this.setState({ isAddItem: true });
-    };
-
-    return (
-      <Button size="small" btnStyle="simple" onClick={onClick}>
-        <Icon icon="focus-add" />
-        {__(' Add an item')}
-      </Button>
-    );
-  };
-
-  renderAddItem = () => {
-    const { isAddItem, newItemContent, items } = this.state;
-    if (!isAddItem) {
-      return null;
-    }
-
-    const onChangeContent = e =>
+    const cancel = () => this.setState({ isAddingItem: false });
+    const onContentChange = e =>
       this.setState({
-        newItemContent: (e.currentTarget as HTMLTextAreaElement).value
+        addFormContent: (e.currentTarget as HTMLTextAreaElement).value
       });
-
-    const isAddItemChange = () => this.setState({ isAddItem: false });
-
-    const onSubmit = e => {
-      e.preventDefault();
-      const { addItem, list } = this.props;
-
-      // before save, disable save button
-      this.setState({ disabled: true });
-
-      const mentionedUserIds = getMentionedUserIds(newItemContent);
-
-      const doc = {
-        checklistId: list._id,
-        content: newItemContent,
-        isChecked: false,
-        mentionedUserIds,
-        order: items.length
-      };
-
-      addItem(doc, () => {
-        // after save, enable save button
-        this.setState({ disabled: false });
-
-        isAddItemChange();
-      });
-
-      this.setChecklistState(0, 1);
-    };
 
     return (
-      <AddItem isNewItem={true} onSubmit={onSubmit}>
+      <FormWrapper isNewItem={true} onSubmit={this.onSubmitAddItem}>
         <FormControl
           autoFocus={true}
           componentClass="textarea"
-          onChange={onChangeContent}
+          onChange={onContentChange}
+          onKeyPress={this.onKeyPressAddItem}
         />
         <Button
           btnStyle="simple"
           size="small"
-          onClick={isAddItemChange}
+          onClick={cancel}
           icon="cancel-1"
-        >
-          Close
-        </Button>
+        />
 
         <Button
           disabled={this.state.disabled}
@@ -301,33 +202,62 @@ class List extends React.Component<Props, State> {
         >
           Save
         </Button>
-      </AddItem>
+      </FormWrapper>
     );
   };
 
-  render() {
+  renderProgressBar = () => {
     const { list } = this.props;
+    return (
+      <Progress>
+        <span>{list.percent.toFixed(0)}%</span>
+        <ProgressBar
+          percentage={list.percent}
+          color={colors.colorPrimary}
+          height="8px"
+        />
+      </Progress>
+    );
+  };
+
+  renderItems = () => {
+    const { list } = this.props;
+
+    if (this.state.isHidden) {
+      return list.items
+        .filter(item => !item.isChecked)
+        .map(item => <Item key={item._id} item={item} />);
+    }
+    return list.items.map(item => <Item key={item._id} item={item} />);
+  };
+
+  renderAddItemBtn() {
+    if (!this.state.isAddingItem) {
+      return (
+        <Button size="small" btnStyle="simple" onClick={this.onAddItemClick}>
+          <Icon icon="focus-add" />
+          {__(' Add an item')}
+        </Button>
+      );
+    }
+    return null;
+  }
+
+  render() {
     return (
       <>
         <ChecklistTitleWrapper>
           <Icon icon="checked" />
           {this.renderTitle()}
-          {this.renderInput()}
+          {this.renderTitleInput()}
         </ChecklistTitleWrapper>
 
-        <Progress>
-          <span>{list.percent.toFixed(0)}%</span>
-          <ProgressBar
-            percentage={list.percent}
-            color={colors.colorPrimary}
-            height="8px"
-          />
-        </Progress>
+        {this.renderProgressBar()}
 
         <ChecklistWrapper>
           {this.renderItems()}
+          {this.renderAddItemForm()}
           {this.renderAddItemBtn()}
-          {this.renderAddItem()}
         </ChecklistWrapper>
       </>
     );

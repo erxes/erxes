@@ -24,7 +24,7 @@ type State = {
   title: string;
 };
 
-class AddForm extends React.Component<IProps, State> {
+class AddChecklistForm extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
     this.state = {
@@ -71,6 +71,8 @@ class AddForm extends React.Component<IProps, State> {
     });
   };
 
+  handleFocus = event => event.target.select();
+
   render() {
     return (
       <AddContainer onSubmit={this.onSubmit}>
@@ -82,6 +84,7 @@ class AddForm extends React.Component<IProps, State> {
               onChange={this.onChangeTitle}
               value={this.state.title}
               placeholder="Checklist"
+              onFocus={this.handleFocus}
             />
           </HeaderContent>
         </HeaderRow>
@@ -110,4 +113,4 @@ class AddForm extends React.Component<IProps, State> {
   }
 }
 
-export default AddForm;
+export default AddChecklistForm;

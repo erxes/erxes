@@ -49,7 +49,7 @@ const ChecklistWrapper = styled.div`
     overflow-hidden;
     > button{
         margin: ${dimensions.unitSpacing}px 0 0 28px;
-    }
+    },kjjjjjuujjuju
 `;
 
 const ChecklistRow = styled.div`
@@ -82,13 +82,14 @@ const ChecklistText = styled.div`
   }
 `;
 
-const AddItem = styledTS<{ isNewItem?: boolean }>(styled.form)`
+const FormWrapper = styledTS<{ isNewItem?: boolean }>(styled.form)`
     width: 100%;
     padding-left: ${props => (props.isNewItem ? 28 : dimensions.unitSpacing)}px;
     textarea{
         border: 1px solid ${colors.colorShadowGray};
         padding: ${dimensions.unitSpacing / 2}px;
         margin-bottom: ${dimensions.unitSpacing}px;
+        overflow-y: hidden;
         &:hover  {
             border: 1px solid ${colors.colorShadowGray};
         }
@@ -121,7 +122,7 @@ export {
   ChecklistWrapper,
   ChecklistRow,
   ChecklistText,
-  AddItem,
+  FormWrapper,
   PopoverContent,
   ClosePopover
 };

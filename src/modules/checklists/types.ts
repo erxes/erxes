@@ -53,10 +53,10 @@ export type RemoveMutationResponse = (
 
 export interface IChecklistItemDoc {
   checklistId: string;
-  isChecked: boolean;
+  isChecked?: boolean;
   content: string;
   mentionedUserIds?: string[];
-  order: number;
+  order?: number;
 }
 
 export interface IChecklistItem extends IChecklistItemDoc {

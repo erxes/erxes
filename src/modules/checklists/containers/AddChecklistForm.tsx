@@ -3,7 +3,7 @@ import { IItem, IOptions } from 'modules/boards/types';
 import { Alert, renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
-import AddForm from '../components/AddForm';
+import AddChecklistForm from '../components/AddChecklistForm';
 import { mutations, queries } from '../graphql';
 import { AddMutationResponse, IChecklistDoc } from '../types';
 
@@ -17,7 +17,7 @@ type FinalProps = {
   addMutation: AddMutationResponse;
 } & IProps;
 
-class AddFormContainer extends React.Component<FinalProps> {
+class AddChecklistFormContainer extends React.Component<FinalProps> {
   add = (doc: IChecklistDoc, callback: () => void) => {
     const { addMutation } = this.props;
 
@@ -37,7 +37,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       add: this.add
     };
 
-    return <AddForm {...updatedProps} />;
+    return <AddChecklistForm {...updatedProps} />;
   }
 }
 
@@ -62,6 +62,6 @@ export default (props: IProps) => {
           })
         }
       )
-    )(AddFormContainer)
+    )(AddChecklistFormContainer)
   );
 };

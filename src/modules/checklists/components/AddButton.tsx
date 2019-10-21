@@ -3,7 +3,7 @@ import { IItem, IOptions } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import AddForm from '../containers/AddForm';
+import AddChecklistForm from '../containers/AddChecklistForm';
 import { PopoverContent } from '../styles';
 
 type IProps = {
@@ -30,7 +30,11 @@ class ChecklistAdd extends React.Component<IProps> {
       <Popover id="checklist-popover">
         <PopoverContent>
           <h5>Add Checklist</h5>
-          <AddForm {...props} {...this.props} afterSave={this.hidePopover} />
+          <AddChecklistForm
+            {...props}
+            {...this.props}
+            afterSave={this.hidePopover}
+          />
         </PopoverContent>
       </Popover>
     );
