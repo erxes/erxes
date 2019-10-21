@@ -115,6 +115,10 @@ const integrationMutations = {
       kind = 'facebook';
     }
 
+    if (kind === 'twitter-dm') {
+      kind = 'twitter';
+    }
+
     try {
       await dataSources.IntegrationsAPI.createIntegration(kind, {
         accountId: doc.accountId,
@@ -155,9 +159,16 @@ const integrationMutations = {
 
     if (integration) {
       if (
-        ['facebook-messenger', 'facebook-post', 'gmail', 'callpro', 'nylas-gmail', 'nylas-imap', 'chatfuel'].includes(
-          integration.kind || '',
-        )
+        [
+          'facebook-messenger',
+          'facebook-post',
+          'gmail',
+          'callpro',
+          'nylas-gmail',
+          'nylas-imap',
+          'chatfuel',
+          'twitter-dm',
+        ].includes(integration.kind || '')
       ) {
         await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
       }

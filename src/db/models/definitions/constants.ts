@@ -61,6 +61,7 @@ export const KIND_CHOICES = {
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_imap: 'nylas-imap',
   CALLPRO: 'callpro',
+  TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
   ALL: [
     'messenger',
@@ -72,6 +73,7 @@ export const KIND_CHOICES = {
     'chatfuel',
     'nylas-gmail',
     'nylas-imap',
+    'twitter-dm',
   ],
 };
 

@@ -258,6 +258,22 @@ const conversationMutations = {
         });
     }
 
+    if (kind === KIND_CHOICES.TWITTER_DM) {
+      dataSources.IntegrationsAPI.replyTwitterDm({
+        conversationId: conversation._id,
+        integrationId: integration._id,
+        content: strip(doc.content),
+        attachments: doc.attachments || [],
+      })
+        .then(response => {
+          debugExternalApi(response);
+        })
+        .catch(e => {
+          debugExternalApi(e.message);
+          return e;
+        });
+    }
+
     const dbMessage = await ConversationMessages.findOne({
       _id: message._id,
     });
