@@ -8,7 +8,7 @@ import {
   Conversations as ChatfuelConversations,
   Customers as ChatfuelCustomers,
 } from './chatfuel/models';
-import { debugCallPro, debugFacebook, debugGmail, debugNylas } from './debuggers';
+import { debugCallPro, debugFacebook, debugGmail, debugNylas, debugTwitter } from './debuggers';
 import {
   Comments as FacebookComments,
   ConversationMessages as FacebookConversationMessages,
@@ -34,6 +34,12 @@ import {
   NylasImapConversations,
   NylasImapCustomers,
 } from './nylas/models';
+import { unsubscribe } from './twitter/api';
+import {
+  ConversationMessages as TwitterConversationMessages,
+  Conversations as TwitterConversations,
+  Customers as TwitterCustomers,
+} from './twitter/models';
 
 /**
  * Remove integration by integrationId(erxesApiId) or accountId
@@ -114,6 +120,18 @@ export const removeIntegration = async (id: string) => {
     await CallProCustomers.deleteMany(selector);
     await CallProConversations.deleteMany(selector);
     await CallProConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  if (kind === 'twitter-dm') {
+    debugTwitter('Removing twitter entries');
+
+    const conversationIds = await TwitterConversations.find(selector).distinct('_id');
+
+    unsubscribe(account.uid);
+
+    await TwitterConversationMessages.deleteMany(selector);
+    await TwitterConversations.deleteMany(selector);
+    await TwitterCustomers.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
   if (kind === 'imap') {

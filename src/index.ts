@@ -1,10 +1,6 @@
 import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
-
-// load environment variables
-dotenv.config();
-
 import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
 import { connect } from './connection';
@@ -16,6 +12,10 @@ import './messageQueue';
 import Accounts from './models/Accounts';
 import initNylas from './nylas/controller';
 import { init } from './startup';
+import initTwitter from './twitter/controller';
+
+// load environment variables
+dotenv.config();
 
 connect();
 
@@ -94,6 +94,9 @@ initGmail(app);
 
 // init callpro
 initCallPro(app);
+
+// init twitter
+initTwitter(app);
 
 // init chatfuel
 initChatfuel(app);

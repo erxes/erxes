@@ -1,9 +1,8 @@
-import * as requestify from 'requestify';
+import * as request from 'request-promise';
 import { debugBase, debugExternalRequests } from './debuggers';
 
 interface IRequestParams {
   url?: string;
-  dataType?: string;
   path?: string;
   method: string;
   params?: { [key: string]: string };
@@ -23,48 +22,49 @@ export const checkConcurrentError = (e: any, name: string) => {
 /**
  * Send request
  */
-export const sendRequest = async ({ url, dataType, method, body, params }: IRequestParams) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+export const sendRequest = ({ url, method, body, params }: IRequestParams): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-  const reqBody = JSON.stringify(body || {});
-  const reqParams = JSON.stringify(params || {});
+    const reqBody = JSON.stringify(body || {});
+    const reqParams = JSON.stringify(params || {});
 
-  try {
     debugExternalRequests(`
-      Sending request
-      url: ${url}
-      method: ${method}
-      body: ${reqBody}
-      params: ${reqParams}
-    `);
+        Sending request
+        url: ${url}
+        method: ${method}
+        body: ${reqBody}
+        params: ${reqParams}
+      `);
 
-    const response = await requestify.request(url, {
+    request({
+      uri: url,
       method,
       headers: { 'Content-Type': 'application/json', origin: DOMAIN },
       body,
-      params,
-      dataType: dataType || 'json',
-    });
+      qs: params,
+      json: true,
+    })
+      .then(res => {
+        debugExternalRequests(`
+        Success from ${url}
+        requestBody: ${reqBody}
+        requestParams: ${reqParams}
+        responseBody: ${JSON.stringify(res)}
+      `);
 
-    const responseBody = response.getBody();
-
-    debugExternalRequests(`
-      Success from ${url}
-      requestBody: ${reqBody}
-      requestParams: ${reqParams}
-      responseBody: ${JSON.stringify(responseBody)}
-    `);
-
-    return responseBody;
-  } catch (e) {
-    if (e.code === 'ECONNREFUSED') {
-      debugExternalRequests(`Failed to connect ${url}`);
-      throw new Error(`Failed to connect ${url}`);
-    } else {
-      debugExternalRequests(`Error occurred in ${url}: ${e.body}`);
-      throw new Error(e.body);
-    }
-  }
+        return resolve(res);
+      })
+      .catch(e => {
+        if (e.code === 'ECONNREFUSED') {
+          debugExternalRequests(`Failed to connect ${url}`);
+          throw new Error(`Failed to connect ${url}`);
+        } else {
+          debugExternalRequests(`Error occurred in ${url}: ${e.body}`);
+          reject(e);
+        }
+      });
+  });
 };
 
 /**
