@@ -3,18 +3,12 @@ import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import {
-  ChecklistsQueryResponse,
-  IChecklistsParam,
-  IChecklistsState
-} from '../types';
+import { ChecklistsQueryResponse, IChecklistsParam } from '../types';
 import List from './List';
 
 type IProps = {
   contentType: string;
   contentTypeId: string;
-  onSelect: (checklistsState: IChecklistsState) => void;
-  checklistsState: IChecklistsState;
 };
 
 type FinalProps = {

@@ -48,8 +48,6 @@ class Left extends React.Component<Props> {
     const descriptionOnBlur = e =>
       this.props.onBlurFields('description', e.target.value);
 
-    const chlsChange = chls => this.onChange('checklistsState', chls);
-
     return (
       <LeftContainer>
         <FormGroup>
@@ -82,12 +80,7 @@ class Left extends React.Component<Props> {
           />
         </FormGroup>
 
-        <Checklists
-          contentType={type}
-          contentTypeId={item._id}
-          onSelect={chlsChange}
-          checklistsState={item.checklistsState}
-        />
+        <Checklists contentType={type} contentTypeId={item._id} />
 
         <ActivityInputs
           contentTypeId={item._id}
