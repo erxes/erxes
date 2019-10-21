@@ -66,6 +66,7 @@ class Boards extends React.Component<Props, {}> {
         <ModalTrigger
           title={`New ${boardName}`}
           trigger={addBoard}
+          autoOpenKey="showBoardModal"
           content={content}
         />
       </Header>

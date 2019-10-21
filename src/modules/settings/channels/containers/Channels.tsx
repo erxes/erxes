@@ -97,7 +97,7 @@ class WithCurrentId extends React.Component<withCurrentIdFinalProps> {
 
     const { channelsGetLast, loading } = lastChannelQuery;
 
-    if (!_id && channelsGetLast && !loading) {
+    if (!_id && channelsGetLast && !loading && !history.location.hash) {
       routerUtils.setParams(history, { _id: channelsGetLast._id }, true);
     }
   }

@@ -13,6 +13,7 @@ type Props = {
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   type: string;
+  history: any;
 };
 
 class BoardForm extends React.Component<Props, {}> {

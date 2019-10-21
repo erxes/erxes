@@ -59,11 +59,17 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'nylas-gmail':
         icon = 'mail-alt';
         break;
+      case 'nylas-imap':
+        icon = 'mail-alt';
+        break;
       case 'gmail':
         icon = 'mail-alt';
         break;
       case 'callpro':
         icon = 'phone-call';
+        break;
+      case 'chatfuel':
+        icon = 'comment-dots';
         break;
       default:
         icon = 'doc-text-inv-1';

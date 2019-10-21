@@ -42,12 +42,20 @@ class IntegrationList extends React.Component<Props> {
       return 'callpro';
     }
 
+    if (kind === KIND_CHOICES.CHATFUEL) {
+      return 'chatfuel';
+    }
+
     if (kind === KIND_CHOICES.NYLAS_GMAIL) {
       return 'nylas gmail';
     }
 
     if (kind === KIND_CHOICES.TWITTER_DM) {
       return 'twitter';
+    }
+
+    if (kind === KIND_CHOICES.NYLAS_IMAP) {
+      return 'nylas imap';
     }
 
     return 'default';

@@ -7,6 +7,12 @@ const productFields = `
       description
       unitPrice
       sku
+      getTags {
+        _id
+        name
+        colorCode
+      }
+      tagIds
       createdAt
       category {
         name
@@ -14,8 +20,8 @@ const productFields = `
 `;
 
 const products = `
-  query products($type: String, $categoryId: String, $searchValue: String, $perPage: Int, $page: Int $ids: [String]) {
-    products(type: $type, categoryId: $categoryId, searchValue: $searchValue, perPage: $perPage, page: $page ids: $ids) {
+  query products($type: String, $categoryId: String, $tag: String, $searchValue: String, $perPage: Int, $page: Int $ids: [String]) {
+    products(type: $type, categoryId: $categoryId, tag: $tag, searchValue: $searchValue, perPage: $perPage, page: $page ids: $ids) {
       ${productFields}
     }
   }
@@ -24,6 +30,12 @@ const products = `
 const productsCount = `
   query productsTotalCount($type: String) {
     productsTotalCount(type: $type)
+  }
+`;
+
+const productCountByTags = `
+  query productCountByTags {
+    productCountByTags
   }
 `;
 
@@ -61,6 +73,7 @@ const productDetail = `
 export default {
   products,
   productDetail,
+  productCountByTags,
   productsCount,
   productCategories,
   productCategoriesCount

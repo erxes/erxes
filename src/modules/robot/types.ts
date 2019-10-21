@@ -4,6 +4,7 @@ export type IFeature = {
   icon: string;
   color: string;
   videoUrl: string;
+  videoThumb: string;
   description: string;
   settings: string[];
   settingsDetails: { [key: string]: { name: string; url: string } };

@@ -7,6 +7,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { colors } from 'modules/common/styles';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { getRandomNumber } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
 import React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -46,7 +47,7 @@ class FormComponent extends React.Component<Props, State> {
     const { tag } = this.props;
 
     this.state = {
-      colorCode: tag ? tag.colorCode : COLORS[0]
+      colorCode: tag ? tag.colorCode : COLORS[getRandomNumber(7)]
     };
   }
 

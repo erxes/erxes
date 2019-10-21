@@ -3,13 +3,10 @@ import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
-import routerUtils from 'modules/common/utils/router';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import queryString from 'query-string';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import history from '../../../../browserHistory';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 const reactiveFields = [
@@ -41,7 +38,6 @@ type Props = {
 };
 
 type State = {
-  isFormVisible?: boolean;
   name?: string;
   stageId?: string;
   description?: string;
@@ -57,23 +53,12 @@ type State = {
 };
 
 class EditForm extends React.Component<Props, State> {
-  unlisten?: () => void;
-
   constructor(props) {
     super(props);
 
     const item = props.item;
 
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
-
-    let isFormVisible = false;
-
-    if (itemIdQueryParam === item._id || props.isPopupVisible) {
-      isFormVisible = true;
-    }
-
     this.state = {
-      isFormVisible,
       name: item.name,
       stageId: item.stageId,
       // IItem datas
@@ -86,28 +71,6 @@ class EditForm extends React.Component<Props, State> {
       reminderMinute: item.reminderMinute || 0,
       isComplete: item.isComplete
     };
-  }
-
-  componentDidMount() {
-    this.unlisten = history.listen(location => {
-      const queryParams = queryString.parse(location.search);
-
-      if (queryParams.itemId === this.props.item._id) {
-        return this.setState({ isFormVisible: true });
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    if (this.unlisten) {
-      this.unlisten();
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isPopupVisible && nextProps.isPopupVisible === true) {
-      this.setState({ isFormVisible: true });
-    }
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
@@ -173,16 +136,9 @@ class EditForm extends React.Component<Props, State> {
 
   closeModal = () => {
     const { beforePopupClose } = this.props;
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
     if (beforePopupClose) {
       beforePopupClose();
-    }
-
-    this.setState({ isFormVisible: false });
-
-    if (itemIdQueryParam) {
-      routerUtils.removeParams(history, 'itemId');
     }
   };
 
@@ -213,14 +169,12 @@ class EditForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { isFormVisible } = this.state;
-
     return (
       <Modal
         dialogClassName="modal-1000w"
         enforceFocus={false}
         bsSize="lg"
-        show={isFormVisible}
+        show={this.props.isPopupVisible}
         onHide={this.onHideModal}
       >
         {this.renderHeader()}

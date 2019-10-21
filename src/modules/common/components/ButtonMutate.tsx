@@ -34,6 +34,7 @@ type Props = {
   type?: string;
   disabled?: boolean;
   block?: boolean;
+  beforeSubmit?: () => void;
 };
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
@@ -63,8 +64,13 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       callback,
       variables,
       successMessage = '',
-      refetchQueries
+      refetchQueries,
+      beforeSubmit
     } = this.props;
+
+    if (beforeSubmit) {
+      beforeSubmit();
+    }
 
     this.setState({ isLoading: true });
 

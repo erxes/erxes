@@ -163,6 +163,12 @@ const removeAccount = `
   }
 `;
 
+const addImapAccount = `
+  mutation integrationAddImapAccount($email: String! $password: String!) {
+    integrationAddImapAccount(email: $email password: $password)
+  }
+`;
+
 export default {
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,
@@ -175,5 +181,6 @@ export default {
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
   removeAccount,
-  integrationSendMail
+  integrationSendMail,
+  addImapAccount
 };

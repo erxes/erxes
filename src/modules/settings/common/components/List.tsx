@@ -59,6 +59,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
           size={size}
           enforceFocus={false}
           trigger={trigger}
+          autoOpenKey="showListFormModal"
           content={content}
           dialogClassName="transform"
         />
