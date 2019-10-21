@@ -72,6 +72,7 @@ export const KIND_CHOICES = {
   NYLAS_IMAP: 'nylas-imap',
   LEAD: 'lead',
   CALLPRO: 'callpro',
+  TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
   ALL_LIST: [
     'messenger',
@@ -79,6 +80,7 @@ export const KIND_CHOICES = {
     'facebook-messenger',
     'lead',
     'callpro',
+    'twitter-dm',
     'chatfuel',
     'gmail',
     'nylas-gmail',
@@ -232,6 +234,14 @@ export const INTEGRATIONS = [
         kind: 'callpro',
         logo: '/images/integrations/callpro.png',
         createModal: 'callpro'
+      },
+      {
+        name: 'Twitter',
+        description: 'Connect to your twitter DMs here in your Inbox',
+        inMessenger: false,
+        kind: 'twitter-dm',
+        logo: '/images/integrations/twitter.png',
+        createModal: 'twitter'
       },
       {
         name: 'Chatfuel',
