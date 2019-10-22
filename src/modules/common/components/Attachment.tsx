@@ -137,6 +137,7 @@ class Attachment extends React.Component<Props> {
     }
 
     if (attachment.type.startsWith('image')) {
+      const { index, switchItem, imagesLength } = this.props;
       return (
         <AttachmentWrapper>
           <PreviewWrapper>
@@ -144,9 +145,9 @@ class Attachment extends React.Component<Props> {
               onLoad={this.onLoadImage}
               alt={attachment.url}
               src={attachment.url}
-              index={this.props.index}
-              switchItem={this.props.switchItem}
-              imagesLength={this.props.imagesLength || 0}
+              index={index}
+              switchItem={switchItem}
+              imagesLength={imagesLength || 0}
             />
           </PreviewWrapper>
           <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>

@@ -3,12 +3,14 @@ import { fadeIn, slideDown } from 'modules/common/utils/animations';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { readFile } from '../utils';
 
 const PreviewWrapper = styled.div`
   position: fixed;
   left: 0;
   right: 0;
+
   bottom: 0;
   top: 0;
   background: rgba(48, 67, 92, 0.8);
@@ -54,6 +56,15 @@ const PreviewWrapper = styled.div`
       background: #aaa;
     }
   }
+`;
+
+const ButtonDirection = styledTS<{ arrow?: string }>(styled.button)`
+    position: fixed;
+    ${props => (props.arrow === 'right' ? `right: 0` : `left: 0`)}
+    background: ${colorShadowGray};
+    &:hover {
+      background: #aaa;
+    }
 `;
 
 const Image = styled.img`
@@ -121,7 +132,7 @@ class ImageWithPreview extends React.Component<Props, State> {
     document.removeEventListener('keydown', this.handleKeydown);
   }
 
-  rightClick = e => {
+  arrowClick = (click, e) => {
     e.stopPropagation();
 
     const { switchItem, imagesLength } = this.props;
@@ -129,51 +140,34 @@ class ImageWithPreview extends React.Component<Props, State> {
 
     let switchedUrl;
 
-    if (visible) {
-      if (switchItem) {
-        if (imagesLength !== undefined) {
-          if (imagesLength > this.state.num + 1) {
-            this.setState({ num: this.state.num + 1 });
+    if (visible && switchItem && imagesLength !== undefined) {
+      if (click === 'right') {
+        if (imagesLength > this.state.num + 1) {
+          this.setState({ num: this.state.num + 1 });
 
-            switchedUrl = switchItem(this.state.num) || '';
-          } else {
-            this.setState({ num: 0 });
+          switchedUrl = switchItem(this.state.num) || '';
+        } else {
+          this.setState({ num: 0 });
 
-            switchedUrl = switchItem(0);
-          }
-          this.setState({
-            srcUrl: switchedUrl
-          });
+          switchedUrl = switchItem(0);
         }
       }
-    }
-  };
 
-  leftClick = e => {
-    e.stopPropagation();
+      if (click === 'left') {
+        if (0 <= this.state.num - 1) {
+          this.setState({ num: this.state.num - 1 });
 
-    const { switchItem, imagesLength } = this.props;
-    const { visible } = this.state;
+          switchedUrl = switchItem(this.state.num);
+        } else {
+          this.setState({ num: imagesLength - 1 });
 
-    let switchedUrl;
-
-    if (visible) {
-      if (switchItem) {
-        if (imagesLength !== undefined) {
-          if (0 <= this.state.num - 1) {
-            this.setState({ num: this.state.num - 1 });
-
-            switchedUrl = switchItem(this.state.num);
-          } else {
-            this.setState({ num: imagesLength - 1 });
-
-            switchedUrl = switchItem(imagesLength - 1);
-          }
-          this.setState({
-            srcUrl: switchedUrl
-          });
+          switchedUrl = switchItem(imagesLength - 1);
         }
       }
+
+      this.setState({
+        srcUrl: switchedUrl
+      });
     }
   };
 
@@ -185,13 +179,13 @@ class ImageWithPreview extends React.Component<Props, State> {
       this.setState({ visible: false, srcUrl: src || '' });
     }
 
-    if ((e.keyCode === 37 || e.keyCode === 39) && visible) {
+    if (visible) {
       if (e.keyCode === 39) {
-        this.rightClick(e);
+        this.arrowClick('right', e);
       }
 
       if (e.keyCode === 37) {
-        this.leftClick(e);
+        this.arrowClick('left', e);
       }
     }
   };
@@ -201,12 +195,20 @@ class ImageWithPreview extends React.Component<Props, State> {
       if (this.props.imagesLength > 1) {
         return (
           <>
-            <button onClick={this.rightClick} className="rightArrow">
+            <ButtonDirection
+              arrow="right"
+              onClick={this.arrowClick.bind(this, 'right')}
+              className="rightArrow"
+            >
               &#8594;
-            </button>
-            <button onClick={this.leftClick} className="leftArrow">
+            </ButtonDirection>
+            <ButtonDirection
+              arrow="left"
+              onClick={this.arrowClick.bind(this, 'left')}
+              className="leftArrow"
+            >
               &#8592;
-            </button>
+            </ButtonDirection>
           </>
         );
       } else {
