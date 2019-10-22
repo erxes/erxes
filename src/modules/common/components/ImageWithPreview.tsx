@@ -227,6 +227,7 @@ class ImageWithPreview extends React.Component<Props, State> {
           onLoad={onLoad}
           onClick={this.toggleImage}
         />
+
         {this.renderPreviewPortal()}
       </>
     );
