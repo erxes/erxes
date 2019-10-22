@@ -123,15 +123,12 @@ class EditForm extends React.Component<Props, State> {
 
   copy = () => {
     const { item, addItem, options } = this.props;
-    console.log('item = ', item);
     // copied doc
     const doc = {
       ...item,
       attachments: item.attachments && extractAttachment(item.attachments),
       assignedUserIds: item.assignedUsers.map(user => user._id)
     };
-
-    console.log(doc);
 
     addItem(doc, this.closeModal, options.texts.copySuccessText);
   };
