@@ -247,6 +247,7 @@ class CustomersList extends React.Component<IProps, State> {
         </Link>
         <ModalTrigger
           title="New customer"
+          autoOpenKey="showCustomerModal"
           trigger={addTrigger}
           size="lg"
           content={customerForm}

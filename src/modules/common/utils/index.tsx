@@ -242,6 +242,14 @@ export const generateRandomString = (len: number = 10) => {
 };
 
 /**
+ * Generate random int number between 0 and max
+ */
+
+export const getRandomNumber = (max: number = 10) => {
+  return Math.floor(Math.random() * Math.floor(max));
+};
+
+/**
  * Send desktop notification
  */
 export const sendDesktopNotification = (doc: {

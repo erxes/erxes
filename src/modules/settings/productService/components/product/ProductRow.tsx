@@ -1,4 +1,5 @@
 import { FormControl } from 'modules/common/components/form';
+import Tags from 'modules/common/components/Tags';
 import TextInfo from 'modules/common/components/TextInfo';
 import React from 'react';
 import { IProduct } from '../../types';
@@ -13,6 +14,8 @@ type Props = {
 class Row extends React.Component<Props> {
   render() {
     const { product, history, toggleBulk, isChecked } = this.props;
+
+    const tags = product.getTags || [];
 
     const onChange = e => {
       if (toggleBulk) {
@@ -41,10 +44,12 @@ class Row extends React.Component<Props> {
         <td>
           <TextInfo>{product.type}</TextInfo>
         </td>
-        <td>{product.description}</td>
         <td>{product.category ? product.category.name : ''}</td>
         <td>{product.unitPrice}</td>
         <td>{product.sku}</td>
+        <td>
+          <Tags tags={tags} limit={2} />
+        </td>
       </tr>
     );
   }

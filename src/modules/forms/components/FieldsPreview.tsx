@@ -1,6 +1,7 @@
 import SortableList from 'modules/common/components/SortableList';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
+import xss from 'xss';
 import FieldPreview from './FieldPreview';
 
 type Props = {
@@ -57,7 +58,9 @@ class FieldsPreview extends React.Component<Props, State> {
       return null;
     }
 
-    return <p>{formDesc}</p>;
+    const formatted = formDesc.replace(/\r?\n/g, '<br />');
+
+    return <div dangerouslySetInnerHTML={{ __html: xss(formatted) }} />;
   }
 
   render() {

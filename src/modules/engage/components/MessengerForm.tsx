@@ -4,6 +4,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import { Alert } from 'modules/common/utils';
 import {
   EMAIL_CONTENT,
   MESSENGER_KINDS,
@@ -111,8 +112,12 @@ class MessengerForm extends React.Component<Props, State> {
   render() {
     const onChangeFrom = e =>
       this.changeFromUserId((e.target as HTMLInputElement).value);
-    const onChangeContent = e =>
+    const onChangeContent = e => {
+      Alert.error(
+        'Please carefully select the brand, it will appear in the selected brand messenger.'
+      );
       this.changeContent('brandId', (e.target as HTMLInputElement).value);
+    };
     const onChangeSentAs = e =>
       this.changeContent('sentAs', (e.target as HTMLInputElement).value);
 

@@ -92,6 +92,12 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     if (productsData) {
       const productData = productsData.find(p => p._id === productId);
       if (productData) {
+        if (type === 'product') {
+          const product = value as IProduct;
+
+          productData.unitPrice = product.unitPrice;
+        }
+
         productData[type] = value;
       }
 
@@ -244,7 +250,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
               <ContentColumn>
                 <ControlLabel>Unit price</ControlLabel>
                 <FormControl
-                  defaultValue={productData.unitPrice || ''}
+                  value={productData.unitPrice || ''}
                   type="number"
                   placeholder="0"
                   name="unitPrice"
