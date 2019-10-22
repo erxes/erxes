@@ -164,8 +164,22 @@ const removeAccount = `
 `;
 
 const addImapAccount = `
-  mutation integrationAddImapAccount($email: String! $password: String!) {
-    integrationAddImapAccount(email: $email password: $password)
+  mutation integrationAddImapAccount(
+    $email: String! 
+    $password: String!
+    $imapHost: String!
+    $imapPort: Int!
+    $smtpHost: String!
+    $smtpPort: Int!
+  ) {
+    integrationAddImapAccount(
+      email: $email 
+      password: $password
+      imapHost: $imapHost
+      imapPort: $imapPort
+      smtpHost: $smtpHost
+      smtpPort: $smtpPort
+    )
   }
 `;
 
