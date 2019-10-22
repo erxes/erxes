@@ -145,7 +145,7 @@ class Row extends React.Component<Props> {
           {this.renderRules()}
         </td>
         <td className="text-normal">
-          <NameCard user={message.fromUser} avatarSize={30} singleLine={true} />
+          <NameCard user={message.fromUser} avatarSize={30} />
         </td>
         <td>{status}</td>
         <td className="text-primary">

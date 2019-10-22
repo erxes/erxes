@@ -103,7 +103,8 @@ export type IntegrationTypes =
   | 'facebook'
   | 'gmail'
   | 'nylas-gmail'
-  | 'nylas-imap';
+  | 'nylas-imap'
+  | 'twitter';
 
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];

@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { IUser } from '../../../auth/types';
-import { ICustomer } from '../../../customers/types';
 import { colors } from '../../styles';
 import Avatar from './Avatar';
 
@@ -35,76 +34,48 @@ const SecondLine = styled.div`
 `;
 
 type Props = {
-  user?: IUser;
-  customer?: ICustomer;
+  user: IUser;
   singleLine?: boolean;
-  firstLine?: React.ReactNode;
   secondLine?: React.ReactNode;
   avatarSize?: number;
-  url?: string;
-  isUser?: boolean;
 };
 
 class NameCard extends React.Component<Props> {
   static Avatar = Avatar;
 
-  renderUserName() {
-    const { user, singleLine, secondLine } = this.props;
-
-    if (!user) {
-      return null;
-    }
+  renderFirstLine() {
+    const { user } = this.props;
 
     if (user.details) {
       return user.details.fullName;
     }
 
-    if (!singleLine) {
-      return secondLine || `@${user.username}`;
+    if (user.username) {
+      return `@${user.username}`;
     }
 
     return null;
   }
 
-  renderCustomerName() {
-    const { customer, singleLine, secondLine } = this.props;
+  renderSecondLine() {
+    const { user, singleLine, secondLine } = this.props;
 
-    if (!customer) {
+    if (singleLine) {
       return null;
     }
 
-    if (singleLine) {
-      return customer.firstName || customer.primaryEmail || 'Unknown';
-    }
-
-    if (!singleLine) {
-      return secondLine || customer.primaryEmail || 'Unknown';
-    }
-
-    return null;
+    return secondLine || user.email || null;
   }
 
   render() {
-    const { user, customer, firstLine, secondLine, avatarSize } = this.props;
-    let first;
-    let second;
-
-    if (user || firstLine || secondLine) {
-      first = firstLine || this.renderUserName();
-      second = secondLine || (user && user.email) || this.renderUserName();
-    }
-
-    if (customer) {
-      first = firstLine || customer.firstName || this.renderCustomerName();
-      second = this.renderCustomerName();
-    }
+    const { user, avatarSize } = this.props;
 
     return (
       <NameCardStyled>
-        <Avatar user={user} customer={customer} size={avatarSize} />
+        <Avatar user={user} size={avatarSize} />
         <NameCardText>
-          <FirstLine>{first}</FirstLine>
-          <SecondLine>{second}</SecondLine>
+          <FirstLine>{this.renderFirstLine()}</FirstLine>
+          <SecondLine>{this.renderSecondLine()}</SecondLine>
         </NameCardText>
       </NameCardStyled>
     );

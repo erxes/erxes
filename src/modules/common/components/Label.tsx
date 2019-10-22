@@ -83,6 +83,10 @@ const LabelStyled = styledTS<{
   &.label-googleMeet {
     background: ${colors.socialGoogleMeet};
   }
+
+  &.label-twitter {
+    background: ${colors.socialTwitter}
+  }
 `;
 
 type Props = {
