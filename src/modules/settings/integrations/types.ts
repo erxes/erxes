@@ -20,6 +20,15 @@ export interface IPages {
   checked?: boolean;
 }
 
+export interface IImapForm {
+  email: string;
+  password: string;
+  imapHost: string;
+  imapPort: number;
+  smtpHost: string;
+  smtpPort: number;
+}
+
 export interface ISelectMessengerApps {
   brand: IBrand;
   label: string;
