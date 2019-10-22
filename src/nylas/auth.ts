@@ -11,7 +11,7 @@ import { decryptPassword, getClientConfig } from './utils';
 // loading config
 dotenv.config();
 
-const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET, IMAP_HOST, IMAP_PORT, SMTP_HOST, SMTP_PORT } = process.env;
+const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
 
 /**
  * Connect google to nylas with token
@@ -42,7 +42,9 @@ const connectGoogleToNylas = async (kind: string, account: IAccount & { _id: str
  * @param {Object} account
  */
 const connectImapToNylas = async (kind: string, account: IAccount & { _id: string }) => {
-  if (!IMAP_HOST || !IMAP_PORT || !SMTP_HOST || !SMTP_PORT) {
+  const { imapHost, imapPort, smtpHost, smtpPort } = account;
+
+  if (!imapHost || !imapPort || !smtpHost || !smtpPort) {
     throw new Error('Missing imap env config');
   }
 
@@ -59,10 +61,10 @@ const connectImapToNylas = async (kind: string, account: IAccount & { _id: strin
       imap_password: decryptedPassword,
       smtp_username: email,
       smtp_password: decryptedPassword,
-      imap_host: IMAP_HOST,
-      imap_port: Number(IMAP_PORT),
-      smtp_host: SMTP_HOST,
-      smtp_port: Number(SMTP_PORT),
+      imap_host: imapHost,
+      imap_port: Number(imapPort),
+      smtp_host: smtpHost,
+      smtp_port: Number(smtpPort),
       ssl_required: true,
     },
   });

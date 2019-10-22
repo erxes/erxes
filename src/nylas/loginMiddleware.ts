@@ -102,16 +102,34 @@ const getOAuthCredentials = async (req, res, next) => {
 const authenticateIMAP = async (req, res, next) => {
   debugRequest(debugNylas, req);
 
-  const { email, password } = req.body;
+  const {
+    email,
+    password,
+    imapHost,
+    imapPort,
+    smtpPort,
+    smtpHost,
+  }: {
+    email: string;
+    password: string;
+    imapHost: string;
+    smtpHost: string;
+    imapPort: number;
+    smtpPort: number;
+  } = req.body;
 
-  if (!email || !password) {
-    return next('Missing email or password');
+  if (!email || !password || !imapHost || !imapPort || !smtpHost || !smtpPort) {
+    return next('Missing IMAP, SMTP, email, password config');
   }
 
   debugNylas(`Creating account with email: ${email}`);
 
   await Accounts.create({
     email,
+    imapHost,
+    imapPort,
+    smtpPort,
+    smtpHost,
     password: encryptPassword(password),
     name: email,
     kind: 'imap',

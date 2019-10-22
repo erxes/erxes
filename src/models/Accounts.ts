@@ -5,6 +5,10 @@ export interface IAccount {
   kind: string;
   email: string;
   password: string;
+  imapHost: string;
+  smtpHost: string;
+  imapPort: number;
+  smtpPort: number;
   nylasToken: string;
   nylasTokenSecret: string;
   token: string;
@@ -24,6 +28,18 @@ export const accountSchema = new Schema({
   },
   email: {
     type: String,
+  },
+  imapHost: {
+    type: String,
+  },
+  smtpHost: {
+    type: String,
+  },
+  imapPort: {
+    type: Number,
+  },
+  smtpPort: {
+    type: Number,
   },
   password: {
     type: String,
