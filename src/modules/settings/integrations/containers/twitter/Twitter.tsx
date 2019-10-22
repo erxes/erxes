@@ -21,7 +21,7 @@ type State = {
   accountId: string;
 };
 
-class GmailContainer extends React.Component<FinalProps, State> {
+class TwitterContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
@@ -94,4 +94,4 @@ class GmailContainer extends React.Component<FinalProps, State> {
   }
 }
 
-export default withRouter<FinalProps>(GmailContainer);
+export default withRouter<FinalProps>(TwitterContainer);
