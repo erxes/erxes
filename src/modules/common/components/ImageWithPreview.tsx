@@ -10,7 +10,6 @@ const PreviewWrapper = styled.div`
   position: fixed;
   left: 0;
   right: 0;
-
   bottom: 0;
   top: 0;
   background: rgba(48, 67, 92, 0.8);
@@ -36,32 +35,13 @@ const PreviewWrapper = styled.div`
     animation-duration: 0.3s;
     animation-timing-function: ease;
   }
-
-  .rightArrow {
-    position: fixed;
-    right: 0%;
-    background: ${colorShadowGray};
-
-    &:hover {
-      background: #aaa;
-    }
-  }
-
-  .leftArrow {
-    position: fixed;
-    left: 0%;
-    background: ${colorShadowGray};
-
-    &:hover {
-      background: #aaa;
-    }
-  }
 `;
 
 const ButtonDirection = styledTS<{ arrow?: string }>(styled.button)`
     position: fixed;
     ${props => (props.arrow === 'right' ? `right: 0` : `left: 0`)}
     background: ${colorShadowGray};
+
     &:hover {
       background: #aaa;
     }
@@ -115,13 +95,18 @@ class ImageWithPreview extends React.Component<Props, State> {
     const { switchItem, index } = this.props;
     const { preImageUrl } = this.state;
 
-    this.setState({ visible: !this.state.visible });
-
     if (switchItem) {
       const prevItem = switchItem(preImageUrl);
       const prevNum = index;
-      this.setState({ srcUrl: prevItem, num: prevNum || 0 });
+
+      return this.setState({
+        visible: !this.state.visible,
+        srcUrl: prevItem,
+        num: prevNum || 0
+      });
     }
+
+    return this.setState({ visible: !this.state.visible });
   };
 
   componentDidMount() {
@@ -138,37 +123,31 @@ class ImageWithPreview extends React.Component<Props, State> {
     const { switchItem, imagesLength } = this.props;
     const { visible } = this.state;
 
-    let switchedUrl;
+    let srcUrl;
+    let num;
 
     if (visible && switchItem && imagesLength !== undefined) {
+      num = imagesLength - 1;
+      srcUrl = switchItem(imagesLength - 1);
+
+      if (0 <= this.state.num - 1) {
+        num = this.state.num - 1;
+        srcUrl = switchItem(num);
+      }
+
       if (click === 'right') {
+        num = 0;
+        srcUrl = switchItem(0);
+
         if (imagesLength > this.state.num + 1) {
-          this.setState({ num: this.state.num + 1 });
+          num = this.state.num + 1;
 
-          switchedUrl = switchItem(this.state.num) || '';
-        } else {
-          this.setState({ num: 0 });
-
-          switchedUrl = switchItem(0);
+          srcUrl = switchItem(num) || '';
         }
       }
-
-      if (click === 'left') {
-        if (0 <= this.state.num - 1) {
-          this.setState({ num: this.state.num - 1 });
-
-          switchedUrl = switchItem(this.state.num);
-        } else {
-          this.setState({ num: imagesLength - 1 });
-
-          switchedUrl = switchItem(imagesLength - 1);
-        }
-      }
-
-      this.setState({
-        srcUrl: switchedUrl
-      });
     }
+
+    this.setState({ srcUrl, num });
   };
 
   handleKeydown = e => {
@@ -176,51 +155,69 @@ class ImageWithPreview extends React.Component<Props, State> {
     const { visible } = this.state;
 
     if (e.keyCode === KEYCODES.ESCAPE && visible) {
-      this.setState({ visible: false, srcUrl: src || '' });
+      return this.setState({ visible: false, srcUrl: src || '' });
     }
 
     if (visible) {
       if (e.keyCode === 39) {
-        this.arrowClick('right', e);
+        return this.arrowClick('right', e);
       }
 
       if (e.keyCode === 37) {
-        this.arrowClick('left', e);
+        return this.arrowClick('left', e);
       }
     }
   };
 
+  renderDirectionButton = (direction: 'right' | 'left') => {
+    return (
+      <ButtonDirection
+        arrow={direction}
+        onClick={this.arrowClick.bind(this, direction)}
+      >
+        &#8594;
+      </ButtonDirection>
+    );
+  };
+
   renderBtn = () => {
-    if (this.props.imagesLength !== undefined) {
-      if (this.props.imagesLength > 1) {
-        return (
-          <>
-            <ButtonDirection
-              arrow="right"
-              onClick={this.arrowClick.bind(this, 'right')}
-              className="rightArrow"
-            >
-              &#8594;
-            </ButtonDirection>
-            <ButtonDirection
-              arrow="left"
-              onClick={this.arrowClick.bind(this, 'left')}
-              className="leftArrow"
-            >
-              &#8592;
-            </ButtonDirection>
-          </>
-        );
-      } else {
-        return null;
-      }
+    const { imagesLength } = this.props;
+
+    if (imagesLength !== undefined && imagesLength > 1) {
+      return (
+        <>
+          {this.renderDirectionButton('right')}
+          {this.renderDirectionButton('left')}
+        </>
+      );
     }
     return null;
   };
 
-  render() {
-    const { onLoad, alt } = this.props;
+  renderPreviewPortal = () => {
+    const { alt } = this.props;
     const { srcUrl } = this.state;
+
+    if (!this.state.visible) {
+      return null;
+    }
+
+    return (
+      <PreviewPortal>
+        <PreviewWrapper onClick={this.toggleImage}>
+          <img
+            alt={alt}
+            onClick={this.toggleImage}
+            src={readFile(srcUrl || '')}
+          />
+          {this.renderBtn()}x{' '}
+        </PreviewWrapper>
+      </PreviewPortal>
+    );
+  };
+
+  render() {
+    const { onLoad } = this.props;
 
     return (
       <>
@@ -230,18 +227,7 @@ class ImageWithPreview extends React.Component<Props, State> {
           onLoad={onLoad}
           onClick={this.toggleImage}
         />
-        {this.state.visible && (
-          <PreviewPortal>
-            <PreviewWrapper onClick={this.toggleImage}>
-              <img
-                alt={alt}
-                onClick={this.toggleImage}
-                src={readFile(srcUrl || '')}
-              />
-              {this.renderBtn()}x{' '}
-            </PreviewWrapper>
-          </PreviewPortal>
-        )}
+        {this.renderPreviewPortal()}
       </>
     );
   }
