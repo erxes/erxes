@@ -116,7 +116,7 @@ describe('customerQueries', () => {
 
   const firstName = faker.name.firstName();
   const lastName = faker.name.lastName();
-  const primaryEmail = faker.internet.email();
+  const primaryEmail = 'test@test.com';
   const primaryPhone = '12345678';
 
   afterEach(async () => {
@@ -224,26 +224,26 @@ describe('customerQueries', () => {
   });
 
   test('Customers filtered by search value', async () => {
-    await customerFactory({ firstName }, true);
-    await customerFactory({ lastName }, true);
+    await customerFactory({ firstName: 'firstName' }, true);
+    await customerFactory({ lastName: 'lastName' }, true);
     await customerFactory({ primaryPhone, phones: [primaryPhone] }, true);
     await customerFactory({ primaryEmail, emails: [primaryEmail] }, true);
 
     // customers by firstName ==============
     let responses = await graphqlRequest(qryCustomers, 'customers', {
-      searchValue: firstName,
+      searchValue: 'firstName',
     });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].firstName).toBe(firstName);
+    expect(responses[0].firstName).toBe('firstName');
 
     // customers by lastName ===========
     responses = await graphqlRequest(qryCustomers, 'customers', {
-      searchValue: lastName,
+      searchValue: 'lastName',
     });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].lastName).toBe(lastName);
+    expect(responses[0].lastName).toBe('lastName');
 
     // customers by email ==========
     responses = await graphqlRequest(qryCustomers, 'customers', {
@@ -260,6 +260,13 @@ describe('customerQueries', () => {
 
     expect(responses.length).toBe(1);
     expect(responses[0].primaryPhone).toBe(primaryPhone);
+
+    // customer by contains name
+    responses = await graphqlRequest(qryCustomers, 'customers', {
+      searchValue: 'sname',
+    });
+
+    expect(responses.length).toBe(2);
   });
 
   test('Main customers', async () => {

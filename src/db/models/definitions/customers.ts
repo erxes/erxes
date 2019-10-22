@@ -89,6 +89,7 @@ export interface ICustomerDocument extends ICustomer, Document {
   createdAt: Date;
   modifiedAt: Date;
   deviceTokens?: string[];
+  searchText?: string;
 }
 
 /* location schema */
@@ -228,5 +229,6 @@ export const customerSchema = schemaWrapper(
     urlVisits: Object,
 
     deviceTokens: field({ type: [String], default: [] }),
+    searchText: field({ type: String, optional: true, index: true }),
   }),
 );

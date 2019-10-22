@@ -1,6 +1,7 @@
 import { IConformityQueryParams } from '../../../data/modules/conformities/types';
 import { Conformities, Customers, Integrations, Segments } from '../../../db/models';
 import { STATUSES } from '../../../db/models/definitions/constants';
+import { regexSearchText } from '../../utils';
 import QueryBuilder from '../segments/queryBuilder';
 import { conformityFilterUtils } from './utils';
 
@@ -74,18 +75,7 @@ export const filter = async (params: IListArgs) => {
   }
 
   if (params.searchValue) {
-    const fields = [
-      { names: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { primaryEmail: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { primaryPhone: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { emails: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { phones: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { website: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { industry: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { plan: new RegExp(`.*${params.searchValue}.*`, 'i') },
-    ];
-
-    selector = { $or: fields };
+    Object.assign(selector, regexSearchText(params.searchValue));
   }
 
   // Filter by related and saved Conformity

@@ -27,6 +27,7 @@ export interface IItemCommonFields {
   userId?: string;
   createdAt?: Date;
   order?: number;
+  searchText?: string;
 }
 
 export interface IBoard extends ICommonFields {
@@ -123,6 +124,7 @@ export const commonItemFieldsSchema = {
     default: new Date(),
   }),
   modifiedBy: field({ type: String }),
+  searchText: field({ type: String, optional: true, index: true }),
 };
 
 export const boardSchema = schemaWrapper(

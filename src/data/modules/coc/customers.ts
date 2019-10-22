@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { IConformityQueryParams } from '../../../data/modules/conformities/types';
 import { Brands, FormSubmissions, Integrations, Segments } from '../../../db/models';
 import { STATUSES } from '../../../db/models/definitions/constants';
+import { regexSearchText } from '../../utils';
 import QueryBuilder from '../segments/queryBuilder';
 import { conformityFilterUtils } from './utils';
 
@@ -125,19 +126,8 @@ export class Builder {
   }
 
   // filter by search value
-  public searchFilter(value: string): { $or: any } {
-    const fields = [
-      { firstName: new RegExp(`.*${value}.*`, 'i') },
-      { lastName: new RegExp(`.*${value}.*`, 'i') },
-      { primaryEmail: new RegExp(`.*${value}.*`, 'i') },
-      { primaryPhone: new RegExp(`.*${value}.*`, 'i') },
-      { emails: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
-      { phones: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
-      { 'visitorContactInfo.email': new RegExp(`.*${value}.*`, 'i') },
-      { 'visitorContactInfo.phone': new RegExp(`.*${value}.*`, 'i') },
-    ];
-
-    return { $or: fields };
+  public searchFilter(value: string): { $and: any } {
+    return regexSearchText(value);
   }
 
   // filter by id

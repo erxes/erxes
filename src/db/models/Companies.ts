@@ -12,6 +12,8 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
     idsToExclude?: string[] | string,
   ): never;
 
+  fillSearchText(doc: ICompany): string;
+
   getCompany(_id: string): Promise<ICompanyDocument>;
 
   createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
@@ -66,6 +68,20 @@ export const loadClass = () => {
       }
     }
 
+    public static fillSearchText(doc: ICompany) {
+      return [
+        doc.primaryName || '',
+        doc.primaryEmail || '',
+        doc.primaryPhone || '',
+        doc.website || '',
+        doc.industry || '',
+        doc.plan || '',
+        (doc.names || []).join(' '),
+        (doc.emails || []).join(' '),
+        (doc.phones || []).join(' '),
+      ].join(' ');
+    }
+
     /**
      * Retreives company
      */
@@ -97,6 +113,7 @@ export const loadClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
+        searchText: Companies.fillSearchText(doc),
       });
 
       // create log
@@ -117,7 +134,10 @@ export const loadClass = () => {
         doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
       }
 
-      await Companies.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
+      await Companies.updateOne(
+        { _id },
+        { $set: { ...doc, searchText: Companies.fillSearchText(doc), modifiedAt: new Date() } },
+      );
 
       return Companies.findOne({ _id });
     }

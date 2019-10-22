@@ -1,4 +1,4 @@
-import { IOrderInput } from './definitions/boards';
+import { IItemCommonFields, IOrderInput } from './definitions/boards';
 
 export const updateOrder = async (collection: any, orders: IOrderInput[], stageId?: string) => {
   if (orders.length === 0) {
@@ -53,4 +53,8 @@ export const watchItem = async (collection: any, _id: string, isAdd: boolean, us
   await collection.updateOne({ _id }, { $set: { watchedUserIds } });
 
   return collection.findOne({ _id });
+};
+
+export const fillSearchTextItem = (doc: IItemCommonFields) => {
+  return [doc.name || '', doc.description || ''].join(' ');
 };

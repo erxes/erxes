@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { updateOrder, watchItem } from './boardUtils';
+import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
 
@@ -36,6 +36,7 @@ export const loadDealClass = () => {
         ...doc,
         order: dealsCount,
         modifiedAt: new Date(),
+        searchText: fillSearchTextItem(doc),
       });
 
       // create log
@@ -48,7 +49,7 @@ export const loadDealClass = () => {
      * Update Deal
      */
     public static async updateDeal(_id: string, doc: IDeal) {
-      await Deals.updateOne({ _id }, { $set: doc });
+      await Deals.updateOne({ _id }, { $set: doc, searchText: fillSearchTextItem(doc) });
 
       return Deals.findOne({ _id });
     }

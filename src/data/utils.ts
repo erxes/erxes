@@ -812,3 +812,25 @@ export default {
   readFile,
   createTransporter,
 };
+
+const stringToRegex = (value: string) => {
+  const specialChars = [...'{}[]\\^$.|?*+()'];
+
+  const result = [...value].map(char => (specialChars.includes(char) ? '.?\\' + char : '.?' + char));
+
+  return '.*' + result.join('').substring(2) + '.*';
+};
+
+export const regexSearchText = (searchValue: string) => {
+  const result: any[] = [];
+
+  searchValue = searchValue.replace(/\s\s+/g, ' ');
+
+  const words = searchValue.split(' ');
+
+  for (const word of words) {
+    result.push({ searchText: new RegExp(`${stringToRegex(word)}`, 'mui') });
+  }
+
+  return { $and: result };
+};

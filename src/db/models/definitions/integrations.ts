@@ -103,8 +103,9 @@ export interface IIntegration {
 export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
   createdUserId: string;
-  // TODO: remove
+  // TODO remove
   formData?: ILeadData;
+  leadData?: ILeadDataDocument;
   messengerData?: IMessengerDataDocument;
   uiOptions?: IUiOptionsDocument;
 }

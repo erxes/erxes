@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { updateOrder, watchItem } from './boardUtils';
+import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { growthHackSchema, IGrowthHack, IGrowthHackDocument } from './definitions/growthHacks';
 
@@ -37,6 +37,7 @@ export const loadGrowthHackClass = () => {
         ...doc,
         order: growthHacksCount,
         modifiedAt: new Date(),
+        searchText: fillSearchTextItem(doc),
       });
 
       // create log
@@ -49,7 +50,7 @@ export const loadGrowthHackClass = () => {
      * Update growth hack
      */
     public static async updateGrowthHack(_id: string, doc: IGrowthHack) {
-      await GrowthHacks.updateOne({ _id }, { $set: doc });
+      await GrowthHacks.updateOne({ _id }, { $set: doc, searchText: fillSearchTextItem(doc) });
 
       return GrowthHacks.findOne({ _id });
     }

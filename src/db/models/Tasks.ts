@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { updateOrder, watchItem } from './boardUtils';
+import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
 import { ITask, ITaskDocument, taskSchema } from './definitions/tasks';
 
@@ -39,6 +39,7 @@ export const loadTaskClass = () => {
         ...doc,
         order: tasksCount,
         modifiedAt: new Date(),
+        searchText: fillSearchTextItem(doc),
       });
 
       // create log
@@ -51,7 +52,7 @@ export const loadTaskClass = () => {
      * Update Task
      */
     public static async updateTask(_id: string, doc: ITask) {
-      await Tasks.updateOne({ _id }, { $set: doc });
+      await Tasks.updateOne({ _id }, { $set: doc, searchText: fillSearchTextItem(doc) });
 
       return Tasks.findOne({ _id });
     }

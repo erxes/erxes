@@ -331,7 +331,7 @@ interface ICompanyFactoryInput {
 }
 
 export const companyFactory = (params: ICompanyFactoryInput = {}) => {
-  const company = new Companies({
+  const companyDoc = {
     primaryName: params.primaryName || faker.random.word(),
     names: params.names || [faker.random.word()],
     size: params.size || faker.random.number(),
@@ -342,13 +342,21 @@ export const companyFactory = (params: ICompanyFactoryInput = {}) => {
     leadStatus: params.leadStatus || 'open',
     status: params.status || STATUSES.ACTIVE,
     lifecycleState: params.lifecycleState || 'lead',
-    createdAt: params.createdAt || new Date(),
-    modifiedAt: params.modifiedAt || new Date(),
     phones: params.phones || [],
     emails: params.emails || [],
     primaryPhone: params.primaryPhone || '',
     primaryEmail: params.primaryEmail || '',
+  };
+
+  const searchText = Companies.fillSearchText({ ...companyDoc });
+
+  Object.assign(companyDoc, {
+    createdAt: params.createdAt || new Date(),
+    modifiedAt: params.modifiedAt || new Date(),
+    searchText,
   });
+
+  const company = new Companies(companyDoc);
 
   return company.save();
 };
