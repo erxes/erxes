@@ -24,7 +24,6 @@ export interface ICustomerModel extends Model<ICustomerDocument> {}
 export interface IConversation {
   // id on erxes-api
   erxesApiId?: string;
-  timestamp: Date;
   senderPhoneNumber: string;
   recipientPhoneNumber: string;
   state: string;
@@ -37,7 +36,6 @@ export interface IConversationDocument extends IConversation, Document {}
 export const conversationSchema = new Schema({
   _id: field({ pkey: true }),
   erxesApiId: String,
-  timestamp: Date,
   state: String,
   integrationId: String,
   senderPhoneNumber: { type: String, index: true },

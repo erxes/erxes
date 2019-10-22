@@ -34,7 +34,7 @@ const init = async app => {
   app.post('/callpro-receive', async (req, res, next) => {
     debugRequest(debugCallPro, req);
 
-    const { numberTo, numberFrom, disp, recordUrl, callID, date } = req.body;
+    const { numberTo, numberFrom, disp, recordUrl, callID } = req.body;
     const integration = await Integrations.findOne({ phoneNumber: numberTo }).lean();
 
     if (!integration) {
@@ -83,7 +83,6 @@ const init = async app => {
       // save on integration db
       try {
         conversation = await Conversations.create({
-          timestamp: date,
           state: disp,
           callId: callID,
           senderPhoneNumber: numberTo,
