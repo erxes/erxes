@@ -170,6 +170,17 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   renderDirectionButton = (direction: 'right' | 'left') => {
+    if (direction === 'left') {
+      return (
+        <ButtonDirection
+          arrow={direction}
+          onClick={this.arrowClick.bind(this, direction)}
+        >
+          &#8592;
+        </ButtonDirection>
+      );
+    }
+
     return (
       <ButtonDirection
         arrow={direction}
