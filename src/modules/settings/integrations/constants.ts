@@ -70,6 +70,7 @@ export const KIND_CHOICES = {
   GMAIL: 'gmail',
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_IMAP: 'nylas-imap',
+  NYLAS_OFFICE365: 'nylas-office365',
   LEAD: 'lead',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
@@ -84,7 +85,8 @@ export const KIND_CHOICES = {
     'chatfuel',
     'gmail',
     'nylas-gmail',
-    'nylas-imap'
+    'nylas-imap',
+    'nylas-office365'
   ]
 };
 
@@ -186,6 +188,15 @@ export const INTEGRATIONS = [
         createUrl: '/settings/integrations/nylas-imap'
       },
       {
+        name: 'Office 365 by Nylas',
+        description: 'Connect your office 365 mail server',
+        inMessenger: false,
+        kind: 'nylas-office365',
+        logo: '/images/integrations/office365.png',
+        createModal: 'nylas-office365',
+        createUrl: '/settings/integrations/nylas-office365'
+      },
+      {
         name: 'Gmail by Nylas',
         description:
           'Connect straight to your gmail and get those emails going powered by Nylas',
@@ -203,7 +214,12 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-2',
+    rows: [
       {
         name: 'Knowledge Base',
         description: 'Get access to your Knowledge Base right in your Widget',

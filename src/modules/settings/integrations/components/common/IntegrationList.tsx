@@ -58,6 +58,10 @@ class IntegrationList extends React.Component<Props> {
       return 'nylas imap';
     }
 
+    if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
+      return 'nylas office365';
+    }
+
     return 'default';
   }
 

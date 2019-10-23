@@ -29,6 +29,7 @@ type Props = {
     chatfuel: number;
     gmail: number;
     imap: number;
+    office365: number;
   };
 };
 
@@ -154,6 +155,20 @@ class Entry extends React.Component<Props> {
       return (
         <ModalTrigger
           title="Add chatfuel"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.NYLAS_OFFICE365) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add Office 365"
           trigger={trigger}
           content={content}
         />

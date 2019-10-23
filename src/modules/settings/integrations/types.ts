@@ -113,6 +113,7 @@ export type IntegrationTypes =
   | 'gmail'
   | 'nylas-gmail'
   | 'nylas-imap'
+  | 'nylas-office365'
   | 'twitter';
 
 export type IntegrationsQueryResponse = {
