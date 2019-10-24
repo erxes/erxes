@@ -317,8 +317,6 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const AddContainer = styled.div``;
-
 const Status = styled.div`
   margin-bottom: 4px;
   overflow: hidden;
@@ -353,7 +351,6 @@ export {
   SelectOption,
   SelectValue,
   Avatar,
-  AddContainer,
   Status,
   PriceContainer,
   Right,
