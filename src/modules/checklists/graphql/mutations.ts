@@ -52,14 +52,12 @@ const commonItemVariables = `
   $checklistId: String,
   $isChecked: Boolean,
   $content: String,
-  $mentionedUserIds: [String],
 `;
 
 const commonItemParams = `
   checklistId: $checklistId,
   isChecked: $isChecked,
   content: $content,
-  mentionedUserIds: $mentionedUserIds,
 `;
 
 const checklistItemsAdd = `
