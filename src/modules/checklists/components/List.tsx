@@ -12,6 +12,7 @@ import {
   ChecklistTitle,
   ChecklistTitleWrapper,
   ChecklistWrapper,
+  FormControlWrapper,
   FormWrapper,
   Progress
 } from '../styles';
@@ -108,7 +109,7 @@ class List extends React.Component<Props, State> {
     }
 
     return (
-      <ChecklistTitle>
+      <>
         <h5 onClick={onClick}>{title}</h5>
         <ChecklistActions>
           {this.renderIsCheckedBtn()}
@@ -116,7 +117,7 @@ class List extends React.Component<Props, State> {
             Delete
           </Button>
         </ChecklistActions>
-      </ChecklistTitle>
+      </>
     );
   };
 
@@ -153,7 +154,7 @@ class List extends React.Component<Props, State> {
     };
 
     return (
-      <>
+      <FormControlWrapper>
         <FormControl
           {...formProps}
           name="title"
@@ -172,7 +173,7 @@ class List extends React.Component<Props, State> {
           isSubmitted,
           callback: onSubmit
         })}
-      </>
+      </FormControlWrapper>
     );
   };
 
@@ -190,24 +191,31 @@ class List extends React.Component<Props, State> {
       });
 
     return (
-      <FormWrapper isNewItem={true} onSubmit={this.onSubmitAddItem}>
-        <FormControl
-          autoFocus={true}
-          componentClass="textarea"
-          onChange={onContentChange}
-          onKeyPress={this.onKeyPressAddItem}
-          required={true}
-        />
-        <Button
-          btnStyle="simple"
-          size="small"
-          onClick={cancel}
-          icon="cancel-1"
-        />
+      <FormWrapper onSubmit={this.onSubmitAddItem}>
+        <FormControlWrapper>
+          <FormControl
+            autoFocus={true}
+            componentClass="textarea"
+            onChange={onContentChange}
+            onKeyPress={this.onKeyPressAddItem}
+            required={true}
+          />
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={cancel}
+            icon="cancel-1"
+          />
 
-        <Button btnStyle="success" icon="checked-1" type="submit" size="small">
-          Save
-        </Button>
+          <Button
+            btnStyle="success"
+            icon="checked-1"
+            type="submit"
+            size="small"
+          >
+            Save
+          </Button>
+        </FormControlWrapper>
       </FormWrapper>
     );
   };
@@ -254,8 +262,10 @@ class List extends React.Component<Props, State> {
       <>
         <ChecklistTitleWrapper>
           <Icon icon="checked" />
-          {this.renderTitle()}
-          <Form renderContent={this.renderTitleInput} />
+          <ChecklistTitle>
+            {this.renderTitle()}
+            <Form renderContent={this.renderTitleInput} />
+          </ChecklistTitle>
         </ChecklistTitleWrapper>
 
         {this.renderProgressBar()}

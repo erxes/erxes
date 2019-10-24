@@ -130,6 +130,7 @@ class ListRow extends React.Component<Props, State> {
           onChange={onChangeContent}
           value={this.state.content}
           onKeyPress={this.onKeyPress}
+          required={true}
         />
         <Button btnStyle="simple" size="small" onClick={onClickEdit}>
           <Icon icon="cancel" />

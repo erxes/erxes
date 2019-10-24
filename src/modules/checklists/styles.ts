@@ -1,6 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 const ChecklistTitleWrapper = styled.div`
   display: flex;
@@ -18,8 +17,11 @@ const ChecklistTitle = styled.div`
   width: 100%;
   align-items: center;
   > h5 {
-    margin-top: 0;
+    margin: 0;
     line-height: 1.5;
+  }
+  > form {
+    width: 100%;
   }
 `;
 
@@ -83,19 +85,23 @@ const ChecklistText = styled.div`
   }
 `;
 
-const FormWrapper = styledTS<{ isNewItem?: boolean }>(styled.form)`
-    width: 100%;
-    padding-left: ${props => (props.isNewItem ? 28 : dimensions.unitSpacing)}px;
-    textarea{
-        border: 1px solid ${colors.colorShadowGray};
-        padding: ${dimensions.unitSpacing / 2}px;
-        margin-bottom: ${dimensions.unitSpacing}px;
-        overflow-y: hidden;
-        &:hover  {
-            border: 1px solid ${colors.colorShadowGray};
-        }
-        min-height: auto;
+const FormControlWrapper = styled.div`
+  width: 100%;
+  textarea {
+    border: 1px solid ${colors.colorShadowGray};
+    padding: ${dimensions.unitSpacing / 2}px;
+    margin-bottom: ${dimensions.unitSpacing}px;
+    overflow-y: hidden;
+    min-height: auto;
+    &:hover {
+      border: 1px solid ${colors.colorShadowGray};
     }
+  }
+`;
+
+const FormWrapper = styled.form`
+  width: 100%;
+  padding-left: 28px;
 `;
 
 const PopoverContent = styled.div`
@@ -119,6 +125,7 @@ export {
   ChecklistWrapper,
   ChecklistRow,
   ChecklistText,
+  FormControlWrapper,
   FormWrapper,
   PopoverContent,
   ClosePopover
