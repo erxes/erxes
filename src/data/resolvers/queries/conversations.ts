@@ -149,7 +149,7 @@ const conversationQueries = {
     return dataSources.IntegrationsAPI.fetchApi('/facebook/get-comments', {
       postId,
       commentId,
-      limit: limit || 4,
+      limit: limit || 10,
     });
   },
   /**

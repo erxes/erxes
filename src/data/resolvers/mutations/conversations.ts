@@ -30,6 +30,26 @@ interface IReplyFacebookComment {
   commentId: string;
   content: string;
 }
+/**
+ *  Send conversation to integrations
+ */
+
+const sendConversationToIntegrations = (
+  integrationId: string,
+  conversationId: string,
+  requestName: string,
+  doc: IConversationMessageAdd,
+  dataSources: any,
+) => {
+  if (dataSources && dataSources.IntegrationsAPI) {
+    return dataSources.IntegrationsAPI[requestName]({
+      conversationId,
+      integrationId,
+      content: strip(doc.content),
+      attachments: doc.attachments || [],
+    });
+  }
+};
 
 /**
  * conversation notrification receiver ids
@@ -202,6 +222,8 @@ const conversationMutations = {
     }
 
     const kind = integration.kind;
+    const integrationId = integration.id;
+    const conversationId = conversation.id;
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
 
@@ -218,60 +240,57 @@ const conversationMutations = {
         },
       });
     }
-
-    const message = await ConversationMessages.addMessage(doc, user._id);
-
-    let isFacebook = false;
     let requestName;
 
     if (kind === KIND_CHOICES.FACEBOOK_POST) {
-      isFacebook = true;
       requestName = 'replyFacebookPost';
+
+      try {
+        const response = await sendConversationToIntegrations(
+          integrationId,
+          conversationId,
+          requestName,
+          doc,
+          dataSources,
+        );
+
+        return debugExternalApi(response);
+      } catch (e) {
+        debugExternalApi(e.message);
+        return e;
+      }
     }
+
+    const message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      isFacebook = true;
       requestName = 'replyFacebook';
     }
 
     // send reply to chatfuel
     if (kind === KIND_CHOICES.CHATFUEL) {
-      isFacebook = true;
       requestName = 'replyChatfuel';
     }
 
-    if (isFacebook) {
-      dataSources.IntegrationsAPI[requestName]({
-        conversationId: conversation._id,
-        integrationId: integration._id,
-        content: strip(doc.content),
-        attachments: doc.attachments || [],
-      })
-        .then(response => {
-          debugExternalApi(response);
-        })
-        .catch(e => {
-          debugExternalApi(e.message);
-
-          return ConversationMessages.deleteOne({ _id: message._id });
-        });
+    if (kind === KIND_CHOICES.TWITTER_DM) {
+      requestName = 'replyTwitterDm';
     }
 
-    if (kind === KIND_CHOICES.TWITTER_DM) {
-      dataSources.IntegrationsAPI.replyTwitterDm({
-        conversationId: conversation._id,
-        integrationId: integration._id,
-        content: strip(doc.content),
-        attachments: doc.attachments || [],
-      })
-        .then(response => {
-          debugExternalApi(response);
-        })
-        .catch(e => {
-          debugExternalApi(e.message);
-          return e;
-        });
+    try {
+      const response = await sendConversationToIntegrations(
+        integrationId,
+        conversationId,
+        requestName,
+        doc,
+        dataSources,
+      );
+
+      debugExternalApi(response);
+    } catch (e) {
+      debugExternalApi(e.message);
+      ConversationMessages.deleteOne({ _id: message._id });
+      return e;
     }
 
     const dbMessage = await ConversationMessages.findOne({
@@ -309,18 +328,23 @@ const conversationMutations = {
       messageContent: doc.content || '',
     });
 
-    return dataSources.IntegrationsAPI.replyFacebookPost({
-      conversationId: doc.commentId,
-      integrationId: integration._id,
-      content: strip(doc.content),
-    })
-      .then(response => {
-        debugExternalApi(response);
-      })
-      .catch(e => {
-        debugExternalApi(e.message);
-        return e;
-      });
+    const requestName = 'replyFacebookPost';
+    const integrationId = integration.id;
+    const conversationId = doc.commentId;
+
+    try {
+      const response = await sendConversationToIntegrations(
+        integrationId,
+        conversationId,
+        requestName,
+        doc,
+        dataSources,
+      );
+      return debugExternalApi(response);
+    } catch (e) {
+      debugExternalApi(e.message);
+      return e;
+    }
   },
 
   /**
