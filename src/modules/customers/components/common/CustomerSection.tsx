@@ -1,3 +1,4 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -8,7 +9,8 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import {
   ButtonRelated,
   SectionBody,
-  SectionBodyItem
+  SectionBodyItem,
+  SectionButton
 } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -108,24 +110,26 @@ function Component({
   };
 
   return (
-    <Section>
-      <Title>{__('Customers')}</Title>
-
-      <QuickButtons isSidebarOpen={isOpen}>
-        <ModalTrigger
-          title="Associate"
-          size="lg"
-          trigger={
-            <button>
-              <Icon icon="add" />
-            </button>
-          }
-          content={customerChooser}
-        />
-      </QuickButtons>
-
-      {renderBody(items)}
-    </Section>
+    <Box title={__('Customers')} isOpen={false}>
+      <Section>
+        <Title>{__('Customers')}</Title>
+        <SectionButton>
+          <QuickButtons isSidebarOpen={isOpen}>
+            <ModalTrigger
+              title="Associate"
+              size="lg"
+              trigger={
+                <button>
+                  <Icon icon="add" />
+                </button>
+              }
+              content={customerChooser}
+            />
+          </QuickButtons>
+        </SectionButton>
+        {renderBody(items)}
+      </Section>
+    </Box>
   );
 }
 

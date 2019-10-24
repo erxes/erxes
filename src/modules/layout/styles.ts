@@ -542,6 +542,15 @@ const ButtonRelated = styled.div`
   }
 `;
 
+const SectionButton = styled.div`
+  button {
+    position: absolute;
+    right: 25px;
+    top: -5px;
+    cursor: pointer;
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -577,6 +586,7 @@ export {
   SectionContainer,
   SectionBody,
   SectionBodyItem,
+  SectionButton,
   MobileRecommend,
   ButtonRelated
 };

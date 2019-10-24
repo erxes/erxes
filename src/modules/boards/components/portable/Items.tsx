@@ -1,9 +1,14 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
+import {
+  ButtonRelated,
+  SectionButton,
+  SectionContainer
+} from 'modules/layout/styles';
 import React from 'react';
 import { ItemChooser } from '../../containers/portable/';
 import { IItem, IOptions } from '../../types';
@@ -111,15 +116,17 @@ class Items extends React.Component<Props> {
     );
 
     return (
-      <Section>
-        <Title>{__(data.options.title)}</Title>
+      <Box title={__(data.options.title)} isOpen={false}>
+        <Section>
+          <Title>{__(data.options.title)}</Title>
+          <SectionButton>
+            <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
+          </SectionButton>
+          <SectionContainer>{this.renderItems()}</SectionContainer>
 
-        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-
-        <SectionContainer>{this.renderItems()}</SectionContainer>
-
-        {mainTypeId && mainType && relQuickButtons}
-      </Section>
+          {mainTypeId && mainType && relQuickButtons}
+        </Section>
+      </Box>
     );
   }
 }

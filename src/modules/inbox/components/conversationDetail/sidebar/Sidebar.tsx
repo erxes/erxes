@@ -1,17 +1,11 @@
 import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
-import {
-  Actions,
-  BasicInfo,
-  SectionContainer,
-  SidebarCollapse,
-  TabContent
-} from './styles';
+import { Actions, BasicInfo, TabContent } from './styles';
 
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import Box from 'modules/common/components/Box';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
@@ -82,71 +76,6 @@ const ConversationDetails = asyncComponent(
     import(/* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails'),
   { isBox: true }
 );
-
-type BoxProps = {
-  title: string;
-  name: string;
-  children: React.ReactNode;
-  isOpen: boolean;
-  toggle: (params: { name: string; isOpen: boolean }) => void;
-};
-
-type BoxState = {
-  isOpen: boolean;
-};
-
-class Box extends React.Component<BoxProps, BoxState> {
-  constructor(props: BoxProps) {
-    super(props);
-
-    this.state = {
-      isOpen: props.isOpen
-    };
-  }
-
-  toggle = () => {
-    const { name, toggle } = this.props;
-    const { isOpen } = this.state;
-
-    this.setState({ isOpen: !isOpen });
-
-    toggle({ name, isOpen: !isOpen });
-  };
-
-  renderDropBtn() {
-    const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
-
-    return (
-      <SidebarCollapse onClick={this.toggle}>
-        <Icon icon={icon} />
-      </SidebarCollapse>
-    );
-  }
-
-  render() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
-
-    const { isOpen } = this.state;
-    const { children, title } = this.props;
-
-    if (!isOpen) {
-      return (
-        <SectionContainer>
-          <Title>{title}</Title>
-          {this.renderDropBtn()}
-        </SectionContainer>
-      );
-    }
-
-    return (
-      <SectionContainer>
-        {children}
-        {this.renderDropBtn()}
-      </SectionContainer>
-    );
-  }
-}
 
 type IndexProps = {
   conversation: IConversation;
