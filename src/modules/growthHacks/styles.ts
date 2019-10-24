@@ -338,8 +338,8 @@ const FilterList = styled.ul`
 const FilterListItem = styledTS<{ isActive: boolean }>(styled.li)`
   margin: 0 ${dimensions.unitSpacing / 2}px;
   a{
-    color: ${colors.textSecondary};
-    color: ${props => props.isActive && colors.colorWhite};
+    color: ${props =>
+      props.isActive ? colors.colorWhite : colors.textSecondary};
     padding: ${dimensions.unitSpacing / 2}px; ${dimensions.unitSpacing}px;;
     border: 1px solid ${colors.borderDarker};
     background: ${props => props.isActive && colors.colorSecondary};

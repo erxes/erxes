@@ -3,6 +3,7 @@ import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
 
 import { IItem } from 'modules/boards/types';
+import Checklists from 'modules/checklists/containers/Checklists';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -70,6 +71,8 @@ class Left extends React.Component<Props> {
             onBlur={descriptionOnBlur}
           />
         </FormGroup>
+
+        <Checklists contentType={type} contentTypeId={item._id} />
 
         <ActivityInputs
           contentTypeId={item._id}
