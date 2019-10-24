@@ -50,7 +50,7 @@ export const removeIntegration = async (id: string) => {
   });
 
   if (!integration) {
-    throw new Error('Integration not found');
+    return;
   }
 
   const { kind, _id, accountId } = integration;
