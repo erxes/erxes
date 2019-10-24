@@ -17,17 +17,11 @@ class AddFormContainer extends React.Component<Props> {
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
-      const callBackResponse = () => {
-        if (callback) {
-          callback();
-        }
-      };
-
       return (
         <ButtonMutate
           mutation={mutations.checklistsAdd}
           variables={values}
-          callback={callBackResponse}
+          callback={callback}
           refetchQueries={['checklists']}
           isSubmitted={isSubmitted}
           btnSize="small"

@@ -18,7 +18,6 @@ type IProps = {
 };
 
 type State = {
-  disabled: boolean;
   title: string;
 };
 
@@ -27,7 +26,6 @@ class AddForm extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      disabled: false,
       title: 'Checklist'
     };
   }
