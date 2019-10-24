@@ -23,7 +23,7 @@ type FinalProps = {
 class ItemContainer extends React.Component<FinalProps> {
   editItem = (
     doc: { content: string; isChecked: boolean },
-    callback: () => void
+    callback?: () => void
   ) => {
     const { editItemMutation, item } = this.props;
 
@@ -33,7 +33,9 @@ class ItemContainer extends React.Component<FinalProps> {
         _id: item._id
       }
     }).then(() => {
-      callback();
+      if (callback) {
+        callback();
+      }
     });
   };
 

@@ -15,7 +15,7 @@ type Props = {
   item: IChecklistItem;
   editItem: (
     doc: { content: string; isChecked: boolean },
-    callback: () => void
+    callback?: () => void
   ) => void;
   removeItem: (checklistItemId: string) => void;
 };
@@ -32,12 +32,14 @@ class ListRow extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const item = props.item;
+
     this.state = {
       isEditing: false,
-      content: props.item.content,
+      content: item.content,
       disabled: false,
-      isChecked: props.item.isChecked,
-      beforeContent: props.item.content
+      isChecked: item.isChecked,
+      beforeContent: item.content
     };
   }
 
@@ -79,29 +81,21 @@ class ListRow extends React.Component<Props, State> {
   onCheckChange = e => {
     const { editItem } = this.props;
 
-    const checked = (e.currentTarget as HTMLInputElement).checked;
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
 
-    this.setState({ isChecked: checked }, () => {
-      const { content, isChecked } = this.state;
+    this.setState({ isChecked, isEditing: false }, () => {
+      const { content } = this.state;
 
-      editItem({ content, isChecked }, () => {
-        this.setState({ isEditing: false });
-      });
+      editItem({ content, isChecked });
     });
   };
 
   renderContent = () => {
-    const { isEditing, content } = this.state;
-
-    if (isEditing) {
-      return null;
-    }
-
     return (
       <ChecklistText>
         <label
           onClick={this.onClick}
-          dangerouslySetInnerHTML={{ __html: xss(content) }}
+          dangerouslySetInnerHTML={{ __html: xss(this.state.content) }}
         />
         <Button btnStyle="simple" size="small" onClick={this.removeClick}>
           <Icon icon="cancel" />
@@ -111,12 +105,6 @@ class ListRow extends React.Component<Props, State> {
   };
 
   renderInput = () => {
-    const { isEditing } = this.state;
-
-    if (!isEditing) {
-      return null;
-    }
-
     const onChangeContent = e => {
       this.setState({
         content: (e.currentTarget as HTMLTextAreaElement).value
@@ -157,7 +145,7 @@ class ListRow extends React.Component<Props, State> {
   };
 
   render = () => {
-    const { isChecked } = this.state;
+    const { isChecked, isEditing } = this.state;
 
     return (
       <ChecklistRow>
@@ -166,8 +154,7 @@ class ListRow extends React.Component<Props, State> {
           checked={isChecked}
           onChange={this.onCheckChange}
         />
-        {this.renderContent()}
-        {this.renderInput()}
+        {isEditing ? this.renderInput() : this.renderContent()}
       </ChecklistRow>
     );
   };

@@ -1,5 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ChecklistTitleWrapper = styled.div`
   display: flex;
@@ -87,6 +88,7 @@ const ChecklistText = styled.div`
 
 const FormControlWrapper = styled.div`
   width: 100%;
+
   textarea {
     border: 1px solid ${colors.colorShadowGray};
     padding: ${dimensions.unitSpacing / 2}px;
@@ -99,9 +101,9 @@ const FormControlWrapper = styled.div`
   }
 `;
 
-const FormWrapper = styled.form`
+const FormWrapper = styledTS<{ add?: boolean }>(styled.form)`
   width: 100%;
-  padding-left: 28px;
+  padding-left: ${props => (props.add ? '28px' : '10px')};
 `;
 
 const PopoverContent = styled.div`
