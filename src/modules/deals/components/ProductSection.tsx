@@ -1,10 +1,15 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import {
+  SectionBody,
+  SectionBodyItem,
+  SectionButton
+} from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import { CustomField, ProductName } from '../styles';
@@ -14,6 +19,7 @@ import ProductForm from './product/ProductForm';
 type Props = {
   productsData: IProductData[];
   products: IProduct[];
+  isOpen?: boolean;
   onChangeProductsData: (productsData: IProductData[]) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
@@ -23,6 +29,7 @@ function ProductSection({
   products,
   productsData,
   onChangeProductsData,
+  isOpen,
   saveProductsData
 }: Props) {
   const { Section } = Sidebar;
@@ -67,32 +74,35 @@ function ProductSection({
   };
 
   return (
-    <Section>
-      <Title>{__('Product & Service')}</Title>
-
-      <QuickButtons>
-        <ModalTrigger
-          title="New Product & Service"
-          size="lg"
-          trigger={
-            <button>
-              <Icon icon="add" />
-            </button>
-          }
-          content={content}
-        />
-      </QuickButtons>
-      <SectionBody>
-        {products.map((product, index) => (
-          <SectionBodyItem key={index}>
-            {renderProduct(product)}
-          </SectionBodyItem>
-        ))}
-        {products.length === 0 && (
-          <EmptyState icon="shopping-bag" text="No items" />
-        )}
-      </SectionBody>
-    </Section>
+    <Box title={__('Product & Service')} isOpen={false}>
+      <Section>
+        <Title>{__('Product & Service')}</Title>
+        <SectionButton>
+          <QuickButtons isSidebarOpen={isOpen}>
+            <ModalTrigger
+              title="New Product & Service"
+              size="lg"
+              trigger={
+                <button>
+                  <Icon icon="add" />
+                </button>
+              }
+              content={content}
+            />
+          </QuickButtons>
+        </SectionButton>
+        <SectionBody>
+          {products.map((product, index) => (
+            <SectionBodyItem key={index}>
+              {renderProduct(product)}
+            </SectionBodyItem>
+          ))}
+          {products.length === 0 && (
+            <EmptyState icon="shopping-bag" text="No items" />
+          )}
+        </SectionBody>
+      </Section>
+    </Box>
   );
 }
 
