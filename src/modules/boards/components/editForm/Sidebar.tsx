@@ -1,3 +1,4 @@
+import ChecklistAdd from 'modules/checklists/components/AddButton';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import CompanySection from 'modules/companies/components/common/CompanySection';
@@ -76,6 +77,8 @@ class Sidebar extends React.Component<Props> {
         {renderItems()}
 
         <Watch item={item} options={options} />
+
+        <ChecklistAdd itemId={item._id} type={options.type} />
 
         <RightButton icon="checked-1" onClick={copyItem}>
           Copy

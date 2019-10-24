@@ -38,6 +38,7 @@ type Props = {
   errors?: any;
   registerChild?: (child: any) => void;
   onBlur?: (e: React.FormEvent<HTMLElement>) => void;
+  maxHeight?: number;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -104,7 +105,8 @@ class FormControl extends React.Component<Props> {
       autoFocus: props.autoFocus,
       min: props.min,
       max: props.max,
-      id: props.id
+      id: props.id,
+      maxHeight: props.maxHeight
     };
 
     if (elementType === 'select') {
