@@ -52,7 +52,7 @@ export const getPageAccessTokenFromMap = (pageId: string, pageTokens: { [key: st
 
 export const subscribePage = async (pageId, pageToken): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'feed'],
+    subscribed_fields: ['conversations', 'feed', 'messages'],
   });
 };
 
