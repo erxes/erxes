@@ -32,7 +32,9 @@ export const insightVolumeReportExport = async (args: IListArgs, user: IUserDocu
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
-  await addHeader(`Volume Report By ${type || 'date'}`, args, sheet);
+  const header = `Volume Report By ${type === 'volumeByTime' ? 'Time' : 'Date'}`;
+
+  await addHeader(header, args, sheet);
 
   let rowIndex: number = 3;
   const cols: string[] = [];
@@ -52,7 +54,7 @@ export const insightVolumeReportExport = async (args: IListArgs, user: IUserDocu
     }
   }
 
-  const name = `Volume report By ${type || 'date'} - ${dateToString(start)} - ${dateToString(end)}`;
+  const name = `${header} - ${dateToString(start)} - ${dateToString(end)}`;
 
   return {
     name,
@@ -91,7 +93,7 @@ export const insightActivityReportExport = async (args: IListArgs, user: IUserDo
   const cols: string[] = [];
 
   const generateData = async () => {
-    const next = nextTime(begin, 'time');
+    const next = nextTime(begin, 'volumeByTime');
 
     rowIndex++;
 

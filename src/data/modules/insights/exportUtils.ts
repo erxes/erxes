@@ -81,7 +81,7 @@ export const addCell = (args: IAddCellArgs): void => {
 export const nextTime = (start: Date, type?: string) => {
   return new Date(
     moment(start)
-      .add(1, type ? 'hours' : 'days')
+      .add(1, type === 'volumeByTime' ? 'hours' : 'days')
       .toString(),
   );
 };
