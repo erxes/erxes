@@ -6,9 +6,13 @@ import { ConversationMessages, Conversations } from './models';
 import receiveDms from './receiveDms';
 
 const init = async app => {
-  twitterUtils.registerWebhook().catch(e => {
-    debugTwitter('Could not register webhook', e.message);
-  });
+  const TWITTER_CONSUMER_KEY = getEnv({ name: 'TWITTER_CONSUMER_KEY' });
+
+  if (TWITTER_CONSUMER_KEY) {
+    twitterUtils.registerWebhook().catch(e => {
+      debugTwitter('Could not register webhook', e.message);
+    });
+  }
 
   app.get('/twitter/login', async (_req, res) => {
     const { twitterAuthUrl } = await twitterUtils.getTwitterAuthUrl();
