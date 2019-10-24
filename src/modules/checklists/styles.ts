@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+
 const ChecklistTitleWrapper = styled.div`
   display: flex;
   align-items: baseline;
@@ -99,12 +100,8 @@ const FormWrapper = styledTS<{ isNewItem?: boolean }>(styled.form)`
 
 const PopoverContent = styled.div`
   padding: ${dimensions.unitSpacing}px;
-  h5 {
-    padding-bottom: ${dimensions.unitSpacing}px;
-    border-bottom: 1px solid ${colors.borderDarker};
-  }
+
   input {
-    border: 1px solid ${colors.borderDarker};
     padding: ${dimensions.unitSpacing / 2}px;
   }
   label {

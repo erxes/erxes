@@ -15,7 +15,7 @@ import { LeftContainer, TitleRow } from '../../styles/item';
 
 type Props = {
   item: IItem;
-  onChangeField: (name: 'description' | 'checklistsState', value: any) => void;
+  onChangeField: (name: 'description', value: any) => void;
   type: string;
   description: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
@@ -24,14 +24,6 @@ type Props = {
 };
 
 class Left extends React.Component<Props> {
-  onChange = (type, value) => {
-    const { onChangeField } = this.props;
-
-    if (onChangeField) {
-      onChangeField(type, value);
-    }
-  };
-
   render() {
     const {
       item,

@@ -1,8 +1,3 @@
-export interface IChecklistsState {
-  complete: number;
-  all: number;
-}
-
 export interface IChecklistDoc {
   contentType: string;
   contentTypeId: string;
@@ -54,9 +49,6 @@ export type RemoveMutationResponse = (
 export interface IChecklistItemDoc {
   checklistId: string;
   isChecked?: boolean;
-  content: string;
-  mentionedUserIds?: string[];
-  order?: number;
 }
 
 export interface IChecklistItem extends IChecklistItemDoc {
@@ -73,19 +65,6 @@ export type EditItemMutationVariables = {
 
 export type EditItemMutationResponse = (
   { variables: EditItemMutationVariables }
-) => Promise<any>;
-
-export type UpdateOrderItemsVariables = {
-  _id: string;
-  order: number;
-};
-
-export type UpdateOrderItemsMutationResponse = (
-  {
-    variables: {
-      orders: [UpdateOrderItemsVariables]
-    }
-  }
 ) => Promise<any>;
 
 export type RemoveItemMutationVariables = {

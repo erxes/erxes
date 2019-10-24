@@ -77,10 +77,6 @@ export const taskFields = `
   modifiedBy
   reminderMinute
   isComplete
-  checklistsState {
-    complete
-    all
-  }
 `;
 
 const tasks = `

@@ -317,7 +317,7 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const AddContainer = styled.form``;
+const AddContainer = styled.div``;
 
 const Status = styled.div`
   margin-bottom: 4px;

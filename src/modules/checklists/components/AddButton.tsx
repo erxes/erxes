@@ -3,38 +3,26 @@ import { IItem, IOptions } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import AddChecklistForm from '../containers/AddChecklistForm';
+import AddForm from '../containers/AddForm';
 import { PopoverContent } from '../styles';
 
-type IProps = {
+type Props = {
   item: IItem;
   options: IOptions;
-  afterSave?: () => void;
 };
 
-class ChecklistAdd extends React.Component<IProps> {
+class ChecklistAdd extends React.Component<Props> {
   private overlayTrigger;
 
   hidePopover = () => {
-    const { afterSave } = this.props;
-
-    if (afterSave) {
-      afterSave();
-    }
-
     this.overlayTrigger.hide();
   };
 
-  renderForm(props) {
+  renderForm() {
     return (
-      <Popover id="checklist-popover">
+      <Popover id="checklist-popover" title="Add checklist">
         <PopoverContent>
-          <h5>Add Checklist</h5>
-          <AddChecklistForm
-            {...props}
-            {...this.props}
-            afterSave={this.hidePopover}
-          />
+          <AddForm {...this.props} afterSave={this.hidePopover} />
         </PopoverContent>
       </Popover>
     );
@@ -52,7 +40,7 @@ class ChecklistAdd extends React.Component<IProps> {
         }}
         trigger="click"
         placement="top"
-        overlay={this.renderForm(this.props)}
+        overlay={this.renderForm()}
         rootClose={true}
       >
         {addTrigger}

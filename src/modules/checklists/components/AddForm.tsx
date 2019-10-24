@@ -1,5 +1,4 @@
 import {
-  AddContainer,
   FormFooter,
   HeaderContent,
   HeaderRow
@@ -7,15 +6,15 @@ import {
 import { IItem, IOptions } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
 import ControlLabel from 'modules/common/components/form/Label';
-import { Alert } from 'modules/common/utils';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import * as React from 'react';
-import { IChecklistDoc } from '../types';
 
 type IProps = {
   item: IItem;
   options: IOptions;
-  add: (doc: IChecklistDoc, callback: () => void) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave?: () => void;
 };
 
@@ -24,14 +23,32 @@ type State = {
   title: string;
 };
 
-class AddChecklistForm extends React.Component<IProps, State> {
+class AddForm extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
+
     this.state = {
       disabled: false,
       title: 'Checklist'
     };
   }
+
+  generateDoc = (values: {
+    title: string;
+    contentType: string;
+    contentTypeId: string;
+  }) => {
+    const { item, options } = this.props;
+    const { title } = this.state;
+
+    const finalValues = values;
+
+    return {
+      title: finalValues.title || title,
+      contentType: options.type,
+      contentTypeId: item._id
+    };
+  };
 
   onChangeTitle = e =>
     this.setState({ title: (e.currentTarget as HTMLInputElement).value });
@@ -44,47 +61,26 @@ class AddChecklistForm extends React.Component<IProps, State> {
     }
   };
 
-  onSubmit = e => {
-    e.preventDefault();
-
-    const { title } = this.state;
-    const { add, options, item } = this.props;
-
-    if (!title) {
-      return Alert.error('Enter title');
-    }
-
-    // before save, disable save button
-    this.setState({ disabled: true });
-
-    const doc = {
-      title,
-      contentType: options.type,
-      contentTypeId: item._id
-    };
-
-    add(doc, () => {
-      // after save, enable save button
-      this.setState({ disabled: false });
-
-      this.close();
-    });
-  };
-
   handleFocus = event => event.target.select();
 
-  render() {
+  renderContent = (formProps: IFormProps) => {
+    const { renderButton } = this.props;
+    const { isSubmitted, values } = formProps;
+
     return (
-      <AddContainer onSubmit={this.onSubmit}>
+      <>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
             <FormControl
+              {...formProps}
               autoFocus={true}
               onChange={this.onChangeTitle}
               value={this.state.title}
               placeholder="Checklist"
               onFocus={this.handleFocus}
+              name="title"
+              required={true}
             />
           </HeaderContent>
         </HeaderRow>
@@ -98,19 +94,19 @@ class AddChecklistForm extends React.Component<IProps, State> {
             Close
           </Button>
 
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-            size="small"
-          >
-            Save
-          </Button>
+          {renderButton({
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: this.close
+          })}
         </FormFooter>
-      </AddContainer>
+      </>
     );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
   }
 }
 
-export default AddChecklistForm;
+export default AddForm;
