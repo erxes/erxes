@@ -1,5 +1,4 @@
 import { RightButton } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -7,8 +6,8 @@ import AddForm from '../containers/AddForm';
 import { PopoverContent } from '../styles';
 
 type Props = {
-  item: IItem;
-  options: IOptions;
+  itemId: string;
+  type: string;
 };
 
 class ChecklistAdd extends React.Component<Props> {

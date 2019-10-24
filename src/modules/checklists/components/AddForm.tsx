@@ -3,7 +3,6 @@ import {
   HeaderContent,
   HeaderRow
 } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -12,8 +11,8 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import * as React from 'react';
 
 type IProps = {
-  item: IItem;
-  options: IOptions;
+  itemId: string;
+  type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   afterSave?: () => void;
 };
@@ -38,15 +37,15 @@ class AddForm extends React.Component<IProps, State> {
     contentType: string;
     contentTypeId: string;
   }) => {
-    const { item, options } = this.props;
+    const { itemId, type } = this.props;
     const { title } = this.state;
 
     const finalValues = values;
 
     return {
       title: finalValues.title || title,
-      contentType: options.type,
-      contentTypeId: item._id
+      contentType: type,
+      contentTypeId: itemId
     };
   };
 

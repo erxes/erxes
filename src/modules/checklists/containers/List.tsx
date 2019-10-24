@@ -1,4 +1,6 @@
 import gql from 'graphql-tag';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
 import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -7,7 +9,6 @@ import { mutations, queries } from '../graphql';
 import {
   AddItemMutationResponse,
   EditMutationResponse,
-  EditMutationVariables,
   IChecklistItemDoc,
   RemoveMutationResponse
 } from '../types';
@@ -24,17 +25,6 @@ type FinalProps = {
 } & IProps;
 
 class ListContainer extends React.Component<FinalProps> {
-  edit = (doc: { title: string }) => {
-    const { editMutation, listId } = this.props;
-
-    editMutation({
-      variables: {
-        _id: listId,
-        ...doc
-      }
-    });
-  };
-
   remove = (checklistId: string) => {
     const { removeMutation } = this.props;
 
@@ -53,6 +43,30 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
+    const renderButton = ({
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
+      const callBackResponse = () => {
+        if (callback) {
+          callback();
+        }
+      };
+
+      return (
+        <ButtonMutate
+          mutation={mutations.checklistsEdit}
+          variables={values}
+          callback={callBackResponse}
+          refetchQueries={['checklistDetail']}
+          isSubmitted={isSubmitted}
+          btnSize="small"
+          type="submit"
+        />
+      );
+    };
+
     const { checklistDetailQuery } = this.props;
 
     if (checklistDetailQuery.loading) {
@@ -64,7 +78,7 @@ class ListContainer extends React.Component<FinalProps> {
     const extendedProps = {
       list,
       addItem: this.addItem,
-      edit: this.edit,
+      renderButton,
       remove: this.remove
     };
 
@@ -101,13 +115,6 @@ export default (props: IProps) =>
         gql(mutations.checklistItemsAdd),
         {
           name: 'addItemMutation',
-          options
-        }
-      ),
-      graphql<IProps, EditMutationResponse, EditMutationVariables>(
-        gql(mutations.checklistsEdit),
-        {
-          name: 'editMutation',
           options
         }
       ),

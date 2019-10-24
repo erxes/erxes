@@ -1,8 +1,9 @@
 import Button from 'modules/common/components/Button';
-import { FormControl } from 'modules/common/components/form';
+import { Form, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Item from '../containers/Item';
@@ -19,7 +20,7 @@ import { IChecklist } from '../types';
 type Props = {
   list: IChecklist;
   addItem: (doc: { content: string }) => void;
-  edit: (doc: { title: string }) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (checklistId: string) => void;
 };
 
@@ -27,7 +28,6 @@ type State = {
   isEditingTitle: boolean;
   title: string;
   beforeTitle: string;
-  disabled: boolean;
   isAddingItem: boolean;
   addFormContent: string;
   isHidden: boolean;
@@ -42,9 +42,8 @@ class List extends React.Component<Props, State> {
       isAddingItem: false,
       isHidden: false,
       addFormContent: '',
-      title: this.props.list.title,
-      beforeTitle: this.props.list.title,
-      disabled: true
+      title: props.list.title,
+      beforeTitle: props.list.title
     };
   }
 
@@ -63,6 +62,7 @@ class List extends React.Component<Props, State> {
 
     this.setState({ isAddingItem: false }, () => {
       addItem({ content: this.state.addFormContent });
+      this.setState({ addFormContent: '' });
       this.onAddItemClick();
     });
   };
@@ -120,9 +120,23 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderTitleInput = () => {
+  generateDoc = (values: { title: string }) => {
+    const { list } = this.props;
+    const { title } = this.state;
+
+    const finalValues = values;
+
+    return {
+      _id: list._id,
+      title: finalValues.title || title
+    };
+  };
+
+  renderTitleInput = (formProps: IFormProps) => {
     const { isEditingTitle, title } = this.state;
-    const { edit } = this.props;
+    const { renderButton } = this.props;
+
+    const { isSubmitted, values } = formProps;
 
     if (!isEditingTitle) {
       return null;
@@ -130,37 +144,35 @@ class List extends React.Component<Props, State> {
 
     const cancelEditing = () =>
       this.setState({ isEditingTitle: false, title: this.state.beforeTitle });
+
     const onChange = e =>
       this.setState({ title: (e.currentTarget as HTMLTextAreaElement).value });
 
     const onSubmit = () => {
-      this.setState({ isEditingTitle: false }, () => {
-        edit({ title: this.state.title });
-      });
+      this.setState({ isEditingTitle: false, beforeTitle: title });
     };
 
     return (
-      <FormWrapper onSubmit={onSubmit}>
+      <>
         <FormControl
+          {...formProps}
+          name="title"
           autoFocus={true}
           componentClass="textarea"
           onChange={onChange}
           value={title}
+          required={true}
         />
         <Button btnStyle="simple" onClick={cancelEditing} size="small">
           <Icon icon="cancel" />
         </Button>
 
-        <Button
-          disabled={this.state.disabled}
-          btnStyle="success"
-          icon="checked-1"
-          type="submit"
-          size="small"
-        >
-          Save
-        </Button>
-      </FormWrapper>
+        {renderButton({
+          values: this.generateDoc(values),
+          isSubmitted,
+          callback: onSubmit
+        })}
+      </>
     );
   };
 
@@ -243,7 +255,7 @@ class List extends React.Component<Props, State> {
         <ChecklistTitleWrapper>
           <Icon icon="checked" />
           {this.renderTitle()}
-          {this.renderTitleInput()}
+          <Form renderContent={this.renderTitleInput} />
         </ChecklistTitleWrapper>
 
         {this.renderProgressBar()}

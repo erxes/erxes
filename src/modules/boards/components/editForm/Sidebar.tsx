@@ -78,7 +78,7 @@ class Sidebar extends React.Component<Props> {
 
         <Watch item={item} options={options} />
 
-        <ChecklistAdd item={item} options={options} />
+        <ChecklistAdd itemId={item._id} type={options.type} />
 
         <RightButton icon="checked-1" onClick={copyItem}>
           Copy

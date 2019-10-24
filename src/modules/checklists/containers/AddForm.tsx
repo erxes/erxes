@@ -1,25 +1,16 @@
-import gql from 'graphql-tag';
-import { IItem, IOptions } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
 import AddForm from '../components/AddForm';
-import { mutations, queries } from '../graphql';
-import { ChecklistsQueryResponse, IChecklistsParam } from '../types';
+import { mutations } from '../graphql';
 
-type IProps = {
-  item: IItem;
-  options: IOptions;
+type Props = {
+  itemId: string;
+  type: string;
   afterSave: () => void;
 };
 
-type FinalProps = {
-  checklistsQuery: ChecklistsQueryResponse;
-} & IProps;
-
-class AddFormContainer extends React.Component<FinalProps> {
+class AddFormContainer extends React.Component<Props> {
   render() {
     const renderButton = ({
       values,
@@ -27,8 +18,6 @@ class AddFormContainer extends React.Component<FinalProps> {
       callback
     }: IButtonMutateProps) => {
       const callBackResponse = () => {
-        this.props.checklistsQuery.refetch();
-
         if (callback) {
           callback();
         }
@@ -39,10 +28,11 @@ class AddFormContainer extends React.Component<FinalProps> {
           mutation={mutations.checklistsAdd}
           variables={values}
           callback={callBackResponse}
+          refetchQueries={['checklists']}
           isSubmitted={isSubmitted}
           btnSize="small"
           type="submit"
-          successMessage={`Success`}
+          successMessage={`You successfully added a checklist`}
         />
       );
     };
@@ -56,23 +46,4 @@ class AddFormContainer extends React.Component<FinalProps> {
   }
 }
 
-export default (props: IProps) => {
-  return renderWithProps<IProps>(
-    props,
-    compose(
-      graphql<IProps, ChecklistsQueryResponse, IChecklistsParam>(
-        gql(queries.checklists),
-        {
-          name: 'checklistsQuery',
-          options: () => ({
-            variables: {
-              contentType: props.options.type,
-              contentTypeId: props.item._id
-            },
-            refetchQueries: ['checklists']
-          })
-        }
-      )
-    )(AddFormContainer)
-  );
-};
+export default AddFormContainer;
