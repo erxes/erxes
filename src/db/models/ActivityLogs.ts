@@ -8,6 +8,7 @@ import {
   IActivityLogDocument,
   IContentType,
 } from './definitions/activityLogs';
+import { IChecklistDocument } from './definitions/checklists';
 import { ICompanyDocument } from './definitions/companies';
 import {
   ACTIVITY_ACTIONS,
@@ -42,6 +43,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   createCompanyLog(company: ICompanyDocument): Promise<IActivityLogDocument>;
   createEmailDeliveryLog(email: IEmailDeliveriesDocument): Promise<IActivityLogDocument>;
   createInternalNoteLog(internalNote: IInternalNoteDocument): Promise<IActivityLogDocument>;
+  createChecklistLog(checklist: IChecklistDocument): Promise<IActivityLogDocument>;
   createDealLog(deal: IDealDocument): Promise<IActivityLogDocument>;
   createSegmentLog(segment: ISegmentDocument, customer?: ICustomerDocument): Promise<IActivityLogDocument>;
   createTicketLog(ticket: ITicketDocument): Promise<IActivityLogDocument>;
@@ -251,6 +253,25 @@ export const loadClass = () => {
         performer: {
           type: ACTIVITY_PERFORMER_TYPES.USER,
           id: internalNote.createdUserId,
+        },
+      });
+    }
+
+    public static createChecklistLog(checklist: IChecklistDocument) {
+      return ActivityLogs.createDoc({
+        activity: {
+          type: ACTIVITY_TYPES.CHECKLIST,
+          action: ACTIVITY_ACTIONS.CREATE,
+          content: checklist.title,
+          id: checklist._id,
+        },
+        contentType: {
+          type: checklist.contentType,
+          id: checklist.contentTypeId,
+        },
+        performer: {
+          type: ACTIVITY_PERFORMER_TYPES.USER,
+          id: checklist.createdUserId,
         },
       });
     }

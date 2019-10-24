@@ -1,6 +1,7 @@
 import boards from './boards';
 import brands from './brands';
 import channels from './channels';
+import checklists from './checklists';
 import companies from './companies';
 import configs from './configs';
 import conformity from './conformities';
@@ -63,5 +64,6 @@ export default {
   ...tasks,
   ...growthHacks,
   ...pipelineTemplates,
+  ...checklists,
   ...robot,
 };

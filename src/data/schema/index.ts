@@ -117,6 +117,8 @@ import { mutations as RobotMutations, queries as RobotQueries, types as RobotTyp
 
 import { mutations as ConformityMutations, types as ConformityTypes } from './conformity';
 
+import { mutations as ChecklistMutations, queries as ChecklistQueries, types as ChecklistTypes } from './checklist';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -155,6 +157,7 @@ export const types = `
   ${LogTypes}
   ${GrowthHackTypes}
   ${PipelineTemplateTypes}
+  ${ChecklistTypes}
   ${RobotTypes}
 `;
 
@@ -193,6 +196,7 @@ export const queries = `
     ${LogQueries}
     ${GrowthHackQueries}
     ${PipelineTemplateQueries}
+    ${ChecklistQueries}
     ${RobotQueries}
   }
 `;
@@ -230,6 +234,7 @@ export const mutations = `
     ${GrowthHackMutations}
     ${PipelineTemplateMutations}
     ${ConformityMutations}
+    ${ChecklistMutations}
     ${RobotMutations}
   }
 `;

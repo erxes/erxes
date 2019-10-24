@@ -8,6 +8,8 @@ import {
   Boards,
   Brands,
   Channels,
+  ChecklistItems,
+  Checklists,
   Companies,
   Configs,
   Conformities,
@@ -309,6 +311,38 @@ export const internalNoteFactory = (params: IInternalNoteFactoryInput) => {
   });
 
   return internalNote.save();
+};
+
+interface IChecklistFactoryInput {
+  contentType?: string;
+  contentTypeId?: string;
+  title?: string;
+}
+
+export const checklistFactory = (params: IChecklistFactoryInput) => {
+  const checklist = new Checklists({
+    contentType: params.contentType || ACTIVITY_CONTENT_TYPES.DEAL,
+    contentTypeId: params.contentTypeId || faker.random.uuid().toString(),
+    title: params.title || faker.random.uuid().toString(),
+  });
+
+  return checklist.save();
+};
+
+interface IChecklistItemFactoryInput {
+  checklistId?: string;
+  content?: string;
+  isChecked?: boolean;
+}
+
+export const checklistItemFactory = (params: IChecklistItemFactoryInput) => {
+  const checklistItem = new ChecklistItems({
+    checklistId: params.checklistId || faker.random.uuid().toString,
+    content: params.content || faker.random.uuid().toString,
+    isChecked: params.isChecked || false,
+  });
+
+  return checklistItem.save();
 };
 
 interface ICompanyFactoryInput {

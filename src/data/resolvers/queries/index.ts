@@ -2,6 +2,7 @@ import activityLogs from './activityLogs';
 import boards from './boards';
 import brands from './brands';
 import channels from './channels';
+import checklists from './checklists';
 import companies from './companies';
 import configs from './configs';
 import conversations from './conversations';
@@ -69,5 +70,6 @@ export default {
   ...logs,
   ...growthHack,
   ...pipelineTemplates,
+  ...checklists,
   ...robot,
 };

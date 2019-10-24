@@ -3,6 +3,7 @@ import ActivityLog from './activityLog';
 import Board from './boards';
 import Brand from './brand';
 import Channel from './channel';
+import Checklist from './checklists';
 import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -46,6 +47,7 @@ const resolvers: any = {
   Channel,
   Brand,
   InternalNote,
+  Checklist,
   Customer,
   Company,
   Segment,
