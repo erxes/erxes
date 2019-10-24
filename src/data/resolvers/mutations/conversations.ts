@@ -41,7 +41,7 @@ const sendConversationToIntegrations = (
   doc: IConversationMessageAdd,
   dataSources: any,
 ) => {
-  if (dataSources && dataSources.IntegrationsAPI) {
+  if (dataSources && dataSources.IntegrationsAPI && requestName) {
     return dataSources.IntegrationsAPI[requestName]({
       conversationId,
       integrationId,
@@ -240,6 +240,7 @@ const conversationMutations = {
         },
       });
     }
+
     let requestName;
 
     if (kind === KIND_CHOICES.FACEBOOK_POST) {
