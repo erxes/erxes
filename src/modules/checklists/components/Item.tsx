@@ -3,7 +3,12 @@ import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import xss from 'xss';
-import { ChecklistRow, ChecklistText, FormWrapper } from '../styles';
+import {
+  ChecklistRow,
+  ChecklistText,
+  FormControlWrapper,
+  FormWrapper
+} from '../styles';
 import { IChecklistItem } from '../types';
 
 type Props = {
@@ -124,27 +129,29 @@ class ListRow extends React.Component<Props, State> {
 
     return (
       <FormWrapper onSubmit={this.onSubmit}>
-        <FormControl
-          componentClass="textarea"
-          autoFocus={true}
-          onChange={onChangeContent}
-          value={this.state.content}
-          onKeyPress={this.onKeyPress}
-          required={true}
-        />
-        <Button btnStyle="simple" size="small" onClick={onClickEdit}>
-          <Icon icon="cancel" />
-        </Button>
+        <FormControlWrapper>
+          <FormControl
+            componentClass="textarea"
+            autoFocus={true}
+            onChange={onChangeContent}
+            value={this.state.content}
+            onKeyPress={this.onKeyPress}
+            required={true}
+          />
+          <Button btnStyle="simple" size="small" onClick={onClickEdit}>
+            <Icon icon="cancel" />
+          </Button>
 
-        <Button
-          disabled={this.state.disabled}
-          btnStyle="success"
-          icon="checked-1"
-          type="submit"
-          size="small"
-        >
-          Save
-        </Button>
+          <Button
+            disabled={this.state.disabled}
+            btnStyle="success"
+            icon="checked-1"
+            type="submit"
+            size="small"
+          >
+            Save
+          </Button>
+        </FormControlWrapper>
       </FormWrapper>
     );
   };
