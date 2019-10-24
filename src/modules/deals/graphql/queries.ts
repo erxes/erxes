@@ -80,10 +80,6 @@ export const dealFields = `
   modifiedBy
   reminderMinute
   isComplete
-  checklistsState {
-    complete
-    all
-  }
 `;
 
 const dealsTotalAmounts = `

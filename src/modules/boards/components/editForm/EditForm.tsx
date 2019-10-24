@@ -7,7 +7,6 @@ import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import { IChecklistsState } from '../../../checklists/types';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 const reactiveFields = [
@@ -18,7 +17,7 @@ const reactiveFields = [
   'reminderMinute'
 ];
 
-const reactiveForiegnFields = ['companies', 'customers', 'checklistsState'];
+const reactiveForiegnFields = ['companies', 'customers'];
 
 type Props = {
   options: IOptions;
@@ -51,7 +50,6 @@ type State = {
   prevStageId?;
   reminderMinute?: number;
   isComplete?: boolean;
-  checklistsState: IChecklistsState;
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -71,8 +69,7 @@ class EditForm extends React.Component<Props, State> {
       attachments: item.attachments && extractAttachment(item.attachments),
       assignedUserIds: (item.assignedUsers || []).map(user => user._id),
       reminderMinute: item.reminderMinute || 0,
-      isComplete: item.isComplete,
-      checklistsState: item.checklistsState || {}
+      isComplete: item.isComplete
     };
   }
 

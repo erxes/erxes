@@ -44,7 +44,7 @@ class List extends React.Component<Props, State> {
       addFormContent: '',
       title: this.props.list.title,
       beforeTitle: this.props.list.title,
-      disabled: false
+      disabled: true
     };
   }
 
@@ -62,9 +62,8 @@ class List extends React.Component<Props, State> {
     const { addItem } = this.props;
 
     this.setState({ isAddingItem: false }, () => {
-      addItem({
-        content: this.state.addFormContent
-      });
+      addItem({ content: this.state.addFormContent });
+      this.onAddItemClick();
     });
   };
 
@@ -185,6 +184,7 @@ class List extends React.Component<Props, State> {
           componentClass="textarea"
           onChange={onContentChange}
           onKeyPress={this.onKeyPressAddItem}
+          required={true}
         />
         <Button
           btnStyle="simple"
@@ -193,13 +193,7 @@ class List extends React.Component<Props, State> {
           icon="cancel-1"
         />
 
-        <Button
-          disabled={this.state.disabled}
-          btnStyle="success"
-          icon="checked-1"
-          type="submit"
-          size="small"
-        >
+        <Button btnStyle="success" icon="checked-1" type="submit" size="small">
           Save
         </Button>
       </FormWrapper>
