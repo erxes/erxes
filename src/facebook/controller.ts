@@ -309,11 +309,13 @@ const init = async app => {
   app.get('/facebook/get-comments', async (req, res) => {
     const { postId, commentId } = req.query;
 
+    let { limit } = req.query;
+
+    limit = parseInt(limit, 10);
+
     debugFacebook(`Request to get comments with: ${postId}`);
 
     const query: { postId: string; parentId?: string } = { postId };
-
-    let limit = 10;
 
     if (commentId !== 'undefined') {
       query.parentId = commentId;

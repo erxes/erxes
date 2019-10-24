@@ -168,7 +168,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
   });
 
-  const account = await Accounts.getAccount({ _id: integration.accountId });
+  const { facebookPageTokensMap } = integration;
 
   let customer = await Customers.findOne({ userId });
 
@@ -176,7 +176,9 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
     return customer;
   }
   // create customer
-  const fbUser = await getFacebookUser(pageId, userId, account.token);
+  const fbUser = await getFacebookUser(pageId, facebookPageTokensMap, userId);
+  const fbUserProfilePic =
+    fbUser.profile_pic || (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
 
   // save on integrations db
   try {
@@ -185,7 +187,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
       firstName: fbUser.first_name || fbUser.name,
       lastName: fbUser.last_name,
       integrationId: integration.erxesApiId,
-      profilePic: fbUser.profile_pic || (await getFacebookUserProfilePic(userId)),
+      profilePic: fbUserProfilePic,
     });
   } catch (e) {
     throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
@@ -202,7 +204,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
           integrationId: integration.erxesApiId,
           firstName: fbUser.first_name || fbUser.name,
           lastName: fbUser.last_name,
-          avatar: fbUser.profile_pic || (await getFacebookUserProfilePic(userId)),
+          avatar: fbUserProfilePic,
           isUser: true,
         }),
       },

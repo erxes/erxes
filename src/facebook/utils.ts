@@ -52,7 +52,7 @@ export const getPageAccessTokenFromMap = (pageId: string, pageTokens: { [key: st
 
 export const subscribePage = async (pageId, pageToken): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: ['conversations', 'messages', 'feed'],
+    subscribed_fields: ['conversations', 'feed'],
   });
 };
 
@@ -63,13 +63,14 @@ export const unsubscribePage = async (pageId, pageToken): Promise<{ success: tru
     .catch(e => debugFacebook(e));
 };
 
-export const getFacebookUser = async (pageId: string, fbUserId: string, userAccessToken: string) => {
+export const getFacebookUser = async (pageId: string, pageTokens: { [key: string]: string }, fbUserId: string) => {
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessToken(pageId, userAccessToken);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
-    debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
+    debugFacebook(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error();
   }
 
   const pageToken = pageAccessToken;
@@ -77,26 +78,44 @@ export const getFacebookUser = async (pageId: string, fbUserId: string, userAcce
   return await graphRequest.get(`/${fbUserId}`, pageToken);
 };
 
-export const getFacebookUserProfilePic = async (fbId: string) => {
+export const getFacebookUserProfilePic = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  fbId: string,
+) => {
+  let pageAccessToken;
+
   try {
-    const response: any = await graphRequest.get(`/${fbId}/picture?height=600`);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugFacebook(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error();
+  }
+
+  try {
+    const response: any = await graphRequest.get(`/${fbId}/picture?height=600`, pageAccessToken);
     return response.image ? response.location : '';
   } catch (e) {
     return null;
   }
 };
 
-export const restorePost = async (postId: string, pageId: string, userAccessToken: string) => {
+export const restorePost = async (postId: string, pageId: string, pageTokens: { [key: string]: string }) => {
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessToken(pageId, userAccessToken);
+    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
   }
 
   const fields = `/${postId}?fields=caption,description,link,picture,source,message,from,created_time,comments.summary(true)`;
-  return graphRequest.get(fields, pageAccessToken);
+
+  try {
+    return await graphRequest.get(fields, pageAccessToken);
+  } catch (e) {
+    throw new Error(e);
+  }
 };
 
 export const sendReply = async (url: string, data: any, recipientId: string, integrationId: string) => {

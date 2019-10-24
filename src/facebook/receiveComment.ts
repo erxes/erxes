@@ -1,4 +1,4 @@
-import { Accounts, Integrations } from '../models';
+import { Integrations } from '../models';
 import { Posts } from './models';
 import { getOrCreateComment, getOrCreateCustomer, getOrCreatePost } from './store';
 import { ICommentParams } from './types';
@@ -13,14 +13,12 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
   });
 
-  const account = await Accounts.getAccount({ _id: integration.accountId });
-
   await getOrCreateCustomer(pageId, userId, kind);
 
   const post = await Posts.findOne({ postId });
 
   if (!post) {
-    const postResponse = await restorePost(postId, pageId, account.token);
+    const postResponse = await restorePost(postId, pageId, integration.facebookPageTokensMap);
 
     const restoredPostId = postResponse.from.id;
 
