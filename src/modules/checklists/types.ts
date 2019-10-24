@@ -55,7 +55,6 @@ export interface IChecklistItemDoc {
   checklistId: string;
   isChecked?: boolean;
   content: string;
-  mentionedUserIds?: string[];
   order?: number;
 }
 

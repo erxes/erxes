@@ -52,7 +52,6 @@ const commonItemVariables = `
   $checklistId: String,
   $isChecked: Boolean,
   $content: String,
-  $mentionedUserIds: [String],
   $order: Int
 `;
 
@@ -60,7 +59,6 @@ const commonItemParams = `
   checklistId: $checklistId,
   isChecked: $isChecked,
   content: $content,
-  mentionedUserIds: $mentionedUserIds,
   order: $order
 `;
 
