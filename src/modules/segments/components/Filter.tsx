@@ -1,9 +1,14 @@
+import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import {
+  ExtraButtons,
+  SidebarCounter,
+  SidebarList
+} from 'modules/layout/styles';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -115,25 +120,32 @@ class Segments extends React.Component<Props> {
 
   render() {
     const { segments, loading } = this.props;
+    const extraButtons = <ExtraButtons>{this.renderQuickBtns()}</ExtraButtons>;
 
-    const { Section, Header } = Wrapper.Sidebar;
+    const { Section } = Wrapper.Sidebar;
 
     return (
-      <Section collapsible={segments.length > 5}>
-        <Header uppercase={true}>{__('Filter by segments')}</Header>
-
-        {this.renderQuickBtns()}
-
-        <DataWithLoader
-          data={this.renderData()}
-          loading={loading}
-          count={segments.length}
-          emptyText="Open segments and starting add details"
-          emptyIcon="pie-chart"
-          size="small"
-          objective={true}
-        />
-      </Section>
+      <Box
+        title={__('FILTER BY SEGMENTS')}
+        isOpen={false}
+        extraButtons={extraButtons}
+      >
+              
+        <Section collapsible={segments.length > 5}>
+                
+          <DataWithLoader
+            data={this.renderData()}
+            loading={loading}
+            count={segments.length}
+            emptyText="Open segments and starting add details"
+            emptyIcon="pie-chart"
+            size="small"
+            objective={true}
+          />
+                
+        </Section>
+            {' '}
+      </Box>
     );
   }
 }

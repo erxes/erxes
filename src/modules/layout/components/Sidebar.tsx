@@ -12,8 +12,14 @@ import {
   SideContent
 } from '../styles';
 
-function Title({ children }: { children: React.ReactNode }) {
-  return <SidebarTitle>{children}</SidebarTitle>;
+function Title({
+  children,
+  onClick
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return <SidebarTitle onClick={onClick}>{children}</SidebarTitle>;
 }
 
 function QuickButtons({

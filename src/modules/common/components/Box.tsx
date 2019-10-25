@@ -10,6 +10,7 @@ type BoxProps = {
   title: string;
   name?: string;
   children: React.ReactNode;
+  extraButtons?: React.ReactNode;
   isOpen: boolean;
   toggle?: (params: { name: string; isOpen: boolean }) => void;
 };
@@ -43,6 +44,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
     return (
       <SidebarCollapse onClick={this.toggle}>
+        {this.props.extraButtons}
         <Icon icon={icon} />
       </SidebarCollapse>
     );
@@ -55,19 +57,11 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { isOpen } = this.state;
     const { children, title } = this.props;
 
-    if (!isOpen) {
-      return (
-        <SectionContainer>
-          <Title>{title}</Title>
-          {this.renderDropBtn()}
-        </SectionContainer>
-      );
-    }
-
     return (
       <SectionContainer>
-        {children}
+        <Title onClick={this.toggle}>{title}</Title>
         {this.renderDropBtn()}
+        {isOpen ? children : null}
       </SectionContainer>
     );
   }

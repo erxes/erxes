@@ -1,3 +1,4 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
@@ -11,6 +12,7 @@ import React from 'react';
 
 type Props = {
   customer: ICustomer;
+  isOpen?: boolean;
 };
 
 export default class RightSidebar extends React.Component<Props> {
@@ -42,13 +44,11 @@ export default class RightSidebar extends React.Component<Props> {
 
   renderOther() {
     const { Section } = Sidebar;
-    const { Title } = Section;
 
     return (
-      <Section>
-        <Title>{__('Other')}</Title>
-        {this.renderContent()}
-      </Section>
+      <Box title={__('Other')} isOpen={true}>
+        <Section>{this.renderContent()}</Section>
+      </Box>
     );
   }
 

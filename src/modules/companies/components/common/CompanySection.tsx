@@ -1,3 +1,4 @@
+// import Box from 'modules/common/components/Box';
 import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
@@ -5,6 +6,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __, urlParser } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
+// import { KnowledgeForm } from 'modules/knowledgeBase/components/knowledge';
 import Sidebar from 'modules/layout/components/Sidebar';
 import {
   ButtonRelated,
@@ -32,7 +34,6 @@ function Component(
   { name, items = [], mainType = '', mainTypeId = '', isOpen, onSelect }: Props
 ) {
   const { Section } = Sidebar;
-  const { Title } = Section;
   const { QuickButtons } = Section;
 
   const renderCompanyChooser = props => {
@@ -105,15 +106,15 @@ function Component(
     </SectionBody>
   );
 
+  const extraButtons = (
+    <SectionButton>
+      <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
+    </SectionButton>
+  );
+
   return (
-    <Box title={__('Companies')} isOpen={false}>
-      <Section>
-        <Title>{__('Companies')}</Title>
-        <SectionButton>
-          <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-        </SectionButton>
-        {content}
-      </Section>
+    <Box extraButtons={extraButtons} title={__('Companies')} isOpen={false}>
+      <Section>{content}</Section>
     </Box>
   );
 }

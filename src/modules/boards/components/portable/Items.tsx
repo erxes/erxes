@@ -50,7 +50,7 @@ class Items extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
+    const { QuickButtons } = Section;
 
     const {
       mainType,
@@ -115,15 +115,20 @@ class Items extends React.Component<Props> {
       />
     );
 
-    return (
-      <Box title={__(data.options.title)} isOpen={false}>
-        <Section>
-          <Title>{__(data.options.title)}</Title>
-          <SectionButton>
-            <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-          </SectionButton>
-          <SectionContainer>{this.renderItems()}</SectionContainer>
+    const extraButtons = (
+      <SectionButton>
+        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
+      </SectionButton>
+    );
 
+    return (
+      <Box
+        extraButtons={extraButtons}
+        title={__(data.options.title)}
+        isOpen={false}
+      >
+        <Section>
+          <SectionContainer>{this.renderItems()}</SectionContainer>
           {mainTypeId && mainType && relQuickButtons}
         </Section>
       </Box>
