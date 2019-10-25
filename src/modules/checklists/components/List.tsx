@@ -56,7 +56,6 @@ class List extends React.Component<Props, State> {
 
   removeClick = () => {
     const { remove, list } = this.props;
-
     remove(list._id);
   };
 
