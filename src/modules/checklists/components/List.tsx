@@ -55,20 +55,13 @@ class List extends React.Component<Props, State> {
   };
 
   removeClick = () => {
-    confirm()
-      .then(() => {
-        const { remove, list } = this.props;
-        remove(list._id, error => {
-          if (error) {
-            return Alert.error(error.message);
-          }
+    confirm().then(() => {
+      const { remove, list } = this.props;
 
-          return Alert.success('You successfully deleted a checklist');
-        });
-      })
-      .catch(e => {
-        Alert.error(e.message);
+      remove(list._id, () => {
+        Alert.success('You successfully deleted a checklist');
       });
+    });
   };
 
   saveAddItem = () => {
