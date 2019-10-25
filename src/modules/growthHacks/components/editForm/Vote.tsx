@@ -24,7 +24,7 @@ class Vote extends React.Component<IProps> {
         onClick={onClick}
         color={isVoted ? colors.colorCoreGreen : ''}
       >
-        <Icon icon="like-1" />
+        <Icon icon="thumbs-up" />
         {__(isVoted ? 'Unvote' : 'Vote')}
       </ColorButton>
     );

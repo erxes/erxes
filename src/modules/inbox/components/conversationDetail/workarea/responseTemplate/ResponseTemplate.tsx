@@ -71,7 +71,7 @@ class ResponseTemplate extends React.Component<Props, State> {
         >
           <Button btnStyle="link">
             <Tip text={__('Response template')}>
-              <Icon icon="clipboard-1" />
+              <Icon icon="file-bookmark-alt" />
             </Tip>
           </Button>
         </OverlayTrigger>

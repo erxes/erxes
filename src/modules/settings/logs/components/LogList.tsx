@@ -194,7 +194,7 @@ class LogList extends React.Component<Props, State> {
         </FilterItem>
         <Button
           btnStyle="success"
-          icon="filter"
+          icon="filter-1"
           onClick={this.onClick}
           size="small"
         >
