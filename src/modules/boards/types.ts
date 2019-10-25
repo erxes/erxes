@@ -99,6 +99,22 @@ export interface IStage {
   formId: string;
 }
 
+export interface IPipelineLabel {
+  _id?: string;
+  name: string;
+  type?: string;
+  colorCode: string;
+  pipelineId?: string;
+  createdBy?: string;
+  createdAt?: Date;
+}
+
+export interface IPipelineLabelVariables {
+  name: string;
+  type: string;
+  colorCode: string;
+  pipelineId: string;
+}
 export interface IItem {
   _id: string;
   name: string;
@@ -112,6 +128,7 @@ export interface IItem {
   companies: ICompany[];
   customers: ICustomer[];
   attachments?: IAttachment[];
+  labels: IPipelineLabel[];
   pipeline: IPipeline;
   stage?: IStage;
   isWatched?: boolean;
@@ -119,6 +136,7 @@ export interface IItem {
   hasNotified?: boolean;
   isComplete: boolean;
   reminderMinute: number;
+  labelIds: string[];
 }
 
 export interface IDraggableLocation {
@@ -218,6 +236,54 @@ export type DetailQueryResponse = {
   loading: boolean;
 };
 
+// query response
+export type PipelineLabelsQueryResponse = {
+  pipelineLabels: IPipelineLabel[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PipelineLabelDetailQueryResponse = {
+  pipelineLabelDetail: IPipelineLabel;
+  loading: boolean;
+  refetch: () => void;
+};
+
+// mutation response
+export type AddPipelineLabelMutationResponse = (
+  { variables: IPipelineLabelVariables }
+) => Promise<any>;
+
+export type EditPipelineLabelMutationResponse = (
+  { variables: EditMutationVariables }
+) => Promise<any>;
+
+export type RemovePipelineLabelMutationVariables = {
+  _id: string;
+};
+
+export type RemovePipelineLabelMutationResponse = {
+  removeMutation: (
+    params: {
+      variables: RemovePipelineLabelMutationVariables;
+    }
+  ) => Promise<void>;
+};
+
+export type PipelineLabelMutationVariables = {
+  type: string;
+  targetId: string;
+  labelIds: string[];
+};
+
+export type PipelineLabelMutationResponse = {
+  pipelineLabelMutation: (
+    params: {
+      variables: PipelineLabelMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
 export interface IFilterParams extends ISavedConformity {
   itemId?: string;
   search?: string;
@@ -244,6 +310,7 @@ export interface IEditFormContent {
       | 'assignedUserIds'
       | 'customers'
       | 'companies'
+      | 'labels'
       | 'isComplete'
       | 'reminderMinute',
     value: any

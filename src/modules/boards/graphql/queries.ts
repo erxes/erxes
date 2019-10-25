@@ -1,3 +1,31 @@
+const pipelineLabels = `
+  query pipelineLabels($type: String!, $pipelineId: String!) {
+    pipelineLabels(type: $type, pipelineId: $pipelineId) {
+      _id
+      name
+      type
+      colorCode
+      pipelineId
+      createdBy
+      createdAt
+    }
+  }
+`;
+
+const pipelineLabelDetail = `
+  query pipelineLabelDetail($_id: String!) {
+    pipelineLabelDetail(_id: $_id) {
+      _id
+      name
+      type
+      colorCode
+      pipelineId
+      createdBy
+      createdAt
+    }
+  }
+`;
+
 const boards = `
   query boards($type: String!) {
     boards(type: $type) {
@@ -139,5 +167,7 @@ export default {
   pipelines,
   pipelineDetail,
   stages,
-  stageDetail
+  stageDetail,
+  pipelineLabels,
+  pipelineLabelDetail
 };
