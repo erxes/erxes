@@ -1,5 +1,5 @@
 import { graphqlRequest } from '../db/connection';
-import { pipelineLabelFactory } from '../db/factories';
+import { pipelineFactory, pipelineLabelFactory } from '../db/factories';
 import { PipelineLabels } from '../db/models';
 
 import { BOARD_TYPES } from '../db/models/definitions/constants';
@@ -13,21 +13,23 @@ describe('pipelineLabelQueries', () => {
 
   test('Pipeline labels', async () => {
     const type = BOARD_TYPES.GROWTH_HACK;
+    const pipeline = await pipelineFactory();
+    const pipelineId = pipeline._id;
 
-    const args = { type };
+    const args = { type, pipelineId };
 
-    await pipelineLabelFactory({ type });
-    await pipelineLabelFactory({ type });
-    await pipelineLabelFactory({ type });
+    await pipelineLabelFactory({ type, pipelineId });
+    await pipelineLabelFactory({ type, pipelineId });
+    await pipelineLabelFactory({ type, pipelineId });
 
     const qry = `
-      query pipelineLabels($type: String!) {
-        pipelineLabels(type: $type) {
+      query pipelineLabels($type: String!, $pipelineId: String!) {
+        pipelineLabels(type: $type, pipelineId: $pipelineId) {
           _id
           name
+          pipelineId
           type
           colorCode
-          pipelineId
         }
       }
     `;
@@ -51,22 +53,5 @@ describe('pipelineLabelQueries', () => {
     const response = await graphqlRequest(qry, 'pipelineLabelDetail', { _id: pipelineLabel._id });
 
     expect(response._id).toBe(pipelineLabel._id);
-  });
-
-  test('Pipeline label total count', async () => {
-    await pipelineLabelFactory();
-    await pipelineLabelFactory();
-    await pipelineLabelFactory();
-    await pipelineLabelFactory();
-
-    const qry = `
-      query pipelineLabelsTotalCount {
-        pipelineLabelsTotalCount
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'pipelineLabelsTotalCount');
-
-    expect(response).toBe(4);
   });
 });
