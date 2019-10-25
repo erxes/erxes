@@ -29,7 +29,7 @@ const PerPageChooser = ({ history }: IRouterProps) => {
     <Dropdown id="per-page-chooser" className="dropup">
       <DropdownToggle bsRole="toggle">
         <PerPageButton>
-          {currentPerPage} {__('per page')} <Icon icon="uparrow-2" />
+          {currentPerPage} {__('per page')} <Icon icon="angle-up" />
         </PerPageButton>
       </DropdownToggle>
       <Dropdown.Menu>

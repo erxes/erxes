@@ -31,7 +31,7 @@ const PaginationList = styled.ul`
       float: left;
       min-width: ${buttonSize}px;
       height: ${buttonSize}px;
-      padding: 0 ${dimensions.unitSpacing}px;
+      padding: 0 ${dimensions.unitSpacing / 2}px;
       border-radius: ${buttonSize / 2}px;
       line-height: ${buttonSize}px;
       color: ${colors.colorCoreGray};
@@ -42,6 +42,7 @@ const PaginationList = styled.ul`
 
       i {
         margin: 0;
+        font-size: 16px;
       }
 
       &:hover {
@@ -73,7 +74,6 @@ const PerPageButton = styled.a`
 
   i {
     margin-left: 3px;
-    font-size: 10px;
   }
 `;
 
