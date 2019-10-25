@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { withProps, Alert } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import List from '../components/List';
