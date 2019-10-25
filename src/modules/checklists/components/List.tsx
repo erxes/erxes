@@ -4,7 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, Alert, confirm } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import Item from '../containers/Item';
 import {
@@ -22,7 +22,7 @@ type Props = {
   list: IChecklist;
   addItem: (doc: { content: string }) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  remove: (checklistId: string, callback: (error: Error) => void) => void;
+  remove: (checklistId: string) => void;
 };
 
 type State = {
@@ -55,20 +55,8 @@ class List extends React.Component<Props, State> {
   };
 
   removeClick = () => {
-    confirm()
-      .then(() => {
-        const { remove, list } = this.props;
-        remove(list._id, error => {
-          if (error) {
-            return Alert.error(error.message);
-          }
-
-          return Alert.success('You successfully deleted a checklist');
-        });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+    const { remove, list } = this.props;
+    remove(list._id);
   };
 
   saveAddItem = () => {
