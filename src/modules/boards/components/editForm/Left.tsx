@@ -45,7 +45,7 @@ class Left extends React.Component<Props> {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="attach" />
+              <Icon icon="paperclip" />
               {__('Attachments')}
             </ControlLabel>
           </TitleRow>

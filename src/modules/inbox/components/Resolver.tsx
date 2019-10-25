@@ -27,7 +27,7 @@ class Resolver extends React.Component<Props> {
     );
 
     const buttonText = hasClosedConversation ? 'Open' : 'Resolve';
-    const icon = hasClosedConversation ? 'refresh' : 'checked';
+    const icon = hasClosedConversation ? 'redo' : 'check-circle';
 
     const btnAttrs = {
       size: 'small',
