@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { renderWithProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { queries } from '../graphql';
@@ -27,22 +27,20 @@ const ChecklistsContainer = (props: FinalProps) => {
   return checklists.map(list => <List key={list._id} listId={list._id} />);
 };
 
-export default (props: IProps) =>
-  renderWithProps<IProps>(
-    props,
-    compose(
-      graphql<IProps, ChecklistsQueryResponse, IChecklistsParam>(
-        gql(queries.checklists),
-        {
-          name: 'checklistsQuery',
-          options: () => ({
-            variables: {
-              contentType: props.contentType,
-              contentTypeId: props.contentTypeId
-            },
-            refetchQueries: ['checklists']
-          })
-        }
-      )
-    )(ChecklistsContainer)
-  );
+export default withProps<IProps>(
+  compose(
+    graphql<IProps, ChecklistsQueryResponse, IChecklistsParam>(
+      gql(queries.checklists),
+      {
+        name: 'checklistsQuery',
+        options: ({ contentType, contentTypeId }) => ({
+          variables: {
+            contentType,
+            contentTypeId
+          },
+          refetchQueries: ['checklists']
+        })
+      }
+    )
+  )(ChecklistsContainer)
+);
