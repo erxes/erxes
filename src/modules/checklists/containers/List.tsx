@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
+import { withProps, Alert } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import List from '../components/List';
@@ -25,10 +25,17 @@ type FinalProps = {
 } & IProps;
 
 class ListContainer extends React.Component<FinalProps> {
-  remove = (checklistId: string) => {
+  remove = (checklistId: string, callback: (error?: any) => void) => {
     const { removeMutation } = this.props;
-
-    removeMutation({ variables: { _id: checklistId } });
+    removeMutation({
+      variables: { _id: checklistId }
+    })
+      .then(() => {
+        callback();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   addItem = (doc: { content: string }) => {
