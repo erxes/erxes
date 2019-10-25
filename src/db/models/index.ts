@@ -23,6 +23,7 @@ import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } f
 import MessengerApps from './MessengerApps';
 import { NotificationConfigurations, Notifications } from './Notifications';
 import { Permissions, UsersGroups } from './Permissions';
+import PipelineLabels from './PipelineLabels';
 import PipelineTemplates from './PipelineTemplates';
 import { ProductCategories, Products } from './Products';
 import ResponseTemplates from './ResponseTemplates';
@@ -78,6 +79,7 @@ export {
   RobotEntries,
   GrowthHacks,
   PipelineTemplates,
+  PipelineLabels,
   Checklists,
   ChecklistItems,
 };

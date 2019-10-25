@@ -34,6 +34,7 @@ import {
   NotificationConfigurations,
   Notifications,
   Permissions,
+  PipelineLabels,
   Pipelines,
   ProductCategories,
   Products,
@@ -224,6 +225,24 @@ export const pipelineTemplateFactory = (params: ITemplateInput = {}) => {
   });
 
   return pipelineTemplate.save();
+};
+
+interface ILabelInput {
+  name?: string;
+  type?: string;
+  colorCode?: string;
+  pipelineId?: string;
+}
+
+export const pipelineLabelFactory = (params: ILabelInput = {}) => {
+  const pipelineLabel = new PipelineLabels({
+    name: params.name || faker.random.word(),
+    type: params.type || BOARD_TYPES.DEAL,
+    colorCode: params.colorCode || faker.random.word(),
+    pipelineId: params.pipelineId || faker.random.word(),
+  });
+
+  return pipelineLabel.save();
 };
 
 interface IEmailTemplateFactoryInput {
@@ -792,6 +811,7 @@ interface IDealFactoryInput {
   noCloseDate?: boolean;
   assignedUserIds?: string[];
   watchedUserIds?: string[];
+  labelIds?: string[];
   modifiedBy?: string;
 }
 
@@ -804,6 +824,7 @@ export const dealFactory = (params: IDealFactoryInput = {}) => {
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
+    labelIds: params.labelIds || [],
   });
 
   return deal.save();

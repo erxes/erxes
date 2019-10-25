@@ -1,4 +1,13 @@
-import { Companies, Conformities, Customers, Notifications, Pipelines, Stages, Users } from '../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Notifications,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Users,
+} from '../../db/models';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
@@ -54,5 +63,9 @@ export default {
 
   hasNotified(deal: ITaskDocument, _args, { user }: IContext) {
     return Notifications.checkIfRead(user._id, deal._id);
+  },
+
+  labels(task: ITaskDocument) {
+    return PipelineLabels.find({ _id: { $in: task.labelIds } });
   },
 };

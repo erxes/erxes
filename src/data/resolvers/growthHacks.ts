@@ -1,4 +1,4 @@
-import { Fields, FormSubmissions, Pipelines, Stages, Users } from '../../db/models';
+import { Fields, FormSubmissions, PipelineLabels, Pipelines, Stages, Users } from '../../db/models';
 import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { boardId } from './boardUtils';
@@ -86,5 +86,9 @@ export default {
     }
 
     return false;
+  },
+
+  labels(growthHack: IGrowthHackDocument) {
+    return PipelineLabels.find({ _id: { $in: growthHack.labelIds } });
   },
 };

@@ -1,4 +1,13 @@
-import { Companies, Conformities, Customers, Notifications, Pipelines, Stages, Users } from '../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Notifications,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Users,
+} from '../../db/models';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
@@ -52,7 +61,11 @@ export default {
     return false;
   },
 
-  hasNotified(deal: ITicketDocument, _args, { user }: IContext) {
-    return Notifications.checkIfRead(user._id, deal._id);
+  hasNotified(ticket: ITicketDocument, _args, { user }: IContext) {
+    return Notifications.checkIfRead(user._id, ticket._id);
+  },
+
+  labels(ticket: ITicketDocument) {
+    return PipelineLabels.find({ _id: { $in: ticket.labelIds } });
   },
 };

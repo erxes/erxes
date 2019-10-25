@@ -3,16 +3,10 @@ import { commonTypes, conformityQueryFields } from './common';
 export const types = `
   type Ticket {
     _id: String!
-    boardId: String
     priority: String
     source: String
     companies: [Company]
     customers: [Customer]
-    assignedUsers: [User]
-    isWatched: Boolean
-    attachments: [Attachment]
-    stage: Stage
-    pipeline: Pipeline
     ${commonTypes}
   }
 `;

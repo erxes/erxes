@@ -118,6 +118,11 @@ import { mutations as RobotMutations, queries as RobotQueries, types as RobotTyp
 import { mutations as ConformityMutations, types as ConformityTypes } from './conformity';
 
 import { mutations as ChecklistMutations, queries as ChecklistQueries, types as ChecklistTypes } from './checklist';
+import {
+  mutations as PipelineLabelMutations,
+  queries as PipelineLabelQueries,
+  types as PipelineLabelTypes,
+} from './pipelineLabel';
 
 export const types = `
   scalar JSON
@@ -159,6 +164,7 @@ export const types = `
   ${PipelineTemplateTypes}
   ${ChecklistTypes}
   ${RobotTypes}
+  ${PipelineLabelTypes}
 `;
 
 export const queries = `
@@ -198,6 +204,7 @@ export const queries = `
     ${PipelineTemplateQueries}
     ${ChecklistQueries}
     ${RobotQueries}
+    ${PipelineLabelQueries}
   }
 `;
 
@@ -236,6 +243,7 @@ export const mutations = `
     ${ConformityMutations}
     ${ChecklistMutations}
     ${RobotMutations}
+    ${PipelineLabelMutations}
   }
 `;
 

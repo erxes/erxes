@@ -1,30 +1,14 @@
-const commonTypes = `
-  order: Int
-  createdAt: Date
-`;
+import { commonTypes } from './common';
 
 export const types = `
   type GrowthHack {
     _id: String!
-    name: String!
-    stageId: String
-    pipeline: Pipeline
-    boardId: String
-    assignedUserIds: [String]
-    closeDate: Date
-    description: String
     hackStages: [String]
     priority: String
     reach: Int
     impact: Int
     confidence: Int
     ease: Int
-    assignedUsers: [User]
-    modifiedAt: Date
-    modifiedBy: String
-    stage: Stage
-    attachments: [Attachment]
-    isWatched: Boolean
     voteCount: Int
     votedUsers: [User]
     isVoted: Boolean

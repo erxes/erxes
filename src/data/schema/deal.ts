@@ -3,17 +3,11 @@ import { commonTypes, conformityQueryFields } from './common';
 export const types = `
   type Deal {
     _id: String!
-    pipeline: Pipeline
-    boardId: String
     amount: JSON
     companies: [Company]
     customers: [Customer]
     products: JSON
     productsData: JSON
-    assignedUsers: [User]
-    stage: Stage
-    attachments: [Attachment]
-    isWatched: Boolean
     ${commonTypes}
   }
 

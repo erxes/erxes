@@ -19,6 +19,7 @@ export interface IItemCommonFields {
   assignedUserIds?: string[];
   watchedUserIds?: string[];
   notifiedUserIds?: string[];
+  labelIds?: string[];
   attachments?: any[];
   stageId?: string;
   initialStageId?: string;
@@ -116,6 +117,7 @@ export const commonItemFieldsSchema = {
   description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
   watchedUserIds: field({ type: [String] }),
+  labelIds: field({ type: [String] }),
   attachments: field({ type: [attachmentSchema] }),
   stageId: field({ type: String }),
   initialStageId: field({ type: String, optional: true }),

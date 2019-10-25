@@ -4,6 +4,7 @@ import {
   Customers,
   Fields,
   Notifications,
+  PipelineLabels,
   Pipelines,
   Products,
   Stages,
@@ -123,5 +124,9 @@ export default {
 
   hasNotified(deal: IDealDocument, _args, { user }: IContext) {
     return Notifications.checkIfRead(user._id, deal._id);
+  },
+
+  labels(deal: IDealDocument) {
+    return PipelineLabels.find({ _id: { $in: deal.labelIds } });
   },
 };
