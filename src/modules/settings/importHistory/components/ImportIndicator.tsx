@@ -18,6 +18,7 @@ type Props = {
   close: () => void;
   cancel: (id: string) => void;
   isRemovingImport: boolean;
+  errors?: string[];
 };
 
 class ImportIndicator extends React.Component<Props> {
@@ -90,8 +91,12 @@ class ImportIndicator extends React.Component<Props> {
   }
 
   getIndicatorText() {
-    const { isRemovingImport, importHistory } = this.props;
+    const { isRemovingImport, importHistory, errors } = this.props;
     const { contentType } = importHistory;
+
+    if (errors) {
+      return errors.join(',');
+    }
 
     if (isRemovingImport) {
       return (
