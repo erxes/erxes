@@ -34,9 +34,9 @@ const tagMutations = {
   /**
    * Edit tag
    */
-  async tagsEdit(_root, { _id, ...doc }: ITagsEdit, { user, docModifier }: IContext) {
+  async tagsEdit(_root, { _id, ...doc }: ITagsEdit, { user }: IContext) {
     const tag = await Tags.findOne({ _id });
-    const updated = await Tags.updateTag(_id, docModifier(doc));
+    const updated = await Tags.updateTag(_id, doc);
 
     if (tag) {
       await putUpdateLog(

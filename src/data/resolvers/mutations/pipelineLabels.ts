@@ -11,8 +11,8 @@ const pipelineLabelMutations = {
   /**
    * Create new pipeline label
    */
-  async pipelineLabelsAdd(_root, { ...doc }: IPipelineLabel, { user, docModifier }: IContext) {
-    const pipelineLabel = await PipelineLabels.createPipelineLabel(docModifier({ createdBy: user._id, ...doc }));
+  async pipelineLabelsAdd(_root, { ...doc }: IPipelineLabel, { user }: IContext) {
+    const pipelineLabel = await PipelineLabels.createPipelineLabel({ createdBy: user._id, ...doc });
 
     await putCreateLog(
       {
@@ -30,10 +30,10 @@ const pipelineLabelMutations = {
   /**
    * Edit pipeline label
    */
-  async pipelineLabelsEdit(_root, { _id, ...doc }: IPipelineLabelsEdit, { user, docModifier }: IContext) {
+  async pipelineLabelsEdit(_root, { _id, ...doc }: IPipelineLabelsEdit, { user }: IContext) {
     const pipelineLabel = await PipelineLabels.findOne({ _id });
 
-    const updated = await PipelineLabels.updatePipelineLabel(_id, docModifier(doc));
+    const updated = await PipelineLabels.updatePipelineLabel(_id, doc);
 
     if (pipelineLabel) {
       await putUpdateLog(

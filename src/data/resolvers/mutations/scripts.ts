@@ -33,9 +33,9 @@ const scriptMutations = {
   /**
    * Update script
    */
-  async scriptsEdit(_root, { _id, ...fields }: IScriptsEdit, { user, docModifier }: IContext) {
+  async scriptsEdit(_root, { _id, ...fields }: IScriptsEdit, { user }: IContext) {
     const script = await Scripts.findOne({ _id });
-    const updated = await Scripts.updateScript(_id, docModifier(fields));
+    const updated = await Scripts.updateScript(_id, fields);
 
     if (script) {
       await putUpdateLog(

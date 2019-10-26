@@ -41,11 +41,11 @@ const boardMutations = {
   /**
    * Edit board
    */
-  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user, docModifier }: IContext) {
+  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user }: IContext) {
     await checkPermission(doc.type, user, 'boardsEdit');
 
     const board = await Boards.findOne({ _id });
-    const updated = await Boards.updateBoard(_id, docModifier(doc));
+    const updated = await Boards.updateBoard(_id, doc);
 
     if (board) {
       await putUpdateLog(

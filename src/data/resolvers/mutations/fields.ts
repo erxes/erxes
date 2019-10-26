@@ -73,14 +73,11 @@ const fieldsGroupsMutations = {
   /**
    * Update group for fields
    */
-  fieldsGroupsEdit(_root, { _id, ...doc }: IFieldsGroupsEdit, { user, docModifier }: IContext) {
-    return FieldsGroups.updateGroup(
-      _id,
-      docModifier({
-        ...doc,
-        lastUpdatedUserId: user._id,
-      }),
-    );
+  fieldsGroupsEdit(_root, { _id, ...doc }: IFieldsGroupsEdit, { user }: IContext) {
+    return FieldsGroups.updateGroup(_id, {
+      ...doc,
+      lastUpdatedUserId: user._id,
+    });
   },
 
   /**

@@ -37,12 +37,12 @@ const pipelineTemplateMutations = {
   /**
    * Edit pipeline template
    */
-  async pipelineTemplatesEdit(_root, { _id, stages, ...doc }: IPipelineTemplatesEdit, { user, docModifier }: IContext) {
+  async pipelineTemplatesEdit(_root, { _id, stages, ...doc }: IPipelineTemplatesEdit, { user }: IContext) {
     await checkPermission(doc.type, user, 'templatesEdit');
 
     const pipelineTemplate = await PipelineTemplates.findOne({ _id });
 
-    const updated = await PipelineTemplates.updatePipelineTemplate(_id, docModifier(doc), stages);
+    const updated = await PipelineTemplates.updatePipelineTemplate(_id, doc, stages);
 
     if (pipelineTemplate) {
       await putUpdateLog(

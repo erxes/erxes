@@ -38,9 +38,9 @@ const engageMutations = {
   /**
    * Edit message
    */
-  async engageMessageEdit(_root, { _id, ...doc }: IEngageMessageEdit, { user, docModifier }: IContext) {
+  async engageMessageEdit(_root, { _id, ...doc }: IEngageMessageEdit, { user }: IContext) {
     const engageMessage = await EngageMessages.findOne({ _id });
-    const updated = await EngageMessages.updateEngageMessage(_id, docModifier(doc));
+    const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
     try {
       await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });

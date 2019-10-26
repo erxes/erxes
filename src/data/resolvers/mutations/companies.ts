@@ -31,9 +31,9 @@ const companyMutations = {
   /**
    * Updates a company
    */
-  async companiesEdit(_root, { _id, ...doc }: ICompaniesEdit, { user, docModifier }: IContext) {
+  async companiesEdit(_root, { _id, ...doc }: ICompaniesEdit, { user }: IContext) {
     const company = await Companies.findOne({ _id });
-    const updated = await Companies.updateCompany(_id, docModifier(doc));
+    const updated = await Companies.updateCompany(_id, doc);
 
     if (company) {
       await putUpdateLog(

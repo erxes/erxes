@@ -31,9 +31,9 @@ const customerMutations = {
   /**
    * Update customer
    */
-  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user, docModifier }: IContext) {
+  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: IContext) {
     const customer = await Customers.findOne({ _id });
-    const updated = await Customers.updateCustomer(_id, docModifier(doc));
+    const updated = await Customers.updateCustomer(_id, doc);
 
     if (customer) {
       await putUpdateLog(
