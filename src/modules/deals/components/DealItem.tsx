@@ -16,6 +16,7 @@ import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 
+import Labels from 'modules/boards/components/label/Labels';
 import { IOptions } from 'modules/boards/types';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
@@ -126,6 +127,8 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
+        <Labels labels={item.labels} indicator={true} />
+
         <h5>{item.name}</h5>
 
         <Details color="#63D2D6" items={products} />

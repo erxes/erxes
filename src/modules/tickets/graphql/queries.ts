@@ -66,6 +66,14 @@ export const ticketFields = `
       avatar
     }
   }
+  labels {
+    _id
+    name
+    type
+    colorCode
+    pipelineId
+  }
+  labelIds
   stage {
     probability
   }

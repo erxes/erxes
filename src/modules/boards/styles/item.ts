@@ -27,6 +27,10 @@ const Right = styled.div`
   float: right;
 `;
 
+const Actions = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
 const Footer = styled.div`
   padding-top: 8px;
   margin-top: 8px;
@@ -317,8 +321,6 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const AddContainer = styled.form``;
-
 const Status = styled.div`
   margin-bottom: 4px;
   overflow: hidden;
@@ -343,6 +345,7 @@ export {
   RightButton,
   MoveFormContainer,
   PipelineName,
+  Actions,
   FormFooter,
   FlexContent,
   LeftContainer,
@@ -353,7 +356,6 @@ export {
   SelectOption,
   SelectValue,
   Avatar,
-  AddContainer,
   Status,
   PriceContainer,
   Right,

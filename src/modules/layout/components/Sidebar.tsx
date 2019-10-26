@@ -69,7 +69,7 @@ class Section extends React.Component<Props, State> {
   };
 
   renderCollapseButton = () => {
-    const icon = this.state.collapse ? 'uparrow-2' : 'downarrow';
+    const icon = this.state.collapse ? 'angle-double-up' : 'angle-double-down';
 
     return (
       <SidebarToggle tabIndex={0} onClick={this.toggleCollapse}>

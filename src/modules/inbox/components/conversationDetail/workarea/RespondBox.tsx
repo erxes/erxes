@@ -369,7 +369,7 @@ class RespondBox extends React.Component<Props, State> {
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon="attach" />
+            <Icon icon="paperclip" />
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
@@ -385,7 +385,7 @@ class RespondBox extends React.Component<Props, State> {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon="send"
+          icon="message"
         >
           {!disabled && 'Send'}
         </Button>

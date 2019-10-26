@@ -15,7 +15,39 @@ const pipelinesWatch = `
   }
 `;
 
+const pipelineLabelsAdd = `
+  mutation pipelineLabelsAdd($name: String!, $type: String!, $colorCode: String!, $pipelineId: String!) {
+    pipelineLabelsAdd(name: $name, colorCode: $colorCode, type: $type, pipelineId: $pipelineId) {
+      _id
+    }
+  }
+`;
+
+const pipelineLabelsEdit = `
+  mutation pipelineLabelsEdit($_id: String!, $name: String!, $type: String!, $colorCode: String!, $pipelineId: String!) {
+    pipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, type: $type, pipelineId: $pipelineId) {
+      _id
+    }
+  }
+`;
+
+const pipelineLabelsRemove = `
+  mutation pipelineLabelsRemove($_id: String!) {
+    pipelineLabelsRemove(_id: $_id) 
+  }
+`;
+
+const pipelineLabelsLabel = `
+  mutation pipelineLabelsLabel($type: String!, $targetId: String!, $labelIds: [String!]!) {
+    pipelineLabelsLabel(type: $type, targetId: $targetId, labelIds: $labelIds)
+  }
+`;
+
 export default {
   stagesUpdateOrder,
-  pipelinesWatch
+  pipelinesWatch,
+  pipelineLabelsLabel,
+  pipelineLabelsAdd,
+  pipelineLabelsEdit,
+  pipelineLabelsRemove
 };

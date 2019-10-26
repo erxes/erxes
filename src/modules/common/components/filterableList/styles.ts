@@ -15,6 +15,28 @@ const PopoverBody = styled.div`
   min-width: 260px;
 `;
 
+const FlexRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  > li {
+    flex: 1;
+  }
+`;
+
+const IconWrapper = styled.div`
+  cursor: pointer;
+  height: 28px;
+  width: 28px;
+  text-align: center;
+  transition: all ease 0.3s;
+
+  > i:hover {
+    opacity: 0.7;
+  }
+`;
+
 const PopoverList = styledTS<{ selectable?: boolean }>(styled.ul)`
   max-height: 275px;
   margin: 0;
@@ -94,4 +116,12 @@ const AvatarImg = styled.img`
   margin-right: ${dimensions.unitSpacing}px;
 `;
 
-export { PopoverHeader, PopoverBody, PopoverList, PopoverFooter, AvatarImg };
+export {
+  PopoverHeader,
+  PopoverBody,
+  PopoverList,
+  PopoverFooter,
+  FlexRow,
+  AvatarImg,
+  IconWrapper
+};

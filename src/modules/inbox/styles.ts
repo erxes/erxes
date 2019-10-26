@@ -21,7 +21,7 @@ const PopoverButton = styled.div`
 
   > i {
     margin-left: 3px;
-    margin-right: 0;
+    margin-right: -3px;
     transition: all ease 0.3s;
     color: ${colors.colorCoreGray};
   }
@@ -104,6 +104,7 @@ const ResponseTemplateStyled = styled.div`
     margin-right: 10px;
     margin-left: 0;
     padding: 0;
+    font-size: 13px;
   }
 
   span {
@@ -294,7 +295,7 @@ const AssignTrigger = styled.div`
 
   i {
     margin-left: 5px;
-    margin-right: 0;
+    margin-right: -3px;
     transition: all ease 0.3s;
     color: ${colors.colorCoreGray};
     display: inline-block;

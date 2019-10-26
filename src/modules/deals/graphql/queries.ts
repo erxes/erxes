@@ -65,6 +65,14 @@ export const dealFields = `
       avatar
     }
   }
+  labels {
+    _id
+    name
+    type
+    colorCode
+    pipelineId
+  }
+  labelIds
   stage {
     probability
     name
