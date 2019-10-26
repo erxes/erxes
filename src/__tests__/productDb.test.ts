@@ -1,18 +1,21 @@
 import { dealFactory, productCategoryFactory, productFactory } from '../db/factories';
 import { Deals, ProductCategories, Products } from '../db/models';
 
+import { IDealDocument, IProductCategoryDocument, IProductDocument } from '../db/models/definitions/deals';
 import './setup.ts';
 
 describe('Test products model', () => {
-  let product;
-  let deal;
-  let productCategory;
+  let product: IProductDocument;
+  let deal: IDealDocument;
+  let deal2: IDealDocument;
+  let productCategory: IProductCategoryDocument;
 
   beforeEach(async () => {
     // Creating test data
     product = await productFactory({ type: 'service' });
     productCategory = await productCategoryFactory({});
     deal = await dealFactory({ productsData: [{ productId: product._id }] });
+    deal2 = await dealFactory({ productsData: [{ productId: product._id }] });
   });
 
   afterEach(async () => {
@@ -56,29 +59,21 @@ describe('Test products model', () => {
     expect(productObj.sku).toEqual(`${product.sku}-update`);
   });
 
-  test('Remove product not found', async () => {
+  test('Can not remove products', async () => {
     expect.assertions(1);
 
     try {
-      await Products.removeProduct(deal._id);
+      await Products.removeProducts([product._id]);
     } catch (e) {
-      expect(e.message).toEqual('Product not found');
-    }
-  });
-
-  test("Can't remove a product", async () => {
-    expect.assertions(1);
-
-    try {
-      await Products.removeProduct(product._id);
-    } catch (e) {
-      expect(e.message).toEqual("Can't remove a product");
+      expect(e.message).toEqual(`Can not remove products. Following deals are used ${deal.name},${deal2.name}`);
     }
   });
 
   test('Remove product', async () => {
     await Deals.updateOne({ _id: deal._id }, { $set: { productsData: [] } });
-    const isDeleted = await Products.removeProduct(product.id);
+    await Deals.updateOne({ _id: deal2._id }, { $set: { productsData: [] } });
+
+    const isDeleted = await Products.removeProducts([product._id]);
 
     expect(isDeleted).toBeTruthy();
   });

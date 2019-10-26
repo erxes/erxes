@@ -13,7 +13,7 @@ export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
-  removeProduct(_id: string): void;
+  removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadProductClass = () => {
@@ -62,24 +62,23 @@ export const loadProductClass = () => {
     }
 
     /**
-     * Remove Product
+     * Remove products
      */
-    public static async removeProduct(_id: string) {
-      const product = await Products.findOne({ _id });
+    public static async removeProducts(_ids: string[]) {
+      const deals = await Deals.find(
+        {
+          'productsData.productId': { $in: _ids },
+        },
+        { name: 1 },
+      ).lean();
 
-      if (!product) {
-        throw new Error('Product not found');
+      if (deals.length > 0) {
+        const names = deals.map(deal => deal.name);
+
+        throw new Error(`Can not remove products. Following deals are used ${names.join(',')}`);
       }
 
-      const count = await Deals.find({
-        'productsData.productId': { $in: [_id] },
-      }).countDocuments();
-
-      if (count > 0) {
-        throw new Error("Can't remove a product");
-      }
-
-      return Products.deleteOne({ _id });
+      return Products.deleteMany({ _id: { $in: _ids } });
     }
   }
 

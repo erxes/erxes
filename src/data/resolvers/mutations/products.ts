@@ -64,20 +64,19 @@ const productMutations = {
    * @param {string} param1._id Product id
    */
   async productsRemove(_root, { productIds }: { productIds: string[] }, { user }: IContext) {
-    for (const productId of productIds) {
-      const product = await Products.findOne({ _id: productId });
-      const removed = await Products.removeProduct(productId);
+    const products = await Products.find({ _id: { $in: productIds } }, { name: 1 }).lean();
 
-      if (product && removed) {
-        await putDeleteLog(
-          {
-            type: 'product',
-            object: product,
-            description: `${product.name} has been removed`,
-          },
-          user,
-        );
-      }
+    await Products.removeProducts(productIds);
+
+    for (const product of products) {
+      await putDeleteLog(
+        {
+          type: 'product',
+          object: product,
+          description: `${product.name} has been removed`,
+        },
+        user,
+      );
     }
 
     return productIds;
