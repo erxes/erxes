@@ -34,7 +34,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument[]>;
 
-  removeCustomerConversations(customerId: string): Promise<IConversationDocument>;
+  removeCustomersConversations(customerId: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadClass = () => {
@@ -250,19 +250,21 @@ export const loadClass = () => {
     }
 
     /**
-     * Removes customer conversations
+     * Removes customers conversations
      */
-    public static async removeCustomerConversations(customerId: string) {
+    public static async removeCustomersConversations(customerIds: string[]) {
       // Finding every conversation of customer
       const conversations = await Conversations.find({
-        customerId,
+        customerId: { $in: customerIds },
       });
 
       // Removing conversations and conversation messages
       const conversationIds = conversations.map(conv => conv._id);
+
       await ConversationMessages.deleteMany({
         conversationId: { $in: conversationIds },
       });
+
       await Conversations.deleteMany({ _id: { $in: conversationIds } });
     }
   }

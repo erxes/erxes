@@ -16,7 +16,7 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
 
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IInternalNoteDocument[]>;
 
-  removeCustomerInternalNotes(customerId: string): void;
+  removeCustomersInternalNotes(customerIds: string[]): Promise<{ n: number; ok: number }>;
   removeCompanyInternalNotes(companyId: string): void;
 
   changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<IInternalNoteDocument[]>;
@@ -88,13 +88,13 @@ export const loadClass = () => {
     }
 
     /**
-     * Removing customers' internal notes
+     * Remove customers' internal notes
      */
-    public static async removeCustomerInternalNotes(customerId: string) {
+    public static async removeCustomersInternalNotes(customerIds: string) {
       // Removing every internal notes of customer
       return InternalNotes.deleteMany({
         contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: customerId,
+        contentTypeId: { $in: customerIds },
       });
     }
 

@@ -113,7 +113,12 @@ describe('InternalNotes model test', () => {
       contentTypeId: customer._id,
     });
 
-    await InternalNotes.removeCustomerInternalNotes(customer._id);
+    await internalNoteFactory({
+      contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+      contentTypeId: customer._id,
+    });
+
+    await InternalNotes.removeCustomersInternalNotes([customer._id]);
 
     const internalNote = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,

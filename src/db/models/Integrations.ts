@@ -146,15 +146,14 @@ export const loadClass = () => {
       await ConversationMessages.deleteMany({
         conversationId: { $in: conversationIds },
       });
+
       await Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
       const customers = await Customers.find({ integrationId: _id });
       const customerIds = customers.map(cus => cus._id);
 
-      for (const customerId of customerIds) {
-        await Customers.removeCustomer(customerId);
-      }
+      await Customers.removeCustomers(customerIds);
 
       // Remove form
       if (integration.formId) {

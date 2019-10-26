@@ -184,7 +184,11 @@ describe('engage messages model tests', () => {
       customerIds: [customer._id],
     });
 
-    await EngageMessages.removeCustomerEngages(customer._id);
+    await engageMessageFactory({
+      customerIds: [customer._id],
+    });
+
+    await EngageMessages.removeCustomersEngages([customer._id]);
 
     const engageMessages = await EngageMessages.find({
       customerIds: { $in: [customer._id] },

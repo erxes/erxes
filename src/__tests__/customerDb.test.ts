@@ -190,12 +190,16 @@ describe('Customers model tests', () => {
       customerId: customer._id,
     });
 
+    await conversationFactory({
+      customerId: customer._id,
+    });
+
     await conversationMessageFactory({
       conversationId: conversation._id,
       customerId: customer._id,
     });
 
-    await Customers.removeCustomer(customer._id);
+    await Customers.removeCustomers([customer._id]);
 
     const internalNote = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,

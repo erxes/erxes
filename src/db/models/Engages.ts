@@ -12,7 +12,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   removeEngageMessage(_id: string): void;
   setCustomerIds(_id: string, customers: ICustomerDocument[]): Promise<IEngageMessageDocument>;
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IEngageMessageDocument>;
-  removeCustomerEngages(customerId: string): void;
+  removeCustomersEngages(customerIds: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadClass = () => {
@@ -115,16 +115,16 @@ export const loadClass = () => {
     }
 
     /**
-     * Removes customer Engages
+     * Remove customers engages
      */
-    public static async removeCustomerEngages(customerId: string) {
+    public static async removeCustomersEngages(customerIds: string[]) {
       // Removing customer from engage messages
       await EngageMessages.updateMany(
-        { messengerReceivedCustomerIds: { $in: [customerId] } },
-        { $pull: { messengerReceivedCustomerIds: { $in: [customerId] } } },
+        { messengerReceivedCustomerIds: { $in: customerIds } },
+        { $pull: { messengerReceivedCustomerIds: { $in: customerIds } } },
       );
 
-      return EngageMessages.updateMany({ customerIds: customerId }, { $pull: { customerIds: customerId } });
+      return EngageMessages.updateMany({ customerIds }, { $pull: { customerIds } });
     }
   }
 

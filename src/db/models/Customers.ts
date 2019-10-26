@@ -17,7 +17,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
-  removeCustomer(customerId: string): void;
+  removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
   mergeCustomers(customerIds: string[], customerFields: ICustomer): Promise<ICustomerDocument>;
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
   updateProfileScore(customerId: string, save: boolean): never;
@@ -237,17 +237,19 @@ export const loadClass = () => {
       await Customers.updateOne({ _id: customerId }, { $set: { profileScore: score, searchText } });
     }
     /**
-     * Removes customer
+     * Remove customers
      */
-    public static async removeCustomer(customerId: string) {
+    public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
-      await Conversations.removeCustomerConversations(customerId);
-      await EngageMessages.removeCustomerEngages(customerId);
-      await InternalNotes.removeCustomerInternalNotes(customerId);
+      await Conversations.removeCustomersConversations(customerIds);
+      await EngageMessages.removeCustomersEngages(customerIds);
+      await InternalNotes.removeCustomersInternalNotes(customerIds);
 
-      await Conformities.removeConformity({ mainType: 'customer', mainTypeId: customerId });
+      for (const customerId of customerIds) {
+        await Conformities.removeConformity({ mainType: 'customer', mainTypeId: customerId });
+      }
 
-      return Customers.deleteOne({ _id: customerId });
+      return Customers.deleteMany({ _id: { $in: customerIds } });
     }
 
     /**
