@@ -136,13 +136,18 @@ describe('InternalNotes model test', () => {
       contentTypeId: company._id,
     });
 
-    await InternalNotes.removeCompanyInternalNotes(company._id);
-
-    const internalNote = await InternalNotes.find({
+    await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
     });
 
-    expect(internalNote).toHaveLength(0);
+    await InternalNotes.removeCompaniesInternalNotes([company._id]);
+
+    const internalNotes = await InternalNotes.find({
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
+
+    expect(internalNotes).toHaveLength(0);
   });
 });

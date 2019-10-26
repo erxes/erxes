@@ -141,6 +141,7 @@ describe('Companies model tests', () => {
   test('removeCompany', async () => {
     const company = await companyFactory({});
     const customer = await customerFactory({});
+
     await conformityFactory({
       mainType: 'company',
       mainTypeId: company._id,
@@ -153,9 +154,14 @@ describe('Companies model tests', () => {
       contentTypeId: company._id,
     });
 
-    await Companies.removeCompany(company._id);
+    await internalNoteFactory({
+      contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
+      contentTypeId: company._id,
+    });
 
-    const internalNote = await InternalNotes.find({
+    await Companies.removeCompanies([company._id]);
+
+    const internalNotes = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
       contentTypeId: company._id,
     });
@@ -171,7 +177,7 @@ describe('Companies model tests', () => {
     });
 
     expect(customers).toHaveLength(1);
-    expect(internalNote).toHaveLength(0);
+    expect(internalNotes).toHaveLength(0);
     expect(conformities).toHaveLength(0);
   });
 

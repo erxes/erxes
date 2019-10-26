@@ -54,21 +54,19 @@ const companyMutations = {
    * Remove companies
    */
   async companiesRemove(_root, { companyIds }: { companyIds: string[] }, { user }: IContext) {
-    for (const companyId of companyIds) {
-      const company = await Companies.findOne({ _id: companyId });
-      // Removing every company and modules associated with
-      const removed = await Companies.removeCompany(companyId);
+    const companies = await Companies.find({ _id: { $in: companyIds } }, { primaryName: 1 }).lean();
 
-      if (company && removed) {
-        await putDeleteLog(
-          {
-            type: 'company',
-            object: company,
-            description: `${company.primaryName} has been removed`,
-          },
-          user,
-        );
-      }
+    await Companies.removeCompanies(companyIds);
+
+    for (const company of companies) {
+      await putDeleteLog(
+        {
+          type: 'company',
+          object: company,
+          description: `${company.primaryName} has been removed`,
+        },
+        user,
+      );
     }
 
     return companyIds;

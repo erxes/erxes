@@ -20,7 +20,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
 
   updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
 
-  removeCompany(_id: string): void;
+  removeCompanies(_ids: string[]): Promise<{ n: number; ok: number }>;
 
   mergeCompanies(companyIds: string[], companyFields: ICompany): Promise<ICompanyDocument>;
 
@@ -145,13 +145,15 @@ export const loadClass = () => {
     /**
      * Remove company
      */
-    public static async removeCompany(companyId: string) {
+    public static async removeCompanies(companyIds: string[]) {
       // Removing modules associated with company
-      await InternalNotes.removeCompanyInternalNotes(companyId);
+      await InternalNotes.removeCompaniesInternalNotes(companyIds);
 
-      await Conformities.removeConformity({ mainType: 'company', mainTypeId: companyId });
+      for (const companyId of companyIds) {
+        await Conformities.removeConformity({ mainType: 'company', mainTypeId: companyId });
+      }
 
-      return Companies.deleteOne({ _id: companyId });
+      return Companies.deleteMany({ _id: { $in: companyIds } });
     }
 
     /**
