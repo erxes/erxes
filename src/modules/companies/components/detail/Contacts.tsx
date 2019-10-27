@@ -1,3 +1,4 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
@@ -11,6 +12,8 @@ import { Link } from 'react-router-dom';
 type Props = {
   companies: ICompany[];
   customerId: string;
+  isOpen?: boolean;
+  toggle?: any;
 };
 
 class Contacts extends React.Component<Props> {
@@ -44,14 +47,12 @@ class Contacts extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { Title } = Section;
+    const { isOpen, toggle } = this.props;
 
     return (
-      <Section>
-        <Title>{__('Contacts')}</Title>
-
-        {this.renderContent()}
-      </Section>
+      <Box title={__('Contacts')} isOpen={isOpen || true} toggle={toggle}>
+        <Section>{this.renderContent()}</Section>
+      </Box>
     );
   }
 }

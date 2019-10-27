@@ -1,3 +1,4 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
@@ -8,6 +9,7 @@ import parse from 'ua-parser-js';
 
 type Props = {
   customer: ICustomer;
+  isOpen?: boolean;
 };
 
 class DevicePropertiesSection extends React.Component<Props> {
@@ -78,14 +80,12 @@ class DevicePropertiesSection extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { Title } = Section;
+    const { isOpen } = this.props;
 
     return (
-      <Section>
-        <Title>{__('Device properties')}</Title>
-
-        {this.renderContent()}
-      </Section>
+      <Box title={__('Device properties')} isOpen={isOpen || false}>
+        <Section>{this.renderContent()}</Section>
+      </Box>
     );
   }
 }

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
 import { __, isTimeStamp, isValidDate } from 'modules/common/utils';
@@ -9,8 +10,8 @@ import { ICustomer } from '../../types';
 
 type Props = {
   customer: ICustomer;
-  // TODO: check query params. Because it was in context
   queryParams?: any;
+  isOpen?: boolean;
 };
 
 class MessengerSection extends React.Component<Props> {
@@ -68,14 +69,12 @@ class MessengerSection extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { Title } = Section;
+    const { isOpen } = this.props;
 
     return (
-      <Section>
-        <Title>{__('Messenger data')}</Title>
-
-        {this.renderContent()}
-      </Section>
+      <Box title={__('Messenger data')} isOpen={isOpen || false}>
+        <Section>{this.renderContent()}</Section>
+      </Box>
     );
   }
 }

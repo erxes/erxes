@@ -111,15 +111,13 @@ class Items extends React.Component<Props> {
       />
     );
 
-    const extraButtons = (
-      <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-    );
+    const extraButtons = <QuickButtons>{quickButtons}</QuickButtons>;
 
     return (
       <Box
         extraButtons={extraButtons}
         title={__(data.options.title)}
-        isOpen={false}
+        isOpen={isOpen || false}
       >
         <Section>
           <SectionContainer>{this.renderItems()}</SectionContainer>

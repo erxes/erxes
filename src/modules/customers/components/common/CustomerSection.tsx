@@ -35,7 +35,7 @@ function Component({
   onSelect
 }: Props) {
   const { Section } = Sidebar;
-  const { Title, QuickButtons } = Section;
+  const { QuickButtons } = Section;
 
   const mailTo = email => {
     if (email) {
@@ -108,24 +108,24 @@ function Component({
     );
   };
 
+  const extraButtons = (
+    <QuickButtons isSidebarOpen={isOpen}>
+      <ModalTrigger
+        title="Associate"
+        size="lg"
+        trigger={
+          <button>
+            <Icon icon="add" />
+          </button>
+        }
+        content={customerChooser}
+      />
+    </QuickButtons>
+  );
+
   return (
-    <Box title={__('Customers')} isOpen={false}>
-      <Section>
-        <Title>{__('Customers')}</Title>
-        <QuickButtons isSidebarOpen={isOpen}>
-          <ModalTrigger
-            title="Associate"
-            size="lg"
-            trigger={
-              <button>
-                <Icon icon="add" />
-              </button>
-            }
-            content={customerChooser}
-          />
-        </QuickButtons>
-        {renderBody(items)}
-      </Section>
+    <Box title={__('Customers')} isOpen={false} extraButtons={extraButtons}>
+      <Section>{renderBody(items)}</Section>
     </Box>
   );
 }

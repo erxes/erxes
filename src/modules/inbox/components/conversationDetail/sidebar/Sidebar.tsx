@@ -226,19 +226,13 @@ class Index extends React.Component<IndexProps, IndexState> {
           >
             <ConversationDetails conversation={conversation} />
           </Box>
-          <Box
-            title={__('Tags')}
-            name="showTags"
-            isOpen={config.showTags || false}
+          <TaggerSection
+            isOpen={config.showTags}
+            data={customer}
+            type="customer"
+            refetchQueries={taggerRefetchQueries}
             toggle={toggleSection}
-          >
-            <TaggerSection
-              isOpen={config.showTags}
-              data={customer}
-              type="customer"
-              refetchQueries={taggerRefetchQueries}
-            />
-          </Box>
+          />
           <Box
             title={__('Contact information')}
             name="showCustomFields"
@@ -271,49 +265,28 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <Box
-          title={__('Deals')}
-          name="showDeals"
-          isOpen={config.showDeals || false}
-          toggle={toggleSection}
-        >
-          <PortableDeals
-            mainType="customer"
-            mainTypeId={customer._id}
-            isOpen={config.showDeals}
-          />
-        </Box>
-        <Box
-          title={__('Tickets')}
-          name="showTickets"
-          isOpen={config.showTickets || false}
-          toggle={toggleSection}
-        >
-          <PortableTickets
-            mainType="customer"
-            mainTypeId={customer._id}
-            isOpen={config.showTickets}
-          />
-        </Box>
-        <Box
-          title={__('Tasks')}
-          name="showTasks"
-          isOpen={config.showTasks || false}
-          toggle={toggleSection}
-        >
-          <PortableTasks
-            mainType="customer"
-            mainTypeId={customer._id}
-            isOpen={config.showTasks}
-          />
-        </Box>
+        <PortableDeals
+          mainType="customer"
+          mainTypeId={customer._id}
+          isOpen={config.showDeals}
+        />
+        <PortableTickets
+          mainType="customer"
+          mainTypeId={customer._id}
+          isOpen={config.showTickets}
+        />
+        <PortableTasks
+          mainType="customer"
+          mainTypeId={customer._id}
+          isOpen={config.showTasks}
+        />
       </>
     );
   }
 
   renderTabContent() {
     const { currentTab, currentSubTab } = this.state;
-    const { customer, config, toggleSection } = this.props;
+    const { customer } = this.props;
 
     if (currentTab === 'customer') {
       const detailsOnClick = () => this.onSubtabClick('details');
@@ -358,27 +331,8 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <Box
-          title={__('Companies')}
-          name="showCompanies"
-          isOpen={config.showCompanies || false}
-          toggle={toggleSection}
-        >
-          <CompanySection
-            isOpen={config.showTags}
-            mainType="customer"
-            mainTypeId={customer._id}
-          />
-        </Box>
-
-        <Box
-          title={__('Contacts')}
-          name="showContacts"
-          isOpen={config.showContacts || false}
-          toggle={toggleSection}
-        >
-          <Contacts companies={customer.companies} customerId={customer._id} />
-        </Box>
+        <CompanySection mainType="customer" mainTypeId={customer._id} />
+        <Contacts companies={customer.companies} customerId={customer._id} />
       </>
     );
   }

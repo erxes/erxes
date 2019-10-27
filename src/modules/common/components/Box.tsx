@@ -45,7 +45,9 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
     return (
       <>
-        <ExtraButtons>{this.props.extraButtons}</ExtraButtons>
+        {this.state.isOpen ? (
+          <ExtraButtons>{this.props.extraButtons}</ExtraButtons>
+        ) : null}
         <SidebarCollapse onClick={this.toggle}>
           <Icon icon={icon} />
         </SidebarCollapse>

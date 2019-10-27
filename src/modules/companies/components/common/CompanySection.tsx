@@ -1,4 +1,3 @@
-// import Box from 'modules/common/components/Box';
 import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
@@ -25,12 +24,21 @@ type Props = {
   mainType?: string;
   mainTypeId?: string;
   isOpen?: boolean;
+  toggle?: any;
   onSelect?: (companies: ICompany[]) => void;
 };
 
 function Component(
   this: any,
-  { name, items = [], mainType = '', mainTypeId = '', isOpen, onSelect }: Props
+  {
+    name,
+    items = [],
+    mainType = '',
+    mainTypeId = '',
+    isOpen,
+    toggle,
+    onSelect
+  }: Props
 ) {
   const { Section } = Sidebar;
   const { QuickButtons } = Section;
@@ -105,12 +113,16 @@ function Component(
     </SectionBody>
   );
 
-  const extraButtons = (
-    <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-  );
+  const extraButtons = <QuickButtons>{quickButtons}</QuickButtons>;
 
   return (
-    <Box extraButtons={extraButtons} title={__('Companies')} isOpen={false}>
+    <Box
+      title={__('Companies')}
+      name="showCompanies"
+      isOpen={isOpen || false}
+      extraButtons={extraButtons}
+      toggle={toggle}
+    >
       <Section>{content}</Section>
     </Box>
   );

@@ -1,3 +1,4 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
@@ -11,6 +12,7 @@ type Props = {
   data: any;
   type: string;
   refetchQueries?: any[];
+  toggle?: any;
   isOpen?: boolean;
 };
 
@@ -54,9 +56,9 @@ class TaggerSection extends React.Component<Props, State> {
 
   render() {
     const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
+    const { QuickButtons } = Section;
 
-    const { data, type, refetchQueries, isOpen } = this.props;
+    const { data, type, refetchQueries, isOpen, toggle } = this.props;
     const tags = data.getTags || [];
 
     const quickButtons = (
@@ -65,26 +67,31 @@ class TaggerSection extends React.Component<Props, State> {
       </a>
     );
 
+    const extraButtons = <QuickButtons>{quickButtons}</QuickButtons>;
+
     return (
-      <Section>
-        <Title>{__('Tags')}</Title>
+      <Box
+        title={__('Tags')}
+        isOpen={isOpen || false}
+        toggle={toggle}
+        extraButtons={extraButtons}
+      >
+        <Section>
+          <Collapse in={this.state.isTaggerVisible}>
+            <div>
+              <Tagger
+                type={type}
+                targets={[data]}
+                className="sidebar-accordion"
+                event="onClick"
+                refetchQueries={refetchQueries}
+              />
+            </div>
+          </Collapse>
 
-        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-
-        <Collapse in={this.state.isTaggerVisible}>
-          <div>
-            <Tagger
-              type={type}
-              targets={[data]}
-              className="sidebar-accordion"
-              event="onClick"
-              refetchQueries={refetchQueries}
-            />
-          </div>
-        </Collapse>
-
-        {this.renderTags(tags)}
-      </Section>
+          {this.renderTags(tags)}
+        </Section>
+      </Box>
     );
   }
 }
