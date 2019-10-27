@@ -4,11 +4,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import {
-  ExtraButtons,
-  SidebarCounter,
-  SidebarList
-} from 'modules/layout/styles';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -120,19 +116,16 @@ class Segments extends React.Component<Props> {
 
   render() {
     const { segments, loading } = this.props;
-    const extraButtons = <ExtraButtons>{this.renderQuickBtns()}</ExtraButtons>;
-
+    const extraButtons = this.renderQuickBtns();
     const { Section } = Wrapper.Sidebar;
 
     return (
       <Box
-        title={__('FILTER BY SEGMENTS')}
-        isOpen={false}
+        title={__('Filter by segments')}
+        isOpen={true}
         extraButtons={extraButtons}
       >
-              
         <Section collapsible={segments.length > 5}>
-                
           <DataWithLoader
             data={this.renderData()}
             loading={loading}
@@ -142,9 +135,7 @@ class Segments extends React.Component<Props> {
             size="small"
             objective={true}
           />
-                
         </Section>
-            {' '}
       </Box>
     );
   }

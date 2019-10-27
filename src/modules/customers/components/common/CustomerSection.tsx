@@ -9,8 +9,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import {
   ButtonRelated,
   SectionBody,
-  SectionBodyItem,
-  SectionButton
+  SectionBodyItem
 } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -113,20 +112,18 @@ function Component({
     <Box title={__('Customers')} isOpen={false}>
       <Section>
         <Title>{__('Customers')}</Title>
-        <SectionButton>
-          <QuickButtons isSidebarOpen={isOpen}>
-            <ModalTrigger
-              title="Associate"
-              size="lg"
-              trigger={
-                <button>
-                  <Icon icon="add" />
-                </button>
-              }
-              content={customerChooser}
-            />
-          </QuickButtons>
-        </SectionButton>
+        <QuickButtons isSidebarOpen={isOpen}>
+          <ModalTrigger
+            title="Associate"
+            size="lg"
+            trigger={
+              <button>
+                <Icon icon="add" />
+              </button>
+            }
+            content={customerChooser}
+          />
+        </QuickButtons>
         {renderBody(items)}
       </Section>
     </Box>

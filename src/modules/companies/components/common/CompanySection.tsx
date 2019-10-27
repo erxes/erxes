@@ -11,8 +11,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import {
   ButtonRelated,
   SectionBody,
-  SectionBodyItem,
-  SectionButton
+  SectionBodyItem
 } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -107,9 +106,7 @@ function Component(
   );
 
   const extraButtons = (
-    <SectionButton>
-      <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-    </SectionButton>
+    <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
   );
 
   return (

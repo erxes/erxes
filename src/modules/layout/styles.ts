@@ -542,21 +542,11 @@ const ButtonRelated = styled.div`
   }
 `;
 
-const SectionButton = styled.div`
-  button {
-    position: absolute;
-    right: 5px;
-    bottom: -6px;
-    cursor: pointer;
-  }
-`;
-
 const ExtraButtons = styled.div`
-  a {
-    position: absolute;
-    bottom: -6px;
-    right: 2px;
-  }
+  position: absolute;
+  right: 23px;
+  top: -6px;
+  cursor: pointer;
 `;
 
 export {
@@ -594,8 +584,7 @@ export {
   SectionContainer,
   SectionBody,
   SectionBodyItem,
-  SectionButton,
+  ExtraButtons,
   MobileRecommend,
-  ButtonRelated,
-  ExtraButtons
+  ButtonRelated
 };

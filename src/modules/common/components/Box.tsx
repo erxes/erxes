@@ -3,6 +3,7 @@ import {
   SidebarCollapse
 } from 'modules/inbox/components/conversationDetail/sidebar/styles';
 import Sidebar from 'modules/layout/components/Sidebar';
+import { ExtraButtons } from 'modules/layout/styles';
 import React from 'react';
 import Icon from './Icon';
 
@@ -43,10 +44,12 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
 
     return (
-      <SidebarCollapse onClick={this.toggle}>
-        {this.props.extraButtons}
-        <Icon icon={icon} />
-      </SidebarCollapse>
+      <>
+        <ExtraButtons>{this.props.extraButtons}</ExtraButtons>
+        <SidebarCollapse onClick={this.toggle}>
+          <Icon icon={icon} />
+        </SidebarCollapse>
+      </>
     );
   }
 

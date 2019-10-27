@@ -5,11 +5,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import {
-  SectionBody,
-  SectionBodyItem,
-  SectionButton
-} from 'modules/layout/styles';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import { CustomField, ProductName } from '../styles';
@@ -77,20 +73,18 @@ function ProductSection({
     <Box title={__('Product & Service')} isOpen={false}>
       <Section>
         <Title>{__('Product & Service')}</Title>
-        <SectionButton>
-          <QuickButtons isSidebarOpen={isOpen}>
-            <ModalTrigger
-              title="New Product & Service"
-              size="lg"
-              trigger={
-                <button>
-                  <Icon icon="add" />
-                </button>
-              }
-              content={content}
-            />
-          </QuickButtons>
-        </SectionButton>
+        <QuickButtons isSidebarOpen={isOpen}>
+          <ModalTrigger
+            title="New Product & Service"
+            size="lg"
+            trigger={
+              <button>
+                <Icon icon="add" />
+              </button>
+            }
+            content={content}
+          />
+        </QuickButtons>
         <SectionBody>
           {products.map((product, index) => (
             <SectionBodyItem key={index}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 
+import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Icon from 'modules/common/components/Icon';
 import { __, router } from 'modules/common/utils';
@@ -60,27 +61,34 @@ class LeadStatusFilter extends React.Component<IProps> {
       router.setParams(history, { leadStatus: null });
     };
 
-    return (
-      <Section collapsible={true}>
-        <Section.Title>{__('Filter by pop ups status')}</Section.Title>
-        <Section.QuickButtons>
-          {router.getParam(history, 'leadStatus') ? (
-            <a href="#cancel" tabIndex={0} onClick={onClear}>
-              <Icon icon="cancel-1" />
-            </a>
-          ) : null}
-        </Section.QuickButtons>
+    const extraButtons = (
+      <Section.QuickButtons>
+        {router.getParam(history, 'leadStatus') ? (
+          <a href="#cancel" tabIndex={0} onClick={onClear}>
+            <Icon icon="cancel-1" />
+          </a>
+        ) : null}
+      </Section.QuickButtons>
+    );
 
-        <DataWithLoader
-          loading={this.props.loading}
-          count={Object.keys(LEAD_STATUS_TYPES).length}
-          data={this.renderCounts()}
-          emptyText="No Pop Ups"
-          emptyIcon="type"
-          size="small"
-          objective={true}
-        />
-      </Section>
+    return (
+      <Box
+        extraButtons={extraButtons}
+        title={__('Filter by pop ups status')}
+        isOpen={false}
+      >
+        <Section collapsible={true}>
+          <DataWithLoader
+            loading={this.props.loading}
+            count={Object.keys(LEAD_STATUS_TYPES).length}
+            data={this.renderCounts()}
+            emptyText="No Pop Ups"
+            emptyIcon="type"
+            size="small"
+            objective={true}
+          />
+        </Section>
+      </Box>
     );
   }
 }

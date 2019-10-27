@@ -1,3 +1,4 @@
+import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
@@ -12,7 +13,7 @@ interface IProps extends IRouterProps {
 }
 
 function IntegrationFilter({ history, counts }: IProps) {
-  const { Section, Header } = Wrapper.Sidebar;
+  const { Section } = Wrapper.Sidebar;
 
   const onClick = kind => {
     router.setParams(history, { integrationType: kind });
@@ -41,19 +42,19 @@ function IntegrationFilter({ history, counts }: IProps) {
   );
 
   return (
-    <Section>
-      <Header uppercase={true}>{__('Filter by integrations')}</Header>
-
-      <DataWithLoader
-        data={data}
-        loading={false}
-        count={KIND_CHOICES_WITH_TEXT.length}
-        emptyText="No integrations"
-        emptyIcon="puzzle"
-        size="small"
-        objective={true}
-      />
-    </Section>
+    <Box title={__('Filter by integrations')} isOpen={false}>
+      <Section>
+        <DataWithLoader
+          data={data}
+          loading={false}
+          count={KIND_CHOICES_WITH_TEXT.length}
+          emptyText="No integrations"
+          emptyIcon="puzzle"
+          size="small"
+          objective={true}
+        />
+      </Section>
+    </Box>
   );
 }
 

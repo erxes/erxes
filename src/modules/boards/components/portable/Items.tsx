@@ -4,11 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import {
-  ButtonRelated,
-  SectionButton,
-  SectionContainer
-} from 'modules/layout/styles';
+import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
 import React from 'react';
 import { ItemChooser } from '../../containers/portable/';
 import { IItem, IOptions } from '../../types';
@@ -116,9 +112,7 @@ class Items extends React.Component<Props> {
     );
 
     const extraButtons = (
-      <SectionButton>
-        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-      </SectionButton>
+      <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
     );
 
     return (
