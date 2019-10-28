@@ -166,6 +166,7 @@ const integrationMutations = {
           'callpro',
           'nylas-gmail',
           'nylas-imap',
+          'nylas-office365',
           'chatfuel',
           'twitter-dm',
         ].includes(integration.kind || '')
