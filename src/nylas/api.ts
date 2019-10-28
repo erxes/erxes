@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { debugNylas } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { compose, sendRequest } from '../utils';
-import { GOOGLE_OAUTH_TOKEN_VALIDATION_URL } from './constants';
+import { GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
 import {
   createOrGetNylasConversation as storeConversation,
   createOrGetNylasConversationMessage as storeMessage,
@@ -55,10 +55,10 @@ const sendMessage = (accessToken: string, args: IMessageDraft) => nylasSendMessa
 
 /**
  * Google: get email from google with accessToken
- * @param accessToken
+ * @param {String} accessToken
  * @returns {Promise} email
  */
-const getEmailFromAccessToken = async (accessToken: string) => {
+const getUserEmailFromGoogle = async (accessToken: string): Promise<string> => {
   const data = { access_token: accessToken, fields: ['email'] };
 
   const { email } = await sendRequest({
@@ -68,6 +68,21 @@ const getEmailFromAccessToken = async (accessToken: string) => {
   });
 
   return email;
+};
+
+/**
+ * Office 365: get email from google with accessToken
+ * @param {String} accessToken
+ * @returns {Promise} email
+ */
+const getUserEmailFromO365 = async (accessToken: string): Promise<string> => {
+  const { mail } = await sendRequest({
+    url: `${MICROSOFT_GRAPH_URL}/me`,
+    method: 'GET',
+    headerParams: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  return mail;
 };
 
 /**
@@ -176,4 +191,13 @@ const getAttachment = (fileId: string, accessToken: string) => {
   });
 };
 
-export { uploadFile, syncMessages, sendMessage, getMessageById, getMessages, getEmailFromAccessToken, getAttachment };
+export {
+  uploadFile,
+  syncMessages,
+  sendMessage,
+  getMessageById,
+  getMessages,
+  getAttachment,
+  getUserEmailFromGoogle,
+  getUserEmailFromO365,
+};

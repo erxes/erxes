@@ -3,9 +3,9 @@ import * as querystring from 'querystring';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts } from '../models';
 import { sendRequest } from '../utils';
-import { getEmailFromAccessToken } from './api';
+import { getUserEmailFromGoogle, getUserEmailFromO365 } from './api';
 import { AUTHORIZED_REDIRECT_URL } from './constants';
-import { checkCredentials, encryptPassword, getClientConfig, getProviderSettings } from './utils';
+import { checkCredentials, encryptPassword, getClientConfig, getProviderConfigs } from './utils';
 
 // loading config
 dotenv.config();
@@ -45,7 +45,7 @@ const getOAuthCredentials = async (req, res, next) => {
 
   const redirectUri = `${DOMAIN}/nylas/oauth2/callback`;
 
-  const { params, urls, requestParams } = getProviderSettings(kind);
+  const { params, urls, otherParams } = getProviderConfigs(kind);
 
   if (!req.query.code) {
     if (!req.query.error) {
@@ -68,16 +68,26 @@ const getOAuthCredentials = async (req, res, next) => {
     redirect_uri: redirectUri,
     client_id: clientId,
     client_secret: clientSecret,
+    ...(kind === 'office365' ? { scope: 'https://graph.microsoft.com/user.read' } : {}), // for graph api to get user info
   };
 
   const { access_token, refresh_token } = await sendRequest({
     url: urls.tokenUrl,
     method: 'post',
     body: data,
-    ...requestParams,
+    ...otherParams,
   });
 
-  const email = await getEmailFromAccessToken(access_token);
+  let email;
+
+  switch (kind) {
+    case 'gmail':
+      email = await getUserEmailFromGoogle(access_token);
+      break;
+    case 'office365':
+      email = await getUserEmailFromO365(access_token);
+      break;
+  }
 
   const doc = {
     email,

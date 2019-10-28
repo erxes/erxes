@@ -3,7 +3,7 @@ import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
-import { connectGoogleToNylas, connectImapToNylas } from './auth';
+import { connectImapToNylas, connectProviderToNylas } from './auth';
 import { authenticateIMAP, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
@@ -67,13 +67,10 @@ const init = async app => {
     });
 
     // Connect provider to nylas ===========
-    switch (kind) {
-      case 'gmail':
-        await connectGoogleToNylas(kind, account);
-        break;
-      case 'imap':
-        await connectImapToNylas(kind, account);
-        break;
+    if (kind === 'imap') {
+      await connectImapToNylas(kind, account);
+    } else {
+      await connectProviderToNylas(kind, account);
     }
 
     debugNylas(`Successfully created the integration and connected to nylas`);

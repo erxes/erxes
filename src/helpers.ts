@@ -33,6 +33,9 @@ import {
   NylasImapConversationMessages,
   NylasImapConversations,
   NylasImapCustomers,
+  NylasOffice365ConversationMessages,
+  NylasOffice365Conversations,
+  NylasOffice365Customers,
 } from './nylas/models';
 import { unsubscribe } from './twitter/api';
 import {
@@ -142,6 +145,19 @@ export const removeIntegration = async (id: string) => {
     await NylasImapCustomers.deleteMany(selector);
     await NylasImapConversations.deleteMany(selector);
     await NylasImapConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+
+    // Cancel nylas subscription
+    await enableOrDisableAccount(account.uid, false);
+  }
+
+  if (kind === 'office365') {
+    debugNylas('Removing nylas-office365 entries');
+
+    const conversationIds = await NylasOffice365Conversations.find(selector).distinct('_id');
+
+    await NylasOffice365Customers.deleteMany(selector);
+    await NylasOffice365Conversations.deleteMany(selector);
+    await NylasOffice365ConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
 
     // Cancel nylas subscription
     await enableOrDisableAccount(account.uid, false);

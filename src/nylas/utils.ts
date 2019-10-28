@@ -3,7 +3,14 @@ import * as dotenv from 'dotenv';
 import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
 import { getEnv } from '../utils';
-import { GOOGLE_OAUTH_ACCESS_TOKEN_URL, GOOGLE_OAUTH_AUTH_URL, GOOGLE_SCOPES } from './constants';
+import {
+  GOOGLE_OAUTH_ACCESS_TOKEN_URL,
+  GOOGLE_OAUTH_AUTH_URL,
+  GOOGLE_SCOPES,
+  MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
+  MICROSOFT_OAUTH_AUTH_URL,
+  MICROSOFT_SCOPES,
+} from './constants';
 import { IMessageDraft } from './types';
 
 // load config
@@ -83,11 +90,36 @@ const setNylasToken = (accessToken: string) => {
  * @returns void
  */
 const getClientConfig = (kind: string): string[] => {
-  const providers = {
-    gmail: [getEnv({ name: 'GOOGLE_CLIENT_ID' }), getEnv({ name: 'GOOGLE_CLIENT_SECRET' })],
-  };
+  switch (kind) {
+    case 'gmail': {
+      return [getEnv({ name: 'GOOGLE_CLIENT_ID' }), getEnv({ name: 'GOOGLE_CLIENT_SECRET' })];
+    }
+    case 'office365': {
+      return [getEnv({ name: 'MICROSOFT_CLIENT_ID' }), getEnv({ name: 'MICROSOFT_CLIENT_SECRET' })];
+    }
+  }
+};
 
-  return providers[kind];
+const getProviderSettings = (kind: string, refreshToken: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  const [clientId, clientSecret] = getClientConfig(kind);
+
+  switch (kind) {
+    case 'gmail':
+      return {
+        google_client_id: clientId,
+        google_client_secret: clientSecret,
+        google_refresh_token: refreshToken,
+      };
+    case 'office365':
+      return {
+        microsoft_client_id: clientId,
+        microsoft_client_secret: clientSecret,
+        microsoft_refresh_token: refreshToken,
+        redirect_uri: `${DOMAIN}/nylas/oauth2/callback`,
+      };
+  }
 };
 
 /**
@@ -95,21 +127,35 @@ const getClientConfig = (kind: string): string[] => {
  * @param {String} kind
  * @returns {Object} configs
  */
-const getProviderSettings = (kind: string) => {
-  const gmail = {
-    params: {
-      access_type: 'offline',
-      scope: GOOGLE_SCOPES,
-    },
-    urls: {
-      authUrl: GOOGLE_OAUTH_AUTH_URL,
-      tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL,
-    },
-  };
-
-  const providers = { gmail };
-
-  return providers[kind];
+const getProviderConfigs = (kind: string) => {
+  switch (kind) {
+    case 'gmail': {
+      return {
+        params: {
+          access_type: 'offline',
+          scope: GOOGLE_SCOPES,
+        },
+        urls: {
+          authUrl: GOOGLE_OAUTH_AUTH_URL,
+          tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL,
+        },
+      };
+    }
+    case 'office365': {
+      return {
+        params: {
+          scope: MICROSOFT_SCOPES,
+        },
+        urls: {
+          authUrl: MICROSOFT_OAUTH_AUTH_URL,
+          tokenUrl: MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
+        },
+        otherParams: {
+          headerType: 'application/x-www-form-urlencoded',
+        },
+      };
+    }
+  }
 };
 
 /**
@@ -203,12 +249,13 @@ const decryptPassword = (password: string): string => {
 export {
   setNylasToken,
   nylasSendMessage,
-  getProviderSettings,
-  getClientConfig,
+  getProviderConfigs,
   nylasRequest,
   checkCredentials,
   buildEmailAddress,
   verifyNylasSignature,
   encryptPassword,
   decryptPassword,
+  getProviderSettings,
+  getClientConfig,
 };
