@@ -116,6 +116,8 @@ class ManageIntegrations extends React.Component<Props, State> {
       type = 'twitter';
     } else if (kind === KIND_CHOICES.NYLAS_IMAP) {
       type = 'nylas-imap';
+    } else if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
+      type = 'nylas-office365';
     }
 
     return type;
@@ -142,6 +144,8 @@ class ManageIntegrations extends React.Component<Props, State> {
     } else if (kind === KIND_CHOICES.NYLAS_GMAIL) {
       icon = 'mail-alt';
     } else if (kind === KIND_CHOICES.NYLAS_IMAP) {
+      icon = 'mail-alt';
+    } else if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
       icon = 'mail-alt';
     }
 
