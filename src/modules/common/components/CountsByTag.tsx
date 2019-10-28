@@ -15,7 +15,7 @@ interface IProps extends IRouterProps {
   counts: any;
   manageUrl: string;
   loading: boolean;
-  isOpen: boolean;
+  isOpen?: boolean;
 }
 
 function CountsByTag({
@@ -50,7 +50,7 @@ function CountsByTag({
     <Box
       extraButtons={extraButtons}
       title={__('Filter by tags')}
-      isOpen={false}
+      isOpen={isOpen || false}
     >
       <Section collapsible={tags.length > 5}>
         <FilterByParams

@@ -1,7 +1,7 @@
 import Box from 'modules/common/components/Box';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
-import { __, Alert } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { SidebarContent } from '../styles';
