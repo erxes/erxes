@@ -78,17 +78,14 @@ class TaggerSection extends React.Component<Props, State> {
       >
         <Section>
           <Collapse in={this.state.isTaggerVisible}>
-            <div>
-              <Tagger
-                type={type}
-                targets={[data]}
-                className="sidebar-accordion"
-                event="onClick"
-                refetchQueries={refetchQueries}
-              />
-            </div>
+            <Tagger
+              type={type}
+              targets={[data]}
+              className="sidebar-accordion"
+              event="onClick"
+              refetchQueries={refetchQueries}
+            />
           </Collapse>
-
           {this.renderTags(tags)}
         </Section>
       </Box>

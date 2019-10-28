@@ -227,11 +227,9 @@ class Index extends React.Component<IndexProps, IndexState> {
             <ConversationDetails conversation={conversation} />
           </Box>
           <TaggerSection
-            isOpen={config.showTags}
             data={customer}
             type="customer"
             refetchQueries={taggerRefetchQueries}
-            toggle={toggleSection}
           />
           <Box
             title={__('Contact information')}
