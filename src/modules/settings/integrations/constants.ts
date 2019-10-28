@@ -218,7 +218,7 @@ export const INTEGRATIONS = [
     ]
   },
   {
-    name: 'row-2',
+    name: 'row-3',
     rows: [
       {
         name: 'Knowledge Base',
@@ -228,12 +228,7 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/knowledge-base.png',
         createModal: 'knowledgeBase',
         createUrl: '/settings/integrations/knowledgeBase'
-      }
-    ]
-  },
-  {
-    name: 'row-3',
-    rows: [
+      },
       {
         name: 'Engage config',
         description:
@@ -258,7 +253,12 @@ export const INTEGRATIONS = [
         kind: 'twitter-dm',
         logo: '/images/integrations/twitter.png',
         createModal: 'twitter'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-4',
+    rows: [
       {
         name: 'Chatfuel',
         description: 'Connect your chatfuel account',
@@ -271,7 +271,7 @@ export const INTEGRATIONS = [
   },
   {
     title: 'Coming soon',
-    name: 'row-4',
+    name: 'row-5',
     rows: [
       {
         name: 'Viber',
