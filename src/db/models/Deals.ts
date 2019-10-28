@@ -49,7 +49,9 @@ export const loadDealClass = () => {
      * Update Deal
      */
     public static async updateDeal(_id: string, doc: IDeal) {
-      await Deals.updateOne({ _id }, { $set: doc, searchText: fillSearchTextItem(doc) });
+      const searchText = fillSearchTextItem(doc, await Deals.getDeal(_id));
+
+      await Deals.updateOne({ _id }, { $set: doc, searchText });
 
       return Deals.findOne({ _id });
     }

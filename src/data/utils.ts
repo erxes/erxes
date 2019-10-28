@@ -813,6 +813,16 @@ export default {
   createTransporter,
 };
 
+export const validSearchText = (values: string[]) => {
+  const value = values.join(' ');
+
+  if (value.length < 512) {
+    return value;
+  }
+
+  return value.substring(0, 511);
+};
+
 const stringToRegex = (value: string) => {
   const specialChars = [...'{}[]\\^$.|?*+()'];
 

@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
 import { STATUSES } from './definitions/constants';
@@ -69,17 +70,15 @@ export const loadClass = () => {
     }
 
     public static fillSearchText(doc: ICompany) {
-      return [
-        doc.primaryName || '',
-        doc.primaryEmail || '',
-        doc.primaryPhone || '',
-        doc.website || '',
-        doc.industry || '',
-        doc.plan || '',
+      return validSearchText([
         (doc.names || []).join(' '),
         (doc.emails || []).join(' '),
         (doc.phones || []).join(' '),
-      ].join(' ');
+        doc.website || '',
+        doc.industry || '',
+        doc.plan || '',
+        doc.description || '',
+      ]);
     }
 
     /**
@@ -134,10 +133,9 @@ export const loadClass = () => {
         doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
       }
 
-      await Companies.updateOne(
-        { _id },
-        { $set: { ...doc, searchText: Companies.fillSearchText(doc), modifiedAt: new Date() } },
-      );
+      const searchText = Companies.fillSearchText(Object.assign(await Companies.getCompany(_id), doc) as ICompany);
+
+      await Companies.updateOne({ _id }, { $set: { ...doc, searchText, modifiedAt: new Date() } });
 
       return Companies.findOne({ _id });
     }
