@@ -1,4 +1,5 @@
 import * as request from 'request-promise';
+import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
 
 interface IRequestParams {
@@ -65,6 +66,15 @@ export const sendRequest = ({ url, method, body, params }: IRequestParams): Prom
         }
       });
   });
+};
+
+/**
+ * Clean html and css
+ * @param {String} body
+ * @returns {String} striped text
+ */
+export const cleanHtml = (body: string) => {
+  return sanitizeHtml(body || '').replace(/^(.{20}[^\s]*).*/, '$1');
 };
 
 /**

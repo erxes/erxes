@@ -1,4 +1,4 @@
-import { fetchMainApi } from '../utils';
+import { cleanHtml, fetchMainApi } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 import { buildEmail } from './util';
 
@@ -158,7 +158,7 @@ const createOrGetConversationMessage = async (args: {
           payload: JSON.stringify({
             conversationId: erxesApiId,
             customerId: customerErxesApiId,
-            content: doc.subject,
+            content: cleanHtml(doc.body),
           }),
         },
       });

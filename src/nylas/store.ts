@@ -1,6 +1,6 @@
 import { debugNylas } from '../debuggers';
 import { Accounts } from '../models';
-import { fetchMainApi } from '../utils';
+import { cleanHtml, fetchMainApi } from '../utils';
 import { checkConcurrentError } from '../utils';
 import {
   NylasGmailConversationMessages,
@@ -196,8 +196,8 @@ const createOrGetNylasConversationMessage = async ({
   // fields to save on api
   const api = {
     customerId,
-    content: message.subject,
     conversationId: erxesApiId,
+    content: cleanHtml(message.body),
   };
 
   const conversationMessage = await getOrCreate({

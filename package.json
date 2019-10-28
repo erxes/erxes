@@ -53,7 +53,8 @@
     "nylas": "^4.7.0",
     "querystring": "^0.2.0",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "request-promise": "^4.2.4",
+    "sanitize-html": "^1.20.1"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"
