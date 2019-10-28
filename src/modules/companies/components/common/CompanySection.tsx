@@ -119,7 +119,7 @@ function Component(
     <Box
       title={__('Companies')}
       name="showCompanies"
-      isOpen={isOpen || false}
+      isOpen={isOpen || true}
       extraButtons={extraButtons}
       toggle={toggle}
     >

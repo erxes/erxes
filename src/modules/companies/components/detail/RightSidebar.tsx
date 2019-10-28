@@ -41,7 +41,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableTickets mainType="company" mainTypeId={company._id} />
         <PortableTasks mainType="company" mainTypeId={company._id} />
 
-        <Box title={__('Other')} isOpen={isOpen || true}>
+        <Box title={__('Other')} isOpen={isOpen || false}>
           <Section>
             <List>
               <li>

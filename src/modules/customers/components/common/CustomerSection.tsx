@@ -124,7 +124,7 @@ function Component({
   );
 
   return (
-    <Box title={__('Customers')} isOpen={false} extraButtons={extraButtons}>
+    <Box title={__('Customers')} isOpen={true} extraButtons={extraButtons}>
       <Section>{renderBody(items)}</Section>
     </Box>
   );
