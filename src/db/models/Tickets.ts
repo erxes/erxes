@@ -52,7 +52,9 @@ export const loadTicketClass = () => {
      * Update Ticket
      */
     public static async updateTicket(_id: string, doc: ITicket) {
-      await Tickets.updateOne({ _id }, { $set: doc, searchText: fillSearchTextItem(doc) });
+      const searchText = fillSearchTextItem(doc, await Tickets.getTicket(_id));
+
+      await Tickets.updateOne({ _id }, { $set: doc, searchText });
 
       return Tickets.findOne({ _id });
     }
