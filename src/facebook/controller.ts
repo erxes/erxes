@@ -52,6 +52,7 @@ const init = async app => {
           body: {
             domain: DOMAIN,
             facebookPageIds,
+            fbPageIds: facebookPageIds,
           },
         });
       } catch (e) {
