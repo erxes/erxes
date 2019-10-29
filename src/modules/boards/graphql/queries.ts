@@ -1,9 +1,8 @@
 const pipelineLabels = `
-  query pipelineLabels($type: String!, $pipelineId: String!) {
-    pipelineLabels(type: $type, pipelineId: $pipelineId) {
+  query pipelineLabels($pipelineId: String!) {
+    pipelineLabels(pipelineId: $pipelineId) {
       _id
       name
-      type
       colorCode
       pipelineId
       createdBy
@@ -17,7 +16,6 @@ const pipelineLabelDetail = `
     pipelineLabelDetail(_id: $_id) {
       _id
       name
-      type
       colorCode
       pipelineId
       createdBy

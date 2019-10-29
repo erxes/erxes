@@ -71,9 +71,7 @@ export const ticketFields = `
   labels {
     _id
     name
-    type
     colorCode
-    pipelineId
   }
   labelIds
   stage {

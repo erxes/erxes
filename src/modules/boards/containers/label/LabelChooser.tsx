@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import {
   IItem,
-  IOptions,
   IPipelineLabel,
   PipelineLabelsQueryResponse
 } from 'modules/boards/types';
@@ -18,7 +17,6 @@ import {
 
 type Props = {
   item: IItem;
-  options: IOptions;
   onSelect?: (labels: IPipelineLabel[]) => void;
 };
 
@@ -49,7 +47,6 @@ class LabelChooserContainer extends React.Component<
     const {
       pipelineLabelsQuery,
       pipelineLabelMutation,
-      options,
       item,
       onSelect
     } = this.props;
@@ -58,12 +55,12 @@ class LabelChooserContainer extends React.Component<
       return <Spinner objective={true} />;
     }
 
-    const type = options.type;
+    const pipelineId = item.pipeline._id;
     const labels = pipelineLabelsQuery.pipelineLabels || [];
 
     const doLabel = (selectedLabelIds: string[]) => {
       const variables = {
-        type,
+        pipelineId,
         targetId: item._id,
         labelIds: selectedLabelIds
       };
@@ -82,7 +79,6 @@ class LabelChooserContainer extends React.Component<
     };
 
     const updatedProps = {
-      type,
       pipelineId: item.pipeline._id,
       selectedLabelIds: item.labelIds,
       labels,
@@ -104,19 +100,17 @@ export default withProps<Props>(
     >(gql(mutations.pipelineLabelsLabel), {
       name: 'pipelineLabelMutation'
     }),
-    graphql<
-      Props,
-      PipelineLabelsQueryResponse,
-      { type: string; pipelineId: string }
-    >(gql(queries.pipelineLabels), {
-      name: 'pipelineLabelsQuery',
-      options: ({ options, item }) => ({
-        variables: {
-          type: options.type,
-          pipelineId: item.pipeline._id
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
+    graphql<Props, PipelineLabelsQueryResponse, { pipelineId: string }>(
+      gql(queries.pipelineLabels),
+      {
+        name: 'pipelineLabelsQuery',
+        options: ({ item }) => ({
+          variables: {
+            pipelineId: item.pipeline._id
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
   )(LabelChooserContainer)
 );
