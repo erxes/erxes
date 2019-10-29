@@ -5,8 +5,8 @@ const pipelineLabelQueries = {
   /**
    *  Pipeline label list
    */
-  pipelineLabels(_root, { type, pipelineId }: { type: string; pipelineId: string }) {
-    return PipelineLabels.find({ type, pipelineId });
+  pipelineLabels(_root, { pipelineId }: { pipelineId: string }) {
+    return PipelineLabels.find({ pipelineId });
   },
 
   /**

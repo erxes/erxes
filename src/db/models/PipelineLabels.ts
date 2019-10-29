@@ -1,9 +1,7 @@
 import { Model, model } from 'mongoose';
-import { GrowthHacks, Tasks } from '.';
-import Deals from './Deals';
-import { BOARD_TYPES } from './definitions/constants';
+import { Pipelines } from '.';
+import { getCollection } from './boardUtils';
 import { IPipelineLabel, IPipelineLabelDocument, pipelineLabelSchema } from './definitions/pipelineLabels';
-import Tickets from './Tickets';
 
 interface IFilter extends IPipelineLabel {
   _id?: any;
@@ -13,17 +11,15 @@ interface ILabelObjectParams {
   labelIds: string[];
   targetId: string;
   collection: any;
-  type: string;
 }
 
 export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
   createPipelineLabel(doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
   updatePipelineLabel(_id: string, doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
   removePipelineLabel(_id: string): void;
-  labelsLabel(type: string, targetId: string, labelIds: string[]): void;
+  labelsLabel(pipelineId: string, targetId: string, labelIds: string[]): void;
   validateUniqueness(filter: IFilter, _id?: string): Promise<boolean>;
   labelObject(params: ILabelObjectParams): void;
-  getCollection(type: string): any;
 }
 
 export const loadPipelineLabelClass = () => {
@@ -47,10 +43,9 @@ export const loadPipelineLabelClass = () => {
      * Common helper for objects like deal, task, ticket and growth hack etc ...
      */
 
-    public static async labelObject({ labelIds, targetId, collection, type }: ILabelObjectParams) {
+    public static async labelObject({ labelIds, targetId, collection }: ILabelObjectParams) {
       const prevLabelsCount = await PipelineLabels.find({
         _id: { $in: labelIds },
-        type,
       }).countDocuments();
 
       if (prevLabelsCount !== labelIds.length) {
@@ -60,42 +55,12 @@ export const loadPipelineLabelClass = () => {
       await collection.updateMany({ _id: targetId }, { $set: { labelIds } }, { multi: true });
     }
 
-    public static getCollection(type: string) {
-      let collection;
-
-      switch (type) {
-        case BOARD_TYPES.DEAL: {
-          collection = Deals;
-
-          break;
-        }
-        case BOARD_TYPES.GROWTH_HACK: {
-          collection = GrowthHacks;
-
-          break;
-        }
-        case BOARD_TYPES.TASK: {
-          collection = Tasks;
-
-          break;
-        }
-        case BOARD_TYPES.TICKET: {
-          collection = Tickets;
-
-          break;
-        }
-      }
-
-      return collection;
-    }
-
     /**
      * Create a pipeline label
      */
     public static async createPipelineLabel(doc: IPipelineLabel) {
       const filter: IFilter = {
         name: doc.name,
-        type: doc.type,
         pipelineId: doc.pipelineId,
         colorCode: doc.colorCode,
       };
@@ -134,7 +99,9 @@ export const loadPipelineLabelClass = () => {
         throw new Error('Label not found');
       }
 
-      const collection = PipelineLabels.getCollection(pipelineLabel.type);
+      const pipeline = await Pipelines.getPipeline(pipelineLabel.pipelineId);
+
+      const collection = getCollection(pipeline.type);
 
       // delete labelId from collection that used labelId
       await collection.updateMany(
@@ -148,14 +115,15 @@ export const loadPipelineLabelClass = () => {
     /**
      * Attach a label
      */
-    public static async labelsLabel(type: string, targetId: string, labelIds: string[]) {
-      const collection = PipelineLabels.getCollection(type);
+    public static async labelsLabel(pipelineId: string, targetId: string, labelIds: string[]) {
+      const pipeline = await Pipelines.getPipeline(pipelineId);
+
+      const collection = getCollection(pipeline.type);
 
       await PipelineLabels.labelObject({
         labelIds,
         targetId,
         collection,
-        type,
       });
     }
   }

@@ -2,7 +2,6 @@ import { graphqlRequest } from '../db/connection';
 import { pipelineFactory, pipelineLabelFactory } from '../db/factories';
 import { PipelineLabels } from '../db/models';
 
-import { BOARD_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('pipelineLabelQueries', () => {
@@ -12,23 +11,21 @@ describe('pipelineLabelQueries', () => {
   });
 
   test('Pipeline labels', async () => {
-    const type = BOARD_TYPES.GROWTH_HACK;
     const pipeline = await pipelineFactory();
     const pipelineId = pipeline._id;
 
-    const args = { type, pipelineId };
+    const args = { pipelineId };
 
-    await pipelineLabelFactory({ type, pipelineId });
-    await pipelineLabelFactory({ type, pipelineId });
-    await pipelineLabelFactory({ type, pipelineId });
+    await pipelineLabelFactory({ pipelineId });
+    await pipelineLabelFactory({ pipelineId });
+    await pipelineLabelFactory({ pipelineId });
 
     const qry = `
-      query pipelineLabels($type: String!, $pipelineId: String!) {
-        pipelineLabels(type: $type, pipelineId: $pipelineId) {
+      query pipelineLabels($pipelineId: String!) {
+        pipelineLabels(pipelineId: $pipelineId) {
           _id
           name
           pipelineId
-          type
           colorCode
         }
       }

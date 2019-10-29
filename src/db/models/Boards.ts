@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
-import { Deals, GrowthHacks, Tasks, Tickets } from './';
-import { updateOrder, watchItem } from './boardUtils';
+import { getCollection, updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
   IBoard,
@@ -23,20 +22,17 @@ export interface IOrderInput {
 type IPipelineStage = IStage & { _id: string };
 
 const hasItem = async (type: string, pipelineId: string, prevItemIds: string[] = []) => {
-  const ITEMS = {
-    deal: Deals,
-    ticket: Tickets,
-    task: Tasks,
-    growthHack: GrowthHacks,
-  };
-
   const stages = await Stages.find({ pipelineId, _id: { $nin: prevItemIds } });
 
-  for (const stage of stages) {
-    const itemCount = await ITEMS[type].find({ stageId: stage._id }).countDocuments();
+  const collection = getCollection(type);
 
-    if (itemCount > 0) {
-      throw new Error('There is a stage that has a item');
+  if (collection) {
+    for (const stage of stages) {
+      const itemCount = await collection.find({ stageId: stage._id }).countDocuments();
+
+      if (itemCount > 0) {
+        throw new Error('There is a stage that has a item');
+      }
     }
   }
 };

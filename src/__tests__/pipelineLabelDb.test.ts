@@ -3,6 +3,7 @@ import { Deals, PipelineLabels, Pipelines } from '../db/models';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 
 import { IPipelineDocument } from '../db/models/definitions/boards';
+import { BOARD_TYPES } from '../db/models/definitions/constants';
 import { IUserDocument } from '../db/models/definitions/users';
 import './setup.ts';
 
@@ -10,13 +11,17 @@ describe('Test pipeline label model', () => {
   let pipelineLabel: IPipelineLabelDocument;
   let duplicatedPipelineLabel: IPipelineLabelDocument;
   let pipeline: IPipelineDocument;
+  let duplicatedPipeline: IPipelineDocument;
   let user: IUserDocument;
 
   beforeEach(async () => {
     // Creating test data
-    pipeline = await pipelineFactory();
-    pipelineLabel = await pipelineLabelFactory();
-    duplicatedPipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id });
+    pipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL });
+    duplicatedPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL });
+
+    pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id });
+    duplicatedPipelineLabel = await pipelineLabelFactory({ pipelineId: duplicatedPipeline._id });
+
     user = await userFactory();
   });
 
@@ -28,37 +33,35 @@ describe('Test pipeline label model', () => {
 
   // Create pipeline label
   test('Create pipeline label', async () => {
+    const name = 'Name';
+    const colorCode = 'colorCode';
+
     const created = await PipelineLabels.createPipelineLabel({
-      name: pipelineLabel.name,
-      type: pipelineLabel.type,
-      colorCode: pipelineLabel.colorCode,
+      name,
+      colorCode,
       pipelineId: pipeline._id,
       createdBy: user._id,
     });
 
     expect(created).toBeDefined();
-    expect(created.name).toEqual(pipelineLabel.name);
-    expect(created.type).toEqual(pipelineLabel.type);
-    expect(created.colorCode).toEqual(pipelineLabel.colorCode);
+    expect(created.name).toEqual(name);
+    expect(created.colorCode).toEqual(colorCode);
     expect(created.pipelineId).toEqual(pipeline._id);
   });
 
   test('Update pipeline label', async () => {
     const name = 'Updated name';
     const colorCode = 'Updated colorCode';
-    const type = 'Updated type';
     const pipelineId = 'Updated pipelineId';
 
     const updated = await PipelineLabels.updatePipelineLabel(pipelineLabel._id, {
       name,
       colorCode,
-      type,
       pipelineId,
     });
 
     expect(updated).toBeDefined();
     expect(updated.name).toEqual(name);
-    expect(updated.type).toEqual(type);
     expect(updated.colorCode).toEqual(colorCode);
     expect(updated.pipelineId).toEqual(pipelineId);
   });
@@ -68,9 +71,8 @@ describe('Test pipeline label model', () => {
     try {
       await PipelineLabels.createPipelineLabel({
         name: duplicatedPipelineLabel.name,
-        type: duplicatedPipelineLabel.type,
         colorCode: duplicatedPipelineLabel.colorCode,
-        pipelineId: pipeline._id,
+        pipelineId: duplicatedPipeline._id,
         createdBy: user._id,
       });
     } catch (e) {
@@ -106,8 +108,6 @@ describe('Test pipeline label model', () => {
   });
 
   test('Pipeline labels label', async () => {
-    const type = 'deal';
-
     const deal = await dealFactory();
 
     const targetId = deal._id;
@@ -117,16 +117,14 @@ describe('Test pipeline label model', () => {
     const labelIds = [pipelineLabel._id, pipelineLabelTwo._id];
 
     // add label to specific object
-    await PipelineLabels.labelsLabel(type, targetId, labelIds);
+    await PipelineLabels.labelsLabel(pipeline._id, targetId, labelIds);
 
-    const obj = await Deals.findOne({ _id: deal._id });
+    const obj = await Deals.getDeal(deal._id);
 
-    if (!obj || !obj.labelIds) {
-      throw new Error('Deal not found');
-    }
+    const updatedLabelIds = obj.labelIds || [];
 
-    expect(obj.labelIds[0]).toEqual(pipelineLabel.id);
-    expect(obj.labelIds[1]).toEqual(pipelineLabelTwo.id);
-    expect(obj.labelIds.length).toEqual(2);
+    expect(updatedLabelIds[0]).toEqual(pipelineLabel.id);
+    expect(updatedLabelIds[1]).toEqual(pipelineLabelTwo.id);
+    expect(updatedLabelIds.length).toEqual(2);
   });
 });

@@ -229,7 +229,6 @@ export const pipelineTemplateFactory = (params: ITemplateInput = {}) => {
 
 interface ILabelInput {
   name?: string;
-  type?: string;
   colorCode?: string;
   pipelineId?: string;
 }
@@ -237,7 +236,6 @@ interface ILabelInput {
 export const pipelineLabelFactory = (params: ILabelInput = {}) => {
   const pipelineLabel = new PipelineLabels({
     name: params.name || faker.random.word(),
-    type: params.type || BOARD_TYPES.DEAL,
     colorCode: params.colorCode || faker.random.word(),
     pipelineId: params.pipelineId || faker.random.word(),
   });

@@ -1,4 +1,6 @@
+import { Deals, GrowthHacks, Tasks, Tickets } from '.';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
+import { BOARD_TYPES } from './definitions/constants';
 
 export const updateOrder = async (collection: any, orders: IOrderInput[], stageId?: string) => {
   if (orders.length === 0) {
@@ -57,4 +59,33 @@ export const watchItem = async (collection: any, _id: string, isAdd: boolean, us
 
 export const fillSearchTextItem = (doc: IItemCommonFields) => {
   return [doc.name || '', doc.description || ''].join(' ');
+};
+
+export const getCollection = (type: string) => {
+  let collection;
+
+  switch (type) {
+    case BOARD_TYPES.DEAL: {
+      collection = Deals;
+
+      break;
+    }
+    case BOARD_TYPES.GROWTH_HACK: {
+      collection = GrowthHacks;
+
+      break;
+    }
+    case BOARD_TYPES.TASK: {
+      collection = Tasks;
+
+      break;
+    }
+    case BOARD_TYPES.TICKET: {
+      collection = Tickets;
+
+      break;
+    }
+  }
+
+  return collection;
 };

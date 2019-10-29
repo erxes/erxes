@@ -1,9 +1,8 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { pipelineLabelFactory } from '../db/factories';
+import { pipelineFactory, pipelineLabelFactory } from '../db/factories';
 import { PipelineLabels } from '../db/models';
 
-import { BOARD_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 /*
@@ -15,39 +14,36 @@ describe('PipelineLabels mutations', () => {
 
   const commonParamDefs = `
     $name: String!
-    $type: String!
     $pipelineId: String!
     $colorCode: String!
   `;
 
   const commonParams = `
     name: $name
-    type: $type
     pipelineId: $pipelineId
     colorCode: $colorCode
   `;
 
   const commonReturn = `
     name
-    type
     pipelineId
     colorCode
   `;
 
   const args = {
     name: faker.name.findName(),
-    type: BOARD_TYPES.DEAL,
     pipelineId: faker.random.word(),
     colorCode: faker.random.word(),
   };
 
   beforeEach(async () => {
-    // Creating test data
-    pipelineLabel = await pipelineLabelFactory();
+    const pipeline = await pipelineFactory();
+    pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id });
   });
 
   afterEach(async () => {
     // Clearing test data
+    await PipelineLabels.deleteMany({});
     await PipelineLabels.deleteMany({});
   });
 
@@ -65,7 +61,6 @@ describe('PipelineLabels mutations', () => {
     expect(created.name).toBe(args.name);
     expect(created.pipelineId).toBe(args.pipelineId);
     expect(created.colorCode).toBe(args.colorCode);
-    expect(created.type).toBe(args.type);
   });
 
   test('Edit pipelineLabel', async () => {
@@ -82,7 +77,6 @@ describe('PipelineLabels mutations', () => {
 
     expect(edited._id).toBe(pipelineLabel._id);
     expect(edited.name).toBe(args.name);
-    expect(edited.type).toBe(args.type);
     expect(edited.colorCode).toBe(args.colorCode);
     expect(edited.pipelineId).toBe(args.pipelineId);
   });

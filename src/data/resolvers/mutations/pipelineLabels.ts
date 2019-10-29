@@ -75,8 +75,11 @@ const pipelineLabelMutations = {
   /**
    * Attach a label
    */
-  pipelineLabelsLabel(_root, { type, targetId, labelIds }: { type: string; targetId: string; labelIds: string[] }) {
-    return PipelineLabels.labelsLabel(type, targetId, labelIds);
+  pipelineLabelsLabel(
+    _root,
+    { pipelineId, targetId, labelIds }: { pipelineId: string; targetId: string; labelIds: string[] },
+  ) {
+    return PipelineLabels.labelsLabel(pipelineId, targetId, labelIds);
   },
 };
 
