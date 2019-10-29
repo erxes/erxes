@@ -37,6 +37,7 @@ describe('PipelineLabels mutations', () => {
   };
 
   beforeEach(async () => {
+    // Creating test data
     const pipeline = await pipelineFactory();
     pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id });
   });
