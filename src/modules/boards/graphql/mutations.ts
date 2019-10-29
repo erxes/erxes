@@ -16,7 +16,7 @@ const pipelinesWatch = `
 `;
 
 const pipelineLabelsAdd = `
-  mutation pipelineLabelsAdd($name: String!, $type: String!, $colorCode: String!, $pipelineId: String!) {
+  mutation pipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
     pipelineLabelsAdd(name: $name, colorCode: $colorCode, type: $type, pipelineId: $pipelineId) {
       _id
     }
@@ -24,8 +24,8 @@ const pipelineLabelsAdd = `
 `;
 
 const pipelineLabelsEdit = `
-  mutation pipelineLabelsEdit($_id: String!, $name: String!, $type: String!, $colorCode: String!, $pipelineId: String!) {
-    pipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, type: $type, pipelineId: $pipelineId) {
+  mutation pipelineLabelsEdit($_id: String!, $name: String!, $colorCode: String!, $pipelineId: String!) {
+    pipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
       _id
     }
   }
@@ -38,8 +38,8 @@ const pipelineLabelsRemove = `
 `;
 
 const pipelineLabelsLabel = `
-  mutation pipelineLabelsLabel($type: String!, $targetId: String!, $labelIds: [String!]!) {
-    pipelineLabelsLabel(type: $type, targetId: $targetId, labelIds: $labelIds)
+  mutation pipelineLabelsLabel($pipelineId: String!, $targetId: String!, $labelIds: [String!]!) {
+    pipelineLabelsLabel(pipelineId: $pipelineId, targetId: $targetId, labelIds: $labelIds)
   }
 `;
 

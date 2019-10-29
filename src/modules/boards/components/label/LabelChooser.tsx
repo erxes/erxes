@@ -10,7 +10,6 @@ type Props = {
   pipelineId: string;
   selectedLabelIds: string[];
   labels: IPipelineLabel[];
-  type: string;
   doLabel: (labelIds: string[]) => void;
   isConfirmVisible: boolean;
   toggleConfirm: (callback?: () => void) => void;
@@ -46,7 +45,7 @@ class ChooseLabel extends React.Component<
   };
 
   renderOverlay() {
-    const { labels, type, toggleConfirm, pipelineId } = this.props;
+    const { labels, toggleConfirm, pipelineId } = this.props;
     const { selectedLabelIds } = this.state;
 
     const props = {
@@ -54,7 +53,6 @@ class ChooseLabel extends React.Component<
       selectedLabelIds,
       labels,
       toggleConfirm,
-      type,
       onClose: this.onOverlayClose,
       onSelectLabels: this.onSelectLabels
     };

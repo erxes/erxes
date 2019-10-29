@@ -68,9 +68,7 @@ export const dealFields = `
   labels {
     _id
     name
-    type
     colorCode
-    pipelineId
   }
   labelIds
   stage {

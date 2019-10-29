@@ -102,7 +102,6 @@ export interface IStage {
 export interface IPipelineLabel {
   _id?: string;
   name: string;
-  type?: string;
   colorCode: string;
   pipelineId?: string;
   createdBy?: string;
@@ -111,7 +110,6 @@ export interface IPipelineLabel {
 
 export interface IPipelineLabelVariables {
   name: string;
-  type: string;
   colorCode: string;
   pipelineId: string;
 }
@@ -271,7 +269,7 @@ export type RemovePipelineLabelMutationResponse = {
 };
 
 export type PipelineLabelMutationVariables = {
-  type: string;
+  pipelineId: string;
   targetId: string;
   labelIds: string[];
 };

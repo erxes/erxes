@@ -66,9 +66,7 @@ export const taskFields = `
   labels {
     _id
     name
-    type
     colorCode
-    pipelineId
   }
   labelIds
   stage {
