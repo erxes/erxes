@@ -29,7 +29,7 @@ function ProductSection({
   saveProductsData
 }: Props) {
   const { Section } = Sidebar;
-  const { Title, QuickButtons } = Section;
+  const { QuickButtons } = Section;
 
   const content = props => (
     <ProductForm
@@ -68,23 +68,28 @@ function ProductSection({
 
     return <ProductName>{product.name}</ProductName>;
   };
+  const extraButtons = (
+    <QuickButtons isSidebarOpen={isOpen}>
+      <ModalTrigger
+        title="New Product & Service"
+        size="lg"
+        trigger={
+          <button>
+            <Icon icon="add" />
+          </button>
+        }
+        content={content}
+      />
+    </QuickButtons>
+  );
 
   return (
-    <Box title={__('Product & Service')} isOpen={false}>
+    <Box
+      title={__('Product & Service')}
+      isOpen={false}
+      extraButtons={extraButtons}
+    >
       <Section>
-        <Title>{__('Product & Service')}</Title>
-        <QuickButtons isSidebarOpen={isOpen}>
-          <ModalTrigger
-            title="New Product & Service"
-            size="lg"
-            trigger={
-              <button>
-                <Icon icon="add" />
-              </button>
-            }
-            content={content}
-          />
-        </QuickButtons>
         <SectionBody>
           {products.map((product, index) => (
             <SectionBodyItem key={index}>
