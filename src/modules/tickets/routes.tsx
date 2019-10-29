@@ -19,7 +19,7 @@ const tickets = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    link = `/inbox/ticket/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    link = `/inbox/ticket/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}&type=ticket`;
   }
 
   return <Redirect to={link} />;

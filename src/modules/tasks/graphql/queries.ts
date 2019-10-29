@@ -13,6 +13,7 @@ const commonParams = `
   $noCloseDate: String,
   $overdue: String,
   $priority: [String],
+  $labelIds: [String],
   ${conformityQueryFields}
 `;
 
@@ -26,6 +27,7 @@ const commonParamDefs = `
   noCloseDate: $noCloseDate,
   overdue: $overdue,
   priority: $priority,
+  labelIds: $labelIds,
   ${conformityQueryFieldDefs}
 `;
 
