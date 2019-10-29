@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { validateEmail } from '../../data/utils';
+import { validateEmail, validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
 import { STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
@@ -207,12 +207,10 @@ export const loadClass = () => {
 
       if (customer.primaryEmail && !nullValues.includes(customer.primaryEmail || '')) {
         score += 15;
-        searchText = searchText.concat(' ', customer.primaryEmail);
       }
 
       if (customer.primaryPhone && !nullValues.includes(customer.primaryPhone || '')) {
         score += 10;
-        searchText = searchText.concat(' ', customer.primaryPhone);
       }
 
       if (customer.visitorContactInfo != null) {
@@ -224,6 +222,8 @@ export const loadClass = () => {
           customer.visitorContactInfo.phone || '',
         );
       }
+
+      searchText = validSearchText([searchText]);
 
       if (!save) {
         return {

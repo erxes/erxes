@@ -50,7 +50,9 @@ export const loadGrowthHackClass = () => {
      * Update growth hack
      */
     public static async updateGrowthHack(_id: string, doc: IGrowthHack) {
-      await GrowthHacks.updateOne({ _id }, { $set: doc, searchText: fillSearchTextItem(doc) });
+      const searchText = fillSearchTextItem(doc, await GrowthHacks.getGrowthHack(_id));
+
+      await GrowthHacks.updateOne({ _id }, { $set: doc, searchText });
 
       return GrowthHacks.findOne({ _id });
     }

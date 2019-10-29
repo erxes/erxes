@@ -1,4 +1,5 @@
 import { Deals, GrowthHacks, Tasks, Tickets } from '.';
+import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_TYPES } from './definitions/constants';
 
@@ -57,8 +58,11 @@ export const watchItem = async (collection: any, _id: string, isAdd: boolean, us
   return collection.findOne({ _id });
 };
 
-export const fillSearchTextItem = (doc: IItemCommonFields) => {
-  return [doc.name || '', doc.description || ''].join(' ');
+export const fillSearchTextItem = (doc: IItemCommonFields, item?: IItemCommonFields) => {
+  const document = item || {};
+  Object.assign(document, doc);
+
+  return validSearchText([document.name || '', document.description || '']);
 };
 
 export const getCollection = (type: string) => {

@@ -1,3 +1,4 @@
+import { validSearchText } from '../data/utils';
 import { connect } from '../db/connection';
 import { Companies, Customers, Deals, GrowthHacks, Tasks, Tickets } from '../db/models';
 import { fillSearchTextItem } from '../db/models/boardUtils';
@@ -17,30 +18,32 @@ module.exports.up = async () => {
   };
 
   const fillSearchTextCustomer = (doc: ICustomer) => {
-    return [
+    return validSearchText([
       doc.firstName || '',
       doc.lastName || '',
-      doc.primaryEmail || '',
-      doc.primaryPhone || '',
       (doc.emails || []).join(' '),
       (doc.phones || []).join(' '),
       doc.visitorContactInfo
         ? (doc.visitorContactInfo.email || '').concat(' ', doc.visitorContactInfo.phone || '')
         : '',
-    ].join(' ');
+    ]);
+  };
+
+  const itemsFillSearchText = (item: any) => {
+    return fillSearchTextItem({}, item);
   };
 
   await executer(Customers, fillSearchTextCustomer);
 
   await executer(Companies, Companies.fillSearchText);
 
-  await executer(Deals, fillSearchTextItem);
+  await executer(Deals, itemsFillSearchText);
 
-  await executer(Tasks, fillSearchTextItem);
+  await executer(Tasks, itemsFillSearchText);
 
-  await executer(Tickets, fillSearchTextItem);
+  await executer(Tickets, itemsFillSearchText);
 
-  await executer(GrowthHacks, fillSearchTextItem);
+  await executer(GrowthHacks, itemsFillSearchText);
 
   return Promise.resolve('ok');
 };

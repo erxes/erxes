@@ -52,7 +52,9 @@ export const loadTaskClass = () => {
      * Update Task
      */
     public static async updateTask(_id: string, doc: ITask) {
-      await Tasks.updateOne({ _id }, { $set: doc, searchText: fillSearchTextItem(doc) });
+      const searchText = fillSearchTextItem(doc, await Tasks.getTask(_id));
+
+      await Tasks.updateOne({ _id }, { $set: doc, searchText });
 
       return Tasks.findOne({ _id });
     }
