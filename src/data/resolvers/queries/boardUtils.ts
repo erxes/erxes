@@ -31,6 +31,7 @@ export const generateCommonFilters = async (args: any) => {
     probability,
     initialStageId,
     type,
+    labelIds,
   } = args;
 
   const assignedToNoOne = value => {
@@ -159,6 +160,10 @@ export const generateCommonFilters = async (args: any) => {
 
   if (stageId) {
     filter.stageId = stageId;
+  }
+
+  if (labelIds) {
+    filter.labelIds = { $in: labelIds };
   }
 
   return filter;

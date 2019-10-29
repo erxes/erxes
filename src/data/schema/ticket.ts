@@ -29,6 +29,7 @@ export const queries = `
     overdue: String
     priority: [String]
     source: [String]
+    labelIds: [String]
     ${conformityQueryFields}
   ): [Ticket]
 `;

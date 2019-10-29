@@ -27,6 +27,7 @@ export const queries = `
     noCloseDate: String
     overdue: String
     priority: [String]
+    labelIds: [String]
     ${conformityQueryFields}
   ): [Task]
 `;
