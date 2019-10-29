@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import { pipelineFactory, pipelineLabelFactory } from '../db/factories';
-import { PipelineLabels } from '../db/models';
+import { PipelineLabels, Pipelines } from '../db/models';
 
 import './setup.ts';
 
@@ -44,7 +44,7 @@ describe('PipelineLabels mutations', () => {
   afterEach(async () => {
     // Clearing test data
     await PipelineLabels.deleteMany({});
-    await PipelineLabels.deleteMany({});
+    await Pipelines.deleteMany({});
   });
 
   test('Add pipelineLabel', async () => {
