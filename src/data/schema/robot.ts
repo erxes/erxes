@@ -1,5 +1,6 @@
 export const types = `
   type RobotEntry {
+    _id: String
     action: String
     data: JSON
   }
