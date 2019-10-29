@@ -17,7 +17,7 @@ const pipelinesWatch = `
 
 const pipelineLabelsAdd = `
   mutation pipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
-    pipelineLabelsAdd(name: $name, colorCode: $colorCode, type: $type, pipelineId: $pipelineId) {
+    pipelineLabelsAdd(name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
       _id
     }
   }
