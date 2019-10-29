@@ -24,7 +24,7 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "test": "jest --forceExit && ts-node ./src/commands/aftertest.ts",
+    "test": "snyk test && jest --forceExit && ts-node ./src/commands/aftertest.ts",
     "generateVersion": "ts-node ./src/commands/generateVersion.ts",
     "loadFakeData": "mongorestore --db erxes ./fakeData",
     "loadPermission": "mongorestore --db erxes ./permissionData",
@@ -32,7 +32,9 @@
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
-    "release": "release-it"
+    "release": "release-it",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "lint-staged": {
     "*.ts": [
@@ -54,11 +56,11 @@
   },
   "dependencies": {
     "@axelspringer/graphql-google-pubsub": "^1.2.1",
-    "@google-cloud/pubsub": "0.18.0",
-    "@google-cloud/storage": "^2.5.0",
+    "@google-cloud/pubsub": "^1.1.5",
+    "@google-cloud/storage": "^4.0.0",
     "amqplib": "0.5.3",
     "apollo-datasource-rest": "^0.5.1",
-    "apollo-server-express": "^2.3.1",
+    "apollo-server-express": "^2.9.7",
     "aws-sdk": "^2.151.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.1",
@@ -69,10 +71,9 @@
     "email-deep-validator": "^3.1.0",
     "express": "^4.15.2",
     "file-type": "^10.4.0",
-    "firebase-admin": "^7.2.0",
+    "firebase-admin": "^8.6.1",
     "formidable": "^1.1.1",
     "git-repo-info": "^2.1.0",
-    "googleapis": "^33.0.0",
     "graphql": "^14.0.2",
     "graphql-redis-subscriptions": "^1.4.0",
     "graphql-tools": "^4.0.3",
@@ -90,11 +91,12 @@
     "request": "^2.88.0",
     "requestify": "^0.2.5",
     "sha256": "^0.2.0",
+    "snyk": "^1.239.5",
     "strip": "^3.0.0",
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
     "validator": "^9.0.0",
-    "xlsx-populate": "^1.14.0",
+    "xlsx-populate": "^1.20.1",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
@@ -127,7 +129,6 @@
     "prettier": "^1.14.2",
     "release-it": "^12.4.3",
     "sinon": "^7.2.2",
-    "snyk": "^1.236.0",
     "ts-jest": "^22.0.0",
     "ts-node": "8.0.3",
     "ts-node-dev": "^1.0.0-pre.32",
@@ -135,5 +136,6 @@
     "tslint-config-prettier": "^1.1.0",
     "tslint-config-standard": "^7.0.0",
     "typescript": "^2.9.2"
-  }
+  },
+  "snyk": true
 }

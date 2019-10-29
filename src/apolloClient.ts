@@ -90,9 +90,9 @@ const apolloServer = new ApolloServer({
     keepAlive: 10000,
     path: '/subscriptions',
 
-    onConnect(_connectionParams, webSocket) {
+    onConnect(_connectionParams, webSocket: any) {
       webSocket.on('message', async message => {
-        const parsedMessage = JSON.parse(message).id || {};
+        const parsedMessage = JSON.parse(message.toString()).id || {};
 
         if (parsedMessage.type === 'messengerConnected') {
           // get status from redis
@@ -130,7 +130,7 @@ const apolloServer = new ApolloServer({
       });
     },
 
-    async onDisconnect(webSocket) {
+    async onDisconnect(webSocket: any) {
       const messengerData = webSocket.messengerData;
 
       if (messengerData) {
