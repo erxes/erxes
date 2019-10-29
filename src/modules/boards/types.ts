@@ -294,6 +294,7 @@ export interface IFilterParams extends ISavedConformity {
   nextMonth?: string;
   noCloseDate?: string;
   overdue?: string;
+  labelIds?: string;
 }
 
 export interface IEditFormContent {
