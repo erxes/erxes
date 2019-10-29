@@ -19,7 +19,7 @@ export function generateLabelOptions(array: IPipelineLabel[] = []): IOption[] {
 
 type ISelectParams = {
   queryParams?: IQueryParams;
-  filterParams?: { type: string; pipelineId: string };
+  filterParams?: { pipelineId: string };
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;

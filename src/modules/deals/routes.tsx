@@ -27,7 +27,7 @@ const deals = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    dealsLink = `/deal/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}&type=deal`;
+    dealsLink = `/deal/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={dealsLink} />;

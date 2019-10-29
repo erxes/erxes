@@ -202,7 +202,7 @@ class MainActionBar extends React.Component<Props, State> {
   }
 
   renderFilterOverlay() {
-    const { queryParams, onSelect, extraFilter, type } = this.props;
+    const { queryParams, onSelect, extraFilter } = this.props;
 
     return (
       <Overlay
@@ -228,7 +228,7 @@ class MainActionBar extends React.Component<Props, State> {
               queryParams={queryParams}
               name="labelIds"
               onSelect={onSelect}
-              filterParams={{ type, pipelineId: queryParams.pipelineId }}
+              filterParams={{ pipelineId: queryParams.pipelineId }}
               multi={true}
             />
 

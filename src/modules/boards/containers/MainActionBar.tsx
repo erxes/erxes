@@ -41,7 +41,7 @@ const dateFilterParams = [
   'noCloseDate'
 ];
 
-const defaultParams = ['id', 'pipelineId', 'type'];
+const defaultParams = ['id', 'pipelineId'];
 
 /*
  * Main board component
@@ -79,9 +79,7 @@ class Main extends React.Component<FinalProps> {
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
 
-    // consider filtered if params has values
-    // other than id, pipelineId & type
-    if (Object.keys(params).length > 3) {
+    if (Object.keys(params).length > 2) {
       return true;
     }
 

@@ -19,7 +19,7 @@ const tasks = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    link = `/task/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}&type=task`;
+    link = `/task/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={link} />;
