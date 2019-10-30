@@ -256,6 +256,7 @@ class Form extends React.Component<Props, State> {
             value={name}
             onChange={nameOnChange}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
         <FormGroup>

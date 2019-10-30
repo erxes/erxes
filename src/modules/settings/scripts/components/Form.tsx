@@ -80,6 +80,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             name="name"
             defaultValue={object.name || ''}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 
