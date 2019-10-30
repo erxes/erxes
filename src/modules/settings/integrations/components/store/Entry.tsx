@@ -207,6 +207,16 @@ class Entry extends React.Component<Props> {
       );
     }
 
+    if (createModal === KIND_CHOICES.NYLAS_YAHOO) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Yahoo" trigger={trigger} content={content} />
+      );
+    }
+
     if (createModal === KIND_CHOICES.GMAIL) {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
