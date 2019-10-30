@@ -163,13 +163,13 @@ const removeAccount = `
   }
 `;
 
-const addOutlookAccount = `
-  mutation integrationAddOutlookAccount(
+const addMailAccount = `
+  mutation integrationAddMailAccount(
     $email: String!
     $password: String!
     $kind: String!
   ) {
-    integrationAddOutlookAccount(
+    integrationAddMailAccount(
       email: $email
       password: $password
       kind: $kind
@@ -213,5 +213,5 @@ export default {
   removeAccount,
   integrationSendMail,
   addImapAccount,
-  addOutlookAccount
+  addMailAccount
 };
