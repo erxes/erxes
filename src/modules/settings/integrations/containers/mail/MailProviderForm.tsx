@@ -4,7 +4,7 @@ import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router';
 import ImapForm from '../../components/mail/ImapForm';
-import OutlookForm from '../../components/mail/OutlookForm';
+import MailAuthForm from '../../components/mail/MailAuthForm';
 
 type Props = {
   type?: string;
@@ -52,7 +52,7 @@ class MailProviderFormContainer extends React.Component<FinalProps> {
       return <ImapForm {...updatedProps} />;
     }
 
-    return <OutlookForm {...updatedProps} />;
+    return <MailAuthForm {...updatedProps} />;
   }
 }
 

@@ -52,12 +52,18 @@ class Form extends React.Component<Props, { loading: boolean }> {
       </Button>
     );
 
-    let mutationName = 'addMailAccount';
-    let title = 'Add Outlook';
+    let mutationName;
+    let title;
 
-    if (kind === 'nylas-imap') {
-      mutationName = 'addImapAccount';
-      title = 'Add IMAP';
+    switch (kind) {
+      case 'nylas-imap':
+        mutationName = 'addImapAccount';
+        title = 'Add IMAP';
+        break;
+      case 'nylas-outlook':
+        mutationName = 'addMailAccount';
+        title = 'Add Outlook';
+        break;
     }
 
     const content = props => {
