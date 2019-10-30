@@ -38,11 +38,15 @@ module.exports.up = async () => {
   // Switch to erxes-integrations database
   const integrationMongoClient = apiMongoClient.useDb(INTEGRATIONS_DB_NAME);
 
-  if (accounts && accounts.length > 0) {
-    await integrationMongoClient.db.collection('accounts').insertMany(accounts);
-  }
+  try {
+    if (accounts && accounts.length > 0) {
+      await integrationMongoClient.db.collection('accounts').insertMany(accounts);
+    }
 
-  if (integrations && integrations.length > 0) {
-    await integrationMongoClient.db.collection('integrations').insertMany(integrations);
+    if (integrations && integrations.length > 0) {
+      await integrationMongoClient.db.collection('integrations').insertMany(integrations);
+    }
+  } catch (e) {
+    console.log(e);
   }
 };
