@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 // load config
 dotenv.config();
 
-const { MAIN_APP_DOMAIN, MICROSOFT_TENANT_ID } = process.env;
+const { MAIN_APP_DOMAIN } = process.env;
 
 // Google
 export const GOOGLE_OAUTH_TOKEN_VALIDATION_URL = 'https://www.googleapis.com/oauth2/v2/tokeninfo';
@@ -19,8 +19,8 @@ export const CONNECT_TOKEN_URL = NYLAS_API_URL + '/connect/token';
 export const MESSAGE_WEBHOOKS = ['message.created', 'message.opened', 'message.link_clicked', 'thread.replied'];
 
 // Microsoft
-export const MICROSOFT_OAUTH_AUTH_URL = `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/authorize?`;
-export const MICROSOFT_OAUTH_ACCESS_TOKEN_URL = `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/token`;
+export const MICROSOFT_OAUTH_AUTH_URL = `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?`;
+export const MICROSOFT_OAUTH_ACCESS_TOKEN_URL = `https://login.microsoftonline.com/organizations/oauth2/v2.0/token`;
 export const MICROSOFT_GRAPH_URL = 'https://graph.microsoft.com/v1.0';
 
 export const MICROSOFT_SCOPES = [
