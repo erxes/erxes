@@ -3,12 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
-import {
-  AddContainer,
-  FormFooter,
-  HeaderContent,
-  HeaderRow
-} from '../../styles/item';
+import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
 import { invalidateCache } from '../../utils';
 
 type Props = {
@@ -60,7 +55,7 @@ class AddForm extends React.Component<Props, State> {
 
   render() {
     return (
-      <AddContainer onSubmit={this.onSubmit}>
+      <form onSubmit={this.onSubmit}>
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
@@ -86,7 +81,7 @@ class AddForm extends React.Component<Props, State> {
             Save
           </Button>
         </FormFooter>
-      </AddContainer>
+      </form>
     );
   }
 }

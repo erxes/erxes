@@ -42,7 +42,6 @@
     "draft-js-export-html": "^1.2.0",
     "draft-js-plugins-editor": "^2.0.3",
     "draft-js-static-toolbar-plugin": "^3.0.0",
-    "emotion": "^10.0.9",
     "erxes-icon": "^1.1.0",
     "fuzzysearch-highlight": "^1.0.3",
     "graphql": "^0.12.3",
@@ -55,7 +54,7 @@
     "react-apollo": "^2.1.11",
     "react-beautiful-dnd": "^10.1.0",
     "react-bootstrap": "^0.31.3",
-    "react-color": "^2.14.1",
+    "react-color": "^2.17.3",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.3.2",
     "react-markdown": "^3.3.0",
@@ -65,8 +64,9 @@
     "react-toggle": "^4.1.1",
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
-    "sanitize-html": "^1.19.1",
+    "sanitize-html": "^1.20.1",
     "scriptjs": "^2.5.8",
+    "snyk": "^1.239.5",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
@@ -92,13 +92,15 @@
     "start": "react-scripts start",
     "build": "yarn generateVersion && react-scripts build",
     "compress": "gzip -5 --keep -r build/static/js",
-    "test": "snyk test && react-scripts test --env=jsdom",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "postinstall": "opencollective postinstall",
     "generateVersion": "node commands/generateVersion.js",
     "release": "release-it",
-    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage"
+    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",
@@ -122,8 +124,7 @@
     "prettier": "^1.8.2",
     "react-scripts": "^3.0.1",
     "react-test-renderer": "^16.3.2",
-    "release-it": "^12.3.5",
-    "snyk": "^1.108.2",
+    "release-it": "^12.4.3",
     "ts-jest": "^23.0.1",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
@@ -136,5 +137,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "snyk": true
 }

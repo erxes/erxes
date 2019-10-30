@@ -40,7 +40,7 @@ class Left extends React.Component<Props> {
       <FormGroup>
         <TitleRow>
           <ControlLabel>
-            <Icon icon="like-1" />
+            <Icon icon="thumbs-up" />
             Votes
           </ControlLabel>
         </TitleRow>
@@ -110,7 +110,7 @@ class Left extends React.Component<Props> {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="attach" />
+              <Icon icon="paperclip" />
               Attachments
             </ControlLabel>
           </TitleRow>

@@ -35,7 +35,7 @@ const ActivityItem = (props: Props) => {
                 <a
                   style={{ display: 'inline-block', padding: '0px 3px' }}
                   key={id}
-                  href={`/${type}/details/${id}`}
+                  href={`/contacts/${type}/details/${id}`}
                   target="__blank"
                 >
                   {index + 1},

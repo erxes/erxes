@@ -54,14 +54,25 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   padding: ${dimensions.unitSpacing / 2}px;
   margin-right: ${dimensions.unitSpacing}px;
   border: 1px solid
-    ${props => (props.selected ? colors.borderPrimary : 'transparent')};
+    ${props => (props.selected ? colors.colorShadowGray : 'transparent')};
 
   > div {
     height: ${dimensions.headerSpacing - 20}px;
     width: ${dimensions.headerSpacing - 20}px;
     background: ${colors.borderPrimary};
     border-radius: 50%;
+    text-align: center;
     line-height: ${dimensions.headerSpacing - 20}px;
+
+    > i {
+      visibility: ${props => (props.selected ? 'visible' : 'hidden')};
+      font-size: ${dimensions.unitSpacing}px;
+      color: ${colors.colorWhite};
+
+      &:before {
+        font-weight: 700;
+      }
+    }
   }
 `;
 

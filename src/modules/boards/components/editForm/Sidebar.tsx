@@ -1,18 +1,20 @@
+import ChecklistAdd from 'modules/checklists/components/AddButton';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Watch } from '../../containers/editForm/';
-import { RightButton, RightContent } from '../../styles/item';
+import Watch from '../../containers/editForm/Watch';
+import LabelChooser from '../../containers/label/LabelChooser';
+import { Actions, RightButton, RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
   item: IItem;
   assignedUserIds: string[];
   onChangeField?: (
-    name: 'companies' | 'customers' | 'assignedUserIds',
+    name: 'companies' | 'customers' | 'assignedUserIds' | 'labels',
     value: any
   ) => void;
   copyItem: () => void;
@@ -46,6 +48,7 @@ class Sidebar extends React.Component<Props> {
     const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
     const cmpsChange = cmps => this.onChange('companies', cmps);
     const cmrsChange = cmrs => this.onChange('customers', cmrs);
+    const onLabelChange = labels => this.onChange('labels', labels);
 
     return (
       <RightContent>
@@ -59,6 +62,14 @@ class Sidebar extends React.Component<Props> {
             filterParams={{ status: 'verified' }}
           />
         </FormGroup>
+
+        <Actions>
+          <ControlLabel>Add to card</ControlLabel>
+          <LabelChooser item={item} onSelect={onLabelChange} />
+
+          <ChecklistAdd itemId={item._id} type={options.type} />
+        </Actions>
+
         {sidebar && sidebar()}
 
         <CompanySection
@@ -75,6 +86,7 @@ class Sidebar extends React.Component<Props> {
 
         {renderItems()}
 
+        <ControlLabel>Actions</ControlLabel>
         <Watch item={item} options={options} />
 
         <RightButton icon="checked-1" onClick={copyItem}>

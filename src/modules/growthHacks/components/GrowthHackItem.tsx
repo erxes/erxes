@@ -91,7 +91,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
           <PriceContainer>
             <Left>
               <Vote>
-                <Icon icon="like-1" />
+                <Icon icon="thumbs-up" />
                 {item.voteCount}
               </Vote>
             </Left>

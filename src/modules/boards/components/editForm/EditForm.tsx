@@ -7,6 +7,7 @@ import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
+import { IPipelineLabel } from '../../types';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 const reactiveFields = [
@@ -17,7 +18,7 @@ const reactiveFields = [
   'reminderMinute'
 ];
 
-const reactiveForiegnFields = ['companies', 'customers'];
+const reactiveForiegnFields = ['companies', 'customers', 'labels'];
 
 type Props = {
   options: IOptions;
@@ -45,6 +46,7 @@ type State = {
   assignedUserIds?: string[];
   customers: ICustomer[];
   companies: ICompany[];
+  labels: IPipelineLabel[];
   attachments?: IAttachment[];
   updatedItem?;
   prevStageId?;
@@ -62,6 +64,7 @@ class EditForm extends React.Component<Props, State> {
       name: item.name,
       stageId: item.stageId,
       // IItem datas
+      labels: item.labels || [],
       companies: item.companies || [],
       customers: item.customers || [],
       closeDate: item.closeDate,

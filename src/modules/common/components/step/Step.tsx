@@ -53,7 +53,7 @@ class Step extends React.Component<Props> {
           <Button
             btnStyle="warning"
             size="small"
-            icon="rightarrow-2"
+            icon="file-alt"
             onClick={save.bind(this, 'draft')}
           >
             Save & Draft
@@ -75,7 +75,7 @@ class Step extends React.Component<Props> {
         <Button
           btnStyle="primary"
           size="small"
-          icon="rightarrow-2"
+          icon="arrow-right"
           onClick={next.bind(null, 0)}
         >
           Next
@@ -95,7 +95,7 @@ class Step extends React.Component<Props> {
 
     return (
       <Button btnStyle="primary" size="small" onClick={next.bind(null, 0)}>
-        {__('Next')} <Icon icon="rightarrow-2" />
+        {__('Next')} <Icon icon="arrow-right" />
       </Button>
     );
   }

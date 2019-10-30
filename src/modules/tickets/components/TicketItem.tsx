@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import Details from 'modules/boards/components/Details';
 import DueDateLabel from 'modules/boards/components/DueDateLabel';
+import Labels from 'modules/boards/components/label/Labels';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
@@ -95,6 +96,8 @@ class TicketItem extends React.PureComponent<
 
     return (
       <>
+        <Labels labels={item.labels} indicator={true} />
+
         <h5>
           {renderPriority(item.priority)}
           {item.name}

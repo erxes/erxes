@@ -166,7 +166,7 @@ export default class WorkArea extends React.Component<Props, State> {
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
           <Button btnStyle="simple" size="small">
-            Member
+            {__('Member')}
             <Icon icon="angle-down" />
           </Button>
         )}

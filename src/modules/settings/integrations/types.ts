@@ -113,6 +113,7 @@ export type IntegrationTypes =
   | 'gmail'
   | 'nylas-gmail'
   | 'nylas-imap'
+  | 'nylas-office365'
   | 'twitter';
 
 export type IntegrationsQueryResponse = {
@@ -137,6 +138,7 @@ export type ByKind = {
   callpro: number;
   chatfuel: number;
   imap: number;
+  office365: number;
 };
 
 type IntegrationsCount = {

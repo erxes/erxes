@@ -4,6 +4,7 @@ const importSubscription = `
 			_id
 			status
 			percentage
+			errorMsgs
 		}
   }
 `;
