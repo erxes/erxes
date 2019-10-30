@@ -46,7 +46,7 @@ export const loadClass = () => {
           const { _id, modifier } = result;
 
           await Companies.update({ _id }, { $set: modifier });
-          return RobotEntries.create({ action: 'fillCompanyInfo', parentId: parent._id, data: { modifier } });
+          return RobotEntries.create({ action: 'fillCompanyInfo', parentId: parent._id, data: { _id, modifier } });
         }
 
         return parent;
