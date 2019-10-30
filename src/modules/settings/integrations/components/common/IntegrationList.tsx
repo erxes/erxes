@@ -62,6 +62,10 @@ class IntegrationList extends React.Component<Props> {
       return 'nylas office365';
     }
 
+    if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
+      return 'nylas outlook';
+    }
+
     return 'default';
   }
 

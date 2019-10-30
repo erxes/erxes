@@ -9,7 +9,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import * as React from 'react';
 import Accounts from '../../containers/Accounts';
-import ImapForm from '../../containers/mail/ImapForm';
+import MailProviderForm from '../../containers/mail/MailProviderForm';
 import SelectBrand from '../../containers/SelectBrand';
 import { IntegrationTypes } from '../../types';
 
@@ -44,17 +44,29 @@ class Form extends React.Component<Props, { loading: boolean }> {
   };
 
   renderForm = () => {
+    const { kind } = this.props;
+
     const trigger = (
       <Button btnStyle="primary" size="small" icon="add">
         Add Account
       </Button>
     );
 
-    const content = props => <ImapForm {...props} />;
+    let mutationName = 'addOutlookAccount';
+    let title = 'Add Outlook';
 
-    return (
-      <ModalTrigger title="Add IMAP" trigger={trigger} content={content} />
-    );
+    if (kind === 'nylas-imap') {
+      mutationName = 'addImapAccount';
+      title = 'Add IMAP';
+    }
+
+    const content = props => {
+      return (
+        <MailProviderForm {...props} kind={kind} mutationName={mutationName} />
+      );
+    };
+
+    return <ModalTrigger title={title} trigger={trigger} content={content} />;
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -67,7 +79,9 @@ class Form extends React.Component<Props, { loading: boolean }> {
       onSelect: onAccountSelect,
       onRemove: onRemoveAccount,
       formProps,
-      ...(kind === 'nylas-imap' ? { renderForm: this.renderForm } : {})
+      ...(kind === 'nylas-outlook' || kind === 'nylas-imap'
+        ? { renderForm: this.renderForm }
+        : {})
     };
 
     return (

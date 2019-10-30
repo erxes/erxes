@@ -70,6 +70,7 @@ export const KIND_CHOICES = {
   GMAIL: 'gmail',
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_IMAP: 'nylas-imap',
+  NYLAS_OUTLOOK: 'nylas-outlook',
   NYLAS_OFFICE365: 'nylas-office365',
   LEAD: 'lead',
   CALLPRO: 'callpro',
@@ -86,7 +87,8 @@ export const KIND_CHOICES = {
     'gmail',
     'nylas-gmail',
     'nylas-imap',
-    'nylas-office365'
+    'nylas-office365',
+    'nylas-outlook'
   ]
 };
 
@@ -214,6 +216,21 @@ export const INTEGRATIONS = [
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
         createUrl: '/settings/integrations/lead'
+      }
+    ]
+  },
+  {
+    name: 'row-2',
+    rows: [
+      {
+        name: 'Outlook by Nylas',
+        description:
+          'Connect straight to your outlook and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-outlook',
+        logo: '/images/integrations/outlook.png',
+        createModal: 'nylas-outlook',
+        createUrl: '/settings/integrations/nylas-outlook'
       }
     ]
   },

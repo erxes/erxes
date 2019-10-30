@@ -118,6 +118,8 @@ class ManageIntegrations extends React.Component<Props, State> {
       type = 'nylas-imap';
     } else if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
       type = 'nylas-office365';
+    } else if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
+      type = 'nylas-outlook';
     }
 
     return type;
@@ -146,6 +148,8 @@ class ManageIntegrations extends React.Component<Props, State> {
     } else if (kind === KIND_CHOICES.NYLAS_IMAP) {
       icon = 'mail-alt';
     } else if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
+      icon = 'mail-alt';
+    } else if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
       icon = 'mail-alt';
     }
 
