@@ -52,7 +52,7 @@ class Form extends React.Component<Props, { loading: boolean }> {
       </Button>
     );
 
-    let mutationName = 'addOutlookAccount';
+    let mutationName = 'addMailAccount';
     let title = 'Add Outlook';
 
     if (kind === 'nylas-imap') {
