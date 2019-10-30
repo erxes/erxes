@@ -68,6 +68,7 @@ class Left extends React.Component<Props> {
             defaultValue={description}
             onChange={descriptionOnChange}
             onBlur={descriptionOnBlur}
+            autoFocus={true}
           />
         </FormGroup>
 

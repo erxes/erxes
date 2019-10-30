@@ -54,18 +54,17 @@ class BrandForm extends React.Component<Props> {
       <>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-
           <FormControl
             {...formProps}
             name="name"
             defaultValue={object.name}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-
           <FormControl
             {...formProps}
             name="description"

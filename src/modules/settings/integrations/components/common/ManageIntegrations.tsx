@@ -226,6 +226,7 @@ class ManageIntegrations extends React.Component<Props, State> {
             <FormControl
               placeholder={__('Type to search')}
               onChange={this.search}
+              autoFocus={true}
             />
             <ul>
               {allIntegrations.map(integration =>
