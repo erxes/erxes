@@ -17,7 +17,6 @@ type IOverlayProps = {
   selectedLabelIds: string[];
   labels: IPipelineLabel[];
   pipelineId: string;
-  type: string;
   toggleConfirm: (callback?: () => void) => void;
   onSelectLabels: (selectedLabelIds: string[]) => void;
   onClose: () => void;
@@ -107,7 +106,6 @@ export default class Overlay extends React.Component<
   renderPopover() {
     const { showForm, labelId } = this.state;
     const {
-      type,
       pipelineId,
       toggleConfirm,
       selectedLabelIds,
@@ -121,7 +119,6 @@ export default class Overlay extends React.Component<
             selectedLabelIds={selectedLabelIds}
             onSelectLabels={onSelectLabels}
             showForm={showForm}
-            type={type}
             pipelineId={pipelineId}
             afterSave={this.onChangeForm}
             labelId={labelId}

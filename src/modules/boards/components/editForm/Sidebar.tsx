@@ -65,11 +65,7 @@ class Sidebar extends React.Component<Props> {
 
         <Actions>
           <ControlLabel>Add to card</ControlLabel>
-          <LabelChooser
-            item={item}
-            options={options}
-            onSelect={onLabelChange}
-          />
+          <LabelChooser item={item} onSelect={onLabelChange} />
 
           <ChecklistAdd itemId={item._id} type={options.type} />
         </Actions>

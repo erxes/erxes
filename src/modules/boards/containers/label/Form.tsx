@@ -13,7 +13,6 @@ import {
 } from '../../types';
 
 type Props = {
-  type: string;
   pipelineId: string;
   afterSave: () => void;
   labelId?: string;
@@ -29,11 +28,11 @@ type FinalProps = {
 } & Props &
   RemovePipelineLabelMutationResponse;
 
-const getRefetchQueries = (type: string, pipelineId: string) => {
+const getRefetchQueries = (pipelineId: string) => {
   return [
     {
       query: gql(queries.pipelineLabels),
-      variables: { type, pipelineId }
+      variables: { pipelineId }
     }
   ];
 };
@@ -41,7 +40,6 @@ const getRefetchQueries = (type: string, pipelineId: string) => {
 class FormContainer extends React.Component<FinalProps> {
   render() {
     const {
-      type,
       pipelineId,
       pipelineLabelDetailQuery,
       removeMutation,
@@ -97,11 +95,10 @@ class FormContainer extends React.Component<FinalProps> {
           variables={{
             _id: object && object._id ? object._id : undefined,
             pipelineId,
-            type,
             ...values
           }}
           callback={callback}
-          refetchQueries={getRefetchQueries(type, pipelineId)}
+          refetchQueries={getRefetchQueries(pipelineId)}
           isSubmitted={isSubmitted}
           type="submit"
           btnSize="small"
@@ -117,7 +114,6 @@ class FormContainer extends React.Component<FinalProps> {
       renderButton,
       afterSave,
       showForm,
-      type,
       remove,
       label: pipelineLabelDetailQuery
         ? pipelineLabelDetailQuery.pipelineLabelDetail
@@ -144,8 +140,8 @@ export default withProps<Props>(
       gql(mutations.pipelineLabelsRemove),
       {
         name: 'removeMutation',
-        options: ({ type, pipelineId }) => ({
-          refetchQueries: getRefetchQueries(type, pipelineId)
+        options: ({ pipelineId }) => ({
+          refetchQueries: getRefetchQueries(pipelineId)
         })
       }
     )
