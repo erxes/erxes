@@ -115,6 +115,7 @@ export type IntegrationTypes =
   | 'nylas-imap'
   | 'nylas-office365'
   | 'nylas-outlook'
+  | 'nylas-yahoo'
   | 'twitter';
 
 export type IntegrationsQueryResponse = {
@@ -141,6 +142,7 @@ export type ByKind = {
   imap: number;
   office365: number;
   outlook: number;
+  yahoo: number;
 };
 
 type IntegrationsCount = {
