@@ -64,6 +64,10 @@ class Form extends React.Component<Props, { loading: boolean }> {
         mutationName = 'addMailAccount';
         title = 'Add Outlook';
         break;
+      case 'nylas-yahoo':
+        mutationName = 'addMailAccount';
+        title = 'Add Yahoo';
+        break;
     }
 
     const content = props => {
@@ -85,7 +89,9 @@ class Form extends React.Component<Props, { loading: boolean }> {
       onSelect: onAccountSelect,
       onRemove: onRemoveAccount,
       formProps,
-      ...(kind === 'nylas-outlook' || kind === 'nylas-imap'
+      ...(kind === 'nylas-outlook' ||
+      kind === 'nylas-imap' ||
+      kind === 'nylas-yahoo'
         ? { renderForm: this.renderForm }
         : {})
     };
