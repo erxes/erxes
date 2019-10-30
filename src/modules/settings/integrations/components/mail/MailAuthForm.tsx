@@ -12,7 +12,7 @@ type Props = {
   closeModal: () => void;
 };
 
-class OutlookForm extends React.Component<Props> {
+class MailAuthForm extends React.Component<Props> {
   generateDoc = ({ email, password }: { email: string; password: string }) => {
     return {
       kind: this.props.kind,
@@ -76,4 +76,4 @@ class OutlookForm extends React.Component<Props> {
   }
 }
 
-export default OutlookForm;
+export default MailAuthForm;
