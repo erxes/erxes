@@ -140,8 +140,8 @@ const checkShowModule = (
 };
 
 const robotQueries = {
-  robotEntries(_root, { isNotified, action }: { isNotified: boolean; action: string }) {
-    const selector: any = { parentId: null, action };
+  robotEntries(_root, { isNotified, action, parentId }: { isNotified: boolean; action: string; parentId: string }) {
+    const selector: any = { parentId, action };
 
     if (typeof isNotified !== 'undefined') {
       selector.isNotified = isNotified;

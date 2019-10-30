@@ -19,7 +19,7 @@ export const types = `
 `;
 
 export const queries = `
-  robotEntries(isNotified: Boolean, action: String): [RobotEntry]
+  robotEntries(isNotified: Boolean, action: String, parentId: String): [RobotEntry]
   onboardingStepsCompleteness(steps: [String]): JSON
   onboardingGetAvailableFeatures: [OnboardingGetAvailableFeaturesResponse]
 `;
