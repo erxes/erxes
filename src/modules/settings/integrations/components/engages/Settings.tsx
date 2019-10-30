@@ -6,7 +6,6 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IEngageConfig } from '../../types';
 
@@ -46,7 +45,11 @@ class List extends React.Component<Props, State> {
           <p>To find your Access Key and Secret Access Key:</p>
           <ol>
             <li>
-              <a href="https://console.aws.amazon.com" target="_blank">
+              <a
+                href="https://console.aws.amazon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Log in to your AWS Management Console.
               </a>
             </li>
@@ -69,7 +72,11 @@ class List extends React.Component<Props, State> {
           <p>If you want Access Key using only Amazon SES and Amazon SNS:</p>
           <ol>
             <li>
-              <a href="https://console.aws.amazon.com" target="_blank">
+              <a
+                href="https://console.aws.amazon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Log in to your AWS Management Console.
               </a>
             </li>
