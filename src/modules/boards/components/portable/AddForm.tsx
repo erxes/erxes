@@ -4,12 +4,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
 import BoardSelect from '../../containers/BoardSelect';
-import {
-  AddContainer,
-  FormFooter,
-  HeaderContent,
-  HeaderRow
-} from '../../styles/item';
+import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
 import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
 
@@ -116,7 +111,7 @@ class AddForm extends React.Component<Props, State> {
 
   render() {
     return (
-      <AddContainer onSubmit={this.save}>
+      <form onSubmit={this.save}>
         {this.renderSelect()}
 
         <HeaderRow>
@@ -148,7 +143,7 @@ class AddForm extends React.Component<Props, State> {
             Save
           </Button>
         </FormFooter>
-      </AddContainer>
+      </form>
     );
   }
 }

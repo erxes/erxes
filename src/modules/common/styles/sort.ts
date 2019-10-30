@@ -18,11 +18,9 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean }>(
     props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
   left: ${props =>
     props.isDragging && props.isModal ? '40px!important' : 'auto'};
-
   &:last-child {
     margin-bottom: 0;
   }
-
   &:hover {
     box-shadow: 0 2px 8px ${colors.shadowPrimary};
     border-color: ${colors.colorSecondary};
@@ -32,7 +30,6 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean }>(
 const SortableWrapper = styled.div`
   width: 100%;
   flex: 1;
-
   label {
     margin: 0;
   }
@@ -45,7 +42,6 @@ const DragHandler = styled.div`
   align-items: center;
   justify-content: center;
   margin-top: 2px;
-
   i {
     color: ${colors.colorLightGray};
   }

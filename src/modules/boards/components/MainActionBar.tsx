@@ -1,3 +1,4 @@
+import SelectLabel from 'modules/boards/components/label/SelectLabel';
 import {
   ClearDate,
   ClearFilter,
@@ -222,6 +223,13 @@ class MainActionBar extends React.Component<Props, State> {
               queryParams={queryParams}
               onSelect={onSelect}
               customOption={teamMemberCustomOption}
+            />
+            <SelectLabel
+              queryParams={queryParams}
+              name="labelIds"
+              onSelect={onSelect}
+              filterParams={{ pipelineId: queryParams.pipelineId }}
+              multi={true}
             />
 
             {this.renderDates()}

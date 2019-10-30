@@ -113,7 +113,7 @@ class LeftSidebar extends React.Component<Props, State> {
           btnStyle={this.state.isOpen ? 'default' : 'simple'}
           size="small"
           onClick={this.onToggleSidebar}
-          icon="levels"
+          icon="align"
         />
         <DropdownWrapper>
           <DateFilter

@@ -109,7 +109,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     return (
       <RemoveRow onClick={this.handleRemoveEntry.bind(this, i)}>
-        <Icon icon="cancel" />
+        <Icon icon="times" />
       </RemoveRow>
     );
   };

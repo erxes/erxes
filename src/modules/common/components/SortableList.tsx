@@ -33,7 +33,6 @@ class SortableList extends React.Component<Props> {
     }
 
     const { fields, onChangeFields } = this.props;
-
     const reorderedFields = reorder(fields, source.index, destination.index);
 
     onChangeFields(reorderedFields);

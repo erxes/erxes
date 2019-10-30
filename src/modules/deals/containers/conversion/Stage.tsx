@@ -123,7 +123,8 @@ const getFilterParams = queryParams => {
     nextMonth: queryParams.nextMonth,
     noCloseDate: queryParams.noCloseDate,
     overdue: queryParams.overdue,
-    productIds: queryParams.productIds
+    productIds: queryParams.productIds,
+    labelIds: queryParams.labelIds
   };
 };
 

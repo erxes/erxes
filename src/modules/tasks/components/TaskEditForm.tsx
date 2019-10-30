@@ -132,6 +132,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
           <Left
             onChangeAttachment={onChangeAttachment}
             type={options.type}
+            labels={state.labels}
             description={description}
             attachments={attachments}
             item={item}

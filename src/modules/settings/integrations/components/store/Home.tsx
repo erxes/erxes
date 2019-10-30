@@ -15,6 +15,7 @@ type Props = {
     callpro: number;
     chatfuel: number;
     imap: number;
+    office365: number;
   };
   queryParams: any;
 };

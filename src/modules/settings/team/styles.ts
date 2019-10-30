@@ -44,7 +44,6 @@ const RemoveRow = styled.a`
   top: ${dimensions.unitSpacing + 2}px;
   margin-left: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing / 2}px;
-  font-size: 10px;
   color: ${colors.colorCoreDarkGray};
 
   &:hover {

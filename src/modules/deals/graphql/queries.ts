@@ -13,6 +13,7 @@ const commonParams = `
   $noCloseDate: String,
   $overdue: String,
   $productIds: [String],
+  $labelIds: [String],
   ${conformityQueryFields}
 `;
 
@@ -26,6 +27,7 @@ const commonParamDefs = `
   noCloseDate: $noCloseDate,
   overdue: $overdue,
   productIds: $productIds,
+  labelIds: $labelIds,
   ${conformityQueryFieldDefs}
 `;
 
@@ -65,6 +67,12 @@ export const dealFields = `
       avatar
     }
   }
+  labels {
+    _id
+    name
+    colorCode
+  }
+  labelIds
   stage {
     probability
     name
