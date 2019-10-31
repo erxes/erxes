@@ -30,6 +30,7 @@ type Props = {
     gmail: number;
     imap: number;
     office365: number;
+    outlook: number;
   };
 };
 
@@ -113,6 +114,7 @@ class Entry extends React.Component<Props> {
       return (
         <ModalTrigger
           title="Add engage config"
+          size="lg"
           trigger={trigger}
           content={content}
         />
@@ -192,6 +194,16 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.NYLAS_OUTLOOK) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Outlook" trigger={trigger} content={content} />
       );
     }
 

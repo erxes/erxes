@@ -3,6 +3,7 @@ import { FormControl } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
@@ -37,12 +38,80 @@ class List extends React.Component<Props, State> {
     return values;
   };
 
+  renderDescription() {
+    return (
+      <>
+        <Info>
+          <p>To find your Access Key and Secret Access Key:</p>
+          <ol>
+            <li>
+              <a
+                href="https://console.aws.amazon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Log in to your AWS Management Console.
+              </a>
+            </li>
+            <li>Click on your user name at the top right of the page.</li>
+            <li>
+              Click on the My Security Credentials link from the drop-down menu.
+            </li>
+            <li>
+              Find the Access Credentials section, and copy the latest Access
+              Key ID. If you don't have then Click access keys from the toggle
+              and click Create New Access key and copy the keys.
+            </li>
+            <li>
+              Click on the Show link in the same row, and copy the Secret Access
+              Key.
+            </li>
+          </ol>
+        </Info>
+        <Info>
+          <p>If you want Access Key using only Amazon SES and Amazon SNS:</p>
+          <ol>
+            <li>
+              <a
+                href="https://console.aws.amazon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Log in to your AWS Management Console.
+              </a>
+            </li>
+            <li>Click on your user name at the top right of the page.</li>
+            <li>
+              Click on the My Security Credentials link from the drop-down menu.
+            </li>
+            <li>Click on the Users menu from left Sidebar.</li>
+            <li>Click on the Add user.</li>
+            <li>
+              Then create your username and check Programmatic access type and
+              click next.
+            </li>
+            <li>
+              Click on the Create group then write group name and check
+              amazonSesFullAccess and amazonSNSFullAccess.
+            </li>
+            <li>Then check your created group and click on the Next button.</li>
+            <li>
+              Finally click on the create user and copy the Access Key Id and
+              Secret Access Key.
+            </li>
+          </ol>
+        </Info>
+      </>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { engagesConfigDetail, renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
 
     return (
       <>
+        {this.renderDescription()}
         <FormGroup>
           <ControlLabel>AWS-SES Access key ID</ControlLabel>
           <FormControl

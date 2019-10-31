@@ -5,7 +5,6 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import { IImapForm } from '../../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -13,23 +12,12 @@ type Props = {
   closeModal: () => void;
 };
 
-class ImapForm extends React.Component<Props> {
-  generateDoc = ({
-    email,
-    password,
-    imapHost,
-    imapPort,
-    smtpHost,
-    smtpPort
-  }: IImapForm) => {
+class MailAuthForm extends React.Component<Props> {
+  generateDoc = ({ email, password }: { email: string; password: string }) => {
     return {
       kind: this.props.kind,
       email,
-      password,
-      imapHost,
-      smtpHost,
-      imapPort: Number(imapPort),
-      smtpPort: Number(smtpPort)
+      password
     };
   };
 
@@ -70,30 +58,6 @@ class ImapForm extends React.Component<Props> {
           name: 'password',
           formProps
         })}
-        {this.renderField({
-          label: 'IMAP Host',
-          type: 'text',
-          name: 'imapHost',
-          formProps
-        })}
-        {this.renderField({
-          label: 'IMAP PORT',
-          type: 'number',
-          name: 'imapPort',
-          formProps
-        })}
-        {this.renderField({
-          label: 'SMTP Host',
-          type: 'text',
-          name: 'smtpHost',
-          formProps
-        })}
-        {this.renderField({
-          label: 'SMTP PORT',
-          type: 'number',
-          name: 'smtpPort',
-          formProps
-        })}
 
         <ModalFooter>
           {renderButton({
@@ -112,4 +76,4 @@ class ImapForm extends React.Component<Props> {
   }
 }
 
-export default ImapForm;
+export default MailAuthForm;
