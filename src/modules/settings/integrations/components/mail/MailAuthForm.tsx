@@ -4,6 +4,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 
 type Props = {
@@ -40,6 +41,23 @@ class MailAuthForm extends React.Component<Props> {
     );
   }
 
+  renderDescription() {
+    const { kind } = this.props;
+
+    if (kind !== 'nylas-yahoo') {
+      return null;
+    }
+
+    return (
+      <p>
+        {__('In order to connect Yahoo should your generate app password')}{' '}
+        <a href="https://login.yahoo.com/account/security">
+          Click here to generate password for erxes
+        </a>
+      </p>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -52,6 +70,9 @@ class MailAuthForm extends React.Component<Props> {
           name: 'email',
           formProps
         })}
+
+        {this.renderDescription()}
+
         {this.renderField({
           label: 'Password',
           type: 'password',

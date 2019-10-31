@@ -66,6 +66,10 @@ class IntegrationList extends React.Component<Props> {
       return 'nylas outlook';
     }
 
+    if (kind === KIND_CHOICES.NYLAS_YAHOO) {
+      return 'nylas yahoo';
+    }
+
     return 'default';
   }
 
