@@ -10,13 +10,13 @@ module.exports.up = async () => {
 
   console.log('start migration on convert conformity');
   try {
-    console.log('start migration on customerCompany conformity');
+    const executer = async (mainType, relType, fieldName, entries) => {
+      console.log('start migration', mainType, '-', relType, ' on conformity');
 
-    const executer = (mainType, relType, fieldName, entries) => {
       const modifier: any[] = [];
 
       for (const entry of entries) {
-        for (const subEntryId of entry.toObject()[fieldName]) {
+        for (const subEntryId of entry[fieldName]) {
           modifier.push({
             mainType,
             mainTypeId: entry._id,
@@ -33,46 +33,109 @@ module.exports.up = async () => {
       'customer',
       'company',
       'companyIds',
-      await Customers.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length=1' }),
+      await Customers.aggregate([
+        {
+          $project: {
+            _id: 1,
+            companyIds: 1,
+            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
+          },
+        },
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
+      ]),
     );
 
     await executer(
       'deal',
       'customer',
       'customerIds',
-      await Deals.find({ customerIds: { $exists: true }, $where: 'this.customerIds.length=1' }),
+      await Deals.aggregate([
+        {
+          $project: {
+            _id: 1,
+            customerIds: 1,
+            idsLength: { $cond: { if: { $isArray: '$customerIds' }, then: { $size: '$customerIds' }, else: 0 } },
+          },
+        },
+        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } },
+      ]),
     );
     await executer(
       'deal',
       'company',
       'companyIds',
-      await Deals.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length=1' }),
+      await Deals.aggregate([
+        {
+          $project: {
+            _id: 1,
+            companyIds: 1,
+            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
+          },
+        },
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
+      ]),
     );
 
     await executer(
       'ticket',
       'customer',
       'customerIds',
-      await Tickets.find({ customerIds: { $exists: true }, $where: 'this.customerIds.length=1' }),
+      await Tickets.aggregate([
+        {
+          $project: {
+            _id: 1,
+            customerIds: 1,
+            idsLength: { $cond: { if: { $isArray: '$customerIds' }, then: { $size: '$customerIds' }, else: 0 } },
+          },
+        },
+        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } },
+      ]),
     );
     await executer(
       'ticket',
       'company',
       'companyIds',
-      await Tickets.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length=1' }),
+      await Tickets.aggregate([
+        {
+          $project: {
+            _id: 1,
+            companyIds: 1,
+            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
+          },
+        },
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
+      ]),
     );
 
     await executer(
       'task',
       'customer',
       'customerIds',
-      await Tasks.find({ customerIds: { $exists: true }, $where: 'this.customerIds.length=1' }),
+      await Tasks.aggregate([
+        {
+          $project: {
+            _id: 1,
+            customerIds: 1,
+            idsLength: { $cond: { if: { $isArray: '$customerIds' }, then: { $size: '$customerIds' }, else: 0 } },
+          },
+        },
+        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } },
+      ]),
     );
     await executer(
       'task',
       'company',
       'companyIds',
-      await Tasks.find({ companyIds: { $exists: true }, $where: 'this.companyIds.length=1' }),
+      await Tasks.aggregate([
+        {
+          $project: {
+            _id: 1,
+            companyIds: 1,
+            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
+          },
+        },
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
+      ]),
     );
   } catch (e) {
     console.log('conformity migration ', e.message);
