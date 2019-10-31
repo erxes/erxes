@@ -51,7 +51,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  renderSidebarFields = () => {
+  renderSidebarFields = onChangeField => {
     const { priority, source } = this.state;
 
     const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
@@ -59,16 +59,22 @@ export default class TicketEditForm extends React.Component<Props, State> {
       label: __(key),
       value: key
     }));
+
     sourceValues.push({
       label: __('other'),
       value: 'other'
     });
 
     const onChangePriority = (option: ISelectedOption) => {
-      this.props.saveItem({ priority: option ? option.value : '' }, () =>
-        this.onChangeField('priority', option ? option.value : '')
-      );
+      const value = option ? option.value : '';
+
+      this.props.saveItem({ priority: value }, () => {
+        this.onChangeField('priority', value);
+
+        onChangeField('priority', value);
+      });
     };
+
     const onChangeSource = (option: ISelectedOption) => {
       this.props.saveItem({ source: option ? option.value : '' }, () =>
         this.onChangeField('source', option ? option.value : '')
