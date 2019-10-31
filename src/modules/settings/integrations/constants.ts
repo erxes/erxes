@@ -273,7 +273,12 @@ export const INTEGRATIONS = [
         kind: 'callpro',
         logo: '/images/integrations/callpro.png',
         createModal: 'callpro'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-4',
+    rows: [
       {
         name: 'Twitter',
         description: 'Connect to your twitter DMs here in your Inbox',
