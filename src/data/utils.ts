@@ -357,6 +357,9 @@ export const sendEmail = async ({
       to: toEmail,
       subject: title,
       html,
+      headers: {
+        'X-SES-CONFIGURATION-SET': 'erxes',
+      },
     };
 
     return transporter.sendMail(mailOptions, (error, info) => {
