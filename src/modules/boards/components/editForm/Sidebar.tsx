@@ -10,16 +10,18 @@ import LabelChooser from '../../containers/label/LabelChooser';
 import { Actions, RightButton, RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 
+type OnChangeField = (
+  name: 'companies' | 'customers' | 'assignedUserIds' | 'labels' | 'priority',
+  value: any
+) => void;
+
 type Props = {
   item: IItem;
   assignedUserIds: string[];
-  onChangeField?: (
-    name: 'companies' | 'customers' | 'assignedUserIds' | 'labels',
-    value: any
-  ) => void;
+  onChangeField?: OnChangeField;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
-  sidebar?: () => React.ReactNode;
+  sidebar?: (onChangeField?: OnChangeField) => React.ReactNode;
   options: IOptions;
   renderItems: () => React.ReactNode;
 };
@@ -70,7 +72,7 @@ class Sidebar extends React.Component<Props> {
           <ChecklistAdd itemId={item._id} type={options.type} />
         </Actions>
 
-        {sidebar && sidebar()}
+        {sidebar && sidebar(this.props.onChangeField)}
 
         <CompanySection
           mainType={options.type}

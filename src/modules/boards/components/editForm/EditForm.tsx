@@ -15,7 +15,8 @@ const reactiveFields = [
   'stageId',
   'assignedUserIds',
   'isComplete',
-  'reminderMinute'
+  'reminderMinute',
+  'priority'
 ];
 
 const reactiveForiegnFields = ['companies', 'customers', 'labels'];
@@ -28,7 +29,6 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
   amount?: () => React.ReactNode;
-  sidebar?: () => React.ReactNode;
   formContent: (
     { state, onChangeAttachment, onChangeField, copy, remove }: IEditFormContent
   ) => React.ReactNode;
@@ -52,6 +52,7 @@ type State = {
   prevStageId?;
   reminderMinute?: number;
   isComplete?: boolean;
+  priority?: string;
 };
 
 class EditForm extends React.Component<Props, State> {

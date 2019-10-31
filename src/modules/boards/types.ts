@@ -311,7 +311,8 @@ export interface IEditFormContent {
       | 'companies'
       | 'labels'
       | 'isComplete'
-      | 'reminderMinute',
+      | 'reminderMinute'
+      | 'priority',
     value: any
   ) => void;
   copy: () => void;

@@ -47,15 +47,18 @@ export default class TaskEditForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  renderSidebarFields = () => {
+  renderSidebarFields = onChangeField => {
     const { priority } = this.state;
-
     const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
 
     const onChangePriority = (option: ISelectedOption) => {
-      this.props.saveItem({ priority: option ? option.value : '' }, () =>
-        this.onChangeField('priority', option ? option.value : '')
-      );
+      const value = option ? option.value : '';
+
+      this.props.saveItem({ priority: value }, () => {
+        this.onChangeField('priority', value);
+
+        onChangeField('priority', value);
+      });
     };
 
     const priorityValueRenderer = (
@@ -159,7 +162,6 @@ export default class TaskEditForm extends React.Component<Props, State> {
     const extendedProps = {
       ...this.props,
       formContent: this.renderFormContent,
-      sidebar: this.renderSidebarFields,
       extraFields: this.state
     };
 
