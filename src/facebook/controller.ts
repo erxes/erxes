@@ -1,4 +1,4 @@
-import { FacebookAdapter } from 'botbuilder-adapter-facebook';
+import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import { debugBase, debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
