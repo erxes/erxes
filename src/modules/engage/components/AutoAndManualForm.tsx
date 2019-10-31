@@ -192,10 +192,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
-            save={this.save.bind(
-              this,
-              this.props.kind === 'manual' ? 'live' : 'draft'
-            )}
+            save={this.save}
             isActionLoading={isActionLoading}
             message={this.props.message}
           >

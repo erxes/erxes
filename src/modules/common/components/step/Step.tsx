@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { ImportLoader } from '../ButtonMutate';
+// import { ImportLoader } from '../ButtonMutate';
 import {
   FullStep,
   ShortStep,
@@ -30,22 +30,22 @@ type Props = {
 
 class Step extends React.Component<Props> {
   renderButton() {
-    const { save, next, message, isActionLoading } = this.props;
+    const { save, next } = this.props;
 
-    if (save && Object.keys(message).length !== 0) {
-      return (
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          size="small"
-          icon={isActionLoading ? undefined : 'checked-1'}
-          onClick={save.bind(this, 'save')}
-        >
-          {isActionLoading && <ImportLoader />}
-          Save
-        </Button>
-      );
-    }
+    // if (save && Object.keys(message).length !== 0) {
+    //   return (
+    //     <Button
+    //       disabled={isActionLoading}
+    //       btnStyle="success"
+    //       size="small"
+    //       icon={isActionLoading ? undefined : 'checked-1'}
+    //       onClick={save.bind(this, 'save')}
+    //     >
+    //       {isActionLoading && <ImportLoader />}
+    //       Save
+    //     </Button>
+    //   );
+    // }
 
     if (save) {
       return (
