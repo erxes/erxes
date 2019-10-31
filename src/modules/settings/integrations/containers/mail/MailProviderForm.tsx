@@ -4,24 +4,31 @@ import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router';
 import ImapForm from '../../components/mail/ImapForm';
+import MailAuthForm from '../../components/mail/MailAuthForm';
 
 type Props = {
   type?: string;
+  kind: string;
+  mutationName: string;
   closeModal: () => void;
 };
 
 type FinalProps = {} & IRouterProps & Props;
 
-class ImapContainer extends React.Component<FinalProps> {
+class MailProviderFormContainer extends React.Component<FinalProps> {
   renderButton = ({
     name,
     values,
     isSubmitted,
     callback
   }: IButtonMutateProps) => {
+    const { mutationName } = this.props;
+
+    const mutation = mutations[mutationName];
+
     return (
       <ButtonMutate
-        mutation={mutations.addImapAccount}
+        mutation={mutation}
         variables={values}
         callback={callback}
         refetchQueries={['integrationsFetchApi']}
@@ -33,15 +40,20 @@ class ImapContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { closeModal } = this.props;
+    const { kind, closeModal } = this.props;
 
     const updatedProps = {
+      kind,
       closeModal,
       renderButton: this.renderButton
     };
 
-    return <ImapForm {...updatedProps} />;
+    if (kind === 'nylas-imap') {
+      return <ImapForm {...updatedProps} />;
+    }
+
+    return <MailAuthForm {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(ImapContainer);
+export default withRouter<FinalProps>(MailProviderFormContainer);
