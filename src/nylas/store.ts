@@ -15,6 +15,9 @@ import {
   NylasOutlookConversationMessages,
   NylasOutlookConversations,
   NylasOutlookCustomers,
+  NylasYahooConversationMessages,
+  NylasYahooConversations,
+  NylasYahooCustomers,
 } from './models';
 import {
   IAPIConversation,
@@ -41,6 +44,11 @@ const NYLAS_MODELS = {
     customers: NylasOutlookCustomers,
     conversations: NylasOutlookConversations,
     conversationMessages: NylasOutlookConversationMessages,
+  },
+  yahoo: {
+    customers: NylasYahooCustomers,
+    conversations: NylasYahooConversations,
+    conversationMessages: NylasYahooConversationMessages,
   },
   office365: {
     customers: NylasOffice365Customers,

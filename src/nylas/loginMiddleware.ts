@@ -134,6 +134,9 @@ const authProvider = async (req, res, next) => {
     case 'nylas-outlook':
       doc.kind = 'outlook';
       break;
+    case 'nylas-yahoo':
+      doc.kind = 'yahoo';
+      break;
     case 'nylas-imap':
       doc.kind = 'imap';
       break;

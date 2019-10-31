@@ -3,7 +3,7 @@ import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
-import { connectImapToNylas, connectOutlookToNylas, connectProviderToNylas } from './auth';
+import { connectImapToNylas, connectProviderToNylas, connectYahooAndOutlookToNylas } from './auth';
 import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
@@ -71,7 +71,10 @@ const init = async app => {
         await connectImapToNylas(kind, account);
         break;
       case 'outlook':
-        await connectOutlookToNylas(kind, account);
+        await connectYahooAndOutlookToNylas(kind, account);
+        break;
+      case 'yahoo':
+        await connectYahooAndOutlookToNylas(kind, account);
         break;
       default:
         await connectProviderToNylas(kind, account);
