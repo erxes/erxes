@@ -50,7 +50,7 @@ class MailAuthForm extends React.Component<Props> {
 
     return (
       <p>
-        {__('In order to connect Yahoo should your generate app password')}{' '}
+        {__('In order to connect Yahoo, you  should generate the app password')}{' '}
         <a href="https://login.yahoo.com/account/security">
           Click here to generate password for erxes
         </a>
