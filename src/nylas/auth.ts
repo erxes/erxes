@@ -33,6 +33,24 @@ const connectProviderToNylas = async (kind: string, account: IAccount & { _id: s
 };
 
 /**
+ * Connect Outlook to nylsa
+ * @param {String} kind
+ * @param {Object} account
+ */
+const connectOutlookToNylas = async (kind: string, account: IAccount & { _id: string }) => {
+  const { email, password } = account;
+
+  const { access_token, account_id } = await integrateProviderToNylas({
+    email,
+    kind,
+    scopes: 'email',
+    settings: { username: email, password: decryptPassword(password) },
+  });
+
+  await updateAccount(account._id, account_id, access_token);
+};
+
+/**
  * Connect IMAP to Nylas
  * @param {String} kind
  * @param {Object} account
@@ -148,4 +166,11 @@ const getNylasAccessToken = async data => {
   });
 };
 
-export { revokeAccount, enableOrDisableAccount, integrateProviderToNylas, connectProviderToNylas, connectImapToNylas };
+export {
+  revokeAccount,
+  enableOrDisableAccount,
+  integrateProviderToNylas,
+  connectProviderToNylas,
+  connectImapToNylas,
+  connectOutlookToNylas,
+};

@@ -65,6 +65,7 @@ export interface IProviderSettings {
   google_client_id?: string;
   google_client_secret?: string;
   email?: string;
+  username?: string;
   password?: string;
 }
 

@@ -3,8 +3,8 @@ import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
-import { connectImapToNylas, connectProviderToNylas } from './auth';
-import { authenticateIMAP, getOAuthCredentials } from './loginMiddleware';
+import { connectImapToNylas, connectOutlookToNylas, connectProviderToNylas } from './auth';
+import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
 import { INylasAttachment } from './types';
@@ -15,8 +15,7 @@ dotenv.config();
 
 const init = async app => {
   app.get('/nylas/oauth2/callback', getOAuthCredentials);
-
-  app.post('/nylas/auth/imap', authenticateIMAP);
+  app.post('/nylas/auth/callback', authProvider);
 
   app.get('/nylas/webhook', (req, res) => {
     // Validation endpoint for webhook
@@ -67,10 +66,16 @@ const init = async app => {
     });
 
     // Connect provider to nylas ===========
-    if (kind === 'imap') {
-      await connectImapToNylas(kind, account);
-    } else {
-      await connectProviderToNylas(kind, account);
+    switch (kind) {
+      case 'imap':
+        await connectImapToNylas(kind, account);
+        break;
+      case 'outlook':
+        await connectOutlookToNylas(kind, account);
+        break;
+      default:
+        await connectProviderToNylas(kind, account);
+        break;
     }
 
     debugNylas(`Successfully created the integration and connected to nylas`);

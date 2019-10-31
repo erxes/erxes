@@ -104,48 +104,44 @@ const getOAuthCredentials = async (req, res, next) => {
 };
 
 /**
- * Create IMAP account
- * @param {String} username
- * @param {String} password
+ * Create account
  * @param {String} email
+ * @param {String} password
+ * @param {String} imapHost
+ * @param {String} smtpHost
+ * @param {Number} imapPort
+ * @param {Number} smtpPort
  */
-const authenticateIMAP = async (req, res, next) => {
+const authProvider = async (req, res, next) => {
   debugRequest(debugNylas, req);
 
-  const {
-    email,
-    password,
-    imapHost,
-    imapPort,
-    smtpPort,
-    smtpHost,
-  }: {
-    email: string;
-    password: string;
-    imapHost: string;
-    smtpHost: string;
-    imapPort: number;
-    smtpPort: number;
-  } = req.body;
+  const { kind, email, password, ...otherParams } = req.body;
 
-  if (!email || !password || !imapHost || !imapPort || !smtpHost || !smtpPort) {
-    return next('Missing IMAP, SMTP, email, password config');
+  if (!email || !password) {
+    return next('Missing email or password config');
   }
+
+  const doc = {
+    name: email,
+    email,
+    password: encryptPassword(password),
+    ...(kind === 'nylas-imap' ? otherParams : {}),
+  };
 
   debugNylas(`Creating account with email: ${email}`);
 
-  await Accounts.create({
-    email,
-    imapHost,
-    imapPort,
-    smtpPort,
-    smtpHost,
-    password: encryptPassword(password),
-    name: email,
-    kind: 'imap',
-  });
+  switch (kind) {
+    case 'nylas-outlook':
+      doc.kind = 'outlook';
+      break;
+    case 'nylas-imap':
+      doc.kind = 'imap';
+      break;
+  }
 
-  res.redirect(AUTHORIZED_REDIRECT_URL);
+  await Accounts.create(doc);
+
+  return res.redirect(AUTHORIZED_REDIRECT_URL);
 };
 
-export { getOAuthCredentials, authenticateIMAP };
+export { getOAuthCredentials, authProvider };
