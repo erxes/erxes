@@ -72,6 +72,7 @@ export const KIND_CHOICES = {
   NYLAS_IMAP: 'nylas-imap',
   NYLAS_OUTLOOK: 'nylas-outlook',
   NYLAS_OFFICE365: 'nylas-office365',
+  NYLAS_YAHOO: 'nylas-yahoo',
   LEAD: 'lead',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
@@ -233,6 +234,16 @@ export const INTEGRATIONS = [
         createUrl: '/settings/integrations/nylas-outlook'
       },
       {
+        name: 'Yahoo by Nylas',
+        description:
+          'Connect straight to your yahoo and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-yahoo',
+        logo: '/images/integrations/yahoo.png',
+        createModal: 'nylas-yahoo',
+        createUrl: '/settings/integrations/nylas-yahoo'
+      },
+      {
         name: 'Knowledge Base',
         description: 'Get access to your Knowledge Base right in your Widget',
         inMessenger: true,
@@ -249,7 +260,12 @@ export const INTEGRATIONS = [
         kind: 'amazon-ses',
         logo: '/images/integrations/aws-ses.png',
         createModal: 'sesconfig'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-4',
+    rows: [
       {
         name: 'Call Pro',
         description: 'Connect your call pro phone number',

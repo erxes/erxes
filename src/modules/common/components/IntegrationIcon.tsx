@@ -68,6 +68,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'nylas-outlook':
         icon = 'mail-alt';
         break;
+      case 'nylas-yahoo':
+        icon = 'mail-alt';
+        break;
       case 'gmail':
         icon = 'mail-alt';
         break;
