@@ -127,16 +127,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       return null;
     }
 
-    return (
-      <Box
-        title={__('Messenger data')}
-        name="showMessengerData"
-        isOpen={config.showMessengerData || false}
-        toggle={toggleSection}
-      >
-        <MessengerSection customer={customer} />
-      </Box>
-    );
+    return <MessengerSection customer={customer} />;
   };
 
   renderDeviceProperties = ({
@@ -149,16 +140,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       return null;
     }
 
-    return (
-      <Box
-        title={__('Device properties')}
-        name="showDeviceProperties"
-        isOpen={config.showDeviceProperties || false}
-        toggle={toggleSection}
-      >
-        <DevicePropertiesSection customer={customer} />
-      </Box>
-    );
+    return <DevicePropertiesSection customer={customer} />;
   };
 
   renderActions() {

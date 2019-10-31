@@ -10,6 +10,7 @@ import parse from 'ua-parser-js';
 type Props = {
   customer: ICustomer;
   isOpen?: boolean;
+  toggle?: any;
 };
 
 class DevicePropertiesSection extends React.Component<Props> {
@@ -80,10 +81,15 @@ class DevicePropertiesSection extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { isOpen } = this.props;
+    const { isOpen, toggle } = this.props;
 
     return (
-      <Box title={__('Device properties')} isOpen={isOpen || false}>
+      <Box
+        title={__('Device properties')}
+        name="showDeviceProperties"
+        isOpen={isOpen || false}
+        toggle={toggle}
+      >
         <Section>{this.renderContent()}</Section>
       </Box>
     );

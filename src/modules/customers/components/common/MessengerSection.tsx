@@ -11,6 +11,7 @@ import { ICustomer } from '../../types';
 type Props = {
   customer: ICustomer;
   queryParams?: any;
+  toggle?: any;
   isOpen?: boolean;
 };
 
@@ -69,10 +70,15 @@ class MessengerSection extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { isOpen } = this.props;
+    const { isOpen, toggle } = this.props;
 
     return (
-      <Box title={__('Messenger data')} isOpen={isOpen || false}>
+      <Box
+        title={__('Messenger data')}
+        name="showMessengerData"
+        isOpen={isOpen || false}
+        toggle={toggle}
+      >
         <Section>{this.renderContent()}</Section>
       </Box>
     );
