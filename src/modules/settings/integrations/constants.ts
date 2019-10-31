@@ -70,6 +70,7 @@ export const KIND_CHOICES = {
   GMAIL: 'gmail',
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_IMAP: 'nylas-imap',
+  NYLAS_OUTLOOK: 'nylas-outlook',
   NYLAS_OFFICE365: 'nylas-office365',
   LEAD: 'lead',
   CALLPRO: 'callpro',
@@ -86,7 +87,8 @@ export const KIND_CHOICES = {
     'gmail',
     'nylas-gmail',
     'nylas-imap',
-    'nylas-office365'
+    'nylas-office365',
+    'nylas-outlook'
   ]
 };
 
@@ -221,6 +223,16 @@ export const INTEGRATIONS = [
     name: 'row-3',
     rows: [
       {
+        name: 'Outlook by Nylas',
+        description:
+          'Connect straight to your outlook and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-outlook',
+        logo: '/images/integrations/outlook.png',
+        createModal: 'nylas-outlook',
+        createUrl: '/settings/integrations/nylas-outlook'
+      },
+      {
         name: 'Knowledge Base',
         description: 'Get access to your Knowledge Base right in your Widget',
         inMessenger: true,
@@ -245,7 +257,12 @@ export const INTEGRATIONS = [
         kind: 'callpro',
         logo: '/images/integrations/callpro.png',
         createModal: 'callpro'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-4',
+    rows: [
       {
         name: 'Twitter',
         description: 'Connect to your twitter DMs here in your Inbox',
@@ -253,12 +270,7 @@ export const INTEGRATIONS = [
         kind: 'twitter-dm',
         logo: '/images/integrations/twitter.png',
         createModal: 'twitter'
-      }
-    ]
-  },
-  {
-    name: 'row-4',
-    rows: [
+      },
       {
         name: 'Chatfuel',
         description: 'Connect your chatfuel account',
