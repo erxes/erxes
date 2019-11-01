@@ -5,7 +5,6 @@ import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { BoxContainer } from 'modules/settings/growthHacks/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PipelineList from '../../containers/home/PipelineList';
@@ -94,11 +93,7 @@ class Home extends React.Component<Props> {
   }
 
   renderContent = () => {
-    return (
-      <BoxContainer>
-        <PipelineList state={this.props.state} />
-      </BoxContainer>
-    );
+    return <PipelineList state={this.props.state} />;
   };
 
   render() {
