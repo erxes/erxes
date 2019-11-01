@@ -1,4 +1,5 @@
 import { AppConsumer } from 'appContext';
+import debounce from 'lodash/debounce';
 import { IUser } from 'modules/auth/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
@@ -22,7 +23,7 @@ import Select from 'react-select-plus';
 import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import UserForm from '../containers/UserForm';
-import { AlignedTd, FilterContainer, UserAvatar } from '../styles';
+import { FilterContainer, UserAvatar } from '../styles';
 import UserInvitationForm from './UserInvitationForm';
 
 type IProps = {
@@ -43,8 +44,6 @@ type States = {
 };
 
 class UserList extends React.Component<FinalProps, States> {
-  private timer?: NodeJS.Timer;
-
   constructor(props: FinalProps) {
     super(props);
 
@@ -140,7 +139,7 @@ class UserList extends React.Component<FinalProps, States> {
             </TextInfo>
           </td>
           <td>{object.email}</td>
-          <AlignedTd>
+          <td>
             <Toggle
               defaultChecked={object.isActive}
               icons={{
@@ -149,7 +148,7 @@ class UserList extends React.Component<FinalProps, States> {
               }}
               onChange={onChange}
             />
-          </AlignedTd>
+          </td>
           <td>
             <ActionButtons>
               {this.renderResendInvitation(object)}
@@ -162,21 +161,16 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
     const searchValue = e.target.value;
-
     this.setState({ searchValue });
-
-    this.timer = setTimeout(() => {
-      router.setParams(this.props.history, { searchValue });
-    }, 500);
+    debounce(
+      () => router.setParams(this.props.history, { searchValue }),
+      500
+    )();
   };
 
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
-
     e.target.value = '';
     e.target.value = tmpValue;
   }
