@@ -149,6 +149,7 @@ class PropertyForm extends React.Component<Props, State> {
             name="text"
             defaultValue={object.text || ''}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 
