@@ -2,8 +2,8 @@ import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
-import { Input } from 'modules/common/components/form/styles';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -43,6 +43,8 @@ type States = {
 };
 
 class UserList extends React.Component<FinalProps, States> {
+  private timer?: NodeJS.Timer;
+
   constructor(props: FinalProps) {
     super(props);
 
@@ -159,22 +161,28 @@ class UserList extends React.Component<FinalProps, States> {
     });
   }
 
-  handleKeyDown = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
-      const { value, name } = e.currentTarget as HTMLInputElement;
-
-      router.setParams(this.props.history, { [name]: value });
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+
+    this.timer = setTimeout(() => {
+      router.setParams(this.props.history, { searchValue });
+    }, 500);
   };
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
 
   onStatusChange = (status: { label: string; value: boolean }) => {
     router.setParams(this.props.history, { isActive: status.value });
-  };
-
-  onChange = (e: React.FormEvent) => {
-    const { value } = e.currentTarget as HTMLInputElement;
-
-    this.setState({ searchValue: value });
   };
 
   renderFilter = () => {
@@ -183,12 +191,13 @@ class UserList extends React.Component<FinalProps, States> {
         <FlexRow>
           <FlexItem>
             <ControlLabel>Search</ControlLabel>
-            <Input
+            <FormControl
               placeholder="Search"
               name="searchValue"
-              onChange={this.onChange}
+              onChange={this.search}
               value={this.state.searchValue}
-              onKeyDown={this.handleKeyDown}
+              autoFocus={true}
+              onFocus={this.moveCursorAtTheEnd}
             />
           </FlexItem>
 
