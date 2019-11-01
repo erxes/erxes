@@ -374,6 +374,7 @@ class MailForm extends React.Component<Props, State> {
             required={true}
             defaultValue={subject}
             disabled={(subject && true) || false}
+            autoFocus={true}
           />
         </FlexRow>
       </Subject>
