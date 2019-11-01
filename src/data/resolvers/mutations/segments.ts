@@ -18,7 +18,7 @@ const segmentMutations = {
     if (segment) {
       await putCreateLog(
         {
-          type: 'segment',
+          type: `${doc.contentType}Segment`,
           newData: JSON.stringify(doc),
           object: segment,
           description: `${segment.name} has been created`,
@@ -33,9 +33,9 @@ const segmentMutations = {
   /**
    * Update segment
    */
-  async segmentsEdit(_root, { _id, ...doc }: ISegmentsEdit, { user, docModifier }: IContext) {
+  async segmentsEdit(_root, { _id, ...doc }: ISegmentsEdit, { user }: IContext) {
     const segment = await Segments.findOne({ _id });
-    const updated = await Segments.updateSegment(_id, docModifier(doc));
+    const updated = await Segments.updateSegment(_id, doc);
 
     if (segment) {
       await putUpdateLog(

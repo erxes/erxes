@@ -3,9 +3,9 @@ import 'mongoose-type-email';
 import { ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from './definitions/constants';
 import {
-  IFormData,
   IIntegration,
   IIntegrationDocument,
+  ILeadData,
   IMessengerData,
   integrationSchema,
   IUiOptions,
@@ -25,47 +25,44 @@ export interface IExternalIntegrationParams {
 }
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
-  generateFormDoc(mainDoc: IIntegration, formData: IFormData): IIntegration;
-  createIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
-  createMessengerIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
+  generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData): IIntegration;
+  createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
+  createMessengerIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(_id: string, doc: IUiOptions): Promise<IIntegrationDocument>;
   saveMessengerConfigs(_id: string, messengerData: IMessengerData): Promise<IIntegrationDocument>;
-  createFormIntegration(doc: IIntegration): Promise<IIntegrationDocument>;
-  updateFormIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
-  createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument>;
+  createLeadIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
+  updateLeadIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
+  createExternalIntegration(doc: IExternalIntegrationParams, userId: string): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
 }
 
 export const loadClass = () => {
   class Integration {
     /**
-     * Generate form integration data based on the given form data (formData)
+     * Generate lead integration data based on the given lead data (leadData)
      * and integration data (mainDoc)
      */
-    public static generateFormDoc(mainDoc: IIntegration, formData: IFormData) {
+    public static generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData) {
       return {
         ...mainDoc,
-        kind: KIND_CHOICES.FORM,
-        formData,
+        kind: KIND_CHOICES.LEAD,
+        leadData,
       };
     }
 
     /**
      * Create an integration, intended as a private method
      */
-    public static createIntegration(doc: IIntegration) {
-      return Integrations.create(doc);
+    public static createIntegration(doc: IIntegration, userId: string) {
+      return Integrations.create({ ...doc, createdUserId: userId });
     }
 
     /**
      * Create a messenger kind integration
      */
-    public static createMessengerIntegration(doc: IMessengerIntegration) {
-      return this.createIntegration({
-        ...doc,
-        kind: KIND_CHOICES.MESSENGER,
-      });
+    public static createMessengerIntegration(doc: IMessengerIntegration, userId: string) {
+      return this.createIntegration({ ...doc, kind: KIND_CHOICES.MESSENGER }, userId);
     }
 
     /**
@@ -99,30 +96,33 @@ export const loadClass = () => {
     }
 
     /**
-     * Create a form kind integration
+     * Create a lead kind integration
      */
-    public static createFormIntegration({ formData = {}, ...mainDoc }: IIntegration) {
-      const doc = this.generateFormDoc({ ...mainDoc }, formData);
+    public static createLeadIntegration({ leadData = {}, ...mainDoc }: IIntegration, userId: string) {
+      const doc = this.generateLeadDoc({ ...mainDoc }, leadData);
 
-      if (Object.keys(formData || {}).length === 0) {
-        throw new Error('formData must be supplied');
+      if (Object.keys(leadData || {}).length === 0) {
+        throw new Error('leadData must be supplied');
       }
 
-      return Integrations.createIntegration(doc);
+      return Integrations.createIntegration(doc, userId);
     }
 
     /**
      * Create external integrations like facebook, twitter integration
      */
-    public static createExternalIntegration(doc: IExternalIntegrationParams): Promise<IIntegrationDocument> {
-      return Integrations.createIntegration(doc);
+    public static createExternalIntegration(
+      doc: IExternalIntegrationParams,
+      userId: string,
+    ): Promise<IIntegrationDocument> {
+      return Integrations.createIntegration(doc, userId);
     }
 
     /**
-     * Update form integration
+     * Update lead integration
      */
-    public static async updateFormIntegration(_id: string, { formData = {}, ...mainDoc }: IIntegration) {
-      const doc = this.generateFormDoc(mainDoc, formData);
+    public static async updateLeadIntegration(_id: string, { leadData = {}, ...mainDoc }: IIntegration) {
+      const doc = this.generateLeadDoc(mainDoc, leadData);
 
       await Integrations.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
@@ -146,17 +146,16 @@ export const loadClass = () => {
       await ConversationMessages.deleteMany({
         conversationId: { $in: conversationIds },
       });
+
       await Conversations.deleteMany({ integrationId: _id });
 
       // Remove customers ==================
       const customers = await Customers.find({ integrationId: _id });
       const customerIds = customers.map(cus => cus._id);
 
-      for (const customerId of customerIds) {
-        await Customers.removeCustomer(customerId);
-      }
+      await Customers.removeCustomers(customerIds);
 
-      // Remove form & fields
+      // Remove form
       if (integration.formId) {
         await Forms.removeForm(integration.formId);
       }

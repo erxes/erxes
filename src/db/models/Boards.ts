@@ -1,6 +1,5 @@
 import { Model, model } from 'mongoose';
-import { Deals, Tasks, Tickets } from './';
-import { updateOrder, watchItem } from './boardUtils';
+import { getCollection, updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
   IBoard,
@@ -12,6 +11,7 @@ import {
   pipelineSchema,
   stageSchema,
 } from './definitions/boards';
+import { getDuplicatedStages } from './PipelineTemplates';
 
 export interface IOrderInput {
   _id: string;
@@ -20,6 +20,22 @@ export interface IOrderInput {
 
 // Not mongoose document, just stage shaped plain object
 type IPipelineStage = IStage & { _id: string };
+
+const hasItem = async (type: string, pipelineId: string, prevItemIds: string[] = []) => {
+  const stages = await Stages.find({ pipelineId, _id: { $nin: prevItemIds } });
+
+  const collection = getCollection(type);
+
+  if (collection) {
+    for (const stage of stages) {
+      const itemCount = await collection.find({ stageId: stage._id }).countDocuments();
+
+      if (itemCount > 0) {
+        throw new Error('There is a stage that has a item');
+      }
+    }
+  }
+};
 
 const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId: string, type: string) => {
   let order = 0;
@@ -35,6 +51,8 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
   // fetch stage from database
   const prevEntries = await Stages.find({ _id: { $in: prevItemIds } });
   const prevEntriesIds = prevEntries.map(entry => entry._id);
+
+  await hasItem(type, pipelineId, prevItemIds);
 
   for (const stage of stages) {
     order++;
@@ -71,22 +89,6 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
     await Stages.bulkWrite(bulkOpsPrevEntry);
   }
 
-  const ITEMS = {
-    deal: Deals,
-    ticket: Tickets,
-    task: Tasks,
-  };
-
-  const remainedStages = await Stages.find({ pipelineId, _id: { $nin: prevItemIds } });
-
-  for (const stage of remainedStages) {
-    const itemCount = await ITEMS[type].find({ stageId: stage._id }).countDocuments();
-
-    if (itemCount > 0) {
-      throw new Error('There is a stage that has a item');
-    }
-  }
-
   return Stages.deleteMany({ pipelineId, _id: { $nin: validStageIds } });
 };
 
@@ -94,7 +96,7 @@ export interface IBoardModel extends Model<IBoardDocument> {
   getBoard(_id: string): Promise<IBoardDocument>;
   createBoard(doc: IBoard): Promise<IBoardDocument>;
   updateBoard(_id: string, doc: IBoard): Promise<IBoardDocument>;
-  removeBoard(_id: string): void;
+  removeBoard(_id: string): object;
 }
 
 export const loadBoardClass = () => {
@@ -138,10 +140,10 @@ export const loadBoardClass = () => {
         throw new Error('Board not found');
       }
 
-      const count = await Pipelines.find({ boardId: _id }).countDocuments();
+      const pipelines = await Pipelines.find({ boardId: _id });
 
-      if (count > 0) {
-        throw new Error("Can't remove a board");
+      for (const pipeline of pipelines) {
+        await hasItem(pipeline.type, pipeline._id);
       }
 
       return Boards.deleteOne({ _id });
@@ -183,7 +185,15 @@ export const loadPipelineClass = () => {
     public static async createPipeline(doc: IPipeline, stages: IPipelineStage[]) {
       const pipeline = await Pipelines.create(doc);
 
-      if (stages) {
+      if (doc.templateId) {
+        const duplicatedStages = await getDuplicatedStages({
+          templateId: doc.templateId,
+          pipelineId: pipeline._id,
+          type: doc.type,
+        });
+
+        await createOrUpdatePipelineStages(duplicatedStages, pipeline._id, pipeline.type);
+      } else if (stages) {
         await createOrUpdatePipelineStages(stages, pipeline._id, pipeline.type);
       }
 
@@ -191,10 +201,22 @@ export const loadPipelineClass = () => {
     }
 
     /**
-     * Update Pipeline
+     * Update a pipeline
      */
     public static async updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]) {
-      if (stages) {
+      if (doc.templateId) {
+        const pipeline = await Pipelines.getPipeline(_id);
+
+        if (doc.templateId !== pipeline.templateId) {
+          const duplicatedStages = await getDuplicatedStages({
+            templateId: doc.templateId,
+            pipelineId: _id,
+            type: doc.type,
+          });
+
+          await createOrUpdatePipelineStages(duplicatedStages, _id, doc.type);
+        }
+      } else if (stages) {
         await createOrUpdatePipelineStages(stages, _id, doc.type);
       }
 
@@ -211,20 +233,12 @@ export const loadPipelineClass = () => {
     }
 
     /**
-     * Remove Pipeline
+     * Remove a pipeline
      */
     public static async removePipeline(_id: string) {
-      const pipeline = await Pipelines.findOne({ _id });
+      const pipeline = await Pipelines.getPipeline(_id);
 
-      if (!pipeline) {
-        throw new Error('Pipeline not found');
-      }
-
-      const count = await Stages.find({ pipelineId: _id }).countDocuments();
-
-      if (count > 0) {
-        throw new Error("Can't remove a pipeline");
-      }
+      await hasItem(pipeline.type, pipeline._id);
 
       return Pipelines.deleteOne({ _id });
     }

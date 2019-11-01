@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Companies, Customers, ImportHistory } from '../db/models';
+import { Companies, Customers, ImportHistory, Products } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 import { connect } from './utils';
 
@@ -27,6 +27,10 @@ connect().then(async () => {
 
   if (contentType === 'company') {
     create = Companies.createCompany;
+  }
+
+  if (contentType === 'product') {
+    create = Products.createProduct;
   }
 
   // Iterating field values

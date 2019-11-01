@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import { sendMessage } from '../messageQueue';
+import { sendMessage } from '../messageBroker';
 
 /**
  * *    *    *    *    *    *

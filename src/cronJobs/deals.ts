@@ -1,48 +1,61 @@
 import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import utils from '../data/utils';
-import { Deals, Pipelines, Stages, Users } from '../db/models';
-import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../db/models/definitions/constants';
+import { Deals, Pipelines, Stages, Tasks, Tickets, Users } from '../db/models';
 
 /**
- * Send notification Deals dueDate
+ * Send notification Deals, Tasks and Tickets dueDate
  */
 export const sendNotifications = async () => {
   const now = new Date();
+  const collections = {
+    deal: Deals,
+    task: Tasks,
+    ticket: Tickets,
+    all: ['deal', 'task', 'ticket'],
+  };
 
-  const deals = await Deals.find({
-    closeDate: {
-      $gte: now,
-      $lte: moment(now)
-        .add(24, 'hour')
-        .toDate(),
-    },
-  });
-
-  for (const deal of deals) {
-    const stage = await Stages.getStage(deal.stageId || '');
-    const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
-
-    const user = await Users.findOne({ _id: deal.modifiedBy });
-
-    if (!user) {
-      return;
-    }
-
-    const content = `'${deal.name}' deal is due in upcoming`;
-
-    utils.sendNotification({
-      notifType: NOTIFICATION_TYPES.DEAL_DUE_DATE,
-      title: content,
-      content,
-      action: `Reminder:`,
-      link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`,
-      createdUser: user,
-      // exclude current user
-      contentType: NOTIFICATION_CONTENT_TYPES.DEAL,
-      contentTypeId: deal._id,
-      receivers: deal.assignedUserIds || [],
+  for (const type of collections.all) {
+    const objects = await collections[type].find({
+      closeDate: {
+        $gte: now,
+        $lte: moment()
+          .add(2, 'days')
+          .toDate(),
+      },
     });
+
+    for (const object of objects) {
+      const stage = await Stages.getStage(object.stageId || '');
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+
+      const user = await Users.findOne({ _id: object.modifiedBy });
+
+      if (!user) {
+        return;
+      }
+
+      const diffMinute = Math.floor((object.closeDate.getTime() - now.getTime()) / 60000);
+
+      if (Math.abs(diffMinute - (object.reminderMinute || 0)) < 5) {
+        const content = `${object.name} ${type} is due in upcoming`;
+
+        const url = `/${type === 'ticket' ? `inbox/${type}` : { type }}/board`;
+
+        utils.sendNotification({
+          notifType: `${type}DueDate`,
+          title: content,
+          content,
+          action: `Reminder:`,
+          link: `${url}?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${object._id}`,
+          createdUser: user,
+          // exclude current user
+          contentType: type,
+          contentTypeId: object._id,
+          receivers: object.assignedUserIds || [],
+        });
+      }
+    }
   }
 };
 
@@ -61,7 +74,8 @@ export default {
  * │    └──────────────────── minute (0 - 59)
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
-// every day in 23:45:00
-schedule.scheduleJob('0 45 23 * * *', () => {
+
+// every 5 minutes
+schedule.scheduleJob('*/5 * * * *', () => {
   sendNotifications();
 });

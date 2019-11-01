@@ -8,13 +8,18 @@ interface IListArgs {
   perPage?: number;
   searchValue?: string;
   isActive?: boolean;
+  requireUsername: boolean;
   ids?: string[];
   email?: string;
   status?: string;
 }
 
+interface IUserParams {
+  isActive?: boolean;
+}
+
 const queryBuilder = async (params: IListArgs) => {
-  const { searchValue, isActive, ids, status } = params;
+  const { searchValue, isActive, requireUsername, ids, status } = params;
 
   const selector: any = {
     isActive,
@@ -28,6 +33,10 @@ const queryBuilder = async (params: IListArgs) => {
     ];
 
     selector.$or = fields;
+  }
+
+  if (requireUsername) {
+    selector.username = { $ne: null };
   }
 
   if (isActive === undefined || isActive === null) {
@@ -49,8 +58,8 @@ const userQueries = {
   /**
    * Users list
    */
-  async users(_root, args: IListArgs) {
-    const selector = await queryBuilder(args);
+  async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
     const sort = { username: 1 };
 
     return paginate(Users.find(selector).sort(sort), args);
@@ -59,10 +68,14 @@ const userQueries = {
   /**
    * All users
    */
-  allUsers() {
-    const sort = { username: 1 };
+  allUsers(_root, args: IUserParams, { userBrandIdsSelector }: IContext) {
+    const selector: { isActive?: boolean } = userBrandIdsSelector;
 
-    return Users.find().sort(sort);
+    if (args.isActive) {
+      selector.isActive = true;
+    }
+
+    return Users.find(selector).sort({ username: 1 });
   },
 
   /**
@@ -75,8 +88,8 @@ const userQueries = {
   /**
    * Get all users count. We will use it in pager
    */
-  async usersTotalCount(_root, args: IListArgs) {
-    const selector = await queryBuilder(args);
+  async usersTotalCount(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
+    const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
 
     return Users.find(selector).countDocuments();
   },

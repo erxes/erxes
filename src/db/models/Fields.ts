@@ -27,7 +27,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
   removeField(_id: string): void;
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
   clean(_id: string, _value: string | Date | number): string | Date | number;
-  cleanMulti(data: { [key: string]: string }): any;
+  cleanMulti(data: { [key: string]: any }): any;
 
   updateFieldsVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string): Promise<IFieldDocument>;
 }

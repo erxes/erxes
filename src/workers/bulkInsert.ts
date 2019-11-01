@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as xlsxPopulate from 'xlsx-populate';
-import { checkFieldNames } from '../data/modules/coc/utils';
+import { checkFieldNames } from '../data/modules/fields/utils';
 import { can } from '../data/permissions/utils';
 import { ImportHistory } from '../db/models';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -32,7 +32,7 @@ export const importXlsFile = async (
       return reject(new Error('Please upgrade node version above 10.5.0 support worker_threads!'));
     }
 
-    const readStream = fs.createReadStream(path.basename(file.path));
+    const readStream = fs.createReadStream(file.path);
 
     // Directory to save file
     const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
@@ -43,10 +43,9 @@ export const importXlsFile = async (
         stream.on('finish', resolver);
         stream.on('error', rejecter);
       });
-
     // Creating streams
     const writeStream = fs.createWriteStream(downloadDir);
-    const streamObj = readStream.pipe(writeStream);
+    const streamObj = await readStream.pipe(writeStream);
 
     pipe(streamObj)
       .then(async () => {

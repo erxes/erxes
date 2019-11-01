@@ -1,8 +1,11 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { Brands, Forms, Integrations, Segments } from '../../../db/models';
+import { IConformityQueryParams } from '../../../data/modules/conformities/types';
+import { Brands, FormSubmissions, Integrations, Segments } from '../../../db/models';
 import { STATUSES } from '../../../db/models/definitions/constants';
+import { regexSearchText } from '../../utils';
 import QueryBuilder from '../segments/queryBuilder';
+import { conformityFilterUtils } from './utils';
 
 interface ISortParams {
   [index: string]: number;
@@ -25,7 +28,7 @@ interface IIn {
   $in: string[];
 }
 
-export interface IListArgs {
+export interface IListArgs extends IConformityQueryParams {
   page?: number;
   perPage?: number;
   segment?: string;
@@ -123,19 +126,8 @@ export class Builder {
   }
 
   // filter by search value
-  public searchFilter(value: string): { $or: any } {
-    const fields = [
-      { firstName: new RegExp(`.*${value}.*`, 'i') },
-      { lastName: new RegExp(`.*${value}.*`, 'i') },
-      { primaryEmail: new RegExp(`.*${value}.*`, 'i') },
-      { primaryPhone: new RegExp(`.*${value}.*`, 'i') },
-      { emails: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
-      { phones: { $in: [new RegExp(`.*${value}.*`, 'i')] } },
-      { 'visitorContactInfo.email': new RegExp(`.*${value}.*`, 'i') },
-      { 'visitorContactInfo.phone': new RegExp(`.*${value}.*`, 'i') },
-    ];
-
-    return { $or: fields };
+  public searchFilter(value: string): { $and: any } {
+    return regexSearchText(value);
   }
 
   // filter by id
@@ -155,22 +147,23 @@ export class Builder {
 
   // filter by form
   public async formFilter(formId: string, startDate?: string, endDate?: string): Promise<IIdsFilter> {
-    const formObj = await Forms.findOne({ _id: formId });
-    const { submissions = [] } = formObj || {};
+    const submissions = await FormSubmissions.find({ formId });
     const ids: string[] = [];
 
     for (const submission of submissions) {
       const { customerId, submittedAt } = submission;
 
-      // Collecting customerIds inbetween dates only
-      if (startDate && endDate && !ids.includes(customerId)) {
-        if (moment(submittedAt).isBetween(startDate, endDate)) {
+      if (customerId) {
+        // Collecting customerIds inbetween dates only
+        if (startDate && endDate && !ids.includes(customerId)) {
+          if (moment(submittedAt).isBetween(startDate, endDate)) {
+            ids.push(customerId);
+          }
+
+          // If date is not specified collecting all customers
+        } else {
           ids.push(customerId);
         }
-
-        // If date is not specified collecting all customers
-      } else {
-        ids.push(customerId);
       }
     }
 
@@ -191,6 +184,7 @@ export class Builder {
       integration: {},
       form: {},
       integrationType: {},
+      filterConformity: {},
     };
 
     // filter by type
@@ -244,6 +238,9 @@ export class Builder {
       this.queries.searchValue = this.searchFilter(this.params.searchValue);
     }
 
+    // Filter by related Conformity
+    this.queries.filterConformity = await conformityFilterUtils(this.queries.filterConformity, this.params, 'customer');
+
     // filter by leadStatus
     if (this.params.leadStatus) {
       this.queries.leadStatus = this.leadStatusFilter(this.params.leadStatus);
@@ -270,6 +267,7 @@ export class Builder {
       ...this.queries.searchValue,
       ...this.queries.leadStatus,
       ...this.queries.lifecycleState,
+      ...this.queries.filterConformity,
     };
   }
 }

@@ -30,19 +30,20 @@ describe('Fields', () => {
     }
 
     // first attempt
-    let field = await Fields.createField({ contentType: 'customer' });
+    let field = await Fields.createField({ contentType: 'customer', text: 'text' });
     expect(field.order).toBe(0);
 
     // second attempt
-    field = await Fields.createField({ contentType: 'customer' });
+    field = await Fields.createField({ contentType: 'customer', text: 'text' });
     expect(field.order).toBe(1);
 
     // third attempt
-    field = await Fields.createField({ contentType: 'customer' });
+    field = await Fields.createField({ contentType: 'customer', text: 'text' });
     expect(field.order).toBe(2);
 
     field = await Fields.createField({
       contentType: 'customer',
+      text: 'text',
       groupId: group._id,
     });
     expect(field.order).toBe(0);
@@ -56,16 +57,17 @@ describe('Fields', () => {
     // first attempt
     let field = await Fields.createField({
       contentType,
+      text: 'text',
       contentTypeId: form1._id,
     });
     expect(field.order).toBe(0);
 
     // second attempt
-    field = await Fields.createField({ contentType, contentTypeId: form1._id });
+    field = await Fields.createField({ contentType, contentTypeId: form1._id, text: 'text' });
     expect(field.order).toBe(1);
 
     // must create new order
-    field = await Fields.createField({ contentType, contentTypeId: form2._id });
+    field = await Fields.createField({ contentType, contentTypeId: form2._id, text: 'text' });
     expect(field.order).toBe(0);
   });
 
@@ -73,7 +75,7 @@ describe('Fields', () => {
     expect.assertions(1);
 
     try {
-      await Fields.createField({ contentType: 'form' });
+      await Fields.createField({ contentType: 'form', text: 'text' });
     } catch (e) {
       expect(e.message).toEqual('Content type id is required');
     }
@@ -86,6 +88,7 @@ describe('Fields', () => {
       await Fields.createField({
         contentType: 'form',
         contentTypeId: 'DFAFDFADS',
+        text: 'text',
       });
     } catch (e) {
       expect(e.message).toEqual('Form not found with _id of DFAFDFADS');
@@ -126,7 +129,7 @@ describe('Fields', () => {
     const fieldObj = await Fields.updateField(_field._id, fieldDoc);
 
     try {
-      await Fields.updateField(testField._id, {});
+      await Fields.updateField(testField._id, { text: 'text' });
     } catch (e) {
       expect(e.message).toBe('Cant update this field');
     }
@@ -164,7 +167,7 @@ describe('Fields', () => {
     }
 
     try {
-      await Fields.updateField(testField._id, {});
+      await Fields.updateField(testField._id, { text: 'text' });
     } catch (e) {
       expect(e.message).toBe('Cant update this field');
     }

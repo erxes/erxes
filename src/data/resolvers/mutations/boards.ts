@@ -27,7 +27,7 @@ const boardMutations = {
 
     await putCreateLog(
       {
-        type: 'board',
+        type: `${doc.type}Boards`,
         newData: JSON.stringify(doc),
         description: `${doc.name} has been created`,
         object: board,
@@ -41,16 +41,16 @@ const boardMutations = {
   /**
    * Edit board
    */
-  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user, docModifier }: IContext) {
+  async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user }: IContext) {
     await checkPermission(doc.type, user, 'boardsEdit');
 
     const board = await Boards.findOne({ _id });
-    const updated = await Boards.updateBoard(_id, docModifier(doc));
+    const updated = await Boards.updateBoard(_id, doc);
 
     if (board) {
       await putUpdateLog(
         {
-          type: 'board',
+          type: `${doc.type}Boards`,
           newData: JSON.stringify(doc),
           description: `${doc.name} has been edited`,
           object: board,
@@ -66,18 +66,20 @@ const boardMutations = {
    * Remove board
    */
   async boardsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const board = await Boards.findOne({ _id });
+    const board = await Boards.getBoard(_id);
 
     if (board) {
       await checkPermission(board.type, user, 'boardsRemove');
     }
 
+    const type = `${board.type}Boards`;
+
     const removed = await Boards.removeBoard(_id);
 
-    if (board && removed) {
+    if (removed) {
       await putDeleteLog(
         {
-          type: 'board',
+          type,
           object: board,
           description: `${board.name} has been removed`,
         },
@@ -92,7 +94,19 @@ const boardMutations = {
   async pipelinesAdd(_root, { stages, ...doc }: IPipelinesAdd, { user }: IContext) {
     await checkPermission(doc.type, user, 'pipelinesAdd');
 
-    return Pipelines.createPipeline({ userId: user._id, ...doc }, stages);
+    const pipeline = await Pipelines.createPipeline({ userId: user._id, ...doc }, stages);
+
+    await putCreateLog(
+      {
+        type: `${doc.type}Pipelines`,
+        newData: JSON.stringify(doc),
+        description: `${doc.name} has been created`,
+        object: pipeline,
+      },
+      user,
+    );
+
+    return pipeline;
   },
 
   /**

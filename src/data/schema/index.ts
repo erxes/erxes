@@ -103,7 +103,26 @@ import { mutations as TicketMutations, queries as TicketQueries, types as Ticket
 
 import { mutations as TaskMutations, queries as TaskQueries, types as TaskTypes } from './task';
 
+import { mutations as GrowthHackMutations, queries as GrowthHackQueries, types as GrowthHackTypes } from './growthHack';
+
 import { queries as LogQueries, types as LogTypes } from './log';
+
+import {
+  mutations as PipelineTemplateMutations,
+  queries as PipelineTemplateQueries,
+  types as PipelineTemplateTypes,
+} from './pipelineTemplate';
+
+import { mutations as RobotMutations, queries as RobotQueries, types as RobotTypes } from './robot';
+
+import { mutations as ConformityMutations, types as ConformityTypes } from './conformity';
+
+import { mutations as ChecklistMutations, queries as ChecklistQueries, types as ChecklistTypes } from './checklist';
+import {
+  mutations as PipelineLabelMutations,
+  queries as PipelineLabelQueries,
+  types as PipelineLabelTypes,
+} from './pipelineLabel';
 
 export const types = `
   scalar JSON
@@ -123,6 +142,7 @@ export const types = `
   ${TagTypes}
   ${FieldTypes}
   ${FormTypes}
+  ${ConformityTypes}
   ${CustomerTypes}
   ${SegmentTypes}
   ${ConversationTypes}
@@ -140,6 +160,11 @@ export const types = `
   ${TicketTypes}
   ${TaskTypes}
   ${LogTypes}
+  ${GrowthHackTypes}
+  ${PipelineTemplateTypes}
+  ${ChecklistTypes}
+  ${RobotTypes}
+  ${PipelineLabelTypes}
 `;
 
 export const queries = `
@@ -175,6 +200,11 @@ export const queries = `
     ${TicketQueries}
     ${TaskQueries}
     ${LogQueries}
+    ${GrowthHackQueries}
+    ${PipelineTemplateQueries}
+    ${ChecklistQueries}
+    ${RobotQueries}
+    ${PipelineLabelQueries}
   }
 `;
 
@@ -208,6 +238,12 @@ export const mutations = `
     ${PermissionMutations}
     ${TicketMutations}
     ${TaskMutations}
+    ${GrowthHackMutations}
+    ${PipelineTemplateMutations}
+    ${ConformityMutations}
+    ${ChecklistMutations}
+    ${RobotMutations}
+    ${PipelineLabelMutations}
   }
 `;
 
@@ -218,10 +254,12 @@ export const subscriptions = `
     conversationClientMessageInserted(userId: String!): ConversationMessage
     conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
     conversationAdminMessageInserted(customerId: String!): ConversationMessage
+    conversationExternalIntegrationMessageInserted: JSON
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
     activityLogsChanged: Boolean
     importHistoryChanged(_id: String!): ImportHistory
     notificationInserted(userId: String): Notification
+    onboardingChanged(userId: String!): OnboardingNotification
   }
 `;
 

@@ -1,15 +1,36 @@
-import { Companies, Customers, Notifications, Pipelines, Stages, Users } from '../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Notifications,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Users,
+} from '../../db/models';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  companies(ticket: ITicketDocument) {
-    return Companies.find({ _id: { $in: ticket.companyIds || [] } });
+  async companies(ticket: ITicketDocument) {
+    const companyIds = await Conformities.savedConformity({
+      mainType: 'ticket',
+      mainTypeId: ticket._id,
+      relType: 'company',
+    });
+
+    return Companies.find({ _id: { $in: companyIds || [] } });
   },
 
-  customers(ticket: ITicketDocument) {
-    return Customers.find({ _id: { $in: ticket.customerIds || [] } });
+  async customers(ticket: ITicketDocument) {
+    const customerIds = await Conformities.savedConformity({
+      mainType: 'ticket',
+      mainTypeId: ticket._id,
+      relType: 'customer',
+    });
+
+    return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
   assignedUsers(ticket: ITicketDocument) {
@@ -17,11 +38,7 @@ export default {
   },
 
   async pipeline(ticket: ITicketDocument) {
-    const stage = await Stages.findOne({ _id: ticket.stageId });
-
-    if (!stage) {
-      return null;
-    }
+    const stage = await Stages.getStage(ticket.stageId || '');
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -31,7 +48,7 @@ export default {
   },
 
   stage(ticket: ITicketDocument) {
-    return Stages.findOne({ _id: ticket.stageId });
+    return Stages.getStage(ticket.stageId || '');
   },
 
   isWatched(ticket: ITicketDocument, _args, { user }: IContext) {
@@ -44,7 +61,11 @@ export default {
     return false;
   },
 
-  hasNotified(deal: ITicketDocument, _args, { user }: IContext) {
-    return Notifications.checkIfRead(user._id, deal._id);
+  hasNotified(ticket: ITicketDocument, _args, { user }: IContext) {
+    return Notifications.checkIfRead(user._id, ticket._id);
+  },
+
+  labels(ticket: ITicketDocument) {
+    return PipelineLabels.find({ _id: { $in: ticket.labelIds } });
   },
 };

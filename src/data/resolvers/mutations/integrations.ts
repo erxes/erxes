@@ -9,7 +9,7 @@ interface IEditMessengerIntegration extends IMessengerIntegration {
   _id: string;
 }
 
-interface IEditFormIntegration extends IIntegration {
+interface IEditLeadIntegration extends IIntegration {
   _id: string;
 }
 
@@ -18,19 +18,17 @@ const integrationMutations = {
    * Create a new messenger integration
    */
   async integrationsCreateMessengerIntegration(_root, doc: IMessengerIntegration, { user }: IContext) {
-    const integration = await Integrations.createMessengerIntegration(doc);
+    const integration = await Integrations.createMessengerIntegration(doc, user._id);
 
-    if (integration) {
-      await putCreateLog(
-        {
-          type: 'integration',
-          newData: JSON.stringify(doc),
-          object: integration,
-          description: `${integration.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'messengerIntegration',
+        newData: JSON.stringify(doc),
+        object: integration,
+        description: `${integration.name} has been created`,
+      },
+      user,
+    );
 
     return integration;
   },
@@ -74,15 +72,27 @@ const integrationMutations = {
   /**
    * Create a new messenger integration
    */
-  integrationsCreateFormIntegration(_root, doc: IIntegration) {
-    return Integrations.createFormIntegration(doc);
+  async integrationsCreateLeadIntegration(_root, doc: IIntegration, { user }: IContext) {
+    const integration = await Integrations.createLeadIntegration(doc, user._id);
+
+    await putCreateLog(
+      {
+        type: 'leadIntegration',
+        newData: JSON.stringify(doc),
+        object: integration,
+        description: `${integration.name} has been created`,
+      },
+      user,
+    );
+
+    return integration;
   },
 
   /**
-   * Edit a form integration
+   * Edit a lead integration
    */
-  integrationsEditFormIntegration(_root, { _id, ...doc }: IEditFormIntegration) {
-    return Integrations.updateFormIntegration(_id, doc);
+  integrationsEditLeadIntegration(_root, { _id, ...doc }: IEditLeadIntegration) {
+    return Integrations.updateLeadIntegration(_id, doc);
   },
 
   /*
@@ -91,16 +101,41 @@ const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { dataSources }: IContext,
+    { user, dataSources }: IContext,
   ) {
-    const integration = await Integrations.createExternalIntegration(doc);
+    const integration = await Integrations.createExternalIntegration(doc, user._id);
+
+    let kind = doc.kind;
+
+    if (kind.includes('nylas')) {
+      kind = 'nylas';
+    }
+
+    if (kind.includes('facebook')) {
+      kind = 'facebook';
+    }
+
+    if (kind === 'twitter-dm') {
+      kind = 'twitter';
+    }
 
     try {
-      await dataSources.IntegrationsAPI.createIntegration(doc.kind, {
+      await dataSources.IntegrationsAPI.createIntegration(kind, {
         accountId: doc.accountId,
+        kind: doc.kind,
         integrationId: integration._id,
         data: data ? JSON.stringify(data) : '',
       });
+
+      await putCreateLog(
+        {
+          type: `${kind}Integration`,
+          newData: JSON.stringify(doc),
+          object: integration,
+          description: `${integration.name} has been created`,
+        },
+        user,
+      );
     } catch (e) {
       await Integrations.remove({ _id: integration._id });
       throw new Error(e);
@@ -110,13 +145,41 @@ const integrationMutations = {
   },
 
   /**
+   * Create IMAP account
+   */
+  async integrationAddImapAccount(_root, data, { dataSources }) {
+    return dataSources.IntegrationsAPI.createAccount(data);
+  },
+
+  /**
+   * Create Yahoo, Outlook account
+   */
+  async integrationAddMailAccount(_root, data, { dataSources }) {
+    return dataSources.IntegrationsAPI.createAccount(data);
+  },
+
+  /**
    * Delete an integration
    */
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
     const integration = await Integrations.findOne({ _id });
 
     if (integration) {
-      if (['facebook', 'gmail', 'callpro'].includes(integration.kind || '')) {
+      if (
+        [
+          'facebook-messenger',
+          'facebook-post',
+          'gmail',
+          'callpro',
+          'nylas-gmail',
+          'nylas-imap',
+          'nylas-office365',
+          'nylas-outlook',
+          'nylas-yahoo',
+          'chatfuel',
+          'twitter-dm',
+        ].includes(integration.kind || '')
+      ) {
         await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
       }
 
@@ -141,14 +204,20 @@ const integrationMutations = {
   },
 
   /**
-   * Send gmail
+   * Send mail
    */
   async integrationSendMail(_root, args: any, { dataSources }: IContext) {
-    const { erxesApiId, ...mailParams } = args;
+    const { erxesApiId, ...doc } = args;
 
-    return dataSources.IntegrationsAPI.sendEmail({
+    let kind = doc.kind;
+
+    if (kind.includes('nylas')) {
+      kind = 'nylas';
+    }
+
+    return dataSources.IntegrationsAPI.sendEmail(kind, {
       erxesApiId,
-      data: JSON.stringify(mailParams),
+      data: JSON.stringify(doc),
     });
   },
 };
@@ -164,8 +233,8 @@ checkPermission(
   'integrationsSaveMessengerAppearanceData',
 );
 checkPermission(integrationMutations, 'integrationsSaveMessengerConfigs', 'integrationsSaveMessengerConfigs');
-checkPermission(integrationMutations, 'integrationsCreateFormIntegration', 'integrationsCreateFormIntegration');
-checkPermission(integrationMutations, 'integrationsEditFormIntegration', 'integrationsEditFormIntegration');
+checkPermission(integrationMutations, 'integrationsCreateLeadIntegration', 'integrationsCreateLeadIntegration');
+checkPermission(integrationMutations, 'integrationsEditLeadIntegration', 'integrationsEditLeadIntegration');
 checkPermission(integrationMutations, 'integrationsRemove', 'integrationsRemove');
 
 export default integrationMutations;

@@ -26,6 +26,7 @@ export const types = `
     tagIds: [String]
 
     messages: [ConversationMessage]
+    facebookPost: FacebookPost
     tags: [Tag]
     customer: Customer
     integration: Integration
@@ -69,27 +70,61 @@ export const types = `
     messengerAppData: JSON
     user: User
     customer: Customer
-    gmailData: Gmail
+    mailData: MailData
   }
 
-  type Gmail {
+  type FacebookPost {
+    postId: String
+    recipientId: String
+    senderId: String
+    content:String
+    erxesApiId: String
+    attachments: [String]
+    timestamp: Date
+    commentCount: Int
+  }
+
+  type FacebookComment {
+    conversationId: String
+    commentId: String
+    postId: String
+    parentId: String
+    recipientId:String
+    senderId: String
+    attachments: [String]
+    content: String
+    erxesApiId: String
+    timestamp: Date
+    customer: Customer
+    commentCount: Int
+  }
+
+  type Email {
+    email: String
+  }
+
+  type MailData {
     messageId: String,
-    headerId: String,
-    from: String,
-    to: String,
-    cc: String,
-    bcc: String,
-    reply: [String],
-    references: String,
     threadId: String,
     subject: String,
-    textPlain: String,
-    textHtml: String,
-    attachments: [GmailAttachment],
+    body: String,
     integrationEmail: String,
+    to: [Email],
+    from: [Email],
+    cc: [Email],
+    bcc: [Email],
+    accountId: String,
+    replyToMessageId: [String],
+    replyTo: [String],
+    reply: [String],
+    references: String,
+    headerId: String,
+    attachments: [MailAttachment]
   }
 
-  type GmailAttachment {
+  type MailAttachment {
+    id: String,
+    content_type: String,
     filename: String,
     mimeType: String,
     size: Int,
@@ -150,6 +185,13 @@ export const queries = `
     limit: Int
   ): [ConversationMessage]
 
+  facebookComments(
+    postId: String!
+    commentId: String
+    skip: Int
+    limit: Int
+  ): [FacebookComment]
+
   conversationMessagesTotalCount(conversationId: String!): Int
   conversationCounts(${filterParams}, only: String): JSON
   conversationsTotalCount(${filterParams}): Int
@@ -166,7 +208,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
   ): ConversationMessage
-
+  conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]

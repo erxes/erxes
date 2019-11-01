@@ -25,6 +25,32 @@ interface IConversationMessageAdd {
   attachments?: any;
 }
 
+interface IReplyFacebookComment {
+  conversationId: string;
+  commentId: string;
+  content: string;
+}
+/**
+ *  Send conversation to integrations
+ */
+
+const sendConversationToIntegrations = (
+  integrationId: string,
+  conversationId: string,
+  requestName: string,
+  doc: IConversationMessageAdd,
+  dataSources: any,
+) => {
+  if (dataSources && dataSources.IntegrationsAPI && requestName) {
+    return dataSources.IntegrationsAPI[requestName]({
+      conversationId,
+      integrationId,
+      content: strip(doc.content),
+      attachments: doc.attachments || [],
+    });
+  }
+};
+
 /**
  * conversation notrification receiver ids
  */
@@ -196,6 +222,8 @@ const conversationMutations = {
     }
 
     const kind = integration.kind;
+    const integrationId = integration.id;
+    const conversationId = conversation.id;
 
     const customer = await Customers.findOne({ _id: conversation.customerId });
 
@@ -203,7 +231,7 @@ const conversationMutations = {
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    if (kind === KIND_CHOICES.FORM && email) {
+    if (kind === KIND_CHOICES.LEAD && email) {
       utils.sendEmail({
         toEmails: [email],
         title: 'Reply',
@@ -213,22 +241,57 @@ const conversationMutations = {
       });
     }
 
+    let requestName;
+
+    if (kind === KIND_CHOICES.FACEBOOK_POST) {
+      requestName = 'replyFacebookPost';
+
+      try {
+        const response = await sendConversationToIntegrations(
+          integrationId,
+          conversationId,
+          requestName,
+          doc,
+          dataSources,
+        );
+
+        return debugExternalApi(response);
+      } catch (e) {
+        debugExternalApi(e.message);
+        return e;
+      }
+    }
+
     const message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
-    if (kind === KIND_CHOICES.FACEBOOK) {
-      dataSources.IntegrationsAPI.replyFacebook({
-        conversationId: conversation._id,
-        integrationId: integration._id,
-        content: strip(doc.content),
-        attachments: doc.attachments || [],
-      })
-        .then(response => {
-          debugExternalApi(response);
-        })
-        .catch(e => {
-          debugExternalApi(e.message);
-        });
+    if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
+      requestName = 'replyFacebook';
+    }
+
+    // send reply to chatfuel
+    if (kind === KIND_CHOICES.CHATFUEL) {
+      requestName = 'replyChatfuel';
+    }
+
+    if (kind === KIND_CHOICES.TWITTER_DM) {
+      requestName = 'replyTwitterDm';
+    }
+
+    try {
+      const response = await sendConversationToIntegrations(
+        integrationId,
+        conversationId,
+        requestName,
+        doc,
+        dataSources,
+      );
+
+      debugExternalApi(response);
+    } catch (e) {
+      debugExternalApi(e.message);
+      ConversationMessages.deleteOne({ _id: message._id });
+      return e;
     }
 
     const dbMessage = await ConversationMessages.findOne({
@@ -239,6 +302,50 @@ const conversationMutations = {
     publishMessage(dbMessage, conversation.customerId);
 
     return dbMessage;
+  },
+
+  async conversationsReplyFacebookComment(_root, doc: IReplyFacebookComment, { user, dataSources }: IContext) {
+    const conversation = await Conversations.findOne({
+      _id: doc.conversationId,
+    });
+
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
+
+    const integration = await Integrations.findOne({
+      _id: conversation.integrationId,
+    });
+
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    await sendNotifications({
+      user,
+      conversations: [conversation],
+      type: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
+      mobile: true,
+      messageContent: doc.content || '',
+    });
+
+    const requestName = 'replyFacebookPost';
+    const integrationId = integration.id;
+    const conversationId = doc.commentId;
+
+    try {
+      const response = await sendConversationToIntegrations(
+        integrationId,
+        conversationId,
+        requestName,
+        doc,
+        dataSources,
+      );
+      return debugExternalApi(response);
+    } catch (e) {
+      debugExternalApi(e.message);
+      return e;
+    }
   },
 
   /**

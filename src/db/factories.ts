@@ -8,8 +8,11 @@ import {
   Boards,
   Brands,
   Channels,
+  ChecklistItems,
+  Checklists,
   Companies,
   Configs,
+  Conformities,
   ConversationMessages,
   Conversations,
   Customers,
@@ -19,6 +22,8 @@ import {
   Fields,
   FieldsGroups,
   Forms,
+  FormSubmissions,
+  GrowthHacks,
   ImportHistory,
   Integrations,
   InternalNotes,
@@ -29,7 +34,9 @@ import {
   NotificationConfigurations,
   Notifications,
   Permissions,
+  PipelineLabels,
   Pipelines,
+  ProductCategories,
   Products,
   ResponseTemplates,
   Segments,
@@ -46,6 +53,7 @@ import {
   ACTIVITY_PERFORMER_TYPES,
   ACTIVITY_TYPES,
   BOARD_TYPES,
+  FORM_TYPES,
   NOTIFICATION_TYPES,
   PRODUCT_TYPES,
   STATUSES,
@@ -53,6 +61,7 @@ import {
 import { IEmail, IMessenger } from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';
+import PipelineTemplates from './models/PipelineTemplates';
 
 interface IActivityLogFactoryInput {
   performer?: IActionPerformer;
@@ -200,6 +209,40 @@ export const brandFactory = (params: IBrandFactoryInput = {}) => {
   return brand.save();
 };
 
+interface ITemplateInput {
+  stages?: any[];
+}
+
+export const pipelineTemplateFactory = (params: ITemplateInput = {}) => {
+  const pipelineTemplate = new PipelineTemplates({
+    name: faker.random.word(),
+    description: faker.random.word(),
+    type: BOARD_TYPES.GROWTH_HACK,
+    stages: params.stages || [
+      { name: faker.random.word(), formId: faker.random.word() },
+      { name: faker.random.word(), formId: faker.random.word() },
+    ],
+  });
+
+  return pipelineTemplate.save();
+};
+
+interface ILabelInput {
+  name?: string;
+  colorCode?: string;
+  pipelineId?: string;
+}
+
+export const pipelineLabelFactory = (params: ILabelInput = {}) => {
+  const pipelineLabel = new PipelineLabels({
+    name: params.name || faker.random.word(),
+    colorCode: params.colorCode || faker.random.word(),
+    pipelineId: params.pipelineId || faker.random.word(),
+  });
+
+  return pipelineLabel.save();
+};
+
 interface IEmailTemplateFactoryInput {
   content?: string;
 }
@@ -287,6 +330,38 @@ export const internalNoteFactory = (params: IInternalNoteFactoryInput) => {
   return internalNote.save();
 };
 
+interface IChecklistFactoryInput {
+  contentType?: string;
+  contentTypeId?: string;
+  title?: string;
+}
+
+export const checklistFactory = (params: IChecklistFactoryInput) => {
+  const checklist = new Checklists({
+    contentType: params.contentType || ACTIVITY_CONTENT_TYPES.DEAL,
+    contentTypeId: params.contentTypeId || faker.random.uuid().toString(),
+    title: params.title || faker.random.uuid().toString(),
+  });
+
+  return checklist.save();
+};
+
+interface IChecklistItemFactoryInput {
+  checklistId?: string;
+  content?: string;
+  isChecked?: boolean;
+}
+
+export const checklistItemFactory = (params: IChecklistItemFactoryInput) => {
+  const checklistItem = new ChecklistItems({
+    checklistId: params.checklistId || faker.random.uuid().toString,
+    content: params.content || faker.random.uuid().toString,
+    isChecked: params.isChecked || false,
+  });
+
+  return checklistItem.save();
+};
+
 interface ICompanyFactoryInput {
   primaryName?: string;
   names?: string[];
@@ -307,7 +382,7 @@ interface ICompanyFactoryInput {
 }
 
 export const companyFactory = (params: ICompanyFactoryInput = {}) => {
-  const company = new Companies({
+  const companyDoc = {
     primaryName: params.primaryName || faker.random.word(),
     names: params.names || [faker.random.word()],
     size: params.size || faker.random.number(),
@@ -318,13 +393,21 @@ export const companyFactory = (params: ICompanyFactoryInput = {}) => {
     leadStatus: params.leadStatus || 'open',
     status: params.status || STATUSES.ACTIVE,
     lifecycleState: params.lifecycleState || 'lead',
-    createdAt: params.createdAt || new Date(),
-    modifiedAt: params.modifiedAt || new Date(),
     phones: params.phones || [],
     emails: params.emails || [],
     primaryPhone: params.primaryPhone || '',
     primaryEmail: params.primaryEmail || '',
+  };
+
+  const searchText = Companies.fillSearchText({ ...companyDoc });
+
+  Object.assign(companyDoc, {
+    createdAt: params.createdAt || new Date(),
+    modifiedAt: params.modifiedAt || new Date(),
+    searchText,
   });
+
+  const company = new Companies(companyDoc);
 
   return company.save();
 };
@@ -343,7 +426,6 @@ interface ICustomerFactoryInput {
   lifecycleState?: string;
   messengerData?: any;
   customFieldsData?: any;
-  companyIds?: string[];
   tagIds?: string[];
   ownerId?: string;
   hasValidEmail?: boolean;
@@ -364,7 +446,6 @@ export const customerFactory = (params: ICustomerFactoryInput = {}, useModelMeth
     lifecycleState: params.lifecycleState || 'lead',
     messengerData: params.messengerData || {},
     customFieldsData: params.customFieldsData || {},
-    companyIds: params.companyIds || [faker.random.number(), faker.random.number()],
     tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
     hasValidEmail: params.hasValidEmail || false,
@@ -497,7 +578,7 @@ interface IIntegrationFactoryInput {
   kind?: string;
   brandId?: string;
   formId?: string;
-  formData?: any | string;
+  leadData?: any | string;
   tagIds?: string[];
 }
 
@@ -510,35 +591,43 @@ export const integrationFactory = async (params: IIntegrationFactoryInput = {}) 
     brandId: params.brandId || Random.id(),
     formId: params.formId || Random.id(),
     messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
-    formData: params.formData === 'form' ? params.formData : kind === 'form' ? { thankContent: 'thankContent' } : null,
+    leadData: params.leadData === 'lead' ? params.leadData : kind === 'lead' ? { thankContent: 'thankContent' } : null,
     tagIds: params.tagIds || [],
   };
 
   return Integrations.create(doc);
 };
 
-interface IFormSubmission {
-  customerId: string;
-  submittedAt: Date;
-}
-
 interface IFormFactoryInput {
   title?: string;
   code?: string;
+  type?: string;
   description?: string;
   createdUserId?: string;
-  submissions?: IFormSubmission[];
 }
 
 export const formFactory = async (params: IFormFactoryInput = {}) => {
-  const { title, description, code, submissions, createdUserId } = params;
+  const { title, description, code, type, createdUserId } = params;
 
   return Forms.create({
     title: title || faker.random.word(),
     description: description || faker.random.word(),
     code: code || Random.id(),
-    submissions: submissions || [],
+    type: type || FORM_TYPES.GROWTH_HACK,
     createdUserId: createdUserId || (await userFactory({})),
+  });
+};
+
+interface IFormSubmissionFactoryInput {
+  customerId?: string;
+  formId?: string;
+}
+
+export const formSubmissionFactory = async (params: IFormSubmissionFactoryInput = {}) => {
+  return FormSubmissions.create({
+    submittedAt: new Date(),
+    customerId: params.customerId || faker.random.word(),
+    formId: params.formId || faker.random.word(),
   });
 };
 
@@ -713,27 +802,27 @@ export const stageFactory = (params: IStageFactoryInput = {}) => {
   return stage.save();
 };
 
-interface ITicketFactoryInput {
+interface IDealFactoryInput {
   stageId?: string;
   productsData?: any;
   closeDate?: Date;
-  customerIds?: string[];
-  companyIds?: string[];
   noCloseDate?: boolean;
   assignedUserIds?: string[];
+  watchedUserIds?: string[];
+  labelIds?: string[];
+  modifiedBy?: string;
 }
 
-export const dealFactory = (params: ITicketFactoryInput = {}) => {
+export const dealFactory = (params: IDealFactoryInput = {}) => {
   const deal = new Deals({
     ...params,
     name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyIds: params.companyIds || [faker.random.word()],
-    customerIds: params.customerIds || [faker.random.word()],
     amount: faker.random.objectElement(),
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
+    labelIds: params.labelIds || [],
   });
 
   return deal.save();
@@ -742,8 +831,6 @@ export const dealFactory = (params: ITicketFactoryInput = {}) => {
 interface ITaskFactoryInput {
   stageId?: string;
   closeDate?: Date;
-  customerIds?: string[];
-  companyIds?: string[];
   noCloseDate?: boolean;
   assignedUserIds?: string[];
 }
@@ -753,8 +840,6 @@ export const taskFactory = (params: ITaskFactoryInput = {}) => {
     ...params,
     name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyIds: params.companyIds || [faker.random.word()],
-    customerIds: params.customerIds || [faker.random.word()],
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
@@ -766,8 +851,6 @@ export const taskFactory = (params: ITaskFactoryInput = {}) => {
 interface ITicketFactoryInput {
   stageId?: string;
   closeDate?: Date;
-  customerIds?: string[];
-  companyIds?: string[];
   noCloseDate?: boolean;
   assignedUserIds?: string[];
 }
@@ -777,14 +860,38 @@ export const ticketFactory = (params: ITicketFactoryInput = {}) => {
     ...params,
     name: faker.random.word(),
     stageId: params.stageId || faker.random.word(),
-    companyIds: params.companyIds || [faker.random.word()],
-    customerIds: params.customerIds || [faker.random.word()],
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
   });
 
   return ticket.save();
+};
+
+interface IGrowthHackFactoryInput {
+  stageId?: string;
+  closeDate?: Date;
+  customerIds?: string[];
+  companyIds?: string[];
+  noCloseDate?: boolean;
+  assignedUserIds?: string[];
+  hackStages?: string[];
+}
+
+export const growthHackFactory = (params: IGrowthHackFactoryInput = {}) => {
+  const growthHack = new GrowthHacks({
+    ...params,
+    name: faker.random.word(),
+    stageId: params.stageId || faker.random.word(),
+    companyIds: params.companyIds || [faker.random.word()],
+    customerIds: params.customerIds || [faker.random.word()],
+    ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
+    description: faker.random.word(),
+    assignedUserIds: params.assignedUserIds || [faker.random.word()],
+    hackStages: params.hackStages || [faker.random.word()],
+  });
+
+  return growthHack.save();
 };
 
 interface IProductFactoryInput {
@@ -799,10 +906,29 @@ export const productFactory = (params: IProductFactoryInput = {}) => {
     type: params.type || PRODUCT_TYPES.PRODUCT,
     description: params.description || faker.random.word(),
     sku: faker.random.word(),
+    code: faker.random.word(),
     createdAt: new Date(),
   });
 
   return product.save();
+};
+
+interface IProductCategoryFactoryInput {
+  name?: string;
+  description?: string;
+  parentId?: string;
+  code?: string;
+}
+
+export const productCategoryFactory = (params: IProductCategoryFactoryInput = {}) => {
+  const productCategory = new ProductCategories({
+    name: params.name || faker.random.word(),
+    description: params.description || faker.random.word(),
+    parentId: params.parentId || faker.random.word(),
+    createdAt: new Date(),
+  });
+
+  return productCategory.save();
 };
 
 interface IConfigFactoryInput {
@@ -908,4 +1034,15 @@ export const usersGroupFactory = () => {
   });
 
   return usersGroup.save();
+};
+
+interface IConformityFactoryInput {
+  mainType: string;
+  mainTypeId: string;
+  relType: string;
+  relTypeId: string;
+}
+
+export const conformityFactory = (params: IConformityFactoryInput) => {
+  return Conformities.addConformity(params);
 };

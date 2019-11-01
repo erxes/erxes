@@ -1,3 +1,5 @@
+import { conformityQueryFields } from './common';
+
 // TODO: remove customer's email and phone field after customCommand
 
 export const types = `
@@ -52,7 +54,6 @@ export const types = `
     links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
-    deals: [Deal]
     getIntegrationData: JSON
     getMessengerCustomData: JSON
     getTags: [Tag]
@@ -69,7 +70,7 @@ const queryParams = `
   page: Int
   perPage: Int
   segment: String
-  type: String 
+  type: String
   tag: String
   ids: [String]
   searchValue: String
@@ -82,6 +83,7 @@ const queryParams = `
   leadStatus: String
   sortField: String
   sortDirection: Int
+  ${conformityQueryFields}
 `;
 
 export const queries = `
@@ -115,7 +117,6 @@ const fields = `
 export const mutations = `
   customersAdd(${fields}): Customer
   customersEdit(_id: String!, ${fields}): Customer
-  customersEditCompanies(_id: String!, companyIds: [String]): Customer
   customersMerge(customerIds: [String], customerFields: JSON): Customer
   customersRemove(customerIds: [String]): [String]
 `;

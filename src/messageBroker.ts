@@ -1,8 +1,8 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import { conversationNotifReceivers } from './data/resolvers/mutations/conversations';
-import { sendMobileNotification } from './data/utils';
-import { ActivityLogs, Conversations, Customers } from './db/models';
+import { registerOnboardHistory, sendMobileNotification } from './data/utils';
+import { ActivityLogs, Conversations, Customers, Integrations, RobotEntries, Users } from './db/models';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
 import { get, set } from './redisClient';
@@ -84,6 +84,22 @@ const receiveWidgetNotification = async ({ action, data }: IWidgetMessage) => {
   if (action === 'activityLog') {
     ActivityLogs.createLogFromWidget(data.type, data.payload);
   }
+
+  if (action === 'leadInstalled') {
+    const integration = await Integrations.findOne({ _id: data.payload.integrationId });
+
+    if (!integration) {
+      return;
+    }
+
+    const user = await Users.findOne({ _id: integration.createdUserId });
+
+    if (!user) {
+      return;
+    }
+
+    registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
+  }
 };
 
 export const sendMessage = async (queueName: string, data?: any) => {
@@ -98,6 +114,19 @@ const initConsumer = async () => {
   try {
     connection = await amqplib.connect(RABBITMQ_HOST);
     channel = await connection.createChannel();
+
+    // graphql subscriptions call =========
+    await channel.assertQueue('callPublish');
+
+    channel.consume('callPublish', async msg => {
+      if (msg !== null) {
+        const params = JSON.parse(msg.content.toString());
+
+        graphqlPubsub.publish(params.name, params.data);
+
+        channel.ack(msg);
+      }
+    });
 
     // listen for widgets api =========
     await channel.assertQueue('widgetNotification');
@@ -117,6 +146,25 @@ const initConsumer = async () => {
         const data = JSON.parse(msg.content.toString());
 
         await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
+
+        channel.ack(msg);
+      }
+    });
+
+    // listen for spark notification  =========
+    await channel.assertQueue('sparkNotification');
+
+    channel.consume('sparkNotification', async msg => {
+      if (msg !== null) {
+        debugBase(`Received spark notification ${msg.content.toString()}`);
+
+        const data = JSON.parse(msg.content.toString());
+
+        delete data.subdomain;
+
+        RobotEntries.createEntry(data)
+          .then(() => debugBase('success'))
+          .catch(e => debugBase(e.message));
 
         channel.ack(msg);
       }

@@ -9,7 +9,8 @@ import * as requestify from 'requestify';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
-import { debugEmail, debugExternalApi } from '../debuggers';
+import { OnboardingHistories } from '../db/models/Robot';
+import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
 import { graphqlPubsub } from '../pubsub';
 
 /*
@@ -110,7 +111,7 @@ const createGCS = () => {
 /*
  * Save binary data to amazon s3
  */
-export const uploadFileAWS = async (file: { name: string; path: string }): Promise<string> => {
+export const uploadFileAWS = async (file: { name: string; path: string; type: string }): Promise<string> => {
   const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
   const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
   const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
@@ -128,6 +129,7 @@ export const uploadFileAWS = async (file: { name: string; path: string }): Promi
   const response: any = await new Promise((resolve, reject) => {
     s3.upload(
       {
+        ContentType: file.type,
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: buffer,
@@ -192,7 +194,7 @@ export const uploadFileGCS = async (file: { name: string; path: string; type: st
  * Read file from GCS, AWS
  */
 export const readFileRequest = async (key: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_T`YPE', defaultValue: 'AWS' });
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
     const GCS_BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
@@ -355,6 +357,9 @@ export const sendEmail = async ({
       to: toEmail,
       subject: title,
       html,
+      headers: {
+        'X-SES-CONFIGURATION-SET': 'erxes',
+      },
     };
 
     return transporter.sendMail(mailOptions, (error, info) => {
@@ -390,8 +395,11 @@ export const sendNotification = async (doc: ISendNotification) => {
   const { createdUser, receivers, title, content, notifType, action, contentType, contentTypeId } = doc;
   let link = doc.link;
 
+  // remove duplicated ids
+  const receiverIds = [...new Set(receivers)];
+
   // collecting emails
-  const recipients = await Users.find({ _id: { $in: receivers } });
+  const recipients = await Users.find({ _id: { $in: receiverIds } });
 
   // collect recipient emails
   const toEmails: string[] = [];
@@ -403,7 +411,7 @@ export const sendNotification = async (doc: ISendNotification) => {
   }
 
   // loop through receiver ids
-  for (const receiverId of receivers) {
+  for (const receiverId of receiverIds) {
     try {
       // send web and mobile notification
       const notification = await Notifications.createNotification(
@@ -570,8 +578,21 @@ export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) 
 export const putCreateLog = (params: ILogParams, user: IUserDocument) => {
   const doc = { ...params, action: 'create', object: JSON.stringify(params.object) };
 
+  registerOnboardHistory({ type: `${doc.type}Create`, user });
+
   return putLog(doc, user);
 };
+
+export const registerOnboardHistory = ({ type, user }: { type: string; user: IUserDocument }) =>
+  OnboardingHistories.getOrCreate({ type, user })
+    .then(({ status }) => {
+      if (status === 'created') {
+        graphqlPubsub.publish('onboardingChanged', {
+          onboardingChanged: { userId: user._id, type },
+        });
+      }
+    })
+    .catch(e => debugBase(e));
 
 /**
  * Prepares a create log request to log server
@@ -793,4 +814,36 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
+};
+
+export const validSearchText = (values: string[]) => {
+  const value = values.join(' ');
+
+  if (value.length < 512) {
+    return value;
+  }
+
+  return value.substring(0, 511);
+};
+
+const stringToRegex = (value: string) => {
+  const specialChars = [...'{}[]\\^$.|?*+()'];
+
+  const result = [...value].map(char => (specialChars.includes(char) ? '.?\\' + char : '.?' + char));
+
+  return '.*' + result.join('').substring(2) + '.*';
+};
+
+export const regexSearchText = (searchValue: string) => {
+  const result: any[] = [];
+
+  searchValue = searchValue.replace(/\s\s+/g, ' ');
+
+  const words = searchValue.split(' ');
+
+  for (const word of words) {
+    result.push({ searchText: new RegExp(`${stringToRegex(word)}`, 'mui') });
+  }
+
+  return { $and: result };
 };

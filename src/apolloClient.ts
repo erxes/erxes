@@ -49,6 +49,7 @@ const apolloServer = new ApolloServer({
     if (USE_BRAND_RESTRICTIONS !== 'true') {
       return {
         brandIdSelector: {},
+        userBrandIdsSelector: {},
         docModifier: doc => doc,
         commonQuerySelector: {},
         user,
@@ -56,24 +57,31 @@ const apolloServer = new ApolloServer({
       };
     }
 
+    let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
     let brandIds = [];
     let brandIdSelector = {};
+    let commonQuerySelector = {};
+    let userBrandIdsSelector = {};
 
-    if (user && !user.isOwner) {
+    if (user) {
       brandIds = user.brandIds || [];
-      brandIdSelector = { _id: { $in: brandIds } };
-    }
 
-    let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+      if (scopeBrandIds.length === 0) {
+        scopeBrandIds = brandIds;
+      }
 
-    if (scopeBrandIds.length === 0) {
-      scopeBrandIds = brandIds;
+      if (!user.isOwner) {
+        brandIdSelector = { _id: { $in: scopeBrandIds } };
+        commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+        userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+      }
     }
 
     return {
       brandIdSelector,
       docModifier: doc => ({ ...doc, scopeBrandIds }),
-      commonQuerySelector: { scopeBrandIds: { $in: scopeBrandIds } },
+      commonQuerySelector,
+      userBrandIdsSelector,
       user,
       res,
     };
@@ -82,9 +90,9 @@ const apolloServer = new ApolloServer({
     keepAlive: 10000,
     path: '/subscriptions',
 
-    onConnect(_connectionParams, webSocket) {
+    onConnect(_connectionParams, webSocket: any) {
       webSocket.on('message', async message => {
-        const parsedMessage = JSON.parse(message).id || {};
+        const parsedMessage = JSON.parse(message.toString()).id || {};
 
         if (parsedMessage.type === 'messengerConnected') {
           // get status from redis
@@ -122,7 +130,7 @@ const apolloServer = new ApolloServer({
       });
     },
 
-    async onDisconnect(webSocket) {
+    async onDisconnect(webSocket: any) {
       const messengerData = webSocket.messengerData;
 
       if (messengerData) {

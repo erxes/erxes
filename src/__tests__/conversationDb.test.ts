@@ -346,7 +346,11 @@ describe('Conversation db', () => {
       customerId: customer._id,
     });
 
-    await Conversations.removeCustomerConversations(customer._id);
+    await conversationFactory({
+      customerId: customer._id,
+    });
+
+    await Conversations.removeCustomersConversations([customer._id]);
 
     expect(await Conversations.find({ customerId: customer._id })).toHaveLength(0);
     expect(await ConversationMessages.find({ conversationId: conversation._id })).toHaveLength(0);

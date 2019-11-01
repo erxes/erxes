@@ -31,9 +31,9 @@ const customerMutations = {
   /**
    * Update customer
    */
-  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user, docModifier }: IContext) {
+  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: IContext) {
     const customer = await Customers.findOne({ _id });
-    const updated = await Customers.updateCustomer(_id, docModifier(doc));
+    const updated = await Customers.updateCustomer(_id, doc);
 
     if (customer) {
       await putUpdateLog(
@@ -51,13 +51,6 @@ const customerMutations = {
   },
 
   /**
-   * Update customer Companies
-   */
-  async customersEditCompanies(_root, { _id, companyIds }: { _id: string; companyIds: string[] }) {
-    return Customers.updateCompanies(_id, companyIds);
-  },
-
-  /**
    * Merge customers
    */
   async customersMerge(_root, { customerIds, customerFields }: { customerIds: string[]; customerFields: ICustomer }) {
@@ -68,12 +61,12 @@ const customerMutations = {
    * Remove customers
    */
   async customersRemove(_root, { customerIds }: { customerIds: string[] }, { user }: IContext) {
-    for (const customerId of customerIds) {
-      // Removing every customer and modules associated with
-      const customer = await Customers.findOne({ _id: customerId });
-      const removed = await Customers.removeCustomer(customerId);
+    const customers = await Customers.find({ _id: { $in: customerIds } }, { firstName: 1 }).lean();
 
-      if (customer && removed) {
+    await Customers.removeCustomers(customerIds);
+
+    for (const customer of customers) {
+      if (customer) {
         await putDeleteLog(
           {
             type: 'customer',
@@ -91,7 +84,6 @@ const customerMutations = {
 
 checkPermission(customerMutations, 'customersAdd', 'customersAdd');
 checkPermission(customerMutations, 'customersEdit', 'customersEdit');
-checkPermission(customerMutations, 'customersEditCompanies', 'customersEditCompanies');
 checkPermission(customerMutations, 'customersMerge', 'customersMerge');
 checkPermission(customerMutations, 'customersRemove', 'customersRemove');
 

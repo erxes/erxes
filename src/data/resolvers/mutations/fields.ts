@@ -3,6 +3,7 @@ import { IField, IFieldGroup } from '../../../db/models/definitions/fields';
 import { IOrderInput } from '../../../db/models/Fields';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { putCreateLog } from '../../utils';
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -16,8 +17,20 @@ const fieldMutations = {
   /**
    * Adds field object
    */
-  fieldsAdd(_root, args: IField, { user }: IContext) {
-    return Fields.createField({ ...args, lastUpdatedUserId: user._id });
+  async fieldsAdd(_root, args: IField, { user }: IContext) {
+    const field = await Fields.createField({ ...args, lastUpdatedUserId: user._id });
+
+    await putCreateLog(
+      {
+        type: `${args.contentType}Field`,
+        newData: JSON.stringify(args),
+        object: field,
+        description: `${field.text} has been created`,
+      },
+      user,
+    );
+
+    return field;
   },
 
   /**
@@ -53,8 +66,8 @@ const fieldsGroupsMutations = {
   /**
    * Create a new group for fields
    */
-  fieldsGroupsAdd(_root, doc: IFieldGroup, { user }: IContext) {
-    return FieldsGroups.createGroup({ ...doc, lastUpdatedUserId: user._id });
+  fieldsGroupsAdd(_root, doc: IFieldGroup, { user, docModifier }: IContext) {
+    return FieldsGroups.createGroup(docModifier({ ...doc, lastUpdatedUserId: user._id }));
   },
 
   /**

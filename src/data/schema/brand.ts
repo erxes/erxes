@@ -13,7 +13,7 @@ export const types = `
 `;
 
 export const queries = `
-  brands(page: Int, perPage: Int): [Brand]
+  brands(page: Int, perPage: Int, searchValue: String): [Brand]
   brandDetail(_id: String!): Brand
   brandsTotalCount: Int
   brandsGetLast: Brand

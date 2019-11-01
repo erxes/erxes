@@ -1,36 +1,43 @@
 import { graphqlRequest } from '../db/connection';
-import { productFactory, userFactory } from '../db/factories';
-import { Products } from '../db/models';
+import { productCategoryFactory, productFactory, userFactory } from '../db/factories';
+import { ProductCategories, Products } from '../db/models';
 
 import './setup.ts';
 
 describe('Test products mutations', () => {
   let product;
   let context;
+  let productCategory;
 
   const commonParamDefs = `
     $name: String!,
     $type: String!,
     $description: String,
+    $categoryId: String,
     $sku: String
+    $code: String
   `;
 
   const commonParams = `
     name: $name
     type: $type
     description: $description,
+    categoryId: $categoryId
     sku: $sku
+    code: $code
   `;
 
   beforeEach(async () => {
     // Creating test data
     product = await productFactory({ type: 'product' });
+    productCategory = await productCategoryFactory();
     context = { user: await userFactory({}) };
   });
 
   afterEach(async () => {
     // Clearing test data
     await Products.deleteMany({});
+    await ProductCategories.deleteMany({});
   });
 
   test('Create product', async () => {
@@ -39,6 +46,8 @@ describe('Test products mutations', () => {
       type: product.type,
       sku: product.sku,
       description: product.description,
+      categoryId: productCategory._id,
+      code: '123',
     };
 
     const mutation = `
@@ -49,6 +58,7 @@ describe('Test products mutations', () => {
           type
           description
           sku
+          code
         }
       }
     `;
@@ -59,6 +69,7 @@ describe('Test products mutations', () => {
     expect(createdProduct.type).toEqual(args.type);
     expect(createdProduct.description).toEqual(args.description);
     expect(createdProduct.sku).toEqual(args.sku);
+    expect(createdProduct.code).toEqual(args.code);
   });
 
   test('Update product', async () => {
@@ -68,6 +79,7 @@ describe('Test products mutations', () => {
       type: product.type,
       sku: product.sku,
       description: product.description,
+      code: product.code,
     };
 
     const mutation = `
@@ -78,6 +90,7 @@ describe('Test products mutations', () => {
           type
           description
           sku
+          code
         }
       }
     `;
@@ -92,12 +105,12 @@ describe('Test products mutations', () => {
 
   test('Remove product', async () => {
     const mutation = `
-      mutation productsRemove($_id: String!) {
-        productsRemove(_id: $_id)
+      mutation productsRemove($productIds: [String!]) {
+        productsRemove(productIds: $productIds)
       }
     `;
 
-    await graphqlRequest(mutation, 'productsRemove', { _id: product._id }, context);
+    await graphqlRequest(mutation, 'productsRemove', { productIds: [product._id] }, context);
 
     expect(await Products.findOne({ _id: product._id })).toBe(null);
   });

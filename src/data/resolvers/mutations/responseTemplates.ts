@@ -33,9 +33,9 @@ const responseTemplateMutations = {
   /**
    * Update response template
    */
-  async responseTemplatesEdit(_root, { _id, ...fields }: IResponseTemplatesEdit, { user, docModifier }: IContext) {
+  async responseTemplatesEdit(_root, { _id, ...fields }: IResponseTemplatesEdit, { user }: IContext) {
     const template = await ResponseTemplates.findOne({ _id });
-    const updated = await ResponseTemplates.updateResponseTemplate(_id, docModifier(fields));
+    const updated = await ResponseTemplates.updateResponseTemplate(_id, fields);
 
     if (template) {
       await putUpdateLog(

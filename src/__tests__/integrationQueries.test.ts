@@ -33,7 +33,7 @@ describe('integrationQueries', () => {
         languageCode
         code
         formId
-        formData
+        leadData
         messengerData
         uiOptions
 
@@ -98,7 +98,7 @@ describe('integrationQueries', () => {
 
   test('Integrations filtered by kind', async () => {
     await integrationFactory({ kind: 'messenger' });
-    await integrationFactory({ kind: 'form' });
+    await integrationFactory({ kind: 'lead' });
 
     // messenger ========================
     let responses = await graphqlRequest(qryIntegrations, 'integrations', {
@@ -107,19 +107,19 @@ describe('integrationQueries', () => {
 
     expect(responses.length).toBe(1);
 
-    // form =========================
+    // lead =========================
     responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      kind: 'form',
+      kind: 'lead',
     });
 
     expect(responses.length).toBe(1);
   });
 
   test('Integrations filtered by channel', async () => {
-    const integration1 = await integrationFactory({ kind: 'facebook' });
-    const integration2 = await integrationFactory({ kind: 'facebook' });
+    const integration1 = await integrationFactory({ kind: 'facebook-messenger' });
+    const integration2 = await integrationFactory({ kind: 'facebook-messenger' });
 
-    await integrationFactory({ kind: 'facebook' });
+    await integrationFactory({ kind: 'facebook-messenger' });
 
     const integrationIds = [integration1._id, integration2._id];
 
@@ -136,8 +136,8 @@ describe('integrationQueries', () => {
     const brand = await brandFactory();
 
     await integrationFactory({ kind: 'messenger', brandId: brand._id });
-    await integrationFactory({ kind: 'form', brandId: brand._id });
-    await integrationFactory({ kind: 'form' });
+    await integrationFactory({ kind: 'lead', brandId: brand._id });
+    await integrationFactory({ kind: 'lead' });
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
       brandId: brand._id,
@@ -178,17 +178,17 @@ describe('integrationQueries', () => {
 
   test('Get total count of integrations by kind', async () => {
     await integrationFactory({ kind: 'messenger' });
-    await integrationFactory({ kind: 'form' });
+    await integrationFactory({ kind: 'lead' });
 
     // messenger =========================
     let response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
     expect(response.byKind.messenger).toBe(1);
 
-    // form =============================
+    // lead =============================
     response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
-    expect(response.byKind.form).toBe(1);
+    expect(response.byKind.lead).toBe(1);
   });
 
   test('Get total count of integrations by channel', async () => {
@@ -210,8 +210,8 @@ describe('integrationQueries', () => {
     const brand = await brandFactory();
 
     await integrationFactory({ kind: 'messenger', brandId: brand._id });
-    await integrationFactory({ kind: 'form', brandId: brand._id });
-    await integrationFactory({ kind: 'form' });
+    await integrationFactory({ kind: 'lead', brandId: brand._id });
+    await integrationFactory({ kind: 'lead' });
 
     const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 

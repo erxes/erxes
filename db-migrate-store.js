@@ -64,3 +64,4 @@ class dbStore {
 }
 
 module.exports = dbStore
+

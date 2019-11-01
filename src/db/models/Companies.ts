@@ -1,9 +1,9 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs, Customers, Deals, Fields, InternalNotes } from './';
+import { validSearchText } from '../../data/utils';
+import { ActivityLogs, Conformities, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
 import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
-import Tickets from './Tickets';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
@@ -13,15 +13,15 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
     idsToExclude?: string[] | string,
   ): never;
 
+  fillSearchText(doc: ICompany): string;
+
   getCompany(_id: string): Promise<ICompanyDocument>;
 
   createCompany(doc: ICompany, user?: IUserDocument): Promise<ICompanyDocument>;
 
   updateCompany(_id: string, doc: ICompany): Promise<ICompanyDocument>;
 
-  updateCustomers(_id: string, customerIds: string[]): Promise<ICompanyDocument>;
-
-  removeCompany(_id: string): void;
+  removeCompanies(_ids: string[]): Promise<{ n: number; ok: number }>;
 
   mergeCompanies(companyIds: string[], companyFields: ICompany): Promise<ICompanyDocument>;
 
@@ -69,6 +69,18 @@ export const loadClass = () => {
       }
     }
 
+    public static fillSearchText(doc: ICompany) {
+      return validSearchText([
+        (doc.names || []).join(' '),
+        (doc.emails || []).join(' '),
+        (doc.phones || []).join(' '),
+        doc.website || '',
+        doc.industry || '',
+        doc.plan || '',
+        doc.description || '',
+      ]);
+    }
+
     /**
      * Retreives company
      */
@@ -100,6 +112,7 @@ export const loadClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
+        searchText: Companies.fillSearchText(doc),
       });
 
       // create log
@@ -120,22 +133,9 @@ export const loadClass = () => {
         doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
       }
 
-      await Companies.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
+      const searchText = Companies.fillSearchText(Object.assign(await Companies.getCompany(_id), doc) as ICompany);
 
-      return Companies.findOne({ _id });
-    }
-
-    /**
-     * Update company customers
-     */
-    public static async updateCustomers(_id: string, customerIds: string[]) {
-      // Removing companyIds from users
-      await Customers.updateMany({ companyIds: { $in: [_id] } }, { $pull: { companyIds: _id } });
-
-      // Adding companyId to the each customers
-      for (const customerId of customerIds) {
-        await Customers.findByIdAndUpdate({ _id: customerId }, { $addToSet: { companyIds: _id } }, { upsert: true });
-      }
+      await Companies.updateOne({ _id }, { $set: { ...doc, searchText, modifiedAt: new Date() } });
 
       return Companies.findOne({ _id });
     }
@@ -143,13 +143,15 @@ export const loadClass = () => {
     /**
      * Remove company
      */
-    public static async removeCompany(companyId: string) {
+    public static async removeCompanies(companyIds: string[]) {
       // Removing modules associated with company
-      await InternalNotes.removeCompanyInternalNotes(companyId);
+      await InternalNotes.removeCompaniesInternalNotes(companyIds);
 
-      await Customers.updateMany({ companyIds: { $in: [companyId] } }, { $pull: { companyIds: companyId } });
+      for (const companyId of companyIds) {
+        await Conformities.removeConformity({ mainType: 'company', mainTypeId: companyId });
+      }
 
-      return Companies.deleteOne({ _id: companyId });
+      return Companies.deleteMany({ _id: { $in: companyIds } });
     }
 
     /**
@@ -213,15 +215,11 @@ export const loadClass = () => {
         phones,
       });
 
-      // Updating customer companies
-      await Customers.updateMany({ companyIds: { $in: companyIds } }, { $push: { companyIds: company._id } });
-
-      await Customers.updateMany({ companyIds: { $in: companyIds } }, { $pullAll: { companyIds } });
+      // Updating customer companies, deals, tasks, tickets
+      await Conformities.changeConformity({ type: 'company', newTypeId: company._id, oldTypeIds: companyIds });
 
       // Removing modules associated with current companies
       await InternalNotes.changeCompany(company._id, companyIds);
-      await Deals.changeCompany(company._id, companyIds);
-      await Tickets.changeCompany(company._id, companyIds);
 
       return company;
     }

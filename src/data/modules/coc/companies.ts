@@ -1,8 +1,11 @@
-import { Customers, Integrations, Segments } from '../../../db/models';
+import { IConformityQueryParams } from '../../../data/modules/conformities/types';
+import { Conformities, Customers, Integrations, Segments } from '../../../db/models';
 import { STATUSES } from '../../../db/models/definitions/constants';
+import { regexSearchText } from '../../utils';
 import QueryBuilder from '../segments/queryBuilder';
+import { conformityFilterUtils } from './utils';
 
-export interface IListArgs {
+export interface IListArgs extends IConformityQueryParams {
   page?: number;
   perPage?: number;
   segment?: string;
@@ -48,13 +51,14 @@ export const brandFilter = async (brandId: string): Promise<IBrandFilter> => {
 
   const customers = await Customers.find({ integrationId: { $in: integrationIds } }, { companyIds: 1 });
 
-  let companyIds: any = [];
+  const customerIds = await customers.map(customer => customer._id);
+  const companyIds = await Conformities.filterConformity({
+    mainType: 'customer',
+    mainTypeIds: customerIds,
+    relType: 'company',
+  });
 
-  for (const customer of customers) {
-    companyIds = [...companyIds, ...(customer.companyIds || [])];
-  }
-
-  return { _id: { $in: companyIds } };
+  return { _id: { $in: companyIds || [] } };
 };
 
 export const filter = async (params: IListArgs) => {
@@ -71,19 +75,11 @@ export const filter = async (params: IListArgs) => {
   }
 
   if (params.searchValue) {
-    const fields = [
-      { names: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { primaryEmail: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { primaryPhone: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { emails: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { phones: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { website: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { industry: new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { plan: new RegExp(`.*${params.searchValue}.*`, 'i') },
-    ];
-
-    selector = { $or: fields };
+    Object.assign(selector, regexSearchText(params.searchValue));
   }
+
+  // Filter by related and saved Conformity
+  selector = await conformityFilterUtils(selector, params, 'company');
 
   // Filter by tag
   if (params.tag) {

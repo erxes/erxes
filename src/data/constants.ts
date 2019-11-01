@@ -3,11 +3,12 @@ export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></
 
 export const INTEGRATION_KIND_CHOICES = {
   MESSENGER: 'messenger',
-  FORM: 'form',
-  FACEBOOK: 'facebook',
+  LEAD: 'lead',
+  FACEBOOK_MESSENGER: 'facebook-messenger',
+  FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
   CALLPRO: 'callpro',
-  ALL: ['messenger', 'form', 'facebook', 'gmail', 'callpro'],
+  ALL: ['messenger', 'lead', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro'],
 };
 
 export const MESSAGE_KINDS = {
@@ -73,7 +74,8 @@ export const COC_LIFECYCLE_STATE_TYPES = [
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL: ['customer', 'company'],
+  PRODUCT: 'product',
+  ALL: ['customer', 'company', 'product'],
 };
 
 export const CUSTOMER_BASIC_INFOS = [
@@ -105,6 +107,8 @@ export const COMPANY_BASIC_INFOS = [
   'description',
   'doNotDisturb',
 ];
+
+export const PRODUCT_BASIC_INFOS = ['name', 'categoryCode', 'type', 'description', 'sku', 'code', 'unitPrice'];
 
 export const INSIGHT_BASIC_INFOS = {
   count: 'Customer count',

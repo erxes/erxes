@@ -1,5 +1,6 @@
+import { Brands } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
-import { getUserAllowedActions } from '../permissions/utils';
+import { getUserActionsMap } from '../permissions/utils';
 
 export default {
   status(user: IUserDocument) {
@@ -10,7 +11,15 @@ export default {
     return 'Verified';
   },
 
+  brands(user: IUserDocument) {
+    if (user.isOwner) {
+      return Brands.find({});
+    }
+
+    return Brands.find({ _id: { $in: user.brandIds } });
+  },
+
   async permissionActions(user: IUserDocument) {
-    return getUserAllowedActions(user);
+    return getUserActionsMap(user);
   },
 };

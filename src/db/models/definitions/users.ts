@@ -38,7 +38,6 @@ export interface IUser {
   registrationToken?: string;
   registrationTokenExpires?: Date;
   isOwner?: boolean;
-  hasSeenOnBoard?: boolean;
   email?: string;
   getNotificationByEmail?: boolean;
   emailSignatures?: IEmailSignature[];
@@ -102,7 +101,6 @@ export const userSchema = new Schema({
   registrationTokenExpires: field({ type: Date }),
   resetPasswordExpires: field({ type: Date }),
   isOwner: field({ type: Boolean }),
-  hasSeenOnBoard: field({ type: Boolean }),
   email: field({
     type: String,
     unique: true,

@@ -3,6 +3,7 @@ import * as schedule from 'node-schedule';
 import { send } from '../data/resolvers/mutations/engageUtils';
 import { EngageMessages } from '../db/models';
 import { IEngageMessageDocument, IScheduleDate } from '../db/models/definitions/engages';
+import { debugCrons } from '../debuggers';
 
 interface IEngageSchedules {
   id: string;
@@ -51,6 +52,8 @@ export const createSchedule = (message: IEngageMessageDocument) => {
     const rule = createScheduleRule(scheduleDate);
 
     const job = schedule.scheduleJob(rule, () => {
+      debugCrons(`Running cron with rule ${rule}`);
+
       send(message);
     });
 

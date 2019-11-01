@@ -59,6 +59,7 @@ export interface ICompanyDocument extends ICompany, Document {
   status?: string;
   createdAt: Date;
   modifiedAt: Date;
+  searchText: string;
 }
 
 const linkSchema = new Schema(
@@ -183,5 +184,6 @@ export const companySchema = schemaWrapper(
     customFieldsData: field({
       type: Object,
     }),
+    searchText: field({ type: String, optional: true, index: true }),
   }),
 );

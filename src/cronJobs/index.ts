@@ -9,6 +9,7 @@ import './conversations';
 import './deals';
 import { createSchedule, updateOrRemoveSchedule } from './engages';
 import './integrations';
+import './robot';
 
 // load environment variables
 dotenv.config();

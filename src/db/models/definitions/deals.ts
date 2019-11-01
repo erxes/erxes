@@ -1,17 +1,36 @@
 import { Document, Schema } from 'mongoose';
 import { commonItemFieldsSchema, IItemCommonFields } from './boards';
 import { PRODUCT_TYPES } from './constants';
-import { field } from './utils';
+import { field, schemaWrapper } from './utils';
 
 export interface IProduct {
   name: string;
+  categoryId?: string;
+  categoryCode?: string;
   type?: string;
   description?: string;
   sku?: string;
+  unitPrice?: number;
+  code: string;
+  customFieldsData?: any;
   productId?: string;
+  tagIds?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
+  _id: string;
+  createdAt: Date;
+}
+
+export interface IProductCategory {
+  name: string;
+  code: string;
+  order: string;
+  description?: string;
+  parentId?: string;
+}
+
+export interface IProductCategoryDocument extends IProductCategory, Document {
   _id: string;
   createdAt: Date;
 }
@@ -39,21 +58,45 @@ export interface IDealDocument extends IDeal, Document {
 
 // Mongoose schemas =======================
 
-export const productSchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String }),
-  type: field({
-    type: String,
-    enum: PRODUCT_TYPES.ALL,
-    default: PRODUCT_TYPES.PRODUCT,
+export const productSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String }),
+    code: field({ type: String, unique: true }),
+    categoryId: field({ type: String }),
+    type: field({
+      type: String,
+      enum: PRODUCT_TYPES.ALL,
+      default: PRODUCT_TYPES.PRODUCT,
+    }),
+    tagIds: field({ type: [String], optional: true }),
+    description: field({ type: String, optional: true }),
+    sku: field({ type: String, optional: true }), // Stock Keeping Unit
+    unitPrice: field({ type: Number, optional: true }),
+    customFieldsData: field({
+      type: Object,
+    }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+    }),
   }),
-  description: field({ type: String, optional: true }),
-  sku: field({ type: String, optional: true }), // Stock Keeping Unit
-  createdAt: field({
-    type: Date,
-    default: new Date(),
+);
+
+export const productCategorySchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String }),
+    code: field({ type: String, unique: true }),
+    order: field({ type: String }),
+    parentId: field({ type: String, optional: true }),
+    description: field({ type: String, optional: true }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+    }),
   }),
-});
+);
 
 const productDataSchema = new Schema(
   {

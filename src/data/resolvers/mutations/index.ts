@@ -1,8 +1,10 @@
 import boards from './boards';
 import brands from './brands';
 import channels from './channels';
+import checklists from './checklists';
 import companies from './companies';
 import configs from './configs';
+import conformity from './conformities';
 import conversations from './conversations';
 import customers from './customers';
 import deals from './deals';
@@ -10,6 +12,7 @@ import emailTemplates from './emailTemplates';
 import engages from './engages';
 import { fieldMutations as fields, fieldsGroupsMutations as fieldsgroups } from './fields';
 import forms from './forms';
+import growthHacks from './growthHacks';
 import importHistory from './importHistory';
 import integrations from './integrations';
 import internalNotes from './internalNotes';
@@ -17,8 +20,11 @@ import knowledgeBase from './knowledgeBase';
 import messengerApps from './messengerApps';
 import notifications from './notifications';
 import { permissionMutations as permissions, usersGroupMutations as usersGroups } from './permissions';
+import pipelineLabels from './pipelineLabels';
+import pipelineTemplates from './pipelineTemplates';
 import products from './products';
 import responseTemplates from './responseTemplates';
+import robot from './robot';
 import scripts from './scripts';
 import segments from './segments';
 import tags from './tags';
@@ -49,6 +55,7 @@ export default {
   ...boards,
   ...products,
   ...configs,
+  ...conformity,
   ...fieldsgroups,
   ...importHistory,
   ...messengerApps,
@@ -56,4 +63,9 @@ export default {
   ...usersGroups,
   ...tickets,
   ...tasks,
+  ...growthHacks,
+  ...pipelineLabels,
+  ...pipelineTemplates,
+  ...checklists,
+  ...robot,
 };

@@ -1,22 +1,67 @@
-import { Companies, Customers, Notifications, Pipelines, Products, Stages, Users } from '../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Fields,
+  Notifications,
+  PipelineLabels,
+  Pipelines,
+  Products,
+  Stages,
+  Users,
+} from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
 import { boardId } from './boardUtils';
 
 export default {
-  companies(deal: IDealDocument) {
-    return Companies.find({ _id: { $in: deal.companyIds || [] } });
+  async companies(deal: IDealDocument) {
+    const companyIds = await Conformities.savedConformity({
+      mainType: 'deal',
+      mainTypeId: deal._id,
+      relType: 'company',
+    });
+
+    return Companies.find({ _id: { $in: companyIds || [] } });
   },
 
-  customers(deal: IDealDocument) {
-    return Customers.find({ _id: { $in: deal.customerIds || [] } });
+  async customers(deal: IDealDocument) {
+    const customerIds = await Conformities.savedConformity({
+      mainType: 'deal',
+      mainTypeId: deal._id,
+      relType: 'customer',
+    });
+
+    return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
   async products(deal: IDealDocument) {
     const products: any = [];
 
     for (const data of deal.productsData || []) {
-      const product = await Products.findOne({ _id: data.productId });
+      const product = await Products.getProduct({ _id: data.productId });
+
+      const { customFieldsData } = product;
+
+      if (customFieldsData) {
+        const customFields = {};
+        const fieldIds: string[] = [];
+
+        Object.keys(customFieldsData).forEach(_id => {
+          fieldIds.push(_id);
+        });
+
+        const fields = await Fields.find({ _id: { $in: fieldIds }, contentType: 'product' });
+
+        for (const field of fields) {
+          customFields[field._id] = {
+            text: field.text,
+            data: customFieldsData[field._id],
+          };
+        }
+
+        product.customFieldsData = customFields;
+      }
 
       // Add product object to resulting list
       if (data && product) {
@@ -54,11 +99,7 @@ export default {
   },
 
   async pipeline(deal: IDealDocument) {
-    const stage = await Stages.findOne({ _id: deal.stageId });
-
-    if (!stage) {
-      return null;
-    }
+    const stage = await Stages.getStage(deal.stageId || '');
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -68,7 +109,7 @@ export default {
   },
 
   stage(deal: IDealDocument) {
-    return Stages.findOne({ _id: deal.stageId });
+    return Stages.getStage(deal.stageId || '');
   },
 
   isWatched(deal: IDealDocument, _args, { user }: IContext) {
@@ -83,5 +124,9 @@ export default {
 
   hasNotified(deal: IDealDocument, _args, { user }: IContext) {
     return Notifications.checkIfRead(user._id, deal._id);
+  },
+
+  labels(deal: IDealDocument) {
+    return PipelineLabels.find({ _id: { $in: deal.labelIds } });
   },
 };

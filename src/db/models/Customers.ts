@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
-import { validateEmail } from '../../data/utils';
-import { ActivityLogs, Conversations, Deals, EngageMessages, Fields, InternalNotes, Tickets } from './';
+import { validateEmail, validSearchText } from '../../data/utils';
+import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
 import { STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
@@ -17,8 +17,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
-  updateCompanies(_id: string, companyIds: string[]): Promise<ICustomerDocument>;
-  removeCustomer(customerId: string): void;
+  removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
   mergeCustomers(customerIds: string[], customerFields: ICustomer): Promise<ICustomerDocument>;
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
   updateProfileScore(customerId: string, save: boolean): never;
@@ -147,10 +146,10 @@ export const loadClass = () => {
         doc.hasValidEmail = isValid;
       }
 
+      await Customers.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
+
       // calculateProfileScore
       await Customers.updateProfileScore(_id, true);
-
-      await Customers.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
 
       return Customers.findOne({ _id });
     }
@@ -183,69 +182,74 @@ export const loadClass = () => {
     }
 
     /**
-     * Update customer companies
-     */
-    public static async updateCompanies(_id: string, companyIds: string[]) {
-      // updating companyIds field
-      await Customers.findByIdAndUpdate(_id, { $set: { companyIds } });
-
-      return Customers.findOne({ _id });
-    }
-
-    /**
      * Update customer profile score
      */
     public static async updateProfileScore(customerId: string, save: boolean) {
-      let score = 0;
-
-      const nullValues = ['', null];
       const customer = await Customers.findOne({ _id: customerId });
 
       if (!customer) {
         return 0;
       }
 
-      if (!nullValues.includes(customer.firstName || '')) {
+      const nullValues = ['', null];
+      let score = 0;
+      let searchText = (customer.emails || []).join(' ').concat(' ', (customer.phones || []).join(' '));
+
+      if (customer.firstName && !nullValues.includes(customer.firstName || '')) {
         score += 10;
+        searchText = searchText.concat(' ', customer.firstName);
       }
 
-      if (!nullValues.includes(customer.lastName || '')) {
+      if (customer.lastName && !nullValues.includes(customer.lastName || '')) {
         score += 5;
+        searchText = searchText.concat(' ', customer.lastName);
       }
 
-      if (!nullValues.includes(customer.primaryEmail || '')) {
+      if (customer.primaryEmail && !nullValues.includes(customer.primaryEmail || '')) {
         score += 15;
       }
 
-      if (!nullValues.includes(customer.primaryPhone || '')) {
+      if (customer.primaryPhone && !nullValues.includes(customer.primaryPhone || '')) {
         score += 10;
       }
 
       if (customer.visitorContactInfo != null) {
         score += 5;
+        searchText = searchText.concat(
+          ' ',
+          customer.visitorContactInfo.email || '',
+          ' ',
+          customer.visitorContactInfo.phone || '',
+        );
       }
+
+      searchText = validSearchText([searchText]);
 
       if (!save) {
         return {
           updateOne: {
             filter: { _id: customerId },
-            update: { $set: { profileScore: score } },
+            update: { $set: { profileScore: score, searchText } },
           },
         };
       }
 
-      await Customers.updateOne({ _id: customerId }, { $set: { profileScore: score } });
+      await Customers.updateOne({ _id: customerId }, { $set: { profileScore: score, searchText } });
     }
     /**
-     * Removes customer
+     * Remove customers
      */
-    public static async removeCustomer(customerId: string) {
+    public static async removeCustomers(customerIds: string[]) {
       // Removing every modules that associated with customer
-      await Conversations.removeCustomerConversations(customerId);
-      await EngageMessages.removeCustomerEngages(customerId);
-      await InternalNotes.removeCustomerInternalNotes(customerId);
+      await Conversations.removeCustomersConversations(customerIds);
+      await EngageMessages.removeCustomersEngages(customerIds);
+      await InternalNotes.removeCustomersInternalNotes(customerIds);
 
-      return Customers.deleteOne({ _id: customerId });
+      for (const customerId of customerIds) {
+        await Conformities.removeConformity({ mainType: 'customer', mainTypeId: customerId });
+      }
+
+      return Customers.deleteMany({ _id: { $in: customerIds } });
     }
 
     /**
@@ -257,7 +261,6 @@ export const loadClass = () => {
 
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
-      let companyIds: string[] = [];
 
       let emails: string[] = [];
       let phones: string[] = [];
@@ -282,11 +285,9 @@ export const loadClass = () => {
           scopeBrandIds = [...scopeBrandIds, ...(customerObj.scopeBrandIds || [])];
 
           const customerTags: string[] = customerObj.tagIds || [];
-          const customerCompanies: string[] = customerObj.companyIds || [];
 
           // Merging customer's tag and companies into 1 array
           tagIds = tagIds.concat(customerTags);
-          companyIds = companyIds.concat(customerCompanies);
 
           // Merging emails, phones
           emails = [...emails, ...(customerObj.emails || [])];
@@ -299,7 +300,8 @@ export const loadClass = () => {
       // Removing Duplicates
       scopeBrandIds = Array.from(new Set(scopeBrandIds));
       tagIds = Array.from(new Set(tagIds));
-      companyIds = Array.from(new Set(companyIds));
+
+      // Removing Duplicated Emails from customer
       emails = Array.from(new Set(emails));
       phones = Array.from(new Set(phones));
 
@@ -308,18 +310,16 @@ export const loadClass = () => {
         ...customerFields,
         scopeBrandIds,
         tagIds,
-        companyIds,
         mergedIds: customerIds,
         emails,
         phones,
       });
 
       // Updating every modules associated with customers
+      await Conformities.changeConformity({ type: 'customer', newTypeId: customer._id, oldTypeIds: customerIds });
       await Conversations.changeCustomer(customer._id, customerIds);
       await EngageMessages.changeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);
-      await Deals.changeCustomer(customer._id, customerIds);
-      await Tickets.changeCustomer(customer._id, customerIds);
 
       return customer;
     }

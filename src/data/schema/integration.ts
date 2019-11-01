@@ -9,7 +9,7 @@ export const types = `
     formId: String
     tagIds: [String]
     tags: [Tag]
-    formData: JSON
+    leadData: JSON
     messengerData: JSON
     uiOptions: JSON
 
@@ -26,7 +26,7 @@ export const types = `
     byKind: JSON
   }
 
-  input IntegrationFormData {
+  input IntegrationLeadData {
     loadType: String
     successAction: String
     fromEmail: String,
@@ -37,6 +37,9 @@ export const types = `
     adminEmailContent: String
     thankContent: String
     redirectUrl: String
+    themeColor: String
+    callout: JSON,
+    rules: [InputRule]
   }
 
   input MessengerOnlineHoursSchema {
@@ -73,13 +76,6 @@ export const types = `
     color: String
     wallpaper: String
     logo: String
-  }
-
-  input gmailAttachmentData {
-    filename: String
-    size: Int
-    mimeType: String
-    data: String
   }
 `;
 
@@ -121,20 +117,20 @@ export const mutations = `
     _id: String!,
     messengerData: IntegrationMessengerData): Integration
 
-  integrationsCreateFormIntegration(
+  integrationsCreateLeadIntegration(
     name: String!,
     brandId: String!,
     languageCode: String,
     formId: String!,
-    formData: IntegrationFormData!): Integration
+    leadData: IntegrationLeadData!): Integration
 
-  integrationsEditFormIntegration(
+  integrationsEditLeadIntegration(
     _id: String!
     name: String!,
     brandId: String!,
     languageCode: String,
     formId: String!,
-    formData: IntegrationFormData!): Integration
+    leadData: IntegrationLeadData!): Integration
 
   integrationsCreateExternalIntegration(
     kind: String!,
@@ -149,15 +145,33 @@ export const mutations = `
   integrationSendMail(
     erxesApiId: String!
     subject: String!
-    textHtml: String!
-    textPlain: String!
+    body: String
     to: String!
     cc: String
     bcc: String
     from: String!
     headerId: String
     threadId: String
+    messageId: String
+    replyToMessageId: String
+    kind: String
     references: String
-    attachments: [gmailAttachmentData]
+    attachments: [JSON]
+  ): JSON
+
+  integrationAddImapAccount(
+    email: String!
+    password: String!
+    imapHost: String!
+    imapPort: Int!
+    smtpHost: String!
+    smtpPort: Int!
+    kind: String!
+  ): JSON
+
+  integrationAddMailAccount(
+    email: String!
+    password: String!
+    kind: String!
   ): JSON
 `;

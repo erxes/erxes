@@ -3,6 +3,7 @@ import ActivityLog from './activityLog';
 import Board from './boards';
 import Brand from './brand';
 import Channel from './channel';
+import Checklist from './checklists';
 import Company from './company';
 import Conversation from './conversation';
 import ConversationMessage from './conversationMessage';
@@ -12,6 +13,7 @@ import Deal from './deals';
 import EngageMessage from './engage';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
+import GrowthHack from './growthHacks';
 import ImportHistory from './importHistory';
 import Integration from './integration';
 import InternalNote from './internalNote';
@@ -22,6 +24,8 @@ import Mutation from './mutations';
 import Notification from './notification';
 import Permission from './permission';
 import Pipeline from './pipeline';
+import Product from './product';
+import ProductCategory from './productCategory';
 import Query from './queries';
 import ResponseTemplate from './responseTemplate';
 import Script from './script';
@@ -43,6 +47,7 @@ const resolvers: any = {
   Channel,
   Brand,
   InternalNote,
+  Checklist,
   Customer,
   Company,
   Segment,
@@ -63,6 +68,9 @@ const resolvers: any = {
 
   Notification,
 
+  Product,
+  ProductCategory,
+
   ActivityLog,
   Form,
   FieldsGroup: fieldsGroup,
@@ -74,6 +82,7 @@ const resolvers: any = {
   Task,
   UsersGroup,
   Pipeline,
+  GrowthHack,
 };
 
 export default resolvers;

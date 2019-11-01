@@ -17,7 +17,7 @@
     "start": "node dist",
     "start-crons": "node dist/cronJobs",
     "start-workers": "node dist/workers",
-    "dev": "DEBUG=erxes-api:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src",
+    "dev": "DEBUG=erxes-api:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules -- src",
     "dev-crons": "PROCESS_NAME=crons DEBUG=erxes-crons:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src/cronJobs",
     "dev-workers": "PROCESS_NAME=workers DEBUG=erxes-workers:* NODE_ENV=development node_modules/.bin/ts-node-dev --experimental-worker --respawn src/workers",
     "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/ && yarn generateVersion",
@@ -32,7 +32,9 @@
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
-    "release": "release-it"
+    "release": "release-it",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "lint-staged": {
     "*.ts": [
@@ -54,11 +56,11 @@
   },
   "dependencies": {
     "@axelspringer/graphql-google-pubsub": "^1.2.1",
-    "@google-cloud/pubsub": "0.18.0",
-    "@google-cloud/storage": "^2.5.0",
-    "apollo-datasource-rest": "^0.5.1",
+    "@google-cloud/pubsub": "^1.1.5",
+    "@google-cloud/storage": "^4.0.0",
     "amqplib": "0.5.3",
-    "apollo-server-express": "^2.3.1",
+    "apollo-datasource-rest": "^0.5.1",
+    "apollo-server-express": "^2.9.7",
     "aws-sdk": "^2.151.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.1",
@@ -69,19 +71,18 @@
     "email-deep-validator": "^3.1.0",
     "express": "^4.15.2",
     "file-type": "^10.4.0",
-    "firebase-admin": "^7.2.0",
+    "firebase-admin": "^8.6.1",
     "formidable": "^1.1.1",
     "git-repo-info": "^2.1.0",
-    "googleapis": "^33.0.0",
     "graphql": "^14.0.2",
     "graphql-redis-subscriptions": "^1.4.0",
     "graphql-tools": "^4.0.3",
-    "handlebars": "^4.0.14",
+    "handlebars": "^4.4.3",
     "ioredis": "^3.2.2",
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
-    "mongoose": "^5.2.16",
+    "mongoose": "5.7.5",
     "mongoose-type-email": "^1.0.5",
     "node-schedule": "^1.2.5",
     "nodemailer": "^4.1.3",
@@ -90,11 +91,12 @@
     "request": "^2.88.0",
     "requestify": "^0.2.5",
     "sha256": "^0.2.0",
+    "snyk": "^1.239.5",
     "strip": "^3.0.0",
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
     "validator": "^9.0.0",
-    "xlsx-populate": "^1.14.0",
+    "xlsx-populate": "^1.20.1",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
@@ -125,15 +127,15 @@
     "migrate": "^1.6.2",
     "ora": "^3.4.0",
     "prettier": "^1.14.2",
-    "release-it": "^12.3.5",
+    "release-it": "^12.4.3",
     "sinon": "^7.2.2",
-    "snyk": "^1.192.4",
     "ts-jest": "^22.0.0",
     "ts-node": "8.0.3",
     "ts-node-dev": "^1.0.0-pre.32",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.1.0",
     "tslint-config-standard": "^7.0.0",
-    "typescript": "^2.9.2"
-  }
+    "typescript": "^3.6.4"
+  },
+  "snyk": true
 }

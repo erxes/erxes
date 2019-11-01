@@ -313,8 +313,8 @@ describe('conversationQueries', () => {
   });
 
   test('Conversations filtered by integration type', async () => {
-    const integration1 = await integrationFactory({ kind: 'form' });
-    const integration2 = await integrationFactory({ kind: 'form' });
+    const integration1 = await integrationFactory({ kind: 'lead' });
+    const integration2 = await integrationFactory({ kind: 'lead' });
 
     await conversationFactory({ integrationId: integration._id });
     await conversationFactory({ integrationId: integration1._id });
@@ -534,8 +534,8 @@ describe('conversationQueries', () => {
   });
 
   test('Count conversations by integration type', async () => {
-    const integration1 = await integrationFactory({ kind: 'form' });
-    const integration2 = await integrationFactory({ kind: 'form' });
+    const integration1 = await integrationFactory({ kind: 'lead' });
+    const integration2 = await integrationFactory({ kind: 'lead' });
 
     // conversation with integration type 'messenger'
     await conversationFactory({ integrationId: integration._id });
@@ -693,8 +693,8 @@ describe('conversationQueries', () => {
   });
 
   test('Get total count of conversations by integration type', async () => {
-    const integration1 = await integrationFactory({ kind: 'form' });
-    const integration2 = await integrationFactory({ kind: 'form' });
+    const integration1 = await integrationFactory({ kind: 'lead' });
+    const integration2 = await integrationFactory({ kind: 'lead' });
 
     // integration with type messenger
     await conversationFactory({ integrationId: integration._id });

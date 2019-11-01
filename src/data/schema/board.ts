@@ -21,20 +21,29 @@ export const types = `
     members: [User]
     bgColor: String
     isWatched: Boolean
+    itemsTotalCount: Int
+    
+    startDate: Date
+    endDate: Date
+    metric: String
+    hackScoringType: String
+    templateId: String
+    state: String
     ${commonTypes}
   }
 
   type Stage {
     _id: String!
     name: String!
-    probability: String
     pipelineId: String!
+    probability: String
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
     stayedDealsTotalCount: Int
     initialDealsTotalCount: Int
     inProcessDealsTotalCount: Int
+    formId: String
     ${commonTypes}
   }
 
@@ -79,7 +88,12 @@ const pipelineParams = `
   stages: JSON,
   visibility: String!,
   memberIds: [String],
-  bgColor: String
+  bgColor: String,
+  startDate: Date,
+  endDate: Date,
+  metric: String,
+  hackScoringType: String,
+  templateId: String
 `;
 
 export const mutations = `

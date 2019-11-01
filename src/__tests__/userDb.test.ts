@@ -162,20 +162,6 @@ describe('User db utils', () => {
     }
   });
 
-  test('updateOnBoardSeen', async () => {
-    const user = await userFactory({});
-
-    await Users.updateOnBoardSeen({ _id: user._id });
-
-    const userObj = await Users.findOne({ _id: user._id });
-
-    if (!userObj) {
-      throw new Error('User not found');
-    }
-
-    expect(userObj.hasSeenOnBoard).toBeTruthy();
-  });
-
   test('confirmInvitation', async () => {
     const email = '123@gmail.com';
     const token = 'token';

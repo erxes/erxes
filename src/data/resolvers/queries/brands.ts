@@ -1,15 +1,33 @@
 import { Brands } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
+
+interface IListArgs {
+  page?: number;
+  perPage?: number;
+  searchValue?: string;
+}
+
+const queryBuilder = async (params: IListArgs, brandIdSelector: any) => {
+  const selector: any = { ...brandIdSelector };
+
+  const { searchValue } = params;
+
+  if (searchValue) {
+    selector.name = new RegExp(`.*${params.searchValue}.*`, 'i');
+  }
+
+  return selector;
+};
 
 const brandQueries = {
   /**
    * Brands list
    */
-  brands(_root, args: { page: number; perPage: number }, { brandIdSelector }: IContext) {
-    const brands = paginate(Brands.find(brandIdSelector), args);
-    return brands.sort({ createdAt: -1 });
+  async brands(_root, args: IListArgs, { brandIdSelector }: IContext) {
+    const selector = await queryBuilder(args, brandIdSelector);
+
+    return Brands.find(selector).sort({ createdAt: -1 });
   },
 
   /**

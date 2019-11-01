@@ -11,18 +11,12 @@ export const types = `
     _id: String!
     title: String
     code: String
+    type: String
     description: String
     buttonText: String
-    themeColor: String
-    callout: Callout
     createdUserId: String
     createdUser: User
     createdDate: Date
-    viewCount: Int
-    rules: [Rule]
-    contactsGathered: Int
-    tagIds: [String]
-    getTags: [Tag]
   }
 `;
 
@@ -30,9 +24,14 @@ const commonFields = `
   title: String,
   description: String,
   buttonText: String,
-  themeColor: String,
-  callout: JSON,
-  rules: [InputRule]
+  type: String!
+`;
+
+const commonFormSubmissionFields = `
+  formId: String,
+  contentTypeId: String,
+  contentType: String,
+  formSubmissions: JSON
 `;
 
 export const queries = `
@@ -43,4 +42,5 @@ export const queries = `
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
+  formSubmissionsSave(${commonFormSubmissionFields}): Boolean
 `;

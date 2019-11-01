@@ -1,6 +1,6 @@
 import * as moment from 'moment';
-import { Stages } from '../../../db/models';
-import { getNextMonth, getToday } from '../../utils';
+import { Conformities, Stages } from '../../../db/models';
+import { getNextMonth, getToday, regexSearchText } from '../../utils';
 
 export const contains = (values: string[] = [], empty = false) => {
   if (empty) {
@@ -13,8 +13,6 @@ export const contains = (values: string[] = [], empty = false) => {
 export const generateCommonFilters = async (args: any) => {
   const {
     $and,
-    date,
-    pipelineId,
     stageId,
     search,
     overdue,
@@ -25,9 +23,15 @@ export const generateCommonFilters = async (args: any) => {
     assignedUserIds,
     customerIds,
     companyIds,
+    conformityMainType,
+    conformityMainTypeId,
+    conformityIsRelated,
+    conformityIsSaved,
     order,
     probability,
     initialStageId,
+    type,
+    labelIds,
   } = args;
 
   const assignedToNoOne = value => {
@@ -35,6 +39,7 @@ export const generateCommonFilters = async (args: any) => {
   };
 
   const filter: any = {};
+  let filterIds: string[] = [];
 
   if (assignedUserIds) {
     // Filter by assigned to no one
@@ -47,12 +52,50 @@ export const generateCommonFilters = async (args: any) => {
     filter.$and = $and;
   }
 
-  if (customerIds) {
-    filter.customerIds = contains(customerIds);
+  if (customerIds && type) {
+    const relIds = await Conformities.filterConformity({
+      mainType: 'customer',
+      mainTypeIds: customerIds,
+      relType: type,
+    });
+
+    filterIds = relIds;
   }
 
-  if (companyIds) {
-    filter.companyIds = contains(companyIds);
+  if (companyIds && type) {
+    const relIds = await Conformities.filterConformity({
+      mainType: 'company',
+      mainTypeIds: companyIds,
+      relType: type,
+    });
+
+    filterIds = filterIds.length ? filterIds.filter(id => relIds.includes(id)) : relIds;
+  }
+
+  if (customerIds || companyIds) {
+    filter._id = contains(filterIds || []);
+  }
+
+  if (conformityMainType && conformityMainTypeId) {
+    if (conformityIsSaved) {
+      const relIds = await Conformities.savedConformity({
+        mainType: conformityMainType,
+        mainTypeId: conformityMainTypeId,
+        relType: type,
+      });
+
+      filter._id = contains(relIds || []);
+    }
+
+    if (conformityIsRelated) {
+      const relIds = await Conformities.relatedConformity({
+        mainType: conformityMainType,
+        mainTypeId: conformityMainTypeId,
+        relType: type,
+      });
+
+      filter._id = contains(relIds || []);
+    }
   }
 
   if (order) {
@@ -71,8 +114,8 @@ export const generateCommonFilters = async (args: any) => {
     const tommorrow = moment().add(1, 'days');
 
     filter.closeDate = {
-      $gte: new Date(tommorrow.startOf('day').format('YYYY-MM-DD')),
-      $lte: new Date(tommorrow.endOf('day').format('YYYY-MM-DD')),
+      $gte: new Date(tommorrow.startOf('day').toISOString()),
+      $lte: new Date(tommorrow.endOf('day').toISOString()),
     };
   }
 
@@ -112,17 +155,32 @@ export const generateCommonFilters = async (args: any) => {
   }
 
   if (search) {
-    filter.$or = [
-      { name: new RegExp(`.*${search || ''}.*`, 'i') },
-      { description: new RegExp(`.*${search || ''}.*`, 'i') },
-    ];
+    Object.assign(filter, regexSearchText(search));
   }
 
   if (stageId) {
     filter.stageId = stageId;
   }
 
+  if (labelIds) {
+    filter.labelIds = { $in: labelIds };
+  }
+
+  return filter;
+};
+
+export const generateDealCommonFilters = async (args: any, extraParams?: any) => {
+  args.type = 'deal';
+  const filter = await generateCommonFilters(args);
+  const { productIds } = extraParams || args;
+
+  if (productIds) {
+    filter['productsData.productId'] = contains(productIds);
+  }
+
   // Calendar monthly date
+  const { date, pipelineId } = args;
+
   if (date) {
     const stageIds = await Stages.find({ pipelineId }).distinct('_id');
 
@@ -133,18 +191,8 @@ export const generateCommonFilters = async (args: any) => {
   return filter;
 };
 
-export const generateDealCommonFilters = async (args: any, extraParams?: any) => {
-  const filter = await generateCommonFilters(args);
-  const { productIds } = extraParams || args;
-
-  if (productIds) {
-    filter['productsData.productId'] = contains(productIds);
-  }
-
-  return filter;
-};
-
 export const generateTicketCommonFilters = async (args: any, extraParams?: any) => {
+  args.type = 'ticket';
   const filter = await generateCommonFilters(args);
   const { priority, source } = extraParams || args;
 
@@ -160,11 +208,36 @@ export const generateTicketCommonFilters = async (args: any, extraParams?: any) 
 };
 
 export const generateTaskCommonFilters = async (args: any, extraParams?: any) => {
+  args.type = 'task';
   const filter = await generateCommonFilters(args);
   const { priority } = extraParams || args;
 
   if (priority) {
     filter.priority = contains(priority);
+  }
+
+  return filter;
+};
+
+export const generateGrowthHackCommonFilters = async (args: any, extraParams?: any) => {
+  args.type = 'growthHack';
+
+  const { hackStage, priority, pipelineId, stageId } = extraParams || args;
+
+  const filter = await generateCommonFilters(args);
+
+  if (hackStage) {
+    filter.hackStages = { $in: [hackStage] };
+  }
+
+  if (priority) {
+    filter.priority = priority;
+  }
+
+  if (!stageId && pipelineId) {
+    const stageIds = await Stages.find({ pipelineId }).distinct('_id');
+
+    filter.stageId = { $in: stageIds };
   }
 
   return filter;

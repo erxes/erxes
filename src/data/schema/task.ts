@@ -1,30 +1,11 @@
-const commonTypes = `
-  order: Int
-  createdAt: Date
-  hasNotified: Boolean
-`;
+import { commonTypes, conformityQueryFields } from './common';
 
 export const types = `
   type Task {
     _id: String!
-    name: String!
-    stageId: String
-    boardId: String
-    companyIds: [String]
-    customerIds: [String]
-    assignedUserIds: [String]
-    closeDate: Date
-    description: String
     priority: String
     companies: [Company]
     customers: [Customer]
-    assignedUsers: [User]
-    isWatched: Boolean
-    attachments: [Attachment]
-    stage: Stage
-    pipeline: Pipeline
-    modifiedAt: Date
-    modifiedBy: String
     ${commonTypes}
   }
 `;
@@ -46,19 +27,21 @@ export const queries = `
     noCloseDate: String
     overdue: String
     priority: [String]
+    labelIds: [String]
+    ${conformityQueryFields}
   ): [Task]
 `;
 
 const commonParams = `
   stageId: String,
   assignedUserIds: [String],
-  companyIds: [String],
   attachments: [AttachmentInput],
-  customerIds: [String],
   closeDate: Date,
   description: String,
   order: Int,
   priority: String,
+  reminderMinute: Int,
+  isComplete: Boolean
 `;
 
 export const mutations = `

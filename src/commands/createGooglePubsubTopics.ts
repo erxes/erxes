@@ -47,7 +47,7 @@ const start = async () => {
 
   const serviceAccount = require('../../google_cred.json');
 
-  const googleClient = PubSub({
+  const googleClient = (PubSub as any)({
     projectId: serviceAccount.project_id,
     keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
   });

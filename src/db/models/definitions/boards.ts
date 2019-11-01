@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
+import { BOARD_TYPES, HACK_SCORING_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
 import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
@@ -11,6 +11,7 @@ interface ICommonFields {
 
 export interface IItemCommonFields {
   name?: string;
+  // TODO migrate after remove 2row
   companyIds?: string[];
   customerIds?: string[];
   closeDate?: Date;
@@ -18,6 +19,7 @@ export interface IItemCommonFields {
   assignedUserIds?: string[];
   watchedUserIds?: string[];
   notifiedUserIds?: string[];
+  labelIds?: string[];
   attachments?: any[];
   stageId?: string;
   initialStageId?: string;
@@ -26,11 +28,11 @@ export interface IItemCommonFields {
   userId?: string;
   createdAt?: Date;
   order?: number;
+  searchText?: string;
 }
 
 export interface IBoard extends ICommonFields {
   name?: string;
-  isDefault?: boolean;
 }
 
 export interface IBoardDocument extends IBoard, Document {
@@ -44,6 +46,12 @@ export interface IPipeline extends ICommonFields {
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
+  // growth hack
+  startDate?: Date;
+  endDate?: Date;
+  metric?: string;
+  hackScoringType?: string;
+  templateId?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -53,12 +61,16 @@ export interface IPipelineDocument extends IPipeline, Document {
 export interface IStage extends ICommonFields {
   name?: string;
   probability?: string;
-  pipelineId?: string;
+  pipelineId: string;
+  formId?: string;
 }
 
 export interface IStageDocument extends IStage, Document {
   _id: string;
 }
+
+// Not mongoose document, just stage shaped plain object
+export type IPipelineStage = IStage & { _id: string };
 
 export interface IOrderInput {
   _id: string;
@@ -99,30 +111,28 @@ export const commonItemFieldsSchema = {
   }),
   order: field({ type: Number }),
   name: field({ type: String }),
-  companyIds: field({ type: [String] }),
-  customerIds: field({ type: [String] }),
   closeDate: field({ type: Date }),
+  reminderMinute: field({ type: Number }),
+  isComplete: field({ type: Boolean, default: false }),
   description: field({ type: String, optional: true }),
   assignedUserIds: field({ type: [String] }),
   watchedUserIds: field({ type: [String] }),
+  labelIds: field({ type: [String] }),
   attachments: field({ type: [attachmentSchema] }),
-  stageId: field({ type: String, optional: true }),
+  stageId: field({ type: String }),
   initialStageId: field({ type: String, optional: true }),
   modifiedAt: field({
     type: Date,
     default: new Date(),
   }),
   modifiedBy: field({ type: String }),
+  searchText: field({ type: String, optional: true, index: true }),
 };
 
 export const boardSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String }),
-    isDefault: field({
-      type: Boolean,
-      default: false,
-    }),
     ...commonFieldsSchema,
   }),
 );
@@ -139,6 +149,15 @@ export const pipelineSchema = new Schema({
   watchedUserIds: field({ type: [String] }),
   memberIds: field({ type: [String] }),
   bgColor: field({ type: String }),
+  // Growth hack
+  startDate: field({ type: Date, optional: true }),
+  endDate: field({ type: Date, optional: true }),
+  metric: field({ type: String, optional: true }),
+  hackScoringType: field({
+    type: String,
+    enum: HACK_SCORING_TYPES.ALL,
+  }),
+  templateId: field({ type: String, optional: true }),
   ...commonFieldsSchema,
 });
 
@@ -150,5 +169,6 @@ export const stageSchema = new Schema({
     enum: PROBABILITY.ALL,
   }), // Win probability
   pipelineId: field({ type: String }),
+  formId: field({ type: String }),
   ...commonFieldsSchema,
 });

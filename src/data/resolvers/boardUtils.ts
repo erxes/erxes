@@ -51,17 +51,9 @@ export const sendNotifications = async ({
   invitedUsers,
   removedUsers,
 }: IBoardNotificationParams) => {
-  const stage = await Stages.findOne({ _id: item.stageId });
+  const stage = await Stages.getStage(item.stageId || '');
 
-  if (!stage) {
-    throw new Error('Stage not found');
-  }
-
-  const pipeline = await Pipelines.findOne({ _id: stage.pipelineId });
-
-  if (!pipeline) {
-    throw new Error('Pipeline not found');
-  }
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
 
   const title = `${contentType} updated`;
 
@@ -99,7 +91,6 @@ export const sendNotifications = async ({
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
       action: `removed you from ${contentType}`,
       content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
       receivers: removedUsers.filter(id => id !== user._id),
     });
   }
@@ -110,7 +101,6 @@ export const sendNotifications = async ({
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
       action: `invited you to the ${contentType}: `,
       content: `'${item.name}'`,
-      link: `${route}/${contentType}/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
       receivers: invitedUsers.filter(id => id !== user._id),
     });
   }
@@ -193,6 +183,20 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'taskPipelinesEdit',
     pipelinesRemove: 'taskPipelinesRemove',
     pipelinesWatch: 'taskPipelinesWatch',
+  },
+  growthHack: {
+    boardsAdd: 'growthHackBoardsAdd',
+    boardsEdit: 'growthHackBoardsEdit',
+    boardsRemove: 'growthHackBoardsRemove',
+    pipelinesAdd: 'growthHackPipelinesAdd',
+    pipelinesEdit: 'growthHackPipelinesEdit',
+    pipelinesRemove: 'growthHackPipelinesRemove',
+    pipelinesWatch: 'growthHackPipelinesWatch',
+    templatesAdd: 'growthHackTemplatesAdd',
+    templatesEdit: 'growthHackTemplatesEdit',
+    templatesRemove: 'growthHackTemplatesRemove',
+    templatesDuplicate: 'growthHackTemplatesDuplicate',
+    showTemplates: 'showGrowthHackTemplates',
   },
 };
 

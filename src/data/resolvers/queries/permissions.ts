@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import { Permissions, UsersGroups } from '../../../db/models';
-import { actionsMap, IActionsMap, IModulesMap, modulesMap } from '../../permissions/utils';
+import { actionsMap, IActionsMap, IModuleMap, modulesMap } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
@@ -49,7 +49,7 @@ const permissionQueries = {
   },
 
   permissionModules() {
-    const modules: IModulesMap[] = [];
+    const modules: IModuleMap[] = [];
 
     for (const m of _.pairs(modulesMap)) {
       modules.push({ name: m[0], description: m[1] });

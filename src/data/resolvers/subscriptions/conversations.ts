@@ -84,4 +84,11 @@ export default {
       },
     ),
   },
+
+  /*
+   * Integrations api is listener
+   */
+  conversationExternalIntegrationMessageInserted: {
+    subscribe: () => graphqlPubsub.asyncIterator('conversationExternalIntegrationMessageInserted'),
+  },
 };

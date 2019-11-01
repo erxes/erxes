@@ -1,9 +1,10 @@
-import { Tickets } from '../../../db/models';
+import { Checklists, Conformities, Tickets } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { putCreateLog } from '../../utils';
 import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 import { checkUserIds } from './notifications';
 
@@ -16,9 +17,12 @@ const ticketMutations = {
    * Create new ticket
    */
   async ticketsAdd(_root, doc: ITicket, { user }: IContext) {
+    doc.watchedUserIds = [user._id];
+
     const ticket = await Tickets.createTicket({
       ...doc,
       modifiedBy: user._id,
+      userId: user._id,
     });
 
     await sendNotifications({
@@ -30,6 +34,16 @@ const ticketMutations = {
       contentType: 'ticket',
     });
 
+    await putCreateLog(
+      {
+        type: 'ticket',
+        newData: JSON.stringify(doc),
+        object: ticket,
+        description: `${ticket.name} has been created`,
+      },
+      user,
+    );
+
     return ticket;
   },
 
@@ -37,11 +51,7 @@ const ticketMutations = {
    * Edit ticket
    */
   async ticketsEdit(_root, { _id, ...doc }: ITicketsEdit, { user }: IContext) {
-    const oldTicket = await Tickets.findOne({ _id });
-
-    if (!oldTicket) {
-      throw new Error('Ticket not found');
-    }
+    const oldTicket = await Tickets.getTicket(_id);
 
     const updatedTicket = await Tickets.updateTicket(_id, {
       ...doc,
@@ -109,11 +119,7 @@ const ticketMutations = {
    * Remove ticket
    */
   async ticketsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const ticket = await Tickets.findOne({ _id });
-
-    if (!ticket) {
-      throw new Error('ticket not found');
-    }
+    const ticket = await Tickets.getTicket(_id);
 
     await sendNotifications({
       item: ticket,
@@ -124,6 +130,9 @@ const ticketMutations = {
       contentType: 'ticket',
     });
 
+    await Conformities.removeConformity({ mainType: 'ticket', mainTypeId: ticket._id });
+    await Checklists.removeChecklists('ticket', ticket._id);
+
     return ticket.remove();
   },
 
@@ -131,12 +140,6 @@ const ticketMutations = {
    * Watch ticket
    */
   async ticketsWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: IContext) {
-    const ticket = await Tickets.findOne({ _id });
-
-    if (!ticket) {
-      throw new Error('Ticket not found');
-    }
-
     return Tickets.watchTicket(_id, isAdd, user._id);
   },
 };

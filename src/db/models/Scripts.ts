@@ -28,7 +28,7 @@ export const loadClass = () => {
         }
       }
 
-      // Generate formCode, brandCode combinations
+      // Generate leadCode, brandCode combinations
       if (fields.leadIds) {
         const integrations = await Integrations.find({ _id: { $in: fields.leadIds } });
 
@@ -38,6 +38,9 @@ export const loadClass = () => {
           for (const integration of integrations) {
             const brand = await Brands.findOne({ _id: integration.brandId });
             const form = await Forms.findOne({ _id: integration.formId });
+            if (!form) {
+              throw new Error('Form not found');
+            }
 
             if (brand && form) {
               maps.push({
