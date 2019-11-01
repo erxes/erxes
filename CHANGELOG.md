@@ -1,3 +1,22 @@
+# [0.11.0](https://github.com/erxes/erxes-integrations/compare/0.10.3...0.11.0) (2019-11-01)
+
+
+### Features
+
+* **facebook-post:** add facebook post ([9a5a7fb](https://github.com/erxes/erxes-integrations/commit/9a5a7fb)), closes [#16](https://github.com/erxes/erxes-integrations/issues/16)
+* **imap:** add imap feature by nylus ([acb073c](https://github.com/erxes/erxes-integrations/commit/acb073c)), closes [#32](https://github.com/erxes/erxes-integrations/issues/32)
+* **integration:** add chatfuel ([c7bf99d](https://github.com/erxes/erxes-integrations/commit/c7bf99d)), closes [#27](https://github.com/erxes/erxes-integrations/issues/27)
+* **integration:** add yahoo by nylus ([bd3e7a3](https://github.com/erxes/erxes-integrations/commit/bd3e7a3)), closes [#48](https://github.com/erxes/erxes-integrations/issues/48)
+* **integration:** integration outlook ([6f3410c](https://github.com/erxes/erxes-integrations/commit/6f3410c)), closes [#47](https://github.com/erxes/erxes-integrations/issues/47)
+* **nylus:** add nylus gmail integration ([db8b3f7](https://github.com/erxes/erxes-integrations/commit/db8b3f7)), closes [#25](https://github.com/erxes/erxes-integrations/issues/25)
+* **office365:** add office365 feature by nylus ([ec8a4d5](https://github.com/erxes/erxes-integrations/commit/ec8a4d5))
+* **twitter-dm:** add twitter direct message feature ([776c440](https://github.com/erxes/erxes-integrations/commit/776c440)), closes [#33](https://github.com/erxes/erxes-integrations/issues/33)
+
+
+### Performance Improvements
+
+* **facebook:** store page tokens to database ([c75e495](https://github.com/erxes/erxes-integrations/commit/c75e495)), closes [#15](https://github.com/erxes/erxes-integrations/issues/15)
+
 ## [0.10.3](https://github.com/erxes/erxes-integrations/compare/0.10.2...0.10.3) (2019-08-31)
 
 
