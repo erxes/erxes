@@ -77,7 +77,7 @@ const init = async app => {
       return next(new Error('Account not found'));
     }
 
-    return res.json(account.uid);
+    return res.json(account.email);
   });
 
   app.post('/gmail/send', async (req, res, next) => {

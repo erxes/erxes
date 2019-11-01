@@ -34,7 +34,7 @@ const init = async app => {
   app.post('/callpro-receive', async (req, res, next) => {
     debugRequest(debugCallPro, req);
 
-    const { numberTo, numberFrom, disp, recordUrl, callID, date } = req.body;
+    const { numberTo, numberFrom, disp, recordUrl, callID } = req.body;
     const integration = await Integrations.findOne({ phoneNumber: numberTo }).lean();
 
     if (!integration) {
@@ -58,7 +58,7 @@ const init = async app => {
           path: '/integrations-api',
           method: 'POST',
           body: {
-            action: 'create-or-update-customer',
+            action: 'get-create-update-customer',
             payload: JSON.stringify({
               integrationId: integration.erxesApiId,
               primaryPhone: numberFrom,
@@ -83,7 +83,6 @@ const init = async app => {
       // save on integration db
       try {
         conversation = await Conversations.create({
-          timestamp: date,
           state: disp,
           callId: callID,
           senderPhoneNumber: numberTo,
@@ -95,13 +94,36 @@ const init = async app => {
       }
     }
 
+    // Check state of call and update
+    if (conversation.state !== disp) {
+      await Conversations.updateOne({ callId: callID }, { $set: { state: disp } });
+
+      try {
+        await fetchMainApi({
+          path: '/integrations-api',
+          method: 'POST',
+          body: {
+            action: 'create-or-update-conversation',
+            payload: JSON.stringify({
+              content: disp,
+              conversationId: conversation.erxesApiId,
+            }),
+          },
+        });
+      } catch (e) {
+        throw new Error(e.message);
+      }
+
+      return res.send('success');
+    }
+
     // save on api
     try {
       const apiConversationResponse = await fetchMainApi({
         path: '/integrations-api',
         method: 'POST',
         body: {
-          action: 'create-conversation',
+          action: 'create-or-update-conversation',
           payload: JSON.stringify({
             customerId: customer.erxesApiId,
             content: disp,

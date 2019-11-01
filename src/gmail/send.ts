@@ -12,7 +12,7 @@ const encodeBase64 = (subject: string) => {
  * @see {https://tools.ietf.org/html/rfc2822}
  */
 const createMimeMessage = (mailParams: IMailParams): string => {
-  const { bcc, cc, to, textHtml, headerId, references, from, subject, attachments } = mailParams;
+  const { bcc, cc, to, body, headerId, references, from, subject, attachments } = mailParams;
 
   const nl = '\n';
   const boundary = '__erxes__';
@@ -43,9 +43,7 @@ const createMimeMessage = (mailParams: IMailParams): string => {
 
   mimeBase.push('Content-Type: multipart/mixed; boundary=' + boundary + nl);
   mimeBase.push(
-    ['--' + boundary, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: 8bit' + nl, textHtml].join(
-      nl,
-    ),
+    ['--' + boundary, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: 8bit' + nl, body].join(nl),
   );
 
   if (attachments && attachments.length > 0) {

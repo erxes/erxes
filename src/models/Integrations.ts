@@ -6,10 +6,12 @@ export interface IIntegration {
   accountId: string;
   erxesApiId: string;
   facebookPageIds?: string[];
+  facebookPageTokensMap?: { [key: string]: string };
   email: string;
   phoneNumber: string;
   expiration?: string;
   gmailHistoryId?: string;
+  chatfuelConfigs?: { [key: string]: string };
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -25,12 +27,32 @@ export const integrationSchema = new Schema({
   email: String,
   expiration: String,
   gmailHistoryId: String,
+  facebookPageTokensMap: field({
+    type: Object,
+    default: {},
+  }),
+  chatfuelConfigs: field({
+    type: Object,
+    default: {},
+  }),
 });
 
-export interface IIntegrationModel extends Model<IIntegrationDocument> {}
+export interface IIntegrationModel extends Model<IIntegrationDocument> {
+  getIntegration(selector): Promise<IIntegrationDocument>;
+}
 
 export const loadClass = () => {
-  class Integration {}
+  class Integration {
+    public static async getIntegration(selector) {
+      const integration = await Integrations.findOne(selector);
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      return integration;
+    }
+  }
 
   integrationSchema.loadClass(Integration);
 

@@ -1,21 +1,27 @@
 import { Document, Model, model, Schema } from 'mongoose';
 import { field } from '../models/utils';
 
-// customer ======================
 export interface ICustomer {
-  phoneNumber: string;
-  integrationId: string;
   // id on erxes-api
   erxesApiId?: string;
+  userId: string;
+
+  name: string;
+  screenName: string;
+  profilePic;
+  string;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {}
 
 export const customerSchema = new Schema({
   _id: field({ pkey: true }),
-  phoneNumber: { type: String, unique: true },
-  integrationId: String,
+  userId: { type: String, unique: true },
   erxesApiId: String,
+
+  name: String,
+  screenName: String,
+  profilePic: String,
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
@@ -24,11 +30,11 @@ export interface ICustomerModel extends Model<ICustomerDocument> {}
 export interface IConversation {
   // id on erxes-api
   erxesApiId?: string;
-  senderPhoneNumber: string;
-  recipientPhoneNumber: string;
-  state: string;
+  timestamp: Date;
+  senderId: string;
+  receiverId: string;
+  content: string;
   integrationId: string;
-  callId: string;
 }
 
 export interface IConversationDocument extends IConversation, Document {}
@@ -36,44 +42,68 @@ export interface IConversationDocument extends IConversation, Document {}
 export const conversationSchema = new Schema({
   _id: field({ pkey: true }),
   erxesApiId: String,
-  state: String,
+  timestamp: Date,
+  senderId: { type: String, index: true },
+  receiverId: { type: String, index: true },
   integrationId: String,
-  senderPhoneNumber: { type: String, index: true },
-  recipientPhoneNumber: { type: String, index: true },
-  callId: { type: String, unique: true },
+  content: String,
 });
 
-export interface IConversationModel extends Model<IConversationDocument> {}
+conversationSchema.index({ senderId: 1, receiverId: 1 }, { unique: true });
+
+export interface IConversationModel extends Model<IConversationDocument> {
+  getConversation(selector): Promise<IConversationDocument>;
+}
+
+export const loadConversationClass = () => {
+  class Conversation {
+    public static async getConversation(selector) {
+      const conversation = await Conversations.findOne(selector);
+
+      if (!conversation) {
+        throw new Error('Conversation not found');
+      }
+
+      return conversation;
+    }
+  }
+
+  conversationSchema.loadClass(Conversation);
+
+  return conversationSchema;
+};
 
 // conversation message ===========================
 export interface IConversationMessage {
-  content: string;
+  messageId: string;
   conversationId: string;
-  callId: string;
+  content: string;
 }
 
 export interface IConversationMessageDocument extends IConversationMessage, Document {}
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
-  content: String,
+  messageId: { type: String, unique: true },
   conversationId: String,
-  callId: String,
+  content: String,
 });
 
 export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
 
+loadConversationClass();
+
 // tslint:disable-next-line
-export const Customers = model<ICustomerDocument, ICustomerModel>('customers_callpro', customerSchema);
+export const Customers = model<ICustomerDocument, ICustomerModel>('customers_twitter', customerSchema);
 
 // tslint:disable-next-line
 export const Conversations = model<IConversationDocument, IConversationModel>(
-  'conversations_callpro',
+  'conversations_twitter',
   conversationSchema,
 );
 
 // tslint:disable-next-line
 export const ConversationMessages = model<IConversationMessageDocument, IConversationMessageModel>(
-  'conversation_messages_callpro',
+  'conversation_messages_twitters',
   conversationMessageSchema,
 );

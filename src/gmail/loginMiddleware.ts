@@ -40,6 +40,7 @@ const loginMiddleware = async (req, res) => {
     await Accounts.create({
       name: email,
       uid: email,
+      email,
       kind: 'gmail',
       token: access_token,
       tokenSecret: credentials.refresh_token,

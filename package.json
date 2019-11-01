@@ -24,7 +24,11 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "release": "release-it"
+    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
+    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
+    "release": "release-it",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "lint-staged": {
     "*.ts": [
@@ -33,21 +37,27 @@
     ]
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^0.29.1",
+    "@google-cloud/pubsub": "^1.1.5",
     "amqplib": "^0.5.5",
     "body-parser": "^1.17.1",
     "botbuilder": "^4.4.0",
-    "botbuilder-adapter-facebook": "^1.0.3",
+    "botbuilder-adapter-facebook-erxes": "^1.0.5",
     "botkit": "^4.0.2",
+    "crypto": "^1.0.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "express": "^4.16.4",
     "fbgraph": "^1.4.4",
     "googleapis": "^40.0.0",
     "meteor-random": "^0.0.3",
-    "mongoose": "^5.2.16",
+    "migrate": "^1.6.2",
+    "mongoose": "5.7.5",
+    "nylas": "^4.7.0",
+    "querystring": "^0.2.0",
     "request": "^2.88.0",
-    "requestify": "^0.2.5"
+    "request-promise": "^4.2.4",
+    "sanitize-html": "^1.20.1",
+    "snyk": "^1.239.5"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"
@@ -68,7 +78,7 @@
     "jest": "22.0.4",
     "lint-staged": "^3.6.0",
     "prettier": "^1.13.7",
-    "release-it": "^12.3.5",
+    "release-it": "^12.4.3",
     "ts-jest": "22.0.4",
     "ts-node": "^7.0.0",
     "ts-node-dev": "^1.0.0-pre.32",
@@ -76,5 +86,6 @@
     "tslint-config-prettier": "^1.1.0",
     "tslint-config-standard": "^7.0.0",
     "typescript": "^2.9.2"
-  }
+  },
+  "snyk": true
 }
