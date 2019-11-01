@@ -12,9 +12,12 @@ import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
+import { IPipelineLabel } from '../../types';
+import Labels from '..//label/Labels';
 
 type Props = {
   item: IItem;
+  labels: IPipelineLabel[];
   onChangeField: (name: 'description', value: any) => void;
   type: string;
   description: string;
@@ -31,7 +34,8 @@ class Left extends React.Component<Props> {
       attachments,
       onChangeAttachment,
       description,
-      type
+      type,
+      labels
     } = this.props;
 
     const descriptionOnChange = e =>
@@ -42,10 +46,23 @@ class Left extends React.Component<Props> {
 
     return (
       <LeftContainer>
+        {labels.length > 0 && (
+          <FormGroup>
+            <TitleRow>
+              <ControlLabel>
+                <Icon icon="tag" />
+                {__('Labels')}
+              </ControlLabel>
+            </TitleRow>
+
+            <Labels labels={labels} />
+          </FormGroup>
+        )}
+
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="attach" />
+              <Icon icon="paperclip" />
               {__('Attachments')}
             </ControlLabel>
           </TitleRow>
@@ -69,6 +86,7 @@ class Left extends React.Component<Props> {
             defaultValue={description}
             onChange={descriptionOnChange}
             onBlur={descriptionOnBlur}
+            autoFocus={true}
           />
         </FormGroup>
 

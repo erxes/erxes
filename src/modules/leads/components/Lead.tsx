@@ -253,6 +253,7 @@ class Lead extends React.Component<Props, State> {
             required={true}
             onChange={onChange}
             defaultValue={title}
+            autoFocus={true}
           />
           {this.renderSaveButton()}
         </TitleContainer>

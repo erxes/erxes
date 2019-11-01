@@ -44,7 +44,7 @@ class ListRow extends React.Component<Props, State> {
   }
 
   onClick = () => {
-    this.setState({ isEditing: true });
+    this.setState({ isEditing: true, beforeContent: this.props.item.content });
   };
 
   onKeyPress = e => {

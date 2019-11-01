@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { renderWithProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import List from '../components/List';
@@ -28,7 +28,15 @@ class ListContainer extends React.Component<FinalProps> {
   remove = (checklistId: string) => {
     const { removeMutation } = this.props;
 
-    removeMutation({ variables: { _id: checklistId } });
+    confirm().then(() => {
+      removeMutation({ variables: { _id: checklistId } })
+        .then(() => {
+          Alert.success('You successfully deleted a checklist');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
   };
 
   addItem = (doc: { content: string }) => {
@@ -100,33 +108,31 @@ const options = (props: IProps) => {
   };
 };
 
-export default (props: IProps) =>
-  renderWithProps<IProps>(
-    props,
-    compose(
-      graphql<IProps>(gql(queries.checklistDetail), {
-        name: 'checklistDetailQuery',
+export default withProps<IProps>(
+  compose(
+    graphql<IProps>(gql(queries.checklistDetail), {
+      name: 'checklistDetailQuery',
+      options: ({ listId }) => ({
+        variables: {
+          _id: listId
+        }
+      })
+    }),
+    graphql<IProps, AddItemMutationResponse, IChecklistItemDoc>(
+      gql(mutations.checklistItemsAdd),
+      {
+        name: 'addItemMutation',
+        options
+      }
+    ),
+    graphql<IProps, RemoveMutationResponse, { _id: string }>(
+      gql(mutations.checklistsRemove),
+      {
+        name: 'removeMutation',
         options: () => ({
-          variables: {
-            _id: props.listId
-          }
+          refetchQueries: ['checklists']
         })
-      }),
-      graphql<IProps, AddItemMutationResponse, IChecklistItemDoc>(
-        gql(mutations.checklistItemsAdd),
-        {
-          name: 'addItemMutation',
-          options
-        }
-      ),
-      graphql<IProps, RemoveMutationResponse, { _id: string }>(
-        gql(mutations.checklistsRemove),
-        {
-          name: 'removeMutation',
-          options: () => ({
-            refetchQueries: ['checklists']
-          })
-        }
-      )
-    )(ListContainer)
-  );
+      }
+    )
+  )(ListContainer)
+);

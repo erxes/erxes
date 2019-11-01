@@ -136,6 +136,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
     const {
       name,
+      labels,
       stageId,
       description,
       closeDate,
@@ -168,6 +169,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             onBlurFields={onBlurFields}
             attachments={attachments}
             item={item}
+            labels={labels}
             onChangeField={onChangeField}
           />
 

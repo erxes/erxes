@@ -7,6 +7,10 @@ const createConfirmation = (unmountDelay = 1000) => {
     const wrapper = document.body.appendChild(document.createElement('div'));
 
     function dismiss() {
+      if (props.options.beforeDismiss) {
+        props.options.beforeDismiss();
+      }
+
       setTimeout(() => {
         ReactDOM.unmountComponentAtNode(wrapper);
         wrapper.remove();

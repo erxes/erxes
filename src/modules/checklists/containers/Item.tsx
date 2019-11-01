@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { renderWithProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Item from '../components/Item';
@@ -71,23 +71,21 @@ const options = (props: IProps) => {
   };
 };
 
-export default (props: IProps) =>
-  renderWithProps<IProps>(
-    props,
-    compose(
-      graphql<IProps, EditItemMutationResponse, EditItemMutationVariables>(
-        gql(mutations.checklistItemsEdit),
-        {
-          name: 'editItemMutation',
-          options
-        }
-      ),
-      graphql<IProps, RemoveItemMutationResponse, { _id: string }>(
-        gql(mutations.checklistItemsRemove),
-        {
-          name: 'removeItemMutation',
-          options
-        }
-      )
-    )(ItemContainer)
-  );
+export default withProps<IProps>(
+  compose(
+    graphql<IProps, EditItemMutationResponse, EditItemMutationVariables>(
+      gql(mutations.checklistItemsEdit),
+      {
+        name: 'editItemMutation',
+        options
+      }
+    ),
+    graphql<IProps, RemoveItemMutationResponse, { _id: string }>(
+      gql(mutations.checklistItemsRemove),
+      {
+        name: 'removeItemMutation',
+        options
+      }
+    )
+  )(ItemContainer)
+);

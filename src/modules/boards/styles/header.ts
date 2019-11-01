@@ -75,7 +75,7 @@ export const HeaderButton = styledTS<{
     ${props =>
       props.rightIconed &&
       css`
-        margin-right: 0;
+        margin-right: -3px;
         margin-left: 5px;
       `};
   }

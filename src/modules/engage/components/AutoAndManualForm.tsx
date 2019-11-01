@@ -165,6 +165,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             required={true}
             onChange={onChange}
             defaultValue={this.state.title}
+            autoFocus={true}
           />
         </TitleContainer>
 

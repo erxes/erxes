@@ -337,7 +337,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
 
         <Button
           btnStyle="link"
-          icon="cancel"
+          icon="times"
           size="small"
           onClick={this.onClick}
         />

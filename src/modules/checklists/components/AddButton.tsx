@@ -38,7 +38,7 @@ class ChecklistAdd extends React.Component<Props> {
           this.overlayTrigger = overlayTrigger;
         }}
         trigger="click"
-        placement="top"
+        placement="bottom"
         overlay={this.renderForm()}
         rootClose={true}
       >

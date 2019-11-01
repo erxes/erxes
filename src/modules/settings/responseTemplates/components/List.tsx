@@ -1,5 +1,5 @@
+import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
-import { Input } from 'modules/common/components/form/styles';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Table from 'modules/common/components/table';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
@@ -88,12 +88,13 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         <FlexRow>
           <FlexItem>
             <ControlLabel>Search</ControlLabel>
-            <Input
+            <FormControl
               placeholder="Search"
               name="searchValue"
               onChange={this.onChange}
               value={this.state.searchValue}
-              onKeyDown={this.handleKeyDown}
+              onKeyPress={this.handleKeyDown}
+              autoFocus={true}
             />
           </FlexItem>
 

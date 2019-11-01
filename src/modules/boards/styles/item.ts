@@ -27,6 +27,10 @@ const Right = styled.div`
   float: right;
 `;
 
+const Actions = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
 const Footer = styled.div`
   padding-top: 8px;
   margin-top: 8px;
@@ -341,6 +345,7 @@ export {
   RightButton,
   MoveFormContainer,
   PipelineName,
+  Actions,
   FormFooter,
   FlexContent,
   LeftContainer,

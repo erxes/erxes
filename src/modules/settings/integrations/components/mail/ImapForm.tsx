@@ -9,6 +9,7 @@ import { IImapForm } from '../../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  kind: string;
   closeModal: () => void;
 };
 
@@ -22,6 +23,7 @@ class ImapForm extends React.Component<Props> {
     smtpPort
   }: IImapForm) => {
     return {
+      kind: this.props.kind,
       email,
       password,
       imapHost,

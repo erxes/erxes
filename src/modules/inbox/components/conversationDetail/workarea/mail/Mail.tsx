@@ -136,7 +136,7 @@ class Mail extends React.PureComponent<
   renderRightSide(showIcon: boolean, createdAt: Date) {
     return (
       <RightSide>
-        {showIcon && <Icon icon="attach" />}
+        {showIcon && <Icon icon="paperclip" />}
         <Date>{dayjs(createdAt).format('lll')}</Date>
       </RightSide>
     );
