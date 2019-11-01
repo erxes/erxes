@@ -1,12 +1,10 @@
 import { toArray } from 'modules/boards/utils';
 import DealEditForm from './components/DealEditForm';
 import DealItem from './components/DealItem';
-import PortableDeal from './components/PortableDeal';
 import { mutations, queries } from './graphql';
 
 const options = {
   EditForm: DealEditForm,
-  PortableItem: PortableDeal,
   Item: DealItem,
   type: 'deal',
   title: 'Deal',
@@ -42,6 +40,7 @@ const options = {
     changeSuccessText: 'You successfully changed a deal',
     copySuccessText: 'You successfully copied a deal'
   },
+  isMove: true,
   getExtraParams: (queryParams: any) => {
     const extraParams: any = {};
 

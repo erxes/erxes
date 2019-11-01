@@ -112,6 +112,33 @@ const conversationMessages = `
   }
 `;
 
+const facebookComments = `
+  query facebookComments($postId: String!, $commentId: String, $limit: Int) {
+    facebookComments(postId: $postId, limit: $limit, commentId: $commentId) {
+      conversationId
+      commentId
+      postId
+      recipientId
+      senderId
+      attachments
+      content
+      erxesApiId
+      timestamp
+      parentId
+      commentId
+      commentCount
+      customer {
+        _id
+        visitorContactInfo
+        messengerData
+        avatar
+        firstName
+        lastName
+      }
+    }
+  }
+`;
+
 const conversationMessagesTotalCount = `
   query conversationMessagesTotalCount($conversationId: String!) {
     conversationMessagesTotalCount(conversationId: $conversationId)
@@ -119,8 +146,8 @@ const conversationMessagesTotalCount = `
 `;
 
 const userList = `
-  query objects($searchValue: String) {
-    users(searchValue: $searchValue) {
+  query objects($searchValue: String, $requireUsername: Boolean) {
+    users(searchValue: $searchValue, requireUsername: $requireUsername) {
       _id
       username
       email
@@ -289,6 +316,7 @@ export default {
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
+  facebookComments,
   conversationMessagesTotalCount,
   userList,
   channelList,

@@ -79,19 +79,20 @@ const ClearDate = styledTS<{ selected: boolean }>(styled.div)`
 `;
 
 const FilterBtn = styledTS<{ active?: boolean }>(styled.div)`
-    box-shadow: ${props =>
-      props.active
-        ? `0 2px 16px 0 ${lighten(colors.colorCoreGreen, 25)}`
-        : 'none'}; 
-    background: ${props =>
-      props.active ? colors.colorCoreGreen : 'transparent'};
-    border-radius: 30px;
+  box-shadow: ${props =>
+    props.active
+      ? `0 2px 16px 0 ${lighten(colors.colorCoreGreen, 25)}`
+      : 'none'}; 
+  background: ${props =>
+    props.active ? colors.colorCoreGreen : 'transparent'};
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+  
+  button {
+    color: ${colors.colorWhite};
     transition: background-color 0.3s ease;
-    button{
-      font-size:10px;
-      color: ${colors.colorWhite};
-      transition: background-color 0.3s ease;
-    }
+  }
+
   span {
     margin-left: 0;
   }

@@ -23,6 +23,7 @@ type Props = {
 
 type State = {
   percentage: number;
+  errors?: string[];
 };
 
 class ImportIndicatorContainer extends React.Component<
@@ -50,7 +51,13 @@ class ImportIndicatorContainer extends React.Component<
       variables: { _id: id },
       updateQuery: (prev, { subscriptionData: { data } }) => {
         const { importHistoryChanged } = data;
-        const { percentage, status } = importHistoryChanged;
+        const { percentage, status, errorMsgs } = importHistoryChanged;
+
+        if (status === 'Error') {
+          this.clearStorage();
+
+          return this.setState({ errors: errorMsgs });
+        }
 
         if (status === 'Removed') {
           this.clearStorage();
@@ -81,6 +88,7 @@ class ImportIndicatorContainer extends React.Component<
     } = this.props;
 
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
+    const errors = this.state.errors;
     const percentage =
       Math.trunc(importHistory.percentage) || this.state.percentage;
 
@@ -107,6 +115,7 @@ class ImportIndicatorContainer extends React.Component<
         importHistory={importHistory}
         cancel={cancelImport}
         isRemovingImport={isRemovingImport}
+        errors={errors}
       />
     );
   }

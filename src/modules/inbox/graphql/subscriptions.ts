@@ -33,6 +33,12 @@ const conversationClientTypingStatusChanged = `
   }
 `;
 
+const conversationExternalIntegrationMessageInserted = `
+  subscription conversationExternalIntegrationMessageInserted {
+    conversationExternalIntegrationMessageInserted
+  }
+`;
+
 const customerConnectionChanged = `
   subscription customerConnectionChanged ($_id: String!) {
     customerConnectionChanged (_id: $_id) {
@@ -47,5 +53,6 @@ export default {
   conversationMessageInserted,
   conversationClientMessageInserted,
   conversationClientTypingStatusChanged,
+  conversationExternalIntegrationMessageInserted,
   customerConnectionChanged
 };

@@ -13,6 +13,7 @@ import { Watch } from '../../components/editForm';
 type IProps = {
   item: IItem;
   options: IOptions;
+  isSmall?: boolean;
 };
 
 type FinalProps = {

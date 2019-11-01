@@ -99,7 +99,7 @@ export default withProps<Props>(
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: 'form'
+            kind: 'lead'
           },
           fetchPolicy: 'network-only'
         };

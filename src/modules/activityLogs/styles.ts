@@ -20,9 +20,10 @@ const Timeline = styled.div`
   }
 `;
 
-const ActivityTitle = styled.h3`
-  padding: ${dimensions.unitSpacing}px 0;
-  font-weight: 300;
+const ActivityTitle = styled.h4`
+  margin: 0;
+  padding: ${dimensions.coreSpacing * 1.5}px 0 ${dimensions.coreSpacing}px;
+  font-weight: 400;
   color: ${colors.textPrimary};
 `;
 
@@ -31,7 +32,7 @@ const ActivityRow = styled(WhiteBox)`
   position: relative;
   overflow: visible;
   margin-bottom: ${dimensions.coreSpacing}px;
-  border-radius: 3px;
+  border-radius: 2px;
 
   &:last-of-type {
     margin-bottom: 0;
@@ -41,11 +42,13 @@ const ActivityRow = styled(WhiteBox)`
 const FlexContent = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const FlexBody = styled.div`
   flex: 1;
   align-self: center;
+  word-break: break-word;
 
   p {
     margin: 0;
@@ -63,7 +66,7 @@ const FlexBody = styled.div`
 `;
 
 const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
-  margin-right: ${dimensions.coreSpacing}px;
+  margin-right: ${dimensions.unitSpacing}px;
   position: relative;
 
   a {
@@ -114,7 +117,7 @@ const ActivityIcon = styledTS<{ color?: string }>(styled.span)`
 const ActivityDate = styled.div`
   color: ${colors.colorCoreGray};
   font-weight: ${typography.fontWeightLight};
-  font-size: 12px;
+  font-size: 11px;
   margin-left: 5px;
   cursor: help;
 `;
@@ -125,15 +128,24 @@ const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
   background: ${props =>
     props.isInternalNote ? colors.bgInternal : colors.borderPrimary};
   box-shadow: 0 1px 2px 0 ${colors.darkShadow};
+  word-break:break-word;
 
   p:last-of-type {
     margin-bottom: 0;
+  }
+
+  img {
+    max-width: 100%;
   }
 `;
 
 const EmailContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0 60px;
   overflow: hidden;
+
+  img {
+    max-width: 100%;
+  }
 `;
 
 const IconWrapper = styled.div`

@@ -119,4 +119,8 @@ const Footer = styled.div`
   }
 `;
 
-export { Columns, Column, Title, Footer };
+const SelectChooser = styled(Column)`
+  overflow: initial;
+`;
+
+export { Columns, Column, Title, Footer, SelectChooser };

@@ -147,7 +147,7 @@ export default class WorkArea extends React.Component<Props, State> {
     const participatedUsers = currentConversation.participatedUsers || [];
     const { kind } = currentConversation.integration;
 
-    const showInternal = kind === 'gmail';
+    const showInternal = kind.includes('nylas') || kind === 'gmail';
 
     const tagTrigger = (
       <PopoverButton>
@@ -166,7 +166,7 @@ export default class WorkArea extends React.Component<Props, State> {
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
           <Button btnStyle="simple" size="small">
-            Member
+            {__('Member')}
             <Icon icon="angle-down" />
           </Button>
         )}
@@ -181,6 +181,11 @@ export default class WorkArea extends React.Component<Props, State> {
           customerIds={
             currentConversation.customerId
               ? [currentConversation.customerId]
+              : []
+          }
+          assignedUserIds={
+            currentConversation.assignedUserId
+              ? [currentConversation.assignedUserId]
               : []
           }
         />

@@ -3,6 +3,7 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { colors, dimensions } from 'modules/common/styles';
 import { __, setBadge } from 'modules/common/utils';
+import Robot from 'modules/robot/containers/Robot';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
@@ -11,7 +12,7 @@ const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
   background: ${colors.colorPrimaryDark};
   box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  z-index: 11;
   flex-shrink: 0;
   overflow: hidden;
   position: absolute;
@@ -134,8 +135,33 @@ class Navigation extends React.Component<{
     }
   }
 
+  renderNavItem = (
+    permission: string,
+    text: string,
+    url: string,
+    icon: string,
+    label?: React.ReactNode
+  ) => {
+    return (
+      <WithPermission action={permission}>
+        <Tip placement="right" text={text}>
+          <NavLink to={url}>
+            <NavIcon className={icon} />
+            {label}
+          </NavLink>
+        </Tip>
+      </WithPermission>
+    );
+  };
+
   render() {
     const { unreadConversationsCount } = this.props;
+
+    const unreadIndicator = unreadConversationsCount !== 0 && (
+      <Label shake={true} lblStyle="danger" ignoreTrans={true}>
+        {unreadConversationsCount}
+      </Label>
+    );
 
     return (
       <LeftNavigation>
@@ -143,61 +169,51 @@ class Navigation extends React.Component<{
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          <WithPermission action="showConversations">
-            <Tip placement="right" text={__('Conversation').toString()}>
-              <NavLink to="/inbox">
-                <NavIcon className="icon-chat" />
-                {unreadConversationsCount !== 0 && (
-                  <Label shake={true} lblStyle="danger" ignoreTrans={true}>
-                    {unreadConversationsCount}
-                  </Label>
-                )}
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showDeals">
-            <Tip placement="right" text={__('Sales').toString()}>
-              <NavLink to="/deal">
-                <NavIcon className="icon-piggy-bank" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showCustomers">
-            <Tip placement="right" text={__('Contacts').toString()}>
-              <NavLink to="/contacts">
-                <NavIcon className="icon-users" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showForms">
-            <Tip placement="right" text={__('Leads').toString()}>
-              <NavLink to="/forms">
-                <NavIcon className="icon-laptop" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showEngagesMessages">
-            <Tip placement="right" text={__('Engage').toString()}>
-              <NavLink to="/engage">
-                <NavIcon className="icon-megaphone" />
-              </NavLink>
-            </Tip>
-          </WithPermission>
-          <WithPermission action="showKnowledgeBase">
-            <Tip placement="right" text={__('Knowledge Base').toString()}>
-              <NavLink to="/knowledgeBase">
-                <NavIcon className="icon-book" />
-              </NavLink>
-            </Tip>
-            <WithPermission action="showIntegrations">
-              <Tip placement="right" text={__('App store').toString()}>
-                <NavLink to="/settings/integrations" className="bottom">
-                  <NavIcon className="icon-menu" />
-                </NavLink>
-              </Tip>
-            </WithPermission>
-          </WithPermission>
+          {this.renderNavItem(
+            'showConversations',
+            __('Conversation'),
+            '/inbox',
+            'icon-chat',
+            unreadIndicator
+          )}
+          {this.renderNavItem(
+            'showGrowthHacks',
+            __('Growth Hacking'),
+            '/growthHack',
+            'icon-idea'
+          )}
+          {this.renderNavItem(
+            'showDeals',
+            __('Deal'),
+            '/deal',
+            'icon-piggy-bank'
+          )}
+          {this.renderNavItem(
+            'showCustomers',
+            __('Contacts'),
+            '/contacts',
+            'icon-users'
+          )}
+          {this.renderNavItem(
+            'showForms',
+            __('Leads'),
+            '/leads',
+            'icon-laptop'
+          )}
+          {this.renderNavItem(
+            'showEngagesMessages',
+            __('Engage'),
+            '/engage',
+            'icon-megaphone'
+          )}
+          {this.renderNavItem(
+            'showKnowledgeBase',
+            __('Knowledge Base'),
+            '/knowledgeBase',
+            'icon-book'
+          )}
         </Nav>
+        <Robot />
       </LeftNavigation>
     );
   }

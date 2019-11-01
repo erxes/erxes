@@ -3,10 +3,11 @@ import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 
 const Templates = styled.div`
-  height: 100%;
+  display: flex;
   background: ${colors.colorWhite};
   padding: ${dimensions.coreSpacing}px;
   overflow: auto;
+  flex-wrap: wrap;
 `;
 
 const IframePreview = styled.div`
@@ -27,6 +28,7 @@ const IframePreview = styled.div`
 const TemplateBox = styled.div`
   width: 100%;
   height: 140px;
+  border-radius: 2px;
   border: 1px solid ${colors.borderDarker};
   position: relative;
 `;
@@ -39,6 +41,9 @@ const Actions = styled.div`
   z-index: 3;
   width: 100%;
   height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 2px;
   transition: opacity ease 0.3s;
   justify-content: space-evenly;
   align-items: center;
@@ -53,13 +58,15 @@ const Actions = styled.div`
   }
 `;
 
-const EmailTemplate = styled.div`
+const Template = styled.div`
+  flex-basis: 300px;
+  padding: 10px 10px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 18%;
-  float: left;
-  margin-right: ${dimensions.coreSpacing}px;
+  justify-content: space-between;
+  border-radius: 6px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
 
   > h5 {
     text-align: center;
@@ -79,4 +86,4 @@ const EmailTemplate = styled.div`
   }
 `;
 
-export { EmailTemplate, Actions, TemplateBox, Templates, IframePreview };
+export { Template, Actions, TemplateBox, Templates, IframePreview };

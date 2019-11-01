@@ -3,21 +3,36 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __, urlParser } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
+import GetConformity from 'modules/conformity/containers/GetConformity';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import {
+  ButtonRelated,
+  SectionBody,
+  SectionBodyItem
+} from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CompanyChooser from '../../containers/CompanyChooser';
+import { queries } from '../../graphql';
+import { ICompany } from '../../types';
 
 type Props = {
   name: string;
-  companies?: ICompany[];
-  onSelect: (companies: ICompany[]) => void;
+  items?: ICompany[];
+  mainType?: string;
+  mainTypeId?: string;
   isOpen?: boolean;
+  onSelect?: (companies: ICompany[]) => void;
 };
 
-function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
+function Component({
+  name,
+  items = [],
+  mainType = '',
+  mainTypeId = '',
+  isOpen,
+  onSelect
+}: Props) {
   const { Section } = Sidebar;
   const { Title, QuickButtons } = Section;
 
@@ -25,7 +40,17 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
     return (
       <CompanyChooser
         {...props}
-        data={{ name, companies }}
+        data={{ name, companies: items, mainType, mainTypeId }}
+        onSelect={onSelect}
+      />
+    );
+  };
+
+  const renderRelatedCompanyChooser = props => {
+    return (
+      <CompanyChooser
+        {...props}
+        data={{ name, companies: items, mainTypeId, mainType, isRelated: true }}
         onSelect={onSelect}
       />
     );
@@ -37,6 +62,12 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
     </button>
   );
 
+  const relCompanyTrigger = (
+    <ButtonRelated>
+      <button>{__('See related companies..')}</button>
+    </ButtonRelated>
+  );
+
   const quickButtons = (
     <ModalTrigger
       title="Associate"
@@ -46,9 +77,18 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
     />
   );
 
+  const relQuickButtons = (
+    <ModalTrigger
+      title="Related Associate"
+      trigger={relCompanyTrigger}
+      size="lg"
+      content={renderRelatedCompanyChooser}
+    />
+  );
+
   const content = (
     <SectionBody>
-      {companies.map((company, index) => (
+      {items.map((company, index) => (
         <SectionBodyItem key={index}>
           <Link to={`/contacts/companies/details/${company._id}`}>
             <Icon icon="logout-2" />
@@ -61,9 +101,8 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
           </Tip>
         </SectionBodyItem>
       ))}
-      {companies.length === 0 && (
-        <EmptyState icon="briefcase" text="No company" />
-      )}
+      {items.length === 0 && <EmptyState icon="briefcase" text="No company" />}
+      {mainTypeId && mainType && relQuickButtons}
     </SectionBody>
   );
 
@@ -78,4 +117,21 @@ function CompanySection({ name, companies = [], onSelect, isOpen }: Props) {
   );
 }
 
-export default CompanySection;
+type IProps = {
+  mainType?: string;
+  mainTypeId?: string;
+  isOpen?: boolean;
+  onSelect?: (datas: ICompany[]) => void;
+};
+
+export default (props: IProps) => {
+  return (
+    <GetConformity
+      {...props}
+      relType="company"
+      component={Component}
+      queryName="companies"
+      itemsQuery={queries.companies}
+    />
+  );
+};

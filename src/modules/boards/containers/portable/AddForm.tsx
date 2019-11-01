@@ -1,5 +1,10 @@
 import gql from 'graphql-tag';
 import { Alert, renderWithProps } from 'modules/common/utils';
+import { mutations } from 'modules/conformity/graphql/';
+import {
+  EditConformityMutation,
+  IConformityEdit
+} from 'modules/conformity/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
@@ -8,29 +13,56 @@ import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
 
 type IProps = {
   options: IOptions;
-  customerIds?: string[];
-  companyIds?: string[];
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
   showSelect?: boolean;
+  relType?: string;
+  relTypeIds?: string[];
+  assignedUserIds?: string[];
   closeModal: () => void;
-  callback?: () => void;
+  refetch?: () => void;
 };
 
 type FinalProps = {
   addMutation: SaveMutation;
+  editConformity: EditConformityMutation;
 } & IProps;
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
-    const { addMutation, options } = this.props;
+    const {
+      addMutation,
+      options,
+      relType,
+      relTypeIds,
+      editConformity,
+      refetch,
+      assignedUserIds
+    } = this.props;
+
+    doc.assignedUserIds = assignedUserIds;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
         Alert.success(options.texts.addSuccessText);
 
+        if (relType && relTypeIds) {
+          editConformity({
+            variables: {
+              mainType: options.type,
+              mainTypeId: data[options.mutationsName.addMutation]._id,
+              relType,
+              relTypeIds
+            }
+          });
+        }
+
         callback(data[options.mutationsName.addMutation]);
+
+        if (refetch) {
+          refetch();
+        }
       })
       .catch(error => {
         Alert.error(error.message);
@@ -69,6 +101,12 @@ export default (props: IProps) =>
               ]
             };
           }
+        }
+      ),
+      graphql<FinalProps, EditConformityMutation, IConformityEdit>(
+        gql(mutations.conformityEdit),
+        {
+          name: 'editConformity'
         }
       )
     )(AddFormContainer)

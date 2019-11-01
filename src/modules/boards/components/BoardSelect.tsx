@@ -3,7 +3,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import { SelectContainer } from '../styles/common';
+import { FormContainer } from '../styles/common';
 import { IBoard, IPipeline, IStage } from '../types';
 import { selectOptions } from '../utils';
 
@@ -14,6 +14,7 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+  inSidebar?: boolean;
   onChangeBoard: (value: string) => void;
   onChangePipeline: (value: string) => void;
   onChangeStage: (value: string, callback?: () => void) => void;
@@ -43,7 +44,7 @@ class BoardSelect extends React.Component<Props> {
     );
   }
 
-  render() {
+  renderContent() {
     const {
       boards,
       pipelines,
@@ -58,7 +59,7 @@ class BoardSelect extends React.Component<Props> {
     } = this.props;
 
     return (
-      <SelectContainer>
+      <>
         <FormGroup>
           <ControlLabel>Board</ControlLabel>
           {this.renderSelect(
@@ -88,8 +89,12 @@ class BoardSelect extends React.Component<Props> {
             selectOptions(stages)
           )}
         </FormGroup>
-      </SelectContainer>
+      </>
     );
+  }
+
+  render() {
+    return <FormContainer>{this.renderContent()}</FormContainer>;
   }
 }
 

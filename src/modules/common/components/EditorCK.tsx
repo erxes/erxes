@@ -25,11 +25,13 @@ class EditorCK extends React.Component<IEditorProps> {
   }
   render() {
     const {
+      onCtrlEnter,
       content,
       onChange,
       height,
       insertItems,
       removeButtons,
+      removePlugins,
       toolbar,
       toolbarCanCollapse,
       mentionUsers = []
@@ -59,7 +61,7 @@ class EditorCK extends React.Component<IEditorProps> {
           uiColor: colors.bgLight,
           dialog_backgroundCoverColor: '#30435C',
           allowedContent: true,
-          extraPlugins: 'codemirror,strinsert',
+          extraPlugins: 'codemirror,strinsert,onCtrlEnter',
           strinsert: insertItems,
           autoGrowOnStartup: true,
           toolbar: toolbar || [
@@ -119,6 +121,7 @@ class EditorCK extends React.Component<IEditorProps> {
             }
           ],
           removeButtons,
+          removePlugins,
           codemirror: {
             enableCodeFormatting: false,
             enableCodeFolding: false,
@@ -127,6 +130,7 @@ class EditorCK extends React.Component<IEditorProps> {
             showUncommentButton: false,
             showFormatButton: false
           },
+          onCtrlEnter,
           toolbarCanCollapse,
           filebrowserImageUploadUrl: `${REACT_APP_API_URL}/upload-file`
         }}

@@ -65,6 +65,7 @@ class KnowledgeBase extends React.Component<Props> {
         title="Add Article"
         trigger={trigger}
         size="lg"
+        autoOpenKey="showKBAddArticleModal"
         content={content}
         enforceFocus={false}
       />

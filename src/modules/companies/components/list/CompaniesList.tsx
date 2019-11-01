@@ -254,7 +254,6 @@ class CompaniesList extends React.Component<IProps, State> {
                 title="Manage Columns"
                 trigger={editColumns}
                 content={manageColumns}
-                dialogClassName="transform"
               />
             </li>
             <li>
@@ -277,6 +276,7 @@ class CompaniesList extends React.Component<IProps, State> {
         <ModalTrigger
           title="New company"
           trigger={addTrigger}
+          autoOpenKey="showCompanyModal"
           size="lg"
           content={companyForm}
           backDrop="static"

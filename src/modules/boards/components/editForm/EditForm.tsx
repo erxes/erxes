@@ -1,18 +1,24 @@
 import { IUser } from 'modules/auth/types';
-import { FormFooter } from 'modules/boards/styles/item';
-import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import { CloseModal } from 'modules/common/styles/main';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
-import routerUtils from 'modules/common/utils/router';
 import { ICompany } from 'modules/companies/types';
 import { ICustomer } from 'modules/customers/types';
-import queryString from 'query-string';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import history from '../../../../browserHistory';
+import { IPipelineLabel } from '../../types';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
-const reactiveFields = ['closeDate', 'stageId', 'assignedUserIds'];
+const reactiveFields = [
+  'closeDate',
+  'stageId',
+  'assignedUserIds',
+  'isComplete',
+  'reminderMinute'
+];
+
+const reactiveForiegnFields = ['companies', 'customers', 'labels'];
 
 type Props = {
   options: IOptions;
@@ -21,8 +27,6 @@ type Props = {
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
-  extraFields?: any;
-  extraFieldsCheck?: () => boolean;
   amount?: () => React.ReactNode;
   sidebar?: () => React.ReactNode;
   formContent: (
@@ -31,10 +35,10 @@ type Props = {
   onUpdate: (item, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
+  hideHeader?: boolean;
 };
 
 type State = {
-  isFormVisible?: boolean;
   name?: string;
   stageId?: string;
   description?: string;
@@ -42,61 +46,34 @@ type State = {
   assignedUserIds?: string[];
   customers: ICustomer[];
   companies: ICompany[];
+  labels: IPipelineLabel[];
   attachments?: IAttachment[];
   updatedItem?;
   prevStageId?;
+  reminderMinute?: number;
+  isComplete?: boolean;
 };
 
 class EditForm extends React.Component<Props, State> {
-  unlisten?: () => void;
-
   constructor(props) {
     super(props);
 
     const item = props.item;
 
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
-
-    let isFormVisible = false;
-
-    if (itemIdQueryParam === item._id || props.isPopupVisible) {
-      isFormVisible = true;
-    }
-
     this.state = {
-      isFormVisible,
       name: item.name,
       stageId: item.stageId,
       // IItem datas
+      labels: item.labels || [],
       companies: item.companies || [],
       customers: item.customers || [],
       closeDate: item.closeDate,
       description: item.description || '',
       attachments: item.attachments && extractAttachment(item.attachments),
-      assignedUserIds: (item.assignedUsers || []).map(user => user._id)
+      assignedUserIds: (item.assignedUsers || []).map(user => user._id),
+      reminderMinute: item.reminderMinute || 0,
+      isComplete: item.isComplete
     };
-  }
-
-  componentDidMount() {
-    this.unlisten = history.listen(location => {
-      const queryParams = queryString.parse(location.search);
-
-      if (queryParams.itemId === this.props.item._id) {
-        return this.setState({ isFormVisible: true });
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    if (this.unlisten) {
-      this.unlisten();
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isPopupVisible && nextProps.isPopupVisible === true) {
-      this.setState({ isFormVisible: true });
-    }
   }
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
@@ -116,33 +93,28 @@ class EditForm extends React.Component<Props, State> {
           });
         });
       }
+
+      if (reactiveForiegnFields.includes(name)) {
+        this.props.saveItem({}, updatedItem => {
+          this.setState({ updatedItem });
+        });
+      }
     });
   };
 
-  onBlurFields = (name: 'name' | 'description', value: string) => {
+  onBlurFields = (name: string, value: string) => {
     if (value === this.props.item[name]) {
       return;
     }
 
     this.props.saveItem({ [name]: value }, updatedItem => {
-      this.setState(
-        {
-          updatedItem
-        },
-        () => {
-          if (this.state.isFormVisible === false) {
-            this.props.onUpdate(updatedItem);
-          }
-        }
-      );
+      this.setState({ updatedItem });
     });
   };
 
   onChangeAttachment = (attachments: IAttachment[]) => {
     this.setState({ attachments }, () => {
-      this.props.saveItem({ attachments }, updatedItem => {
-        this.setState({ updatedItem });
-      });
+      this.props.saveItem({ attachments });
     });
   };
 
@@ -152,36 +124,14 @@ class EditForm extends React.Component<Props, State> {
     removeItem(id, this.closeModal);
   };
 
-  save = () => {
-    const { companies, customers, updatedItem, prevStageId } = this.state;
-    const { saveItem } = this.props;
-
-    const doc = {
-      companyIds: companies.map(company => company._id),
-      customerIds: customers.map(customer => customer._id)
-    };
-
-    if (updatedItem && prevStageId) {
-      this.props.onUpdate(updatedItem, prevStageId);
-
-      return this.closeModal();
-    }
-
-    saveItem(doc, result => {
-      this.props.onUpdate(result);
-      this.closeModal();
-    });
-  };
-
   copy = () => {
     const { item, addItem, options } = this.props;
 
     // copied doc
     const doc = {
       ...item,
-      assignedUserIds: item.assignedUsers.map(user => user._id),
-      companyIds: item.companies.map(company => company._id),
-      customerIds: item.customers.map(customer => customer._id)
+      attachments: item.attachments && extractAttachment(item.attachments),
+      assignedUserIds: item.assignedUsers.map(user => user._id)
     };
 
     addItem(doc, this.closeModal, options.texts.copySuccessText);
@@ -189,16 +139,9 @@ class EditForm extends React.Component<Props, State> {
 
   closeModal = () => {
     const { beforePopupClose } = this.props;
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
     if (beforePopupClose) {
       beforePopupClose();
-    }
-
-    this.setState({ isFormVisible: false });
-
-    if (itemIdQueryParam) {
-      routerUtils.removeParams(history, 'itemId');
     }
   };
 
@@ -212,23 +155,32 @@ class EditForm extends React.Component<Props, State> {
     this.closeModal();
   };
 
-  render() {
-    const { isFormVisible } = this.state;
-
-    if (!isFormVisible) {
-      return null;
+  renderHeader = () => {
+    if (this.props.hideHeader) {
+      return (
+        <CloseModal onClick={this.onHideModal}>
+          <Icon icon="times" />
+        </CloseModal>
+      );
     }
 
     return (
+      <Modal.Header closeButton={true}>
+        <Modal.Title>{__('Edit')}</Modal.Title>
+      </Modal.Header>
+    );
+  };
+
+  render() {
+    return (
       <Modal
+        dialogClassName="modal-1000w"
         enforceFocus={false}
         bsSize="lg"
-        show={true}
+        show={this.props.isPopupVisible}
         onHide={this.onHideModal}
       >
-        <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Edit')}</Modal.Title>
-        </Modal.Header>
+        {this.renderHeader()}
         <Modal.Body>
           {this.props.formContent({
             state: this.state,
@@ -238,20 +190,6 @@ class EditForm extends React.Component<Props, State> {
             remove: this.remove,
             onBlurFields: this.onBlurFields
           })}
-
-          <FormFooter>
-            <Button
-              btnStyle="simple"
-              onClick={this.onHideModal}
-              icon="cancel-1"
-            >
-              Close
-            </Button>
-
-            <Button btnStyle="success" icon="checked-1" onClick={this.save}>
-              Save
-            </Button>
-          </FormFooter>
         </Modal.Body>
       </Modal>
     );

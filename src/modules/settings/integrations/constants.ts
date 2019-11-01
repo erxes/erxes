@@ -65,12 +65,44 @@ export const hours = [
 
 export const KIND_CHOICES = {
   MESSENGER: 'messenger',
-  FACEBOOK: 'facebook',
+  FACEBOOK_MESSENGER: 'facebook-messenger',
+  FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
-  FORM: 'form',
+  NYLAS_GMAIL: 'nylas-gmail',
+  NYLAS_IMAP: 'nylas-imap',
+  NYLAS_OUTLOOK: 'nylas-outlook',
+  NYLAS_OFFICE365: 'nylas-office365',
+  NYLAS_YAHOO: 'nylas-yahoo',
+  LEAD: 'lead',
   CALLPRO: 'callpro',
-  ALL_LIST: ['messenger', 'facebook', 'form', 'callpro']
+  TWITTER_DM: 'twitter-dm',
+  CHATFUEL: 'chatfuel',
+  ALL_LIST: [
+    'messenger',
+    'facebook-post',
+    'facebook-messenger',
+    'lead',
+    'callpro',
+    'twitter-dm',
+    'chatfuel',
+    'gmail',
+    'nylas-gmail',
+    'nylas-imap',
+    'nylas-office365',
+    'nylas-outlook'
+  ]
 };
+
+export const KIND_CHOICES_WITH_TEXT = [
+  { text: 'Messenger', value: 'messenger' },
+  { text: 'Facebook post', value: 'facebook-post' },
+  { text: 'facebook messenger', value: 'facebook-messenger' },
+  { text: 'Pop Ups', value: 'lead' },
+  { text: 'Callpro', value: 'callpro' },
+  { text: 'Chatfuel', value: 'chatfuel' },
+  { text: 'Gmail', value: 'gmail' },
+  { text: 'Nylas gmail', value: 'nylas-gmail' }
+];
 
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
@@ -86,17 +118,45 @@ export const FORM_SUCCESS_ACTIONS = {
   ALL_LIST: ['', 'email', 'redirect', 'onPage']
 };
 
+export const MAIL_TOOLBARS_CONFIG = [
+  { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+  { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+  { name: 'tools', items: ['Maximize'] },
+  {
+    name: 'insert',
+    items: ['Image', 'HorizontalRule', 'EmojiPanel']
+  },
+  {
+    name: 'basicstyles',
+    groups: ['basicstyles', 'cleanup'],
+    items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
+  },
+  {
+    name: 'paragraph',
+    groups: ['list', 'indent', 'blocks', 'align', 'bidi'],
+    items: ['NumberedList', 'BulletedList']
+  }
+];
+
 export const INTEGRATIONS = [
   {
     name: 'row-1',
     rows: [
       {
+        name: 'Facebook post',
+        description: 'Connect to Facebook posts right from your Team Inbox',
+        inMessenger: false,
+        kind: 'facebook-post',
+        logo: '/images/integrations/facebook.png',
+        createModal: 'facebook-post'
+      },
+      {
         name: 'Facebook messenger',
         description: 'Connect to Facebook messages right from your Team Inbox',
         inMessenger: false,
-        kind: 'facebook',
+        kind: 'facebook-messenger',
         logo: '/images/integrations/fb-messenger.png',
-        createModal: 'facebook'
+        createModal: 'facebook-messenger'
       },
       {
         name: 'Messenger',
@@ -109,11 +169,45 @@ export const INTEGRATIONS = [
       {
         name: 'Gmail',
         description:
-          'Connect straight to your Gmail and get those emails going',
+          'connect straight to your gmail and get those emails going',
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
-        createModal: 'gmail'
+        createModal: 'gmail',
+        createUrl: '/settings/integrations/gmail'
+      }
+    ]
+  },
+  {
+    name: 'row-2',
+    rows: [
+      {
+        name: 'IMAP by Nylas',
+        description: 'Connect your custom mail server',
+        inMessenger: false,
+        kind: 'nylas-imap',
+        logo: '/images/integrations/email.png',
+        createModal: 'nylas-imap',
+        createUrl: '/settings/integrations/nylas-imap'
+      },
+      {
+        name: 'Office 365 by Nylas',
+        description: 'Connect your office 365 mail server',
+        inMessenger: false,
+        kind: 'nylas-office365',
+        logo: '/images/integrations/office365.png',
+        createModal: 'nylas-office365',
+        createUrl: '/settings/integrations/nylas-office365'
+      },
+      {
+        name: 'Gmail by Nylas',
+        description:
+          'Connect straight to your gmail and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-gmail',
+        logo: '/images/integrations/gmail.png',
+        createModal: 'nylas-gmail',
+        createUrl: '/settings/integrations/nylas-gmail'
       },
       {
         name: 'Lead',
@@ -127,8 +221,28 @@ export const INTEGRATIONS = [
     ]
   },
   {
-    name: 'row-2',
+    name: 'row-3',
     rows: [
+      {
+        name: 'Outlook by Nylas',
+        description:
+          'Connect straight to your outlook and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-outlook',
+        logo: '/images/integrations/outlook.png',
+        createModal: 'nylas-outlook',
+        createUrl: '/settings/integrations/nylas-outlook'
+      },
+      {
+        name: 'Yahoo by Nylas',
+        description:
+          'Connect straight to your yahoo and get those emails going powered by Nylas',
+        inMessenger: false,
+        kind: 'nylas-yahoo',
+        logo: '/images/integrations/yahoo.png',
+        createModal: 'nylas-yahoo',
+        createUrl: '/settings/integrations/nylas-yahoo'
+      },
       {
         name: 'Knowledge Base',
         description: 'Get access to your Knowledge Base right in your Widget',
@@ -146,7 +260,12 @@ export const INTEGRATIONS = [
         kind: 'amazon-ses',
         logo: '/images/integrations/aws-ses.png',
         createModal: 'sesconfig'
-      },
+      }
+    ]
+  },
+  {
+    name: 'row-4',
+    rows: [
       {
         name: 'Call Pro',
         description: 'Connect your call pro phone number',
@@ -154,12 +273,28 @@ export const INTEGRATIONS = [
         kind: 'callpro',
         logo: '/images/integrations/callpro.png',
         createModal: 'callpro'
+      },
+      {
+        name: 'Twitter',
+        description: 'Connect to your twitter DMs here in your Inbox',
+        inMessenger: false,
+        kind: 'twitter-dm',
+        logo: '/images/integrations/twitter.png',
+        createModal: 'twitter'
+      },
+      {
+        name: 'Chatfuel',
+        description: 'Connect your chatfuel account',
+        inMessenger: false,
+        kind: 'chatfuel',
+        logo: '/images/integrations/chatfuel.png',
+        createModal: 'chatfuel'
       }
     ]
   },
   {
     title: 'Coming soon',
-    name: 'row-3',
+    name: 'row-5',
     rows: [
       {
         name: 'Viber',

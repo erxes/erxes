@@ -2,13 +2,17 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CallPro from 'modules/settings/integrations/containers/callpro/Form';
-import Facebook from 'modules/settings/integrations/containers/facebook/Form';
-import Gmail from 'modules/settings/integrations/containers/google/Gmail';
+import Gmail from 'modules/settings/integrations/containers/gmail/Form';
+import NylasForm from 'modules/settings/integrations/containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { KIND_CHOICES } from '../../constants';
+import Chatfuel from '../../containers/chatfuel/Form';
 import Settings from '../../containers/engages/Settings';
+import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
+import Twitter from '../../containers/twitter/Twitter';
 import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
@@ -22,6 +26,12 @@ type Props = {
     form: number;
     facebook: number;
     callpro: number;
+    chatfuel: number;
+    gmail: number;
+    imap: number;
+    office365: number;
+    outlook: number;
+    yahoo: number;
   };
 };
 
@@ -46,10 +56,29 @@ class Entry extends React.Component<Props> {
       return null;
     }
 
-    if (createModal === 'facebook') {
+    if (createModal === KIND_CHOICES.FACEBOOK_MESSENGER) {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
-      const content = props => <Facebook {...props} />;
+      const content = props => (
+        <Facebook kind={KIND_CHOICES.FACEBOOK_MESSENGER} {...props} />
+      );
+
+      return (
+        <ModalTrigger
+          title="Add facebook page"
+          autoOpenKey="showFacebookMessengerModal"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.FACEBOOK_POST) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => (
+        <Facebook kind={KIND_CHOICES.FACEBOOK_POST} {...props} />
+      );
 
       return (
         <ModalTrigger
@@ -70,14 +99,14 @@ class Entry extends React.Component<Props> {
       const content = props => <Lead {...props} />;
 
       return (
-        <ModalTrigger title="Add lead" trigger={trigger} content={content} />
+        <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} />
       );
     }
 
     if (createModal === 'sesconfig') {
       const trigger = (
         <a href="#add">
-          <Icon icon="settings" /> {__('Manage')}
+          <Icon icon="link-1" /> {__('Manage')}
         </a>
       );
 
@@ -86,6 +115,7 @@ class Entry extends React.Component<Props> {
       return (
         <ModalTrigger
           title="Add engage config"
+          size="lg"
           trigger={trigger}
           content={content}
         />
@@ -120,13 +150,91 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (createModal === 'gmail') {
+    if (createModal === 'chatfuel') {
+      const trigger = <a href="#add">+ {'Add'}</a>;
+
+      const content = props => <Chatfuel {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add chatfuel"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.NYLAS_OFFICE365) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger
+          title="Add Office 365"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.NYLAS_IMAP) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add IMAP" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.NYLAS_GMAIL) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.NYLAS_OUTLOOK) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Outlook" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.NYLAS_YAHOO) {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <NylasForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Yahoo" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.GMAIL) {
       const trigger = <a href="#add">+ {__('Add')}</a>;
 
       const content = props => <Gmail {...props} />;
 
       return (
         <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === 'twitter') {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <Twitter {...props} />;
+
+      return (
+        <ModalTrigger title="Add twitter" trigger={trigger} content={content} />
       );
     }
 
@@ -151,6 +259,7 @@ class Entry extends React.Component<Props> {
 
   render() {
     const { integration, getClassName } = this.props;
+    const { createUrl, createModal } = integration;
 
     return (
       <IntegrationItem
@@ -167,7 +276,7 @@ class Entry extends React.Component<Props> {
             {this.renderType(integration.inMessenger)}
           </p>
         </Box>
-        {this.renderCreate(integration.createUrl, integration.createModal)}
+        {this.renderCreate(createUrl, createModal)}
       </IntegrationItem>
     );
   }

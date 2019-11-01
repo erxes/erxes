@@ -28,7 +28,7 @@ type FinalProps = {
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
-const getBoardId = ({ location }) => {
+export const getBoardId = ({ location }) => {
   const queryParams = generateQueryParams({ location });
   return queryParams.id;
 };
@@ -185,6 +185,7 @@ class Main extends React.Component<FinalProps> {
         STORAGE_PIPELINE_KEY,
         JSON.stringify(defaultPipelines)
       );
+
       window.location.href = `/${type}/board`;
       return null;
     }

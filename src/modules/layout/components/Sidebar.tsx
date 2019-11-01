@@ -35,6 +35,7 @@ type Props = {
   noShadow?: boolean;
   noBackground?: boolean;
   full?: boolean;
+  maxHeight: number;
 };
 
 type State = {
@@ -43,6 +44,10 @@ type State = {
 };
 
 class Section extends React.Component<Props, State> {
+  static defaultProps = {
+    maxHeight: 240
+  };
+
   static Title = Title;
   static QuickButtons = QuickButtons;
 
@@ -51,18 +56,20 @@ class Section extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { collapse: false, maxHeight: 240 };
+    this.state = { collapse: false, maxHeight: props.maxHeight };
   }
 
   toggleCollapse = () => {
     this.setState({
       collapse: !this.state.collapse,
-      maxHeight: this.state.collapse ? 240 : this.node.clientHeight + 20
+      maxHeight: this.state.collapse
+        ? this.props.maxHeight
+        : this.node.clientHeight + 20
     });
   };
 
   renderCollapseButton = () => {
-    const icon = this.state.collapse ? 'uparrow-2' : 'downarrow';
+    const icon = this.state.collapse ? 'angle-double-up' : 'angle-double-down';
 
     return (
       <SidebarToggle tabIndex={0} onClick={this.toggleCollapse}>

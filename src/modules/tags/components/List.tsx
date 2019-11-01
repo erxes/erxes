@@ -31,7 +31,12 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
   );
 
   const actionBarRight = (
-    <ModalTrigger title="Add tag" trigger={trigger} content={modalContent} />
+    <ModalTrigger
+      title="Add tag"
+      autoOpenKey={`showTag${type}Modal`}
+      trigger={trigger}
+      content={modalContent}
+    />
   );
 
   const actionBar = <Wrapper.ActionBar right={actionBarRight} />;

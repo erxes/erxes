@@ -1,6 +1,11 @@
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from 'modules/conformity/graphql/queries';
+
 const commonParams = `
-  $customerIds: [String],
   $companyIds: [String],
+  $customerIds: [String],
   $assignedUserIds: [String],
   $nextDay: String,
   $nextWeek: String,
@@ -8,21 +13,25 @@ const commonParams = `
   $noCloseDate: String,
   $overdue: String,
   $priority: [String],
+  $labelIds: [String],
+  ${conformityQueryFields}
 `;
 
 const commonParamDefs = `
-  customerIds: $customerIds,
   companyIds: $companyIds,
+  customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
   nextDay: $nextDay,
   nextWeek: $nextWeek,
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
   overdue: $overdue,
-  priority: $priority
+  priority: $priority,
+  labelIds: $labelIds,
+  ${conformityQueryFieldDefs}
 `;
 
-const taskFields = `
+export const taskFields = `
   _id
   name
   stageId
@@ -40,8 +49,10 @@ const taskFields = `
   customers {
     _id
     firstName
+    lastName
     primaryEmail
     primaryPhone
+    visitorContactInfo
   }
   closeDate
   description
@@ -54,6 +65,12 @@ const taskFields = `
       avatar
     }
   }
+  labels {
+    _id
+    name
+    colorCode
+  }
+  labelIds
   stage {
     probability
   }
@@ -66,6 +83,8 @@ const taskFields = `
   }
   modifiedAt
   modifiedBy
+  reminderMinute
+  isComplete
 `;
 
 const tasks = `

@@ -109,7 +109,7 @@ class PunchCard extends React.Component<Props> {
     if (this.props.data.length === 0) {
       return (
         <ChartWrapper>
-          <EmptyState text="There is no data" size="full" icon="piechart" />
+          <EmptyState text="There is no data" size="full" icon="ban" />
         </ChartWrapper>
       );
     }

@@ -38,6 +38,11 @@ const commonPipelineParamsDef = `
   $visibility: String!,
   $memberIds: [String],
   $bgColor: String,
+  $startDate: Date,
+  $endDate: Date,
+  $metric: String,
+  $hackScoringType: String,
+  $templateId: String
 `;
 
 const commonPipelineParams = `
@@ -47,7 +52,12 @@ const commonPipelineParams = `
   type: $type,
   visibility: $visibility,
   memberIds: $memberIds,
-  bgColor: $bgColor
+  bgColor: $bgColor,
+  hackScoringType: $hackScoringType,
+  startDate: $startDate,
+  endDate: $endDate,
+  metric: $metric,
+  templateId: $templateId
 `;
 
 const pipelineAdd = `

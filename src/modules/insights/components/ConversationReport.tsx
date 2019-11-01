@@ -68,15 +68,18 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
         />
         <InsightContent>
           <InsightRow>
-            <InsightTitle>
-              {__('response frequency averages block')}
-            </InsightTitle>
-            <Summary data={combinedData} loading={loading} />
+            <InsightTitle>{__('response frequency averages')}</InsightTitle>
+            <Summary
+              type="conversation-report"
+              data={combinedData}
+              loading={loading}
+            />
           </InsightRow>
 
           <InsightRow>
             <InsightTitle>{__('Trend')}</InsightTitle>
             <Chart
+              type="conversation-report"
               loading={loading}
               height={300}
               data={conversationReport.trend}
@@ -86,6 +89,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
           <InsightRow>
             <InsightTitle>{__('Team Member')}</InsightTitle>
             <TeamMembers
+              type="conversation-report"
               loading={loading}
               datas={conversationReport.teamMembers || []}
             />

@@ -4,7 +4,9 @@ import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import SelectProducts from 'modules/settings/productService/containers/SelectProducts';
+import SelectCompanies from 'modules/companies/containers/SelectCompanies';
+import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
+import SelectProducts from 'modules/settings/productService/containers/product/SelectProducts';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -80,12 +82,26 @@ const DealMainActionBar = (props: Props) => {
   };
 
   const extraFilter = (
-    <SelectProducts
-      label="Choose products"
-      name="productIds"
-      queryParams={queryParams}
-      onSelect={onSelect}
-    />
+    <>
+      <SelectProducts
+        label="Choose products"
+        name="productIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+      <SelectCompanies
+        label="Choose companies"
+        name="companyIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+      <SelectCustomers
+        label="Choose customers"
+        name="customerIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+    </>
   );
 
   const extendedProps = {

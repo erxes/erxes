@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import EmptyState from '../EmptyState';
+import Icon from '../Icon';
 import Filter from './Filter';
 import {
   AvatarImg,
+  FlexRow,
+  IconWrapper,
   PopoverBody,
   PopoverFooter,
   PopoverHeader,
@@ -19,6 +22,7 @@ type Props = {
 
   // hooks
   onClick?: (items: any[], id: string) => void;
+  onSearch?: (e: React.FormEvent<HTMLElement>) => void;
   onExit?: (items: any[]) => void;
 };
 
@@ -47,16 +51,18 @@ class FilterableList extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      items: nextProps.items
-    });
+    if (JSON.stringify(this.props.items) !== JSON.stringify(nextProps.items)) {
+      this.setState({
+        items: nextProps.items
+      });
+    }
   }
 
   filterItems = e => {
     this.setState({ key: e.target.value });
   };
 
-  toggleItem = id => {
+  toggleItem = (id: string) => {
     const items = this.state.items;
     const item = items.find(i => i._id === id);
 
@@ -95,40 +101,54 @@ class FilterableList extends React.Component<Props, State> {
       const onClick = () => this.toggleItem(item._id);
 
       return (
-        <li
-          key={item._id}
-          className={showCheckmark ? item.selectedBy : ''}
-          onClick={onClick}
-        >
-          {item.iconClass ? (
-            <i
-              className={`icon ${item.iconClass}`}
-              style={{ color: item.iconColor }}
-            />
-          ) : null}{' '}
-          {item.avatar ? <AvatarImg src={item.avatar} /> : null}
-          {item.title || '[undefined]'}
-        </li>
+        <FlexRow key={item._id}>
+          <li
+            className={showCheckmark ? item.selectedBy : ''}
+            style={item.style}
+            onClick={onClick}
+          >
+            {item.iconClass ? (
+              <i
+                className={`icon ${item.iconClass}`}
+                style={{ color: item.iconColor }}
+              />
+            ) : null}{' '}
+            {item.avatar ? <AvatarImg src={item.avatar} /> : null}
+            <span>{item.title || '[undefined]'}</span>
+          </li>
+          {item.additionalIconClass && (
+            <IconWrapper
+              onClick={
+                item.additionalIconOnClick &&
+                item.additionalIconOnClick.bind(this, item._id)
+              }
+            >
+              <Icon icon={item.additionalIconClass} size={12} />
+            </IconWrapper>
+          )}
+        </FlexRow>
       );
     });
   }
 
   render() {
+    const { className, onSearch, selectable, links } = this.props;
+
     return (
-      <div className={this.props.className}>
+      <div className={className}>
         <PopoverHeader>
-          <Filter onChange={this.filterItems} />
+          <Filter onChange={onSearch || this.filterItems} />
         </PopoverHeader>
 
         <PopoverBody>
-          <PopoverList selectable={this.props.selectable}>
+          <PopoverList selectable={selectable}>
             {this.renderItems()}
           </PopoverList>
         </PopoverBody>
-        {this.props.links && (
+        {links && (
           <PopoverFooter>
             <PopoverList>
-              {this.props.links.map(link => (
+              {links.map(link => (
                 <li key={link.href}>
                   <Link onClick={link.onClick} to={link.href}>
                     {link.title}

@@ -1,4 +1,3 @@
-import { Button as DealButton } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -15,6 +14,7 @@ import {
   ContentColumn,
   ContentRow,
   ItemText,
+  ProductButton,
   ProductItem,
   TotalAmount
 } from '../../styles';
@@ -31,7 +31,15 @@ type Props = {
   updateTotal?: () => void;
 };
 
-class ProductItemForm extends React.Component<Props> {
+class ProductItemForm extends React.Component<Props, { categoryId: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      categoryId: ''
+    };
+  }
+
   calculateAmount = (type: string, productData: IProductData) => {
     const amount = productData.unitPrice * productData.quantity;
 
@@ -70,6 +78,10 @@ class ProductItemForm extends React.Component<Props> {
     }
   };
 
+  onChangeCategory = (categoryId: string) => {
+    this.setState({ categoryId });
+  };
+
   onChangeField = (
     type: string,
     value: string | IProduct,
@@ -80,6 +92,12 @@ class ProductItemForm extends React.Component<Props> {
     if (productsData) {
       const productData = productsData.find(p => p._id === productId);
       if (productData) {
+        if (type === 'product') {
+          const product = value as IProduct;
+
+          productData.unitPrice = product.unitPrice;
+        }
+
         productData[type] = value;
       }
 
@@ -109,7 +127,7 @@ class ProductItemForm extends React.Component<Props> {
       );
     }
 
-    return <DealButton>{content}</DealButton>;
+    return <ProductButton>{content}</ProductButton>;
   }
 
   renderProductModal(productData: IProductData) {
@@ -125,6 +143,8 @@ class ProductItemForm extends React.Component<Props> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
+        onChangeCategory={this.onChangeCategory}
+        categoryId={this.state.categoryId}
         data={{
           name: 'Product',
           products: productData.product ? [productData.product] : []
@@ -230,7 +250,7 @@ class ProductItemForm extends React.Component<Props> {
               <ContentColumn>
                 <ControlLabel>Unit price</ControlLabel>
                 <FormControl
-                  defaultValue={productData.unitPrice || ''}
+                  value={productData.unitPrice || ''}
                   type="number"
                   placeholder="0"
                   name="unitPrice"
@@ -317,7 +337,7 @@ class ProductItemForm extends React.Component<Props> {
 
         <Button
           btnStyle="link"
-          icon="cancel"
+          icon="times"
           size="small"
           onClick={this.onClick}
         />

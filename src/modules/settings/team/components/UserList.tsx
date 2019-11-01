@@ -2,8 +2,8 @@ import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
 import ControlLabel from 'modules/common/components/form/Label';
-import { Input } from 'modules/common/components/form/styles';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -11,6 +11,7 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import Table from 'modules/common/components/table';
 import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
+import Toggle from 'modules/common/components/Toggle';
 import { IButtonMutateProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
@@ -18,7 +19,6 @@ import { FlexItem, FlexRow } from 'modules/insights/styles';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import Toggle from 'react-toggle';
 import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import UserForm from '../containers/UserForm';
@@ -223,7 +223,11 @@ class UserList extends React.Component<FinalProps, States> {
         <FlexRow>
           <FlexItem>
             <ControlLabel>Search</ControlLabel>
-            <Input value={searchValue} onChange={this.onChange} />
+            <FormControl
+              value={searchValue}
+              onChange={this.onChange}
+              autoFocus={true}
+            />
           </FlexItem>
 
           {this.renderStatus()}

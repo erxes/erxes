@@ -13,6 +13,7 @@ type Props = {
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   type: string;
+  history: any;
 };
 
 class BoardForm extends React.Component<Props, {}> {
@@ -45,6 +46,7 @@ class BoardForm extends React.Component<Props, {}> {
             name="name"
             defaultValue={object.name}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 

@@ -1,3 +1,4 @@
+import SelectLabel from 'modules/boards/components/label/SelectLabel';
 import {
   ClearDate,
   ClearFilter,
@@ -15,14 +16,11 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import SelectCompanies from 'modules/companies/containers/SelectCompanies';
-import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Overlay, Popover } from 'react-bootstrap';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Overlay, Popover } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import PipelineWatch from '../containers/PipelineWatch';
 import {
@@ -52,6 +50,8 @@ type Props = {
   extraFilter?: React.ReactNode;
   link: string;
   rightContent?: () => React.ReactNode;
+  boardText?: string;
+  pipelineText?: string;
 };
 
 type State = {
@@ -66,7 +66,9 @@ const teamMemberCustomOption = {
 
 class MainActionBar extends React.Component<Props, State> {
   static defaultProps = {
-    viewType: 'board'
+    viewType: 'board',
+    boardText: 'Board',
+    pipelineText: 'Pipeline'
   };
 
   constructor(props) {
@@ -87,10 +89,6 @@ class MainActionBar extends React.Component<Props, State> {
       const target = e.currentTarget as HTMLInputElement;
       this.props.onSearch(target.value || '');
     }
-  };
-
-  toggleFilter = () => {
-    this.setState({ show: !this.state.show });
   };
 
   hideFilter = () => {
@@ -219,24 +217,19 @@ class MainActionBar extends React.Component<Props, State> {
           <PopoverHeader>{__('Filter')}</PopoverHeader>
           <FilterBox>
             {extraFilter}
-            <SelectCompanies
-              label="Choose companies"
-              name="companyIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
-            <SelectCustomers
-              label="Choose customers"
-              name="customerIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-            />
             <SelectTeamMembers
               label="Choose team members"
               name="assignedUserIds"
               queryParams={queryParams}
               onSelect={onSelect}
               customOption={teamMemberCustomOption}
+            />
+            <SelectLabel
+              queryParams={queryParams}
+              name="labelIds"
+              onSelect={onSelect}
+              filterParams={{ pipelineId: queryParams.pipelineId }}
+              multi={true}
             />
 
             {this.renderDates()}
@@ -266,7 +259,7 @@ class MainActionBar extends React.Component<Props, State> {
             <Button
               btnStyle={hasFilter ? 'success' : 'link'}
               className={hasFilter ? 'filter-success' : 'filter-link'}
-              icon="filter"
+              icon="filter-1"
               onClick={this.showFilter}
             >
               {hasFilter && __('Filtering is on')}
@@ -307,7 +300,7 @@ class MainActionBar extends React.Component<Props, State> {
     return (
       <>
         <HeaderButton>
-          <Icon icon="user" /> {__('Private')}
+          <Icon icon="users-alt" /> {__('Private')}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
       </>
@@ -321,13 +314,15 @@ class MainActionBar extends React.Component<Props, State> {
       middleContent,
       queryParams,
       type,
-      rightContent
+      rightContent,
+      boardText,
+      pipelineText
     } = this.props;
 
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
-          <Icon icon="layout" /> {__('Board')}:{' '}
+          <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-board">
           <DropdownToggle bsRole="toggle">
@@ -339,7 +334,7 @@ class MainActionBar extends React.Component<Props, State> {
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLabel>
-          <Icon icon="verticalalignment" /> {__('Pipeline')}:{' '}
+          <Icon icon="web-section-alt" /> {__(pipelineText || '')}:{' '}
         </HeaderLabel>
         <Dropdown id="dropdown-pipeline">
           <DropdownToggle bsRole="toggle">
@@ -353,8 +348,12 @@ class MainActionBar extends React.Component<Props, State> {
         </Dropdown>
         <HeaderLink>
           <Tip text={__('Manage Board & Pipeline')}>
-            <Link to={`/settings/boards/${type}`}>
-              <Icon icon="settings" />
+            <Link
+              to={`/settings/boards/${type}?boardId=${
+                currentBoard ? currentBoard._id : ''
+              }`}
+            >
+              <Icon icon="bright" />
             </Link>
           </Tip>
         </HeaderLink>

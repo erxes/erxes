@@ -1,4 +1,5 @@
-import { IForm, IFormIntegration } from 'modules/forms/types';
+import { IForm } from 'modules/forms/types';
+import { ILeadData, ILeadIntegration } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
@@ -17,6 +18,15 @@ export interface IPages {
   id: string;
   name?: string;
   checked?: boolean;
+}
+
+export interface IImapForm {
+  email: string;
+  password: string;
+  imapHost: string;
+  imapPort: number;
+  smtpHost: string;
+  smtpPort: number;
 }
 
 export interface ISelectMessengerApps {
@@ -66,35 +76,20 @@ export interface IUiOptions {
   logoPreviewUrl?: string;
 }
 
-export interface IFormData {
-  loadType?: string;
-  successAction?: string;
-  fromEmail?: string;
-  userEmailTitle?: string;
-  userEmailContent?: string;
-  adminEmails?: string[];
-  adminEmailTitle?: string;
-  adminEmailContent?: string;
-  thankContent?: string;
-  redirectUrl?: string;
-}
-
 export interface IIntegration {
   _id: string;
   kind: string;
   name: string;
   brandId?: string;
-  description?: string;
   code: string;
   formId: string;
-  form: IForm;
-  logo: string;
   languageCode?: string;
   createUrl: string;
   createModal: string;
   messengerData?: IMessengerData;
+  form: IForm;
   uiOptions?: IUiOptions;
-  formData?: IFormData;
+  leadData: ILeadData;
   brand: IBrand;
   channels: IChannel[];
 }
@@ -113,14 +108,18 @@ export type QueryVariables = {
   searchValue?: string;
 };
 
+export type IntegrationTypes =
+  | 'facebook'
+  | 'gmail'
+  | 'nylas-gmail'
+  | 'nylas-imap'
+  | 'nylas-office365'
+  | 'nylas-outlook'
+  | 'nylas-yahoo'
+  | 'twitter';
+
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
-  loading: boolean;
-  refetch: (variables?: QueryVariables) => void;
-};
-
-export type LeadsQueryResponse = {
-  forms: IForm[];
   loading: boolean;
   refetch: (variables?: QueryVariables) => void;
 };
@@ -139,6 +138,11 @@ export type ByKind = {
   facebook: number;
   gmail: number;
   callpro: number;
+  chatfuel: number;
+  imap: number;
+  office365: number;
+  outlook: number;
+  yahoo: number;
 };
 
 type IntegrationsCount = {
@@ -190,8 +194,8 @@ export type MessengerAppsCountQueryResponse = {
   loading: boolean;
 };
 
-export type FormIntegrationDetailQueryResponse = {
-  integrationDetail: IFormIntegration;
+export type LeadIntegrationDetailQueryResponse = {
+  integrationDetail: ILeadIntegration;
   loading: boolean;
   refetch: () => void;
 };
@@ -294,7 +298,7 @@ export type MessengerAppsAddKnowledgebaseMutationResponse = {
 };
 
 export type AddIntegrationMutationVariables = {
-  formData: IFormData;
+  leadData: ILeadData;
   brandId: string;
   name: string;
   languageCode: string;
@@ -311,7 +315,7 @@ export type AddIntegrationMutationResponse = {
 
 export type EditIntegrationMutationVariables = {
   _id: string;
-  formData: IFormData;
+  leadData: ILeadData;
   brandId: string;
   name: string;
   languageCode: string;

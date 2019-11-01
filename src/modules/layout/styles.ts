@@ -103,6 +103,10 @@ const BarItems = styled.div`
 const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`
   align-self: center;
   margin-left: ${props => props.rightAligned && 'auto'};
+
+  > * + * {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const SideContent = styledTS<{
@@ -207,8 +211,7 @@ const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`
   position: absolute;
   bottom: 0;
   text-align: center;
-  padding: 2px 0;
-  font-size: 10px;
+  padding: 0;
   background: ${props => (props.inverse ? colors.colorWhite : colors.bgLight)};
   border-top: 1px solid ${colors.borderPrimary};
 
@@ -453,6 +456,7 @@ const SectionContainer = styled.div`
   overflow: hidden;
   padding: 10px 10px 0px 10px;
   border-top: 1px solid ${colors.borderPrimary};
+  word-break: break-word;
 `;
 
 const SectionBody = styled.div`
@@ -468,6 +472,7 @@ const SectionBody = styled.div`
 const SectionBodyItem = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
   padding: 10px 20px;
+  word-break: break-word;
 
   span {
     display: inline-block;
@@ -522,6 +527,20 @@ const CenterContent = styled.div`
   }
 `;
 
+const ButtonRelated = styled.div`
+  text-align: center;
+  button {
+    background: rgba(0, 0, 0, 0.04);
+    margin: 10px auto;
+    color: #888;
+    border: 0;
+    border-radius: 25px;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+  }
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -557,5 +576,6 @@ export {
   SectionContainer,
   SectionBody,
   SectionBodyItem,
-  MobileRecommend
+  MobileRecommend,
+  ButtonRelated
 };

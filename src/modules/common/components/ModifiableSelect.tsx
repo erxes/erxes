@@ -109,9 +109,16 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
 
   handleSave = () => {
     const { checkFormat } = this.props;
+    const { inputValue, options } = this.state;
+
+    if (options.includes(inputValue)) {
+      return Alert.error(
+        `${inputValue} is already in the list. Please write a different option.`
+      );
+    }
 
     if (checkFormat) {
-      if (checkFormat(this.state.inputValue)) {
+      if (checkFormat(inputValue)) {
         return this.saveValue();
       }
 

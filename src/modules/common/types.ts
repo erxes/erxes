@@ -90,11 +90,13 @@ export type IMentionUser = {
 };
 
 export type IEditorProps = {
+  onCtrlEnter?: (evt?: any) => void;
   content: string;
   onChange: (evt: any) => void;
   height?: number | string;
   insertItems?: any;
   removeButtons?: string;
+  removePlugins?: string;
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
   toolbar?: any[];

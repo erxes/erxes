@@ -14,15 +14,10 @@ import {
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
+import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICustomer } from 'modules/customers/types';
-import MailForm from 'modules/settings/integrations/containers/google/MailForm';
-import PortableTasks from 'modules/tasks/components/PortableTasks';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
+import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import { IConversation } from '../../../types';
-
-const CompanyAssociate = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-CompanyAssociate" */ 'modules/companies/containers/CompanyAssociate')
-);
 
 const ActionSection = asyncComponent(
   () =>
@@ -38,6 +33,14 @@ const CustomFieldsSection = asyncComponent(
 
 const PortableDeals = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals')
+);
+
+const PortableTasks = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks')
+);
+
+const PortableTickets = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets')
 );
 
 const Contacts = asyncComponent(() =>
@@ -230,11 +233,13 @@ class Index extends React.Component<IndexProps, IndexState> {
   };
 
   renderActions() {
-    const { customer } = this.props;
+    const { customer, conversation } = this.props;
     const { primaryPhone, primaryEmail } = customer;
+    const { kind } = conversation.integration;
 
     const content = props => (
       <MailForm
+        kind={kind}
         fromEmail={primaryEmail}
         refetchQueries={['activityLogsCustomer']}
         closeModal={props.closeModal}
@@ -244,6 +249,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     return (
       <Actions>
         <ModalTrigger
+          dialogClassName="middle"
           title="Email"
           trigger={
             <Button disabled={primaryEmail ? false : true} size="small">
@@ -343,7 +349,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           toggle={toggleSection}
         >
           <PortableDeals
-            customerIds={[customer._id]}
+            mainType="customer"
+            mainTypeId={customer._id}
             isOpen={config.showDeals}
           />
         </Box>
@@ -354,7 +361,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           toggle={toggleSection}
         >
           <PortableTickets
-            customerIds={[customer._id]}
+            mainType="customer"
+            mainTypeId={customer._id}
             isOpen={config.showTickets}
           />
         </Box>
@@ -365,7 +373,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           toggle={toggleSection}
         >
           <PortableTasks
-            customerIds={[customer._id]}
+            mainType="customer"
+            mainTypeId={customer._id}
             isOpen={config.showTasks}
           />
         </Box>
@@ -426,7 +435,11 @@ class Index extends React.Component<IndexProps, IndexState> {
           isOpen={config.showCompanies || false}
           toggle={toggleSection}
         >
-          <CompanyAssociate isOpen={config.showCompanies} data={customer} />
+          <CompanySection
+            isOpen={config.showTags}
+            mainType="customer"
+            mainTypeId={customer._id}
+          />
         </Box>
 
         <Box

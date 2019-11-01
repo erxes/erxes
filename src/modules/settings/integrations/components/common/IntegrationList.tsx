@@ -22,20 +22,52 @@ class IntegrationList extends React.Component<Props> {
   getTypeName(integration) {
     const kind = integration.kind;
 
-    if (kind === KIND_CHOICES.FACEBOOK) {
-      return 'facebook';
+    if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
+      return 'facebook messenger';
+    }
+
+    if (kind === KIND_CHOICES.FACEBOOK_POST) {
+      return 'facebook post';
     }
 
     if (kind === KIND_CHOICES.GMAIL) {
       return 'gmail';
     }
 
-    if (kind === KIND_CHOICES.FORM) {
-      return 'form';
+    if (kind === KIND_CHOICES.LEAD) {
+      return 'lead';
     }
 
     if (kind === KIND_CHOICES.CALLPRO) {
       return 'callpro';
+    }
+
+    if (kind === KIND_CHOICES.CHATFUEL) {
+      return 'chatfuel';
+    }
+
+    if (kind === KIND_CHOICES.NYLAS_GMAIL) {
+      return 'nylas gmail';
+    }
+
+    if (kind === KIND_CHOICES.TWITTER_DM) {
+      return 'twitter';
+    }
+
+    if (kind === KIND_CHOICES.NYLAS_IMAP) {
+      return 'nylas imap';
+    }
+
+    if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
+      return 'nylas office365';
+    }
+
+    if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
+      return 'nylas outlook';
+    }
+
+    if (kind === KIND_CHOICES.NYLAS_YAHOO) {
+      return 'nylas yahoo';
     }
 
     return 'default';

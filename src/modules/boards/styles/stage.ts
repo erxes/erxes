@@ -30,15 +30,17 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   `};
 `;
 
-const Content = styled('div')`
+const Content = styledTS<{ type?: string }>(styled.div)`
   flex-grow: 1;
   flex-basis: 100%;
   display: flex;
   flex-direction: column;
 
   h5 {
-    margin-top: 0;
-    margin-bottom: 5px;
+    ${props => css`
+      margin: ${props.type === 'growthHack' ? '0 20px 10px 0' : '0 0 10px 0'};
+    `};
+    word-break: break-word;
   }
 `;
 
@@ -60,7 +62,8 @@ const ItemIndicator = styledTS<{ color: string }>(styled.span)`
   height: 8px;
   border-radius: 4px;
   margin: 6px 6px 0 0;
-  background-color: ${props => props.color}
+  background-color: ${props => props.color};
+  word-break:break-word;
 `;
 
 const StageFooter = styled.div`
@@ -122,8 +125,12 @@ const Amount = styled.ul`
 const Body = styled.div`
   max-height: 100%;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   margin: 0 4px;
+
+  &:hover {
+    overflow-y: auto;
+  }
 `;
 
 const AddNew = styled.a`

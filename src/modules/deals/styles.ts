@@ -1,4 +1,4 @@
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -89,13 +89,47 @@ const ItemText = styledTS<{ align?: string }>(styled.div)`
   }
 `;
 
+const ProductButton = styled.div`
+  padding: 7px 10px;
+  background: ${colors.colorWhite};
+  cursor: pointer;
+  border-bottom: 1px solid ${colors.borderDarker};
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${colors.bgLight};
+  }
+
+  i {
+    float: right;
+  }
+`;
+
+const CategoryContainer = styled.div`
+  width: 30%;
+  margin-right: ${dimensions.coreSpacing}px;
+`;
+
+const CustomField = styled.div`
+  text-align: left;
+  padding: ${dimensions.unitSpacing}px;
+`;
+
+const ProductName = styled.div`
+  cursor: pointer;
+`;
+
 export {
+  ProductName,
   FormContainer,
+  CategoryContainer,
   FooterInfo,
+  CustomField,
   Add,
   ItemText,
   ProductItem,
   ContentRow,
   ContentColumn,
-  TotalAmount
+  TotalAmount,
+  ProductButton
 };

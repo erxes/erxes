@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
-import CustomerAssociate from 'modules/customers/containers/CustomerAssociate';
+import CustomerSection from 'modules/customers/components/common/CustomerSection';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
@@ -9,9 +9,11 @@ import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
 import { List } from '../../styles';
 
-export default class RightSidebar extends React.Component<{
+type Props = {
   company: ICompany;
-}> {
+};
+
+export default class RightSidebar extends React.Component<Props> {
   renderPlan(company) {
     if (!company.plan) {
       return null;
@@ -33,10 +35,10 @@ export default class RightSidebar extends React.Component<{
 
     return (
       <Sidebar>
-        <CustomerAssociate data={company} />
-        <PortableDeals companyIds={[company._id]} />
-        <PortableTickets companyIds={[company._id]} />
-        <PortableTasks companyIds={[company._id]} />
+        <CustomerSection mainType="company" mainTypeId={company._id} />
+        <PortableDeals mainType="company" mainTypeId={company._id} />
+        <PortableTickets mainType="company" mainTypeId={company._id} />
+        <PortableTasks mainType="company" mainTypeId={company._id} />
 
         <Section>
           <Title>{__('Other')}</Title>

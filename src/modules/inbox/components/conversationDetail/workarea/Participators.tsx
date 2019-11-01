@@ -1,15 +1,15 @@
+import { IUser } from 'modules/auth/types';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
-import { IUser } from '../../../../auth/types';
 
 const spacing = 30;
 
 const ParticipatorWrapper = styled.div`
   display: inline-block;
-  margin-left: ${spacing}px;
+  margin-left: 10px;
 
   &:hover {
     cursor: pointer;
@@ -31,12 +31,12 @@ const More = styled(ParticipatorImg.withComponent('span'))`
   vertical-align: middle;
   font-size: 10px;
   background: ${colors.colorCoreLightGray};
-  line-height: ${spacing - 2}px;
+  line-height: ${spacing - 4}px;
 `;
 
 type Props = {
   participatedUsers: IUser[];
-  limit: number;
+  limit?: number;
 };
 
 class Participators extends React.Component<Props, { toggle: boolean }> {
@@ -59,7 +59,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
 
     const Tooltip = (
       <Tip placement="top" text={__('View more')}>
-        <More>{`+${length - limit}`}</More>
+        <More>{`+${limit && length - limit}`}</More>
       </Tip>
     );
 

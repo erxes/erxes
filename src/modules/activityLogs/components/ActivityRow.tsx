@@ -10,6 +10,7 @@ import {
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
+import { colors } from 'modules/common/styles';
 import React from 'react';
 
 type Props = {
@@ -23,8 +24,8 @@ const ActivityRowComponent = (props: Props) => {
 
   return (
     <ActivityRow key={Math.random()}>
-      <ActivityIcon color={data.color}>
-        <Icon icon={data.icon || ''} />
+      <ActivityIcon color={data.color || colors.colorCoreGray}>
+        <Icon icon={data.icon || 'clipboard-notes'} />
       </ActivityIcon>
       <React.Fragment>
         <FlexContent>
@@ -34,7 +35,7 @@ const ActivityRowComponent = (props: Props) => {
           <FlexBody>{body}</FlexBody>
           <Tip text={dayjs(data.createdAt).format('llll')}>
             <ActivityDate>
-              {dayjs(data.createdAt).format('MMM Do, h:mm A')}
+              {dayjs(data.createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexContent>

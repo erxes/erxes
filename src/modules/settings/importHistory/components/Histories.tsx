@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
@@ -55,11 +56,17 @@ class Histories extends React.Component<Props & IRouterProps> {
   };
 
   renderImportButton = () => {
+    const { REACT_APP_API_URL } = getEnv();
     const { currentType } = this.props;
-    let url = 'https://s3.amazonaws.com/erxes/company_template.xlsx';
+
+    let name = 'company_template.xlsx';
 
     if (currentType === 'customer') {
-      url = 'https://s3.amazonaws.com/erxes/customer_template.xlsx';
+      name = 'customer_template.xlsx';
+    }
+
+    if (currentType === 'product') {
+      name = 'product_template.xlsx';
     }
 
     return (
@@ -68,7 +75,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           btnStyle="primary"
           size="small"
           icon="folder-download"
-          href={url}
+          href={`${REACT_APP_API_URL}/download-template/?name=${name}`}
         >
           {__('Download template')}
         </Button>

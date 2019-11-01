@@ -8,9 +8,8 @@ import React from 'react';
 import { Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
 
-type Props = {
+export type CommonProps = {
   data: any;
-  onSelect: (datas: any[]) => void;
   search: (value: string, reload?: boolean) => void;
   datas: any[];
   title: string;
@@ -22,6 +21,11 @@ type Props = {
   add?: any;
   closeModal: () => void;
 };
+
+type Props = {
+  onSelect: (datas: any[]) => void;
+  renderSidebar?: () => any;
+} & CommonProps;
 
 type State = {
   datas: any[];
@@ -56,7 +60,7 @@ class CommonChooser extends React.Component<Props, State> {
   componentWillReceiveProps(newProps) {
     const { datas, perPage } = newProps;
 
-    this.setState({ loadmore: datas.length === perPage });
+    this.setState({ loadmore: datas.length === perPage && datas.length > 0 });
   }
 
   handleChange = (type, data) => {
@@ -120,7 +124,14 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderForm, datas, title, data, closeModal } = this.props;
+    const {
+      renderForm,
+      datas,
+      title,
+      data,
+      closeModal,
+      renderSidebar
+    } = this.props;
     const selectedDatas = this.state.datas;
 
     const addTrigger = (
@@ -133,6 +144,7 @@ class CommonChooser extends React.Component<Props, State> {
     return (
       <>
         <Columns>
+          {renderSidebar && renderSidebar()}
           <Column>
             <FormControl
               placeholder={__('Type to search')}
@@ -146,7 +158,7 @@ class CommonChooser extends React.Component<Props, State> {
                     size="small"
                     btnStyle="primary"
                     onClick={this.loadMore}
-                    icon="checked-1"
+                    icon="angle-double-down"
                   >
                     Load More
                   </Button>

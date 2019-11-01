@@ -1,5 +1,5 @@
-import { SelectContainer } from 'modules/boards/styles/common';
-import { colors } from 'modules/common/styles';
+import Button from 'modules/common/components/Button';
+import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -19,8 +19,16 @@ const PriceContainer = styled.div`
   }
 `;
 
+const Left = styled.div`
+  float: left;
+`;
+
 const Right = styled.div`
   float: right;
+`;
+
+const Actions = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
 const Footer = styled.div`
@@ -39,29 +47,61 @@ const Footer = styled.div`
 `;
 
 const HeaderRow = styled(FlexContent)`
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `;
 
 const HeaderContent = styled.div`
   flex: 1;
+  font-size: 16px;
+
+  textarea {
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
 `;
 
 const TitleRow = styled.div`
   display: flex;
   align-items: center;
-  font-size: 18px;
+  font-size: 16px;
 
   i {
-    margin-right: 10px;
+    margin-right: 8px;
   }
 
   label {
-    font-size: 15px;
+    font-size: 13px;
     text-transform: initial;
   }
 
   input {
     font-weight: bold;
+  }
+
+  textarea {
+    font-weight: bold;
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
+`;
+
+const MetaInfo = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+
+  > * {
+    margin-right: 5px;
   }
 `;
 
@@ -98,22 +138,6 @@ const HeaderContentSmall = styled.div`
   }
 `;
 
-const Button = styled.div`
-  padding: 7px 10px;
-  background: ${colors.colorWhite};
-  cursor: pointer;
-  border-bottom: 1px solid ${colors.borderDarker};
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: ${colors.bgLight};
-  }
-
-  i {
-    float: right;
-  }
-`;
-
 const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
@@ -129,7 +153,7 @@ const FooterContent = styled.div`
 `;
 
 const LeftContainer = styled.div`
-  margin-right: 20px;
+  margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
 
   textarea {
@@ -158,38 +182,46 @@ const WatchIndicator = styled.span`
 const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
+`;
 
-  > button {
-    width: 100%;
-    margin-bottom: 5px;
-    margin-left: 0;
-    padding: 8px 40px 8px 20px;
-    background: ${rgba(buttonColor, 0.04)};
+const RightButton = styled(Button)`
+  width: 100%;
+  margin-bottom: 5px;
+  margin-left: 0 !important;
+  padding: 8px 40px 8px 20px;
+  background: ${rgba(buttonColor, 0.04)};
+  color: ${colors.textPrimary};
+  text-align: left;
+  border-radius: ${borderRadius};
+  text-transform: none;
+  font-size: 13px;
+  box-shadow: none;
+  position: relative;
+
+  > i {
     color: ${colors.textPrimary};
-    text-align: left;
-    border-radius: ${borderRadius};
-    text-transform: none;
-    font-size: 13px;
+    margin-right: 5px;
+  }
+
+  &:hover {
+    color: ${colors.colorCoreDarkGray};
+    background: ${rgba(buttonColor, 0.08)};
     box-shadow: none;
-    position: relative;
-
-    > i {
-      color: ${colors.textPrimary};
-      margin-right: 5px;
-    }
-
-    &:hover {
-      color: ${colors.colorCoreDarkGray};
-      background: ${rgba(buttonColor, 0.08)};
-      box-shadow: none;
-    }
   }
 `;
 
 const MoveContainer = styled(FlexContent)`
-  display: flex;
   margin-bottom: 20px;
   align-items: center;
+  position: relative;
+`;
+
+const ActionContainer = styled(MoveContainer)`
+  flex-wrap: wrap;
+
+  > div {
+    margin: 0 ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing / 2}px 0;
+  }
 `;
 
 const MoveFormContainer = styled.div`
@@ -203,6 +235,11 @@ const PipelineName = styled.div`
   &:hover {
     cursor: pointer;
   }
+`;
+
+const PipelinePopoverContent = styled.div`
+  padding: 30px 10px 10px 30px;
+  width: 300px;
 `;
 
 const Stages = styled.ul`
@@ -284,17 +321,6 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const AddContainer = styled.form`
-  ${SelectContainer} {
-    position: relative;
-    top: 0;
-    width: 100%;
-    padding: 0;
-    background: none;
-    box-shadow: none;
-  }
-`;
-
 const Status = styled.div`
   margin-bottom: 4px;
   overflow: hidden;
@@ -308,44 +334,18 @@ const Status = styled.div`
   }
 `;
 
-const UserCounterContainer = styled.ul`
-  margin: 0;
-  list-style: none;
-  padding: 0;
-  flex-shrink: 0;
-  align-self: flex-end;
-
-  li {
-    float: left;
-    border: 2px solid ${colors.colorWhite};
-    width: 28px;
-    height: 28px;
-    line-height: 26px;
-    border-radius: 14px;
-    background: ${colors.colorCoreLightGray};
-    text-align: center;
-    color: ${colors.colorWhite};
-    overflow: hidden;
-    margin-left: -12px;
-    font-size: 10px;
-
-    img {
-      width: 100%;
-      vertical-align: top;
-    }
-  }
-`;
-
 export {
   SpaceContent,
   FooterContent,
   HeaderRow,
   TitleRow,
+  MetaInfo,
   HeaderContent,
   HeaderContentSmall,
-  Button,
+  RightButton,
   MoveFormContainer,
   PipelineName,
+  Actions,
   FormFooter,
   FlexContent,
   LeftContainer,
@@ -356,11 +356,12 @@ export {
   SelectOption,
   SelectValue,
   Avatar,
-  AddContainer,
   Status,
-  UserCounterContainer,
   PriceContainer,
   Right,
+  Left,
   Footer,
-  WatchIndicator
+  WatchIndicator,
+  ActionContainer,
+  PipelinePopoverContent
 };

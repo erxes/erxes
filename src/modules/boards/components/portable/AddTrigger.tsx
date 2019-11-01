@@ -4,20 +4,26 @@ import React from 'react';
 import { IOptions } from '../../types';
 
 type Props = {
-  customerIds?: string[];
+  relType: string;
+  relTypeIds?: string[];
+  assignedUserIds?: string[];
   options: IOptions;
+  refetch?: () => void;
 };
 
 export default (props: Props) => {
-  const { customerIds, options } = props;
+  const { relType, relTypeIds, options, refetch, assignedUserIds } = props;
 
-  const trigger = <a href="#title">{options.title}</a>;
+  const trigger = <a href="#title">{options.texts.addText}</a>;
 
   const content = formProps => (
     <AddForm
       options={options}
       {...formProps}
-      customerIds={customerIds}
+      refetch={refetch}
+      relType={relType}
+      relTypeIds={relTypeIds}
+      assignedUserIds={assignedUserIds}
       showSelect={true}
     />
   );

@@ -3,11 +3,20 @@ import React from 'react';
 import options from '../options';
 
 type Props = {
-  customerIds?: string[];
+  relType: string;
+  relTypeIds?: string[];
+  assignedUserIds?: string[];
 };
 
 export default (props: Props) => {
-  const { customerIds } = props;
+  const { relType, relTypeIds, assignedUserIds } = props;
 
-  return <AddTrigger options={options} customerIds={customerIds} />;
+  return (
+    <AddTrigger
+      options={options}
+      relTypeIds={relTypeIds}
+      relType={relType}
+      assignedUserIds={assignedUserIds}
+    />
+  );
 };

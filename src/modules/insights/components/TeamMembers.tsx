@@ -17,6 +17,7 @@ import Summary from './Summary';
 type Props = {
   datas: IChartParams[];
   loading: boolean;
+  type?: string;
 };
 
 class TeamMembers extends React.Component<Props> {
@@ -42,7 +43,7 @@ class TeamMembers extends React.Component<Props> {
               <span>&nbsp; ({convertTime(userData.time)})</span>
             ) : null}
           </UserProfile>
-          <Chart height={240} data={data.graph} />
+          <Chart height={240} data={data.graph} type={this.props.type} />
         </InsightUserData>
       </Col>
     );
@@ -62,7 +63,7 @@ class TeamMembers extends React.Component<Props> {
     if (datas.length === 0) {
       return (
         <ChartWrapper>
-          <EmptyState text="There is no data" size="full" icon="piechart" />
+          <EmptyState text="There is no data" size="full" icon="ban" />
         </ChartWrapper>
       );
     }

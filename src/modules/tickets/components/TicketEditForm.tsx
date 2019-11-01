@@ -11,8 +11,10 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import PortableDeals from 'modules/deals/components/PortableDeals';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Capitalize } from 'modules/settings/permissions/styles';
+import PortableTasks from 'modules/tasks/components/PortableTasks';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
@@ -113,6 +115,15 @@ export default class TicketEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderItems = () => {
+    return (
+      <>
+        <PortableDeals mainType="ticket" mainTypeId={this.props.item._id} />
+        <PortableTasks mainType="ticket" mainTypeId={this.props.item._id} />
+      </>
+    );
+  };
+
   renderFormContent = ({
     state,
     onChangeAttachment,
@@ -125,13 +136,14 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
     const {
       name,
+      labels,
       stageId,
       description,
       closeDate,
       assignedUserIds,
-      customers,
-      companies,
-      attachments
+      attachments,
+      isComplete,
+      reminderMinute
     } = state;
 
     return (
@@ -144,6 +156,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
           onBlurFields={onBlurFields}
           stageId={stageId}
           item={item}
+          isComplete={isComplete}
+          reminderMinute={reminderMinute}
           onChangeField={onChangeField}
         />
 
@@ -155,19 +169,19 @@ export default class TicketEditForm extends React.Component<Props, State> {
             onBlurFields={onBlurFields}
             attachments={attachments}
             item={item}
+            labels={labels}
             onChangeField={onChangeField}
           />
 
           <Sidebar
             options={options}
-            customers={customers}
-            companies={companies}
             assignedUserIds={assignedUserIds}
             item={item}
             sidebar={this.renderSidebarFields}
             onChangeField={onChangeField}
             copyItem={copy}
             removeItem={remove}
+            renderItems={this.renderItems}
           />
         </FlexContent>
       </>
@@ -178,7 +192,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
     const extendedProps = {
       ...this.props,
       formContent: this.renderFormContent,
-      sidebar: this.renderSidebarFields,
       extraFields: this.state
     };
 

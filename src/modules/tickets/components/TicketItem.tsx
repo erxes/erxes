@@ -1,89 +1,147 @@
 import dayjs from 'dayjs';
+import Details from 'modules/boards/components/Details';
+import DueDateLabel from 'modules/boards/components/DueDateLabel';
+import Labels from 'modules/boards/components/label/Labels';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemDate } from 'modules/boards/styles/common';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
-import { Content, ItemIndicator } from 'modules/boards/styles/stage';
+import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
-import { __, getUserAvatar } from 'modules/common/utils';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 import { ITicket } from '../types';
 
 type Props = {
   stageId: string;
   item: ITicket;
-  onClick: () => void;
-  beforePopupClose: () => void;
+  onClick?: () => void;
+  isFormVisible?: boolean;
+  beforePopupClose?: () => void;
   options?: IOptions;
+  portable?: boolean;
+  onAdd?: (stageId: string, item: ITicket) => void;
+  onRemove?: (dealId: string, stageId: string) => void;
+  onUpdate?: (item: ITicket) => void;
 };
-class TicketItem extends React.PureComponent<Props, {}> {
-  renderDate(date) {
+
+class TicketItem extends React.PureComponent<
+  Props,
+  { isPopupVisible: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isPopupVisible: props.isFormVisible || false
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isFormVisible !== this.props.isFormVisible) {
+      this.setState({
+        isPopupVisible: nextProps.isFormVisible
+      });
+    }
+  }
+
+  beforePopupClose = () => {
+    const { portable, beforePopupClose } = this.props;
+
+    if (portable) {
+      this.setState({ isPopupVisible: false });
+    } else {
+      if (beforePopupClose) {
+        beforePopupClose();
+      }
+    }
+  };
+
+  renderDate(date, format = 'YYYY-MM-DD') {
     if (!date) {
       return null;
     }
 
-    return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
+    return (
+      <Tip text={dayjs(date).format(format)}>
+        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
+      </Tip>
+    );
   }
 
   renderForm = () => {
-    const { beforePopupClose, stageId, item, options } = this.props;
+    const { item } = this.props;
+    const { isPopupVisible } = this.state;
+
+    if (!isPopupVisible) {
+      return null;
+    }
 
     return (
       <EditForm
-        stageId={stageId}
+        {...this.props}
         itemId={item._id}
-        beforePopupClose={beforePopupClose}
-        options={options}
+        beforePopupClose={this.beforePopupClose}
+        hideHeader={true}
+        isPopupVisible={isPopupVisible}
       />
     );
   };
 
-  render() {
-    const { item, onClick } = this.props;
-    const { customers, companies } = item;
+  renderContent() {
+    const { item } = this.props;
+    const { customers, companies, closeDate, isComplete } = item;
 
     return (
       <>
-        <Content onClick={onClick}>
-          <h5>
-            {renderPriority(item.priority)}
-            {item.name}
-          </h5>
+        <Labels labels={item.labels} indicator={true} />
 
-          {customers.map((customer, index) => (
-            <div key={index}>
-              <ItemIndicator color="#F7CE53" />
-              {customer.firstName || customer.primaryEmail || 'Unknown'}
-            </div>
-          ))}
+        <h5>
+          {renderPriority(item.priority)}
+          {item.name}
+        </h5>
 
-          {companies.map((company, index) => (
-            <div key={index}>
-              <ItemIndicator color="#EA475D" />
-              {company.primaryName || 'Unknown'}
-            </div>
-          ))}
+        <Details color="#F7CE53" items={customers || []} />
+        <Details color="#EA475D" items={companies || []} />
 
-          <PriceContainer>
-            <Right>
-              {(item.assignedUsers || []).map((user, index) => (
-                <img
-                  alt="Avatar"
-                  key={index}
-                  src={getUserAvatar(user)}
-                  width="22px"
-                  height="22px"
-                  style={{ marginLeft: '2px', borderRadius: '11px' }}
-                />
-              ))}
-            </Right>
-          </PriceContainer>
+        <PriceContainer>
+          <Right>
+            <Participators participatedUsers={item.assignedUsers} limit={3} />
+          </Right>
+        </PriceContainer>
 
-          <Footer>
-            {__('Last updated')}:
-            <Right>{this.renderDate(item.modifiedAt)}</Right>
-          </Footer>
-        </Content>
+        <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
+
+        <Footer>
+          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
+        </Footer>
+      </>
+    );
+  }
+
+  render() {
+    const { portable } = this.props;
+
+    if (portable) {
+      const onClick = () => {
+        this.setState({ isPopupVisible: true });
+      };
+
+      return (
+        <>
+          <ItemContainer onClick={onClick}>
+            <Content>{this.renderContent()}</Content>
+          </ItemContainer>
+          {this.renderForm()}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
     );

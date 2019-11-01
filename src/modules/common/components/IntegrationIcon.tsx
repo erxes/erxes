@@ -19,9 +19,10 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
   background: ${props =>
     (props.type === 'form' && darken(colors.colorCoreYellow, 32)) ||
     (props.type === 'messenger' && colors.colorPrimary) ||
-    (props.type === 'twitter' && colors.socialTwitter) ||
+    (props.type === 'twitter-dm' && colors.socialTwitter) ||
     (props.type === 'facebook' && colors.socialFacebook) ||
     (props.type === 'gmail' && colors.socialGmail) ||
+    (props.type.includes('nylas') && colors.socialGmail) ||
     colors.colorSecondary};
 
   i {
@@ -46,20 +47,38 @@ class IntegrationIcon extends React.PureComponent<Props> {
 
     let icon;
     switch (integration.kind) {
-      case 'facebook':
+      case 'facebook-messenger':
         icon = 'messenger';
         break;
-      case 'twitter':
-        icon = 'twitter-1';
+      case 'twitter-dm':
+        icon = 'twitter';
         break;
       case 'messenger':
         icon = 'comment';
+        break;
+      case 'nylas-gmail':
+        icon = 'mail-alt';
+        break;
+      case 'nylas-imap':
+        icon = 'mail-alt';
+        break;
+      case 'nylas-office365':
+        icon = 'mail-alt';
+        break;
+      case 'nylas-outlook':
+        icon = 'mail-alt';
+        break;
+      case 'nylas-yahoo':
+        icon = 'mail-alt';
         break;
       case 'gmail':
         icon = 'mail-alt';
         break;
       case 'callpro':
         icon = 'phone-call';
+        break;
+      case 'chatfuel':
+        icon = 'comment-dots';
         break;
       default:
         icon = 'doc-text-inv-1';

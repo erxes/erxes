@@ -18,10 +18,12 @@ const setParams = (history: any, query: any, replace: boolean = false) => {
 
   // go to new url
   if (replace) {
-    return history.replace(`${location.pathname}?${stringified}`);
+    return history.replace(
+      `${location.pathname}?${stringified}${location.hash}`
+    );
   }
 
-  return history.push(`${location.pathname}?${stringified}`);
+  return history.push(`${location.pathname}?${stringified}${location.hash}`);
 };
 
 /**
@@ -106,11 +108,49 @@ const onParamSelect = (
   router.setParams(history, { [name]: values });
 };
 
+/**
+ * Get hash from URL and check
+ * given key exists in hash
+ * @param {Object} history - location
+ * @returns {Boolean} hashKey
+ */
+const checkHashKeyInURL = ({ location }, hashKey?: string): boolean => {
+  if (!hashKey) {
+    return false;
+  }
+
+  const parsedHash = queryString.parse(location.hash);
+
+  return hashKey in parsedHash;
+};
+
+/**
+ * Remove selected hash from URL
+ * @param {Object} history - location
+ * @param {String} hashKey
+ */
+const removeHash = (history: any, hashKey?: string) => {
+  const location = Object.assign({}, history.location);
+
+  // convert to {hashKey: value}
+  const parsedHash = queryString.parse(location.hash);
+
+  // remove given hashKey
+  delete parsedHash[hashKey];
+
+  // convert back to hashKey=value
+  const stringified = queryString.stringify(parsedHash);
+
+  history.push(`${location.pathname}?${stringified}`);
+};
+
 export default {
   onParamSelect,
   setParams,
   getParam,
   replaceParam,
   removeParams,
-  refetchIfUpdated
+  removeHash,
+  refetchIfUpdated,
+  checkHashKeyInURL
 };

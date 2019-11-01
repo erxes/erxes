@@ -10,29 +10,33 @@ const commonParams = `
   languageCode: $languageCode
 `;
 
-const sendGmailFields = `
+const mailParamsDef = `
   $erxesApiId: String!,
   $headerId: String,
   $threadId: String,
-  $subject: String!,
-  $textHtml: String!,
-  $textPlain: String!,
+  $messageId: String,
   $references: String
+  $replyToMessageId: String,
+  $subject: String!,
+  $kind: String,
+  $body: String!,
   $to: String!,
   $cc: String,
   $bcc: String,
   $from: String!,
-  $attachments: [gmailAttachmentData],
+  $attachments: [JSON],
 `;
 
-const sendGmailVariables = `
+const mailParams = `
   erxesApiId: $erxesApiId,
   headerId: $headerId,
   threadId: $threadId,
-  subject: $subject,
+  messageId: $messageId,
+  kind: $kind,
   references: $references,
-  textHtml: $textHtml,
-  textPlain: $textPlain,
+  replyToMessageId: $replyToMessageId,
+  subject: $subject,
+  body: $body,
   to: $to,
   cc: $cc,
   bcc: $bcc,
@@ -41,8 +45,8 @@ const sendGmailVariables = `
 `;
 
 const integrationSendMail = ` 
-  mutation integrationSendMail(${sendGmailFields}) {
-    integrationSendMail(${sendGmailVariables})
+  mutation integrationSendMail(${mailParamsDef}) {
+    integrationSendMail(${mailParams})
   }
 `;
 
@@ -159,6 +163,42 @@ const removeAccount = `
   }
 `;
 
+const addMailAccount = `
+  mutation integrationAddMailAccount(
+    $email: String!
+    $password: String!
+    $kind: String!
+  ) {
+    integrationAddMailAccount(
+      email: $email
+      password: $password
+      kind: $kind
+    )
+  } 
+`;
+
+const addImapAccount = `
+  mutation integrationAddImapAccount(
+    $email: String! 
+    $password: String!
+    $imapHost: String!
+    $imapPort: Int!
+    $smtpHost: String!
+    $smtpPort: Int!
+    $kind: String!
+  ) {
+    integrationAddImapAccount(
+      email: $email 
+      password: $password
+      imapHost: $imapHost
+      imapPort: $imapPort
+      smtpHost: $smtpHost
+      smtpPort: $smtpPort
+      kind: $kind
+    )
+  }
+`;
+
 export default {
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,
@@ -171,5 +211,7 @@ export default {
   messengerAppsAddKnowledgebase,
   messengerAppsRemove,
   removeAccount,
-  integrationSendMail
+  integrationSendMail,
+  addImapAccount,
+  addMailAccount
 };

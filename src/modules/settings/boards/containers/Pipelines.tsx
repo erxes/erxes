@@ -9,6 +9,7 @@ import { compose, graphql } from 'react-apollo';
 import Pipelines from '../components/Pipelines';
 import { mutations, queries } from '../graphql';
 import {
+  IOption,
   RemovePipelineMutationResponse,
   RemovePipelineMutationVariables,
   UpdateOrderPipelineMutationResponse,
@@ -18,6 +19,7 @@ import {
 type Props = {
   boardId: string;
   type: string;
+  options?: IOption;
 };
 
 type FinalProps = {
@@ -57,9 +59,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
             Alert.success(msg);
           })
           .catch(error => {
-            Alert.error(
-              `Please remove all stages in this pipeline before delete the pipeline`
-            );
+            Alert.error(error.message);
           });
       });
     };

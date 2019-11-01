@@ -31,6 +31,7 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
+  facebookPost?: IFacebookPost;
 }
 
 interface IEngageDataRules {
@@ -40,25 +41,56 @@ interface IEngageDataRules {
   value?: string;
 }
 
-export interface IGmailData {
+export interface IFacebookPost {
+  postId: string;
+  recipientId: string;
+  senderId: string;
+  content: string;
+  erxesApiId?: string;
+  attachments: string[];
+  timestamp: Date;
+  commentCount: number;
+}
+
+export interface IFacebookComment {
+  postId: string;
+  conversationId: string;
+  parentId: string;
+  commentId: string;
+  content: string;
+  attachments: string[];
+  commentCount: number;
+  timestamp: Date;
+  customer: ICustomer;
+}
+
+export interface IEmail {
+  name: string;
+  email: string;
+}
+
+export interface IMail {
   integrationEmail: string;
   messageId?: string;
   headerId?: string;
-  from?: string;
-  to?: string;
-  cc?: string;
-  bcc?: string;
+  accountId?: string;
+  replyToMessageId?: string;
+  from: IEmail[];
+  to: IEmail[];
+  cc?: IEmail[];
+  bcc?: IEmail[];
   reply?: string;
   references?: string;
   threadId?: string;
   subject?: string;
-  textPlain?: string;
-  textHtml?: string;
-  attachments?: IGmailAttachment[];
+  body?: string;
+  attachments?: IMailAttachment[];
 }
 
-export interface IGmailAttachment {
+export interface IMailAttachment {
+  id?: string;
   filename?: string;
+  content_type?: string;
   mimeType?: string;
   size: number;
   attachmentId: string;
@@ -88,7 +120,7 @@ export interface IMessage {
   formWidgetData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
-  gmailData?: IGmailData;
+  mailData?: IMail;
 
   _id: string;
   user?: IUser;
@@ -216,4 +248,25 @@ export type UnreadConversationsTotalCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
   subscribeToMore: (variables) => void;
+};
+
+export type FacebookCommentsQueryResponse = {
+  facebookComments: IFacebookComment[];
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: (variables) => void;
+};
+
+export type ReplyFaceBookCommentMutationVariables = {
+  conversationId: string;
+  commentId: string;
+  content: string;
+};
+
+export type ReplyFacebookCommentMutationResponse = {
+  replyMutation: (
+    doc: {
+      variables: ReplyFaceBookCommentMutationVariables;
+    }
+  ) => Promise<any>;
 };

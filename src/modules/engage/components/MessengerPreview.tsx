@@ -12,7 +12,7 @@ import {
 
 type Props = {
   content?: string;
-  user: IUser;
+  user?: IUser;
   sentAs?: string;
 };
 
@@ -27,7 +27,7 @@ class MessengerPreview extends React.Component<Props, State> {
   }
 
   renderNotificationBody = () => {
-    const { content, sentAs } = this.props;
+    const { content, sentAs, user } = this.props;
 
     const type = sentAs ? sentAs : 'default';
     const classNames = `engage-message type-${type}`;
@@ -39,7 +39,7 @@ class MessengerPreview extends React.Component<Props, State> {
 
     return (
       <WidgetPreview className={classNames}>
-        <NameCard user={this.props.user} singleLine={true} />
+        {user ? <NameCard user={user} singleLine={true} /> : null}
         <PreviewContent
           isFullmessage={isFullmessage}
           dangerouslySetInnerHTML={{

@@ -17,6 +17,7 @@ type Props = {
   breadcrumb?: IBreadCrumbItem[];
   center?: boolean;
   renderFilter?: () => any;
+  additionalButton?: React.ReactNode;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -36,7 +37,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       save,
       refetch,
       center,
-      remove
+      remove,
+      additionalButton
     } = this.props;
 
     const trigger = (
@@ -50,13 +52,18 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     };
 
     const actionBarRight = (
-      <ModalTrigger
-        title={formTitle || ''}
-        size={size}
-        enforceFocus={false}
-        trigger={trigger}
-        content={content}
-      />
+      <>
+        {additionalButton}
+        <ModalTrigger
+          title={formTitle || ''}
+          size={size}
+          enforceFocus={false}
+          trigger={trigger}
+          autoOpenKey="showListFormModal"
+          content={content}
+          dialogClassName="transform"
+        />
+      </>
     );
 
     return (

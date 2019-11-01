@@ -13,6 +13,11 @@ type Props = {
     facebook: number;
     gmail: number;
     callpro: number;
+    chatfuel: number;
+    imap: number;
+    office365: number;
+    outlook: number;
+    yahoo: number;
   };
   queryParams: any;
 };

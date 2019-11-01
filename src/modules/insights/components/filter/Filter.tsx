@@ -78,7 +78,7 @@ class Filter extends React.Component<Props, States> {
               onChange={this.onDateInputChange.bind(this, 'endDate')}
             />
           </FlexItem>
-          <Button btnStyle="success" icon="filter" onClick={this.onClick}>
+          <Button btnStyle="success" icon="filter-1" onClick={this.onClick}>
             Filter
           </Button>
         </FlexRow>

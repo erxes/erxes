@@ -226,7 +226,6 @@ class CustomersList extends React.Component<IProps, State> {
                 title="Manage Columns"
                 trigger={editColumns}
                 content={manageColumns}
-                dialogClassName="transform"
               />
             </li>
             <li>
@@ -248,6 +247,7 @@ class CustomersList extends React.Component<IProps, State> {
         </Link>
         <ModalTrigger
           title="New customer"
+          autoOpenKey="showCustomerModal"
           trigger={addTrigger}
           size="lg"
           content={customerForm}

@@ -1,27 +1,25 @@
-import Datetime from '@nateradebaugh/react-datetime';
 import { IUser } from 'modules/auth/types';
-import {
-  HeaderContent,
-  HeaderContentSmall,
-  HeaderRow,
-  TitleRow
-} from 'modules/boards/styles/item';
+import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
 import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Move from '../../containers/editForm/Move';
 import { IItem, IOptions } from '../../types';
+import CloseDate from './CloseDate';
 
 type Props = {
   item: IItem;
   options: IOptions;
   name: string;
   closeDate: Date;
+  reminderMinute: number;
+  isComplete: boolean;
   stageId: string;
   users: IUser[];
-  onChangeField: (name: 'stageId' | 'name' | 'closeDate', value: any) => void;
+  onChangeField: (
+    name: 'stageId' | 'name' | 'closeDate' | 'reminderMinute' | 'isComplete',
+    value: any
+  ) => void;
   amount?: () => React.ReactNode;
   onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
@@ -45,12 +43,18 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { name, closeDate, onChangeField, amount, onBlurFields } = this.props;
+    const {
+      name,
+      closeDate,
+      onChangeField,
+      amount,
+      onBlurFields,
+      reminderMinute,
+      isComplete
+    } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
-
-    const dateOnChange = date => onChangeField('closeDate', date);
 
     const onNameBlur = e => {
       onBlurFields('name', e.target.value);
@@ -63,6 +67,7 @@ class Top extends React.Component<Props> {
             <TitleRow>
               <Icon icon="creditcard" />
               <FormControl
+                componentClass="textarea"
                 defaultValue={name}
                 required={true}
                 onChange={nameOnChange}
@@ -77,20 +82,12 @@ class Top extends React.Component<Props> {
         <HeaderRow>
           <HeaderContent>{this.renderMove()}</HeaderContent>
 
-          <HeaderContentSmall>
-            <FormGroup>
-              <ControlLabel>Close date</ControlLabel>
-              <Datetime
-                inputProps={{ placeholder: 'Click to select a date' }}
-                dateFormat="YYYY/MM/DD"
-                timeFormat={false}
-                value={closeDate}
-                closeOnSelect={true}
-                onChange={dateOnChange}
-                utc={true}
-              />
-            </FormGroup>
-          </HeaderContentSmall>
+          <CloseDate
+            onChangeField={onChangeField}
+            closeDate={closeDate}
+            reminderMinute={reminderMinute}
+            isComplete={isComplete}
+          />
         </HeaderRow>
       </React.Fragment>
     );

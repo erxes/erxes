@@ -82,6 +82,7 @@ const RespondBoxContainer = (props: FinalProps) => {
           isCustomerRead: false,
           fromBot: false,
           formWidgetData: null,
+          mailData: null,
           user: null,
           customer: null
         }

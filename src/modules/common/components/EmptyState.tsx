@@ -51,7 +51,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
   }};
 
   i {
-    font-size: ${props => (props.hugeness === 'small' ? '28px' : '14vh')};
+    font-size: ${props => (props.hugeness === 'small' ? '28px' : '12vh')};
     line-height: ${props => (props.hugeness === 'small' ? '40px' : '18vh')};
     color: ${colors.colorCoreLightGray};
   }

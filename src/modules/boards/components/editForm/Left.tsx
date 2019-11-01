@@ -3,6 +3,7 @@ import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
 
 import { IItem } from 'modules/boards/types';
+import Checklists from 'modules/checklists/containers/Checklists';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -11,9 +12,12 @@ import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
+import { IPipelineLabel } from '../../types';
+import Labels from '..//label/Labels';
 
 type Props = {
   item: IItem;
+  labels: IPipelineLabel[];
   onChangeField: (name: 'description', value: any) => void;
   type: string;
   description: string;
@@ -30,7 +34,8 @@ class Left extends React.Component<Props> {
       attachments,
       onChangeAttachment,
       description,
-      type
+      type,
+      labels
     } = this.props;
 
     const descriptionOnChange = e =>
@@ -41,10 +46,23 @@ class Left extends React.Component<Props> {
 
     return (
       <LeftContainer>
+        {labels.length > 0 && (
+          <FormGroup>
+            <TitleRow>
+              <ControlLabel>
+                <Icon icon="tag" />
+                {__('Labels')}
+              </ControlLabel>
+            </TitleRow>
+
+            <Labels labels={labels} />
+          </FormGroup>
+        )}
+
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="attach" />
+              <Icon icon="paperclip" />
               {__('Attachments')}
             </ControlLabel>
           </TitleRow>
@@ -68,8 +86,11 @@ class Left extends React.Component<Props> {
             defaultValue={description}
             onChange={descriptionOnChange}
             onBlur={descriptionOnBlur}
+            autoFocus={true}
           />
         </FormGroup>
+
+        <Checklists contentType={type} contentTypeId={item._id} />
 
         <ActivityInputs
           contentTypeId={item._id}

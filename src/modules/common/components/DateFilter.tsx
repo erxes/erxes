@@ -197,7 +197,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
           <Button
             btnStyle="warning"
             onClick={this.filterByDate}
-            icon="filter"
+            icon="filter-1"
             size="small"
           >
             Filter

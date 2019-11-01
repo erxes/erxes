@@ -3,6 +3,7 @@ import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
 import { reorder } from '../utils';
+import EmptyState from './EmptyState';
 
 type Props = {
   fields: any[];
@@ -11,9 +12,14 @@ type Props = {
   isModal?: boolean;
   showDragHandler?: boolean | true;
   isDragDisabled?: boolean;
+  droppableId?: string;
 };
 
 class SortableList extends React.Component<Props> {
+  static defaultProps = {
+    droppableId: 'droppableId'
+  };
+
   onDragEnd = result => {
     const { destination, source } = result;
 
@@ -27,7 +33,6 @@ class SortableList extends React.Component<Props> {
     }
 
     const { fields, onChangeFields } = this.props;
-
     const reorderedFields = reorder(fields, source.index, destination.index);
 
     onChangeFields(reorderedFields);
@@ -42,56 +47,49 @@ class SortableList extends React.Component<Props> {
 
     return (
       <DragHandler>
-        <Icon icon="move-1" />
+        <Icon icon="ellipsis-v" />
       </DragHandler>
     );
   }
 
-  renderField(field, index) {
-    const { child, isModal, isDragDisabled } = this.props;
-
-    return (
-      <Draggable
-        draggableId={field._id}
-        index={index}
-        key={index}
-        isDragDisabled={isDragDisabled}
-      >
-        {(provided, snapshot) => (
-          <>
-            <SortItem
-              innerRef={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              isDragging={snapshot.isDragging}
-              isModal={isModal}
-            >
-              {this.renderDragHandler()}
-
-              {child(field)}
-            </SortItem>
-            {provided.placeholder}
-          </>
-        )}
-      </Draggable>
-    );
-  }
-
-  renderFields(provided) {
-    const { fields } = this.props;
-
-    return (
-      <SortableWrapper innerRef={provided.innerRef}>
-        {fields.map((field, index) => this.renderField(field, index))}
-      </SortableWrapper>
-    );
-  }
-
   render() {
+    const { fields, child, isDragDisabled, droppableId } = this.props;
+
+    if (fields.length === 0) {
+      return <EmptyState text="There is no fields" icon="ban" />;
+    }
+
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="droppableId" type="ITEMS">
-          {provided => this.renderFields(provided)}
+        <Droppable droppableId={droppableId} type="ITEMS">
+          {provided => (
+            <SortableWrapper
+              {...provided.droppableProps}
+              innerRef={provided.innerRef}
+            >
+              {fields.map((field, index) => (
+                <Draggable
+                  key={field._id || index}
+                  draggableId={field._id || index || Math.random()}
+                  index={index}
+                  isDragDisabled={isDragDisabled}
+                >
+                  {(dragProvided, snapshot) => (
+                    <SortItem
+                      innerRef={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
+                      {...dragProvided.dragHandleProps}
+                      isDragging={snapshot.isDragging}
+                    >
+                      {this.renderDragHandler()}
+                      {child(field)}
+                    </SortItem>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </SortableWrapper>
+          )}
         </Droppable>
       </DragDropContext>
     );

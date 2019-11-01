@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import { IEmail } from 'modules/inbox/types';
 import { queries } from '../graphql';
 
 export const integrationsListParams = queryParams => ({
@@ -27,6 +28,14 @@ export const getRefetchQueries = (kind: string) => {
   ];
 };
 
-export const formatStr = (str: string) => {
-  return str ? str.split(/[ ,]+/).join(', ') : '';
+export const formatStr = (emailString: string) => {
+  return emailString ? emailString.split(/[ ]+/).join(',') : '';
+};
+
+export const formatObj = (emailArray: IEmail[]) => {
+  if (!emailArray || emailArray.length === 0) {
+    return;
+  }
+
+  return emailArray ? emailArray.map(s => s.email).join(',') : '';
 };

@@ -13,6 +13,7 @@ import {
 
 type Props = {
   type: string;
+  inSidebar?: boolean;
   stageId?: string;
   boardId: string;
   pipelineId: string;
@@ -20,6 +21,7 @@ type Props = {
   onChangeStage?: (stageId: string) => void;
   onChangePipeline: (pipelineId: string, stages: IStage[]) => void;
   onChangeBoard: (boardId: string) => void;
+  autoSelectStage?: boolean;
 };
 
 type FinalProps = {
@@ -56,7 +58,10 @@ class BoardSelectContainer extends React.Component<FinalProps> {
 
         this.props.onChangePipeline(pipelineId, stages);
 
-        if (stages.length > 0) {
+        if (
+          stages.length > 0 &&
+          typeof this.props.autoSelectStage === 'undefined'
+        ) {
           this.onChangeStage(stages[0]._id);
         }
       })

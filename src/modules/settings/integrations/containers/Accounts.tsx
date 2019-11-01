@@ -7,14 +7,19 @@ import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import Accounts from '../components/Accounts';
-import { AccountsQueryResponse, RemoveAccountMutationResponse } from '../types';
+import {
+  AccountsQueryResponse,
+  IntegrationTypes,
+  RemoveAccountMutationResponse
+} from '../types';
 
 type Props = {
-  kind: 'facebook' | 'gmail';
+  kind: IntegrationTypes;
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
   formProps: IFormProps;
+  renderForm?: () => JSX.Element;
 };
 
 type FinalProps = {
@@ -24,10 +29,10 @@ type FinalProps = {
 
 class AccountContainer extends React.Component<FinalProps, {}> {
   onAdd = () => {
-    const { addLink } = this.props;
+    const { addLink, kind } = this.props;
 
     const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}`;
+    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
 
     window.location.replace(url);
   };
@@ -46,7 +51,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { fetchApiQuery, onSelect, formProps } = this.props;
+    const { kind, renderForm, fetchApiQuery, onSelect, formProps } = this.props;
 
     if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
@@ -62,11 +67,13 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     return (
       <Accounts
+        kind={kind}
         onAdd={this.onAdd}
         removeAccount={this.removeAccount}
         onSelect={onSelect}
         accounts={accounts}
         formProps={formProps}
+        renderForm={renderForm}
       />
     );
   }

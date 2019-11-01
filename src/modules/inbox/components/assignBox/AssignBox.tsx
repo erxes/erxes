@@ -1,8 +1,12 @@
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import debounce from 'lodash/debounce';
 import FilterableList from 'modules/common/components/filterableList/FilterableList';
 import { __, getUserAvatar } from 'modules/common/utils';
 import Alert from 'modules/common/utils/Alert';
 import React from 'react';
 import { IUser } from '../../../auth/types';
+import { queries } from '../../graphql';
 import { IConversation } from '../../types';
 
 interface IAssignee {
@@ -18,7 +22,6 @@ type Props = {
   className?: string;
   afterSave?: () => void;
   // from containers
-  assignees: IUser[];
   assign: (
     doc: { conversationIds?: string[]; assignedUserId: string },
     callback: (error: Error) => void
@@ -35,21 +38,43 @@ class AssignBox extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      assigneesForList: this.generateAssignParams(
-        props.assignees,
-        props.targets
-      )
+      assigneesForList: []
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      assigneesForList: this.generateAssignParams(
-        nextProps.assignees,
-        nextProps.targets
-      )
-    });
+  componentDidMount() {
+    this.fetchUsers();
   }
+
+  fetchUsers = (e?) => {
+    const searchValue = e ? e.target.value : '';
+
+    debounce(() => {
+      client
+        .query({
+          query: gql(queries.userList),
+          variables: {
+            perPage: 20,
+            searchValue,
+            requireUsername: true
+          }
+        })
+        .then(({ data }: { data: { users?: IUser[] } }) => {
+          const verifiedUsers =
+            (data.users || []).filter(user => user.username) || [];
+
+          this.setState({
+            assigneesForList: this.generateAssignParams(
+              verifiedUsers,
+              this.props.targets
+            )
+          });
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    }, 500)();
+  };
 
   generateAssignParams(assignees: IUser[] = [], targets: IConversation[] = []) {
     return assignees.map(assignee => {
@@ -132,7 +157,8 @@ class AssignBox extends React.Component<Props, State> {
       className,
       links,
       selectable: true,
-      items: this.state.assigneesForList
+      items: this.state.assigneesForList,
+      onSearch: this.fetchUsers
     };
 
     if (event) {

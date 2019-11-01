@@ -13,7 +13,12 @@ const SignInContainer = (props: IRouterProps) => {
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
-      history.push('/');
+
+      if (window.location.href.includes('sign-in')) {
+        history.push('/?signedIn=true');
+      }
+
+      window.location.reload();
     };
 
     return (
@@ -25,7 +30,7 @@ const SignInContainer = (props: IRouterProps) => {
         type="submit"
         block={true}
         icon="none"
-        successMessage={`Congrats! You successfully sign in`}
+        successMessage="Congrats! You successfully sign in"
       >
         {__('Sign in')}
       </ButtonMutate>

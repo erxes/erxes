@@ -7,19 +7,23 @@ import {
   AttachmentThumb,
   EditorActions,
   FileName,
+  MailRespondBox,
   Mask,
   MaskWrapper,
   PreviewImg,
-  RespondBoxStyled
+  RespondBoxStyled,
+  SmallEditor
 } from 'modules/inbox/styles';
 
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
-import ResponseTemplate from 'modules/inbox/containers/conversationDetail/ResponseTemplate';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
+import { FlexRow } from 'modules/settings/integrations/components/mail/styles';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
@@ -27,11 +31,16 @@ import { AddMessageMutationVariables, IConversation } from '../../../types';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
-  { height: '137px', width: '100%', color: '#fff' }
+  {
+    height: '137px',
+    width: '100%',
+    color: '#fff'
+  }
 );
 
 type Props = {
   conversation: IConversation;
+  currentUser: IUser;
   sendMessage: (
     message: AddMessageMutationVariables,
     callback: (error: Error) => void
@@ -151,6 +160,10 @@ class RespondBox extends React.Component<Props, State> {
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
+    if (!element) {
+      return;
+    }
+
     element.click();
   };
 
@@ -182,7 +195,6 @@ class RespondBox extends React.Component<Props, State> {
 
     uploadHandler({
       files,
-
       beforeUpload: () => {
         return;
       },
@@ -293,28 +305,71 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
 
-  render() {
+  renderEditor() {
     const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
 
-    const integration = conversation.integration || ({} as IIntegration);
-    const disabled = integration.kind === 'gmail';
+    let type = 'message';
 
-    const Buttons = (
+    if (isInternal) {
+      type = 'note';
+    }
+
+    const placeholder = __(
+      `To send your ${type} press Enter and Shift + Enter to add a new line`
+    );
+
+    return (
+      <Editor
+        currentConversation={conversation._id}
+        defaultContent={this.getUnsendMessage(conversation._id)}
+        key={this.state.editorKey}
+        onChange={this.onEditorContentChange}
+        onAddMention={this.onAddMention}
+        onAddMessage={this.addMessage}
+        onSearchChange={this.onSearchChange}
+        placeholder={placeholder}
+        mentions={this.props.teamMembers}
+        showMentions={isInternal}
+        responseTemplate={responseTemplate}
+        responseTemplates={responseTemplates}
+        handleFileInput={this.handleFileInput}
+      />
+    );
+  }
+
+  renderCheckbox(kind: string) {
+    const { isInternal } = this.state;
+
+    if (kind.includes('nylas') || kind === 'gmail') {
+      return null;
+    }
+
+    return (
+      <FormControl
+        className="toggle-message"
+        componentClass="checkbox"
+        checked={isInternal}
+        onChange={this.toggleForm}
+      >
+        {__('Internal note')}
+      </FormControl>
+    );
+  }
+
+  renderButtons() {
+    const { conversation } = this.props;
+    const integration = conversation.integration || ({} as IIntegration);
+    const disabled =
+      integration.kind.includes('nylas') || integration.kind === 'gmail';
+
+    return (
       <EditorActions>
-        <FormControl
-          className="toggle-message"
-          componentClass="checkbox"
-          checked={isInternal}
-          disabled={disabled}
-          onChange={this.toggleForm}
-        >
-          {__('Internal note')}
-        </FormControl>
+        {this.renderCheckbox(integration.kind)}
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon="attach" />
+            <Icon icon="paperclip" />
             <input type="file" onChange={this.handleFileInput} />
           </label>
         </Tip>
@@ -330,22 +385,26 @@ class RespondBox extends React.Component<Props, State> {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon="send"
+          icon="message"
         >
-          Send
+          {!disabled && 'Send'}
         </Button>
       </EditorActions>
     );
+  }
 
-    let type = 'message';
-
-    if (isInternal) {
-      type = 'note';
-    }
-
-    const placeholder = __(
-      `To send your ${type} press Enter and Shift + Enter to add a new line`
+  renderBody() {
+    return (
+      <>
+        {this.renderEditor()}
+        {this.renderIncicator()}
+        {this.renderButtons()}
+      </>
     );
+  }
+
+  renderContent() {
+    const { isInternal } = this.state;
 
     return (
       <MaskWrapper>
@@ -354,27 +413,38 @@ class RespondBox extends React.Component<Props, State> {
           isInternal={isInternal}
           isInactive={this.state.isInactive}
         >
-          <Editor
-            currentConversation={conversation._id}
-            defaultContent={this.getUnsendMessage(conversation._id)}
-            key={this.state.editorKey}
-            onChange={this.onEditorContentChange}
-            onAddMention={this.onAddMention}
-            onAddMessage={this.addMessage}
-            onSearchChange={this.onSearchChange}
-            placeholder={placeholder}
-            mentions={this.props.teamMembers}
-            showMentions={isInternal}
-            responseTemplate={responseTemplate}
-            responseTemplates={responseTemplates}
-            handleFileInput={this.handleFileInput}
-          />
-
-          {this.renderIncicator()}
-          {Buttons}
+          {this.renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>
     );
+  }
+
+  renderMailRespondBox() {
+    const { currentUser } = this.props;
+
+    return (
+      <MailRespondBox>
+        <FlexRow>
+          <NameCard.Avatar user={currentUser} size={30} />
+          <SmallEditor>{this.renderBody()}</SmallEditor>
+        </FlexRow>
+      </MailRespondBox>
+    );
+  }
+
+  render() {
+    const { conversation } = this.props;
+
+    const integration = conversation.integration || ({} as IIntegration);
+    const { kind } = integration;
+
+    const isMail = kind.includes('nylas') || kind === 'gmail';
+
+    if (isMail) {
+      return this.renderMailRespondBox();
+    }
+
+    return this.renderContent();
   }
 }
 

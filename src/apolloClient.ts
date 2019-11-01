@@ -48,13 +48,17 @@ const errorLink = onError(({ networkError, graphQLErrors }) => {
 const httpLinkWithMiddleware = errorLink.concat(httpLink);
 
 // Subscription config
-export const wsLink = new WebSocketLink({
-  uri: REACT_APP_API_SUBSCRIPTION_URL || '',
+export const wsLink: any = new WebSocketLink({
+  uri: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost',
   options: {
+    lazy: true,
     reconnect: true,
     timeout: 30000
   }
 });
+
+wsLink.subscriptionClient.maxConnectTimeGenerator.duration = () =>
+  wsLink.subscriptionClient.maxConnectTimeGenerator.max;
 
 type Definintion = {
   kind: string;

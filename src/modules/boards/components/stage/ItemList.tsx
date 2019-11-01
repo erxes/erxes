@@ -1,6 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import routerUtils from 'modules/common/utils/router';
 import { mutations as notificationMutations } from 'modules/notifications/graphql';
 import React from 'react';
@@ -10,9 +11,11 @@ import {
   DropZone,
   EmptyContainer,
   ItemContainer,
+  NotifiedContainer,
   Wrapper
 } from '../../styles/common';
 import { IItem, IOptions } from '../../types';
+import Item from './Item';
 
 type Props = {
   listId: string;
@@ -39,8 +42,11 @@ class DraggableContainer extends React.Component<
   constructor(props: DraggableContainerProps) {
     super(props);
 
+    // if popup shows, draggable will disable
+    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
+
     this.state = {
-      isDragDisabled: false,
+      isDragDisabled: Boolean(itemIdQueryParam),
       hasNotified: props.item.hasNotified === false ? false : true
     };
   }
@@ -66,10 +72,21 @@ class DraggableContainer extends React.Component<
     this.setState({ isDragDisabled: false, hasNotified: true });
   };
 
+  renderHasNotified() {
+    if (this.state.hasNotified) {
+      return null;
+    }
+
+    return (
+      <NotifiedContainer>
+        <Icon icon="bell" size={16} />
+      </NotifiedContainer>
+    );
+  }
+
   render() {
     const { stageId, item, index, options } = this.props;
     const { isDragDisabled } = this.state;
-    const ItemComponent = options.Item;
 
     return (
       <Draggable
@@ -82,11 +99,11 @@ class DraggableContainer extends React.Component<
           <ItemContainer
             isDragging={dragSnapshot.isDragging}
             innerRef={dragProvided.innerRef}
-            hasNotified={this.state.hasNotified}
             {...dragProvided.draggableProps}
             {...dragProvided.dragHandleProps}
           >
-            <ItemComponent
+            {this.renderHasNotified()}
+            <Item
               key={item._id}
               stageId={stageId}
               item={item}
@@ -135,11 +152,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
     if (items.length === 0) {
       return (
         <EmptyContainer innerRef={dropProvided.innerRef}>
-          <EmptyState
-            icon="clipboard"
-            text={`No ${options.type}`}
-            size="small"
-          />
+          <EmptyState icon="clipboard" text="No item" size="small" />
         </EmptyContainer>
       );
     }
