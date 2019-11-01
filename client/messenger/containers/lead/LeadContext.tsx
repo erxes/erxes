@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
   increaseViewCount,
-  saveForm,
+  saveLead,
   sendEmail
 } from "../../../form/containers/utils";
 import {
@@ -57,7 +57,7 @@ export class LeadProvider extends React.Component<{}, IState> {
    * Save user submissions
    */
   save = (doc: IFormDoc) => {
-    saveForm({
+    saveLead({
       doc,
       browserInfo: connection.browserInfo,
       integrationId: this.getIntegration()._id,
@@ -83,11 +83,11 @@ export class LeadProvider extends React.Component<{}, IState> {
   };
 
   getIntegration = () => {
-    return connection.formData.integration;
+    return connection.leadData.integration;
   };
 
   getForm = () => {
-    return connection.formData.form;
+    return connection.leadData.form;
   };
 
   showForm = () => {

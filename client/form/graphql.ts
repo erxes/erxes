@@ -4,7 +4,6 @@ export const formQuery = `
       title
       description
       buttonText
-      themeColor
       fields {
         _id
         formId
@@ -23,35 +22,26 @@ export const formQuery = `
 `;
 
 export const connectMutation = `
-  mutation formConnect($brandCode: String!, $formCode: String!) {
-    formConnect(brandCode: $brandCode, formCode: $formCode) {
+  mutation leadConnect($brandCode: String!, $formCode: String!) {
+    leadConnect(brandCode: $brandCode, formCode: $formCode) {
       form {
         _id
         title
         description
-        themeColor
-        callout
-        rules {
-          _id
-          kind
-          text
-          condition
-          value
-        }
       }
       integration {
         _id
         name
         languageCode
-        formData
+        leadData
       }
     }
   }
 `;
 
 export const saveFormMutation = `
-  mutation saveForm($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!) {
-    saveForm(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo) {
+  mutation saveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!) {
+    saveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo) {
       status
       messageId
       errors {
@@ -70,7 +60,7 @@ export const sendEmailMutation = `
 `;
 
 export const increaseViewCountMutation = `
-  mutation formIncreaseViewCount($formId: String!) {
-    formIncreaseViewCount(formId: $formId)
+  mutation leadIncreaseViewCount($formId: String!) {
+    leadIncreaseViewCount(formId: $formId)
   }
 `;

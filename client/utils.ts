@@ -288,3 +288,13 @@ export const checkRules = async (
 
   return passedAllRules;
 };
+
+export const striptags = (htmlString: string) => {
+  const _div = document.createElement("div");
+  let _text = "";
+
+  _div.innerHTML = htmlString;
+  _text = _div.textContent ? _div.textContent.trim() : "";
+  _text = _text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+  return _text;
+};

@@ -64,7 +64,7 @@ const WithContext = () => (
         const integration = getIntegration();
         const form = getForm();
 
-        const callout = form.callout;
+        const callout = integration.leadData.callout;
 
         if (isCallOutVisible && callout && !callout.skip) {
           return (

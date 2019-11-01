@@ -39,8 +39,8 @@ export const saveBrowserInfo = () => {
 };
 
 /*
-* Send email to submitted user after successfull submission
-*/
+ * Send email to submitted user after successfull submission
+ */
 export const sendEmail = ({
   toEmails,
   fromEmail,
@@ -59,8 +59,8 @@ export const sendEmail = ({
 };
 
 /*
-* Increasing view count
-*/
+ * Increasing view count
+ */
 export const increaseViewCount = (formId: string) => {
   return client.mutate({
     mutation: gql(increaseViewCountMutation),
@@ -73,7 +73,7 @@ export const increaseViewCount = (formId: string) => {
 /*
  * Save user submissions
  */
-export const saveForm = (params: {
+export const saveLead = (params: {
   doc: IFormDoc;
   browserInfo: IBrowserInfo;
   integrationId: string;
@@ -107,7 +107,7 @@ export const saveForm = (params: {
 
     .then(({ data }) => {
       if (data) {
-        saveCallback(data.saveForm);
+        saveCallback(data.saveLead);
       }
     });
 };

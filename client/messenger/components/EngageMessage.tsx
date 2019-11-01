@@ -1,7 +1,7 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import * as striptags from "striptags";
 import { IUser } from "../../types";
+import { striptags } from "../../utils";
 import { User } from "../components/common";
 import { IEngageData } from "../types";
 
@@ -29,8 +29,6 @@ class EngageMessage extends Component<Props> {
       "full-message": sentAs === "fullMessage"
     });
 
-    const regex = /&nbsp;/gi;
-
     return (
       <>
         <div className="flex-notification">
@@ -42,7 +40,7 @@ class EngageMessage extends Component<Props> {
             {sentAs === "fullMessage" ? (
               <span dangerouslySetInnerHTML={{ __html: content }} />
             ) : (
-              striptags(content).replace(regex, " ")
+              striptags(content)
             )}
           </div>
         </div>

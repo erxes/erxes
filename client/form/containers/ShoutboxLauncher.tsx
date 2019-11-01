@@ -4,14 +4,14 @@ import { AppConsumer } from "./AppContext";
 
 const container = () => (
   <AppConsumer>
-    {({ isFormVisible, toggleShoutbox, getForm }) => {
-      const form = getForm();
+    {({ isFormVisible, toggleShoutbox, getIntegrationConfigs }) => {
+      const leadData = getIntegrationConfigs();
 
       return (
         <ShoutboxLauncher
           isFormVisible={isFormVisible}
           onClick={toggleShoutbox}
-          color={form.themeColor || ""}
+          color={leadData.themeColor || ""}
         />
       );
     }}

@@ -36,11 +36,8 @@ export interface IForm {
   code: string;
   description?: string;
   buttonText?: string;
-  themeColor?: string;
   createdUserId: string;
   fields: IField[];
-  callout?: ICallout;
-  rules?: IRule[];
 }
 
 export type FieldValue = string | number | Date | string[];

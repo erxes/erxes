@@ -1,8 +1,8 @@
 import * as classNames from "classnames";
 import * as React from "react";
 import * as RTG from "react-transition-group";
-import * as striptags from "striptags";
 import { iconClose } from "../../icons/Icons";
+import { striptags } from "../../utils";
 import { EngageMessage } from "../components";
 import { User } from "../components/common";
 import { IEngageData, IMessage } from "../types";

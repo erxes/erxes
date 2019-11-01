@@ -42,6 +42,7 @@
   "dependencies": {
     "@types/react-transition-group": "^2.0.14",
     "add-graphql-subscriptions": "^1.0.1",
+    "ajv": "^6.10.2",
     "apollo-cache-inmemory": "^1.1.5",
     "apollo-client": "^2.3.7",
     "apollo-link": "^1.0.7",
@@ -66,7 +67,6 @@
     "react-datepicker": "^1.4.1",
     "react-dom": "16.4.2",
     "react-transition-group": "^2.4.0",
-    "striptags": "^3.0.1",
     "subscriptions-transport-ws": "^0.9.14",
     "xss": "^1.0.3"
   },
@@ -91,7 +91,7 @@
     "node-sass": "^4.5.3",
     "nodemon": "^1.11.0",
     "prettier": "^1.13.7",
-    "release-it": "^12.3.5",
+    "release-it": "^12.4.3",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.16.1",
