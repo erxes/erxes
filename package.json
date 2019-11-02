@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -65,7 +65,6 @@
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.20.1",
-    "scriptjs": "^2.5.8",
     "snyk": "^1.239.5",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
