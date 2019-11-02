@@ -13,7 +13,8 @@ const commonParams = `
   $noCloseDate: String,
   $overdue: String,
   $productIds: [String],
-  $labelIds: [String]
+  $labelIds: [String],
+  $search: String,
   ${conformityQueryFields}
 `;
 
@@ -27,7 +28,8 @@ const commonParamDefs = `
   noCloseDate: $noCloseDate,
   overdue: $overdue,
   productIds: $productIds,
-  labelIds: $labelIds
+  labelIds: $labelIds,
+  search: $search,
   ${conformityQueryFieldDefs}
 `;
 
@@ -122,7 +124,6 @@ const deals = `
     $stageId: String,
     $date: ItemDate,
     $skip: Int,
-    $search: String,
     ${commonParams}
   ) {
     deals(
@@ -131,7 +132,6 @@ const deals = `
       stageId: $stageId,
       date: $date,
       skip: $skip,
-      search: $search
       ${commonParamDefs}
     ) {
       ${dealFields}
