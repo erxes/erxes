@@ -1,3 +1,15 @@
+## [0.11.1](https://github.com/erxes/erxes-api/compare/0.11.0...0.11.1) (2019-11-01)
+
+# [0.11.0](https://github.com/erxes/erxes-api/compare/0.10.1...0.11.0) (2019-11-01)
+
+
+### Bug Fixes
+
+* **deal:** fixed search ([139ea97](https://github.com/erxes/erxes-api/commit/139ea97)), closes [#1251](https://github.com/erxes/erxes-api/issues/1251)
+* **deal/task/ticket/growthHack:** fix next day filter ([1bfcbdc](https://github.com/erxes/erxes-api/commit/1bfcbdc)), closes [#567](https://github.com/erxes/erxes-api/issues/567)
+* **inbox:** Updating conversation last content when internal note ([fa421bb](https://github.com/erxes/erxes-api/commit/fa421bb)), closes [#568](https://github.com/erxes/erxes-api/issues/568)
+* **permission:** add permission cache empty check ([47bb198](https://github.com/erxes/erxes-api/commit/47bb198)), closes [erxes/erxes#1231](https://github.com/erxes/erxes/issues/1231)
+
 ## [0.10.1](https://github.com/erxes/erxes-api/compare/0.10.0...0.10.1) (2019-08-31)
 
 

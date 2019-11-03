@@ -145,10 +145,17 @@ const integrationMutations = {
   },
 
   /**
-   * Create account
+   * Create IMAP account
    */
   async integrationAddImapAccount(_root, data, { dataSources }) {
-    return dataSources.IntegrationsAPI.createImapAccount(data);
+    return dataSources.IntegrationsAPI.createAccount(data);
+  },
+
+  /**
+   * Create Yahoo, Outlook account
+   */
+  async integrationAddMailAccount(_root, data, { dataSources }) {
+    return dataSources.IntegrationsAPI.createAccount(data);
   },
 
   /**
@@ -167,6 +174,8 @@ const integrationMutations = {
           'nylas-gmail',
           'nylas-imap',
           'nylas-office365',
+          'nylas-outlook',
+          'nylas-yahoo',
           'chatfuel',
           'twitter-dm',
         ].includes(integration.kind || '')

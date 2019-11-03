@@ -61,6 +61,8 @@ export const KIND_CHOICES = {
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_IMAP: 'nylas-imap',
   NYLAS_OFFICE365: 'nylas-office365',
+  NYLAS_OUTLOOK: 'nylas-outlook',
+  NYLAS_YAHOO: 'nylas-yahoo',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
@@ -75,6 +77,8 @@ export const KIND_CHOICES = {
     'nylas-gmail',
     'nylas-imap',
     'nylas-office365',
+    'nylas-outlook',
+    'nylas-yahoo',
     'twitter-dm',
   ],
 };
