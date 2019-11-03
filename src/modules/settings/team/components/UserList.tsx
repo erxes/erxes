@@ -1,4 +1,5 @@
 import { AppConsumer } from 'appContext';
+import debounce from 'lodash/debounce';
 import { IUser } from 'modules/auth/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
@@ -22,12 +23,7 @@ import Select from 'react-select-plus';
 import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import UserForm from '../containers/UserForm';
-import {
-  AlignedTd,
-  ButtonContainer,
-  FilterContainer,
-  UserAvatar
-} from '../styles';
+import { FilterContainer, UserAvatar } from '../styles';
 import UserInvitationForm from './UserInvitationForm';
 
 type IProps = {
@@ -36,6 +32,7 @@ type IProps = {
   usersGroups: IUserGroup[];
   refetchQueries: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  queryParams?: any;
 };
 
 type FinalProps = ICommonListProps &
@@ -43,36 +40,24 @@ type FinalProps = ICommonListProps &
   IProps & { currentUser: IUser };
 
 type States = {
-  isActive: boolean;
   searchValue: string;
 };
 
 class UserList extends React.Component<FinalProps, States> {
-  constructor(props) {
+  constructor(props: FinalProps) {
     super(props);
 
     const {
-      queryParams: { isActive, searchValue }
+      queryParams: { searchValue }
     } = props;
 
     this.state = {
-      searchValue: searchValue || '',
-      isActive: isActive || true
+      searchValue: searchValue || ''
     };
   }
 
   onAvatarClick = object => {
     return this.props.history.push(`team/details/${object._id}`);
-  };
-
-  onApplyClick = () => {
-    const { history } = this.props;
-    const { searchValue, isActive } = this.state;
-
-    router.setParams(history, {
-      searchValue,
-      isActive
-    });
   };
 
   renderInvitationForm = props => {
@@ -154,7 +139,7 @@ class UserList extends React.Component<FinalProps, States> {
             </TextInfo>
           </td>
           <td>{object.email}</td>
-          <AlignedTd>
+          <td>
             <Toggle
               defaultChecked={object.isActive}
               icons={{
@@ -163,84 +148,72 @@ class UserList extends React.Component<FinalProps, States> {
               }}
               onChange={onChange}
             />
-
+          </td>
+          <td>
             <ActionButtons>
               {this.renderResendInvitation(object)}
               {this.renderEditAction(object)}
             </ActionButtons>
-          </AlignedTd>
+          </td>
         </tr>
       );
     });
   }
 
+  search = e => {
+    const searchValue = e.target.value;
+    this.setState({ searchValue });
+    debounce(
+      () => router.setParams(this.props.history, { searchValue }),
+      500
+    )();
+  };
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
+
   onStatusChange = (status: { label: string; value: boolean }) => {
-    this.setState({ isActive: status.value });
-  };
-
-  onChange = (e: React.FormEvent) => {
-    const { value } = e.currentTarget as HTMLInputElement;
-
-    this.setState({ searchValue: value });
-  };
-
-  renderStatus = () => {
-    const options = option => (
-      <div className="simple-option">
-        <span>{option.label}</span>
-      </div>
-    );
-
-    return (
-      <FlexItem>
-        <ControlLabel>Status</ControlLabel>
-        <Select
-          placeholder={__('Choose status')}
-          value={this.state.isActive}
-          onChange={this.onStatusChange}
-          optionRenderer={options}
-          clearable={false}
-          options={[
-            {
-              value: true,
-              label: 'Active'
-            },
-            {
-              value: false,
-              label: 'Deactivated'
-            }
-          ]}
-        />
-      </FlexItem>
-    );
+    router.setParams(this.props.history, { isActive: status.value });
   };
 
   renderFilter = () => {
-    const { searchValue } = this.state;
-
     return (
       <FilterContainer>
         <FlexRow>
           <FlexItem>
             <ControlLabel>Search</ControlLabel>
             <FormControl
-              value={searchValue}
-              onChange={this.onChange}
+              placeholder="Search"
+              name="searchValue"
+              onChange={this.search}
+              value={this.state.searchValue}
               autoFocus={true}
+              onFocus={this.moveCursorAtTheEnd}
             />
           </FlexItem>
 
-          {this.renderStatus()}
-
-          <ButtonContainer>
-            <Button
-              btnStyle="primary"
-              icon="search"
-              onClick={this.onApplyClick}
-            >
-              Search
-            </Button>
-          </ButtonContainer>
+          <FlexItem>
+            <ControlLabel>Status</ControlLabel>
+            <Select
+              placeholder={__('Choose status')}
+              value={this.props.queryParams.isActive || true}
+              onChange={this.onStatusChange}
+              clearable={false}
+              options={[
+                {
+                  value: true,
+                  label: 'Active'
+                },
+                {
+                  value: false,
+                  label: 'Deactivated'
+                }
+              ]}
+            />
+          </FlexItem>
         </FlexRow>
       </FilterContainer>
     );
@@ -254,6 +227,7 @@ class UserList extends React.Component<FinalProps, States> {
             <th>{__('Full name')}</th>
             <th>{__('Invitation status')}</th>
             <th>{__('Email')}</th>
+            <th>{__('Status')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>

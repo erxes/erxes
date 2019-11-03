@@ -1,3 +1,33 @@
+# [0.11.0](https://github.com/erxes/erxes/compare/0.10.1...0.11.0) (2019-11-01)
+
+
+### Bug Fixes
+
+* **attachment:** fix attachment view ([#1265](https://github.com/erxes/erxes/issues/1265)) ([3c83b20](https://github.com/erxes/erxes/commit/3c83b20)), closes [#1257](https://github.com/erxes/erxes/issues/1257)
+* **deal/ticket/task/growthHack:** fix copy bug with attachment ([1cce81b](https://github.com/erxes/erxes/commit/1cce81b)), closes [#1268](https://github.com/erxes/erxes/issues/1268)
+* **inbox:** some teammembers are not showing in assign component ([3f894fb](https://github.com/erxes/erxes/commit/3f894fb)), closes [#1236](https://github.com/erxes/erxes/issues/1236)
+* **insights:** conversation insight UI improvement ([6d72db1](https://github.com/erxes/erxes/commit/6d72db1)), closes [#1215](https://github.com/erxes/erxes/issues/1215)
+* **notes:** add mutation loading in note ([a872401](https://github.com/erxes/erxes/commit/a872401)), closes [#1181](https://github.com/erxes/erxes/issues/1181)
+* **notification:** icon not showing, broken date in list ([c0030e3](https://github.com/erxes/erxes/commit/c0030e3)), closes [#1255](https://github.com/erxes/erxes/issues/1255) [#1254](https://github.com/erxes/erxes/issues/1254)
+
+
+### Features
+
+* **conformity:** generalized deal, ticket, task, company, customer relations ([c5014a9](https://github.com/erxes/erxes/commit/c5014a9)), closes [#1200](https://github.com/erxes/erxes/issues/1200)
+* **deal/task/ticket:** improve due date reminder ([e2f8561](https://github.com/erxes/erxes/commit/e2f8561)), closes [#1210](https://github.com/erxes/erxes/issues/1210)
+* **growth-hack:** add feature growth hack ([c905f0e](https://github.com/erxes/erxes/commit/c905f0e)), closes [#1113](https://github.com/erxes/erxes/issues/1113) [#1113](https://github.com/erxes/erxes/issues/1113)
+* **imap:** add imap feature by nylus ([cf89f7e](https://github.com/erxes/erxes/commit/cf89f7e)), closes [#1367](https://github.com/erxes/erxes/issues/1367)
+* **integration:** add chatfuel ([910adbb](https://github.com/erxes/erxes/commit/910adbb)), closes [#1358](https://github.com/erxes/erxes/issues/1358)
+* **integrations:** facebook post ([3e377e0](https://github.com/erxes/erxes/commit/3e377e0)), closes [#1108](https://github.com/erxes/erxes/issues/1108)
+* **language:** add italian language ([2328f18](https://github.com/erxes/erxes/commit/2328f18))
+* **notication:** improve the color of the updated cards of deal / task / ticket ([ec45d95](https://github.com/erxes/erxes/commit/ec45d95)), closes [#1230](https://github.com/erxes/erxes/issues/1230)
+* **twitter-dm:** add twitter direct message feature ([9c3f01c](https://github.com/erxes/erxes/commit/9c3f01c)), closes [#1127](https://github.com/erxes/erxes/issues/1127)
+
+
+### Performance Improvements
+
+* **test:** tested some components ([6bc276b](https://github.com/erxes/erxes/commit/6bc276b)), closes [#1242](https://github.com/erxes/erxes/issues/1242)
+
 ## [0.10.1](https://github.com/erxes/erxes/compare/0.10.0...0.10.1) (2019-08-31)
 
 
