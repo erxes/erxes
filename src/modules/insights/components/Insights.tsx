@@ -27,9 +27,7 @@ class Insights extends React.Component<Props> {
     let content;
 
     if (data.length === 0) {
-      content = (
-        <EmptyState text="There is no data" size="full" icon="piechart" />
-      );
+      content = <EmptyState text="There is no data" size="full" icon="ban" />;
     } else {
       content = (
         <ResponsivePie

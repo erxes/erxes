@@ -63,7 +63,7 @@ class TeamMembers extends React.Component<Props> {
     if (datas.length === 0) {
       return (
         <ChartWrapper>
-          <EmptyState text="There is no data" size="full" icon="piechart" />
+          <EmptyState text="There is no data" size="full" icon="ban" />
         </ChartWrapper>
       );
     }
