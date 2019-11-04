@@ -200,7 +200,8 @@ const integrationMutations = {
    * Delete an account
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }, { dataSources }: IContext) {
-    return dataSources.IntegrationsAPI.removeAccount({ _id });
+    const { erxesApiIds } = await dataSources.IntegrationsAPI.removeAccount({ _id });
+    return Integrations.deleteMany({ _id: erxesApiIds });
   },
 
   /**
