@@ -28,7 +28,7 @@ type Props = {
   users: IUser[];
   templates: IEmailTemplate[];
   kind: string;
-  isActionLoading: boolean;
+  isActionLoading?: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
@@ -137,7 +137,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { renderTitle, breadcrumbs, isActionLoading } = this.props;
+    const { renderTitle, breadcrumbs } = this.props;
 
     const {
       activeStep,
@@ -193,8 +193,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
             save={this.save}
-            isActionLoading={isActionLoading}
-            message={this.props.message}
           >
             <MessageStep
               brands={this.props.brands}
