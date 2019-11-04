@@ -193,6 +193,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
             save={this.save}
+            message={this.props.message}
           >
             <MessageStep
               brands={this.props.brands}

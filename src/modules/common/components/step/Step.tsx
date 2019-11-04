@@ -23,13 +23,14 @@ type Props = {
   noButton?: boolean;
   save?: (name: string, e: React.MouseEvent) => void;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  message?: any;
 };
 
 class Step extends React.Component<Props> {
   renderButton() {
-    const { save, next } = this.props;
+    const { save, next, message } = this.props;
 
-    if (save) {
+    if (save && Object.keys(message).length !== 0) {
       return (
         <Button.Group>
           <Button
