@@ -76,11 +76,12 @@ app.use(userMiddleware);
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get('/download-template', (req: any, res) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
   const name = req.query.name;
 
   registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
-  return res.redirect(`/static/importTemplates/${name}`);
+  return res.redirect(`${DOMAIN}/static/importTemplates/${name}`);
 });
 
 // for health check
