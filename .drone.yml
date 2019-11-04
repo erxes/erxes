@@ -1,12 +1,21 @@
 pipeline:
+  ping:
+    image: mongo:3.6
+    commands:
+      - sleep 15
+      - mongo --host mongo
+
   test:
     image: node:10.16.0-slim
+    environment:
+      - TEST_MONGO_URL=mongodb://mongo/test
     commands:
       - node -v
       - npm -v
       - yarn -v
       - yarn install
       - yarn lint
+      - yarn test
 
   build:
     image: node:10.16.0-slim
@@ -96,3 +105,7 @@ pipeline:
       event:
         - tag
 
+services:
+  mongo:
+    image: mongo:3.6
+    command: [--smallfiles]

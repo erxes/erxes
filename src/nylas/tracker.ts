@@ -27,6 +27,7 @@ export const createWebhook = async () => {
     .save()
     .then(webhook => {
       debugNylas('Successfully created a webhook id: ' + webhook.id);
+      return webhook.id;
     })
     .catch(e => {
       debugNylas('Error occured while creating webhook: ' + e.message);

@@ -39,6 +39,9 @@ import {
   NylasOutlookConversationMessages,
   NylasOutlookConversations,
   NylasOutlookCustomers,
+  NylasYahooConversationMessages,
+  NylasYahooConversations,
+  NylasYahooCustomers,
 } from './nylas/models';
 import { unsubscribe } from './twitter/api';
 import {
@@ -48,24 +51,22 @@ import {
 } from './twitter/models';
 
 /**
- * Remove integration by integrationId(erxesApiId) or accountId
+ * Remove integration integrationId
  */
-export const removeIntegration = async (id: string) => {
-  const integration = await Integrations.findOne({
-    $or: [{ erxesApiId: id }, { accountId: id }],
-  });
+export const removeIntegration = async (id: string): Promise<string> => {
+  const integration = await Integrations.findOne({ erxesApiId: id });
 
   if (!integration) {
     return;
   }
 
-  const { kind, _id, accountId } = integration;
+  const { _id, kind, accountId, erxesApiId } = integration;
   const account = await Accounts.findOne({ _id: accountId });
 
   const selector = { integrationId: _id };
 
-  if (kind.includes('facebook') && account) {
-    debugFacebook('Removing facebook entries');
+  if (kind.includes('facebook')) {
+    debugFacebook('Removing  entries');
 
     for (const pageId of integration.facebookPageIds) {
       let pageTokenResponse;
@@ -83,13 +84,11 @@ export const removeIntegration = async (id: string) => {
 
     const conversationIds = await FacebookConversations.find(selector).distinct('_id');
 
-    await Integrations.deleteOne({
-      $or: [{ erxesApiId: id }, { accountId: id }],
-    });
-
-    await FacebookCustomers.deleteMany({ integrationId: id });
+    await FacebookCustomers.deleteMany({ integrationId: _id });
     await FacebookConversations.deleteMany(selector);
     await FacebookConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+
+    await Integrations.deleteOne({ _id });
   }
 
   if (kind === 'gmail' && !account.nylasToken) {
@@ -179,6 +178,19 @@ export const removeIntegration = async (id: string) => {
     await enableOrDisableAccount(account.uid, false);
   }
 
+  if (kind === 'yahoo') {
+    debugNylas('Removing nylas-yahoo entries');
+
+    const conversationIds = await NylasYahooConversations.find(selector).distinct('_id');
+
+    await NylasYahooCustomers.deleteMany(selector);
+    await NylasYahooConversations.deleteMany(selector);
+    await NylasYahooConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+
+    // Cancel nylas subscription
+    await enableOrDisableAccount(account.uid, false);
+  }
+
   if (kind === 'chatfuel') {
     debugCallPro('Removing chatfuel entries');
 
@@ -189,5 +201,28 @@ export const removeIntegration = async (id: string) => {
     await ChatfuelConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
-  return integration.remove();
+  await Integrations.deleteOne({ _id });
+
+  return erxesApiId;
+};
+
+/**
+ * Remove integration by or accountId
+ */
+export const removeAccount = async (_id: string): Promise<string | string[]> => {
+  const account = await Accounts.findOne({ _id });
+
+  if (!account) {
+    return;
+  }
+
+  const erxesApiIds = [];
+
+  const integrations = await Integrations.find({ accountId: account._id });
+
+  for (const integration of integrations) {
+    erxesApiIds.push(await removeIntegration(integration.erxesApiId));
+  }
+
+  return erxesApiIds;
 };

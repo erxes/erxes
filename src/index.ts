@@ -7,7 +7,7 @@ import { connect } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
-import { removeIntegration } from './helpers';
+import { removeAccount, removeIntegration } from './helpers';
 import './messageQueue';
 import Accounts from './models/Accounts';
 import initNylas from './nylas/controller';
@@ -75,15 +75,16 @@ app.post('/accounts/remove', async (req, res) => {
   const { _id } = req.body;
 
   try {
-    await removeIntegration(_id);
+    const integrationIds = await removeAccount(_id);
+
     await Accounts.deleteOne({ _id });
+
+    debugResponse(debugIntegrations, req);
+
+    return res.json({ erxesApiIds: integrationIds });
   } catch (e) {
     return res.json({ status: e.message });
   }
-
-  debugResponse(debugIntegrations, req);
-
-  return res.json({ status: 'removed' });
 });
 
 // init bots

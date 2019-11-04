@@ -57,6 +57,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
+    "sinon": "^7.5.0",
     "snyk": "^1.239.5"
   },
   "peerOptionalDependencies": {

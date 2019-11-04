@@ -28,7 +28,7 @@ export interface IMessageDraft {
   bcc?: ICommonType[];
   replyToMessageId?: string;
   threadId?: string;
-  files: [INylasAttachment];
+  files: INylasAttachment[];
   subject: string;
   body?: string;
 }

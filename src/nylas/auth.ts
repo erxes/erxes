@@ -121,9 +121,12 @@ const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
   debugNylas(`${enable} account with uid: ${accountId}`);
 
   const account = await Nylas.accounts.find(accountId);
-  const method = enable ? 'upgrade' : 'downgrade';
 
-  return account[method]();
+  if (enable) {
+    return account.upgrade();
+  }
+
+  return account.downgrade();
 };
 
 /**
