@@ -1,4 +1,3 @@
-import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
@@ -81,18 +80,8 @@ class DevicePropertiesSection extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { isOpen, toggle } = this.props;
 
-    return (
-      <Box
-        title={__('Device properties')}
-        name="showDeviceProperties"
-        isOpen={isOpen || false}
-        toggle={toggle}
-      >
-        <Section>{this.renderContent()}</Section>
-      </Box>
-    );
+    return <Section>{this.renderContent()}</Section>;
   }
 }
 

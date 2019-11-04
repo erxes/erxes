@@ -1,9 +1,7 @@
-import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarList } from 'modules/layout/styles';
+import { SidebarList, TagsButtons } from 'modules/layout/styles';
 import Tagger from 'modules/tags/containers/Tagger';
 import React from 'react';
 import { Collapse } from 'react-bootstrap';
@@ -58,7 +56,7 @@ class TaggerSection extends React.Component<Props, State> {
     const { Section } = Sidebar;
     const { QuickButtons } = Section;
 
-    const { data, type, refetchQueries, isOpen, toggle } = this.props;
+    const { data, type, refetchQueries } = this.props;
     const tags = data.getTags || [];
 
     const quickButtons = (
@@ -70,25 +68,19 @@ class TaggerSection extends React.Component<Props, State> {
     const extraButtons = <QuickButtons>{quickButtons}</QuickButtons>;
 
     return (
-      <Box
-        title={__('Tags')}
-        isOpen={isOpen || false}
-        toggle={toggle}
-        extraButtons={extraButtons}
-      >
-        <Section>
-          <Collapse in={this.state.isTaggerVisible}>
-            <Tagger
-              type={type}
-              targets={[data]}
-              className="sidebar-accordion"
-              event="onClick"
-              refetchQueries={refetchQueries}
-            />
-          </Collapse>
-          {this.renderTags(tags)}
-        </Section>
-      </Box>
+      <Section>
+        <TagsButtons>{extraButtons}</TagsButtons>
+        <Collapse in={this.state.isTaggerVisible}>
+          <Tagger
+            type={type}
+            targets={[data]}
+            className="sidebar-accordion"
+            event="onClick"
+            refetchQueries={refetchQueries}
+          />
+        </Collapse>
+        {this.renderTags(tags)}
+      </Section>
     );
   }
 }

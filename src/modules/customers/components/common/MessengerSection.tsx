@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
 import { __, isTimeStamp, isValidDate } from 'modules/common/utils';
@@ -70,18 +69,8 @@ class MessengerSection extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { isOpen, toggle } = this.props;
 
-    return (
-      <Box
-        title={__('Messenger data')}
-        name="showMessengerData"
-        isOpen={isOpen || false}
-        toggle={toggle}
-      >
-        <Section>{this.renderContent()}</Section>
-      </Box>
-    );
+    return <Section>{this.renderContent()}</Section>;
   }
 }
 
