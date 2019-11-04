@@ -93,8 +93,6 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
         <h5>
           {renderPriority(item.priority)}
           {item.name}
@@ -114,6 +112,16 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
         <Footer>
           {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
+      </>
+    );
+  }
+
+  labelContent() {
+    const { item } = this.props;
+
+    return (
+      <>
+        <Labels labels={item.labels} indicator={true} />
       </>
     );
   }
@@ -138,6 +146,7 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
+        {this.labelContent()}
         <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>

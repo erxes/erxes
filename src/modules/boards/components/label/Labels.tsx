@@ -7,12 +7,31 @@ type IProps = {
   indicator?: boolean;
 };
 
-class Labels extends React.Component<IProps> {
+class Labels extends React.Component<IProps, { indicator?: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      indicator: props.indicator || false
+    };
+  }
+
+  toggleIndicator = () => {
+    this.setState({
+      indicator: !this.state.indicator
+    });
+  };
+
   renderContent(label: IPipelineLabel) {
-    const { indicator } = this.props;
+    const { indicator } = this.state;
 
     return (
-      <Label key={label._id} color={label.colorCode} isIndicator={indicator}>
+      <Label
+        onClick={this.toggleIndicator}
+        key={label._id}
+        color={label.colorCode}
+        isIndicator={indicator}
+      >
         {!indicator && label.name}
       </Label>
     );
