@@ -52,7 +52,6 @@ const HeaderRow = styled(FlexContent)`
 
 const HeaderContent = styled.div`
   flex: 1;
-  font-size: 16px;
 
   textarea {
     border-bottom: none;
@@ -232,6 +231,7 @@ const MoveFormContainer = styled.div`
 
 const PipelineName = styled.div`
   font-weight: bold;
+  font-size: 15px;
 
   &:hover {
     cursor: pointer;
