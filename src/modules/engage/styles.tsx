@@ -11,7 +11,11 @@ import {
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
 
-const EngageTitle = styled.div`
+const RowTitle = styled.div`
+  > a {
+    color: ${colors.textPrimary};
+  }
+
   &:hover {
     text-decoration: underline;
     color: ${colors.colorBlack};
@@ -288,7 +292,7 @@ const SelectMessageType = styled.div`
 `;
 
 export {
-  EngageTitle,
+  RowTitle,
   HelperText,
   EngageBox,
   FormWrapper,
