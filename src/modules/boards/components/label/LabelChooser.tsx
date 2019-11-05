@@ -79,7 +79,7 @@ class ChooseLabel extends React.Component<
           container={this}
           onExited={this.onExit}
         >
-          <RightButton icon="tag">{__('Labels')}</RightButton>
+          <RightButton icon="tag-alt">{__('Labels')}</RightButton>
         </OverlayTrigger>
       </ChooseLabelWrapper>
     );

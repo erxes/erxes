@@ -24,7 +24,7 @@ const ColorPick = styled.div`
 
 const ColorPicker = styled.div`
   width: 100%;
-  height: 5px;
+  height: 20px;
   border-radius: 2px;
 `;
 
@@ -102,7 +102,7 @@ class FormComponent extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Color code</ControlLabel>
+          <ControlLabel>Color</ControlLabel>
           <OverlayTrigger
             trigger="click"
             rootClose={true}
