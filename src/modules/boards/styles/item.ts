@@ -201,6 +201,7 @@ const RightButton = styled(Button)`
   > i {
     color: ${colors.textPrimary};
     margin-right: 5px;
+    font-size: 14px;
   }
 
   &:hover {
