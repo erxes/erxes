@@ -327,6 +327,7 @@ export const sendEmail = async ({
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DEFAULT_EMAIL_SERVICE = getEnv({ name: 'DEFAULT_EMAIL_SERVICE', defaultValue: '' });
   const COMPANY_EMAIL_FROM = getEnv({ name: 'COMPANY_EMAIL_FROM' });
+  const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET', defaultValue: '' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -358,7 +359,7 @@ export const sendEmail = async ({
       subject: title,
       html,
       headers: {
-        'X-SES-CONFIGURATION-SET': 'erxes',
+        'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
       },
     };
 
