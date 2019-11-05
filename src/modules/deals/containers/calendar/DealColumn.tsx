@@ -112,7 +112,9 @@ const getCommonParams = queryParams => {
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
-    productIds: queryParams.productIds
+    productIds: queryParams.productIds,
+    labelIds: queryParams.labelIds,
+    search: queryParams.search
   };
 };
 
