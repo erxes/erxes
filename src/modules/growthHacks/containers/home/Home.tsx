@@ -61,9 +61,13 @@ class HomeContainer extends React.Component<FinalProps> {
     const defaultBoardId = defaultBoards.growthHack;
 
     if (!boardId && defaultBoardId) {
-      routerUtils.setParams(history, {
-        id: defaultBoardId
-      });
+      routerUtils.setParams(
+        history,
+        {
+          id: defaultBoardId
+        },
+        true
+      );
 
       return null;
     }
