@@ -126,8 +126,16 @@ class Index extends React.Component<IndexProps, IndexState> {
     if (kind !== 'messenger') {
       return null;
     }
-
-    return <MessengerSection customer={customer} />;
+    return (
+      <Box
+        title={__('Messenger data')}
+        name="showMessengerData"
+        isOpen={config.showMessengerData || false}
+        toggle={toggleSection}
+      >
+        <MessengerSection customer={customer} />
+      </Box>
+    );
   };
 
   renderDeviceProperties = ({
@@ -139,8 +147,16 @@ class Index extends React.Component<IndexProps, IndexState> {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
-
-    return <DevicePropertiesSection customer={customer} />;
+    return (
+      <Box
+        title={__('Device properties')}
+        name="showDeviceProperties"
+        isOpen={config.showDeviceProperties || false}
+        toggle={toggleSection}
+      >
+        <DevicePropertiesSection customer={customer} />
+      </Box>
+    );
   };
 
   renderActions() {
@@ -208,11 +224,18 @@ class Index extends React.Component<IndexProps, IndexState> {
           >
             <ConversationDetails conversation={conversation} />
           </Box>
-          <TaggerSection
-            data={customer}
-            type="customer"
-            refetchQueries={taggerRefetchQueries}
-          />
+          <Box
+            title={__('Tags')}
+            name="showTags"
+            isOpen={config.showTags || false}
+            toggle={toggleSection}
+          >
+            <TaggerSection
+              data={customer}
+              type="customer"
+              refetchQueries={taggerRefetchQueries}
+            />
+          </Box>
           <Box
             title={__('Contact information')}
             name="showCustomFields"

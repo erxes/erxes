@@ -548,6 +548,12 @@ const ExtraButtons = styled.div`
   cursor: pointer;
 `;
 
+const TagsButtons = styled.div`
+  position: absolute;
+  right: 20px;
+  top: -43px;
+`;
+
 export {
   Layout,
   MainWrapper,
@@ -585,5 +591,6 @@ export {
   SectionBodyItem,
   ExtraButtons,
   MobileRecommend,
-  ButtonRelated
+  ButtonRelated,
+  TagsButtons
 };
