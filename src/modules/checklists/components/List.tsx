@@ -165,18 +165,19 @@ class List extends React.Component<Props, State> {
           value={title}
           required={true}
         />
-        <Button
-          btnStyle="simple"
-          onClick={cancelEditing}
-          size="small"
-          icon="times"
-        />
 
         {renderButton({
           values: this.generateDoc(values),
           isSubmitted,
           callback: onSubmit
         })}
+
+        <Button
+          btnStyle="simple"
+          onClick={cancelEditing}
+          size="small"
+          icon="times"
+        />
       </FormControlWrapper>
     );
   };
