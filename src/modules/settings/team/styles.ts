@@ -58,13 +58,6 @@ const UserAvatar = styled.td`
   }
 `;
 
-const AlignedTd = styled.td`
-  > * {
-    vertical-align: middle;
-    margin-left: ${dimensions.unitSpacing}px;
-  }
-`;
-
 const InviteOption = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
@@ -82,7 +75,6 @@ export {
   FlexRow,
   ButtonContainer,
   UserAvatar,
-  AlignedTd,
   LinkButton,
   RemoveRow,
   InviteOption
