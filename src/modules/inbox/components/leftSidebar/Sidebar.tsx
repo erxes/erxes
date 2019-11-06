@@ -189,7 +189,7 @@ class LeftSidebar extends React.Component<Props, State> {
               queryParams={queryParams}
               counts="byTags"
               paramKey="tag"
-              icon="tag"
+              icon="tag-alt"
               refetchRequired={refetchRequired}
             />
           </FilterToggler>

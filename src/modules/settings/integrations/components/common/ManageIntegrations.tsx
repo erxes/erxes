@@ -129,7 +129,7 @@ class ManageIntegrations extends React.Component<Props, State> {
 
   getIconByKind(integration) {
     const kind = integration.kind;
-    let icon = 'comment-alt';
+    let icon = 'comment';
 
     if (kind === KIND_CHOICES.LEAD) {
       icon = 'doc-text-inv-1';

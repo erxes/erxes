@@ -29,7 +29,7 @@ class ChecklistAdd extends React.Component<Props> {
 
   render() {
     const addTrigger = (
-      <RightButton icon="checked">{__('Add Checklist')}</RightButton>
+      <RightButton icon="check-square">{__('Add Checklist')}</RightButton>
     );
 
     return (

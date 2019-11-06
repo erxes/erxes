@@ -100,8 +100,7 @@ class Segments extends React.Component<Props> {
             >
               {segment.subOf ? '\u00a0\u00a0' : null}
               <Icon
-                icon="piechart"
-                size={10}
+                icon="chart-pie"
                 style={{ color: segment.color, marginRight: '5px' }}
               />{' '}
               {segment.name}

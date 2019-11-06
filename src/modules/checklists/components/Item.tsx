@@ -1,6 +1,5 @@
 import Button from 'modules/common/components/Button';
 import { FormControl } from 'modules/common/components/form';
-import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import xss from 'xss';
 import {
@@ -92,14 +91,17 @@ class ListRow extends React.Component<Props, State> {
 
   renderContent = () => {
     return (
-      <ChecklistText>
+      <ChecklistText isChecked={this.state.isChecked}>
         <label
           onClick={this.onClick}
           dangerouslySetInnerHTML={{ __html: xss(this.state.content) }}
         />
-        <Button btnStyle="simple" size="small" onClick={this.removeClick}>
-          <Icon icon="cancel" />
-        </Button>
+        <Button
+          btnStyle="simple"
+          size="small"
+          onClick={this.removeClick}
+          icon="times"
+        />
       </ChecklistText>
     );
   };
@@ -126,19 +128,20 @@ class ListRow extends React.Component<Props, State> {
             onKeyPress={this.onKeyPress}
             required={true}
           />
-          <Button btnStyle="simple" size="small" onClick={onClickEdit}>
-            <Icon icon="cancel" />
-          </Button>
-
           <Button
             disabled={this.state.disabled}
             btnStyle="success"
-            icon="checked-1"
             type="submit"
             size="small"
           >
             Save
           </Button>
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={onClickEdit}
+            icon="times"
+          />
         </FormControlWrapper>
       </FormWrapper>
     );
