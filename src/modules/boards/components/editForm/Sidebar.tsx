@@ -17,7 +17,6 @@ type OnChangeField = (
 
 type Props = {
   item: IItem;
-  assignedUserIds: string[];
   onChangeField?: OnChangeField;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
@@ -42,7 +41,6 @@ class Sidebar extends React.Component<Props> {
       removeItem,
       sidebar,
       options,
-      assignedUserIds,
       renderItems
     } = this.props;
 
@@ -51,6 +49,7 @@ class Sidebar extends React.Component<Props> {
     const cmpsChange = cmps => this.onChange('companies', cmps);
     const cmrsChange = cmrs => this.onChange('customers', cmrs);
     const onLabelChange = labels => this.onChange('labels', labels);
+    const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
 
     return (
       <RightContent>

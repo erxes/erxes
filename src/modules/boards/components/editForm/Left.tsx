@@ -10,33 +10,21 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, extractAttachment } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
-import { IPipelineLabel } from '../../types';
 import Labels from '..//label/Labels';
 
 type Props = {
   item: IItem;
-  labels: IPipelineLabel[];
   onChangeField: (name: 'description', value: any) => void;
   type: string;
-  description: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
-  attachments: IAttachment[];
   onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
 
 class Left extends React.Component<Props> {
   render() {
-    const {
-      item,
-      onChangeField,
-      attachments,
-      onChangeAttachment,
-      description,
-      type,
-      labels
-    } = this.props;
+    const { item, onChangeField, onChangeAttachment, type } = this.props;
 
     const descriptionOnChange = e =>
       onChangeField('description', (e.target as HTMLInputElement).value);
@@ -44,9 +32,12 @@ class Left extends React.Component<Props> {
     const descriptionOnBlur = e =>
       this.props.onBlurFields('description', e.target.value);
 
+    const attachments =
+      (item.attachments && extractAttachment(item.attachments)) || [];
+
     return (
       <LeftContainer>
-        {labels.length > 0 && (
+        {item.labels.length > 0 && (
           <FormGroup>
             <TitleRow>
               <ControlLabel>
@@ -55,7 +46,7 @@ class Left extends React.Component<Props> {
               </ControlLabel>
             </TitleRow>
 
-            <Labels labels={labels} />
+            <Labels labels={item.labels} />
           </FormGroup>
         )}
 
@@ -83,7 +74,7 @@ class Left extends React.Component<Props> {
 
           <FormControl
             componentClass="textarea"
-            defaultValue={description}
+            defaultValue={item.description}
             onChange={descriptionOnChange}
             onBlur={descriptionOnBlur}
             autoFocus={true}

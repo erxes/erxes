@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
@@ -20,7 +19,6 @@ import { ITask, ITaskParams } from '../types';
 type Props = {
   options: IOptions;
   item: ITask;
-  users: IUser[];
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
@@ -103,41 +101,22 @@ export default class TaskEditForm extends React.Component<Props, State> {
     remove,
     onBlurFields
   }: IEditFormContent) => {
-    const { item, users, options } = this.props;
-
-    const {
-      name,
-      stageId,
-      description,
-      closeDate,
-      assignedUserIds,
-      attachments,
-      isComplete,
-      reminderMinute
-    } = state;
+    const { item, options } = this.props;
 
     return (
       <>
         <Top
           options={options}
-          name={name}
-          closeDate={closeDate}
-          users={users}
-          stageId={stageId}
+          stageId={state.stageId}
           item={item}
           onChangeField={onChangeField}
           onBlurFields={onBlurFields}
-          isComplete={isComplete}
-          reminderMinute={reminderMinute}
         />
 
         <FlexContent>
           <Left
             onChangeAttachment={onChangeAttachment}
             type={options.type}
-            labels={state.labels}
-            description={description}
-            attachments={attachments}
             item={item}
             onChangeField={onChangeField}
             onBlurFields={onBlurFields}
@@ -145,7 +124,6 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
           <Sidebar
             options={options}
-            assignedUserIds={assignedUserIds}
             item={item}
             sidebar={this.renderSidebarFields}
             onChangeField={onChangeField}

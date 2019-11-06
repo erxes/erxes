@@ -1,14 +1,17 @@
-import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
-import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
-import { IPipelineLabel } from '../../types';
-import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
+import Modal from 'react-bootstrap/lib/Modal';
+import {
+  BoardItem,
+  FieldName,
+  IEditFormContent,
+  IItem,
+  IItemParams,
+  IOptions
+} from '../../types';
 
 const reactiveFields = [
   'closeDate',
@@ -24,7 +27,6 @@ const reactiveForiegnFields = ['companies', 'customers', 'labels'];
 type Props = {
   options: IOptions;
   item: IItem;
-  users: IUser[];
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
@@ -39,45 +41,21 @@ type Props = {
 };
 
 type State = {
-  name?: string;
   stageId?: string;
-  description?: string;
-  closeDate?: Date;
-  assignedUserIds?: string[];
-  customers: ICustomer[];
-  companies: ICompany[];
-  labels: IPipelineLabel[];
-  attachments?: IAttachment[];
   updatedItem?;
   prevStageId?;
-  reminderMinute?: number;
-  isComplete?: boolean;
-  priority?: string;
 };
 
 class EditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const item = props.item;
-
     this.state = {
-      name: item.name,
-      stageId: item.stageId,
-      // IItem datas
-      labels: item.labels || [],
-      companies: item.companies || [],
-      customers: item.customers || [],
-      closeDate: item.closeDate,
-      description: item.description || '',
-      attachments: item.attachments && extractAttachment(item.attachments),
-      assignedUserIds: (item.assignedUsers || []).map(user => user._id),
-      reminderMinute: item.reminderMinute || 0,
-      isComplete: item.isComplete
+      stageId: props.item.stageId
     };
   }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
+  onChangeField = (name: FieldName, value: BoardItem[FieldName]) => {
     this.setState({ [name]: value } as Pick<State, keyof State>, () => {
       if (this.props.item.stageId !== this.state.stageId) {
         this.setState({
@@ -114,9 +92,7 @@ class EditForm extends React.Component<Props, State> {
   };
 
   onChangeAttachment = (attachments: IAttachment[]) => {
-    this.setState({ attachments }, () => {
-      this.props.saveItem({ attachments });
-    });
+    this.props.saveItem({ attachments });
   };
 
   remove = (id: string) => {

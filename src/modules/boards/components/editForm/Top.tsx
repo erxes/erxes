@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
@@ -10,12 +9,7 @@ import CloseDate from './CloseDate';
 type Props = {
   item: IItem;
   options: IOptions;
-  name: string;
-  closeDate: Date;
-  reminderMinute: number;
-  isComplete: boolean;
   stageId: string;
-  users: IUser[];
   onChangeField: (
     name: 'stageId' | 'name' | 'closeDate' | 'reminderMinute' | 'isComplete',
     value: any
@@ -43,15 +37,7 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const {
-      name,
-      closeDate,
-      onChangeField,
-      amount,
-      onBlurFields,
-      reminderMinute,
-      isComplete
-    } = this.props;
+    const { onChangeField, amount, onBlurFields, item } = this.props;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
@@ -68,7 +54,7 @@ class Top extends React.Component<Props> {
               <Icon icon="creditcard" />
               <FormControl
                 componentClass="textarea"
-                defaultValue={name}
+                defaultValue={item.name}
                 required={true}
                 onChange={nameOnChange}
                 onBlur={onNameBlur}
@@ -84,9 +70,9 @@ class Top extends React.Component<Props> {
 
           <CloseDate
             onChangeField={onChangeField}
-            closeDate={closeDate}
-            reminderMinute={reminderMinute}
-            isComplete={isComplete}
+            closeDate={item.closeDate}
+            reminderMinute={item.reminderMinute}
+            isComplete={item.isComplete}
           />
         </HeaderRow>
       </React.Fragment>

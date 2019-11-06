@@ -292,25 +292,39 @@ export interface IFilterParams extends ISavedConformity {
   labelIds?: string;
 }
 
+export type FieldName =
+  | 'name'
+  | 'stageId'
+  | 'description'
+  | 'closeDate'
+  | 'assignedUserIds'
+  | 'customers'
+  | 'companies'
+  | 'labels'
+  | 'isComplete'
+  | 'reminderMinute'
+  | 'priority';
+
 export interface IEditFormContent {
   state: any;
   onChangeAttachment: (attachments: IAttachment[]) => void;
-  onChangeField: (
-    name:
-      | 'name'
-      | 'stageId'
-      | 'description'
-      | 'closeDate'
-      | 'assignedUserIds'
-      | 'customers'
-      | 'companies'
-      | 'labels'
-      | 'isComplete'
-      | 'reminderMinute'
-      | 'priority',
-    value: any
-  ) => void;
+  onChangeField: (name: FieldName, value: any) => void;
   copy: () => void;
   remove: (id: string) => void;
   onBlurFields: (name: string, value: string) => void;
 }
+
+export type BoardItem = {
+  name?: string;
+  stageId?: string;
+  description?: string;
+  closeDate?: Date;
+  assignedUserIds?: string[];
+  customers: ICustomer[];
+  companies: ICompany[];
+  labels?: IPipelineLabel[];
+  isComplete?: boolean;
+  reminderMinute?: number;
+  priority?: string;
+  attachments?: IAttachment[];
+};
