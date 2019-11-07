@@ -108,7 +108,7 @@ class UserList extends React.Component<FinalProps, States> {
       this.props.resendInvitation(user.email);
     };
 
-    if (user.status !== 'Pending Invitation') {
+    if (user.status !== 'Not verified') {
       return null;
     }
 
@@ -247,6 +247,7 @@ class UserList extends React.Component<FinalProps, States> {
     return (
       <List
         formTitle="Invite team members"
+        size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Team members') }
