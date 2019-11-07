@@ -8,6 +8,7 @@ import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import { __, Alert, confirm } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
+import { RowTitle } from 'modules/engage/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ILeadIntegration } from '../types';
@@ -104,7 +105,13 @@ class Row extends React.Component<Props, {}> {
             onChange={onChange}
           />
         </td>
-        <td>{integration.name}</td>
+        <td>
+          <RowTitle>
+            <Link to={`/leads/edit/${integration._id}/${integration.formId}`}>
+              {integration.name}
+            </Link>
+          </RowTitle>
+        </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{lead.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>

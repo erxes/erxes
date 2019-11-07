@@ -8,7 +8,6 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import Item from '../containers/Item';
 import {
-  ChecklistActions,
   ChecklistTitle,
   ChecklistTitleWrapper,
   ChecklistWrapper,
@@ -113,12 +112,12 @@ class List extends React.Component<Props, State> {
     return (
       <>
         <h5 onClick={onClick}>{title}</h5>
-        <ChecklistActions>
+        <div>
           {this.renderIsCheckedBtn()}
           <Button btnStyle="simple" size="small" onClick={this.removeClick}>
             Delete
           </Button>
-        </ChecklistActions>
+        </div>
       </>
     );
   };
@@ -166,15 +165,19 @@ class List extends React.Component<Props, State> {
           value={title}
           required={true}
         />
-        <Button btnStyle="simple" onClick={cancelEditing} size="small">
-          <Icon icon="cancel" />
-        </Button>
 
         {renderButton({
           values: this.generateDoc(values),
           isSubmitted,
           callback: onSubmit
         })}
+
+        <Button
+          btnStyle="simple"
+          onClick={cancelEditing}
+          size="small"
+          icon="times"
+        />
       </FormControlWrapper>
     );
   };
@@ -202,21 +205,17 @@ class List extends React.Component<Props, State> {
             onKeyPress={this.onKeyPressAddItem}
             required={true}
           />
+
+          <Button btnStyle="success" type="submit" size="small">
+            Add
+          </Button>
+
           <Button
             btnStyle="simple"
             size="small"
             onClick={cancel}
-            icon="cancel"
+            icon="times"
           />
-
-          <Button
-            btnStyle="success"
-            icon="checked-1"
-            type="submit"
-            size="small"
-          >
-            Save
-          </Button>
         </FormControlWrapper>
       </FormWrapper>
     );
@@ -231,7 +230,7 @@ class List extends React.Component<Props, State> {
         <ProgressBar
           percentage={list.percent}
           color={colors.colorPrimary}
-          height="8px"
+          height="10px"
         />
       </Progress>
     );
@@ -253,8 +252,7 @@ class List extends React.Component<Props, State> {
     if (!this.state.isAddingItem) {
       return (
         <Button size="small" btnStyle="simple" onClick={this.onAddItemClick}>
-          <Icon icon="focus-add" />
-          {__(' Add an item')}
+          {__('Add an item')}
         </Button>
       );
     }
@@ -266,7 +264,7 @@ class List extends React.Component<Props, State> {
     return (
       <>
         <ChecklistTitleWrapper>
-          <Icon icon="checked" />
+          <Icon icon="check-square" />
 
           <ChecklistTitle>
             {this.renderTitle()}

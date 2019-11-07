@@ -42,7 +42,7 @@ function CountsByTag({ history, tags, counts, manageUrl, loading }: IProps) {
         fields={tags}
         paramKey="tag"
         counts={counts}
-        icon="tag"
+        icon="tag-alt"
         loading={loading}
       />
     </Section>

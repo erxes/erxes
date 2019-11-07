@@ -1,8 +1,4 @@
-import {
-  FormFooter,
-  HeaderContent,
-  HeaderRow
-} from 'modules/boards/styles/item';
+import { FormFooter } from 'modules/boards/styles/item';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -66,25 +62,23 @@ class AddForm extends React.Component<IProps, State> {
 
     return (
       <>
-        <HeaderRow>
-          <HeaderContent>
-            <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              {...formProps}
-              autoFocus={true}
-              onChange={this.onChangeTitle}
-              value={this.state.title}
-              placeholder="Checklist"
-              onFocus={this.handleFocus}
-              name="title"
-              required={true}
-            />
-          </HeaderContent>
-        </HeaderRow>
+        <div>
+          <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            autoFocus={true}
+            onChange={this.onChangeTitle}
+            value={this.state.title}
+            placeholder="Checklist"
+            onFocus={this.handleFocus}
+            name="title"
+            required={true}
+          />
+        </div>
         <FormFooter>
           <Button
             btnStyle="simple"
-            icon="cancel-1"
+            icon="times"
             onClick={this.close}
             size="small"
           >
