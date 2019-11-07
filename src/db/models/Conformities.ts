@@ -70,7 +70,7 @@ export const loadConformityClass = () => {
         relType: doc.relType,
         relTypeId,
       }));
-      Conformities.insertMany(insertTypes);
+      await Conformities.insertMany(insertTypes);
 
       // delete on removedTypeIds
       await Conformities.deleteMany({
