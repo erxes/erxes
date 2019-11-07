@@ -176,7 +176,7 @@ describe('User mutations', () => {
     const group = await usersGroupFactory();
 
     const params = {
-      entries: [{ email: 'test@example.com', groupId: group._id }],
+      entries: [{ email: 'test@example.com', password: '123', groupId: group._id }],
     };
 
     await graphqlRequest(mutation, 'usersInvite', params, { user: _admin });

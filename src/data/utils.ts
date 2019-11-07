@@ -325,7 +325,7 @@ export const sendEmail = async ({
   template?: { name?: string; data?: any; isCustom?: boolean };
 }) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = getEnv({ name: 'DEFAULT_EMAIL_SERVICE', defaultValue: '' });
+  const DEFAULT_EMAIL_SERVICE = getEnv({ name: 'DEFAULT_EMAIL_SERVICE', defaultValue: '' }) || 'SES';
   const COMPANY_EMAIL_FROM = getEnv({ name: 'COMPANY_EMAIL_FROM' });
   const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET', defaultValue: '' });
 

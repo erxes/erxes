@@ -118,7 +118,7 @@ describe('User db utils', () => {
 
   test('createUserWithConfirmation', async () => {
     const group = await usersGroupFactory();
-    const token = await Users.createUserWithConfirmation({ email: '123@gmail.com', groupId: group._id });
+    const token = await Users.invite({ email: '123@gmail.com', password: '123', groupId: group._id });
 
     const userObj = await Users.findOne({ registrationToken: token }).lean();
 
@@ -136,7 +136,7 @@ describe('User db utils', () => {
   test('resendInvitation', async () => {
     const email = '123@gmail.com';
     const group = await usersGroupFactory();
-    const token = await Users.createUserWithConfirmation({ email, groupId: group._id });
+    const token = await Users.invite({ email, password: '123', groupId: group._id });
     const newToken = await Users.resendInvitation({ email });
 
     const user = await Users.findOne({ email }).lean();
