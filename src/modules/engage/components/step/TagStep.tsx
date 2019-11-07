@@ -42,7 +42,7 @@ const TagStep = (props: Props) => {
   const icons: React.ReactNode[] = [];
 
   tags.forEach(tag => {
-    icons.push(<Icon icon="piechart icon" style={{ color: tag.colorCode }} />);
+    icons.push(<Icon icon="chart-pie icon" style={{ color: tag.colorCode }} />);
   });
 
   return (

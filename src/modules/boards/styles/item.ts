@@ -52,7 +52,6 @@ const HeaderRow = styled(FlexContent)`
 
 const HeaderContent = styled.div`
   flex: 1;
-  font-size: 16px;
 
   textarea {
     border-bottom: none;
@@ -201,6 +200,7 @@ const RightButton = styled(Button)`
   > i {
     color: ${colors.textPrimary};
     margin-right: 5px;
+    font-size: 14px;
   }
 
   &:hover {
@@ -231,6 +231,7 @@ const MoveFormContainer = styled.div`
 
 const PipelineName = styled.div`
   font-weight: bold;
+  font-size: 15px;
 
   &:hover {
     cursor: pointer;

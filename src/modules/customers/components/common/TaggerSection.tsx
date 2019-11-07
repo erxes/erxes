@@ -37,7 +37,7 @@ class TaggerSection extends React.Component<Props, State> {
 
   renderTags(tags) {
     if (!tags.length) {
-      return <EmptyState icon="tag" text="Not tagged yet" size="small" />;
+      return <EmptyState icon="tag-alt" text="Not tagged yet" size="small" />;
     }
 
     return (

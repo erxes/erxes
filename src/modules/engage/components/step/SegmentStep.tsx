@@ -64,7 +64,7 @@ const SegmentStep = (props: Props) => {
     icons.push(
       <>
         {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
-        <Icon icon="piechart icon" style={{ color: segment.color }} />
+        <Icon icon="chart-pie icon" style={{ color: segment.color }} />
       </>
     );
   });

@@ -89,11 +89,11 @@ class Sidebar extends React.Component<Props> {
         <ControlLabel>Actions</ControlLabel>
         <Watch item={item} options={options} />
 
-        <RightButton icon="checked-1" onClick={copyItem}>
+        <RightButton icon="copy-1" onClick={copyItem}>
           Copy
         </RightButton>
 
-        <RightButton icon="cancel-1" onClick={onClick}>
+        <RightButton icon="trash-4" onClick={onClick}>
           Delete
         </RightButton>
       </RightContent>

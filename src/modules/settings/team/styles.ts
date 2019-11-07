@@ -39,8 +39,6 @@ const FlexRow = styled.div`
 `;
 
 const RemoveRow = styled.a`
-  position: absolute;
-  right: 0;
   top: ${dimensions.unitSpacing + 2}px;
   margin-left: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing / 2}px;

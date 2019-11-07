@@ -50,7 +50,7 @@ class Left extends React.Component<Props> {
           <FormGroup>
             <TitleRow>
               <ControlLabel>
-                <Icon icon="tag" />
+                <Icon icon="tag-alt" />
                 {__('Labels')}
               </ControlLabel>
             </TitleRow>
