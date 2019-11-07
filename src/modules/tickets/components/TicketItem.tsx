@@ -96,8 +96,6 @@ class TicketItem extends React.PureComponent<
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
         <h5>
           {renderPriority(item.priority)}
           {item.name}
@@ -117,6 +115,16 @@ class TicketItem extends React.PureComponent<
         <Footer>
           {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
+      </>
+    );
+  }
+
+  labelContent() {
+    const { item } = this.props;
+
+    return (
+      <>
+        <Labels labels={item.labels} indicator={true} />
       </>
     );
   }
@@ -141,6 +149,7 @@ class TicketItem extends React.PureComponent<
 
     return (
       <>
+        {this.labelContent()}
         <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>

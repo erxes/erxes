@@ -127,8 +127,6 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
         <h5>{item.name}</h5>
 
         <Details color="#63D2D6" items={products} />
@@ -149,6 +147,16 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
           {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
           <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
+      </>
+    );
+  }
+
+  labelContent() {
+    const { item } = this.props;
+
+    return (
+      <>
+        <Labels labels={item.labels} indicator={true} />
       </>
     );
   }
@@ -174,6 +182,7 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
+        {this.labelContent()}
         <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
