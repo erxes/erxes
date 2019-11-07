@@ -62,13 +62,6 @@ const PipelineLabelList = styled.div`
   }
 `;
 
-const LabelList = styled.div`
-  display: inline-block;
-  &:hover {
-    cursor: pointer; 
-    filter: brightness(86%);
-`;
-
 const Label = styledTS<{ color: string; isIndicator?: boolean }>(styled.div)`
   background-color: ${props => props.color && props.color};
   white-space: nowrap;
@@ -82,6 +75,20 @@ const Label = styledTS<{ color: string; isIndicator?: boolean }>(styled.div)`
   font-weight: 500;
   border-radius: 10px;
   padding: ${props => (props.isIndicator ? '4px 10px' : '2px 10px')};
+  transition: all ease 0.3s;
+`;
+
+const LabelList = styled.div`
+  display: inline-block;
+
+  &:hover {
+    cursor: pointer;
+    ${Label} {
+      filter: brightness(88%);
+      font-weight: bold;
+      color: lightwight;
+    }
+  }
 `;
 
 const ChooseLabelWrapper = styled.div`
