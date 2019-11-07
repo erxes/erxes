@@ -63,3 +63,19 @@ export type VoteVariables = {
 };
 
 export type VoteMutation = ({ variables: VoteVariables }) => Promise<any>;
+
+export type GrowthHackFieldName =
+  | 'hackStages'
+  | 'formId'
+  | 'formSubmissions'
+  | 'voteCount'
+  | 'isVoted'
+  | 'votedUsers'
+  | 'scoringType'
+  | 'reach'
+  | 'impact'
+  | 'confidence'
+  | 'formFields'
+  | 'ease'
+  | 'priority'
+  | 'stageId';

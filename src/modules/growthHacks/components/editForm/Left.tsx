@@ -21,10 +21,7 @@ type Props = {
   ) => void;
   onBlurFields: (name: 'description' | 'name', value: string) => void;
   type: string;
-  assignedUserIds: string[];
-  description: string;
   onChangeAttachment: (attachments: IAttachment[]) => void;
-  attachments: IAttachment[];
   options: IOptions;
 };
 
@@ -54,11 +51,8 @@ class Left extends React.Component<Props> {
       item,
       onChangeField,
       onBlurFields,
-      attachments,
       onChangeAttachment,
-      description,
-      type,
-      assignedUserIds
+      type
     } = this.props;
 
     const onChange = e =>
@@ -69,6 +63,7 @@ class Left extends React.Component<Props> {
     };
 
     const userOnChange = usrs => onChangeField('assignedUserIds', usrs);
+    const assignedUserIds = item.assignedUsers.map(user => user._id);
 
     return (
       <>
@@ -101,7 +96,7 @@ class Left extends React.Component<Props> {
           <FormControl
             componentClass="textarea"
             name="description"
-            defaultValue={description}
+            defaultValue={item.description}
             onChange={onChange}
             onBlur={onSave}
           />
@@ -116,7 +111,7 @@ class Left extends React.Component<Props> {
           </TitleRow>
 
           <Uploader
-            defaultFileList={attachments}
+            defaultFileList={item.attachments || []}
             onChange={onChangeAttachment}
           />
         </FormGroup>

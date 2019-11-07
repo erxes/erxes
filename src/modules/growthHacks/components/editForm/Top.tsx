@@ -7,23 +7,19 @@ import {
   MetaInfo,
   TitleRow
 } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
+import { IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
+import { IGrowthHack } from '../../types';
 
 type Props = {
-  item: IItem;
+  item: IGrowthHack;
   options: IOptions;
-  name: string;
-  stageId: string;
-  priority: string;
-  hackStages: string[];
   onChangeField: (name: 'name' | 'stageId', value: any) => void;
   onBlurFields: (name: 'description' | 'name', value: string) => void;
   score?: () => React.ReactNode;
   dueDate?: React.ReactNode;
-  formSubmissions: JSON;
 };
 
 class Top extends React.Component<Props> {
@@ -34,20 +30,20 @@ class Top extends React.Component<Props> {
   };
 
   renderMove() {
-    const { item, stageId, options } = this.props;
+    const { item, options } = this.props;
 
     return (
       <Move
         options={options}
         item={item}
-        stageId={stageId}
+        stageId={item.stageId}
         onChangeStage={this.onChangeStage}
       />
     );
   }
 
   renderHackStage() {
-    const { hackStages } = this.props;
+    const hackStages = this.props.item.hackStages || [];
 
     if (hackStages.length === 0) {
       return null;
@@ -66,17 +62,9 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const {
-      name,
-      onChangeField,
-      score,
-      dueDate,
-      priority,
-      onBlurFields,
-      item
-    } = this.props;
+    const { onChangeField, score, dueDate, onBlurFields, item } = this.props;
 
-    const { assignedUsers = [] } = item;
+    const { assignedUsers = [], name, priority } = item;
 
     const nameOnChange = e =>
       onChangeField('name', (e.target as HTMLInputElement).value);
