@@ -1,3 +1,8 @@
+export type IInternalNote = {
+  _id: string;
+  content: string;
+};
+
 export type InternalNotesAddMutationVariables = {
   contentType: string;
   contentTypeId: string;
@@ -11,4 +16,10 @@ export type InternalNotesAddMutationResponse = {
       variables: InternalNotesAddMutationVariables;
     }
   ) => Promise<any>;
+};
+
+export type InternalNoteDetailQueryResponse = {
+  internalNoteDetail: IInternalNote;
+  loading: boolean;
+  refetch: () => void;
 };

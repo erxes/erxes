@@ -3,7 +3,6 @@ import EmptyState from 'modules/common/components/EmptyState';
 import React from 'react';
 import { IUser } from '../../auth/types';
 import { ActivityTitle, Timeline } from '../styles';
-import ActivityLogProcessor from '../utils';
 import ActivityItem from './ActivityItem';
 
 type Props = {
@@ -49,10 +48,7 @@ class ActivityList extends React.Component<Props> {
   }
 
   render() {
-    let { activities } = this.props;
-    const activityLogProcessor = new ActivityLogProcessor(this.props);
-
-    activities = activityLogProcessor.process();
+    const { activities } = this.props;
 
     if (!activities || activities.length < 1) {
       return (
