@@ -5,7 +5,7 @@ import { getUserActionsMap } from '../permissions/utils';
 export default {
   status(user: IUserDocument) {
     if (user.registrationToken) {
-      return 'Pending Invitation';
+      return 'Not verified';
     }
 
     return 'Verified';

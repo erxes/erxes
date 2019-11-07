@@ -24,6 +24,7 @@ export const types = `
 
   input InvitationEntry {
     email: String
+    password: String
     groupId: String
   }
 

@@ -159,11 +159,11 @@ const userMutations = {
   /*
    * Invites users to team members
    */
-  async usersInvite(_root, { entries }: { entries: Array<{ email: string; groupId: string }> }) {
+  async usersInvite(_root, { entries }: { entries: Array<{ email: string; password: string; groupId: string }> }) {
     for (const entry of entries) {
       await Users.checkDuplication({ email: entry.email });
 
-      const token = await Users.createUserWithConfirmation(entry);
+      const token = await Users.invite(entry);
 
       sendInvitationEmail({ email: entry.email, token });
     }
