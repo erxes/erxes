@@ -45,7 +45,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     };
   }
 
-  renderSidebarFields = callback => {
+  renderSidebarFields = saveItem => {
     const { priority, source } = this.state;
 
     const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
@@ -66,8 +66,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
       const value = option ? option.value : '';
 
       this.setState({ [name]: value } as Pick<State, keyof State>, () => {
-        if (callback) {
-          callback({ [name]: value });
+        if (saveItem) {
+          saveItem({ [name]: value });
         }
       });
     };

@@ -16,7 +16,7 @@ type Props = {
   copyItem: () => void;
   removeItem: (itemId: string) => void;
   sidebar?: (
-    callback?: (doc: { [key: string]: any }) => void
+    saveItem?: (doc: { [key: string]: any }) => void
   ) => React.ReactNode;
   options: IOptions;
   renderItems: () => React.ReactNode;

@@ -39,7 +39,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
     };
   }
 
-  renderSidebarFields = callback => {
+  renderSidebarFields = saveItem => {
     const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
 
     const priorityValueRenderer = (
@@ -55,8 +55,8 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
       this.setState({ priority: value });
 
-      if (callback) {
-        callback({ priority: value });
+      if (saveItem) {
+        saveItem({ priority: value });
       }
     };
 
