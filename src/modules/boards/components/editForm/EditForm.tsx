@@ -1,28 +1,9 @@
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
-import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
-import {
-  BoardItem,
-  FieldName,
-  IEditFormContent,
-  IItem,
-  IItemParams,
-  IOptions
-} from '../../types';
-
-const reactiveFields = [
-  'closeDate',
-  'stageId',
-  'assignedUserIds',
-  'isComplete',
-  'reminderMinute',
-  'priority'
-];
-
-const reactiveForiegnFields = ['companies', 'customers', 'labels'];
+import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 type Props = {
   options: IOptions;
@@ -31,9 +12,7 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
   amount?: () => React.ReactNode;
-  formContent: (
-    { state, onChangeAttachment, onChangeField, copy, remove }: IEditFormContent
-  ) => React.ReactNode;
+  formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
   onUpdate: (item, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
@@ -42,8 +21,8 @@ type Props = {
 
 type State = {
   stageId?: string;
-  updatedItem?;
-  prevStageId?;
+  updatedItem?: IItem;
+  prevStageId?: string;
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -55,44 +34,24 @@ class EditForm extends React.Component<Props, State> {
     };
   }
 
-  onChangeField = (name: FieldName, value: BoardItem[FieldName]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+  onChangeStage = (stageId: string) => {
+    this.setState({ stageId }, () => {
       if (this.props.item.stageId !== this.state.stageId) {
         this.setState({
           prevStageId: this.props.item.stageId
         });
-      }
 
-      if (reactiveFields.includes(name)) {
-        this.props.saveItem({ [name]: value }, updatedItem => {
-          this.setState({ updatedItem }, () => {
-            if (name === 'stageId') {
-              this.props.onUpdate(updatedItem, this.state.prevStageId);
-            }
-          });
-        });
-      }
-
-      if (reactiveForiegnFields.includes(name)) {
-        this.props.saveItem({}, updatedItem => {
-          this.setState({ updatedItem });
+        this.props.saveItem({ stageId }, updatedItem => {
+          this.props.onUpdate(updatedItem, this.state.prevStageId);
         });
       }
     });
   };
 
-  onBlurFields = (name: string, value: string) => {
-    if (value === this.props.item[name]) {
-      return;
-    }
-
-    this.props.saveItem({ [name]: value }, updatedItem => {
+  saveItem = (doc: { [key: string]: any }) => {
+    this.props.saveItem(doc, updatedItem => {
       this.setState({ updatedItem });
     });
-  };
-
-  onChangeAttachment = (attachments: IAttachment[]) => {
-    this.props.saveItem({ attachments });
   };
 
   remove = (id: string) => {
@@ -161,11 +120,10 @@ class EditForm extends React.Component<Props, State> {
         <Modal.Body>
           {this.props.formContent({
             state: this.state,
-            onChangeAttachment: this.onChangeAttachment,
-            onChangeField: this.onChangeField,
+            saveItem: this.saveItem,
+            onChangeStage: this.onChangeStage,
             copy: this.copy,
-            remove: this.remove,
-            onBlurFields: this.onBlurFields
+            remove: this.remove
           })}
         </Modal.Body>
       </Modal>

@@ -10,45 +10,35 @@ import LabelChooser from '../../containers/label/LabelChooser';
 import { Actions, RightButton, RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 
-type OnChangeField = (
-  name: 'companies' | 'customers' | 'assignedUserIds' | 'labels' | 'priority',
-  value: any
-) => void;
-
 type Props = {
   item: IItem;
-  onChangeField?: OnChangeField;
+  saveItem: (doc: { [key: string]: any }) => void;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
-  sidebar?: (onChangeField?: OnChangeField) => React.ReactNode;
+  sidebar?: (
+    callback?: (doc: { [key: string]: any }) => void
+  ) => React.ReactNode;
   options: IOptions;
   renderItems: () => React.ReactNode;
 };
 
 class Sidebar extends React.Component<Props> {
-  onChange = (type, value) => {
-    const { onChangeField } = this.props;
-
-    if (onChangeField) {
-      onChangeField(type, value);
-    }
-  };
-
   render() {
     const {
       item,
       copyItem,
       removeItem,
+      saveItem,
       sidebar,
       options,
       renderItems
     } = this.props;
 
     const onClick = () => removeItem(item._id);
-    const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
-    const cmpsChange = cmps => this.onChange('companies', cmps);
-    const cmrsChange = cmrs => this.onChange('customers', cmrs);
-    const onLabelChange = labels => this.onChange('labels', labels);
+    const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
+    const cmpsChange = cmps => saveItem({ companies: cmps });
+    const cmrsChange = cmrs => saveItem({ customers: cmrs });
+    const onLabelChange = labels => saveItem({ labels });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
 
     return (
@@ -71,7 +61,7 @@ class Sidebar extends React.Component<Props> {
           <ChecklistAdd itemId={item._id} type={options.type} />
         </Actions>
 
-        {sidebar && sidebar(this.props.onChangeField)}
+        {sidebar && sidebar(saveItem)}
 
         <CompanySection
           mainType={options.type}

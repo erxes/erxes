@@ -16,21 +16,24 @@ import Labels from '..//label/Labels';
 
 type Props = {
   item: IItem;
-  onChangeField: (name: 'description', value: any) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
   type: string;
-  onChangeAttachment: (attachments: IAttachment[]) => void;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
 
 class Left extends React.Component<Props> {
   render() {
-    const { item, onChangeField, onChangeAttachment, type } = this.props;
+    const { item, saveItem, type } = this.props;
 
-    const descriptionOnChange = e =>
-      onChangeField('description', (e.target as HTMLInputElement).value);
+    const descriptionOnBlur = e => {
+      const description = e.target.value;
 
-    const descriptionOnBlur = e =>
-      this.props.onBlurFields('description', e.target.value);
+      if (item.description !== description) {
+        saveItem({ description: e.target.value });
+      }
+    };
+
+    const onChangeAttachment = (files: IAttachment[]) =>
+      saveItem({ attachments: files });
 
     const attachments =
       (item.attachments && extractAttachment(item.attachments)) || [];
@@ -75,7 +78,6 @@ class Left extends React.Component<Props> {
           <FormControl
             componentClass="textarea"
             defaultValue={item.description}
-            onChange={descriptionOnChange}
             onBlur={descriptionOnBlur}
             autoFocus={true}
           />

@@ -16,28 +16,22 @@ import { IGrowthHack } from '../../types';
 type Props = {
   item: IGrowthHack;
   options: IOptions;
-  onChangeField: (name: 'name' | 'stageId', value: any) => void;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
+  onChangeStage: (stageId: string) => void;
   score?: () => React.ReactNode;
   dueDate?: React.ReactNode;
 };
 
 class Top extends React.Component<Props> {
-  onChangeStage = stageId => {
-    const { onChangeField } = this.props;
-
-    onChangeField('stageId', stageId);
-  };
-
   renderMove() {
-    const { item, options } = this.props;
+    const { item, options, onChangeStage } = this.props;
 
     return (
       <Move
         options={options}
         item={item}
         stageId={item.stageId}
-        onChangeStage={this.onChangeStage}
+        onChangeStage={onChangeStage}
       />
     );
   }
@@ -62,15 +56,15 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const { onChangeField, score, dueDate, onBlurFields, item } = this.props;
-
+    const { saveItem, score, dueDate, item } = this.props;
     const { assignedUsers = [], name, priority } = item;
 
-    const nameOnChange = e =>
-      onChangeField('name', (e.target as HTMLInputElement).value);
+    const onNameBlur = e => {
+      const value = e.target.value;
 
-    const onSaveName = e => {
-      onBlurFields('name', e.target.value);
+      if (name !== value) {
+        saveItem({ name: e.target.value });
+      }
     };
 
     return (
@@ -83,8 +77,7 @@ class Top extends React.Component<Props> {
                 componentClass="textarea"
                 defaultValue={name}
                 required={true}
-                onChange={nameOnChange}
-                onBlur={onSaveName}
+                onBlur={onNameBlur}
               />
             </TitleRow>
             <MetaInfo>

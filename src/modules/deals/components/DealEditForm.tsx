@@ -131,12 +131,10 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   renderFormContent = ({
-    state,
-    onChangeAttachment,
-    onChangeField,
+    saveItem,
+    onChangeStage,
     copy,
-    remove,
-    onBlurFields
+    remove
   }: IEditFormContent) => {
     const { item, options } = this.props;
 
@@ -145,26 +143,20 @@ export default class DealEditForm extends React.Component<Props, State> {
         <Top
           options={options}
           amount={this.renderAmount}
-          stageId={state.stageId}
-          onBlurFields={onBlurFields}
+          stageId={item.stageId}
           item={item}
-          onChangeField={onChangeField}
+          saveItem={saveItem}
+          onChangeStage={onChangeStage}
         />
 
         <FlexContent>
-          <Left
-            onChangeAttachment={onChangeAttachment}
-            type={options.type}
-            onBlurFields={onBlurFields}
-            item={item}
-            onChangeField={onChangeField}
-          />
+          <Left type={options.type} saveItem={saveItem} item={item} />
 
           <Sidebar
             options={options}
             item={item}
             sidebar={this.renderProductSection}
-            onChangeField={onChangeField}
+            saveItem={saveItem}
             copyItem={copy}
             removeItem={remove}
             renderItems={this.renderItems}

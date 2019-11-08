@@ -85,25 +85,24 @@ export default class GrowthHackEditForm extends React.Component<Props> {
   };
 
   renderFormContent = ({
-    onChangeAttachment,
-    onChangeField,
     copy,
     remove,
-    onBlurFields
+    saveItem,
+    onChangeStage
   }: IEditFormContent) => {
     const { item, options, saveFormSubmission, onUpdate } = this.props;
 
-    const dateOnChange = date => onChangeField('closeDate', date);
+    const dateOnChange = date => saveItem({ closeDate: date });
 
     return (
       <>
         <Top
           options={options}
           item={item}
-          onChangeField={onChangeField}
+          saveItem={saveItem}
           dueDate={this.renderDueDate(item.closeDate, dateOnChange)}
           score={this.renderScore}
-          onBlurFields={onBlurFields}
+          onChangeStage={onChangeStage}
         />
 
         <FlexContent>
@@ -118,12 +117,10 @@ export default class GrowthHackEditForm extends React.Component<Props> {
               onUpdate={onUpdate}
             />
             <Left
-              onChangeAttachment={onChangeAttachment}
               type={options.type}
               item={item}
-              onChangeField={onChangeField}
+              saveItem={saveItem}
               options={options}
-              onBlurFields={onBlurFields}
             />
           </LeftContainer>
 

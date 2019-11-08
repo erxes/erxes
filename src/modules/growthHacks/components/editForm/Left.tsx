@@ -8,6 +8,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
+import { extractAttachment } from 'modules/common/utils';
 import { IGrowthHack } from 'modules/growthHacks/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
@@ -15,13 +16,8 @@ import Votes from './Votes';
 
 type Props = {
   item: IGrowthHack;
-  onChangeField: (
-    name: 'description' | 'closeDate' | 'assignedUserIds',
-    value: any
-  ) => void;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
   type: string;
-  onChangeAttachment: (attachments: IAttachment[]) => void;
   options: IOptions;
 };
 
@@ -47,23 +43,23 @@ class Left extends React.Component<Props> {
   }
 
   render() {
-    const {
-      item,
-      onChangeField,
-      onBlurFields,
-      onChangeAttachment,
-      type
-    } = this.props;
+    const { item, saveItem, type } = this.props;
 
-    const onChange = e =>
-      onChangeField(e.target.name, (e.target as HTMLInputElement).value);
+    const onDescriptionBlur = e => {
+      const value = e.target.value;
 
-    const onSave = e => {
-      onBlurFields(e.target.name, e.target.value);
+      if (item.description !== value) {
+        saveItem({ description: value });
+      }
     };
 
-    const userOnChange = usrs => onChangeField('assignedUserIds', usrs);
+    const onUserChange = usrs => saveItem({ assignedUserIds: usrs });
     const assignedUserIds = item.assignedUsers.map(user => user._id);
+
+    const onAttachmentChange = (files: IAttachment[]) =>
+      saveItem({ attachments: files });
+    const attachments =
+      (item.attachments && extractAttachment(item.attachments)) || [];
 
     return (
       <>
@@ -80,7 +76,7 @@ class Left extends React.Component<Props> {
             label="Choose users"
             name="assignedUserIds"
             value={assignedUserIds}
-            onSelect={userOnChange}
+            onSelect={onUserChange}
             filterParams={{ status: 'verified' }}
           />
         </FormGroup>
@@ -97,8 +93,7 @@ class Left extends React.Component<Props> {
             componentClass="textarea"
             name="description"
             defaultValue={item.description}
-            onChange={onChange}
-            onBlur={onSave}
+            onBlur={onDescriptionBlur}
           />
         </FormGroup>
 
@@ -111,8 +106,8 @@ class Left extends React.Component<Props> {
           </TitleRow>
 
           <Uploader
-            defaultFileList={item.attachments || []}
-            onChange={onChangeAttachment}
+            defaultFileList={attachments}
+            onChange={onAttachmentChange}
           />
         </FormGroup>
 

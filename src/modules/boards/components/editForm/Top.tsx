@@ -10,40 +10,38 @@ type Props = {
   item: IItem;
   options: IOptions;
   stageId: string;
-  onChangeField: (
-    name: 'stageId' | 'name' | 'closeDate' | 'reminderMinute' | 'isComplete',
-    value: any
-  ) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
+  onChangeStage?: (stageId: string) => void;
   amount?: () => React.ReactNode;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
 
 class Top extends React.Component<Props> {
-  onChangeStage = stageId => {
-    this.props.onChangeField('stageId', stageId);
-  };
-
   renderMove() {
-    const { item, stageId, options } = this.props;
+    const { item, stageId, options, onChangeStage } = this.props;
 
     return (
       <Move
         options={options}
         item={item}
         stageId={stageId}
-        onChangeStage={this.onChangeStage}
+        onChangeStage={onChangeStage}
       />
     );
   }
 
   render() {
-    const { onChangeField, amount, onBlurFields, item } = this.props;
-
-    const nameOnChange = e =>
-      onChangeField('name', (e.target as HTMLInputElement).value);
+    const { saveItem, amount, item } = this.props;
 
     const onNameBlur = e => {
-      onBlurFields('name', e.target.value);
+      const name = e.target.value;
+
+      if (item.name !== name) {
+        saveItem({ name: e.target.value });
+      }
+    };
+
+    const onCloseDateFieldsChange = (name: string, value: any) => {
+      saveItem({ [name]: value });
     };
 
     return (
@@ -56,7 +54,6 @@ class Top extends React.Component<Props> {
                 componentClass="textarea"
                 defaultValue={item.name}
                 required={true}
-                onChange={nameOnChange}
                 onBlur={onNameBlur}
               />
             </TitleRow>
@@ -69,7 +66,7 @@ class Top extends React.Component<Props> {
           <HeaderContent>{this.renderMove()}</HeaderContent>
 
           <CloseDate
-            onChangeField={onChangeField}
+            onChangeField={onCloseDateFieldsChange}
             closeDate={item.closeDate}
             reminderMinute={item.reminderMinute}
             isComplete={item.isComplete}

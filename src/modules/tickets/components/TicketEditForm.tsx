@@ -45,11 +45,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     };
   }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  renderSidebarFields = onChangeField => {
+  renderSidebarFields = callback => {
     const { priority, source } = this.state;
 
     const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
@@ -63,20 +59,17 @@ export default class TicketEditForm extends React.Component<Props, State> {
       value: 'other'
     });
 
-    const onChangePriority = (option: ISelectedOption) => {
+    const onSelectChange = <T extends keyof State>(
+      option: ISelectedOption,
+      name: T
+    ) => {
       const value = option ? option.value : '';
 
-      this.props.saveItem({ priority: value }, () => {
-        this.onChangeField('priority', value);
-
-        onChangeField('priority', value);
+      this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+        if (callback) {
+          callback({ [name]: value });
+        }
       });
-    };
-
-    const onChangeSource = (option: ISelectedOption) => {
-      this.props.saveItem({ source: option ? option.value : '' }, () =>
-        this.onChangeField('source', option ? option.value : '')
-      );
     };
 
     const priorityValueRenderer = (
@@ -91,6 +84,9 @@ export default class TicketEditForm extends React.Component<Props, State> {
       <Capitalize>{option.label}</Capitalize>
     );
 
+    const onPriorityChange = option => onSelectChange(option, 'priority');
+    const onSourceChange = option => onSelectChange(option, 'source');
+
     return (
       <>
         <FormGroup>
@@ -99,7 +95,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             placeholder={__('Select a priority')}
             value={priority}
             options={priorityValues}
-            onChange={onChangePriority}
+            onChange={onPriorityChange}
             optionRenderer={priorityValueRenderer}
             valueRenderer={priorityValueRenderer}
           />
@@ -110,7 +106,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             placeholder={__('Select a source')}
             value={source}
             options={sourceValues}
-            onChange={onChangeSource}
+            onChange={onSourceChange}
             optionRenderer={sourceValueRenderer}
             valueRenderer={sourceValueRenderer}
           />
@@ -130,38 +126,33 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
   renderFormContent = ({
     state,
-    onChangeAttachment,
-    onChangeField,
     copy,
     remove,
-    onBlurFields
+    saveItem,
+    onChangeStage
   }: IEditFormContent) => {
     const { item, options } = this.props;
+
+    const renderSidebar = () => this.renderSidebarFields(saveItem);
 
     return (
       <>
         <Top
           options={options}
-          onBlurFields={onBlurFields}
           stageId={state.stageId}
           item={item}
-          onChangeField={onChangeField}
+          saveItem={saveItem}
+          onChangeStage={onChangeStage}
         />
 
         <FlexContent>
-          <Left
-            onChangeAttachment={onChangeAttachment}
-            type={options.type}
-            onBlurFields={onBlurFields}
-            item={item}
-            onChangeField={onChangeField}
-          />
+          <Left type={options.type} item={item} saveItem={saveItem} />
 
           <Sidebar
             options={options}
             item={item}
-            sidebar={this.renderSidebarFields}
-            onChangeField={onChangeField}
+            sidebar={renderSidebar}
+            saveItem={saveItem}
             copyItem={copy}
             removeItem={remove}
             renderItems={this.renderItems}
