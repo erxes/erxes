@@ -41,7 +41,7 @@ function HistoryRow({ history, removeHistory, onClick }: Props) {
           <Button
             size="small"
             btnStyle="warning"
-            icon="removeuser"
+            icon="user-minus"
             onClick={onRemove}
           />
         </Tip>

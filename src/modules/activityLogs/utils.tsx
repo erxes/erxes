@@ -4,31 +4,31 @@ import { IUser } from '../auth/types';
 
 const ICON_AND_COLOR_TABLE = {
   'customer-create': {
-    icon: 'adduser',
-    color: '#6465e2'
+    icon: 'user-plus',
+    color: '#3B85F4'
   },
   'segment-create': {
-    icon: 'filter',
-    color: '#6569DF'
+    icon: 'chart-pie',
+    color: '#63D2D6'
   },
   'conversation-create': {
-    icon: 'speech-bubble-2',
+    icon: 'comment-plus',
     color: '#F44236'
   },
   'internal_note-create': {
-    icon: 'pushpin',
-    color: '#F7CE53'
+    icon: 'file-plus',
+    color: '#fbc531'
   },
   'company-create': {
-    icon: 'briefcase',
-    color: '#6569DF'
+    icon: 'bag-alt',
+    color: '#273c75'
   },
   'deal-create': {
-    icon: 'piggy-bank',
-    color: '#6569DF'
+    icon: 'dollar-alt',
+    color: '#8c7ae6'
   },
   'email-send': {
-    icon: 'email-3',
+    icon: 'envelope-alt',
     color: '#d74534'
   }
 };
