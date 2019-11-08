@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
@@ -16,7 +15,6 @@ import { IDeal, IDealParams } from '../types';
 type Props = {
   options: IOptions;
   item: IDeal;
-  users: IUser[];
   addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: IDealParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
@@ -133,61 +131,32 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   renderFormContent = ({
-    state,
-    onChangeAttachment,
-    onChangeField,
+    saveItem,
+    onChangeStage,
     copy,
-    remove,
-    onBlurFields
+    remove
   }: IEditFormContent) => {
-    const { item, users, options } = this.props;
-
-    const {
-      name,
-      labels,
-      stageId,
-      description,
-      closeDate,
-      assignedUserIds,
-      attachments,
-      isComplete,
-      reminderMinute
-    } = state;
+    const { item, options } = this.props;
 
     return (
       <>
         <Top
           options={options}
-          name={name}
-          closeDate={closeDate}
           amount={this.renderAmount}
-          users={users}
-          stageId={stageId}
-          onBlurFields={onBlurFields}
+          stageId={item.stageId}
           item={item}
-          isComplete={isComplete}
-          reminderMinute={reminderMinute}
-          onChangeField={onChangeField}
+          saveItem={saveItem}
+          onChangeStage={onChangeStage}
         />
 
         <FlexContent>
-          <Left
-            onChangeAttachment={onChangeAttachment}
-            type={options.type}
-            description={description}
-            onBlurFields={onBlurFields}
-            attachments={attachments}
-            item={item}
-            labels={labels}
-            onChangeField={onChangeField}
-          />
+          <Left type={options.type} saveItem={saveItem} item={item} />
 
           <Sidebar
             options={options}
-            assignedUserIds={assignedUserIds}
             item={item}
             sidebar={this.renderProductSection}
-            onChangeField={onChangeField}
+            saveItem={saveItem}
             copyItem={copy}
             removeItem={remove}
             renderItems={this.renderItems}

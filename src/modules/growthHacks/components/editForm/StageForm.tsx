@@ -31,15 +31,12 @@ type Props = {
   item: IGrowthHack;
   onChangeExtraField: (name: 'formSubmissions', value: any) => void;
   save: (doc: IFormSubmission) => void;
-  formSubmissions: any;
-  formId: string;
 };
 
 class StageForm extends React.Component<Props> {
   renderFormFields() {
     const {
-      formId,
-      item: { formFields = [], formSubmissions },
+      item: { formFields = [], formSubmissions, formId },
       onChangeExtraField
     } = this.props;
 
@@ -63,12 +60,17 @@ class StageForm extends React.Component<Props> {
   }
 
   render() {
-    const { item, formSubmissions, formId } = this.props;
+    const { item } = this.props;
 
     const stageName = item.stage && item.stage.name;
+    const formSubmissions = item.formSubmissions || {};
 
     const save = () => {
-      this.props.save({ contentTypeId: item._id, formId, formSubmissions });
+      this.props.save({
+        contentTypeId: item._id,
+        formId: item.formId || '',
+        formSubmissions
+      });
     };
 
     return (

@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
@@ -22,7 +21,6 @@ import { ITicket, ITicketParams } from '../types';
 type Props = {
   options: IOptions;
   item: ITicket;
-  users: IUser[];
   addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITicketParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
@@ -47,11 +45,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     };
   }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  renderSidebarFields = () => {
+  renderSidebarFields = saveItem => {
     const { priority, source } = this.state;
 
     const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
@@ -59,20 +53,23 @@ export default class TicketEditForm extends React.Component<Props, State> {
       label: __(key),
       value: key
     }));
+
     sourceValues.push({
       label: __('other'),
       value: 'other'
     });
 
-    const onChangePriority = (option: ISelectedOption) => {
-      this.props.saveItem({ priority: option ? option.value : '' }, () =>
-        this.onChangeField('priority', option ? option.value : '')
-      );
-    };
-    const onChangeSource = (option: ISelectedOption) => {
-      this.props.saveItem({ source: option ? option.value : '' }, () =>
-        this.onChangeField('source', option ? option.value : '')
-      );
+    const onSelectChange = <T extends keyof State>(
+      option: ISelectedOption,
+      name: T
+    ) => {
+      const value = option ? option.value : '';
+
+      this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+        if (saveItem) {
+          saveItem({ [name]: value });
+        }
+      });
     };
 
     const priorityValueRenderer = (
@@ -87,6 +84,9 @@ export default class TicketEditForm extends React.Component<Props, State> {
       <Capitalize>{option.label}</Capitalize>
     );
 
+    const onPriorityChange = option => onSelectChange(option, 'priority');
+    const onSourceChange = option => onSelectChange(option, 'source');
+
     return (
       <>
         <FormGroup>
@@ -95,7 +95,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             placeholder={__('Select a priority')}
             value={priority}
             options={priorityValues}
-            onChange={onChangePriority}
+            onChange={onPriorityChange}
             optionRenderer={priorityValueRenderer}
             valueRenderer={priorityValueRenderer}
           />
@@ -106,7 +106,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             placeholder={__('Select a source')}
             value={source}
             options={sourceValues}
-            onChange={onChangeSource}
+            onChange={onSourceChange}
             optionRenderer={sourceValueRenderer}
             valueRenderer={sourceValueRenderer}
           />
@@ -126,59 +126,33 @@ export default class TicketEditForm extends React.Component<Props, State> {
 
   renderFormContent = ({
     state,
-    onChangeAttachment,
-    onChangeField,
     copy,
     remove,
-    onBlurFields
+    saveItem,
+    onChangeStage
   }: IEditFormContent) => {
-    const { item, users, options } = this.props;
+    const { item, options } = this.props;
 
-    const {
-      name,
-      labels,
-      stageId,
-      description,
-      closeDate,
-      assignedUserIds,
-      attachments,
-      isComplete,
-      reminderMinute
-    } = state;
+    const renderSidebar = () => this.renderSidebarFields(saveItem);
 
     return (
       <>
         <Top
           options={options}
-          name={name}
-          closeDate={closeDate}
-          users={users}
-          onBlurFields={onBlurFields}
-          stageId={stageId}
+          stageId={state.stageId}
           item={item}
-          isComplete={isComplete}
-          reminderMinute={reminderMinute}
-          onChangeField={onChangeField}
+          saveItem={saveItem}
+          onChangeStage={onChangeStage}
         />
 
         <FlexContent>
-          <Left
-            onChangeAttachment={onChangeAttachment}
-            type={options.type}
-            description={description}
-            onBlurFields={onBlurFields}
-            attachments={attachments}
-            item={item}
-            labels={labels}
-            onChangeField={onChangeField}
-          />
+          <Left type={options.type} item={item} saveItem={saveItem} />
 
           <Sidebar
             options={options}
-            assignedUserIds={assignedUserIds}
             item={item}
-            sidebar={this.renderSidebarFields}
-            onChangeField={onChangeField}
+            sidebar={renderSidebar}
+            saveItem={saveItem}
             copyItem={copy}
             removeItem={remove}
             renderItems={this.renderItems}

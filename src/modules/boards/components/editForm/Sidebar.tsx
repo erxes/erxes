@@ -12,43 +12,34 @@ import { IItem, IOptions } from '../../types';
 
 type Props = {
   item: IItem;
-  assignedUserIds: string[];
-  onChangeField?: (
-    name: 'companies' | 'customers' | 'assignedUserIds' | 'labels',
-    value: any
-  ) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
-  sidebar?: () => React.ReactNode;
+  sidebar?: (
+    saveItem?: (doc: { [key: string]: any }) => void
+  ) => React.ReactNode;
   options: IOptions;
   renderItems: () => React.ReactNode;
 };
 
 class Sidebar extends React.Component<Props> {
-  onChange = (type, value) => {
-    const { onChangeField } = this.props;
-
-    if (onChangeField) {
-      onChangeField(type, value);
-    }
-  };
-
   render() {
     const {
       item,
       copyItem,
       removeItem,
+      saveItem,
       sidebar,
       options,
-      assignedUserIds,
       renderItems
     } = this.props;
 
     const onClick = () => removeItem(item._id);
-    const userOnChange = usrs => this.onChange('assignedUserIds', usrs);
-    const cmpsChange = cmps => this.onChange('companies', cmps);
-    const cmrsChange = cmrs => this.onChange('customers', cmrs);
-    const onLabelChange = labels => this.onChange('labels', labels);
+    const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
+    const cmpsChange = cmps => saveItem({ companies: cmps });
+    const cmrsChange = cmrs => saveItem({ customers: cmrs });
+    const onLabelChange = labels => saveItem({ labels });
+    const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
 
     return (
       <RightContent>
@@ -70,7 +61,7 @@ class Sidebar extends React.Component<Props> {
           <ChecklistAdd itemId={item._id} type={options.type} />
         </Actions>
 
-        {sidebar && sidebar()}
+        {sidebar && sidebar(saveItem)}
 
         <CompanySection
           mainType={options.type}

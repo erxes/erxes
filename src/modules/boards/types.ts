@@ -294,22 +294,8 @@ export interface IFilterParams extends ISavedConformity {
 
 export interface IEditFormContent {
   state: any;
-  onChangeAttachment: (attachments: IAttachment[]) => void;
-  onChangeField: (
-    name:
-      | 'name'
-      | 'stageId'
-      | 'description'
-      | 'closeDate'
-      | 'assignedUserIds'
-      | 'customers'
-      | 'companies'
-      | 'labels'
-      | 'isComplete'
-      | 'reminderMinute',
-    value: any
-  ) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
+  onChangeStage: (stageId: string) => void;
   copy: () => void;
   remove: (id: string) => void;
-  onBlurFields: (name: string, value: string) => void;
 }
