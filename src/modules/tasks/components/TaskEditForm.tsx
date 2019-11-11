@@ -4,7 +4,6 @@ import Sidebar from 'modules/boards/components/editForm/Sidebar';
 import Top from 'modules/boards/components/editForm/Top';
 import { FlexContent } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
-import { __ } from 'modules/common/utils';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
