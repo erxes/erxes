@@ -3,18 +3,14 @@ const activityLogs = `
     activityLogs(contentType: $contentType, contentId: $contentId, activityType: $activityType, limit: $limit) {
       _id
       action
-      id
-      createdAt
+      contentId
+      contentType
       content
-      by {
-        _id
-        type
-        details {
-          avatar
-          fullName
-          position
-        }
-      }
+      createdAt
+      createdBy
+  
+      createdByDetail
+      contentDetail
     }
   }
 `;

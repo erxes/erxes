@@ -3,10 +3,11 @@ import EmptyState from 'modules/common/components/EmptyState';
 import React from 'react';
 import { IUser } from '../../auth/types';
 import { ActivityTitle, Timeline } from '../styles';
+import { IActivityLog } from '../types';
 import ActivityItem from './ActivityItem';
 
 type Props = {
-  activities: any[];
+  activities: IActivityLog[];
   user: IUser;
   target?: string;
   type: string;

@@ -3,6 +3,14 @@ const internalNoteDetail = `
     internalNoteDetail(_id: $_id) {
       _id
       content
+      createdAt
+
+      createdUser {
+        details {
+          avatar 
+          fullName
+        }
+      }
     }
   }
 `;

@@ -18,10 +18,11 @@ export interface IActivityLogActionPerformer {
 export interface IActivityLog {
   _id: string;
   action: string;
-  id: string;
+  contentId: string;
+  contentType: string;
+  content: any;
   createdAt: Date;
-  content: string;
-  by: IActivityLogActionPerformer;
+  createdBy: JSON;
 }
 
 export interface IActivityLogsUser {

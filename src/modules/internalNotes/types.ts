@@ -1,6 +1,10 @@
+import { IUser } from 'modules/auth/types';
+
 export type IInternalNote = {
   _id: string;
   content: string;
+  createdUser: IUser;
+  createdAt: Date;
 };
 
 export type InternalNotesAddMutationVariables = {

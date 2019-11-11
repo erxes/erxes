@@ -13,7 +13,7 @@ const internalNotesAdd = `
       ) {
         _id
         content
-        createdDate
+        createdAt
       }
   }
 `;

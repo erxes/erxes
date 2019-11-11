@@ -25,14 +25,15 @@ type Props = {
 
 class InternalNote extends React.Component<Props> {
   renderBody = () => {
-    const { activity } = this.props;
-    const { createdUser } = activity;
+    const { internalNote } = this.props;
+    const { createdUser } = internalNote;
 
     let userName = 'Unknown';
 
-    if (createdUser) {
-      userName = createdUser.details ? createdUser.details.fullName : 'Unknown';
+    if (createdUser.details) {
+      userName = createdUser.details.fullName || 'Unknown';
     }
+
     return (
       <span>
         <strong>{userName}</strong> left a note
@@ -41,7 +42,7 @@ class InternalNote extends React.Component<Props> {
   };
 
   render() {
-    const { internalNote, activity } = this.props;
+    const { internalNote } = this.props;
     const { content } = internalNote;
 
     return (
@@ -55,9 +56,9 @@ class InternalNote extends React.Component<Props> {
               <NameCard.Avatar />
             </AvatarWrapper>
             <FlexBody>{this.renderBody()}</FlexBody>
-            <Tip text={dayjs(activity.createdAt).format('llll')}>
+            <Tip text={dayjs(internalNote.createdAt).format('llll')}>
               <ActivityDate>
-                {dayjs(activity.createdAt).format('MMM D, h:mm A')}
+                {dayjs(internalNote.createdAt).format('MMM D, h:mm A')}
               </ActivityDate>
             </Tip>
           </FlexContent>

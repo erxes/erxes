@@ -14,9 +14,9 @@ import { colors } from 'modules/common/styles';
 import React from 'react';
 
 type Props = {
-  data: any;
-  content: React.ReactNode;
-  body: React.ReactNode;
+  data?: any;
+  content?: React.ReactNode;
+  body?: React.ReactNode;
 };
 
 const ActivityRowComponent = (props: Props) => {
