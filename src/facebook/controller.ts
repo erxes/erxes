@@ -123,14 +123,12 @@ const init = async app => {
 
     try {
       if (content) {
-        const response = await sendReply(
+        await sendReply(
           'me/messages',
           { recipient: { id: senderId }, message: { text: content } },
           recipientId,
           integrationId,
         );
-
-        return res.json(response);
       }
 
       for (const message of generateAttachmentMessages(attachments)) {
