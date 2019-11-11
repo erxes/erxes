@@ -15,7 +15,11 @@ export default class EngagesAPI extends RESTDataSource {
   public didEncounterError(e) {
     const error = e.extensions || {};
     const { response } = error;
-    const { body } = response;
+    const { body } = response || { body: e.message };
+
+    if (e.code === 'ECONNREFUSED') {
+      throw new Error('Engages api is not running');
+    }
 
     throw new Error(body);
   }
@@ -26,6 +30,10 @@ export default class EngagesAPI extends RESTDataSource {
 
   public async engagesConfigSave(params) {
     return this.post(`/configs/save`, params);
+  }
+
+  public async engagesGetVerifiedEmails() {
+    return this.get(`/configs/get-verified-emails`);
   }
 
   public async engagesStats(engageMessageId) {

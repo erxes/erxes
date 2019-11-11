@@ -76,6 +76,7 @@ export const queries = `
   engageMessagesTotalCount(${listParams}): Int
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
+  engageVerifiedEmails: [String]
 `;
 
 const commonParams = `

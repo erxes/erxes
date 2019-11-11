@@ -210,6 +210,13 @@ const engageQueries = {
   engageMessagesTotalCount(_root, args: IListArgs, { user, commonQuerySelector }: IContext) {
     return EngageMessages.find(listQuery(commonQuerySelector, args, user)).countDocuments();
   },
+
+  /**
+   * Get all verified emails
+   */
+  async engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesGetVerifiedEmails();
+  },
 };
 
 requireLogin(engageQueries, 'engageMessagesTotalCount');
