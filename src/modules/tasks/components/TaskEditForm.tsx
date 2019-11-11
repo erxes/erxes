@@ -1,19 +1,13 @@
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
-import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
 import Top from 'modules/boards/components/editForm/Top';
-import { PRIORITIES } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
-import Select from 'react-select-plus';
 import { ITask, ITaskParams } from '../types';
 
 type Props = {
@@ -39,44 +33,6 @@ export default class TaskEditForm extends React.Component<Props, State> {
     };
   }
 
-  renderSidebarFields = saveItem => {
-    const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
-
-    const priorityValueRenderer = (
-      option: ISelectedOption
-    ): React.ReactNode => (
-      <>
-        <PriorityIndicator value={option.value} /> {option.label}
-      </>
-    );
-
-    const onPriorityChange = (option: ISelectedOption) => {
-      const value = option ? option.value : '';
-
-      this.setState({ priority: value });
-
-      if (saveItem) {
-        saveItem({ priority: value });
-      }
-    };
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Priority</ControlLabel>
-          <Select
-            placeholder={__('Select a priority')}
-            value={this.state.priority}
-            options={priorityValues}
-            onChange={onPriorityChange}
-            optionRenderer={priorityValueRenderer}
-            valueRenderer={priorityValueRenderer}
-          />
-        </FormGroup>
-      </>
-    );
-  };
-
   renderItems = () => {
     return (
       <>
@@ -93,9 +49,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options } = this.props;
-
-    const renderSidebar = () => this.renderSidebarFields(saveItem);
+    const { item, options, onUpdate } = this.props;
 
     return (
       <>
@@ -108,15 +62,19 @@ export default class TaskEditForm extends React.Component<Props, State> {
         />
 
         <FlexContent>
-          <Left type={options.type} item={item} saveItem={saveItem} />
+          <Left
+            options={options}
+            saveItem={saveItem}
+            copyItem={copy}
+            removeItem={remove}
+            onUpdate={onUpdate}
+            item={item}
+          />
 
           <Sidebar
             options={options}
             item={item}
-            sidebar={renderSidebar}
             saveItem={saveItem}
-            copyItem={copy}
-            removeItem={remove}
             renderItems={this.renderItems}
           />
         </FlexContent>

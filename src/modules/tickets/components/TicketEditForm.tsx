@@ -1,9 +1,7 @@
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
-import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
 import Top from 'modules/boards/components/editForm/Top';
-import { PRIORITIES } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
 import FormGroup from 'modules/common/components/form/Group';
@@ -29,7 +27,6 @@ type Props = {
 };
 
 type State = {
-  priority: string;
   source: string;
 };
 
@@ -40,15 +37,13 @@ export default class TicketEditForm extends React.Component<Props, State> {
     const item = props.item;
 
     this.state = {
-      priority: item.priority || '',
       source: item.source || ''
     };
   }
 
   renderSidebarFields = saveItem => {
-    const { priority, source } = this.state;
+    const { source } = this.state;
 
-    const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
     const sourceValues = KIND_CHOICES.ALL_LIST.map(key => ({
       label: __(key),
       value: key
@@ -72,46 +67,24 @@ export default class TicketEditForm extends React.Component<Props, State> {
       });
     };
 
-    const priorityValueRenderer = (
-      option: ISelectedOption
-    ): React.ReactNode => (
-      <>
-        <PriorityIndicator value={option.value} /> {option.label}
-      </>
-    );
-
     const sourceValueRenderer = (option: ISelectedOption): React.ReactNode => (
       <Capitalize>{option.label}</Capitalize>
     );
 
-    const onPriorityChange = option => onSelectChange(option, 'priority');
     const onSourceChange = option => onSelectChange(option, 'source');
 
     return (
-      <>
-        <FormGroup>
-          <ControlLabel>Priority</ControlLabel>
-          <Select
-            placeholder={__('Select a priority')}
-            value={priority}
-            options={priorityValues}
-            onChange={onPriorityChange}
-            optionRenderer={priorityValueRenderer}
-            valueRenderer={priorityValueRenderer}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Source</ControlLabel>
-          <Select
-            placeholder={__('Select a source')}
-            value={source}
-            options={sourceValues}
-            onChange={onSourceChange}
-            optionRenderer={sourceValueRenderer}
-            valueRenderer={sourceValueRenderer}
-          />
-        </FormGroup>
-      </>
+      <FormGroup>
+        <ControlLabel>Source</ControlLabel>
+        <Select
+          placeholder={__('Select a source')}
+          value={source}
+          options={sourceValues}
+          onChange={onSourceChange}
+          optionRenderer={sourceValueRenderer}
+          valueRenderer={sourceValueRenderer}
+        />
+      </FormGroup>
     );
   };
 
@@ -131,7 +104,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options } = this.props;
+    const { item, options, onUpdate } = this.props;
 
     const renderSidebar = () => this.renderSidebarFields(saveItem);
 
@@ -146,15 +119,20 @@ export default class TicketEditForm extends React.Component<Props, State> {
         />
 
         <FlexContent>
-          <Left type={options.type} item={item} saveItem={saveItem} />
+          <Left
+            options={options}
+            saveItem={saveItem}
+            copyItem={copy}
+            removeItem={remove}
+            onUpdate={onUpdate}
+            item={item}
+          />
 
           <Sidebar
             options={options}
             item={item}
             sidebar={renderSidebar}
             saveItem={saveItem}
-            copyItem={copy}
-            removeItem={remove}
             renderItems={this.renderItems}
           />
         </FlexContent>

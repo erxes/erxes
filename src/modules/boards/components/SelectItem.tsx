@@ -32,7 +32,8 @@ type IProps = {
 class SelectItem extends React.Component<IProps> {
   isChecked = (item: string) => {
     const { selectedItems, multiple } = this.props;
-
+    // tslint:disable-next-line:no-console
+    console.log(selectedItems);
     if (multiple) {
       return (selectedItems || []).includes(item);
     }

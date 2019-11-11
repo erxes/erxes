@@ -1,4 +1,5 @@
-import { RightButton } from 'modules/boards/styles/item';
+import { ColorButton } from 'modules/boards/styles/common';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
@@ -28,22 +29,23 @@ class ChecklistAdd extends React.Component<Props> {
   }
 
   render() {
-    const addTrigger = (
-      <RightButton icon="check-square">{__('Add Checklist')}</RightButton>
-    );
-
     return (
-      <OverlayTrigger
-        ref={overlayTrigger => {
-          this.overlayTrigger = overlayTrigger;
-        }}
-        trigger="click"
-        placement="bottom"
-        overlay={this.renderForm()}
-        rootClose={true}
-      >
-        {addTrigger}
-      </OverlayTrigger>
+      <div>
+        <OverlayTrigger
+          ref={overlayTrigger => {
+            this.overlayTrigger = overlayTrigger;
+          }}
+          trigger="click"
+          placement="bottom"
+          overlay={this.renderForm()}
+          rootClose={true}
+        >
+          <ColorButton>
+            <Icon icon="checked" />
+            {__('Checklist')}
+          </ColorButton>
+        </OverlayTrigger>
+      </div>
     );
   }
 }
