@@ -83,6 +83,22 @@ export const KIND_CHOICES = {
   ],
 };
 
+export const INTEGRATION_NAMES_MAP = {
+  messenger: 'Web messenger',
+  lead: 'Lead',
+  'facebook-messenger': 'Facebook messenger',
+  'facebook-post': 'Facebook post',
+  gmail: 'Gmail',
+  callpro: 'Call pro',
+  chatfuel: 'Chatfuel',
+  'nylas-gmail': 'Gmail',
+  'nylas-imap': 'Imap',
+  'nylas-office365': 'Office 365',
+  'nylas-outlook': 'Outook',
+  'nylas-yahoo': 'Yahoo',
+  'twitter-dm': 'Twitter dm',
+};
+
 // messenger data availability constants
 export const MESSENGER_DATA_AVAILABILITY = {
   MANUAL: 'manual',
