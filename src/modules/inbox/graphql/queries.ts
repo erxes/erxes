@@ -161,8 +161,8 @@ const userList = `
 `;
 
 const channelList = `
-  query channels {
-    channels {
+  query channels($memberIds: [String]) {
+    channels(memberIds: $memberIds) {
       _id
       name
     }

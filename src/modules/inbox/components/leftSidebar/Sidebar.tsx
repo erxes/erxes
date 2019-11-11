@@ -127,7 +127,11 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   renderAdditionalSidebar(refetchRequired: string) {
-    const { queryParams } = this.props;
+    const { queryParams, currentUser } = this.props;
+
+    if (!currentUser) {
+      return null;
+    }
 
     return (
       <RTG.CSSTransition
@@ -142,6 +146,7 @@ class LeftSidebar extends React.Component<Props, State> {
             <FilterList
               query={{
                 queryName: 'channelList',
+                variables: { memberIds: [currentUser._id] },
                 dataName: 'channels'
               }}
               counts="byChannels"
