@@ -268,6 +268,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   render() {
     const { loadingMessages, typingInfo } = this.state;
     const { messagesQuery } = this.props;
+
     const conversationMessages = messagesQuery.conversationMessages || [];
 
     const updatedProps = {

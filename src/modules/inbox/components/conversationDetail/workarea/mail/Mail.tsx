@@ -15,8 +15,7 @@ import {
   Message,
   Meta,
   Reply,
-  RightSide,
-  SmallContent
+  RightSide
 } from './style';
 
 type Props = {
@@ -27,19 +26,19 @@ type Props = {
 
 class Mail extends React.PureComponent<
   Props,
-  { isReply: boolean; toggle: boolean }
+  { isReply: boolean; isCollapsed: boolean }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
       isReply: false,
-      toggle: false
+      isCollapsed: false
     };
   }
 
   onToggle = () => {
-    this.setState({ toggle: !this.state.toggle });
+    this.setState({ isCollapsed: !this.state.isCollapsed });
   };
 
   toggleReply = () => {
@@ -62,7 +61,7 @@ class Mail extends React.PureComponent<
     });
   }
 
-  renderReplyButton(mailData) {
+  renderReplyButton() {
     if (this.state.isReply) {
       return null;
     }
@@ -101,13 +100,9 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderAddress(title: string, values: any, body) {
+  renderAddress(title: string, values: any) {
     if (!values || values.length === 0) {
       return null;
-    }
-
-    if (this.state.toggle) {
-      return <SmallContent>{body.replace(/<\/?[^>]+(>|$)/g, '')}</SmallContent>;
     }
 
     const emails = values.map((val, idx) => <span key={idx}>{val.email}</span>);
@@ -121,14 +116,13 @@ class Mail extends React.PureComponent<
 
   renderDetails(mailData) {
     const [from] = mailData.from || [{}];
-    const { body = '' } = mailData;
 
     return (
       <Details>
         <strong>{from.email || ''}</strong>
-        {this.renderAddress('To:', mailData.to, juice(body))}
-        {this.renderAddress('Cc:', mailData.cc, juice(body))}
-        {this.renderAddress('Bcc:', mailData.bcc, juice(body))}
+        {this.renderAddress('To:', mailData.to)}
+        {this.renderAddress('Cc:', mailData.cc)}
+        {this.renderAddress('Bcc:', mailData.bcc)}
       </Details>
     );
   }
@@ -143,18 +137,21 @@ class Mail extends React.PureComponent<
   }
 
   renderBody(mailData) {
-    const { toggle } = this.state;
+    const { isCollapsed } = this.state;
 
-    if (toggle) {
+    if (isCollapsed) {
       return null;
     }
 
-    const innerHTML = { __html: this.cleanHtml(mailData.body || '') };
+    // all style inlined
+    const mailContent = juice(mailData.body || '');
+
+    const innerHTML = { __html: this.cleanHtml(mailContent) };
 
     return (
       <>
-        <Content toggle={toggle} dangerouslySetInnerHTML={innerHTML} />
-        <Reply>{this.renderReplyButton(mailData)}</Reply>
+        <Content toggle={isCollapsed} dangerouslySetInnerHTML={innerHTML} />
+        <Reply>{this.renderReplyButton()}</Reply>
       </>
     );
   }
@@ -183,7 +180,7 @@ class Mail extends React.PureComponent<
     const showIcon = mailData ? (mailData.attachments || []).length > 0 : false;
 
     return (
-      <Meta toggle={this.state.toggle} onClick={this.onToggle}>
+      <Meta toggle={this.state.isCollapsed} onClick={this.onToggle}>
         <Avatar customer={customer} size={32} />
         {this.renderDetails(mailData)}
         {this.renderRightSide(showIcon, createdAt)}
@@ -195,7 +192,7 @@ class Mail extends React.PureComponent<
     const { mailData } = message;
 
     return (
-      <Message toggle={this.state.toggle}>
+      <Message toggle={this.state.isCollapsed}>
         {this.renderMeta(message)}
         {this.renderBody(mailData)}
         {this.renderAttachments(mailData)}

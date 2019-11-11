@@ -13,21 +13,21 @@ const EmailItem = styled.div`
 
 const Content = styledTS<{ toggle?: boolean }>(styled.div)`
   font-size: 13px;
-  padding: ${dimensions.unitSpacing + 5}px;
-  blockquote {
-    font-size: 13px;
-  }
-  table {
-    border-collapse: initial;
-    background-color: unset;
-  }
+  padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing + 5}px;
+  overflow: auto;
 `;
 
 const SmallContent = styledTS<{ toggle?: boolean }>(styled.div)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 425px;
+  max-width: 425px;  blockquote {
+    font-size: 13px;
+  }
+  table {
+    border-collapse: initial;
+    background-color: unset;
+  }
 `;
 
 const Subject = styled.h2`
@@ -166,7 +166,7 @@ const Message = styledTS<{ toggle?: boolean }>(styled.div)`
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
   margin-bottom: ${dimensions.unitSpacing}px;
   opacity: ${props => props.toggle && '0.6'};
-  transition: all ease 0.5s;
+  transition: all ease 0.3s;
 
   &:hover {
     opacity: 1;
@@ -174,7 +174,7 @@ const Message = styledTS<{ toggle?: boolean }>(styled.div)`
 `;
 
 const Reply = styled.div`
-  padding: 0 15px ${dimensions.coreSpacing}px;
+  padding: 10px 15px 15px;
 `;
 
 export {
