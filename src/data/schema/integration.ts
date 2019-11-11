@@ -26,6 +26,11 @@ export const types = `
     byKind: JSON
   }
 
+  type integrationsGetUsedTypes {
+    _id: String
+    name: String
+  }
+
   input IntegrationLeadData {
     loadType: String
     successAction: String
@@ -89,6 +94,8 @@ export const queries = `
     brandId: String,
     tag: String
   ): [Integration]
+
+  integrationsGetUsedTypes: [integrationsGetUsedTypes]
 
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount

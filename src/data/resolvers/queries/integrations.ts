@@ -60,6 +60,21 @@ const integrationQueries = {
   },
 
   /**
+   * Get used integration types
+   */
+  async integrationsGetUsedTypes(_root, {}) {
+    const usedTypes: Array<{ _id: string; name: string }> = [];
+
+    for (const kind of KIND_CHOICES.ALL) {
+      if ((await Integrations.find({ kind }).countDocuments()) > 0) {
+        usedTypes.push({ _id: kind, name: kind });
+      }
+    }
+
+    return usedTypes;
+  },
+
+  /**
    * Get one integration
    */
   integrationDetail(_root, { _id }: { _id: string }) {
