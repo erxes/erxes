@@ -103,6 +103,7 @@ const users = `
     users {
       _id
       username
+      email
       details {
         avatar
         fullName
@@ -255,6 +256,12 @@ const tagCounts = `
   }
 `;
 
+const verifiedEmails = `
+  query engageVerifiedEmails {
+    engageVerifiedEmails
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -271,5 +278,6 @@ export default {
   kindCounts,
   statusCounts,
   tagCounts,
-  tags
+  tags,
+  verifiedEmails
 };
