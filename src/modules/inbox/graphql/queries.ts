@@ -169,6 +169,15 @@ const channelList = `
   }
 `;
 
+const integrationsGetUsedTypes = `
+  query integrationsGetUsedTypes {
+    integrationsGetUsedTypes {
+      _id
+      name
+    }
+  }
+`;
+
 const brandList = `
   query brands {
     brands {
@@ -320,6 +329,7 @@ export default {
   conversationMessagesTotalCount,
   userList,
   channelList,
+  integrationsGetUsedTypes,
   brandList,
   tagList,
   responseTemplateList,
