@@ -162,6 +162,7 @@ export const loadClass = () => {
       await this.checkDuplication(companyFields, companyIds);
 
       let scopeBrandIds: string[] = [];
+      let customFieldsData = {};
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -179,6 +180,9 @@ export const loadClass = () => {
 
           // Merging scopeBrandIds
           scopeBrandIds = [...scopeBrandIds, ...(companyObj.scopeBrandIds || [])];
+
+          // merge custom fields data
+          customFieldsData = { ...customFieldsData, ...(companyObj.customFieldsData || {}) };
 
           // Merging company's tag into 1 array
           tagIds = tagIds.concat(companyTags);
@@ -208,6 +212,7 @@ export const loadClass = () => {
       const company = await Companies.createCompany({
         ...companyFields,
         scopeBrandIds,
+        customFieldsData,
         tagIds,
         mergedIds: companyIds,
         names,
