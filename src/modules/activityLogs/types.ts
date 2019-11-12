@@ -23,7 +23,8 @@ export interface IActivityLog {
   content: any;
   contentDetail: JSON;
   createdAt: Date;
-  createdBy: JSON;
+  createdBy: string;
+  createdByDetail: any;
 }
 
 export interface IActivityLogsUser {

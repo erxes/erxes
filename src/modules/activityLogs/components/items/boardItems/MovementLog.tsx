@@ -20,15 +20,25 @@ class MovementLog extends React.Component<Props> {
   renderContent = () => {
     const { activity } = this.props;
 
-    const { contentDetail } = activity;
+    const { contentDetail, createdByDetail } = activity;
 
-    return { contentDetail };
+    let userName = 'Unknown';
+
+    if (createdByDetail.details) {
+      userName = createdByDetail.details.fullName || 'Unknown';
+    }
+
+    return (
+      <span>
+        <strong>{userName}</strong> {contentDetail}
+      </span>
+    );
   };
 
   render() {
     const { activity } = this.props;
 
-    const { contentType, contentDetail, createdAt } = activity;
+    const { contentType, createdAt } = activity;
 
     const iconAndColor = getIconAndColor(contentType);
 
@@ -48,7 +58,7 @@ class MovementLog extends React.Component<Props> {
               </ActivityDate>
             </Tip>
           </FlexContent>
-          {contentDetail}
+          {this.renderContent()}
         </React.Fragment>
       </ActivityRow>
     );

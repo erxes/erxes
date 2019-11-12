@@ -18,7 +18,7 @@ type Props = {
 
 class Task extends React.Component<Props> {
   renderContent = () => {
-    return <span>Taask detail</span>;
+    return <span>Taask detail end baainaa</span>;
   };
 
   render() {
