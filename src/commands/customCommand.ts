@@ -13,7 +13,7 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
   const apiMongoClient = await mongoose.createConnection(API_MONGO_URL, options);
   const integrationMongoClient = await mongoose.createConnection(MONGO_URL, options);
 
-  const find = async (name, apiCollection, collection) => {
+  const find = async (name, apiCollection, collection, callback?: (entry) => void) => {
     const entries = await collection.find({}).toArray();
 
     let count = 0;
@@ -23,6 +23,10 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
 
       if (!entryOnApi) {
         count++;
+
+        if (callback) {
+          await callback(entry);
+        }
       }
     }
 
@@ -37,7 +41,12 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
   // find invalid conversations
   const apiConversations = apiMongoClient.db.collection('conversations');
   const integrationConversations = integrationMongoClient.db.collection('conversations_facebooks');
-  await find('conversation', apiConversations, integrationConversations);
+  const integrationConversationMessages = integrationMongoClient.db.collection('conversation_messages_facebooks');
+  await find('conversation', apiConversations, integrationConversations, async conversation => {
+    const messagesCount = await integrationConversationMessages.findOne({ conversationId: conversation._id });
+
+    console.log(`Messages count ${messagesCount}`);
+  });
 
   process.exit();
 };
