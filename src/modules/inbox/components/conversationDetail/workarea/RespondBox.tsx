@@ -1,6 +1,12 @@
-import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
-import React from 'react';
-
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tip from 'modules/common/components/Tip';
+import { IAttachmentPreview } from 'modules/common/types';
+import { Alert, readFile, uploadHandler, __ } from 'modules/common/utils';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {
   Attachment,
   AttachmentIndicator,
@@ -14,16 +20,7 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from 'modules/inbox/styles';
-
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tip from 'modules/common/components/Tip';
-import { IAttachmentPreview } from 'modules/common/types';
-import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
-import { FlexRow } from 'modules/settings/integrations/components/mail/styles';
+import React from 'react';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
 import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
@@ -423,11 +420,9 @@ class RespondBox extends React.Component<Props, State> {
     const { currentUser } = this.props;
 
     return (
-      <MailRespondBox>
-        <FlexRow>
-          <NameCard.Avatar user={currentUser} size={30} />
-          <SmallEditor>{this.renderBody()}</SmallEditor>
-        </FlexRow>
+      <MailRespondBox isInternal={true}>
+        <NameCard.Avatar user={currentUser} size={34} />
+        <SmallEditor>{this.renderBody()}</SmallEditor>
       </MailRespondBox>
     );
   }

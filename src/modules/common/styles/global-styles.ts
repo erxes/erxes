@@ -24,7 +24,6 @@ body {
     display: flex;
     flex: 1;
     height: 100%;
-    flex-direction: column;
   }
 }
 
@@ -682,22 +681,23 @@ a:hover {
 .draftJsMentionPlugin__mentionSuggestions__2DWjA {
   position: absolute;
   min-width: 220px;
-  width: 100%;
+  max-width: 480px;
   background: ${colors.colorWhite};
-  box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -3px 20px -2px ${colors.darkShadow};
   cursor: pointer;
   z-index: 2000;
   box-sizing: border-box;
   transform: scale(0);
   bottom: 100%;
-  top: auto !important;
-  left: 0 !important;
+  bottom: calc(100% + 2px);
+  top: auto !important; 
   max-height: 300px;
   overflow: auto;
+  border-radius: 3px;
 }
 
 .draftJsMentionPlugin__mentionSuggestionsEntry__3mSwm {
-  padding: 5px 10px;
+  padding: 5px 15px;
   transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
   font-size: ${typography.fontSizeBody}px;
 }
@@ -946,27 +946,41 @@ a:hover {
 /* scrollbar */
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
   height: 10px;
-  border-radius: 0;
-}
+  background: transparent;
+}                                                                                                                                         
 
 ::-webkit-scrollbar-thumb {
-  background: #bfc8cd;
-  border-radius: 1px;
+  background-color: rgba(0, 0, 0, 0.1); 
+  border-width: 0px;
+  border-style: solid;
+  border-color: transparent;
+  border-image: initial;
+  transition: background-color 200ms linear 0s;
+} 
+
+::-webkit-scrollbar-button, 
+::-webkit-scrollbar-corner, 
+::-webkit-scrollbar-resizer {
+  display: none;
 }
 
-::-webkit-scrollbar-thumb:active {
-  background: #b0bbc0;
-  border-radius: 1px;
+::-webkit-scrollbar-thumb:active,
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.13);
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(10, 45, 65, .08);
+  background: rgba(0, 0, 0, 0.07);
+  border-width: 0px;
+  border-style: solid;
+  border-color: transparent;
+  border-image: initial;
 }
 
-::-webkit-scrollbar-track:active {
-  background: rgba(10, 45, 65, .1);
+::-webkit-scrollbar-track-piece {
+  background-clip: padding-box;
 }
 
 /* svg */

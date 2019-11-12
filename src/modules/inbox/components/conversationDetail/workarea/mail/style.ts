@@ -3,16 +3,7 @@ import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const EmailItem = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  &:last-of-type {
-    border: none;
-  }
-`;
-
-const Content = styledTS<{ toggle?: boolean }>(styled.div)`
-  font-size: 13px;
+const Content = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing + 5}px;
   overflow: auto;
 `;
@@ -52,6 +43,7 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
 const Details = styled.div`
   margin-left: 13px;
   flex: 1;
+
   span {
     color: ${colors.textSecondary};
     margin-right: 10px;
@@ -70,8 +62,7 @@ const RightSide = styled.div`
 `;
 
 const AttachmentsContainer = styled.div`
-  padding-left: 45px;
-  margin-top: 20px;
+  margin: 5px 20px 10px 20px;
   overflow: hidden;
 `;
 
@@ -158,14 +149,14 @@ const FileIcon = styled.div`
   background: ${colors.colorWhite};
 `;
 
-const Message = styledTS<{ toggle?: boolean }>(styled.div)`
+const BoxItem = styledTS<{ toggle?: boolean }>(styled.div)`
   position: relative;
   background: ${colors.colorWhite};
   border-radius: ${dimensions.coreSpacing}px;
   border: 1px solid ${colors.borderPrimary};
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
-  margin-bottom: ${dimensions.unitSpacing}px;
-  opacity: ${props => props.toggle && '0.6'};
+  margin-top: ${dimensions.unitSpacing}px;
+  opacity: ${props => props.toggle && '0.8'};
   transition: all ease 0.3s;
 
   &:hover {
@@ -178,14 +169,13 @@ const Reply = styled.div`
 `;
 
 export {
-  EmailItem,
   Subject,
   Meta,
   Date,
   Details,
   SmallContent,
   Content,
-  Message,
+  BoxItem,
   Reply,
   RightSide,
   AttachmentItem,

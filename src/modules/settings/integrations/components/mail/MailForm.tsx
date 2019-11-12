@@ -6,7 +6,7 @@ import Spinner from 'modules/common/components/Spinner';
 import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
+import { Alert, uploadHandler, __ } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
@@ -22,13 +22,14 @@ import {
   ControlWrapper,
   // LeftSection,
   EditorFooter,
+  FlexRow,
   MailEditorWrapper,
   Resipients,
   SpaceBetweenRow,
+  Subject,
   ToolBar,
   Uploading
 } from './styles';
-import { FlexRow, Subject } from './styles';
 
 type Props = {
   integrationId?: string;

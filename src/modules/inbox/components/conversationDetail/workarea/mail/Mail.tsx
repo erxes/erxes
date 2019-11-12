@@ -7,12 +7,12 @@ import { IMail, IMessage } from 'modules/inbox/types';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
-import Attachments from './Attachment';
+import Attachments from './Attachments';
 import {
+  BoxItem,
   Content,
   Date,
   Details,
-  Message,
   Meta,
   Reply,
   RightSide
@@ -22,6 +22,7 @@ type Props = {
   message: IMessage;
   integrationId: string;
   kind: string;
+  isLast: boolean;
 };
 
 class Mail extends React.PureComponent<
@@ -33,11 +34,11 @@ class Mail extends React.PureComponent<
 
     this.state = {
       isReply: false,
-      isCollapsed: false
+      isCollapsed: !props.isLast
     };
   }
 
-  onToggle = () => {
+  onToggleContent = () => {
     this.setState({ isCollapsed: !this.state.isCollapsed });
   };
 
@@ -67,14 +68,11 @@ class Mail extends React.PureComponent<
     }
 
     return (
-      <Button
-        icon="reply"
-        btnStyle="primary"
-        size="small"
-        onClick={this.toggleReply}
-      >
-        Reply
-      </Button>
+      <Reply>
+        <Button icon="reply" size="small" onClick={this.toggleReply}>
+          Reply
+        </Button>
+      </Reply>
     );
   }
 
@@ -87,7 +85,7 @@ class Mail extends React.PureComponent<
     }
 
     return (
-      <Message>
+      <BoxItem>
         <MailForm
           kind={kind}
           isReply={isReply}
@@ -96,7 +94,7 @@ class Mail extends React.PureComponent<
           refetchQueries={['detailQuery']}
           mailData={mailData}
         />
-      </Message>
+      </BoxItem>
     );
   }
 
@@ -127,10 +125,10 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderRightSide(showIcon: boolean, createdAt: Date) {
+  renderRightSide(hasAttachments: boolean, createdAt: Date) {
     return (
       <RightSide>
-        {showIcon && <Icon icon="paperclip" />}
+        {hasAttachments && <Icon icon="paperclip" />}
         <Date>{dayjs(createdAt).format('lll')}</Date>
       </RightSide>
     );
@@ -150,8 +148,9 @@ class Mail extends React.PureComponent<
 
     return (
       <>
-        <Content toggle={isCollapsed} dangerouslySetInnerHTML={innerHTML} />
-        <Reply>{this.renderReplyButton()}</Reply>
+        <Content dangerouslySetInnerHTML={innerHTML} />
+        {this.renderReplyButton()}
+        {this.renderAttachments(mailData)}
       </>
     );
   }
@@ -177,13 +176,15 @@ class Mail extends React.PureComponent<
 
   renderMeta = (message: IMessage) => {
     const { customer, createdAt, mailData = {} as IMail } = message;
-    const showIcon = mailData ? (mailData.attachments || []).length > 0 : false;
+    const hasAttachments = mailData
+      ? (mailData.attachments || []).length > 0
+      : false;
 
     return (
-      <Meta toggle={this.state.isCollapsed} onClick={this.onToggle}>
+      <Meta toggle={this.state.isCollapsed} onClick={this.onToggleContent}>
         <Avatar customer={customer} size={32} />
         {this.renderDetails(mailData)}
-        {this.renderRightSide(showIcon, createdAt)}
+        {this.renderRightSide(hasAttachments, createdAt)}
       </Meta>
     );
   };
@@ -192,12 +193,10 @@ class Mail extends React.PureComponent<
     const { mailData } = message;
 
     return (
-      <Message toggle={this.state.isCollapsed}>
+      <BoxItem toggle={this.state.isCollapsed}>
         {this.renderMeta(message)}
         {this.renderBody(mailData)}
-        {this.renderAttachments(mailData)}
-        <div className="clearfix" />
-      </Message>
+      </BoxItem>
     );
   };
 
