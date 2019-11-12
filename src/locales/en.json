@@ -903,5 +903,6 @@
   "Permission denied": "Permission denied",
   "Old data": "Old data",
   "New data": "New data",
-  "Archived": "Is archived"
+  "Active": "Is active",
+  "Inactive": "Inactive"
 }
