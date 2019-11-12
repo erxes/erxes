@@ -41,15 +41,9 @@ const FilterList = asyncComponent(() =>
   import(/* webpackChunkName: "Inbox-FilterList" */ 'modules/inbox/containers/leftSidebar/FilterList')
 );
 
-type Integrations = {
-  _id: string;
-  name: string;
-};
-
 type Props = {
   currentUser?: IUser;
   currentConversationId?: string;
-  integrations: Integrations[];
   queryParams: any;
   history: any;
   bulk: IConversation[];
@@ -133,7 +127,11 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   renderAdditionalSidebar(refetchRequired: string) {
-    const { integrations, queryParams } = this.props;
+    const { queryParams, currentUser } = this.props;
+
+    if (!currentUser) {
+      return null;
+    }
 
     return (
       <RTG.CSSTransition
@@ -148,6 +146,7 @@ class LeftSidebar extends React.Component<Props, State> {
             <FilterList
               query={{
                 queryName: 'channelList',
+                variables: { memberIds: [currentUser._id] },
                 dataName: 'channels'
               }}
               counts="byChannels"
@@ -169,7 +168,10 @@ class LeftSidebar extends React.Component<Props, State> {
 
           <FilterToggler groupText="Integrations" toggleName="showIntegrations">
             <FilterList
-              fields={integrations}
+              query={{
+                queryName: 'integrationsGetUsedTypes',
+                dataName: 'integrationsGetUsedTypes'
+              }}
               queryParams={queryParams}
               counts="byIntegrationTypes"
               paramKey="integrationType"
