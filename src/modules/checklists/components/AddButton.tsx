@@ -30,22 +30,20 @@ class ChecklistAdd extends React.Component<Props> {
 
   render() {
     return (
-      <div>
-        <OverlayTrigger
-          ref={overlayTrigger => {
-            this.overlayTrigger = overlayTrigger;
-          }}
-          trigger="click"
-          placement="bottom"
-          overlay={this.renderForm()}
-          rootClose={true}
-        >
-          <ColorButton>
-            <Icon icon="checked" />
-            {__('Checklist')}
-          </ColorButton>
-        </OverlayTrigger>
-      </div>
+      <OverlayTrigger
+        ref={overlayTrigger => {
+          this.overlayTrigger = overlayTrigger;
+        }}
+        trigger="click"
+        placement="bottom"
+        overlay={this.renderForm()}
+        rootClose={true}
+      >
+        <ColorButton>
+          <Icon icon="checked" />
+          {__('Checklist')}
+        </ColorButton>
+      </OverlayTrigger>
     );
   }
 }
