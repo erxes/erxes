@@ -135,7 +135,8 @@ class GenerateGroup extends React.Component<Props, State> {
     if (!fieldGroup.isVisible) {
       return null;
     }
-
+    // tslint:disable-next-line:no-console
+    console.log(fieldGroup);
     return (
       <Section>
         <Title>{fieldGroup.name}</Title>

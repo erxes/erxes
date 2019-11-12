@@ -28,6 +28,7 @@ type Props = {
   customer?: ICustomer;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  addCustomers: (variables: any) => void;
   queryParams: IQueryParams;
 };
 
@@ -148,9 +149,9 @@ class CustomerForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
-
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
+    const onClick = () => this.props.addCustomers(this.generateDoc(values));
 
     return (
       <>
@@ -353,6 +354,9 @@ class CustomerForm extends React.Component<Props, State> {
             callback: closeModal,
             object: this.props.customer
           })}
+          <Button btnStyle="success" type="submit" onClick={onClick}>
+            Save & Continue
+          </Button>
         </ModalFooter>
       </>
     );

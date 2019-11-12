@@ -1,7 +1,15 @@
+import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IQueryParams } from 'modules/common/types';
-import { ICustomer } from 'modules/customers/types';
+import {
+  IButtonMutateProps,
+  IQueryParams,
+  IRouterProps
+} from 'modules/common/types';
+import { Alert, withProps } from 'modules/common/utils';
+import { AddMutationResponse, ICustomer } from 'modules/customers/types';
 import React from 'react';
+import { compose, graphql } from 'react-apollo';
+import { withRouter } from 'react-router';
 import CustomerForm from '../components/list/CustomerForm';
 import { mutations } from '../graphql';
 
@@ -11,7 +19,32 @@ type Props = {
   queryParams: IQueryParams;
 };
 
-const CustomerFormContainer = (props: Props) => {
+type FinalProps = {} & Props & AddMutationResponse & IRouterProps;
+
+const CustomerFormContainer = (props: FinalProps) => {
+  // const { customersAdd, history } = props;
+
+  const addCustomers = variables => {
+    // tslint:disable-next-line:no-console
+    console.log('addCustom', variables);
+    Alert.success('YoYo');
+
+    // customersAdd({
+    //   variables
+    // })
+    //   .then((result: any) => {
+    //     Alert.success('You successfully added a customer');
+    //     // tslint:disable-next-line:no-console
+    //     console.log(result);
+    //     history.push(
+    //       `/contacts/customers/details/${result.data.customersAdd._id}`
+    //     );
+    //   })
+    //   .catch(e => {
+    //     Alert.error(e.message);
+    //   });
+  };
+
   const renderButton = ({
     name,
     values,
@@ -36,7 +69,8 @@ const CustomerFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    renderButton
+    renderButton,
+    addCustomers
   };
 
   return <CustomerForm {...updatedProps} />;
@@ -51,4 +85,10 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default CustomerFormContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props, AddMutationResponse, {}>(gql(mutations.customersAdd), {
+      name: 'customersAdd'
+    })
+  )(withRouter<FinalProps>(CustomerFormContainer))
+);
