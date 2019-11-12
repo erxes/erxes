@@ -1,7 +1,4 @@
 import dayjs from 'dayjs';
-import React from 'react';
-import strip from 'strip';
-
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import FormControl from 'modules/common/components/form/Control';
 import IntegrationIcon from 'modules/common/components/IntegrationIcon';
@@ -10,6 +7,8 @@ import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import { renderFullName } from 'modules/common/utils';
 import { CallLabel } from 'modules/inbox/styles';
+import React from 'react';
+import strip from 'strip';
 import { IUser } from '../../../auth/types';
 import { ICustomer } from '../../../customers/types';
 import { IBrand } from '../../../settings/brands/types';
