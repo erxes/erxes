@@ -110,8 +110,8 @@ const growthHacks = `
     $limit: Int,
     $sortField: String,
     $sortDirection: Int,
-    $hackStage: String,
-    $priority: String,
+    $hackStage: [String],
+    $priority: [String],
     ${commonParams}
   ) {
     growthHacks(
@@ -132,8 +132,8 @@ const growthHacks = `
 const growthHacksTotalCount = `
   query growthHacksTotalCount(
     $stageId: String,
-    $hackStage: String,
-    $priority: String,
+    $hackStage: [String],
+    $priority: [String],
     ${commonParams}
   ) {
     growthHacksTotalCount(

@@ -1,10 +1,9 @@
 import MainActionBar from 'modules/boards/components/MainActionBar';
-import { PRIORITIES } from 'modules/boards/constants';
 import { ButtonGroup } from 'modules/boards/styles/header';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import { IRouterProps } from 'modules/common/types';
+import { IOption, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
@@ -147,22 +146,8 @@ const GrowthHackMainActionBar = (props: IProps) => {
     }
   };
 
-  const onChangeFilter = (name: string, value: any) => {
-    if (value) {
-      router.setParams(props.history, {
-        [name]: value.value
-      });
-    } else {
-      router.removeParams(props.history, name);
-    }
-  };
-
-  const onChangeHackStage = value => {
-    onChangeFilter('hackStage', value);
-  };
-
-  const onChangePriority = value => {
-    onChangeFilter('priority', value);
+  const onChangeHackStage = (ops: IOption[]) => {
+    props.onSelect(ops.map(option => option.value), 'hackStage');
   };
 
   const { hackScoringType } = props.currentPipeline || {
@@ -183,20 +168,13 @@ const GrowthHackMainActionBar = (props: IProps) => {
   const growthHackFilter = (
     <>
       <Select
-        value={props.queryParams.hackStage}
-        placeholder="Growth funnel"
-        onChange={onChangeHackStage}
+        placeholder="Choose a growth funnel"
+        value={props.queryParams.hackStage || []}
         options={HACKSTAGES.map(hs => ({ value: hs, label: hs }))}
-      />
-
-      <Select
-        value={props.queryParams.priority}
-        placeholder="Priority"
-        onChange={onChangePriority}
-        options={PRIORITIES.map(priority => ({
-          value: priority,
-          label: priority
-        }))}
+        name="hackStage"
+        onChange={onChangeHackStage}
+        multi={true}
+        loadingPlaceholder={__('Loading...')}
       />
     </>
   );
