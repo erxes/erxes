@@ -26,7 +26,7 @@ const commonFields = `
   name
   brandId
   languageCode
-  isArchived
+  isActive
 `;
 
 const integrationDetail = `

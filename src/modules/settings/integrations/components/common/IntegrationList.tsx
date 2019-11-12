@@ -17,7 +17,7 @@ import { IIntegration } from '../../types';
 type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
-  archiveIntegration: (id: string, isArchived: boolean) => void;
+  toggleIntegration: (id: string, isActive: boolean) => void;
 };
 
 class IntegrationList extends React.Component<Props> {
@@ -130,18 +130,18 @@ class IntegrationList extends React.Component<Props> {
     );
   }
 
-  renderArchiveAction(integration) {
-    const { archiveIntegration } = this.props;
+  renderStatus(integration) {
+    const { toggleIntegration } = this.props;
 
-    if (!archiveIntegration) {
+    if (!toggleIntegration) {
       return null;
     }
 
-    const onClick = e => archiveIntegration(integration._id, e.target.checked);
+    const onClick = e => toggleIntegration(integration._id, e.target.checked);
 
     return (
       <Toggle
-        defaultChecked={integration.isArchived}
+        defaultChecked={integration.isActive}
         onChange={onClick}
         icons={false}
       />
@@ -158,7 +158,7 @@ class IntegrationList extends React.Component<Props> {
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>{this.renderArchiveAction(integration)}</td>
+        <td>{this.renderStatus(integration)}</td>
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
@@ -188,7 +188,7 @@ class IntegrationList extends React.Component<Props> {
             <th>{__('Name')}</th>
             <th>{__('Kind')}</th>
             <th>{__('Brand')}</th>
-            <th>{__('Archived')}</th>
+            <th>{__('Active')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>

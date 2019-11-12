@@ -140,6 +140,7 @@ const customerDetail = `
       integration {
         kind
         name
+        isActive
       }
       getMessengerCustomData
       companies {

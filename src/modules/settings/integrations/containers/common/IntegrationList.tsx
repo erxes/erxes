@@ -6,9 +6,9 @@ import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
-  ArchiveMutationResponse,
   IntegrationsQueryResponse,
-  RemoveMutationResponse
+  RemoveMutationResponse,
+  ToggleMutationResponse
 } from '../../types';
 import { integrationsListParams } from '../utils';
 
@@ -22,10 +22,10 @@ type FinalProps = {
   integrationsQuery: IntegrationsQueryResponse;
 } & Props &
   RemoveMutationResponse &
-  ArchiveMutationResponse;
+  ToggleMutationResponse;
 
 const IntegrationListContainer = (props: FinalProps) => {
-  const { integrationsQuery, removeMutation, archiveIntegration } = props;
+  const { integrationsQuery, removeMutation, toggleStatus } = props;
 
   if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
@@ -48,13 +48,13 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
-  const archive = (id: string, isArchived: boolean) => {
-    archiveIntegration({ variables: { _id: id, isArchived } })
+  const toggleIntegration = (id: string, isActive: boolean) => {
+    toggleStatus({ variables: { _id: id, isActive } })
       .then(({ data }) => {
-        const integration = data.integrationsArchive;
+        const integration = data.integrationsToggleStatus;
 
         if (integration && integration._id) {
-          const action = integration.isArchived ? 'archived' : 'unarchived';
+          const action = integration.isActive ? 'activated' : 'deactivated';
 
           Alert.success(`Integration has been ${action}`);
         }
@@ -69,7 +69,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     integrations,
     removeIntegration,
     loading: integrationsQuery.loading,
-    archiveIntegration: archive
+    toggleIntegration
   };
 
   return <IntegrationList {...updatedProps} />;
@@ -111,10 +111,10 @@ export default withProps<Props>(
         };
       }
     }),
-    graphql<Props, ArchiveMutationResponse>(
-      gql(mutations.integrationsArchive),
+    graphql<Props, ToggleMutationResponse>(
+      gql(mutations.integrationsToggleStatus),
       {
-        name: 'archiveIntegration'
+        name: 'toggleStatus'
       }
     )
   )(IntegrationListContainer)

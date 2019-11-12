@@ -92,6 +92,7 @@ export interface IIntegration {
   leadData: ILeadData;
   brand: IBrand;
   channels: IChannel[];
+  isActive?: boolean;
 }
 
 export interface IAccount {
@@ -348,8 +349,8 @@ export type MessengerAppsRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
-export type ArchiveMutationResponse = {
-  archiveIntegration: (
-    params: { variables: { _id: string; isArchived: boolean } }
+export type ToggleMutationResponse = {
+  toggleStatus: (
+    params: { variables: { _id: string; isActive: boolean } }
   ) => Promise<any>;
 };
