@@ -16,13 +16,17 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
   const find = async (name, apiCollection, collection) => {
     const entries = await collection.find({}).toArray();
 
+    let count = 0;
+
     for (const entry of entries) {
       const entryOnApi = await apiCollection.findOne({ _id: entry.erxesApiId });
 
       if (!entryOnApi) {
-        console.log(`Invalid ${name} _id ${entry.erxesApiId}`);
+        count++;
       }
     }
+
+    console.log(`Invalid ${name} count ${count}`);
   };
 
   // find invalid customers
