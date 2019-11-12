@@ -1,6 +1,6 @@
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
-import { extractAttachment, __ } from 'modules/common/utils';
+import { __, extractAttachment } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/lib/Modal';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';

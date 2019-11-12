@@ -5,7 +5,7 @@ import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
-import { Alert, readFile, uploadHandler, __ } from 'modules/common/utils';
+import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {
   Attachment,
