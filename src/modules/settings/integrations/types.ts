@@ -347,3 +347,9 @@ export type MessengerAppsQueryResponse = {
 export type MessengerAppsRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
+
+export type ArchiveMutationResponse = {
+  archiveIntegration: (
+    params: { variables: { _id: string; isArchived: boolean } }
+  ) => Promise<any>;
+};

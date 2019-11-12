@@ -6,6 +6,7 @@ import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
+import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
@@ -16,6 +17,7 @@ import { IIntegration } from '../../types';
 type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
+  archiveIntegration: (id: string, isArchived: boolean) => void;
 };
 
 class IntegrationList extends React.Component<Props> {
@@ -128,6 +130,24 @@ class IntegrationList extends React.Component<Props> {
     );
   }
 
+  renderArchiveAction(integration) {
+    const { archiveIntegration } = this.props;
+
+    if (!archiveIntegration) {
+      return null;
+    }
+
+    const onClick = e => archiveIntegration(integration._id, e.target.checked);
+
+    return (
+      <Toggle
+        defaultChecked={integration.isArchived}
+        onChange={onClick}
+        icons={false}
+      />
+    );
+  }
+
   renderRow(integration) {
     return (
       <tr key={integration._id}>
@@ -138,6 +158,7 @@ class IntegrationList extends React.Component<Props> {
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
+        <td>{this.renderArchiveAction(integration)}</td>
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
@@ -167,6 +188,7 @@ class IntegrationList extends React.Component<Props> {
             <th>{__('Name')}</th>
             <th>{__('Kind')}</th>
             <th>{__('Brand')}</th>
+            <th>{__('Archived')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>

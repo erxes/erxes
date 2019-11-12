@@ -5,7 +5,11 @@ import IntegrationList from 'modules/settings/integrations/components/common/Int
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
-import { IntegrationsQueryResponse, RemoveMutationResponse } from '../../types';
+import {
+  ArchiveMutationResponse,
+  IntegrationsQueryResponse,
+  RemoveMutationResponse
+} from '../../types';
 import { integrationsListParams } from '../utils';
 
 type Props = {
@@ -17,10 +21,11 @@ type Props = {
 type FinalProps = {
   integrationsQuery: IntegrationsQueryResponse;
 } & Props &
-  RemoveMutationResponse;
+  RemoveMutationResponse &
+  ArchiveMutationResponse;
 
 const IntegrationListContainer = (props: FinalProps) => {
-  const { integrationsQuery, removeMutation } = props;
+  const { integrationsQuery, removeMutation, archiveIntegration } = props;
 
   if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
@@ -43,11 +48,28 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
+  const archive = (id: string, isArchived: boolean) => {
+    archiveIntegration({ variables: { _id: id, isArchived } })
+      .then(({ data }) => {
+        const integration = data.integrationsArchive;
+
+        if (integration && integration._id) {
+          const action = integration.isArchived ? 'archived' : 'unarchived';
+
+          Alert.success(`Integration has been ${action}`);
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
     integrations,
     removeIntegration,
-    loading: integrationsQuery.loading
+    loading: integrationsQuery.loading,
+    archiveIntegration: archive
   };
 
   return <IntegrationList {...updatedProps} />;
@@ -88,6 +110,12 @@ export default withProps<Props>(
           ]
         };
       }
-    })
+    }),
+    graphql<Props, ArchiveMutationResponse>(
+      gql(mutations.integrationsArchive),
+      {
+        name: 'archiveIntegration'
+      }
+    )
   )(IntegrationListContainer)
 );
