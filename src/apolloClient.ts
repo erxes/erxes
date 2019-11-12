@@ -40,7 +40,9 @@ const errorLink = onError(({ networkError, graphQLErrors }) => {
   }
 
   if (networkError) {
-    Alert.error('Disconnect ...');
+    Alert.error(
+      'Attempting to restore connection. Changes made now may not be saved.'
+    );
   }
 });
 
