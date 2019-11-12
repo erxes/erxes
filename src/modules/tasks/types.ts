@@ -13,3 +13,9 @@ export interface ITask extends IItem {
 export interface ITaskParams extends IItemParams {
   priority?: string;
 }
+
+export type TaskDetailQueryResponse = {
+  taskDetail: ITask;
+  loading: boolean;
+  refetch: () => void;
+};

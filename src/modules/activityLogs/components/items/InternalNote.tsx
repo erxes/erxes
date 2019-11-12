@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { ACTIVITY_LOG_ITEMS_STYLES } from 'modules/activityLogs/constants';
 import {
   ActivityContent,
   ActivityDate,
@@ -9,14 +8,13 @@ import {
   FlexBody,
   FlexContent
 } from 'modules/activityLogs/styles';
+import { getIconAndColor } from 'modules/activityLogs/utils';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IInternalNote } from 'modules/internalNotes/types';
 import React from 'react';
 import xss from 'xss';
-
-const { INTERNAl_NOTE } = ACTIVITY_LOG_ITEMS_STYLES;
 
 type Props = {
   activity: any;
@@ -45,10 +43,12 @@ class InternalNote extends React.Component<Props> {
     const { internalNote } = this.props;
     const { content } = internalNote;
 
+    const iconAndColor = getIconAndColor('note');
+
     return (
       <ActivityRow key={Math.random()}>
-        <ActivityIcon color={INTERNAl_NOTE.color}>
-          <Icon icon={INTERNAl_NOTE.icon} />
+        <ActivityIcon color={iconAndColor.color}>
+          <Icon icon={iconAndColor.icon} />
         </ActivityIcon>
         <React.Fragment>
           <FlexContent>

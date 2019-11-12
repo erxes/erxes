@@ -1,8 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IUser } from '../auth/types';
+import { ICON_AND_COLOR_TABLE } from './constants';
 
-const ICON_AND_COLOR_TABLE = {
+export const getIconAndColor = contentType => {
+  return ICON_AND_COLOR_TABLE[contentType];
+};
+
+const ICON_AND_COLOR_TABLEa = {
   'customer-create': {
     icon: 'adduser',
     color: '#6465e2'
@@ -92,11 +97,11 @@ export default class {
   }
 
   /**
-   * Get a related icon and color from the ICON_AND_COLOR_TABLE
+   * Get a related icon and color from the ICON_AND_COLOR_TABLEa
    * @return {Object} return Object containing icon name and color
    */
   _getIconAndColor(action) {
-    return ICON_AND_COLOR_TABLE[action];
+    return ICON_AND_COLOR_TABLEa[action];
   }
 
   /**

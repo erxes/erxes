@@ -15,7 +15,9 @@ type Props = {
 
 class ActivityList extends React.Component<Props> {
   renderItem(data) {
-    return data.map((item, index) => <ActivityItem key={index} data={item} />);
+    return data.map((item, index) => (
+      <ActivityItem key={index} activity={item} />
+    ));
   }
 
   renderList(activity, index) {
@@ -31,6 +33,18 @@ class ActivityList extends React.Component<Props> {
 
   renderTimeLine(activities) {
     const result = activities.reduce((item, activity) => {
+      const { contentType } = activity;
+
+      if (
+        contentType === 'taskDetail' &&
+        dayjs(activity.createdAt) >= dayjs()
+      ) {
+        item.Upcoming = item[activity.createdAt] || [];
+        item.Upcoming.push(activity);
+
+        return item;
+      }
+
       const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
       item[createdDate] = item[createdDate] || [];

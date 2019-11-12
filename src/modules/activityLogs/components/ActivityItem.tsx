@@ -1,26 +1,30 @@
-import { ActivityContent } from 'modules/activityLogs/styles';
 import React from 'react';
-import xss from 'xss';
+import Task from '../containers/items/boardItems/Task';
 import InternalNote from '../containers/items/InternalNote';
 import { IActivityLog } from '../types';
-import ActivityRow from './ActivityRow';
+import MovementLog from './items/boardItems/MovementLog';
 
 type Props = {
-  data: IActivityLog;
+  activity: IActivityLog;
 };
 
 const ActivityItem = (props: Props) => {
-  const { data } = props;
+  const { activity } = props;
 
-  const { content, _id, contentType, action } = data;
+  const { _id, contentType, action } = activity;
 
   if (contentType === 'note') {
-    return <InternalNote noteId={_id} activity={data} />;
+    return <InternalNote noteId={_id} activity={activity} />;
+  }
+
+  if (contentType === 'taskDetail') {
+    return <Task taskId={_id} />;
   }
 
   if (action && action === 'moved') {
-    console.log(action);
+    return <MovementLog activity={activity} />;
   }
+
   return <div />;
 
   // if (action.includes('merge')) {
@@ -94,17 +98,6 @@ const ActivityItem = (props: Props) => {
   //     );
   //   }
   // }
-
-  return (
-    <ActivityRow
-      content={
-        <ActivityContent
-          isInternalNote={false}
-          dangerouslySetInnerHTML={{ __html: xss(content) }}
-        />
-      }
-    />
-  );
 };
 
 export default ActivityItem;

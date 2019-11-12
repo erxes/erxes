@@ -135,6 +135,7 @@ export interface IItem {
   isComplete: boolean;
   reminderMinute: number;
   labelIds: string[];
+  createdAt: Date;
 }
 
 export interface IDraggableLocation {
