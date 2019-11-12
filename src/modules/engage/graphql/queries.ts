@@ -100,7 +100,7 @@ const engageMessageDetail = `
 
 const users = `
   query users {
-    users {
+    allUsers {
       _id
       username
       email
