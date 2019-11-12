@@ -25,6 +25,7 @@
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
+    "customCommand": "ts-node ./src/commands/customCommand.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "release": "release-it",
     "snyk-protect": "snyk protect",
