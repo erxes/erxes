@@ -43,7 +43,7 @@ const command = async (API_MONGO_URL, MONGO_URL) => {
   const integrationConversations = integrationMongoClient.db.collection('conversations_facebooks');
   const integrationConversationMessages = integrationMongoClient.db.collection('conversation_messages_facebooks');
   await find('conversation', apiConversations, integrationConversations, async conversation => {
-    const messagesCount = await integrationConversationMessages.findOne({ conversationId: conversation._id });
+    const messagesCount = await integrationConversationMessages.find({ conversationId: conversation._id }).count();
 
     console.log(`Messages count ${messagesCount}`);
   });
