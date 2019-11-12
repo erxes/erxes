@@ -77,7 +77,6 @@ class Left extends React.Component<Props> {
             name="assignedUserIds"
             value={assignedUserIds}
             onSelect={onUserChange}
-            filterParams={{ status: 'verified' }}
           />
         </FormGroup>
 

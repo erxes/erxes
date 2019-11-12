@@ -50,7 +50,6 @@ class Sidebar extends React.Component<Props> {
             name="assignedUserIds"
             value={assignedUserIds}
             onSelect={userOnChange}
-            filterParams={{ status: 'verified' }}
           />
         </FormGroup>
 

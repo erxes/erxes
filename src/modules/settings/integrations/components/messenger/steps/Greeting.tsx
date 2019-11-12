@@ -123,7 +123,6 @@ class Greeting extends React.Component<Props, State> {
               name="supporterIds"
               value={supporterIds}
               onSelect={usersOnChange}
-              filterParams={{ status: 'verified' }}
             />
           </FormGroup>
 
