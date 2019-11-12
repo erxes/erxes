@@ -1,6 +1,7 @@
 import * as graph from 'fbgraph';
 import { debugFacebook } from '../debuggers';
 import { Accounts, Integrations } from '../models';
+import { generateAttachmentUrl } from '../utils';
 import { IAttachment, IAttachmentMessage } from './types';
 
 export const graphRequest = {
@@ -165,11 +166,13 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
       type = 'image';
     }
 
+    const url = generateAttachmentUrl(attachment.url);
+
     messages.push({
       attachment: {
         type,
         payload: {
-          url: attachment.url,
+          url,
         },
       },
     });

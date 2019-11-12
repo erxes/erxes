@@ -112,3 +112,37 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
  * @returns {Promise} fns value
  */
 export const compose = (...fns) => arg => fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
+
+/*
+ * Generate url depending on given file upload publicly or not
+ */
+export const generateAttachmentUrl = (urlOrName: string) => {
+  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+
+  if (urlOrName.startsWith('http')) {
+    return urlOrName;
+  }
+
+  return `${MAIN_API_DOMAIN}/read-file?key=${urlOrName}`;
+};
+
+export const downloadAttachment = urlOrName => {
+  return new Promise(async (resolve, reject) => {
+    const url = generateAttachmentUrl(urlOrName);
+
+    const options = {
+      url,
+      encoding: null,
+    };
+
+    try {
+      await request.get(options).then(res => {
+        const buffer = Buffer.from(res, 'utf8');
+
+        resolve(buffer.toString('base64'));
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};

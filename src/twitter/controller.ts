@@ -1,6 +1,6 @@
 import { debugRequest, debugResponse, debugTwitter } from '../debuggers';
 import { Accounts, Integrations } from '../models';
-import { getEnv } from '../utils';
+import { downloadAttachment, getEnv } from '../utils';
 import * as twitterUtils from './api';
 import { ConversationMessages, Conversations } from './models';
 import receiveDms from './receiveDms';
@@ -133,7 +133,7 @@ const init = async app => {
     };
 
     for (const attach of attachments) {
-      const base64 = await twitterUtils.downloadImageFromApi(attach.url);
+      const base64 = await downloadAttachment(attach.url);
       attachment.media.id = attach.url;
 
       const response: any = await twitterUtils.upload(base64);
