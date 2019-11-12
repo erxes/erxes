@@ -3,35 +3,27 @@ import Left from 'modules/boards/components/editForm/Left';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
 import Top from 'modules/boards/components/editForm/Top';
 import { FlexContent } from 'modules/boards/styles/item';
-import { IEditFormContent, IOptions } from 'modules/boards/types';
+import {
+  IEditFormContent,
+  IItem,
+  IItemParams,
+  IOptions
+} from 'modules/boards/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
-import { ITask, ITaskParams } from '../types';
 
 type Props = {
   options: IOptions;
-  item: ITask;
-  addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
-  saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
+  item: IItem;
+  addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
+  saveItem: (doc: IItemParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  onUpdate: (item: ITask, prevStageId?: string) => void;
+  onUpdate: (item: IItem, prevStageId?: string) => void;
   beforePopupClose: () => void;
 };
 
-type State = {
-  priority: string;
-};
-
-export default class TaskEditForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      priority: props.item.priority || ''
-    };
-  }
-
+export default class TaskEditForm extends React.Component<Props> {
   renderItems = () => {
     return (
       <>

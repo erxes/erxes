@@ -4,15 +4,14 @@ import { Watch } from 'modules/boards/containers/editForm/';
 import LabelChooser from 'modules/boards/containers/label/LabelChooser';
 import { ColorButton } from 'modules/boards/styles/common';
 import { ActionContainer } from 'modules/boards/styles/item';
-import { IOptions } from 'modules/boards/types';
+import { IItem, IOptions } from 'modules/boards/types';
 import ChecklistAdd from 'modules/checklists/components/AddButton';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { IGrowthHack } from 'modules/growthHacks/types';
 import React from 'react';
 
 type Props = {
-  item: IGrowthHack;
+  item: IItem;
   options: IOptions;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
@@ -20,19 +19,7 @@ type Props = {
   onUpdate: (item, prevStageId?: string) => void;
 };
 
-type State = {
-  priority: string;
-};
-
-class Actions extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      priority: props.item.priority || ''
-    };
-  }
-
+class Actions extends React.Component<Props> {
   onPriorityChange = (value: string) => {
     const { onUpdate, saveItem } = this.props;
 
@@ -58,14 +45,12 @@ class Actions extends React.Component<Props, State> {
 
     return (
       <ActionContainer>
-        {options.type !== 'deal' && (
-          <SelectItem
-            items={PRIORITIES}
-            selectedItems={item.priority}
-            onChange={this.onPriorityChange}
-            trigger={priorityTrigger}
-          />
-        )}
+        <SelectItem
+          items={PRIORITIES}
+          selectedItems={item.priority}
+          onChange={this.onPriorityChange}
+          trigger={priorityTrigger}
+        />
 
         <LabelChooser item={item} onSelect={onLabelChange} />
 
