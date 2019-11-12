@@ -24,6 +24,7 @@ body {
     display: flex;
     flex: 1;
     height: 100%;
+    flex-direction: column;
   }
 }
 
