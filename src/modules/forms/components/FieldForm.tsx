@@ -8,7 +8,7 @@ import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import Modal from 'react-bootstrap-latest/Modal';
 import {
   FlexRow,
   LeftSection,
@@ -247,7 +247,7 @@ class FieldForm extends React.Component<Props, State> {
     const { mode, field, onCancel } = this.props;
 
     return (
-      <Modal show={true} bsSize="lg" onHide={onCancel} backdrop={false}>
+      <Modal show={true} size="lg" onHide={onCancel}>
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field

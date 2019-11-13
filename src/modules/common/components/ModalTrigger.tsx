@@ -1,6 +1,6 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap-latest';
 import { withRouter } from 'react-router';
 import RTG from 'react-transition-group';
 import { CloseModal } from '../styles/main';
@@ -13,10 +13,10 @@ type Props = {
   trigger: React.ReactNode;
   autoOpenKey?: string;
   content: ({ closeModal }: { closeModal: () => void }) => void;
-  size?: string;
+  size?: 'sm' | 'lg' | 'xl';
   ignoreTrans?: boolean;
   dialogClassName?: string;
-  backDrop?: string;
+  backDrop?: 'static' | boolean;
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
@@ -105,12 +105,13 @@ class ModalTrigger extends React.Component<Props, State> {
 
         <Modal
           dialogClassName={dialogClassName}
-          bsSize={size}
+          size={size}
           show={isOpen}
           onHide={this.closeModal}
           backdrop={backDrop}
           enforceFocus={enforceFocus}
           onExit={onExit}
+          autoFocus={false}
         >
           {this.renderHeader()}
           <Modal.Body>

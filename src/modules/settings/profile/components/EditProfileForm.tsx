@@ -6,7 +6,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import Modal from 'react-bootstrap-latest/Modal';
 import PasswordConfirmation from './PasswordConfirmation';
 
 type Props = {

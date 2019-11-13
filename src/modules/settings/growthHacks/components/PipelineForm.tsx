@@ -16,7 +16,8 @@ import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
+import Modal from 'react-bootstrap-latest/Modal';
 import BlockPicker from 'react-color/lib/Block';
 import Select from 'react-select-plus';
 import { metricOptions } from '../constants';
@@ -390,7 +391,7 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal show={show} onHide={closeModal} enforceFocus={false}>
+      <Modal size="lg" show={show} onHide={closeModal} enforceFocus={false}>
         <Form renderContent={this.renderContent} />
       </Modal>
     );

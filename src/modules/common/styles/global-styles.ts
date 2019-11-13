@@ -68,8 +68,8 @@ a:hover {
 }
 
 .modal-dialog {
-  padding: 50px 0;
-  margin: 0 auto;
+  padding: 0;
+  margin: 50px auto;
 }
 
 .modal-dialog.middle {
@@ -102,8 +102,8 @@ a:hover {
 
 .modal-header .close {
   outline: 0;
-  margin-top: -4px;
   font-weight: 200;
+  padding-top: 14px;
 }
 
 .modal-title {

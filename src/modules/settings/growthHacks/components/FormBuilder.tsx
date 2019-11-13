@@ -1,14 +1,13 @@
 import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
-import { CloseModal } from 'modules/common/styles/main';
+import { CloseModal, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import CreateForm from 'modules/forms/containers/CreateForm';
 import EditForm from 'modules/forms/containers/EditForm';
 import { ShowPreview } from 'modules/forms/styles';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
 import { ContentWrapper, PreviewWrapper } from '../styles';
 
 type Props = {
@@ -39,7 +38,7 @@ class FormBuilder extends React.Component<
         <ShowPreview>
           <Icon icon="eye" /> {__('Form preview')}
         </ShowPreview>
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -57,7 +56,7 @@ class FormBuilder extends React.Component<
           >
             Save
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </>
     );
   };
