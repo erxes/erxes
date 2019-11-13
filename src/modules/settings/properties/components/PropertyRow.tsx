@@ -6,7 +6,7 @@ import Table from 'modules/common/components/table';
 import Toggle from 'modules/common/components/Toggle';
 import { __, Alert, confirm } from 'modules/common/utils';
 import React from 'react';
-import { Collapse } from 'react-bootstrap';
+import Collapse from 'react-bootstrap-latest/Collapse';
 import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { CollapseRow, DropIcon, FieldType } from '../styles';
