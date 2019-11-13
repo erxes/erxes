@@ -1,7 +1,8 @@
 import TextInfo from 'modules/common/components/TextInfo';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Col, Row } from 'react-bootstrap';
+import Col from 'react-bootstrap-latest/Col';
+import Row from 'react-bootstrap-latest/Row';
 import { ILog } from '../types';
 
 type Props = {

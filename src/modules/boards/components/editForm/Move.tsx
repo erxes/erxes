@@ -11,7 +11,8 @@ import { IStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import Popover from 'react-bootstrap-latest/Popover';
 import { IItem, IOptions } from '../../types';
 
 type Props = {
@@ -133,7 +134,7 @@ class Move extends React.Component<Props, State> {
       <MoveFormContainer innerRef={this.ref}>
         <OverlayTrigger
           trigger="click"
-          placement="bottom"
+          placement="bottom-start"
           overlay={this.renderBoardSelect()}
           rootClose={true}
           container={this.ref.current}

@@ -221,6 +221,12 @@ a:hover {
 
 /* dropdown */
 
+.dropdown-btn {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle
+}
+
 .dropdown-menu {
   margin-top: 0 !important;
   border: none;
@@ -228,6 +234,8 @@ a:hover {
   color: ${colors.textPrimary};
   min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  max-height: 100vh;
+  overflow: auto;
 }
 
 .dropdown-menu > span {
@@ -317,13 +325,22 @@ a:hover {
   max-width: 310px;
 }
 
-.popover.bottom > .arrow {
+.bs-popover-bottom > .arrow::before,
+.bs-popover-bottom-start > .arrow::before,
+.bs-popover-bottom-end > .arrow::before, 
+.bs-popover-auto[x-placement^="bottom"] > .arrow::before {
+  top: 0;
+  border-width: 0 0.5rem 0.5rem 0.5rem;
   border-bottom-color: ${colors.borderPrimary};
 }
 
-.popover.bottom > .arrow::after {
+.bs-popover-bottom > .arrow::after,
+.bs-popover-bottom-start > .arrow::after,
+.bs-popover-bottom-end > .arrow::after,
+.bs-popover-auto[x-placement^="bottom"] > .arrow::after {
   top: 1px;
-  border-bottom-color: ${colors.bgLight};
+  border-width: 0 0.5rem 0.5rem 0.5rem;
+  border-bottom-color: #fff;
 }
 
 .popover > .arrow {

@@ -9,7 +9,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap-latest/Dropdown';
 import { Link } from 'react-router-dom';
 import MessageListRow from '../containers/MessageListRow';
 import Sidebar from '../containers/Sidebar';
@@ -70,13 +70,12 @@ class List extends React.Component<Props> {
     } = this.props;
 
     const actionBarRight = (
-      <Dropdown id="dropdown-engage" pullRight={true}>
-        <DropdownToggle bsRole="toggle">
+      <Dropdown alignRight={true}>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-engage">
           <Button btnStyle="success" size="small" icon="add">
             {__('New message')} <Icon icon="angle-down" />
           </Button>
-        </DropdownToggle>
-
+        </Dropdown.Toggle>
         <Dropdown.Menu>
           <li>
             <Link to={'/engage/messages/create?kind=auto'}>

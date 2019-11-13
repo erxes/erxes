@@ -12,7 +12,7 @@ import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap-latest/Dropdown';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
@@ -214,12 +214,12 @@ class CustomersList extends React.Component<IProps, State> {
 
         {dateFilter}
 
-        <Dropdown id="dropdown-engage" pullRight={true}>
-          <DropdownToggle bsRole="toggle">
+        <Dropdown className="dropdown-btn" alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
               {__('Customize ')} <Icon icon="angle-down" />
             </Button>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
               <ModalTrigger

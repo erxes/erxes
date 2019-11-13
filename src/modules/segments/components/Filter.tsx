@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap-latest/Dropdown';
 import { Link } from 'react-router-dom';
 import { ISegment } from '../types';
 
@@ -40,17 +40,12 @@ class Segments extends React.Component<Props> {
 
     return (
       <Section.QuickButtons>
-        <Dropdown
-          id="dropdown-user"
-          className="quick-button"
-          pullRight={true}
-          style={{ verticalAlign: 'top', float: 'left' }}
-        >
-          <DropdownToggle bsRole="toggle">
+        <Dropdown alignRight={true} style={{ float: 'left' }}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-manage">
             <a href="#settings">
               <Icon icon="settings" />
             </a>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
               <Link to={`/segments/new/${contentType}`}>

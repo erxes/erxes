@@ -5,7 +5,7 @@ import { DropIcon } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap-latest/Dropdown';
 import CategoryForm from '../../containers/category/CategoryForm';
 import CategoryList from '../../containers/category/CategoryList';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
@@ -76,8 +76,10 @@ class KnowledgeRow extends React.Component<Props, State> {
   renderManage() {
     const { topic, renderButton, remove, refetchTopics } = this.props;
 
-    const addCategory = <MenuItem>{__('Add category')}</MenuItem>;
-    const manageTopic = <MenuItem>{__('Manage Knowledge Base')}</MenuItem>;
+    const addCategory = <Dropdown.Item>{__('Add category')}</Dropdown.Item>;
+    const manageTopic = (
+      <Dropdown.Item>{__('Manage Knowledge Base')}</Dropdown.Item>
+    );
 
     const content = props => (
       <KnowledgeForm
@@ -98,15 +100,16 @@ class KnowledgeRow extends React.Component<Props, State> {
 
     return (
       <RowActions>
-        <Dropdown id="dropdown-knowledgebase" pullRight={true}>
-          <DropdownToggle bsRole="toggle">
+        <Dropdown alignRight={true} style={{ float: 'left' }}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-knowledgebase">
             <Icon icon="settings" />
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <ModalTrigger
               title="Manage Knowledge Base"
               trigger={manageTopic}
               content={content}
+              size="lg"
             />
             <ModalTrigger
               title="Add Category"

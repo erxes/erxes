@@ -3,7 +3,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import colors from 'modules/common/styles/colors';
 import * as React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap-latest/Dropdown';
 import styled from 'styled-components';
 
 export const ActionItem = styled.button`
@@ -46,8 +46,10 @@ class SelectItem extends React.Component<IProps> {
     const onChangeItem = (value: string) => onChange(value);
 
     return (
-      <Dropdown id="dropdown">
-        <DropdownToggle bsRole="toggle">{trigger}</DropdownToggle>
+      <Dropdown>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-select">
+          {trigger}
+        </Dropdown.Toggle>
         <Dropdown.Menu>
           {items.map(item => (
             <li key={item}>
