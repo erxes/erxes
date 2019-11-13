@@ -42,7 +42,9 @@ const commonPipelineParamsDef = `
   $endDate: Date,
   $metric: String,
   $hackScoringType: String,
-  $templateId: String
+  $templateId: String,
+  $onlySelf: Boolean
+  $dominantUserIds: [String],
 `;
 
 const commonPipelineParams = `
@@ -57,7 +59,9 @@ const commonPipelineParams = `
   startDate: $startDate,
   endDate: $endDate,
   metric: $metric,
-  templateId: $templateId
+  templateId: $templateId,
+  onlySelf: $onlySelf,
+  dominantUserIds: $dominantUserIds,
 `;
 
 const pipelineAdd = `

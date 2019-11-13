@@ -36,6 +36,8 @@ type State = {
   visibility: string;
   selectedMemberIds: string[];
   backgroundColor: string;
+  onlySelf: boolean;
+  dominantUserIds: string[];
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -48,7 +50,10 @@ class PipelineForm extends React.Component<Props, State> {
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
-      backgroundColor: (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
+      backgroundColor:
+        (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
+      onlySelf: pipeline ? pipeline.onlySelf || false : false,
+      dominantUserIds: pipeline ? pipeline.dominantUserIds || [] : []
     };
   }
 
@@ -66,6 +71,10 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ selectedMemberIds: items });
   };
 
+  onChangeDominantUsers = items => {
+    this.setState({ dominantUserIds: items });
+  };
+
   collectValues = items => {
     return items.map(item => item.value);
   };
@@ -80,7 +89,13 @@ class PipelineForm extends React.Component<Props, State> {
     visibility: string;
   }) => {
     const { pipeline, type, boardId, extraFields } = this.props;
-    const { selectedMemberIds, stages, backgroundColor } = this.state;
+    const {
+      selectedMemberIds,
+      stages,
+      backgroundColor,
+      onlySelf,
+      dominantUserIds
+    } = this.state;
     const finalValues = values;
 
     if (pipeline) {
@@ -94,7 +109,9 @@ class PipelineForm extends React.Component<Props, State> {
       boardId: pipeline ? pipeline.boardId : boardId,
       stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
-      bgColor: backgroundColor
+      bgColor: backgroundColor,
+      onlySelf,
+      dominantUserIds
     };
   };
 
@@ -104,11 +121,6 @@ class PipelineForm extends React.Component<Props, State> {
     if (visibility === 'public') {
       return;
     }
-    const self = this;
-
-    const onChange = items => {
-      self.setState({ selectedMemberIds: items });
-    };
 
     return (
       <FormGroup>
@@ -119,7 +131,35 @@ class PipelineForm extends React.Component<Props, State> {
             label="Choose members"
             name="selectedMemberIds"
             value={selectedMemberIds}
-            onSelect={onChange}
+            onSelect={this.onChangeMembers}
+          />
+        </SelectMemberStyled>
+      </FormGroup>
+    );
+  }
+
+  onChangeOnlySelf = e => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ onlySelf: isChecked });
+  };
+
+  renderDominantUsers() {
+    const { onlySelf, dominantUserIds } = this.state;
+
+    if (!onlySelf) {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <SelectMemberStyled>
+          <ControlLabel>Dominant Users</ControlLabel>
+
+          <SelectTeamMembers
+            label="Choose members"
+            name="dominantUserIds"
+            value={dominantUserIds}
+            onSelect={this.onChangeDominantUsers}
           />
         </SelectMemberStyled>
       </FormGroup>
@@ -210,6 +250,17 @@ class PipelineForm extends React.Component<Props, State> {
           </FlexContent>
 
           {this.renderSelectMembers()}
+
+          <FormGroup>
+            <ControlLabel>Cart show only self</ControlLabel>
+            <FormControl
+              componentClass="checkbox"
+              checked={this.state.onlySelf}
+              onChange={this.onChangeOnlySelf}
+            />
+          </FormGroup>
+
+          {this.renderDominantUsers()}
 
           <FormGroup>
             <ControlLabel>Stages</ControlLabel>

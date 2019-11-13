@@ -68,7 +68,6 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
-  // growth hack
   startDate?: Date;
   endDate?: Date;
   metric?: string;
@@ -76,6 +75,8 @@ export interface IPipeline {
   templateId?: string;
   state?: string;
   itemsTotalCount?: number;
+  onlySelf?: boolean;
+  dominantUserIds?: string[];
 }
 
 interface IStageComparisonInfo {
@@ -97,6 +98,7 @@ export interface IStage {
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
   formId: string;
+  pipelineId: string;
 }
 
 export interface IPipelineLabel {
