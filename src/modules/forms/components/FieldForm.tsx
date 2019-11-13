@@ -247,7 +247,7 @@ class FieldForm extends React.Component<Props, State> {
     const { mode, field, onCancel } = this.props;
 
     return (
-      <Modal show={true} size="lg" onHide={onCancel}>
+      <Modal show={true} size="lg" onHide={onCancel} animation={false}>
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field

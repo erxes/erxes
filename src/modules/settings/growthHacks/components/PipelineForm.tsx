@@ -391,7 +391,13 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal size="lg" show={show} onHide={closeModal} enforceFocus={false}>
+      <Modal
+        size="lg"
+        show={show}
+        onHide={closeModal}
+        enforceFocus={false}
+        animation={false}
+      >
         <Form renderContent={this.renderContent} />
       </Modal>
     );

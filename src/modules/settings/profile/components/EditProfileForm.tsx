@@ -86,7 +86,11 @@ class EditProfile extends React.Component<Props, State> {
 
   renderPasswordConfirmationModal(formProps: IFormProps) {
     return (
-      <Modal show={this.state.isShowPasswordPopup} onHide={this.closeConfirm}>
+      <Modal
+        show={this.state.isShowPasswordPopup}
+        onHide={this.closeConfirm}
+        animation={false}
+      >
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Enter your password to Confirm')}</Modal.Title>
         </Modal.Header>

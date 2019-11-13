@@ -111,7 +111,7 @@ class ModalTrigger extends React.Component<Props, State> {
           backdrop={backDrop}
           enforceFocus={enforceFocus}
           onExit={onExit}
-          autoFocus={false}
+          animation={false}
         >
           {this.renderHeader()}
           <Modal.Body>
