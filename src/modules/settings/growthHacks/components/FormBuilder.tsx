@@ -8,6 +8,7 @@ import EditForm from 'modules/forms/containers/EditForm';
 import { ShowPreview } from 'modules/forms/styles';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
+import Modal from 'react-bootstrap-latest/Modal';
 import { ContentWrapper, PreviewWrapper } from '../styles';
 
 type Props = {
@@ -114,7 +115,7 @@ class FormBuilder extends React.Component<
       <Modal
         dialogClassName="modal-1000w"
         enforceFocus={false}
-        bsSize="lg"
+        size="lg"
         show={true}
         onHide={this.closeModal}
         backdrop={false}

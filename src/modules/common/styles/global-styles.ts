@@ -82,6 +82,7 @@ a:hover {
 
 .modal-1000w {
   width: 1000px;
+  max-width: 1000px;
 }
 
 .modal-content {
