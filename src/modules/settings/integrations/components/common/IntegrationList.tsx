@@ -8,19 +8,19 @@ import IntegrationListItem from './IntegrationListItem';
 type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
-  toggleIntegration: (id: string, isActive: boolean) => void;
+  archive: (id: string) => void;
 };
 
 class IntegrationList extends React.Component<Props> {
   renderRows() {
-    const { integrations, removeIntegration, toggleIntegration } = this.props;
+    const { integrations, removeIntegration, archive } = this.props;
 
     return integrations.map(i => (
       <IntegrationListItem
         key={i._id}
         integration={i}
         removeIntegration={removeIntegration}
-        toggleIntegration={toggleIntegration}
+        archive={archive}
       />
     ));
   }
@@ -44,7 +44,6 @@ class IntegrationList extends React.Component<Props> {
             <th>{__('Name')}</th>
             <th>{__('Kind')}</th>
             <th>{__('Brand')}</th>
-            <th>{__('Active')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>

@@ -4,7 +4,6 @@ import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
-import Toggle from 'modules/common/components/Toggle';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
@@ -15,7 +14,7 @@ import { IIntegration } from '../../types';
 
 type Props = {
   integration: IIntegration;
-  toggleIntegration: (id: string, status: boolean) => void;
+  archive: (id: string) => void;
   removeIntegration: (integration: IIntegration) => void;
 };
 
@@ -74,34 +73,20 @@ class IntegrationListItem extends React.Component<Props> {
     return 'default';
   }
 
-  renderStatus() {
-    const { toggleIntegration, integration } = this.props;
+  renderArchiveAction() {
+    const { archive, integration } = this.props;
 
-    if (!toggleIntegration) {
+    if (!archive) {
       return null;
     }
 
-    let style: string = 'default';
-    let label: React.ReactNode = __('Inactive');
-
-    if (integration.isActive) {
-      style = 'success';
-      label = __('Active');
-    }
-
-    const onClick = e => toggleIntegration(integration._id, e.target.checked);
-    const fallback = <Label lblStyle={style}>{label}</Label>;
+    const onClick = () => archive(integration._id);
 
     return (
-      <WithPermission
-        action="integrationsToggleStatus"
-        fallbackComponent={fallback}
-      >
-        <Toggle
-          defaultChecked={integration.isActive}
-          onChange={onClick}
-          icons={false}
-        />
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Archive')}>
+          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+        </Tip>
       </WithPermission>
     );
   }
@@ -175,10 +160,10 @@ class IntegrationListItem extends React.Component<Props> {
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
-        <td>{this.renderStatus()}</td>
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
+            {this.renderArchiveAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

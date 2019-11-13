@@ -349,8 +349,6 @@ export type MessengerAppsRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
-export type ToggleMutationResponse = {
-  toggleStatus: (
-    params: { variables: { _id: string; isActive: boolean } }
-  ) => Promise<any>;
+export type ArchiveIntegrationResponse = {
+  archiveIntegration: (params: { variables: { _id: string } }) => Promise<any>;
 };

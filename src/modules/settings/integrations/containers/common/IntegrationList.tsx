@@ -6,9 +6,9 @@ import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import {
+  ArchiveIntegrationResponse,
   IntegrationsQueryResponse,
-  RemoveMutationResponse,
-  ToggleMutationResponse
+  RemoveMutationResponse
 } from '../../types';
 import { integrationsListParams } from '../utils';
 
@@ -22,10 +22,10 @@ type FinalProps = {
   integrationsQuery: IntegrationsQueryResponse;
 } & Props &
   RemoveMutationResponse &
-  ToggleMutationResponse;
+  ArchiveIntegrationResponse;
 
 const IntegrationListContainer = (props: FinalProps) => {
-  const { integrationsQuery, removeMutation, toggleStatus } = props;
+  const { integrationsQuery, removeMutation, archiveIntegration } = props;
 
   if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
@@ -48,20 +48,26 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
-  const toggleIntegration = (id: string, isActive: boolean) => {
-    toggleStatus({ variables: { _id: id, isActive } })
-      .then(({ data }) => {
-        const integration = data.integrationsToggleStatus;
+  const archive = (id: string) => {
+    const message = `
+      If you archive an integration, then you won't be able to see customers & conversations 
+      related to this integration anymore.
+      Are you sure?
+    `;
 
-        if (integration && integration._id) {
-          const action = integration.isActive ? 'activated' : 'deactivated';
+    confirm(message).then(() => {
+      archiveIntegration({ variables: { _id: id } })
+        .then(({ data }) => {
+          const integration = data.integrationsArchive;
 
-          Alert.success(`Integration has been ${action}`);
-        }
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+          if (integration && integration._id) {
+            Alert.success('Integration has been archived.');
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    });
   };
 
   const updatedProps = {
@@ -69,11 +75,35 @@ const IntegrationListContainer = (props: FinalProps) => {
     integrations,
     removeIntegration,
     loading: integrationsQuery.loading,
-    toggleIntegration
+    archive
   };
 
   return <IntegrationList {...updatedProps} />;
 };
+
+const mutationOptions = ({
+  queryParams,
+  variables,
+  kind
+}: {
+  queryParams?: any;
+  variables?: any;
+  kind?: any;
+}) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.integrations),
+      variables: {
+        ...variables,
+        ...integrationsListParams(queryParams || {}),
+        kind
+      }
+    },
+    {
+      query: gql(queries.integrationTotalCount)
+    }
+  ]
+});
 
 export default withProps<Props>(
   compose(
@@ -93,28 +123,13 @@ export default withProps<Props>(
     }),
     graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
       name: 'removeMutation',
-      options: ({ queryParams, variables, kind }) => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.integrations),
-              variables: {
-                ...variables,
-                ...integrationsListParams(queryParams || {}),
-                kind
-              }
-            },
-            {
-              query: gql(queries.integrationTotalCount)
-            }
-          ]
-        };
-      }
+      options: mutationOptions
     }),
-    graphql<Props, ToggleMutationResponse>(
-      gql(mutations.integrationsToggleStatus),
+    graphql<Props, ArchiveIntegrationResponse>(
+      gql(mutations.integrationsArchive),
       {
-        name: 'toggleStatus'
+        name: 'archiveIntegration',
+        options: mutationOptions
       }
     )
   )(IntegrationListContainer)
