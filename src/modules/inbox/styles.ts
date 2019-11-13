@@ -54,13 +54,16 @@ const ResponseSuggestions = styled.ul`
   position: absolute;
   left: 0px;
   bottom: 100%;
+  bottom: calc(100% + 2px);
   margin: 0;
   padding: 0;
   z-index: 1;
-  width: 100%;
+  width: 480px;
   list-style-type: none;
   background: ${colors.colorWhite};
   box-shadow: 0 -3px 20px -2px ${colors.darkShadow};
+  overflow: hidden;
+  border-radius: 3px;
 `;
 
 const ResponseSuggestionItem = styled.li`
@@ -68,7 +71,7 @@ const ResponseSuggestionItem = styled.li`
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
-  padding: 5px 20px;
+  padding: 5px 15px;
   text-overflow: ellipsis;
 
   :hover {
@@ -93,8 +96,9 @@ const RespondBoxStyled = styledTS<{
 `;
 
 const MailRespondBox = styled(RespondBoxStyled)`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  background: ${colors.bgInternal};
+  padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
+  display: flex;
+  align-items: baseline;
 `;
 
 const ResponseTemplateStyled = styled.div`
@@ -345,10 +349,11 @@ const SmallEditor = styled.div`
   flex: 1;
   background: ${colors.colorWhite};
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 300px;
-  margin: 0 ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing}px;
-  overflow: hidden;
+  border-radius: ${dimensions.coreSpacing}px;
+  margin-left: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing - 2}px 110px ${dimensions.unitSpacing - 2}px
+    0;
+  position: relative;
 
   ${RichEditorRoot} {
     padding-top: 0;
@@ -370,8 +375,9 @@ const SmallEditor = styled.div`
 
   ${EditorActions} {
     position: absolute;
-    right: 2%;
-    top: 30%;
+    right: 0;
+    bottom: 0;
+    padding: 5px 10px;
 
     label:first-of-type {
       position: initial;
