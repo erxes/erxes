@@ -26,12 +26,14 @@
   bottom: 12px;
   right: 12px;
   border: none;
+  max-width: none;
   z-index: 2147483647;
 }
 
 .erxes-messenger-hidden > iframe {
   width: 72px;
   height: 72px;
+  max-width: none;
 }
 
 .erxes-messenger-hidden {
