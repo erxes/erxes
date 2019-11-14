@@ -169,7 +169,6 @@ class PermissionList extends React.Component<Props> {
             name="userId"
             value={queryParams.userId}
             onSelect={usersOnChange}
-            filterParams={{ status: 'verified' }}
             multi={false}
           />
         </FilterItem>

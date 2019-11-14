@@ -6,7 +6,8 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
-import { __, Alert, confirm } from 'modules/common/utils';
+import WithPermission from 'modules/common/components/WithPermission';
+import { __ } from 'modules/common/utils';
 import { Date } from 'modules/customers/styles';
 import { RowTitle } from 'modules/engage/styles';
 import React from 'react';
@@ -16,32 +17,13 @@ import Manage from './Manage';
 
 type Props = {
   integration: ILeadIntegration;
-
-  toggleBulk: (integration: ILeadIntegration, checked: boolean) => void;
-  remove: (integrationId: string, callback: (error: Error) => void) => void;
-
   isChecked: boolean;
+  toggleBulk: (integration: ILeadIntegration, checked: boolean) => void;
+  remove: (integrationId: string) => void;
+  archive: (integrationId: string) => void;
 };
 
-class Row extends React.Component<Props, {}> {
-  remove = () => {
-    confirm()
-      .then(() => {
-        const { integration, remove } = this.props;
-
-        remove(integration._id, error => {
-          if (error) {
-            return Alert.error(error.message);
-          }
-
-          return Alert.success('You successfully deleted a pop ups');
-        });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
+class Row extends React.Component<Props> {
   manageAction(integration) {
     const { formId } = integration;
 
@@ -69,6 +51,34 @@ class Row extends React.Component<Props, {}> {
 
     return (
       <ModalTrigger title="Install code" trigger={trigger} content={content} />
+    );
+  }
+
+  renderArchiveAction() {
+    const { integration, archive } = this.props;
+
+    const onClick = () => archive(integration._id);
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Archive')}>
+          <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+        </Tip>
+      </WithPermission>
+    );
+  }
+
+  renderRemoveAction() {
+    const { integration, remove } = this.props;
+
+    const onClick = () => remove(integration._id);
+
+    return (
+      <WithPermission action="integrationsRemove">
+        <Tip text={__('Delete')}>
+          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+        </Tip>
+      </WithPermission>
     );
   }
 
@@ -138,9 +148,8 @@ class Row extends React.Component<Props, {}> {
           <ActionButtons>
             {this.manageAction(integration)}
             {this.renderEditAction(integration)}
-            <Tip text={__('Delete')}>
-              <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
-            </Tip>
+            {this.renderArchiveAction()}
+            {this.renderRemoveAction()}
           </ActionButtons>
         </td>
       </tr>

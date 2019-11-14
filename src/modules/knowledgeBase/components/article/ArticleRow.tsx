@@ -68,7 +68,7 @@ const ArticleRow = (props: Props) => {
 
     return (
       <ModalTrigger
-        size="large"
+        size="lg"
         title="Edit"
         trigger={editTrigger ? editTrigger : editButton}
         content={content}

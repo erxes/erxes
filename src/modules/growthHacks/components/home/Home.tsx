@@ -1,5 +1,6 @@
 import { IBoard } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
@@ -20,6 +21,10 @@ type Props = {
 class Home extends React.Component<Props> {
   renderBoards() {
     const { boardId, boards } = this.props;
+
+    if (boards.length === 0) {
+      return <EmptyState text="There is no campaign" icon="folder-2" />;
+    }
 
     return boards.map(board => (
       <li key={board._id}>

@@ -25,7 +25,7 @@ class CustomerDetails extends React.Component<Props> {
 
     const triggerEmail = (
       <TabTitle>
-        <Icon icon="email-4" /> {__('New email')}
+        <Icon icon="envelope-add" /> {__('New email')}
       </TabTitle>
     );
 
@@ -41,7 +41,7 @@ class CustomerDetails extends React.Component<Props> {
   renderExtraTabs = () => {
     const triggerMessenger = (
       <TabTitle>
-        <Icon icon="speech-bubble-3" /> {__('New message')}
+        <Icon icon="comment-plus" /> {__('New message')}
       </TabTitle>
     );
 

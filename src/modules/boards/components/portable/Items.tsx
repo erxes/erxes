@@ -1,9 +1,9 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
+import { ButtonRelated } from 'modules/layout/styles';
 import React from 'react';
 import { ItemChooser } from '../../containers/portable/';
 import { IItem, IOptions } from '../../types';
@@ -16,8 +16,8 @@ type Props = {
   items: IItem[];
   mainType?: string;
   mainTypeId?: string;
+  relType?: string;
   onChangeItems: () => void;
-  isOpen?: boolean;
 };
 
 class Items extends React.Component<Props> {
@@ -44,16 +44,13 @@ class Items extends React.Component<Props> {
   };
 
   render() {
-    const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
-
     const {
       mainType,
       mainTypeId,
-      isOpen,
       data,
       onChangeItems,
-      items
+      items,
+      relType
     } = this.props;
 
     const trigger = (
@@ -110,16 +107,17 @@ class Items extends React.Component<Props> {
       />
     );
 
+    const boxProps = {
+      extraButtons: quickButtons,
+      title: __(data.options.title),
+      name: relType && `show${relType}`
+    };
+
     return (
-      <Section>
-        <Title>{__(data.options.title)}</Title>
-
-        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-
-        <SectionContainer>{this.renderItems()}</SectionContainer>
-
+      <Box {...boxProps}>
+        {this.renderItems()}
         {mainTypeId && mainType && relQuickButtons}
-      </Section>
+      </Box>
     );
   }
 }

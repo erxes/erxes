@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Box from 'modules/common/components/Box';
 import { __ } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
@@ -30,9 +31,6 @@ export default class RightSidebar extends React.Component<Props> {
   render() {
     const { company } = this.props;
 
-    const { Section } = Sidebar;
-    const { Title } = Section;
-
     return (
       <Sidebar>
         <CustomerSection mainType="company" mainTypeId={company._id} />
@@ -40,8 +38,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableTickets mainType="company" mainTypeId={company._id} />
         <PortableTasks mainType="company" mainTypeId={company._id} />
 
-        <Section>
-          <Title>{__('Other')}</Title>
+        <Box title={__('Other')} name="showOthers">
           <List>
             <li>
               <div>{__('Created at')}: </div>{' '}
@@ -53,7 +50,7 @@ export default class RightSidebar extends React.Component<Props> {
             </li>
             {this.renderPlan(company)}
           </List>
-        </Section>
+        </Box>
       </Sidebar>
     );
   }

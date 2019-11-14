@@ -4,6 +4,7 @@ import { IConversation } from '../../inbox/types';
 
 export type IInvitationEntry = {
   email: string;
+  password: string;
   groupId: string;
 };
 

@@ -161,8 +161,17 @@ const userList = `
 `;
 
 const channelList = `
-  query channels {
-    channels {
+  query channels($memberIds: [String]) {
+    channels(memberIds: $memberIds) {
+      _id
+      name
+    }
+  }
+`;
+
+const integrationsGetUsedTypes = `
+  query integrationsGetUsedTypes {
+    integrationsGetUsedTypes {
       _id
       name
     }
@@ -227,7 +236,6 @@ const responseTemplateList = `
 
 const generateCustomerDetailQuery = params => {
   const {
-    showProfile = false,
     showDeviceProperties = false,
     showMessengerData = false,
     showCustomFields = false,
@@ -240,14 +248,8 @@ const generateCustomerDetailQuery = params => {
     integration {
       kind
     }
+    ${customerQueries.basicFields}
   `;
-
-  if (showProfile) {
-    fields = `
-      ${fields}
-      ${customerQueries.basicFields}
-    `;
-  }
 
   if (showMessengerData) {
     fields = `
@@ -320,6 +322,7 @@ export default {
   conversationMessagesTotalCount,
   userList,
   channelList,
+  integrationsGetUsedTypes,
   brandList,
   tagList,
   responseTemplateList,

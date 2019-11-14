@@ -1,7 +1,7 @@
+import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { KIND_CHOICES_WITH_TEXT } from 'modules/settings/integrations/constants';
 import React from 'react';
@@ -12,8 +12,6 @@ interface IProps extends IRouterProps {
 }
 
 function IntegrationFilter({ history, counts }: IProps) {
-  const { Section, Header } = Wrapper.Sidebar;
-
   const onClick = kind => {
     router.setParams(history, { integrationType: kind });
   };
@@ -41,9 +39,7 @@ function IntegrationFilter({ history, counts }: IProps) {
   );
 
   return (
-    <Section>
-      <Header uppercase={true}>{__('Filter by integrations')}</Header>
-
+    <Box title={__('Filter by integrations')} name="showFilterByIntegrations">
       <DataWithLoader
         data={data}
         loading={false}
@@ -53,7 +49,7 @@ function IntegrationFilter({ history, counts }: IProps) {
         size="small"
         objective={true}
       />
-    </Section>
+    </Box>
   );
 }
 

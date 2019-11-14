@@ -41,6 +41,41 @@ class NotificationsLatest extends React.Component<Props> {
               markAsRead={markAsRead}
             />
           ))}
+          {notifications.map((notif, key) => (
+            <NotificationRow
+              notification={notif}
+              key={key}
+              markAsRead={markAsRead}
+            />
+          ))}
+          {notifications.map((notif, key) => (
+            <NotificationRow
+              notification={notif}
+              key={key}
+              markAsRead={markAsRead}
+            />
+          ))}
+          {notifications.map((notif, key) => (
+            <NotificationRow
+              notification={notif}
+              key={key}
+              markAsRead={markAsRead}
+            />
+          ))}
+          {notifications.map((notif, key) => (
+            <NotificationRow
+              notification={notif}
+              key={key}
+              markAsRead={markAsRead}
+            />
+          ))}
+          {notifications.map((notif, key) => (
+            <NotificationRow
+              notification={notif}
+              key={key}
+              markAsRead={markAsRead}
+            />
+          ))}
         </NotificationList>
         <NotificationSeeAll>
           <Link to="/notifications">{__('See all')}</Link>

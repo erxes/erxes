@@ -15,6 +15,7 @@ const commonParams = `
   $productIds: [String],
   $labelIds: [String],
   $search: String,
+  $priority: [String],
   $date: ItemDate,
   $pipelineId: String,
   ${conformityQueryFields}
@@ -29,6 +30,7 @@ const commonParamDefs = `
   nextMonth: $nextMonth,
   noCloseDate: $noCloseDate,
   overdue: $overdue,
+  priority: $priority,
   productIds: $productIds,
   labelIds: $labelIds,
   search: $search,
@@ -47,6 +49,7 @@ export const dealFields = `
     name
   }
   boardId
+  priority
   companies {
     _id
     primaryName

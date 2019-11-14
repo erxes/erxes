@@ -61,7 +61,7 @@ class Attachments extends React.PureComponent<Props, {}> {
     const type = mimeType ? mimeType : content_type;
 
     return (
-      <AttachmentItem key={filename}>
+      <AttachmentItem key={id}>
         <FileIcon>{this.getIcon(type || '', 32)}</FileIcon>
         <FileInfo>
           {this.getIcon(type || '', 14)}

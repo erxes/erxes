@@ -19,7 +19,7 @@ import {
   SidebarList
 } from 'modules/layout/styles';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
 import CompaniesMerge from '../detail/CompaniesMerge';
@@ -56,9 +56,9 @@ class BasicInfo extends React.Component<Props> {
         {this.renderLink(links.facebook, 'facebook')}
         {this.renderLink(links.twitter, 'twitter')}
         {this.renderLink(links.linkedIn, 'linkedin-logo')}
-        {this.renderLink(links.youtube, 'youtube')}
+        {this.renderLink(links.youtube, 'youtube-play')}
         {this.renderLink(links.github, 'github-circled')}
-        {this.renderLink(links.website, 'earthgrid')}
+        {this.renderLink(links.website, 'link-alt')}
       </Links>
     );
   }
@@ -91,13 +91,13 @@ class BasicInfo extends React.Component<Props> {
 
     return (
       <Action>
-        <Dropdown id="dropdown-engage">
-          <DropdownToggle bsRole="toggle">
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-company">
             <Button btnStyle="simple" size="medium">
               {__('Action')}
               <Icon icon="angle-down" />
             </Button>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
               <TargetMerge

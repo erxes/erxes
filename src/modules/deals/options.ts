@@ -42,9 +42,12 @@ const options = {
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {
+    const { priority, productIds } = queryParams;
     const extraParams: any = {};
 
-    const productIds = queryParams.productIds;
+    if (priority) {
+      extraParams.priority = toArray(priority);
+    }
 
     if (productIds) {
       extraParams.productIds = toArray(productIds);

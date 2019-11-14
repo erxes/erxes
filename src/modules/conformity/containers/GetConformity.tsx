@@ -13,6 +13,7 @@ type IProps = {
   itemsQuery: string;
   data?: any;
   isOpen?: boolean;
+  collapseCallback?: () => void;
 };
 
 type FinalProps = {

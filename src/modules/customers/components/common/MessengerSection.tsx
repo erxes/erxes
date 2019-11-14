@@ -1,16 +1,16 @@
 import dayjs from 'dayjs';
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
 import { __, isTimeStamp, isValidDate } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { ICustomer } from '../../types';
 
 type Props = {
   customer: ICustomer;
-  // TODO: check query params. Because it was in context
   queryParams?: any;
+  collapseCallback?: () => void;
 };
 
 class MessengerSection extends React.Component<Props> {
@@ -67,15 +67,16 @@ class MessengerSection extends React.Component<Props> {
   }
 
   render() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
+    const { collapseCallback } = this.props;
 
     return (
-      <Section>
-        <Title>{__('Messenger data')}</Title>
-
+      <Box
+        title={__('Messenger data')}
+        name="showMessengerData"
+        callback={collapseCallback}
+      >
         {this.renderContent()}
-      </Section>
+      </Box>
     );
   }
 }

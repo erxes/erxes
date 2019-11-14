@@ -5,20 +5,21 @@ import { can } from '../utils';
 type Props = {
   action: string;
   children: React.ReactNode;
+  fallbackComponent?: React.ReactNode;
 };
 
 const WithPermission = (props: Props) => {
-  const { action, children } = props;
+  const { action, children, fallbackComponent } = props;
 
   return (
     <AppConsumer>
       {({ currentUser }) => {
         if (!currentUser) {
-          return null;
+          return fallbackComponent || null;
         }
 
         if (!can(action, currentUser)) {
-          return null;
+          return fallbackComponent || null;
         }
 
         return children;
