@@ -3,7 +3,6 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { Dropdown } from 'react-bootstrap';
@@ -37,10 +36,9 @@ class Segments extends React.Component<Props> {
 
   renderQuickBtns() {
     const { contentType } = this.props;
-    const { Section } = Wrapper.Sidebar;
 
     return (
-      <Section.QuickButtons>
+      <>
         <Dropdown
           id="dropdown-user"
           className="quick-button"
@@ -67,7 +65,7 @@ class Segments extends React.Component<Props> {
         </Dropdown>
 
         {this.renderCancelBtn()}
-      </Section.QuickButtons>
+      </>
     );
   }
 
@@ -101,8 +99,7 @@ class Segments extends React.Component<Props> {
             >
               {segment.subOf ? '\u00a0\u00a0' : null}
               <Icon
-                icon="piechart"
-                size={10}
+                icon="chart-pie"
                 style={{ color: segment.color, marginRight: '5px' }}
               />{' '}
               {segment.name}
@@ -117,25 +114,23 @@ class Segments extends React.Component<Props> {
   render() {
     const { segments, loading } = this.props;
     const extraButtons = this.renderQuickBtns();
-    const { Section } = Wrapper.Sidebar;
 
     return (
       <Box
         title={__('Filter by segments')}
         isOpen={true}
         extraButtons={extraButtons}
+        collapsible={segments.length > 5}
       >
-        <Section collapsible={segments.length > 5}>
-          <DataWithLoader
-            data={this.renderData()}
-            loading={loading}
-            count={segments.length}
-            emptyText="Open segments and starting add details"
-            emptyIcon="pie-chart"
-            size="small"
-            objective={true}
-          />
-        </Section>
+        <DataWithLoader
+          data={this.renderData()}
+          loading={loading}
+          count={segments.length}
+          emptyText="Open segments and starting add details"
+          emptyIcon="pie-chart"
+          size="small"
+          objective={true}
+        />
       </Box>
     );
   }

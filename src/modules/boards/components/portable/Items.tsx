@@ -3,7 +3,6 @@ import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
 import React from 'react';
 import { ItemChooser } from '../../containers/portable/';
@@ -45,9 +44,6 @@ class Items extends React.Component<Props> {
   };
 
   render() {
-    const { Section } = Sidebar;
-    const { QuickButtons } = Section;
-
     const {
       mainType,
       mainTypeId,
@@ -111,18 +107,14 @@ class Items extends React.Component<Props> {
       />
     );
 
-    const extraButtons = <QuickButtons>{quickButtons}</QuickButtons>;
-
     return (
       <Box
-        extraButtons={extraButtons}
+        extraButtons={quickButtons}
         title={__(data.options.title)}
         isOpen={isOpen || false}
       >
-        <Section>
-          <SectionContainer>{this.renderItems()}</SectionContainer>
-          {mainTypeId && mainType && relQuickButtons}
-        </Section>
+        <SectionContainer>{this.renderItems()}</SectionContainer>
+        {mainTypeId && mainType && relQuickButtons}
       </Box>
     );
   }

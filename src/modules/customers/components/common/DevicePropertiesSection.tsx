@@ -1,7 +1,7 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import parse from 'ua-parser-js';
@@ -79,9 +79,11 @@ class DevicePropertiesSection extends React.Component<Props> {
   }
 
   render() {
-    const { Section } = Sidebar;
-
-    return <Section>{this.renderContent()}</Section>;
+    return (
+      <Box title={__('Device properties')} isOpen={false}>
+        {this.renderContent()}
+      </Box>
+    );
   }
 }
 

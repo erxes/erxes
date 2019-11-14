@@ -5,7 +5,6 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import { __, renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { Contact } from 'modules/customers/styles';
-import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -46,12 +45,11 @@ class Contacts extends React.Component<Props> {
   }
 
   render() {
-    const { Section } = Sidebar;
     const { isOpen, toggle } = this.props;
 
     return (
       <Box title={__('Contacts')} isOpen={isOpen || true} toggle={toggle}>
-        <Section>{this.renderContent()}</Section>
+        {this.renderContent()}
       </Box>
     );
   }

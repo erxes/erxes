@@ -3,7 +3,6 @@ import {
   SidebarCollapse
 } from 'modules/inbox/components/conversationDetail/sidebar/styles';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { ExtraButtons } from 'modules/layout/styles';
 import React from 'react';
 import Icon from './Icon';
 
@@ -12,12 +11,13 @@ type BoxProps = {
   name?: string;
   children: React.ReactNode;
   extraButtons?: React.ReactNode;
-  isOpen: boolean;
+  isOpen?: boolean;
   toggle?: (params: { name: string; isOpen: boolean }) => void;
+  collapsible?: boolean;
 };
 
 type BoxState = {
-  isOpen: boolean;
+  isOpen?: boolean;
 };
 
 export default class Box extends React.Component<BoxProps, BoxState> {
@@ -41,13 +41,17 @@ export default class Box extends React.Component<BoxProps, BoxState> {
   };
 
   renderDropBtn() {
-    const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
+    const { isOpen } = this.state;
+    const icon = isOpen ? 'downarrow' : 'rightarrow-2';
+    const { QuickButtons } = Sidebar.Section;
+    const { extraButtons } = this.props;
 
     return (
       <>
-        {this.state.isOpen ? (
-          <ExtraButtons>{this.props.extraButtons}</ExtraButtons>
-        ) : null}
+        {isOpen &&
+          (extraButtons && (
+            <QuickButtons isSidebarOpen={true}>{extraButtons}</QuickButtons>
+          ))}
         <SidebarCollapse onClick={this.toggle}>
           <Icon icon={icon} />
         </SidebarCollapse>
@@ -60,13 +64,15 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { Title } = Section;
 
     const { isOpen } = this.state;
-    const { children, title } = this.props;
+    const { children, title, collapsible } = this.props;
 
     return (
       <SectionContainer>
         <Title onClick={this.toggle}>{title}</Title>
         {this.renderDropBtn()}
-        {isOpen ? children : null}
+        {isOpen ? (
+          <Section collapsible={collapsible}>{children}</Section>
+        ) : null}
       </SectionContainer>
     );
   }

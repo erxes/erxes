@@ -2,7 +2,6 @@ import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
@@ -15,8 +14,6 @@ interface IProps extends IRouterProps {
 }
 
 function Leads({ history, counts, integrations, loading }: IProps) {
-  const { Section } = Wrapper.Sidebar;
-
   const onClick = formId => {
     router.setParams(history, { form: formId });
   };
@@ -46,18 +43,20 @@ function Leads({ history, counts, integrations, loading }: IProps) {
   );
 
   return (
-    <Box title={__('Filter by Pop Ups')} isOpen={false}>
-      <Section collapsible={integrations.length > 5}>
-        <DataWithLoader
-          data={data}
-          loading={loading}
-          count={integrations.length}
-          emptyText="Search and filter customers by pop ups"
-          emptyIcon="monitor"
-          size="small"
-          objective={true}
-        />
-      </Section>
+    <Box
+      title={__('Filter by Pop Ups')}
+      isOpen={false}
+      collapsible={integrations.length > 5}
+    >
+      <DataWithLoader
+        data={data}
+        loading={loading}
+        count={integrations.length}
+        emptyText="Search and filter customers by pop ups"
+        emptyIcon="monitor"
+        size="small"
+        objective={true}
+      />
     </Box>
   );
 }

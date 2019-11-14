@@ -230,6 +230,7 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   top: ${props =>
     props.isSidebarOpen ? `${dimensions.unitSpacing}px` : '15px'};
   color: ${colors.colorCoreLightGray};
+  padding-right: ${props => (props.isSidebarOpen ? '25px' : '0')};
 
   a, button {
     float: left;
@@ -246,7 +247,6 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
 
     > i {
       font-size: 14px;
-      margin-right: ${props => (props.isSidebarOpen ? '25px' : '0')};
 
       &:hover {
         color: ${colors.colorCoreBlack};
@@ -541,19 +541,6 @@ const ButtonRelated = styled.div`
   }
 `;
 
-const ExtraButtons = styled.div`
-  position: absolute;
-  right: 23px;
-  top: -6px;
-  cursor: pointer;
-`;
-
-const TagsButtons = styled.div`
-  position: absolute;
-  right: 20px;
-  top: -43px;
-`;
-
 export {
   Layout,
   MainWrapper,
@@ -589,8 +576,6 @@ export {
   SectionContainer,
   SectionBody,
   SectionBodyItem,
-  ExtraButtons,
   MobileRecommend,
-  ButtonRelated,
-  TagsButtons
+  ButtonRelated
 };

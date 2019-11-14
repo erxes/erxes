@@ -129,8 +129,6 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   render() {
-    const { Section } = Sidebar;
-
     const { fieldGroup, isOpen } = this.props;
 
     if (!fieldGroup.isVisible) {
@@ -139,10 +137,8 @@ class GenerateGroup extends React.Component<Props, State> {
 
     return (
       <Box title={fieldGroup.name} name="showTags" isOpen={isOpen || false}>
-        <Section>
-          {this.renderContent()}
-          {this.renderButtons()}
-        </Section>
+        {this.renderContent()}
+        {this.renderButtons()}
       </Box>
     );
   }

@@ -31,7 +31,7 @@ class Watch extends React.Component<IProps> {
     }
 
     return (
-      <RightButton icon="eye" onClick={onClick}>
+      <RightButton icon="eye-2" onClick={onClick}>
         {__('Watch')}
         {isWatched && (
           <WatchIndicator>

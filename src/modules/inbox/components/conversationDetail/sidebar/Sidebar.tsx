@@ -95,8 +95,6 @@ type IndexState = {
 interface IRenderData {
   customer: ICustomer;
   kind: string;
-  config: { [key: string]: boolean };
-  toggleSection: (params: { name: string; isOpen: boolean }) => void;
 }
 
 class Index extends React.Component<IndexProps, IndexState> {
@@ -117,46 +115,18 @@ class Index extends React.Component<IndexProps, IndexState> {
     this.setState({ currentSubTab });
   };
 
-  renderMessengerData = ({
-    customer,
-    kind,
-    config,
-    toggleSection
-  }: IRenderData) => {
+  renderMessengerData = ({ customer, kind }: IRenderData) => {
     if (kind !== 'messenger') {
       return null;
     }
-    return (
-      <Box
-        title={__('Messenger data')}
-        name="showMessengerData"
-        isOpen={config.showMessengerData || false}
-        toggle={toggleSection}
-      >
-        <MessengerSection customer={customer} />
-      </Box>
-    );
+    return <MessengerSection customer={customer} />;
   };
 
-  renderDeviceProperties = ({
-    customer,
-    kind,
-    config,
-    toggleSection
-  }: IRenderData) => {
+  renderDeviceProperties = ({ customer, kind }: IRenderData) => {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
-    return (
-      <Box
-        title={__('Device properties')}
-        name="showDeviceProperties"
-        isOpen={config.showDeviceProperties || false}
-        toggle={toggleSection}
-      >
-        <DevicePropertiesSection customer={customer} />
-      </Box>
-    );
+    return <DevicePropertiesSection customer={customer} />;
   };
 
   renderActions() {
@@ -224,18 +194,11 @@ class Index extends React.Component<IndexProps, IndexState> {
           >
             <ConversationDetails conversation={conversation} />
           </Box>
-          <Box
-            title={__('Tags')}
-            name="showTags"
-            isOpen={config.showTags || false}
-            toggle={toggleSection}
-          >
-            <TaggerSection
-              data={customer}
-              type="customer"
-              refetchQueries={taggerRefetchQueries}
-            />
-          </Box>
+          <TaggerSection
+            data={customer}
+            type="customer"
+            refetchQueries={taggerRefetchQueries}
+          />
           <Box
             title={__('Contact information')}
             name="showCustomFields"
@@ -244,18 +207,8 @@ class Index extends React.Component<IndexProps, IndexState> {
           >
             <CustomFieldsSection loading={loading} customer={customer} />
           </Box>
-          {this.renderMessengerData({
-            customer,
-            kind,
-            config,
-            toggleSection
-          })}
-          {this.renderDeviceProperties({
-            customer,
-            kind,
-            config,
-            toggleSection
-          })}
+          {this.renderMessengerData({ customer, kind })}
+          {this.renderDeviceProperties({ customer, kind })}
         </TabContent>
       );
     }

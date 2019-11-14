@@ -32,8 +32,6 @@ export default class RightSidebar extends React.Component<Props> {
   render() {
     const { company, isOpen } = this.props;
 
-    const { Section } = Sidebar;
-
     return (
       <Sidebar>
         <CustomerSection mainType="company" mainTypeId={company._id} />
@@ -42,19 +40,17 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableTasks mainType="company" mainTypeId={company._id} />
 
         <Box title={__('Other')} isOpen={isOpen || false}>
-          <Section>
-            <List>
-              <li>
-                <div>{__('Created at')}: </div>{' '}
-                <span>{dayjs(company.createdAt).format('lll')}</span>
-              </li>
-              <li>
-                <div>{__('Modified at')}: </div>{' '}
-                <span>{dayjs(company.modifiedAt).format('lll')}</span>
-              </li>
-              {this.renderPlan(company)}
-            </List>
-          </Section>
+          <List>
+            <li>
+              <div>{__('Created at')}: </div>{' '}
+              <span>{dayjs(company.createdAt).format('lll')}</span>
+            </li>
+            <li>
+              <div>{__('Modified at')}: </div>{' '}
+              <span>{dayjs(company.modifiedAt).format('lll')}</span>
+            </li>
+            {this.renderPlan(company)}
+          </List>
         </Box>
       </Sidebar>
     );

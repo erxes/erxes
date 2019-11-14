@@ -43,12 +43,11 @@ export default class RightSidebar extends React.Component<Props> {
   }
 
   renderOther() {
-    const { Section } = Sidebar;
     const { isOpen } = this.props;
 
     return (
       <Box title={__('Other')} isOpen={isOpen || false}>
-        <Section>{this.renderContent()}</Section>
+        {this.renderContent()}
       </Box>
     );
   }

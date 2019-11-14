@@ -57,7 +57,8 @@ describe('EmailForm component', () => {
     email: testIEngageEmail,
     fromUserId: 'string',
     content: 'string',
-    scheduleDate: testIEngageScheduleDate
+    scheduleDate: testIEngageScheduleDate,
+    verifiedEmails: []
   };
 
   test('renders successfully', () => {

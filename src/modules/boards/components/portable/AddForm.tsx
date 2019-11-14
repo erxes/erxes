@@ -117,11 +117,7 @@ class AddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              componentClass="textarea"
-              autoFocus={true}
-              onChange={this.onChangeName}
-            />
+            <FormControl autoFocus={true} onChange={this.onChangeName} />
           </HeaderContent>
         </HeaderRow>
 

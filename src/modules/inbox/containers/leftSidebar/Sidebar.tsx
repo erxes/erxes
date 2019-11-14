@@ -2,7 +2,6 @@ import { AppConsumer } from 'appContext';
 import Bulk from 'modules/common/components/Bulk';
 import { IBulkContentProps } from 'modules/common/components/Bulk';
 import DumbSidebar from 'modules/inbox/components/leftSidebar/Sidebar';
-import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';
@@ -35,11 +34,6 @@ class Sidebar extends React.Component<Props> {
       });
     }
 
-    const integrations = INTEGRATIONS_TYPES.ALL_LIST.map(item => ({
-      _id: item,
-      name: item
-    }));
-
     const { currentConversationId, queryParams, history } = this.props;
 
     const content = ({ bulk, toggleBulk, emptyBulk }: IBulkContentProps) => {
@@ -50,7 +44,6 @@ class Sidebar extends React.Component<Props> {
               currentUser={currentUser}
               currentConversationId={currentConversationId}
               queryParams={queryParams}
-              integrations={integrations}
               history={history}
               bulk={bulk}
               emptyBulk={emptyBulk}

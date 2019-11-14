@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import EditForm from 'modules/boards/components/editForm/EditForm';
 import Left from 'modules/boards/components/editForm/Left';
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
@@ -20,11 +19,10 @@ import { ITask, ITaskParams } from '../types';
 type Props = {
   options: IOptions;
   item: ITask;
-  users: IUser[];
   addItem: (doc: ITaskParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITaskParams, callback?: (item) => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  onUpdate: (item, prevStageId?: string) => void;
+  onUpdate: (item: ITask, prevStageId?: string) => void;
   beforePopupClose: () => void;
 };
 
@@ -36,27 +34,13 @@ export default class TaskEditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const item = props.item;
-
     this.state = {
-      priority: item.priority || ''
+      priority: props.item.priority || ''
     };
   }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  renderSidebarFields = () => {
-    const { priority } = this.state;
-
+  renderSidebarFields = saveItem => {
     const priorityValues = PRIORITIES.map(p => ({ label: __(p), value: p }));
-
-    const onChangePriority = (option: ISelectedOption) => {
-      this.props.saveItem({ priority: option ? option.value : '' }, () =>
-        this.onChangeField('priority', option ? option.value : '')
-      );
-    };
 
     const priorityValueRenderer = (
       option: ISelectedOption
@@ -66,15 +50,25 @@ export default class TaskEditForm extends React.Component<Props, State> {
       </>
     );
 
+    const onPriorityChange = (option: ISelectedOption) => {
+      const value = option ? option.value : '';
+
+      this.setState({ priority: value });
+
+      if (saveItem) {
+        saveItem({ priority: value });
+      }
+    };
+
     return (
       <>
         <FormGroup>
           <ControlLabel>Priority</ControlLabel>
           <Select
             placeholder={__('Select a priority')}
-            value={priority}
+            value={this.state.priority}
             options={priorityValues}
-            onChange={onChangePriority}
+            onChange={onPriorityChange}
             optionRenderer={priorityValueRenderer}
             valueRenderer={priorityValueRenderer}
           />
@@ -94,58 +88,33 @@ export default class TaskEditForm extends React.Component<Props, State> {
 
   renderFormContent = ({
     state,
-    onChangeAttachment,
-    onChangeField,
     copy,
     remove,
-    onBlurFields
+    saveItem,
+    onChangeStage
   }: IEditFormContent) => {
-    const { item, users, options } = this.props;
+    const { item, options } = this.props;
 
-    const {
-      name,
-      stageId,
-      description,
-      closeDate,
-      assignedUserIds,
-      attachments,
-      isComplete,
-      reminderMinute
-    } = state;
+    const renderSidebar = () => this.renderSidebarFields(saveItem);
 
     return (
       <>
         <Top
           options={options}
-          name={name}
-          closeDate={closeDate}
-          users={users}
-          stageId={stageId}
+          stageId={state.stageId}
           item={item}
-          onChangeField={onChangeField}
-          onBlurFields={onBlurFields}
-          isComplete={isComplete}
-          reminderMinute={reminderMinute}
+          saveItem={saveItem}
+          onChangeStage={onChangeStage}
         />
 
         <FlexContent>
-          <Left
-            onChangeAttachment={onChangeAttachment}
-            type={options.type}
-            labels={state.labels}
-            description={description}
-            attachments={attachments}
-            item={item}
-            onChangeField={onChangeField}
-            onBlurFields={onBlurFields}
-          />
+          <Left type={options.type} item={item} saveItem={saveItem} />
 
           <Sidebar
             options={options}
-            assignedUserIds={assignedUserIds}
             item={item}
-            sidebar={this.renderSidebarFields}
-            onChangeField={onChangeField}
+            sidebar={renderSidebar}
+            saveItem={saveItem}
             copyItem={copy}
             removeItem={remove}
             renderItems={this.renderItems}
@@ -159,7 +128,6 @@ export default class TaskEditForm extends React.Component<Props, State> {
     const extendedProps = {
       ...this.props,
       formContent: this.renderFormContent,
-      sidebar: this.renderSidebarFields,
       extraFields: this.state
     };
 

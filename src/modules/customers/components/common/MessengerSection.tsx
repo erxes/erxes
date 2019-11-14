@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
 import { __, isTimeStamp, isValidDate } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { ICustomer } from '../../types';
@@ -68,9 +68,11 @@ class MessengerSection extends React.Component<Props> {
   }
 
   render() {
-    const { Section } = Sidebar;
-
-    return <Section>{this.renderContent()}</Section>;
+    return (
+      <Box title={__('Messenger data')} name="showMessengerData">
+        {this.renderContent()}
+      </Box>
+    );
   }
 }
 

@@ -58,7 +58,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
           className={this.state.currentTab === 'email' ? 'active' : ''}
           onClick={this.onChangeTab.bind(this, 'email')}
         >
-          <Icon icon="email" /> {__('Email')}
+          <Icon icon="envelope-add" /> {__('Email')}
         </TabTitle>
       );
     }
@@ -81,7 +81,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
             className={currentTab === 'newNote' ? 'active' : ''}
             onClick={this.onChangeTab.bind(this, 'newNote')}
           >
-            <Icon icon="edit-1" /> {__('New note')}
+            <Icon icon="file-plus" /> {__('New note')}
           </TabTitle>
 
           {this.renderExtraTab()}

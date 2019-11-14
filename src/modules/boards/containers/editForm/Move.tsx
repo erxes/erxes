@@ -11,10 +11,7 @@ type Props = {
   item: IItem;
   stageId?: string;
   options: IOptions;
-  onChangeStage?: (
-    name: 'stageId' | 'name' | 'closeDate' | 'description' | 'assignedUserIds',
-    value: any
-  ) => void;
+  onChangeStage?: (stageId: string) => void;
 };
 
 class MoveContainer extends React.Component<{

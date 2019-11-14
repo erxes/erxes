@@ -1,4 +1,3 @@
-import withPipeline from 'modules/boards/containers/withPipeline';
 import { IPipeline } from 'modules/boards/types';
 import LoadMore from 'modules/common/components/LoadMore';
 import Table from 'modules/common/components/table';
@@ -130,4 +129,4 @@ class Content extends React.Component<Props> {
   }
 }
 
-export default withPipeline(Content);
+export default Content;

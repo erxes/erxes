@@ -1,37 +1,18 @@
-import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
-import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
-import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
-import { IPipelineLabel } from '../../types';
+import Modal from 'react-bootstrap/lib/Modal';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
-
-const reactiveFields = [
-  'closeDate',
-  'stageId',
-  'assignedUserIds',
-  'isComplete',
-  'reminderMinute'
-];
-
-const reactiveForiegnFields = ['companies', 'customers', 'labels'];
 
 type Props = {
   options: IOptions;
   item: IItem;
-  users: IUser[];
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
   amount?: () => React.ReactNode;
-  sidebar?: () => React.ReactNode;
-  formContent: (
-    { state, onChangeAttachment, onChangeField, copy, remove }: IEditFormContent
-  ) => React.ReactNode;
+  formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
   onUpdate: (item, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
@@ -39,82 +20,37 @@ type Props = {
 };
 
 type State = {
-  name?: string;
   stageId?: string;
-  description?: string;
-  closeDate?: Date;
-  assignedUserIds?: string[];
-  customers: ICustomer[];
-  companies: ICompany[];
-  labels: IPipelineLabel[];
-  attachments?: IAttachment[];
-  updatedItem?;
-  prevStageId?;
-  reminderMinute?: number;
-  isComplete?: boolean;
+  updatedItem?: IItem;
+  prevStageId?: string;
 };
 
 class EditForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const item = props.item;
-
     this.state = {
-      name: item.name,
-      stageId: item.stageId,
-      // IItem datas
-      labels: item.labels || [],
-      companies: item.companies || [],
-      customers: item.customers || [],
-      closeDate: item.closeDate,
-      description: item.description || '',
-      attachments: item.attachments && extractAttachment(item.attachments),
-      assignedUserIds: (item.assignedUsers || []).map(user => user._id),
-      reminderMinute: item.reminderMinute || 0,
-      isComplete: item.isComplete
+      stageId: props.item.stageId
     };
   }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>, () => {
+  onChangeStage = (stageId: string) => {
+    this.setState({ stageId }, () => {
       if (this.props.item.stageId !== this.state.stageId) {
         this.setState({
           prevStageId: this.props.item.stageId
         });
-      }
 
-      if (reactiveFields.includes(name)) {
-        this.props.saveItem({ [name]: value }, updatedItem => {
-          this.setState({ updatedItem }, () => {
-            if (name === 'stageId') {
-              this.props.onUpdate(updatedItem, this.state.prevStageId);
-            }
-          });
-        });
-      }
-
-      if (reactiveForiegnFields.includes(name)) {
-        this.props.saveItem({}, updatedItem => {
-          this.setState({ updatedItem });
+        this.props.saveItem({ stageId }, updatedItem => {
+          this.props.onUpdate(updatedItem, this.state.prevStageId);
         });
       }
     });
   };
 
-  onBlurFields = (name: string, value: string) => {
-    if (value === this.props.item[name]) {
-      return;
-    }
-
-    this.props.saveItem({ [name]: value }, updatedItem => {
+  saveItem = (doc: { [key: string]: any }) => {
+    this.props.saveItem(doc, updatedItem => {
       this.setState({ updatedItem });
-    });
-  };
-
-  onChangeAttachment = (attachments: IAttachment[]) => {
-    this.setState({ attachments }, () => {
-      this.props.saveItem({ attachments });
     });
   };
 
@@ -184,11 +120,10 @@ class EditForm extends React.Component<Props, State> {
         <Modal.Body>
           {this.props.formContent({
             state: this.state,
-            onChangeAttachment: this.onChangeAttachment,
-            onChangeField: this.onChangeField,
+            saveItem: this.saveItem,
+            onChangeStage: this.onChangeStage,
             copy: this.copy,
-            remove: this.remove,
-            onBlurFields: this.onBlurFields
+            remove: this.remove
           })}
         </Modal.Body>
       </Modal>

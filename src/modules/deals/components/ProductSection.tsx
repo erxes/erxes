@@ -4,7 +4,6 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
@@ -28,9 +27,6 @@ function ProductSection({
   isOpen,
   saveProductsData
 }: Props) {
-  const { Section } = Sidebar;
-  const { QuickButtons } = Section;
-
   const content = props => (
     <ProductForm
       {...props}
@@ -69,18 +65,16 @@ function ProductSection({
     return <ProductName>{product.name}</ProductName>;
   };
   const extraButtons = (
-    <QuickButtons isSidebarOpen={isOpen}>
-      <ModalTrigger
-        title="New Product & Service"
-        size="lg"
-        trigger={
-          <button>
-            <Icon icon="add" />
-          </button>
-        }
-        content={content}
-      />
-    </QuickButtons>
+    <ModalTrigger
+      title="New Product & Service"
+      size="lg"
+      trigger={
+        <button>
+          <Icon icon="add" />
+        </button>
+      }
+      content={content}
+    />
   );
 
   return (
@@ -89,18 +83,16 @@ function ProductSection({
       isOpen={false}
       extraButtons={extraButtons}
     >
-      <Section>
-        <SectionBody>
-          {products.map((product, index) => (
-            <SectionBodyItem key={index}>
-              {renderProduct(product)}
-            </SectionBodyItem>
-          ))}
-          {products.length === 0 && (
-            <EmptyState icon="shopping-bag" text="No items" />
-          )}
-        </SectionBody>
-      </Section>
+      <SectionBody>
+        {products.map((product, index) => (
+          <SectionBodyItem key={index}>
+            {renderProduct(product)}
+          </SectionBodyItem>
+        ))}
+        {products.length === 0 && (
+          <EmptyState icon="shopping-bag" text="No items" />
+        )}
+      </SectionBody>
     </Box>
   );
 }

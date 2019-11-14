@@ -46,7 +46,7 @@ export const DropZone = styled.div`
 `;
 
 export const EmptyContainer = styled.div`
-  height: 160px;
+  height: 100px;
 `;
 
 export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`

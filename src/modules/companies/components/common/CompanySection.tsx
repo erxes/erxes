@@ -5,8 +5,6 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __, urlParser } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-// import { KnowledgeForm } from 'modules/knowledgeBase/components/knowledge';
-import Sidebar from 'modules/layout/components/Sidebar';
 import {
   ButtonRelated,
   SectionBody,
@@ -40,9 +38,6 @@ function Component(
     onSelect
   }: Props
 ) {
-  const { Section } = Sidebar;
-  const { QuickButtons } = Section;
-
   const renderCompanyChooser = props => {
     return (
       <CompanyChooser
@@ -113,17 +108,15 @@ function Component(
     </SectionBody>
   );
 
-  const extraButtons = <QuickButtons>{quickButtons}</QuickButtons>;
-
   return (
     <Box
       title={__('Companies')}
       name="showCompanies"
       isOpen={isOpen || true}
-      extraButtons={extraButtons}
+      extraButtons={quickButtons}
       toggle={toggle}
     >
-      <Section>{content}</Section>
+      {content}
     </Box>
   );
 }

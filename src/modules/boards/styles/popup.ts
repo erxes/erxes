@@ -1,19 +1,19 @@
 import { colors } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import { darken, lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const buttonColor = name => {
   if (name === 'red') {
-    return colors.colorCoreRed;
+    return lighten(colors.colorCoreRed, 10);
   }
 
   if (name === 'green') {
-    return colors.colorCoreGreen;
+    return lighten(colors.colorCoreGreen, 10);
   }
 
   if (name === 'yellow') {
-    return colors.colorCoreYellow;
+    return lighten(colors.colorCoreYellow, 10);
   }
 
   return colors.colorCoreLightGray;
@@ -23,17 +23,17 @@ export const Button = styledTS<{
   colorName?: string;
   extra?: boolean;
 }>(styled.div)`
-  padding: 8px 16px;
+  padding: 5px 15px;
   background: ${props => buttonColor(props.colorName)};
   color: #fff;
-  border-radius: 4px;
+  border-radius: 2px;
   font-weight: 500;
   transition: background 0.3s ease;
   display: inline-block;
   text-align: center;
 
   &:hover {
-    background: ${props => rgba(buttonColor(props.colorName), 0.72)};
+    background: ${props => darken(buttonColor(props.colorName), 10)};
     cursor: pointer;
   }
   
@@ -42,13 +42,13 @@ export const Button = styledTS<{
 
 export const CloseDateLabel = styled(Button)`
   width: 72px;
-  padding: 5px 0;
+  padding: 3px 0;
   line-height: 1em;
   margin-top: 4px;
 `;
 
 export const CheckBoxWrapper = styled.span`
-  margin-right: 6px;
+  margin-right: 10px;
 `;
 
 export const CalenderWrapper = styled.div`
@@ -79,7 +79,7 @@ export const DateGrid = styled.div`
       border-radius: 4px;
       display: block;
       border: 2px solid ${colors.borderPrimary}
-      padding: 4px;
+      padding: 4px 8px;
     }
     
     &:first-child {
