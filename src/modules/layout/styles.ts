@@ -232,6 +232,7 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   color: ${colors.colorCoreLightGray};
 
   a, button {
+    float: left;
     color: ${colors.colorCoreLightGray};
     text-transform: none;
     cursor: pointer;
@@ -271,7 +272,6 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 
   &.no-link li,
   a {
-    max-width: 186px;
     display: block;
     padding: 6px 20px;
     color: ${colors.textPrimary};
@@ -317,7 +317,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   position: ${props => !props.nowrap && 'absolute'};
-  right: 0;
+  right: ${dimensions.coreSpacing}px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
