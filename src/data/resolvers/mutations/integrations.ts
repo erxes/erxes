@@ -226,6 +226,25 @@ const integrationMutations = {
       data: JSON.stringify(doc),
     });
   },
+
+  async integrationsArchive(_root, { _id }: { _id: string }, { user }: IContext) {
+    const integration = await Integrations.findOne({ _id });
+    await Integrations.updateOne({ _id }, { $set: { isActive: false } });
+
+    if (integration) {
+      await putUpdateLog(
+        {
+          type: 'integration',
+          object: integration,
+          newData: JSON.stringify({ isActive: false }),
+          description: `Integration "${integration.name}" has been archived.`,
+        },
+        user,
+      );
+    }
+
+    return Integrations.findOne({ _id });
+  },
 };
 
 checkPermission(
@@ -242,5 +261,6 @@ checkPermission(integrationMutations, 'integrationsSaveMessengerConfigs', 'integ
 checkPermission(integrationMutations, 'integrationsCreateLeadIntegration', 'integrationsCreateLeadIntegration');
 checkPermission(integrationMutations, 'integrationsEditLeadIntegration', 'integrationsEditLeadIntegration');
 checkPermission(integrationMutations, 'integrationsRemove', 'integrationsRemove');
+checkPermission(integrationMutations, 'integrationsArchive', 'integrationsArchive');
 
 export default integrationMutations;

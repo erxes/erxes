@@ -41,7 +41,7 @@ const insightQueries = {
 
     // count conversations by each integration kind
     for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
-      const integrationIds = await Integrations.find({
+      const integrationIds = await Integrations.findIntegrations({
         ...filterSelector.integration,
         kind,
       }).select('_id');
@@ -78,7 +78,7 @@ const insightQueries = {
 
     const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
 
-    const integrationIdsByTag = await Integrations.find(filterSelector.integration).select('_id');
+    const integrationIdsByTag = await Integrations.findIntegrations(filterSelector.integration).select('_id');
 
     const rawIntegrationIdsByTag = integrationIdsByTag.map(row => row._id);
 

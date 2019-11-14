@@ -71,7 +71,7 @@ const countByBrands = async (qb: any): Promise<ICountBy> => {
   for (const brand of brands) {
     byBrands[brand._id] = await count({
       ...qb.mainQuery(),
-      ...qb.intersectIntegrationIds(qb.queries.channel, await qb.brandFilter(brand._id)),
+      ...(await qb.intersectIntegrationIds(qb.queries.channel, await qb.brandFilter(brand._id))),
     });
   }
 
@@ -265,6 +265,7 @@ const conversationQueries = {
   async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
     // initiate query builder
     const qb = new QueryBuilder({}, { _id: user._id });
+    await qb.buildAllQueries();
 
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();

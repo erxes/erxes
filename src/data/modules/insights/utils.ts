@@ -108,7 +108,7 @@ export const getConversationSelector = async (
   fieldName: string = 'createdAt',
 ): Promise<any> => {
   if (Object.keys(filterSelector.integration).length > 0) {
-    const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
+    const integrationIds = await Integrations.findIntegrations(filterSelector.integration).select('_id');
     conversationSelector.integrationId = { $in: integrationIds.map(row => row._id) };
   }
 
@@ -547,7 +547,7 @@ export const getConversationSelectorToMsg = async (
   }
 
   if (Object.keys(filterSelector.integration).length > 0) {
-    const integrationIdsList = await Integrations.find(filterSelector.integration).select('_id');
+    const integrationIdsList = await Integrations.findIntegrations(filterSelector.integration).select('_id');
     conversationSelector.integrationId = { $in: integrationIdsList.map(row => row._id) };
   }
   return { ...conversationSelector };

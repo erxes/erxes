@@ -131,7 +131,7 @@ export const loadClass = () => {
       count += await Conversations.find({ tagIds: { $in: ids } }).countDocuments();
       count += await EngageMessages.find({ tagIds: { $in: ids } }).countDocuments();
       count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Integrations.find({ tagIds: { $in: ids } }).countDocuments();
+      count += await Integrations.findIntegrations({ tagIds: { $in: ids } }).countDocuments();
       count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
 
       if (count > 0) {

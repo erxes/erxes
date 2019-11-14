@@ -91,7 +91,7 @@ const countByField = async (
 const countByIntegration = async (mainQuery: any): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const integrations = await Integrations.find({ kind: { $in: INTEGRATION_KIND_CHOICES.ALL } }).select({
+  const integrations = await Integrations.findIntegrations({ kind: { $in: INTEGRATION_KIND_CHOICES.ALL } }).select({
     _id: 1,
     name: 1,
     kind: 1,

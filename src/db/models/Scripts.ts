@@ -30,7 +30,7 @@ export const loadClass = () => {
 
       // Generate leadCode, brandCode combinations
       if (fields.leadIds) {
-        const integrations = await Integrations.find({ _id: { $in: fields.leadIds } });
+        const integrations = await Integrations.findIntegrations({ _id: { $in: fields.leadIds } });
 
         const maps: LeadMaps = [];
 

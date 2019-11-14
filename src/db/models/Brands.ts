@@ -72,7 +72,7 @@ export const loadClass = () => {
     public static async manageIntegrations({ _id, integrationIds }: { _id: string; integrationIds: string[] }) {
       await Integrations.updateMany({ _id: { $in: integrationIds } }, { $set: { brandId: _id } }, { multi: true });
 
-      return Integrations.find({ _id: { $in: integrationIds } });
+      return Integrations.findIntegrations({ _id: { $in: integrationIds } });
     }
   }
 
