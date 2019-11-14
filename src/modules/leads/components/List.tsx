@@ -25,7 +25,7 @@ type Props = {
   toggleBulk: (target: ILeadIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: ILeadIntegration[], name: string) => void;
   loading: boolean;
-  remove: (integrationId: string, callback: (error: Error) => void) => void;
+  remove: (integrationId: string) => void;
   archive: (integrationId: string) => void;
 };
 
