@@ -1,3 +1,4 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
@@ -41,14 +42,10 @@ export default class RightSidebar extends React.Component<Props> {
   }
 
   renderOther() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
-
     return (
-      <Section>
-        <Title>{__('Other')}</Title>
+      <Box title={__('Other')} name="showOthers">
         {this.renderContent()}
-      </Section>
+      </Box>
     );
   }
 

@@ -1,6 +1,7 @@
+import Box from 'modules/common/components/Box';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
-import { __, Alert } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { SidebarContent } from '../styles';
@@ -127,9 +128,6 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   render() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
-
     const { fieldGroup } = this.props;
 
     if (!fieldGroup.isVisible) {
@@ -137,12 +135,10 @@ class GenerateGroup extends React.Component<Props, State> {
     }
 
     return (
-      <Section>
-        <Title>{fieldGroup.name}</Title>
-
+      <Box title={fieldGroup.name} name="showCustomFields">
         {this.renderContent()}
         {this.renderButtons()}
-      </Section>
+      </Box>
     );
   }
 }
@@ -169,12 +165,10 @@ class GenerateGroups extends React.Component<GroupsProps> {
   render() {
     const { loading, fieldsGroups, customFieldsData } = this.props;
     const { Section } = Sidebar;
-    const { Title } = Section;
 
     if (fieldsGroups.length === 0) {
       return (
         <Section>
-          <Title>{__('Contact information')}</Title>
           <EmptyState icon="folder" text="Empty" size="small" />
         </Section>
       );
