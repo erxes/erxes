@@ -28,9 +28,20 @@ class MovementLog extends React.Component<Props> {
       userName = createdByDetail.details.fullName || 'Unknown';
     }
 
+    if (contentDetail.item) {
+      const { item, destinationStage, oldStage } = contentDetail;
+
+      return (
+        <span>
+          <strong>{userName}</strong> moved {item.name} deal from
+          {destinationStage} to {oldStage}
+        </span>
+      );
+    }
+
     return (
       <span>
-        <strong>{userName}</strong> {contentDetail}
+        <strong>{userName}</strong>
       </span>
     );
   };
