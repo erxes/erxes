@@ -45,8 +45,8 @@ function Leads({ history, counts, integrations, loading }: IProps) {
   return (
     <Box
       title={__('Filter by Pop Ups')}
-      isOpen={false}
       collapsible={integrations.length > 5}
+      name="showFilterByPopUps"
     >
       <DataWithLoader
         data={data}

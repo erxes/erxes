@@ -69,8 +69,8 @@ class LeadStatusFilter extends React.Component<IProps> {
       <Box
         extraButtons={extraButtons}
         title={__('Filter by pop ups status')}
-        isOpen={false}
         collapsible={true}
+        name="showFilterByStatus"
       >
         <DataWithLoader
           loading={this.props.loading}

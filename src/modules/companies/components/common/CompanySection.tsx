@@ -21,9 +21,8 @@ type Props = {
   items?: ICompany[];
   mainType?: string;
   mainTypeId?: string;
-  isOpen?: boolean;
-  toggle?: any;
   onSelect?: (companies: ICompany[]) => void;
+  collapseCallback?: () => void;
 };
 
 function Component(
@@ -33,9 +32,8 @@ function Component(
     items = [],
     mainType = '',
     mainTypeId = '',
-    isOpen,
-    toggle,
-    onSelect
+    onSelect,
+    collapseCallback
   }: Props
 ) {
   const renderCompanyChooser = props => {
@@ -112,9 +110,9 @@ function Component(
     <Box
       title={__('Companies')}
       name="showCompanies"
-      isOpen={isOpen || true}
       extraButtons={quickButtons}
-      toggle={toggle}
+      isOpen={true}
+      callback={collapseCallback}
     >
       {content}
     </Box>
@@ -126,6 +124,7 @@ type IProps = {
   mainTypeId?: string;
   isOpen?: boolean;
   onSelect?: (datas: ICompany[]) => void;
+  collapseCallback?: () => void;
 };
 
 export default (props: IProps) => {

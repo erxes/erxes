@@ -12,7 +12,6 @@ type Props = {
   fieldGroup: IFieldGroup;
   loading?: boolean;
   data: any;
-  isOpen?: boolean;
   save: (data: any, callback: (error: Error) => void) => void;
 };
 
@@ -129,14 +128,14 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   render() {
-    const { fieldGroup, isOpen } = this.props;
+    const { fieldGroup } = this.props;
 
     if (!fieldGroup.isVisible) {
       return null;
     }
 
     return (
-      <Box title={fieldGroup.name} name="showTags" isOpen={isOpen || false}>
+      <Box title={fieldGroup.name} name="showCustomFields">
         {this.renderContent()}
         {this.renderButtons()}
       </Box>

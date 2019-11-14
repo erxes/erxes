@@ -8,8 +8,7 @@ import parse from 'ua-parser-js';
 
 type Props = {
   customer: ICustomer;
-  isOpen?: boolean;
-  toggle?: any;
+  collapseCallback?: () => void;
 };
 
 class DevicePropertiesSection extends React.Component<Props> {
@@ -79,8 +78,14 @@ class DevicePropertiesSection extends React.Component<Props> {
   }
 
   render() {
+    const { collapseCallback } = this.props;
+
     return (
-      <Box title={__('Device properties')} isOpen={false}>
+      <Box
+        title={__('Device properties')}
+        name="showDeviceProperties"
+        callback={collapseCallback}
+      >
         {this.renderContent()}
       </Box>
     );

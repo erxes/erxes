@@ -70,8 +70,8 @@ class LifecycleStateFilter extends React.Component<IProps> {
       <Box
         extraButtons={extraButtons}
         title={__('Filter by lifecycle states')}
-        isOpen={false}
         collapsible={true}
+        name="showFilterByStates"
       >
         <DataWithLoader
           loading={this.props.loading}

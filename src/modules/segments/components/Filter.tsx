@@ -113,9 +113,10 @@ class Segments extends React.Component<Props> {
     return (
       <Box
         title={__('Filter by segments')}
-        isOpen={true}
         extraButtons={extraButtons}
         collapsible={segments.length > 5}
+        isOpen={true}
+        name="showFilterBySegments"
       >
         <DataWithLoader
           data={this.renderData()}

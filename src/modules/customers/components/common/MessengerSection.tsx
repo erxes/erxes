@@ -10,8 +10,7 @@ import { ICustomer } from '../../types';
 type Props = {
   customer: ICustomer;
   queryParams?: any;
-  toggle?: any;
-  isOpen?: boolean;
+  collapseCallback?: () => void;
 };
 
 class MessengerSection extends React.Component<Props> {
@@ -68,8 +67,14 @@ class MessengerSection extends React.Component<Props> {
   }
 
   render() {
+    const { collapseCallback } = this.props;
+
     return (
-      <Box title={__('Messenger data')} name="showMessengerData">
+      <Box
+        title={__('Messenger data')}
+        name="showMessengerData"
+        callback={collapseCallback}
+      >
         {this.renderContent()}
       </Box>
     );

@@ -12,7 +12,6 @@ import { List } from '../../styles';
 
 type Props = {
   company: ICompany;
-  isOpen?: boolean;
 };
 
 export default class RightSidebar extends React.Component<Props> {
@@ -30,7 +29,7 @@ export default class RightSidebar extends React.Component<Props> {
   }
 
   render() {
-    const { company, isOpen } = this.props;
+    const { company } = this.props;
 
     return (
       <Sidebar>
@@ -39,7 +38,7 @@ export default class RightSidebar extends React.Component<Props> {
         <PortableTickets mainType="company" mainTypeId={company._id} />
         <PortableTasks mainType="company" mainTypeId={company._id} />
 
-        <Box title={__('Other')} isOpen={isOpen || false}>
+        <Box title={__('Other')} name="showOthers">
           <List>
             <li>
               <div>{__('Created at')}: </div>{' '}

@@ -81,8 +81,7 @@ type IndexProps = {
   conversation: IConversation;
   customer: ICustomer;
   loading: boolean;
-  toggleSection: (params: { name: string; isOpen: boolean }) => void;
-  config: { [key: string]: boolean };
+  toggleSection: () => void;
   taggerRefetchQueries: any;
   merge?: (doc: { ids: string[]; data: ICustomer }) => void;
 };
@@ -95,6 +94,7 @@ type IndexState = {
 interface IRenderData {
   customer: ICustomer;
   kind: string;
+  toggleSection: () => void;
 }
 
 class Index extends React.Component<IndexProps, IndexState> {
@@ -115,18 +115,26 @@ class Index extends React.Component<IndexProps, IndexState> {
     this.setState({ currentSubTab });
   };
 
-  renderMessengerData = ({ customer, kind }: IRenderData) => {
+  renderMessengerData = ({ customer, kind, toggleSection }: IRenderData) => {
     if (kind !== 'messenger') {
       return null;
     }
-    return <MessengerSection customer={customer} />;
+
+    return (
+      <MessengerSection customer={customer} collapseCallback={toggleSection} />
+    );
   };
 
-  renderDeviceProperties = ({ customer, kind }: IRenderData) => {
+  renderDeviceProperties = ({ customer, kind, toggleSection }: IRenderData) => {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
-    return <DevicePropertiesSection customer={customer} />;
+    return (
+      <DevicePropertiesSection
+        customer={customer}
+        collapseCallback={toggleSection}
+      />
+    );
   };
 
   renderActions() {
@@ -176,8 +184,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       conversation,
       customer,
       toggleSection,
-      loading,
-      config
+      loading
     } = this.props;
 
     const { kind = '' } = customer.integration || {};
@@ -189,8 +196,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           <Box
             title={__('Conversation details')}
             name="showConversationDetails"
-            isOpen={config.showConversationDetails || false}
-            toggle={toggleSection}
+            callback={toggleSection}
           >
             <ConversationDetails conversation={conversation} />
           </Box>
@@ -198,17 +204,17 @@ class Index extends React.Component<IndexProps, IndexState> {
             data={customer}
             type="customer"
             refetchQueries={taggerRefetchQueries}
+            collapseCallback={toggleSection}
           />
           <Box
             title={__('Contact information')}
             name="showCustomFields"
-            isOpen={config.showCustomFields || false}
-            toggle={toggleSection}
+            callback={toggleSection}
           >
             <CustomFieldsSection loading={loading} customer={customer} />
           </Box>
-          {this.renderMessengerData({ customer, kind })}
-          {this.renderDeviceProperties({ customer, kind })}
+          {this.renderMessengerData({ customer, kind, toggleSection })}
+          {this.renderDeviceProperties({ customer, kind, toggleSection })}
         </TabContent>
       );
     }
@@ -221,28 +227,16 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <PortableDeals
-          mainType="customer"
-          mainTypeId={customer._id}
-          isOpen={config.showDeals}
-        />
-        <PortableTickets
-          mainType="customer"
-          mainTypeId={customer._id}
-          isOpen={config.showTickets}
-        />
-        <PortableTasks
-          mainType="customer"
-          mainTypeId={customer._id}
-          isOpen={config.showTasks}
-        />
+        <PortableDeals mainType="customer" mainTypeId={customer._id} />
+        <PortableTickets mainType="customer" mainTypeId={customer._id} />
+        <PortableTasks mainType="customer" mainTypeId={customer._id} />
       </>
     );
   }
 
   renderTabContent() {
     const { currentTab, currentSubTab } = this.state;
-    const { customer } = this.props;
+    const { customer, toggleSection } = this.props;
 
     if (currentTab === 'customer') {
       const detailsOnClick = () => this.onSubtabClick('details');
@@ -287,7 +281,11 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <CompanySection mainType="customer" mainTypeId={customer._id} />
+        <CompanySection
+          mainType="customer"
+          mainTypeId={customer._id}
+          collapseCallback={toggleSection}
+        />
         <Contacts companies={customer.companies} customerId={customer._id} />
       </>
     );

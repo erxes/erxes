@@ -14,7 +14,6 @@ import ProductForm from './product/ProductForm';
 type Props = {
   productsData: IProductData[];
   products: IProduct[];
-  isOpen?: boolean;
   onChangeProductsData: (productsData: IProductData[]) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
@@ -24,7 +23,6 @@ function ProductSection({
   products,
   productsData,
   onChangeProductsData,
-  isOpen,
   saveProductsData
 }: Props) {
   const content = props => (
@@ -80,8 +78,8 @@ function ProductSection({
   return (
     <Box
       title={__('Product & Service')}
-      isOpen={false}
       extraButtons={extraButtons}
+      name="showProductAndService"
     >
       <SectionBody>
         {products.map((product, index) => (

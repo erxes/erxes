@@ -2,6 +2,7 @@ import {
   SectionContainer,
   SidebarCollapse
 } from 'modules/inbox/components/conversationDetail/sidebar/styles';
+import { getConfig, setConfig } from 'modules/inbox/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import Icon from './Icon';
@@ -11,32 +12,42 @@ type BoxProps = {
   name?: string;
   children: React.ReactNode;
   extraButtons?: React.ReactNode;
-  isOpen?: boolean;
-  toggle?: (params: { name: string; isOpen: boolean }) => void;
+  callback?: () => void;
   collapsible?: boolean;
+  isOpen?: boolean;
 };
 
 type BoxState = {
   isOpen?: boolean;
 };
 
+const STORAGE_KEY = `erxes_sidebar_section_config`;
+
 export default class Box extends React.Component<BoxProps, BoxState> {
   constructor(props: BoxProps) {
     super(props);
+    const { name, isOpen = false } = props;
+    const config = getConfig(STORAGE_KEY) || {};
 
     this.state = {
-      isOpen: props.isOpen
+      isOpen: name ? config[name] || isOpen : false
     };
   }
 
   toggle = () => {
-    const { name, toggle } = this.props;
+    const { name, callback } = this.props;
     const { isOpen } = this.state;
 
     this.setState({ isOpen: !isOpen });
 
-    if (toggle && name) {
-      toggle({ name, isOpen: !isOpen });
+    if (name) {
+      const config = getConfig(STORAGE_KEY) || {};
+
+      config[name] = !isOpen;
+
+      setConfig(STORAGE_KEY, config);
+
+      return callback && callback();
     }
   };
 

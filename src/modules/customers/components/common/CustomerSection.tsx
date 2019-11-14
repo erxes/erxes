@@ -21,7 +21,6 @@ type Props = {
   items: ICustomer[];
   mainType?: string;
   mainTypeId?: string;
-  isOpen?: boolean;
   onSelect?: (customers: ICustomer[]) => void;
 };
 
@@ -30,7 +29,6 @@ function Component({
   items = [],
   mainType = '',
   mainTypeId = '',
-  isOpen,
   onSelect
 }: Props) {
   const mailTo = email => {
@@ -118,7 +116,12 @@ function Component({
   );
 
   return (
-    <Box title={__('Customers')} isOpen={true} extraButtons={extraButtons}>
+    <Box
+      title={__('Customers')}
+      extraButtons={extraButtons}
+      isOpen={true}
+      name="showCustomers"
+    >
       {renderBody(items)}
     </Box>
   );

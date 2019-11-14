@@ -43,8 +43,8 @@ function Brands({ history, counts, brands, loading }: IProps) {
   return (
     <Box
       title={__('Filter by brand')}
-      isOpen={false}
       collapsible={brands.length > 5}
+      name="showFilterByBrand"
     >
       <DataWithLoader
         data={data}

@@ -11,8 +11,6 @@ import { Link } from 'react-router-dom';
 type Props = {
   companies: ICompany[];
   customerId: string;
-  isOpen?: boolean;
-  toggle?: any;
 };
 
 class Contacts extends React.Component<Props> {
@@ -45,10 +43,8 @@ class Contacts extends React.Component<Props> {
   }
 
   render() {
-    const { isOpen, toggle } = this.props;
-
     return (
-      <Box title={__('Contacts')} isOpen={isOpen || true} toggle={toggle}>
+      <Box title={__('Contacts')} name="showContacts">
         {this.renderContent()}
       </Box>
     );

@@ -12,7 +12,6 @@ import React from 'react';
 
 type Props = {
   customer: ICustomer;
-  isOpen?: boolean;
 };
 
 export default class RightSidebar extends React.Component<Props> {
@@ -43,10 +42,8 @@ export default class RightSidebar extends React.Component<Props> {
   }
 
   renderOther() {
-    const { isOpen } = this.props;
-
     return (
-      <Box title={__('Other')} isOpen={isOpen || false}>
+      <Box title={__('Other')} name="showOthers">
         {this.renderContent()}
       </Box>
     );

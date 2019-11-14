@@ -11,8 +11,7 @@ type Props = {
   data: any;
   type: string;
   refetchQueries?: any[];
-  toggle?: any;
-  isOpen?: boolean;
+  collapseCallback?: () => void;
 };
 
 type State = {
@@ -52,7 +51,7 @@ class TaggerSection extends React.Component<Props, State> {
   }
 
   render() {
-    const { data, type, refetchQueries } = this.props;
+    const { data, type, refetchQueries, collapseCallback } = this.props;
     const tags = data.getTags || [];
 
     const extraButtons = (
@@ -62,7 +61,12 @@ class TaggerSection extends React.Component<Props, State> {
     );
 
     return (
-      <Box title={__('Tags')} name="showTags" extraButtons={extraButtons}>
+      <Box
+        title={__('Tags')}
+        name="showTags"
+        extraButtons={extraButtons}
+        callback={collapseCallback}
+      >
         <Collapse in={this.state.isTaggerVisible}>
           <Tagger
             type={type}

@@ -39,7 +39,7 @@ function IntegrationFilter({ history, counts }: IProps) {
   );
 
   return (
-    <Box title={__('Filter by integrations')} isOpen={false}>
+    <Box title={__('Filter by integrations')} name="showFilterByIntegrations">
       <DataWithLoader
         data={data}
         loading={false}
