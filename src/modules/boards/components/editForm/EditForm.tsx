@@ -2,7 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
 import { __, extractAttachment } from 'modules/common/utils';
 import React from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import Modal from 'react-bootstrap/Modal';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 type Props = {
@@ -112,9 +112,10 @@ class EditForm extends React.Component<Props, State> {
       <Modal
         dialogClassName="modal-1000w"
         enforceFocus={false}
-        bsSize="lg"
+        size="lg"
         show={this.props.isPopupVisible}
         onHide={this.onHideModal}
+        animation={false}
       >
         {this.renderHeader()}
         <Modal.Body>

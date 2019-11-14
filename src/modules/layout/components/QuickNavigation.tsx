@@ -10,7 +10,7 @@ import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -124,20 +124,20 @@ const QuickNavigation = ({
         </Link>
       </NavItem>
       <NavItem>
-        <Dropdown id="dropdown-user" pullRight={true}>
-          <DropdownToggle bsRole="toggle">
+        <Dropdown alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
                 <Icon icon="angle-down" />
               </UserInfo>
             </UserHelper>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <NameCardWrapper>
               <NameCard user={currentUser} />
             </NameCardWrapper>
-            <MenuItem divider={true} />
+            <Dropdown.Divider />
 
             <li>
               <Link to="/profile">{__('View Profile')}</Link>
@@ -173,8 +173,8 @@ const QuickNavigation = ({
               content={notificationContent}
             />
 
-            <MenuItem divider={true} />
-            <MenuItem onClick={logout}>{__('Sign out')}</MenuItem>
+            <Dropdown.Divider />
+            <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </NavItem>

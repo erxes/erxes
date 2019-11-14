@@ -258,17 +258,10 @@ const Vote = styled.div`
   }
 `;
 
-const VotersHeader = styled.span`
-  display: block;
-  text-align: center;
-  padding: ${dimensions.unitSpacing}px 0;
-  border-bottom: 1px solid ${colors.borderDarker};
-  margin: 0 ${dimensions.unitSpacing}px;
-`;
-
 const VotersContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
     ${dimensions.unitSpacing}px 0;
+
   img,
   span {
     margin-left: -1px;
@@ -371,7 +364,6 @@ export {
   FunnelContent,
   Title,
   Vote,
-  VotersHeader,
   VotersContent,
   VotersCount,
   PipelineMeta,

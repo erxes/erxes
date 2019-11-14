@@ -4,29 +4,14 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Uploader from 'modules/common/components/Uploader';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { EditorContainer } from 'modules/engage/styles';
 import React from 'react';
-import { IUser } from '../../auth/types';
-import { IEmailTemplate } from '../../settings/emailTemplates/types';
-import { IEngageEmail, IEngageScheduleDate } from '../types';
+import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
 
-type Props = {
-  onChange: (
-    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-    value: IEngageEmail | IEngageScheduleDate | string
-  ) => void;
-  message?: string;
-  users: IUser[];
-  templates: IEmailTemplate[];
-  kind: string;
-  email: IEngageEmail;
-  fromUserId: string;
-  content: string;
-  scheduleDate: IEngageScheduleDate;
-};
+type Props = IEmailFormProps & { verifiedEmails: string[]; error?: string };
 
 type State = {
   fromUserId: string;
@@ -57,7 +42,18 @@ class EmailForm extends React.Component<Props, State> {
     this.props.onChange('email', email);
   };
 
-  changeUser = fromUserId => {
+  changeUser = (fromUserId: string) => {
+    const { verifiedEmails, users } = this.props;
+
+    const user = users.find(u => u._id === fromUserId);
+
+    if (!user || !verifiedEmails.includes(user.email)) {
+      this.setState({ fromUserId: '' });
+      return Alert.error('Email not verified');
+    }
+
+    Alert.success('Email is verified');
+
     this.setState({ fromUserId });
     this.props.onChange('fromUserId', fromUserId);
   };
@@ -99,11 +95,35 @@ class EmailForm extends React.Component<Props, State> {
     this.props.onChange('content', e.editor.getData());
   };
 
-  render() {
-    const { attachments } = this.state.email;
+  renderFrom() {
+    const { error } = this.props;
+
+    if (error) {
+      return <p style={{ color: 'red' }}>{error}</p>;
+    }
 
     const onChangeUser = e =>
       this.changeUser((e.target as HTMLInputElement).value);
+
+    return (
+      <FormControl
+        componentClass="select"
+        onChange={onChangeUser}
+        value={this.state.fromUserId}
+      >
+        <option />{' '}
+        {this.props.users.map(user => (
+          <option key={user._id} value={user._id}>
+            {(user.details && user.details.fullName) || user.username}
+          </option>
+        ))}
+      </FormControl>
+    );
+  }
+
+  render() {
+    const { attachments } = this.state.email;
+
     const onChangeContent = e =>
       this.changeContent('subject', (e.target as HTMLInputElement).value);
     const onChangeTemplate = e =>
@@ -116,18 +136,7 @@ class EmailForm extends React.Component<Props, State> {
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
-            <FormControl
-              componentClass="select"
-              onChange={onChangeUser}
-              value={this.state.fromUserId}
-            >
-              <option />{' '}
-              {this.props.users.map(user => (
-                <option key={user._id} value={user._id}>
-                  {(user.details && user.details.fullName) || user.username}
-                </option>
-              ))}
-            </FormControl>
+            {this.renderFrom()}
           </FormGroup>
 
           <FormGroup>

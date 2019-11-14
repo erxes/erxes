@@ -161,8 +161,17 @@ const userList = `
 `;
 
 const channelList = `
-  query channels {
-    channels {
+  query channels($memberIds: [String]) {
+    channels(memberIds: $memberIds) {
+      _id
+      name
+    }
+  }
+`;
+
+const integrationsGetUsedTypes = `
+  query integrationsGetUsedTypes {
+    integrationsGetUsedTypes {
       _id
       name
     }
@@ -320,6 +329,7 @@ export default {
   conversationMessagesTotalCount,
   userList,
   channelList,
+  integrationsGetUsedTypes,
   brandList,
   tagList,
   responseTemplateList,
