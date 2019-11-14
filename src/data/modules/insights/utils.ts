@@ -29,7 +29,7 @@ import {
  * Return filterSelector
  * @param args
  */
-export const getFilterSelector = (args: IListArgs): any => {
+export const getFilterSelector = (args: IListArgs): { [key: string]: any } => {
   const selector: IFilterSelector = { integration: {} };
   const { startDate, endDate, integrationIds, brandIds } = args;
   const { start, end } = fixDates(startDate, endDate);
