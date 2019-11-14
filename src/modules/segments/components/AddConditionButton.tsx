@@ -4,7 +4,8 @@ import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { dateUnits, types } from 'modules/customers/constants';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import Popover from 'react-bootstrap-latest/Popover';
 import { ISegmentCondition } from '../types';
 import { Field, FieldType, PopoverList } from './styles';
 
@@ -50,7 +51,7 @@ class AddConditionButton extends React.Component<Props> {
 
     return (
       <Field>
-        <h3 className="popover-title">{title}</h3>
+        <Popover.Title as="h3">{title}</Popover.Title>
         {data.map((key, index) => this.renderItem(items[key], index))}
       </Field>
     );
@@ -68,7 +69,7 @@ class AddConditionButton extends React.Component<Props> {
 
     return (
       <Field>
-        <h3 className="popover-title">{__('Select brand')}</h3>
+        <Popover.Title as="h3">{__('Select brand')}</Popover.Title>
         {Object.keys(groupedFields).map((key, index) => {
           let title = key;
 
@@ -115,7 +116,7 @@ class AddConditionButton extends React.Component<Props> {
 
     return (
       <Field>
-        <h3 className="popover-title">{title}</h3>
+        <Popover.Title as="h3">{title}</Popover.Title>
         <FilterableList
           items={items}
           onClick={this.addCondition}
@@ -139,23 +140,26 @@ class AddConditionButton extends React.Component<Props> {
 
   renderPopover() {
     return (
-      <Popover id="condition-popover" title="Select a field">
-        {this.renderFieldType('basic-info', 'Basic Info', 'information')}
-        {this.renderFieldType(
-          'messenger-data',
-          'Messenger data',
-          'speech-bubble-2'
-        )}
-        {this.renderFieldType(
-          'customer-field-data',
-          'Customer field data',
-          'user-1'
-        )}
-        {this.renderFieldType(
-          'other-properties',
-          'Other properties',
-          'settings-3'
-        )}
+      <Popover id="condition-popover">
+        <Popover.Title as="h3">{__('Select a field')}</Popover.Title>
+        <Popover.Content>
+          {this.renderFieldType('basic-info', 'Basic Info', 'information')}
+          {this.renderFieldType(
+            'messenger-data',
+            'Messenger data',
+            'speech-bubble-2'
+          )}
+          {this.renderFieldType(
+            'customer-field-data',
+            'Customer field data',
+            'user-1'
+          )}
+          {this.renderFieldType(
+            'other-properties',
+            'Other properties',
+            'settings-3'
+          )}
+        </Popover.Content>
       </Popover>
     );
   }

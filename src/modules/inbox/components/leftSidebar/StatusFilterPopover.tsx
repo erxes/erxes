@@ -8,7 +8,8 @@ import { PopoverButton } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import Popover from 'react-bootstrap-latest/Popover';
 
 type Props = {
   history: any;
@@ -105,35 +106,41 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
 
     if (loading) {
       return (
-        <Popover id="filter-popover" title={__('Filter by status')}>
-          <Spinner objective={true} />
+        <Popover id="filter-popover">
+          <Popover.Title as="h3">{__('Filter by status')}</Popover.Title>
+          <Popover.Content>
+            <Spinner objective={true} />
+          </Popover.Content>
         </Popover>
       );
     }
 
     return (
-      <Popover id="filter-popover" title={__('Filter by status')}>
-        <SidebarList>
-          {this.renderSingleFilter(
-            'unassigned',
-            'true',
-            'Unassigned',
-            counts.unassigned
-          )}
-          {this.renderSingleFilter(
-            'participating',
-            'true',
-            'Participating',
-            counts.participating
-          )}
+      <Popover id="filter-popover">
+        <Popover.Title as="h3">{__('Filter by status')}</Popover.Title>
+        <Popover.Content>
+          <SidebarList>
+            {this.renderSingleFilter(
+              'unassigned',
+              'true',
+              'Unassigned',
+              counts.unassigned
+            )}
+            {this.renderSingleFilter(
+              'participating',
+              'true',
+              'Participating',
+              counts.participating
+            )}
 
-          {this.renderSingleFilter(
-            'status',
-            'closed',
-            'Resolved',
-            counts.resolved
-          )}
-        </SidebarList>
+            {this.renderSingleFilter(
+              'status',
+              'closed',
+              'Resolved',
+              counts.resolved
+            )}
+          </SidebarList>
+        </Popover.Content>
       </Popover>
     );
   };

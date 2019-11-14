@@ -31,7 +31,7 @@ function Tip({ text, children, placement }: Props) {
     <OverlayTrigger
       overlay={tooltip}
       placement={placementValue}
-      delay={{ show: 250, hide: 400 }}
+      delay={{ show: 250, hide: 250 }}
     >
       {children}
     </OverlayTrigger>

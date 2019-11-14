@@ -20,8 +20,9 @@ import Participators from 'modules/inbox/components/conversationDetail/workarea/
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Overlay, Popover } from 'react-bootstrap';
 import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Overlay from 'react-bootstrap-latest/Overlay';
+import Popover from 'react-bootstrap-latest/Popover';
 import { Link } from 'react-router-dom';
 import PipelineWatch from '../containers/PipelineWatch';
 import {
@@ -211,7 +212,6 @@ class MainActionBar extends React.Component<Props, State> {
         onHide={this.hideFilter}
         placement="bottom"
         rootClose={true}
-        containerPadding={20}
         target={this.state.target}
       >
         <Popover id="popover-contained">
@@ -349,7 +349,7 @@ class MainActionBar extends React.Component<Props, State> {
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLink>
-          <Tip text={__('Manage Board & Pipeline')}>
+          <Tip text={__('Manage Board & Pipeline')} placement="bottom">
             <Link
               to={`/settings/boards/${type}?boardId=${
                 currentBoard ? currentBoard._id : ''

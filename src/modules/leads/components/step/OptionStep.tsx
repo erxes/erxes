@@ -10,7 +10,8 @@ import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import Popover from 'react-bootstrap-latest/Popover';
 import ChromePicker from 'react-color/lib/Chrome';
 import { IBrand } from '../../../settings/brands/types';
 import { FormPreview } from './preview';
@@ -113,7 +114,7 @@ class OptionStep extends React.Component<Props, {}> {
               <OverlayTrigger
                 trigger="click"
                 rootClose={true}
-                placement="bottom"
+                placement="bottom-start"
                 overlay={popoverTop}
               >
                 <ColorPick>

@@ -12,8 +12,9 @@ import { __ } from 'modules/common/utils';
 import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
 import Modal from 'react-bootstrap-latest/Modal';
+import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import Popover from 'react-bootstrap-latest/Popover';
 import BlockPicker from 'react-color/lib/Block';
 import { SelectMemberStyled } from '../styles';
 import { IOption } from '../types';
@@ -142,7 +143,7 @@ class PipelineForm extends React.Component<Props, State> {
         ? options.pipelineName.toLowerCase()
         : 'pipeline';
 
-    const popoverTop = (
+    const popoverBottom = (
       <Popover id="color-picker">
         <BlockPicker
           width="266px"
@@ -198,7 +199,7 @@ class PipelineForm extends React.Component<Props, State> {
                   trigger="click"
                   rootClose={true}
                   placement="bottom"
-                  overlay={popoverTop}
+                  overlay={popoverBottom}
                 >
                   <ColorPick>
                     <ColorPicker

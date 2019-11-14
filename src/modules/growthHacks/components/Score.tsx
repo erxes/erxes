@@ -1,7 +1,8 @@
 import FormControl from 'modules/common/components/form/Control';
 import { roundToTwo } from 'modules/common/utils';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import Popover from 'react-bootstrap-latest/Popover';
 import {
   AmountItem,
   Amounts,
@@ -123,7 +124,7 @@ class Score extends React.Component<Props> {
       <ScoreWrapper>
         <OverlayTrigger
           trigger="click"
-          placement="bottom"
+          placement="bottom-end"
           rootClose={true}
           overlay={this.renderPopover()}
         >

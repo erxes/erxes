@@ -1,7 +1,8 @@
 import { RightButton } from 'modules/boards/styles/item';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import Popover from 'react-bootstrap-latest/Popover';
 import AddForm from '../containers/AddForm';
 import { PopoverContent } from '../styles';
 
@@ -19,7 +20,8 @@ class ChecklistAdd extends React.Component<Props> {
 
   renderForm() {
     return (
-      <Popover id="checklist-popover" title="Add checklist">
+      <Popover id="checklist-popover">
+        <Popover.Title as="h3">Add checklist</Popover.Title>
         <PopoverContent>
           <AddForm {...this.props} afterSave={this.hidePopover} />
         </PopoverContent>
