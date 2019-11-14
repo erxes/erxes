@@ -1,14 +1,15 @@
 import { __ } from 'modules/common/utils';
 import AssignBox from 'modules/inbox/containers/AssignBox';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { InboxManagementActionConsumer } from '../../containers/Inbox';
 import { IConversation } from '../../types';
 
 type Props = {
   targets: IConversation[];
   trigger: React.ReactNode;
-  container?: React.ReactNode;
+  container?: Element | Node | React.Component<any, {}, any>;
   afterSave?: () => void;
   notifyHandler: () => void;
 };
@@ -33,12 +34,15 @@ class AssignBoxPopover extends React.Component<Props> {
   render() {
     const { targets, trigger, container } = this.props;
     const popover = (
-      <Popover id="assign-popover" title={__('Choose person')}>
-        <AssignBox
-          targets={targets}
-          event="onClick"
-          afterSave={this.hidePopover}
-        />
+      <Popover id="assign-popover">
+        <Popover.Title as="h3">{__('Choose person')}</Popover.Title>
+        <Popover.Content>
+          <AssignBox
+            targets={targets}
+            event="onClick"
+            afterSave={this.hidePopover}
+          />
+        </Popover.Content>
       </Popover>
     );
 
@@ -48,7 +52,7 @@ class AssignBoxPopover extends React.Component<Props> {
           this.overlayTrigger = overlayTrigger;
         }}
         trigger="click"
-        placement="bottom"
+        placement="bottom-start"
         overlay={popover}
         container={container}
         rootClose={true}

@@ -138,22 +138,4 @@ const ExperimentList = styled.ul`
   }
 `;
 
-const PopoverHeader = styled.h3`
-  padding: ${dimensions.unitSpacing}px;
-  margin: 0;
-  font-size: 14px;
-  background-color: #f7f7f7;
-  font-weight: 400;
-  text-align: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
-export {
-  ChartAxis,
-  ChartLegends,
-  Point,
-  AxisX,
-  AxisY,
-  ExperimentList,
-  PopoverHeader
-};
+export { ChartAxis, ChartLegends, Point, AxisX, AxisY, ExperimentList };

@@ -1,15 +1,15 @@
 import { __ } from 'modules/common/utils';
 import { RightContent } from 'modules/growthHacks/styles';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import {
   AxisX,
   AxisY,
   ChartAxis,
   ChartLegends,
   ExperimentList,
-  Point,
-  PopoverHeader
+  Point
 } from './styles';
 
 type Props = {
@@ -20,12 +20,14 @@ class Chart extends React.PureComponent<Props> {
   renderPopover = data => {
     return (
       <Popover id="chart-popover">
-        <PopoverHeader>Experiment names</PopoverHeader>
-        <ExperimentList>
-          {data.names.map((name, index) => (
-            <li key={index}>{name}</li>
-          ))}
-        </ExperimentList>
+        <Popover.Title as="h3">{__('Experiment names')}</Popover.Title>
+        <Popover.Content>
+          <ExperimentList>
+            {data.names.map((name, index) => (
+              <li key={index}>{name}</li>
+            ))}
+          </ExperimentList>
+        </Popover.Content>
       </Popover>
     );
   };
@@ -42,7 +44,7 @@ class Chart extends React.PureComponent<Props> {
     return (
       <OverlayTrigger
         trigger={['hover', 'focus']}
-        placement="bottom"
+        placement="auto"
         rootClose={true}
         overlay={this.renderPopover(data)}
         key={Math.random()}

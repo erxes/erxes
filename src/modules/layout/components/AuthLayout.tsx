@@ -1,7 +1,8 @@
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Col, Grid } from 'react-bootstrap';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import {
   AuthContent,
   AuthDescription,
@@ -59,7 +60,7 @@ class AuthLayout extends React.Component<Props, {}> {
     return (
       <Authlayout>
         <AuthContent>
-          <Grid>
+          <Container>
             <Col md={6}>
               <AuthDescription>
                 <img src="/images/logo.png" alt="erxes" />
@@ -72,10 +73,8 @@ class AuthLayout extends React.Component<Props, {}> {
                 <a href="http://erxes.io/">« Go to home page</a>
               </AuthDescription>
             </Col>
-            <Col md={5} mdOffset={1}>
-              {content}
-            </Col>
-          </Grid>
+            <Col md={{ span: 5, offset: 1 }}>{content}</Col>
+          </Container>
         </AuthContent>
         {this.renderRecommendMobileVersion()}
       </Authlayout>
