@@ -1,6 +1,6 @@
 import SelectItem from 'modules/boards/components/SelectItem';
 import { PRIORITIES } from 'modules/boards/constants';
-import { Watch } from 'modules/boards/containers/editForm/';
+import Watch from 'modules/boards/containers/editForm/Watch';
 import LabelChooser from 'modules/boards/containers/label/LabelChooser';
 import { ColorButton } from 'modules/boards/styles/common';
 import { ActionContainer } from 'modules/boards/styles/item';
@@ -16,7 +16,7 @@ type Props = {
   copyItem: () => void;
   removeItem: (itemId: string) => void;
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
-  onUpdate: (item, prevStageId?: string) => void;
+  onUpdate: (item: IItem, prevStageId?: string) => void;
 };
 
 class Actions extends React.Component<Props> {

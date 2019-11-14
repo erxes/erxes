@@ -12,7 +12,7 @@ import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
-import Labels from '..//label/Labels';
+import Labels from '../label/Labels';
 import Actions from './Actions';
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
   copyItem: () => void;
   removeItem: (itemId: string) => void;
   saveItem: (doc: { [key: string]: any }) => void;
-  onUpdate: (item, prevStageId?: string) => void;
+  onUpdate: (item: IItem, prevStageId?: string) => void;
 };
 
 class Left extends React.Component<Props> {
