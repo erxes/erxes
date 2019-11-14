@@ -10,7 +10,8 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { getRandomNumber } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import BlockPicker from 'react-color/lib/Block';
 import styled from 'styled-components';
 
@@ -77,7 +78,7 @@ class FormComponent extends React.Component<Props, State> {
     const { colorCode } = this.state;
     const object = tag || ({} as ITag);
 
-    const popoverTop = (
+    const popoverContent = (
       <Popover id="color-picker">
         <BlockPicker
           width="266px"
@@ -107,7 +108,7 @@ class FormComponent extends React.Component<Props, State> {
             trigger="click"
             rootClose={true}
             placement="bottom"
-            overlay={popoverTop}
+            overlay={popoverContent}
           >
             <ColorPick>
               <ColorPicker style={{ backgroundColor: colorCode }} />

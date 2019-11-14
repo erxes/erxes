@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
 import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import React from 'react';
-import { Collapse } from 'react-bootstrap';
+import Collapse from 'react-bootstrap/Collapse';
 import StoreEntry from '../../containers/StoreEntry';
 import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';

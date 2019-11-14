@@ -2,7 +2,7 @@ import FilterableList from 'modules/common/components/filterableList/FilterableL
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { Popover } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
 import Form from '../../containers/label/Form';
 import {
   Container,
@@ -95,7 +95,7 @@ export default class Overlay extends React.Component<
   }
 
   componentDidMount() {
-    const elm = document.getElementById('filter-popover');
+    const elm = document.getElementById('filter-label');
 
     if (elm) {
       elm.className = 'popover bottom';
@@ -141,7 +141,7 @@ export default class Overlay extends React.Component<
     const title = labelId ? 'Edit label' : 'Create label';
 
     return (
-      <Popover id="filter-popover">
+      <Popover id="filter-label">
         <Title>
           {showForm && <Icon icon="leftarrow-3" onClick={this.onChangeForm} />}
           {showForm ? __(title) : __('Labels')}

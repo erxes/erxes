@@ -6,7 +6,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import { ModalFooter } from 'modules/common/styles/main';
 
 type Props = {
   board: IBoard;
@@ -50,7 +50,7 @@ class BoardForm extends React.Component<Props, {}> {
           />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -67,7 +67,7 @@ class BoardForm extends React.Component<Props, {}> {
             callback: closeModal,
             object: board
           })}
-        </Modal.Footer>
+        </ModalFooter>
       </>
     );
   };

@@ -68,8 +68,8 @@ a:hover {
 }
 
 .modal-dialog {
-  padding: 50px 0;
-  margin: 0 auto;
+  padding: 0;
+  margin: 50px auto;
 }
 
 .modal-dialog.middle {
@@ -82,6 +82,7 @@ a:hover {
 
 .modal-1000w {
   width: 1000px;
+  max-width: 1000px;
 }
 
 .modal-content {
@@ -102,8 +103,8 @@ a:hover {
 
 .modal-header .close {
   outline: 0;
-  margin-top: -4px;
   font-weight: 200;
+  padding-top: 14px;
 }
 
 .modal-title {
@@ -220,6 +221,12 @@ a:hover {
 
 /* dropdown */
 
+.dropdown-btn {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle
+}
+
 .dropdown-menu {
   margin-top: 0 !important;
   border: none;
@@ -227,6 +234,8 @@ a:hover {
   color: ${colors.textPrimary};
   min-width: 100%;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  max-height: 100vh;
+  overflow: auto;
 }
 
 .dropdown-menu > span {
@@ -261,7 +270,9 @@ a:hover {
 }
 
 /* tooltip */
+
 .tooltip {
+  font-size: 13px;
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
 }
 
@@ -271,34 +282,31 @@ a:hover {
   box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.23);
 }
 
-.tooltip.bottom .tooltip-arrow {
-  border-bottom-color: ${colors.colorWhite};
+.bs-tooltip-top .arrow::before,
+.bs-tooltip-auto[x-placement^="top"] .arrow::before {
+	border-top-color: ${colors.colorWhite};
 }
 
-.tooltip.top .tooltip-arrow {
-  border-top-color: ${colors.colorWhite};
+.bs-tooltip-bottom .arrow::before,
+.bs-tooltip-auto[x-placement^="bottom"] .arrow::before {
+	border-bottom-color: ${colors.colorWhite};
 }
 
-.tooltip.left .tooltip-arrow {
-  border-left-color: ${colors.colorWhite};
-}
-
-.tooltip.right .tooltip-arrow {
+.bs-tooltip-right .arrow::before,
+.bs-tooltip-auto[x-placement^="right"] .arrow::before {
   border-right-color: ${colors.colorWhite};
-  border-width: 0px 10px 13px 0;
-  margin-top: 0;
-  top: 0 !important;
 }
 
-.tooltip.right .tooltip-inner {
-  border-top-left-radius: 0;
+.bs-tooltip-left .arrow::before,
+.bs-tooltip-auto[x-placement^="left"] .arrow::before {
+	border-left-color: ${colors.colorWhite};
 }
 
-.tooltip.in {
-  opacity: 1;
+.tooltip.show {
+	opacity: 1;
 }
 
-.tooltip.right {
+.bs-tooltip-right {
   padding: 0 5px 0 6px;
 }
 
@@ -316,31 +324,40 @@ a:hover {
   max-width: 310px;
 }
 
-.popover.bottom > .arrow {
+.bs-popover-bottom > .arrow::before,
+.bs-popover-bottom-start > .arrow::before,
+.bs-popover-bottom-end > .arrow::before, 
+.bs-popover-auto[x-placement^="bottom"] > .arrow::before {
+  top: 0;
+  border-width: 0 0.5rem 0.5rem 0.5rem;
   border-bottom-color: ${colors.borderPrimary};
 }
 
-.popover.bottom > .arrow::after {
+.bs-popover-bottom > .arrow::after,
+.bs-popover-bottom-start > .arrow::after,
+.bs-popover-bottom-end > .arrow::after,
+.bs-popover-auto[x-placement^="bottom"] > .arrow::after {
   top: 1px;
-  border-bottom-color: ${colors.bgLight};
+  border-width: 0 0.5rem 0.5rem 0.5rem;
+  border-bottom-color: ${colors.colorWhite};
 }
 
-.popover > .arrow {
-  border-width: 10px;
+.bs-popover-top>.arrow::before,
+.bs-popover-auto[x-placement^="top"]>.arrow::before {
+	border-top-color: ${colors.borderPrimary};
 }
 
-.popover.top > .arrow {
-  bottom: -10px;
-  margin-left: -10px;
-  border-top-color: ${colors.borderPrimary};
+.bs-popover-right>.arrow::before,
+.bs-popover-auto[x-placement^="right"]>.arrow::before {
+	border-right-color: ${colors.borderPrimary};
 }
 
-.popover.top > .arrow::after {
-  bottom: 1px;
-  border-top-color: ${colors.colorWhite};
+.bs-popover-left>.arrow::before,
+.bs-popover-auto[x-placement^="left"]>.arrow::before {
+	border-left-color: ${colors.borderPrimary};
 }
 
-.popover-title {
+.popover-header {
   display: block;
   border-bottom: 1px solid ${colors.borderPrimary};
   padding: 10px 20px;
@@ -349,25 +366,26 @@ a:hover {
   text-transform: uppercase;
   color: ${colors.colorCoreGray};
   border-radius: 4px 4px 0 0;
+  margin: 0;
 }
 
-.popover-content {
+.popover-body {
   padding: 0;
   position: relative;
   min-width: 260px;
 }
 
-.popover-content .chrome-picker {
+.popover-body .chrome-picker {
   width: 100% !important;
   box-shadow: none !important;
 }
 
-.popover-content ul {
+.popover-body ul {
   max-height: 280px;
   overflow: auto;
 }
 
-.popover-content li a i {
+.popover-body li a i {
   margin-left: 0;
 }
 
@@ -376,7 +394,8 @@ a:hover {
   width: 405px;
   height: 400px;
 }
-.popover-template .popover-content {
+
+.popover-template .popover-body {
   display: flex;
   flex-direction: column;
   position: absolute;
