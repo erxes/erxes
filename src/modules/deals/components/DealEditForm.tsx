@@ -65,23 +65,6 @@ export default class DealEditForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  renderProductSection = () => {
-    const { products, productsData } = this.state;
-
-    const pDataChange = pData => this.onChangeField('productsData', pData);
-    const prsChange = prs => this.onChangeField('products', prs);
-
-    return (
-      <ProductSection
-        onChangeProductsData={pDataChange}
-        onChangeProducts={prsChange}
-        productsData={productsData}
-        products={products}
-        saveProductsData={this.saveProductsData}
-      />
-    );
-  };
-
   saveProductsData = () => {
     const { productsData } = this.state;
     const { saveItem } = this.props;
@@ -121,6 +104,23 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderProductSection = () => {
+    const { products, productsData } = this.state;
+
+    const pDataChange = pData => this.onChangeField('productsData', pData);
+    const prsChange = prs => this.onChangeField('products', prs);
+
+    return (
+      <ProductSection
+        onChangeProductsData={pDataChange}
+        onChangeProducts={prsChange}
+        productsData={productsData}
+        products={products}
+        saveProductsData={this.saveProductsData}
+      />
+    );
+  };
+
   renderItems = () => {
     return (
       <>
@@ -136,7 +136,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     copy,
     remove
   }: IEditFormContent) => {
-    const { item, options } = this.props;
+    const { item, options, onUpdate } = this.props;
 
     return (
       <>
@@ -150,15 +150,20 @@ export default class DealEditForm extends React.Component<Props, State> {
         />
 
         <FlexContent>
-          <Left type={options.type} saveItem={saveItem} item={item} />
+          <Left
+            options={options}
+            saveItem={saveItem}
+            copyItem={copy}
+            removeItem={remove}
+            onUpdate={onUpdate}
+            item={item}
+          />
 
           <Sidebar
             options={options}
             item={item}
             sidebar={this.renderProductSection}
             saveItem={saveItem}
-            copyItem={copy}
-            removeItem={remove}
             renderItems={this.renderItems}
           />
         </FlexContent>

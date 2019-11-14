@@ -2,7 +2,7 @@ import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
 
-import { IItem } from 'modules/boards/types';
+import { IItem, IOptions } from 'modules/boards/types';
 import Checklists from 'modules/checklists/containers/Checklists';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -12,17 +12,28 @@ import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
-import Labels from '..//label/Labels';
+import Labels from '../label/Labels';
+import Actions from './Actions';
 
 type Props = {
   item: IItem;
+  options: IOptions;
+  copyItem: () => void;
+  removeItem: (itemId: string) => void;
   saveItem: (doc: { [key: string]: any }) => void;
-  type: string;
+  onUpdate: (item: IItem, prevStageId?: string) => void;
 };
 
 class Left extends React.Component<Props> {
   render() {
-    const { item, saveItem, type } = this.props;
+    const {
+      item,
+      saveItem,
+      options,
+      copyItem,
+      removeItem,
+      onUpdate
+    } = this.props;
 
     const descriptionOnBlur = e => {
       const description = e.target.value;
@@ -40,6 +51,15 @@ class Left extends React.Component<Props> {
 
     return (
       <LeftContainer>
+        <Actions
+          item={item}
+          options={options}
+          copyItem={copyItem}
+          removeItem={removeItem}
+          saveItem={saveItem}
+          onUpdate={onUpdate}
+        />
+
         {item.labels.length > 0 && (
           <FormGroup>
             <TitleRow>
@@ -83,18 +103,18 @@ class Left extends React.Component<Props> {
           />
         </FormGroup>
 
-        <Checklists contentType={type} contentTypeId={item._id} />
+        <Checklists contentType={options.type} contentTypeId={item._id} />
 
         <ActivityInputs
           contentTypeId={item._id}
-          contentType={type}
+          contentType={options.type}
           showEmail={false}
         />
 
         <ActivityLogs
           target={item.name}
           contentId={item._id}
-          contentType={type}
+          contentType={options.type}
           extraTabs={[]}
         />
       </LeftContainer>

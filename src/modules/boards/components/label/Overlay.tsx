@@ -99,7 +99,8 @@ export default class Overlay extends React.Component<
 
     if (elm) {
       elm.className = 'popover bottom';
-      elm.style.marginTop = '45px';
+      elm.style.marginTop = '35px';
+      elm.style.left = '-110px';
     }
   }
 
