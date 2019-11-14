@@ -22,9 +22,11 @@ class ChecklistAdd extends React.Component<Props> {
     return (
       <Popover id="checklist-popover">
         <Popover.Title as="h3">Add checklist</Popover.Title>
-        <PopoverContent>
-          <AddForm {...this.props} afterSave={this.hidePopover} />
-        </PopoverContent>
+        <Popover.Content>
+          <PopoverContent>
+            <AddForm {...this.props} afterSave={this.hidePopover} />
+          </PopoverContent>
+        </Popover.Content>
       </Popover>
     );
   }
