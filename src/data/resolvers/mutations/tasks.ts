@@ -1,7 +1,6 @@
 import { Checklists, Conformities, Tasks } from '../../../db/models';
-import { IOrderInput } from '../../../db/models/definitions/boards';
+import { IItemCommonFields as ITask, IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
-import { ITask } from '../../../db/models/definitions/tasks';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { putCreateLog } from '../../utils';

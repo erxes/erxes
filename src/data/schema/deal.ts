@@ -38,7 +38,8 @@ const commonMutationParams = `
   order: Int,
   productsData: JSON,
   reminderMinute: Int,
-  isComplete: Boolean
+  isComplete: Boolean,
+  priority: String
 `;
 
 const commonQueryParams = `
@@ -55,6 +56,7 @@ const commonQueryParams = `
   overdue: String
   labelIds: [String]
   search: String
+  priority: [String]
 `;
 
 export const queries = `

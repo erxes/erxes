@@ -32,6 +32,7 @@ export const generateCommonFilters = async (args: any) => {
     initialStageId,
     type,
     labelIds,
+    priority,
   } = args;
 
   const isListEmpty = value => {
@@ -168,6 +169,10 @@ export const generateCommonFilters = async (args: any) => {
     filter.labelIds = isEmpty ? { $in: [null, []] } : { $in: labelIds };
   }
 
+  if (priority) {
+    filter.priority = contains(priority);
+  }
+
   return filter;
 };
 
@@ -196,11 +201,7 @@ export const generateDealCommonFilters = async (args: any, extraParams?: any) =>
 export const generateTicketCommonFilters = async (args: any, extraParams?: any) => {
   args.type = 'ticket';
   const filter = await generateCommonFilters(args);
-  const { priority, source } = extraParams || args;
-
-  if (priority) {
-    filter.priority = contains(priority);
-  }
+  const { source } = extraParams || args;
 
   if (source) {
     filter.source = contains(source);
@@ -209,31 +210,21 @@ export const generateTicketCommonFilters = async (args: any, extraParams?: any) 
   return filter;
 };
 
-export const generateTaskCommonFilters = async (args: any, extraParams?: any) => {
+export const generateTaskCommonFilters = async (args: any) => {
   args.type = 'task';
-  const filter = await generateCommonFilters(args);
-  const { priority } = extraParams || args;
 
-  if (priority) {
-    filter.priority = contains(priority);
-  }
-
-  return filter;
+  return generateCommonFilters(args);
 };
 
 export const generateGrowthHackCommonFilters = async (args: any, extraParams?: any) => {
   args.type = 'growthHack';
 
-  const { hackStage, priority, pipelineId, stageId } = extraParams || args;
+  const { hackStage, pipelineId, stageId } = extraParams || args;
 
   const filter = await generateCommonFilters(args);
 
   if (hackStage) {
-    filter.hackStages = { $in: [hackStage] };
-  }
-
-  if (priority) {
-    filter.priority = priority;
+    filter.hackStages = contains(hackStage);
   }
 
   if (!stageId && pipelineId) {

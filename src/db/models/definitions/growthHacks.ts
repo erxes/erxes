@@ -7,7 +7,6 @@ export interface IGrowthHack extends IItemCommonFields {
   votedUserIds?: string[];
 
   hackStages?: string;
-  priority?: string;
   reach?: number;
   impact?: number;
   confidence?: number;
@@ -25,7 +24,6 @@ export const growthHackSchema = new Schema({
   votedUserIds: field({ type: [String], optional: true }),
 
   hackStages: field({ type: [String], optional: true }),
-  priority: field({ type: String, optional: true }),
   reach: field({ type: Number, default: 0, optional: true }),
   impact: field({ type: Number, default: 0, optional: true }),
   confidence: field({ type: Number, default: 0, optional: true }),

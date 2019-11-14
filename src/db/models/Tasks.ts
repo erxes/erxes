@@ -1,8 +1,8 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
 import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
-import { IOrderInput } from './definitions/boards';
-import { ITask, ITaskDocument, taskSchema } from './definitions/tasks';
+import { IItemCommonFields as ITask, IOrderInput } from './definitions/boards';
+import { ITaskDocument, taskSchema } from './definitions/tasks';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   createTask(doc: ITask): Promise<ITaskDocument>;
