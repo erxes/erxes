@@ -26,6 +26,7 @@ type Props = {
   toggleAll: (bulk: ILeadIntegration[], name: string) => void;
   loading: boolean;
   remove: (integrationId: string, callback: (error: Error) => void) => void;
+  archive: (integrationId: string) => void;
 };
 
 class List extends React.Component<Props, {}> {
@@ -35,7 +36,7 @@ class List extends React.Component<Props, {}> {
   };
 
   renderRow() {
-    const { integrations, remove, bulk, toggleBulk } = this.props;
+    const { integrations, remove, bulk, toggleBulk, archive } = this.props;
 
     return integrations.map(integration => (
       <Row
@@ -44,6 +45,7 @@ class List extends React.Component<Props, {}> {
         toggleBulk={toggleBulk}
         integration={integration}
         remove={remove}
+        archive={archive}
       />
     ));
   }
