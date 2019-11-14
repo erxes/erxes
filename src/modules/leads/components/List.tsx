@@ -147,7 +147,7 @@ class List extends React.Component<Props, {}> {
             loading={loading}
             count={integrations.length}
             emptyText="There is always a pop ups!"
-            emptyImage="/images/actions/3.svg"
+            emptyImage="/images/actions/12.svg"
           />
         }
       />

@@ -4,7 +4,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import { UsersQueryResponse } from '../../settings/team/types';
+import { AllUsersQueryResponse } from '../../settings/team/types';
 import { mutations, queries } from '../graphql';
 import {
   EngageMessageDetailQueryResponse,
@@ -21,7 +21,7 @@ type Props = {
 
 type FinalProps = {
   engageMessageDetailQuery: EngageMessageDetailQueryResponse;
-  usersQuery: UsersQueryResponse;
+  usersQuery: AllUsersQueryResponse;
 } & IRouterProps &
   Props &
   WithFormAddMutationResponse &
@@ -49,7 +49,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       } = this.props;
 
       const message = engageMessageDetailQuery.engageMessageDetail || {};
-      const users = usersQuery.users || [];
+      const users = usersQuery.allUsers || [];
       const verifiedUsers = users.filter(user => user.username) || [];
 
       const doMutation = (mutation, variables, msg) => {
@@ -159,7 +159,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
           })
         }
       ),
-      graphql<Props, UsersQueryResponse>(gql(queries.users), {
+      graphql<Props, AllUsersQueryResponse>(gql(queries.users), {
         name: 'usersQuery'
       }),
       graphql<Props, WithFormAddMutationResponse, WithFormMutationVariables>(

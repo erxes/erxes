@@ -230,6 +230,7 @@ class MainActionBar extends React.Component<Props, State> {
               onSelect={onSelect}
               filterParams={{ pipelineId: queryParams.pipelineId }}
               multi={true}
+              customOption={{ value: '', label: 'No label chosen' }}
             />
 
             {this.renderDates()}

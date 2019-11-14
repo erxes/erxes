@@ -5,7 +5,7 @@ import { FlexContent, LeftContainer } from 'modules/boards/styles/item';
 import { IEditFormContent, IOptions } from 'modules/boards/types';
 import { IFormSubmission } from 'modules/forms/types';
 import React from 'react';
-import { IGrowthHack, IGrowthHackParams } from '../types';
+import { GrowthHackFieldName, IGrowthHack, IGrowthHackParams } from '../types';
 import { Left, StageForm, Top } from './editForm/';
 import Actions from './editForm/Actions';
 import Score from './Score';
@@ -24,43 +24,21 @@ type Props = {
   beforePopupClose: () => void;
 };
 
-type State = {
-  formSubmissions: JSON;
-  formId: string;
-  priority: string;
-  hackStages: string[];
-  impact: number;
-  ease: number;
-  confidence: number;
-  reach: number;
-};
-
-export default class GrowthHackEditForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const item = props.item;
-
-    this.state = {
-      formSubmissions: item.formSubmissions || {},
-      priority: item.priority || '',
-      hackStages: item.hackStages || [],
-      formId: item.formId || '',
-      impact: item.impact || 0,
-      confidence: item.confidence || 0,
-      ease: item.ease || 0,
-      reach: item.reach || 0
-    };
-  }
-
-  onChangeExtraField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>, () => {
-      if (reactiveFields.includes(name)) {
-        this.props.saveItem({ [name]: value }, updatedItem => {
-          this.props.onUpdate(updatedItem);
-        });
+export default class GrowthHackEditForm extends React.Component<Props> {
+  onChangeExtraField = <T extends keyof IGrowthHack>(
+    name: T,
+    value: IGrowthHack[GrowthHackFieldName]
+  ) => {
+    this.setState(
+      { [name]: value } as Pick<IGrowthHack, keyof IGrowthHack>,
+      () => {
+        if (reactiveFields.includes(name)) {
+          this.props.saveItem({ [name]: value }, updatedItem => {
+            this.props.onUpdate(updatedItem);
+          });
+        }
       }
-    });
+    );
   };
 
   renderDueDate = (closeDate, onDateChange: (date) => void) => {
@@ -78,7 +56,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
   };
 
   renderScore = () => {
-    const { reach, impact, confidence, ease } = this.state;
     const { saveItem, item } = this.props;
 
     const onChange = e => {
@@ -88,7 +65,7 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
       const changedValue = { [e.target.name]: confirmedValue };
 
-      this.setState(changedValue as Pick<State, keyof State>);
+      this.setState(changedValue as Pick<IGrowthHack, keyof IGrowthHack>);
 
       saveItem(changedValue, updatedItem => {
         this.props.onUpdate(updatedItem);
@@ -97,10 +74,10 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
 
     return (
       <Score
-        reach={reach}
-        impact={impact}
-        confidence={confidence}
-        ease={ease}
+        reach={item.reach || 0}
+        impact={item.impact || 0}
+        confidence={item.confidence || 0}
+        ease={item.ease || 0}
         onChange={onChange}
         scoringType={item.scoringType || 'ice'}
       />
@@ -108,48 +85,30 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
   };
 
   renderFormContent = ({
-    state,
-    onChangeAttachment,
-    onChangeField,
     copy,
     remove,
-    onBlurFields
+    saveItem,
+    onChangeStage
   }: IEditFormContent) => {
     const { item, options, saveFormSubmission, onUpdate } = this.props;
-    const { formSubmissions, priority, hackStages, formId } = this.state;
 
-    const {
-      name,
-      stageId,
-      description,
-      closeDate,
-      attachments,
-      assignedUserIds
-    } = state;
-
-    const dateOnChange = date => onChangeField('closeDate', date);
+    const dateOnChange = date => saveItem({ closeDate: date });
 
     return (
       <>
         <Top
-          {...this.state}
           options={options}
-          name={name}
-          stageId={stageId}
           item={item}
-          onChangeField={onChangeField}
-          dueDate={this.renderDueDate(closeDate, dateOnChange)}
+          saveItem={saveItem}
+          dueDate={this.renderDueDate(item.closeDate, dateOnChange)}
           score={this.renderScore}
-          onBlurFields={onBlurFields}
+          onChangeStage={onChangeStage}
         />
 
         <FlexContent>
           <LeftContainer>
             <Actions
-              priority={priority}
-              hackStages={hackStages}
               onChangeField={this.onChangeExtraField}
-              closeDate={closeDate}
               dateOnChange={dateOnChange}
               item={item}
               options={options}
@@ -158,16 +117,10 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               onUpdate={onUpdate}
             />
             <Left
-              {...this.state}
-              onChangeAttachment={onChangeAttachment}
               type={options.type}
-              description={description}
-              attachments={attachments}
               item={item}
-              onChangeField={onChangeField}
+              saveItem={saveItem}
               options={options}
-              assignedUserIds={assignedUserIds}
-              onBlurFields={onBlurFields}
             />
           </LeftContainer>
 
@@ -175,8 +128,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
             item={item}
             onChangeExtraField={this.onChangeExtraField}
             save={saveFormSubmission}
-            formSubmissions={formSubmissions}
-            formId={formId}
           />
         </FlexContent>
       </>

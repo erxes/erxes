@@ -2,7 +2,6 @@ import { IConversation, IMessage } from 'modules/inbox/types';
 import React from 'react';
 import SimpleMessage from '../conversation/messages/SimpleMessage';
 import Mail from './Mail';
-import { EmailItem } from './style';
 
 type Props = {
   conversation: IConversation;
@@ -21,12 +20,16 @@ class MailConversation extends React.Component<Props, {}> {
     const { integration } = conversation;
     const { _id, kind } = integration;
 
-    return messages.map(message => {
+    const length = messages.length;
+
+    return messages.map((message, index) => {
       if (message.internal) {
         return (
-          <EmailItem key={message._id}>
-            <SimpleMessage message={message} isStaff={!message.customerId} />
-          </EmailItem>
+          <SimpleMessage
+            key={message._id}
+            message={message}
+            isStaff={!message.customerId}
+          />
         );
       }
 
@@ -34,6 +37,7 @@ class MailConversation extends React.Component<Props, {}> {
         <Mail
           key={message._id}
           kind={kind}
+          isLast={length === index + 1}
           message={message}
           integrationId={_id}
         />

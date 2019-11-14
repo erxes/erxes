@@ -197,7 +197,6 @@ class PermissionForm extends React.Component<Props, State> {
                 name="selectedUserIds"
                 value={selectedUserIds}
                 onSelect={usersOnChange}
-                filterParams={{ status: 'verified' }}
               />
             </FormGroup>
           </StepBody>

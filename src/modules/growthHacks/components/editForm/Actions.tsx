@@ -15,9 +15,6 @@ import Vote from '../../containers/Vote';
 type Props = {
   item: IGrowthHack;
   onChangeField: (name: 'priority' | 'hackStages', value: any) => void;
-  closeDate: Date;
-  priority: string;
-  hackStages: string[];
   dateOnChange: (date) => void;
   options: IOptions;
   copy: () => void;
@@ -30,15 +27,14 @@ class Actions extends React.Component<Props> {
     const {
       item,
       onChangeField,
-      closeDate,
-      priority,
-      hackStages,
       options,
       copy,
       remove,
       dateOnChange,
       onUpdate
     } = this.props;
+
+    const hackStages = item.hackStages || [];
 
     const priorityOnChange = (value: string) => {
       onChangeField('priority', value);
@@ -76,10 +72,10 @@ class Actions extends React.Component<Props> {
 
     return (
       <ActionContainer>
-        <DueDateChanger value={closeDate} onChange={dateOnChange} />
+        <DueDateChanger value={item.closeDate} onChange={dateOnChange} />
         <SelectItem
           items={PRIORITIES}
-          selectedItems={priority}
+          selectedItems={item.priority}
           onChange={priorityOnChange}
           trigger={priorityTrigger}
         />
