@@ -15,7 +15,7 @@ import {
 import ProductForm from 'modules/settings/productService/containers/product/ProductForm';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 type Props = {
   product: IProduct;
@@ -43,13 +43,13 @@ class BasicInfo extends React.Component<Props> {
 
     return (
       <Action>
-        <Dropdown id="dropdown-engage">
-          <DropdownToggle bsRole="toggle">
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
             <Button btnStyle="simple" size="medium">
               {__('Action')}
               <Icon icon="angle-down" />
             </Button>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
               <a href="#delete" onClick={onDelete}>

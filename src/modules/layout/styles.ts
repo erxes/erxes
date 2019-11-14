@@ -233,7 +233,6 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   padding-right: ${props => (props.isSidebarOpen ? '25px' : '0')};
 
   a, button {
-    float: left;
     color: ${colors.colorCoreLightGray};
     text-transform: none;
     cursor: pointer;

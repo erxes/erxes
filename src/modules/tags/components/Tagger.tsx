@@ -56,7 +56,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       return {
         _id,
         title: name,
-        iconClass: 'icon-tag',
+        iconClass: 'icon-tag-alt',
         iconColor: colorCode,
         selectedBy: state
       };

@@ -131,29 +131,11 @@ const AxisX = styled(Axis)`
 
 const ExperimentList = styled.ul`
   padding-left: ${dimensions.coreSpacing}px;
-  margin-left: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 
   li {
     padding-bottom: ${dimensions.unitSpacing - 5}px;
   }
 `;
 
-const PopoverHeader = styled.h3`
-  padding: ${dimensions.unitSpacing}px;
-  margin: 0;
-  font-size: 14px;
-  background-color: #f7f7f7;
-  font-weight: 400;
-  text-align: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
-export {
-  ChartAxis,
-  ChartLegends,
-  Point,
-  AxisX,
-  AxisY,
-  ExperimentList,
-  PopoverHeader
-};
+export { ChartAxis, ChartLegends, Point, AxisX, AxisY, ExperimentList };

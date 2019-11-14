@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import { SidebarList } from 'modules/layout/styles';
 import Tagger from 'modules/tags/containers/Tagger';
 import React from 'react';
-import { Collapse } from 'react-bootstrap';
+import Collapse from 'react-bootstrap/Collapse';
 
 type Props = {
   data: any;
@@ -31,9 +31,7 @@ class TaggerSection extends React.Component<Props, State> {
   toggleTagger = e => {
     e.preventDefault();
 
-    const { isTaggerVisible } = this.state;
-
-    this.setState({ isTaggerVisible: !isTaggerVisible });
+    this.setState({ isTaggerVisible: !this.state.isTaggerVisible });
   };
 
   renderTags(tags) {
