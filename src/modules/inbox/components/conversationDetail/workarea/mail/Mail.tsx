@@ -207,6 +207,8 @@ class Mail extends React.PureComponent<
       return null;
     }
 
+    console.log(message);
+
     const { mailData } = message;
 
     if (!mailData) {
