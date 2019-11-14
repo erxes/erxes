@@ -52,18 +52,25 @@ class ListContainer extends React.Component<FinalProps> {
     };
 
     const remove = (integrationId: string) => {
-      removeMutation({
-        variables: { _id: integrationId }
-      })
-        .then(() => {
-          // refresh queries
-          refetch();
+      const message = `
+        If you remove a pop ups, then all related conversations, customers will also be removed.
+        Are you sure?
+      `;
 
-          Alert.success('You successfully deleted a pop ups.');
+      confirm(message).then(() => {
+        removeMutation({
+          variables: { _id: integrationId }
         })
-        .catch(e => {
-          Alert.error(e.message);
-        });
+          .then(() => {
+            // refresh queries
+            refetch();
+
+            Alert.success('You successfully deleted a pop ups.');
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
     };
 
     const archive = (integrationId: string) => {

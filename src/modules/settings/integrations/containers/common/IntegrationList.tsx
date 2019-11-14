@@ -34,7 +34,13 @@ const IntegrationListContainer = (props: FinalProps) => {
   const integrations = integrationsQuery.integrations || [];
 
   const removeIntegration = integration => {
-    confirm().then(() => {
+    const message = `
+      If you remove an integration, then all related conversations, customers & pop ups
+      will also be removed.
+      Are you sure?
+    `;
+
+    confirm(message).then(() => {
       Alert.warning('Removing... Please wait!!!');
 
       removeMutation({ variables: { _id: integration._id } })
