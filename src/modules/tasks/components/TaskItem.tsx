@@ -6,25 +6,24 @@ import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
-import { IOptions } from 'modules/boards/types';
+import { IItem, IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
-import { ITask } from '../types';
 
 type Props = {
   stageId: string;
-  item: ITask;
+  item: IItem;
   onClick?: () => void;
   isFormVisible?: boolean;
   beforePopupClose?: () => void;
   options?: IOptions;
   portable?: boolean;
-  onAdd?: (stageId: string, item: ITask) => void;
+  onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (taskId: string, stageId: string) => void;
-  onUpdate?: (item: ITask) => void;
+  onUpdate?: (item: IItem) => void;
 };
 
 class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {

@@ -902,5 +902,6 @@
   "Choose end date": "Choose end date",
   "Permission denied": "Permission denied",
   "Old data": "Old data",
-  "New data": "New data"
+  "New data": "New data",
+  "NetworkError": "Attempting to restore connection. Changes made now may not be saved."
 }

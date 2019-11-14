@@ -13,7 +13,7 @@ type Props = {
   beforePopupClose: () => void;
   amount?: () => React.ReactNode;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
-  onUpdate: (item, prevStageId?) => void;
+  onUpdate: (item: IItem, prevStageId?) => void;
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
