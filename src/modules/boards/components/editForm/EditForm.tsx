@@ -2,7 +2,7 @@ import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
 import { __, extractAttachment } from 'modules/common/utils';
 import React from 'react';
-import Modal from 'react-bootstrap-latest/Modal';
+import Modal from 'react-bootstrap/Modal';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 type Props = {

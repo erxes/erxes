@@ -3,7 +3,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import colors from 'modules/common/styles/colors';
 import * as React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 
 export const ActionItem = styled.button`

@@ -10,7 +10,7 @@ import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';

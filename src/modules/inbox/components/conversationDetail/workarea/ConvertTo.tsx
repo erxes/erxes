@@ -6,7 +6,7 @@ import DealAddTrigger from 'modules/deals/components/DealAddTrigger';
 import TaskAddTrigger from 'modules/tasks/components/TaskAddTrigger';
 import TicketAddTrigger from 'modules/tickets/components/TicketAddTrigger';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 
 const Container = styled.div`

@@ -9,7 +9,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import MessageListRow from '../containers/MessageListRow';
 import Sidebar from '../containers/Sidebar';

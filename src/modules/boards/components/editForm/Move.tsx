@@ -11,8 +11,8 @@ import { IStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { IItem, IOptions } from '../../types';
 
 type Props = {

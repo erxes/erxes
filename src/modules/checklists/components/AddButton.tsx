@@ -1,8 +1,8 @@
 import { RightButton } from 'modules/boards/styles/item';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import AddForm from '../containers/AddForm';
 import { PopoverContent } from '../styles';
 

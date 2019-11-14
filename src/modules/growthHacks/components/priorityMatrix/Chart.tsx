@@ -1,8 +1,8 @@
 import { __ } from 'modules/common/utils';
 import { RightContent } from 'modules/growthHacks/styles';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import {
   AxisX,
   AxisY,

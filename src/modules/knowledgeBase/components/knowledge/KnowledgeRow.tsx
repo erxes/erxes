@@ -5,7 +5,7 @@ import { DropIcon } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import CategoryForm from '../../containers/category/CategoryForm';
 import CategoryList from '../../containers/category/CategoryList';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';

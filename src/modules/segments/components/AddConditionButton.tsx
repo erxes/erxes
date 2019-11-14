@@ -4,8 +4,8 @@ import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { dateUnits, types } from 'modules/customers/constants';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { ISegmentCondition } from '../types';
 import { Field, FieldType, PopoverList } from './styles';
 

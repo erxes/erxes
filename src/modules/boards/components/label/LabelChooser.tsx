@@ -1,7 +1,7 @@
 import { RightButton } from 'modules/boards/styles/item';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { ChooseLabelWrapper } from '../../styles/label';
 import { IPipelineLabel } from '../../types';
 import Overlay from './Overlay';

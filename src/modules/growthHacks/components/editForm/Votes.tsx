@@ -2,8 +2,8 @@ import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
 import { Participators } from 'modules/inbox/components/conversationDetail';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { VotersContent, VotersCount } from '../../styles';
 
 type Props = {

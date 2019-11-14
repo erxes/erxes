@@ -5,7 +5,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarList } from 'modules/layout/styles';
 import Tagger from 'modules/tags/containers/Tagger';
 import React from 'react';
-import Collapse from 'react-bootstrap-latest/Collapse';
+import Collapse from 'react-bootstrap/Collapse';
 
 type Props = {
   data: any;

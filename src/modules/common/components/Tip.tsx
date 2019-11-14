@@ -1,6 +1,6 @@
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Tooltip from 'react-bootstrap-latest/Tooltip';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 type Props = {
   text?: string | React.ReactNode;

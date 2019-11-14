@@ -20,9 +20,9 @@ import Participators from 'modules/inbox/components/conversationDetail/workarea/
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
-import Overlay from 'react-bootstrap-latest/Overlay';
-import Popover from 'react-bootstrap-latest/Popover';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Overlay from 'react-bootstrap/Overlay';
+import Popover from 'react-bootstrap/Popover';
 import { Link } from 'react-router-dom';
 import PipelineWatch from '../containers/PipelineWatch';
 import {

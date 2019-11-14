@@ -15,7 +15,7 @@ import { BarItems } from 'modules/layout/styles';
 import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';

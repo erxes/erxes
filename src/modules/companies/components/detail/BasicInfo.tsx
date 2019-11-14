@@ -19,7 +19,7 @@ import {
   SidebarList
 } from 'modules/layout/styles';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
 import CompaniesMerge from '../detail/CompaniesMerge';

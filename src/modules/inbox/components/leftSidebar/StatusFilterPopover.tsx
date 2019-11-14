@@ -8,8 +8,8 @@ import { PopoverButton } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 type Props = {
   history: any;

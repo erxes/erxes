@@ -4,7 +4,7 @@ import { dimensions } from 'modules/common/styles';
 import colors from 'modules/common/styles/colors';
 import { IOption } from 'modules/common/types';
 import * as React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`

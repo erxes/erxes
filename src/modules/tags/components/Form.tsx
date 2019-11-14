@@ -10,8 +10,8 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { getRandomNumber } from 'modules/common/utils';
 import { ITag } from 'modules/tags/types';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import BlockPicker from 'react-color/lib/Block';
 import styled from 'styled-components';
 

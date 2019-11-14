@@ -9,8 +9,8 @@ import { ResponseTemplateStyled } from 'modules/inbox/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
 import React from 'react';
-import OverlayTrigger from 'react-bootstrap-latest/OverlayTrigger';
-import Popover from 'react-bootstrap-latest/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import strip from 'strip';
 
 type Props = {

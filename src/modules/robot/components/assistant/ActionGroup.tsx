@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Collapse from 'react-bootstrap-latest/Collapse';
+import Collapse from 'react-bootstrap/Collapse';
 import { Count, Group, GroupHead, NotifyItem, Title } from './styles';
 
 type Props = {

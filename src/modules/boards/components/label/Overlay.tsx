@@ -2,7 +2,7 @@ import FilterableList from 'modules/common/components/filterableList/FilterableL
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import Popover from 'react-bootstrap-latest/Popover';
+import Popover from 'react-bootstrap/Popover';
 import Form from '../../containers/label/Form';
 import {
   Container,

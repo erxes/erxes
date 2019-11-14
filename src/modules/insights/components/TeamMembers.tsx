@@ -1,8 +1,8 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
-import Col from 'react-bootstrap-latest/Col';
-import Row from 'react-bootstrap-latest/Row';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 import {
   ChartWrapper,
   FullName,

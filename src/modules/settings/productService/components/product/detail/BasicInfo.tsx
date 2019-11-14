@@ -15,7 +15,7 @@ import {
 import ProductForm from 'modules/settings/productService/containers/product/ProductForm';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 type Props = {
   product: IProduct;

@@ -1,8 +1,8 @@
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import Col from 'react-bootstrap-latest/Col';
-import Container from 'react-bootstrap-latest/Container';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import {
   AuthContent,
   AuthDescription,

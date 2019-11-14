@@ -3,7 +3,7 @@ import Icon from 'modules/common/components/Icon';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import React from 'react';
-import Dropdown from 'react-bootstrap-latest/Dropdown';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router';
 import { Option, PerPageButton } from './styles';
 
