@@ -8,7 +8,7 @@ import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
 import CustomerForm from 'modules/customers/containers/CustomerForm';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 type Props = {
   customer: ICustomer;
@@ -82,8 +82,10 @@ class ActionSection extends React.Component<Props> {
     };
 
     return (
-      <Dropdown id="dropdown-engage">
-        <DropdownToggle bsRole="toggle">{this.renderButton()}</DropdownToggle>
+      <Dropdown>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
+          {this.renderButton()}
+        </Dropdown.Toggle>
         <Dropdown.Menu>
           {this.renderEditButton()}
           <li>

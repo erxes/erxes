@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import Modal from 'react-bootstrap/Modal';
 import styled from 'styled-components';
 import { colors, dimensions } from '../styles';
 import Button from './Button';
@@ -91,7 +91,7 @@ class ConfirmDialog extends React.Component<Props, State> {
         onHide={this.dismiss}
         backdrop={enableEscape ? true : 'static'}
         keyboard={enableEscape}
-        bsSize="small"
+        size="sm"
       >
         <ModalBody>
           <IconWrapper>
