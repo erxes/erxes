@@ -131,7 +131,7 @@ const AxisX = styled(Axis)`
 
 const ExperimentList = styled.ul`
   padding-left: ${dimensions.coreSpacing}px;
-  margin-left: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 
   li {
     padding-bottom: ${dimensions.unitSpacing - 5}px;
