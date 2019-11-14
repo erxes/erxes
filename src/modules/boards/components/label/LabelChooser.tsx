@@ -1,4 +1,5 @@
-import { RightButton } from 'modules/boards/styles/item';
+import { ColorButton } from 'modules/boards/styles/common';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -78,7 +79,10 @@ class ChooseLabel extends React.Component<
           container={this}
           onExited={this.onExit}
         >
-          <RightButton icon="tag-alt">{__('Labels')}</RightButton>
+          <ColorButton>
+            <Icon icon="tag-alt" />
+            {__('Labels')}
+          </ColorButton>
         </OverlayTrigger>
       </ChooseLabelWrapper>
     );

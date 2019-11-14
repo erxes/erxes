@@ -15,6 +15,7 @@ import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
+import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import { PopoverHeader } from 'modules/notifications/components/styles';
@@ -24,6 +25,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { Link } from 'react-router-dom';
+import Select from 'react-select-plus';
+import { PRIORITIES } from '../constants';
 import PipelineWatch from '../containers/PipelineWatch';
 import {
   HeaderButton,
@@ -206,6 +209,12 @@ class MainActionBar extends React.Component<Props, State> {
   renderFilterOverlay() {
     const { queryParams, onSelect, extraFilter } = this.props;
 
+    const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+    const priorities = queryParams ? queryParams.priority : [];
+
+    const onPrioritySelect = (ops: IOption[]) =>
+      onSelect(ops.map(option => option.value), 'priority');
+
     return (
       <Overlay
         show={this.state.show}
@@ -218,6 +227,15 @@ class MainActionBar extends React.Component<Props, State> {
           <PopoverHeader>{__('Filter')}</PopoverHeader>
           <FilterBox>
             {extraFilter}
+            <Select
+              placeholder="Choose a priority"
+              value={priorities}
+              options={priorityValues}
+              name="priority"
+              onChange={onPrioritySelect}
+              multi={true}
+              loadingPlaceholder={__('Loading...')}
+            />
             <SelectTeamMembers
               label="Choose team members"
               name="assignedUserIds"
