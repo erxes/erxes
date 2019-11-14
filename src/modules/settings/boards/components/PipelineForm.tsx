@@ -155,7 +155,7 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <SelectMemberStyled>
-          <ControlLabel>Dominant Users</ControlLabel>
+          <ControlLabel>Users eligible to see all cards</ControlLabel>
 
           <SelectTeamMembers
             label="Choose members"
@@ -254,7 +254,7 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderSelectMembers()}
 
           <FormGroup>
-            <ControlLabel>Cart show only self</ControlLabel>
+            <ControlLabel>Show only the user's assigned cards</ControlLabel>
             <FormControl
               componentClass="checkbox"
               checked={this.state.onlySelf}
