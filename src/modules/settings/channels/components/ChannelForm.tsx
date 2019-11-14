@@ -66,6 +66,7 @@ class ChannelForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="name"
+            autoFocus={true}
             defaultValue={object.name}
             required={true}
           />

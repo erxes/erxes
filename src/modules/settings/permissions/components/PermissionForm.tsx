@@ -3,10 +3,10 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import { mutations } from '../graphql';
 import { Divider, StepBody, StepHeader, StepItem } from '../styles';
@@ -197,7 +197,6 @@ class PermissionForm extends React.Component<Props, State> {
                 name="selectedUserIds"
                 value={selectedUserIds}
                 onSelect={usersOnChange}
-                filterParams={{ status: 'verified' }}
               />
             </FormGroup>
           </StepBody>
@@ -231,7 +230,7 @@ class PermissionForm extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -250,7 +249,7 @@ class PermissionForm extends React.Component<Props, State> {
             type="submit"
             successMessage={`You successfully added a permission.`}
           />
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     );
   }

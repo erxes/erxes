@@ -4,7 +4,7 @@ import { dimensions } from 'modules/common/styles';
 import colors from 'modules/common/styles/colors';
 import { IOption } from 'modules/common/types';
 import * as React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -102,10 +102,10 @@ class BrandChooser extends React.Component<IProps> {
 
     return (
       <Wrapper>
-        <Dropdown id="dropdown">
-          <DropdownToggle bsRole="toggle">
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-brand">
             {this.renderTrigger()}
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             {items.map((item: IOption) => (
               <li key={item.value}>

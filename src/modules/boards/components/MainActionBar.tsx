@@ -20,7 +20,9 @@ import Participators from 'modules/inbox/components/conversationDetail/workarea/
 import { PopoverHeader } from 'modules/notifications/components/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Dropdown, Overlay, Popover } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Overlay from 'react-bootstrap/Overlay';
+import Popover from 'react-bootstrap/Popover';
 import { Link } from 'react-router-dom';
 import PipelineWatch from '../containers/PipelineWatch';
 import {
@@ -210,7 +212,6 @@ class MainActionBar extends React.Component<Props, State> {
         onHide={this.hideFilter}
         placement="bottom"
         rootClose={true}
-        containerPadding={20}
         target={this.state.target}
       >
         <Popover id="popover-contained">
@@ -325,30 +326,30 @@ class MainActionBar extends React.Component<Props, State> {
         <HeaderLabel>
           <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
         </HeaderLabel>
-        <Dropdown id="dropdown-board">
-          <DropdownToggle bsRole="toggle">
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
             <HeaderButton rightIconed={true}>
               {(currentBoard && currentBoard.name) || __('Choose board')}
               <Icon icon="angle-down" />
             </HeaderButton>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLabel>
           <Icon icon="web-section-alt" /> {__(pipelineText || '')}:{' '}
         </HeaderLabel>
-        <Dropdown id="dropdown-pipeline">
-          <DropdownToggle bsRole="toggle">
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-pipeline">
             <HeaderButton rightIconed={true}>
               {(currentPipeline && currentPipeline.name) ||
                 __('Choose pipeline')}
               <Icon icon="angle-down" />
             </HeaderButton>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLink>
-          <Tip text={__('Manage Board & Pipeline')}>
+          <Tip text={__('Manage Board & Pipeline')} placement="bottom">
             <Link
               to={`/settings/boards/${type}?boardId=${
                 currentBoard ? currentBoard._id : ''

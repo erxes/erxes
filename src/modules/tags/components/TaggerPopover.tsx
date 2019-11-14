@@ -1,6 +1,7 @@
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import Tagger from '../containers/Tagger';
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
   trigger: React.ReactNode;
   successCallback?: () => void;
   targets?: any[];
-  container?: React.ReactNode;
+  container?: Element | Node | React.Component<any, {}, any>;
   refetchQueries?: any[];
 };
 
@@ -16,8 +17,15 @@ function TaggerPopover(props: Props) {
   const { trigger, container, refetchQueries, ...taggerProps } = props;
 
   const popover = (
-    <Popover id="tags-popover" title={__('Choose your tags')}>
-      <Tagger event="onExit" {...taggerProps} refetchQueries={refetchQueries} />
+    <Popover id="tags-popover">
+      <Popover.Title as="h3">{__('Choose your tags')}</Popover.Title>
+      <Popover.Content>
+        <Tagger
+          event="onExit"
+          {...taggerProps}
+          refetchQueries={refetchQueries}
+        />
+      </Popover.Content>
     </Popover>
   );
 

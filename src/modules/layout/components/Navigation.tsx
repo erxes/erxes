@@ -42,7 +42,6 @@ const Nav = styled.nav`
   display: block;
   margin-top: ${dimensions.unitSpacing / 2}px;
   height: calc(100% - 130px);
-  overflow: auto;
 
   > a {
     display: block;

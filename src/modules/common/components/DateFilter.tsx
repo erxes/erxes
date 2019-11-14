@@ -6,7 +6,8 @@ import { __, Alert, router } from 'modules/common/utils';
 import { PopoverButton } from 'modules/inbox/styles';
 import React from 'react';
 import { withApollo } from 'react-apollo';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';
 import { dimensions } from '../styles';
 import asyncComponent from './AsyncComponent';
@@ -169,7 +170,8 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     };
 
     return (
-      <Popover id="date-popover" title={__('Filter by date')}>
+      <Popover id="date-popover">
+        <Popover.Title as="h3">{__('Filter by date')}</Popover.Title>
         <FlexRow>
           <div>
             <DateName>Start Date</DateName>
@@ -211,10 +213,9 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
     return (
       <OverlayTrigger
         trigger="click"
-        placement="bottom"
+        placement="bottom-start"
         overlay={this.renderPopover()}
         container={this}
-        shouldUpdatePosition={true}
         rootClose={true}
       >
         <PopoverButton>

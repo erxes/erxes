@@ -66,6 +66,8 @@ export const CloseDateWrapper = styled.div`
 
 export const CloseDateContent = styled.div`
   padding: 30px;
+  max-height: 100vh;
+  overflow: auto;
 `;
 
 export const DateGrid = styled.div`
