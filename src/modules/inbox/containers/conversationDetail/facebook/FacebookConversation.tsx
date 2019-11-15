@@ -52,13 +52,16 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           subscriptions.conversationExternalIntegrationMessageInserted
         ),
         updateQuery: () => {
-          commentsQuery.refetch();
+          const comments = commentsQuery.facebookComments || [];
+          const limit = comments.length + 10;
+
+          this.fetchMoreComments({ limit }, { isSubscriptions: true });
         }
       });
     }
   }
 
-  fetchMoreComments = variables => {
+  fetchMoreComments = (variables, isSubscriptions?) => {
     const { commentsQuery } = this.props;
 
     commentsQuery.fetchMore({
@@ -80,6 +83,14 @@ class FacebookPostContainer extends React.Component<FinalProps> {
             fetchedComments.push(comment);
           }
         }
+
+        if (isSubscriptions) {
+          return {
+            ...prev,
+            facebookComments: [...prevComments, ...fetchedComments]
+          };
+        }
+
         return {
           ...prev,
           facebookComments: [...fetchedComments, ...prevComments]
