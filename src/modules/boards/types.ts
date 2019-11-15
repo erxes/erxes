@@ -56,6 +56,8 @@ export interface IItemParams {
   isComplete?: boolean;
   priority?: string;
   reminderMinute?: number;
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
