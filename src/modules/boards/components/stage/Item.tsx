@@ -1,7 +1,6 @@
-import { IOptions } from 'modules/boards/types';
+import { IItem, IOptions } from 'modules/boards/types';
 import routerUtils from 'modules/common/utils/router';
 import { IDeal } from 'modules/deals/types';
-import { ITask } from 'modules/tasks/types';
 import { ITicket } from 'modules/tickets/types';
 import queryString from 'query-string';
 import React from 'react';
@@ -9,7 +8,7 @@ import history from '../../../../browserHistory';
 
 type Props = {
   stageId: string;
-  item: IDeal | ITask | ITicket;
+  item: IDeal | IItem | ITicket;
   beforePopupClose: () => void;
   onClick: () => void;
   options: IOptions;

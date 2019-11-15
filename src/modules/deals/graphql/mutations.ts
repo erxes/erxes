@@ -9,7 +9,8 @@ const commonVariables = `
   $order: Int,
   $attachments: [AttachmentInput],
   $reminderMinute: Int,
-  $isComplete: Boolean
+  $isComplete: Boolean,
+  $priority: String,
 `;
 
 const commonParams = `
@@ -21,7 +22,8 @@ const commonParams = `
   order: $order,
   attachments: $attachments,
   reminderMinute: $reminderMinute,
-  isComplete: $isComplete
+  isComplete: $isComplete,
+  priority: $priority,
 `;
 
 const dealsAdd = `

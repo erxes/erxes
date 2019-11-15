@@ -3,10 +3,10 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
 import { IUserGroupDocument } from '../types';
 
 type Props = {
@@ -95,7 +95,7 @@ class GroupForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
@@ -112,7 +112,7 @@ class GroupForm extends React.Component<Props, State> {
             callback: this.props.closeModal,
             object: this.props.object
           })}
-        </Modal.Footer>
+        </ModalFooter>
       </>
     );
   };

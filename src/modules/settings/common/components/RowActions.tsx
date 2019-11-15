@@ -7,7 +7,7 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 
 type Props = {
-  size?: string;
+  size?: 'sm' | 'lg' | 'xl';
   object: any;
   renderForm: (
     doc: { object: any; closeModal: () => void; save: () => void }

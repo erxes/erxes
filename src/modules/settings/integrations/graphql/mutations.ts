@@ -199,7 +199,16 @@ const addImapAccount = `
   }
 `;
 
+const integrationsArchive = `
+  mutation integrationsArchive($_id: String!) {
+    integrationsArchive(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
+  integrationsArchive,
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,
   integrationsEditMessenger,

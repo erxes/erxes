@@ -7,7 +7,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import PropertyForm from '../containers/PropertyForm';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { PropertyList } from '../styles';
@@ -68,8 +68,8 @@ class Properties extends React.Component<Props> {
   renderActionBar = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
-    const addGroup = <MenuItem>{__('Add group')}</MenuItem>;
-    const addField = <MenuItem>{__('Add Property')}</MenuItem>;
+    const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
+    const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
 
     const groupContent = props => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
@@ -90,17 +90,13 @@ class Properties extends React.Component<Props> {
     };
 
     return (
-      <Dropdown
-        id="dropdown-knowledgebase"
-        className="quick-button"
-        pullRight={true}
-      >
-        <DropdownToggle bsRole="toggle">
+      <Dropdown alignRight={true}>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
           <Button btnStyle="success" size="small" icon="add">
             {__('Add Group & Field ')}
             <Icon icon="angle-down" />
           </Button>
-        </DropdownToggle>
+        </Dropdown.Toggle>
         <Dropdown.Menu>
           <ModalTrigger
             title="Add Group"

@@ -6,7 +6,7 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
 import PasswordConfirmation from './PasswordConfirmation';
 
 type Props = {
@@ -86,7 +86,11 @@ class EditProfile extends React.Component<Props, State> {
 
   renderPasswordConfirmationModal(formProps: IFormProps) {
     return (
-      <Modal show={this.state.isShowPasswordPopup} onHide={this.closeConfirm}>
+      <Modal
+        show={this.state.isShowPasswordPopup}
+        onHide={this.closeConfirm}
+        animation={false}
+      >
         <Modal.Header closeButton={true}>
           <Modal.Title>{__('Enter your password to Confirm')}</Modal.Title>
         </Modal.Header>

@@ -157,7 +157,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
       <ModalTrigger
         title="Choose product & service"
         trigger={this.renderProductServiceTrigger(productData.product)}
-        size="large"
+        size="lg"
         content={content}
       />
     );

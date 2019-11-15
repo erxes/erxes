@@ -1,10 +1,10 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 
+import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Icon from 'modules/common/components/Icon';
 import { __, router } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IRouterProps } from '../../../common/types';
 import { LIFECYCLE_STATE_TYPES } from '../../constants';
@@ -54,24 +54,25 @@ class LifecycleStateFilter extends React.Component<IProps> {
   };
 
   render() {
-    const { Section } = Wrapper.Sidebar;
     const { history } = this.props;
 
     const onClear = () => {
       router.setParams(history, { lifecycleState: null });
     };
 
-    return (
-      <Section collapsible={true}>
-        <Section.Title>{__('Filter by lifecycle states')}</Section.Title>
-        <Section.QuickButtons>
-          {router.getParam(history, 'lifecycleState') ? (
-            <a href="#cancel" tabIndex={0} onClick={onClear}>
-              <Icon icon="cancel-1" />
-            </a>
-          ) : null}
-        </Section.QuickButtons>
+    const extraButtons = router.getParam(history, 'lifecycleState') && (
+      <a href="#cancel" tabIndex={0} onClick={onClear}>
+        <Icon icon="cancel-1" />
+      </a>
+    );
 
+    return (
+      <Box
+        extraButtons={extraButtons}
+        title={__('Filter by lifecycle states')}
+        collapsible={true}
+        name="showFilterByStates"
+      >
         <DataWithLoader
           loading={this.props.loading}
           count={Object.keys(LIFECYCLE_STATE_TYPES).length}
@@ -81,7 +82,7 @@ class LifecycleStateFilter extends React.Component<IProps> {
           size="small"
           objective={true}
         />
-      </Section>
+      </Box>
     );
   }
 }
