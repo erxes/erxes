@@ -43,8 +43,8 @@ const commonPipelineParamsDef = `
   $metric: String,
   $hackScoringType: String,
   $templateId: String,
-  $onlySelf: Boolean
-  $dominantUserIds: [String],
+  $isCheckUser: Boolean
+  $excludeCheckUserIds: [String],
 `;
 
 const commonPipelineParams = `
@@ -60,8 +60,8 @@ const commonPipelineParams = `
   endDate: $endDate,
   metric: $metric,
   templateId: $templateId,
-  onlySelf: $onlySelf,
-  dominantUserIds: $dominantUserIds,
+  isCheckUser: $isCheckUser,
+  excludeCheckUserIds: $excludeCheckUserIds,
 `;
 
 const pipelineAdd = `

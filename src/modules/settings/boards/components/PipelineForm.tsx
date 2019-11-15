@@ -38,8 +38,8 @@ type State = {
   visibility: string;
   selectedMemberIds: string[];
   backgroundColor: string;
-  onlySelf: boolean;
-  dominantUserIds: string[];
+  isCheckUser: boolean;
+  excludeCheckUserIds: string[];
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -54,8 +54,8 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
-      onlySelf: pipeline ? pipeline.onlySelf || false : false,
-      dominantUserIds: pipeline ? pipeline.dominantUserIds || [] : []
+      isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
+      excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : []
     };
   }
 
@@ -74,7 +74,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   onChangeDominantUsers = items => {
-    this.setState({ dominantUserIds: items });
+    this.setState({ excludeCheckUserIds: items });
   };
 
   collectValues = items => {
@@ -95,8 +95,8 @@ class PipelineForm extends React.Component<Props, State> {
       selectedMemberIds,
       stages,
       backgroundColor,
-      onlySelf,
-      dominantUserIds
+      isCheckUser,
+      excludeCheckUserIds
     } = this.state;
     const finalValues = values;
 
@@ -112,8 +112,8 @@ class PipelineForm extends React.Component<Props, State> {
       stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
-      onlySelf,
-      dominantUserIds
+      isCheckUser,
+      excludeCheckUserIds
     };
   };
 
@@ -140,15 +140,15 @@ class PipelineForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeOnlySelf = e => {
+  onChangeIsCheckUser = e => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
-    this.setState({ onlySelf: isChecked });
+    this.setState({ isCheckUser: isChecked });
   };
 
   renderDominantUsers() {
-    const { onlySelf, dominantUserIds } = this.state;
+    const { isCheckUser, excludeCheckUserIds } = this.state;
 
-    if (!onlySelf) {
+    if (!isCheckUser) {
       return;
     }
 
@@ -159,8 +159,8 @@ class PipelineForm extends React.Component<Props, State> {
 
           <SelectTeamMembers
             label="Choose members"
-            name="dominantUserIds"
-            value={dominantUserIds}
+            name="excludeCheckUserIds"
+            value={excludeCheckUserIds}
             onSelect={this.onChangeDominantUsers}
           />
         </SelectMemberStyled>
@@ -259,8 +259,8 @@ class PipelineForm extends React.Component<Props, State> {
             </ControlLabel>
             <FormControl
               componentClass="checkbox"
-              checked={this.state.onlySelf}
-              onChange={this.onChangeOnlySelf}
+              checked={this.state.isCheckUser}
+              onChange={this.onChangeIsCheckUser}
             />
           </FormGroup>
 

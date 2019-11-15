@@ -75,8 +75,8 @@ export interface IPipeline {
   templateId?: string;
   state?: string;
   itemsTotalCount?: number;
-  onlySelf?: boolean;
-  dominantUserIds?: string[];
+  isCheckUser?: boolean;
+  excludeCheckUserIds?: string[];
 }
 
 interface IStageComparisonInfo {
