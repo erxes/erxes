@@ -20,6 +20,7 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from 'modules/inbox/styles';
+import { urlify } from 'modules/inbox/utils';
 import React from 'react';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
@@ -218,8 +219,8 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
-  cleanText(text: string) {
-    return text.replace(/&nbsp;/g, ' ');
+  formatText(text: string) {
+    return urlify(text).replace(/&nbsp;/g, ' ');
   }
 
   addMessage = () => {
@@ -227,7 +228,7 @@ class RespondBox extends React.Component<Props, State> {
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
     const message = {
       conversationId: conversation._id,
-      content: this.cleanText(content) || ' ',
+      content: this.formatText(content) || ' ',
       internal: isInternal,
       attachments,
       mentionedUserIds

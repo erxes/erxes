@@ -60,3 +60,17 @@ export const extractEmail = (str?: string) => {
 
   return emails.join(' ');
 };
+
+export const urlify = (text: string) => {
+  const urlRegex = /(((https?:\/\/)?|(www\.)?)[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*))/gi;
+
+  return text.replace(urlRegex, (url: string) => {
+    let href = url;
+
+    if (!url.includes('http')) {
+      href = `http://${url}`;
+    }
+
+    return '<a target="_blank" href="' + href + '">' + url + '</a>';
+  });
+};
