@@ -11,6 +11,5 @@ export interface ITicket extends IItem {
 }
 
 export interface ITicketParams extends IItemParams {
-  priority?: string;
   source?: string;
 }

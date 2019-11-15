@@ -96,8 +96,6 @@ class TicketItem extends React.PureComponent<
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
         <h5>
           {renderPriority(item.priority)}
           {item.name}
@@ -122,7 +120,7 @@ class TicketItem extends React.PureComponent<
   }
 
   render() {
-    const { portable } = this.props;
+    const { item, portable } = this.props;
 
     if (portable) {
       const onClick = () => {
@@ -141,6 +139,7 @@ class TicketItem extends React.PureComponent<
 
     return (
       <>
+        <Labels labels={item.labels} indicator={true} />
         <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>

@@ -1,17 +1,11 @@
 import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
-import {
-  Actions,
-  BasicInfo,
-  SectionContainer,
-  SidebarCollapse,
-  TabContent
-} from './styles';
+import { Actions, BasicInfo, TabContent } from './styles';
 
 import asyncComponent from 'modules/common/components/AsyncComponent';
+import Box from 'modules/common/components/Box';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
@@ -83,77 +77,11 @@ const ConversationDetails = asyncComponent(
   { isBox: true }
 );
 
-type BoxProps = {
-  title: string;
-  name: string;
-  children: React.ReactNode;
-  isOpen: boolean;
-  toggle: (params: { name: string; isOpen: boolean }) => void;
-};
-
-type BoxState = {
-  isOpen: boolean;
-};
-
-class Box extends React.Component<BoxProps, BoxState> {
-  constructor(props: BoxProps) {
-    super(props);
-
-    this.state = {
-      isOpen: props.isOpen
-    };
-  }
-
-  toggle = () => {
-    const { name, toggle } = this.props;
-    const { isOpen } = this.state;
-
-    this.setState({ isOpen: !isOpen });
-
-    toggle({ name, isOpen: !isOpen });
-  };
-
-  renderDropBtn() {
-    const icon = this.state.isOpen ? 'downarrow' : 'rightarrow-2';
-
-    return (
-      <SidebarCollapse onClick={this.toggle}>
-        <Icon icon={icon} />
-      </SidebarCollapse>
-    );
-  }
-
-  render() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
-
-    const { isOpen } = this.state;
-    const { children, title } = this.props;
-
-    if (!isOpen) {
-      return (
-        <SectionContainer>
-          <Title>{title}</Title>
-          {this.renderDropBtn()}
-        </SectionContainer>
-      );
-    }
-
-    return (
-      <SectionContainer>
-        {children}
-        {this.renderDropBtn()}
-      </SectionContainer>
-    );
-  }
-}
-
 type IndexProps = {
   conversation: IConversation;
   customer: ICustomer;
   loading: boolean;
-  toggleSection: (params: { name: string; isOpen: boolean }) => void;
-  config: { [key: string]: boolean };
+  toggleSection: () => void;
   taggerRefetchQueries: any;
   merge?: (doc: { ids: string[]; data: ICustomer }) => void;
 };
@@ -166,8 +94,7 @@ type IndexState = {
 interface IRenderData {
   customer: ICustomer;
   kind: string;
-  config: { [key: string]: boolean };
-  toggleSection: (params: { name: string; isOpen: boolean }) => void;
+  toggleSection: () => void;
 }
 
 class Index extends React.Component<IndexProps, IndexState> {
@@ -188,47 +115,25 @@ class Index extends React.Component<IndexProps, IndexState> {
     this.setState({ currentSubTab });
   };
 
-  renderMessengerData = ({
-    customer,
-    kind,
-    config,
-    toggleSection
-  }: IRenderData) => {
+  renderMessengerData = ({ customer, kind, toggleSection }: IRenderData) => {
     if (kind !== 'messenger') {
       return null;
     }
 
     return (
-      <Box
-        title={__('Messenger data')}
-        name="showMessengerData"
-        isOpen={config.showMessengerData || false}
-        toggle={toggleSection}
-      >
-        <MessengerSection customer={customer} />
-      </Box>
+      <MessengerSection customer={customer} collapseCallback={toggleSection} />
     );
   };
 
-  renderDeviceProperties = ({
-    customer,
-    kind,
-    config,
-    toggleSection
-  }: IRenderData) => {
+  renderDeviceProperties = ({ customer, kind, toggleSection }: IRenderData) => {
     if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
-
     return (
-      <Box
-        title={__('Device properties')}
-        name="showDeviceProperties"
-        isOpen={config.showDeviceProperties || false}
-        toggle={toggleSection}
-      >
-        <DevicePropertiesSection customer={customer} />
-      </Box>
+      <DevicePropertiesSection
+        customer={customer}
+        collapseCallback={toggleSection}
+      />
     );
   };
 
@@ -279,8 +184,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       conversation,
       customer,
       toggleSection,
-      loading,
-      config
+      loading
     } = this.props;
 
     const { kind = '' } = customer.integration || {};
@@ -292,44 +196,25 @@ class Index extends React.Component<IndexProps, IndexState> {
           <Box
             title={__('Conversation details')}
             name="showConversationDetails"
-            isOpen={config.showConversationDetails || false}
-            toggle={toggleSection}
+            callback={toggleSection}
           >
             <ConversationDetails conversation={conversation} />
           </Box>
-          <Box
-            title={__('Tags')}
-            name="showTags"
-            isOpen={config.showTags || false}
-            toggle={toggleSection}
-          >
-            <TaggerSection
-              isOpen={config.showTags}
-              data={customer}
-              type="customer"
-              refetchQueries={taggerRefetchQueries}
-            />
-          </Box>
+          <TaggerSection
+            data={customer}
+            type="customer"
+            refetchQueries={taggerRefetchQueries}
+            collapseCallback={toggleSection}
+          />
           <Box
             title={__('Contact information')}
             name="showCustomFields"
-            isOpen={config.showCustomFields || false}
-            toggle={toggleSection}
+            callback={toggleSection}
           >
             <CustomFieldsSection loading={loading} customer={customer} />
           </Box>
-          {this.renderMessengerData({
-            customer,
-            kind,
-            config,
-            toggleSection
-          })}
-          {this.renderDeviceProperties({
-            customer,
-            kind,
-            config,
-            toggleSection
-          })}
+          {this.renderMessengerData({ customer, kind, toggleSection })}
+          {this.renderDeviceProperties({ customer, kind, toggleSection })}
         </TabContent>
       );
     }
@@ -342,49 +227,16 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <Box
-          title={__('Deals')}
-          name="showDeals"
-          isOpen={config.showDeals || false}
-          toggle={toggleSection}
-        >
-          <PortableDeals
-            mainType="customer"
-            mainTypeId={customer._id}
-            isOpen={config.showDeals}
-          />
-        </Box>
-        <Box
-          title={__('Tickets')}
-          name="showTickets"
-          isOpen={config.showTickets || false}
-          toggle={toggleSection}
-        >
-          <PortableTickets
-            mainType="customer"
-            mainTypeId={customer._id}
-            isOpen={config.showTickets}
-          />
-        </Box>
-        <Box
-          title={__('Tasks')}
-          name="showTasks"
-          isOpen={config.showTasks || false}
-          toggle={toggleSection}
-        >
-          <PortableTasks
-            mainType="customer"
-            mainTypeId={customer._id}
-            isOpen={config.showTasks}
-          />
-        </Box>
+        <PortableDeals mainType="customer" mainTypeId={customer._id} />
+        <PortableTickets mainType="customer" mainTypeId={customer._id} />
+        <PortableTasks mainType="customer" mainTypeId={customer._id} />
       </>
     );
   }
 
   renderTabContent() {
     const { currentTab, currentSubTab } = this.state;
-    const { customer, config, toggleSection } = this.props;
+    const { customer, toggleSection } = this.props;
 
     if (currentTab === 'customer') {
       const detailsOnClick = () => this.onSubtabClick('details');
@@ -429,27 +281,12 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <Box
-          title={__('Companies')}
-          name="showCompanies"
-          isOpen={config.showCompanies || false}
-          toggle={toggleSection}
-        >
-          <CompanySection
-            isOpen={config.showTags}
-            mainType="customer"
-            mainTypeId={customer._id}
-          />
-        </Box>
-
-        <Box
-          title={__('Contacts')}
-          name="showContacts"
-          isOpen={config.showContacts || false}
-          toggle={toggleSection}
-        >
-          <Contacts companies={customer.companies} customerId={customer._id} />
-        </Box>
+        <CompanySection
+          mainType="customer"
+          mainTypeId={customer._id}
+          collapseCallback={toggleSection}
+        />
+        <Contacts companies={customer.companies} customerId={customer._id} />
       </>
     );
   }

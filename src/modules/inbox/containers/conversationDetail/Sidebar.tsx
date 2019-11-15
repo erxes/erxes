@@ -10,7 +10,7 @@ import {
   ICustomer
 } from '../../../customers/types';
 import { IConversation } from '../../types';
-import { getConfig, setConfig } from '../../utils';
+import { getConfig } from '../../utils';
 
 type Props = {
   conversation: IConversation;
@@ -75,33 +75,14 @@ class Sidebar extends React.Component<FinalProps, State> {
     return;
   }
 
-  toggleSection = ({ name, isOpen }: { name: string; isOpen: boolean }) => {
+  toggleSection = (): void => {
     const customerId = this.props.conversation.customerId;
-    const config = getConfig(STORAGE_KEY);
-
-    config[name] = isOpen;
-
-    setConfig(STORAGE_KEY, config);
 
     this.getCustomerDetail(customerId);
   };
 
   render() {
     const { customer, loading } = this.state;
-
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      setConfig(STORAGE_KEY, {
-        showProfile: true,
-        showCompanies: false,
-        showConversationDetails: false,
-        showCustomFields: false,
-        showDeals: false,
-        showTickets: false,
-        showDeviceProperties: false,
-        showMessengerData: false,
-        showTags: false
-      });
-    }
 
     const taggerRefetchQueries = [
       {
@@ -115,7 +96,6 @@ class Sidebar extends React.Component<FinalProps, State> {
       customer,
       loading,
       toggleSection: this.toggleSection,
-      config: getConfig(STORAGE_KEY),
       taggerRefetchQueries
     };
 

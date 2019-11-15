@@ -1,8 +1,8 @@
+import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -36,10 +36,9 @@ class Segments extends React.Component<Props> {
 
   renderQuickBtns() {
     const { contentType } = this.props;
-    const { Section } = Wrapper.Sidebar;
 
     return (
-      <Section.QuickButtons>
+      <>
         <Dropdown alignRight={true} style={{ float: 'left' }}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-manage">
             <a href="#settings">
@@ -61,7 +60,7 @@ class Segments extends React.Component<Props> {
         </Dropdown>
 
         {this.renderCancelBtn()}
-      </Section.QuickButtons>
+      </>
     );
   }
 
@@ -109,25 +108,26 @@ class Segments extends React.Component<Props> {
 
   render() {
     const { segments, loading } = this.props;
-
-    const { Section, Header } = Wrapper.Sidebar;
+    const extraButtons = this.renderQuickBtns();
 
     return (
-      <Section collapsible={segments.length > 5}>
-        <Header uppercase={true}>{__('Filter by segments')}</Header>
-
-        {this.renderQuickBtns()}
-
+      <Box
+        title={__('Filter by segments')}
+        extraButtons={extraButtons}
+        collapsible={segments.length > 5}
+        isOpen={true}
+        name="showFilterBySegments"
+      >
         <DataWithLoader
           data={this.renderData()}
           loading={loading}
           count={segments.length}
-          emptyText="Open segments and starting add details"
+          emptyText="Open segments and starting add details"
           emptyIcon="pie-chart"
           size="small"
           objective={true}
         />
-      </Section>
+      </Box>
     );
   }
 }

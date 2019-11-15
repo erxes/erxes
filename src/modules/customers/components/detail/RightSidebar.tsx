@@ -1,4 +1,8 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import { List } from 'modules/companies/styles';
@@ -22,14 +26,32 @@ export default class RightSidebar extends React.Component<Props> {
       return <EmptyState icon="clipboard" text="Empty" size="small" />;
     }
 
+    let integrationNode: React.ReactNode = null;
+    let icon: string = 'check';
+    let color: string = colors.colorCoreGreen;
+    let text: string = __('Active');
+
+    if (integration && integration.name) {
+      if (!integration.isActive) {
+        icon = 'archive-alt';
+        color = colors.colorPrimary;
+        text = __('Inactive');
+      }
+
+      integrationNode = (
+        <li>
+          <div>{__('Integration')}:</div>
+          <span>{integration.name}</span>
+          <Tip text={text}>
+            <Icon icon={icon} color={color} />
+          </Tip>
+        </li>
+      );
+    }
+
     return (
       <List>
-        {integration && integration.name && (
-          <li>
-            <div>{__('Integration')}:</div>
-            <span>{integration.name}</span>
-          </li>
-        )}
+        {integrationNode}
         {visitorContactInfo && (
           <li>
             <div>{__('Visitor contact info')}:</div>
@@ -41,14 +63,10 @@ export default class RightSidebar extends React.Component<Props> {
   }
 
   renderOther() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
-
     return (
-      <Section>
-        <Title>{__('Other')}</Title>
+      <Box title={__('Other')} name="showOthers">
         {this.renderContent()}
-      </Section>
+      </Box>
     );
   }
 

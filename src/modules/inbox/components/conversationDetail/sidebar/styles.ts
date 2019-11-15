@@ -57,7 +57,8 @@ const Actions = styled.div`
 
 const SectionContainer = styled.div`
   position: relative;
-  border-top: 1px solid ${colors.borderPrimary};
+  box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.08);
+  margin-bottom: 10px;
 
   > div {
     margin-bottom: 0;

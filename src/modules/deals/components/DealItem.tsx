@@ -10,7 +10,7 @@ import {
   Status
 } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
-import { renderAmount } from 'modules/boards/utils';
+import { renderAmount, renderPriority } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
@@ -127,9 +127,10 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
-        <h5>{item.name}</h5>
+        <h5>
+          {renderPriority(item.priority)}
+          {item.name}
+        </h5>
 
         <Details color="#63D2D6" items={products} />
         <Details color="#F7CE53" items={customers || []} />
@@ -174,6 +175,7 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
+        <Labels labels={item.labels} indicator={true} />
         <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
