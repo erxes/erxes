@@ -134,6 +134,7 @@ const stages = `
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
+      pipelineId
     }
   }
 `;
