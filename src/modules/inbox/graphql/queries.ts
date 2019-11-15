@@ -236,7 +236,6 @@ const responseTemplateList = `
 
 const generateCustomerDetailQuery = params => {
   const {
-    showProfile = false,
     showDeviceProperties = false,
     showMessengerData = false,
     showCustomFields = false,
@@ -249,14 +248,8 @@ const generateCustomerDetailQuery = params => {
     integration {
       kind
     }
+    ${customerQueries.basicFields}
   `;
-
-  if (showProfile) {
-    fields = `
-      ${fields}
-      ${customerQueries.basicFields}
-    `;
-  }
 
   if (showMessengerData) {
     fields = `

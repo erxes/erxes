@@ -1,4 +1,4 @@
-import { IItem, IItemParams } from 'modules/boards/types';
+import { IItem } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 
 export type ActivityLogQueryResponse = {
@@ -6,16 +6,8 @@ export type ActivityLogQueryResponse = {
   loading: boolean;
 };
 
-export interface ITask extends IItem {
-  priority?: string;
-}
-
-export interface ITaskParams extends IItemParams {
-  priority?: string;
-}
-
 export type TaskDetailQueryResponse = {
-  taskDetail: ITask;
+  taskDetail: IItem;
   loading: boolean;
   refetch: () => void;
 };

@@ -54,6 +54,7 @@ export interface IItemParams {
   description?: string;
   order?: number;
   isComplete?: boolean;
+  priority?: string;
   reminderMinute?: number;
 }
 
