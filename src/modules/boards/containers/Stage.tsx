@@ -65,6 +65,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         query: gql(options.queries.itemsQuery),
         variables: {
           stageId: stage._id,
+          pipelineId: stage.pipelineId,
           skip: items.length,
           ...getFilterParams(queryParams, options.getExtraParams)
         }
@@ -140,6 +141,7 @@ const withQuery = ({ options }) => {
         options: ({ stage, queryParams, loadingState }) => ({
           variables: {
             stageId: stage._id,
+            pipelineId: stage.pipelineId,
             ...getFilterParams(queryParams, options.getExtraParams)
           },
           fetchPolicy:
