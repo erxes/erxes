@@ -254,7 +254,9 @@ class PipelineForm extends React.Component<Props, State> {
           {this.renderSelectMembers()}
 
           <FormGroup>
-            <ControlLabel>Show only the user's assigned cards</ControlLabel>
+            <ControlLabel>
+              Show only the user's assigned(created) cards
+            </ControlLabel>
             <FormControl
               componentClass="checkbox"
               checked={this.state.onlySelf}

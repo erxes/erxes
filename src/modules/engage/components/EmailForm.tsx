@@ -8,6 +8,7 @@ import { __, Alert } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { EditorContainer } from 'modules/engage/styles';
 import React from 'react';
+import ErrorMsg from '../../common/components/ErrorMsg';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
 
@@ -99,7 +100,7 @@ class EmailForm extends React.Component<Props, State> {
     const { error } = this.props;
 
     if (error) {
-      return <p style={{ color: 'red' }}>{error}</p>;
+      return <ErrorMsg>{error}</ErrorMsg>;
     }
 
     const onChangeUser = e =>

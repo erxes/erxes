@@ -229,6 +229,7 @@ export type RelatedItemsQueryResponse = {
 
 export type DetailQueryResponse = {
   loading: boolean;
+  error?: Error;
 };
 
 // query response
