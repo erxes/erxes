@@ -281,7 +281,6 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     text-decoration: none;
     text-transform: ${props => (props.capitalize ? 'capitalize' : 'normal')};
     outline: 0;
-    position: relative;
     border-left: 2px solid transparent;
     transition: background 0.3s ease;
 
@@ -317,7 +316,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   position: ${props => !props.nowrap && 'absolute'};
-  right: 0;
+  right: 5px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
