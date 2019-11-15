@@ -1,7 +1,10 @@
+import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Task from '../containers/items/boardItems/Task';
 import InternalNote from '../containers/items/InternalNote';
+import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
+import { getIconAndColor } from '../utils';
 import CreatedLog from './items/boardItems/CreatedLog';
 import MovementLog from './items/boardItems/MovementLog';
 import MergedLog from './items/MergedLog';
@@ -10,32 +13,51 @@ type Props = {
   activity: IActivityLog;
 };
 
-const ActivityItem = (props: Props) => {
-  const { activity } = props;
+class ActivityItem extends React.Component<Props> {
+  renderDetail(type: string, children: React.ReactNode) {
+    const iconAndColor = getIconAndColor(type);
 
-  const { _id, contentType, action } = activity;
-
-  if (contentType === 'note') {
-    return <InternalNote noteId={_id} activity={activity} />;
+    return (
+      <ActivityRow key={Math.random()}>
+        <ActivityIcon color={iconAndColor.color}>
+          <Icon icon={iconAndColor.icon} />
+        </ActivityIcon>
+        {children}
+      </ActivityRow>
+    );
   }
 
-  if (contentType === 'taskDetail') {
-    return <Task taskId={_id} />;
-  }
+  render() {
+    const { activity } = this.props;
+    const { _id, contentType, action } = activity;
 
-  if (action && action === 'moved') {
-    return <MovementLog activity={activity} />;
+    switch (contentType || action) {
+      case 'note':
+        return this.renderDetail(
+          'note',
+          <InternalNote noteId={_id} activity={activity} />
+        );
+      case 'taskDetail':
+        return this.renderDetail('task', <Task taskId={_id} />);
+      case 'moved':
+        return this.renderDetail(
+          activity.contentType,
+          <MovementLog activity={activity} />
+        );
+      case 'create':
+        return this.renderDetail(
+          activity.contentType,
+          <CreatedLog activity={activity} />
+        );
+      case 'merge':
+        return this.renderDetail(
+          activity.contentType,
+          <MergedLog activity={activity} />
+        );
+      default:
+        return <div />;
+    }
   }
-
-  if (action && action === 'create') {
-    return <CreatedLog activity={activity} />;
-  }
-
-  if (action && action === 'merge') {
-    return <MergedLog activity={activity} />;
-  }
-
-  return <div />;
-};
+}
 
 export default ActivityItem;

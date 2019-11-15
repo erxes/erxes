@@ -1,41 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IUser } from '../auth/types';
-import { ICON_AND_COLOR_TABLE } from './constants';
+import { ICON_AND_COLOR_ACTION, ICON_AND_COLOR_TABLE } from './constants';
 
 export const getIconAndColor = contentType => {
   return ICON_AND_COLOR_TABLE[contentType];
-};
-
-const ICON_AND_COLOR_TABLEa = {
-  'customer-create': {
-    icon: 'user-plus',
-    color: '#3B85F4'
-  },
-  'segment-create': {
-    icon: 'chart-pie',
-    color: '#63D2D6'
-  },
-  'conversation-create': {
-    icon: 'comment-plus',
-    color: '#F44236'
-  },
-  'internal_note-create': {
-    icon: 'file-plus',
-    color: '#fbc531'
-  },
-  'company-create': {
-    icon: 'bag-alt',
-    color: '#273c75'
-  },
-  'deal-create': {
-    icon: 'dollar-alt',
-    color: '#8c7ae6'
-  },
-  'email-send': {
-    icon: 'envelope-alt',
-    color: '#d74534'
-  }
 };
 
 type Props = {
@@ -97,11 +66,11 @@ export default class {
   }
 
   /**
-   * Get a related icon and color from the ICON_AND_COLOR_TABLEa
+   * Get a related icon and color from the ICON_AND_COLOR_ACTION
    * @return {Object} return Object containing icon name and color
    */
   _getIconAndColor(action) {
-    return ICON_AND_COLOR_TABLEa[action];
+    return ICON_AND_COLOR_ACTION[action];
   }
 
   /**
