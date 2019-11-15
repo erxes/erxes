@@ -28,7 +28,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     const user = message.user;
     const customer = message.customer;
     const props = user ? { user } : { customer };
-    console.log(props);
+
     return <NameCard.Avatar {...props} />;
   }
 

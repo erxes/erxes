@@ -83,8 +83,6 @@ export default class FacebookComment extends React.Component<
       />
     );
 
-    console.log(comment.customer);
-
     return (
       <>
         <ChildPost isReply={comment.parentId}>
