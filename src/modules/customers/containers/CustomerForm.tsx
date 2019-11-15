@@ -22,7 +22,7 @@ type Props = {
 type FinalProps = {} & Props & AddMutationResponse & IRouterProps;
 
 const CustomerFormContainer = (props: FinalProps) => {
-  // const { customersAdd, history } = props;
+  const { history } = props;
 
   const addCustomers = variables => {
     // tslint:disable-next-line:no-console
@@ -50,16 +50,30 @@ const CustomerFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
+    type
   }: IButtonMutateProps) => {
+    const callbackResponse = data => {
+      // tslint:disable-next-line:no-console
+      console.log(data);
+      if (type === 'saveAndgo') {
+        return history.push(
+          `/contacts/customers/details/${data.data.customersAdd._id}`
+        );
+      }
+
+      return callback;
+    };
+
     return (
       <ButtonMutate
         mutation={object ? mutations.customersEdit : mutations.customersAdd}
         variables={values}
-        callback={callback}
+        callback={callbackResponse}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
+        children={type === 'saveAndgo' ? 'Save & Continue' : 'Save'}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
