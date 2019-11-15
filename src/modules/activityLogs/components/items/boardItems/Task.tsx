@@ -7,13 +7,13 @@ import {
   FlexContent
 } from 'modules/activityLogs/styles';
 import { getIconAndColor } from 'modules/activityLogs/utils';
+import { IItem } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import { ITask } from 'modules/tasks/types';
 import React from 'react';
 
 type Props = {
-  task: ITask;
+  task: IItem;
 };
 
 class Task extends React.Component<Props> {
