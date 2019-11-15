@@ -22,13 +22,15 @@ export const types = `
     bgColor: String
     isWatched: Boolean
     itemsTotalCount: Int
-    
+
     startDate: Date
     endDate: Date
     metric: String
     hackScoringType: String
     templateId: String
     state: String
+    isCheckUser: Boolean
+    excludeCheckUserIds: [String]
     ${commonTypes}
   }
 
@@ -80,7 +82,9 @@ const pipelineParams = `
   endDate: Date,
   metric: String,
   hackScoringType: String,
-  templateId: String
+  templateId: String,
+  isCheckUser: Boolean
+  excludeCheckUserIds: [String],
 `;
 
 export const mutations = `

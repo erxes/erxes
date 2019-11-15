@@ -1,7 +1,8 @@
 import { GrowthHacks } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { generateGrowthHackCommonFilters } from './boardUtils';
+import { checkItemPermByUser, generateGrowthHackCommonFilters } from './boardUtils';
 
 interface IGrowthHackListParams extends IListParams {
   hackStage?: string;
@@ -12,8 +13,8 @@ const growthHackQueries = {
   /**
    * Growth hack list
    */
-  async growthHacks(_root, args: IGrowthHackListParams) {
-    const filter = await generateGrowthHackCommonFilters(args);
+  async growthHacks(_root, args: IGrowthHackListParams, { user }: IContext) {
+    const filter = await generateGrowthHackCommonFilters(user._id, args);
     const { sortField, sortDirection, skip = 0, limit = 10 } = args;
 
     const sort: { [key: string]: any } = {};
@@ -34,14 +35,14 @@ const growthHackQueries = {
   /**
    * Get all growth hacks count. We will use it in pager
    */
-  async growthHacksTotalCount(_root, args: IGrowthHackListParams) {
-    const filter = await generateGrowthHackCommonFilters(args);
+  async growthHacksTotalCount(_root, args: IGrowthHackListParams, { user }: IContext) {
+    const filter = await generateGrowthHackCommonFilters(user._id, args);
 
     return GrowthHacks.find(filter).countDocuments();
   },
 
-  async growthHacksPriorityMatrix(_root, args: IListParams) {
-    const filter = await generateGrowthHackCommonFilters(args);
+  async growthHacksPriorityMatrix(_root, args: IListParams, { user }: IContext) {
+    const filter = await generateGrowthHackCommonFilters(user._id, args);
 
     filter.ease = { $exists: true, $gt: 0 };
     filter.impact = { $exists: true, $gt: 0 };
@@ -75,8 +76,10 @@ const growthHackQueries = {
   /**
    * Growth hack detail
    */
-  growthHackDetail(_root, { _id }: { _id: string }) {
-    return GrowthHacks.findOne({ _id });
+  async growthHackDetail(_root, { _id }: { _id: string }, { user }: IContext) {
+    const growthHack = await GrowthHacks.getGrowthHack(_id);
+
+    return checkItemPermByUser(user._id, growthHack);
   },
 };
 

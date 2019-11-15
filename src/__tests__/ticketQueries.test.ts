@@ -3,6 +3,7 @@ import {
   companyFactory,
   conformityFactory,
   customerFactory,
+  pipelineFactory,
   stageFactory,
   ticketFactory,
   userFactory,
@@ -130,7 +131,9 @@ describe('ticketQueries', () => {
   });
 
   test('Ticket detail', async () => {
-    const ticket = await ticketFactory();
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const ticket = await ticketFactory({ stageId: stage._id });
 
     const args = { _id: ticket._id };
 

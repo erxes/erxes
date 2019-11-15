@@ -3,6 +3,7 @@ import {
   companyFactory,
   conformityFactory,
   customerFactory,
+  pipelineFactory,
   stageFactory,
   taskFactory,
   userFactory,
@@ -130,7 +131,9 @@ describe('taskQueries', () => {
   });
 
   test('Task detail', async () => {
-    const task = await taskFactory();
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const task = await taskFactory({ stageId: stage._id });
 
     const args = { _id: task._id };
 

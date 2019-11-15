@@ -9,7 +9,7 @@ export interface IDate {
 }
 
 export interface IListParams extends IConformityQueryParams {
-  pipelineId?: string;
+  pipelineId: string;
   stageId: string;
   skip?: number;
   date?: IDate;

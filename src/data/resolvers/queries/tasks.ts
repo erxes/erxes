@@ -1,14 +1,15 @@
 import { Tasks } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { generateTaskCommonFilters } from './boardUtils';
+import { checkItemPermByUser, generateTaskCommonFilters } from './boardUtils';
 
 const taskQueries = {
   /**
    * Tasks list
    */
-  async tasks(_root, args: IListParams) {
-    const filter = await generateTaskCommonFilters(args);
+  async tasks(_root, args: IListParams, { user }: IContext) {
+    const filter = await generateTaskCommonFilters(user._id, args);
     const sort = { order: 1, createdAt: -1 };
 
     return Tasks.find(filter)
@@ -20,8 +21,10 @@ const taskQueries = {
   /**
    * Tasks detail
    */
-  taskDetail(_root, { _id }: { _id: string }) {
-    return Tasks.findOne({ _id });
+  async taskDetail(_root, { _id }: { _id: string }, { user }: IContext) {
+    const task = await Tasks.getTask(_id);
+
+    return checkItemPermByUser(user._id, task);
   },
 };
 
