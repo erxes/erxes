@@ -127,8 +127,6 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
         <h5>
           {renderPriority(item.priority)}
           {item.name}
@@ -177,6 +175,7 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
+        <Labels labels={item.labels} indicator={true} />
         <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
