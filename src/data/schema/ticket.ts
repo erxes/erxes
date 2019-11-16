@@ -21,11 +21,7 @@ export const queries = `
     skip: Int
     search: String
     assignedUserIds: [String]
-    nextDay: String
-    nextWeek: String
-    nextMonth: String
-    noCloseDate: String
-    overdue: String
+    closeDateType: String
     priority: [String]
     source: [String]
     labelIds: [String]

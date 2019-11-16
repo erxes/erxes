@@ -44,11 +44,7 @@ describe('dealQueries', () => {
       $customerIds: [String]
       $companyIds: [String]
       $productIds: [String]
-      $nextDay: String
-      $nextWeek: String
-      $nextMonth: String
-      $noCloseDate: String
-      $overdue: String
+      $closeDateType: String
       $mainType: String
       $mainTypeId: String
       $isRelated: Boolean
@@ -61,11 +57,7 @@ describe('dealQueries', () => {
         assignedUserIds: $assignedUserIds
         companyIds: $companyIds
         productIds: $productIds
-        nextDay: $nextDay
-        nextWeek: $nextWeek
-        nextMonth: $nextMonth
-        noCloseDate: $noCloseDate
-        overdue: $overdue
+        closeDateType: $closeDateType
         conformityMainType: $mainType
         conformityMainTypeId: $mainTypeId
         conformityIsRelated: $isRelated
@@ -89,7 +81,7 @@ describe('dealQueries', () => {
 
     await dealFactory({ closeDate: new Date(tomorrow) });
 
-    const response = await graphqlRequest(qryDealFilter, 'deals', { nextDay: 'true' });
+    const response = await graphqlRequest(qryDealFilter, 'deals', { closeDateType: 'nextDay' });
 
     expect(response.length).toBe(1);
   });
@@ -101,7 +93,7 @@ describe('dealQueries', () => {
 
     await dealFactory({ closeDate: new Date(nextWeek) });
 
-    const response = await graphqlRequest(qryDealFilter, 'deals', { nextWeek: 'true' });
+    const response = await graphqlRequest(qryDealFilter, 'deals', { closeDateType: 'nextWeek' });
 
     expect(response.length).toBe(1);
   });
@@ -113,7 +105,7 @@ describe('dealQueries', () => {
 
     await dealFactory({ closeDate: new Date(nextMonth) });
 
-    const response = await graphqlRequest(qryDealFilter, 'deals', { nextMonth: 'true' });
+    const response = await graphqlRequest(qryDealFilter, 'deals', { closeDateType: 'nextMonth' });
 
     expect(response.length).toBe(1);
   });
@@ -121,7 +113,7 @@ describe('dealQueries', () => {
   test('Deal filter by has no close date', async () => {
     await dealFactory({ noCloseDate: true });
 
-    const response = await graphqlRequest(qryDealFilter, 'deals', { noCloseDate: 'true' });
+    const response = await graphqlRequest(qryDealFilter, 'deals', { closeDateType: 'noCloseDate' });
 
     expect(response.length).toBe(1);
   });
@@ -134,7 +126,7 @@ describe('dealQueries', () => {
 
     await dealFactory({ closeDate: yesterday });
 
-    const response = await graphqlRequest(qryDealFilter, 'deals', { overdue: 'true' });
+    const response = await graphqlRequest(qryDealFilter, 'deals', { closeDateType: 'overdue' });
 
     expect(response.length).toBe(1);
   });

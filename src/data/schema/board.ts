@@ -61,7 +61,16 @@ export const queries = `
   boardDetail(_id: String!): Board
   pipelines(boardId: String!): [Pipeline]
   pipelineDetail(_id: String!): Pipeline
-  stages(isNotLost: Boolean, pipelineId: String!): [Stage]
+  stages(
+    isNotLost: Boolean,
+    pipelineId: String!,
+    search: String,
+    companyIds: [String]
+    customerIds: [String]
+    assignedUserIds: [String]
+    extraParams: JSON,
+    closeDateType: String,
+  ): [Stage]
   stageDetail(_id: String!): Stage
 `;
 

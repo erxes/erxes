@@ -21,20 +21,12 @@ describe('growthHackQueries', () => {
     query growthHacks(
       $stageId: String 
       $assignedUserIds: [String]
-      $nextDay: String
-      $nextWeek: String
-      $nextMonth: String
-      $noCloseDate: String
-      $overdue: String
+      $closeDateType: String
     ) {
       growthHacks(
         stageId: $stageId 
         assignedUserIds: $assignedUserIds
-        nextDay: $nextDay
-        nextWeek: $nextWeek
-        nextMonth: $nextMonth
-        noCloseDate: $noCloseDate
-        overdue: $overdue
+        closeDateType: $closeDateType
       ) {
         ${commonGrowthHackTypes}
       }

@@ -49,11 +49,7 @@ const commonQueryParams = `
   companyIds: [String]
   assignedUserIds: [String]
   productIds: [String]
-  nextDay: String
-  nextWeek: String
-  nextMonth: String
-  noCloseDate: String
-  overdue: String
+  closeDateType: String
   labelIds: [String]
   search: String
   priority: [String]

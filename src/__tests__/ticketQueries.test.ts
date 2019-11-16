@@ -37,22 +37,14 @@ describe('ticketQueries', () => {
       $assignedUserIds: [String]
       $customerIds: [String]
       $companyIds: [String]
-      $nextDay: String
-      $nextWeek: String
-      $nextMonth: String
-      $noCloseDate: String
-      $overdue: String
+      $closeDateType: String
     ) {
       tickets(
         stageId: $stageId
         customerIds: $customerIds
         assignedUserIds: $assignedUserIds
         companyIds: $companyIds
-        nextDay: $nextDay
-        nextWeek: $nextWeek
-        nextMonth: $nextMonth
-        noCloseDate: $noCloseDate
-        overdue: $overdue
+        closeDateType: $closeDateType
       ) {
         ${commonTicketTypes}
       }

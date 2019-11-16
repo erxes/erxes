@@ -17,11 +17,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     pipelineId,
     stageId,
     search,
-    overdue,
-    nextMonth,
-    nextDay,
-    nextWeek,
-    noCloseDate,
+    closeDateType,
     assignedUserIds,
     customerIds,
     companyIds,
@@ -113,48 +109,50 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     filter.initialStageId = initialStageId;
   }
 
-  if (nextDay) {
-    const tommorrow = moment().add(1, 'days');
+  if (closeDateType) {
+    if (closeDateType === 'nextDay') {
+      const tommorrow = moment().add(1, 'days');
 
-    filter.closeDate = {
-      $gte: new Date(tommorrow.startOf('day').toISOString()),
-      $lte: new Date(tommorrow.endOf('day').toISOString()),
-    };
-  }
+      filter.closeDate = {
+        $gte: new Date(tommorrow.startOf('day').toISOString()),
+        $lte: new Date(tommorrow.endOf('day').toISOString()),
+      };
+    }
 
-  if (nextWeek) {
-    const monday = moment()
-      .day(1 + 7)
-      .format('YYYY-MM-DD');
-    const nextSunday = moment()
-      .day(7 + 7)
-      .format('YYYY-MM-DD');
+    if (closeDateType === 'nextWeek') {
+      const monday = moment()
+        .day(1 + 7)
+        .format('YYYY-MM-DD');
+      const nextSunday = moment()
+        .day(7 + 7)
+        .format('YYYY-MM-DD');
 
-    filter.closeDate = {
-      $gte: new Date(monday),
-      $lte: new Date(nextSunday),
-    };
-  }
+      filter.closeDate = {
+        $gte: new Date(monday),
+        $lte: new Date(nextSunday),
+      };
+    }
 
-  if (nextMonth) {
-    const now = new Date();
-    const { start, end } = getNextMonth(now);
+    if (closeDateType === 'nextMonth') {
+      const now = new Date();
+      const { start, end } = getNextMonth(now);
 
-    filter.closeDate = {
-      $gte: new Date(start),
-      $lte: new Date(end),
-    };
-  }
+      filter.closeDate = {
+        $gte: new Date(start),
+        $lte: new Date(end),
+      };
+    }
 
-  if (noCloseDate) {
-    filter.closeDate = { $exists: false };
-  }
+    if (closeDateType === 'noCloseDate') {
+      filter.closeDate = { $exists: false };
+    }
 
-  if (overdue) {
-    const now = new Date();
-    const today = getToday(now);
+    if (closeDateType === 'overdue') {
+      const now = new Date();
+      const today = getToday(now);
 
-    filter.closeDate = { $lt: today };
+      filter.closeDate = { $lt: today };
+    }
   }
 
   if (search) {
