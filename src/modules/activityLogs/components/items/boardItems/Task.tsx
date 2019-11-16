@@ -20,13 +20,11 @@ class Task extends React.Component<Props> {
   render() {
     const { task } = this.props;
 
-    // tslint:disable-next-line:no-console
-    console.log(task);
     return (
       <>
         <FlexContent>
           <FlexBody>
-            <strong>Task</strong>
+            <strong>Somebody created task</strong>
           </FlexBody>
           <Tip text={dayjs(task.createdAt).format('llll')}>
             <ActivityDate>
