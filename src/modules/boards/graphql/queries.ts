@@ -107,11 +107,23 @@ const pipelineDetail = `
 const stages = `
   query stages(
     $isNotLost: Boolean,
-    $pipelineId: String!
+    $pipelineId: String!,
+    $search: String,	
+    $customerIds: [String],	
+    $companyIds: [String],	
+    $assignedUserIds: [String],	
+    $extraParams: JSON,
+    $closeDateType: String
   ) {
     stages(
       isNotLost: $isNotLost,
-      pipelineId: $pipelineId
+      pipelineId: $pipelineId,
+      search: $search,	
+      customerIds: $customerIds,	
+      companyIds: $companyIds,	
+      assignedUserIds: $assignedUserIds,	
+      extraParams: $extraParams,
+      closeDateType: $closeDateType
     ) {
       _id
       name

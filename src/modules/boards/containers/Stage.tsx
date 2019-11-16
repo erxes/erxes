@@ -122,11 +122,7 @@ const getFilterParams = (
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
-    nextDay: queryParams.nextDay,
-    nextWeek: queryParams.nextWeek,
-    nextMonth: queryParams.nextMonth,
-    noCloseDate: queryParams.noCloseDate,
-    overdue: queryParams.overdue,
+    closeDateType: queryParams.closeDateType,
     labelIds: queryParams.labelIds,
     ...getExtraParams(queryParams)
   };

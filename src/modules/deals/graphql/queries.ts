@@ -7,17 +7,13 @@ const commonParams = `
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
-  $nextDay: String,
-  $nextWeek: String,
-  $nextMonth: String,
-  $noCloseDate: String,
-  $overdue: String,
   $productIds: [String],
   $labelIds: [String],
   $search: String,
   $priority: [String],
   $date: ItemDate,
   $pipelineId: String,
+  $closeDateType: String,
   ${conformityQueryFields}
 `;
 
@@ -25,17 +21,13 @@ const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
-  nextDay: $nextDay,
-  nextWeek: $nextWeek,
-  nextMonth: $nextMonth,
-  noCloseDate: $noCloseDate,
-  overdue: $overdue,
   priority: $priority,
   productIds: $productIds,
   labelIds: $labelIds,
   search: $search,
   date: $date,
   pipelineId: $pipelineId,
+  closeDateType: $closeDateType,
   ${conformityQueryFieldDefs}
 `;
 

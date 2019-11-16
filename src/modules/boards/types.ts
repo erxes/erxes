@@ -288,11 +288,7 @@ export interface IFilterParams extends ISavedConformity {
   customerIds?: string;
   companyIds?: string;
   assignedUserIds?: string;
-  nextDay?: string;
-  nextWeek?: string;
-  nextMonth?: string;
-  noCloseDate?: string;
-  overdue?: string;
+  closeDateType?: string;
   labelIds?: string;
 }
 
