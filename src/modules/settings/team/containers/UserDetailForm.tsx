@@ -1,29 +1,31 @@
 import gql from 'graphql-tag';
 import { IUser } from 'modules/auth/types';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { queries as channelQueries } from '../../channels/graphql';
 import { ChannelsQueryResponse } from '../../channels/types';
 import UserDetailForm from '../components/detail/UserDetailForm';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   UserConverationsQueryResponse,
   UserDetailQueryResponse
 } from '../types';
+import UserForm from './UserForm';
 
 type Props = {
   _id: string;
   queryParams: any;
-  renderEditForm: React.ReactNode;
 };
 
 type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
   channelsQuery: ChannelsQueryResponse;
   userConversationsQuery: UserConverationsQueryResponse;
-  renderEditForm: (
+  renderEditForm?: (
     { closeModal, user }: { closeModal: () => void; user: IUser }
   ) => React.ReactNode;
 };
@@ -43,8 +45,48 @@ const UserDetailFormContainer = (props: FinalProps) => {
   const { list = [], totalCount = 0 } =
     userConversationsQuery.userConversations || {};
 
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    const afterMutate = () => {
+      userDetailQuery.refetch();
+
+      if (callback) {
+        callback();
+      }
+    };
+
+    return (
+      <ButtonMutate
+        mutation={mutations.usersEdit}
+        variables={values}
+        callback={afterMutate}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
+  };
+
+  const editForm = localProps => {
+    return (
+      <UserForm
+        {...localProps}
+        closeModal={localProps.closeModal}
+        object={localProps.user}
+        renderButton={renderButton}
+      />
+    );
+  };
+
   const updatedProps = {
-    renderEditForm,
+    renderEditForm: renderEditForm ? renderEditForm : editForm,
     user: userDetailQuery.userDetail || {},
     participatedConversations: list,
     totalConversationCount: totalCount,

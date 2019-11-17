@@ -79,7 +79,6 @@ class UserList extends React.Component<FinalProps, States> {
 
   renderEditAction = (user: IUser) => {
     const { currentUser } = this.props;
-    const { save } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link" disabled={user._id === currentUser._id}>
@@ -90,7 +89,7 @@ class UserList extends React.Component<FinalProps, States> {
     );
 
     const content = props => {
-      return this.renderForm({ ...props, object: user, save });
+      return this.renderForm({ ...props, object: user });
     };
 
     return (
