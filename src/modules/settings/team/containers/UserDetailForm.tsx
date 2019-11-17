@@ -19,18 +19,18 @@ import UserForm from './UserForm';
 type Props = {
   _id: string;
   queryParams: any;
+  renderEditForm?: (
+    { closeModal, user }: { closeModal: () => void; user: IUser }
+  ) => React.ReactNode;
 };
 
 type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
   channelsQuery: ChannelsQueryResponse;
   userConversationsQuery: UserConverationsQueryResponse;
-  renderEditForm?: (
-    { closeModal, user }: { closeModal: () => void; user: IUser }
-  ) => React.ReactNode;
 };
 
-const UserDetailFormContainer = (props: FinalProps) => {
+const UserDetailFormContainer = (props: Props & FinalProps) => {
   const {
     userDetailQuery,
     channelsQuery,
