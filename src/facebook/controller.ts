@@ -295,9 +295,7 @@ const init = async app => {
 
     const post = await Posts.getPost({ erxesApiId }, true);
 
-    const commentCount = await Comments.countDocuments({
-      $and: [{ postId: post.postId }, { parentId: null }],
-    });
+    const commentCount = await Comments.countDocuments({ postId: post.postId });
 
     return res.json({
       ...post,
