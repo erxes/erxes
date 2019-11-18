@@ -33,14 +33,6 @@ export const getBoardId = ({ location }) => {
   return queryParams.id;
 };
 
-const dateFilterParams = [
-  'nextDay',
-  'nextWeek',
-  'nextMonth',
-  'overdue',
-  'noCloseDate'
-];
-
 const defaultParams = ['id', 'pipelineId'];
 
 /*
@@ -49,23 +41,6 @@ const defaultParams = ['id', 'pipelineId'];
 class Main extends React.Component<FinalProps> {
   onSearch = (search: string) => {
     routerUtils.setParams(this.props.history, { search });
-  };
-
-  onDateFilterSelect = (name: string, value: string) => {
-    const { history } = this.props;
-    const query = { [name]: value };
-    const params = generateQueryParams(history);
-
-    // Remove current selected date filter
-    for (const param in params) {
-      if (dateFilterParams.includes(param)) {
-        delete params[param];
-
-        return routerUtils.replaceParam(history, params, query);
-      }
-    }
-
-    routerUtils.setParams(history, query, true);
   };
 
   onSelect = (values: string[] | string, name: string) => {
@@ -209,7 +184,6 @@ class Main extends React.Component<FinalProps> {
     const extendedProps = {
       ...props,
       type,
-      onDateFilterSelect: this.onDateFilterSelect,
       onClear: this.onClear,
       onSelect: this.onSelect,
       isFiltered: this.isFiltered,
