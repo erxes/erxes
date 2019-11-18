@@ -152,6 +152,10 @@ export const sendReply = async (url: string, data: any, recipientId: string, int
       await integration.updateOne({ facebookPageTokensMap });
     }
 
+    if (e.message.includes('does not exist')) {
+      throw new Error('Comment has been deleted by the customer');
+    }
+
     throw new Error(e.message);
   }
 };
