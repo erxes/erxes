@@ -1,5 +1,6 @@
 import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
+import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -120,8 +121,10 @@ const conversationQueries = {
   ) {
     const query = { conversationId };
 
+    let messages: IMessageDocument[] = [];
+
     if (limit) {
-      const messages = await ConversationMessages.find(query)
+      messages = await ConversationMessages.find(query)
         .sort({ createdAt: -1 })
         .skip(skip || 0)
         .limit(limit);
@@ -129,9 +132,11 @@ const conversationQueries = {
       return messages.reverse();
     }
 
-    return ConversationMessages.find(query)
-      .sort({ createdAt: 1 })
+    messages = await ConversationMessages.find(query)
+      .sort({ createdAt: -1 })
       .limit(50);
+
+    return messages.reverse();
   },
 
   /**
