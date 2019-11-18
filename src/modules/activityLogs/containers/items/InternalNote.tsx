@@ -16,7 +16,7 @@ type FinalProps = {
   internalNoteDetailsQuery: InternalNoteDetailQueryResponse;
 } & Props;
 
-class FormContainer extends React.Component<FinalProps> {
+class InternalNoteContainer extends React.Component<FinalProps> {
   render() {
     const { internalNoteDetailsQuery } = this.props;
 
@@ -48,5 +48,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(FormContainer)
+  )(InternalNoteContainer)
 );
