@@ -17,6 +17,5 @@ export interface ICommonRowActionProps {
 
 export interface ICommonFormProps {
   object?: any;
-  save?: (params: { doc: any }, callback: () => void, object: any) => void;
   closeModal: () => void;
 }
