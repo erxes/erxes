@@ -69,7 +69,6 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
-  // growth hack
   startDate?: Date;
   endDate?: Date;
   metric?: string;
@@ -77,6 +76,8 @@ export interface IPipeline {
   templateId?: string;
   state?: string;
   itemsTotalCount?: number;
+  isCheckUser?: boolean;
+  excludeCheckUserIds?: string[];
 }
 
 interface IStageComparisonInfo {
@@ -98,6 +99,7 @@ export interface IStage {
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
   formId: string;
+  pipelineId: string;
 }
 
 export interface IPipelineLabel {
@@ -228,6 +230,7 @@ export type RelatedItemsQueryResponse = {
 
 export type DetailQueryResponse = {
   loading: boolean;
+  error?: Error;
 };
 
 // query response
@@ -285,11 +288,7 @@ export interface IFilterParams extends ISavedConformity {
   customerIds?: string;
   companyIds?: string;
   assignedUserIds?: string;
-  nextDay?: string;
-  nextWeek?: string;
-  nextMonth?: string;
-  noCloseDate?: string;
-  overdue?: string;
+  closeDateType?: string;
   labelIds?: string;
 }
 

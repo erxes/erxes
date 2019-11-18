@@ -92,8 +92,6 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
         <h5>
           {renderPriority(item.priority)}
           {item.name}
@@ -118,7 +116,7 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
   }
 
   render() {
-    const { portable } = this.props;
+    const { item, portable } = this.props;
 
     if (portable) {
       const onClick = () => {
@@ -137,6 +135,7 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
+        <Labels labels={item.labels} indicator={true} />
         <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>

@@ -31,6 +31,7 @@ type State = {
   itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
+  isShowLabel: boolean;
 };
 
 interface IStore {
@@ -44,6 +45,8 @@ interface IStore {
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
+  isShowLabel: boolean;
+  toggleLabels: () => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -68,7 +71,8 @@ export class PipelineProvider extends React.Component<Props, State> {
     this.state = {
       itemMap: initialItemMap || {},
       stageLoadMap: {},
-      stageIds: Object.keys(initialItemMap || {})
+      stageIds: Object.keys(initialItemMap || {}),
+      isShowLabel: false
     };
 
     PipelineProvider.tasks = [];
@@ -335,8 +339,12 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   };
 
+  toggleLabels = () => {
+    this.setState({ isShowLabel: !this.state.isShowLabel });
+  };
+
   render() {
-    const { itemMap, stageLoadMap, stageIds } = this.state;
+    const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
 
     return (
       <PipelineContext.Provider
@@ -350,7 +358,9 @@ export class PipelineProvider extends React.Component<Props, State> {
           onUpdateItem: this.onUpdateItem,
           itemMap,
           stageLoadMap,
-          stageIds
+          stageIds,
+          isShowLabel,
+          toggleLabels: this.toggleLabels
         }}
       >
         {this.props.children}
