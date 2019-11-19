@@ -124,6 +124,7 @@ const ToolBar = styled.div`
     color: ${colors.colorCoreGray};
     margin-right: 10px;
     font-size: 14px;
+    margin-bottom: 0;
 
     &:hover {
       cursor: pointer;
