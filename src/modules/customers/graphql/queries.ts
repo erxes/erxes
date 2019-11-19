@@ -26,6 +26,8 @@ const basicFields = `
   hasAuthority
   description
   doNotDisturb
+  code
+
   links {
     linkedIn
     twitter
