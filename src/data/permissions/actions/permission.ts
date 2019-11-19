@@ -868,6 +868,7 @@ export const moduleObjects = {
           'integrationsEditLeadIntegration',
           'integrationsRemove',
           'integrationsArchive',
+          'integrationsEdit',
         ],
       },
       {
@@ -905,6 +906,10 @@ export const moduleObjects = {
       {
         name: 'integrationsArchive',
         description: 'Archive an integration',
+      },
+      {
+        name: 'integrationsEdit',
+        description: 'Edit common integration fields',
       },
     ],
   },
