@@ -122,13 +122,15 @@ class IntegrationListItem extends React.Component<Props> {
     );
 
     return (
-      <ActionButtons>
-        <ModalTrigger
-          title="Edit integration"
-          trigger={editTrigger}
-          content={content}
-        />
-      </ActionButtons>
+      <WithPermission action="integrationsEdit">
+        <ActionButtons>
+          <ModalTrigger
+            title="Edit integration"
+            trigger={editTrigger}
+            content={content}
+          />
+        </ActionButtons>
+      </WithPermission>
     );
   }
 
