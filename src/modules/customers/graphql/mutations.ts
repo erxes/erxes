@@ -15,7 +15,8 @@ const commonFields = `
   $description: String,
   $doNotDisturb: String,
   $links: JSON,
-  $customFieldsData: JSON
+  $customFieldsData: JSON,
+  $code: String
 `;
 
 const commonVariables = `
@@ -35,7 +36,8 @@ const commonVariables = `
   description: $description,
   doNotDisturb: $doNotDisturb,
   links: $links,
-  customFieldsData: $customFieldsData
+  customFieldsData: $customFieldsData,
+  code: $code
 `;
 
 const customersAdd = `
@@ -55,6 +57,7 @@ const customersEdit = `
       lastName
       primaryEmail
       primaryPhone
+      code
       phones
       emails
       ownerId
