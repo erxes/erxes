@@ -123,6 +123,7 @@ export interface IItem {
   description: string;
   amount: number;
   modifiedAt: Date;
+  assignedUserIds?: string[];
   assignedUsers: IUser[];
   companies: ICompany[];
   customers: ICustomer[];

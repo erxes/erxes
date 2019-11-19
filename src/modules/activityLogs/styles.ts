@@ -39,10 +39,23 @@ const ActivityRow = styled(WhiteBox)`
   }
 `;
 
-const FlexContent = styled.div`
+const FlexCenterContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+const FlexContent = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Title = styled.div`
+  margin: ${dimensions.unitSpacing}px 0;
+
+  h4 > i {
+    margin-right: 5px;
+  }
 `;
 
 const FlexBody = styled.div`
@@ -63,6 +76,10 @@ const FlexBody = styled.div`
   span {
     padding-right: ${dimensions.unitSpacing}px;
   }
+`;
+
+const Row = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
 `;
 
 const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
@@ -148,12 +165,23 @@ const EmailContent = styled.div`
   }
 `;
 
-const IconWrapper = styled.div`
-  color: ${colors.colorLightGray};
+const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
+  cursor: pointer;
+  display: table;
+  margin-right: ${dimensions.unitSpacing}px;
 
   i {
-    cursor: pointer;
+    margin-right: 5px;
+
+    &:before {
+      transition: all .15s ease-in-out;
+      transform: ${props => props.showDetail && 'rotate(90deg)'};
+    }
   }
+`;
+
+const Detail = styledTS<{ showDetail?: boolean }>(styled.div)`
+  margin-top: ${dimensions.unitSpacing}px;
 `;
 
 export {
@@ -165,7 +193,11 @@ export {
   ActivityDate,
   ActivityContent,
   EmailContent,
-  IconWrapper,
   FlexContent,
-  FlexBody
+  FlexCenterContent,
+  FlexBody,
+  Row,
+  Title,
+  Date,
+  Detail
 };

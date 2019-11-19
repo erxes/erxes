@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import Task from 'modules/activityLogs/components/items/boardItems/Task';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import { queries as taskQueries } from 'modules/tasks/graphql';
+import { queries } from 'modules/tasks/graphql';
 import { TaskDetailQueryResponse } from 'modules/tasks/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
@@ -36,7 +36,7 @@ class FormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TaskDetailQueryResponse>(gql(taskQueries.taskDetail), {
+    graphql<Props, TaskDetailQueryResponse>(gql(queries.taskDetail), {
       name: 'taskDetailsQuery',
       options: ({ taskId }) => ({
         variables: {

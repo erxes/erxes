@@ -4,7 +4,7 @@ import {
   ActivityDate,
   AvatarWrapper,
   FlexBody,
-  FlexContent
+  FlexCenterContent
 } from 'modules/activityLogs/styles';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
@@ -41,7 +41,7 @@ class InternalNote extends React.Component<Props> {
 
     return (
       <>
-        <FlexContent>
+        <FlexCenterContent>
           <AvatarWrapper>
             <NameCard.Avatar />
           </AvatarWrapper>
@@ -51,7 +51,7 @@ class InternalNote extends React.Component<Props> {
               {dayjs(internalNote.createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
-        </FlexContent>
+        </FlexCenterContent>
         <ActivityContent
           isInternalNote={true}
           dangerouslySetInnerHTML={{ __html: xss(content) }}

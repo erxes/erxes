@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexBody,
-  FlexContent
+  FlexCenterContent
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
@@ -37,7 +37,7 @@ class CreatedLog extends React.Component<Props> {
 
     return (
       <>
-        <FlexContent>
+        <FlexCenterContent>
           <FlexBody>
             <strong>{contentType} activity</strong>
           </FlexBody>
@@ -46,7 +46,7 @@ class CreatedLog extends React.Component<Props> {
               {dayjs(createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
-        </FlexContent>
+        </FlexCenterContent>
         {this.renderContent()}
       </>
     );

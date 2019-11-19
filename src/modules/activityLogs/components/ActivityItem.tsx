@@ -30,9 +30,8 @@ class ActivityItem extends React.Component<Props> {
   render() {
     const { activity } = this.props;
     const { _id, contentType, action } = activity;
-    // tslint:disable-next-line:no-console
-    console.log(activity);
-    switch (contentType || action) {
+
+    switch ((action && action) || contentType) {
       case 'note':
         return this.renderDetail(
           'note',

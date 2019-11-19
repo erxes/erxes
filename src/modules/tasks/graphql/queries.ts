@@ -57,6 +57,7 @@ export const taskFields = `
   closeDate
   description
   priority
+  assignedUserIds
   assignedUsers {
     _id
     email
