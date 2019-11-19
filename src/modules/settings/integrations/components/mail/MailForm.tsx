@@ -448,12 +448,12 @@ class MailForm extends React.Component<Props, State> {
           <ToolBar>
             {this.renderIcon({
               text: 'Attach file',
-              icon: 'attach',
+              icon: 'paperclip',
               element: <input {...inputProps} />
             })}
             {this.renderIcon({
               text: 'Delete',
-              icon: 'trash',
+              icon: 'trash-alt',
               onClick: toggleReply
             })}
           </ToolBar>
@@ -485,6 +485,7 @@ class MailForm extends React.Component<Props, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           height={100}
+          autoFocus={true}
         />
       </MailEditorWrapper>
     );

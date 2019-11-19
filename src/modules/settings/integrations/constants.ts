@@ -119,23 +119,25 @@ export const FORM_SUCCESS_ACTIONS = {
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
-  { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
-  { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
-  { name: 'tools', items: ['Maximize'] },
+  { name: 'styles', items: ['Font', 'FontSize'] },
   {
-    name: 'insert',
-    items: ['Image', 'HorizontalRule', 'EmojiPanel']
+    name: 'other',
+    items: [
+      'TextColor',
+      'BGColor',
+      'Bold',
+      'Italic',
+      'Underline',
+      'Strike',
+      'NumberedList',
+      'BulletedList',
+      'Link',
+      'Image',
+      'Blockquote',
+      'EmojiPanel'
+    ]
   },
-  {
-    name: 'basicstyles',
-    groups: ['basicstyles', 'cleanup'],
-    items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
-  },
-  {
-    name: 'paragraph',
-    groups: ['list', 'indent', 'blocks', 'align', 'bidi'],
-    items: ['NumberedList', 'BulletedList']
-  }
+  { name: 'clear', items: ['RemoveFormat'] }
 ];
 
 export const INTEGRATIONS = [

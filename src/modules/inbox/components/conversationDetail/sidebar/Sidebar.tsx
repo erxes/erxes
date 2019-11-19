@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
-import { Actions, BasicInfo, TabContent } from './styles';
+import { Actions, BasicInfo, MailBox, TabContent } from './styles';
 
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import Box from 'modules/common/components/Box';
@@ -143,12 +143,14 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { kind } = conversation.integration;
 
     const content = props => (
-      <MailForm
-        kind={kind}
-        fromEmail={primaryEmail}
-        refetchQueries={['activityLogsCustomer']}
-        closeModal={props.closeModal}
-      />
+      <MailBox>
+        <MailForm
+          kind={kind}
+          fromEmail={primaryEmail}
+          refetchQueries={['activityLogsCustomer']}
+          closeModal={props.closeModal}
+        />
+      </MailBox>
     );
 
     return (
