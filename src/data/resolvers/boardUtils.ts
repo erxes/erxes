@@ -1,4 +1,4 @@
-import { Boards, Pipelines, Stages } from '../../db/models';
+import { Boards, Conformities, Pipelines, Stages } from '../../db/models';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IUserDocument } from '../../db/models/definitions/users';
@@ -216,4 +216,34 @@ export const checkPermission = async (type: string, user: IUserDocument, mutatio
   }
 
   return;
+};
+
+export const createConformity = async ({
+  companyIds = [],
+  customerIds = [],
+  mainType,
+  mainTypeId,
+}: {
+  companyIds?: string[];
+  customerIds?: string[];
+  mainType: string;
+  mainTypeId: string;
+}) => {
+  for (const companyId of companyIds) {
+    await Conformities.addConformity({
+      mainType,
+      mainTypeId,
+      relType: 'company',
+      relTypeId: companyId,
+    });
+  }
+
+  for (const customerId of customerIds) {
+    await Conformities.addConformity({
+      mainType,
+      mainTypeId,
+      relType: 'customer',
+      relTypeId: customerId,
+    });
+  }
 };

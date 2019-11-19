@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { putCreateLog } from '../../utils';
-import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
+import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 import { checkUserIds } from './notifications';
 
 interface ITasksEdit extends ITask {
@@ -22,6 +22,13 @@ const taskMutations = {
       ...doc,
       modifiedBy: user._id,
       userId: user._id,
+    });
+
+    await createConformity({
+      mainType: 'task',
+      mainTypeId: task._id,
+      companyIds: doc.companyIds,
+      customerIds: doc.customerIds,
     });
 
     await sendNotifications({
