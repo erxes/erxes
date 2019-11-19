@@ -2,6 +2,7 @@ import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import HelpPopover from 'modules/common/components/HelpPopover';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Uploader from 'modules/common/components/Uploader';
 import { __, Alert } from 'modules/common/utils';
@@ -131,12 +132,28 @@ class EmailForm extends React.Component<Props, State> {
       this.templateChange((e.target as HTMLInputElement).value);
     const onChangeAttachment = attachmentsArr =>
       this.changeContent('attachments', attachmentsArr);
+    const Title = `The email address is not verified by Amazon Ses services.`;
 
     return (
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
-            <ControlLabel>From:</ControlLabel>
+            <ControlLabel>
+              From:
+              <HelpPopover title={Title}>
+                <p>
+                  If you want to verify your email: <br />
+                  1. Log in to your AWS Management Console <br />
+                  2. Click on the Services menu from the dropdown menu <br />
+                  3. Click on the Simple Email Services menu from the left
+                  sidebar <br />
+                  4. Click on the Email Addresses menu from the left sidebar{' '}
+                  <br />
+                  5. Finally, click on the button that named "Verify a new email
+                  address" <br />
+                </p>
+              </HelpPopover>
+            </ControlLabel>
             {this.renderFrom()}
           </FormGroup>
 
