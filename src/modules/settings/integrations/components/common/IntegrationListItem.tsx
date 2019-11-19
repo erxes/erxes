@@ -11,11 +11,16 @@ import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IIntegration } from '../../types';
+import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
   integration: IIntegration;
   archive: (id: string) => void;
   removeIntegration: (integration: IIntegration) => void;
+  editIntegration: (
+    id: string,
+    { name, brandId }: { name: string; brandId: string }
+  ) => void;
 };
 
 class IntegrationListItem extends React.Component<Props> {
@@ -91,6 +96,42 @@ class IntegrationListItem extends React.Component<Props> {
     );
   }
 
+  renderEditAction() {
+    const { integration, editIntegration } = this.props;
+
+    if (integration.kind === KIND_CHOICES.MESSENGER) {
+      return null;
+    }
+
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Edit">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => (
+      <CommonFieldForm
+        {...props}
+        onSubmit={editIntegration}
+        name={integration.name}
+        brandId={integration.brandId}
+        integrationId={integration._id}
+      />
+    );
+
+    return (
+      <ActionButtons>
+        <ModalTrigger
+          title="Edit integration"
+          trigger={editTrigger}
+          content={content}
+        />
+      </ActionButtons>
+    );
+  }
+
   renderMessengerActions(integration) {
     const kind = integration.kind;
 
@@ -163,6 +204,7 @@ class IntegrationListItem extends React.Component<Props> {
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
+            {this.renderEditAction()}
             {this.renderArchiveAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
