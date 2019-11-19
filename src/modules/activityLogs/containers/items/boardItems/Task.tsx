@@ -1,9 +1,13 @@
 import gql from 'graphql-tag';
 import Task from 'modules/activityLogs/components/items/boardItems/Task';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import { queries } from 'modules/tasks/graphql';
-import { TaskDetailQueryResponse } from 'modules/tasks/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import { mutations, queries } from 'modules/tasks/graphql';
+import {
+  EditMutationResponse,
+  RemoveMutationResponse,
+  TaskDetailQueryResponse
+} from 'modules/tasks/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 
@@ -13,11 +17,13 @@ type Props = {
 
 type FinalProps = {
   taskDetailsQuery: TaskDetailQueryResponse;
-} & Props;
+  editMutation: EditMutationResponse;
+} & Props &
+  RemoveMutationResponse;
 
 class FormContainer extends React.Component<FinalProps> {
   render() {
-    const { taskDetailsQuery } = this.props;
+    const { taskDetailsQuery, editMutation, removeMutation } = this.props;
 
     if (taskDetailsQuery.loading) {
       return <Spinner />;
@@ -25,9 +31,37 @@ class FormContainer extends React.Component<FinalProps> {
 
     const task = taskDetailsQuery.taskDetail;
 
+    const save = (variables, callback) => {
+      editMutation({ variables })
+        .then(() => {
+          Alert.success('Succ');
+
+          if (callback) {
+            callback();
+          }
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
+
+    const remove = (taskId: string) => {
+      confirm().then(() =>
+        removeMutation({ variables: { _id: taskId } })
+          .then(() => {
+            Alert.success('You successfully deleted a task.');
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          })
+      );
+    };
+
     const updatedProps = {
       ...this.props,
-      task
+      task,
+      save,
+      remove
     };
 
     return <Task {...updatedProps} />;
@@ -43,6 +77,13 @@ export default withProps<Props>(
           _id: taskId
         }
       })
-    })
+    }),
+    graphql<Props, EditMutationResponse>(gql(mutations.tasksEdit), {
+      name: 'editMutation'
+    }),
+    graphql<Props, RemoveMutationResponse, { _id: string }>(
+      gql(mutations.tasksRemove),
+      { name: 'removeMutation' }
+    )
   )(FormContainer)
 );

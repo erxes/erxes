@@ -50,11 +50,22 @@ const FlexContent = styled.div`
   align-items: center;
 `;
 
-const Title = styled.div`
+const Title = styledTS<{ isComplete?: boolean }>(styled.div)`
   margin: ${dimensions.unitSpacing}px 0;
+  flex: 1;
+  font-size: 16px;
 
-  h4 > i {
-    margin-right: 5px;
+  > div {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  h4 {
+    text-decoration: ${props => props.isComplete && 'line-through'};
+    transition: all ease 0.4s;
+
+    > i {
+      margin-right: 5px;
+    }
   }
 `;
 
@@ -170,6 +181,11 @@ const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
   display: table;
   margin-right: ${dimensions.unitSpacing}px;
 
+  span {
+    font-weight: 600;
+    color: ${colors.colorSecondary};
+  }
+
   i {
     margin-right: 5px;
 
@@ -180,8 +196,39 @@ const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
   }
 `;
 
-const Detail = styledTS<{ showDetail?: boolean }>(styled.div)`
-  margin-top: ${dimensions.unitSpacing}px;
+const Detail = styledTS<{ full?: boolean }>(styled.div)`
+  margin-top: ${props =>
+    props.full ? dimensions.coreSpacing : dimensions.unitSpacing}px;
+
+  > p {
+    margin: ${dimensions.unitSpacing}px 0 ${dimensions.coreSpacing}px;
+  }
+  `;
+
+const IconWrapper = styledTS<{ isComplete?: boolean }>(styled.div)`
+  margin-right: ${dimensions.unitSpacing}px;
+  cursor: pointer;
+
+  > i {
+    background: ${props =>
+      props.isComplete ? colors.colorCoreGreen : colors.bgLight};
+    color: ${props =>
+      props.isComplete ? colors.colorWhite : colors.colorShadowGray};
+    border-radius: 25px;
+    display: inline-block;
+    line-height: 25px;
+    border: 2px solid ${props =>
+      props.isComplete ? colors.colorCoreGreen : colors.colorShadowGray};
+    transition: all ease 0.3s;
+  }
+`;
+
+const Description = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 2px;
+  margin: ${dimensions.coreSpacing}px 0;
 `;
 
 export {
@@ -192,11 +239,13 @@ export {
   AvatarWrapper,
   ActivityDate,
   ActivityContent,
+  Description,
   EmailContent,
   FlexContent,
   FlexCenterContent,
   FlexBody,
   Row,
+  IconWrapper,
   Title,
   Date,
   Detail

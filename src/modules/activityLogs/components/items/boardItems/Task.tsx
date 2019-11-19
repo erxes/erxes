@@ -3,10 +3,12 @@ import dayjs from 'dayjs';
 import {
   ActivityDate,
   Date,
+  Description,
   Detail,
   FlexBody,
   FlexCenterContent,
   FlexContent,
+  IconWrapper,
   Row,
   Title
 } from 'modules/activityLogs/styles';
@@ -28,15 +30,16 @@ import Select from 'react-select-plus';
 
 type Props = {
   task: IItem;
+  save: (variables, callback) => void;
+  remove: (id: string) => void;
 };
 
 type State = {
   editing: boolean;
-  assignedUsers: [];
-  inputValue: string;
+  name: string;
   closeDate: Date;
-  reminderMinute: number;
   showDetail: boolean;
+  isComplete: boolean;
 };
 
 class Task extends React.Component<Props, State> {
@@ -45,18 +48,23 @@ class Task extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const task = props.task;
     this.state = {
       editing: false,
-      inputValue: '',
-      assignedUsers: props.task.assignedUserIds || [],
-      closeDate: props.task.closeDate || dayjs(),
-      reminderMinute: props.task.reminderMinute,
-      showDetail: false
+      name: task.name || '',
+      closeDate: task.closeDate || dayjs(),
+      showDetail: false,
+      isComplete: task.isComplete || false
     };
   }
 
   onOverlayClose = () => {
     this.overlayTrigger.hide();
+  };
+
+  onRemove = () => {
+    const { remove, task } = this.props;
+    remove(task._id);
   };
 
   onNameChange = () => {
@@ -67,10 +75,29 @@ class Task extends React.Component<Props, State> {
     this.setState({ showDetail: !this.state.showDetail });
   };
 
+  onComplete = () => {
+    this.setState({ isComplete: !this.state.isComplete });
+  };
+
   handleInputChange = e => {
     e.preventDefault();
 
-    this.setState({ inputValue: e.target.value });
+    this.setState({ name: e.target.value });
+  };
+
+  saveItem = (key: string, value: any) => {
+    const { task } = this.props;
+    // tslint:disable-next-line:no-console
+    console.log(task);
+    this.props.save(
+      {
+        _id: task._id,
+        [key]: value
+      },
+      () => {
+        this.setState({ editing: false });
+      }
+    );
   };
 
   renderName() {
@@ -80,7 +107,10 @@ class Task extends React.Component<Props, State> {
       return (
         <>
           <FormGroup>
-            <FormControl value={task.name} onChange={this.handleInputChange} />
+            <FormControl
+              value={this.state.name}
+              onChange={this.handleInputChange}
+            />
           </FormGroup>
           <Button
             icon="cancel-1"
@@ -94,7 +124,7 @@ class Task extends React.Component<Props, State> {
             btnStyle="success"
             size="small"
             icon="checked-1"
-            // onClick={this.handleSave}
+            onClick={this.saveItem.bind(this, 'name', this.state.name)}
           >
             Save
           </Button>
@@ -102,69 +132,62 @@ class Task extends React.Component<Props, State> {
       );
     }
 
-    return (
-      <h4>
-        <Icon icon="checked-1" />
-        {task.name}
-      </h4>
-    );
+    return <h4 onClick={this.onNameChange}>{task.name}</h4>;
   }
 
   renderDetails() {
-    const { showDetail } = this.state;
+    const { showDetail, isComplete } = this.state;
+
+    const minuteOnChange = ({ value }: { value: string }) => {
+      this.saveItem('reminderMinute', parseInt(value, 10));
+    };
 
     if (!showDetail) {
       return null;
     }
 
     return (
-      <Detail>
-        <FlexContent>
-          <FlexBody>
-            <Row>
-              <ControlLabel>Type</ControlLabel>
-              <Select
-                isRequired={true}
-                options={selectOptions(REMINDER_MINUTES)}
-                clearable={false}
-                placeholder="Set reminder"
-              />
-            </Row>
-          </FlexBody>
-          <FlexBody>
-            <Row>
-              <ControlLabel>Type</ControlLabel>
-              <Select
-                isRequired={true}
-                options={selectOptions(REMINDER_MINUTES)}
-                clearable={false}
-                placeholder="Set reminder"
-              />
-            </Row>
-          </FlexBody>
-        </FlexContent>
-      </Detail>
-    );
-  }
-
-  renderReminderMinute() {
-    const { reminderMinute } = this.state;
-
-    const minuteOnChange = ({ value }: { value: string }) => {
-      this.setState({ reminderMinute: parseInt(value, 10) });
-    };
-
-    return (
-      <FlexBody>
-        <Select
-          isRequired={true}
-          value={reminderMinute}
-          onChange={minuteOnChange}
-          options={selectOptions(REMINDER_MINUTES)}
-          clearable={false}
-          placeholder="Set reminder"
-        />
-      </FlexBody>
+      <>
+        {isComplete && this.renderContent()}
+        <Detail>
+          <FlexContent>
+            <FlexBody>
+              <Row>
+                <ControlLabel>Type</ControlLabel>
+                <Select
+                  isRequired={true}
+                  options={selectOptions(REMINDER_MINUTES)}
+                  clearable={false}
+                  placeholder="Set reminder"
+                />
+              </Row>
+            </FlexBody>
+            <FlexBody>
+              <Row>
+                <ControlLabel>Set reminder</ControlLabel>
+                <Select
+                  isRequired={true}
+                  value={this.props.task.reminderMinute}
+                  onChange={minuteOnChange}
+                  options={selectOptions(REMINDER_MINUTES)}
+                  clearable={false}
+                />
+              </Row>
+            </FlexBody>
+            <FlexBody>
+              <Button
+                btnStyle="danger"
+                type="button"
+                size="small"
+                icon="cancel-1"
+                onClick={this.onRemove}
+              >
+                Delete
+              </Button>
+            </FlexBody>
+          </FlexContent>
+        </Detail>
+      </>
     );
   }
 
@@ -172,7 +195,9 @@ class Task extends React.Component<Props, State> {
     const { closeDate } = this.state;
 
     const onDateChange = date => {
-      this.setState({ closeDate: date });
+      this.setState({ closeDate: date }, () => {
+        this.saveItem('closeDate', closeDate);
+      });
     };
 
     const content = (
@@ -208,7 +233,7 @@ class Task extends React.Component<Props, State> {
         <Date>
           <Icon icon="calendar-alt" />
           <span>{dayjs(closeDate).format('MM/DD/YYYY')}</span>
-          <Icon icon="downarrow" />
+          <Icon icon="downarrow" size={10} />
         </Date>
       </OverlayTrigger>
     );
@@ -216,18 +241,13 @@ class Task extends React.Component<Props, State> {
 
   renderContent() {
     const { task } = this.props;
-    const { assignedUsers, showDetail } = this.state;
-    // tslint:disable
-    console.log(task);
-    const onAssignedUserSelect = assignedUsers => {
-      this.setState({ assignedUsers });
+
+    const onAssignedUserSelect = usrs => {
+      this.saveItem('assignedUserIds', usrs);
     };
 
     return (
-      <>
-        <FlexContent>
-          <Title onClick={this.onNameChange}>{this.renderName()}</Title>
-        </FlexContent>
+      <p>
         <FlexContent>
           <FlexBody>
             <Row>
@@ -235,42 +255,32 @@ class Task extends React.Component<Props, State> {
               <SelectTeamMembers
                 label="Choose team member"
                 name="assignedUserIds"
-                value={assignedUsers}
+                value={task.assignedUserIds}
                 onSelect={onAssignedUserSelect}
               />
             </Row>
           </FlexBody>
+
           <FlexBody>
-            <Row>
-              <ControlLabel>Due date</ControlLabel>
-              <FlexContent>
-                {this.renderCloseDate()}
-                {this.renderReminderMinute()}
-              </FlexContent>
-            </Row>
+            <ControlLabel>Due date</ControlLabel>
+            <FlexContent>{this.renderCloseDate()}</FlexContent>
           </FlexBody>
         </FlexContent>
-        {/* {task.description && ( */}
-        <Title>{task.description}eewwfefwefwfe</Title>
-        {/* )} */}
-        <FlexBody>
-          <Date onClick={this.onDetailClick} showDetail={showDetail}>
-            <Icon icon="rightarrow-2" /> {__('Details')}
-          </Date>
-          {this.renderDetails()}
-        </FlexBody>
-      </>
+
+        {task.description && <Description>{task.description}</Description>}
+      </p>
     );
   }
 
   render() {
     const { createdAt } = this.props.task;
+    const { isComplete, showDetail } = this.state;
 
     return (
       <>
         <FlexCenterContent>
           <FlexBody>
-            <strong>Somebody created task</strong>
+            <strong>Somebody</strong> created a task
           </FlexBody>
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
@@ -278,7 +288,21 @@ class Task extends React.Component<Props, State> {
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
-        {this.renderContent()}
+        <FlexContent>
+          <Tip text={isComplete ? 'Mark as incomplete' : 'Mark as complete'}>
+            <IconWrapper onClick={this.onComplete} isComplete={isComplete}>
+              <Icon icon="check-1" size={25} />
+            </IconWrapper>
+          </Tip>
+          <Title isComplete={isComplete}>{this.renderName()}</Title>
+        </FlexContent>
+        {!isComplete && this.renderContent()}
+        <Detail full={true}>
+          <Date onClick={this.onDetailClick} showDetail={showDetail}>
+            <Icon icon="rightarrow-2" /> {__('Details')}
+          </Date>
+          {this.renderDetails()}
+        </Detail>
       </>
     );
   }
