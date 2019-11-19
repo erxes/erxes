@@ -76,6 +76,7 @@ export interface ICustomer {
   visitorContactInfo?: IVisitorContact;
   urlVisits?: any;
   deviceTokens?: string[];
+  code?: string;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {
@@ -230,5 +231,6 @@ export const customerSchema = schemaWrapper(
 
     deviceTokens: field({ type: [String], default: [] }),
     searchText: field({ type: String, optional: true, index: true }),
+    code: field({ type: String, label: 'Code', optional: true }),
   }),
 );
