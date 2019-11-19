@@ -100,5 +100,5 @@ export type IEditorProps = {
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
   toolbar?: any[];
-  autoFocus: boolean;
+  autoFocus?: boolean;
 };
