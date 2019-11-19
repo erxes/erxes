@@ -150,10 +150,10 @@ const readConversationMessages = `
 `;
 
 const connect = `
-  mutation connect($brandCode: String!, $email: String, $phone: String,
+  mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
     $companyData: JSON, $cachedCustomerId: String) {
-    messengerConnect(brandCode: $brandCode, email: $email, phone: $phone,
+    messengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
       isUser: $isUser, data: $data, companyData: $companyData,
       cachedCustomerId: $cachedCustomerId) {
       integrationId,
