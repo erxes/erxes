@@ -126,7 +126,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <SelectMemberStyled>
+        <SelectMemberStyled zIndex={2002}>
           <ControlLabel>Members</ControlLabel>
 
           <SelectTeamMembers
