@@ -34,7 +34,8 @@ class EditorCK extends React.Component<IEditorProps> {
       removePlugins,
       toolbar,
       toolbarCanCollapse,
-      mentionUsers = []
+      mentionUsers = [],
+      autoFocus
     } = this.props;
 
     const mentionDataFeed = (opts, callback) => {
@@ -58,6 +59,7 @@ class EditorCK extends React.Component<IEditorProps> {
         onChange={onChange}
         config={{
           height,
+          startupFocus: autoFocus,
           uiColor: colors.bgLight,
           dialog_backgroundCoverColor: '#30435C',
           allowedContent: true,

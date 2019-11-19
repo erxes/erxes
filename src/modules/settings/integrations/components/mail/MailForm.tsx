@@ -485,6 +485,7 @@ class MailForm extends React.Component<Props, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           height={100}
+          autoFocus={true}
         />
       </MailEditorWrapper>
     );
