@@ -2,6 +2,7 @@ import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { MailBox } from '../../sidebar/styles';
 
 const Content = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing + 5}px;
@@ -29,7 +30,7 @@ const Subject = styled.h2`
 `;
 
 const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing}px 15px;
+  padding: ${dimensions.unitSpacing}px 16px;
   display: flex;
   align-items: center;
   border-bottom: ${props =>
@@ -149,16 +150,12 @@ const FileIcon = styled.div`
   background: ${colors.colorWhite};
 `;
 
-const BoxItem = styledTS<{ toggle?: boolean }>(styled.div)`
+const BoxItem = styledTS<{ toggle?: boolean }>(styled(MailBox))`
   position: relative;
-  background: ${colors.colorWhite};
-  border-radius: ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
   margin-top: ${dimensions.unitSpacing}px;
   opacity: ${props => props.toggle && '0.8'};
-  transition: all ease 0.3s;
-
+  
   &:hover {
     opacity: 1;
   }
