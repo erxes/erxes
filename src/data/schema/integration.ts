@@ -147,6 +147,8 @@ export const mutations = `
     accountId: String,
     data: JSON): Integration
 
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!): Integration
+
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!): JSON
 

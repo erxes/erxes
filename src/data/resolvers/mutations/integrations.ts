@@ -144,6 +144,30 @@ const integrationMutations = {
     return integration;
   },
 
+  async integrationsEditCommonFields(_root, { _id, name, brandId }, { user }) {
+    if (!(_id && name && brandId)) {
+      throw new Error('Name and brand must be chosen.');
+    }
+
+    const integration = await Integrations.findOne({ _id });
+
+    const updated = Integrations.updateBasicInfo(_id, { name, brandId });
+
+    if (integration) {
+      await putUpdateLog(
+        {
+          type: 'integration',
+          object: { name: integration.name, brandId: integration.brandId },
+          newData: JSON.stringify({ name, brandId }),
+          description: `${integration.name} has been edited`,
+        },
+        user,
+      );
+    }
+
+    return updated;
+  },
+
   /**
    * Create IMAP account
    */

@@ -24,6 +24,11 @@ export interface IExternalIntegrationParams {
   accountId: string;
 }
 
+interface IIntegrationBasicInfo {
+  name: string;
+  brandId: string;
+}
+
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData): IIntegration;
@@ -36,6 +41,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   updateLeadIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
   createExternalIntegration(doc: IExternalIntegrationParams, userId: string): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
+  updateBasicInfo(_id: string, doc: IIntegrationBasicInfo): Promise<IIntegrationDocument>;
 }
 
 export const loadClass = () => {
@@ -169,6 +175,18 @@ export const loadClass = () => {
       }
 
       return Integrations.deleteMany({ _id });
+    }
+
+    public static async updateBasicInfo(_id: string, doc: IIntegrationBasicInfo) {
+      const integration = await Integrations.findOne({ _id });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      await Integrations.updateOne({ _id }, { $set: doc });
+
+      return Integrations.findOne({ _id });
     }
   }
 
