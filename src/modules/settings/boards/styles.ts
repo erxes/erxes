@@ -84,9 +84,9 @@ const StageItemContainer = styled(PipelineRowContainer)`
   }
 `;
 
-const SelectMemberStyled = styled.div`
+const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
   position: relative;
-  z-index: 2001;
+  z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
 export {

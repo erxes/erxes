@@ -52,7 +52,8 @@ const MailEditorWrapper = styled.div`
   background: ${colors.colorWhite};
 
   .cke {
-    border-top: 0;
+    border: 0;
+    border-bottom: 1px solid ${colors.borderPrimary};
   }
 
   .cke_bottom {
@@ -64,21 +65,24 @@ const MailEditorWrapper = styled.div`
 
     .cke_top {
       position: absolute;
+      background: ${colors.bgLight};
       right: 0;
       left: 0;
       bottom: 0;
       border-bottom: 0;
+      padding-left: 10px;
+      padding-right: 10px;
       border-top: 1px solid ${colors.borderPrimary};
     }
 
     .cke_contents {
-      min-height: 140px !important;
+      min-height: 150px !important;
     }
   }
 
   .cke_toolgroup {
     border: 0;
-    padding-left: ${dimensions.unitSpacing}px;
+    margin-left: ${dimensions.unitSpacing / 2}px;
   }
 `;
 
@@ -124,6 +128,7 @@ const ToolBar = styled.div`
     color: ${colors.colorCoreGray};
     margin-right: 10px;
     font-size: 14px;
+    margin-bottom: 0;
 
     &:hover {
       cursor: pointer;
