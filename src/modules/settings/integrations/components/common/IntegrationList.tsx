@@ -9,11 +9,20 @@ type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
   archive: (id: string) => void;
+  editIntegration: (
+    id: string,
+    { name, brandId }: { name: string; brandId: string }
+  ) => void;
 };
 
 class IntegrationList extends React.Component<Props> {
   renderRows() {
-    const { integrations, removeIntegration, archive } = this.props;
+    const {
+      integrations,
+      removeIntegration,
+      archive,
+      editIntegration
+    } = this.props;
 
     return integrations.map(i => (
       <IntegrationListItem
@@ -21,6 +30,7 @@ class IntegrationList extends React.Component<Props> {
         integration={i}
         removeIntegration={removeIntegration}
         archive={archive}
+        editIntegration={editIntegration}
       />
     ));
   }

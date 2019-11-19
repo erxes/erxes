@@ -76,6 +76,14 @@ const integrationsCreateExternalIntegration = `
   }
 `;
 
+const integrationsEditCommonFields = `
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId) {
+      _id
+    }
+  }
+`;
+
 const integrationsEditMessenger = `
   mutation integrationsEditMessengerIntegration($_id: String!, ${commonParamsDef}) {
     integrationsEditMessengerIntegration(_id: $_id, ${commonParams}) {
@@ -211,6 +219,7 @@ export default {
   integrationsArchive,
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,
+  integrationsEditCommonFields,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
