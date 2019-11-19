@@ -132,7 +132,6 @@ class EmailForm extends React.Component<Props, State> {
       this.templateChange((e.target as HTMLInputElement).value);
     const onChangeAttachment = attachmentsArr =>
       this.changeContent('attachments', attachmentsArr);
-    const Title = `The email address is not verified by Amazon Ses services.`;
 
     return (
       <FlexItem>
@@ -140,8 +139,11 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>
               From:
-              <HelpPopover title={Title}>
-                <p>
+              <HelpPopover
+                trigger="click"
+                title="The email address is not verified by Amazon Ses services."
+              >
+                <div>
                   If you want to verify your email: <br />
                   1. Log in to your AWS Management Console <br />
                   2. Click on the Services menu from the dropdown menu <br />
@@ -151,7 +153,7 @@ class EmailForm extends React.Component<Props, State> {
                   <br />
                   5. Finally, click on the button that named "Verify a new email
                   address" <br />
-                </p>
+                </div>
               </HelpPopover>
             </ControlLabel>
             {this.renderFrom()}

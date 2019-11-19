@@ -8,6 +8,7 @@ import { colors, dimensions } from '../styles';
 const PopoverContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
   line-height: 24px;
+
   h5 {
     margin-top: 0;
     line-height: 20px;
@@ -24,12 +25,13 @@ const IconClass = styled.div`
 
 type Props = {
   title?: string;
+  trigger?: 'hover' | 'click' | 'focus';
 };
 
 class HelpPopover extends React.Component<Props> {
   renderContent() {
     return (
-      <Popover id="main-popover">
+      <Popover id="help-popover">
         <PopoverContent>
           <h5>{this.props.title}</h5>
           {this.props.children}
@@ -41,7 +43,7 @@ class HelpPopover extends React.Component<Props> {
   render() {
     return (
       <OverlayTrigger
-        trigger="click"
+        trigger={this.props.trigger}
         placement="auto"
         overlay={this.renderContent()}
         rootClose={true}
