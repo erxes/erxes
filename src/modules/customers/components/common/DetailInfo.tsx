@@ -45,6 +45,7 @@ class DetailInfo extends React.PureComponent<Props> {
 
     return (
       <SidebarList className="no-link">
+        {this.renderRow('Code', customer.code)}
         {this.renderRow('Primary email', customer.primaryEmail)}
         {this.renderRow('Primary phone', customer.primaryPhone)}
         {this.renderPosition(customer)}

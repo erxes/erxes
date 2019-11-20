@@ -13,10 +13,6 @@ export const getFilterParams = (queryParams: IGrowthHackFilterParams) => {
     pipelineId: queryParams.pipelineId,
     search: queryParams.search,
     assignedUserIds: queryParams.assignedUserIds,
-    nextDay: queryParams.nextDay,
-    nextWeek: queryParams.nextWeek,
-    nextMonth: queryParams.nextMonth,
-    noCloseDate: queryParams.noCloseDate,
-    overdue: queryParams.overdue
+    closeDateType: queryParams.closeDateType
   };
 };

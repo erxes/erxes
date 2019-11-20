@@ -58,6 +58,7 @@ const MailFormContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         btnSize="small"
         type="submit"
+        icon="message"
         successMessage="You have successfully sent a email"
       >
         {__('Send')}

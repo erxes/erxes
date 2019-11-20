@@ -27,8 +27,8 @@ const commonParams = `
 `;
 
 const dealsAdd = `
-  mutation dealsAdd($name: String!, ${commonVariables}) {
-    dealsAdd(name: $name, ${commonParams}) {
+  mutation dealsAdd($name: String!, $companyIds: [String], $customerIds: [String], ${commonVariables}) {
+    dealsAdd(name: $name, companyIds: $companyIds, customerIds: $customerIds, ${commonParams}) {
       ${dealFields}
     }
   }
