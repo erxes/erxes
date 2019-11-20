@@ -21,6 +21,7 @@ type Props = {
   hideHeader?: boolean;
   isOpen?: boolean;
   history: any;
+  paddingContent?: 'no-padding';
   onExit?: () => void;
 } & IRouterProps;
 
@@ -86,7 +87,8 @@ class ModalTrigger extends React.Component<Props, State> {
       content,
       backDrop,
       enforceFocus,
-      onExit
+      onExit,
+      paddingContent
     } = this.props;
 
     const { isOpen } = this.state;
@@ -114,7 +116,7 @@ class ModalTrigger extends React.Component<Props, State> {
           animation={false}
         >
           {this.renderHeader()}
-          <Modal.Body>
+          <Modal.Body className={paddingContent}>
             <RTG.Transition in={isOpen} timeout={300} unmountOnExit={true}>
               {content({ closeModal: this.closeModal })}
             </RTG.Transition>

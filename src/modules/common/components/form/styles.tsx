@@ -88,8 +88,8 @@ const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
     position: absolute;
     right: 5px;
     top: 12px;
-    content: '\\e827';
-    font-size: 10px;
+    content: '\\e9a6';
+    font-size: 14px;
     display: inline-block;
     font-family: 'erxes';
     speak: none;
