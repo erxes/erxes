@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { ImportLoader } from 'modules/common/components/ButtonMutate';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
@@ -82,7 +82,7 @@ class Form extends React.PureComponent<Prop, State> {
           size="small"
           icon={isActionLoading ? undefined : 'send'}
         >
-          {isActionLoading && <ImportLoader />}
+          {isActionLoading && <SmallLoader />}
           Save
         </Button>
       </EditorActions>

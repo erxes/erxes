@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { ImportLoader } from '../ButtonMutate';
+import { SmallLoader } from '../ButtonMutate';
 import {
   FullStep,
   ShortStep,
@@ -41,7 +41,7 @@ class Step extends React.Component<Props> {
           icon={isActionLoading ? undefined : 'checked-1'}
           onClick={save.bind(this, 'save')}
         >
-          {isActionLoading && <ImportLoader />}
+          {isActionLoading && <SmallLoader />}
           Save
         </Button>
       );

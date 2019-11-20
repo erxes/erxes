@@ -5,7 +5,7 @@ import styledTS from 'styled-components-ts';
 import { MailBox } from '../../sidebar/styles';
 
 const Content = styled.div`
-  padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing + 5}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow: auto;
 `;
 
@@ -30,7 +30,7 @@ const Subject = styled.h2`
 `;
 
 const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing}px 16px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   display: flex;
   align-items: center;
   border-bottom: ${props =>
@@ -52,9 +52,10 @@ const Details = styled.div`
 `;
 
 const Date = styled.div`
-  margin: 0 10px;
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
+  margin-left: ${dimensions.unitSpacing}px;
+  font-size: 11px;
+  font-weight: 500;
+  color: ${colors.colorCoreLightGray};
 `;
 
 const RightSide = styled.div`
@@ -155,6 +156,8 @@ const BoxItem = styledTS<{ toggle?: boolean }>(styled(MailBox))`
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
   margin-top: ${dimensions.unitSpacing}px;
   opacity: ${props => props.toggle && '0.8'};
+  border-radius: ${dimensions.coreSpacing - 5}px;
+  border: 1px solid ${colors.borderPrimary};
   
   &:hover {
     opacity: 1;
@@ -162,7 +165,7 @@ const BoxItem = styledTS<{ toggle?: boolean }>(styled(MailBox))`
 `;
 
 const Reply = styled.div`
-  padding: 10px 15px 15px;
+  padding: 10px ${dimensions.coreSpacing}px ${dimensions.coreSpacing - 5}px;
 `;
 
 export {

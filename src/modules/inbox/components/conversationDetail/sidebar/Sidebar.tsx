@@ -165,6 +165,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           }
           size="lg"
           content={content}
+          paddingContent="no-padding"
         />
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
