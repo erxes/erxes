@@ -51,7 +51,7 @@ class InternalNoteContainer extends React.Component<
 
       editMutation({ variables: { _id: noteId, ...variables } })
         .then(() => {
-          Alert.success('Succ');
+          Alert.success('You successfully updated a note.');
 
           if (callback) {
             callback();
@@ -65,11 +65,11 @@ class InternalNoteContainer extends React.Component<
         });
     };
 
-    const remove = (taskId: string) => {
+    const remove = () => {
       confirm().then(() =>
-        internalNotesRemove({ variables: { _id: taskId } })
+        internalNotesRemove({ variables: { _id: noteId } })
           .then(() => {
-            Alert.success('You successfully deleted a task.');
+            Alert.success('You successfully deleted a note.');
           })
           .catch(error => {
             Alert.error(error.message);
@@ -106,6 +106,12 @@ export default withProps<Props>(
       gql(mutations.internalNotesEdit),
       {
         name: 'editMutation'
+      }
+    ),
+    graphql<Props, InternalNotesRemoveMutationResponse>(
+      gql(mutations.internalNotesRemove),
+      {
+        name: 'internalNotesRemove'
       }
     )
   )(InternalNoteContainer)

@@ -3,6 +3,7 @@ import {
   ActivityContent,
   ActivityDate,
   AvatarWrapper,
+  DeleteAction,
   FlexBody,
   FlexCenterContent,
   LogWrapper
@@ -17,6 +18,7 @@ import xss from 'xss';
 type Props = {
   activity: any;
   edit: (variables, callback: () => void) => void;
+  remove: () => void;
   internalNote: IInternalNote;
   isLoading: boolean;
 };
@@ -76,7 +78,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
   }
 
   render() {
-    const { internalNote } = this.props;
+    const { internalNote, remove } = this.props;
 
     return (
       <LogWrapper>
@@ -85,6 +87,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
             <NameCard.Avatar />
           </AvatarWrapper>
           <FlexBody>{this.renderBody()}</FlexBody>
+          <DeleteAction onClick={remove}>Delete</DeleteAction>
           <Tip text={dayjs(internalNote.createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(internalNote.createdAt).format('MMM D, h:mm A')}

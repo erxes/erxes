@@ -34,7 +34,7 @@ class FormContainer extends React.Component<FinalProps> {
     const save = (variables, callback) => {
       editMutation({ variables })
         .then(() => {
-          Alert.success('You successfully edited a task.');
+          Alert.success('You successfully updated a task.');
 
           if (callback) {
             callback();
@@ -80,6 +80,9 @@ export default withProps<Props>(
     }),
     graphql<Props, EditMutationResponse>(gql(mutations.tasksEdit), {
       name: 'editMutation'
+    }),
+    graphql<Props, RemoveMutationResponse>(gql(mutations.tasksRemove), {
+      name: 'removeMutation'
     })
   )(FormContainer)
 );

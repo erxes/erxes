@@ -250,8 +250,22 @@ const Description = styled.div`
   margin: ${dimensions.coreSpacing}px 0;
 `;
 
+const DeleteAction = styled.div`
+  color: ${colors.colorCoreRed};
+  padding-right: ${dimensions.unitSpacing}px;
+  cursor: pointer;
+  visibility: hidden;
+  transition: all ease 0.5s;
+`;
+
 const LogWrapper = styled.div`
   flex: 1;
+
+  &:hover {
+    ${DeleteAction} {
+      visibility: visible;
+    }
+  }
 `;
 
 export {
@@ -272,5 +286,6 @@ export {
   Title,
   Date,
   Detail,
-  LogWrapper
+  LogWrapper,
+  DeleteAction
 };
