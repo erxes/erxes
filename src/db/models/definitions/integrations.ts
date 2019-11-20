@@ -98,7 +98,7 @@ export interface IIntegration {
   leadData?: ILeadData;
   messengerData?: IMessengerData;
   uiOptions?: IUiOptions;
-  isArchived?: boolean;
+  isActive?: boolean;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
