@@ -534,7 +534,10 @@ export const loadClass = () => {
       deviceToken?: string;
     }) {
       const user = await Users.findOne({
-        $or: [{ email: { $regex: new RegExp(email, 'i') } }, { username: { $regex: new RegExp(email, 'i') } }],
+        $or: [
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { username: { $regex: new RegExp(`^${email}$`, 'i') } },
+        ],
         isActive: true,
       });
 
