@@ -139,20 +139,24 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>
               From:
-              <HelpPopover
-                trigger="click"
-                title="The email address is not verified by Amazon Ses services."
-              >
+              <HelpPopover title="The email address is not verified by Amazon Ses services.">
                 <div>
-                  If you want to verify your email: <br />
-                  1. Log in to your AWS Management Console <br />
-                  2. Click on the Services menu from the dropdown menu <br />
-                  3. Click on the Simple Email Services menu from the left
-                  sidebar <br />
-                  4. Click on the Email Addresses menu from the left sidebar{' '}
-                  <br />
-                  5. Finally, click on the button that named "Verify a new email
-                  address" <br />
+                  If you want to verify your email:
+                  <ol>
+                    <li>Log in to your AWS Management Console</li>
+                    <li>Click on the Services menu from the dropdown menu</li>
+                    <li>
+                      Click on the Simple Email Services menu from the left
+                      sidebar
+                    </li>
+                    <li>
+                      Click on the Email Addresses menu from the left sidebar
+                    </li>
+                    <li>
+                      Finally, click on the button that named "Verify a new
+                      email address"
+                    </li>
+                  </ol>
                 </div>
               </HelpPopover>
             </ControlLabel>

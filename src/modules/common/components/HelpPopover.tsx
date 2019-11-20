@@ -13,6 +13,10 @@ const PopoverContent = styled.div`
     margin-top: 0;
     line-height: 20px;
   }
+
+  ol {
+    padding-left: 20px;
+  }
 `;
 
 const IconClass = styled.div`
@@ -30,10 +34,11 @@ type Props = {
 
 class HelpPopover extends React.Component<Props> {
   renderContent() {
+    const { title } = this.props;
     return (
       <Popover id="help-popover">
         <PopoverContent>
-          <h5>{this.props.title}</h5>
+          {title && <h5>{title}</h5>}
           {this.props.children}
         </PopoverContent>
       </Popover>
@@ -41,9 +46,10 @@ class HelpPopover extends React.Component<Props> {
   }
 
   render() {
+    const { trigger } = this.props;
     return (
       <OverlayTrigger
-        trigger={this.props.trigger}
+        trigger={trigger || 'click'}
         placement="auto"
         overlay={this.renderContent()}
         rootClose={true}
