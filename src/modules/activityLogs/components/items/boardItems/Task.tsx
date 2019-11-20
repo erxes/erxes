@@ -67,16 +67,8 @@ class Task extends React.Component<Props, State> {
     remove(task._id);
   };
 
-  onNameChange = () => {
-    this.setState({ editing: !this.state.editing });
-  };
-
-  onDetailClick = () => {
-    this.setState({ showDetail: !this.state.showDetail });
-  };
-
-  onComplete = () => {
-    this.setState({ isComplete: !this.state.isComplete });
+  onChange = (key: string) => {
+    this.setState({ [key]: !this.state[key] } as any);
   };
 
   handleInputChange = e => {
@@ -87,8 +79,7 @@ class Task extends React.Component<Props, State> {
 
   saveItem = (key: string, value: any) => {
     const { task } = this.props;
-    // tslint:disable-next-line:no-console
-    console.log(task);
+
     this.props.save(
       {
         _id: task._id,
@@ -116,7 +107,7 @@ class Task extends React.Component<Props, State> {
             icon="cancel-1"
             btnStyle="simple"
             size="small"
-            onClick={this.onNameChange}
+            onClick={this.onChange.bind(this, 'editing')}
           >
             Cancel
           </Button>
@@ -132,7 +123,7 @@ class Task extends React.Component<Props, State> {
       );
     }
 
-    return <h4 onClick={this.onNameChange}>{task.name}</h4>;
+    return <h4 onClick={this.onChange.bind(this, 'editing')}>{task.name}</h4>;
   }
 
   renderDetails() {
@@ -290,7 +281,10 @@ class Task extends React.Component<Props, State> {
         </FlexCenterContent>
         <FlexContent>
           <Tip text={isComplete ? 'Mark as incomplete' : 'Mark as complete'}>
-            <IconWrapper onClick={this.onComplete} isComplete={isComplete}>
+            <IconWrapper
+              onClick={this.onChange.bind(this, 'isComplete')}
+              isComplete={isComplete}
+            >
               <Icon icon="check-1" size={25} />
             </IconWrapper>
           </Tip>
@@ -298,7 +292,10 @@ class Task extends React.Component<Props, State> {
         </FlexContent>
         {!isComplete && this.renderContent()}
         <Detail full={true}>
-          <Date onClick={this.onDetailClick} showDetail={showDetail}>
+          <Date
+            onClick={this.onChange.bind(this, 'showDetail')}
+            showDetail={showDetail}
+          >
             <Icon icon="rightarrow-2" /> {__('Details')}
           </Date>
           {this.renderDetails()}
