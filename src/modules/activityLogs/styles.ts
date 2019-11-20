@@ -50,10 +50,14 @@ const FlexContent = styled.div`
   align-items: center;
 `;
 
-const Title = styledTS<{ isComplete?: boolean }>(styled.div)`
-  margin: ${dimensions.unitSpacing}px 0;
+const Title = styledTS<{ isComplete?: boolean; isEditing: boolean }>(
+  styled.div
+)`
+  position: relative;
+  margin: ${dimensions.unitSpacing}px;
   flex: 1;
   font-size: 16px;
+  padding: 0 ${dimensions.unitSpacing}px;
 
   > div {
     margin-bottom: ${dimensions.unitSpacing}px;
@@ -65,6 +69,22 @@ const Title = styledTS<{ isComplete?: boolean }>(styled.div)`
 
     > i {
       margin-right: 5px;
+    }
+  }
+
+  .icon-edit {
+    visibility: hidden;
+    transition: all ease 0.3s;
+    position: absolute;
+    right: ${dimensions.unitSpacing}px;
+    top: 5px;
+  }
+
+  &:hover {
+    cursor: text;
+    
+    .icon-edit {
+      visibility: ${props => !props.isEditing && 'visible'};
     }
   }
 `;
@@ -206,8 +226,7 @@ const Detail = styledTS<{ full?: boolean }>(styled.div)`
   `;
 
 const IconWrapper = styledTS<{ isComplete?: boolean }>(styled.div)`
-  margin-right: ${dimensions.unitSpacing}px;
-  cursor: pointer;
+    cursor: pointer;
 
   > i {
     background: ${props =>
@@ -231,6 +250,10 @@ const Description = styled.div`
   margin: ${dimensions.coreSpacing}px 0;
 `;
 
+const LogWrapper = styled.div`
+  flex: 1;
+`;
+
 export {
   Timeline,
   ActivityTitle,
@@ -248,5 +271,6 @@ export {
   IconWrapper,
   Title,
   Date,
-  Detail
+  Detail,
+  LogWrapper
 };

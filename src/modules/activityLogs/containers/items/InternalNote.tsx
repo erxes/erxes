@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import InternalNote from 'modules/activityLogs/components/items/InternalNote';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/internalNotes/graphql';
 import {
   InternalNoteDetailQueryResponse,
@@ -18,11 +18,27 @@ type Props = {
 
 type FinalProps = {
   internalNoteDetailsQuery: InternalNoteDetailQueryResponse;
-} & Props;
+  editMutation: InternalNotesEditMutationResponse;
+} & Props &
+  InternalNotesRemoveMutationResponse;
 
-class InternalNoteContainer extends React.Component<FinalProps> {
+class InternalNoteContainer extends React.Component<
+  FinalProps,
+  { isLoading: boolean }
+> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = { isLoading: false };
+  }
+
   render() {
-    const { internalNoteDetailsQuery } = this.props;
+    const {
+      internalNoteDetailsQuery,
+      noteId,
+      editMutation,
+      internalNotesRemove
+    } = this.props;
 
     if (internalNoteDetailsQuery.loading) {
       return <Spinner />;
@@ -30,9 +46,43 @@ class InternalNoteContainer extends React.Component<FinalProps> {
 
     const internalNote = internalNoteDetailsQuery.internalNoteDetail;
 
+    const edit = (variables, callback) => {
+      this.setState({ isLoading: true });
+
+      editMutation({ variables: { _id: noteId, ...variables } })
+        .then(() => {
+          Alert.success('Succ');
+
+          if (callback) {
+            callback();
+          }
+
+          this.setState({ isLoading: false });
+        })
+        .catch(error => {
+          Alert.error(error.message);
+          this.setState({ isLoading: false });
+        });
+    };
+
+    const remove = (taskId: string) => {
+      confirm().then(() =>
+        internalNotesRemove({ variables: { _id: taskId } })
+          .then(() => {
+            Alert.success('You successfully deleted a task.');
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          })
+      );
+    };
+
     const updatedProps = {
       ...this.props,
-      internalNote
+      internalNote,
+      edit,
+      remove,
+      isLoading: this.state.isLoading
     };
 
     return <InternalNote {...updatedProps} />;
@@ -57,10 +107,6 @@ export default withProps<Props>(
       {
         name: 'editMutation'
       }
-    ),
-    graphql<Props, InternalNotesRemoveMutationResponse, { _id: string }>(
-      gql(mutations.internalNotesRemove),
-      { name: 'removeMutation' }
     )
   )(InternalNoteContainer)
 );

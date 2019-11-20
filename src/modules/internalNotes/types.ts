@@ -20,18 +20,14 @@ export type InternalNotesAddMutationVariables = {
   mentionedUserIds: string[];
 };
 
+export type InternalNotesEditMutationResponse = (
+  { variables: InternalNotesEditMutationVariables }
+) => Promise<any>;
+
 export type InternalNotesAddMutationResponse = {
   internalNotesAdd: (
     params: {
       variables: InternalNotesAddMutationVariables;
-    }
-  ) => Promise<any>;
-};
-
-export type InternalNotesEditMutationResponse = {
-  internalNotesEdit: (
-    params: {
-      variables: InternalNotesEditMutationVariables;
     }
   ) => Promise<any>;
 };

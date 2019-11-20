@@ -265,7 +265,7 @@ class Task extends React.Component<Props, State> {
 
   render() {
     const { createdAt } = this.props.task;
-    const { isComplete, showDetail } = this.state;
+    const { isComplete, showDetail, editing } = this.state;
 
     return (
       <>
@@ -288,7 +288,10 @@ class Task extends React.Component<Props, State> {
               <Icon icon="check-1" size={25} />
             </IconWrapper>
           </Tip>
-          <Title isComplete={isComplete}>{this.renderName()}</Title>
+          <Title isComplete={isComplete} isEditing={editing}>
+            {this.renderName()}
+            <Icon icon="edit" />
+          </Title>
         </FlexContent>
         {!isComplete && this.renderContent()}
         <Detail full={true}>
