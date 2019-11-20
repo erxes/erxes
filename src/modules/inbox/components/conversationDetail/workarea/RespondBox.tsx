@@ -20,7 +20,6 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from 'modules/inbox/styles';
-import { urlify } from 'modules/inbox/utils';
 import React from 'react';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
@@ -220,7 +219,7 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   formatText(text: string) {
-    return urlify(text).replace(/&nbsp;/g, ' ');
+    return text.replace(/&nbsp;/g, ' ');
   }
 
   addMessage = () => {

@@ -4,6 +4,7 @@ import Attachment from 'modules/common/components/Attachment';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import TextDivider from 'modules/common/components/TextDivider';
 import Tip from 'modules/common/components/Tip';
+import { urlify } from 'modules/inbox/utils';
 import React from 'react';
 import xss from 'xss';
 import { IMessage } from '../../../../../types';
@@ -42,6 +43,10 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     return <Attachment attachment={message.attachments[0]} />;
   }
 
+  formatText(text: string) {
+    return urlify(text).replace(/&nbsp;/g, ' ');
+  }
+
   renderContent(hasAttachment: boolean) {
     const { message, renderContent } = this.props;
 
@@ -51,7 +56,11 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
     return (
       <>
-        <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
+        <span
+          dangerouslySetInnerHTML={{
+            __html: this.formatText(xss(message.content))
+          }}
+        />
         {this.renderAttachment(hasAttachment)}
       </>
     );
