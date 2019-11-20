@@ -2,8 +2,12 @@ import gql from 'graphql-tag';
 import InternalNote from 'modules/activityLogs/components/items/InternalNote';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import { queries as internalNoteQueries } from 'modules/internalNotes/graphql';
-import { InternalNoteDetailQueryResponse } from 'modules/internalNotes/types';
+import { mutations, queries } from 'modules/internalNotes/graphql';
+import {
+  InternalNoteDetailQueryResponse,
+  InternalNotesEditMutationResponse,
+  InternalNotesRemoveMutationResponse
+} from 'modules/internalNotes/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 
@@ -38,7 +42,7 @@ class InternalNoteContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, InternalNoteDetailQueryResponse>(
-      gql(internalNoteQueries.internalNoteDetail),
+      gql(queries.internalNoteDetail),
       {
         name: 'internalNoteDetailsQuery',
         options: ({ noteId }) => ({
@@ -47,6 +51,16 @@ export default withProps<Props>(
           }
         })
       }
+    ),
+    graphql<Props, InternalNotesEditMutationResponse>(
+      gql(mutations.internalNotesEdit),
+      {
+        name: 'editMutation'
+      }
+    ),
+    graphql<Props, InternalNotesRemoveMutationResponse, { _id: string }>(
+      gql(mutations.internalNotesRemove),
+      { name: 'removeMutation' }
     )
   )(InternalNoteContainer)
 );
