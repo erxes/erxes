@@ -7,6 +7,12 @@ export type IInternalNote = {
   createdAt: Date;
 };
 
+export type InternalNotesEditMutationVariables = {
+  _id: string;
+  content: string;
+  mentionedUserIds: string[];
+};
+
 export type InternalNotesAddMutationVariables = {
   contentType: string;
   contentTypeId: string;
@@ -18,6 +24,22 @@ export type InternalNotesAddMutationResponse = {
   internalNotesAdd: (
     params: {
       variables: InternalNotesAddMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type InternalNotesEditMutationResponse = {
+  internalNotesEdit: (
+    params: {
+      variables: InternalNotesEditMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type InternalNotesRemoveMutationResponse = {
+  internalNotesRemove: (
+    params: {
+      variables: { _id: string };
     }
   ) => Promise<any>;
 };
