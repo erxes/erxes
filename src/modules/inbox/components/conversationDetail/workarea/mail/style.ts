@@ -35,10 +35,6 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   align-items: center;
   border-bottom: ${props =>
     props.toggle ? 0 : `1px solid ${colors.borderPrimary}`};
-  
-  strong {
-    display: block;
-  }
 `;
 
 const Details = styled.div`
@@ -56,15 +52,22 @@ const Date = styled.div`
   font-size: 11px;
   font-weight: 500;
   color: ${colors.colorCoreLightGray};
+  cursor: default;
 `;
 
 const RightSide = styled.div`
   display: flex;
   align-items: center;
+
+  > i {
+    color: ${colors.colorCoreGray};
+    padding-left: 5px;
+    margin-left: 10px;
+  }
 `;
 
 const AttachmentsContainer = styled.div`
-  margin: 5px 20px 10px 20px;
+  margin: 0 20px;
   overflow: hidden;
 `;
 
@@ -168,6 +171,27 @@ const Reply = styled.div`
   padding: 10px ${dimensions.coreSpacing}px ${dimensions.coreSpacing - 5}px;
 `;
 
+const ActionButton = styled.div`
+  color: ${colors.colorCoreGray};
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 15px;
+  line-height: ${dimensions.coreSpacing}px;
+  width: 30px;
+  text-align: center;
+  margin-left: ${dimensions.unitSpacing}px;
+  margin-right: -7px;
+
+  &:hover {
+    cursor: pointer;
+    background: ${colors.bgActive};
+  }
+`;
+
+const From = styled.span`
+  font-size: 95%;
+`;
+
 export {
   Subject,
   Meta,
@@ -183,5 +207,7 @@ export {
   FileIcon,
   FileInfo,
   FileName,
-  Download
+  Download,
+  ActionButton,
+  From
 };
