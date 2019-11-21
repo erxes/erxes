@@ -255,7 +255,8 @@ const DeleteAction = styled.div`
   padding-right: ${dimensions.unitSpacing}px;
   cursor: pointer;
   visibility: hidden;
-  transition: all ease 0.5s;
+  transition: all 0.2s ease-in-out 0.2s;
+  font-weight: 500;
 `;
 
 const LogWrapper = styled.div`

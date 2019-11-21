@@ -6,6 +6,7 @@ const internalNoteDetail = `
       createdAt
 
       createdUser {
+        _id
         details {
           avatar 
           fullName

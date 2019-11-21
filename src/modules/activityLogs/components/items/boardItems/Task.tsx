@@ -3,12 +3,14 @@ import dayjs from 'dayjs';
 import {
   ActivityDate,
   Date,
+  DeleteAction,
   Description,
   Detail,
   FlexBody,
   FlexCenterContent,
   FlexContent,
   IconWrapper,
+  LogWrapper,
   Row,
   Title
 } from 'modules/activityLogs/styles';
@@ -165,17 +167,6 @@ class Task extends React.Component<Props, State> {
                 />
               </Row>
             </FlexBody>
-            <FlexBody>
-              <Button
-                btnStyle="danger"
-                type="button"
-                size="small"
-                icon="cancel-1"
-                onClick={this.onRemove}
-              >
-                Delete
-              </Button>
-            </FlexBody>
           </FlexContent>
         </Detail>
       </>
@@ -264,18 +255,19 @@ class Task extends React.Component<Props, State> {
   }
 
   render() {
-    const { createdAt } = this.props.task;
+    const { task } = this.props;
     const { isComplete, showDetail, editing } = this.state;
 
     return (
-      <>
+      <LogWrapper>
         <FlexCenterContent>
           <FlexBody>
             <strong>Somebody</strong> created a task
           </FlexBody>
-          <Tip text={dayjs(createdAt).format('llll')}>
+          <DeleteAction onClick={this.onRemove}>Delete</DeleteAction>
+          <Tip text={dayjs(task.createdAt).format('llll')}>
             <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
+              {dayjs(task.createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
@@ -303,7 +295,7 @@ class Task extends React.Component<Props, State> {
           </Date>
           {this.renderDetails()}
         </Detail>
-      </>
+      </LogWrapper>
     );
   }
 }

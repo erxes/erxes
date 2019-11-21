@@ -8,6 +8,7 @@ import {
   FlexCenterContent,
   LogWrapper
 } from 'modules/activityLogs/styles';
+import { IUser } from 'modules/auth/types';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import Form from 'modules/internalNotes/components/Form';
@@ -21,6 +22,7 @@ type Props = {
   remove: () => void;
   internalNote: IInternalNote;
   isLoading: boolean;
+  currenUser: IUser;
 };
 
 class InternalNote extends React.Component<Props, { editing: boolean }> {
@@ -54,8 +56,9 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
   };
 
   renderContent() {
-    const { internalNote, isLoading, edit } = this.props;
+    const { internalNote, isLoading, edit, currenUser } = this.props;
     const { content } = internalNote;
+    const isCurrentUserNote = currenUser._id === internalNote.createdUser._id;
 
     if (this.state.editing) {
       return (
@@ -72,13 +75,14 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
       <ActivityContent
         isInternalNote={true}
         dangerouslySetInnerHTML={{ __html: xss(content) }}
-        onClick={this.onEditing}
+        onClick={isCurrentUserNote ? this.onEditing : undefined}
       />
     );
   }
 
   render() {
-    const { internalNote, remove } = this.props;
+    const { internalNote, remove, currenUser } = this.props;
+    const isCurrentUserNote = currenUser._id === internalNote.createdUser._id;
 
     return (
       <LogWrapper>
@@ -87,7 +91,9 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
             <NameCard.Avatar />
           </AvatarWrapper>
           <FlexBody>{this.renderBody()}</FlexBody>
-          <DeleteAction onClick={remove}>Delete</DeleteAction>
+          {isCurrentUserNote && (
+            <DeleteAction onClick={remove}>Delete</DeleteAction>
+          )}
           <Tip text={dayjs(internalNote.createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(internalNote.createdAt).format('MMM D, h:mm A')}
