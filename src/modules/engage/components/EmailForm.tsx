@@ -3,12 +3,21 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import HelpPopover from 'modules/common/components/HelpPopover';
+import Icon from 'modules/common/components/Icon';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Uploader from 'modules/common/components/Uploader';
-import { __, Alert } from 'modules/common/utils';
+import { ISelectedOption } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
-import { EditorContainer } from 'modules/engage/styles';
+import {
+  EditorContainer,
+  VerifyCancel,
+  VerifyCheck,
+  VerifyStatus
+} from 'modules/engage/styles';
 import React from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import Select from 'react-select-plus';
 import ErrorMsg from '../../common/components/ErrorMsg';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
@@ -45,17 +54,6 @@ class EmailForm extends React.Component<Props, State> {
   };
 
   changeUser = (fromUserId: string) => {
-    const { verifiedEmails, users } = this.props;
-
-    const user = users.find(u => u._id === fromUserId);
-
-    if (!user || !verifiedEmails.includes(user.email)) {
-      this.setState({ fromUserId: '' });
-      return Alert.error('Email not verified');
-    }
-
-    Alert.success('Email is verified');
-
     this.setState({ fromUserId });
     this.props.onChange('fromUserId', fromUserId);
   };
@@ -104,22 +102,54 @@ class EmailForm extends React.Component<Props, State> {
       return <ErrorMsg>{error}</ErrorMsg>;
     }
 
-    const onChangeUser = e =>
-      this.changeUser((e.target as HTMLInputElement).value);
+    const onChangeUser = (value: ISelectedOption) => {
+      const userId = value ? value.value : '';
+
+      this.changeUser(userId);
+    };
+
+    const selectOptions = () => {
+      const { users, verifiedEmails } = this.props;
+      const options: any[] = [];
+
+      users.map(user =>
+        options.push({
+          value: user._id,
+          label: (user.details && user.details.fullName) || user.username,
+          isVerified: verifiedEmails.includes(user.email)
+        })
+      );
+
+      return options;
+    };
+
+    const optionRenderer = option => (
+      <VerifyStatus>
+        {option.isVerified ? (
+          <VerifyCheck>
+            <Icon icon="check-circle" />
+          </VerifyCheck>
+        ) : (
+          <OverlayTrigger
+            overlay={<Tooltip id={`tooltip-alert`}>Email no verified</Tooltip>}
+          >
+            <VerifyCancel>
+              <Icon icon="times-circle" />
+            </VerifyCancel>
+          </OverlayTrigger>
+        )}
+        {option.label}
+      </VerifyStatus>
+    );
 
     return (
-      <FormControl
-        componentClass="select"
-        onChange={onChangeUser}
+      <Select
+        placeholder={__('Choose users')}
         value={this.state.fromUserId}
-      >
-        <option />{' '}
-        {this.props.users.map(user => (
-          <option key={user._id} value={user._id}>
-            {(user.details && user.details.fullName) || user.username}
-          </option>
-        ))}
-      </FormControl>
+        onChange={onChangeUser}
+        optionRenderer={optionRenderer}
+        options={selectOptions()}
+      />
     );
   }
 
@@ -139,7 +169,7 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>
               From:
-              <HelpPopover title="The email address is not verified by Amazon Ses services.">
+              <HelpPopover title="The email address is not verified (x) by Amazon Ses services.">
                 <div>
                   If you want to verify your email:
                   <ol>

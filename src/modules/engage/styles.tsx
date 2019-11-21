@@ -291,6 +291,23 @@ const SelectMessageType = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
+const VerifyStatus = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const VerifyCancel = styled.div`
+  font-size: 16px;
+  color: ${colors.colorCoreRed};
+  padding-right: 8px;
+`;
+
+const VerifyCheck = styled.div`
+  font-size: 16px;
+  color: ${colors.colorCoreGreen};
+  padding-right: 8px;
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -320,5 +337,8 @@ export {
   ListWrapper,
   RadioContainer,
   CustomerCounts,
-  SelectMessageType
+  SelectMessageType,
+  VerifyStatus,
+  VerifyCancel,
+  VerifyCheck
 };
