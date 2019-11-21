@@ -1,3 +1,4 @@
+import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Task from '../containers/items/boardItems/Task';
@@ -11,6 +12,7 @@ import MergedLog from './items/MergedLog';
 
 type Props = {
   activity: IActivityLog;
+  currenUser: IUser;
 };
 
 class ActivityItem extends React.Component<Props> {
@@ -28,14 +30,18 @@ class ActivityItem extends React.Component<Props> {
   }
 
   render() {
-    const { activity } = this.props;
+    const { activity, currenUser } = this.props;
     const { _id, contentType, action } = activity;
 
     switch ((action && action) || contentType) {
       case 'note':
         return this.renderDetail(
           'note',
-          <InternalNote noteId={_id} activity={activity} />
+          <InternalNote
+            noteId={_id}
+            activity={activity}
+            currenUser={currenUser}
+          />
         );
       case 'taskDetail':
         return this.renderDetail('task', <Task taskId={_id} />);

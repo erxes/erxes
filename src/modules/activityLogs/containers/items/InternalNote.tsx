@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import InternalNote from 'modules/activityLogs/components/items/InternalNote';
+import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/internalNotes/graphql';
@@ -14,6 +15,7 @@ import { compose, graphql } from 'react-apollo';
 type Props = {
   activity: any;
   noteId: string;
+  currenUser: IUser;
 };
 
 type FinalProps = {
