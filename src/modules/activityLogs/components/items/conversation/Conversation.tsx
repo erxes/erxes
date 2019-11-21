@@ -8,12 +8,14 @@ import {
 } from 'modules/activityLogs/styles';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
-import { IConversation } from 'modules/inbox/types';
+import { Message } from 'modules/inbox/components/conversationDetail/workarea/conversation/messages';
+import { IConversation, IMessage } from 'modules/inbox/types';
 import React from 'react';
 
 type Props = {
   activity: any;
   conversation: IConversation;
+  messages: IMessage[];
 };
 
 class Conversation extends React.Component<Props, { editing: boolean }> {
@@ -25,10 +27,31 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
     };
   }
 
+  renderMessages = () => {
+    const { conversation, messages } = this.props;
+
+    if (!conversation) {
+      return null;
+    }
+
+    const rows: React.ReactNode[] = [];
+
+    messages.forEach(message => {
+      rows.push(
+        <Message
+          isSameUser={true}
+          cconversationFirstMessage={'xaxa'}
+          message={message}
+          key={message._id}
+        />
+      );
+    });
+
+    return <div />;
+  };
+
   render() {
     const { conversation } = this.props;
-
-    console.log(conversation);
 
     return (
       <LogWrapper>

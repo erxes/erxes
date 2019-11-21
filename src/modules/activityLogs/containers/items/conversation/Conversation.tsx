@@ -29,11 +29,12 @@ class ConversationContainer extends React.Component<FinalProps> {
     }
 
     const conversation = conversationDetailQuery.conversationDetail;
-    console.log(messagesQuery.conversationMessages);
+    const messages = messagesQuery.conversationMessages;
 
     const updatedProps = {
       ...this.props,
-      conversation
+      conversation,
+      messages
     };
 
     return <Conversation {...updatedProps} />;
