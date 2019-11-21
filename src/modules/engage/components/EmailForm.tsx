@@ -5,6 +5,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import HelpPopover from 'modules/common/components/HelpPopover';
 import Icon from 'modules/common/components/Icon';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import Tip from 'modules/common/components/Tip';
 import Uploader from 'modules/common/components/Uploader';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -16,7 +17,6 @@ import {
   VerifyStatus
 } from 'modules/engage/styles';
 import React from 'react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Select from 'react-select-plus';
 import ErrorMsg from '../../common/components/ErrorMsg';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
@@ -126,17 +126,17 @@ class EmailForm extends React.Component<Props, State> {
     const optionRenderer = option => (
       <VerifyStatus>
         {option.isVerified ? (
-          <VerifyCheck>
-            <Icon icon="check-circle" />
-          </VerifyCheck>
+          <Tip placement="auto" text="Email verified">
+            <VerifyCheck>
+              <Icon icon="check-circle" />
+            </VerifyCheck>
+          </Tip>
         ) : (
-          <OverlayTrigger
-            overlay={<Tooltip id={`tooltip-alert`}>Email no verified</Tooltip>}
-          >
+          <Tip placement="auto" text="Email not verified">
             <VerifyCancel>
               <Icon icon="times-circle" />
             </VerifyCancel>
-          </OverlayTrigger>
+          </Tip>
         )}
         {option.label}
       </VerifyStatus>
