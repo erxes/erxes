@@ -7,7 +7,7 @@ import styledTS from 'styled-components-ts';
 const AttachmentContainer = styled(Attachment)`
   padding: 5px 10px;
   border-radius: 2px;
-  margin: 0 0 5px 5px;
+  margin: 0 5px 5px 0;
   color: ${colors.colorWhite};
 
   i {
@@ -23,17 +23,10 @@ const AttachmentContainer = styled(Attachment)`
 `;
 
 const Uploading = styled.div`
-  position: relative;
-  height: 33px;
-  top: -4px;
-  left: 25px;
-
-  span {
-    position: absolute;
-    width: 100px;
-    top: 6px;
-    left: 25px;
-  }
+  display: flex;
+  align-items: baseline;
+  color: ${colors.colorCoreGray};
+  font-size: 12px;
 `;
 
 const ControlWrapper = styled.div`
@@ -70,13 +63,15 @@ const MailEditorWrapper = styled.div`
       left: 0;
       bottom: 0;
       border-bottom: 0;
-      padding-left: 10px;
-      padding-right: 10px;
+      padding-left: ${dimensions.coreSpacing}px;
+      padding-right: ${dimensions.coreSpacing}px;
       border-top: 1px solid ${colors.borderPrimary};
+      max-height: 60px;
+      overflow: hidden;
     }
 
     .cke_contents {
-      min-height: 150px !important;
+      min-height: 160px !important;
     }
   }
 
@@ -91,6 +86,7 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
   font-size: 12px;
   color: ${colors.colorCoreLightGray};
   display: ${props => props.isActive && 'none'};
+  font-weight: 500;
 
   &:hover {
     cursor: pointer;
@@ -99,13 +95,15 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
 `;
 
 const EditorFooter = styled.div`
-  margin: 10px 15px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 `;
 
 const Attachments = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  padding: 6px ${dimensions.coreSpacing}px 2px ${dimensions.coreSpacing}px
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const FlexRow = styled.div`
@@ -113,7 +111,7 @@ const FlexRow = styled.div`
   align-items: center;
 
   > label {
-    margin-right: ${dimensions.unitSpacing}px;
+    margin: 2px ${dimensions.unitSpacing}px 2px 0;
     color: ${colors.colorCoreGray};
   }
 `;
@@ -163,7 +161,7 @@ const Column = styled.div`
 `;
 
 const Subject = styled.div`
-  padding: ${dimensions.unitSpacing}px 15px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
 
   input {

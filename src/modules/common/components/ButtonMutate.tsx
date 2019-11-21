@@ -7,7 +7,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Button from '../components/Button';
 
-export const ImportLoader = styled.i`
+export const SmallLoader = styled.i`
   width: 13px;
   height: 13px;
   animation: ${rotate} 0.75s linear infinite;
@@ -125,7 +125,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         icon={isLoading ? undefined : icon}
         block={block}
       >
-        {isLoading && <ImportLoader />}
+        {isLoading && <SmallLoader />}
         {children}
       </Button>
     );
