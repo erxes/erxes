@@ -6,7 +6,6 @@ import TextDivider from 'modules/common/components/TextDivider';
 import Tip from 'modules/common/components/Tip';
 import { urlify } from 'modules/inbox/utils';
 import React from 'react';
-import xss from 'xss';
 import { IMessage } from '../../../../../types';
 import { MessageBody, MessageContent, MessageItem } from '../styles';
 
@@ -57,9 +56,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     return (
       <>
         <span
-          dangerouslySetInnerHTML={{
-            __html: this.formatText(xss(message.content))
-          }}
+          dangerouslySetInnerHTML={{ __html: this.formatText(message.content) }}
         />
         {this.renderAttachment(hasAttachment)}
       </>
