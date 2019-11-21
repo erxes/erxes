@@ -1,6 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Task from '../containers/items/boardItems/Task';
+import Conversation from '../containers/items/conversation/Conversation';
 import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
@@ -36,6 +37,11 @@ class ActivityItem extends React.Component<Props> {
         return this.renderDetail(
           'note',
           <InternalNote noteId={_id} activity={activity} />
+        );
+      case 'conversation':
+        return this.renderDetail(
+          'conversation',
+          <Conversation conversationId={_id} activity={activity} />
         );
       case 'taskDetail':
         return this.renderDetail('task', <Task taskId={_id} />);
