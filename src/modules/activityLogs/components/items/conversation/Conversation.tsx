@@ -34,7 +34,7 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
           <AvatarWrapper>
             <NameCard.Avatar />
           </AvatarWrapper>
-          <FlexBody>xaxaxax</FlexBody>
+          <FlexBody>Conversation</FlexBody>
 
           <Tip text={dayjs(conversation.createdAt).format('llll')}>
             <ActivityDate>
