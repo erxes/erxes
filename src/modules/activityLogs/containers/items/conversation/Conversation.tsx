@@ -3,7 +3,10 @@ import Conversation from 'modules/activityLogs/components/items/conversation/Con
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
-import { ConversationDetailQueryResponse } from 'modules/inbox/types';
+import {
+  ConversationDetailQueryResponse,
+  MessagesQueryResponse
+} from 'modules/inbox/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 
@@ -13,18 +16,20 @@ type Props = {
 };
 
 type FinalProps = {
+  messagesQuery: MessagesQueryResponse;
   conversationDetailQuery: ConversationDetailQueryResponse;
 } & Props;
 
 class ConversationContainer extends React.Component<FinalProps> {
   render() {
-    const { conversationDetailQuery } = this.props;
+    const { conversationDetailQuery, messagesQuery } = this.props;
 
-    if (conversationDetailQuery.loading) {
+    if (conversationDetailQuery.loading || messagesQuery.loading) {
       return <Spinner />;
     }
 
     const conversation = conversationDetailQuery.conversationDetail;
+    console.log(messagesQuery.conversationMessages);
 
     const updatedProps = {
       ...this.props,
@@ -47,6 +52,15 @@ export default withProps<Props>(
           }
         })
       }
-    )
+    ),
+    graphql<Props, MessagesQueryResponse>(gql(queries.conversationMessages), {
+      name: 'messagesQuery',
+      options: ({ conversationId }) => ({
+        variables: {
+          conversationId,
+          limit: 20
+        }
+      })
+    })
   )(ConversationContainer)
 );

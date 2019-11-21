@@ -28,6 +28,8 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
   render() {
     const { conversation } = this.props;
 
+    console.log(conversation);
+
     return (
       <LogWrapper>
         <FlexCenterContent>
@@ -42,7 +44,6 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
-        Conversation
       </LogWrapper>
     );
   }
