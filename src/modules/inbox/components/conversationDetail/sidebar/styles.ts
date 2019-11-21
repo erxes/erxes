@@ -143,8 +143,8 @@ const TabContent = styled.div`
 
 const MailBox = styled.div`
   background: ${colors.colorWhite};
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: ${dimensions.coreSpacing}px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
   transition: all ease 0.3s;
 `;
 

@@ -1,8 +1,8 @@
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import { Label } from 'modules/common/components/form/styles';
 import Icon from 'modules/common/components/Icon';
-import Spinner from 'modules/common/components/Spinner';
 import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
@@ -337,7 +337,12 @@ class MailForm extends React.Component<Props, State> {
     return (
       <FlexRow>
         <label>Cc:</label>
-        <FormControl {...formProps} name="cc" defaultValue={cc} />
+        <FormControl
+          autoFocus={true}
+          {...formProps}
+          name="cc"
+          defaultValue={cc}
+        />
       </FlexRow>
     );
   }
@@ -352,7 +357,12 @@ class MailForm extends React.Component<Props, State> {
     return (
       <FlexRow>
         <label>Bcc:</label>
-        <FormControl {...formProps} name="bcc" defaultValue={bcc} />
+        <FormControl
+          autoFocus={true}
+          {...formProps}
+          name="bcc"
+          defaultValue={bcc}
+        />
       </FlexRow>
     );
   }
@@ -400,7 +410,7 @@ class MailForm extends React.Component<Props, State> {
               </div>
             ) : null}
             <Icon
-              icon="cancel-1"
+              icon="times-circle"
               size={14}
               onClick={this.onRemoveAttach.bind(this, attachment)}
             />
@@ -422,7 +432,7 @@ class MailForm extends React.Component<Props, State> {
     onClick?: () => void;
   }) => {
     return (
-      <Tip text={__(text)}>
+      <Tip text={__(text)} placement="bottom">
         <Label>
           <Icon icon={icon} onClick={onClick} />
           {element}
@@ -459,7 +469,7 @@ class MailForm extends React.Component<Props, State> {
           </ToolBar>
           {this.state.isUploading ? (
             <Uploading>
-              <Spinner />
+              <SmallLoader />
               <span>Uploading...</span>
             </Uploading>
           ) : (
