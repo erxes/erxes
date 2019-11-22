@@ -40,6 +40,10 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
       return <span>{conversation.content}</span>;
     }
 
+    if (kind.includes('nylas' || kind === 'gmail')) {
+      return <span>ene mailiig yahu zuger contentiin haruulah umu</span>;
+    }
+
     const rows: React.ReactNode[] = [];
     let tempId;
 
