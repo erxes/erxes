@@ -1,4 +1,5 @@
 import EditorCK from 'modules/common/components/EditorCK';
+import ErrorMsg from 'modules/common/components/ErrorMsg';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -18,7 +19,6 @@ import {
 } from 'modules/engage/styles';
 import React from 'react';
 import Select from 'react-select-plus';
-import ErrorMsg from '../../common/components/ErrorMsg';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
 
@@ -116,7 +116,7 @@ class EmailForm extends React.Component<Props, State> {
         options.push({
           value: user._id,
           label: (user.details && user.details.fullName) || user.username,
-          isVerified: verifiedEmails.includes(user.email)
+          disabled: !verifiedEmails.includes(user.email)
         })
       );
 
@@ -125,7 +125,7 @@ class EmailForm extends React.Component<Props, State> {
 
     const optionRenderer = option => (
       <VerifyStatus>
-        {option.isVerified ? (
+        {!option.disabled ? (
           <Tip placement="auto" text="Email verified">
             <VerifyCheck>
               <Icon icon="check-circle" />
