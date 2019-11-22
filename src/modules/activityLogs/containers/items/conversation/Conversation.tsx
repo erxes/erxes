@@ -59,7 +59,7 @@ export default withProps<Props>(
       options: ({ conversationId }) => ({
         variables: {
           conversationId,
-          limit: 20
+          limit: 10
         }
       })
     })

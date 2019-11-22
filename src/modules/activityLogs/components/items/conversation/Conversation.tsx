@@ -3,11 +3,11 @@ import {
   ActivityDate,
   AvatarWrapper,
   FlexBody,
-  FlexCenterContent,
-  LogWrapper
+  FlexCenterContent
 } from 'modules/activityLogs/styles';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
+import { renderFullName } from 'modules/common/utils';
 import { Message } from 'modules/inbox/components/conversationDetail/workarea/conversation/messages';
 import { IConversation, IMessage } from 'modules/inbox/types';
 import React from 'react';
@@ -18,12 +18,12 @@ type Props = {
   messages: IMessage[];
 };
 
-class Conversation extends React.Component<Props, { editing: boolean }> {
+class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   constructor(props) {
     super(props);
 
     this.state = {
-      editing: false
+      toggleMessage: false
     };
   }
 
@@ -68,14 +68,19 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
 
   render() {
     const { conversation } = this.props;
+    // tslint:disable-next-line:no-console
+    console.log(conversation, this.props.messages);
 
     return (
-      <LogWrapper>
+      <>
         <FlexCenterContent>
           <AvatarWrapper>
-            <NameCard.Avatar />
+            <NameCard.Avatar size={32} />
           </AvatarWrapper>
-          <FlexBody>Conversation</FlexBody>
+          <FlexBody>
+            <b>{renderFullName(conversation.customer)}</b> sent a conversation
+            message
+          </FlexBody>
 
           <Tip text={dayjs(conversation.createdAt).format('llll')}>
             <ActivityDate>
@@ -84,7 +89,7 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
           </Tip>
         </FlexCenterContent>
         {this.renderMessages()}
-      </LogWrapper>
+      </>
     );
   }
 }
