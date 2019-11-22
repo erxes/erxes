@@ -7,7 +7,7 @@ import SimpleMessage from './SimpleMessage';
 type Props = {
   message: IMessage;
   isSameUser: boolean;
-  conversationFirstMessage: IMessage;
+  conversationFirstMessage?: IMessage;
 };
 
 function Message(props: Props) {

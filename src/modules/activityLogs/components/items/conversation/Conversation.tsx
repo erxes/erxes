@@ -34,20 +34,32 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
       return null;
     }
 
+    const { kind } = conversation.integration;
+
+    if (kind === 'facebook-post') {
+      return <span>{conversation.content}</span>;
+    }
+
     const rows: React.ReactNode[] = [];
+    let tempId;
 
     messages.forEach(message => {
       rows.push(
         <Message
-          isSameUser={true}
-          cconversationFirstMessage={'xaxa'}
+          isSameUser={
+            message.userId
+              ? message.userId === tempId
+              : message.customerId === tempId
+          }
           message={message}
           key={message._id}
         />
       );
+
+      tempId = message.userId ? message.userId : message.customerId;
     });
 
-    return <div />;
+    return rows;
   };
 
   render() {
@@ -67,6 +79,7 @@ class Conversation extends React.Component<Props, { editing: boolean }> {
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
+        {this.renderMessages()}
       </LogWrapper>
     );
   }
