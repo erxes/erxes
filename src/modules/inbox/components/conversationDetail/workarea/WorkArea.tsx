@@ -42,7 +42,6 @@ const ConvertTo = asyncComponent(
 type Props = {
   queryParams?: any;
   title?: string;
-  isMail: boolean;
   currentConversationId?: string;
   currentConversation: IConversation;
   conversationMessages: IMessage[];
@@ -117,9 +116,9 @@ export default class WorkArea extends React.Component<Props, State> {
 
   onScroll = () => {
     const { current } = this.node;
-    const { isMail, loadMoreMessages } = this.props;
+    const { loadMoreMessages } = this.props;
 
-    if (!isMail && current.scrollTop === 0) {
+    if (current.scrollTop === 0) {
       loadMoreMessages();
     }
   };
@@ -127,28 +126,12 @@ export default class WorkArea extends React.Component<Props, State> {
   scrollBottom = () => {
     const { current } = this.node;
 
-    current.scrollTop = current.scrollHeight;
+    return (current.scrollTop = current.scrollHeight);
   };
 
   setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
   };
-
-  renderLoadMoreMail() {
-    if (!this.props.isMail) {
-      return null;
-    }
-
-    return (
-      <Button
-        size="small"
-        onClick={this.props.loadMoreMessages}
-        icon="angle-double-down"
-      >
-        Load More
-      </Button>
-    );
-  }
 
   render() {
     const {
@@ -252,7 +235,6 @@ export default class WorkArea extends React.Component<Props, State> {
       <>
         {actionBar}
         <ContentBox>{content}</ContentBox>
-        {this.renderLoadMoreMail()}
         {currentConversation._id && (
           <ContenFooter>
             {typingIndicator}
