@@ -54,10 +54,10 @@ const createOrGetCustomer = async (email: string, integrationIds: IIntegrationId
 const createOrGetConversation = async (args: {
   email: string;
   subject: string;
-  reply: string[];
   receivedEmail: string;
   integrationIds: IIntegrationIds;
   customerErxesApiId: string;
+  reply?: string[];
 }) => {
   const { subject, reply, email, integrationIds, receivedEmail, customerErxesApiId } = args;
   const { id, erxesApiId } = integrationIds;

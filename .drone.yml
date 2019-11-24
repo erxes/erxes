@@ -9,6 +9,9 @@ pipeline:
     image: node:10.16.0-slim
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
+      - GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET='GOOGLE_CLIENT_SECRET'
+      - ENCRYPTION_KEY='aksljdklwjdaklsjdkwljaslkdjwkljd';
     commands:
       - node -v
       - npm -v

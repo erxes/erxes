@@ -32,10 +32,10 @@ export interface IMailParams {
   threadId: string;
   subject: string;
   body: string;
-  to: [IGmail];
-  cc: [IGmail];
-  bcc: [IGmail];
-  from: [IGmail];
+  to: IGmail[];
+  cc: IGmail[];
+  bcc: IGmail[];
+  from: IGmail[];
   references?: string;
   headerId?: string;
   labelIds?: string[];
@@ -58,7 +58,7 @@ export interface IMessage {
       {
         name: string;
         value: string;
-      }
+      },
     ];
     body: IGmailAttachment;
     parts: any;

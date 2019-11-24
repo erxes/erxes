@@ -16,7 +16,7 @@ export const AUTHORIZED_REDIRECT_URL = `${MAIN_APP_DOMAIN}/settings/integrations
 export const CONNECT_AUTHORIZE_URL = NYLAS_API_URL + '/connect/authorize';
 export const CONNECT_TOKEN_URL = NYLAS_API_URL + '/connect/token';
 
-export const MESSAGE_WEBHOOKS = ['message.created', 'message.opened', 'message.link_clicked', 'thread.replied'];
+export const MESSAGE_WEBHOOKS = ['message.created', 'thread.replied'];
 
 // Microsoft
 export const MICROSOFT_OAUTH_AUTH_URL = `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?`;
@@ -38,10 +38,9 @@ export const MICROSOFT_SCOPES = [
 ].join(' ');
 
 export const GOOGLE_SCOPES = [
-  'https://mail.google.com/',
-  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/gmail.compose',
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/userinfo.email',
   'https://www.googleapis.com/auth/userinfo.profile',
-  'https://www.googleapis.com/auth/calendar',
-  'https://www.google.com/m8/feeds/',
 ].join(' ');

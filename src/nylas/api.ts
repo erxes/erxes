@@ -1,15 +1,14 @@
 import * as fs from 'fs';
 import { debugNylas } from '../debuggers';
 import { Accounts, Integrations } from '../models';
-import { compose, sendRequest } from '../utils';
-import { GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
+import { compose } from '../utils';
 import {
   createOrGetNylasConversation as storeConversation,
   createOrGetNylasConversationMessage as storeMessage,
   createOrGetNylasCustomer as storeCustomer,
 } from './store';
-import { IFilter, IMessageDraft, INylasAttachment } from './types';
-import { nylasRequest, nylasSendMessage, setNylasToken } from './utils';
+import { IMessageDraft, INylasAttachment } from './types';
+import { nylasFileRequest, nylasInstanceWithToken, nylasRequest } from './utils';
 
 /**
  * Build message and send API request
@@ -18,7 +17,7 @@ import { nylasRequest, nylasSendMessage, setNylasToken } from './utils';
  * @param {String} - filter
  * @param {Promise} - nylas message object
  */
-const buildMessage = (child: string, ...args: Array<string | IFilter>) => {
+const buildMessage = (child: string, ...args: string[]) => {
   const [accessToken, filter] = args;
 
   return nylasRequest({
@@ -51,38 +50,14 @@ const getMessageById = (...args: string[]) => buildMessage('find', ...args);
  * @param {Object} args - message object
  * @returns {Promise} message object response
  */
-const sendMessage = (accessToken: string, args: IMessageDraft) => nylasSendMessage(accessToken, args);
-
-/**
- * Google: get email from google with accessToken
- * @param {String} accessToken
- * @returns {Promise} email
- */
-const getUserEmailFromGoogle = async (accessToken: string): Promise<string> => {
-  const data = { access_token: accessToken, fields: ['email'] };
-
-  const { email } = await sendRequest({
-    url: GOOGLE_OAUTH_TOKEN_VALIDATION_URL,
-    method: 'post',
-    body: data,
+const sendMessage = (accessToken: string, args: IMessageDraft) => {
+  return nylasInstanceWithToken({
+    accessToken,
+    name: 'drafts',
+    method: 'build',
+    options: args,
+    action: 'send',
   });
-
-  return email;
-};
-
-/**
- * Office 365: get email from google with accessToken
- * @param {String} accessToken
- * @returns {Promise} email
- */
-const getUserEmailFromO365 = async (accessToken: string): Promise<string> => {
-  const { mail } = await sendRequest({
-    url: `${MICROSOFT_GRAPH_URL}/me`,
-    method: 'GET',
-    headerParams: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  return mail;
 };
 
 /**
@@ -150,23 +125,18 @@ const uploadFile = async (args: INylasAttachment) => {
     throw new Error('Failed to read file');
   }
 
-  const nylas = setNylasToken(accessToken);
-
-  const nylasFile = nylas.files.build({
-    data: buffer,
-    filename: name,
-    contentType: type,
+  const nylasFile = await nylasInstanceWithToken({
+    accessToken,
+    name: 'files',
+    method: 'build',
+    options: {
+      data: buffer,
+      filename: name,
+      contentType: type,
+    },
   });
 
-  return new Promise((resolve, reject) => {
-    nylasFile.upload((err, file) => {
-      if (err) {
-        reject(err);
-      }
-
-      return resolve(JSON.parse(file));
-    });
-  });
+  return nylasFileRequest(nylasFile, 'upload');
 };
 
 /**
@@ -175,29 +145,15 @@ const uploadFile = async (args: INylasAttachment) => {
  * @param {String} accessToken
  * @returns {Buffer} file buffer
  */
-const getAttachment = (fileId: string, accessToken: string) => {
-  const nylas = setNylasToken(accessToken);
-
-  const nylasFile = nylas.files.build({ id: fileId });
-
-  return new Promise((resolve, reject) => {
-    nylasFile.download((err, file) => {
-      if (err) {
-        reject(err);
-      }
-
-      return resolve(file);
-    });
+const getAttachment = async (fileId: string, accessToken: string) => {
+  const nylasFile = await nylasInstanceWithToken({
+    accessToken,
+    name: 'files',
+    method: 'build',
+    options: { id: fileId },
   });
+
+  return nylasFileRequest(nylasFile, 'download');
 };
 
-export {
-  uploadFile,
-  syncMessages,
-  sendMessage,
-  getMessageById,
-  getMessages,
-  getAttachment,
-  getUserEmailFromGoogle,
-  getUserEmailFromO365,
-};
+export { uploadFile, syncMessages, sendMessage, getMessageById, getMessages, getAttachment };

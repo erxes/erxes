@@ -1,9 +1,5 @@
 import { IAttachments, IEmail, ILabels, INylasConversationMessage } from './models';
 
-export interface IFilter {
-  [key: string]: string;
-}
-
 interface ICommonType {
   name?: string;
   email?: string;
@@ -28,7 +24,7 @@ export interface IMessageDraft {
   bcc?: ICommonType[];
   replyToMessageId?: string;
   threadId?: string;
-  files: INylasAttachment[];
+  files?: INylasAttachment[];
   subject: string;
   body?: string;
 }
@@ -47,7 +43,7 @@ export interface IIntegrateProvider {
   email: string;
   kind: string;
   settings: IProviderSettings;
-  scopes?: string;
+  scopes?: string | string[];
 }
 
 export interface IProviderSettings {

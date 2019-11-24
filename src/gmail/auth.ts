@@ -103,7 +103,7 @@ export const getAccessToken = async (code: string) => {
   return accessToken;
 };
 
-/*
+/**
  * Refresh token and save when access_token expires
  */
 export const refreshAccessToken = async (_id: string, tokens: ICredentials): Promise<void> => {

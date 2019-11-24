@@ -305,4 +305,5 @@ export {
   createOrGetNylasConversationMessage,
   NYLAS_MODELS,
   updateAccount,
+  requestMainApi,
 };

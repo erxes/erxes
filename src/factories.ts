@@ -6,6 +6,10 @@ import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCust
 export const accountFactory = (params: {
   kind?: string;
   email?: string;
+  scope?: string;
+  expireDate?: string;
+  token?: string;
+  tokenSecret?: string;
   password?: string;
   imapHost?: string;
   smtpHost?: string;
@@ -17,6 +21,10 @@ export const accountFactory = (params: {
   const account = new Accounts({
     kind: params.kind || '',
     email: params.email || '',
+    token: params.token || '',
+    scope: params.scope || '',
+    expireDate: params.expireDate || '',
+    tokenSecret: params.tokenSecret || '',
     nylasToken: params.nylasToken || '',
     password: params.password || '',
     imapHost: params.imapHost || '',
@@ -73,9 +81,9 @@ export const facebookConversationMessagFactory = (params: { conversationId?: str
 };
 
 // Nylas gmail customer ===================
-export const nylasGmailCustomerFactory = (params: { integrationId?: string }) => {
+export const nylasGmailCustomerFactory = (params: { email?: string; integrationId?: string }) => {
   const customer = new NylasGmailCustomers({
-    email: 'user@mail.com',
+    email: params.email || '',
     kind: 'gmail',
     firstName: 'firstName',
     lastName: 'lastName',

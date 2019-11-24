@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
@@ -8,7 +9,7 @@ import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
 import { INylasAttachment } from './types';
-import { buildEmailAddress, verifyNylasSignature } from './utils';
+import { buildEmailAddress } from './utils';
 
 // load config
 dotenv.config();
@@ -68,7 +69,7 @@ const init = async app => {
     // Connect provider to nylas ===========
     switch (kind) {
       case 'imap':
-        await connectImapToNylas(kind, account);
+        await connectImapToNylas(account);
         break;
       case 'outlook':
         await connectYahooAndOutlookToNylas(kind, account);
@@ -153,7 +154,7 @@ const init = async app => {
   });
 
   app.get('/nylas/get-attachment', async (req, res, next) => {
-    const { attachmentId, integrationId, filename } = req.query;
+    const { attachmentId, integrationId, filename, contentType } = req.query;
 
     const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
 
@@ -169,16 +170,19 @@ const init = async app => {
 
     const response: { body?: Buffer } = await getAttachment(attachmentId, account.nylasToken);
 
-    const attachment = { data: response.body, filename };
-
-    if (!attachment) {
+    if (!response) {
       return next('Attachment not found');
     }
 
-    res.attachment(attachment.filename);
-    res.write(attachment.data, 'base64');
+    const headerOptions = { 'Content-Type': contentType };
 
-    return res.end();
+    if (!['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(contentType)) {
+      headerOptions['Content-Disposition'] = `attachment;filename=${filename}`;
+    }
+
+    res.writeHead(200, headerOptions);
+
+    return res.end(response.body, 'base64');
   });
 
   app.post('/nylas/send', async (req, res, next) => {
@@ -226,13 +230,30 @@ const init = async app => {
   });
 };
 
+const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
+
+/**
+ * Verify request by nylas signature
+ * @param {Request} req
+ * @returns {Boolean} verified request state
+ */
+const verifyNylasSignature = req => {
+  if (!NYLAS_CLIENT_SECRET) {
+    debugNylas('Nylas client secret not configured');
+    return;
+  }
+
+  const hmac = crypto.createHmac('sha256', NYLAS_CLIENT_SECRET);
+  const digest = hmac.update(req.rawBody).digest('hex');
+
+  return digest === req.get('x-nylas-signature');
+};
+
 /**
  * Setup the Nylas API
  * @returns void
  */
 const setupNylas = () => {
-  const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
-
   if (!NYLAS_CLIENT_ID || !NYLAS_CLIENT_SECRET) {
     return debugNylas(`
       Missing following config

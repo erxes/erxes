@@ -53,8 +53,8 @@ describe('Facebook remove integration test', async () => {
     await Customers.remove({});
   });
 
-  const entryFactory = async () => {
-    const customer = await facebookCustomerFactory({ userId: '_id' });
+  const entryFactory = async userId => {
+    const customer = await facebookCustomerFactory({ userId });
     const conversation = await facebookConversationFactory({ senderId: '_id', recipientId: 'pageId' });
     const message = await facebookConversationMessagFactory({ conversationId: conversation._id });
 
@@ -66,7 +66,7 @@ describe('Facebook remove integration test', async () => {
   };
 
   test('Remove facebook by accountId', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory();
+    const { customerId, conversationId, messageId } = await entryFactory('asdkalsjd');
 
     const erxesApiIds = await removeAccount(accountId);
 
@@ -83,7 +83,7 @@ describe('Facebook remove integration test', async () => {
   });
 
   test('Remove facebook integartion by integartionId', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory();
+    const { customerId, conversationId, messageId } = await entryFactory('wejlk123j');
 
     expect(await Conversations.findOne({ _id: conversationId }).count()).toEqual(1);
     expect(await ConversationMessages.findOne({ _id: messageId }).count()).toEqual(1);
@@ -132,8 +132,9 @@ describe('Nylas remove integration test', () => {
     await NylasGmailConversationMessages.remove({});
   });
 
-  const entryFactory = async () => {
+  const entryFactory = async email => {
     const customer = await nylasGmailCustomerFactory({
+      email,
       integrationId,
     });
 
@@ -155,7 +156,7 @@ describe('Nylas remove integration test', () => {
   };
 
   test('Remove integration by accountId', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory();
+    const { customerId, conversationId, messageId } = await entryFactory('asd@mail.com');
 
     const mock = sinon.stub(auth, 'enableOrDisableAccount').callsFake();
     const erxesApiIds = await removeAccount(accountId);
@@ -173,7 +174,7 @@ describe('Nylas remove integration test', () => {
   });
 
   test('Remove nylas-gmail integration by [erxesApiId]', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory();
+    const { customerId, conversationId, messageId } = await entryFactory('foo@mail.com');
 
     const mock = sinon.stub(auth, 'enableOrDisableAccount').callsFake();
     const integrationErxesApiId = await removeIntegration(erxesApiId);

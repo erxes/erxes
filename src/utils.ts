@@ -1,6 +1,7 @@
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
+import { IProviderSettings } from './nylas/types';
 
 interface IRequestParams {
   url?: string;
@@ -9,7 +10,7 @@ interface IRequestParams {
   headerParams?: { [key: string]: string };
   method: string;
   params?: { [key: string]: string };
-  body?: { [key: string]: string | string[] };
+  body?: { [key: string]: string | string[] | IProviderSettings };
 }
 
 /**
@@ -80,7 +81,12 @@ export const sendRequest = ({ url, headerType, headerParams, method, body, param
  * @returns {String} striped text
  */
 export const cleanHtml = (body: string) => {
-  return sanitizeHtml(body || '').replace(/^(.{20}[^\s]*).*/, '$1');
+  const clean = sanitizeHtml(body || '', {
+    allowedTags: [],
+    allowedAttributes: {},
+  }).trim();
+
+  return clean.substring(0, 50);
 };
 
 /**

@@ -11,26 +11,11 @@ import {
   MICROSOFT_OAUTH_AUTH_URL,
   MICROSOFT_SCOPES,
 } from './constants';
-import { IMessageDraft } from './types';
 
 // load config
 dotenv.config();
 
-const { NYLAS_CLIENT_SECRET, ENCRYPTION_KEY } = process.env;
-
 const algorithm = 'aes-256-cbc';
-
-/**
- * Verify request by nylas signature
- * @param {Request} req
- * @returns {Boolean} verified request state
- */
-const verifyNylasSignature = req => {
-  const hmac = crypto.createHmac('sha256', NYLAS_CLIENT_SECRET);
-  const digest = hmac.update(req.rawBody).digest('hex');
-
-  return digest === req.get('x-nylas-signature');
-};
 
 /**
  * Check nylas credentials
@@ -101,7 +86,7 @@ const getClientConfig = (kind: string): string[] => {
 };
 
 const getProviderSettings = (kind: string, refreshToken: string) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: 'DOMAIN', defaultValue: '' });
 
   const [clientId, clientSecret] = getClientConfig(kind);
 
@@ -166,19 +151,17 @@ const getProviderConfigs = (kind: string) => {
  * @param {String} - filter
  * @returns {Promise} - nylas response
  */
-const nylasRequest = args => {
-  const {
-    parent,
-    child,
-    accessToken,
-    filter,
-  }: {
-    parent: string;
-    child: string;
-    accessToken: string;
-    filter?: any;
-  } = args;
-
+const nylasRequest = ({
+  parent,
+  child,
+  accessToken,
+  filter,
+}: {
+  parent: string;
+  child: string;
+  accessToken: string;
+  filter?: any;
+}) => {
   const nylas = setNylasToken(accessToken);
 
   if (!nylas) {
@@ -191,23 +174,60 @@ const nylasRequest = args => {
 };
 
 /**
- * Draft and Send message
- * @param {Object} - args
- * @returns {Promise} - sent message
+ * Nylas file request
  */
-const nylasSendMessage = async (accessToken: string, args: IMessageDraft) => {
+const nylasFileRequest = (nylasFile: any, method: string) => {
+  return new Promise((resolve, reject) => {
+    nylasFile[method]((err, file) => {
+      if (err) {
+        reject(err);
+      }
+
+      return resolve(file);
+    });
+  });
+};
+
+/**
+ * Get Nylas SDK instrance
+ */
+const nylasInstance = (name: string, method: string, options?: any, action?: string) => {
+  if (!action) {
+    return Nylas[name][method](options);
+  }
+
+  return Nylas[name][method](options)[action]();
+};
+
+/**
+ * Get Nylas SDK instance with token
+ */
+const nylasInstanceWithToken = async ({
+  accessToken,
+  name,
+  method,
+  options,
+  action,
+}: {
+  accessToken: string;
+  name: string;
+  method: string;
+  options?: any;
+  action?: string;
+}) => {
   const nylas = setNylasToken(accessToken);
 
   if (!nylas) {
     return;
   }
 
-  const draft = nylas.drafts.build(args);
+  const instance = nylas[name][method](options);
 
-  return draft
-    .send()
-    .then(message => debugNylas(`${message.id} message was sent`))
-    .catch(error => debugNylas(error.message));
+  if (!action) {
+    return instance;
+  }
+
+  return instance[action]();
 };
 
 /**
@@ -216,6 +236,8 @@ const nylasSendMessage = async (accessToken: string, args: IMessageDraft) => {
  * @returns {String} encrypted password
  */
 const encryptPassword = (password: string): string => {
+  const { ENCRYPTION_KEY } = process.env;
+
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(algorithm, Buffer.from(ENCRYPTION_KEY), iv);
 
@@ -232,6 +254,8 @@ const encryptPassword = (password: string): string => {
  * @returns {String} decrypted password
  */
 const decryptPassword = (password: string): string => {
+  const { ENCRYPTION_KEY } = process.env;
+
   const passwordParts = password.split(':');
   const ivKey = Buffer.from(passwordParts.shift(), 'hex');
 
@@ -247,15 +271,16 @@ const decryptPassword = (password: string): string => {
 };
 
 export {
+  nylasFileRequest,
   setNylasToken,
-  nylasSendMessage,
   getProviderConfigs,
   nylasRequest,
   checkCredentials,
   buildEmailAddress,
-  verifyNylasSignature,
   encryptPassword,
   decryptPassword,
   getProviderSettings,
   getClientConfig,
+  nylasInstance,
+  nylasInstanceWithToken,
 };
