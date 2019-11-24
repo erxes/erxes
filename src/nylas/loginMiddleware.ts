@@ -112,6 +112,7 @@ const getOAuthCredentials = async (req, res, next) => {
     scope: params.scope,
     token: access_token,
     tokenSecret: refresh_token,
+    billingState: 'paid',
   };
 
   await Accounts.create(doc);
@@ -142,6 +143,7 @@ const authProvider = async (req, res, next) => {
     email,
     password: encryptPassword(password),
     ...(kind === 'nylas-imap' ? otherParams : {}),
+    billingState: 'paid',
   };
 
   debugNylas(`Creating account with email: ${email}`);

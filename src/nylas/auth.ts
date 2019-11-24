@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
-import { IAccount } from '../models/Accounts';
+import Accounts, { IAccount } from '../models/Accounts';
 import { sendRequest } from '../utils';
 import { CONNECT_AUTHORIZE_URL, CONNECT_TOKEN_URL } from './constants';
 import { updateAccount } from './store';
@@ -128,13 +128,15 @@ const integrateProviderToNylas = async (args: IIntegrateProvider) => {
 const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
   debugNylas(`${enable} account with uid: ${accountId}`);
 
-  return nylasInstance('accounts', 'find', accountId).then(account => {
+  await nylasInstance('accounts', 'find', accountId).then(account => {
     if (enable) {
       return account.upgrade();
     }
 
     return account.downgrade();
   });
+
+  return Accounts.updateOne({ uid: accountId }, { $set: { billingState: enable ? 'paid' : 'cancelled' } });
 };
 
 export {

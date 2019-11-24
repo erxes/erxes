@@ -4,7 +4,12 @@ import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
-import { connectImapToNylas, connectProviderToNylas, connectYahooAndOutlookToNylas } from './auth';
+import {
+  connectImapToNylas,
+  connectProviderToNylas,
+  connectYahooAndOutlookToNylas,
+  enableOrDisableAccount,
+} from './auth';
 import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
@@ -65,6 +70,10 @@ const init = async app => {
       email: account.email,
       erxesApiId: integrationId,
     });
+
+    if (account.billingState === 'cancelled') {
+      await enableOrDisableAccount(account.uid, true);
+    }
 
     // Connect provider to nylas ===========
     switch (kind) {
