@@ -66,8 +66,8 @@ export const loadClass = () => {
       return Conversations.create({
         status: this.getConversationStatuses().NEW,
         ...doc,
-        createdAt: now,
-        updatedAt: now,
+        createdAt: doc.createdAt || now,
+        updatedAt: doc.createdAt || now,
         number: (await Conversations.find().countDocuments()) + 1,
         messageCount: 0,
       });

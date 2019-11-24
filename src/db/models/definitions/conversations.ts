@@ -11,6 +11,7 @@ export interface IConversation {
   participatedUserIds?: string[];
   readUserIds?: string[];
 
+  createdAt?: Date;
   closedAt?: Date;
   closedUserId?: string;
 

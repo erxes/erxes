@@ -20,7 +20,7 @@ export const loadClass = () => {
       const message = await Messages.create({
         internal: false,
         ...doc,
-        createdAt: new Date(),
+        createdAt: doc.createdAt || new Date(),
       });
 
       const messageCount = await Messages.find({

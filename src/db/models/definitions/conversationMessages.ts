@@ -26,6 +26,7 @@ interface IEngageDataDocument extends IEngageData, Document {
 
 export interface IMessage {
   content?: string;
+  createdAt?: Date;
   attachments?: any;
   mentionedUserIds?: string[];
   conversationId: string;
