@@ -68,7 +68,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             content={this.state.content}
             onChange={this.onEditorChange}
             insertItems={EMAIL_CONTENT}
-            height={460}
+            autoGrow={true}
           />
         </FormGroup>
       </>

@@ -494,8 +494,10 @@ class MailForm extends React.Component<Props, State> {
           removePlugins="elementspath"
           content={this.state.content}
           onChange={this.onEditorChange}
-          height={100}
+          toolbarLocation="bottom"
           autoFocus={true}
+          autoGrow={true}
+          autoGrowMinHeight={120}
         />
       </MailEditorWrapper>
     );
