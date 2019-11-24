@@ -159,7 +159,7 @@ export interface INylasConversationMessage {
   from: [IEmail];
   cc: [IEmail];
   bcc: [IEmail];
-  date: string;
+  date: number;
   thread_id: string;
   snippet: string;
   body: string;

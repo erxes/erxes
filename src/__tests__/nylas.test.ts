@@ -199,6 +199,7 @@ describe('Nylas gmail test', () => {
         cc: [{ name: 'cc', email: 'cc@mail.com' }],
         bcc: [{ name: 'bcc', email: 'bcc@mail.com' }],
         body: 'body',
+        date: 1468959781804,
         from: [
           {
             name: 'from',

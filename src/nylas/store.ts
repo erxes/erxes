@@ -146,11 +146,14 @@ const createOrGetNylasConversation = async ({
 
   debugNylas(`Creating nylas conversation kind: ${kind}`);
 
+  const createdAt = message.date * 1000; // get milliseconds
+
   const doc = {
     to: toEmail,
     from: fromEmail,
     integrationId: id,
     threadId: message.thread_id,
+    createdAt,
   };
 
   // fields to save on api
@@ -158,6 +161,7 @@ const createOrGetNylasConversation = async ({
     customerId,
     content: message.subject,
     integrationId: erxesApiId,
+    createdAt,
   };
 
   const conversation = await getOrCreate({
@@ -196,6 +200,8 @@ const createOrGetNylasConversationMessage = async ({
 
   debugNylas(`Creating nylas conversation message kind: ${kind}`);
 
+  const createdAt = message.date * 1000; // get milliseconds
+
   const doc = {
     customerId,
     conversationId: id,
@@ -215,6 +221,7 @@ const createOrGetNylasConversationMessage = async ({
     body: message.body,
     attachments: message.files,
     labels: message.labels,
+    createdAt,
   };
 
   // fields to save on api
@@ -222,6 +229,7 @@ const createOrGetNylasConversationMessage = async ({
     customerId,
     conversationId: erxesApiId,
     content: cleanHtml(message.body),
+    createdAt,
   };
 
   const conversationMessage = await getOrCreate({

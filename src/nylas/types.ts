@@ -34,7 +34,7 @@ export interface IGetOrCreateArguments {
   collectionName: string;
   selector: { [key: string]: string };
   fields: {
-    doc: { [key: string]: string | string[] | IEmail[] | IAttachments[] | ILabels[] };
+    doc: { [key: string]: string | string[] | number | IEmail[] | IAttachments[] | ILabels[] };
     api: IAPIConversation | IAPIConversationMessage | IAPICustomer;
   };
 }
@@ -79,12 +79,14 @@ export interface IAPIConversation {
   integrationId: string;
   customerId: string;
   content: string;
+  createdAt: number;
 }
 
 export interface IAPIConversationMessage {
   conversationId: string;
   customerId: string;
   content: string;
+  createdAt: number;
 }
 
 // Store =======================
