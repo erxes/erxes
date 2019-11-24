@@ -7,6 +7,7 @@ interface IMessage {
   attachments: string[];
   readUserIds: string[];
   content?: string;
+  updatedAt?: Date;
 }
 
 /*
@@ -85,6 +86,10 @@ const integrationsApiMiddleware = async (req, res) => {
 
     if (message.content && metaInfo === 'replaceContent') {
       messageDoc.content = message.content;
+    }
+
+    if (doc.createdAt) {
+      messageDoc.updatedAt = doc.createdAt;
     }
 
     await Conversations.updateOne({ _id: message.conversationId }, { $set: messageDoc });
