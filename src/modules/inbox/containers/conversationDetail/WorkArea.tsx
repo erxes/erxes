@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
 import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
+import { isConversationMailKind } from 'modules/inbox/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import strip from 'strip';
@@ -215,7 +216,12 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   loadMoreMessages = () => {
-    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
+    const {
+      currentId,
+      currentConversation,
+      messagesTotalCountQuery,
+      messagesQuery
+    } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
     const conversationMessages = messagesQuery.conversationMessages || [];
 
@@ -226,7 +232,7 @@ class WorkArea extends React.Component<FinalProps, State> {
     if (!loading && hasMore) {
       this.setState({ loadingMessages: true });
 
-      limit = 10;
+      limit = isConversationMailKind(currentConversation) ? 3 : 10;
       skip = conversationMessages.length;
 
       messagesQuery.fetchMore({
@@ -267,7 +273,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
   render() {
     const { loadingMessages, typingInfo } = this.state;
-    const { messagesQuery } = this.props;
+    const { messagesQuery, currentConversation } = this.props;
 
     const conversationMessages = messagesQuery.conversationMessages || [];
 
@@ -277,6 +283,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
       loading: messagesQuery.loading || loadingMessages,
+      isMail: isConversationMailKind(currentConversation),
       typingInfo
     };
 
@@ -295,16 +302,17 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       options: ({ currentId, currentConversation }) => {
         const windowHeight = window.innerHeight;
         const { integration } = currentConversation;
+        const isMail = isConversationMailKind(currentConversation);
 
         // 330 - height of above and below sections of detail area
         // 45 -  min height of per message
-        limit = Math.round((windowHeight - 330) / 45 + 1);
+        limit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 3;
         skip = null;
 
         return {
           variables: {
             conversationId: currentId,
-            limit: integration.kind === 'messenger' ? limit : 0
+            limit: integration.kind === 'messenger' || isMail ? limit : 0
           },
           fetchPolicy: 'network-only'
         };
