@@ -12,7 +12,9 @@ import { __ } from 'modules/common/utils';
 import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
-import { Modal, OverlayTrigger, Popover } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import BlockPicker from 'react-color/lib/Block';
 import { SelectMemberStyled } from '../styles';
 import { IOption } from '../types';
@@ -36,6 +38,8 @@ type State = {
   visibility: string;
   selectedMemberIds: string[];
   backgroundColor: string;
+  isCheckUser: boolean;
+  excludeCheckUserIds: string[];
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -48,7 +52,10 @@ class PipelineForm extends React.Component<Props, State> {
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
-      backgroundColor: (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
+      backgroundColor:
+        (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
+      isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
+      excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : []
     };
   }
 
@@ -66,6 +73,10 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ selectedMemberIds: items });
   };
 
+  onChangeDominantUsers = items => {
+    this.setState({ excludeCheckUserIds: items });
+  };
+
   collectValues = items => {
     return items.map(item => item.value);
   };
@@ -80,7 +91,13 @@ class PipelineForm extends React.Component<Props, State> {
     visibility: string;
   }) => {
     const { pipeline, type, boardId, extraFields } = this.props;
-    const { selectedMemberIds, stages, backgroundColor } = this.state;
+    const {
+      selectedMemberIds,
+      stages,
+      backgroundColor,
+      isCheckUser,
+      excludeCheckUserIds
+    } = this.state;
     const finalValues = values;
 
     if (pipeline) {
@@ -94,7 +111,9 @@ class PipelineForm extends React.Component<Props, State> {
       boardId: pipeline ? pipeline.boardId : boardId,
       stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
-      bgColor: backgroundColor
+      bgColor: backgroundColor,
+      isCheckUser,
+      excludeCheckUserIds
     };
   };
 
@@ -104,22 +123,45 @@ class PipelineForm extends React.Component<Props, State> {
     if (visibility === 'public') {
       return;
     }
-    const self = this;
-
-    const onChange = items => {
-      self.setState({ selectedMemberIds: items });
-    };
 
     return (
       <FormGroup>
-        <SelectMemberStyled>
+        <SelectMemberStyled zIndex={2002}>
           <ControlLabel>Members</ControlLabel>
 
           <SelectTeamMembers
             label="Choose members"
             name="selectedMemberIds"
             value={selectedMemberIds}
-            onSelect={onChange}
+            onSelect={this.onChangeMembers}
+          />
+        </SelectMemberStyled>
+      </FormGroup>
+    );
+  }
+
+  onChangeIsCheckUser = e => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    this.setState({ isCheckUser: isChecked });
+  };
+
+  renderDominantUsers() {
+    const { isCheckUser, excludeCheckUserIds } = this.state;
+
+    if (!isCheckUser) {
+      return;
+    }
+
+    return (
+      <FormGroup>
+        <SelectMemberStyled>
+          <ControlLabel>Users eligible to see all cards</ControlLabel>
+
+          <SelectTeamMembers
+            label="Choose members"
+            name="excludeCheckUserIds"
+            value={excludeCheckUserIds}
+            onSelect={this.onChangeDominantUsers}
           />
         </SelectMemberStyled>
       </FormGroup>
@@ -141,7 +183,7 @@ class PipelineForm extends React.Component<Props, State> {
         ? options.pipelineName.toLowerCase()
         : 'pipeline';
 
-    const popoverTop = (
+    const popoverBottom = (
       <Popover id="color-picker">
         <BlockPicker
           width="266px"
@@ -197,7 +239,7 @@ class PipelineForm extends React.Component<Props, State> {
                   trigger="click"
                   rootClose={true}
                   placement="bottom"
-                  overlay={popoverTop}
+                  overlay={popoverBottom}
                 >
                   <ColorPick>
                     <ColorPicker
@@ -210,6 +252,19 @@ class PipelineForm extends React.Component<Props, State> {
           </FlexContent>
 
           {this.renderSelectMembers()}
+
+          <FormGroup>
+            <ControlLabel>
+              Show only the user's assigned(created) cards
+            </ControlLabel>
+            <FormControl
+              componentClass="checkbox"
+              checked={this.state.isCheckUser}
+              onChange={this.onChangeIsCheckUser}
+            />
+          </FormGroup>
+
+          {this.renderDominantUsers()}
 
           <FormGroup>
             <ControlLabel>Stages</ControlLabel>
@@ -252,7 +307,13 @@ class PipelineForm extends React.Component<Props, State> {
     }
 
     return (
-      <Modal show={show} onHide={closeModal} enforceFocus={false}>
+      <Modal
+        show={show}
+        onHide={closeModal}
+        enforceFocus={false}
+        animation={false}
+        size="lg"
+      >
         <Form renderContent={this.renderContent} />
       </Modal>
     );

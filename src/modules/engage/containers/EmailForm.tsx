@@ -18,7 +18,7 @@ const EmailFormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    error: error && error.message.replace('GraphQL error: ', ''),
+    error: error && error.message,
     verifiedEmails
   };
 

@@ -10,7 +10,7 @@ import { ICommonListProps } from '../types';
 type Props = {
   title: string;
   formTitle?: string;
-  size?: string;
+  size?: 'sm' | 'lg' | 'xl';
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
   leftActionBar: React.ReactNode;

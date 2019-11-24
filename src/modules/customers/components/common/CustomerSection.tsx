@@ -1,10 +1,10 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Spinner from 'modules/common/components/Spinner';
 import { __, renderFullName } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import Sidebar from 'modules/layout/components/Sidebar';
 import {
   ButtonRelated,
   SectionBody,
@@ -21,7 +21,6 @@ type Props = {
   items: ICustomer[];
   mainType?: string;
   mainTypeId?: string;
-  isOpen?: boolean;
   onSelect?: (customers: ICustomer[]) => void;
 };
 
@@ -30,12 +29,8 @@ function Component({
   items = [],
   mainType = '',
   mainTypeId = '',
-  isOpen,
   onSelect
 }: Props) {
-  const { Section } = Sidebar;
-  const { Title, QuickButtons } = Section;
-
   const mailTo = email => {
     if (email) {
       return (
@@ -107,25 +102,28 @@ function Component({
     );
   };
 
+  const extraButtons = (
+    <ModalTrigger
+      title="Associate"
+      size="lg"
+      trigger={
+        <button>
+          <Icon icon="add" />
+        </button>
+      }
+      content={customerChooser}
+    />
+  );
+
   return (
-    <Section>
-      <Title>{__('Customers')}</Title>
-
-      <QuickButtons isSidebarOpen={isOpen}>
-        <ModalTrigger
-          title="Associate"
-          size="lg"
-          trigger={
-            <button>
-              <Icon icon="add" />
-            </button>
-          }
-          content={customerChooser}
-        />
-      </QuickButtons>
-
+    <Box
+      title={__('Customers')}
+      extraButtons={extraButtons}
+      isOpen={true}
+      name="showCustomers"
+    >
       {renderBody(items)}
-    </Section>
+    </Box>
   );
 }
 

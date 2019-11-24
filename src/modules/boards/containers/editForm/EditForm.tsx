@@ -5,6 +5,7 @@ import { queries as userQueries } from 'modules/settings/team/graphql';
 import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
+import ErrorMsg from '../../../common/components/ErrorMsg';
 import { queries } from '../../graphql';
 import {
   DetailQueryResponse,
@@ -122,6 +123,10 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
+    }
+
+    if (detailQuery.error) {
+      return <ErrorMsg>{detailQuery.error.message}</ErrorMsg>;
     }
 
     const users = usersQuery.allUsers;

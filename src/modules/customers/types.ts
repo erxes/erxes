@@ -55,6 +55,7 @@ export interface ICustomerDoc {
   messengerData?: IMessengerData;
   customFieldsData?: { [key: string]: any };
   visitorContactInfo?: IVisitorContact;
+  code?: string;
 }
 
 export interface ICustomer extends ICustomerDoc {

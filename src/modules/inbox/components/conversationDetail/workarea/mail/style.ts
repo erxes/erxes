@@ -2,32 +2,24 @@ import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { MailBox } from '../../sidebar/styles';
 
-const EmailItem = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  &:last-of-type {
-    border: none;
-  }
-`;
-
-const Content = styledTS<{ toggle?: boolean }>(styled.div)`
-  font-size: 13px;
-  padding: ${dimensions.unitSpacing + 5}px;
-  blockquote {
-    font-size: 13px;
-  }
-  table {
-    border-collapse: initial;
-    background-color: unset;
-  }
+const Content = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  overflow: auto;
 `;
 
 const SmallContent = styledTS<{ toggle?: boolean }>(styled.div)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 425px;
+  max-width: 425px;  blockquote {
+    font-size: 13px;
+  }
+  table {
+    border-collapse: initial;
+    background-color: unset;
+  }
 `;
 
 const Subject = styled.h2`
@@ -38,20 +30,17 @@ const Subject = styled.h2`
 `;
 
 const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing}px 15px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   display: flex;
   align-items: center;
   border-bottom: ${props =>
     props.toggle ? 0 : `1px solid ${colors.borderPrimary}`};
-  
-  strong {
-    display: block;
-  }
 `;
 
 const Details = styled.div`
   margin-left: 13px;
   flex: 1;
+
   span {
     color: ${colors.textSecondary};
     margin-right: 10px;
@@ -59,19 +48,26 @@ const Details = styled.div`
 `;
 
 const Date = styled.div`
-  margin: 0 10px;
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
+  margin-left: ${dimensions.unitSpacing}px;
+  font-size: 11px;
+  font-weight: 500;
+  color: ${colors.colorCoreLightGray};
+  cursor: default;
 `;
 
 const RightSide = styled.div`
   display: flex;
   align-items: center;
+
+  > i {
+    color: ${colors.colorCoreGray};
+    padding-left: 5px;
+    margin-left: 10px;
+  }
 `;
 
 const AttachmentsContainer = styled.div`
-  padding-left: 45px;
-  margin-top: 20px;
+  margin: 0 20px;
   overflow: hidden;
 `;
 
@@ -158,34 +154,52 @@ const FileIcon = styled.div`
   background: ${colors.colorWhite};
 `;
 
-const Message = styledTS<{ toggle?: boolean }>(styled.div)`
+const BoxItem = styledTS<{ toggle?: boolean }>(styled(MailBox))`
   position: relative;
-  background: ${colors.colorWhite};
-  border-radius: ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
-  margin-bottom: ${dimensions.unitSpacing}px;
-  opacity: ${props => props.toggle && '0.6'};
-  transition: all ease 0.5s;
-
+  margin-top: ${dimensions.unitSpacing}px;
+  opacity: ${props => props.toggle && '0.8'};
+  border-radius: ${dimensions.coreSpacing - 5}px;
+  border: 1px solid ${colors.borderPrimary};
+  
   &:hover {
     opacity: 1;
   }
 `;
 
 const Reply = styled.div`
-  padding: 0 15px ${dimensions.coreSpacing}px;
+  padding: 10px ${dimensions.coreSpacing}px ${dimensions.coreSpacing - 5}px;
+`;
+
+const ActionButton = styled.div`
+  color: ${colors.colorCoreGray};
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 15px;
+  line-height: ${dimensions.coreSpacing}px;
+  width: 30px;
+  text-align: center;
+  margin-left: ${dimensions.unitSpacing}px;
+  margin-right: -7px;
+
+  &:hover {
+    cursor: pointer;
+    background: ${colors.bgActive};
+  }
+`;
+
+const From = styled.span`
+  font-size: 95%;
 `;
 
 export {
-  EmailItem,
   Subject,
   Meta,
   Date,
   Details,
   SmallContent,
   Content,
-  Message,
+  BoxItem,
   Reply,
   RightSide,
   AttachmentItem,
@@ -193,5 +207,7 @@ export {
   FileIcon,
   FileInfo,
   FileName,
-  Download
+  Download,
+  ActionButton,
+  From
 };

@@ -1,7 +1,7 @@
+import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
 import { SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
@@ -14,8 +14,6 @@ interface IProps extends IRouterProps {
 }
 
 function Brands({ history, counts, brands, loading }: IProps) {
-  const { Section, Header } = Wrapper.Sidebar;
-
   const data = (
     <SidebarList>
       {brands.map(brand => {
@@ -43,9 +41,11 @@ function Brands({ history, counts, brands, loading }: IProps) {
   );
 
   return (
-    <Section collapsible={brands.length > 5}>
-      <Header uppercase={true}>{__('Filter by brand')}</Header>
-
+    <Box
+      title={__('Filter by brand')}
+      collapsible={brands.length > 5}
+      name="showFilterByBrand"
+    >
       <DataWithLoader
         data={data}
         loading={loading}
@@ -55,7 +55,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
         size="small"
         objective={true}
       />
-    </Section>
+    </Box>
   );
 }
 
