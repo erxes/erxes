@@ -140,16 +140,16 @@ app.get('/read-file', async (req: any, res) => {
 
 // get mail attachment file
 app.get('/read-mail-attachment', async (req: any, res) => {
-  const { messageId, attachmentId, kind, integrationId, filename } = req.query;
+  const { messageId, attachmentId, kind, integrationId, filename, contentType } = req.query;
 
-  if (!messageId || !attachmentId || !integrationId) {
+  if (!messageId || !attachmentId || !integrationId || !contentType) {
     return res.status(404).send('Attachment not found');
   }
 
   const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
 
   res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}`,
+    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}`,
   );
 });
 
