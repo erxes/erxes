@@ -216,12 +216,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   loadMoreMessages = () => {
-    const {
-      currentId,
-      currentConversation,
-      messagesTotalCountQuery,
-      messagesQuery
-    } = this.props;
+    const { currentId, messagesTotalCountQuery, messagesQuery } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
     const conversationMessages = messagesQuery.conversationMessages || [];
 
@@ -232,7 +227,7 @@ class WorkArea extends React.Component<FinalProps, State> {
     if (!loading && hasMore) {
       this.setState({ loadingMessages: true });
 
-      limit = isConversationMailKind(currentConversation) ? 3 : 10;
+      limit = 10;
       skip = conversationMessages.length;
 
       messagesQuery.fetchMore({
@@ -273,7 +268,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
   render() {
     const { loadingMessages, typingInfo } = this.state;
-    const { messagesQuery, currentConversation } = this.props;
+    const { messagesQuery } = this.props;
 
     const conversationMessages = messagesQuery.conversationMessages || [];
 
@@ -283,7 +278,6 @@ class WorkArea extends React.Component<FinalProps, State> {
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
       loading: messagesQuery.loading || loadingMessages,
-      isMail: isConversationMailKind(currentConversation),
       typingInfo
     };
 
@@ -306,7 +300,8 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
 
         // 330 - height of above and below sections of detail area
         // 45 -  min height of per message
-        limit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 3;
+        limit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 10;
+
         skip = null;
 
         return {
