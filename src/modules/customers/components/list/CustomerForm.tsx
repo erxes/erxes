@@ -76,6 +76,7 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       lifecycleState: finalValues.lifecycleState,
       description: finalValues.description,
+      code: finalValues.code,
 
       links: {
         linkedIn: finalValues.linkedIn,
@@ -250,6 +251,12 @@ class CustomerForm extends React.Component<Props, State> {
               componentClass: 'select',
               defaultValue: customer.lifecycleState || '',
               options: lifecycleStateChoices(__)
+            })}
+
+            {this.renderFormGroup('Code', {
+              ...formProps,
+              name: 'code',
+              defaultValue: customer.code || ''
             })}
 
             {this.renderFormGroup('Has Authority', {

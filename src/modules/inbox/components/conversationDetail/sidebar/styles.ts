@@ -57,7 +57,8 @@ const Actions = styled.div`
 
 const SectionContainer = styled.div`
   position: relative;
-  border-top: 1px solid ${colors.borderPrimary};
+  box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.08);
+  margin-bottom: 10px;
 
   > div {
     margin-bottom: 0;
@@ -140,6 +141,13 @@ const TabContent = styled.div`
   }
 `;
 
+const MailBox = styled.div`
+  background: ${colors.colorWhite};
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  transition: all ease 0.3s;
+`;
+
 const SidebarCollapse = styled.a`
   color: ${colors.colorCoreGray};
   position: absolute;
@@ -165,5 +173,6 @@ export {
   ActivityLogContent,
   BasicInfo,
   SidebarCollapse,
-  TabContent
+  TabContent,
+  MailBox
 };

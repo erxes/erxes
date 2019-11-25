@@ -21,13 +21,19 @@ const brands = `
   }
 `;
 
+const commonFields = `
+  _id
+  name
+  brandId
+  languageCode
+  isActive
+`;
+
 const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
-      _id
-      name
-      brandId
-      languageCode
+      ${commonFields}
+      
       messengerData
       uiOptions
     }
@@ -64,10 +70,8 @@ const commonParams = `
 const integrations = `
   query integrations(${commonParamsDef}) {
     integrations(${commonParams}) {
-      _id
-      brandId
-      languageCode
-      name
+      ${commonFields}
+
       kind
       brand {
         _id

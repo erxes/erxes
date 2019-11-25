@@ -19,6 +19,10 @@ type Props = {
 
 class ConversationDetails extends React.Component<Props> {
   renderVisitorContactInfo(customer: ICustomer) {
+    if (!customer) {
+      return null;
+    }
+
     const { visitorContactInfo } = customer;
 
     if (!visitorContactInfo) {
@@ -37,7 +41,6 @@ class ConversationDetails extends React.Component<Props> {
 
   render() {
     const { Section } = Sidebar;
-    const { Title } = Section;
 
     const { conversation } = this.props;
     const { integration = {} as IIntegration, customer } = conversation;
@@ -45,8 +48,6 @@ class ConversationDetails extends React.Component<Props> {
 
     return (
       <Section>
-        <Title>{__('Conversation Details')}</Title>
-
         <SectionBody>
           <SidebarList className="no-link">
             {this.renderVisitorContactInfo(customer)}

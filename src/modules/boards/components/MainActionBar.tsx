@@ -40,7 +40,6 @@ import { IBoard, IPipeline } from '../types';
 type Props = {
   onSearch: (search: string) => void;
   onSelect: (values: string[] | string, name: string) => void;
-  onDateFilterSelect: (name: string, value: string) => void;
   onClear: (name: string, values) => void;
   isFiltered: () => boolean;
   clearFilter: () => void;
@@ -169,16 +168,16 @@ class MainActionBar extends React.Component<Props, State> {
       return null;
     }
 
-    const { onDateFilterSelect, onClear } = this.props;
+    const { onSelect, onClear } = this.props;
 
     const renderLink = (label: string, name: string) => {
-      const selected = queryParams[name] && queryParams[name].length > 0;
+      const selected = queryParams.closeDateType === name;
 
       return (
         <FilterItem>
           <FilterDetail
             selected={selected}
-            onClick={onDateFilterSelect.bind(this, name, 'true')}
+            onClick={onSelect.bind(this, name, 'closeDateType')}
           >
             {__(label)}
           </FilterDetail>
@@ -187,7 +186,7 @@ class MainActionBar extends React.Component<Props, State> {
               <Button
                 btnStyle="link"
                 icon="cancel-1"
-                onClick={onClear.bind(this, name)}
+                onClick={onClear.bind(this, 'closeDateType')}
               />
             </Tip>
           </ClearDate>

@@ -33,11 +33,7 @@ const FILTER_PARAMS = [
   'sortDirection',
   'search',
   'assignedUserIds',
-  'nextWeek',
-  'nextDay',
-  'nextMonth',
-  'noCloseDate',
-  'overdue',
+  'closeDateType',
   'hackStage',
   'priority'
 ];
