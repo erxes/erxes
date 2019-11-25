@@ -12,6 +12,10 @@ const receiveDms = async requestBody => {
 
   const users: IUsers = requestBody.users;
 
+  if (!direct_message_events) {
+    return;
+  }
+
   for (const event of direct_message_events) {
     const { type, message_create, id, created_timestamp } = event;
 
@@ -22,6 +26,10 @@ const receiveDms = async requestBody => {
       const { message_data } = message_create;
 
       const account = await Accounts.findOne({ uid: receiverId });
+
+      if (!account) {
+        return;
+      }
 
       const integration = await Integrations.getIntegration({
         $and: [{ accountId: account._id }, { kind: 'twitter-dm' }],
