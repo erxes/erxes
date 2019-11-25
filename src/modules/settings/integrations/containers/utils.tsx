@@ -28,7 +28,7 @@ export const getRefetchQueries = (kind: string) => {
   ];
 };
 
-export const formatStr = (emailString: string) => {
+export const formatStr = (emailString?: string) => {
   return emailString ? emailString.split(/[ ]+/).join(',') : '';
 };
 

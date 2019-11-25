@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
@@ -81,9 +81,40 @@ const MailFormContainer = (props: FinalProps) => {
     const optimisticResponse = {
       __typename: 'Mutation',
       integrationSendMail: {
-        __typename: 'ConversationMessag',
+        __typename: 'ConversationMessage',
         _id: Math.round(Math.random() * -1000000),
-        ...variables
+        content: variables.body,
+        attachments: null,
+        mentionedUserIds: [],
+        conversationId,
+        internal: false,
+        isCustomerRead: false,
+        customerId: Math.random(),
+        userId: Math.random(),
+        createdAt: new Date(),
+        messengerAppData: null,
+        fromBot: false,
+        formWidgetData: null,
+        user: null,
+        customer: null,
+        mailData: {
+          bcc: variables.bcc,
+          to: variables.to,
+          from: variables.from,
+          integrationEmail: variables.from,
+          messageId: Math.random(),
+          references: null,
+          accountId: Math.random(),
+          attachments: variables.attachments,
+          headerId: null,
+          replyToMessageId: null,
+          reply: null,
+          threadId: 'alskjdaklsjdl',
+          replyTo: null,
+          cc: variables.cc,
+          body: variables.body,
+          subject: variables.subject
+        }
       }
     };
 
@@ -92,7 +123,10 @@ const MailFormContainer = (props: FinalProps) => {
 
       const selector = {
         query: gql(messageQueries.conversationMessages),
-        variables: { conversationId }
+        variables: {
+          conversationId: integrationSendMail.conversationId,
+          limit: 10
+        }
       };
 
       // Read the data from our cache for this query.
@@ -104,12 +138,7 @@ const MailFormContainer = (props: FinalProps) => {
         return;
       }
 
-      const mails = data.integrationSendMail;
-
-      // check duplications
-      if (mails.find(m => m._id === mail._id)) {
-        return;
-      }
+      const mails = data.conversationMessages;
 
       // Add our comment from the mutation to the end.
       mails.push(mail);
@@ -121,12 +150,14 @@ const MailFormContainer = (props: FinalProps) => {
     sendMailMutation({ variables, optimisticResponse, update })
       .then(() => {
         if (callback) {
+          Alert.success('You have successfully sent a email');
           callback();
         }
       })
       .catch(e => {
         if (callback) {
-          callback(e);
+          Alert.success(e);
+          callback();
         }
       });
   };
