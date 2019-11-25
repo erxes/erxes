@@ -22,6 +22,7 @@ import {
   ControlWrapper,
   // LeftSection,
   EditorFooter,
+  FileSize,
   MailEditorWrapper,
   Resipients,
   SpaceBetweenRow,
@@ -401,10 +402,10 @@ class MailForm extends React.Component<Props, State> {
           <AttachmentContainer key={index}>
             <FileName>{attachment.filename || attachment.name}</FileName>
             {attachment.size ? (
-              <div>
+              <FileSize>
                 ({Math.round(attachment.size / 1000)}
                 kB)
-              </div>
+              </FileSize>
             ) : null}
             <Icon
               icon="times-circle"
@@ -429,7 +430,7 @@ class MailForm extends React.Component<Props, State> {
     onClick?: () => void;
   }) => {
     return (
-      <Tip text={__(text)} placement="bottom">
+      <Tip text={__(text)} placement="top">
         <Label>
           <Icon icon={icon} onClick={onClick} />
           {element}

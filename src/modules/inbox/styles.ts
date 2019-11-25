@@ -261,7 +261,7 @@ const Attachment = styled.div`
   align-items: center;
 
   > div {
-    margin-right: 10px;
+    margin-right: 8px;
   }
 `;
 
