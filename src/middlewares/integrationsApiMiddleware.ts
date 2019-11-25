@@ -76,7 +76,7 @@ const integrationsApiMiddleware = async (req, res) => {
 
     const messageDoc: IMessage = {
       // Reopen its conversation if it's closed
-      status: doc.unread ? CONVERSATION_STATUSES.OPEN : CONVERSATION_STATUSES.CLOSED,
+      status: doc.unread || doc.unread === undefined ? CONVERSATION_STATUSES.OPEN : CONVERSATION_STATUSES.CLOSED,
 
       attachments: message.attachments,
 
