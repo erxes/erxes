@@ -2,14 +2,6 @@ import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrati
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
 import { graphqlPubsub } from '../pubsub';
 
-interface IMessage {
-  status: string;
-  attachments: string[];
-  readUserIds: string[];
-  content?: string;
-  updatedAt?: Date;
-}
-
 /*
  * Handle requests from integrations api
  */
@@ -59,7 +51,7 @@ const integrationsApiMiddleware = async (req, res) => {
     if (doc.conversationId) {
       const { conversationId, content } = doc;
 
-      await Conversations.updateOne({ _id: conversationId }, { $set: { content } });
+      await Conversations.updateConversation(conversationId, { content });
 
       return res.json({ _id: conversationId });
     }
@@ -74,25 +66,23 @@ const integrationsApiMiddleware = async (req, res) => {
   if (action === 'create-conversation-message') {
     const message = await ConversationMessages.createMessage(doc);
 
-    const messageDoc: IMessage = {
+    const conversationDoc: { status: string; readUserIds: string[]; content?: string; updatedAt?: Date } = {
       // Reopen its conversation if it's closed
       status: doc.unread || doc.unread === undefined ? CONVERSATION_STATUSES.OPEN : CONVERSATION_STATUSES.CLOSED,
-
-      attachments: message.attachments,
 
       // Mark as unread
       readUserIds: [],
     };
 
     if (message.content && metaInfo === 'replaceContent') {
-      messageDoc.content = message.content;
+      conversationDoc.content = message.content;
     }
 
     if (doc.createdAt) {
-      messageDoc.updatedAt = doc.createdAt;
+      conversationDoc.updatedAt = doc.createdAt;
     }
 
-    await Conversations.updateOne({ _id: message.conversationId }, { $set: messageDoc });
+    await Conversations.updateConversation(message.conversationId, conversationDoc);
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
       conversationClientMessageInserted: message,

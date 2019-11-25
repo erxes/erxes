@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Users } from '.';
+import { cleanHtml } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
 import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
@@ -14,6 +15,7 @@ interface ISTATUSES {
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversationStatuses(): ISTATUSES;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
+  updateConversation(_id: string, doc): Promise<IConversationDocument>;
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
 
@@ -66,6 +68,7 @@ export const loadClass = () => {
       return Conversations.create({
         status: this.getConversationStatuses().NEW,
         ...doc,
+        content: cleanHtml(doc.content),
         createdAt: doc.createdAt || now,
         updatedAt: doc.createdAt || now,
         number: (await Conversations.find().countDocuments()) + 1,
@@ -73,25 +76,31 @@ export const loadClass = () => {
       });
     }
 
+    /**
+     * Update a conversation
+     */
+    public static async updateConversation(_id, doc) {
+      if (doc.content) {
+        doc.content = cleanHtml(doc.content);
+      }
+
+      return Conversations.updateOne({ _id }, { $set: doc });
+    }
+
     /*
      * Reopens conversation
      */
     public static async reopen(_id: string) {
-      await Conversations.updateOne(
-        { _id },
-        {
-          $set: {
-            // reset read state
-            readUserIds: [],
+      await Conversations.updateConversation(_id, {
+        // reset read state
+        readUserIds: [],
 
-            // if closed, reopen
-            status: this.getConversationStatuses().OPEN,
+        // if closed, reopen
+        status: this.getConversationStatuses().OPEN,
 
-            closedAt: null,
-            closedUserId: null,
-          },
-        },
-      );
+        closedAt: null,
+        closedUserId: null,
+      });
 
       return Conversations.findOne({ _id });
     }
@@ -185,12 +194,12 @@ export const loadClass = () => {
 
       // if current user is first one
       if (!readUserIds || readUserIds.length === 0) {
-        await Conversations.updateOne({ _id }, { $set: { readUserIds: [userId] } });
+        await Conversations.updateConversation(_id, { readUserIds: [userId] });
       }
 
       // if current user is not in read users list then add it
       if (!readUserIds.includes(userId)) {
-        await Conversations.updateOne({ _id }, { $push: { readUserIds: userId } });
+        await Conversations.updateConversation(_id, { readUserIds: userId });
       }
 
       return Conversations.findOne({ _id });

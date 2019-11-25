@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
+import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
@@ -813,6 +814,8 @@ export default {
   readFile,
   createTransporter,
 };
+
+export const cleanHtml = (content?: string) => strip(content || '').substring(0, 100);
 
 export const validSearchText = (values: string[]) => {
   const value = values.join(' ');
