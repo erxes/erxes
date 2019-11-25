@@ -6,7 +6,18 @@ import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { IMail, IMessage } from 'modules/inbox/types';
 import * as React from 'react';
-import { ActionButton, Date, Details, From, Meta, RightSide } from './style';
+import {
+  ActionButton,
+  AddressContainer,
+  Addresses,
+  AddressItem,
+  Date,
+  Details,
+  From,
+  Meta,
+  RightSide,
+  Title
+} from './style';
 
 type Props = {
   message: IMessage;
@@ -17,6 +28,7 @@ type Props = {
 
 type State = {
   dateFormat: string;
+  isExpanded: boolean;
 };
 
 class MailHeader extends React.Component<Props, State> {
@@ -24,7 +36,8 @@ class MailHeader extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      dateFormat: 'MMM D, h:mm A'
+      dateFormat: 'MMM D, h:mm A',
+      isExpanded: false
     };
   }
 
@@ -34,6 +47,12 @@ class MailHeader extends React.Component<Props, State> {
     this.setState({
       dateFormat: this.state.dateFormat === 'lll' ? 'MMM D, h:mm A' : 'lll'
     });
+  };
+
+  toggleExpand = e => {
+    e.stopPropagation();
+
+    this.setState({ isExpanded: !this.state.isExpanded });
   };
 
   renderTopButton = () => {
@@ -72,12 +91,20 @@ class MailHeader extends React.Component<Props, State> {
       return null;
     }
 
-    const emails = values.map((val, idx) => <span key={idx}>{val.email}</span>);
+    const { length } = values;
+
+    const emails = values.map((val, idx) => (
+      <>
+        <span key={idx}>{val.email}</span>
+        {length - 1 !== idx && `,${' '}`}
+      </>
+    ));
 
     return (
-      <>
-        {title} {emails}
-      </>
+      <AddressItem>
+        <Title>{title}</Title>
+        <Addresses>{emails}</Addresses>
+      </AddressItem>
     );
   }
 
@@ -108,15 +135,31 @@ class MailHeader extends React.Component<Props, State> {
     );
   };
 
+  renderSubject = mailData => {
+    if (!this.state.isExpanded) {
+      return null;
+    }
+
+    return (
+      <AddressItem>
+        <Title>{__('Subject')}:</Title>
+        <Addresses>{mailData.subject}</Addresses>
+      </AddressItem>
+    );
+  };
+
   renderDetails(mailData) {
     const [from] = mailData.from || [{}];
 
     return (
-      <Details>
+      <Details onClick={this.toggleExpand}>
         {this.renderCustomer(from.email || '')}
-        {this.renderAddress('To:', mailData.to)}
-        {this.renderAddress('Cc:', mailData.cc)}
-        {this.renderAddress('Bcc:', mailData.bcc)}
+        <AddressContainer isExpanded={this.state.isExpanded}>
+          {this.renderAddress('To:', mailData.to)}
+          {this.renderAddress('Cc:', mailData.cc)}
+          {this.renderAddress('Bcc:', mailData.bcc)}
+        </AddressContainer>
+        {this.renderSubject(mailData)}
       </Details>
     );
   }

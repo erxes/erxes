@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const AttachmentContainer = styled(Attachment)`
-  padding: 5px 10px;
+  padding: 3px 8px;
   border-radius: 2px;
   margin: 0 5px 5px 0;
   color: ${colors.colorWhite};
@@ -20,6 +20,11 @@ const AttachmentContainer = styled(Attachment)`
       opacity: 1;
     }
   }
+`;
+
+const FileSize = styled.div`
+  font-size: 90%;
+  opacity: 0.9;
 `;
 
 const Uploading = styled.div`
@@ -174,5 +179,6 @@ export {
   Uploading,
   AttachmentContainer,
   SpaceBetweenRow,
-  EditorFooter
+  EditorFooter,
+  FileSize
 };

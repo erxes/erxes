@@ -89,7 +89,8 @@ class Avatar extends React.Component<Props> {
       height: size,
       lineHeight: `${size}px`,
       borderRadius: `${size}px`,
-      fontSize: `${size / 3}px`
+      fontSize: `${size / 3}px`,
+      fontWeight: 600
     };
   }
 
