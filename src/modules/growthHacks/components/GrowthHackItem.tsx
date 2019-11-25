@@ -57,6 +57,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
         itemId={item._id}
         hideHeader={true}
         isPopupVisible={isFormVisible}
+        item={item}
       />
     );
   };

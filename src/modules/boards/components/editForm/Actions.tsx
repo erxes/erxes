@@ -17,6 +17,7 @@ type Props = {
   removeItem: (itemId: string) => void;
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
+  onChangeLabels: (labels: string[]) => void;
 };
 
 class Actions extends React.Component<Props> {
@@ -31,7 +32,14 @@ class Actions extends React.Component<Props> {
   };
 
   render() {
-    const { item, saveItem, options, copyItem, removeItem } = this.props;
+    const {
+      item,
+      saveItem,
+      options,
+      copyItem,
+      removeItem,
+      onChangeLabels
+    } = this.props;
 
     const onRemove = () => removeItem(item._id);
     const onLabelChange = labels => saveItem({ labels });
@@ -52,7 +60,11 @@ class Actions extends React.Component<Props> {
           trigger={priorityTrigger}
         />
 
-        <LabelChooser item={item} onSelect={onLabelChange} />
+        <LabelChooser
+          item={item}
+          onSelect={onLabelChange}
+          onChangeLabels={onChangeLabels}
+        />
 
         <ChecklistAdd itemId={item._id} type={options.type} />
 

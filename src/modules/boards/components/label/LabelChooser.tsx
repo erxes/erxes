@@ -14,6 +14,7 @@ type Props = {
   doLabel: (labelIds: string[]) => void;
   isConfirmVisible: boolean;
   toggleConfirm: (callback?: () => void) => void;
+  onChangeLabels: (labelIds: string[]) => void;
 };
 
 class ChooseLabel extends React.Component<
@@ -28,7 +29,7 @@ class ChooseLabel extends React.Component<
     this.state = { selectedLabelIds: props.selectedLabelIds };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props) {
     if (
       this.props.selectedLabelIds.toString() !==
       nextProps.selectedLabelIds.toString()
@@ -43,6 +44,8 @@ class ChooseLabel extends React.Component<
 
   onSelectLabels = (selectedLabelIds: string[]) => {
     this.setState({ selectedLabelIds });
+
+    this.props.onChangeLabels(selectedLabelIds);
   };
 
   renderOverlay() {
@@ -62,7 +65,12 @@ class ChooseLabel extends React.Component<
   }
 
   onExit = () => {
-    this.props.doLabel(this.state.selectedLabelIds);
+    if (
+      this.props.selectedLabelIds.toString() !==
+      this.state.selectedLabelIds.toString()
+    ) {
+      this.props.doLabel(this.state.selectedLabelIds);
+    }
   };
 
   render() {

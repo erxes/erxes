@@ -24,6 +24,7 @@ type Props = {
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
+  savePipelineLabels: (labels: string[]) => void;
 };
 
 type State = {
@@ -102,7 +103,8 @@ export default class TicketEditForm extends React.Component<Props, State> {
     copy,
     remove,
     saveItem,
-    onChangeStage
+    onChangeStage,
+    onChangeLabels
   }: IEditFormContent) => {
     const { item, options, onUpdate } = this.props;
 
@@ -126,6 +128,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             removeItem={remove}
             onUpdate={onUpdate}
             item={item}
+            onChangeLabels={onChangeLabels}
           />
 
           <Sidebar

@@ -300,4 +300,5 @@ export interface IEditFormContent {
   onChangeStage: (stageId: string) => void;
   copy: () => void;
   remove: (id: string) => void;
+  onChangeLabels: (labelIds: string[]) => void;
 }

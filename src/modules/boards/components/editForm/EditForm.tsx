@@ -17,12 +17,14 @@ type Props = {
   saveItem: (doc, callback?: (item) => void) => void;
   isPopupVisible?: boolean;
   hideHeader?: boolean;
+  savePipelineLabels: (labels: string[]) => void;
 };
 
 type State = {
   stageId?: string;
   updatedItem?: IItem;
   prevStageId?: string;
+  labelIds: string[];
 };
 
 class EditForm extends React.Component<Props, State> {
@@ -30,7 +32,8 @@ class EditForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      stageId: props.item.stageId
+      stageId: props.item.stageId,
+      labelIds: props.item.labelIds || []
     };
   }
 
@@ -46,6 +49,12 @@ class EditForm extends React.Component<Props, State> {
         });
       }
     });
+  };
+
+  onChangeLabels = (labelIds: string[]) => {
+    if (labelIds) {
+      this.setState({ labelIds });
+    }
   };
 
   saveItem = (doc: { [key: string]: any }) => {
@@ -87,11 +96,13 @@ class EditForm extends React.Component<Props, State> {
   };
 
   onHideModal = () => {
-    const { updatedItem, prevStageId } = this.state;
+    const { updatedItem, prevStageId, labelIds } = this.state;
 
     if (updatedItem) {
       this.props.onUpdate(updatedItem, prevStageId);
     }
+
+    this.props.savePipelineLabels(labelIds);
 
     this.closeModal();
   };
@@ -129,7 +140,8 @@ class EditForm extends React.Component<Props, State> {
             saveItem: this.saveItem,
             onChangeStage: this.onChangeStage,
             copy: this.copy,
-            remove: this.remove
+            remove: this.remove,
+            onChangeLabels: this.onChangeLabels
           })}
         </Modal.Body>
       </Modal>

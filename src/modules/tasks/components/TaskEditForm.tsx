@@ -21,6 +21,7 @@ type Props = {
   removeItem: (itemId: string, callback: () => void) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
   beforePopupClose: () => void;
+  savePipelineLabels: (labels: string[]) => void;
 };
 
 export default class TaskEditForm extends React.Component<Props> {
@@ -38,7 +39,8 @@ export default class TaskEditForm extends React.Component<Props> {
     copy,
     remove,
     saveItem,
-    onChangeStage
+    onChangeStage,
+    onChangeLabels
   }: IEditFormContent) => {
     const { item, options, onUpdate } = this.props;
 
@@ -60,6 +62,7 @@ export default class TaskEditForm extends React.Component<Props> {
             removeItem={remove}
             onUpdate={onUpdate}
             item={item}
+            onChangeLabels={onChangeLabels}
           />
 
           <Sidebar

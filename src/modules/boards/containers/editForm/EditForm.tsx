@@ -6,12 +6,14 @@ import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
-import { queries } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import {
   DetailQueryResponse,
   IItem,
   IItemParams,
   IOptions,
+  PipelineLabelMutationResponse,
+  PipelineLabelMutationVariables,
   RemoveMutation,
   SaveMutation
 } from '../../types';
@@ -28,6 +30,7 @@ type WrapperProps = {
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
   hideHeader?: boolean;
+  item: IItem;
 };
 
 type ContainerProps = {
@@ -44,7 +47,8 @@ type FinalProps = {
   addMutation: SaveMutation;
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
-} & ContainerProps;
+} & ContainerProps &
+  PipelineLabelMutationResponse;
 
 class EditFormContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -118,6 +122,26 @@ class EditFormContainer extends React.Component<FinalProps> {
     );
   };
 
+  savePipelineLabels = (labelIds: string[]) => {
+    const { item, itemId, pipelineLabelMutation } = this.props;
+
+    const pipelineId = item && item.pipeline._id;
+
+    const variables = {
+      pipelineId,
+      targetId: itemId,
+      labelIds
+    };
+
+    pipelineLabelMutation({ variables })
+      .then(() => {
+        Alert.success('Labels have been saved.');
+      })
+      .catch((e: Error) => {
+        Alert.error(e.message);
+      });
+  };
+
   render() {
     const { usersQuery, detailQuery, options } = this.props;
 
@@ -142,7 +166,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       addItem: this.addItem,
       removeItem: this.removeItem,
       saveItem: this.saveItem,
-      users
+      users,
+      savePipelineLabels: this.savePipelineLabels
     };
 
     const EditForm = options.EditForm;
@@ -208,6 +233,12 @@ const withQuery = (props: ContainerProps) => {
               }
             ]
           })
+        }
+      ),
+      graphql<ContainerProps, PipelineLabelMutationVariables>(
+        gql(mutations.pipelineLabelsLabel),
+        {
+          name: 'pipelineLabelMutation'
         }
       )
     )(EditFormContainer)
