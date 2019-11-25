@@ -143,31 +143,18 @@ class Task extends React.Component<Props, State> {
       <>
         {isComplete && this.renderContent()}
         <Detail>
-          <FlexContent>
-            <FlexBody>
-              <Row>
-                <ControlLabel>Type</ControlLabel>
-                <Select
-                  isRequired={true}
-                  options={selectOptions(REMINDER_MINUTES)}
-                  clearable={false}
-                  placeholder="Set reminder"
-                />
-              </Row>
-            </FlexBody>
-            <FlexBody>
-              <Row>
-                <ControlLabel>Set reminder</ControlLabel>
-                <Select
-                  isRequired={true}
-                  value={this.props.task.reminderMinute}
-                  onChange={minuteOnChange}
-                  options={selectOptions(REMINDER_MINUTES)}
-                  clearable={false}
-                />
-              </Row>
-            </FlexBody>
-          </FlexContent>
+          <FlexBody>
+            <Row>
+              <ControlLabel>Set reminder</ControlLabel>
+              <Select
+                isRequired={true}
+                value={this.props.task.reminderMinute}
+                onChange={minuteOnChange}
+                options={selectOptions(REMINDER_MINUTES)}
+                clearable={false}
+              />
+            </Row>
+          </FlexBody>
         </Detail>
       </>
     );
@@ -257,12 +244,24 @@ class Task extends React.Component<Props, State> {
   render() {
     const { task } = this.props;
     const { isComplete, showDetail, editing } = this.state;
+    const { createdUser } = task;
+
+    const onComplete = () => {
+      this.setState({ isComplete: !this.state.isComplete }, () => {
+        this.saveItem('isComplete', this.state.isComplete);
+      });
+    };
 
     return (
       <LogWrapper>
         <FlexCenterContent>
           <FlexBody>
-            <strong>Somebody</strong> created a task
+            <strong>
+              {createdUser && createdUser.details
+                ? createdUser.details.fullName || createdUser.email
+                : 'Undefined'}
+            </strong>{' '}
+            created a task
           </FlexBody>
           <DeleteAction onClick={this.onRemove}>Delete</DeleteAction>
           <Tip text={dayjs(task.createdAt).format('llll')}>
@@ -273,10 +272,7 @@ class Task extends React.Component<Props, State> {
         </FlexCenterContent>
         <FlexContent>
           <Tip text={isComplete ? 'Mark as incomplete' : 'Mark as complete'}>
-            <IconWrapper
-              onClick={this.onChange.bind(this, 'isComplete')}
-              isComplete={isComplete}
-            >
+            <IconWrapper onClick={onComplete} isComplete={isComplete}>
               <Icon icon="check-1" size={25} />
             </IconWrapper>
           </Tip>

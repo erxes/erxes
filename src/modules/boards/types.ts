@@ -129,6 +129,7 @@ export interface IItem {
   modifiedAt: Date;
   assignedUserIds?: string[];
   assignedUsers: IUser[];
+  createdUser?: IUser;
   companies: ICompany[];
   customers: ICustomer[];
   attachments?: IAttachment[];

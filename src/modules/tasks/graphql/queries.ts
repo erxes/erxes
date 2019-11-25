@@ -46,6 +46,13 @@ export const taskFields = `
     primaryPhone
     visitorContactInfo
   }
+  createdUser {
+    _id
+    email
+    details {
+      fullName
+    }
+  }
   closeDate
   description
   priority

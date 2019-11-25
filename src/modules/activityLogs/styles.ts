@@ -63,7 +63,6 @@ const Title = styledTS<{ isComplete?: boolean; isEditing: boolean }>(
   margin: ${dimensions.unitSpacing}px;
   flex: 1;
   font-size: 16px;
-  padding: 0 ${dimensions.unitSpacing}px;
 
   > div {
     margin-bottom: ${dimensions.unitSpacing}px;
