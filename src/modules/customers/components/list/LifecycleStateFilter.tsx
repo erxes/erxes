@@ -5,7 +5,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Icon from 'modules/common/components/Icon';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IRouterProps } from '../../../common/types';
 import { LIFECYCLE_STATE_TYPES } from '../../constants';
 import { lifecycleStateChoices } from '../../utils';
@@ -42,7 +42,7 @@ class LifecycleStateFilter extends React.Component<IProps> {
                   }
                   onClick={onClick.bind(this, paramKey, value)}
                 >
-                  {label}
+                  <FieldStyle>{label}</FieldStyle>
                   <SidebarCounter>{counts ? counts[value] : 0}</SidebarCounter>
                 </a>
               </li>

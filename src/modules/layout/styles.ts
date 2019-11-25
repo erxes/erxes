@@ -271,7 +271,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 
   &.no-link li,
   a {
-    display: block;
+    display: flex;
     padding: 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
@@ -339,10 +339,18 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
     `};
 `;
 
-const FieldStyle = styled.div`
+const InboxField = styled.div`
   display: inline-block;
   white-space: nowrap;
   max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const FieldStyle = styled.div`
+  display: inline-block;
+  white-space: nowrap;
+  max-width: 225px;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
@@ -584,5 +592,6 @@ export {
   SectionBodyItem,
   MobileRecommend,
   ButtonRelated,
+  InboxField,
   FieldStyle
 };
