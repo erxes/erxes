@@ -6,6 +6,7 @@ import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { IMail, IMessage } from 'modules/inbox/types';
 import * as React from 'react';
+import * as sanitizeHtml from 'sanitize-html';
 import {
   ActionButton,
   AddressContainer,
@@ -28,7 +29,7 @@ type Props = {
 
 type State = {
   dateFormat: string;
-  isExpanded: boolean;
+  isDetailExpanded: boolean;
 };
 
 class MailHeader extends React.Component<Props, State> {
@@ -37,7 +38,7 @@ class MailHeader extends React.Component<Props, State> {
 
     this.state = {
       dateFormat: 'MMM D, h:mm A',
-      isExpanded: false
+      isDetailExpanded: false
     };
   }
 
@@ -50,9 +51,12 @@ class MailHeader extends React.Component<Props, State> {
   };
 
   toggleExpand = e => {
-    e.stopPropagation();
+    if (this.props.isContentCollapsed) {
+      return;
+    }
 
-    this.setState({ isExpanded: !this.state.isExpanded });
+    e.stopPropagation();
+    this.setState({ isDetailExpanded: !this.state.isDetailExpanded });
   };
 
   renderTopButton = () => {
@@ -135,16 +139,39 @@ class MailHeader extends React.Component<Props, State> {
     );
   };
 
-  renderSubject = mailData => {
-    if (!this.state.isExpanded) {
+  renderSubject = (subject: string) => {
+    if (!this.state.isDetailExpanded) {
       return null;
     }
 
     return (
       <AddressItem>
         <Title>{__('Subject')}:</Title>
-        <Addresses>{mailData.subject}</Addresses>
+        <Addresses>{subject}</Addresses>
       </AddressItem>
+    );
+  };
+
+  renderSecondaryContent = mailData => {
+    if (this.props.isContentCollapsed) {
+      // remove all tags and convert plain text
+      const plainContent = sanitizeHtml(this.props.message.content || '', {
+        allowedTags: [],
+        allowedAttributes: {}
+      }).trim();
+
+      return <div>{plainContent.substring(0, 100)}</div>;
+    }
+
+    return (
+      <>
+        <AddressContainer isExpanded={this.state.isDetailExpanded}>
+          {this.renderAddress('To:', mailData.to)}
+          {this.renderAddress('Cc:', mailData.cc)}
+          {this.renderAddress('Bcc:', mailData.bcc)}
+        </AddressContainer>
+        {this.renderSubject(mailData.subject || '')}
+      </>
     );
   };
 
@@ -152,14 +179,12 @@ class MailHeader extends React.Component<Props, State> {
     const [from] = mailData.from || [{}];
 
     return (
-      <Details onClick={this.toggleExpand}>
+      <Details
+        onClick={this.toggleExpand}
+        clickable={!this.props.isContentCollapsed}
+      >
         {this.renderCustomer(from.email || '')}
-        <AddressContainer isExpanded={this.state.isExpanded}>
-          {this.renderAddress('To:', mailData.to)}
-          {this.renderAddress('Cc:', mailData.cc)}
-          {this.renderAddress('Bcc:', mailData.bcc)}
-        </AddressContainer>
-        {this.renderSubject(mailData)}
+        {this.renderSecondaryContent(mailData)}
       </Details>
     );
   }

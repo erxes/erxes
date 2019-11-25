@@ -45,14 +45,14 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   }
 `;
 
-const Details = styled.div`
+const Details = styledTS<{ clickable?: boolean }>(styled.div)`
   margin-left: 7px;
   padding: 2px 7px;
   border-radius: 4px;
   align-self: center;
 
   &:hover {
-    background: ${colors.bgActive};
+    background: ${props => props.clickable && colors.bgActive};
   }
 `;
 
