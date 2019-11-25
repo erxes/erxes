@@ -13,6 +13,8 @@ const MainDescription = styled.div`
   h4 {
     margin: 0;
     padding-bottom: 5px;
+    font-size: 18px;
+    font-weight: 500;
   }
 `;
 

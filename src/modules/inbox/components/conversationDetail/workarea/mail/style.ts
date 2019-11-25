@@ -1,6 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { MailBox } from '../../sidebar/styles';
 
@@ -13,9 +13,12 @@ const SmallContent = styledTS<{ toggle?: boolean }>(styled.div)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 425px;  blockquote {
+  max-width: 425px;  
+  
+  blockquote {
     font-size: 13px;
   }
+  
   table {
     border-collapse: initial;
     background-color: unset;
@@ -30,9 +33,9 @@ const Subject = styled.h2`
 `;
 
 const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   border-bottom: ${props =>
     props.toggle ? 0 : `1px solid ${colors.borderPrimary}`};
 
@@ -42,13 +45,14 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   }
 `;
 
-const Details = styled.div`
-  margin-left: 13px;
-  flex: 1;
+const Details = styledTS<{ clickable?: boolean }>(styled.div)`
+  margin-left: 7px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  align-self: center;
 
-  span {
-    color: ${colors.textSecondary};
-    margin-right: 10px;
+  &:hover {
+    background: ${props => props.clickable && colors.bgActive};
   }
 `;
 
@@ -58,11 +62,16 @@ const Date = styled.div`
   font-weight: 500;
   color: ${colors.colorCoreLightGray};
   cursor: default;
+  line-height: 30px;
 `;
 
 const RightSide = styled.div`
   display: flex;
   align-items: center;
+  align-self: baseline;
+  padding: 7px 0;
+  margin-left: auto;
+  flex-shrink: 0;
 
   > i {
     color: ${colors.colorCoreGray};
@@ -72,91 +81,68 @@ const RightSide = styled.div`
 `;
 
 const AttachmentsContainer = styled.div`
-  margin: 0 20px;
+  margin: 0 20px 10px 20px;
   overflow: hidden;
-`;
-
-const FileInfo = styled.div`
-  position: absolute;
-  padding: 5px 5px 5px 35px;
-  top: 85px;
-  left: 0;
-  right: 0;
-  word-break: break-all;
-  background: ${colors.bgLight};
-  height: 100%;
-  transition: top 0.2s ease;
-  span {
-    display: block;
-    color: ${colors.colorCoreGray};
-    visibility: hidden;
-    opacity: 0;
-    font-size: 11px;
-  }
-  > i {
-    position: absolute;
-    left: 11px;
-    color: ${colors.colorSecondary};
-  }
+  display: flex;
 `;
 
 const FileName = styled.div`
   font-weight: bold;
   font-size: 12px;
-  margin-top: 3px;
-  line-height: 16px;
-  max-height: 48px;
+  flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `;
 
-const AttachmentItem = styled.div`
-  float: left;
-  width: 180px;
-  height: 120px;
-  border: 1px solid ${colors.borderPrimary};
-  position: relative;
-  overflow: hidden;
-  margin: 0 10px 10px 0;
-  &:hover ${FileInfo} {
-    top: 0;
-    bottom: 0;
-    span {
-      visibility: visible;
-      opacity: 1;
-    }
-    ${FileName} {
-      white-space: normal;
-      text-overflow: initial;
-    }
+const FileInfo = styled.div`
+  display: flex;
+  align-items: center;
+
+  span {
+    font-size: 10px;
+    margin-right: 5px;
   }
 `;
 
 const Download = styled.a`
-  width: 30px;
-  height: 24px;
-  border-radius: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
   background: ${colors.colorCoreGray};
   display: block;
   text-align: center;
   color: ${colors.colorWhite};
-  line-height: 23px;
-  position: absolute;
-  bottom: 15px;
+  line-height: 18px;
+  display: none;
+
   &:hover {
-    background: ${colors.colorCoreDarkGray};
+    background: ${colors.colorPrimary};
     color: ${colors.colorWhite};
   }
 `;
 
-const FileIcon = styled.div`
-  height: 85px;
-  text-align: center;
-  color: ${colors.colorCoreLightGray};
-  line-height: 85px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${colors.colorWhite};
+const AttachmentItem = styled.div`
+  width: 200px;
+  flex-shrink: 0;
+  height: 30px;
+  display: flex;
+  border-radius: 4px;
+  background: ${colors.bgActive};
+  margin: 0 8px 5px 0;
+  align-items: center;
+  padding: 0 8px;
+
+  > i {
+    margin-right: 5px;
+    color: ${colors.colorPrimary};
+  }
+
+  &:hover {
+    ${Download} {
+      display: block;
+    }
+  }
 `;
 
 const BoxItem = styledTS<{ toggle?: boolean }>(styled(MailBox))`
@@ -197,6 +183,35 @@ const From = styled.span`
   font-size: 95%;
 `;
 
+const AddressItem = styled.div`
+  display: flex;
+`;
+
+const AddressContainer = styledTS<{ isExpanded?: boolean }>(styled.div)`
+  ${props =>
+    !props.isExpanded &&
+    css`
+      ${AddressItem} {
+        margin-right: 5px;
+      }
+
+      max-height: 20px;
+      overflow: hidden;
+
+      div {
+        display: inline;
+      }
+    `};
+`;
+
+const Title = styled.div`
+  margin-right: 5px;
+`;
+
+const Addresses = styled.div`
+  color: ${colors.textSecondary};
+`;
+
 export {
   Subject,
   Meta,
@@ -209,10 +224,13 @@ export {
   RightSide,
   AttachmentItem,
   AttachmentsContainer,
-  FileIcon,
-  FileInfo,
   FileName,
+  FileInfo,
   Download,
   ActionButton,
-  From
+  From,
+  AddressContainer,
+  AddressItem,
+  Title,
+  Addresses
 };
