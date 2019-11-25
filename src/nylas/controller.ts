@@ -14,7 +14,6 @@ import {
 import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
-// import { INylasAttachment } from './types';
 import { buildEmailAddress } from './utils';
 
 // load config
