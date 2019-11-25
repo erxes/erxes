@@ -8,7 +8,6 @@ import {
   AttachmentItem,
   AttachmentsContainer,
   Download,
-  FileIcon,
   FileInfo,
   FileName
 } from './style';
@@ -34,12 +33,12 @@ class Attachments extends React.PureComponent<Props, {}> {
     return `${n.toFixed(n >= 10 || l < 1 ? 0 : 1)}  ${units[l]}`;
   }
 
-  getIcon(type: string, size: number) {
+  getIcon(type: string) {
     if (type.startsWith('image')) {
-      return <Icon icon="picture" size={size} />;
+      return <Icon icon="image-v" size={14} />;
     }
 
-    return <Icon icon="doc-inv" size={size} />;
+    return <Icon icon="file-alt" size={14} />;
   }
 
   createLink(attachmentId: string, filename: string, type?: string) {
@@ -62,17 +61,17 @@ class Attachments extends React.PureComponent<Props, {}> {
 
     return (
       <AttachmentItem key={id}>
-        <FileIcon>{this.getIcon(type || '', 32)}</FileIcon>
+        {this.getIcon(type || '')}
+        <FileName>{filename}</FileName>
+
         <FileInfo>
-          {this.getIcon(type || '', 14)}
-          <FileName>{filename}</FileName>
           <span>{this.formatSize(size)}</span>
           <Tip text={__('Download')}>
             <Download
               href={this.createLink(id || attachmentId, filename, type)}
               target="_blank"
             >
-              <Icon icon="download" />
+              <Icon icon="arrow-down" />
             </Download>
           </Tip>
         </FileInfo>

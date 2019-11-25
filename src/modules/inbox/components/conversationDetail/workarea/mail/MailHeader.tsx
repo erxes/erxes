@@ -98,10 +98,10 @@ class MailHeader extends React.Component<Props, State> {
     const { length } = values;
 
     const emails = values.map((val, idx) => (
-      <>
-        <span key={idx}>{val.email}</span>
+      <React.Fragment key={idx}>
+        <span>{val.email}</span>
         {length - 1 !== idx && `,${' '}`}
-      </>
+      </React.Fragment>
     ));
 
     return (
