@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { debugNylas } from '../debuggers';
+import { debugBase, debugNylas } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { compose } from '../utils';
 import {
@@ -101,11 +101,7 @@ const syncMessages = async (accountId: string, messageId: string) => {
   };
 
   // Store new received message
-  return compose(
-    storeMessage,
-    storeConversation,
-    storeCustomer,
-  )(doc);
+  return compose(storeMessage, storeConversation, storeCustomer)(doc);
 };
 
 /**
@@ -120,6 +116,8 @@ const uploadFile = async (args: INylasAttachment) => {
   const { name, path, type, accessToken } = args;
 
   const buffer = await fs.readFileSync(path);
+
+  debugBase('After readFileSync ....');
 
   if (!buffer) {
     throw new Error('Failed to read file');
