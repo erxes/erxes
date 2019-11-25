@@ -27,15 +27,21 @@ const ActivityTitle = styled.h4`
   color: ${colors.textPrimary};
 `;
 
-const ActivityRow = styled(WhiteBox)`
-  padding: ${dimensions.coreSpacing}px;
+const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
+  padding: ${props => (props.isConversation ? '0' : dimensions.coreSpacing)}px;
+  background: ${props => props.isConversation && colors.bgLight};
   position: relative;
   overflow: visible;
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: 2px;
+  transition: all ease-in-out 0.5s;
 
   &:last-of-type {
     margin-bottom: 0;
+  }
+
+  &:hover {
+    background: ${props => props.isConversation && colors.bgUnread};
   }
 `;
 
@@ -170,7 +176,7 @@ const ActivityDate = styled.div`
   cursor: help;
 `;
 
-const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
+const ActivityContent = styledTS<{ isInternalNote?: boolean }>(styled.div)`
   margin-top: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing}px;
   background: ${props =>
@@ -269,6 +275,40 @@ const LogWrapper = styled.div`
   }
 `;
 
+const ConversationContent = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 90%;
+`;
+
+const Count = styled.div`
+  text-align: center;
+  border: 1px solid ${colors.colorShadowGray};
+  border-radius: 2px;
+  padding: 0 7px;
+  color: ${colors.colorCoreGray};
+`;
+
+const Collapse = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
+`;
+
+const Header = styled.div`
+  border-bottom: 1px solid ${colors.colorShadowGray};
+  padding-bottom: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  font-size: 15px;
+`;
+
+const CenterText = styled.div`
+  text-align: center;
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
 export {
   Timeline,
   ActivityTitle,
@@ -279,6 +319,7 @@ export {
   ActivityContent,
   Description,
   EmailContent,
+  ConversationContent,
   FlexContent,
   FlexCenterContent,
   FlexBody,
@@ -287,6 +328,10 @@ export {
   Title,
   Date,
   Detail,
+  Count,
   LogWrapper,
+  Collapse,
+  Header,
+  CenterText,
   DeleteAction
 };

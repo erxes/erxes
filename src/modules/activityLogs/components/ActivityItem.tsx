@@ -20,6 +20,10 @@ class ActivityItem extends React.Component<Props> {
   renderDetail(type: string, children: React.ReactNode) {
     const iconAndColor = getIconAndColor(type);
 
+    if (type === 'conversation') {
+      return children;
+    }
+
     return (
       <ActivityRow key={Math.random()}>
         <ActivityIcon color={iconAndColor.color}>

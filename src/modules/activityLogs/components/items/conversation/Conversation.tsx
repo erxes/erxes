@@ -1,16 +1,28 @@
 import dayjs from 'dayjs';
 import {
   ActivityDate,
+  ActivityIcon,
+  ActivityRow,
   AvatarWrapper,
+  CenterText,
+  Collapse,
+  ConversationContent,
+  Count,
   FlexBody,
-  FlexCenterContent
+  FlexCenterContent,
+  Header
 } from 'modules/activityLogs/styles';
+import { getIconAndColor } from 'modules/activityLogs/utils';
+import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { renderFullName } from 'modules/common/utils';
 import { Message } from 'modules/inbox/components/conversationDetail/workarea/conversation/messages';
+import Resolver from 'modules/inbox/containers/Resolver';
 import { IConversation, IMessage } from 'modules/inbox/types';
 import React from 'react';
+import { Link } from 'react-router-dom';
+import xss from 'xss';
 
 type Props = {
   activity: any;
@@ -27,7 +39,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     };
   }
 
-  renderMessages = () => {
+  onCollapse = () => {
+    this.setState({ toggleMessage: !this.state.toggleMessage });
+  };
+
+  renderMessages() {
     const { conversation, messages } = this.props;
 
     if (!conversation) {
@@ -48,6 +64,8 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     let tempId;
 
     messages.forEach(message => {
+      tempId = message.userId ? message.userId : message.customerId;
+
       rows.push(
         <Message
           isSameUser={
@@ -59,17 +77,41 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
           key={message._id}
         />
       );
-
-      tempId = message.userId ? message.userId : message.customerId;
     });
 
-    return rows;
-  };
+    return (
+      <>
+        {rows}
+        {messages.length >= 10 && (
+          <CenterText>
+            <Link to={`/inbox/index?_id=${conversation._id}`}>
+              Read more <Icon icon="angle-double-right" />
+            </Link>
+          </CenterText>
+        )}
+      </>
+    );
+  }
 
-  render() {
-    const { conversation } = this.props;
-    // tslint:disable-next-line:no-console
-    console.log(conversation, this.props.messages);
+  renderContent() {
+    const { conversation, messages } = this.props;
+    const { _id, customer, content, createdAt } = conversation;
+
+    if (this.state.toggleMessage) {
+      return (
+        <>
+          <Header>
+            <FlexCenterContent>
+              <span>
+                Conversation with <b>{renderFullName(customer)}</b>
+              </span>
+              <Resolver conversations={[conversation]} />
+            </FlexCenterContent>
+          </Header>
+          {this.renderMessages()}
+        </>
+      );
+    }
 
     return (
       <>
@@ -78,18 +120,44 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
             <NameCard.Avatar size={32} />
           </AvatarWrapper>
           <FlexBody>
-            <b>{renderFullName(conversation.customer)}</b> sent a conversation
-            message
+            <b>{renderFullName(customer)}</b> sent a{' '}
+            <Link to={`/inbox/index?_id=${_id}`}>
+              <strong>conversation</strong>
+            </Link>
+            &nbsp;message
           </FlexBody>
 
-          <Tip text={dayjs(conversation.createdAt).format('llll')}>
+          <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
-              {dayjs(conversation.createdAt).format('MMM D, h:mm A')}
+              {dayjs(createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
-        {this.renderMessages()}
+        {content && (
+          <FlexCenterContent>
+            <ConversationContent
+              dangerouslySetInnerHTML={{ __html: xss(content) }}
+            />
+            <Count>{messages.length}</Count>
+          </FlexCenterContent>
+        )}
       </>
+    );
+  }
+
+  render() {
+    const { conversation } = this.props;
+    const iconAndColor = getIconAndColor(
+      conversation.integration.kind || 'conversation'
+    );
+
+    return (
+      <ActivityRow key={Math.random()} isConversation={true}>
+        <ActivityIcon color={iconAndColor.color}>
+          <Icon icon={iconAndColor.icon} />
+        </ActivityIcon>
+        <Collapse onClick={this.onCollapse}>{this.renderContent()}</Collapse>
+      </ActivityRow>
     );
   }
 }

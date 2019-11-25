@@ -30,6 +30,30 @@ export const ICON_AND_COLOR_TABLE = {
   task: {
     icon: 'clipboard',
     color: '#34c1c6'
+  },
+  messenger: {
+    icon: 'comment',
+    color: '#6569DF'
+  },
+  lead: {
+    icon: 'doc-text-inv-1',
+    color: '#3CCC38'
+  },
+  'facebook-messenger': {
+    icon: 'messenger',
+    color: '#0084FF'
+  },
+  'facebook-post': {
+    icon: 'facebook',
+    color: '#3b5998'
+  },
+  callpro: {
+    icon: 'phone-call',
+    color: '#0191c8'
+  },
+  chatfuel: {
+    icon: 'comment-dots',
+    color: '#2490f0'
   }
 };
 
