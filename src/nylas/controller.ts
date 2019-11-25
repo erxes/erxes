@@ -128,7 +128,7 @@ const init = async app => {
   });
 
   app.post('/nylas/upload', async (req, res, next) => {
-    debugNylas('Uploading a file...');
+    debugNylas('Uploading a file...', JSON.stringify(req.body));
 
     const { name, path, type, erxesApiId } = req.body;
 
