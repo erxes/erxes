@@ -2,7 +2,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { SidebarCounter, SidebarList, FieldStyle } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
 import { withRouter } from 'react-router';
