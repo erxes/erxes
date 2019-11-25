@@ -33,6 +33,11 @@ const rawBodySaver = (req, _res, buf, encoding) => {
 
 app.use(bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true }));
 app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
+
+// Intentionally placing this route above raw bodyParser
+// File upload in nylas controller is not working with rawParser
+initNylas(app);
+
 app.use(bodyParser.raw({ limit: '10mb', verify: rawBodySaver, type: '*/*' }));
 
 app.post('/integrations/remove', async (req, res) => {
@@ -101,9 +106,6 @@ initTwitter(app);
 
 // init chatfuel
 initChatfuel(app);
-
-// init nylas
-initNylas(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
