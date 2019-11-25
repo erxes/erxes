@@ -35,6 +35,11 @@ const Meta = styledTS<{ toggle?: boolean }>(styled.div)`
   align-items: center;
   border-bottom: ${props =>
     props.toggle ? 0 : `1px solid ${colors.borderPrimary}`};
+
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const Details = styled.div`

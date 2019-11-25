@@ -84,6 +84,10 @@ class MailHeader extends React.Component<Props, State> {
   renderCustomer = (fromEmail: string) => {
     const { customer = {} as ICustomer } = this.props.message;
 
+    if (!customer) {
+      return null;
+    }
+
     if (customer.firstName === fromEmail) {
       return (
         <div>

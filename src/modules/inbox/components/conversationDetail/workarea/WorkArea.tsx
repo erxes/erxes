@@ -126,7 +126,7 @@ export default class WorkArea extends React.Component<Props, State> {
   scrollBottom = () => {
     const { current } = this.node;
 
-    current.scrollTop = current.scrollHeight;
+    return (current.scrollTop = current.scrollHeight);
   };
 
   setAttachmentPreview = attachmentPreview => {

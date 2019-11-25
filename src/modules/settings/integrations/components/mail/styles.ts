@@ -49,29 +49,20 @@ const MailEditorWrapper = styled.div`
     border-bottom: 1px solid ${colors.borderPrimary};
   }
 
-  .cke_bottom {
-    display: none;
-  }
-
   .cke_inner {
     position: relative;
 
-    .cke_top {
-      position: absolute;
+    .cke_resizer {
+      display: none;
+    }
+
+    .cke_bottom {
       background: ${colors.bgLight};
-      right: 0;
-      left: 0;
-      bottom: 0;
-      border-bottom: 0;
       padding-left: ${dimensions.coreSpacing}px;
       padding-right: ${dimensions.coreSpacing}px;
       border-top: 1px solid ${colors.borderPrimary};
       max-height: 60px;
       overflow: hidden;
-    }
-
-    .cke_contents {
-      min-height: 160px !important;
     }
   }
 

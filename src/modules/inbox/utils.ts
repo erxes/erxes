@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import queryString from 'query-string';
 import { queries } from './graphql';
+import { IConversation } from './types';
 
 export const generateParams = queryParams => ({
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
@@ -39,6 +40,14 @@ export const getConfig = (key: string) => {
 
 export const setConfig = (key, params) => {
   localStorage.setItem(key, JSON.stringify(params));
+};
+
+export const isConversationMailKind = (conversation: IConversation) => {
+  const {
+    integration: { kind }
+  } = conversation;
+
+  return kind === 'gmail' || kind.includes('nylas');
 };
 
 /**
