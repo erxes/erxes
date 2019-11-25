@@ -22,14 +22,14 @@ const connectProviderToNylas = async (kind: string, account: IAccount & { _id: s
 
   const settings = getProviderSettings(kind, tokenSecret);
 
-  const { access_token, account_id } = await integrateProviderToNylas({
+  const { access_token, account_id, billing_state } = await integrateProviderToNylas({
     email,
     kind,
     settings,
     ...(kind === 'gmail' ? { scopes: 'email.read_only,email.drafts,email.send' } : {}),
   });
 
-  await updateAccount(account._id, account_id, access_token);
+  await updateAccount(account._id, account_id, access_token, billing_state);
 };
 
 /**
@@ -40,14 +40,14 @@ const connectProviderToNylas = async (kind: string, account: IAccount & { _id: s
 const connectYahooAndOutlookToNylas = async (kind: string, account: IAccount & { _id: string }) => {
   const { email, password } = account;
 
-  const { access_token, account_id } = await integrateProviderToNylas({
+  const { access_token, account_id, billing_state } = await integrateProviderToNylas({
     email,
     kind,
     scopes: 'email',
     settings: { username: email, password: decryptPassword(password) },
   });
 
-  await updateAccount(account._id, account_id, access_token);
+  await updateAccount(account._id, account_id, access_token, billing_state);
 };
 
 /**
@@ -66,7 +66,7 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
 
   const decryptedPassword = decryptPassword(password);
 
-  const { access_token, account_id } = await integrateProviderToNylas({
+  const { access_token, account_id, billing_state } = await integrateProviderToNylas({
     email,
     kind: 'imap',
     scopes: 'email',
@@ -83,7 +83,7 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
     },
   });
 
-  await updateAccount(account._id, account_id, access_token);
+  await updateAccount(account._id, account_id, access_token, billing_state);
 };
 
 /**

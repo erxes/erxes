@@ -70,7 +70,7 @@ const getOAuthCredentials = async (req, res, next) => {
     ...(kind === 'office365' ? { scope: 'https://graph.microsoft.com/user.read' } : {}), // for graph api to get user info
   };
 
-  const { access_token, refresh_token } = await sendRequest({
+  const { access_token, refresh_token, billing_state } = await sendRequest({
     url: urls.tokenUrl,
     method: 'post',
     body: data,
@@ -112,7 +112,7 @@ const getOAuthCredentials = async (req, res, next) => {
     scope: params.scope,
     token: access_token,
     tokenSecret: refresh_token,
-    billingState: 'paid',
+    billingState: billing_state,
   };
 
   await Accounts.create(doc);
@@ -143,7 +143,6 @@ const authProvider = async (req, res, next) => {
     email,
     password: encryptPassword(password),
     ...(kind === 'nylas-imap' ? otherParams : {}),
-    billingState: 'paid',
   };
 
   debugNylas(`Creating account with email: ${email}`);

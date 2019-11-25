@@ -71,10 +71,6 @@ const init = async app => {
       erxesApiId: integrationId,
     });
 
-    if (account.billingState === 'cancelled') {
-      await enableOrDisableAccount(account.uid, true);
-    }
-
     // Connect provider to nylas ===========
     switch (kind) {
       case 'imap':
@@ -89,6 +85,12 @@ const init = async app => {
       default:
         await connectProviderToNylas(kind, account);
         break;
+    }
+
+    const updatedAccount = await Accounts.getAccount({ _id: accountId });
+
+    if (updatedAccount.billingState === 'cancelled') {
+      await enableOrDisableAccount(updatedAccount.uid, true);
     }
 
     debugNylas(`Successfully created the integration and connected to nylas`);

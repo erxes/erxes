@@ -63,9 +63,9 @@ const NYLAS_MODELS = {
  * @param {String} accountId
  * @param {String} access_token
  */
-const updateAccount = async (_id: string, accountId: string, accessToken: string) => {
+const updateAccount = async (_id: string, accountId: string, accessToken: string, billingState: string) => {
   const selector = { _id };
-  const updateFields = { $set: { uid: accountId, nylasToken: accessToken } };
+  const updateFields = { $set: { uid: accountId, nylasToken: accessToken, billingState } };
 
   try {
     await Accounts.updateOne(selector, updateFields);
