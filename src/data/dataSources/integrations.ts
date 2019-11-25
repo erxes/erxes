@@ -51,10 +51,6 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post(`/${kind}/send`, params);
   }
 
-  public async nylasUpload(params) {
-    return this.post('/nylas/upload', params);
-  }
-
   public async fetchApi(path, params) {
     return this.get(path, params);
   }

@@ -11,7 +11,6 @@ import * as path from 'path';
 import * as request from 'request';
 import { filterXSS } from 'xss';
 import apolloServer from './apolloClient';
-import { IntegrationsAPI } from './data/dataSources';
 import { companiesExport, customersExport } from './data/modules/coc/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
@@ -154,10 +153,35 @@ app.get('/read-mail-attachment', async (req: any, res) => {
 });
 
 // file upload
-app.post('/upload-file', async (req, res) => {
+app.post('/upload-file', async (req: any, res, next) => {
+  // require login
+  if (!req.user) {
+    return res.end('foribidden');
+  }
+
+  if (req.query.kind === 'nylas') {
+    debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
+
+    return req.pipe(
+      request
+        .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
+        .on('response', response => {
+          if (response.statusCode !== 200) {
+            return next(response.statusMessage);
+          }
+
+          return response.pipe(res);
+        })
+        .on('error', e => {
+          debugExternalApi(`Error from pipe ${e.message}`);
+          next(e);
+        }),
+    );
+  }
+
   const form = new formidable.IncomingForm();
 
-  form.parse(req, async (_error, fields, response) => {
+  form.parse(req, async (_error, _fields, response) => {
     const file = response.file || response.upload;
 
     // check file ====
@@ -165,17 +189,6 @@ app.post('/upload-file', async (req, res) => {
 
     if (status === 'ok') {
       try {
-        if (fields && fields.kind === 'nylas') {
-          const nylasApi = new IntegrationsAPI();
-
-          const apiResponse = await nylasApi.nylasUpload({
-            ...file,
-            erxesApiId: fields.erxesApiId,
-          });
-
-          return res.send(apiResponse);
-        }
-
         const result = await uploadFile(file, response.upload ? true : false);
 
         return res.send(result);
