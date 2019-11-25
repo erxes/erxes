@@ -146,9 +146,9 @@ const init = async app => {
 
     const account = await Accounts.findOne({ _id: integration.accountId });
 
-    const receiverId = conversation.receiverId;
+    const recipientId = conversation.senderId;
 
-    const message = await twitterUtils.reply(receiverId, content, attachment, account);
+    const message = await twitterUtils.reply(recipientId, content, attachment, account);
 
     const { event } = message;
     const { id, created_timestamp, message_create } = event;
