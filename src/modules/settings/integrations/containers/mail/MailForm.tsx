@@ -3,6 +3,7 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, withProps } from 'modules/common/utils';
+import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -12,6 +13,7 @@ import { IntegrationsQueryResponse } from '../../types';
 
 type Props = {
   integrationId?: string;
+  conversationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
   kind: string;
@@ -22,6 +24,7 @@ type Props = {
 };
 
 type FinalProps = {
+  sendMailMutation: any;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
@@ -66,8 +69,71 @@ const MailFormContainer = (props: FinalProps) => {
     );
   };
 
+  const sendMail = ({
+    variables,
+    callback
+  }: {
+    variables: any;
+    callback?: (e?) => void;
+  }) => {
+    const { conversationId, sendMailMutation } = props;
+
+    const optimisticResponse = {
+      __typename: 'Mutation',
+      integrationSendMail: {
+        __typename: 'ConversationMessag',
+        _id: Math.round(Math.random() * -1000000),
+        ...variables
+      }
+    };
+
+    const update = (proxy, { data: { integrationSendMail } }) => {
+      const mail = integrationSendMail;
+
+      const selector = {
+        query: gql(messageQueries.conversationMessages),
+        variables: { conversationId }
+      };
+
+      // Read the data from our cache for this query.
+      let data;
+
+      try {
+        data = proxy.readQuery(selector);
+      } catch (e) {
+        return;
+      }
+
+      const mails = data.integrationSendMail;
+
+      // check duplications
+      if (mails.find(m => m._id === mail._id)) {
+        return;
+      }
+
+      // Add our comment from the mutation to the end.
+      mails.push(mail);
+
+      // Write our data back to the cache.
+      proxy.writeQuery({ ...selector, data });
+    };
+
+    sendMailMutation({ variables, optimisticResponse, update })
+      .then(() => {
+        if (callback) {
+          callback();
+        }
+      })
+      .catch(e => {
+        if (callback) {
+          callback(e);
+        }
+      });
+  };
+
   const updatedProps = {
     renderButton,
+    sendMail,
     integrations,
     integrationId,
     fromEmail,
@@ -94,6 +160,12 @@ export default withProps<Props>(
           };
         }
       }
-    )
+    ),
+    graphql<Props>(gql(mutations.integrationSendMail), {
+      name: 'sendMailMutation',
+      options: {
+        refetchQueries: ['conversationMessages']
+      }
+    })
   )(MailFormContainer)
 );

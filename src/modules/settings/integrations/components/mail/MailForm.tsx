@@ -40,6 +40,7 @@ type Props = {
   closeModal?: () => void;
   toggleReply?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  sendMail: any;
 };
 
 type State = {
