@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
+import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
@@ -13,7 +14,7 @@ import {
 import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
-import { INylasAttachment } from './types';
+// import { INylasAttachment } from './types';
 import { buildEmailAddress } from './utils';
 
 // load config
@@ -128,38 +129,35 @@ const init = async app => {
   });
 
   app.post('/nylas/upload', async (req, res, next) => {
-    debugNylas('Uploading a file...', JSON.stringify(req.body));
+    debugNylas('Uploading a file...');
 
-    const { name, path, type, erxesApiId } = req.body;
+    const form = new formidable.IncomingForm();
 
-    const integration = await Integrations.findOne({ erxesApiId }).lean();
+    form.parse(req, async (_error, fields, response) => {
+      const { erxesApiId } = fields;
 
-    if (!integration) {
-      return next('Integration not found');
-    }
+      const integration = await Integrations.findOne({ erxesApiId }).lean();
 
-    const account = await Accounts.findOne({ _id: integration.accountId }).lean();
+      if (!integration) {
+        return next('Integration not found');
+      }
 
-    if (!account) {
-      return next('Account not found');
-    }
+      const account = await Accounts.findOne({ _id: integration.accountId }).lean();
 
-    const args: INylasAttachment = {
-      name,
-      path,
-      type,
-      accessToken: account.nylasToken,
-    };
+      if (!account) {
+        return next('Account not found');
+      }
 
-    try {
-      const file = await uploadFile(args);
+      const file = response.file || response.upload;
 
-      debugNylas('Successfully uploaded the file');
+      try {
+        const result = await uploadFile(file, account.nylasToken);
 
-      return res.json(file);
-    } catch (e) {
-      return next(new Error(e));
-    }
+        return res.send(result);
+      } catch (e) {
+        return res.status(500).send(e.message);
+      }
+    });
   });
 
   app.get('/nylas/get-attachment', async (req, res, next) => {

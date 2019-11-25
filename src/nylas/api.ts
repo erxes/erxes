@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { debugBase, debugNylas } from '../debuggers';
+import { debugNylas } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { compose } from '../utils';
 import {
@@ -7,7 +7,7 @@ import {
   createOrGetNylasConversationMessage as storeMessage,
   createOrGetNylasCustomer as storeCustomer,
 } from './store';
-import { IMessageDraft, INylasAttachment } from './types';
+import { IMessageDraft } from './types';
 import { nylasFileRequest, nylasInstanceWithToken, nylasRequest } from './utils';
 
 /**
@@ -112,14 +112,8 @@ const syncMessages = async (accountId: string, messageId: string) => {
  * @param {String} fileType
  * @returns {Promise} - nylas file object
  */
-const uploadFile = async (args: INylasAttachment) => {
-  const { name, path, type, accessToken } = args;
-
-  debugBase('Above readFileSync ....', path);
-
-  const buffer = await fs.readFileSync(path);
-
-  debugBase('Below readFileSync ....');
+const uploadFile = async (file, accessToken: string) => {
+  const buffer = await fs.readFileSync(file.path);
 
   if (!buffer) {
     throw new Error('Failed to read file');
@@ -131,8 +125,8 @@ const uploadFile = async (args: INylasAttachment) => {
     method: 'build',
     options: {
       data: buffer,
-      filename: name,
-      contentType: type,
+      filename: file.name,
+      contentType: file.type,
     },
   });
 

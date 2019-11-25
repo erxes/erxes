@@ -213,11 +213,7 @@ describe('Nylas gmail test', () => {
 
     const mock = sinon.stub(utils, 'fetchMainApi').callsFake(() => Promise.resolve({ _id: 'erxesApiId123' }));
 
-    await utils.compose(
-      storeMessage,
-      storeConversation,
-      storeCustomer,
-    )(doc);
+    await utils.compose(storeMessage, storeConversation, storeCustomer)(doc);
 
     const customer = await NylasGmailCustomers.findOne({ email: 'test@gmail.com' });
     const conversation = await NylasGmailConversations.findOne({ threadId: 'thread_id' });
@@ -253,7 +249,13 @@ describe('Nylas gmail test', () => {
   test('File upload', async () => {
     const mock = sinon.stub(api, 'uploadFile').callsFake(() => Promise.resolve({ id: '812739' }));
 
-    const attachment = (await api.uploadFile(attachmentDoc)) as any;
+    const file = {
+      name: 'test',
+      path: 'path',
+      type: 'type',
+    };
+
+    const attachment = (await api.uploadFile(file, 'askldjk')) as any;
 
     expect(attachment.id).toEqual('812739');
 
