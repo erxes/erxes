@@ -27,8 +27,8 @@ const commonParams = `
 `;
 
 const ticketsAdd = `
-  mutation ticketsAdd($name: String!, ${commonVariables}) {
-    ticketsAdd(name: $name, ${commonParams}) {
+  mutation ticketsAdd($name: String!, $customerIds: [String], $companyIds: [String], ${commonVariables}) {
+    ticketsAdd(name: $name, customerIds: $customerIds, companyIds: $companyIds, ${commonParams}) {
       ${ticketFields}
     }
   }

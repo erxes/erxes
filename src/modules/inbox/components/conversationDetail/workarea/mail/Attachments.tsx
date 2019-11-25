@@ -42,11 +42,11 @@ class Attachments extends React.PureComponent<Props, {}> {
     return <Icon icon="doc-inv" size={size} />;
   }
 
-  createLink(attachmentId: string, filename: string) {
+  createLink(attachmentId: string, filename: string, type?: string) {
     const { REACT_APP_API_URL } = getEnv();
     const { messageId, integrationId, kind } = this.props;
 
-    return `${REACT_APP_API_URL}/read-mail-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&kind=${kind}`;
+    return `${REACT_APP_API_URL}/read-mail-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&kind=${kind}&contentType=${type}`;
   }
 
   renderAttach(attachment: IMailAttachment) {
@@ -69,7 +69,7 @@ class Attachments extends React.PureComponent<Props, {}> {
           <span>{this.formatSize(size)}</span>
           <Tip text={__('Download')}>
             <Download
-              href={this.createLink(id || attachmentId, filename)}
+              href={this.createLink(id || attachmentId, filename, type)}
               target="_blank"
             >
               <Icon icon="download" />

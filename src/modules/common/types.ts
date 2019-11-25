@@ -100,4 +100,9 @@ export type IEditorProps = {
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
   toolbar?: any[];
+  autoFocus?: boolean;
+  toolbarLocation?: 'top' | 'bottom';
+  autoGrow?: boolean;
+  autoGrowMinHeight?: number;
+  autoGrowMaxHeight?: number;
 };

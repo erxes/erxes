@@ -1,22 +1,12 @@
-import dayjs from 'dayjs';
 import juice from 'juice';
 import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import Avatar from 'modules/common/components/nameCard/Avatar';
-import { IMail, IMessage } from 'modules/inbox/types';
+import { IMessage } from 'modules/inbox/types';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
 import Attachments from './Attachments';
-import {
-  BoxItem,
-  Content,
-  Date,
-  Details,
-  Meta,
-  Reply,
-  RightSide
-} from './style';
+import MailHeader from './MailHeader';
+import { BoxItem, Content, Reply } from './style';
 
 type Props = {
   message: IMessage;
@@ -63,13 +53,17 @@ class Mail extends React.PureComponent<
   }
 
   renderReplyButton() {
-    if (this.state.isReply) {
+    if (this.state.isReply || !this.props.isLast) {
       return null;
     }
 
     return (
       <Reply>
-        <Button icon="reply" size="small" onClick={this.toggleReply}>
+        <Button
+          icon="corner-up-left-alt"
+          size="small"
+          onClick={this.toggleReply}
+        >
           Reply
         </Button>
       </Reply>
@@ -78,11 +72,12 @@ class Mail extends React.PureComponent<
 
   renderMailForm(mailData) {
     const { isReply } = this.state;
-    const { integrationId, kind } = this.props;
 
     if (!isReply) {
       return null;
     }
+
+    const { integrationId, kind } = this.props;
 
     return (
       <BoxItem>
@@ -98,46 +93,8 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderAddress(title: string, values: any) {
-    if (!values || values.length === 0) {
-      return null;
-    }
-
-    const emails = values.map((val, idx) => <span key={idx}>{val.email}</span>);
-
-    return (
-      <>
-        {title} {emails}
-      </>
-    );
-  }
-
-  renderDetails(mailData) {
-    const [from] = mailData.from || [{}];
-
-    return (
-      <Details>
-        <strong>{from.email || ''}</strong>
-        {this.renderAddress('To:', mailData.to)}
-        {this.renderAddress('Cc:', mailData.cc)}
-        {this.renderAddress('Bcc:', mailData.bcc)}
-      </Details>
-    );
-  }
-
-  renderRightSide(hasAttachments: boolean, createdAt: Date) {
-    return (
-      <RightSide>
-        {hasAttachments && <Icon icon="paperclip" />}
-        <Date>{dayjs(createdAt).format('lll')}</Date>
-      </RightSide>
-    );
-  }
-
-  renderBody(mailData) {
-    const { isCollapsed } = this.state;
-
-    if (isCollapsed) {
+  renderMailBody(mailData) {
+    if (this.state.isCollapsed) {
       return null;
     }
 
@@ -149,8 +106,8 @@ class Mail extends React.PureComponent<
     return (
       <>
         <Content dangerouslySetInnerHTML={innerHTML} />
-        {this.renderReplyButton()}
         {this.renderAttachments(mailData)}
+        {this.renderReplyButton()}
       </>
     );
   }
@@ -174,32 +131,6 @@ class Mail extends React.PureComponent<
     );
   }
 
-  renderMeta = (message: IMessage) => {
-    const { customer, createdAt, mailData = {} as IMail } = message;
-    const hasAttachments = mailData
-      ? (mailData.attachments || []).length > 0
-      : false;
-
-    return (
-      <Meta toggle={this.state.isCollapsed} onClick={this.onToggleContent}>
-        <Avatar customer={customer} size={32} />
-        {this.renderDetails(mailData)}
-        {this.renderRightSide(hasAttachments, createdAt)}
-      </Meta>
-    );
-  };
-
-  renderMessage = (message: IMessage) => {
-    const { mailData } = message;
-
-    return (
-      <BoxItem toggle={this.state.isCollapsed}>
-        {this.renderMeta(message)}
-        {this.renderBody(mailData)}
-      </BoxItem>
-    );
-  };
-
   render() {
     const { message = {} as IMessage } = this.props;
 
@@ -215,7 +146,15 @@ class Mail extends React.PureComponent<
 
     return (
       <>
-        {this.renderMessage(message)}
+        <BoxItem toggle={this.state.isCollapsed}>
+          <MailHeader
+            message={message}
+            isContentCollapsed={this.state.isCollapsed}
+            onToggleContent={this.onToggleContent}
+            onToggleReply={this.toggleReply}
+          />
+          {this.renderMailBody(mailData)}
+        </BoxItem>
         {this.renderMailForm(mailData)}
       </>
     );

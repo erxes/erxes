@@ -170,11 +170,7 @@ export default withProps<Props>(
           companyIds: queryParams.companyIds,
           assignedUserIds: queryParams.assignedUserIds,
           extraParams: getExtraParams(queryParams),
-          nextDay: queryParams.nextDay,
-          nextWeek: queryParams.nextWeek,
-          nextMonth: queryParams.nextMonth,
-          noCloseDate: queryParams.noCloseDate,
-          overdue: queryParams.overdue
+          closeDateType: queryParams.closeDateType
         }
       })
     })

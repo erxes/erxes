@@ -141,6 +141,13 @@ const TabContent = styled.div`
   }
 `;
 
+const MailBox = styled.div`
+  background: ${colors.colorWhite};
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  transition: all ease 0.3s;
+`;
+
 const SidebarCollapse = styled.a`
   color: ${colors.colorCoreGray};
   position: absolute;
@@ -166,5 +173,6 @@ export {
   ActivityLogContent,
   BasicInfo,
   SidebarCollapse,
-  TabContent
+  TabContent,
+  MailBox
 };

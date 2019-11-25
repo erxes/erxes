@@ -118,11 +118,7 @@ const getFilterParams = queryParams => {
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
-    nextDay: queryParams.nextDay,
-    nextWeek: queryParams.nextWeek,
-    nextMonth: queryParams.nextMonth,
-    noCloseDate: queryParams.noCloseDate,
-    overdue: queryParams.overdue,
+    closeDateType: queryParams.closeDateType,
     productIds: queryParams.productIds,
     labelIds: queryParams.labelIds
   };

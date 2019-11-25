@@ -1,22 +1,14 @@
 const commonParams = `
   $pipelineId: String,
   $assignedUserIds: [String],
-  $nextDay: String,
-  $nextWeek: String,
-  $nextMonth: String,
-  $noCloseDate: String,
-  $overdue: String,
+  $closeDateType: String,
   $search: String,
 `;
 
 const commonParamDefs = `
   pipelineId: $pipelineId,
   assignedUserIds: $assignedUserIds,
-  nextDay: $nextDay,
-  nextWeek: $nextWeek,
-  nextMonth: $nextMonth,
-  noCloseDate: $noCloseDate,
-  overdue: $overdue,
+  closeDateType: $closeDateType,
   search: $search,
 `;
 

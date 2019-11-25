@@ -8,7 +8,7 @@ const UserConfirmation = asyncComponent(() =>
 );
 
 const UserDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetail')
+  import(/* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetailForm')
 );
 
 const UserList = asyncComponent(() =>
