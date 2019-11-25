@@ -199,15 +199,12 @@ class MailForm extends React.Component<Props, State> {
     const files = e.currentTarget.files;
     const { attachments, from } = this.state;
 
-    const extraFormData = [
-      { key: 'kind', value: 'nylas' },
-      { key: 'erxesApiId', value: this.props.integrationId || from || '' }
-    ];
-
     uploadHandler({
+      kind: 'nylas',
       files,
-      extraFormData,
-
+      extraFormData: [
+        { key: 'erxesApiId', value: this.props.integrationId || from || '' }
+      ],
       beforeUpload: () => {
         this.setState({ isUploading: true });
       },
