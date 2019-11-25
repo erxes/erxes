@@ -271,7 +271,6 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 
   &.no-link li,
   a {
-    max-width: 186px;
     display: block;
     padding: 6px 20px;
     color: ${colors.textPrimary};
@@ -301,7 +300,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
       border-left: 2px solid ${colors.colorSecondary};
     }
   }
-
+  
   .icon {
     margin-right: 6px;
     color: ${colors.colorCoreGray};
@@ -316,7 +315,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   position: ${props => !props.nowrap && 'absolute'};
-  right: 5px;
+  right: 10px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
@@ -338,6 +337,14 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
       display: block;
       white-space: normal;
     `};
+`;
+
+const FieldStyle = styled.div`
+  display: inline-block;
+  white-space: nowrap;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SidebarFlexRow = styled.li`
@@ -576,5 +583,6 @@ export {
   SectionBody,
   SectionBodyItem,
   MobileRecommend,
-  ButtonRelated
+  ButtonRelated,
+  FieldStyle
 };

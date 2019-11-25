@@ -204,7 +204,7 @@ const AdditionalSidebar = styled.div`
   bottom: 0;
 
   ul > li > a {
-    padding: 5px 25px;
+    padding: 5px 22px;
   }
 `;
 
