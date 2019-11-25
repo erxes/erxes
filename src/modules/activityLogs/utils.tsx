@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IUser } from '../auth/types';
-import { ICON_AND_COLOR_ACTION, ICON_AND_COLOR_TABLE } from './constants';
+import { ICON_AND_COLOR_TABLE } from './constants';
 
 export const getIconAndColor = contentType => {
   return ICON_AND_COLOR_TABLE[contentType];
@@ -19,7 +19,6 @@ type Props = {
  * and convert it into a data used on the front side.
  */
 export default class {
-  private queryData: any;
   private currentUser: IUser;
   private target?: string;
 
@@ -28,8 +27,6 @@ export default class {
    * @param {Ojbect} queryData - The query received from the back end
    */
   constructor({ activities, user, target, type }: Props) {
-    this.queryData = activities;
-
     this.currentUser = user;
     this.target = target || 'Unknown';
   }
@@ -40,38 +37,6 @@ export default class {
    * @param {Object} content - Object with a type of data related to its content type (action)
    * @return {Object} - Return processed data of a given interval
    */
-
-  _processItem(item) {
-    const iconAndColor = this._getIconAndColor(item.action);
-    const hasContent = ![
-      'company-create',
-      'deal-create',
-      'customer-create'
-    ].includes(item.action);
-
-    const caption = this._getCaption({
-      action: item.action,
-      by: item.by,
-      id: item.id
-    });
-
-    return {
-      ...iconAndColor,
-      caption,
-      content: hasContent ? item.content : null,
-      action: item.action,
-      createdAt: item.createdAt,
-      by: item.by
-    };
-  }
-
-  /**
-   * Get a related icon and color from the ICON_AND_COLOR_ACTION
-   * @return {Object} return Object containing icon name and color
-   */
-  _getIconAndColor(action) {
-    return ICON_AND_COLOR_ACTION[action];
-  }
 
   /**
    * Get source user full name or You label
@@ -156,10 +121,6 @@ export default class {
    */
   process() {
     const result: any = [];
-
-    for (const item of this.queryData) {
-      result.push(this._processItem(item));
-    }
 
     return result;
   }

@@ -7,6 +7,7 @@ import {
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 type Props = {
   activity: IActivityLog;
@@ -15,8 +16,7 @@ type Props = {
 class MovementLog extends React.Component<Props> {
   renderContent = () => {
     const { activity } = this.props;
-
-    const { contentDetail, createdByDetail } = activity;
+    const { contentType, contentDetail, createdByDetail } = activity;
 
     let userName = 'Unknown';
 
@@ -29,37 +29,39 @@ class MovementLog extends React.Component<Props> {
 
       return (
         <span>
-          <strong>{userName}</strong> moved {item.name} deal from
-          {destinationStage} to {oldStage}
+          <strong>{userName}</strong> moved&nbsp;
+          <Link
+            to={`/${contentType}/board?_id=${activity._id}&itemId=${item._id}`}
+          >
+            {item.name}
+          </Link>{' '}
+          {contentType} from&nbsp;
+          <q>{destinationStage}</q> to <q>{oldStage}</q>
         </span>
       );
     }
 
     return (
       <span>
-        <strong>{userName}</strong>
+        <strong>
+          {userName} {contentDetail.text || ''}
+        </strong>
       </span>
     );
   };
 
   render() {
-    const { activity } = this.props;
-    const { contentType, createdAt } = activity;
+    const { createdAt } = this.props.activity;
 
     return (
-      <>
-        <FlexCenterContent>
-          <FlexBody>
-            <strong>{contentType} activity</strong>
-          </FlexBody>
-          <Tip text={dayjs(createdAt).format('llll')}>
-            <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
-            </ActivityDate>
-          </Tip>
-        </FlexCenterContent>
-        {this.renderContent()}
-      </>
+      <FlexCenterContent>
+        <FlexBody>{this.renderContent()}</FlexBody>
+        <Tip text={dayjs(createdAt).format('llll')}>
+          <ActivityDate>
+            {dayjs(createdAt).format('MMM D, h:mm A')}
+          </ActivityDate>
+        </Tip>
+      </FlexCenterContent>
     );
   }
 }

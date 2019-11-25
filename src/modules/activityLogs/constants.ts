@@ -5,7 +5,7 @@ export const ICON_AND_COLOR_TABLE = {
   },
   segment: {
     icon: 'filter',
-    color: '#6569DF'
+    color: '#63D2D6'
   },
   conversation: {
     icon: 'speech-bubble-2',
@@ -17,11 +17,11 @@ export const ICON_AND_COLOR_TABLE = {
   },
   company: {
     icon: 'briefcase',
-    color: '#6569DF'
+    color: '#EA475D'
   },
   deal: {
     icon: 'piggy-bank',
-    color: '#6569DF'
+    color: '#f33fab'
   },
   email: {
     icon: 'email-3',
@@ -54,36 +54,5 @@ export const ICON_AND_COLOR_TABLE = {
   chatfuel: {
     icon: 'comment-dots',
     color: '#2490f0'
-  }
-};
-
-export const ICON_AND_COLOR_ACTION = {
-  'customer-create': {
-    icon: 'user-plus',
-    color: '#3B85F4'
-  },
-  'segment-create': {
-    icon: 'chart-pie',
-    color: '#63D2D6'
-  },
-  'conversation-create': {
-    icon: 'comment-plus',
-    color: '#F44236'
-  },
-  'internal_note-create': {
-    icon: 'file-plus',
-    color: '#fbc531'
-  },
-  'company-create': {
-    icon: 'bag-alt',
-    color: '#273c75'
-  },
-  'deal-create': {
-    icon: 'dollar-alt',
-    color: '#8c7ae6'
-  },
-  'email-send': {
-    icon: 'envelope-alt',
-    color: '#d74534'
   }
 };

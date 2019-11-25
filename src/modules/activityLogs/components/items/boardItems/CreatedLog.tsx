@@ -32,23 +32,17 @@ class CreatedLog extends React.Component<Props> {
   };
 
   render() {
-    const { activity } = this.props;
-    const { contentType, createdAt } = activity;
+    const { createdAt } = this.props.activity;
 
     return (
-      <>
-        <FlexCenterContent>
-          <FlexBody>
-            <strong>{contentType} activity</strong>
-          </FlexBody>
-          <Tip text={dayjs(createdAt).format('llll')}>
-            <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
-            </ActivityDate>
-          </Tip>
-        </FlexCenterContent>
-        {this.renderContent()}
-      </>
+      <FlexCenterContent>
+        <FlexBody>{this.renderContent()}</FlexBody>
+        <Tip text={dayjs(createdAt).format('llll')}>
+          <ActivityDate>
+            {dayjs(createdAt).format('MMM D, h:mm A')}
+          </ActivityDate>
+        </Tip>
+      </FlexCenterContent>
     );
   }
 }
