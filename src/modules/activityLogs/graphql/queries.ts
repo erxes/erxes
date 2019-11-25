@@ -11,6 +11,7 @@ const activityLogs = `
   
       createdByDetail
       contentDetail
+      contentTypeDetail
     }
   }
 `;

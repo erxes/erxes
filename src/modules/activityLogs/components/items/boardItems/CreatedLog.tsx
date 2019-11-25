@@ -5,8 +5,10 @@ import {
   FlexCenterContent
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
+import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 type Props = {
   activity: IActivityLog;
@@ -15,8 +17,9 @@ type Props = {
 class CreatedLog extends React.Component<Props> {
   renderContent = () => {
     const { activity } = this.props;
-
-    const { contentType, createdByDetail } = activity;
+    // tslint:disable-next-line:no-console
+    console.log(activity);
+    const { contentType, contentTypeDetail, createdByDetail } = activity;
 
     let userName = 'Unknown';
 
@@ -26,7 +29,15 @@ class CreatedLog extends React.Component<Props> {
 
     return (
       <span>
-        <strong>{userName}</strong> created {contentType}
+        <strong>{userName}</strong> created {contentType}&nbsp;
+        <Link
+          to={`/${contentType}/board?_id=${activity._id}&itemId=${
+            contentTypeDetail._id
+          }`}
+        >
+          {contentTypeDetail && contentTypeDetail.name}&nbsp;
+          <Icon icon="arrow-to-right" />
+        </Link>
       </span>
     );
   };

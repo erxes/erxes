@@ -22,6 +22,7 @@ export interface IActivityLog {
   contentType: string;
   content: any;
   contentDetail: any;
+  contentTypeDetail: any;
   createdAt: Date;
   createdBy: string;
   createdByDetail: any;

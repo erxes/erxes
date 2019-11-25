@@ -93,9 +93,52 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     );
   }
 
+  renderAction() {
+    const { _id, customer, integration } = this.props.conversation;
+    let action = 'sent a';
+    let kind = 'conversation';
+    let item = 'message';
+    // tslint:disable-next-line:no-console
+    console.log(integration.kind);
+    switch (integration.kind) {
+      case 'chatfuel':
+        kind = 'chatfuel';
+        break;
+      case 'callpro':
+        action = 'made a';
+        kind = 'phone call';
+        item = 'by CallPro';
+        break;
+      case 'facebook-post':
+        action = 'wrote a Facebook';
+        kind = 'Post';
+        item = '';
+        break;
+      case 'facebook-messenger':
+        kind = 'message';
+        item = 'by Facebook Messenger';
+        break;
+      case 'lead':
+        action = 'filled in';
+        kind = 'Lead form';
+        item = '';
+        break;
+    }
+    // console.log
+    return (
+      <FlexBody>
+        <b>{renderFullName(customer)}</b> {action}&nbsp;
+        <Link to={`/inbox/index?_id=${_id}`}>
+          <strong>{kind}</strong>
+        </Link>
+        &nbsp;{item}
+      </FlexBody>
+    );
+  }
+
   renderContent() {
     const { conversation, messages } = this.props;
-    const { _id, customer, content, createdAt } = conversation;
+    const { customer, content, createdAt } = conversation;
 
     if (this.state.toggleMessage) {
       return (
@@ -119,13 +162,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
           <AvatarWrapper>
             <NameCard.Avatar size={32} />
           </AvatarWrapper>
-          <FlexBody>
-            <b>{renderFullName(customer)}</b> sent a{' '}
-            <Link to={`/inbox/index?_id=${_id}`}>
-              <strong>conversation</strong>
-            </Link>
-            &nbsp;message
-          </FlexBody>
+          {this.renderAction()}
 
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
