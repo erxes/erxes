@@ -115,7 +115,7 @@ const syncMessages = async (accountId: string, messageId: string) => {
 const uploadFile = async (args: INylasAttachment) => {
   const { name, path, type, accessToken } = args;
 
-  debugBase('Above readFileSync ....');
+  debugBase('Above readFileSync ....', path);
 
   const buffer = await fs.readFileSync(path);
 
