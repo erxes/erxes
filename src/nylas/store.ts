@@ -153,6 +153,7 @@ const createOrGetNylasConversation = async ({
     from: fromEmail,
     integrationId: id,
     threadId: message.thread_id,
+    unread: message.unread,
     createdAt,
   };
 
@@ -161,6 +162,7 @@ const createOrGetNylasConversation = async ({
     customerId,
     content: message.subject,
     integrationId: erxesApiId,
+    unread: message.unread,
     createdAt,
   };
 
@@ -221,6 +223,7 @@ const createOrGetNylasConversationMessage = async ({
     body: message.body,
     attachments: message.files,
     labels: message.labels,
+    unread: message.unread,
     createdAt,
   };
 
@@ -229,6 +232,7 @@ const createOrGetNylasConversationMessage = async ({
     customerId,
     conversationId: erxesApiId,
     content: cleanHtml(message.body),
+    unread: message.unread,
     createdAt,
   };
 

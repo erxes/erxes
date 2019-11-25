@@ -70,6 +70,7 @@ export interface INylasConversation {
   createdAt: Date;
   integrationId: string;
   kind: string;
+  unread: boolean;
 }
 
 export interface INylasConversationDocument extends INylasConversation, Document {}
@@ -84,6 +85,7 @@ const conversationCommonSchema = {
   customerId: String,
   erxesApiId: String,
   integrationId: String,
+  unread: Boolean,
   createdAt: field({ type: Date, index: true, default: new Date() }),
 };
 
@@ -165,6 +167,7 @@ export interface INylasConversationMessage {
   body: string;
   files: [IAttachments];
   labels: [ILabels];
+  unread: boolean;
 }
 
 export interface INylasConversationMessageDocument extends INylasConversationMessage, Document {}
@@ -208,6 +211,7 @@ const conversationMessageCommonSchema = {
   cc: [emailSchema],
   bcc: [emailSchema],
   date: String,
+  unread: Boolean,
   threadId: String,
   snipped: String,
   attachments: [attachmentsSchema],
