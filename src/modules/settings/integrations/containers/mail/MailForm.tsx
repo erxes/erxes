@@ -1,8 +1,6 @@
 import gql from 'graphql-tag';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, withProps } from 'modules/common/utils';
+import { Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
@@ -33,12 +31,13 @@ const MailFormContainer = (props: FinalProps) => {
     mailData,
     integrationId,
     integrationsQuery,
-    refetchQueries,
     fromEmail,
     kind,
+    conversationId,
     isReply,
     toggleReply,
-    closeModal
+    closeModal,
+    sendMailMutation
   } = props;
 
   if (integrationsQuery.loading) {
@@ -47,26 +46,31 @@ const MailFormContainer = (props: FinalProps) => {
 
   const integrations = integrationsQuery.integrations || [];
 
-  const renderButton = ({
-    values,
-    isSubmitted,
-    callback
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={mutations.integrationSendMail}
-        variables={values}
-        callback={callback}
-        refetchQueries={refetchQueries}
-        isSubmitted={isSubmitted}
-        btnSize="small"
-        type="submit"
-        icon="message"
-        successMessage="You have successfully sent a email"
-      >
-        {__('Send')}
-      </ButtonMutate>
-    );
+  const save = ({
+    variables,
+    optimisticResponse,
+    callback,
+    update
+  }: {
+    variables: any;
+    optimisticResponse?: any;
+    callback?: (e?) => void;
+    update?: any;
+  }) => {
+    return sendMailMutation({ variables, optimisticResponse, update })
+      .then(() => {
+        Alert.success('You have successfully sent a email');
+        if (callback) {
+          callback();
+        }
+      })
+      .catch(e => {
+        Alert.error(e);
+
+        if (callback) {
+          callback(e);
+        }
+      });
   };
 
   const sendMail = ({
@@ -76,7 +80,15 @@ const MailFormContainer = (props: FinalProps) => {
     variables: any;
     callback?: (e?) => void;
   }) => {
-    const { conversationId, sendMailMutation } = props;
+    if (!isReply) {
+      return save({ variables, callback });
+    }
+
+    let email = '';
+
+    if (mailData) {
+      email = mailData.integrationEmail;
+    }
 
     const optimisticResponse = {
       __typename: 'Mutation',
@@ -96,11 +108,27 @@ const MailFormContainer = (props: FinalProps) => {
         fromBot: false,
         formWidgetData: null,
         user: null,
-        customer: null,
+        customer: {
+          __typename: 'Customer',
+          _id: Math.round(Math.random() * 1000),
+          avatar: null,
+          companies: null,
+          customFieldsData: null,
+          firstName: email,
+          getMessengerCustomData: null,
+          getTags: null,
+          isUser: null,
+          lastName: null,
+          messengerData: null,
+          primaryEmail: email,
+          primaryPhone: null,
+          tagIds: null
+        },
         mailData: {
-          bcc: variables.bcc,
-          to: variables.to,
-          from: variables.from,
+          __typename: 'MailData',
+          bcc: [{ __typename: 'Email', email: variables.bcc }],
+          to: [{ __typename: 'Email', email: variables.to }],
+          from: [{ __typename: 'Email', email: variables.to }],
           integrationEmail: variables.from,
           messageId: Math.random(),
           references: null,
@@ -109,9 +137,9 @@ const MailFormContainer = (props: FinalProps) => {
           headerId: null,
           replyToMessageId: null,
           reply: null,
-          threadId: 'alskjdaklsjdl',
+          threadId: '',
           replyTo: null,
-          cc: variables.cc,
+          cc: [{ __typename: 'Email', email: variables.cc }],
           body: variables.body,
           subject: variables.subject
         }
@@ -140,30 +168,22 @@ const MailFormContainer = (props: FinalProps) => {
 
       const mails = data.conversationMessages;
 
-      // Add our comment from the mutation to the end.
       mails.push(mail);
 
       // Write our data back to the cache.
       proxy.writeQuery({ ...selector, data });
+
+      // Close modal
+      if (callback) {
+        callback();
+      }
     };
 
-    sendMailMutation({ variables, optimisticResponse, update })
-      .then(() => {
-        if (callback) {
-          Alert.success('You have successfully sent a email');
-          callback();
-        }
-      })
-      .catch(e => {
-        if (callback) {
-          Alert.success(e);
-          callback();
-        }
-      });
+    // Invoke mutation
+    save({ variables, optimisticResponse, update });
   };
 
   const updatedProps = {
-    renderButton,
     sendMail,
     integrations,
     integrationId,
@@ -193,10 +213,7 @@ export default withProps<Props>(
       }
     ),
     graphql<Props>(gql(mutations.integrationSendMail), {
-      name: 'sendMailMutation',
-      options: {
-        refetchQueries: ['conversationMessages']
-      }
+      name: 'sendMailMutation'
     })
   )(MailFormContainer)
 );

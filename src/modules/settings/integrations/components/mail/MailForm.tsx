@@ -5,7 +5,6 @@ import { Label } from 'modules/common/components/form/styles';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
-import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
@@ -40,8 +39,9 @@ type Props = {
   isReply?: boolean;
   closeModal?: () => void;
   toggleReply?: () => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  sendMail: any;
+  sendMail: (
+    { variables, callback }: { variables: any; callback: () => void }
+  ) => void;
 };
 
 type State = {
