@@ -18,10 +18,6 @@ TEST_MONGO_URL=mongodb://localhost/test
 yarn test
 ```
 
-it will create mongo database on that URL
-
-- USE_REPLICATION Set this variables as True if you are using replication set in MONGO_URL which means Collection.watch method works as expected and can send notification
-
 ## Redis
 
 ```
