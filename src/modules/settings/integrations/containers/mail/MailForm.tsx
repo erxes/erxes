@@ -180,7 +180,7 @@ const MailFormContainer = (props: FinalProps) => {
     };
 
     // Invoke mutation
-    save({ variables, optimisticResponse, update });
+    return save({ variables, optimisticResponse, update });
   };
 
   const updatedProps = {
