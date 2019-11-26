@@ -5,3 +5,7 @@
 2. ```cd docs/website```
 3. ```yarn install```
 4. ```yarn start```
+
+## Deploy
+
+GIT_USER='git username' CURRENT_BRANCH=master USE_SSH=true yarn run publish-gh-pages
