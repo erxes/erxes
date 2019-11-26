@@ -259,7 +259,7 @@ const headSegments = `
 
 const combinedFields = `
   query fieldsCombinedByContentType {
-    fieldsCombinedByContentType(contentType: "customer")
+    fieldsCombinedByContentType(contentType: "customer", source: "fromSegments")
   }
 `;
 
