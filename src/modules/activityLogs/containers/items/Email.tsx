@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import Email from 'modules/activityLogs/components/items/Email';
-import Spinner from 'modules/common/components/Spinner';
+// import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/engage/graphql';
 import { EmailDeliveryDetailQueryResponse } from 'modules/engage/types';
@@ -21,7 +21,7 @@ class EmailContainer extends React.Component<FinalProps> {
     const { emailDeliveryDetailQuery } = this.props;
 
     if (emailDeliveryDetailQuery.loading) {
-      return <Spinner />;
+      return null;
     }
 
     const email = emailDeliveryDetailQuery.emailDeliveryDetail;
