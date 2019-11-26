@@ -1,4 +1,5 @@
 import { IConditionsRule } from 'modules/common/types';
+import { ICustomer } from 'modules/customers/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
@@ -38,6 +39,16 @@ export interface IEngageStats {
   renderingfailure: number;
   reject: number;
   total: number;
+}
+
+export interface IEmailDeliveryDetail {
+  title: string;
+  subject: string;
+  content: string;
+  customerId: string;
+  fromUserId: string;
+  fromUserDetail: IUser;
+  customerDetail: ICustomer;
 }
 
 export interface IEngageMessageDoc {
@@ -123,6 +134,11 @@ export type WithFormEditMutationResponse = {
 
 export type EngageMessageDetailQueryResponse = {
   engageMessageDetail: IEngageMessage;
+  loading: boolean;
+};
+
+export type EmailDeliveryDetailQueryResponse = {
+  emailDeliveryDetail: IEmailDeliveryDetail;
   loading: boolean;
 };
 

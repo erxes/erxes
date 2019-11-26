@@ -50,7 +50,7 @@ class Task extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const task = props.task;
+    const task = props.task || {};
     this.state = {
       editing: false,
       name: task.name || '',
@@ -242,9 +242,8 @@ class Task extends React.Component<Props, State> {
   }
 
   render() {
-    const { task } = this.props;
     const { isComplete, showDetail, editing } = this.state;
-    const { createdUser } = task;
+    const { createdUser, createdAt } = this.props.task;
 
     const onComplete = () => {
       this.setState({ isComplete: !this.state.isComplete }, () => {
@@ -264,9 +263,9 @@ class Task extends React.Component<Props, State> {
             created a task
           </FlexBody>
           <DeleteAction onClick={this.onRemove}>Delete</DeleteAction>
-          <Tip text={dayjs(task.createdAt).format('llll')}>
+          <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
-              {dayjs(task.createdAt).format('MMM D, h:mm A')}
+              {dayjs(createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>

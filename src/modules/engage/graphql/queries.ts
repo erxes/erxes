@@ -98,6 +98,31 @@ const engageMessageDetail = `
   }
 `;
 
+const emailDeliveryDetail = `
+  query emailDeliveryDetail($_id: String!) {
+    emailDeliveryDetail(_id: $_id){
+      _id
+      title
+      subject
+      content
+      customerId
+      fromUserId
+      fromUserDetail {
+        username
+        details {
+          fullName
+        }
+      }
+      customerDetail {
+        firstName
+        lastName
+        email
+        primaryEmail
+      }
+    }
+  }
+`;
+
 const users = `
   query users {
     allUsers(isActive: true) {
@@ -266,6 +291,7 @@ export default {
   engageMessages,
   engageMessagesTotalCount,
   engageMessageDetail,
+  emailDeliveryDetail,
   users,
   userDetail,
   segments,

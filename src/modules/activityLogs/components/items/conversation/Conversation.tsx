@@ -98,8 +98,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     let action = 'sent a';
     let kind = 'conversation';
     let item = 'message';
-    // tslint:disable-next-line:no-console
-    console.log(integration.kind);
+
     switch (integration.kind) {
       case 'chatfuel':
         kind = 'chatfuel';
@@ -124,7 +123,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         item = '';
         break;
     }
-    // console.log
+
     return (
       <FlexBody>
         <b>{renderFullName(customer)}</b> {action}&nbsp;

@@ -34,7 +34,8 @@ const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
   overflow: visible;
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: 2px;
-  transition: all ease-in-out 0.5s;
+  height: auto;
+  transition:height 0.3s ease-out;
 
   &:last-of-type {
     margin-bottom: 0;
@@ -192,13 +193,39 @@ const ActivityContent = styledTS<{ isInternalNote?: boolean }>(styled.div)`
   }
 `;
 
-const EmailContent = styled.div`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0 60px;
+const EmailContent = styledTS<{ longEmail: boolean; expand: boolean }>(
+  styled.div
+)`
+  margin-top: ${dimensions.unitSpacing}px;
+  max-height: ${props => (props.expand ? 'auto' : '80px')};
   overflow: hidden;
+  transition: height .5s;
 
-  img {
-    max-width: 100%;
+  p {
+    margin: 0;
   }
+`;
+
+const ExpandButton = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+  cursor: pointer;
+  color: ${colors.colorSecondary};
+  font-weight: 500;
+  transition: all ease 0.4s;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ContentShadow = styled.div`
+  background-image: linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255));
+  background-size: 100% 30px;
+  height: 40px;
+  position: absolute;
+  bottom: 40px;
+  left: 0px;
+  right: 0px;
 `;
 
 const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
@@ -293,7 +320,7 @@ const Count = styled.div`
 const Collapse = styled.div`
   padding: ${dimensions.coreSpacing}px;
   cursor: pointer;
-  transition: all 0.5s ease-in-out;
+  transition: all ease 0.5s;
 `;
 
 const Header = styled.div`
@@ -327,10 +354,12 @@ export {
   Title,
   Date,
   Detail,
+  ContentShadow,
   Count,
   LogWrapper,
   Collapse,
   Header,
   CenterText,
+  ExpandButton,
   DeleteAction
 };

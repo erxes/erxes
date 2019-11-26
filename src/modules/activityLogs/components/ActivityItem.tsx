@@ -3,6 +3,7 @@ import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Task from '../containers/items/boardItems/Task';
 import Conversation from '../containers/items/conversation/Conversation';
+import Email from '../containers/items/Email';
 import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
@@ -55,6 +56,11 @@ class ActivityItem extends React.Component<Props> {
         );
       case 'taskDetail':
         return this.renderDetail('task', <Task taskId={_id} />);
+      case 'email':
+        return this.renderDetail(
+          'email',
+          <Email emailId={_id} activity={activity} />
+        );
       case 'moved':
         return this.renderDetail(
           activity.contentType,

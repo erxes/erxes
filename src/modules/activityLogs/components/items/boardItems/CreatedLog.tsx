@@ -17,8 +17,6 @@ type Props = {
 class CreatedLog extends React.Component<Props> {
   renderContent = () => {
     const { activity } = this.props;
-    // tslint:disable-next-line:no-console
-    console.log(activity);
     const { contentType, contentTypeDetail, createdByDetail } = activity;
 
     let userName = 'Unknown';
