@@ -108,7 +108,7 @@ const fieldQueries = {
       schema = Customers.schema;
 
       if (source === 'fromSegments') {
-        generateMessengerDataCustomDataFields(fields);
+        await generateMessengerDataCustomDataFields(fields);
       }
     }
 
