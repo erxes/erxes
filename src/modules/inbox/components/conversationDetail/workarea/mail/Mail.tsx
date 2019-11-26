@@ -15,10 +15,12 @@ type Props = {
   isLast: boolean;
 };
 
-class Mail extends React.PureComponent<
-  Props,
-  { isReply: boolean; isCollapsed: boolean }
-> {
+type State = {
+  isReply: boolean;
+  isCollapsed: boolean;
+};
+
+class Mail extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props);
 
