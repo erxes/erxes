@@ -298,38 +298,3 @@ export const striptags = (htmlString: string) => {
   _text = _text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
   return _text;
 };
-
-export const urlify = (text: string) => {
-  const rancherRegex = /<a[\s]+([^>]+)>((?:.(?!<\/a\\>))*.)<\/a>/g;
-
-  text = text.replace(rancherRegex, (...args: any[]) => {
-    const href = args[1].substring(6, args[1].length - 1);
-    const rancherText = args[2];
-
-    if (href === rancherText) {
-      return href;
-    }
-
-    return `${href}&rancherText=${rancherText}`;
-  });
-
-  const urlRegex = /(((https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*))/g;
-
-  return text.replace(urlRegex, (url: string) => {
-    let rancherText = url;
-    let href = url;
-
-    const index = url.indexOf("&rancherText=");
-
-    if (index !== -1) {
-      rancherText = url.substring(index + 13);
-      href = url.substring(0, index);
-    }
-
-    if (!url.includes("http")) {
-      href = `http://${url}`;
-    }
-
-    return '<a target="_blank" href="' + href + '">' + rancherText + "</a>";
-  });
-};

@@ -3,7 +3,7 @@ import * as moment from "moment";
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
-import { readFile, urlify } from "../../utils";
+import { readFile } from "../../utils";
 import { Attachment, User } from "../components/common";
 import { IAttachment, IMessengerAppData } from "../types";
 
@@ -38,10 +38,6 @@ class Message extends React.Component<Props> {
     );
   }
 
-  formatText(text: string) {
-    return urlify(text).replace(/&nbsp;/g, " ");
-  }
-
   renderContent() {
     const { messengerAppData, attachments, color, user, content } = this.props;
     const messageClasses = classNames("erxes-message", {
@@ -60,7 +56,7 @@ class Message extends React.Component<Props> {
     return (
       <div style={messageBackground} className={messageClasses}>
         {hasAttachment ? <Attachment attachment={attachments[0]} /> : null}
-        <span dangerouslySetInnerHTML={{ __html: this.formatText(content) }} />
+        <span dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     );
   }
