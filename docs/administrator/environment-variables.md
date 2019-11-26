@@ -8,7 +8,6 @@ title: Environment Variables
 ```
 MONGO_URL=mongodb://localhost/erxes
 TEST_MONGO_URL=mongodb://localhost/test
-USE_REPLICATION=false
 ```
 
 - MONGO_URL is your application's database URL

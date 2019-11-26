@@ -14,10 +14,8 @@
       "installation/upgrade"
     ],
     "User's Guide": [
-      "user/subscription-getting-started",
       "user/initial-setup",
       "user/general-settings",
-      "user/signing-in",
       "user/team-inbox",
       "user/contacts",
       "user/deal",
@@ -29,7 +27,9 @@
       "user/mobile-apps",
       "user/notification",
       "user/sales",
-      "user/support"
+      "user/support",
+      "user/signing-in",
+      "user/subscription-getting-started"
     ],
     "Administrator's guide": [
       "administrator/creating-first-user",

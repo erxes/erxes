@@ -42,33 +42,6 @@ title: Initial Setup
 
 ---
 
-## Save Your Account
-
-- Click **“Save Your Account”** on the top right corner of the page
-  <h6 style="    font-size: 12px;
-      padding: 3px 10px;
-      background: rgba(234, 71, 93, 0.2);
-      border-radius: 12px;
-      width: 210px;
-      font-weight: 300;">
-    To save your account <label style="    font-weight: bold;">click here.</label>
-      </h6>
-
-<div>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-9.png">
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-8.png">
-</div>
-
-1. Insert your **Full Name**
-2. Insert your **Email Address**
-3. Create your **Password**
-
-<aside class="notice">Insert your Full Name
-Insert your Email Address 
-Create your Password</aside>
-
----
-
 ## My Profile
 
 ### Create your profile
