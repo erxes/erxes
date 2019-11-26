@@ -12,6 +12,74 @@ interface IfieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
 
+/*
+ * Generates fields using given schema
+ */
+const generateFieldsFromSchema = (queSchema: any, namePrefix: string) => {
+  const queFields: any = [];
+
+  // field definations
+  const paths = queSchema.paths;
+
+  queSchema.eachPath(name => {
+    const label = paths[name].options.label;
+
+    // add to fields list
+    if (label) {
+      queFields.push({
+        _id: Math.random(),
+        name: `${namePrefix}${name}`,
+        label,
+      });
+    }
+  });
+
+  return queFields;
+};
+
+/*
+ * Generates fields using customer's messengerData.customData field
+ */
+const generateMessengerDataCustomDataFields = async fields => {
+  const messengerIntegrations = await Integrations.findIntegrations({
+    kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+  });
+
+  // generate messengerData.customData fields
+  for (const integration of messengerIntegrations) {
+    const brand = await Brands.findOne({ _id: integration.brandId });
+
+    const lastCustomers = await Customers.find({
+      integrationId: integration._id,
+      $and: [
+        { 'messengerData.customData': { $exists: true } },
+        { 'messengerData.customData': { $ne: null } },
+        { 'messengerData.customData': { $ne: {} } },
+      ],
+    })
+      .sort({ createdAt: -1 })
+      .limit(1);
+
+    if (brand && integration && lastCustomers.length > 0) {
+      const [lastCustomer] = lastCustomers;
+
+      if (lastCustomer.messengerData) {
+        const customDataFields = Object.keys(lastCustomer.messengerData.customData || {});
+
+        for (const customDataField of customDataFields) {
+          fields.push({
+            _id: Math.random(),
+            name: `messengerData.customData.${customDataField}`,
+            label: customDataField,
+            brandName: brand.name,
+            brandId: brand._id,
+          });
+        }
+      }
+    }
+  }
+};
+
 const fieldQueries = {
   /**
    * Fields list
@@ -32,75 +100,16 @@ const fieldQueries = {
    * then it will generate customer related fields
    * [{ name: 'messengerData.isActive', text: 'Messenger: is Active' }]
    */
-  async fieldsCombinedByContentType(_root, { contentType }: { contentType: string }) {
-    /*
-     * Generates fields using given schema
-     */
-    const generateFieldsFromSchema = (queSchema: any, namePrefix: string) => {
-      const queFields: any = [];
-
-      // field definations
-      const paths = queSchema.paths;
-
-      queSchema.eachPath(name => {
-        const label = paths[name].options.label;
-
-        // add to fields list
-        if (label) {
-          queFields.push({
-            _id: Math.random(),
-            name: `${namePrefix}${name}`,
-            label,
-          });
-        }
-      });
-
-      return queFields;
-    };
-
+  async fieldsCombinedByContentType(_root, { contentType, source }: { contentType: string; source: string }) {
     let schema: any = Companies.schema;
     let fields: Array<{ _id: number; name: string; label?: string; brandName?: string; brandId?: string }> = [];
 
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
-      const messengerIntegrations = await Integrations.findIntegrations({
-        kind: INTEGRATION_KIND_CHOICES.MESSENGER,
-      });
-
-      // generate messengerData.customData fields
-      for (const integration of messengerIntegrations) {
-        const brand = await Brands.findOne({ _id: integration.brandId });
-
-        const lastCustomers = await Customers.find({
-          integrationId: integration._id,
-          $and: [
-            { 'messengerData.customData': { $exists: true } },
-            { 'messengerData.customData': { $ne: null } },
-            { 'messengerData.customData': { $ne: {} } },
-          ],
-        })
-          .sort({ createdAt: -1 })
-          .limit(1);
-
-        if (brand && integration && lastCustomers.length > 0) {
-          const [lastCustomer] = lastCustomers;
-
-          if (lastCustomer.messengerData) {
-            const customDataFields = Object.keys(lastCustomer.messengerData.customData || {});
-
-            for (const customDataField of customDataFields) {
-              fields.push({
-                _id: Math.random(),
-                name: `messengerData.customData.${customDataField}`,
-                label: customDataField,
-                brandName: brand.name,
-                brandId: brand._id,
-              });
-            }
-          }
-        }
-      }
-
       schema = Customers.schema;
+
+      if (source === 'fromSegments') {
+        generateMessengerDataCustomDataFields(fields);
+      }
     }
 
     // generate list using customer or company schema
