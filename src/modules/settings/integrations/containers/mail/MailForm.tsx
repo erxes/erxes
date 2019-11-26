@@ -84,11 +84,7 @@ const MailFormContainer = (props: FinalProps) => {
       return save({ variables, callback });
     }
 
-    let email = '';
-
-    if (mailData) {
-      email = mailData.integrationEmail;
-    }
+    const email = mailData ? mailData.integrationEmail : '';
 
     const optimisticResponse = {
       __typename: 'Mutation',
@@ -129,19 +125,19 @@ const MailFormContainer = (props: FinalProps) => {
           bcc: [{ __typename: 'Email', email: variables.bcc }],
           to: [{ __typename: 'Email', email: variables.to }],
           from: [{ __typename: 'Email', email: variables.to }],
-          integrationEmail: variables.from,
-          messageId: Math.random(),
-          references: null,
-          accountId: Math.random(),
-          attachments: variables.attachments,
-          headerId: null,
-          replyToMessageId: null,
-          reply: null,
-          threadId: '',
-          replyTo: null,
           cc: [{ __typename: 'Email', email: variables.cc }],
           body: variables.body,
-          subject: variables.subject
+          subject: variables.subject,
+          accountId: Math.random(),
+          messageId: Math.random(),
+          attachments: variables.attachments,
+          threadId: '',
+          reply: null,
+          replyToMessageId: null,
+          replyTo: null,
+          references: null,
+          headerId: null,
+          integrationEmail: variables.from
         }
       }
     };
