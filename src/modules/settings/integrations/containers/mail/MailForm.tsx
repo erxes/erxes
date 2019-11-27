@@ -8,6 +8,11 @@ import * as React from 'react';
 import { compose, graphql } from 'react-apollo';
 import MailForm from '../../components/mail/MailForm';
 import { IntegrationsQueryResponse } from '../../types';
+import {
+  defaultCustomerFields,
+  defaultMailFields,
+  defaultMessageFields
+} from './constants';
 
 type Props = {
   integrationId?: string;
@@ -19,6 +24,7 @@ type Props = {
   isReply?: boolean;
   toggleReply?: () => void;
   closeModal?: () => void;
+  closeReply?: () => void;
 };
 
 type FinalProps = {
@@ -37,6 +43,7 @@ const MailFormContainer = (props: FinalProps) => {
     isReply,
     toggleReply,
     closeModal,
+    closeReply,
     sendMailMutation
   } = props;
 
@@ -49,129 +56,82 @@ const MailFormContainer = (props: FinalProps) => {
   const save = ({
     variables,
     optimisticResponse,
-    callback,
     update
   }: {
     variables: any;
     optimisticResponse?: any;
-    callback?: (e?) => void;
     update?: any;
   }) => {
     return sendMailMutation({ variables, optimisticResponse, update })
       .then(() => {
         Alert.success('You have successfully sent a email');
-        if (callback) {
-          callback();
+
+        if (closeModal) {
+          closeModal();
         }
       })
       .catch(e => {
         Alert.error(e);
 
-        if (callback) {
-          callback(e);
+        if (closeModal) {
+          closeModal();
         }
       });
   };
 
-  const sendMail = ({
-    variables,
-    callback
-  }: {
-    variables: any;
-    callback?: (e?) => void;
-  }) => {
+  const sendMail = ({ variables }: { variables: any }) => {
     if (!isReply) {
-      return save({ variables, callback });
+      return save({ variables });
     }
 
     const email = mailData ? mailData.integrationEmail : '';
 
-    const optimisticResponse = {
-      __typename: 'Mutation',
-      integrationSendMail: {
-        __typename: 'ConversationMessage',
-        _id: Math.round(Math.random() * -1000000),
-        content: variables.body,
-        attachments: null,
-        mentionedUserIds: [],
-        conversationId,
-        internal: false,
-        isCustomerRead: false,
-        customerId: Math.random(),
-        userId: Math.random(),
-        createdAt: new Date(),
-        messengerAppData: null,
-        fromBot: false,
-        formWidgetData: null,
-        user: null,
-        customer: {
-          __typename: 'Customer',
-          _id: Math.round(Math.random() * 1000),
-          avatar: null,
-          companies: null,
-          customFieldsData: null,
-          firstName: email,
-          getMessengerCustomData: null,
-          getTags: null,
-          isUser: null,
-          lastName: null,
-          messengerData: null,
-          primaryEmail: email,
-          primaryPhone: null,
-          tagIds: null
-        },
-        mailData: {
-          __typename: 'MailData',
-          bcc: [{ __typename: 'Email', email: variables.bcc }],
-          to: [{ __typename: 'Email', email: variables.to }],
-          from: [{ __typename: 'Email', email: variables.to }],
-          cc: [{ __typename: 'Email', email: variables.cc }],
-          body: variables.body,
-          subject: variables.subject,
-          accountId: Math.random(),
-          messageId: Math.random(),
-          attachments: variables.attachments,
-          threadId: '',
-          reply: null,
-          replyToMessageId: null,
-          replyTo: null,
-          references: null,
-          headerId: null,
-          integrationEmail: variables.from
-        }
+    const integrationSendMail = {
+      ...defaultMessageFields,
+      conversationId,
+      content: variables.body,
+      customer: {
+        ...defaultCustomerFields,
+        firstName: email,
+        primaryEmail: email
+      },
+      mailData: {
+        ...defaultMailFields,
+        bcc: [{ __typename: 'Email', email: variables.bcc }],
+        to: [{ __typename: 'Email', email: variables.to }],
+        from: [{ __typename: 'Email', email: variables.to }],
+        cc: [{ __typename: 'Email', email: variables.cc }],
+        body: variables.body,
+        subject: variables.subject,
+        attachments: variables.attachments,
+        integrationEmail: variables.from
       }
     };
 
-    const update = (proxy, { data: { integrationSendMail } }) => {
-      const mail = integrationSendMail;
+    const optimisticResponse = { __typename: 'Mutation', integrationSendMail };
 
+    const update = store => {
       const selector = {
         query: gql(messageQueries.conversationMessages),
-        variables: {
-          conversationId: integrationSendMail.conversationId,
-          limit: 10
-        }
+        variables: { conversationId, limit: 10 }
       };
 
       // Read the data from our cache for this query.
-      let data;
-
       try {
-        data = proxy.readQuery(selector);
+        const data = store.readQuery(selector);
+        const messages = data.conversationMessages || [];
+
+        messages.push(integrationSendMail);
+
+        // Write our data back to the cache.
+        store.writeQuery({ ...selector, data });
+
+        if (closeReply) {
+          closeReply();
+        }
       } catch (e) {
+        Alert.error(e);
         return;
-      }
-
-      const mails = data.conversationMessages;
-
-      mails.push(mail);
-
-      // Write our data back to the cache.
-      proxy.writeQuery({ ...selector, data });
-
-      // Close modal
-      if (callback) {
-        callback();
       }
     };
 

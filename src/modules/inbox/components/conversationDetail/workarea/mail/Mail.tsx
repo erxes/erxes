@@ -39,6 +39,10 @@ class Mail extends React.PureComponent<Props, State> {
     this.setState({ isReply: !this.state.isReply });
   };
 
+  closeReply = () => {
+    this.setState({ isReply: false });
+  };
+
   cleanHtml(mailContent: string) {
     return sanitizeHtml(mailContent, {
       allowedTags: false,
@@ -87,6 +91,7 @@ class Mail extends React.PureComponent<Props, State> {
         <MailForm
           kind={kind}
           isReply={isReply}
+          closeReply={this.closeReply}
           conversationId={conversationId}
           toggleReply={this.toggleReply}
           integrationId={integrationId}
