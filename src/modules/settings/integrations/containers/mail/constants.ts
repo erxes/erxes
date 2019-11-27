@@ -1,7 +1,6 @@
 /**
  * Default field values for: Mail Optimistic UI
  */
-const conversationMessageId = Math.round(Math.random() * -1000000);
 const customerId = Math.round(Math.random() * -1000000);
 const messageCustomerId = Math.round(Math.random() * -1000000);
 const userId = Math.round(Math.random() * -1000000);
@@ -10,7 +9,6 @@ const createdAt = new Date();
 
 const defaultMessageFields = {
   __typename: 'ConversationMessage',
-  _id: conversationMessageId,
   customerId: messageCustomerId,
   userId,
   createdAt,

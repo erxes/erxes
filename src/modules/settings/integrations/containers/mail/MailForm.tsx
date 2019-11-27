@@ -87,6 +87,7 @@ const MailFormContainer = (props: FinalProps) => {
     const email = mailData ? mailData.integrationEmail : '';
 
     const integrationSendMail = {
+      _id: Math.round(Math.random() * -1000000),
       ...defaultMessageFields,
       conversationId,
       content: variables.body,
