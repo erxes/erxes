@@ -137,11 +137,6 @@ export type EngageMessageDetailQueryResponse = {
   loading: boolean;
 };
 
-export type EmailDeliveryDetailQueryResponse = {
-  emailDeliveryDetail: IEmailDeliveryDetail;
-  loading: boolean;
-};
-
 export type EngageVerifiedEmailsQueryResponse = {
   engageVerifiedEmails: string[];
   error: Error;
