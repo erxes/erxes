@@ -29,7 +29,7 @@ const engageMessages = `
       title
       isDraft
       isLive
-      createdDate
+      createdAt
       kind
       method
       brands {
@@ -76,7 +76,7 @@ const engageDetailFields = `
   isDraft
   isLive
   stopDate
-  createdDate
+  createdAt
   messenger
   scheduleDate {
     type
