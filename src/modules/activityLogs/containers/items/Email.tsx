@@ -1,9 +1,8 @@
 import gql from 'graphql-tag';
 import Email from 'modules/activityLogs/components/items/Email';
-// import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/engage/graphql';
-import { EmailDeliveryDetailQueryResponse } from 'modules/engage/types';
+import { EngageMessageDetailQueryResponse } from 'modules/engage/types';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 
@@ -13,22 +12,22 @@ type Props = {
 };
 
 type FinalProps = {
-  emailDeliveryDetailQuery: EmailDeliveryDetailQueryResponse;
+  engageMessageDetailQuery: EngageMessageDetailQueryResponse;
 } & Props;
 
 class EmailContainer extends React.Component<FinalProps> {
   render() {
-    const { emailDeliveryDetailQuery } = this.props;
+    const { engageMessageDetailQuery } = this.props;
 
-    if (emailDeliveryDetailQuery.loading) {
+    if (engageMessageDetailQuery.loading) {
       return null;
     }
 
-    const email = emailDeliveryDetailQuery.emailDeliveryDetail;
+    const engageMessage = engageMessageDetailQuery.engageMessageDetail;
 
     const updatedProps = {
       ...this.props,
-      email
+      engageMessage
     };
 
     return <Email {...updatedProps} />;
@@ -37,10 +36,10 @@ class EmailContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, EmailDeliveryDetailQueryResponse>(
-      gql(queries.emailDeliveryDetail),
+    graphql<Props, EngageMessageDetailQueryResponse>(
+      gql(queries.engageMessageDetail),
       {
-        name: 'emailDeliveryDetailQuery',
+        name: 'engageMessageDetailQuery',
         options: ({ emailId }) => ({
           variables: {
             _id: emailId

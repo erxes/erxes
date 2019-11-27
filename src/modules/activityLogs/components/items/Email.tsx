@@ -13,12 +13,12 @@ import {
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
-import { IEmailDeliveryDetail } from 'modules/engage/types';
+import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
 import React from 'react';
 import xss from 'xss';
 
 type Props = {
-  email: IEmailDeliveryDetail;
+  engageMessage: IEngageMessage;
   activity: any;
 };
 
@@ -36,7 +36,9 @@ class Email extends React.Component<Props, { expand: boolean }> {
   };
 
   renderContent() {
-    const { content } = this.props.email;
+    const { email = {} as IEngageEmail } = this.props.engageMessage;
+    const { content } = email;
+
     const { expand } = this.state;
     const longEmail = content.length >= 800;
 
@@ -62,7 +64,8 @@ class Email extends React.Component<Props, { expand: boolean }> {
 
   render() {
     const { createdAt } = this.props.activity;
-    const { subject, title } = this.props.email;
+    const { email = {} as IEngageEmail, title } = this.props.engageMessage;
+    const { subject } = email;
 
     return (
       <LogWrapper>
