@@ -74,12 +74,11 @@ class MailForm extends React.Component<Props, State> {
     const bcc = formatObj(mailData.bcc || []);
     const [from] = mailData.from || [{}];
     const sender = this.getEmailSender(from.email || props.fromEmail);
-    const to = sender;
 
     this.state = {
       cc,
       bcc,
-      to,
+      to: sender,
 
       hasCc: cc ? cc.length > 0 : false,
       hasBcc: bcc ? bcc.length > 0 : false,
