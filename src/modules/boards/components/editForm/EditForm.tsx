@@ -33,7 +33,8 @@ class EditForm extends React.Component<Props, State> {
 
     this.state = {
       stageId: props.item.stageId,
-      labelIds: props.item.labelIds || []
+      labelIds: props.item.labelIds || [],
+      updatedItem: props.item
     };
   }
 
@@ -96,13 +97,20 @@ class EditForm extends React.Component<Props, State> {
   };
 
   onHideModal = () => {
-    const { updatedItem, prevStageId, labelIds } = this.state;
+    const { item, saveItem, onUpdate, savePipelineLabels } = this.props;
+    const { prevStageId, labelIds, updatedItem } = this.state;
 
     if (updatedItem) {
-      this.props.onUpdate(updatedItem, prevStageId);
+      onUpdate(updatedItem, prevStageId);
     }
 
-    this.props.savePipelineLabels(labelIds);
+    if (item.labelIds && item.labelIds.toString() !== labelIds.toString()) {
+      savePipelineLabels(labelIds);
+
+      saveItem({ labelIds }, it => {
+        onUpdate(it, prevStageId);
+      });
+    }
 
     this.closeModal();
   };

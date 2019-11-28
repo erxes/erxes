@@ -22,6 +22,7 @@ type Props = {
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
+  savePipelineLabels: (labelIds: string[]) => void;
 };
 
 type FinalProps = {

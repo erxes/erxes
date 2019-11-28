@@ -125,7 +125,7 @@ class EditFormContainer extends React.Component<FinalProps> {
   savePipelineLabels = (labelIds: string[]) => {
     const { item, itemId, pipelineLabelMutation } = this.props;
 
-    const pipelineId = item && item.pipeline._id;
+    const pipelineId = item && item.pipeline && item.pipeline._id;
 
     const variables = {
       pipelineId,
