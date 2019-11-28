@@ -29,7 +29,7 @@ const CustomerFormContainer = (props: FinalProps) => {
     type
   }: IButtonMutateProps) => {
     const callbackResponse = data => {
-      if (type === 'saveAndgo') {
+      if (type) {
         return history.push(
           `/contacts/customers/details/${data.customersAdd._id}`
         );
@@ -46,7 +46,6 @@ const CustomerFormContainer = (props: FinalProps) => {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        children={type === 'saveAndgo' ? 'Save & Continue' : 'Save'}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}

@@ -81,7 +81,7 @@ export type IButtonMutateProps = {
   callback?: () => void;
   size?: string;
   object?: any;
-  type?: string;
+  type?: boolean;
 };
 
 export type IMentionUser = {
