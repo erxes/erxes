@@ -41,5 +41,5 @@ export const formatObj = (emailArray: IEmail[]) => {
     return;
   }
 
-  return emailArray ? emailArray.map(s => s.email).join(',') : '';
+  return emailArray ? emailArray.map(s => s.email).join(', ') : '';
 };

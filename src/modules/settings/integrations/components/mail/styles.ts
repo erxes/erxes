@@ -109,6 +109,7 @@ const FlexRow = styled.div`
   > label {
     margin: 2px ${dimensions.unitSpacing}px 2px 0;
     color: ${colors.colorCoreGray};
+    align-self: baseline;
   }
 `;
 
@@ -140,11 +141,13 @@ const SpaceBetweenRow = styled.div`
   justify-content: space-between;
   align-items: center;
 
+  textarea,
   input,
   ${SelectWrapper} {
     height: ${dimensions.coreSpacing}px;
     border-bottom: 0;
     padding: 0;
+    min-height: auto;
 
     select {
       height: ${dimensions.coreSpacing}px;
