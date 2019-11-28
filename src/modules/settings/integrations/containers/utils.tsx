@@ -29,7 +29,7 @@ export const getRefetchQueries = (kind: string) => {
 };
 
 export const formatStr = (emailString?: string) => {
-  return emailString ? emailString.split(/[ ]+/).join(',') : '';
+  return emailString ? emailString.split(/[ ,]+/).join(', ') : '';
 };
 
 export const cleanIntegrationKind = (name: string) => {
@@ -41,5 +41,5 @@ export const formatObj = (emailArray: IEmail[]) => {
     return;
   }
 
-  return emailArray ? emailArray.map(s => s.email).join(', ') : '';
+  return emailArray ? emailArray.map(s => s.email).join(',') : '';
 };
