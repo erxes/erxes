@@ -17,9 +17,17 @@ const UserResetPasswordContainer = (
 ) => {
   const { resetMemberPassword } = props;
 
-  const save = ({ _id, newPassword }) => {
+  const save = ({ _id, newPassword, repeatPassword }) => {
+    if ((newPassword && !repeatPassword) || repeatPassword === 0) {
+      return Alert.error('Please enter a repeat password');
+    }
+
     if (!newPassword || newPassword === 0) {
       return Alert.error('Please enter a new password');
+    }
+
+    if (newPassword !== repeatPassword) {
+      return Alert.error("Password didn't match");
     }
 
     resetMemberPassword({ variables: { _id, newPassword } })

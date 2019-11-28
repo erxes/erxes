@@ -12,10 +12,12 @@ type Props = {
   save: (
     {
       _id,
-      newPassword
+      newPassword,
+      repeatPassword
     }: {
       _id: string;
       newPassword: string;
+      repeatPassword: string;
     }
   ) => void;
   closeModal: () => void;
@@ -26,7 +28,10 @@ class UserResetPasswordForm extends React.Component<Props> {
     return {
       _id: this.props.object._id,
       newPassword: (document.getElementById('new-password') as HTMLInputElement)
-        .value
+        .value,
+      repeatPassword: (document.getElementById(
+        'repeat-password'
+      ) as HTMLInputElement).value
     };
   };
 
@@ -44,6 +49,12 @@ class UserResetPasswordForm extends React.Component<Props> {
             type="password"
             placeholder={__('Enter new password')}
             id="new-password"
+          />
+          <ControlLabel>Repeat Password</ControlLabel>
+          <FormControl
+            type="password"
+            placeholder={__('repeat password')}
+            id="repeat-password"
           />
         </FormGroup>
 
