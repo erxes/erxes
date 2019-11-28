@@ -84,7 +84,7 @@ export const urlify = (text: string) => {
     return `${href}&rancherText=${rancherText}`;
   });
 
-  const urlRegex = /(((https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*))/g;
+  const urlRegex = /(((https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&-a-zA-Z0-9//=]*))/g;
 
   return text.replace(urlRegex, (url: string) => {
     let rancherText = url;
@@ -92,10 +92,14 @@ export const urlify = (text: string) => {
 
     const index = url.indexOf('&rancherText=');
 
+    // console.log("index:" + index);
+
     if (index !== -1) {
       rancherText = url.substring(index + 13);
       href = url.substring(0, index);
     }
+
+    console.log('rancherText:' + rancherText);
 
     if (!url.includes('http')) {
       href = `http://${url}`;
