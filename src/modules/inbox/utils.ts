@@ -99,8 +99,6 @@ export const urlify = (text: string) => {
       href = url.substring(0, index);
     }
 
-    console.log('rancherText:' + rancherText);
-
     if (!url.includes('http')) {
       href = `http://${url}`;
     }
