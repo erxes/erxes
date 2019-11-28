@@ -1,3 +1,4 @@
+import { readFile } from 'fs';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
@@ -34,7 +35,11 @@ class TeamMembers extends React.Component<Props> {
         <InsightUserData>
           <UserProfile>
             <img
-              src={data.avatar || '/images/avatar-colored.svg'}
+              src={
+                data.avatar
+                  ? readFile(data.avatar)
+                  : '/images/avatar-colored.svg'
+              }
               alt={data.fullName}
             />
 
