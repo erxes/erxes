@@ -145,3 +145,44 @@ You can view full contact details by clicking on the company from company’s fe
 
 
 ---
+
+## Setup segment
+Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.
+
++ Please follow the steps for setup: Certain Features ->Segment > Add Segment
+
+1. Click on top right corner of segment
+2. Click New segment
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-17.png" style="width:400px;height:280px;"/>
+</div>
+
+<aside class="notice">
+  *Created Segments will be used in Customer, Company and Engage features
+</aside>
+
+---
+
+## Create segment
+Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.
+
++ Please follow the steps for setup: Certain Features ->Segment > Add Segment
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-18.png" style="border:1px solid #eee;" />
+</div>
+
+1. Add condition for the Segment
+2. Click Add Condition
+3. Insert your condition “30 online customers”
+4. Insert Name for the Segment
+5. Insert Description for the Segment
+6. Choose Sub Segment
+7. Choose Color for the Segment
+8. Click Save to create Segment
+9. The numbers of customers equals to created segment
+
+<aside class="notice">
+  *Created Segments will be used in Customer, Company and Engage features
+</aside>
