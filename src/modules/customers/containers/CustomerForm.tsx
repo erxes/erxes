@@ -1,14 +1,11 @@
-import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import {
   IButtonMutateProps,
   IQueryParams,
   IRouterProps
 } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import { AddMutationResponse, ICustomer } from 'modules/customers/types';
+import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import CustomerForm from '../components/list/CustomerForm';
 import { mutations } from '../graphql';
@@ -19,31 +16,10 @@ type Props = {
   queryParams: IQueryParams;
 };
 
-type FinalProps = {} & Props & AddMutationResponse & IRouterProps;
+type FinalProps = {} & Props & IRouterProps;
 
 const CustomerFormContainer = (props: FinalProps) => {
   const { history } = props;
-
-  const addCustomers = variables => {
-    // tslint:disable-next-line:no-console
-    console.log('addCustom', variables);
-    Alert.success('YoYo');
-
-    // customersAdd({
-    //   variables
-    // })
-    //   .then((result: any) => {
-    //     Alert.success('You successfully added a customer');
-    //     // tslint:disable-next-line:no-console
-    //     console.log(result);
-    //     history.push(
-    //       `/contacts/customers/details/${result.data.customersAdd._id}`
-    //     );
-    //   })
-    //   .catch(e => {
-    //     Alert.error(e.message);
-    //   });
-  };
 
   const renderButton = ({
     name,
@@ -55,10 +31,10 @@ const CustomerFormContainer = (props: FinalProps) => {
   }: IButtonMutateProps) => {
     const callbackResponse = data => {
       // tslint:disable-next-line:no-console
-      console.log(data);
+      console.log(data, type);
       if (type === 'saveAndgo') {
         return history.push(
-          `/contacts/customers/details/${data.data.customersAdd._id}`
+          `/contacts/customers/details/${data.customersAdd._id}`
         );
       }
 
@@ -83,8 +59,7 @@ const CustomerFormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    renderButton,
-    addCustomers
+    renderButton
   };
 
   return <CustomerForm {...updatedProps} />;
@@ -99,10 +74,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, AddMutationResponse, {}>(gql(mutations.customersAdd), {
-      name: 'customersAdd'
-    })
-  )(withRouter<FinalProps>(CustomerFormContainer))
-);
+export default withRouter<FinalProps>(CustomerFormContainer);

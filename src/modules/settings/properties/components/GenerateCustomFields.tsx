@@ -133,8 +133,7 @@ class GenerateGroup extends React.Component<Props, State> {
     if (!fieldGroup.isVisible) {
       return null;
     }
-    // tslint:disable-next-line:no-console
-    console.log(fieldGroup);
+
     return (
       <Box title={fieldGroup.name} name="showCustomFields">
         {this.renderContent()}

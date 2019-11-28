@@ -28,7 +28,6 @@ type Props = {
   customer?: ICustomer;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  addCustomers: (variables: any) => void;
   queryParams: IQueryParams;
 };
 
@@ -151,7 +150,6 @@ class CustomerForm extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
-    // const onClick = () => this.props.addCustomers(this.generateDoc(values));
 
     return (
       <>
@@ -355,14 +353,15 @@ class CustomerForm extends React.Component<Props, State> {
             object: this.props.customer
           })}
 
-          {renderButton({
-            name: 'customer',
-            values: this.generateDoc(values),
-            isSubmitted,
-            callback: closeModal,
-            type: 'saveAndgo',
-            object: this.props.customer
-          })}
+          {!this.props.customer &&
+            renderButton({
+              name: 'customer',
+              values: this.generateDoc(values),
+              isSubmitted,
+              callback: closeModal,
+              type: 'saveAndgo',
+              object: this.props.customer
+            })}
         </ModalFooter>
       </>
     );
