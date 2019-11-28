@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import Task from 'modules/activityLogs/components/items/boardItems/Task';
-import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/tasks/graphql';
 import {
@@ -26,7 +25,7 @@ class FormContainer extends React.Component<FinalProps> {
     const { taskDetailsQuery, editMutation, removeMutation } = this.props;
 
     if (taskDetailsQuery.loading) {
-      return <Spinner />;
+      return null;
     }
 
     const task = taskDetailsQuery.taskDetail;

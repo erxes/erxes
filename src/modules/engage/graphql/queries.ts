@@ -78,6 +78,12 @@ const engageDetailFields = `
   stopDate
   createdAt
   messenger
+  fromUser {
+    email
+    details {
+      fullName
+    }
+  }
   scheduleDate {
     type
     month

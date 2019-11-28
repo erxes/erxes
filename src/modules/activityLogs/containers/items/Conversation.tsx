@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import Conversation from 'modules/activityLogs/components/items/conversation/Conversation';
+import Conversation from 'modules/activityLogs/components/items/Conversation';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';

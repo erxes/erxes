@@ -33,8 +33,11 @@ class CreatedLog extends React.Component<Props> {
             contentTypeDetail._id
           }`}
         >
-          {contentTypeDetail && contentTypeDetail.name}&nbsp;
-          <Icon icon="arrow-to-right" />
+          {Object.keys(contentTypeDetail).length !== 0 && (
+            <>
+              {contentTypeDetail.name} <Icon icon="arrow-to-right" />
+            </>
+          )}
         </Link>
       </span>
     );

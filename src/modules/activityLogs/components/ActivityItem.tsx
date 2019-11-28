@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import Task from '../containers/items/boardItems/Task';
-import Conversation from '../containers/items/conversation/Conversation';
+import Conversation from '../containers/items/Conversation';
 import Email from '../containers/items/Email';
 import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';

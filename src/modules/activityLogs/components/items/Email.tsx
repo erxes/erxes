@@ -3,13 +3,12 @@ import {
   ActivityDate,
   AvatarWrapper,
   ContentShadow,
-  DeleteAction,
   EmailContent,
   ExpandButton,
   FlexBody,
-  FlexCenterContent,
-  LogWrapper
+  FlexCenterContent
 } from 'modules/activityLogs/styles';
+import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
@@ -64,11 +63,16 @@ class Email extends React.Component<Props, { expand: boolean }> {
 
   render() {
     const { createdAt } = this.props.activity;
-    const { email = {} as IEngageEmail, title } = this.props.engageMessage;
+    const {
+      email = {} as IEngageEmail,
+      title,
+      fromUser
+    } = this.props.engageMessage;
     const { subject } = email;
-
+    // tslint:disable-next-line:no-console
+    console.log(this.props.engageMessage);
     return (
-      <LogWrapper>
+      <>
         <FlexCenterContent>
           <AvatarWrapper>
             <NameCard.Avatar size={32} />
@@ -76,11 +80,20 @@ class Email extends React.Component<Props, { expand: boolean }> {
           <FlexBody>
             <p>{subject}</p>
             <div>
-              To: <span>test@gmai.com</span>
-              Title: <span>{title}</span>
+              <ControlLabel>Title</ControlLabel>: <span>{title}</span>
+              <ControlLabel>From</ControlLabel>:{' '}
+              <span>
+                {fromUser.details ? (
+                  <>
+                    <b>{fromUser.details.fullName}</b>
+                    <i>({fromUser.email})</i>
+                  </>
+                ) : (
+                  fromUser.email
+                )}
+              </span>
             </div>
           </FlexBody>
-          <DeleteAction>Delete</DeleteAction>
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(createdAt).format('MMM D, h:mm A')}
@@ -88,7 +101,7 @@ class Email extends React.Component<Props, { expand: boolean }> {
           </Tip>
         </FlexCenterContent>
         {this.renderContent()}
-      </LogWrapper>
+      </>
     );
   }
 }

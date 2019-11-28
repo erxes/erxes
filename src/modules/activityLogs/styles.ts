@@ -209,7 +209,7 @@ const EmailContent = styledTS<{ longEmail: boolean; expand: boolean }>(
 const ExpandButton = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
   cursor: pointer;
-  color: ${colors.colorSecondary};
+  color: ${colors.colorCoreBlue};
   font-weight: 500;
   transition: all ease 0.4s;
 
@@ -235,7 +235,7 @@ const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
 
   span {
     font-weight: 600;
-    color: ${colors.colorSecondary};
+    color: ${colors.colorCoreBlue};
   }
 
   i {
@@ -291,6 +291,11 @@ const DeleteAction = styled.div`
   font-weight: 500;
 `;
 
+const JumpTo = styled(DeleteAction)`
+  color: ${colors.colorCoreBlue};
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
 const LogWrapper = styled.div`
   flex: 1;
 
@@ -335,6 +340,20 @@ const CenterText = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
+const MergedContacts = styled.div`
+  a {
+    font-weight: 600;
+
+    &:after {
+      content: ', ';
+    }
+
+    &:last-child::after {
+      content: '';
+    }
+  }
+`;
+
 export {
   Timeline,
   ActivityTitle,
@@ -349,6 +368,7 @@ export {
   FlexContent,
   FlexCenterContent,
   FlexBody,
+  MergedContacts,
   Row,
   IconWrapper,
   Title,
@@ -361,5 +381,6 @@ export {
   Header,
   CenterText,
   ExpandButton,
-  DeleteAction
+  DeleteAction,
+  JumpTo
 };

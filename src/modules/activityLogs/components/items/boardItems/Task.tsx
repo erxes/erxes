@@ -10,6 +10,7 @@ import {
   FlexCenterContent,
   FlexContent,
   IconWrapper,
+  JumpTo,
   LogWrapper,
   Row,
   Title
@@ -28,6 +29,7 @@ import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMember
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 
 type Props = {
@@ -243,7 +245,7 @@ class Task extends React.Component<Props, State> {
 
   render() {
     const { isComplete, showDetail, editing } = this.state;
-    const { createdUser, createdAt } = this.props.task;
+    const { createdUser, createdAt, boardId, _id } = this.props.task;
 
     const onComplete = () => {
       this.setState({ isComplete: !this.state.isComplete }, () => {
@@ -262,6 +264,12 @@ class Task extends React.Component<Props, State> {
             </strong>{' '}
             created a task
           </FlexBody>
+          <Link to={`/task/board?_id=${boardId}&itemId=${_id}`}>
+            <JumpTo>
+              Jump to task
+              <Icon icon="corner-down-right-alt" />
+            </JumpTo>
+          </Link>
           <DeleteAction onClick={this.onRemove}>Delete</DeleteAction>
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
