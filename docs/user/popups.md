@@ -1,7 +1,7 @@
 ---
-id: leads
-title: Leads
-sidebar_label: Leads
+id: popups
+title: Popups
+sidebar_label: Popups
 ---
 
 <!--Content-->
