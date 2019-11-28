@@ -50,7 +50,12 @@ class Row extends React.Component<Props> {
     const content = props => <Manage integration={integration} {...props} />;
 
     return (
-      <ModalTrigger title="Install code" trigger={trigger} content={content} />
+      <ModalTrigger
+        title="Install code"
+        size="lg"
+        trigger={trigger}
+        content={content}
+      />
     );
   }
 

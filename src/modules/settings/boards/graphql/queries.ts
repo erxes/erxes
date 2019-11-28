@@ -30,6 +30,8 @@ const pipelines = `
       startDate
       endDate
       metric
+      isCheckUser
+      excludeCheckUserIds
     }
   }
 `;

@@ -10,12 +10,18 @@ import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { cleanIntegrationKind } from '../../containers/utils';
 import { IIntegration } from '../../types';
+import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
   integration: IIntegration;
   archive: (id: string) => void;
   removeIntegration: (integration: IIntegration) => void;
+  editIntegration: (
+    id: string,
+    { name, brandId }: { name: string; brandId: string }
+  ) => void;
 };
 
 class IntegrationListItem extends React.Component<Props> {
@@ -30,7 +36,7 @@ class IntegrationListItem extends React.Component<Props> {
       return 'facebook post';
     }
 
-    if (kind === KIND_CHOICES.GMAIL) {
+    if (kind === KIND_CHOICES.GMAIL || kind === KIND_CHOICES.NYLAS_GMAIL) {
       return 'gmail';
     }
 
@@ -46,28 +52,24 @@ class IntegrationListItem extends React.Component<Props> {
       return 'chatfuel';
     }
 
-    if (kind === KIND_CHOICES.NYLAS_GMAIL) {
-      return 'nylas gmail';
-    }
-
     if (kind === KIND_CHOICES.TWITTER_DM) {
       return 'twitter';
     }
 
     if (kind === KIND_CHOICES.NYLAS_IMAP) {
-      return 'nylas imap';
+      return 'imap';
     }
 
     if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
-      return 'nylas office365';
+      return 'office365';
     }
 
     if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
-      return 'nylas outlook';
+      return 'outlook';
     }
 
     if (kind === KIND_CHOICES.NYLAS_YAHOO) {
-      return 'nylas yahoo';
+      return 'yahoo';
     }
 
     return 'default';
@@ -87,6 +89,44 @@ class IntegrationListItem extends React.Component<Props> {
         <Tip text={__('Archive')}>
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
+      </WithPermission>
+    );
+  }
+
+  renderEditAction() {
+    const { integration, editIntegration } = this.props;
+
+    if (integration.kind === KIND_CHOICES.MESSENGER) {
+      return null;
+    }
+
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Edit">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => (
+      <CommonFieldForm
+        {...props}
+        onSubmit={editIntegration}
+        name={integration.name}
+        brandId={integration.brandId}
+        integrationId={integration._id}
+      />
+    );
+
+    return (
+      <WithPermission action="integrationsEdit">
+        <ActionButtons>
+          <ModalTrigger
+            title="Edit integration"
+            trigger={editTrigger}
+            content={content}
+          />
+        </ActionButtons>
       </WithPermission>
     );
   }
@@ -156,13 +196,14 @@ class IntegrationListItem extends React.Component<Props> {
         <td>{integration.name}</td>
         <td>
           <Label className={`label-${this.getTypeName(integration)}`}>
-            {integration.kind}
+            {cleanIntegrationKind(integration.kind)}
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
+            {this.renderEditAction()}
             {this.renderArchiveAction()}
             {this.renderRemoveAction()}
           </ActionButtons>

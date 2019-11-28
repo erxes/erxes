@@ -271,7 +271,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 
   &.no-link li,
   a {
-    display: block;
+    display: flex;
     padding: 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
@@ -280,7 +280,6 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     text-decoration: none;
     text-transform: ${props => (props.capitalize ? 'capitalize' : 'normal')};
     outline: 0;
-    position: relative;
     border-left: 2px solid transparent;
     transition: background 0.3s ease;
 
@@ -301,7 +300,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
       border-left: 2px solid ${colors.colorSecondary};
     }
   }
-
+  
   .icon {
     margin-right: 6px;
     color: ${colors.colorCoreGray};
@@ -309,18 +308,16 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 `;
 
 const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
-  styled.span
+  styled.div
 )`
   font-size: ${typography.fontSizeHeading8}px;
   text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
-  position: ${props => !props.nowrap && 'absolute'};
-  right: ${dimensions.coreSpacing}px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
-  padding-left: ${props => (props.nowrap ? '0' : '10px')};
+  padding-left: ${props => (props.nowrap ? '0' : '5px')};
 
   a {
     padding: 0;
@@ -338,6 +335,13 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
       display: block;
       white-space: normal;
     `};
+`;
+
+const FieldStyle = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
 `;
 
 const SidebarFlexRow = styled.li`
@@ -576,5 +580,6 @@ export {
   SectionBody,
   SectionBodyItem,
   MobileRecommend,
-  ButtonRelated
+  ButtonRelated,
+  FieldStyle
 };

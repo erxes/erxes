@@ -98,7 +98,7 @@ const RespondBoxStyled = styledTS<{
 const MailRespondBox = styled(RespondBoxStyled)`
   padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
 `;
 
 const ResponseTemplateStyled = styled.div`
@@ -261,7 +261,7 @@ const Attachment = styled.div`
   align-items: center;
 
   > div {
-    margin-right: 10px;
+    margin-right: 8px;
   }
 `;
 

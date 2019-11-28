@@ -45,7 +45,7 @@ const headSegments = `
 
 const combinedFields = `
   query fieldsCombinedByContentType($contentType: String!) {
-    fieldsCombinedByContentType(contentType: $contentType)
+    fieldsCombinedByContentType(contentType: $contentType, source: "fromSegments")
   }
 `;
 
