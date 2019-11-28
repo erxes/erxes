@@ -1,6 +1,6 @@
-import { readFile } from 'fs';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
+import { readFile } from 'modules/common/utils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
