@@ -2,7 +2,7 @@ import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import parse from 'ua-parser-js';
 
@@ -21,7 +21,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     if (value || secondValue) {
       return (
         <li>
-          {__(text)}:
+          <FieldStyle>{__(text)}:</FieldStyle>
           <SidebarCounter nowrap={nowrap}>
             {value} {secondValue}
           </SidebarCounter>
