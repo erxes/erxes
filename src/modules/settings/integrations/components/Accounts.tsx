@@ -59,7 +59,11 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     }
 
     return (
-      <Button onClick={this.onRemove.bind(this, accountId)} btnStyle="danger">
+      <Button
+        onClick={this.onRemove.bind(this, accountId)}
+        btnStyle="danger"
+        size="small"
+      >
         Remove Account
       </Button>
     );
