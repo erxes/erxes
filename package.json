@@ -26,7 +26,7 @@
     "precommit": "lint-staged",
     "test": "jest --forceExit && ts-node ./src/commands/aftertest.ts",
     "generateVersion": "ts-node ./src/commands/generateVersion.ts",
-    "loadFakeData": "mongorestore --db erxes ./fakeData",
+    "loadInitialData": "mongorestore --db erxes ./initialData",
     "loadPermission": "mongorestore --db erxes ./permissionData",
     "initProject": "ts-node ./src/commands/initProject.ts",
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
