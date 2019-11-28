@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"erxes.configs"}],"uuid":"038980a54d1447609614744345bfec90"}
+{"options":{},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"erxes_5d8d8924e866ef3fe3da3b05.configs"}],"uuid":"e93ce34932574fbea803ad6f0a63f502"}
