@@ -11,6 +11,7 @@ import { BoxItem, Content, Reply } from './style';
 type Props = {
   message: IMessage;
   integrationId: string;
+  conversationId?: string;
   kind: string;
   isLast: boolean;
 };
@@ -36,6 +37,10 @@ class Mail extends React.PureComponent<Props, State> {
 
   toggleReply = () => {
     this.setState({ isReply: !this.state.isReply });
+  };
+
+  closeReply = () => {
+    this.setState({ isReply: false });
   };
 
   cleanHtml(mailContent: string) {
@@ -79,13 +84,15 @@ class Mail extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { integrationId, kind } = this.props;
+    const { conversationId, integrationId, kind } = this.props;
 
     return (
       <BoxItem>
         <MailForm
           kind={kind}
           isReply={isReply}
+          closeReply={this.closeReply}
+          conversationId={conversationId}
           toggleReply={this.toggleReply}
           integrationId={integrationId}
           refetchQueries={['detailQuery']}

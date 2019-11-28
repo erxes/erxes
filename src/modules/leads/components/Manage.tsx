@@ -53,7 +53,7 @@ const getInstallCode = (brandCode: string, formCode: string) => {
 
 const getEmbedCode = (formCode: string) => {
   return `
-    <div data-erxes-embed="${formCode}"></div>
+    <div data-erxes-embed="${formCode}" style="width:900px;height:300px"></div>
   `;
 };
 
