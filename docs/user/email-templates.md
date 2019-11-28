@@ -1,6 +1,6 @@
 ---
-id: marketing
-title: Marketing Team Settings
+id: email-templates
+title: Email templates
 ---
 
 ---
@@ -76,32 +76,3 @@ Team members will be able to choose from email templates and send out one messag
 
 
 *The email template must be in HTML format*
-
----
-
-
-## Script Manager
-
-Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites 
-
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-8.PNG"/>
-</div>
-
-
-1. List of __Created Scripts__
-2. __Delete, Edit, Install Code__ Actions
-3. Create __New Script__
-
-
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-9.PNG"/>
-</div>
-
-1. __Insert Name__ for Script
-2. __Delete, Edit, Install Code__ for Script
-3. Choose related __Leads__
-4. Choose __Knowledgebase topics__
-5. __Click Save__ 
-
----

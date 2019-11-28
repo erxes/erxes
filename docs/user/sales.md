@@ -1,93 +1,85 @@
 ---
-id: sales
-title: Sales Team Settings
+id: sales-pipeline
+title: Sales pipeline
 ---
 
 <!-- Content -->
 
-Sales Team settings include following features:
+Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
+
+- Please follow the steps for setup: **Deals**
 
 <div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/sale_board_settings.jpg" />
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/deal_board_steps.jpg" />
 </div>
 
-1. **Board & Pipelines**
-2. **Product & Service**
-
----
-
-## Setup Board & Pipeline
-
-Manage your boards and pipelines so that it's easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.
-
-- Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board -> Add Pipeline**
-
-<div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/sale_board.jpg" />
-</div>
-
-1. Click **Add** button to create **Board**
-2. Click **Add** button to create **Pipeline**
+1. Filter Deal by **Board & Pipeline**
+2. Click to view **Calendar**
+3. **Stages of Deal**
+4. Click on the Deal Card to see **details**
+5. Click **Add Deal**
 
 <aside class="notice">
-The Board & Pipeline will be further used in Deal feature
+  Click on the created Deal Card to transfer it to the next stage
 </aside>
 
 ---
 
-### Add Board
+## Deal calendar
 
-- Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board**
+View sales phases from calendar section by months from Deal feature.
+
+- Please follow the steps for setup: **Deals -> Calendar**
 
 <div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/step_new_addboard.jpg" />
+<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/deal_calendar_steps.png"/>
 </div>
 
-1. Click **Add** to create Board
-2. **Insert name** for the **Board**
+1. Filter Deals by **Board & Pipeline**
+2. Deals by **months**
+3. **Details of Deals**
+4. Click on **Board**
+
+<aside class="notice">
+  Please see Board & Pipeline settings from Sales Team Settings
+</aside>
+---
+
+### How to add New Deal?
+
+- Please follow the steps for setup: **Deals -> Add Deal**
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/how_to_add_deal_steps.png"/>
+</div>
+
+1. Click **Add Deal**
+2. Insert **Name for the Deal**
 3. Click **Save**
 
 <aside class="notice">
-  The Board & Pipeline will be further used in Deal feature
+  Please see Board & Pipeline settings from Sales Team Settings
 </aside>
 
 ---
 
-### Add Pipeline
+### Edit Deals
 
-- Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board**
-
-<div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/boards_and_pipelines_steps.jpg"/>
-</div>
-
-1. Click **Add Pipeline**
-2. Insert **Name** for Pipeline
-3. Click **Add Stage** for the Pipeline
-4. Insert **Name** for the Stage
-5. Choose **Percentage** for Stage
-6. Click to **Delete** the Stage
-7. Click **Save**
-
----
-
-## Setup Product & Service
-
-All information and know-how related to your business's products and services are found here. Create and add in unlimited products and services so that you and your team members can edit and share.
-
-- Please follow the steps for setup: **General Settings -> Product & Service -> Add Product & Service**
+- Please follow the steps for setup: **Deals -> Deal Card -> Deal details**
 
 <div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/product_and_service_steps.jpg" />
+ <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/deal_edit_steps.png"/>
 </div>
 
-1. Click **Add Product & Service**
-2. Insert **Name** for the Product/Service
-3. Select **Product/Service type**
-4. Insert **Description** for the Product/Service
-5. Insert **Stock Keeping Unit** /SKU/
-6. Click **Save**
+1. Insert **Deal Name**
+2. Insert **Description** for the Deal
+3. Write **New Notes** related with the Deal
+4. **Assign** the deal to team members
+5. Add **Product & Service**
+6. Add **Companies**
+7. Add **Customers**
+8. Click **Save**
 
 <aside class="notice">
-  Created Product & Service will be used in Deal section /Add Product & Service/
+  Click on the Deal Card to edit the Deal
 </aside>
