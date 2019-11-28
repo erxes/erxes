@@ -92,8 +92,6 @@ export const urlify = (text: string) => {
 
     const index = url.indexOf('&rancherText=');
 
-    // console.log("index:" + index);
-
     if (index !== -1) {
       rancherText = url.substring(index + 13);
       href = url.substring(0, index);
