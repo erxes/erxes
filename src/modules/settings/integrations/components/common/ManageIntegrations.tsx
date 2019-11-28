@@ -111,17 +111,17 @@ class ManageIntegrations extends React.Component<Props, State> {
     } else if (kind === KIND_CHOICES.GMAIL) {
       type = 'gmail';
     } else if (kind === KIND_CHOICES.NYLAS_GMAIL) {
-      type = 'nylas-gmail';
+      type = 'gmail';
     } else if (kind === KIND_CHOICES.TWITTER_DM) {
       type = 'twitter';
     } else if (kind === KIND_CHOICES.NYLAS_IMAP) {
-      type = 'nylas-imap';
+      type = 'imap';
     } else if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
-      type = 'nylas-office365';
+      type = 'office365';
     } else if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
-      type = 'nylas-outlook';
+      type = 'outlook';
     } else if (kind === KIND_CHOICES.NYLAS_YAHOO) {
-      type = 'nylas-yahoo';
+      type = 'yahoo';
     }
 
     return type;
@@ -185,7 +185,7 @@ class ManageIntegrations extends React.Component<Props, State> {
     const actionTrigger = (
       <li key={integration._id} onClick={onClick}>
         <IntegrationName>{integration.name}</IntegrationName>
-        <Tip text={this.getTypeName(integration)}>
+        <Tip text={this.getTypeName(integration)} placement="bottom">
           <Label
             className={`label-${this.getTypeName(integration)} round`}
             ignoreTrans={true}
