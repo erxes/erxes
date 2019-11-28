@@ -308,18 +308,17 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 `;
 
 const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
-  styled.span
+  styled.div
 )`
   font-size: ${typography.fontSizeHeading8}px;
   text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
-  position: ${props => !props.nowrap && 'absolute'};
-  right: 10px;
+  right: 20px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
-  padding-left: ${props => (props.nowrap ? '0' : '10px')};
+  padding-left: ${props => (props.nowrap ? '0' : '5px')};
 
   a {
     padding: 0;
@@ -339,20 +338,11 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
     `};
 `;
 
-const InboxField = styled.div`
-  display: inline-block;
-  white-space: nowrap;
-  max-width: 130px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
 const FieldStyle = styled.div`
-  display: inline-block;
   white-space: nowrap;
-  max-width: 225px;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
 `;
 
 const SidebarFlexRow = styled.li`
@@ -592,6 +582,5 @@ export {
   SectionBodyItem,
   MobileRecommend,
   ButtonRelated,
-  InboxField,
   FieldStyle
 };
