@@ -19,7 +19,7 @@ Basic steps to install scripts
 
 #### Step 1: Copy messenger code
 
-1. Go to Setting menu => Appstore 
+1. Go to Settings menu => Appstore 
 2. Click on the “Appstore” menu  (see the below figure)
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/messenger/i1.png" />
@@ -52,7 +52,7 @@ Basic steps to install scripts
 
 #### Step 1: Copy pop-ups code
 
-1. Go to Setting menu => Appstore 
+1. Go to Settings menu => Appstore 
 2. Click on the “Appstore” menu  (shown as following figure)
 3. Click on the install code button from the list (see the below figure)
 4. Then choose your pop-ups and click on the install code button from the right side   (see the below figure)
@@ -82,7 +82,7 @@ Basic steps to install scripts
  
 #### Step3: Result
 
-7. Once you have been pasted the code, it will look like this in your web (see the below figure)
+7. Once you pasted the code, it will look like this in your web (see the below figure)
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/popup/i4.png" />
 
@@ -116,6 +116,6 @@ Basic steps to install scripts
 
 #### Step3: Result
 
-5. Once you have been pasted the code, it will look like this in your web (see the below figure)
+5. Once you pasted the code, it will look like this in your web (see the below figure)
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/kb/i5.png" />
