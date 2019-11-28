@@ -2,7 +2,7 @@ import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
 import { withRouter } from 'react-router';
@@ -33,7 +33,7 @@ function Leads({ history, counts, integrations, loading }: IProps) {
               }
               onClick={onClick.bind(null, form._id)}
             >
-              {integration.name}
+              <FieldStyle>{integration.name}</FieldStyle>
               <SidebarCounter>{counts[form._id]}</SidebarCounter>
             </a>
           </li>

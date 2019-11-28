@@ -5,7 +5,7 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PipelineList from '../../containers/home/PipelineList';
@@ -32,7 +32,7 @@ class Home extends React.Component<Props> {
           className={boardId === board._id ? 'active' : ''}
           to={`/growthHack/home?id=${board._id}`}
         >
-          {board.name}
+          <FieldStyle>{board.name}</FieldStyle>
           <SidebarCounter>
             {board.pipelines && board.pipelines.length}
           </SidebarCounter>
