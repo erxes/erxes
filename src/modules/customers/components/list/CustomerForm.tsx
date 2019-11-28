@@ -356,7 +356,6 @@ class CustomerForm extends React.Component<Props, State> {
             name: 'customer',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
             object: this.props.customer
           })}
 
@@ -365,7 +364,6 @@ class CustomerForm extends React.Component<Props, State> {
               name: 'customer',
               values: this.generateDoc(values),
               isSubmitted,
-              callback: closeModal,
               type: 'saveAndgo',
               object: this.props.customer
             })}

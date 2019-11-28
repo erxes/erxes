@@ -19,26 +19,23 @@ type Props = {
 type FinalProps = {} & Props & IRouterProps;
 
 const CustomerFormContainer = (props: FinalProps) => {
-  const { history } = props;
+  const { history, closeModal } = props;
 
   const renderButton = ({
     name,
     values,
     isSubmitted,
-    callback,
     object,
     type
   }: IButtonMutateProps) => {
     const callbackResponse = data => {
-      // tslint:disable-next-line:no-console
-      console.log(data, type);
       if (type === 'saveAndgo') {
         return history.push(
           `/contacts/customers/details/${data.customersAdd._id}`
         );
       }
 
-      return callback;
+      return closeModal();
     };
 
     return (
