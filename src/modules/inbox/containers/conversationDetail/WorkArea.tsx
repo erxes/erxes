@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
 import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
+import { isConversationMailKind } from 'modules/inbox/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import strip from 'strip';
@@ -295,16 +296,18 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       options: ({ currentId, currentConversation }) => {
         const windowHeight = window.innerHeight;
         const { integration } = currentConversation;
+        const isMail = isConversationMailKind(currentConversation);
 
         // 330 - height of above and below sections of detail area
         // 45 -  min height of per message
-        limit = Math.round((windowHeight - 330) / 45 + 1);
+        limit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 10;
+
         skip = null;
 
         return {
           variables: {
             conversationId: currentId,
-            limit: integration.kind === 'messenger' ? limit : 0
+            limit: integration.kind === 'messenger' || isMail ? limit : 0
           },
           fetchPolicy: 'network-only'
         };

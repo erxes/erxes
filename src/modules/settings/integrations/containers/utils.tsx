@@ -32,6 +32,10 @@ export const formatStr = (emailString: string) => {
   return emailString ? emailString.split(/[ ]+/).join(',') : '';
 };
 
+export const cleanIntegrationKind = (name: string) => {
+  return name.replace('nylas-', '');
+};
+
 export const formatObj = (emailArray: IEmail[]) => {
   if (!emailArray || emailArray.length === 0) {
     return;

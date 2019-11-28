@@ -19,6 +19,10 @@ type Props = {
 
 class ConversationDetails extends React.Component<Props> {
   renderVisitorContactInfo(customer: ICustomer) {
+    if (!customer) {
+      return null;
+    }
+
     const { visitorContactInfo } = customer;
 
     if (!visitorContactInfo) {
