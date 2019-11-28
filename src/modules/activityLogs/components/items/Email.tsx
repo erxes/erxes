@@ -10,6 +10,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
@@ -37,7 +38,6 @@ class Email extends React.Component<Props, { expand: boolean }> {
   renderContent() {
     const { email = {} as IEngageEmail } = this.props.engageMessage;
     const { content } = email;
-
     const { expand } = this.state;
     const longEmail = content.length >= 800;
 
@@ -66,11 +66,17 @@ class Email extends React.Component<Props, { expand: boolean }> {
     const {
       email = {} as IEngageEmail,
       title,
-      fromUser
+      fromUser,
+      stats = { send: 0, total: 0 }
     } = this.props.engageMessage;
     const { subject } = email;
-    // tslint:disable-next-line:no-console
-    console.log(this.props.engageMessage);
+
+    let status = <Label lblStyle="default">Sending</Label>;
+
+    if (stats.total === stats.send) {
+      status = <Label lblStyle="success">Sent</Label>;
+    }
+
     return (
       <>
         <FlexCenterContent>
@@ -94,6 +100,7 @@ class Email extends React.Component<Props, { expand: boolean }> {
               </span>
             </div>
           </FlexBody>
+          {status}
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(createdAt).format('MMM D, h:mm A')}

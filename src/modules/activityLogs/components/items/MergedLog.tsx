@@ -18,26 +18,37 @@ class MergedLog extends React.Component<Props> {
   renderContent = () => {
     const { contentType, createdByDetail, contentDetail } = this.props.activity;
     const type = contentType.includes('customer') ? 'customers' : 'companies';
-    // tslint:disable-next-line:no-console
-    console.log(this.props.activity);
+
     return (
       <>
         <strong>{createdByDetail.details.fullName || 'Unknown'}</strong>{' '}
         {__('merged')}
         {contentDetail.length !== 0 &&
-          contentDetail.map(contact => (
-            <Link
-              key={contact._id}
-              to={`/contacts/${type}/details/${contact._id}`}
-              target="_blank"
-            >
-              &nbsp;
-              {contact.firstName ||
-                contact.visitorContactInfo.email ||
-                contact.visitorContactInfo.phone ||
-                contact._id}
-            </Link>
-          ))}
+          contentDetail.map(contact => {
+            const {
+              firstName,
+              visitorContactInfo,
+              primaryName,
+              primaryPhone,
+              _id
+            } = contact;
+
+            return (
+              <Link
+                key={contact._id}
+                to={`/contacts/${type}/details/${contact._id}`}
+                target="_blank"
+              >
+                &nbsp;
+                {firstName ||
+                  primaryName ||
+                  primaryPhone ||
+                  (visitorContactInfo && visitorContactInfo.email) ||
+                  (visitorContactInfo && visitorContactInfo.phone) ||
+                  _id}
+              </Link>
+            );
+          })}
         &nbsp;{type}
       </>
     );
