@@ -314,7 +314,6 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   text-align: ${props => (props.nowrap ? 'left' : 'right')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
-  right: 20px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
