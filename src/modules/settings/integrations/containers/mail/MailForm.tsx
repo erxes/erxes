@@ -71,8 +71,6 @@ const MailFormContainer = (props: FinalProps) => {
         }
       })
       .catch(e => {
-        Alert.error(e);
-
         if (closeModal) {
           closeModal();
         }
