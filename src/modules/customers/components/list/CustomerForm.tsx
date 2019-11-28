@@ -37,6 +37,7 @@ type State = {
   hasAuthority: string;
   users: IUser[];
   avatar: string;
+  goToDetail: boolean;
   phones?: string[];
   emails?: string[];
   primaryPhone?: string;
@@ -54,7 +55,8 @@ class CustomerForm extends React.Component<Props, State> {
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
-      avatar: customer.avatar
+      avatar: customer.avatar,
+      goToDetail: false
     };
   }
 
@@ -91,6 +93,10 @@ class CustomerForm extends React.Component<Props, State> {
 
   onAvatarUpload = url => {
     this.setState({ avatar: url });
+  };
+
+  onBtnClick = () => {
+    this.setState({ goToDetail: true });
   };
 
   getVisitorInfo(customer, key) {
@@ -149,7 +155,6 @@ class CustomerForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
-
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
 
@@ -357,9 +362,15 @@ class CustomerForm extends React.Component<Props, State> {
             name: 'customer',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
+            type: this.state.goToDetail,
             object: this.props.customer
           })}
+
+          {!this.props.customer && (
+            <Button btnStyle="success" onClick={this.onBtnClick} type="submit">
+              Save & continue
+            </Button>
+          )}
         </ModalFooter>
       </>
     );
