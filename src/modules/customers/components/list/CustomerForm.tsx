@@ -367,7 +367,7 @@ class CustomerForm extends React.Component<Props, State> {
           })}
 
           {!this.props.customer && (
-            <Button btnStyle="success" onClick={this.onBtnClick} type="submit">
+            <Button btnStyle="primary" onClick={this.onBtnClick} type="submit">
               Save & continue
             </Button>
           )}
