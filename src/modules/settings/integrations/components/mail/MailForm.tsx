@@ -14,6 +14,7 @@ import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '../../constants';
 import { formatObj, formatStr } from '../../containers/utils';
+import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
   Attachments,
@@ -306,31 +307,33 @@ class MailForm extends React.Component<Props, State> {
     }
   };
 
-  renderFromOption() {
-    const { integrations } = this.props;
+  renderFromValue = () => {
+    const { integrations = [], integrationId } = this.props;
 
-    return integrations.map(({ _id, name }) => (
-      <option key={_id} value={_id}>
-        {name}
-      </option>
-    ));
-  }
+    if (integrationId && integrationId.length > 0) {
+      const integration = integrations.find(obj => obj._id === integrationId);
 
-  renderFrom(integrationId?: string) {
+      return integration && integration.name;
+    }
+
+    const onChangeMail = (from: string) => {
+      this.setState({ from });
+    };
+
+    return (
+      <MailChooser
+        onChange={onChangeMail}
+        integrations={integrations}
+        selectedItem={this.state.from}
+      />
+    );
+  };
+
+  renderFrom() {
     return (
       <FlexRow>
         <label>From:</label>
-        <FormControl
-          name="from"
-          onChange={this.onSelectChange.bind(this, 'from')}
-          componentClass="select"
-          required={true}
-          defaultValue={this.state.from}
-          disabled={integrationId ? integrationId.length > 0 : false}
-        >
-          <option />
-          {this.renderFromOption()}
-        </FormControl>
+        {this.renderFromValue()}
       </FlexRow>
     );
   }
@@ -533,11 +536,9 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderLeftSide() {
-    const { integrationId } = this.props;
-
     return (
       <Column>
-        {this.renderFrom(integrationId)}
+        {this.renderFrom()}
         {this.renderTo()}
         {this.renderCC()}
         {this.renderBCC()}

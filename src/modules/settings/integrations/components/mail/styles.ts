@@ -148,6 +148,17 @@ const SpaceBetweenRow = styled.div`
     border-bottom: 0;
     padding: 0;
     min-height: auto;
+  }
+
+  ${SelectWrapper} {
+    width: auto;
+    display: inline-flex;
+    padding-right: 10px;
+    background: ${colors.bgActive};
+
+    &:after {
+      top: 5px;
+    }
 
     select {
       height: ${dimensions.coreSpacing}px;
