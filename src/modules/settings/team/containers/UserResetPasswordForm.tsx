@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
+import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { compose, graphql } from 'react-apollo';
 import UserResetPasswordForm from '../components/UserResetPasswordForm';
-import { ResetMemberPasswordResponse } from '../types';
-import { IUser } from 'modules/auth/types';
 import { mutations } from '../graphql';
+import { ResetMemberPasswordResponse } from '../types';
 
 type Props = {
   object: IUser;
