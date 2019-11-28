@@ -2,7 +2,7 @@ import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
 import { withRouter } from 'react-router';
@@ -31,7 +31,7 @@ function Brands({ history, counts, brands, loading }: IProps) {
               }
               onClick={onClick}
             >
-              {brand.name}
+              <FieldStyle>{brand.name}</FieldStyle>
               <SidebarCounter>{counts[brand._id]}</SidebarCounter>
             </a>
           </li>

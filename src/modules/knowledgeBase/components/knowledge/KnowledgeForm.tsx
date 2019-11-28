@@ -79,7 +79,7 @@ class KnowledgeForm extends React.Component<Props, State> {
 
   static getInstallTag() {
     return `
-      <div data-erxes-kbase></div>
+      <div data-erxes-kbase style="width:900px;height:300px"></div>
     `;
   }
 

@@ -2,7 +2,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import { router } from 'modules/common/utils';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router';
 import styled from 'styled-components';
@@ -85,7 +85,7 @@ class FilterByParams extends React.Component<IProps, State> {
                   {icon ? (
                     <Icon icon={icon} style={{ color: field.colorCode }} />
                   ) : null}{' '}
-                  {field.name}
+                  <FieldStyle>{field.name}</FieldStyle>
                   <SidebarCounter>{counts[field._id]}</SidebarCounter>
                 </a>
               </li>
