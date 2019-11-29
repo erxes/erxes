@@ -264,7 +264,7 @@ class Task extends React.Component<Props, State> {
             </strong>{' '}
             created a task
           </FlexBody>
-          <Link to={`/task/board?_id=${boardId}&itemId=${_id}`}>
+          <Link to={`/task/board?_id=${boardId}&itemId=${_id}`} target="_blank">
             <JumpTo>
               Jump to task
               <Icon icon="corner-down-right-alt" />

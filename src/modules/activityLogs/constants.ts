@@ -47,6 +47,10 @@ export const ICON_AND_COLOR_TABLE = {
     icon: 'facebook',
     color: '#3b5998'
   },
+  comment: {
+    icon: 'comment-alt-message',
+    color: '#3b5998'
+  },
   callpro: {
     icon: 'phone-call',
     color: '#0191c8'
