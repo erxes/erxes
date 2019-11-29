@@ -43,7 +43,7 @@ export default class FacebookConversation extends React.Component<Props> {
     const limit = comments.length + 5;
 
     this.props.fetchFacebook({
-      postId: post.postId,
+      postId: post.erxesApiId,
       limit
     });
   };

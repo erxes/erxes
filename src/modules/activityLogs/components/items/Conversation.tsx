@@ -19,7 +19,7 @@ import Tip from 'modules/common/components/Tip';
 import { renderFullName } from 'modules/common/utils';
 import { Message } from 'modules/inbox/components/conversationDetail/workarea/conversation/messages';
 import Resolver from 'modules/inbox/containers/Resolver';
-import { IConversation, IMessage } from 'modules/inbox/types';
+import { IConversation, IFacebookComment, IMessage } from 'modules/inbox/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import xss from 'xss';
@@ -28,6 +28,7 @@ type Props = {
   activity: any;
   conversation: IConversation;
   messages: IMessage[];
+  comments: IFacebookComment[];
 };
 
 class Conversation extends React.Component<Props, { toggleMessage: boolean }> {

@@ -159,9 +159,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
         options: ({ conversation }: { conversation: IConversation }) => {
           return {
             variables: {
-              postId: conversation.facebookPost
-                ? conversation.facebookPost.postId
-                : ''
+              postId: conversation._id
             },
             fetchPolicy: 'network-only'
           };
