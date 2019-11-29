@@ -5,7 +5,7 @@ import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { LogBox } from '../styles';
-import { ILog, INameLabel } from '../types';
+import { ILog, ILogDesc } from '../types';
 import { flattenObject, isObjectEmpty } from '../utils';
 
 // field names used to show properly formatted date values
@@ -13,7 +13,7 @@ const DATE_FIELD_NAMES = ['createdAt', 'createdDate'];
 
 type Props = {
   log: ILog;
-  schemaLabelMaps: INameLabel[];
+  schemaLabelMaps: ILogDesc[];
 };
 
 export default class LogModal extends React.Component<Props> {
@@ -39,7 +39,7 @@ export default class LogModal extends React.Component<Props> {
 
         // Finding mapped name behind id field
         if (this.extraDesc) {
-          const found: INameLabel = this.extraDesc.find(
+          const found: ILogDesc = this.extraDesc.find(
             item => item[name] === value
           );
 
@@ -81,7 +81,7 @@ export default class LogModal extends React.Component<Props> {
 
     for (const name of names) {
       const field: any = flatObject[name];
-      const mappedItem: INameLabel | undefined = schemaLabelMaps.find(
+      const mappedItem: ILogDesc | undefined = schemaLabelMaps.find(
         fn => fn.name === name
       );
 
@@ -97,7 +97,7 @@ export default class LogModal extends React.Component<Props> {
       }
 
       if (this.extraDesc) {
-        const found: INameLabel = this.extraDesc.find(
+        const found: ILogDesc = this.extraDesc.find(
           fieldItem => fieldItem[name] === value
         );
 

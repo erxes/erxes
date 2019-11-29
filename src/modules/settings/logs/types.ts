@@ -21,9 +21,8 @@ export interface ILogList {
   totalCount: number;
 }
 
-export interface INameLabel {
-  name: string;
-  label: string;
+export interface ILogDesc {
+  [key: string]: any;
 }
 
 type QueryResponse = {
@@ -36,5 +35,5 @@ export type LogsQueryResponse = {
 } & QueryResponse;
 
 export type SchemaLabelsQueryResponse = {
-  getDbSchemaLabels: INameLabel[];
+  getDbSchemaLabels: ILogDesc[];
 } & QueryResponse;
