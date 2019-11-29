@@ -5,6 +5,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { FieldStyle } from 'modules/layout/styles';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -53,7 +54,7 @@ class ChannelRow extends React.Component<Props, {}> {
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
         <Link to={`?_id=${channel._id}`}>
-          {channel.name}
+          <FieldStyle>{channel.name}</FieldStyle>
           <MemberAvatars
             allMembers={members}
             selectedMemberIds={selectedMemberIds}
