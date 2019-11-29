@@ -7,7 +7,7 @@ sidebar_label: Script installation
 <!--Content-->
 
 In the case of web messenger, knowledgebase, popups, you have to install some scripts on your website's code.
-In this section, we will demonstrate all the use-cases related to this topic
+In this section, we will demonstrate all the use-cases related to this topic.
 
 ---
 
