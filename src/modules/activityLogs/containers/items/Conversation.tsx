@@ -79,7 +79,7 @@ export default withProps<Props>(
         options: ({ conversationId, activity }) => ({
           variables: {
             postId: conversationId,
-            senderId: activity.contentId
+            senderId: 'NsWYnk4FFyJ3pijd4'
           }
         })
       }
