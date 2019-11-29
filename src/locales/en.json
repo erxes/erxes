@@ -904,5 +904,6 @@
   "Old data": "Old data",
   "New data": "New data",
   "Archive": "Archive",
-  "NetworkError": "Attempting to restore connection. Changes made now may not be saved."
+  "NetworkError": "Attempting to restore connection. Changes made now may not be saved.",
+  "No connected email": "No connected email"
 }
