@@ -8,22 +8,22 @@ import styledTS from 'styled-components-ts';
 const types = {
   info: {
     background: colors.colorCoreBlue,
-    icon: 'megaphone'
+    icon: 'info-circle'
   },
 
   warning: {
     background: colors.colorCoreYellow,
-    icon: 'clock'
+    icon: 'exclamation-triangle'
   },
 
   error: {
     background: colors.colorCoreRed,
-    icon: 'cancel-1'
+    icon: 'times-circle'
   },
 
   success: {
     background: colors.colorCoreGreen,
-    icon: 'checked-1'
+    icon: 'check-circle'
   }
 };
 
@@ -37,6 +37,7 @@ export const AlertItem = styledTS<{ type: string }>(styled.div)`
   font-weight: ${typography.fontWeightLight};
   background-color: ${props => types[props.type].background};
   animation-name: ${slideDown};
+  border-radius: 2px;
   animation-duration: 0.3s;
   animation-timing-function: ease;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
@@ -47,6 +48,7 @@ export const AlertItem = styledTS<{ type: string }>(styled.div)`
 
   i {
     margin: 0;
+    font-size: 15px;
   }
 `;
 

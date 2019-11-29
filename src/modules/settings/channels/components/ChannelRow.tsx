@@ -32,7 +32,7 @@ class ChannelRow extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -54,15 +54,17 @@ class ChannelRow extends React.Component<Props, {}> {
     return (
       <SidebarListItem key={channel._id} isActive={isActive}>
         <Link to={`?_id=${channel._id}`}>
-          <FieldStyle>{channel.name}</FieldStyle>
-          <MemberAvatars
-            allMembers={members}
-            selectedMemberIds={selectedMemberIds}
-          />
+          <FieldStyle>
+            {channel.name}
+            <MemberAvatars
+              allMembers={members}
+              selectedMemberIds={selectedMemberIds}
+            />
+          </FieldStyle>
         </Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete">
+          <Tip text="Delete" placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

@@ -28,7 +28,7 @@ export default function MemberAvatars(props: Props) {
     );
 
     const length = selectedMembers.length;
-    const limit = 6;
+    const limit = 8;
 
     // render members ================
     const limitedMembers = selectedMembers.slice(0, limit);
