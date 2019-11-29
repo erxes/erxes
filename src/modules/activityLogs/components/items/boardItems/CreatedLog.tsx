@@ -15,9 +15,36 @@ type Props = {
 };
 
 class CreatedLog extends React.Component<Props> {
+  renderContentTypeDetail() {
+    const { activity } = this.props;
+    const { contentTypeDetail, contentId, contentType } = activity;
+
+    if (
+      contentId === contentTypeDetail._id ||
+      Object.keys(contentTypeDetail).length !== 0
+    ) {
+      return null;
+    }
+
+    return (
+      <Link
+        to={`/${contentType}/board?_id=${activity._id}&itemId=${
+          contentTypeDetail._id
+        }`}
+      >
+        {contentTypeDetail.name} <Icon icon="arrow-to-right" />
+      </Link>
+    );
+  }
+
   renderContent = () => {
     const { activity } = this.props;
-    const { contentType, contentTypeDetail, createdByDetail } = activity;
+    const {
+      contentType,
+      contentTypeDetail,
+      createdByDetail,
+      contentId
+    } = activity;
 
     let userName = 'Unknown';
 
@@ -27,18 +54,10 @@ class CreatedLog extends React.Component<Props> {
 
     return (
       <span>
-        <strong>{userName}</strong> created {contentType}&nbsp;
-        <Link
-          to={`/${contentType}/board?_id=${activity._id}&itemId=${
-            contentTypeDetail._id
-          }`}
-        >
-          {Object.keys(contentTypeDetail).length !== 0 && (
-            <>
-              {contentTypeDetail.name} <Icon icon="arrow-to-right" />
-            </>
-          )}
-        </Link>
+        <strong>{userName}</strong> created
+        {contentId === contentTypeDetail._id && ' this '}
+        {contentType}&nbsp;
+        {this.renderContentTypeDetail()}
       </span>
     );
   };

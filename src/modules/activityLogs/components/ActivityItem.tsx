@@ -61,6 +61,11 @@ class ActivityItem extends React.Component<Props> {
           'email',
           <Email emailId={_id} activity={activity} />
         );
+      case 'comment':
+        return this.renderDetail(
+          'conversation',
+          <Conversation conversationId={_id} activity={activity} />
+        );
       case 'moved':
         return this.renderDetail(
           activity.contentType,

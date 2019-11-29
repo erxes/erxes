@@ -95,12 +95,18 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   renderAction() {
-    const { _id, customer, integration } = this.props.conversation;
+    const { activity, conversation } = this.props;
+    const { _id, customer, integration } = conversation;
+    const condition =
+      activity.contentType === 'comment'
+        ? activity.contentType
+        : integration.kind;
+
     let action = 'sent a';
     let kind = 'conversation';
     let item = 'message';
 
-    switch (integration.kind) {
+    switch (condition) {
       case 'chatfuel':
         kind = 'chatfuel';
         break;
@@ -108,6 +114,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         action = 'made a';
         kind = 'phone call';
         item = 'by CallPro';
+        break;
+      case 'comment':
+        action = 'wrote a Facebook';
+        kind = 'Posasdassdat';
+        item = '';
         break;
       case 'facebook-post':
         action = 'wrote a Facebook';
@@ -155,7 +166,8 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         </>
       );
     }
-
+    // tslint:disable-next-line:no-console
+    console.log(this.props);
     return (
       <>
         <FlexCenterContent>
@@ -183,10 +195,13 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   render() {
-    const { conversation } = this.props;
-    const iconAndColor = getIconAndColor(
-      conversation.integration.kind || 'conversation'
-    );
+    const { conversation, activity } = this.props;
+    const condition =
+      activity.contentType === 'comment'
+        ? activity.contentType
+        : conversation.integration.kind || 'conversation';
+
+    const iconAndColor = getIconAndColor(condition);
 
     return (
       <ActivityRow key={Math.random()} isConversation={true}>

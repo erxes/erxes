@@ -76,10 +76,10 @@ export default withProps<Props>(
       gql(queries.converstationFacebookComments),
       {
         name: 'commentsQuery',
-        options: ({ conversationId, activity }) => ({
+        options: ({ conversationId }) => ({
           variables: {
             postId: conversationId,
-            senderId: activity.contentId
+            senderId: 'NsWYnk4FFyJ3pijd4'
           }
         })
       }

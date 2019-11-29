@@ -113,8 +113,8 @@ const conversationMessages = `
 `;
 
 const converstationFacebookComments = `
-  query converstationFacebookComments($postId: String!, $commentId: String, $senderId: String, $limit: Int) {
-    converstationFacebookComments(postId: $postId, limit: $limit, commentId: $commentId, senderId: $senderId) {
+  query converstationFacebookComments($postId: String!, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    converstationFacebookComments(postId: $postId, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
       conversationId
       commentId
       postId
@@ -125,7 +125,6 @@ const converstationFacebookComments = `
       erxesApiId
       timestamp
       parentId
-      commentId
       commentCount
       customer {
         _id
