@@ -10,9 +10,8 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   padding-right: ${dimensions.coreSpacing}px;
 
-  ul {
+  .dropdown-menu {
     max-height: 300px;
-    overflow: auto;
   }
 `;
 

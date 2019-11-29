@@ -1,22 +1,31 @@
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import colors from 'modules/common/styles/colors';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IIntegration } from '../../types';
 
-const Trigger = styled.div`
+const Wrapper = styled.div`
+  .dropdown-menu {
+    max-height: 280px;
+  }
+`;
+
+const Trigger = styledTS<{ disabled?: boolean }>(styled.div)`
   padding: 1px 5px;
-  background: ${colors.bgActive};
+  background: ${props =>
+    props.disabled ? rgba(colors.colorCoreRed, 0.2) : colors.bgActive};
   border-radius: 4px;
   line-height: 18px;
 
   &:hover {
-    cursor: pointer;
-    background: ${colors.bgMain};
+    background: ${props => !props.disabled && colors.bgMain};
+    cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
   }
 `;
 
@@ -32,11 +41,24 @@ const ActionItem = styledTS<{ selected?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing / 2}px ${dimensions.coreSpacing}px;
   display: flex;
   justify-content: space-between;
-	font-weight: ${props => props.selected && '600'};
+  font-weight: ${props => props.selected && '600'};
+  max-width: 300px;
+  
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    i {
+      margin-right: ${dimensions.unitSpacing}px;
+      color: ${colors.colorCoreLightGray};
+    }
+  }
 	
-	i {
+	> i {
 		color: ${colors.colorPrimaryDark};
-		font-size: 16px;
+    font-size: 16px;
+    margin-left: ${dimensions.unitSpacing}px;
 	}
 
   &:hover {
@@ -62,34 +84,54 @@ class MailChooser extends React.Component<Props> {
     const { integrations, selectedItem } = this.props;
 
     const integration = integrations.find(obj => obj._id === selectedItem);
+    const isEmpty = integrations.length === 0;
 
-    return <Trigger>{integration && integration.name}</Trigger>;
+    return (
+      <Trigger disabled={isEmpty}>
+        {isEmpty ? __('No connected email') : integration && integration.name}
+      </Trigger>
+    );
   };
 
-  render() {
-    const { integrations, onChange } = this.props;
+  renderMenu = () => {
+    const { integrations } = this.props;
 
+    if (integrations.length === 0) {
+      return;
+    }
+
+    const { onChange } = this.props;
     const onChangeItem = (value: string) => onChange(value);
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-mail">
-          {this.renderTrigger()}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {integrations.map((item: IIntegration) => (
-            <li key={item._id}>
-              <ActionItem
-                onClick={onChangeItem.bind(this, item._id)}
-                selected={this.isChecked(item)}
-              >
-                <span>{item.name}</span>
-                {this.isChecked(item) && <Icon icon="check-1" />}
-              </ActionItem>
-            </li>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
+      <Dropdown.Menu>
+        {integrations.map((item: IIntegration) => (
+          <ActionItem
+            key={item._id}
+            onClick={onChangeItem.bind(this, item._id)}
+            selected={this.isChecked(item)}
+          >
+            <span>
+              <Icon icon="mail-alt" />
+              {item.name}
+            </span>
+            {this.isChecked(item) && <Icon icon="check-1" />}
+          </ActionItem>
+        ))}
+      </Dropdown.Menu>
+    );
+  };
+
+  render() {
+    return (
+      <Wrapper>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-mail">
+            {this.renderTrigger()}
+          </Dropdown.Toggle>
+          {this.renderMenu()}
+        </Dropdown>
+      </Wrapper>
     );
   }
 }
