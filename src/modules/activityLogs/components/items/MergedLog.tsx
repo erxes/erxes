@@ -21,7 +21,11 @@ class MergedLog extends React.Component<Props> {
 
     return (
       <>
-        <strong>{createdByDetail.details.fullName || 'Unknown'}</strong>{' '}
+        <strong>
+          {createdByDetail.details
+            ? createdByDetail.details.fullName
+            : 'Unknown'}
+        </strong>{' '}
         {__('merged')}
         {contentDetail.length !== 0 &&
           contentDetail.map(contact => {
