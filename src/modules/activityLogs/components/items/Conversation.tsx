@@ -17,7 +17,12 @@ import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { renderFullName } from 'modules/common/utils';
-import { Message } from 'modules/inbox/components/conversationDetail/workarea/conversation/messages';
+import Message from 'modules/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+import {
+  Comment,
+  PostContainer
+} from 'modules/inbox/components/conversationDetail/workarea/facebook/styles';
+import UserName from 'modules/inbox/components/conversationDetail/workarea/facebook/UserName';
 import Resolver from 'modules/inbox/containers/Resolver';
 import { IConversation, IFacebookComment, IMessage } from 'modules/inbox/types';
 import React from 'react';
@@ -44,6 +49,30 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     this.setState({ toggleMessage: !this.state.toggleMessage });
   };
 
+  renderComments() {
+    const { comments } = this.props;
+
+    if (!comments || comments.length === 0) {
+      return null;
+    }
+
+    return comments.map(comment => (
+      <div key={comment.commentId}>
+        <Comment>
+          <UserName
+            username={`${comment.customer.firstName} ${comment.customer
+              .lastName || ''}`}
+          />
+          <p
+            dangerouslySetInnerHTML={{
+              __html: xss(comment.content)
+            }}
+          />
+        </Comment>
+      </div>
+    ));
+  }
+
   renderMessages() {
     const { conversation, messages } = this.props;
 
@@ -54,11 +83,12 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     const { kind } = conversation.integration;
 
     if (kind === 'facebook-post') {
-      return <span>{conversation.content}</span>;
-    }
-
-    if (kind.includes('nylas' || kind === 'gmail')) {
-      return <span>ene mailiig yahu zuger contentiin haruulah umu</span>;
+      return (
+        <>
+          <PostContainer>{conversation.content}</PostContainer>
+          {this.renderComments()}
+        </>
+      );
     }
 
     const rows: React.ReactNode[] = [];
@@ -116,9 +146,9 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         item = 'by CallPro';
         break;
       case 'comment':
-        action = 'wrote a Facebook';
-        kind = 'Posasdassdat';
-        item = '';
+        action = '';
+        kind = 'commented';
+        item = 'on Facebook Post';
         break;
       case 'facebook-post':
         action = 'wrote a Facebook';
@@ -149,16 +179,20 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
   renderContent() {
     const { conversation, messages } = this.props;
-    const { customer, content, createdAt } = conversation;
+    const { customer, content, createdAt, integration } = conversation;
 
     if (this.state.toggleMessage) {
       return (
         <>
           <Header>
             <FlexCenterContent>
-              <span>
-                Conversation with <b>{renderFullName(customer)}</b>
-              </span>
+              {integration.kind.includes('messenger') ? (
+                <span>
+                  Conversation with <b>{renderFullName(customer)}</b>
+                </span>
+              ) : (
+                <span>{this.renderAction()}</span>
+              )}
               <Resolver conversations={[conversation]} />
             </FlexCenterContent>
           </Header>
@@ -166,8 +200,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         </>
       );
     }
-    // tslint:disable-next-line:no-console
-    console.log(this.props);
+
     return (
       <>
         <FlexCenterContent>
