@@ -5,7 +5,7 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IChannel } from '../../../channels/types';
@@ -73,27 +73,27 @@ class LeftSidebar extends React.Component<Props> {
           </InfoWrapper>
           <SidebarList className="no-link">
             <li>
-              {__('Primary Email')}:
+              <FieldStyle>{__('Primary Email')}:</FieldStyle>
               <SidebarCounter>{user.email || '-'}</SidebarCounter>
             </li>
             <li>
-              {__('User name')}:
+              <FieldStyle>{__('User name')}:</FieldStyle>
               <SidebarCounter>{user.username || '-'}</SidebarCounter>
             </li>
             <li>
-              {__('Short name')}:
+              <FieldStyle>{__('Short name')}:</FieldStyle>
               <SidebarCounter>{details.shortName || '-'}</SidebarCounter>
             </li>
             <li>
-              {__('Location')}:
+              <FieldStyle>{__('Location')}:</FieldStyle>
               <SidebarCounter>{details.location || '-'}</SidebarCounter>
             </li>
             <li>
-              {__('Position')}:
+              <FieldStyle>{__('Position')}:</FieldStyle>
               <SidebarCounter>{details.position || '-'}</SidebarCounter>
             </li>
             <li>
-              {__('Description')}:
+              <FieldStyle>{__('Description')}:</FieldStyle>
               <SidebarCounter nowrap={true}>
                 {details.description || '-'}
               </SidebarCounter>
@@ -108,8 +108,8 @@ class LeftSidebar extends React.Component<Props> {
               return (
                 <li key={channel._id}>
                   <Link to={`/settings/channels?id=${channel._id}`}>
-                    <div>{channel.name || ''}</div>
-                    <p>{channel.description || ''}</p>
+                    <FieldStyle>{channel.name || ''}</FieldStyle>
+                    <SidebarCounter>{channel.description || ''}</SidebarCounter>
                   </Link>
                 </li>
               );
