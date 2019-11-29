@@ -3,14 +3,14 @@ import {
   ActivityDate,
   AvatarWrapper,
   ContentShadow,
-  DeleteAction,
   EmailContent,
   ExpandButton,
   FlexBody,
-  FlexCenterContent,
-  LogWrapper
+  FlexCenterContent
 } from 'modules/activityLogs/styles';
+import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
@@ -38,7 +38,6 @@ class Email extends React.Component<Props, { expand: boolean }> {
   renderContent() {
     const { email = {} as IEngageEmail } = this.props.engageMessage;
     const { content } = email;
-
     const { expand } = this.state;
     const longEmail = content.length >= 800;
 
@@ -64,11 +63,22 @@ class Email extends React.Component<Props, { expand: boolean }> {
 
   render() {
     const { createdAt } = this.props.activity;
-    const { email = {} as IEngageEmail, title } = this.props.engageMessage;
+    const {
+      email = {} as IEngageEmail,
+      title,
+      fromUser,
+      stats = { send: 0, total: 0 }
+    } = this.props.engageMessage;
     const { subject } = email;
 
+    let status = <Label lblStyle="default">Sending</Label>;
+
+    if (stats.total === stats.send) {
+      status = <Label lblStyle="success">Sent</Label>;
+    }
+
     return (
-      <LogWrapper>
+      <>
         <FlexCenterContent>
           <AvatarWrapper>
             <NameCard.Avatar size={32} />
@@ -76,11 +86,21 @@ class Email extends React.Component<Props, { expand: boolean }> {
           <FlexBody>
             <p>{subject}</p>
             <div>
-              To: <span>test@gmai.com</span>
-              Title: <span>{title}</span>
+              <ControlLabel>Title</ControlLabel>: <span>{title}</span>
+              <ControlLabel>From</ControlLabel>:{' '}
+              <span>
+                {fromUser.details ? (
+                  <>
+                    <b>{fromUser.details.fullName}</b>
+                    <i>({fromUser.email})</i>
+                  </>
+                ) : (
+                  fromUser.email
+                )}
+              </span>
             </div>
           </FlexBody>
-          <DeleteAction>Delete</DeleteAction>
+          {status}
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(createdAt).format('MMM D, h:mm A')}
@@ -88,7 +108,7 @@ class Email extends React.Component<Props, { expand: boolean }> {
           </Tip>
         </FlexCenterContent>
         {this.renderContent()}
-      </LogWrapper>
+      </>
     );
   }
 }

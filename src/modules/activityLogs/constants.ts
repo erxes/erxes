@@ -1,6 +1,6 @@
 export const ICON_AND_COLOR_TABLE = {
   customer: {
-    icon: 'adduser',
+    icon: 'user',
     color: '#6465e2'
   },
   segment: {

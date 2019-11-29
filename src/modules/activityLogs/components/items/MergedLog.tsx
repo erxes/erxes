@@ -1,13 +1,14 @@
 import dayjs from 'dayjs';
 import {
   ActivityDate,
-  FlexBody,
-  FlexCenterContent
+  FlexCenterContent,
+  MergedContacts
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 type Props = {
   activity: IActivityLog;
@@ -15,51 +16,57 @@ type Props = {
 
 class MergedLog extends React.Component<Props> {
   renderContent = () => {
-    const { activity } = this.props;
-
-    const { contentType, content } = activity;
-
+    const { contentType, createdByDetail, contentDetail } = this.props.activity;
     const type = contentType.includes('customer') ? 'customers' : 'companies';
 
     return (
       <>
-        {__('Merged')}
+        <strong>{createdByDetail.details.fullName || 'Unknown'}</strong>{' '}
+        {__('merged')}
+        {contentDetail.length !== 0 &&
+          contentDetail.map(contact => {
+            const {
+              firstName,
+              visitorContactInfo,
+              primaryName,
+              primaryPhone,
+              _id
+            } = contact;
 
-        {content.map((id: string, index: number) => {
-          return (
-            <a
-              style={{ display: 'inline-block', padding: '0px 3px' }}
-              key={id}
-              href={`/contacts/${type}/details/${id}`}
-              target="__blank"
-            >
-              {index + 1},
-            </a>
-          );
-        })}
-
-        {type}
+            return (
+              <Link
+                key={contact._id}
+                to={`/contacts/${type}/details/${contact._id}`}
+                target="_blank"
+              >
+                &nbsp;
+                {firstName ||
+                  primaryName ||
+                  primaryPhone ||
+                  (visitorContactInfo && visitorContactInfo.email) ||
+                  (visitorContactInfo && visitorContactInfo.phone) ||
+                  _id}
+              </Link>
+            );
+          })}
+        &nbsp;{type}
       </>
     );
   };
 
   render() {
-    const { activity } = this.props;
-    const { contentType, createdAt } = activity;
+    const { createdAt } = this.props.activity;
 
     return (
       <>
         <FlexCenterContent>
-          <FlexBody>
-            <strong>{contentType} activity</strong>
-          </FlexBody>
+          <MergedContacts>{this.renderContent()}</MergedContacts>
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
-        {this.renderContent()}
       </>
     );
   }

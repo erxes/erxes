@@ -123,6 +123,7 @@ export interface IItem {
   name: string;
   order: number;
   stageId: string;
+  boardId?: string;
   closeDate: Date;
   description: string;
   amount: number;

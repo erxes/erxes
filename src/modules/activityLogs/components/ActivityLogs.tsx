@@ -40,7 +40,6 @@ class ActivityLogs extends React.PureComponent<Props, State> {
 
   renderTabContent() {
     const { currentTab } = this.state;
-
     const { currentUser, activityLogs, loadingLogs, target } = this.props;
 
     const hasActivity = hasAnyActivity(activityLogs);
