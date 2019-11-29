@@ -8,6 +8,12 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IIntegration } from '../../types';
 
+const Wrapper = styled.div`
+  .dropdown-menu {
+    max-height: 280px;
+  }
+`;
+
 const Trigger = styled.div`
   padding: 1px 5px;
   background: ${colors.bgActive};
@@ -32,11 +38,19 @@ const ActionItem = styledTS<{ selected?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing / 2}px ${dimensions.coreSpacing}px;
   display: flex;
   justify-content: space-between;
-	font-weight: ${props => props.selected && '600'};
+  font-weight: ${props => props.selected && '600'};
+  max-width: 300px;
+  
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 	
 	i {
 		color: ${colors.colorPrimaryDark};
-		font-size: 16px;
+    font-size: 16px;
+    margin-left: ${dimensions.unitSpacing}px;
 	}
 
   &:hover {
@@ -72,24 +86,25 @@ class MailChooser extends React.Component<Props> {
     const onChangeItem = (value: string) => onChange(value);
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-mail">
-          {this.renderTrigger()}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {integrations.map((item: IIntegration) => (
-            <li key={item._id}>
+      <Wrapper>
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-mail">
+            {this.renderTrigger()}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {integrations.map((item: IIntegration) => (
               <ActionItem
+                key={item._id}
                 onClick={onChangeItem.bind(this, item._id)}
                 selected={this.isChecked(item)}
               >
                 <span>{item.name}</span>
                 {this.isChecked(item) && <Icon icon="check-1" />}
               </ActionItem>
-            </li>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      </Wrapper>
     );
   }
 }
