@@ -880,6 +880,7 @@
   "New data": "Шинэ мэдээлэл",
   "Archive": "Архивлах",
   "NetworkError": "Холболтыг сэргээж байна. Оруулсан өөрчлөлтүүд хадгалагдахгүй байж магадгүй.",
-  "Email add account description question": "Are you connecting a shared email account?",
-  "Email add account description": "When you connect an email to your conversations inbox, you're connecting it as a shared account. Messages sent to shared accounts can be viewed by everyone who has access to your team inbox."
+  "Email add account description question": "Та хуваалцсан имэйл акаунтыг холбож байна уу?",
+  "Email add account description": "Таны имэйл хайрцаг руу имэйлээ холбогдохдоо үүнийг хуваалцсан акаунт гэж холбож байна. Таны ирсэн имэйлд хандалт хийсэн бүх хүн харах боломжтой.",
+  "No connected email": "Имэйл холбоогүй байна"
 }

@@ -103,9 +103,9 @@ class Form extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <Info>
-            {__('Email add account description question')}
+            <strong>{__('Email add account description question')}</strong>
             <br />
-            <p>{__('Email add account description')}</p>
+            {__('Email add account description')}
           </Info>
         </FormGroup>
 
