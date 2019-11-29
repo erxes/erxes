@@ -112,9 +112,9 @@ const conversationMessages = `
   }
 `;
 
-const facebookComments = `
-  query facebookComments($postId: String!, $commentId: String, $limit: Int) {
-    facebookComments(postId: $postId, limit: $limit, commentId: $commentId) {
+const converstationFacebookComments = `
+  query converstationFacebookComments($postId: String!, $commentId: String, $senderId: String, $limit: Int) {
+    converstationFacebookComments(postId: $postId, limit: $limit, commentId: $commentId, senderId: $senderId) {
       conversationId
       commentId
       postId
@@ -318,7 +318,7 @@ export default {
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
-  facebookComments,
+  converstationFacebookComments,
   conversationMessagesTotalCount,
   userList,
   channelList,
