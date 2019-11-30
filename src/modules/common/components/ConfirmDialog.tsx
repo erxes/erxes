@@ -8,7 +8,7 @@ import Icon from './Icon';
 const ModalBody = styled.div`
   text-align: center;
   padding: ${dimensions.coreSpacing}px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
 `;
 
@@ -22,7 +22,7 @@ const ModalFooter = styled.div`
 `;
 
 const IconWrapper = styled.div`
-  font-size: 38px;
+  font-size: 40px;
   color: ${colors.colorSecondary};
 `;
 
@@ -92,10 +92,11 @@ class ConfirmDialog extends React.Component<Props, State> {
         backdrop={enableEscape ? true : 'static'}
         keyboard={enableEscape}
         size="sm"
+        centered={true}
       >
         <ModalBody>
           <IconWrapper>
-            <Icon icon="information" />
+            <Icon icon="exclamation-triangle" />
           </IconWrapper>
           {confirmation}
         </ModalBody>

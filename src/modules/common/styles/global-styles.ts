@@ -70,14 +70,18 @@ a:hover {
 .modal-dialog {
   padding: 0;
   margin: 50px auto;
-}
 
-.modal-dialog.middle {
-  width: 65%;
-}
+  &.modal-dialog-centered {
+    margin: 0 auto;
+  }
 
-.modal-dialog.full {
-  width: 85%;
+  &.middle {
+    width: 65%;
+  }
+
+  &.full {
+    width: 85%;
+  }
 }
 
 .modal-1000w {

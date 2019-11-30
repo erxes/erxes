@@ -84,12 +84,12 @@ class Mail extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { conversationId, integrationId, kind } = this.props;
+    const { conversationId, integrationId } = this.props;
 
     return (
       <BoxItem>
         <MailForm
-          kind={kind}
+          kind="mail"
           isReply={isReply}
           closeReply={this.closeReply}
           conversationId={conversationId}

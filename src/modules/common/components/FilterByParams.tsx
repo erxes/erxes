@@ -105,7 +105,7 @@ class FilterByParams extends React.Component<IProps, State> {
         count={fields.length}
         data={this.renderItems()}
         emptyText="Empty"
-        emptyIcon="file"
+        emptyIcon="folder-2"
         size="small"
         objective={true}
       />
