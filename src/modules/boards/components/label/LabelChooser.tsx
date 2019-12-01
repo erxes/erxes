@@ -62,7 +62,9 @@ class ChooseLabel extends React.Component<
   }
 
   onExit = () => {
-    this.props.doLabel(this.state.selectedLabelIds);
+    if (this.props.selectedLabelIds !== this.state.selectedLabelIds) {
+      this.props.doLabel(this.state.selectedLabelIds);
+    }
   };
 
   render() {
