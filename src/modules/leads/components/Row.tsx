@@ -7,8 +7,8 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
+import { DateWrapper } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import { Date } from 'modules/customers/styles';
 import { RowTitle } from 'modules/engage/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -139,7 +139,7 @@ class Row extends React.Component<Props> {
           {lead.contactsGathered || 0}
         </td>
         <td>
-          <Date>{dayjs(form.createdDate).format('ll')}</Date>
+          <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
         </td>
         <td>
           <div key={createdUser._id}>
