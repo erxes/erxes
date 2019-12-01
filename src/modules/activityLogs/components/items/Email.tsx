@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import {
   ActivityDate,
-  AvatarWrapper,
   ContentShadow,
   EmailContent,
   ExpandButton,
@@ -11,7 +10,6 @@ import {
 import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
-import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
 import React from 'react';
@@ -80,11 +78,9 @@ class Email extends React.Component<Props, { expand: boolean }> {
     return (
       <>
         <FlexCenterContent>
-          <AvatarWrapper>
-            <NameCard.Avatar size={32} />
-          </AvatarWrapper>
           <FlexBody>
-            <p>{subject}</p>
+            <p>Email</p>
+            <p>Subject: {subject}</p>
             <div>
               <ControlLabel>Title</ControlLabel>: <span>{title}</span>
               <ControlLabel>From</ControlLabel>:{' '}

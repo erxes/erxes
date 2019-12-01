@@ -58,5 +58,9 @@ export const ICON_AND_COLOR_TABLE = {
   chatfuel: {
     icon: 'comment-dots',
     color: '#2490f0'
+  },
+  'nylas-gmail': {
+    icon: 'email-3',
+    color: '#2490f0'
   }
 };
