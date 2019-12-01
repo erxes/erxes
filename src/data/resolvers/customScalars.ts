@@ -36,13 +36,7 @@ export default {
     parseValue(value) {
       return new Date(value); // value from the client
     },
-    serialize(value) {
-      if (value.getTime) {
-        return value.getTime(); // value sent to the client
-      }
-
-      return new Date(value).getTime();
-    },
+    serialize: value => value.toISOString(),
     parseLiteral(ast) {
       if (ast.kind === Kind.INT) {
         return parseInt(ast.value, 10); // ast value is always in string format
