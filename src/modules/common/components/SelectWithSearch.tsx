@@ -11,6 +11,7 @@ type Props = {
   searchValue: string;
   values: string | string[] | undefined;
   search: (search: string, loadMore?: boolean) => void;
+  abortController;
 } & WrapperProps;
 
 const content = (
@@ -153,9 +154,12 @@ const withQuery = ({ customQuery }) =>
         { searchValue?: string; ids?: string[]; filterParams?: any }
       >(gql(customQuery), {
         name: 'customQuery',
-        options: ({ searchValue, filterParams, values }) => {
+        options: ({ searchValue, filterParams, values, abortController }) => {
+          const context = { fetchOptions: { signal: abortController.signal } };
+
           if (searchValue === 'reload') {
             return {
+              context,
               variables: { searchValue: '', ...filterParams },
               fetchPolicy: 'network-only',
               notifyOnNetworkStatusChange: true
@@ -163,10 +167,11 @@ const withQuery = ({ customQuery }) =>
           }
 
           if (searchValue) {
-            return { variables: { searchValue, ...filterParams } };
+            return { context, variables: { searchValue, ...filterParams } };
           }
 
           return {
+            context,
             variables: {
               ids: typeof values === 'string' ? [values] : values,
               ...filterParams
@@ -197,7 +202,7 @@ type WrapperProps = {
 
 class Wrapper extends React.Component<
   WrapperProps,
-  { searchValue: string },
+  { searchValue: string; abortController },
   { WithQuery: React.ReactNode }
 > {
   private withQuery;
@@ -207,18 +212,28 @@ class Wrapper extends React.Component<
 
     this.withQuery = withQuery({ customQuery: this.props.customQuery });
 
-    this.state = { searchValue: '' };
+    this.state = { searchValue: '', abortController: new AbortController() };
   }
 
-  search = (searchValue: string) => this.setState({ searchValue });
+  search = (searchValue: string) => {
+    const { abortController } = this.state;
+
+    if (abortController) {
+      abortController.abort();
+    }
+
+    this.setState({ searchValue, abortController: new AbortController() });
+  };
 
   render() {
-    const { searchValue } = this.state;
+    const { searchValue, abortController } = this.state;
+
     const Component = this.withQuery;
 
     return (
       <Component
         {...this.props}
+        abortController={abortController}
         search={this.search}
         searchValue={searchValue}
       />
