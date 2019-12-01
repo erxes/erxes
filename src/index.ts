@@ -13,8 +13,14 @@ import { filterXSS } from 'xss';
 import apolloServer from './apolloClient';
 import { companiesExport, customersExport } from './data/modules/coc/exporter';
 import insightExports from './data/modules/insights/insightExports';
-import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
-import { checkFile, getEnv, readFileRequest, registerOnboardHistory, uploadFile } from './data/utils';
+import {
+  checkFile,
+  getEnv,
+  handleUnsubscription,
+  readFileRequest,
+  registerOnboardHistory,
+  uploadFile,
+} from './data/utils';
 import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
 import './messageBroker';
@@ -241,8 +247,8 @@ app.post('/import-file', async (req: any, res, next) => {
 });
 
 // engage unsubscribe
-app.get('/unsubscribe', async (req, res) => {
-  const unsubscribed = await handleEngageUnSubscribe(req.query);
+app.get('/unsubscribe', async (req: any, res) => {
+  const unsubscribed = await handleUnsubscription(req.query);
 
   if (unsubscribed) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
