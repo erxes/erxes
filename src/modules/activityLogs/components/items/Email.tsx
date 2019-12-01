@@ -80,7 +80,7 @@ class Email extends React.Component<Props, { expand: boolean }> {
         <FlexCenterContent>
           <FlexBody>
             <p>Email</p>
-            <p>Subject: {subject}</p>
+            <p>{subject}</p>
             <div>
               <ControlLabel>Title</ControlLabel>: <span>{title}</span>
               <ControlLabel>From</ControlLabel>:{' '}

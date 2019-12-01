@@ -218,7 +218,7 @@ class Task extends React.Component<Props, State> {
     };
 
     return (
-      <p>
+      <>
         <FlexContent>
           <FlexBody>
             <Row>
@@ -239,7 +239,7 @@ class Task extends React.Component<Props, State> {
         </FlexContent>
 
         {task.description && <Description>{task.description}</Description>}
-      </p>
+      </>
     );
   }
 
