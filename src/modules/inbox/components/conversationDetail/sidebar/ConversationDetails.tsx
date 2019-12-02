@@ -8,6 +8,7 @@ import {
   SidebarCounter,
   SidebarList
 } from 'modules/layout/styles';
+import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
 import React from 'react';
 import { ICustomer } from '../../../../customers/types';
 import { IBrand } from '../../../../settings/brands/types';
@@ -73,7 +74,7 @@ class ConversationDetails extends React.Component<Props> {
             <li>
               <FieldStyle>{__('Integration')}</FieldStyle>
               <SidebarCounter>
-                {integration.kind}
+                {cleanIntegrationKind(integration.kind)}
                 <IntegrationIcon integration={integration} />
               </SidebarCounter>
             </li>
