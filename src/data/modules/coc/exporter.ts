@@ -63,7 +63,9 @@ const cocsExport = async (cocs: TDocs[], cocType: string): Promise<{ name: strin
 
     // Iterating through coc custom properties
     if (coc.customFieldsData) {
-      for (const fieldId of coc.customFieldsData) {
+      const keys = Object.getOwnPropertyNames(coc.customFieldsData) || [];
+
+      for (const fieldId of keys) {
         const propertyObj = await Fields.findOne({ _id: fieldId });
 
         if (propertyObj && propertyObj.text) {
