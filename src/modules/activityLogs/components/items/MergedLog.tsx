@@ -33,13 +33,14 @@ class MergedLog extends React.Component<Props> {
 
     return (
       <>
-        {this.renderCreatedBy()}
+        {this.renderCreatedBy()}&nbsp;
         {__('merged')}
         {contentDetail.length !== 0 &&
           contentDetail.map(contact => {
             const {
               firstName,
               visitorContactInfo,
+              primaryEmail,
               primaryName,
               primaryPhone,
               _id
@@ -54,6 +55,7 @@ class MergedLog extends React.Component<Props> {
                 &nbsp;
                 {firstName ||
                   primaryName ||
+                  primaryEmail ||
                   primaryPhone ||
                   (visitorContactInfo && visitorContactInfo.email) ||
                   (visitorContactInfo && visitorContactInfo.phone) ||

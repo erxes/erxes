@@ -22,7 +22,6 @@ import {
 } from 'modules/inbox/components/conversationDetail/workarea/facebook/styles';
 import UserName from 'modules/inbox/components/conversationDetail/workarea/facebook/UserName';
 import MailConversation from 'modules/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import Resolver from 'modules/inbox/containers/Resolver';
 import { IConversation, IFacebookComment, IMessage } from 'modules/inbox/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -199,16 +198,13 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
       return (
         <>
           <Header>
-            <FlexCenterContent>
-              {integration.kind.includes('messenger') ? (
-                <span>
-                  Conversation with <b>{renderFullName(customer)}</b>
-                </span>
-              ) : (
-                <span>{this.renderAction()}</span>
-              )}
-              <Resolver conversations={[conversation]} />
-            </FlexCenterContent>
+            {integration.kind.includes('messenger') ? (
+              <span>
+                Conversation with <b>{renderFullName(customer)}</b>
+              </span>
+            ) : (
+              <span>{this.renderAction()}</span>
+            )}
           </Header>
           {this.renderMessages()}
         </>

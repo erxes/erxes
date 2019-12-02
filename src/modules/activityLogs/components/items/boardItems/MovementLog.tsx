@@ -23,7 +23,8 @@ class MovementLog extends React.Component<Props> {
     if (createdByDetail.details) {
       userName = createdByDetail.details.fullName || 'Unknown';
     }
-
+    // tslint:disable-next-line:no-console
+    console.log(activity);
     if (contentDetail.item) {
       const { item, destinationStage, oldStage } = contentDetail;
 
@@ -35,6 +36,7 @@ class MovementLog extends React.Component<Props> {
           >
             {item.name}
           </Link>
+          &nbsp;
           {contentType} from&nbsp;
           <q>{destinationStage}</q> to <q>{oldStage}</q>
         </span>

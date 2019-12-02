@@ -33,10 +33,13 @@ class CreatedLog extends React.Component<Props> {
         to={`/${contentType}/board?_id=${activity._id}&itemId=${
           contentTypeDetail._id
         }`}
+        target="_blank"
       >
         {contentTypeDetail.name} <Icon icon="arrow-to-right" />
       </Link>
     );
+
+    // const condition = contentId === contentTypeDetail._id;
 
     return (
       <span>
@@ -68,13 +71,17 @@ class CreatedLog extends React.Component<Props> {
 
       return (
         <span>
-          This customer registered to Erxes
+          This customer registered to erxes
           {content ? ` ${content.name}'s integrations` : ''}
         </span>
       );
     }
 
-    return <span>This customer registered to Erxes</span>;
+    return (
+      <span>
+        This customer <b>registered</b> to erxes
+      </span>
+    );
   };
 
   renderContent = () => {
