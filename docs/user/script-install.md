@@ -119,8 +119,6 @@ Basic steps to install scripts
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/kb/i5.png" />
 
 
-
-
 ## Erxes script manager
 
 Basic steps to install Erxes scripts 
