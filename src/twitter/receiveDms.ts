@@ -7,13 +7,32 @@ export interface IUsers {
   [key: string]: IUser;
 }
 
+const extractUrlFromAttachment = attachment => {
+  if (!attachment) {
+    return null;
+  }
+
+  const { media } = attachment;
+  const { type } = media;
+
+  if (type === 'animated_gif') {
+    const { video_info } = media;
+
+    const { variants } = video_info;
+
+    return { url: variants[0].url, type: 'video/mp4' };
+  }
+
+  return null;
+};
+
 const receiveDms = async requestBody => {
   const { direct_message_events } = requestBody;
 
   const users: IUsers = requestBody.users;
 
   if (!direct_message_events) {
-    return;
+    return true;
   }
 
   for (const event of direct_message_events) {
@@ -24,6 +43,13 @@ const receiveDms = async requestBody => {
 
     if (type === 'message_create') {
       const { message_data } = message_create;
+      const { attachment } = message_data;
+
+      const attachments = [];
+
+      if (attachment) {
+        attachments.push({ ...extractUrlFromAttachment(attachment) });
+      }
 
       const account = await Accounts.findOne({ uid: receiverId });
 
@@ -107,6 +133,7 @@ const receiveDms = async requestBody => {
                 content: message_data.text,
                 conversationId: conversation.erxesApiId,
                 customerId: customer.erxesApiId,
+                attachments,
               }),
             },
           });
