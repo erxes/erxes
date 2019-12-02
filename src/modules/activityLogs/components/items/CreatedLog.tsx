@@ -40,7 +40,7 @@ class CreatedLog extends React.Component<Props> {
 
     return (
       <span>
-        <strong>{userName}</strong> created {body}
+        <strong>{userName}</strong> created {body} {contentType}
       </span>
     );
   }

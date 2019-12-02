@@ -105,8 +105,8 @@ const conversationDetailMarkAsRead = `
 `;
 
 const conversationMessages = `
-  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int) {
-    conversationMessages(conversationId: $conversationId, skip: $skip, limit: $limit) {
+  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int, $getFirst: Boolean) {
+    conversationMessages(conversationId: $conversationId, skip: $skip, limit: $limit, getFirst: $getFirst) {
       ${messageFields}
     }
   }
