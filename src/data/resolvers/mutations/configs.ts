@@ -13,7 +13,7 @@ const configMutations = {
 
     const config = await Configs.createOrUpdateConfig(doc);
 
-    const updatedConfig = (await Configs.findOne({ code: doc.code })) || { value: [] };
+    const updatedConfig = await Configs.getConfig(doc.code);
 
     if (
       ['dealUOM', 'dealCurrency'].includes(doc.code) &&

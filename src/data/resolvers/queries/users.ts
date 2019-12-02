@@ -14,10 +14,6 @@ interface IListArgs {
   status?: string;
 }
 
-interface IUserParams {
-  isActive?: boolean;
-}
-
 const queryBuilder = async (params: IListArgs) => {
   const { searchValue, isActive, requireUsername, ids, status } = params;
 
@@ -68,10 +64,10 @@ const userQueries = {
   /**
    * All users
    */
-  allUsers(_root, args: IUserParams, { userBrandIdsSelector }: IContext) {
+  allUsers(_root, { isActive }: { isActive: boolean }, { userBrandIdsSelector }: IContext) {
     const selector: { isActive?: boolean } = userBrandIdsSelector;
 
-    if (args.isActive) {
+    if (isActive) {
       selector.isActive = true;
     }
 
@@ -98,11 +94,7 @@ const userQueries = {
    * Current user
    */
   currentUser(_root, _args, { user }: IContext) {
-    if (user) {
-      return Users.findOne({ _id: user._id, isActive: { $ne: false } });
-    }
-
-    return null;
+    return user ? Users.findOne({ _id: user._id, isActive: { $ne: false } }) : null;
   },
 
   /**

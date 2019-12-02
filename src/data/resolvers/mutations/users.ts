@@ -90,7 +90,7 @@ const userMutations = {
    * Update user
    */
   async usersEdit(_root, args: IUsersEdit) {
-    const { _id, username, email, channelIds = [], groupIds = [], brandIds = [], details, links } = args;
+    const { _id, username, email, channelIds, groupIds = [], brandIds = [], details, links } = args;
 
     const updatedUser = await Users.updateUser(_id, {
       username,
@@ -102,7 +102,7 @@ const userMutations = {
     });
 
     // add new user to channels
-    await Channels.updateUserChannels(channelIds, _id);
+    await Channels.updateUserChannels(channelIds || [], _id);
 
     resetPermissionsCache();
 
@@ -129,11 +129,7 @@ const userMutations = {
     },
     { user }: IContext,
   ) {
-    const userOnDb = await Users.findOne({ _id: user._id });
-
-    if (!userOnDb) {
-      throw new Error('User not found');
-    }
+    const userOnDb = await Users.getUser(user._id);
 
     const valid = await Users.comparePassword(password, userOnDb.password);
 

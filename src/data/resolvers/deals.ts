@@ -22,7 +22,7 @@ export default {
       relType: 'company',
     });
 
-    return Companies.find({ _id: { $in: companyIds || [] } });
+    return Companies.find({ _id: { $in: companyIds } });
   },
 
   async customers(deal: IDealDocument) {
@@ -32,7 +32,7 @@ export default {
       relType: 'customer',
     });
 
-    return Customers.find({ _id: { $in: customerIds || [] } });
+    return Customers.find({ _id: { $in: customerIds } });
   },
 
   async products(deal: IDealDocument) {
@@ -64,22 +64,20 @@ export default {
       }
 
       // Add product object to resulting list
-      if (data && product) {
-        products.push({
-          ...data.toJSON(),
-          product: product.toJSON(),
-        });
-      }
+      products.push({
+        ...data.toJSON(),
+        product: product.toJSON(),
+      });
     }
 
     return products;
   },
 
   amount(deal: IDealDocument) {
-    const data = deal.productsData || [];
+    const data = deal.productsData;
     const amountsMap = {};
 
-    data.forEach(product => {
+    (data || []).forEach(product => {
       const type = product.currency;
 
       if (type) {
@@ -99,7 +97,7 @@ export default {
   },
 
   async pipeline(deal: IDealDocument) {
-    const stage = await Stages.getStage(deal.stageId || '');
+    const stage = await Stages.getStage(deal.stageId);
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -109,13 +107,13 @@ export default {
   },
 
   stage(deal: IDealDocument) {
-    return Stages.getStage(deal.stageId || '');
+    return Stages.getStage(deal.stageId);
   },
 
   isWatched(deal: IDealDocument, _args, { user }: IContext) {
-    const watchedUserIds = deal.watchedUserIds || [];
+    const watchedUserIds = deal.watchedUserIds;
 
-    if (watchedUserIds.includes(user._id)) {
+    if (watchedUserIds && watchedUserIds.includes(user._id)) {
       return true;
     }
 

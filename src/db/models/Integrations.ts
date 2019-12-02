@@ -12,6 +12,7 @@ import {
 } from './definitions/integrations';
 
 export interface IMessengerIntegration {
+  kind: string;
   name: string;
   brandId: string;
   languageCode: string;
@@ -30,6 +31,7 @@ interface IIntegrationBasicInfo {
 }
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
+  getIntegration(_id: string): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData): IIntegration;
   createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
@@ -46,6 +48,19 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
 
 export const loadClass = () => {
   class Integration {
+    /**
+     * Retreives integration
+     */
+    public static async getIntegration(_id: string) {
+      const integration = await Integrations.findOne({ _id });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      return integration;
+    }
+
     /**
      * Find integrations
      */
@@ -115,7 +130,7 @@ export const loadClass = () => {
     public static createLeadIntegration({ leadData = {}, ...mainDoc }: IIntegration, userId: string) {
       const doc = this.generateLeadDoc({ ...mainDoc }, leadData);
 
-      if (Object.keys(leadData || {}).length === 0) {
+      if (Object.keys(leadData).length === 0) {
         throw new Error('leadData must be supplied');
       }
 

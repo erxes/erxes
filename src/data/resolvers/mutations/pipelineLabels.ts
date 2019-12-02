@@ -31,21 +31,19 @@ const pipelineLabelMutations = {
    * Edit pipeline label
    */
   async pipelineLabelsEdit(_root, { _id, ...doc }: IPipelineLabelsEdit, { user }: IContext) {
-    const pipelineLabel = await PipelineLabels.findOne({ _id });
+    const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
 
     const updated = await PipelineLabels.updatePipelineLabel(_id, doc);
 
-    if (pipelineLabel) {
-      await putUpdateLog(
-        {
-          type: 'pipelineLabel',
-          newData: JSON.stringify(doc),
-          description: `${doc.name} has been edited`,
-          object: pipelineLabel,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'pipelineLabel',
+        newData: JSON.stringify(doc),
+        description: `${doc.name} has been edited`,
+        object: pipelineLabel,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -54,20 +52,18 @@ const pipelineLabelMutations = {
    * Remove pipeline label
    */
   async pipelineLabelsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const pipelineLabel = await PipelineLabels.findOne({ _id });
+    const pipelineLabel = await PipelineLabels.getPipelineLabel(_id);
 
     const removed = await PipelineLabels.removePipelineLabel(_id);
 
-    if (pipelineLabel && removed) {
-      await putDeleteLog(
-        {
-          type: 'pipelineLabel',
-          object: pipelineLabel,
-          description: `${pipelineLabel.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'pipelineLabel',
+        object: pipelineLabel,
+        description: `${pipelineLabel.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

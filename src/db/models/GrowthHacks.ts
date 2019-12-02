@@ -67,7 +67,7 @@ export const loadGrowthHackClass = () => {
     /**
      * Watch growth hack
      */
-    public static async watchGrowthHack(_id: string, isAdd: boolean, userId: string) {
+    public static watchGrowthHack(_id: string, isAdd: boolean, userId: string) {
       return watchItem(GrowthHacks, _id, isAdd, userId);
     }
 

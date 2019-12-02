@@ -9,20 +9,14 @@ import utils from '../utils';
 export const notifiedUserIds = async (item: any) => {
   let userIds: string[] = [];
 
-  if (item.assignedUserIds && item.assignedUserIds.length > 0) {
-    userIds = userIds.concat(item.assignedUserIds);
-  }
+  userIds = userIds.concat(item.assignedUserIds || []);
 
-  if (item.watchedUserIds && item.watchedUserIds.length > 0) {
-    userIds = userIds.concat(item.watchedUserIds);
-  }
+  userIds = userIds.concat(item.watchedUserIds || []);
 
-  const stage = await Stages.getStage(item.stageId || '');
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+  const stage = await Stages.getStage(item.stageId);
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-  if (pipeline.watchedUserIds && pipeline.watchedUserIds.length > 0) {
-    userIds = userIds.concat(pipeline.watchedUserIds);
-  }
+  userIds = userIds.concat(pipeline.watchedUserIds || []);
 
   return userIds;
 };
@@ -51,9 +45,9 @@ export const sendNotifications = async ({
   invitedUsers,
   removedUsers,
 }: IBoardNotificationParams) => {
-  const stage = await Stages.getStage(item.stageId || '');
+  const stage = await Stages.getStage(item.stageId);
 
-  const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
   const title = `${contentType} updated`;
 
@@ -111,7 +105,7 @@ export const sendNotifications = async ({
 };
 
 export const itemsChange = async (item: any, type: string, destinationStageId: string) => {
-  const oldStageId = item ? item.stageId || '' : '';
+  const oldStageId = item.stageId;
 
   let action = `changed order of your ${type}:`;
   let content = `'${item.name}'`;
@@ -120,11 +114,11 @@ export const itemsChange = async (item: any, type: string, destinationStageId: s
     const stage = await Stages.getStage(destinationStageId);
     const oldStage = await Stages.getStage(oldStageId);
 
-    const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
-    const oldPipeline = await Pipelines.getPipeline(oldStage.pipelineId || '');
+    const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    const oldPipeline = await Pipelines.getPipeline(oldStage.pipelineId);
 
-    const board = await Boards.getBoard(pipeline.boardId || '');
-    const oldBoard = await Boards.getBoard(oldPipeline.boardId || '');
+    const board = await Boards.getBoard(pipeline.boardId);
+    const oldBoard = await Boards.getBoard(oldPipeline.boardId);
 
     action = `moved '${item.name}' from ${oldBoard.name}-${oldPipeline.name}-${oldStage.name} to `;
 
@@ -135,23 +129,9 @@ export const itemsChange = async (item: any, type: string, destinationStageId: s
 };
 
 export const boardId = async (item: any) => {
-  const stage = await Stages.findOne({ _id: item.stageId });
-
-  if (!stage) {
-    return null;
-  }
-
-  const pipeline = await Pipelines.findOne({ _id: stage.pipelineId });
-
-  if (!pipeline) {
-    return null;
-  }
-
-  const board = await Boards.findOne({ _id: pipeline.boardId });
-
-  if (!board) {
-    return null;
-  }
+  const stage = await Stages.getStage(item.stageId);
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+  const board = await Boards.getBoard(pipeline.boardId);
 
   return board._id;
 };
@@ -219,8 +199,8 @@ export const checkPermission = async (type: string, user: IUserDocument, mutatio
 };
 
 export const createConformity = async ({
-  companyIds = [],
-  customerIds = [],
+  companyIds,
+  customerIds,
   mainType,
   mainTypeId,
 }: {
@@ -229,7 +209,7 @@ export const createConformity = async ({
   mainType: string;
   mainTypeId: string;
 }) => {
-  for (const companyId of companyIds) {
+  for (const companyId of companyIds || []) {
     await Conformities.addConformity({
       mainType,
       mainTypeId,
@@ -238,7 +218,7 @@ export const createConformity = async ({
     });
   }
 
-  for (const customerId of customerIds) {
+  for (const customerId of customerIds || []) {
     await Conformities.addConformity({
       mainType,
       mainTypeId,

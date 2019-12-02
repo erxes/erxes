@@ -17,11 +17,13 @@ describe('Test tickets mutations', () => {
   const commonTicketParamDefs = `
     $name: String!,
     $stageId: String!
+    $assignedUserIds: [String]
   `;
 
   const commonTicketParams = `
     name: $name
     stageId: $stageId
+    assignedUserIds: $assignedUserIds
   `;
 
   beforeEach(async () => {
@@ -63,7 +65,7 @@ describe('Test tickets mutations', () => {
   });
 
   test('Update ticket', async () => {
-    const args = {
+    const args: any = {
       _id: ticket._id,
       name: ticket.name,
       stageId: stage._id,
@@ -79,7 +81,14 @@ describe('Test tickets mutations', () => {
       }
     `;
 
-    const updatedTicket = await graphqlRequest(mutation, 'ticketsEdit', args, context);
+    let updatedTicket = await graphqlRequest(mutation, 'ticketsEdit', args, context);
+
+    expect(updatedTicket.stageId).toEqual(stage._id);
+
+    const user = await userFactory();
+    args.assignedUserIds = [user.id];
+
+    updatedTicket = await graphqlRequest(mutation, 'ticketsEdit', args);
 
     expect(updatedTicket.stageId).toEqual(stage._id);
   });

@@ -4,9 +4,8 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog } from '../../utils';
+import { checkUserIds, putCreateLog } from '../../utils';
 import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
-import { checkUserIds } from './notifications';
 
 interface ITicketsEdit extends ITicket {
   _id: string;

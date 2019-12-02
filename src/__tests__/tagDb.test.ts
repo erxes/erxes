@@ -21,6 +21,18 @@ describe('Test tags model', () => {
     await EngageMessages.deleteMany({});
   });
 
+  test('Get tag', async () => {
+    try {
+      await Tags.getTag('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Tag not found');
+    }
+
+    const response = await Tags.getTag(_tag._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('Validate unique tag', async () => {
     const empty = await Tags.validateUniqueness({}, '', '');
 
@@ -47,8 +59,16 @@ describe('Test tags model', () => {
     }
   });
 
-  test('Attach tag type', async () => {
+  test('Attach customer tag', async () => {
     Tags.tagsTag('customer', [], []);
+  });
+
+  test('Attach integration tag', async () => {
+    Tags.tagsTag('integration', [], []);
+  });
+
+  test('Attach product tag', async () => {
+    Tags.tagsTag('product', [], []);
   });
 
   test('Create tag check duplicated', async () => {

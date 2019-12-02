@@ -531,12 +531,7 @@ export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
   errorMessage?: string,
 ) => {
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-  if (NODE_ENV === 'test') {
-    return;
-  }
 
   debugExternalApi(`
     Sending request to
@@ -564,7 +559,7 @@ export const sendRequest = async (
 
     return responseBody;
   } catch (e) {
-    if (e.code === 'ECONNREFUSED') {
+    if (e.code === 'ECONNREFUSED' || e.code === 'ENOTFOUND') {
       throw new Error(errorMessage);
     } else {
       const message = e.body || e.message;
@@ -846,6 +841,8 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
+  fetchCronsApi,
+  fetchWorkersApi,
 };
 
 export const cleanHtml = (content?: string) => strip(content || '').substring(0, 100);
@@ -880,6 +877,17 @@ export const regexSearchText = (searchValue: string) => {
   }
 
   return { $and: result };
+};
+
+/**
+ * Check user ids whether its added or removed from array of ids
+ */
+export const checkUserIds = (oldUserIds: string[], newUserIds: string[]) => {
+  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
+
+  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
+
+  return { addedUserIds, removedUserIds };
 };
 
 /*

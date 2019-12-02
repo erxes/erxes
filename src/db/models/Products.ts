@@ -53,7 +53,7 @@ export const loadProductClass = () => {
     public static async updateProduct(_id: string, doc: IProduct) {
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+        doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData);
       }
 
       await Products.updateOne({ _id }, { $set: doc });

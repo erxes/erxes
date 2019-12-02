@@ -3,6 +3,7 @@ import { ICustomerDocument } from './definitions/customers';
 import { engageMessageSchema, IEngageMessage, IEngageMessageDocument } from './definitions/engages';
 
 export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
+  getEngageMessage(_id: string): IEngageMessageDocument;
   createEngageMessage(doc: IEngageMessage): Promise<IEngageMessageDocument>;
 
   updateEngageMessage(_id: string, doc: IEngageMessage): Promise<IEngageMessageDocument>;
@@ -17,6 +18,19 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
 
 export const loadClass = () => {
   class Message {
+    /**
+     * Get engage message
+     */
+    public static async getEngageMessage(_id: string) {
+      const engageMessage = await EngageMessages.findOne({ _id });
+
+      if (!engageMessage) {
+        throw new Error('Engage message not found');
+      }
+
+      return engageMessage;
+    }
+
     /**
      * Create engage message
      */

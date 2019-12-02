@@ -17,7 +17,7 @@ import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils from '../../utils';
 
-interface IConversationMessageAdd {
+export interface IConversationMessageAdd {
   conversationId: string;
   content: string;
   mentionedUserIds?: string[];
@@ -30,6 +30,7 @@ interface IReplyFacebookComment {
   commentId: string;
   content: string;
 }
+
 /**
  *  Send conversation to integrations
  */
@@ -67,7 +68,7 @@ export const conversationNotifReceivers = (
   }
 
   // participated users can get notifications
-  if (conversation.participatedUserIds) {
+  if (conversation.participatedUserIds && conversation.participatedUserIds.length > 0) {
     userIds = _.union(userIds, conversation.participatedUserIds);
   }
 
@@ -96,11 +97,7 @@ export const publishConversationsChanged = (_ids: string[], type: string): strin
 /**
  * Publish admin's message
  */
-export const publishMessage = (message?: IMessageDocument | null, customerId?: string) => {
-  if (!message) {
-    return;
-  }
-
+export const publishMessage = (message: IMessageDocument, customerId?: string) => {
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
@@ -115,13 +112,6 @@ export const publishMessage = (message?: IMessageDocument | null, customerId?: s
       conversationAdminMessageInserted: extendedMessage,
     });
   }
-};
-
-export const publishClientMessage = (message: IMessageDocument) => {
-  // notifying to total unread count
-  graphqlPubsub.publish('conversationClientMessageInserted', {
-    conversationClientMessageInserted: message,
-  });
 };
 
 const sendNotifications = async ({
@@ -142,7 +132,7 @@ const sendNotifications = async ({
       createdUser: user,
       link: `/inbox/index?_id=${conversation._id}`,
       title: 'Conversation updated',
-      content: messageContent ? messageContent : conversation.content || '',
+      content: messageContent ? messageContent : conversation.content || 'Conversation updated',
       notifType: type,
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',
@@ -187,28 +177,15 @@ const conversationMutations = {
    * Create new message in conversation
    */
   async conversationMessageAdd(_root, doc: IConversationMessageAdd, { user, dataSources }: IContext) {
-    const conversation = await Conversations.findOne({
-      _id: doc.conversationId,
-    });
-
-    if (!conversation) {
-      throw new Error('Conversation not found');
-    }
-
-    const integration = await Integrations.findOne({
-      _id: conversation.integrationId,
-    });
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
+    const conversation = await Conversations.getConversation(doc.conversationId);
+    const integration = await Integrations.getIntegration(conversation.integrationId);
 
     await sendNotifications({
       user,
       conversations: [conversation],
       type: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       mobile: true,
-      messageContent: doc.content || '',
+      messageContent: doc.content,
     });
 
     // do not send internal message to third service integrations
@@ -294,9 +271,7 @@ const conversationMutations = {
       return e;
     }
 
-    const dbMessage = await ConversationMessages.findOne({
-      _id: message._id,
-    });
+    const dbMessage = await ConversationMessages.getMessage(message._id);
 
     // Publishing both admin & client
     publishMessage(dbMessage, conversation.customerId);
@@ -305,28 +280,15 @@ const conversationMutations = {
   },
 
   async conversationsReplyFacebookComment(_root, doc: IReplyFacebookComment, { user, dataSources }: IContext) {
-    const conversation = await Conversations.findOne({
-      _id: doc.conversationId,
-    });
-
-    if (!conversation) {
-      throw new Error('Conversation not found');
-    }
-
-    const integration = await Integrations.findOne({
-      _id: conversation.integrationId,
-    });
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
+    const conversation = await Conversations.getConversation(doc.conversationId);
+    const integration = await Integrations.getIntegration(conversation.integrationId);
 
     await sendNotifications({
       user,
       conversations: [conversation],
       type: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
       mobile: true,
-      messageContent: doc.content || '',
+      messageContent: doc.content,
     });
 
     const requestName = 'replyFacebookPost';
@@ -344,7 +306,7 @@ const conversationMutations = {
       return debugExternalApi(response);
     } catch (e) {
       debugExternalApi(e.message);
-      return e;
+      throw new Error(e.message);
     }
   },
 
@@ -401,21 +363,8 @@ const conversationMutations = {
 
     for (const conversation of conversations) {
       if (status === CONVERSATION_STATUSES.CLOSED) {
-        const customer = await Customers.findOne({
-          _id: conversation.customerId,
-        });
-
-        if (!customer) {
-          throw new Error('Customer not found');
-        }
-
-        const integration = await Integrations.findOne({
-          _id: conversation.integrationId,
-        });
-
-        if (!integration) {
-          throw new Error('Integration not found');
-        }
+        const customer = await Customers.getCustomer(conversation.customerId);
+        const integration = await Integrations.getIntegration(conversation.integrationId);
 
         const messengerData: IMessengerData = integration.messengerData || {};
         const notifyCustomer = messengerData.notifyCustomer || false;

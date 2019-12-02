@@ -30,7 +30,7 @@ module.exports.up = async () => {
   };
 
   const itemsFillSearchText = (item: any) => {
-    return fillSearchTextItem({}, item);
+    return fillSearchTextItem({ stageId: '' }, item);
   };
 
   await executer(Customers, fillSearchTextCustomer, {

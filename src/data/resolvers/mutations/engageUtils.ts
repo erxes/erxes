@@ -7,7 +7,7 @@ import {
   Segments,
   Users,
 } from '../../../db/models';
-import { METHODS } from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -19,7 +19,7 @@ import QueryBuilder from '../../modules/segments/queryBuilder';
 /**
  * Dynamic content tags
  */
-export const replaceKeys = ({
+const replaceKeys = ({
   content,
   customer,
   user,
@@ -36,7 +36,7 @@ export const replaceKeys = ({
     customerName = `${customer.firstName} ${customer.lastName}`;
   }
 
-  const details = user.details ? user.details.toJSON() : {};
+  const details = user.details && Object.keys(user.details.toJSON()).length > 0 ? user.details.toJSON() : {};
 
   // replace customer fields
   result = result.replace(/{{\s?customer.name\s?}}/gi, customerName);
@@ -53,7 +53,7 @@ export const replaceKeys = ({
 /**
  * Find customers
  */
-export const findCustomers = async ({
+const findCustomers = async ({
   customerIds,
   segmentIds = [],
   tagIds = [],
@@ -65,14 +65,19 @@ export const findCustomers = async ({
   brandIds?: string[];
 }): Promise<ICustomerDocument[]> => {
   // find matched customers
-  let customerQuery: any = { _id: { $in: customerIds || [] } };
+  let customerQuery: any = {};
+
+  if (customerIds && customerIds.length > 0) {
+    customerQuery = { _id: { $in: customerIds } };
+  }
+
   const doNotDisturbQuery = [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }];
   const customerQb = new CustomerQueryBuilder({});
   await customerQb.buildAllQueries();
   const customerFilter = customerQb.mainQuery();
 
   if (tagIds.length > 0) {
-    customerQuery = { $and: [customerFilter, { $or: doNotDisturbQuery, tagIds: { $in: tagIds || [] } }] };
+    customerQuery = { $and: [customerFilter, { $or: doNotDisturbQuery, tagIds: { $in: tagIds } }] };
   }
 
   if (brandIds.length > 0) {
@@ -128,15 +133,9 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
 
   if (engageMessage.method === METHODS.EMAIL) {
     const customerInfos = customers.map(customer => {
-      let customerName = customer.firstName || customer.lastName || 'Customer';
-
-      if (customer.firstName && customer.lastName) {
-        customerName = `${customer.firstName} ${customer.lastName}`;
-      }
-
       return {
         _id: customer._id,
-        name: customerName,
+        name: Customers.getCustomerName(customer),
         email: customer.primaryEmail,
       };
     });
@@ -161,7 +160,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
 /**
  * Send via messenger
  */
-export const sendViaMessenger = async (
+const sendViaMessenger = async (
   message: IEngageMessageDocument,
   customers: ICustomerDocument[],
   user: IUserDocument,
@@ -172,7 +171,7 @@ export const sendViaMessenger = async (
     return;
   }
 
-  const { brandId, content = '' } = message.messenger;
+  const { brandId, content } = message.messenger;
 
   // find integration
   const integration = await Integrations.findOne({
@@ -187,12 +186,14 @@ export const sendViaMessenger = async (
   for (const customer of customers) {
     // replace keys in content
     const replacedContent = replaceKeys({ content, customer, user });
+
     // create conversation
     const conversation = await Conversations.createConversation({
       userId: fromUserId,
       customerId: customer._id,
       integrationId: integration._id,
       content: replacedContent,
+      status: CONVERSATION_STATUSES.NEW,
     });
 
     // create message

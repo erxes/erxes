@@ -30,6 +30,18 @@ describe('Test deals model', () => {
     await Deals.deleteMany({});
   });
 
+  test('Get deal', async () => {
+    try {
+      await Deals.getDeal('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Deal not found');
+    }
+
+    const response = await Deals.getDeal(deal._id);
+
+    expect(response).toBeDefined();
+  });
+
   // Test deal
   test('Create deal', async () => {
     const createdDeal = await Deals.createDeal({
@@ -65,5 +77,26 @@ describe('Test deals model', () => {
     expect(updatedDeal.stageId).toBe(stage._id);
     expect(updatedDeal.order).toBe(3);
     expect(updatedDealToOrder.order).toBe(9);
+  });
+
+  test('Update deal orders when orders length is zero', async () => {
+    const response = await Deals.updateOrder(stage._id, []);
+
+    expect(response.length).toBe(0);
+  });
+
+  test('Watch deal', async () => {
+    await Deals.watchDeal(deal._id, true, user._id);
+
+    const watchedDeal = await Deals.getDeal(deal._id);
+
+    expect(watchedDeal.watchedUserIds).toContain(user._id);
+
+    // testing unwatch
+    await Deals.watchDeal(deal._id, false, user._id);
+
+    const unwatchedDeal = await Deals.getDeal(deal._id);
+
+    expect(unwatchedDeal.watchedUserIds).not.toContain(user._id);
   });
 });

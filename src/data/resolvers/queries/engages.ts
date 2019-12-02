@@ -42,7 +42,7 @@ const count = async (selector: {}): Promise<number> => {
 const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
 
 // status query builder
-const statusQueryBuilder = (status: string, user?: IUserDocument): IStatusQueryBuilder => {
+const statusQueryBuilder = (status: string, user?: IUserDocument): IStatusQueryBuilder | undefined => {
   if (status === 'live') {
     return { isLive: true };
   }
@@ -51,15 +51,12 @@ const statusQueryBuilder = (status: string, user?: IUserDocument): IStatusQueryB
     return { isDraft: true };
   }
 
-  if (status === 'paused') {
-    return { isLive: false };
-  }
-
   if (status === 'yours' && user) {
     return { fromUserId: user._id };
   }
 
-  return {};
+  // status is 'paused'
+  return { isLive: false };
 };
 
 // count for each kind
@@ -185,9 +182,7 @@ const engageQueries = {
       return countsByStatus(commonQuerySelector, { kind, user });
     }
 
-    if (name === 'tag') {
-      return countsByTag(commonQuerySelector, { kind, status, user });
-    }
+    return countsByTag(commonQuerySelector, { kind, status, user });
   },
 
   /**
@@ -214,7 +209,7 @@ const engageQueries = {
   /**
    * Get all verified emails
    */
-  async engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
+  engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesGetVerifiedEmails();
   },
 };

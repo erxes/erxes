@@ -20,17 +20,15 @@ const productMutations = {
   async productsAdd(_root, doc: IProduct, { user, docModifier }: IContext) {
     const product = await Products.createProduct(docModifier(doc));
 
-    if (product) {
-      await putCreateLog(
-        {
-          type: 'product',
-          newData: JSON.stringify(doc),
-          object: product,
-          description: `${product.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'product',
+        newData: JSON.stringify(doc),
+        object: product,
+        description: `${product.name} has been created`,
+      },
+      user,
+    );
 
     return product;
   },
@@ -41,20 +39,18 @@ const productMutations = {
    * @param {Object} param2.doc Product info
    */
   async productsEdit(_root, { _id, ...doc }: IProductsEdit, { user }: IContext) {
-    const product = await Products.findOne({ _id });
+    const product = await Products.getProduct({ _id });
     const updated = await Products.updateProduct(_id, doc);
 
-    if (product) {
-      await putUpdateLog(
-        {
-          type: 'product',
-          object: product,
-          newData: JSON.stringify(doc),
-          description: `${product.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'product',
+        object: product,
+        newData: JSON.stringify(doc),
+        description: `${product.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -90,17 +86,15 @@ const productMutations = {
   async productCategoriesAdd(_root, doc: IProductCategory, { user, docModifier }: IContext) {
     const productCategory = await ProductCategories.createProductCategory(docModifier(doc));
 
-    if (productCategory) {
-      await putCreateLog(
-        {
-          type: 'product-category',
-          newData: JSON.stringify(doc),
-          object: productCategory,
-          description: `${productCategory.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'product-category',
+        newData: JSON.stringify(doc),
+        object: productCategory,
+        description: `${productCategory.name} has been created`,
+      },
+      user,
+    );
 
     return productCategory;
   },
@@ -115,17 +109,15 @@ const productMutations = {
 
     const updated = await ProductCategories.updateProductCategory(_id, doc);
 
-    if (productCategory) {
-      await putUpdateLog(
-        {
-          type: 'product-category',
-          object: productCategory,
-          newData: JSON.stringify(doc),
-          description: `${productCategory.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'product-category',
+        object: productCategory,
+        newData: JSON.stringify(doc),
+        description: `${productCategory.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -135,19 +127,17 @@ const productMutations = {
    * @param {string} param1._id ProductCategory id
    */
   async productCategoriesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const productCategory = await ProductCategories.findOne({ _id });
+    const productCategory = await ProductCategories.getProductCatogery({ _id });
     const removed = await ProductCategories.removeProductCategory(_id);
 
-    if (productCategory) {
-      await putDeleteLog(
-        {
-          type: 'product-category',
-          object: productCategory,
-          description: `${productCategory.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'product-category',
+        object: productCategory,
+        description: `${productCategory.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

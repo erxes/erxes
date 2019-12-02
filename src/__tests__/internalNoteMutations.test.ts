@@ -1,11 +1,12 @@
 import { graphqlRequest } from '../db/connection';
 import {
+  companyFactory,
   customerFactory,
   dealFactory,
   internalNoteFactory,
   notificationConfigurationFactory,
-  pipelineFactory,
-  stageFactory,
+  taskFactory,
+  ticketFactory,
   userFactory,
 } from '../db/factories';
 import { InternalNotes, Notifications, Users } from '../db/models';
@@ -17,6 +18,26 @@ describe('InternalNotes mutations', () => {
   let _user;
   let _internalNote;
   let context;
+
+  const addMutation = `
+    mutation internalNotesAdd(
+      $contentType: String!
+      $contentTypeId: String
+      $content: String
+      $mentionedUserIds: [String]
+    ) {
+      internalNotesAdd(
+        contentType: $contentType
+        contentTypeId: $contentTypeId
+        content: $content
+        mentionedUserIds: $mentionedUserIds
+      ) {
+        contentType
+        contentTypeId
+        content
+      }
+    }
+  `;
 
   beforeEach(async () => {
     // Creating test data
@@ -33,54 +54,11 @@ describe('InternalNotes mutations', () => {
   });
 
   test('Add internal note', async () => {
-    const customer = await customerFactory({});
-    const user = await userFactory({});
-    await notificationConfigurationFactory({ isAllowed: true, user, notifType: NOTIFICATION_TYPES.CUSTOMER_MENTION });
-
-    if (!user || !user.details) {
-      throw new Error('User not found');
-    }
-
-    let args = {
-      contentType: 'customer',
-      contentTypeId: customer._id,
-      content: `@${user.details.fullName}`,
-      mentionedUserIds: user._id,
-    };
-
-    const mutation = `
-      mutation internalNotesAdd(
-        $contentType: String!
-        $contentTypeId: String
-        $content: String
-        $mentionedUserIds: [String]
-      ) {
-        internalNotesAdd(
-          contentType: $contentType
-          contentTypeId: $contentTypeId
-          content: $content
-          mentionedUserIds: $mentionedUserIds
-        ) {
-          contentType
-          contentTypeId
-          content
-        }
-      }
-    `;
-
-    let internalNote = await graphqlRequest(mutation, 'internalNotesAdd', args, context);
-
-    let notification = await Notifications.findOne({ receiver: user._id });
-
-    if (!notification) {
-      throw new Error('Notification not found');
-    }
-
-    expect(notification).toBeDefined();
-
-    expect(internalNote.contentType).toBe(args.contentType);
-    expect(internalNote.contentTypeId).toBe(args.contentTypeId);
-    expect(internalNote.content).toBe(args.content);
+    await notificationConfigurationFactory({
+      isAllowed: true,
+      user: _user,
+      notifType: NOTIFICATION_TYPES.CUSTOMER_MENTION,
+    });
 
     // add internalNote on deal
     const mentionedUser = await userFactory({});
@@ -92,30 +70,29 @@ describe('InternalNotes mutations', () => {
       throw new Error('User not found');
     }
 
-    const pipeline = await pipelineFactory();
-    const stage = await stageFactory({ pipelineId: pipeline._id });
     const deal = await dealFactory({
       watchedUserIds: [watchedUser._id],
       assignedUserIds: [assignedUser._id],
       modifiedBy: modifiedUser._id,
-      stageId: stage._id,
     });
 
-    await notificationConfigurationFactory({ isAllowed: true, user, notifType: NOTIFICATION_TYPES.DEAL_EDIT });
+    let notification = await Notifications.findOne({ receiver: _user._id });
 
-    args = {
+    await notificationConfigurationFactory({ isAllowed: true, user: _user, notifType: NOTIFICATION_TYPES.DEAL_EDIT });
+
+    const args: any = {
       contentType: 'deal',
       contentTypeId: deal._id,
       content: `@${mentionedUser.details.fullName}`,
       mentionedUserIds: mentionedUser._id,
     };
 
-    internalNote = await graphqlRequest(mutation, 'internalNotesAdd', args, context);
+    let internalNote = await graphqlRequest(addMutation, 'internalNotesAdd', args, context);
 
     notification = await Notifications.findOne({ receiver: assignedUser._id });
     expect(notification).toBeDefined();
 
-    notification = await Notifications.findOne({ receiver: user._id });
+    notification = await Notifications.findOne({ receiver: _user._id });
     expect(notification).toBeDefined();
 
     notification = await Notifications.findOne({ receiver: assignedUser._id });
@@ -124,6 +101,60 @@ describe('InternalNotes mutations', () => {
     expect(internalNote.contentType).toBe(args.contentType);
     expect(internalNote.contentTypeId).toBe(args.contentTypeId);
     expect(internalNote.content).toBe(args.content);
+
+    // task
+    const task = await taskFactory();
+
+    args.contentType = 'task';
+    args.contentTypeId = task._id;
+
+    internalNote = await graphqlRequest(addMutation, 'internalNotesAdd', args, context);
+
+    expect(internalNote.contentType).toBe('task');
+    expect(internalNote.contentTypeId).toBe(task._id);
+
+    // ticket
+    const ticket = await ticketFactory();
+
+    args.contentType = 'ticket';
+    args.contentTypeId = ticket._id;
+
+    internalNote = await graphqlRequest(addMutation, 'internalNotesAdd', args, context);
+
+    expect(internalNote.contentType).toBe('ticket');
+    expect(internalNote.contentTypeId).toBe(ticket._id);
+
+    // company
+    const company = await companyFactory();
+
+    args.contentType = 'company';
+    args.contentTypeId = company._id;
+    args.mentionedUserIds = undefined;
+
+    internalNote = await graphqlRequest(addMutation, 'internalNotesAdd', args, context);
+
+    expect(internalNote.contentType).toBe('company');
+    expect(internalNote.contentTypeId).toBe(company._id);
+  });
+
+  test('Add customer internal note', async () => {
+    const customer = await customerFactory({});
+
+    const args: any = {
+      contentType: 'customer',
+      contentTypeId: customer._id,
+      content: `@${_user.details.fullName}`,
+    };
+
+    const internalNote = await graphqlRequest(addMutation, 'internalNotesAdd', args, context);
+
+    expect(internalNote.contentType).toBe(args.contentType);
+    expect(internalNote.contentTypeId).toBe(args.contentTypeId);
+    expect(internalNote.content).toBe(args.content);
+
+    const notification = await Notifications.findOne(args);
+
+    expect(notification).toBeDefined();
   });
 
   test('Edit internal note', async () => {

@@ -35,11 +35,14 @@ const internalNoteMutations = {
    * Adds internalNote object and also adds an activity log
    */
   async internalNotesAdd(_root, args: IInternalNote, { user }: IContext) {
+    const { contentType, contentTypeId } = args;
+    const mentionedUserIds = args.mentionedUserIds || [];
+
     const notifDoc: ISendNotification = {
-      title: `${args.contentType.toUpperCase()} updated`,
+      title: `${contentType.toUpperCase()} updated`,
       createdUser: user,
-      action: `mentioned you in ${args.contentType}`,
-      receivers: args.mentionedUserIds || [],
+      action: `mentioned you in ${contentType}`,
+      receivers: mentionedUserIds,
       content: ``,
       link: ``,
       notifType: ``,
@@ -47,11 +50,11 @@ const internalNoteMutations = {
       contentTypeId: ``,
     };
 
-    switch (args.contentType) {
+    switch (contentType) {
       case 'deal': {
-        const deal = await Deals.getDeal(args.contentTypeId);
-        const stage = await Stages.getStage(deal.stageId || '');
-        const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+        const deal = await Deals.getDeal(contentTypeId);
+        const stage = await Stages.getStage(deal.stageId);
+        const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
         notifDoc.notifType = NOTIFICATION_TYPES.DEAL_EDIT;
         notifDoc.content = `"${deal.name}"`;
@@ -59,18 +62,15 @@ const internalNoteMutations = {
         notifDoc.contentTypeId = deal._id;
         notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.DEAL;
 
-        await sendNotificationOfItems(deal, notifDoc, args.contentType, [...(args.mentionedUserIds || []), user._id]);
+        await sendNotificationOfItems(deal, notifDoc, contentType, [...mentionedUserIds, user._id]);
         break;
       }
 
       case 'customer': {
-        const customer = await Customers.getCustomer(args.contentTypeId);
+        const customer = await Customers.getCustomer(contentTypeId);
 
         notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
-        notifDoc.content = `"${customer.primaryEmail ||
-          customer.firstName ||
-          customer.lastName ||
-          customer.primaryPhone}"`;
+        notifDoc.content = Customers.getCustomerName(customer);
         notifDoc.link = `/contacts/customers/details/${customer._id}`;
         notifDoc.contentTypeId = customer._id;
         notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
@@ -78,10 +78,10 @@ const internalNoteMutations = {
       }
 
       case 'company': {
-        const company = await Companies.getCompany(args.contentTypeId);
+        const company = await Companies.getCompany(contentTypeId);
 
         notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
-        notifDoc.content = `"${company.primaryName || company.primaryEmail || company.primaryPhone}"`;
+        notifDoc.content = Companies.getCompanyName(company);
         notifDoc.link = `/contacts/companies/details/${company._id}`;
         notifDoc.contentTypeId = company._id;
         notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
@@ -89,9 +89,9 @@ const internalNoteMutations = {
       }
 
       case 'ticket': {
-        const ticket = await Tickets.getTicket(args.contentTypeId);
-        const stage = await Stages.getStage(ticket.stageId || '');
-        const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+        const ticket = await Tickets.getTicket(contentTypeId);
+        const stage = await Stages.getStage(ticket.stageId);
+        const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
         notifDoc.notifType = NOTIFICATION_TYPES.TICKET_EDIT;
         notifDoc.content = `"${ticket.name}"`;
@@ -99,14 +99,14 @@ const internalNoteMutations = {
         notifDoc.contentTypeId = ticket._id;
         notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
 
-        await sendNotificationOfItems(ticket, notifDoc, args.contentType, [...(args.mentionedUserIds || []), user._id]);
+        await sendNotificationOfItems(ticket, notifDoc, contentType, [...mentionedUserIds, user._id]);
         break;
       }
 
       case 'task': {
-        const task = await Tasks.getTask(args.contentTypeId);
-        const stage = await Stages.getStage(task.stageId || '');
-        const pipeline = await Pipelines.getPipeline(stage.pipelineId || '');
+        const task = await Tasks.getTask(contentTypeId);
+        const stage = await Stages.getStage(task.stageId);
+        const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
         notifDoc.notifType = NOTIFICATION_TYPES.TASK_EDIT;
         notifDoc.content = `"${task.name}"`;
@@ -114,29 +114,24 @@ const internalNoteMutations = {
         notifDoc.contentTypeId = task._id;
         notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TASK;
 
-        await sendNotificationOfItems(task, notifDoc, args.contentType, [...(args.mentionedUserIds || []), user._id]);
+        await sendNotificationOfItems(task, notifDoc, contentType, [...mentionedUserIds, user._id]);
         break;
       }
-
-      default:
-        break;
     }
 
     await utils.sendNotification(notifDoc);
 
     const internalNote = await InternalNotes.createInternalNote(args, user);
 
-    if (internalNote) {
-      await putCreateLog(
-        {
-          type: 'internalNote',
-          newData: JSON.stringify(args),
-          object: internalNote,
-          description: `${internalNote.contentType} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'internalNote',
+        newData: JSON.stringify(args),
+        object: internalNote,
+        description: `${internalNote.contentType} has been created`,
+      },
+      user,
+    );
 
     return internalNote;
   },
@@ -145,20 +140,18 @@ const internalNoteMutations = {
    * Updates internalNote object
    */
   async internalNotesEdit(_root, { _id, ...doc }: IInternalNotesEdit, { user }: IContext) {
-    const internalNote = await InternalNotes.findOne({ _id });
+    const internalNote = await InternalNotes.getInternalNote(_id);
     const updated = await InternalNotes.updateInternalNote(_id, doc);
 
-    if (internalNote) {
-      await putUpdateLog(
-        {
-          type: 'internalNote',
-          object: internalNote,
-          newData: JSON.stringify(doc),
-          description: `${internalNote.contentType} written at ${internalNote.createdDate} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'internalNote',
+        object: internalNote,
+        newData: JSON.stringify(doc),
+        description: `${internalNote.contentType} written at ${internalNote.createdDate} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -167,19 +160,17 @@ const internalNoteMutations = {
    * Remove a channel
    */
   async internalNotesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const internalNote = await InternalNotes.findOne({ _id });
+    const internalNote = await InternalNotes.getInternalNote(_id);
     const removed = await InternalNotes.removeInternalNote(_id);
 
-    if (internalNote) {
-      await putDeleteLog(
-        {
-          type: 'internalNote',
-          object: internalNote,
-          description: `${internalNote.contentType} written at ${internalNote.createdDate} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'internalNote',
+        object: internalNote,
+        description: `${internalNote.contentType} written at ${internalNote.createdDate} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

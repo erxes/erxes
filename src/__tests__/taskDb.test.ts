@@ -30,6 +30,18 @@ describe('Test tasks model', () => {
     await Tasks.deleteMany({});
   });
 
+  test('Get task', async () => {
+    try {
+      await Tasks.getTask('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Task not found');
+    }
+
+    const response = await Tasks.getTask(task._id);
+
+    expect(response).toBeDefined();
+  });
+
   // Test task
   test('Create task', async () => {
     const createdTask = await Tasks.createTask({
@@ -65,5 +77,20 @@ describe('Test tasks model', () => {
     expect(updatedTask.stageId).toBe(stage._id);
     expect(updatedTask.order).toBe(3);
     expect(updatedDealToOrder.order).toBe(9);
+  });
+
+  test('Watch task', async () => {
+    await Tasks.watchTask(task._id, true, user._id);
+
+    const watchedTask = await Tasks.getTask(task._id);
+
+    expect(watchedTask.watchedUserIds).toContain(user._id);
+
+    // testing unwatch
+    await Tasks.watchTask(task._id, false, user._id);
+
+    const unwatchedTask = await Tasks.getTask(task._id);
+
+    expect(unwatchedTask.watchedUserIds).not.toContain(user._id);
   });
 });

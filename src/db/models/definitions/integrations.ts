@@ -89,7 +89,7 @@ export interface IUiOptions {
 export interface IUiOptionsDocument extends IUiOptions, Document {}
 
 export interface IIntegration {
-  kind?: string;
+  kind: string;
   name?: string;
   brandId?: string;
   languageCode?: string;
@@ -269,7 +269,7 @@ export const integrationSchema = new Schema({
     type: String,
     optional: true,
   }),
-  tagIds: field({ type: [String], optional: true }),
+  tagIds: field({ type: [String] }),
   formId: field({ type: String }),
   leadData: field({ type: leadDataSchema }),
   // TODO: remove

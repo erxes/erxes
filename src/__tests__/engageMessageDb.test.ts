@@ -38,6 +38,18 @@ describe('engage messages model tests', () => {
     await Customers.deleteMany({});
   });
 
+  test('Get engage message', async () => {
+    try {
+      await EngageMessages.getEngageMessage('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Engage message not found');
+    }
+
+    const response = await EngageMessages.getEngageMessage(_message._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('create messages', async () => {
     const doc = {
       kind: 'manual',

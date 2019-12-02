@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { formFactory, userFactory } from '../db/factories';
+import { fieldFactory, formFactory, growthHackFactory } from '../db/factories';
 import { Forms, FormSubmissions, Users } from '../db/models';
 
 import { FORM_TYPES } from '../db/models/definitions/constants';
@@ -16,9 +16,7 @@ const args = {
 };
 
 describe('form and formField mutations', () => {
-  let _user;
   let _form;
-  let context;
 
   const commonParamDefs = `
     $title: String!
@@ -34,10 +32,7 @@ describe('form and formField mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({});
     _form = await formFactory({});
-
-    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -57,7 +52,7 @@ describe('form and formField mutations', () => {
       }
     `;
 
-    const form = await graphqlRequest(mutation, 'formsAdd', args, context);
+    const form = await graphqlRequest(mutation, 'formsAdd', args);
 
     expect(form.title).toBe(args.title);
     expect(form.description).toBe(args.description);
@@ -74,10 +69,48 @@ describe('form and formField mutations', () => {
       }
     `;
 
-    const form = await graphqlRequest(mutation, 'formsEdit', { _id: _form._id, ...args }, context);
+    const form = await graphqlRequest(mutation, 'formsEdit', { _id: _form._id, ...args });
 
     expect(form._id).toBe(_form._id);
     expect(form.title).toBe(args.title);
     expect(form.description).toBe(args.description);
+  });
+
+  test('Form submission save', async () => {
+    const mutation = `
+      mutation formSubmissionsSave($formId: String $contentTypeId: String $contentType: String $formSubmissions: JSON) {
+        formSubmissionsSave(formId: $formId contentTypeId: $contentTypeId contentType: $contentType formSubmissions: $formSubmissions)
+      }
+    `;
+
+    const growthHack = await growthHackFactory();
+    const form = await formFactory();
+    const formField = await fieldFactory({ text: 'age', contentType: 'form', contentTypeId: form._id });
+
+    const formSubmissionArgs: any = {
+      formId: form._id,
+      contentTypeId: growthHack._id,
+      contentType: 'growthHack',
+      formSubmissions: {
+        [formField._id]: 10,
+      },
+    };
+
+    let response = await graphqlRequest(mutation, 'formSubmissionsSave', formSubmissionArgs);
+
+    expect(response).toBe(true);
+
+    formSubmissionArgs.formSubmissions = null;
+    response = await graphqlRequest(mutation, 'formSubmissionsSave', formSubmissionArgs);
+
+    expect(response).toBe(true);
+
+    formSubmissionArgs.formSubmissions = {
+      [formField._id]: 20,
+    };
+
+    response = await graphqlRequest(mutation, 'formSubmissionsSave', formSubmissionArgs);
+
+    expect(response).toBe(true);
   });
 });

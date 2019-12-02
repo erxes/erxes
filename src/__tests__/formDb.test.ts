@@ -29,18 +29,25 @@ describe('form creation', () => {
       _user._id,
     );
 
-    const formObj = await Forms.findOne({ _id: form._id });
-
-    if (!formObj || !formObj.code) {
-      throw new Error('Form not found');
-    }
-
-    expect(formObj.title).toBe('Test form');
-    expect(formObj.description).toBe('Test form description');
-    expect(formObj.code.length).toBe(6);
-    expect(formObj.createdDate).toBeDefined();
-    expect(formObj.createdUserId).toBe(_user._id);
+    expect(form.title).toBe('Test form');
+    expect(form.description).toBe('Test form description');
+    expect(form.createdDate).toBeDefined();
+    expect(form.createdUserId).toBe(_user._id);
   });
+});
+
+test('Get form', async () => {
+  const form = await formFactory();
+
+  try {
+    await Forms.getForm('fakeId');
+  } catch (e) {
+    expect(e.message).toBe('Form not found');
+  }
+
+  const response = await Forms.getForm(form._id);
+
+  expect(response).toBeDefined();
 });
 
 describe('form update', () => {
@@ -74,7 +81,7 @@ describe('form update', () => {
   });
 });
 
-describe('form remove', async () => {
+describe('form remove', () => {
   let _form;
 
   beforeEach(async () => {

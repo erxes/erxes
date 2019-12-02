@@ -5,6 +5,7 @@ import { IInternalNote, IInternalNoteDocument, internalNoteSchema } from './defi
 import { IUserDocument } from './definitions/users';
 
 export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
+  getInternalNote(_id: string): Promise<IInternalNoteDocument>;
   createInternalNote(
     { contentType, contentTypeId, ...fields }: IInternalNote,
     user: IUserDocument,
@@ -24,6 +25,15 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
 
 export const loadClass = () => {
   class InternalNote {
+    public static async getInternalNote(_id: string) {
+      const internalNote = await InternalNotes.findOne({ _id });
+
+      if (!internalNote) {
+        throw new Error('Internal note not found');
+      }
+
+      return internalNote;
+    }
     /*
      * Create new internalNote
      */

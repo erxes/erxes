@@ -48,6 +48,7 @@ export interface IUser {
   brandIds?: string[];
   groupIds?: string[];
   deviceTokens?: string[];
+  doNotDisturb?: string;
 }
 
 export interface IUserDocument extends IUser, Document {

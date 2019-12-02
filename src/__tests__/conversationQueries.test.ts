@@ -11,6 +11,7 @@ import {
 } from '../db/factories';
 import { Brands, Channels, Conversations, Integrations, Tags, Users } from '../db/models';
 
+import { IntegrationsAPI } from '../data/dataSources';
 import './setup.ts';
 
 describe('conversationQueries', () => {
@@ -52,6 +53,26 @@ describe('conversationQueries', () => {
   const qryConversations = `
     query conversations(${commonParamDefs}) {
       conversations(${commonParams}) {
+        _id
+      }
+    }
+  `;
+
+  const qryCount = `
+    query conversationCounts(${commonParamDefs}, $only: String) {
+      conversationCounts(${commonParams}, only: $only)
+    }
+  `;
+
+  const qryTotalCount = `
+    query conversationsTotalCount(${commonParamDefs}) {
+      conversationsTotalCount(${commonParams})
+    }
+  `;
+
+  const qryConversationDetail = `
+    query conversationDetail($_id: String!) {
+      conversationDetail(_id: $_id) {
         _id
         content
         integrationId
@@ -101,26 +122,10 @@ describe('conversationQueries', () => {
         assignedUser { _id }
         participatedUsers { _id }
         participatorCount
-      }
-    }
-  `;
-
-  const qryCount = `
-    query conversationCounts(${commonParamDefs}, $only: String) {
-      conversationCounts(${commonParams}, only: $only)
-    }
-  `;
-
-  const qryTotalCount = `
-    query conversationsTotalCount(${commonParamDefs}) {
-      conversationsTotalCount(${commonParams})
-    }
-  `;
-
-  const qryConversationDetail = `
-    query conversationDetail($_id: String!) {
-      conversationDetail(_id: $_id) {
-        _id
+        idleTime
+        facebookPost {
+          postId
+        }
       }
     }
   `;
@@ -138,6 +143,20 @@ describe('conversationQueries', () => {
       conversationsTotalUnreadCount
     }
   `;
+
+  const qryConversationMessage = `
+      query conversationMessages($conversationId: String! $skip: Int $limit: Int) {
+        conversationMessages(conversationId: $conversationId skip: $skip limit: $limit) {
+          _id
+          internal
+          user { _id }
+          customer { _id }
+          mailData {
+            messageId
+          }
+        }
+      }
+    `;
 
   beforeEach(async () => {
     brand = await brandFactory();
@@ -172,21 +191,127 @@ describe('conversationQueries', () => {
     await conversationMessageFactory({ conversationId: conversation._id });
     await conversationMessageFactory({ conversationId: conversation._id });
 
-    const qry = `
-      query conversationMessages($conversationId: String! $skip: Int $limit: Int) {
-        conversationMessages(conversationId: $conversationId skip: $skip limit: $limit) {
-          _id
-        }
-      }
-    `;
-
-    const responses = await graphqlRequest(qry, 'conversationMessages', {
+    let responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
       conversationId: conversation._id,
       skip: 1,
       limit: 3,
     });
 
     expect(responses.length).toBe(3);
+
+    responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
+      conversationId: conversation._id,
+      limit: 3,
+    });
+
+    expect(responses.length).toBe(3);
+
+    responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
+      conversationId: conversation._id,
+    });
+
+    expect(responses.length).toBe(4);
+
+    // conversation is fake
+    responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
+      conversationId: 'fakeConversationId',
+    });
+
+    expect(responses.length).toBe(0);
+
+    // internal is true
+    responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
+      conversationId: conversation._id,
+    });
+
+    expect(responses.length).toBe(4);
+  });
+
+  test('Conversation messages (messenger kind)', async () => {
+    const messageIntegration = await integrationFactory({ kind: 'messenger' });
+    const messageIntegrationConversation = await conversationFactory({ integrationId: messageIntegration._id });
+
+    await conversationMessageFactory({ conversationId: messageIntegrationConversation._id, internal: false });
+
+    const responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
+      conversationId: messageIntegrationConversation._id,
+    });
+
+    expect(responses.length).toBe(1);
+  });
+
+  test('Conversation messages (No integration)', async () => {
+    // no integration
+    const noIntegrationConversation = await conversationFactory();
+
+    await conversationMessageFactory({ conversationId: noIntegrationConversation._id, internal: false });
+
+    const responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
+      conversationId: noIntegrationConversation._id,
+    });
+
+    expect(responses.length).toBe(1);
+  });
+
+  test('Conversation messages (Integrations api is not running)', async () => {
+    const nyalsGmailIntegration = await integrationFactory({ kind: 'nylas-gmail' });
+    const nyalsGmailConversation = await conversationFactory({ integrationId: nyalsGmailIntegration._id });
+
+    await conversationMessageFactory({ conversationId: nyalsGmailConversation._id, internal: false });
+
+    const gmailIntegration = await integrationFactory({ kind: 'gmail' });
+    const gmailConversation = await conversationFactory({ integrationId: gmailIntegration._id });
+
+    await conversationMessageFactory({ conversationId: gmailConversation._id, internal: false });
+
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(
+        qryConversationMessage,
+        'conversationMessages',
+        {
+          conversationId: nyalsGmailConversation._id,
+        },
+        { dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+
+    try {
+      await graphqlRequest(
+        qryConversationMessage,
+        'conversationMessages',
+        {
+          conversationId: gmailConversation._id,
+        },
+        { dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
+  test('Conversation messages total count', async () => {
+    const conversation = await conversationFactory();
+
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+    await conversationMessageFactory({ conversationId: conversation._id });
+
+    const qry = `
+      query conversationMessagesTotalCount($conversationId: String!) {
+        conversationMessagesTotalCount(conversationId: $conversationId)
+      }
+    `;
+
+    const responses = await graphqlRequest(qry, 'conversationMessagesTotalCount', { conversationId: conversation._id });
+
+    expect(responses).toBe(4);
   });
 
   test('Conversations filtered by ids', async () => {
@@ -211,11 +336,21 @@ describe('conversationQueries', () => {
     await conversationFactory();
     await conversationFactory();
 
-    const responses = await graphqlRequest(qryConversations, 'conversations', {
+    let responses = await graphqlRequest(qryConversations, 'conversations', {
       channelId: channel._id,
     });
 
     expect(responses.length).toBe(1);
+
+    const channelNoIntegration = await channelFactory({
+      memberIds: [user._id],
+    });
+
+    responses = await graphqlRequest(qryConversations, 'conversations', {
+      channelId: channelNoIntegration._id,
+    });
+
+    expect(responses.length).toBe(0);
   });
 
   test('Conversations filtered by brand', async () => {
@@ -743,6 +878,25 @@ describe('conversationQueries', () => {
     );
 
     expect(response._id).toBe(conversation._id);
+    expect(response.facebookPost).toBe(null);
+
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const facebookIntegration = await integrationFactory({ kind: 'facebook-post' });
+    const facebookConversation = await conversationFactory({ integrationId: facebookIntegration._id });
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(
+        qryConversationDetail,
+        'conversationDetail',
+        { _id: facebookConversation._id },
+        { user, dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
   });
 
   test('Get last conversation by channel', async () => {
@@ -773,5 +927,25 @@ describe('conversationQueries', () => {
     const response = await graphqlRequest(qryTotalUnread, 'conversationsTotalUnreadCount', {}, { user });
 
     expect(response).toBe(1);
+  });
+
+  test('Facebook comments', async () => {
+    process.env.INTEGRATION_API_DOMAIN = 'http://fake.erxes.io';
+
+    const qry = `
+      query facebookComments($postId: String!) {
+        facebookComments(postId: $postId) {
+          postId
+        }
+      }
+    `;
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(qry, 'facebookComments', { postId: 'postId' }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
   });
 });

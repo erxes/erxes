@@ -4,9 +4,8 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
-import { checkUserIds } from './notifications';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -85,17 +84,16 @@ const dealMutations = {
 
     await sendNotifications(notificationDoc);
 
-    if (updatedDeal) {
-      await putUpdateLog(
-        {
-          type: 'deal',
-          object: updatedDeal,
-          newData: JSON.stringify(doc),
-          description: `${updatedDeal.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'deal',
+        object: updatedDeal,
+        newData: JSON.stringify(doc),
+        description: `${updatedDeal.name} has been edited`,
+      },
+      user,
+    );
+
     return updatedDeal;
   },
 

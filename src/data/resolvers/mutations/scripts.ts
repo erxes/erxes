@@ -15,17 +15,15 @@ const scriptMutations = {
   async scriptsAdd(_root, doc: IScript, { user, docModifier }: IContext) {
     const script = await Scripts.createScript(docModifier(doc));
 
-    if (script) {
-      await putCreateLog(
-        {
-          type: 'script',
-          newData: JSON.stringify(doc),
-          object: script,
-          description: `${script.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'script',
+        newData: JSON.stringify(doc),
+        object: script,
+        description: `${script.name} has been created`,
+      },
+      user,
+    );
 
     return script;
   },
@@ -34,20 +32,18 @@ const scriptMutations = {
    * Update script
    */
   async scriptsEdit(_root, { _id, ...fields }: IScriptsEdit, { user }: IContext) {
-    const script = await Scripts.findOne({ _id });
+    const script = await Scripts.getScript(_id);
     const updated = await Scripts.updateScript(_id, fields);
 
-    if (script) {
-      await putUpdateLog(
-        {
-          type: 'script',
-          object: script,
-          newData: JSON.stringify(fields),
-          description: `${script.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'script',
+        object: script,
+        newData: JSON.stringify(fields),
+        description: `${script.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -56,19 +52,17 @@ const scriptMutations = {
    * Delete script
    */
   async scriptsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const script = await Scripts.findOne({ _id });
+    const script = await Scripts.getScript(_id);
     const removed = await Scripts.removeScript(_id);
 
-    if (script) {
-      await putDeleteLog(
-        {
-          type: 'script',
-          object: script,
-          description: `${script.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'script',
+        object: script,
+        description: `${script.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

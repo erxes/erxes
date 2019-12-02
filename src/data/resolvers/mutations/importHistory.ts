@@ -1,7 +1,7 @@
 import { ImportHistory } from '../../../db/models';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { fetchWorkersApi, putDeleteLog } from '../../utils';
+import utils, { putDeleteLog } from '../../utils';
 
 const importHistoryMutations = {
   /**
@@ -9,23 +9,23 @@ const importHistoryMutations = {
    * @param {string} param1._id ImportHistory id
    */
   async importHistoriesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const importHistory = await ImportHistory.findOne({ _id });
-
-    if (!importHistory) {
-      throw new Error('History not found');
-    }
+    const importHistory = await ImportHistory.getImportHistory(_id);
 
     await ImportHistory.updateOne({ _id: importHistory._id }, { $set: { status: 'Removing' } });
 
-    await fetchWorkersApi({
-      path: '/import-remove',
-      method: 'POST',
-      body: {
-        targetIds: JSON.stringify(importHistory.ids || []),
-        contentType: importHistory.contentType,
-        importHistoryId: importHistory._id,
-      },
-    });
+    try {
+      await utils.fetchWorkersApi({
+        path: '/import-remove',
+        method: 'POST',
+        body: {
+          targetIds: JSON.stringify(importHistory.ids || []),
+          contentType: importHistory.contentType,
+          importHistoryId: importHistory._id,
+        },
+      });
+    } catch (e) {
+      throw new Error(e);
+    }
 
     await putDeleteLog(
       {
@@ -49,7 +49,11 @@ const importHistoryMutations = {
       throw new Error('History not found');
     }
 
-    await fetchWorkersApi({ path: '/import-cancel', method: 'POST' });
+    try {
+      await utils.fetchWorkersApi({ path: '/import-cancel', method: 'POST' });
+    } catch (e) {
+      throw new Error(e);
+    }
 
     return true;
   },

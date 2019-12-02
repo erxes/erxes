@@ -3,9 +3,8 @@ import { IItemCommonFields as ITask, IOrderInput } from '../../../db/models/defi
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog } from '../../utils';
+import { checkUserIds, putCreateLog } from '../../utils';
 import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
-import { checkUserIds } from './notifications';
 
 interface ITasksEdit extends ITask {
   _id: string;

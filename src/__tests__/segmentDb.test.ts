@@ -58,6 +58,18 @@ describe('Segments mutations', () => {
     await Users.deleteMany({});
   });
 
+  test('Get segment', async () => {
+    try {
+      await Segments.getSegment('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Segment not found');
+    }
+
+    const response = await Segments.getSegment(_segment._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('Create segment', async () => {
     // valid
     const data = generateData();

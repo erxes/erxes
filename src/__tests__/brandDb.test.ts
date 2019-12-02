@@ -30,6 +30,18 @@ describe('Brands db', () => {
     expect(code).toBeDefined();
   });
 
+  test('Get brand', async () => {
+    try {
+      await Brands.getBrand('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Brand not found');
+    }
+
+    const brandObj = await Brands.getBrand(_brand._id);
+
+    expect(brandObj).toBeDefined();
+  });
+
   test('Create brand', async () => {
     const brandObj = await Brands.createBrand({
       name: _brand.name,

@@ -3,17 +3,12 @@ import { Conformities, Pipelines, Stages } from '../../../db/models';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
 
-export const contains = (values: string[] = [], empty = false) => {
-  if (empty) {
-    return [];
-  }
-
+const contains = (values: string[]) => {
   return { $in: values };
 };
 
 export const generateCommonFilters = async (currentUserId: string, args: any) => {
   const {
-    $and,
     pipelineId,
     stageId,
     search,
@@ -25,8 +20,6 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     conformityMainTypeId,
     conformityIsRelated,
     conformityIsSaved,
-    order,
-    probability,
     initialStageId,
     type,
     labelIds,
@@ -44,11 +37,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     // Filter by assigned to no one
     const notAssigned = isListEmpty(assignedUserIds);
 
-    filter.assignedUserIds = notAssigned ? contains([], true) : contains(assignedUserIds);
-  }
-
-  if ($and) {
-    filter.$and = $and;
+    filter.assignedUserIds = notAssigned ? [] : contains(assignedUserIds);
   }
 
   if (customerIds && type) {
@@ -93,16 +82,8 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
         relType: type,
       });
 
-      filter._id = contains(relIds || []);
+      filter._id = contains(relIds);
     }
-  }
-
-  if (order) {
-    filter.order = order;
-  }
-
-  if (probability) {
-    filter.probability = probability;
   }
 
   if (initialStageId) {
@@ -248,21 +229,20 @@ interface IDate {
   year: number;
 }
 
-export const dateSelector = (date: IDate) => {
+const dateSelector = (date: IDate) => {
   const { year, month } = date;
-  const currentDate = new Date();
 
-  const start = currentDate.setFullYear(year, month, 1);
-  const end = currentDate.setFullYear(year, month + 1, 0);
+  const start = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+  const end = new Date(Date.UTC(year, month + 1, 0, 0, 0, 0));
 
   return {
-    $gte: new Date(start),
-    $lte: new Date(end),
+    $gte: start,
+    $lte: end,
   };
 };
 
 export const checkItemPermByUser = async (currentUserId: string, item: IItemCommonFields) => {
-  const stage = await Stages.getStage(item.stageId || '');
+  const stage = await Stages.getStage(item.stageId);
 
   const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 

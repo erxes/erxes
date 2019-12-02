@@ -13,6 +13,7 @@ interface ISTATUSES {
 }
 
 export interface IConversationModel extends Model<IConversationDocument> {
+  getConversation(_id: string): IConversationDocument;
   getConversationStatuses(): ISTATUSES;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   updateConversation(_id: string, doc): Promise<IConversationDocument>;
@@ -41,6 +42,19 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
 export const loadClass = () => {
   class Conversation {
+    /**
+     * Retreives conversation
+     */
+    public static async getConversation(_id: string) {
+      const conversation = await Conversations.findOne({ _id });
+
+      if (!conversation) {
+        throw new Error('Conversation not found');
+      }
+
+      return conversation;
+    }
+
     public static getConversationStatuses() {
       return CONVERSATION_STATUSES;
     }
@@ -219,27 +233,23 @@ export const loadClass = () => {
      * Add participated users
      */
     public static addManyParticipatedUsers(conversationId: string, userIds: string[]) {
-      if (conversationId && userIds) {
-        return Conversations.updateOne(
-          { _id: conversationId },
-          {
-            $addToSet: { participatedUserIds: { $each: userIds } },
-          },
-        );
-      }
+      return Conversations.updateOne(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: { $each: userIds } },
+        },
+      );
     }
     /**
      * Add participated user
      */
     public static addParticipatedUsers(conversationId: string, userId: string) {
-      if (conversationId && userId) {
-        return Conversations.updateOne(
-          { _id: conversationId },
-          {
-            $addToSet: { participatedUserIds: userId },
-          },
-        );
-      }
+      return Conversations.updateOne(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: userId },
+        },
+      );
     }
 
     /**

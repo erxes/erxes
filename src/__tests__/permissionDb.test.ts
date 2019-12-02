@@ -16,7 +16,6 @@ describe('Test permissions model', () => {
 
   const doc = {
     actions: ['up', ' test'],
-    allowed: true,
     module: 'module name',
   };
 
@@ -28,7 +27,7 @@ describe('Test permissions model', () => {
         { name: 'action', description: 'd', use: [] },
         { name: 'action1', description: 'd', use: [] },
         { name: 'action2', description: 'd', use: [] },
-        { name: 'action3', description: 'd', use: [] },
+        { name: 'action3', description: 'd' },
       ],
     },
   });
@@ -46,7 +45,17 @@ describe('Test permissions model', () => {
     await UsersGroups.deleteMany({});
   });
 
-  test('Create permission invalid action', async () => {
+  test('Create permission (Error: Actions not found)', async () => {
+    expect.assertions(1);
+
+    try {
+      await Permissions.createPermission({});
+    } catch (e) {
+      expect(e.message).toEqual('Actions not found');
+    }
+  });
+
+  test('Create permission (Error: Invalid data)', async () => {
     expect.assertions(1);
     try {
       await Permissions.createPermission({ userIds: [_user._id], ...doc });
@@ -55,12 +64,22 @@ describe('Test permissions model', () => {
     }
   });
 
+  test('Create permission without user and group', async () => {
+    const permission = await Permissions.createPermission({
+      ...doc,
+      actions: ['action', 'action1', 'action2', 'action3'],
+    });
+
+    expect(permission.length).toEqual(0);
+  });
+
   test('Create permission', async () => {
     const permission = await Permissions.createPermission({
       ...doc,
+      allowed: true,
       userIds: [_user._id],
       groupIds: [_group._id],
-      actions: ['action', 'action1', 'action2', 'action3'],
+      actions: ['action', 'action', 'action1', 'action2', 'action3'],
     });
 
     expect(permission.length).toEqual(8);
@@ -84,6 +103,20 @@ describe('Test permissions model', () => {
     const isDeleted = await Permissions.removePermission([_permission.id]);
 
     expect(isDeleted).toBeTruthy();
+  });
+
+  test('Get user group', async () => {
+    try {
+      await UsersGroups.getGroup('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('User group not found');
+    }
+
+    const userGroup = await usersGroupFactory();
+
+    const response = await UsersGroups.getGroup(userGroup._id);
+
+    expect(response).toBeDefined();
   });
 
   test('Create user group', async () => {

@@ -1,16 +1,19 @@
 import * as moment from 'moment';
 import { graphqlRequest } from '../db/connection';
 import {
+  boardFactory,
   companyFactory,
   conformityFactory,
   customerFactory,
   dealFactory,
+  fieldFactory,
   pipelineFactory,
+  pipelineLabelFactory,
   productFactory,
   stageFactory,
   userFactory,
 } from '../db/factories';
-import { Deals, Pipelines } from '../db/models';
+import { Boards, Deals, Pipelines, Stages } from '../db/models';
 
 import './setup.ts';
 
@@ -23,21 +26,22 @@ describe('dealQueries', () => {
     amount
     closeDate
     description
-    companies {
-      _id
-    }
-    customers {
-      _id
-    }
+    companies { _id }
+    customers { _id }
     products
     productsData
-    assignedUsers {
-      _id
-    }
+    assignedUsers { _id }
+    labels { _id }
+    hasNotified
+    isWatched
+    stage { _id }
+    boardId
+    pipeline { _id }
   `;
 
   const qryDealFilter = `
     query deals(
+      $search: String
       $stageId: String
       $pipelineId: String
       $assignedUserIds: [String]
@@ -49,8 +53,12 @@ describe('dealQueries', () => {
       $mainTypeId: String
       $isRelated: Boolean
       $isSaved: Boolean
+      $date: ItemDate
+      $labelIds: [String]
+      $initialStageId: String
     ) {
       deals(
+        search: $search
         stageId: $stageId
         pipelineId: $pipelineId
         customerIds: $customerIds
@@ -62,6 +70,9 @@ describe('dealQueries', () => {
         conformityMainTypeId: $mainTypeId
         conformityIsRelated: $isRelated
         conformityIsSaved: $isSaved
+        date: $date
+        labelIds: $labelIds
+        initialStageId: $initialStageId
       ) {
         ${commonDealTypes}
       }
@@ -70,7 +81,26 @@ describe('dealQueries', () => {
 
   afterEach(async () => {
     // Clearing test data
+    await Boards.deleteMany({});
+    await Pipelines.deleteMany({});
+    await Stages.deleteMany({});
     await Deals.deleteMany({});
+  });
+
+  test('Filter by initialStageId', async () => {
+    const deal = await dealFactory();
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { initialStageId: deal.stageId });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Filter by search', async () => {
+    await dealFactory({ searchText: 'name' });
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { search: 'name' });
+
+    expect(response.length).toBe(1);
   });
 
   test('Filter by next day', async () => {
@@ -132,10 +162,34 @@ describe('dealQueries', () => {
   });
 
   test('Deal filter by products', async () => {
-    const product = await productFactory();
+    const field1 = await fieldFactory({ contentType: 'product' });
+
+    if (!field1) {
+      throw new Error('Field not found');
+    }
+
+    const customFieldsData = { [field1._id]: 'text' };
+
+    const product = await productFactory({ customFieldsData });
+    const productNoCustomData = await productFactory();
     const productId = product._id;
 
-    await dealFactory({ productsData: { productId } });
+    const productsData = [
+      {
+        productId: product._id,
+        currency: 'USD',
+        amount: 200,
+      },
+      {
+        productId: product._id,
+        currency: 'USD',
+      },
+      {
+        productId: productNoCustomData._id,
+      },
+    ];
+
+    await dealFactory({ productsData });
 
     const response = await graphqlRequest(qryDealFilter, 'deals', { productIds: [productId] });
 
@@ -147,14 +201,21 @@ describe('dealQueries', () => {
 
     await dealFactory({ assignedUserIds: [_id] });
 
-    const response = await graphqlRequest(qryDealFilter, 'deals', { assignedUserIds: [_id] });
+    let response = await graphqlRequest(qryDealFilter, 'deals', { assignedUserIds: [_id] });
 
     expect(response.length).toBe(1);
+
+    await dealFactory();
+
+    // Filter by assigned to no one
+    response = await graphqlRequest(qryDealFilter, 'deals', { assignedUserIds: [''] });
+
+    expect(response.length).toBe(0);
   });
 
   test('Deal filter by customers', async () => {
     const { _id } = await customerFactory();
-    const deal = await dealFactory({});
+    const deal = await dealFactory();
 
     await conformityFactory({
       mainType: 'deal',
@@ -177,7 +238,7 @@ describe('dealQueries', () => {
   test('Deal filter by companies', async () => {
     const { _id } = await companyFactory();
 
-    const deal = await dealFactory({});
+    const deal = await dealFactory();
 
     await conformityFactory({
       mainType: 'company',
@@ -197,13 +258,48 @@ describe('dealQueries', () => {
     expect(response.length).toBe(0);
   });
 
+  test('Deal filter by label', async () => {
+    const { _id } = await pipelineLabelFactory();
+
+    await dealFactory({ labelIds: [_id] });
+
+    let response = await graphqlRequest(qryDealFilter, 'deals', { labelIds: [_id] });
+
+    expect(response.length).toBe(1);
+
+    // filtering nolabelled deals
+    await dealFactory();
+
+    response = await graphqlRequest(qryDealFilter, 'deals', { labelIds: [''] });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Deal filter by date', async () => {
+    const board = await boardFactory();
+    const pipeline = await pipelineFactory({ boardId: board._id });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+
+    const date = new Date();
+    await dealFactory({ closeDate: date, stageId: stage._id });
+
+    const args = {
+      date: { year: date.getFullYear(), month: date.getMonth() },
+      pipelineId: pipeline._id,
+    };
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', args);
+
+    expect(response.length).toBe(1);
+  });
+
   test('Deals', async () => {
-    const pipeline = await pipelineFactory();
+    const board = await boardFactory();
+    const pipeline = await pipelineFactory({ boardId: board._id });
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const currentUser = await userFactory({});
 
     const args = { stageId: stage._id };
-
     const deal = await dealFactory(args);
     await dealFactory(args);
     await dealFactory(args);
@@ -236,9 +332,10 @@ describe('dealQueries', () => {
 
   test('Deal detail', async () => {
     const currentUser = await userFactory({});
-    const pipeline = await pipelineFactory();
+    const board = await boardFactory();
+    const pipeline = await pipelineFactory({ boardId: board._id });
     const stage = await stageFactory({ pipelineId: pipeline._id });
-    const deal = await dealFactory({ stageId: stage._id });
+    const deal = await dealFactory({ stageId: stage._id, watchedUserIds: [currentUser._id] });
 
     const args = { _id: deal._id };
 
@@ -279,13 +376,64 @@ describe('dealQueries', () => {
     await Deals.updateOne({ _id: deal._id }, { $set: { assignedUserIds: [currentUser._id] } });
     response = await graphqlRequest(qry, 'dealDetail', args, { user: currentUser });
     expect(response._id).toBe(deal._id);
+    expect(response.isWatched).toBe(true);
+  });
+
+  test('Deal total amount', async () => {
+    const board = await boardFactory();
+    const pipeline = await pipelineFactory({ boardId: board._id });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+
+    const product = await productFactory();
+    const productsData = [
+      {
+        productId: product._id,
+        currency: 'USD',
+        amount: 200,
+      },
+    ];
+
+    const args = {
+      stageId: stage._id,
+      productsData,
+    };
+
+    await dealFactory(args);
+    await dealFactory(args);
+    await dealFactory(args);
+
+    const filter = { pipelineId: pipeline._id };
+
+    const qry = `
+      query dealsTotalAmounts($pipelineId: String) {
+        dealsTotalAmounts(pipelineId: $pipelineId) {
+          _id
+          dealCount
+          totalForType {
+            _id
+            name
+            currencies {
+              name
+              amount
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'dealsTotalAmounts', filter);
+
+    expect(response.dealCount).toBe(3);
+    expect(response.totalForType[0].currencies[0].name).toBe('USD');
+    expect(response.totalForType[0].currencies[0].amount).toBe(600);
   });
 
   test('Deal (=ticket, task) filter by conformity saved and related', async () => {
     const { _id } = await companyFactory();
 
-    const deal = await dealFactory({});
-    await dealFactory({});
+    const deal = await dealFactory();
+    await dealFactory();
+
     await customerFactory({});
     await companyFactory({});
 
@@ -356,9 +504,10 @@ describe('dealQueries', () => {
   test('Deal filter by customers and companies', async () => {
     const customer = await customerFactory();
     const company = await companyFactory();
-    const deal = await dealFactory({});
-    const deal1 = await dealFactory({});
-    const deal2 = await dealFactory({});
+
+    const deal = await dealFactory();
+    const deal1 = await dealFactory();
+    const deal2 = await dealFactory();
 
     await conformityFactory({
       mainType: 'deal',

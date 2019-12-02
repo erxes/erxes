@@ -11,6 +11,6 @@ module.exports.up = async () => {
 
     requiredActions.push('integrationsEdit');
 
-    await Permissions.update({ _id: perm._id }, { $set: { requiredActions } });
+    await Permissions.updateOne({ _id: perm._id }, { $set: { requiredActions } });
   }
 };

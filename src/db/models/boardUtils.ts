@@ -33,9 +33,7 @@ export const updateOrder = async (collection: any, orders: IOrderInput[], stageI
     });
   }
 
-  if (bulkOps) {
-    await collection.bulkWrite(bulkOps);
-  }
+  await collection.bulkWrite(bulkOps);
 
   return collection.find({ _id: { $in: ids } }).sort({ order: 1 });
 };
@@ -59,7 +57,7 @@ export const watchItem = async (collection: any, _id: string, isAdd: boolean, us
 };
 
 export const fillSearchTextItem = (doc: IItemCommonFields, item?: IItemCommonFields) => {
-  const document = item || {};
+  const document = item || { name: '', description: '' };
   Object.assign(document, doc);
 
   return validSearchText([document.name || '', document.description || '']);

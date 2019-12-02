@@ -24,7 +24,7 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "test": "jest --forceExit && ts-node ./src/commands/aftertest.ts",
+    "test": "jest --maxWorkers=4 --forceExit --logHeapUsage --detectOpenHandles && ts-node ./src/commands/aftertest.ts",
     "generateVersion": "ts-node ./src/commands/generateVersion.ts",
     "loadInitialData": "mongorestore --db erxes ./initialData",
     "loadPermission": "mongorestore --db erxes ./permissionData",
@@ -43,22 +43,11 @@
       "git add"
     ]
   },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{ts}",
-      "!src/index.ts",
-      "!src/db/factories.ts",
-      "!src/db/connection.ts",
-      "!src/data/schema/**",
-      "!src/data/resolvers/subscriptions/**",
-      "!src/data/index.ts",
-      "!src/data/utils.ts"
-    ]
-  },
   "dependencies": {
     "@axelspringer/graphql-google-pubsub": "^1.2.1",
     "@google-cloud/pubsub": "^1.1.5",
     "@google-cloud/storage": "^4.0.0",
+    "@types/mongoose": "^5.5.32",
     "amqplib": "0.5.3",
     "apollo-datasource-rest": "^0.5.1",
     "apollo-server-express": "^2.9.7",
@@ -113,16 +102,15 @@
     "@types/google-cloud__pubsub": "^0.18.1",
     "@types/graphql": "^14.0.3",
     "@types/ioredis": "^3.2.15",
-    "@types/jest": "^23.3.0",
+    "@types/jest": "^24.0.21",
     "@types/mongodb": "^3.1.2",
-    "@types/mongoose": "^5.2.1",
     "@types/q": "^1.5.0",
     "@types/redis": "^2.8.13",
     "@types/request": "^2.47.1",
     "@types/underscore": "^1.8.9",
     "faker": "^4.1.0",
     "husky": "^0.13.4",
-    "jest": "^21.2.1",
+    "jest": "^24.9",
     "jest-tobetype": "^1.1.0",
     "lint-staged": "^3.6.0",
     "migrate": "^1.6.2",

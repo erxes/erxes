@@ -2,12 +2,25 @@ import { Model, model } from 'mongoose';
 import { IResponseTemplate, IResponseTemplateDocument, responseTemplateSchema } from './definitions/responseTemplates';
 
 export interface IResponseTemplateModel extends Model<IResponseTemplateDocument> {
+  getResponseTemplate(_id: string): Promise<IResponseTemplateDocument>;
   updateResponseTemplate(_id: string, fields: IResponseTemplate): Promise<IResponseTemplateDocument>;
   removeResponseTemplate(_id: string): void;
 }
 
 export const loadClass = () => {
   class ResponseTemplate {
+    /*
+     * Get a Pipeline template
+     */
+    public static async getResponseTemplate(_id: string) {
+      const responseTemplate = await ResponseTemplates.findOne({ _id });
+
+      if (!responseTemplate) {
+        throw new Error('Response template not found');
+      }
+
+      return responseTemplate;
+    }
     /**
      * Update response template
      */

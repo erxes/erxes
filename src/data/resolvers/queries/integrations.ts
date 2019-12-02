@@ -20,8 +20,8 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag 
 
   // filter integrations by channel
   if (channelId) {
-    const channel = await Channels.findOne({ _id: channelId });
-    query._id = { $in: channel ? channel.integrationIds : [] };
+    const channel = await Channels.getChannel(channelId);
+    query._id = { $in: channel.integrationIds || [] };
   }
 
   // filter integrations by brand

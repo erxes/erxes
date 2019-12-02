@@ -139,15 +139,11 @@ export default class Builder {
 
   // filter by channel
   public async channelFilter(channelId: string): Promise<{ integrationId: IIn }> {
-    const channel = await Channels.findOne({ _id: channelId });
+    const channel = await Channels.getChannel(channelId);
 
-    if (channel && channel.integrationIds) {
-      return {
-        integrationId: { $in: channel.integrationIds.filter(id => this.activeIntegrationIds.includes(id)) },
-      };
-    }
-
-    return { integrationId: { $in: [] } };
+    return {
+      integrationId: { $in: (channel.integrationIds || []).filter(id => this.activeIntegrationIds.includes(id)) },
+    };
   }
 
   // filter by brand
@@ -178,14 +174,10 @@ export default class Builder {
 
   // filter by starred
   public starredFilter(): { _id: IIn | { $in: string[] } } {
-    let ids: string[] = [];
-
-    if (this.user) {
-      ids = this.user.starredConversationIds || [];
-    }
-
     return {
-      _id: { $in: ids },
+      _id: {
+        $in: this.user.starredConversationIds || [],
+      },
     };
   }
 

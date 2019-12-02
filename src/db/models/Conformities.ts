@@ -48,7 +48,7 @@ export const loadConformityClass = () => {
     /**
      * Create a conformity
      */
-    public static async addConformity(doc: IConformityAdd) {
+    public static addConformity(doc: IConformityAdd) {
       return Conformities.create(doc);
     }
 

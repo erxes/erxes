@@ -34,11 +34,11 @@ export default {
   },
 
   assignedUsers(task: ITaskDocument) {
-    return Users.find({ _id: { $in: task.assignedUserIds } });
+    return Users.find({ _id: { $in: task.assignedUserIds || [] } });
   },
 
   async pipeline(task: ITaskDocument) {
-    const stage = await Stages.getStage(task.stageId || '');
+    const stage = await Stages.getStage(task.stageId);
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -48,7 +48,7 @@ export default {
   },
 
   stage(task: ITaskDocument) {
-    return Stages.getStage(task.stageId || '');
+    return Stages.getStage(task.stageId);
   },
 
   isWatched(task: ITaskDocument, _args, { user }: IContext) {
@@ -66,6 +66,6 @@ export default {
   },
 
   labels(task: ITaskDocument) {
-    return PipelineLabels.find({ _id: { $in: task.labelIds } });
+    return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
   },
 };

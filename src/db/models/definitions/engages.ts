@@ -25,7 +25,7 @@ export interface IMessenger {
   brandId?: string;
   kind?: string;
   sentAs?: string;
-  content?: string;
+  content: string;
   rules?: IRule[];
 }
 

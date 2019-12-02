@@ -7,6 +7,7 @@ import {
   fieldFactory,
   integrationFactory,
   internalNoteFactory,
+  userFactory,
 } from '../db/factories';
 import {
   Conformities,
@@ -30,6 +31,7 @@ describe('Customers model tests', () => {
       emails: ['email@gmail.com', 'otheremail@gmail.com'],
       primaryPhone: '99922210',
       phones: ['99922210', '99922211'],
+      code: 'code',
     });
   });
 
@@ -39,8 +41,54 @@ describe('Customers model tests', () => {
     await ImportHistory.deleteMany({});
   });
 
+  test('Get customer', async () => {
+    try {
+      await Customers.getCustomer('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Customer not found');
+    }
+
+    const response = await Customers.getCustomer(_customer._id);
+
+    expect(response).toBeDefined();
+  });
+
+  test('Get customer name', async () => {
+    let customer = await customerFactory({});
+    let response = await Customers.getCustomerName(customer);
+    expect(response).toBe('Unknown');
+
+    customer = await customerFactory({ firstName: 'firstName' });
+    response = await Customers.getCustomerName(customer);
+    expect(response).toBe('firstName ');
+
+    customer = await customerFactory({ lastName: 'lastName' });
+    response = await Customers.getCustomerName(customer);
+    expect(response).toBe(' lastName');
+
+    customer = await customerFactory({ firstName: 'firstName', lastName: 'lastName' });
+    response = await Customers.getCustomerName(customer);
+    expect(response).toBe('firstName lastName');
+
+    customer = await customerFactory({ primaryEmail: 'primaryEmail' });
+    response = await Customers.getCustomerName(customer);
+    expect(response).toBe('primaryEmail');
+
+    customer = await customerFactory({ primaryPhone: 'primaryPhone' });
+    response = await Customers.getCustomerName(customer);
+    expect(response).toBe('primaryPhone');
+
+    customer = await customerFactory({ visitorContactInfo: { phone: 8880, email: 'email@yahoo.com' } });
+    response = await Customers.getCustomerName(customer);
+    expect(response).toBe('8880');
+
+    customer = await customerFactory({ visitorContactInfo: { email: 'email@yahoo.com' } });
+    response = await Customers.getCustomerName(customer);
+    expect(response).toBe('email@yahoo.com');
+  });
+
   test('Create customer', async () => {
-    expect.assertions(12);
+    expect.assertions(14);
 
     // check duplication ===============
     try {
@@ -67,6 +115,12 @@ describe('Customers model tests', () => {
       expect(e.message).toBe('Duplicated phone');
     }
 
+    try {
+      await Customers.createCustomer({ code: 'code' });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated code');
+    }
+
     // Create without any error
     const doc = {
       primaryEmail: 'dombo@yahoo.com',
@@ -75,9 +129,10 @@ describe('Customers model tests', () => {
       lastName: 'lastName',
       primaryPhone: '12312132',
       phones: ['12312132'],
+      code: 'code1234',
     };
 
-    const customerObj = await Customers.createCustomer(doc);
+    let customerObj = await Customers.createCustomer(doc);
 
     expect(customerObj.createdAt).toBeDefined();
     expect(customerObj.modifiedAt).toBeDefined();
@@ -87,6 +142,15 @@ describe('Customers model tests', () => {
     expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
     expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
+
+    customerObj = await Customers.createCustomer(
+      {
+        visitorContactInfo: {},
+      },
+      await userFactory(),
+    );
+
+    expect(customerObj).toBeDefined();
   });
 
   test('Create customer: with customer fields validation error', async () => {
@@ -110,7 +174,7 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer', async () => {
-    expect.assertions(5);
+    expect.assertions(6);
 
     const previousCustomer = await customerFactory({
       primaryEmail: 'dombo@yahoo.com',
@@ -135,12 +199,16 @@ describe('Customers model tests', () => {
     // remove previous duplicated entry
     await Customers.deleteOne({ _id: previousCustomer._id });
 
-    const customerObj = await Customers.updateCustomer(_customer._id, doc);
+    let customerObj = await Customers.updateCustomer(_customer._id, doc);
 
     expect(customerObj.modifiedAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
+
+    customerObj = await Customers.updateCustomer(_customer._id, { primaryEmail: '' });
+
+    expect(customerObj.primaryEmail).toBe('');
   });
 
   test('Mark customer as inactive', async () => {
@@ -225,6 +293,18 @@ describe('Customers model tests', () => {
 
     expect(merged.emails).toContain('merged@gmail.com');
     expect(merged.phones).toContain('2555225');
+  });
+
+  test('Merge customers: without primaryEmail and primaryPhone', async () => {
+    const visitor1 = await customerFactory({});
+    const visitor2 = await customerFactory({});
+
+    const customerIds = [visitor1._id, visitor2._id];
+
+    const merged = await Customers.mergeCustomers(customerIds, {});
+
+    expect(merged.emails).toHaveLength(0);
+    expect(merged.phones).toHaveLength(0);
   });
 
   test('Merge customers', async () => {
@@ -326,7 +406,7 @@ describe('Customers model tests', () => {
       ownerId: '456',
     };
 
-    const mergedCustomer = await Customers.mergeCustomers(customerIds, doc);
+    const mergedCustomer = await Customers.mergeCustomers([...customerIds, 'fakeId'], doc);
 
     if (!mergedCustomer || !mergedCustomer.messengerData || !mergedCustomer.visitorContactInfo) {
       throw new Error('Merged customer not found');
@@ -393,5 +473,23 @@ describe('Customers model tests', () => {
     });
 
     expect(deals).toHaveLength(1);
+  });
+
+  test('Update profile score', async () => {
+    const response = await Customers.updateProfileScore('fakeId', true);
+
+    expect(response).toBe(0);
+
+    const customer = await customerFactory({});
+
+    Customers.updateProfileScore(customer._id, false);
+  });
+
+  test('Mark as active', async () => {
+    const customer = await customerFactory({});
+
+    const response = await Customers.markCustomerAsActive(customer._id);
+
+    expect(response.messengerData && response.messengerData.isActive).toBeTruthy();
   });
 });

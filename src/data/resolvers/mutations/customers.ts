@@ -32,20 +32,18 @@ const customerMutations = {
    * Update customer
    */
   async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: IContext) {
-    const customer = await Customers.findOne({ _id });
+    const customer = await Customers.getCustomer(_id);
     const updated = await Customers.updateCustomer(_id, doc);
 
-    if (customer) {
-      await putUpdateLog(
-        {
-          type: 'customer',
-          object: customer,
-          newData: JSON.stringify(doc),
-          description: `${customer.firstName} has been updated`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'customer',
+        object: customer,
+        newData: JSON.stringify(doc),
+        description: `${customer.firstName} has been updated`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -66,16 +64,14 @@ const customerMutations = {
     await Customers.removeCustomers(customerIds);
 
     for (const customer of customers) {
-      if (customer) {
-        await putDeleteLog(
-          {
-            type: 'customer',
-            object: customer,
-            description: `${customer.firstName} has been deleted`,
-          },
-          user,
-        );
-      }
+      await putDeleteLog(
+        {
+          type: 'customer',
+          object: customer,
+          description: `${customer.firstName} has been deleted`,
+        },
+        user,
+      );
     }
 
     return customerIds;

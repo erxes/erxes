@@ -38,11 +38,24 @@ describe('Messenger app queries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(qry, 'messengerApps', {
+    let responses = await graphqlRequest(qry, 'messengerApps', {
       kind: 'knowledgebase',
     });
 
     expect(responses.length).toBe(2);
+
+    await messengerAppFactory({
+      credentials: {
+        access_token: '123',
+        expiry_date: Date.now(),
+        formCode: '123',
+        integrationId: '123',
+      },
+    });
+
+    responses = await graphqlRequest(qry, 'messengerApps');
+
+    expect(responses.length).toBe(3);
   });
 
   test('Messenger Apps count', async () => {
@@ -72,10 +85,23 @@ describe('Messenger app queries', () => {
     `;
 
     // customer ===========================
-    const response = await graphqlRequest(qry, 'messengerAppsCount', {
+    let response = await graphqlRequest(qry, 'messengerAppsCount', {
       kind: 'knowledgebase',
     });
 
     expect(response).toBe(1);
+
+    await messengerAppFactory({
+      credentials: {
+        access_token: '123',
+        expiry_date: Date.now(),
+        formCode: '123',
+        integrationId: '123',
+      },
+    });
+
+    response = await graphqlRequest(qry, 'messengerAppsCount');
+
+    expect(response).toBe(3);
   });
 });

@@ -18,6 +18,7 @@ export interface IArticleCreate extends IArticle {
 }
 
 export interface IArticleModel extends Model<IArticleDocument> {
+  getArticle(_id: string): Promise<IArticleDocument>;
   createDoc({ categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
   updateDoc(_id: string, { categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
   removeDoc(_id: string): void;
@@ -25,6 +26,16 @@ export interface IArticleModel extends Model<IArticleDocument> {
 
 export const loadArticleClass = () => {
   class Article {
+    public static async getArticle(_id: string) {
+      const article = await KnowledgeBaseArticles.findOne({ _id });
+
+      if (!article) {
+        throw new Error('Knowledge base article not found');
+      }
+
+      return article;
+    }
+
     /**
      * Create KnowledgeBaseArticle document
      */
@@ -79,11 +90,7 @@ export const loadArticleClass = () => {
         },
       );
 
-      const article = await KnowledgeBaseArticles.findOne({ _id });
-
-      if (!article) {
-        throw new Error('Article not found');
-      }
+      const article = await KnowledgeBaseArticles.getArticle(_id);
 
       // add new article id to categories's articleIds field
       if ((categoryIds || []).length > 0) {
@@ -127,6 +134,7 @@ export interface ICategoryCreate extends ICategory {
 }
 
 export interface ICategoryModel extends Model<ICategoryDocument> {
+  getCategory(_id: string): Promise<ICategoryDocument>;
   createDoc({ topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
   updateDoc(_id: string, { topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
   removeDoc(categoryId: string): void;
@@ -134,6 +142,16 @@ export interface ICategoryModel extends Model<ICategoryDocument> {
 
 export const loadCategoryClass = () => {
   class Category {
+    public static async getCategory(_id: string) {
+      const category = await KnowledgeBaseCategories.findOne({ _id });
+
+      if (!category) {
+        throw new Error('Knowledge base category not found');
+      }
+
+      return category;
+    }
+
     /**
      * Create KnowledgeBaseCategory document
      */
@@ -186,11 +204,7 @@ export const loadCategoryClass = () => {
         },
       );
 
-      const category = await KnowledgeBaseCategories.findOne({ _id });
-
-      if (!category) {
-        throw new Error('Category not found');
-      }
+      const category = await KnowledgeBaseCategories.getCategory(_id);
 
       if ((topicIds || []).length > 0) {
         const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
@@ -222,9 +236,7 @@ export const loadCategoryClass = () => {
         throw new Error('Category not found');
       }
 
-      if (category.articleIds) {
-        await KnowledgeBaseArticles.deleteMany({ _id: { $in: category.articleIds } });
-      }
+      await KnowledgeBaseArticles.deleteMany({ _id: { $in: category.articleIds || [] } });
 
       return KnowledgeBaseCategories.deleteOne({ _id });
     }
@@ -236,6 +248,7 @@ export const loadCategoryClass = () => {
 };
 
 export interface ITopicModel extends Model<ITopicDocument> {
+  getTopic(_id: string): Promise<ITopicDocument>;
   createDoc(docFields: ITopic, userId?: string): Promise<ITopicDocument>;
   updateDoc(_id: string, docFields: ITopic, userId?: string): Promise<ITopicDocument>;
   removeDoc(_id: string): void;
@@ -243,6 +256,15 @@ export interface ITopicModel extends Model<ITopicDocument> {
 
 export const loadTopicClass = () => {
   class Topic {
+    public static async getTopic(_id: string) {
+      const topic = await KnowledgeBaseTopics.findOne({ _id });
+
+      if (!topic) {
+        throw new Error('Knowledge base topic not found');
+      }
+
+      return topic;
+    }
     /**
      * Create KnowledgeBaseTopic document
      */

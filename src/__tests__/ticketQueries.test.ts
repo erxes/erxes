@@ -1,5 +1,6 @@
 import { graphqlRequest } from '../db/connection';
 import {
+  boardFactory,
   companyFactory,
   conformityFactory,
   customerFactory,
@@ -10,6 +11,7 @@ import {
 } from '../db/factories';
 import { Tickets } from '../db/models';
 
+import { BOARD_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('ticketQueries', () => {
@@ -20,15 +22,15 @@ describe('ticketQueries', () => {
     assignedUserIds
     closeDate
     description
-    companies {
-      _id
-    }
-    customers {
-      _id
-    }
-    assignedUsers {
-      _id
-    }
+    companies { _id }
+    customers { _id }
+    assignedUsers { _id }
+    boardId
+    pipeline { _id }
+    stage { _id }
+    isWatched
+    hasNotified
+    labels { _id }
   `;
 
   const qryTicketFilter = `
@@ -37,6 +39,8 @@ describe('ticketQueries', () => {
       $assignedUserIds: [String]
       $customerIds: [String]
       $companyIds: [String]
+      $priority: [String]
+      $source: [String]
       $closeDateType: String
     ) {
       tickets(
@@ -44,8 +48,18 @@ describe('ticketQueries', () => {
         customerIds: $customerIds
         assignedUserIds: $assignedUserIds
         companyIds: $companyIds
+        priority: $priority
+        source: $source
         closeDateType: $closeDateType
       ) {
+        ${commonTicketTypes}
+      }
+    }
+  `;
+
+  const qryDetail = `
+    query ticketDetail($_id: String!) {
+      ticketDetail(_id: $_id) {
         ${commonTicketTypes}
       }
     }
@@ -100,8 +114,26 @@ describe('ticketQueries', () => {
     expect(response.length).toBe(1);
   });
 
+  test('Ticket filter by priority', async () => {
+    await ticketFactory({ priority: 'critical' });
+
+    const response = await graphqlRequest(qryTicketFilter, 'tickets', { priority: ['critical'] });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Ticket filter by source', async () => {
+    await ticketFactory({ source: 'messenger' });
+
+    const response = await graphqlRequest(qryTicketFilter, 'tickets', { source: ['messenger'] });
+
+    expect(response.length).toBe(1);
+  });
+
   test('Tickets', async () => {
-    const stage = await stageFactory();
+    const board = await boardFactory({ type: BOARD_TYPES.TICKET });
+    const pipeline = await pipelineFactory({ boardId: board._id, type: BOARD_TYPES.TICKET });
+    const stage = await stageFactory({ pipelineId: pipeline._id, type: BOARD_TYPES.TICKET });
 
     const args = { stageId: stage._id };
 
@@ -109,7 +141,7 @@ describe('ticketQueries', () => {
     await ticketFactory(args);
     await ticketFactory(args);
 
-    const qry = `
+    const qryList = `
       query tickets($stageId: String!) {
         tickets(stageId: $stageId) {
           ${commonTicketTypes}
@@ -117,28 +149,35 @@ describe('ticketQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'tickets', args);
+    const response = await graphqlRequest(qryList, 'tickets', args);
 
     expect(response.length).toBe(3);
   });
 
   test('Ticket detail', async () => {
-    const pipeline = await pipelineFactory();
-    const stage = await stageFactory({ pipelineId: pipeline._id });
-    const ticket = await ticketFactory({ stageId: stage._id });
+    const ticket = await ticketFactory();
 
     const args = { _id: ticket._id };
 
-    const qry = `
-      query ticketDetail($_id: String!) {
-        ticketDetail(_id: $_id) {
-          ${commonTicketTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'ticketDetail', args);
+    const response = await graphqlRequest(qryDetail, 'ticketDetail', args);
 
     expect(response._id).toBe(ticket._id);
+  });
+
+  test('Ticket detail with watchedUserIds', async () => {
+    const user = await userFactory();
+    const watchedTask = await ticketFactory({ watchedUserIds: [user._id] });
+
+    const response = await graphqlRequest(
+      qryDetail,
+      'ticketDetail',
+      {
+        _id: watchedTask._id,
+      },
+      { user },
+    );
+
+    expect(response._id).toBe(watchedTask._id);
+    expect(response.isWatched).toBe(true);
   });
 });

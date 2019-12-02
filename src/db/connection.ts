@@ -33,7 +33,13 @@ mongoose.connection
 export function connect(URL?: string, poolSize?: number) {
   return mongoose.connect(
     URL || MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true, poolSize: poolSize || 100, autoReconnect: true },
+    {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      poolSize: poolSize || 100,
+      autoReconnect: true,
+    },
   );
 }
 
@@ -46,10 +52,8 @@ const schema = makeExecutableSchema({
   resolvers,
 });
 
-export const graphqlRequest = async (source: string = '', name: string = '', args?: any, context?: any) => {
+export const graphqlRequest = async (source: string = '', name: string = '', args?: any, context: any = {}) => {
   const user = await userFactory({});
-
-  const rootValue = {};
 
   const res = {
     cookie: () => {
@@ -57,13 +61,17 @@ export const graphqlRequest = async (source: string = '', name: string = '', arg
     },
   };
 
-  const finalContext = context || { user, res };
+  const finalContext: any = {};
 
-  finalContext.docModifier = doc => {
-    return doc;
-  };
-
+  finalContext.dataSources = context.dataSources;
+  finalContext.user = context.user || user;
+  finalContext.res = context.res || res;
   finalContext.commonQuerySelector = {};
+  finalContext.userBrandIdsSelector = {};
+  finalContext.brandIdSelector = {};
+  finalContext.docModifier = doc => doc;
+
+  const rootValue = {};
 
   const response: any = await graphql(schema, source, rootValue, finalContext, args);
 

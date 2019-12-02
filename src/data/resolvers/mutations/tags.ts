@@ -16,17 +16,15 @@ const tagMutations = {
   async tagsAdd(_root, doc: ITag, { user, docModifier }: IContext) {
     const tag = await Tags.createTag(docModifier(doc));
 
-    if (tag) {
-      await putCreateLog(
-        {
-          type: `${doc.type}Tag`,
-          newData: JSON.stringify(tag),
-          object: tag,
-          description: `${tag.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: `${doc.type}Tag`,
+        newData: JSON.stringify(tag),
+        object: tag,
+        description: `${tag.name} has been created`,
+      },
+      user,
+    );
 
     return tag;
   },
@@ -35,20 +33,18 @@ const tagMutations = {
    * Edit tag
    */
   async tagsEdit(_root, { _id, ...doc }: ITagsEdit, { user }: IContext) {
-    const tag = await Tags.findOne({ _id });
+    const tag = await Tags.getTag(_id);
     const updated = await Tags.updateTag(_id, doc);
 
-    if (tag) {
-      await putUpdateLog(
-        {
-          type: 'tag',
-          object: tag,
-          newData: JSON.stringify(doc),
-          description: `${tag.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'tag',
+        object: tag,
+        newData: JSON.stringify(doc),
+        description: `${tag.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },

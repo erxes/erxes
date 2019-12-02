@@ -16,6 +16,18 @@ describe('Email template db', () => {
     await EmailTemplates.deleteMany({});
   });
 
+  test('Get email template', async () => {
+    try {
+      await EmailTemplates.getEmailTemplate('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Email template not found');
+    }
+
+    const response = await EmailTemplates.getEmailTemplate(_emailTemplate._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('Create email template', async () => {
     const emailTemplateObj = await EmailTemplates.create({
       name: _emailTemplate.name,

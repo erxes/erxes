@@ -12,17 +12,15 @@ const knowledgeBaseMutations = {
   async knowledgeBaseTopicsAdd(_root, { doc }: { doc: ITopic }, { user, docModifier }: IContext) {
     const topic = await KnowledgeBaseTopics.createDoc(docModifier(doc), user._id);
 
-    if (topic) {
-      await putCreateLog(
-        {
-          type: 'knowledgeBaseTopic',
-          newData: JSON.stringify(doc),
-          object: topic,
-          description: `${topic.title} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'knowledgeBaseTopic',
+        newData: JSON.stringify(doc),
+        object: topic,
+        description: `${topic.title} has been created`,
+      },
+      user,
+    );
 
     return topic;
   },
@@ -31,20 +29,18 @@ const knowledgeBaseMutations = {
    * Update topic document
    */
   async knowledgeBaseTopicsEdit(_root, { _id, doc }: { _id: string; doc: ITopic }, { user }: IContext) {
-    const topic = await KnowledgeBaseTopics.findOne({ _id });
+    const topic = await KnowledgeBaseTopics.getTopic(_id);
     const updated = await KnowledgeBaseTopics.updateDoc(_id, doc, user._id);
 
-    if (topic) {
-      await putUpdateLog(
-        {
-          type: 'knowledgeBaseTopic',
-          object: topic,
-          newData: JSON.stringify(doc),
-          description: `${topic.title} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'knowledgeBaseTopic',
+        object: topic,
+        newData: JSON.stringify(doc),
+        description: `${topic.title} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -53,19 +49,17 @@ const knowledgeBaseMutations = {
    * Remove topic document
    */
   async knowledgeBaseTopicsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const topic = await KnowledgeBaseTopics.findOne({ _id });
+    const topic = await KnowledgeBaseTopics.getTopic(_id);
     const removed = await KnowledgeBaseTopics.removeDoc(_id);
 
-    if (topic) {
-      await putDeleteLog(
-        {
-          type: 'knowledgeBaseTopic',
-          object: topic,
-          description: `${topic.title} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'knowledgeBaseTopic',
+        object: topic,
+        description: `${topic.title} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },
@@ -93,20 +87,18 @@ const knowledgeBaseMutations = {
    * Update category document
    */
   async knowledgeBaseCategoriesEdit(_root, { _id, doc }: { _id: string; doc: ICategoryCreate }, { user }: IContext) {
-    const kbCategory = await KnowledgeBaseCategories.findOne({ _id });
+    const kbCategory = await KnowledgeBaseCategories.getCategory(_id);
     const updated = await KnowledgeBaseCategories.updateDoc(_id, doc, user._id);
 
-    if (kbCategory) {
-      await putUpdateLog(
-        {
-          type: 'knowledgeBaseCategory',
-          object: kbCategory,
-          newData: JSON.stringify(doc),
-          description: `${kbCategory.title} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'knowledgeBaseCategory',
+        object: kbCategory,
+        newData: JSON.stringify(doc),
+        description: `${kbCategory.title} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -115,19 +107,17 @@ const knowledgeBaseMutations = {
    * Remove category document
    */
   async knowledgeBaseCategoriesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const kbCategory = await KnowledgeBaseCategories.findOne({ _id });
+    const kbCategory = await KnowledgeBaseCategories.getCategory(_id);
     const removed = await KnowledgeBaseCategories.removeDoc(_id);
 
-    if (kbCategory) {
-      await putDeleteLog(
-        {
-          type: 'knowledgeBaseCategory',
-          object: kbCategory,
-          description: `${kbCategory.title} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'knowledgeBaseCategory',
+        object: kbCategory,
+        description: `${kbCategory.title} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },
@@ -155,20 +145,18 @@ const knowledgeBaseMutations = {
    * Update article document
    */
   async knowledgeBaseArticlesEdit(_root, { _id, doc }: { _id: string; doc: IArticleCreate }, { user }: IContext) {
-    const kbArticle = await KnowledgeBaseArticles.findOne({ _id });
+    const kbArticle = await KnowledgeBaseArticles.getArticle(_id);
     const updated = await KnowledgeBaseArticles.updateDoc(_id, doc, user._id);
 
-    if (kbArticle) {
-      await putUpdateLog(
-        {
-          type: 'knowledgeBaseArticle',
-          object: kbArticle,
-          newData: JSON.stringify(doc),
-          description: `${kbArticle.title} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'knowledgeBaseArticle',
+        object: kbArticle,
+        newData: JSON.stringify(doc),
+        description: `${kbArticle.title} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -177,19 +165,17 @@ const knowledgeBaseMutations = {
    * Remove article document
    */
   async knowledgeBaseArticlesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const kbArticle = await KnowledgeBaseArticles.findOne({ _id });
+    const kbArticle = await KnowledgeBaseArticles.getArticle(_id);
     const removed = await KnowledgeBaseArticles.removeDoc(_id);
 
-    if (kbArticle) {
-      await putDeleteLog(
-        {
-          type: 'knowledgeBaseArticle',
-          object: kbArticle,
-          description: `${kbArticle.title} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'knowledgeBaseArticle',
+        object: kbArticle,
+        description: `${kbArticle.title} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

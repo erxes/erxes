@@ -1,4 +1,4 @@
-import { customerFactory, userFactory } from '../db/factories';
+import { customerFactory, importHistoryFactory, userFactory } from '../db/factories';
 import { Customers, ImportHistory, Users } from '../db/models';
 
 import './setup.ts';
@@ -9,6 +9,20 @@ describe('Import history model test', () => {
     await ImportHistory.deleteMany({});
     await Customers.deleteMany({});
     await Users.deleteMany({});
+  });
+
+  test('Get customer', async () => {
+    const importHistory = await importHistoryFactory({});
+
+    try {
+      await ImportHistory.getImportHistory('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Import history not found');
+    }
+
+    const response = await ImportHistory.getImportHistory(importHistory._id);
+
+    expect(response).toBeDefined();
   });
 
   test('Create import history', async () => {
@@ -38,6 +52,8 @@ describe('Import history model test', () => {
   });
 
   test('Remove history', async () => {
+    expect.assertions(2);
+
     const customer = await customerFactory({});
     const customer1 = await customerFactory({});
     const customer2 = await customerFactory({});
@@ -57,5 +73,11 @@ describe('Import history model test', () => {
     await ImportHistory.removeHistory(importHistory._id);
 
     expect(await ImportHistory.findOne({ _id: importHistory._id })).toBeNull();
+
+    try {
+      await ImportHistory.removeHistory('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Import history not found');
+    }
   });
 });

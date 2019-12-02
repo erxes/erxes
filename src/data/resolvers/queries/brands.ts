@@ -8,7 +8,7 @@ interface IListArgs {
   searchValue?: string;
 }
 
-const queryBuilder = async (params: IListArgs, brandIdSelector: any) => {
+const queryBuilder = (params: IListArgs, brandIdSelector: any) => {
   const selector: any = { ...brandIdSelector };
 
   const { searchValue } = params;
@@ -24,8 +24,8 @@ const brandQueries = {
   /**
    * Brands list
    */
-  async brands(_root, args: IListArgs, { brandIdSelector }: IContext) {
-    const selector = await queryBuilder(args, brandIdSelector);
+  brands(_root, args: IListArgs, { brandIdSelector }: IContext) {
+    const selector = queryBuilder(args, brandIdSelector);
 
     return Brands.find(selector).sort({ createdAt: -1 });
   },

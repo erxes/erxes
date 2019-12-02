@@ -21,7 +21,7 @@ export interface IItemCommonFields {
   notifiedUserIds?: string[];
   labelIds?: string[];
   attachments?: any[];
-  stageId?: string;
+  stageId: string;
   initialStageId?: string;
   modifiedAt?: Date;
   modifiedBy?: string;
@@ -42,7 +42,7 @@ export interface IBoardDocument extends IBoard, Document {
 
 export interface IPipeline extends ICommonFields {
   name?: string;
-  boardId?: string;
+  boardId: string;
   visibility?: string;
   memberIds?: string[];
   bgColor?: string;

@@ -14,6 +14,7 @@ interface ICustomerFieldsInput {
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
   getCustomer(_id: string): Promise<ICustomerDocument>;
+  getCustomerName(customer: ICustomer): string;
   createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
@@ -95,6 +96,24 @@ export const loadClass = () => {
       }
     }
 
+    public static getCustomerName(customer: ICustomer) {
+      if (customer.firstName || customer.lastName) {
+        return (customer.firstName || '') + ' ' + (customer.lastName || '');
+      }
+
+      if (customer.primaryEmail || customer.primaryPhone) {
+        return customer.primaryEmail || customer.primaryPhone;
+      }
+
+      const { visitorContactInfo } = customer;
+
+      if (visitorContactInfo) {
+        return visitorContactInfo.phone || visitorContactInfo.email;
+      }
+
+      return 'Unknown';
+    }
+
     /**
      * Retreives customer
      */
@@ -149,10 +168,8 @@ export const loadClass = () => {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc, _id);
 
-      if (doc.customFieldsData) {
-        // clean custom field values
-        doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
-      }
+      // clean custom field values
+      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
       if (doc.primaryEmail) {
         const isValid = await validateEmail(doc.primaryEmail);

@@ -22,9 +22,7 @@ const channelQueries = {
       query.memberIds = { $in: memberIds };
     }
 
-    const channels = paginate(Channels.find(query), queryParams);
-
-    return channels.sort(sort);
+    return paginate(Channels.find(query).sort(sort), queryParams);
   },
 
   /**

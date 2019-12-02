@@ -7,7 +7,6 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
-  userFactory,
 } from '../db/factories';
 
 import './setup.ts';
@@ -40,8 +39,6 @@ describe('mutations', () => {
   let _knowledgeBaseCategory;
   let _knowledgeBaseArticle;
   let _brand;
-  let _user;
-  let context;
 
   beforeEach(async () => {
     // Creating test data
@@ -49,9 +46,6 @@ describe('mutations', () => {
     _knowledgeBaseCategory = await knowledgeBaseCategoryFactory({});
     _knowledgeBaseArticle = await knowledgeBaseArticleFactory({});
     _brand = await brandFactory({});
-    _user = await userFactory({});
-
-    context = { user: _user };
   });
 
   afterEach(async () => {
@@ -87,7 +81,7 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseTopic = await graphqlRequest(mutation, 'knowledgeBaseTopicsAdd', { doc }, context);
+    const knowledgeBaseTopic = await graphqlRequest(mutation, 'knowledgeBaseTopicsAdd', { doc });
 
     expect(knowledgeBaseTopic.title).toBe(doc.title);
     expect(knowledgeBaseTopic.description).toBe(doc.description);
@@ -122,12 +116,10 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseTopic = await graphqlRequest(
-      mutation,
-      'knowledgeBaseTopicsEdit',
-      { _id: _knowledgeBaseTopic._id, doc },
-      context,
-    );
+    const knowledgeBaseTopic = await graphqlRequest(mutation, 'knowledgeBaseTopicsEdit', {
+      _id: _knowledgeBaseTopic._id,
+      doc,
+    });
 
     expect(knowledgeBaseTopic._id).toBe(_knowledgeBaseTopic._id);
     expect(knowledgeBaseTopic.title).toBe(doc.title);
@@ -147,7 +139,7 @@ describe('mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'knowledgeBaseTopicsRemove', { _id }, context);
+    await graphqlRequest(mutation, 'knowledgeBaseTopicsRemove', { _id });
 
     expect(await KnowledgeBaseTopics.findOne({ _id })).toBe(null);
   });
@@ -175,7 +167,7 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseCategory = await graphqlRequest(mutation, 'knowledgeBaseCategoriesAdd', { doc }, context);
+    const knowledgeBaseCategory = await graphqlRequest(mutation, 'knowledgeBaseCategoriesAdd', { doc });
 
     expect(knowledgeBaseCategory.title).toBe(doc.title);
     expect(knowledgeBaseCategory.description).toBe(doc.description);
@@ -211,12 +203,10 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseCategory = await graphqlRequest(
-      mutation,
-      'knowledgeBaseCategoriesEdit',
-      { _id: _knowledgeBaseCategory._id, doc },
-      context,
-    );
+    const knowledgeBaseCategory = await graphqlRequest(mutation, 'knowledgeBaseCategoriesEdit', {
+      _id: _knowledgeBaseCategory._id,
+      doc,
+    });
 
     expect(knowledgeBaseCategory._id).toBe(_knowledgeBaseCategory._id);
     expect(knowledgeBaseCategory.title).toBe(doc.title);
@@ -238,7 +228,7 @@ describe('mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'knowledgeBaseCategoriesRemove', { _id }, context);
+    await graphqlRequest(mutation, 'knowledgeBaseCategoriesRemove', { _id });
 
     expect(await KnowledgeBaseCategories.findOne({ _id })).toBe(null);
   });
@@ -261,7 +251,7 @@ describe('mutations', () => {
       }
     `;
 
-    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesAdd', { doc }, context);
+    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesAdd', { doc });
 
     const [category] = await KnowledgeBaseCategories.find({
       _id: { $in: doc.categoryIds },
@@ -292,12 +282,10 @@ describe('mutations', () => {
       }
     `;
 
-    const article = await graphqlRequest(
-      mutation,
-      'knowledgeBaseArticlesEdit',
-      { _id: _knowledgeBaseArticle._id, doc },
-      context,
-    );
+    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesEdit', {
+      _id: _knowledgeBaseArticle._id,
+      doc,
+    });
 
     const [category] = await KnowledgeBaseCategories.find({
       _id: { $in: doc.categoryIds },
@@ -320,7 +308,7 @@ describe('mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', { _id }, context);
+    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', { _id });
 
     expect(await KnowledgeBaseArticles.findOne({ _id })).toBe(null);
   });

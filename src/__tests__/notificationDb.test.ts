@@ -1,4 +1,4 @@
-import { notificationConfigurationFactory, userFactory } from '../db/factories';
+import { customerFactory, notificationConfigurationFactory, notificationFactory, userFactory } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
 import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
@@ -89,10 +89,23 @@ describe('Notification model tests', () => {
     expect(notification.link).toEqual(doc.link);
     expect(notification.receiver).toBe(user3._id);
 
+    // check method markAsRead by user =============
+    await Notifications.markAsRead([], user3._id);
+
+    let notificationObj = await Notifications.findOne({
+      _id: notification._id,
+    });
+
+    if (!notificationObj) {
+      throw new Error('Notification not found');
+    }
+
+    expect(notificationObj.isRead).toEqual(true);
+
     // check method markAsRead =============
     await Notifications.markAsRead([notification._id]);
 
-    const notificationObj = await Notifications.findOne({
+    notificationObj = await Notifications.findOne({
       _id: notification._id,
     });
 
@@ -108,12 +121,27 @@ describe('Notification model tests', () => {
     expect(await Notifications.find({}).countDocuments()).toEqual(0);
   });
 
-  test('sending notifications', () => {
-    return;
+  test('check if read', async () => {
+    const receiver = await userFactory();
+    const customer = await customerFactory();
+
+    await notificationFactory({
+      receiver,
+      contentType: 'customer',
+      contentTypeId: customer._id,
+    });
+
+    let response = await Notifications.checkIfRead(receiver._id, customer._id);
+
+    expect(response).toBeFalsy();
+
+    response = await Notifications.checkIfRead('fakeUserId', 'fakeId');
+
+    expect(response).toBeTruthy();
   });
 });
 
-describe('NotificationConfiguration model tests', async () => {
+describe('NotificationConfiguration model tests', () => {
   test('test if model methods are working correctly', async () => {
     // creating new notification configuration ==========
     const user = await userFactory({});

@@ -30,6 +30,18 @@ describe('Test Tickets model', () => {
     await Tickets.deleteMany({});
   });
 
+  test('Get ticket', async () => {
+    try {
+      await Tickets.getTicket('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Ticket not found');
+    }
+
+    const response = await Tickets.getTicket(ticket._id);
+
+    expect(response).toBeDefined();
+  });
+
   // Test ticket
   test('Create ticket', async () => {
     const createdTicket = await Tickets.createTicket({
@@ -65,5 +77,20 @@ describe('Test Tickets model', () => {
     expect(updatedTicket.stageId).toBe(stage._id);
     expect(updatedTicket.order).toBe(3);
     expect(updatedDealToOrder.order).toBe(9);
+  });
+
+  test('Watch ticket', async () => {
+    await Tickets.watchTicket(ticket._id, true, user._id);
+
+    const watchedTicket = await Tickets.getTicket(ticket._id);
+
+    expect(watchedTicket.watchedUserIds).toContain(user._id);
+
+    // testing unwatch
+    await Tickets.watchTicket(ticket._id, false, user._id);
+
+    const unwatchedTicket = await Tickets.getTicket(ticket._id);
+
+    expect(unwatchedTicket.watchedUserIds).not.toContain(user._id);
   });
 });

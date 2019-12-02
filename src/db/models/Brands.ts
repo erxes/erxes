@@ -1,15 +1,15 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
-import { debugBase } from '../../debuggers';
 import { Integrations } from './';
 import { brandSchema, IBrand, IBrandDocument, IBrandEmailConfig } from './definitions/brands';
 import { IIntegrationDocument } from './definitions/integrations';
 
 export interface IBrandModel extends Model<IBrandDocument> {
+  getBrand(_id: string): IBrandDocument;
   generateCode(code: string): string;
   createBrand(doc: IBrand): IBrandDocument;
   updateBrand(_id: string, fields: IBrand): IBrandDocument;
-  removeBrand(_id: string): void;
+  removeBrand(_id: string): IBrandDocument;
 
   updateEmailConfig(_id: string, emailConfig: IBrandEmailConfig): IBrandDocument;
 
@@ -18,6 +18,19 @@ export interface IBrandModel extends Model<IBrandDocument> {
 
 export const loadClass = () => {
   class Brand {
+    /*
+     * Get a Brand
+     */
+    public static async getBrand(_id: string) {
+      const brand = await Brands.findOne({ _id });
+
+      if (!brand) {
+        throw new Error('Brand not found');
+      }
+
+      return brand;
+    }
+
     public static async generateCode(code?: string) {
       let generatedCode = code || Random.id().substr(0, 6);
 
@@ -26,10 +39,6 @@ export const loadClass = () => {
       // search until not existing one found
       while (prevBrand) {
         generatedCode = Random.id().substr(0, 6);
-
-        if (code) {
-          debugBase('User defined brand code already exists. New code is generated.');
-        }
 
         prevBrand = await Brands.findOne({ code: generatedCode });
       }

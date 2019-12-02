@@ -39,6 +39,18 @@ describe('InternalNotes model test', () => {
     await Users.deleteMany({});
   });
 
+  test('Get internal note', async () => {
+    try {
+      await InternalNotes.getInternalNote('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Internal note not found');
+    }
+
+    const response = await InternalNotes.getInternalNote(_internalNote._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('Create internalNote', async () => {
     // valid
     const doc = generateData();

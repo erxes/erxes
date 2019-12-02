@@ -21,11 +21,7 @@ export const getDuplicatedStages = async ({
   pipelineId?: string;
   type?: string;
 }) => {
-  const template = await PipelineTemplates.findOne({ _id: templateId });
-
-  if (!template) {
-    throw new Error('Template not found');
-  }
+  const template = await PipelineTemplates.getPipelineTemplate(templateId);
 
   const stages: any[] = [];
 
@@ -45,6 +41,7 @@ export const getDuplicatedStages = async ({
 };
 
 export interface IPipelineTemplateModel extends Model<IPipelineTemplateDocument> {
+  getPipelineTemplate(_id: string): Promise<IPipelineTemplateDocument>;
   createPipelineTemplate(doc: IDoc, stages: IPipelineTemplateStage[]): Promise<IPipelineTemplateDocument>;
   updatePipelineTemplate(_id: string, doc: IDoc, stages: IPipelineTemplateStage[]): Promise<IPipelineTemplateDocument>;
   removePipelineTemplate(_id: string): void;
@@ -53,6 +50,19 @@ export interface IPipelineTemplateModel extends Model<IPipelineTemplateDocument>
 
 export const loadPipelineTemplateClass = () => {
   class PipelineTemplate {
+    /*
+     * Get a pipeline template
+     */
+    public static async getPipelineTemplate(_id: string) {
+      const pipelineTemplate = await PipelineTemplates.findOne({ _id });
+
+      if (!pipelineTemplate) {
+        throw new Error('Pipeline template not found');
+      }
+
+      return pipelineTemplate;
+    }
+
     /**
      * Create a pipeline template
      */

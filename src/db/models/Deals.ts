@@ -66,7 +66,7 @@ export const loadDealClass = () => {
     /**
      * Watch deal
      */
-    public static async watchDeal(_id: string, isAdd: boolean, userId: string) {
+    public static watchDeal(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Deals, _id, isAdd, userId);
     }
   }

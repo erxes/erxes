@@ -1,26 +1,16 @@
 import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
-import { customerFactory, importHistoryFactory, userFactory } from '../db/factories';
-import { ImportHistory, Users } from '../db/models';
+import { customerFactory, importHistoryFactory } from '../db/factories';
+import { ImportHistory } from '../db/models';
 import * as workerUtils from '../workers/utils';
 
+import utils from '../data/utils';
 import './setup.ts';
 
 describe('Import history mutations', () => {
-  let _user;
-  let context;
-
-  beforeEach(async () => {
-    // Creating test data
-    _user = await userFactory({});
-
-    context = { user: _user };
-  });
-
   afterEach(async () => {
     // Clearing test data
     await ImportHistory.deleteMany({});
-    await Users.deleteMany({});
   });
 
   test('Remove import histories', async () => {
@@ -31,22 +21,88 @@ describe('Import history mutations', () => {
     `;
     const customer = await customerFactory({});
 
-    const importHistory = await importHistoryFactory({
-      ids: [customer._id],
-    });
+    const importHistory = await importHistoryFactory({ ids: [customer._id] });
 
     const mock = sinon.stub(workerUtils, 'createWorkers').callsFake();
 
-    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id }, context);
+    const fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
 
-    const historyObj = await ImportHistory.findOne({ _id: importHistory._id });
+    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id });
 
-    if (!historyObj) {
-      throw new Error('History not found');
-    }
+    fetchSpy.mockRestore();
+
+    const historyObj = await ImportHistory.getImportHistory(importHistory._id);
 
     expect(historyObj.status).toBe('Removing');
 
     mock.restore();
+  });
+
+  test('Remove import histories (Error)', async () => {
+    const mutation = `
+      mutation importHistoriesRemove($_id: String!) {
+        importHistoriesRemove(_id: $_id)
+      }
+    `;
+
+    process.env.WORKERS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const customer = await customerFactory({});
+
+    const importHistory = await importHistoryFactory({ ids: [customer._id] });
+
+    try {
+      await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Error: Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
+      );
+    }
+  });
+
+  test('Cancel import history', async () => {
+    const mutation = `
+      mutation importHistoriesCancel($_id: String!) {
+        importHistoriesCancel(_id: $_id)
+      }
+    `;
+    const importHistory = await importHistoryFactory({});
+
+    const fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
+
+    const response = await graphqlRequest(mutation, 'importHistoriesCancel', { _id: importHistory._id });
+
+    expect(response).toBe(true);
+
+    fetchSpy.mockRestore();
+
+    // if fakeId
+    try {
+      await graphqlRequest(mutation, 'importHistoriesCancel', { _id: 'fakeId' });
+    } catch (e) {
+      expect(e[0].message).toBe('History not found');
+    }
+  });
+
+  test('Cancel import history (Error)', async () => {
+    const mutation = `
+      mutation importHistoriesCancel($_id: String!) {
+        importHistoriesCancel(_id: $_id)
+      }
+    `;
+
+    process.env.WORKERS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const importHistory = await importHistoryFactory({});
+
+    try {
+      await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Error: Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
+      );
+    }
   });
 });

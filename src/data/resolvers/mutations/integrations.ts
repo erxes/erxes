@@ -1,15 +1,11 @@
 import { Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
-import { IExternalIntegrationParams, IMessengerIntegration } from '../../../db/models/Integrations';
+import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
-interface IEditMessengerIntegration extends IMessengerIntegration {
-  _id: string;
-}
-
-interface IEditLeadIntegration extends IIntegration {
+interface IEditIntegration extends IIntegration {
   _id: string;
 }
 
@@ -17,7 +13,7 @@ const integrationMutations = {
   /**
    * Create a new messenger integration
    */
-  async integrationsCreateMessengerIntegration(_root, doc: IMessengerIntegration, { user }: IContext) {
+  async integrationsCreateMessengerIntegration(_root, doc: IIntegration, { user }: IContext) {
     const integration = await Integrations.createMessengerIntegration(doc, user._id);
 
     await putCreateLog(
@@ -36,21 +32,19 @@ const integrationMutations = {
   /**
    * Update messenger integration
    */
-  async integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditMessengerIntegration, { user }: IContext) {
-    const integration = await Integrations.findOne({ _id });
+  async integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditIntegration, { user }: IContext) {
+    const integration = await Integrations.getIntegration(_id);
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
 
-    if (integration) {
-      await putUpdateLog(
-        {
-          type: 'integration',
-          object: integration,
-          newData: JSON.stringify(fields),
-          description: `${integration.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'integration',
+        object: integration,
+        newData: JSON.stringify(fields),
+        description: `${integration.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -91,7 +85,7 @@ const integrationMutations = {
   /**
    * Edit a lead integration
    */
-  integrationsEditLeadIntegration(_root, { _id, ...doc }: IEditLeadIntegration) {
+  integrationsEditLeadIntegration(_root, { _id, ...doc }: IEditIntegration) {
     return Integrations.updateLeadIntegration(_id, doc);
   },
 
@@ -145,25 +139,19 @@ const integrationMutations = {
   },
 
   async integrationsEditCommonFields(_root, { _id, name, brandId }, { user }) {
-    if (!(_id && name && brandId)) {
-      throw new Error('Name and brand must be chosen.');
-    }
-
-    const integration = await Integrations.findOne({ _id });
+    const integration = await Integrations.getIntegration(_id);
 
     const updated = Integrations.updateBasicInfo(_id, { name, brandId });
 
-    if (integration) {
-      await putUpdateLog(
-        {
-          type: 'integration',
-          object: { name: integration.name, brandId: integration.brandId },
-          newData: JSON.stringify({ name, brandId }),
-          description: `${integration.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'integration',
+        object: { name: integration.name, brandId: integration.brandId },
+        newData: JSON.stringify({ name, brandId }),
+        description: `${integration.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -171,14 +159,14 @@ const integrationMutations = {
   /**
    * Create IMAP account
    */
-  async integrationAddImapAccount(_root, data, { dataSources }) {
+  integrationAddImapAccount(_root, data, { dataSources }) {
     return dataSources.IntegrationsAPI.createAccount(data);
   },
 
   /**
    * Create Yahoo, Outlook account
    */
-  async integrationAddMailAccount(_root, data, { dataSources }) {
+  integrationAddMailAccount(_root, data, { dataSources }) {
     return dataSources.IntegrationsAPI.createAccount(data);
   },
 
@@ -186,36 +174,34 @@ const integrationMutations = {
    * Delete an integration
    */
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
-    const integration = await Integrations.findOne({ _id });
+    const integration = await Integrations.getIntegration(_id);
 
-    if (integration) {
-      if (
-        [
-          'facebook-messenger',
-          'facebook-post',
-          'gmail',
-          'callpro',
-          'nylas-gmail',
-          'nylas-imap',
-          'nylas-office365',
-          'nylas-outlook',
-          'nylas-yahoo',
-          'chatfuel',
-          'twitter-dm',
-        ].includes(integration.kind || '')
-      ) {
-        await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
-      }
-
-      await putDeleteLog(
-        {
-          type: 'integration',
-          object: integration,
-          description: `${integration.name} has been removed`,
-        },
-        user,
-      );
+    if (
+      [
+        'facebook-messenger',
+        'facebook-post',
+        'gmail',
+        'callpro',
+        'nylas-gmail',
+        'nylas-imap',
+        'nylas-office365',
+        'nylas-outlook',
+        'nylas-yahoo',
+        'chatfuel',
+        'twitter-dm',
+      ].includes(integration.kind)
+    ) {
+      await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
     }
+
+    await putDeleteLog(
+      {
+        type: 'integration',
+        object: integration,
+        description: `${integration.name} has been removed`,
+      },
+      user,
+    );
 
     return Integrations.removeIntegration(_id);
   },
@@ -252,20 +238,18 @@ const integrationMutations = {
   },
 
   async integrationsArchive(_root, { _id }: { _id: string }, { user }: IContext) {
-    const integration = await Integrations.findOne({ _id });
+    const integration = await Integrations.getIntegration(_id);
     await Integrations.updateOne({ _id }, { $set: { isActive: false } });
 
-    if (integration) {
-      await putUpdateLog(
-        {
-          type: 'integration',
-          object: integration,
-          newData: JSON.stringify({ isActive: false }),
-          description: `Integration "${integration.name}" has been archived.`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'integration',
+        object: integration,
+        newData: JSON.stringify({ isActive: false }),
+        description: `Integration "${integration.name}" has been archived.`,
+      },
+      user,
+    );
 
     return Integrations.findOne({ _id });
   },

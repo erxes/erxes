@@ -26,13 +26,11 @@ const hasItem = async (type: string, pipelineId: string, prevItemIds: string[] =
 
   const collection = getCollection(type);
 
-  if (collection) {
-    for (const stage of stages) {
-      const itemCount = await collection.find({ stageId: stage._id }).countDocuments();
+  for (const stage of stages) {
+    const itemCount = await collection.find({ stageId: stage._id }).countDocuments();
 
-      if (itemCount > 0) {
-        throw new Error('There is a stage that has a item');
-      }
+    if (itemCount > 0) {
+      throw new Error('There is a stage that has a item');
     }
   }
 };
@@ -157,8 +155,8 @@ export const loadBoardClass = () => {
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
   getPipeline(_id: string): Promise<IPipelineDocument>;
-  createPipeline(doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
-  updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]): Promise<IPipelineDocument>;
+  createPipeline(doc: IPipeline, stages?: IPipelineStage[]): Promise<IPipelineDocument>;
+  updatePipeline(_id: string, doc: IPipeline, stages?: IPipelineStage[]): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
   removePipeline(_id: string): void;
@@ -182,7 +180,7 @@ export const loadPipelineClass = () => {
     /**
      * Create a pipeline
      */
-    public static async createPipeline(doc: IPipeline, stages: IPipelineStage[]) {
+    public static async createPipeline(doc: IPipeline, stages?: IPipelineStage[]) {
       const pipeline = await Pipelines.create(doc);
 
       if (doc.templateId) {
@@ -203,7 +201,7 @@ export const loadPipelineClass = () => {
     /**
      * Update a pipeline
      */
-    public static async updatePipeline(_id: string, doc: IPipeline, stages: IPipelineStage[]) {
+    public static async updatePipeline(_id: string, doc: IPipeline, stages?: IPipelineStage[]) {
       if (doc.templateId) {
         const pipeline = await Pipelines.getPipeline(_id);
 
@@ -243,7 +241,7 @@ export const loadPipelineClass = () => {
       return Pipelines.deleteOne({ _id });
     }
 
-    public static async watchPipeline(_id: string, isAdd: boolean, userId: string) {
+    public static watchPipeline(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Pipelines, _id, isAdd, userId);
     }
   }

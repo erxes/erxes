@@ -31,6 +31,18 @@ describe('Test growthHacks model', () => {
     await GrowthHacks.deleteMany({});
   });
 
+  test('Get growth hack', async () => {
+    try {
+      await GrowthHacks.getGrowthHack('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Growth hack not found');
+    }
+
+    const response = await GrowthHacks.getGrowthHack(growthHack._id);
+
+    expect(response).toBeDefined();
+  });
+
   // Test growthHack
   test('Create growthHack', async () => {
     const createdGrowthHack = await GrowthHacks.createGrowthHack({
@@ -66,5 +78,37 @@ describe('Test growthHacks model', () => {
     expect(updatedGrowthHack.stageId).toBe(stage._id);
     expect(updatedGrowthHack.order).toBe(3);
     expect(updatedGrowthHackToOrder.order).toBe(9);
+  });
+
+  test('Watch growthHack', async () => {
+    await GrowthHacks.watchGrowthHack(growthHack._id, true, user._id);
+
+    const watchedGH = await GrowthHacks.getGrowthHack(growthHack._id);
+
+    expect(watchedGH.watchedUserIds).toContain(user._id);
+
+    // testing unwatch
+    await GrowthHacks.watchGrowthHack(growthHack._id, false, user._id);
+
+    const unwatchedGH = await GrowthHacks.getGrowthHack(growthHack._id);
+
+    expect(unwatchedGH.watchedUserIds).not.toContain(user._id);
+  });
+
+  test('Vote growthHack', async () => {
+    await GrowthHacks.voteGrowthHack(growthHack._id, true, user._id);
+
+    const voteGH = await GrowthHacks.getGrowthHack(growthHack._id);
+
+    expect(voteGH.votedUserIds).toContain(user._id);
+    expect(voteGH.voteCount).toBe(1);
+
+    // testing unwatch
+    await GrowthHacks.voteGrowthHack(growthHack._id, false, user._id);
+
+    const unvoteGH = await GrowthHacks.getGrowthHack(growthHack._id);
+
+    expect(unvoteGH.watchedUserIds).not.toContain(user._id);
+    expect(unvoteGH.voteCount).toBe(0);
   });
 });
