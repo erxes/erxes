@@ -79,10 +79,10 @@ export default withProps<Props>(
       {
         name: 'commentsQuery',
         skip: ({ activity }) => activity.contentType !== 'comment',
-        options: ({ conversationId }) => ({
+        options: ({ conversationId, activity }) => ({
           variables: {
             postId: conversationId,
-            senderId: 'NsWYnk4FFyJ3pijd4'
+            senderId: activity.contentId
           }
         })
       }
