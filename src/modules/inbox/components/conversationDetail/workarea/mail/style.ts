@@ -210,6 +210,7 @@ const Title = styled.div`
 
 const Addresses = styled.div`
   color: ${colors.textSecondary};
+  word-break: break-word;
 `;
 
 export {

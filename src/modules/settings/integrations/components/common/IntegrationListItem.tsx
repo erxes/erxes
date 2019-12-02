@@ -10,6 +10,7 @@ import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { cleanIntegrationKind } from '../../containers/utils';
 import { IIntegration } from '../../types';
 import CommonFieldForm from './CommonFieldForm';
 
@@ -35,7 +36,7 @@ class IntegrationListItem extends React.Component<Props> {
       return 'facebook post';
     }
 
-    if (kind === KIND_CHOICES.GMAIL) {
+    if (kind === KIND_CHOICES.GMAIL || kind === KIND_CHOICES.NYLAS_GMAIL) {
       return 'gmail';
     }
 
@@ -51,28 +52,24 @@ class IntegrationListItem extends React.Component<Props> {
       return 'chatfuel';
     }
 
-    if (kind === KIND_CHOICES.NYLAS_GMAIL) {
-      return 'nylas gmail';
-    }
-
     if (kind === KIND_CHOICES.TWITTER_DM) {
       return 'twitter';
     }
 
     if (kind === KIND_CHOICES.NYLAS_IMAP) {
-      return 'nylas imap';
+      return 'imap';
     }
 
     if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
-      return 'nylas office365';
+      return 'office365';
     }
 
     if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
-      return 'nylas outlook';
+      return 'outlook';
     }
 
     if (kind === KIND_CHOICES.NYLAS_YAHOO) {
-      return 'nylas yahoo';
+      return 'yahoo';
     }
 
     return 'default';
@@ -199,7 +196,7 @@ class IntegrationListItem extends React.Component<Props> {
         <td>{integration.name}</td>
         <td>
           <Label className={`label-${this.getTypeName(integration)}`}>
-            {integration.kind}
+            {cleanIntegrationKind(integration.kind)}
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>

@@ -85,7 +85,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Messenger</ControlLabel>
+          <ControlLabel>Messenger</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -93,7 +93,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             componentClass="select"
             placeholder={__('Select messenger')}
             defaultValue={object.messengerId}
-            required={true}
           >
             <option />
             {messengers.map(integration => (
@@ -117,7 +116,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Knowledgebase topic</ControlLabel>
+          <ControlLabel>Knowledgebase topic</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -125,7 +124,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             componentClass="select"
             placeholder={__('Select topic')}
             defaultValue={object.kbTopicId}
-            required={true}
           >
             <option />
             {kbTopics.map(topic => (

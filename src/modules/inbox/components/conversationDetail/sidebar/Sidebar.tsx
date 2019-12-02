@@ -138,14 +138,13 @@ class Index extends React.Component<IndexProps, IndexState> {
   };
 
   renderActions() {
-    const { customer, conversation } = this.props;
+    const { customer } = this.props;
     const { primaryPhone, primaryEmail } = customer;
-    const { kind } = conversation.integration;
 
     const content = props => (
       <MailBox>
         <MailForm
-          kind={kind}
+          kind="mail"
           fromEmail={primaryEmail}
           refetchQueries={['activityLogsCustomer']}
           closeModal={props.closeModal}

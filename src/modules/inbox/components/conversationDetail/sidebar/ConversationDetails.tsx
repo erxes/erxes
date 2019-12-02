@@ -3,6 +3,7 @@ import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import {
+  FieldStyle,
   SectionBody,
   SidebarCounter,
   SidebarList
@@ -31,7 +32,7 @@ class ConversationDetails extends React.Component<Props> {
 
     return (
       <li>
-        {__('Visitor contact info')}
+        <FieldStyle>{__('Visitor contact info')}</FieldStyle>
         <SidebarCounter>
           {visitorContactInfo.email || visitorContactInfo.phone}
         </SidebarCounter>
@@ -52,13 +53,13 @@ class ConversationDetails extends React.Component<Props> {
           <SidebarList className="no-link">
             {this.renderVisitorContactInfo(customer)}
             <li>
-              {__('Opened')}
+              <FieldStyle>{__('Opened')}</FieldStyle>
               <SidebarCounter>
                 {dayjs(conversation.createdAt).format('lll')}
               </SidebarCounter>
             </li>
             <li>
-              {__('Channels')}
+              <FieldStyle>{__('Channels')}</FieldStyle>
               <SidebarCounter>
                 {channels.map(c => (
                   <span key={c._id}>{c.name} </span>
@@ -66,18 +67,18 @@ class ConversationDetails extends React.Component<Props> {
               </SidebarCounter>
             </li>
             <li>
-              {__('Brand')}
+              <FieldStyle>{__('Brand')}</FieldStyle>
               <SidebarCounter>{brand && brand.name}</SidebarCounter>
             </li>
             <li>
-              {__('Integration')}
+              <FieldStyle>{__('Integration')}</FieldStyle>
               <SidebarCounter>
                 {integration.kind}
                 <IntegrationIcon integration={integration} />
               </SidebarCounter>
             </li>
             <li>
-              {__('Conversations')}
+              <FieldStyle>{__('Conversations')}</FieldStyle>
               <SidebarCounter>{conversation.messageCount}</SidebarCounter>
             </li>
           </SidebarList>

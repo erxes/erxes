@@ -1,7 +1,9 @@
 import { getEnv } from 'apolloClient';
+import dayjs from 'dayjs';
 import T from 'i18n-react';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import React from 'react';
+import { DateWrapper } from '../styles/main';
 import { IAttachment } from '../types';
 import Alert from './Alert';
 import colorParser from './colorParser';
@@ -307,3 +309,40 @@ export const roundToTwo = value => {
 
   return Math.round(value * 100) / 100;
 };
+
+function createLinkFromUrl(url) {
+  if (!url.includes('http')) {
+    url = 'http://' + url;
+  }
+
+  const onClick = e => {
+    e.stopPropagation();
+    window.open(url);
+  };
+
+  return (
+    <a href="#website" onClick={onClick}>
+      {urlParser.extractRootDomain(url)}
+    </a>
+  );
+}
+
+export function formatValue(value) {
+  if (typeof value === 'boolean') {
+    return value.toString();
+  }
+
+  if (urlParser.isValidURL(value)) {
+    return createLinkFromUrl(value);
+  }
+
+  if (typeof value === 'string') {
+    if (dayjs(value).isValid()) {
+      return <DateWrapper>{dayjs(value).format('lll')}</DateWrapper>;
+    }
+
+    return value;
+  }
+
+  return value || '-';
+}

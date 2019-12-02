@@ -51,7 +51,7 @@ class DraggableContainer extends React.Component<
     };
   }
 
-  onItemClick = () => {
+  onClick = () => {
     const { item } = this.props;
 
     this.setState({ isDragDisabled: true }, () => {
@@ -107,7 +107,7 @@ class DraggableContainer extends React.Component<
               key={item._id}
               stageId={stageId}
               item={item}
-              onClick={this.onItemClick}
+              onClick={this.onClick}
               beforePopupClose={this.beforePopupClose}
               options={options}
             />
