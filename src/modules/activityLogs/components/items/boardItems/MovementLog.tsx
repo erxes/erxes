@@ -20,8 +20,12 @@ class MovementLog extends React.Component<Props> {
 
     let userName = 'Unknown';
 
-    if (createdByDetail.details) {
-      userName = createdByDetail.details.fullName || 'Unknown';
+    if (createdByDetail && createdByDetail.type === 'user') {
+      const { content } = createdByDetail;
+
+      if (content.details) {
+        userName = createdByDetail.content.details.fullName || 'Unknown';
+      }
     }
     // tslint:disable-next-line:no-console
     console.log(activity);
