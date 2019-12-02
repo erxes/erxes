@@ -175,7 +175,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
       case 'nylas-gmail':
         action = 'send';
         kind = 'email';
-        item = '';
+        item = 'by gmail';
         break;
     }
 
@@ -230,7 +230,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
             <ConversationContent
               dangerouslySetInnerHTML={{ __html: xss(content) }}
             />
-            <Count>{messages.length}</Count>
+            <Count>{messages && messages.length}</Count>
           </FlexCenterContent>
         )}
       </>
