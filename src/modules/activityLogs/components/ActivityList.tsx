@@ -34,21 +34,18 @@ class ActivityList extends React.Component<Props> {
   renderTimeLine(activities) {
     const result = activities.reduce((item, activity) => {
       const { contentType } = activity;
+      const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
       if (
         contentType === 'taskDetail' &&
         dayjs(activity.createdAt) >= dayjs()
       ) {
-        item.Upcoming = item[activity.createdAt] || [];
+        item.Upcoming = item.Upcoming || [];
         item.Upcoming.push(activity);
-
-        return item;
+      } else {
+        item[createdDate] = item[createdDate] || [];
+        item[createdDate].push(activity);
       }
-
-      const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
-
-      item[createdDate] = item[createdDate] || [];
-      item[createdDate].push(activity);
 
       return item;
     }, {});
