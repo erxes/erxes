@@ -27,8 +27,7 @@ class MovementLog extends React.Component<Props> {
         userName = createdByDetail.content.details.fullName || 'Unknown';
       }
     }
-    // tslint:disable-next-line:no-console
-    console.log(activity);
+
     if (contentDetail.item) {
       const { item, destinationStage, oldStage } = contentDetail;
 
@@ -37,6 +36,7 @@ class MovementLog extends React.Component<Props> {
           <strong>{userName}</strong> moved&nbsp;
           <Link
             to={`/${contentType}/board?_id=${activity._id}&itemId=${item._id}`}
+            target="blank"
           >
             {item.name}
           </Link>
