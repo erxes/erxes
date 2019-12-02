@@ -21,7 +21,7 @@ class CreatedLog extends React.Component<Props> {
 
     let userName = 'Unknow';
 
-    if (createdByDetail.type === 'user') {
+    if (createdByDetail && createdByDetail.type === 'user') {
       const { content } = createdByDetail;
 
       if (content.details) {

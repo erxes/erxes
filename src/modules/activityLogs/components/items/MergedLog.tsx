@@ -15,13 +15,25 @@ type Props = {
 };
 
 class MergedLog extends React.Component<Props> {
+  renderCreatedBy = () => {
+    const { createdByDetail } = this.props.activity;
+
+    if (createdByDetail) {
+      const { details } = createdByDetail.content;
+
+      return <strong>{details ? details.fullName : 'Unknown'}</strong>;
+    }
+
+    return <strong>System</strong>;
+  };
+
   renderContent = () => {
-    const { contentType, createdByDetail, contentDetail } = this.props.activity;
+    const { contentType, contentDetail } = this.props.activity;
     const type = contentType.includes('customer') ? 'customers' : 'companies';
 
     return (
       <>
-        <strong>{createdByDetail.details.fullName || 'Unknown'}</strong>{' '}
+        {this.renderCreatedBy()}
         {__('merged')}
         {contentDetail.length !== 0 &&
           contentDetail.map(contact => {
