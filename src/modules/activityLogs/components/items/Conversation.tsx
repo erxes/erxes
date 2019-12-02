@@ -132,8 +132,9 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   renderAction() {
-    const { activity, conversation } = this.props;
-    const { _id, customer, integration } = conversation;
+    const { activity, conversation, comments } = this.props;
+    const { _id, integration } = conversation;
+    let { customer } = conversation;
 
     let kind = integration ? integration.kind : 'conversation';
 
@@ -155,7 +156,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
       case 'comment':
         action = '';
         kind = 'commented';
-        item = 'on Facebook Post';
+        item = `on ${renderFullName(customer)}'s facebook post`;
         break;
       case 'facebook-post':
         action = 'wrote a Facebook';
@@ -176,6 +177,10 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         kind = 'email';
         item = 'by gmail';
         break;
+    }
+
+    if (condition === 'comment') {
+      customer = comments.length > 0 ? comments[0].customer : customer;
     }
 
     return (
