@@ -25,7 +25,7 @@ export const ICON_AND_COLOR_TABLE = {
   },
   email: {
     icon: 'email-3',
-    color: '#d74534'
+    color: '#673FBD'
   },
   task: {
     icon: 'clipboard',
@@ -61,6 +61,6 @@ export const ICON_AND_COLOR_TABLE = {
   },
   'nylas-gmail': {
     icon: 'email-3',
-    color: '#2490f0'
+    color: '#d74534'
   }
 };
