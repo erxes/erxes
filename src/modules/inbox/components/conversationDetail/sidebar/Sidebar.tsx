@@ -144,7 +144,6 @@ class Index extends React.Component<IndexProps, IndexState> {
     const content = props => (
       <MailBox>
         <MailForm
-          kind="mail"
           fromEmail={primaryEmail}
           refetchQueries={['activityLogsCustomer']}
           closeModal={props.closeModal}

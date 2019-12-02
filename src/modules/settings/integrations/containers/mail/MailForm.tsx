@@ -19,7 +19,6 @@ type Props = {
   conversationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
-  kind: string;
   mailData?: IMail;
   isReply?: boolean;
   toggleReply?: () => void;
@@ -38,7 +37,6 @@ const MailFormContainer = (props: FinalProps) => {
     integrationId,
     integrationsQuery,
     fromEmail,
-    kind,
     conversationId,
     isReply,
     toggleReply,
@@ -144,7 +142,6 @@ const MailFormContainer = (props: FinalProps) => {
     integrationId,
     fromEmail,
     closeModal,
-    kind,
     isReply,
     toggleReply,
     mailData
@@ -155,18 +152,15 @@ const MailFormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, IntegrationsQueryResponse, { kind: string }>(
-      gql(queries.integrations),
-      {
-        name: 'integrationsQuery',
-        options: ({ kind }) => {
-          return {
-            variables: { kind },
-            fetchPolicy: 'network-only'
-          };
-        }
+    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
+      name: 'integrationsQuery',
+      options: () => {
+        return {
+          variables: { kind: 'mail' },
+          fetchPolicy: 'network-only'
+        };
       }
-    ),
+    }),
     graphql<Props>(gql(mutations.integrationSendMail), {
       name: 'sendMailMutation'
     })

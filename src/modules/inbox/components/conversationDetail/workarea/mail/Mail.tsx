@@ -89,7 +89,6 @@ class Mail extends React.PureComponent<Props, State> {
     return (
       <BoxItem>
         <MailForm
-          kind="mail"
           isReply={isReply}
           closeReply={this.closeReply}
           conversationId={conversationId}
