@@ -3,7 +3,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
@@ -97,7 +97,7 @@ class Segments extends React.Component<Props> {
                 icon="chart-pie"
                 style={{ color: segment.color, marginRight: '5px' }}
               />{' '}
-              {segment.name}
+              <FieldStyle>{segment.name}</FieldStyle>
               <SidebarCounter>{counts[segment._id]}</SidebarCounter>
             </a>
           </li>

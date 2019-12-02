@@ -186,6 +186,10 @@ const CloseModal = styled.div`
   }
 `;
 
+const DateWrapper = styled.time`
+  font-size: 12px;
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -200,5 +204,6 @@ export {
   DropIcon,
   MiddleContent,
   HomeContainer,
+  DateWrapper,
   CloseModal
 };

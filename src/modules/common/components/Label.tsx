@@ -87,6 +87,10 @@ const LabelStyled = styledTS<{
   &.label-twitter {
     background: ${colors.socialTwitter}
   }
+
+  &.label-gmail {
+    background: ${colors.socialGmail}
+  }
 `;
 
 type Props = {

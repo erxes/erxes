@@ -1,7 +1,12 @@
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IQueryParams } from 'modules/common/types';
+import {
+  IButtonMutateProps,
+  IQueryParams,
+  IRouterProps
+} from 'modules/common/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
+import { withRouter } from 'react-router';
 import CustomerForm from '../components/list/CustomerForm';
 import { mutations } from '../graphql';
 
@@ -11,19 +16,33 @@ type Props = {
   queryParams: IQueryParams;
 };
 
-const CustomerFormContainer = (props: Props) => {
+type FinalProps = {} & Props & IRouterProps;
+
+const CustomerFormContainer = (props: FinalProps) => {
+  const { history, closeModal } = props;
+
   const renderButton = ({
     name,
     values,
     isSubmitted,
-    callback,
-    object
+    object,
+    type
   }: IButtonMutateProps) => {
+    const callbackResponse = data => {
+      if (type) {
+        return history.push(
+          `/contacts/customers/details/${data.customersAdd._id}`
+        );
+      }
+
+      return closeModal();
+    };
+
     return (
       <ButtonMutate
         mutation={object ? mutations.customersEdit : mutations.customersAdd}
         variables={values}
-        callback={callback}
+        callback={callbackResponse}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
@@ -51,4 +70,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default CustomerFormContainer;
+export default withRouter<FinalProps>(CustomerFormContainer);

@@ -17,12 +17,29 @@ type Props = {
   mainType?: string;
   mainTypeId?: string;
   relType?: string;
-  onChangeItems: () => void;
+  onChangeItem: () => void;
 };
 
-class Items extends React.Component<Props> {
+class Items extends React.Component<Props, { openItemId?: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      openItemId: ''
+    };
+  }
+
+  onItemClick = (item: IItem) => {
+    this.setState({ openItemId: item._id });
+  };
+
+  beforePopupClose = () => {
+    this.setState({ openItemId: '' });
+  };
+
   renderItems = () => {
-    const { onChangeItems, items, data } = this.props;
+    const { openItemId } = this.state;
+    const { onChangeItem, items, data } = this.props;
 
     if (items.length === 0) {
       return <EmptyState icon="folder" text={`No ${data.options.type}`} />;
@@ -35,9 +52,12 @@ class Items extends React.Component<Props> {
         options={data.options}
         key={index}
         item={item}
-        onAdd={onChangeItems}
-        onUpdate={onChangeItems}
-        onRemove={onChangeItems}
+        beforePopupClose={this.beforePopupClose}
+        isFormVisible={item._id === openItemId}
+        onClick={this.onItemClick.bind(this, item)}
+        onAdd={onChangeItem}
+        onUpdate={onChangeItem}
+        onRemove={onChangeItem}
         portable={true}
       />
     ));
@@ -48,7 +68,7 @@ class Items extends React.Component<Props> {
       mainType,
       mainTypeId,
       data,
-      onChangeItems,
+      onChangeItem,
       items,
       relType
     } = this.props;
@@ -69,7 +89,7 @@ class Items extends React.Component<Props> {
       <ItemChooser
         {...props}
         data={{ options: data.options, mainType, mainTypeId, items }}
-        callback={onChangeItems}
+        callback={onChangeItem}
         showSelect={true}
       />
     );
@@ -84,7 +104,7 @@ class Items extends React.Component<Props> {
           items,
           isRelated: true
         }}
-        callback={onChangeItems}
+        callback={onChangeItem}
         showSelect={true}
       />
     );

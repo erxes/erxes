@@ -2,9 +2,11 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
 import Spinner from 'modules/common/components/Spinner';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import Accounts from '../../containers/Accounts';
 import SelectBrand from '../../containers/SelectBrand';
@@ -46,8 +48,21 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
       <>
         {this.state.loading && <Spinner />}
         <FormGroup>
+          <Info>
+            <strong>{__('Email add account description question')}</strong>
+            <br />
+            {__('Email add account description')}
+          </Info>
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name="name" required={true} />
+          <FormControl
+            {...formProps}
+            name="name"
+            required={true}
+            autoFocus={true}
+          />
         </FormGroup>
 
         <SelectBrand isRequired={true} formProps={formProps} />

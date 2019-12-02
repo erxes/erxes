@@ -14,7 +14,6 @@ const LeftNavigation = styled.aside`
   box-shadow: 1px 0px 5px rgba(0, 0, 0, 0.1);
   z-index: 11;
   flex-shrink: 0;
-  overflow: hidden;
   position: absolute;
   left: 0;
   top: 0;
