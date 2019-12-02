@@ -30,6 +30,10 @@ class FormContainer extends React.Component<FinalProps> {
 
     const task = taskDetailsQuery.taskDetail;
 
+    if (!task) {
+      return <strong>You do not have permission to view this task</strong>;
+    }
+
     const save = (variables, callback) => {
       editMutation({ variables })
         .then(() => {
