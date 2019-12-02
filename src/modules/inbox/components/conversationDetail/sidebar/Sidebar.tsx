@@ -15,7 +15,7 @@ import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/components/common/ActionSection'),
+    import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection'),
   { height: '25px', width: '80px' }
 );
 
