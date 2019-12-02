@@ -2,14 +2,12 @@ import dayjs from 'dayjs';
 import {
   ActivityContent,
   ActivityDate,
-  AvatarWrapper,
   DeleteAction,
   FlexBody,
   FlexCenterContent,
   LogWrapper
 } from 'modules/activityLogs/styles';
 import { IUser } from 'modules/auth/types';
-import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import Form from 'modules/internalNotes/components/Form';
 import { IInternalNote } from 'modules/internalNotes/types';
@@ -87,9 +85,6 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
     return (
       <LogWrapper>
         <FlexCenterContent>
-          <AvatarWrapper>
-            <NameCard.Avatar />
-          </AvatarWrapper>
           <FlexBody>{this.renderBody()}</FlexBody>
           {isCurrentUserNote && (
             <DeleteAction onClick={remove}>Delete</DeleteAction>

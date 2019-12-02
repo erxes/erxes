@@ -3,7 +3,6 @@ import {
   ActivityDate,
   ActivityIcon,
   ActivityRow,
-  AvatarWrapper,
   CenterText,
   Collapse,
   ConversationContent,
@@ -14,7 +13,6 @@ import {
 } from 'modules/activityLogs/styles';
 import { getIconAndColor } from 'modules/activityLogs/utils';
 import Icon from 'modules/common/components/Icon';
-import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { renderFullName } from 'modules/common/utils';
 import Message from 'modules/inbox/components/conversationDetail/workarea/conversation/messages/Message';
@@ -23,6 +21,7 @@ import {
   PostContainer
 } from 'modules/inbox/components/conversationDetail/workarea/facebook/styles';
 import UserName from 'modules/inbox/components/conversationDetail/workarea/facebook/UserName';
+import MailConversation from 'modules/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import Resolver from 'modules/inbox/containers/Resolver';
 import { IConversation, IFacebookComment, IMessage } from 'modules/inbox/types';
 import React from 'react';
@@ -88,6 +87,15 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
           <PostContainer>{conversation.content}</PostContainer>
           {this.renderComments()}
         </>
+      );
+    }
+
+    if (kind === 'nylas-gmail') {
+      return (
+        <MailConversation
+          conversation={conversation}
+          conversationMessages={messages}
+        />
       );
     }
 
@@ -164,6 +172,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         kind = 'Lead form';
         item = '';
         break;
+      case 'nylas-gmail':
+        action = 'send';
+        kind = 'email';
+        item = '';
+        break;
     }
 
     return (
@@ -204,9 +217,6 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     return (
       <>
         <FlexCenterContent>
-          <AvatarWrapper>
-            <NameCard.Avatar size={32} />
-          </AvatarWrapper>
           {this.renderAction()}
 
           <Tip text={dayjs(createdAt).format('llll')}>

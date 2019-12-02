@@ -8,8 +8,8 @@ import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
 import { getIconAndColor } from '../utils';
-import CreatedLog from './items/boardItems/CreatedLog';
 import MovementLog from './items/boardItems/MovementLog';
+import CreatedLog from './items/CreatedLog';
 import MergedLog from './items/MergedLog';
 
 type Props = {

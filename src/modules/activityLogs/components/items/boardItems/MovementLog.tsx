@@ -34,7 +34,7 @@ class MovementLog extends React.Component<Props> {
             to={`/${contentType}/board?_id=${activity._id}&itemId=${item._id}`}
           >
             {item.name}
-          </Link>{' '}
+          </Link>
           {contentType} from&nbsp;
           <q>{destinationStage}</q> to <q>{oldStage}</q>
         </span>
