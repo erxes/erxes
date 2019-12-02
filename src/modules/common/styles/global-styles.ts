@@ -1066,6 +1066,10 @@ a:hover {
     display: block !important;
   }
 
+  .cke_chrome {
+    border: none !important;
+  }
+
   .modal-close-date {
     width: 330px;
   }
