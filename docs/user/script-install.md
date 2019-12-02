@@ -19,7 +19,7 @@ Basic steps to install scripts
 
 #### Step 1: Copy messenger code
 
-1. Go to Settings menu => Appstore 
+1. Go to Setting menu => Appstore 
 2. Click on the “Appstore” menu  (see the below figure)
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/messenger/i1.png" />
