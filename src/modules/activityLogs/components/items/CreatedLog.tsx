@@ -39,8 +39,6 @@ class CreatedLog extends React.Component<Props> {
       </Link>
     );
 
-    // const condition = contentId === contentTypeDetail._id;
-
     return (
       <span>
         <strong>{userName}</strong> created {body} {contentType}
