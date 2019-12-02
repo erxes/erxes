@@ -135,13 +135,13 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   renderAction() {
     const { activity, conversation } = this.props;
     const { _id, customer, integration } = conversation;
+
+    let kind = integration ? integration.kind : 'conversation';
+
     const condition =
-      activity.contentType === 'comment'
-        ? activity.contentType
-        : integration.kind;
+      activity.contentType === 'comment' ? activity.contentType : kind;
 
     let action = 'sent a';
-    let kind = 'conversation';
     let item = 'message';
 
     switch (condition) {
@@ -192,6 +192,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
   renderContent() {
     const { conversation, messages } = this.props;
+
     const { customer, content, createdAt, integration } = conversation;
 
     if (this.state.toggleMessage) {
@@ -239,10 +240,12 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
   render() {
     const { conversation, activity } = this.props;
+    const { integration } = conversation;
+
+    const kind = integration ? integration.kind : 'conversation';
+
     const condition =
-      activity.contentType === 'comment'
-        ? activity.contentType
-        : conversation.integration.kind || 'conversation';
+      activity.contentType === 'comment' ? activity.contentType : kind;
 
     const iconAndColor = getIconAndColor(condition);
 
