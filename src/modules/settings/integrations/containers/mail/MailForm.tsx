@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
@@ -6,7 +7,7 @@ import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import MailForm from '../../components/mail/MailForm';
 import { IntegrationsQueryResponse } from '../../types';
 import {

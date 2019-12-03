@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { withProps } from 'modules/common/utils';
 import PopoverContent from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/PopoverContent';
 import { IBrand } from 'modules/settings/brands/types';
@@ -9,7 +10,7 @@ import {
   ResponseTemplatesTotalCountQueryResponse
 } from 'modules/settings/responseTemplates/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 import { AppConsumer } from 'appContext';
 

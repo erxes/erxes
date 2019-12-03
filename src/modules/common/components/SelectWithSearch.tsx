@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
 import { Avatar, SelectOption, SelectValue } from 'modules/boards/styles/item';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import Select from 'react-select-plus';
 import { IOption } from '../types';
 import { __, withProps } from '../utils';

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Chooser from 'modules/common/components/Chooser';
 import { Alert, withProps } from 'modules/common/utils';
 import ProductCategoryChooser from 'modules/deals/components/product/ProductCategoryChooser';
@@ -9,7 +10,7 @@ import {
 } from 'modules/settings/productService/graphql';
 import { ProductCategoriesQueryResponse } from 'modules/settings/productService/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { IProduct, IProductDoc } from '../../../settings/productService/types';
 import { ProductAddMutationResponse, ProductsQueryResponse } from '../../types';
 

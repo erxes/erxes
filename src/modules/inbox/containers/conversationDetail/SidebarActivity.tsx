@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { queries } from 'modules/activityLogs/graphql';
 import { IUser } from 'modules/auth/types';
 import { ActivityLogQueryResponse, ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import SidebarActivity from '../../components/conversationDetail/sidebar/SidebarActivity';
 

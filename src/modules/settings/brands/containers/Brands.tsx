@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import { IntegrationsCountQueryResponse } from 'modules/settings/integrations/types';
 import queryString from 'query-string';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { IRouterProps } from '../../../common/types';
 import DumbBrands from '../components/Brands';

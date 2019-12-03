@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import NotificationsLatest from '../components/NotificationsLatest';
 import { mutations } from '../graphql';
 import { INotification, MarkAsReadMutationResponse } from '../types';

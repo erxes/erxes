@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { DetailQueryResponse } from 'modules/settings/productService/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import ProductDetails from '../../../components/product/detail/ProductDetails';
 import { queries } from '../../../graphql';
 
