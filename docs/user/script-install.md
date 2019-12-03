@@ -61,7 +61,7 @@ Basic steps to install scripts.
 
 <aside class="notice">
 
-+ When you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Insert code section A and B to inside top of the body tag in source code.
++ When you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Insert code section A and B onto the top of body tag in page of your website.
 
 + If your pop-up flow type is "Embedded", then you can choose the code included in section “A” (see the above figure).
 
@@ -179,53 +179,47 @@ Basic steps to install scripts.
 
 #### Step 3: Result 
 
-7. Once you have been pasted the code, it will look like this in your web right bottom side (see the below figure)
+7. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
 
-<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/11.png" />
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/33.png" />
 
 
 ### Pop-Ups
 
 #### Step 1: Copy pop-ups code
 
-1. Log in to your Erxes account 
-2. Click on the Pop Ups menu from left sidebar (see the below figure)
-3. Then click the button for install code which you was created the Pop Ups  list (see the below figure)
+1. Log in your Erxes account. 
+2. Go to Pop-Ups menu from left sidebar (see the below figure).  
+3. Click the install code button which you created the Pop Ups (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/12.png" />
 
-4. Copy the code (see the below figure)
+4. Copy the code (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/13.png" />
 
 
 #### Step 2: Paste the code in google tag manager 
 
-5. Log in to your google tag manager account
-6. Click the button “Add a new tag”  (see the below figure) 
+5. Log in your google tag manager account.
+6. Click the button “Add a new tag” (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/14.png" />
 
-7. Click the Tag Configuration => Custom HTML  (see the below figure) 
+7. Click the Tag Configuration => Custom HTML (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/15.png" />
 
-8. Paste the code of the Erxes pop-up (see the below figure)
+8. Paste the code of Erxes pop-up (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/16.png" />
 
-9. Once you have been copied tag manager source, then configure to Triggering for All Pages. (see the below figure) 
+9. After paste the code, configure to Triggering for All Pages (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/17.png" />
 
-When you edit again the script on Google tag manager, you have to click SAVE, then submit and publish it. 
+10. When you edit again the script on Google tag manager, you have to click SAVE, then SUBMIT and PUBLISH it. 
 
-<aside class="notice">
-
-+ If your popup flow type is "Embedded", then you can choose  the source included in  section “A”  then copy to source code in body tag. (see the below figure)
-+ If your popup flow type is "Popup" then you can choose the source section “B” then copy to source code in body tag. (see the below figure) 
-+ ShoutBox, Dropdown, Slide-in Left, Slide-in Right types are, do not necessary to copy install code
-</aside>
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/18.png" />
 
@@ -236,7 +230,14 @@ When you edit again the script on Google tag manager, you have to click SAVE, th
 
 <aside class="notice">
 
-+ If you want to set an optional width, the height it allows 2 flow types namely embedded, and pop-ups. Insert code section A and B (see the above figure) to inside body tag of HTML code (see the below figure). 
++ When you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Insert code section A and B onto the top of body tag in page of your website.
+
++ If your pop-up flow type is "Embedded", then you can choose the code included in section “A” (see the above figure).
+
++ If your pop-up flow type is "Popup" then you can choose the code section “B” (see the above figure).
+
++ ShoutBox, Dropdown, Slide-in Left, Slide-in Right types are, do not necessary to copy install code.
+
 </aside>
  
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/20.png" />
