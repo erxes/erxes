@@ -70,6 +70,7 @@ class Mail extends React.PureComponent<Props, State> {
           icon="corner-up-left-alt"
           size="small"
           onClick={this.toggleReply}
+          btnStyle="primary"
         >
           Reply
         </Button>

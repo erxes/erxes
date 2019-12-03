@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import debounce from 'lodash/debounce';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
@@ -63,6 +64,16 @@ const MailFormContainer = (props: FinalProps) => {
     return sendMailMutation({ variables, optimisticResponse, update })
       .then(() => {
         Alert.success('You have successfully sent a email');
+
+        if (isReply) {
+          debounce(
+            () =>
+              Alert.info(
+                'This email conversation will be automatically moved to a resolved state.'
+              ),
+            3300
+          )();
+        }
 
         if (closeModal) {
           closeModal();
