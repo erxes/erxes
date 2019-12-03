@@ -157,7 +157,7 @@ Basic steps to install scripts.
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/6.png" />
 
 
-#### Step 2:  Paste the code in your web source 
+#### Step 2:  Paste the code in google tag manager
 
 5. Log in your google tag manager account.
 6. Click the button “Add a new tag” (see the below figure).
@@ -220,42 +220,46 @@ Basic steps to install scripts.
 
 10. When you edit again the script on Google tag manager, you have to click SAVE, then SUBMIT and PUBLISH it. 
 
+11. If you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Follow the below steps. 
+
+12. Go to Pop-Ups menu from left sidebar (see the below figure).
+13. Click on the install code button from the right side (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/18.png" />
 
-10. Copy the code and insert into the body tag  (see the below figure).
+14. Copy the code section A or section B.
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/19.png" />
 
 
 <aside class="notice">
 
-+ When you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Insert code section A and B onto the top of body tag in page of your website.
-
 + If your pop-up flow type is "Embedded", then you can choose the code included in section “A” (see the above figure).
 
 + If your pop-up flow type is "Popup" then you can choose the code section “B” (see the above figure).
 
 + ShoutBox, Dropdown, Slide-in Left, Slide-in Right types are, do not necessary to copy install code.
-
 </aside>
+
+
+15. Paste code onto the body tag of web page source (see the below figure).
  
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/20.png" />
 
 
 #### Step3: Result
 
-7. Once you pasted the code, it will look like this in your web (see the below figure)
+16. Once you pasted the code, it will look like this in your web (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/21.png" />
 
-<aside class="Reminder">
+<aside class="notice">
 
-If it doesn’t  work on implementing the above steps please check below steps: 
-1. Make sure the flow types and make sure the additional source is right
-2. Check the form id copied on Google tag manager, and verify the form id copied to the source of the web
-3. If you add  2 or more Google tag manager created or edited check that you have pressed the button that named save and submit  in Google tag manager
-4. Make sure the trigger in Google tag manager  is configured correctly
+If you have encountered some mistakes, please make sure following steps: 
+1. Verify the flow types and the additional source is right.
+2. Check the form id on Google tag manager and verify the form id on the web source.
+3. When you edit again the script on Google tag manager, make sure to save it and then submit and publish it.
+4. Make sure to configure the trigger in Google tag manager correctly.
 
 </aside>
 
@@ -264,97 +268,103 @@ If it doesn’t  work on implementing the above steps please check below steps:
 #### Step 1: Copy knowledgebase code
 
 1. Log in to your erxes account
-2. Click on the knowledgebase menu from left sidebar (see the below figure)
+2. Go to Knowledge Base menu from left sidebar (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/22.png" />
 
-3. Then choose the option that named "Manage Knowledge Base" from left side sub-menu  (see the below figure)
+3. Then choose the option that named "Manage Knowledgebase" from dropdown menu (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/23.png" />
 
-4. Copy the install code of knowledge base  (see the below figure)
+4. Copy the install code of knowledge base  (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/24.png" />
 
 
-#### Step 2: Paste the code in your web source 
+#### Step 2: Paste the code in google tag manager 
 
-5. Log in to your google tag manager account
-6. Click the button “Add a new tag”  (see the below figure)
+5. Log in to your google tag manager account.
+6. Click the button “Add a new tag” (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/25.png" />
 
-7. Click the Tag Configuration=> Custom HTML  (see the below figure)  
+7. Click the Tag Configuration=> Custom HTML (see the below figure).  
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/26.png" />
 
-8. Paste the code of the Erxes knowledge base code (see the below figure)
+8. Paste the code of Erxes knowledge base code (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/27.png" />
 
-9. Once you have been copied tag manager source, then configure to Triggering for All Pages. (see the below figure) 
+9. After paste the code, configure to Triggering for All Pages (see the below figure).  
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/28.png" />
 
-<aside class="Notice">
 
-When you edit again the script on Google tag manager, you have to click SAVE, then submit and publish it. 
+10. When you edit again the script on Google tag manager, you have to click SAVE, then SUBMIT and PUBLISH it. 
 
-</aside>
+11. If you want to set an optional width and height of Knowledgebase scaling, follow the below steps. 
 
-10. If you want to scaling appear, copy the additional source which is placed similar place with source code.
+12. Go to Knowledge Base menu from left sidebar (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/kb/i1.png" />
+
+13. Then choose the option that named "Manage Knowledgebase" from dropdown menu (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/kb/i2.png" />
+
+14. Copy the code (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/29.png" />
 
-11. Copy the code and insert into the body tag  (see the below figure) 
+15. Paste the code onto the top of body tag in web page source (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/30.png" />
 
 #### Step3: Result
 
-5. Once you pasted the code, it will look like this in your web (see the below figure)
+16. Once you pasted the code, it will look like this in your web (see the below figure)
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/32.png" />
 
-
 ## Erxes script manager
 
-Basic steps to install Erxes scripts 
+Basic steps to install Erxes scripts. 
 
 ### Web messenger
 
 #### Step 1: Copy Script manager code
 
-1. Log in to your erxes account 
-2. Go to Settings menu => Script manager (see the below figure)
+1. Log in your erxes account. 
+2. Go to Settings menu => Script manager (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/16.png" />
 
-3. Create new script to click NEW SCRIPT  (see the below figure)
+3. Create new script to click NEW SCRIPT (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/17.png" />
 
-4. Insert name and select the messenger that you was created (see the below figure) 
+4. Insert name and select the messenger that you created (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/18.png" />
 
-5. Click on the install code button from the list (see the below figure)
+5. Click on the install code button from the list (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/19.png" />
 
-6. Copy the code that you are created the messenger by clicking COPY TO CLIPBOARD  (see the below figure)
+6. Copy the code that you created the messenger by clicking COPY TO CLIPBOARD (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/20.png" />
 
-#### Step 2:  Paste the code inside the body tag of your script manager
+#### Step 2:  Paste the code onto your script manager
 
-7. Paste the code below before the body tag on every page you want Erxes script manager to appear (see the below figure) 
+7. Paste the code the top of body tag on every page you want Erxes script manager to appear (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/21.png" />
 
 #### Step 3: Result 
 
-8. Once you have been pasted the code, it will look like this in your web right bottom side (see the below figure)
+8. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/22.png" />
 
@@ -362,56 +372,56 @@ Basic steps to install Erxes scripts
 
 #### Step 1: Copy code of Script manager
 
-1. Log in to your erxes account 
-2. Go to Settings menu => Script manager 
+1. Log in your erxes account. 
+2. Go to Settings menu => Script manager. 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/23.png" />
 
-3. Create new script to click NEW SCRIPT
+3. Create new script to click NEW SCRIPT.
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/24.png" />
 
-4. Insert name and select the POP UPS that you was created 
+4. Insert name and select the POP UPS that you created. 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/25.png" />
 
-5. Click on the install code button which you created POP UPS from the list (see the below figure)
+5. Click on the install code button which you created POP UPS from the list (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/26.png" />
 
-6. Copy the code that you was created the POP UPS by clicking COPY TO CLIPBOARD  (see the below figure) 
+6. Copy the code (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/27.png" />
 
-
-7. If your popup flow type is "Embedded", go to Pop-ups feature, then select your created pop-ups and click on the install code button from the right side (see the below figure)
+7. If you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Go to Pop-ups feature, then select your created pop-ups and click on the install code button from the right side (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/28.png" />
 
-8. Copy the code (see the below figure)
+8. Copy the code and paste it in top of body tag (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/29.png" />
 
+
 <aside class="notice">
 
-+ If your pop-up flow type is "Embedded", then you can choose the source included in  section “A”  (see the above figure)
++ If your pop-up flow type is "Embedded", then you can choose the source included in  section “A”  (see the above figure).
 
-+ If your pop up-flow type is "Popup" then you can choose the source section “B” (see the above figure)
++ If your pop up-flow type is "Popup" then you can choose the source section “B” (see the above figure).
 
-+ ShoutBox, Dropdown, Slide-in Left, Slide-in Right types are, do not necessary to copy install code
++ ShoutBox, Dropdown, Slide-in Left, Slide-in Right types are, do not necessary to copy install code.
 
 </aside>
 
-#### Step 2: Paste the code inside the body tag of your script manager
+#### Step 2: Paste the code onto your script manager
 
-9. Paste the code below before the body tag on every page you want Erxes pop-ups to appear (see the below figure)
+9. Paste the code the bottom of body tag on every page you want Erxes pop-ups to appear (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/30.png" />
 
  
 #### Step3: Result
 
-10. Once you pasted the code, it will look like this in your web (see the below figure)
+10. Once you have pasted the code, it will look like this in your web (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/31.png" />
 
@@ -419,54 +429,55 @@ Basic steps to install Erxes scripts
 
 #### Step 1: Copy knowledgebase code of Script manager
 
-1. Log in to your erxes account 
+1. Log in to your erxes account. 
 
-2. Go to Settings menu => Script manager
+2. Go to Settings menu => Script manager.
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/32.png" />
 
-3. Create new script to click NEW SCRIPT
+3. Create new script to click NEW SCRIPT.
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/33.png" />
 
-4. Insert name and select the KNOWLEDGEBASE TOPIC that you was created before (see the below figure) 
+4. Insert name and select the KNOWLEDGEBASE TOPIC that you was created before (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/34.png" />
 
-5. Click on the install code button which you which created KNOWLEDGEBASE TOPIC from the list (see the below figure) 
+5. Click on the install code button which you created KNOWLEDGEBASE TOPIC from the list (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/35.png" />
 
+6. Copy the code (see the below figure).
 
-<aside class="notice">
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/27.png" />
 
-+ If you need to configure your page KNOWLEDGE BASE scaling, go to Knowledge base feature, then select the menu option named "Manage Knowledge Base"  (see the below figure)
+7. If you want to set an optional width and height of Knowledgebase scaling, follow the below steps. 
 
-</aside>
+8. Go to Knowledge Base menu from left sidebar (see the below figure).
 
-<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/36.png" />
-<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/37.png" />
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/kb/i1.png" />
 
-6. Copy the code by clicking COPY TO CLIPBOARD  (see the below figure)
+9. Then choose the option that named "Manage Knowledgebase" from dropdown menu (see the below figure).
 
-<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/38.png" />
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/kb/i2.png" />
 
-<aside class="notice">
+10. Copy the code (see the below figure).
 
-+ Do not miss to copy the additional source of section “B” 
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/29.png" />
 
-</aside>
+11. Paste the code onto the top of body tag in web page source (see the below figure). 
 
 
-#### Step 2: Paste the code inside the body tag of your script manager
 
-7. Paste the code below before the body tag on every page you want Erxes script manager to appear POP UPS  (see the below figure) 
+#### Step 2: Paste the code onto your script manager
+
+12. Paste the script code the bottom of body tag on every page that you want Erxes script manager to appear (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/39.png" />
 
 #### Step3: Result
 
-8. Once you pasted the code, it will look like this in your web (see the below figure)
+13. Once you have pasted the code, it will look like this in your web (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/40.png" />
 
