@@ -284,12 +284,12 @@ Basic steps to install scripts
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/1.png" />
 
-2. Paste this code as high in the <head> of the page as possible(see the below figure)
-3. Additionally, paste this code immediately after the opening <body> tag:(see the below figure) 
+2. Paste this code as high in the **head** of the page as possible(see the below figure)
+3. Additionally, paste this code immediately after the opening **body** tag:(see the below figure) 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/2.png" />
 
-4. Once you have been copied tag manager source, it will look like this in your web source: (see the below figure) 
+4. Copy the code of google tag manager inside the HTML code (see the below figure) 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/3.png" />
 
@@ -392,7 +392,7 @@ When you edit again the script on Google tag manager, you have to click SAVE, th
 
 <aside class="notice">
 
-+ If you want to set an optional width, the height it allows 2 flow types namely embedded, and pop-ups. You can write :  <div data-erxes-embed="JzmyfX" style="width: 500px; height: 200px; "></div> 
++ If you want to set an optional width, the height it allows 2 flow types namely embedded, and pop-ups. Insert code section A and B (see the above figure) to inside body tag of HTML code (see the below figure). 
 </aside>
  
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/20.png" />
