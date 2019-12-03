@@ -67,13 +67,16 @@ const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
 const ContentHeader = styledTS<{ background: string }>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
-  min-height: ${dimensions.headerSpacing}px;
   padding: ${props =>
     props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
+  z-index: 2;
+`;
+
+const HeaderContent = styled.div`
   display: flex;
   justify-content: space-between;
-  z-index: 2;
+  min-height: ${dimensions.headerSpacing}px;
 `;
 
 const ContenFooter = styled.div`
@@ -552,6 +555,7 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
+  HeaderContent,
   CenterContent,
   HeaderItems,
   BarItems,
