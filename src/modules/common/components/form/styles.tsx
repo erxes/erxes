@@ -22,6 +22,7 @@ const Label = styled.label`
 `;
 
 const Formgroup = styled.div`
+  margin-top: 20px;
   margin-bottom: 20px;
   position: relative;
 
