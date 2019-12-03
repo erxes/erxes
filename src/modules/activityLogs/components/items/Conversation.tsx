@@ -89,7 +89,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
       );
     }
 
-    if (kind === 'nylas-gmail') {
+    if (kind.includes('nylas')) {
       return (
         <MailConversation
           conversation={conversation}

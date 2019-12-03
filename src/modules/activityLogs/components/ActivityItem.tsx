@@ -11,6 +11,7 @@ import { getIconAndColor } from '../utils';
 import MovementLog from './items/boardItems/MovementLog';
 import CreatedLog from './items/CreatedLog';
 import MergedLog from './items/MergedLog';
+import SegmentLog from './items/SegmentLog';
 
 type Props = {
   activity: IActivityLog;
@@ -19,7 +20,7 @@ type Props = {
 
 class ActivityItem extends React.Component<Props> {
   renderDetail(type: string, children: React.ReactNode) {
-    const iconAndColor = getIconAndColor(type);
+    const iconAndColor = getIconAndColor(type) || {};
 
     if (type === 'conversation') {
       return children;
@@ -80,6 +81,11 @@ class ActivityItem extends React.Component<Props> {
         return this.renderDetail(
           activity.contentType,
           <MergedLog activity={activity} />
+        );
+      case 'segment':
+        return this.renderDetail(
+          activity.action,
+          <SegmentLog activity={activity} />
         );
       default:
         return <div />;
