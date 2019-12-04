@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from 'modules/activityLogs/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Form from '../components/Form';
@@ -58,17 +57,9 @@ export default compose(
     InternalNotesAddMutationVariables
   >(gql(mutations.internalNotesAdd), {
     name: 'internalNotesAdd',
-    options: (props: Props) => {
+    options: () => {
       return {
-        refetchQueries: [
-          {
-            query: gql(queries[`activityLogs`]),
-            variables: {
-              contentId: props.contentTypeId,
-              contentType: props.contentType
-            }
-          }
-        ]
+        refetchQueries: ['activityLogs']
       };
     }
   })

@@ -19,7 +19,7 @@ class CreatedLog extends React.Component<Props> {
     const { activity } = this.props;
     const { contentTypeDetail, contentType, createdByDetail } = activity;
 
-    let userName = 'Unknow';
+    let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
       const { content } = createdByDetail;
@@ -52,7 +52,7 @@ class CreatedLog extends React.Component<Props> {
 
     if (createdByDetail && createdByDetail.type === 'user') {
       const { content } = createdByDetail;
-      let userName = 'Unknow';
+      let userName = 'Unknown';
 
       if (content.details) {
         userName = createdByDetail.content.details.fullName || 'Unknown';

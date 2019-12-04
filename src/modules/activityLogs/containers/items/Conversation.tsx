@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Conversation from 'modules/activityLogs/components/items/Conversation';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Spinner from 'modules/common/components/Spinner';
@@ -10,7 +11,7 @@ import {
   MessagesQueryResponse
 } from 'modules/inbox/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   activity: IActivityLog;

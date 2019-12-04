@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import InternalNote from 'modules/activityLogs/components/items/InternalNote';
 import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
@@ -10,7 +11,7 @@ import {
   InternalNotesRemoveMutationResponse
 } from 'modules/internalNotes/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   activity: any;

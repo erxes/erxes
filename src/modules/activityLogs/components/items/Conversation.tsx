@@ -120,13 +120,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     return (
       <>
         {rows}
-        {messages.length >= 10 && (
-          <CenterText>
-            <Link to={`/inbox/index?_id=${conversation._id}`}>
-              Read more <Icon icon="angle-double-right" />
-            </Link>
-          </CenterText>
-        )}
+        <CenterText>
+          <Link to={`/inbox/index?_id=${conversation._id}`}>
+            See full conversation <Icon icon="angle-double-right" />
+          </Link>
+        </CenterText>
       </>
     );
   }

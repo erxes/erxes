@@ -6,7 +6,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
+import { __, renderFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -37,15 +37,6 @@ class MergedLog extends React.Component<Props> {
         {__('merged')}
         {contentDetail.length !== 0 &&
           contentDetail.map(contact => {
-            const {
-              firstName,
-              visitorContactInfo,
-              primaryEmail,
-              primaryName,
-              primaryPhone,
-              _id
-            } = contact;
-
             return (
               <Link
                 key={contact._id}
@@ -53,13 +44,7 @@ class MergedLog extends React.Component<Props> {
                 target="_blank"
               >
                 &nbsp;
-                {firstName ||
-                  primaryName ||
-                  primaryEmail ||
-                  primaryPhone ||
-                  (visitorContactInfo && visitorContactInfo.email) ||
-                  (visitorContactInfo && visitorContactInfo.phone) ||
-                  _id}
+                {renderFullName(contact)}
               </Link>
             );
           })}

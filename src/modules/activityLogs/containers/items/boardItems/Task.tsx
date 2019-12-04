@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Task from 'modules/activityLogs/components/items/boardItems/Task';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/tasks/graphql';
@@ -8,7 +9,7 @@ import {
   TaskDetailQueryResponse
 } from 'modules/tasks/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   taskId: string;

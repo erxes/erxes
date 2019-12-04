@@ -76,7 +76,8 @@ export default withProps<Props>(
                 relType: data.relType,
                 isSaved: true
               }
-            }
+            },
+            'activityLogs'
           ]
         };
       }
