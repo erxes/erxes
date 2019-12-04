@@ -75,7 +75,7 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   }
 
   > span {
-    margin-right: 10px;
+    margin-right: 5px;
   }
 
   &:hover {
