@@ -1,8 +1,8 @@
+import { DateFilter } from 'modules/boards/styles/filter';
 import Button from 'modules/common/components/Button';
 import EditorCK from 'modules/common/components/EditorCK';
 import { FormControl } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
@@ -69,18 +69,22 @@ class Config extends React.Component<Props, State> {
 
     if (currentTab === 'custom') {
       return (
-        <FormGroup>
+        <DateFilter>
           <EditorCK
             content={this.state.template}
             onChange={this.onEditorChange}
             insertItems={EMAIL_TEMPLATE}
             autoGrow={true}
           />
-        </FormGroup>
+        </DateFilter>
       );
     }
 
-    return <FormControl value={currentTab} />;
+    return (
+      <DateFilter>
+        <FormControl value="Your email will be sent with Erxes email template." />
+      </DateFilter>
+    );
   }
 
   renderContent = (formProps: IFormProps) => {
