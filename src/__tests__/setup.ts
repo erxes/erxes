@@ -47,7 +47,9 @@ beforeAll(async done => {
         .toString()
         .replace(/\./g, '')}`,
     ),
-    10,
+    {
+      useUnifiedTopology: true,
+    },
   );
 
   done();

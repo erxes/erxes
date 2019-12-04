@@ -30,14 +30,14 @@ mongoose.connection
     debugDb(`Database connection error: ${MONGO_URL}`, error);
   });
 
-export function connect(URL?: string, poolSize?: number) {
+export function connect(URL?: string, options?) {
   return mongoose.connect(
     URL || MONGO_URL,
     {
       useNewUrlParser: true,
       useCreateIndex: true,
-      poolSize: poolSize || 100,
       autoReconnect: true,
+      ...(options || { poolSize: 100 }),
     },
   );
 }
