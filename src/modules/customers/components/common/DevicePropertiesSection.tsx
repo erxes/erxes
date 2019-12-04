@@ -72,7 +72,7 @@ class DevicePropertiesSection extends React.Component<Props> {
         {this.renderDeviceProperty('IP Address', location.remoteAddress)}
         {this.renderDeviceProperty('Hostname', location.hostname)}
         {this.renderDeviceProperty('Language', location.language)}
-        {this.renderDeviceProperty('User Agent', location.userAgent, '', true)}
+        {this.renderDeviceProperty('User Agent', location.userAgent)}
       </SidebarList>
     );
   }

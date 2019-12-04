@@ -5,6 +5,7 @@ import styledTS from 'styled-components-ts';
 const IconStyle = styledTS<{ size?: number }>(styled.i)`
   font-size: ${props => (props.size ? `${props.size}px` : 'inherit')};
   color: ${props => props.color && props.color};
+  margin-left: 5px;
 `;
 
 type Props = {
