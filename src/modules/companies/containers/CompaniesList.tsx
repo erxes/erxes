@@ -118,7 +118,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         ...queryParams,
         type: 'companies'
       });
-      window.open(`${REACT_APP_API_URL}/coc-export?${stringified}`, '_blank');
+      window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
     const updatedProps = {
