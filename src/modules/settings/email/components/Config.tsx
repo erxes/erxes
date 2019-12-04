@@ -1,8 +1,8 @@
 import { DateFilter } from 'modules/boards/styles/filter';
 import Button from 'modules/common/components/Button';
 import EditorCK from 'modules/common/components/EditorCK';
-import { FormControl } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
+import Info from 'modules/common/components/Info';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
@@ -82,7 +82,7 @@ class Config extends React.Component<Props, State> {
 
     return (
       <DateFilter>
-        <FormControl value="Your email will be sent with Erxes email template." />
+        <Info>{__('Your email will be sent with Erxes email template.')}</Info>
       </DateFilter>
     );
   }
