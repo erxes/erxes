@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import LogList from '../components/LogList';
 import queries from '../queries';
 import { LogsQueryResponse } from '../types';

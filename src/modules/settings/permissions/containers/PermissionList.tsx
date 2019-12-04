@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, confirm } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import PermissionList from '../components/PermissionList';
 import { mutations, queries } from '../graphql';
 import {

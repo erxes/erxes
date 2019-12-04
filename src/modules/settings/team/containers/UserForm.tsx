@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { ICommonFormProps } from 'modules/settings/common/types';
@@ -8,7 +9,7 @@ import {
   UsersGroupsQueryResponse
 } from 'modules/settings/permissions/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';
 import { queries as channelQueries } from '../../channels/graphql';

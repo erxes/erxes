@@ -1,8 +1,9 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import Robot from '../components/Robot';
 import { queries } from '../graphql';

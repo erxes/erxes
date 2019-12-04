@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
@@ -7,7 +8,7 @@ import TagStep from 'modules/engage/components/step/TagStep';
 import { mutations } from 'modules/tags/graphql';
 import { TagsQueryResponse } from 'modules/tags/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import { sumCounts } from '../utils';
 

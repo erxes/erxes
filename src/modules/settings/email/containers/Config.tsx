@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -6,7 +7,7 @@ import { withProps } from 'modules/common/utils';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import {
   BrandDetailQueryResponse,
   BrandsConfigEmailMutationResponse

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IStage } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
@@ -7,7 +8,7 @@ import { queries } from 'modules/deals/graphql';
 import { DealsQueryResponse, IDeal } from 'modules/deals/types';
 import { IQueryParams } from 'modules/insights/types';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   stage: IStage;

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import {
   IItem,
   IOptions,
@@ -7,7 +8,7 @@ import {
 } from 'modules/boards/types';
 import { Alert, renderWithProps } from 'modules/common/utils';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { Watch } from '../../components/editForm';
 
 type IProps = {

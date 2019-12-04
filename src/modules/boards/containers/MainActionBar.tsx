@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { PageHeader } from 'modules/boards/styles/header';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import Spinner from 'modules/common/components/Spinner';
@@ -6,7 +7,7 @@ import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';

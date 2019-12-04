@@ -9,6 +9,7 @@ import ChecklistAdd from 'modules/checklists/components/AddButton';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import PriorityIndicator from './PriorityIndicator';
 
 type Props = {
   item: IItem;
@@ -38,7 +39,11 @@ class Actions extends React.Component<Props> {
 
     const priorityTrigger = (
       <ColorButton>
-        <Icon icon="sort-amount-up" />
+        {item.priority ? (
+          <PriorityIndicator value={item.priority} />
+        ) : (
+          <Icon icon="sort-amount-up" />
+        )}
         {__('Priority')}
       </ColorButton>
     );

@@ -1,12 +1,13 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import { fromJS } from 'immutable';
+import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
 import { IAttachmentPreview } from 'modules/common/types';
 import RespondBox from 'modules/inbox/components/conversationDetail/workarea/RespondBox';
 import { queries } from 'modules/inbox/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { IUser } from '../../../auth/types';
 import { withProps } from '../../../common/utils';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';

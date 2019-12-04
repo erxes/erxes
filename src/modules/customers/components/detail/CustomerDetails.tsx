@@ -1,10 +1,13 @@
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { TabTitle } from 'modules/common/components/tabs';
 import { __, renderFullName } from 'modules/common/utils';
 import Widget from 'modules/engage/containers/Widget';
+import { MailBox } from 'modules/inbox/components/conversationDetail/sidebar/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
+import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import { ICustomer } from '../../types';
 import LeftSidebar from './LeftSidebar';
@@ -29,11 +32,24 @@ class CustomerDetails extends React.Component<Props> {
       </TabTitle>
     );
 
+    const content = props => (
+      <MailBox>
+        <MailForm
+          fromEmail={customer.primaryEmail}
+          refetchQueries={['activityLogsCustomer']}
+          closeModal={props.closeModal}
+        />
+      </MailBox>
+    );
+
     return (
-      <Widget
-        customers={[this.props.customer]}
-        modalTrigger={triggerEmail}
-        channelType="email"
+      <ModalTrigger
+        dialogClassName="middle"
+        title="Email"
+        trigger={triggerEmail}
+        size="lg"
+        content={content}
+        paddingContent="no-padding"
       />
     );
   };

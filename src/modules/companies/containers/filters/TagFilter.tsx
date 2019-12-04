@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import CountsByTag from 'modules/common/components/CountsByTag';
 import { TAG_TYPES } from 'modules/tags/constants';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { TagsQueryResponse } from '../../../tags/types';
 import { queries as companyQueries } from '../../graphql';

@@ -1,12 +1,13 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as companyQueries } from 'modules/companies/graphql';
 import { queries as customerQueries } from 'modules/customers/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
 import SegmentsForm from '../components/SegmentsForm';
 import { mutations, queries } from '../graphql';
