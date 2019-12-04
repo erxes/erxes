@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
 import { queries } from '../../graphql';
 import {

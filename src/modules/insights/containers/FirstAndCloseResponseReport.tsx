@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import FirstResponse from '../components/FirstResponse';
 import ResponseCloseReport from '../components/ResponseCloseReport';
@@ -64,7 +65,6 @@ const FirstAndCloseResponseReportContainer = (props: FinalProps) => {
 };
 
 const commonOptions = queryParams => ({
-  fetchPolicy: 'network-only',
   notifyOnNetworkStatusChange: true,
   variables: {
     brandIds: queryParams.brandIds,

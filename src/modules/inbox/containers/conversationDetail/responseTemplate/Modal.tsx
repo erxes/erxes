@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IAttachment } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import Modal from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/Modal';
@@ -9,7 +10,7 @@ import {
   SaveResponseTemplateMutationVariables
 } from 'modules/settings/responseTemplates/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   brands: IBrand[];

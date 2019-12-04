@@ -41,7 +41,7 @@ class ResponseTemplate extends React.Component<Props, State> {
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
         <Tip text={__('Save as template')}>
-          <Icon icon="download-3" />
+          <Icon icon="file-upload-alt" />
         </Tip>
       </Button>
     );

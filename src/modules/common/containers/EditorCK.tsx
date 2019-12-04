@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import { queries } from '../../settings/team/graphql';
 import { AllUsersQueryResponse } from '../../settings/team/types';

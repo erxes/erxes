@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, renderWithProps } from 'modules/common/utils';
 import { mutations } from 'modules/conformity/graphql/';
 import {
@@ -6,7 +7,7 @@ import {
   IConformityEdit
 } from 'modules/conformity/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
 import { queries } from '../../graphql';
 import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';

@@ -1,5 +1,6 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import { withProps } from 'modules/common/utils';
 import FacebookConversation from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookConversation';
@@ -12,7 +13,7 @@ import {
   MessagesQueryResponse
 } from 'modules/inbox/types';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   conversation: IConversation;

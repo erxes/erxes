@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { Alert, withProps } from 'modules/common/utils';
 import ManageIntegrations from 'modules/settings/integrations/containers/common/ManageIntegrations';
@@ -6,7 +7,7 @@ import { integrationsListParams } from 'modules/settings/integrations/containers
 import { queries as integQueries } from 'modules/settings/integrations/graphql';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import { BrandsManageIntegrationsMutationResponse, IBrandDoc } from '../types';
 import ChooseBrand from './ChooseBrand';

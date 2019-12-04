@@ -121,6 +121,19 @@ class Attachment extends React.Component<Props> {
     );
   };
 
+  renderVideoFile = attachment => {
+    return (
+      <AttachmentWrapper>
+        <ItemInfo>
+          <video controls={false} loop={true} autoPlay={true}>
+            <source src={attachment.url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </ItemInfo>
+      </AttachmentWrapper>
+    );
+  };
+
   onLoadImage = () => {
     const { scrollBottom } = this.props;
 
@@ -168,6 +181,8 @@ class Attachment extends React.Component<Props> {
         filePreview = this.renderOtherFile(attachment, 'file');
         break;
       case 'mp4':
+        filePreview = this.renderVideoFile(attachment);
+        break;
       case 'avi':
         filePreview = this.renderOtherFile(attachment, 'videocamera');
         break;

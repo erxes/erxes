@@ -34,7 +34,6 @@ import { FlexRow, Subject } from './styles';
 type Props = {
   integrationId?: string;
   integrations: IIntegration[];
-  kind: string;
   fromEmail?: string;
   mailData?: IMail;
   isReply?: boolean;
@@ -56,6 +55,7 @@ type State = {
   hasCc?: boolean;
   hasBcc?: boolean;
   hasSubject?: boolean;
+  kind: string;
   content: string;
   isLoading: boolean;
   integrations: IIntegration[];
@@ -76,6 +76,11 @@ class MailForm extends React.Component<Props, State> {
     const [from] = mailData.from || [{}];
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
+    const fromId = this.getIntegrationId(
+      props.integrations,
+      props.integrationId
+    );
+
     this.state = {
       cc,
       bcc,
@@ -88,12 +93,13 @@ class MailForm extends React.Component<Props, State> {
       isLoading: false,
 
       fromEmail: sender,
-      from: this.getIntegrationId(props.integrations, props.integrationId),
+      from: fromId,
       subject: mailData.subject || '',
       content: '',
 
       status: 'draft',
       isUploading: false,
+      kind: this.getSelectedIntegrationKind(fromId),
 
       attachments: [],
       fileIds: [],
@@ -109,11 +115,20 @@ class MailForm extends React.Component<Props, State> {
       closeModal,
       toggleReply,
       integrationId,
-      kind,
       sendMail
     } = this.props;
+
     const mailData = this.props.mailData || ({} as IMail);
-    const { content, from, attachments, to, cc, bcc, subject } = this.state;
+    const {
+      content,
+      from,
+      attachments,
+      to,
+      cc,
+      bcc,
+      subject,
+      kind
+    } = this.state;
     const { references, headerId, threadId, messageId } = mailData;
 
     this.setState({ isLoading: true });
@@ -146,6 +161,13 @@ class MailForm extends React.Component<Props, State> {
         }
       }
     });
+  };
+
+  getSelectedIntegrationKind = (selectedId: string) => {
+    const integration = this.props.integrations.find(
+      obj => obj._id === selectedId
+    );
+    return (integration && integration.kind) || '';
   };
 
   getIntegrationId = (integrations, integrationId?: string) => {
@@ -317,7 +339,7 @@ class MailForm extends React.Component<Props, State> {
     }
 
     const onChangeMail = (from: string) => {
-      this.setState({ from });
+      this.setState({ from, kind: this.getSelectedIntegrationKind(from) });
     };
 
     return (
@@ -469,8 +491,8 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderButtons() {
-    const { isLoading } = this.state;
-    const { kind, toggleReply } = this.props;
+    const { isLoading, kind } = this.state;
+    const { toggleReply } = this.props;
 
     const inputProps = {
       type: 'file',

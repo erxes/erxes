@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IDateColumn } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { getMonthTitle, getMonthYear } from 'modules/common/utils/calendar';
 import DealColumn from 'modules/deals/components/calendar/DealColumn';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import {
   DealsQueryResponse,
