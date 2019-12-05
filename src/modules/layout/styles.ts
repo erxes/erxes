@@ -161,7 +161,7 @@ const SidebarTitle = styledTS<{ children: any }>(
   styled(SidebarHeader.withComponent('h3'))
 )`
   padding: 0 ${dimensions.coreSpacing}px;
-  margin: 0 0 -1px 0;
+  margin: 0;
   text-transform: uppercase;
 `;
 

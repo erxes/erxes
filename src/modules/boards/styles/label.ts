@@ -3,17 +3,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const LabelWrapper = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
-`;
-
-const CreateButton = styled.div`
-  padding: 7px;
-  background: ${colors.bgActive};
-  border: 1px solid ${colors.borderPrimary};
-  text-align: center;
-  cursor: pointer;
-  border-radius: 300px;
-  margin-top: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const Title = styled.h3`
@@ -28,9 +18,11 @@ const Title = styled.h3`
   color: ${colors.colorCoreGray};
   border-radius: 4px 4px 0 0;
   transition: all ease 0.3s;
+  align-items: center;
 
   > i {
     cursor: pointer;
+    font-size: 16px;
   }
 `;
 
@@ -38,17 +30,17 @@ const ChooseColor = styled.div`
   width: 260px;
 `;
 
-const FormContainer = styled.div`
-  margin-top: ${dimensions.unitSpacing}px;
-`;
-
 const PipelineLabelList = styled.div`
+  ul {
+    padding: ${dimensions.coreSpacing}px;
+  }
+
   li {
     color: ${colors.colorWhite};
     font-weight: 500;
     margin-bottom: 5px;
     border-radius: 300px;
-    padding: 8px ${dimensions.coreSpacing}px 8px 30px !important;
+    padding: 5px ${dimensions.coreSpacing}px 5px 30px !important;
     transition: all ease 0.3s;
 
     &:before {
@@ -121,19 +113,18 @@ const ChooseLabelWrapper = styled.div`
   flex-shrink: 0;
 `;
 
-const Container = styledTS<{ showForm: boolean }>(styled.div)`
-  display: ${props => (!props.showForm ? 'none' : 'inherit')};
+const ButtonContainer = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
+    ${dimensions.coreSpacing}px;
 `;
 
 export {
   LabelWrapper,
-  CreateButton,
   Title,
   Label,
   LabelList,
-  Container,
+  ButtonContainer,
   ChooseColor,
-  FormContainer,
   ChooseLabelWrapper,
   PipelineLabelList
 };
