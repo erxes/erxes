@@ -116,8 +116,9 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
 
       const stringified = queryString.stringify({
         ...queryParams,
-        type: 'companies'
+        type: 'company'
       });
+
       window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
