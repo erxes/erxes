@@ -190,10 +190,6 @@ const DateWrapper = styled.time`
   font-size: 12px;
 `;
 
-const MarginTop = styled.div`
-  margin-top: 20px;
-`;
-
 export {
   BoxRoot,
   FullContent,
@@ -209,6 +205,5 @@ export {
   MiddleContent,
   HomeContainer,
   DateWrapper,
-  MarginTop,
   CloseModal
 };

@@ -3,12 +3,17 @@ import EditorCK from 'modules/common/components/EditorCK';
 import Form from 'modules/common/components/form/Form';
 import Info from 'modules/common/components/Info';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import { MarginTop, ModalFooter } from 'modules/common/styles/main';
+import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { EMAIL_TEMPLATE } from 'modules/engage/constants';
 import React from 'react';
+import styled from 'styled-components';
 import { IBrand } from '../../brands/types';
+
+const ContentWrapper = styled.div`
+  margin-top: 20px;
+`;
 
 type Props = {
   brand: IBrand;
@@ -68,21 +73,21 @@ class Config extends React.Component<Props, State> {
 
     if (currentTab === 'custom') {
       return (
-        <MarginTop>
+        <ContentWrapper>
           <EditorCK
             content={this.state.template}
             onChange={this.onEditorChange}
             insertItems={EMAIL_TEMPLATE}
             autoGrow={true}
           />
-        </MarginTop>
+        </ContentWrapper>
       );
     }
 
     return (
-      <MarginTop>
+      <ContentWrapper>
         <Info>{__('Your email will be sent with Erxes email template.')}</Info>
-      </MarginTop>
+      </ContentWrapper>
     );
   }
 
