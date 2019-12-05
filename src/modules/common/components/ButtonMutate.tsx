@@ -33,6 +33,7 @@ type Props = {
   isSubmitted?: boolean;
   type?: string;
   disabled?: boolean;
+  disableLoading?: boolean;
   block?: boolean;
   beforeSubmit?: () => void;
 };
@@ -65,14 +66,17 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       variables,
       successMessage = '',
       refetchQueries,
-      beforeSubmit
+      beforeSubmit,
+      disableLoading
     } = this.props;
 
     if (beforeSubmit) {
       beforeSubmit();
     }
 
-    this.setState({ isLoading: true });
+    if (!disableLoading) {
+      this.setState({ isLoading: true });
+    }
 
     client
       .mutate({
@@ -90,7 +94,9 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
           callback(data);
         }
 
-        this.setState({ isLoading: false });
+        if (!disableLoading) {
+          this.setState({ isLoading: false });
+        }
       })
       .catch(error => {
         if (error.message.includes('Invalid login')) {
@@ -100,7 +106,9 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         } else {
           Alert.error(error.message);
         }
-        this.setState({ isLoading: false });
+        if (!disableLoading) {
+          this.setState({ isLoading: false });
+        }
       });
   };
 

@@ -38,6 +38,7 @@ type FinalProps = {
 
 type State = {
   loading: boolean;
+  mergeCustomerLoading: boolean;
   responseId: string;
 };
 
@@ -47,6 +48,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       loading: false,
+      mergeCustomerLoading: false,
       responseId: ''
     };
   }
@@ -83,7 +85,9 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const mergeCustomers = ({ ids, data, callback }) =>
+    const mergeCustomers = ({ ids, data, callback }) => {
+      this.setState({ mergeCustomerLoading: true });
+
       customersMerge({
         variables: {
           customerIds: ids,
@@ -92,6 +96,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then((result: any) => {
           callback();
+          this.setState({ mergeCustomerLoading: false });
           Alert.success('You successfully merged a customer');
           history.push(
             `/contacts/customers/details/${result.data.customersMerge._id}`
@@ -99,7 +104,9 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         })
         .catch(e => {
           Alert.error(e.message);
+          this.setState({ mergeCustomerLoading: false });
         });
+    };
 
     const exportCustomers = bulk => {
       const { REACT_APP_API_URL } = getEnv();
@@ -137,7 +144,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       loading: customersMainQuery.loading || this.state.loading,
       mergeCustomers,
       responseId: this.state.responseId,
-      removeCustomers
+      removeCustomers,
+      mergeCustomerLoading: this.state.mergeCustomerLoading
     };
 
     const content = props => {
