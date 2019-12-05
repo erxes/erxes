@@ -39,12 +39,13 @@ const Progress = styled.div`
 
   span {
     font-size: 12px;
-    margin-right: ${dimensions.unitSpacing / 2}px;
+    margin-right: ${dimensions.unitSpacing}px;
     color: ${colors.colorCoreBlack};
   }
 
   & > div {
     padding: 4px 30px;
+    border-radius: 5px;
   }
 `;
 const ChecklistWrapper = styled.div`
@@ -55,37 +56,47 @@ const ChecklistWrapper = styled.div`
   }
 `;
 
-const ChecklistRow = styled.div`
+const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
+  display: inline-flex;
+  flex: 1;
+  justify-content: space-between;
+  margin-left: ${dimensions.unitSpacing}px;
+  text-decoration: ${props => props.isChecked && 'line-through'};
+  color: ${props => props.isChecked && '#666'};
+
+  i {
+    cursor: pointer;
+    visibility: hidden;
+    padding: 0 ${dimensions.unitSpacing / 2}px;
+
+    &:hover {
+      color: ${colors.colorCoreRed};
+      transition: all ease 0.3s;
+    }
+  }
+
+  > label {
+    width: 100%;
+    cursor: pointer;
+  }
+`;
+
+const ChecklistItem = styled.div`
   padding: ${dimensions.unitSpacing / 2}px;
   border-radius: 2px;
   margin-left: -5px;
   display: flex;
+  transition: all ease 0.3s;
 
   &:hover {
     background: ${colors.bgActive};
     button {
       opacity: 1;
     }
-  }
-`;
 
-const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
-  display: inline-flex;
-  width: 100%;
-  justify-content: space-between;
-  margin-left: ${dimensions.unitSpacing}px;
-  align-items: flex-start;
-  text-decoration: ${props => props.isChecked && 'line-through'};
-  color: ${props => props.isChecked && '#666'};
-
-  > button {
-    opacity: 0;
-    background-color: transparent;
-    box-shadow: none;
-    padding: 2px ${dimensions.unitSpacing / 2}px;
-    border: none;
-    margin-left: ${dimensions.unitSpacing / 2}px;
-    font-size: 12px;
+    i {
+      visibility: visible;
+    }
   }
 `;
 
@@ -118,7 +129,7 @@ export {
   ChecklistTitle,
   Progress,
   ChecklistWrapper,
-  ChecklistRow,
+  ChecklistItem,
   ChecklistText,
   FormControlWrapper,
   FormWrapper,

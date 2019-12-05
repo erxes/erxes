@@ -19,7 +19,7 @@ import { IChecklist } from '../types';
 
 type Props = {
   list: IChecklist;
-  addItem: (doc: { content: string }) => void;
+  addItem: (content: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (checklistId: string) => void;
 };
@@ -41,7 +41,7 @@ class List extends React.Component<Props, State> {
 
     this.state = {
       isEditingTitle: false,
-      isAddingItem: false,
+      isAddingItem: true,
       isHidden: false,
       itemContent: '',
       title,
@@ -62,7 +62,7 @@ class List extends React.Component<Props, State> {
     const { addItem } = this.props;
 
     this.setState({ isAddingItem: false }, () => {
-      addItem({ content: this.state.itemContent });
+      addItem(this.state.itemContent);
 
       this.setState({ itemContent: '', isAddingItem: true });
     });
@@ -182,45 +182,6 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderAddItemForm = () => {
-    const { isAddingItem } = this.state;
-
-    if (!isAddingItem) {
-      return null;
-    }
-
-    const cancel = () => this.setState({ isAddingItem: false });
-    const onContentChange = e =>
-      this.setState({
-        itemContent: (e.currentTarget as HTMLTextAreaElement).value
-      });
-
-    return (
-      <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
-        <FormControlWrapper>
-          <FormControl
-            autoFocus={true}
-            componentClass="textarea"
-            onChange={onContentChange}
-            onKeyPress={this.onKeyPressAddItem}
-            required={true}
-          />
-
-          <Button btnStyle="success" type="submit" size="small">
-            Add
-          </Button>
-
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={cancel}
-            icon="times"
-          />
-        </FormControlWrapper>
-      </FormWrapper>
-    );
-  };
-
   renderProgressBar = () => {
     const { list } = this.props;
 
@@ -236,7 +197,7 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderItems = () => {
+  renderItems() {
     const { list } = this.props;
 
     if (this.state.isHidden) {
@@ -246,25 +207,57 @@ class List extends React.Component<Props, State> {
     }
 
     return list.items.map(item => <Item key={item._id} item={item} />);
-  };
+  }
 
-  renderAddItemBtn() {
-    if (!this.state.isAddingItem) {
+  renderAddInput() {
+    const cancel = () => this.setState({ isAddingItem: false });
+    const onContentChange = e =>
+      this.setState({
+        itemContent: (e.currentTarget as HTMLTextAreaElement).value
+      });
+
+    if (this.state.isAddingItem) {
       return (
-        <Button size="small" btnStyle="simple" onClick={this.onAddItemClick}>
-          {__('Add an item')}
-        </Button>
+        <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
+          <FormControlWrapper>
+            <FormControl
+              autoFocus={true}
+              componentClass="textarea"
+              onChange={onContentChange}
+              onKeyPress={this.onKeyPressAddItem}
+              placeholder="Add an item"
+              required={true}
+            />
+
+            <Button
+              btnStyle="success"
+              type="submit"
+              size="small"
+              icon="check"
+            />
+            <Button
+              btnStyle="simple"
+              size="small"
+              onClick={cancel}
+              icon="times"
+            />
+          </FormControlWrapper>
+        </FormWrapper>
       );
     }
 
-    return null;
+    return (
+      <Button size="small" btnStyle="simple" onClick={this.onAddItemClick}>
+        {__('Add an item')}
+      </Button>
+    );
   }
 
   render() {
     return (
       <>
         <ChecklistTitleWrapper>
-          <Icon icon="check-square" />
+          <Icon icon="checked" />
 
           <ChecklistTitle>
             {this.renderTitle()}
@@ -276,8 +269,7 @@ class List extends React.Component<Props, State> {
 
         <ChecklistWrapper>
           {this.renderItems()}
-          {this.renderAddItemForm()}
-          {this.renderAddItemBtn()}
+          {this.renderAddInput()}
         </ChecklistWrapper>
       </>
     );

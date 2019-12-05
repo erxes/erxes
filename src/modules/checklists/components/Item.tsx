@@ -1,9 +1,10 @@
 import Button from 'modules/common/components/Button';
 import { FormControl } from 'modules/common/components/form';
+import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import xss from 'xss';
 import {
-  ChecklistRow,
+  ChecklistItem,
   ChecklistText,
   FormControlWrapper,
   FormWrapper
@@ -23,18 +24,24 @@ type State = {
   isEditing: boolean;
   content: string;
   isChecked: boolean;
+  isActive: boolean;
   disabled: boolean;
   beforeContent: string;
 };
 
 class ListRow extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
 
     const item = props.item;
 
+    this.ref = React.createRef();
+
     this.state = {
       isEditing: false,
+      isActive: false,
       content: item.content,
       disabled: false,
       isChecked: item.isChecked,
@@ -43,7 +50,10 @@ class ListRow extends React.Component<Props, State> {
   }
 
   onClick = () => {
-    this.setState({ isEditing: true, beforeContent: this.props.item.content });
+    this.setState({
+      isEditing: !this.state.isEditing,
+      beforeContent: this.props.item.content
+    });
   };
 
   onKeyPress = e => {
@@ -89,24 +99,21 @@ class ListRow extends React.Component<Props, State> {
     });
   };
 
-  renderContent = () => {
-    return (
-      <ChecklistText isChecked={this.state.isChecked}>
-        <label
-          onClick={this.onClick}
-          dangerouslySetInnerHTML={{ __html: xss(this.state.content) }}
-        />
-        <Button
-          btnStyle="simple"
-          size="small"
-          onClick={this.removeClick}
-          icon="times"
-        />
-      </ChecklistText>
-    );
+  handleClickOutside = event => {
+    if (this.ref.current && !this.ref.current.contains(event.target)) {
+      this.setState({ isEditing: false });
+    }
   };
 
-  renderInput = () => {
+  useEffect = () => {
+    document.addEventListener('click', this.handleClickOutside, true);
+
+    return () => {
+      document.removeEventListener('click', this.handleClickOutside, true);
+    };
+  };
+
+  renderContent() {
     const onChangeContent = e => {
       this.setState({
         content: (e.currentTarget as HTMLTextAreaElement).value
@@ -117,50 +124,56 @@ class ListRow extends React.Component<Props, State> {
       this.setState({ isEditing: false, content: this.state.beforeContent });
     };
 
+    if (this.state.isEditing) {
+      return (
+        <FormWrapper onSubmit={this.onSubmit}>
+          <FormControlWrapper>
+            <FormControl
+              componentClass="textarea"
+              autoFocus={true}
+              onChange={onChangeContent}
+              value={this.state.content}
+              onKeyPress={this.onKeyPress}
+              required={true}
+            />
+            <Button
+              disabled={this.state.disabled}
+              btnStyle="success"
+              type="submit"
+              size="small"
+              icon="check"
+            />
+            <Button
+              btnStyle="simple"
+              size="small"
+              onClick={onClickEdit}
+              icon="times"
+            />
+          </FormControlWrapper>
+        </FormWrapper>
+      );
+    }
+
     return (
-      <FormWrapper onSubmit={this.onSubmit}>
-        <FormControlWrapper>
-          <FormControl
-            componentClass="textarea"
-            autoFocus={true}
-            onChange={onChangeContent}
-            value={this.state.content}
-            onKeyPress={this.onKeyPress}
-            required={true}
-          />
-          <Button
-            disabled={this.state.disabled}
-            btnStyle="success"
-            type="submit"
-            size="small"
-          >
-            Save
-          </Button>
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={onClickEdit}
-            icon="times"
-          />
-        </FormControlWrapper>
-      </FormWrapper>
+      <ChecklistText isChecked={this.state.isChecked}>
+        <label dangerouslySetInnerHTML={{ __html: xss(this.state.content) }} />
+        <Icon icon="times" onClick={this.removeClick} />
+      </ChecklistText>
     );
-  };
+  }
 
-  render = () => {
-    const { isChecked, isEditing } = this.state;
-
+  render() {
     return (
-      <ChecklistRow>
+      <ChecklistItem onClick={this.onClick}>
         <FormControl
           componentClass="checkbox"
-          checked={isChecked}
+          checked={this.state.isChecked}
           onChange={this.onCheckChange}
         />
-        {isEditing ? this.renderInput() : this.renderContent()}
-      </ChecklistRow>
+        {this.renderContent()}
+      </ChecklistItem>
     );
-  };
+  }
 }
 
 export default ListRow;

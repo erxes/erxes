@@ -40,13 +40,13 @@ class ListContainer extends React.Component<FinalProps> {
     });
   };
 
-  addItem = (doc: { content: string }) => {
+  addItem = (item: string) => {
     const { addItemMutation, listId } = this.props;
 
     addItemMutation({
       variables: {
         checklistId: listId,
-        ...doc
+        content: item
       }
     });
   };
