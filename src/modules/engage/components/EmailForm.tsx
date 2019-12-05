@@ -79,7 +79,7 @@ class EmailForm extends React.Component<Props, State> {
   };
 
   renderScheduler() {
-    if (this.props.kind !== 'auto') {
+    if (this.props.kind === 'manual') {
       return null;
     }
 
