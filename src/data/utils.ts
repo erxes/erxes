@@ -654,10 +654,16 @@ const putLog = (body: ILogParams, user: IUserDocument) => {
     unicode: user.username || user.email || user._id,
   };
 
-  return sendRequest(
-    { url: `${LOGS_DOMAIN}/logs/create`, method: 'post', body: { params: JSON.stringify(doc) } },
-    'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running',
-  );
+  return new Promise(resolve => {
+    sendRequest(
+      { url: `${LOGS_DOMAIN}/logs/create`, method: 'post', body: { params: JSON.stringify(doc) } },
+      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running',
+    )
+      .then(response => console.log(response))
+      .catch(error => console.log(error.message));
+
+    return resolve('received log');
+  });
 };
 
 /**
