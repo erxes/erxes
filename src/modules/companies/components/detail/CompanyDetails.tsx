@@ -38,10 +38,7 @@ class CompanyDetails extends React.Component<Props> {
           target={company.primaryName || ''}
           contentId={company._id}
           contentType="company"
-          extraTabs={[
-            { name: 'conversation', label: 'Conversation' },
-            { name: 'email', label: 'Email' }
-          ]}
+          extraTabs={[]}
         />
       </>
     );

@@ -53,7 +53,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           subscriptions.conversationExternalIntegrationMessageInserted
         ),
         updateQuery: () => {
-          const comments = commentsQuery.facebookComments || [];
+          const comments = commentsQuery.converstationFacebookComments || [];
           const limit = comments.length + 10;
 
           this.fetchMoreComments({ limit }, { isSubscriptions: true });
@@ -72,14 +72,14 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           return prev;
         }
 
-        const prevComments = prev.facebookComments || [];
+        const prevComments = prev.converstationFacebookComments || [];
 
         const prevCommentIds = prevComments.map(
           (comment: IFacebookComment) => comment.commentId
         );
 
         const fetchedComments: IFacebookComment[] = [];
-        for (const comment of fetchMoreResult.facebookComments) {
+        for (const comment of fetchMoreResult.converstationFacebookComments) {
           if (!prevCommentIds.includes(comment.commentId)) {
             fetchedComments.push(comment);
           }
@@ -88,13 +88,13 @@ class FacebookPostContainer extends React.Component<FinalProps> {
         if (isSubscriptions) {
           return {
             ...prev,
-            facebookComments: [...prevComments, ...fetchedComments]
+            converstationFacebookComments: [...prevComments, ...fetchedComments]
           };
         }
 
         return {
           ...prev,
-          facebookComments: [...fetchedComments, ...prevComments]
+          converstationFacebookComments: [...fetchedComments, ...prevComments]
         };
       }
     });
@@ -113,6 +113,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
 
     if (commentId) {
       variables.commentId = commentId;
+      variables.limit = 999;
     }
 
     if (postId) {
@@ -132,7 +133,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     }
 
     const post = conversation.facebookPost || ({} as IFacebookPost);
-    const comments = commentsQuery.facebookComments || [];
+    const comments = commentsQuery.converstationFacebookComments || [];
 
     const hasMore = post.commentCount > comments.length;
 
@@ -153,15 +154,13 @@ class FacebookPostContainer extends React.Component<FinalProps> {
 const WithQuery = withProps<Props & { currentUser: IUser }>(
   compose(
     graphql<Props, FacebookCommentsQueryResponse, { postId: string }>(
-      gql(queries.facebookComments),
+      gql(queries.converstationFacebookComments),
       {
         name: 'commentsQuery',
         options: ({ conversation }: { conversation: IConversation }) => {
           return {
             variables: {
-              postId: conversation.facebookPost
-                ? conversation.facebookPost.postId
-                : ''
+              postId: conversation._id
             },
             fetchPolicy: 'network-only'
           };

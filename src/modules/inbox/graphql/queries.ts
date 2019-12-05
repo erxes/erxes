@@ -105,16 +105,16 @@ const conversationDetailMarkAsRead = `
 `;
 
 const conversationMessages = `
-  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int) {
-    conversationMessages(conversationId: $conversationId, skip: $skip, limit: $limit) {
+  query conversationMessages($conversationId: String!, $skip: Int, $limit: Int, $getFirst: Boolean) {
+    conversationMessages(conversationId: $conversationId, skip: $skip, limit: $limit, getFirst: $getFirst) {
       ${messageFields}
     }
   }
 `;
 
-const facebookComments = `
-  query facebookComments($postId: String!, $commentId: String, $limit: Int) {
-    facebookComments(postId: $postId, limit: $limit, commentId: $commentId) {
+const converstationFacebookComments = `
+  query converstationFacebookComments($postId: String!, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    converstationFacebookComments(postId: $postId, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
       conversationId
       commentId
       postId
@@ -125,7 +125,6 @@ const facebookComments = `
       erxesApiId
       timestamp
       parentId
-      commentId
       commentCount
       customer {
         _id
@@ -318,7 +317,7 @@ export default {
   conversationDetail,
   conversationDetailMarkAsRead,
   conversationMessages,
-  facebookComments,
+  converstationFacebookComments,
   conversationMessagesTotalCount,
   userList,
   channelList,

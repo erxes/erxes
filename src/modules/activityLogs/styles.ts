@@ -27,22 +27,72 @@ const ActivityTitle = styled.h4`
   color: ${colors.textPrimary};
 `;
 
-const ActivityRow = styled(WhiteBox)`
-  padding: ${dimensions.coreSpacing}px;
+const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
+  padding: ${props => (props.isConversation ? '0' : dimensions.coreSpacing)}px;
+  background: ${props => props.isConversation && colors.bgLight};
   position: relative;
   overflow: visible;
   margin-bottom: ${dimensions.coreSpacing}px;
   border-radius: 2px;
+  height: auto;
+  transition:height 0.3s ease-out;
 
   &:last-of-type {
     margin-bottom: 0;
   }
+
+  &:hover {
+    background: ${props => props.isConversation && colors.bgUnread};
+  }
+`;
+
+const FlexCenterContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const FlexContent = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
+`;
+
+const Title = styledTS<{ isComplete?: boolean; isEditing: boolean }>(
+  styled.div
+)`
+  position: relative;
+  margin: ${dimensions.unitSpacing}px;
+  flex: 1;
+  font-size: 16px;
+
+  > div {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  h4 {
+    text-decoration: ${props => props.isComplete && 'line-through'};
+    transition: all ease 0.4s;
+
+    > i {
+      margin-right: 5px;
+    }
+  }
+
+  .icon-edit {
+    visibility: hidden;
+    transition: all ease 0.3s;
+    position: absolute;
+    right: ${dimensions.unitSpacing}px;
+    top: 5px;
+  }
+
+  &:hover {
+    cursor: text;
+    
+    .icon-edit {
+      visibility: ${props => !props.isEditing && 'visible'};
+    }
+  }
 `;
 
 const FlexBody = styled.div`
@@ -63,6 +113,10 @@ const FlexBody = styled.div`
   span {
     padding-right: ${dimensions.unitSpacing}px;
   }
+`;
+
+const Row = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
 `;
 
 const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
@@ -122,7 +176,7 @@ const ActivityDate = styled.div`
   cursor: help;
 `;
 
-const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
+const ActivityContent = styledTS<{ isInternalNote?: boolean }>(styled.div)`
   margin-top: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing}px;
   background: ${props =>
@@ -139,20 +193,164 @@ const ActivityContent = styledTS<{ isInternalNote: boolean }>(styled.div)`
   }
 `;
 
-const EmailContent = styled.div`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px 0 60px;
+const EmailContent = styledTS<{ longEmail: boolean; expand: boolean }>(
+  styled.div
+)`
+  margin-top: ${dimensions.unitSpacing}px;
+  max-height: ${props => (props.expand ? 'auto' : '80px')};
   overflow: hidden;
+  transition: height .5s;
 
-  img {
-    max-width: 100%;
+  p {
+    margin: 0;
   }
 `;
 
-const IconWrapper = styled.div`
-  color: ${colors.colorLightGray};
+const ExpandButton = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+  cursor: pointer;
+  color: ${colors.colorCoreBlue};
+  font-weight: 500;
+  transition: all ease 0.4s;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ContentShadow = styled.div`
+  background-image: linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255));
+  background-size: 100% 30px;
+  height: 40px;
+  position: absolute;
+  bottom: 40px;
+  left: 0px;
+  right: 0px;
+`;
+
+const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
+  cursor: pointer;
+  display: table;
+  margin-right: ${dimensions.unitSpacing}px;
+
+  span {
+    font-weight: 600;
+    color: ${colors.colorCoreBlue};
+  }
 
   i {
+    margin-right: 5px;
+
+    &:before {
+      transition: all .15s ease-in-out;
+      transform: ${props => props.showDetail && 'rotate(90deg)'};
+    }
+  }
+`;
+
+const Detail = styledTS<{ full?: boolean }>(styled.div)`
+  margin-top: ${props =>
+    props.full ? dimensions.coreSpacing : dimensions.unitSpacing}px;
+
+  > p {
+    margin: ${dimensions.unitSpacing}px 0 ${dimensions.coreSpacing}px;
+  }
+  `;
+
+const IconWrapper = styledTS<{ isComplete?: boolean }>(styled.div)`
     cursor: pointer;
+
+  > i {
+    background: ${props =>
+      props.isComplete ? colors.colorCoreGreen : colors.bgLight};
+    color: ${props =>
+      props.isComplete ? colors.colorWhite : colors.colorShadowGray};
+    border-radius: 25px;
+    display: inline-block;
+    line-height: 25px;
+    border: 2px solid ${props =>
+      props.isComplete ? colors.colorCoreGreen : colors.colorShadowGray};
+    transition: all ease 0.3s;
+  }
+`;
+
+const Description = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 2px;
+  margin: ${dimensions.coreSpacing}px 0;
+`;
+
+const DeleteAction = styled.div`
+  color: ${colors.colorCoreRed};
+  padding-right: ${dimensions.unitSpacing}px;
+  cursor: pointer;
+  visibility: hidden;
+  transition: all 0.2s ease-in-out 0.2s;
+  font-weight: 500;
+`;
+
+const JumpTo = styled(DeleteAction)`
+  color: ${colors.colorCoreBlue};
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+const LogWrapper = styled.div`
+  flex: 1;
+
+  &:hover {
+    ${DeleteAction} {
+      visibility: visible;
+    }
+  }
+`;
+
+const ConversationContent = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 90%;
+`;
+
+const Count = styled.div`
+  text-align: center;
+  border: 1px solid ${colors.colorShadowGray};
+  border-radius: 2px;
+  padding: 0 7px;
+  color: ${colors.colorCoreGray};
+`;
+
+const Collapse = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  cursor: pointer;
+  transition: all ease 0.5s;
+`;
+
+const Header = styled.div`
+  border-bottom: 1px solid ${colors.colorShadowGray};
+  padding-bottom: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  font-size: 15px;
+`;
+
+const CenterText = styled.div`
+  text-align: center;
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
+const MergedContacts = styled.div`
+  a {
+    font-weight: 600;
+
+    &:after {
+      content: ', ';
+    }
+
+    &:last-child::after {
+      content: '';
+    }
   }
 `;
 
@@ -164,8 +362,25 @@ export {
   AvatarWrapper,
   ActivityDate,
   ActivityContent,
+  Description,
   EmailContent,
-  IconWrapper,
+  ConversationContent,
   FlexContent,
-  FlexBody
+  FlexCenterContent,
+  FlexBody,
+  MergedContacts,
+  Row,
+  IconWrapper,
+  Title,
+  Date,
+  Detail,
+  ContentShadow,
+  Count,
+  LogWrapper,
+  Collapse,
+  Header,
+  CenterText,
+  ExpandButton,
+  DeleteAction,
+  JumpTo
 };
