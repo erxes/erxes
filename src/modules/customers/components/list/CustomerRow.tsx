@@ -4,6 +4,7 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import { formatValue } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
+import { ClickableRow } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
 import React from 'react';
@@ -65,7 +66,7 @@ function CustomerRow({
   };
 
   return (
-    <tr onClick={onTrClick}>
+    <tr>
       <td style={{ width: '50px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}
@@ -74,9 +75,13 @@ function CustomerRow({
         />
       </td>
       {columnsConfig.map(({ name }, index) => (
-        <td key={index}>{displayValue(customer, name)}</td>
+        <td key={index}>
+          <ClickableRow onClick={onTrClick}>
+            {displayValue(customer, name)}
+          </ClickableRow>
+        </td>
       ))}
-      <td>
+      <td onClick={onTrClick}>
         <Tags tags={tags} limit={2} />
       </td>
     </tr>
