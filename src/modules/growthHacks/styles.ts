@@ -319,6 +319,7 @@ const BottomAction = styled.div`
     display: block;
     padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
     background: ${colors.bgLight};
+    font-weight: 500;
   }
 `;
 
