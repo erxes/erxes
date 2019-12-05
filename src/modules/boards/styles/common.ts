@@ -96,17 +96,14 @@ export const ItemDate = styled.span`
 
 export const NotifiedContainer = styled.div`
   position: absolute;
-  background: ${colors.colorWhite};
-  right: 0;
-  padding-left: 5px;
-
-  > i {
-    color: ${colors.colorWhite};
-    background: ${colors.colorCoreRed};
-    border-radius: 3px;
-    padding: 3px 5px;
-    margin-right: 8px;
-  }
+  right: 8px;
+  border-radius: 12px;
+  width: 24px;
+  height: 24px;
+  background-color: ${rgba(colors.colorCoreRed, 0.2)};
+  color: ${colors.colorCoreRed};
+  text-align: center;
+  line-height: 24px;
 `;
 
 export const ItemContainer = styledTS<{

@@ -102,12 +102,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
       brandIds: this.state.brandIds,
       title: this.state.title,
       fromUserId: this.state.fromUserId,
-      method: this.state.method
+      method: this.state.method,
+      scheduleDate: this.state.scheduleDate
     } as IEngageMessageDoc;
-
-    if (this.props.kind !== 'manual') {
-      doc.scheduleDate = this.state.scheduleDate;
-    }
 
     if (this.state.method === 'email') {
       const email = this.state.email || ({} as IEngageEmail);

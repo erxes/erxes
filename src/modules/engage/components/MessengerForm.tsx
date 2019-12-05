@@ -96,7 +96,7 @@ class MessengerForm extends React.Component<Props, State> {
   renderScheduler() {
     const { messageKind, onChange } = this.props;
 
-    if (messageKind === 'manual' || messageKind === 'visitorAuto') {
+    if (messageKind === 'manual') {
       return null;
     }
 

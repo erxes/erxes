@@ -57,7 +57,7 @@ const Actions = styled.div`
 
 const SectionContainer = styled.div`
   position: relative;
-  box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
   margin-bottom: 10px;
 
   > div {

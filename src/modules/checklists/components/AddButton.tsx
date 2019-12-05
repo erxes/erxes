@@ -44,7 +44,7 @@ class ChecklistAdd extends React.Component<Props> {
         rootClose={true}
       >
         <ColorButton>
-          <Icon icon="checked" />
+          <Icon icon="check-square" />
           {__('Checklist')}
         </ColorButton>
       </OverlayTrigger>
