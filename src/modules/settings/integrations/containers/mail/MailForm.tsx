@@ -174,7 +174,10 @@ export default withProps<Props>(
       }
     }),
     graphql<Props>(gql(mutations.integrationSendMail), {
-      name: 'sendMailMutation'
+      name: 'sendMailMutation',
+      options: () => ({
+        refetchQueries: ['activityLogs']
+      })
     })
   )(MailFormContainer)
 );
