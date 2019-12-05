@@ -57,10 +57,15 @@ class ActivityItem extends React.Component<Props> {
         );
       case 'taskDetail':
         return this.renderDetail('task', <Task taskId={_id} />);
-      case 'email':
+      case 'engage-email':
         return this.renderDetail(
           'email',
-          <Email emailId={_id} activity={activity} />
+          <Email emailType="engage" emailId={_id} activity={activity} />
+        );
+      case 'nylas-email':
+        return this.renderDetail(
+          'email',
+          <Email emailType="nylas" emailId={_id} activity={activity} />
         );
       case 'comment':
         return this.renderDetail(

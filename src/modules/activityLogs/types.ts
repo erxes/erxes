@@ -1,3 +1,5 @@
+import { IEmailDelivery } from 'modules/engage/types';
+
 export interface IActivityLogYearMonthDoc {
   year: React.ReactNode;
   month: React.ReactNode;
@@ -42,3 +44,8 @@ export interface IActivityLogForMonth {
   date: IActivityLogYearMonth;
   list: IActivityLog[];
 }
+
+export type EmailDeliveryDetailQueryResponse = {
+  emailDeliveryDetail: IEmailDelivery;
+  loading: boolean;
+};

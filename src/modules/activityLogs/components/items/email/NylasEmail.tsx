@@ -11,16 +11,17 @@ import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import Tip from 'modules/common/components/Tip';
-import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
+import { IEmailDelivery } from 'modules/engage/types';
 import React from 'react';
 import xss from 'xss';
 
 type Props = {
-  engageMessage: IEngageMessage;
+  email: IEmailDelivery;
+  emailType: string;
   activity: any;
 };
 
-class Email extends React.Component<Props, { expand: boolean }> {
+class NylasEmail extends React.Component<Props, { expand: boolean }> {
   constructor(props) {
     super(props);
 
@@ -34,17 +35,16 @@ class Email extends React.Component<Props, { expand: boolean }> {
   };
 
   renderContent() {
-    const { email = {} as IEngageEmail } = this.props.engageMessage;
-    const { content } = email;
+    const { body } = this.props.email;
     const { expand } = this.state;
-    const longEmail = content.length >= 800;
+    const longEmail = body.length >= 800;
 
     return (
       <>
         <EmailContent
           longEmail={longEmail}
           expand={expand}
-          dangerouslySetInnerHTML={{ __html: xss(content) }}
+          dangerouslySetInnerHTML={{ __html: xss(body) }}
         />
         {longEmail && (
           <>
@@ -61,39 +61,24 @@ class Email extends React.Component<Props, { expand: boolean }> {
 
   render() {
     const { createdAt } = this.props.activity;
-    const {
-      email = {} as IEngageEmail,
-      title,
-      fromUser,
-      stats = { send: 0, total: 0 }
-    } = this.props.engageMessage;
-    const { subject } = email;
+    const { subject, fromEmail, fromUser } = this.props.email;
 
-    let status = <Label lblStyle="default">Sending</Label>;
+    const status = <Label lblStyle="success">Sent</Label>;
 
-    if (stats.total === stats.send) {
-      status = <Label lblStyle="success">Sent</Label>;
-    }
+    const fromUserName = fromUser.details
+      ? fromUser.details.fullName
+      : 'Unknown';
 
     return (
       <>
         <FlexCenterContent>
           <FlexBody>
-            <p>Email</p>
-            <p>{subject}</p>
+            <strong>{fromUserName} sent email</strong>
             <div>
-              <ControlLabel>Title</ControlLabel>: <span>{title}</span>
-              <ControlLabel>From</ControlLabel>:{' '}
-              <span>
-                {fromUser.details ? (
-                  <>
-                    <b>{fromUser.details.fullName}</b>
-                    <i>({fromUser.email})</i>
-                  </>
-                ) : (
-                  fromUser.email
-                )}
-              </span>
+              <ControlLabel>From</ControlLabel>: <span>{fromEmail}</span>
+            </div>
+            <div>
+              <ControlLabel>Subject</ControlLabel>: <span>{subject}</span>
             </div>
           </FlexBody>
           {status}
@@ -109,4 +94,4 @@ class Email extends React.Component<Props, { expand: boolean }> {
   }
 }
 
-export default Email;
+export default NylasEmail;

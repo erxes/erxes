@@ -1,5 +1,4 @@
 import { IConditionsRule } from 'modules/common/types';
-import { ICustomer } from 'modules/customers/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
@@ -41,14 +40,21 @@ export interface IEngageStats {
   total: number;
 }
 
-export interface IEmailDeliveryDetail {
-  title: string;
+export interface IEmailDelivery {
+  _id: string;
   subject: string;
-  content: string;
+  body: string;
+  to: string;
+  cc: string;
+  bcc: string;
+  attachments: [JSON];
+  from: string;
+  kind: string;
+  userId: string;
   customerId: string;
-  fromUserId: string;
-  fromUserDetail: IUser;
-  customerDetail: ICustomer;
+
+  fromUser: IUser;
+  fromEmail: string;
 }
 
 export interface IEngageMessageDoc {

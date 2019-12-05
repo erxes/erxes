@@ -16,6 +16,36 @@ const activityLogs = `
   }
 `;
 
+const emailDeliveryDetail = `
+  query emailDeliveryDetail($_id: String! ) {
+    emailDeliveryDetail(_id: $_id ) {
+      _id
+      subject
+      body
+      to
+      cc
+      bcc
+      attachments
+      from
+      kind
+      userId
+      customerId
+      createdAt
+  
+      fromUser {
+        _id
+        details {
+          avatar
+          fullName
+          position
+        }
+      }
+      fromEmail
+    }
+  }
+`;
+
 export default {
-  activityLogs
+  activityLogs,
+  emailDeliveryDetail
 };
