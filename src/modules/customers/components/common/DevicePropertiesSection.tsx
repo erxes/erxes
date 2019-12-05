@@ -21,7 +21,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     if (value || secondValue) {
       return (
         <li>
-          <FieldStyle>{__(text)}:</FieldStyle>
+          <FieldStyle overflow="unset">{__(text)}:</FieldStyle>
           <SidebarCounter nowrap={nowrap}>
             {value} {secondValue}
           </SidebarCounter>

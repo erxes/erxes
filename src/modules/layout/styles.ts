@@ -314,13 +314,12 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   styled.div
 )`
   font-size: ${typography.fontSizeHeading8}px;
-  text-align: ${props => (props.nowrap ? 'left' : 'right')};
+  text-align: ${props => (props.nowrap ? 'right' : 'left')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
-  max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
-  padding-left: ${props => (props.nowrap ? '0' : '5px')};
+  padding-left: 5px;
 
   a {
     padding: 0;
@@ -340,9 +339,9 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
     `};
 `;
 
-const FieldStyle = styled.div`
+const FieldStyle = styledTS<{ overflow?: string }>(styled.div)`
   white-space: nowrap;
-  overflow: hidden;
+  overflow: ${props => (props.overflow ? props.overflow : 'hidden')};
   text-overflow: ellipsis;
   flex: 1;
 `;

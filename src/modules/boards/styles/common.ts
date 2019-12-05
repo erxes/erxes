@@ -98,12 +98,12 @@ export const NotifiedContainer = styled.div`
   position: absolute;
   right: 8px;
   border-radius: 12px;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   background-color: ${rgba(colors.colorCoreRed, 0.2)};
   color: ${colors.colorCoreRed};
   text-align: center;
-  line-height: 24px;
+  line-height: 22px;
 `;
 
 export const ItemContainer = styledTS<{

@@ -3,6 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import { formatValue } from 'modules/common/utils';
+import { ClickableRow } from 'modules/customers/styles';
 import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';
@@ -63,7 +64,9 @@ function CompanyRow({
         />
       </td>
       {columnsConfig.map(({ name }) => (
-        <td key={name}>{displayValue(company, name)}</td>
+        <td key={name}>
+          <ClickableRow>{displayValue(company, name)}</ClickableRow>
+        </td>
       ))}
       <td>
         <Tags tags={tags} limit={2} />

@@ -1,13 +1,19 @@
 import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
+import EditorCK from 'modules/common/components/EditorCK';
 import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { EMAIL_TEMPLATE } from 'modules/engage/constants';
 import React from 'react';
+import styled from 'styled-components';
 import { IBrand } from '../../brands/types';
+
+const ContentWrapper = styled.div`
+  margin-top: 20px;
+`;
 
 type Props = {
   brand: IBrand;
@@ -17,31 +23,35 @@ type Props = {
 };
 
 type State = {
-  type: string;
   template: string;
+  currentTab: string;
 };
 
 class Config extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { type, template } = props.brand.emailConfig || {
-      type: 'simple',
-      template: ''
-    };
+    const { template, type } = props.brand.emailConfig;
 
-    this.state = { type, template: template || props.defaultTemplate };
+    this.state = {
+      template: template || props.defaultTemplate,
+      currentTab: type || 'simple'
+    };
   }
 
-  handleTypeChange = e => {
-    this.setState({ type: e.target.value });
+  onTabClick = currentTab => {
+    this.setState({ currentTab });
   };
 
-  handleTemplateChange = e => {
-    this.setState({ template: e.target.value });
+  onEditorChange = e => {
+    this.setState({ template: e.editor.getData() });
   };
 
-  generateDoc = (values: { _id?: string; type: string; template: string }) => {
+  generateDoc = (values: {
+    _id?: string;
+    currentTab: string;
+    template: string;
+  }) => {
     const { brand } = this.props;
     const finalValues = values;
 
@@ -52,46 +62,60 @@ class Config extends React.Component<Props, State> {
     return {
       _id: finalValues._id,
       emailConfig: {
-        type: this.state.type,
+        type: this.state.currentTab,
         template: this.state.template
       }
     };
   };
 
+  templateControl() {
+    const { currentTab } = this.state;
+
+    if (currentTab === 'custom') {
+      return (
+        <ContentWrapper>
+          <EditorCK
+            content={this.state.template}
+            onChange={this.onEditorChange}
+            insertItems={EMAIL_TEMPLATE}
+            autoGrow={true}
+          />
+        </ContentWrapper>
+      );
+    }
+
+    return (
+      <ContentWrapper>
+        <Info>{__('Your email will be sent with Erxes email template.')}</Info>
+      </ContentWrapper>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
-    const { type, template } = this.state;
     const { renderButton, closeModal } = this.props;
+    const { currentTab } = this.state;
     const { values, isSubmitted } = formProps;
 
-    const templateControl = (
-      <FormGroup>
-        <ControlLabel>Template markup</ControlLabel>
-        <FormControl
-          componentClass="textarea"
-          value={template}
-          rows={20}
-          onChange={this.handleTemplateChange}
-        />
-        <span>{__('Use html template here')}</span>
-      </FormGroup>
-    );
+    const simpleOnClick = () => this.onTabClick('simple');
+    const customOnClick = () => this.onTabClick('custom');
 
     return (
       <>
-        <FormGroup>
-          <ControlLabel>Choose your email template type</ControlLabel>
-          <FormControl
-            componentClass="select"
-            placeholder={__('select')}
-            onChange={this.handleTypeChange}
-            value={type}
+        <Tabs full={true}>
+          <TabTitle
+            className={currentTab === 'simple' ? 'active' : ''}
+            onClick={simpleOnClick}
           >
-            <option value="simple">{__('Simple')}</option>
-            <option value="custom">{__('Custom')}</option>
-          </FormControl>
-        </FormGroup>
-
-        {this.state.type === 'custom' ? templateControl : false}
+            {__('Simple')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'custom' ? 'active' : ''}
+            onClick={customOnClick}
+          >
+            {__('Custom')}
+          </TabTitle>
+        </Tabs>
+        {this.templateControl()}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
