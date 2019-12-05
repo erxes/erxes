@@ -9,7 +9,6 @@ import {
 } from 'modules/activityLogs/styles';
 import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
 import Tip from 'modules/common/components/Tip';
 import { IEmailDelivery } from 'modules/engage/types';
 import React from 'react';
@@ -63,8 +62,6 @@ class NylasEmail extends React.Component<Props, { expand: boolean }> {
     const { createdAt } = this.props.activity;
     const { subject, fromEmail, fromUser } = this.props.email;
 
-    const status = <Label lblStyle="success">Sent</Label>;
-
     const fromUserName = fromUser.details
       ? fromUser.details.fullName
       : 'Unknown';
@@ -81,7 +78,7 @@ class NylasEmail extends React.Component<Props, { expand: boolean }> {
               <ControlLabel>Subject</ControlLabel>: <span>{subject}</span>
             </div>
           </FlexBody>
-          {status}
+
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(createdAt).format('MMM D, h:mm A')}
