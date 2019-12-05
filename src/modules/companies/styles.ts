@@ -42,4 +42,8 @@ const FlexItem = styled.div`
   align-items: center;
 `;
 
-export { CompaniesTableWrapper, CompanyLogo, List, FlexItem };
+const RightSpace = styled.span`
+  padding-right: 5px;
+`;
+
+export { CompaniesTableWrapper, CompanyLogo, List, RightSpace, FlexItem };

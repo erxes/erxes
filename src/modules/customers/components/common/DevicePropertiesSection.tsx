@@ -2,7 +2,11 @@ import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import {
+  DeviceStyle,
+  SidebarCounter,
+  SidebarList
+} from 'modules/layout/styles';
 import React from 'react';
 import parse from 'ua-parser-js';
 
@@ -21,7 +25,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     if (value || secondValue) {
       return (
         <li>
-          <FieldStyle>{__(text)}:</FieldStyle>
+          <DeviceStyle>{__(text)}:</DeviceStyle>
           <SidebarCounter nowrap={nowrap}>
             {value} {secondValue}
           </SidebarCounter>
@@ -72,7 +76,7 @@ class DevicePropertiesSection extends React.Component<Props> {
         {this.renderDeviceProperty('IP Address', location.remoteAddress)}
         {this.renderDeviceProperty('Hostname', location.hostname)}
         {this.renderDeviceProperty('Language', location.language)}
-        {this.renderDeviceProperty('User Agent', location.userAgent)}
+        {this.renderDeviceProperty('User Agent', location.userAgent, '', true)}
       </SidebarList>
     );
   }

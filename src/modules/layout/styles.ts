@@ -314,7 +314,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   styled.div
 )`
   font-size: ${typography.fontSizeHeading8}px;
-  text-align: ${props => (props.nowrap ? 'left' : 'right')};
+  text-align: ${props => (props.nowrap ? 'right' : 'left')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   max-width: ${props => (props.nowrap ? '100%' : '45%')};
@@ -343,6 +343,12 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
 const FieldStyle = styled.div`
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+`;
+
+const DeviceStyle = styled.div`
+  white-space: nowrap;
   text-overflow: ellipsis;
   flex: 1;
 `;
@@ -585,5 +591,6 @@ export {
   SectionBodyItem,
   MobileRecommend,
   ButtonRelated,
+  DeviceStyle,
   FieldStyle
 };

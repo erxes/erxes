@@ -5,7 +5,7 @@ import Tip from 'modules/common/components/Tip';
 import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
-import { List } from 'modules/companies/styles';
+import { List, RightSpace } from 'modules/companies/styles';
 import { ICustomer } from 'modules/customers/types';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import Sidebar from 'modules/layout/components/Sidebar';
@@ -41,7 +41,7 @@ export default class RightSidebar extends React.Component<Props> {
       integrationNode = (
         <li>
           <div>{__('Integration')}:</div>
-          <span>{integration.name}</span>
+          <RightSpace>{integration.name}</RightSpace>
           <Tip text={text}>
             <Icon icon={icon} color={color} />
           </Tip>
