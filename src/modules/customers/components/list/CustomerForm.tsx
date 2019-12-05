@@ -1,6 +1,7 @@
 import { IUser, IUserLinks } from 'modules/auth/types';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
@@ -155,6 +156,8 @@ class CustomerForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
+    const { goToDetail } = this.state;
+
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
 
@@ -362,12 +365,18 @@ class CustomerForm extends React.Component<Props, State> {
             name: 'customer',
             values: this.generateDoc(values),
             isSubmitted,
-            type: this.state.goToDetail,
+            type: goToDetail,
             object: this.props.customer
           })}
 
           {!this.props.customer && (
-            <Button btnStyle="primary" onClick={this.onBtnClick} type="submit">
+            <Button
+              btnStyle="primary"
+              onClick={this.onBtnClick}
+              type="submit"
+              disabled={isSubmitted && goToDetail}
+            >
+              {isSubmitted && goToDetail && <SmallLoader />}
               Save & continue
             </Button>
           )}

@@ -45,6 +45,7 @@ const CustomerFormContainer = (props: FinalProps) => {
         callback={callbackResponse}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
+        isSecondaryBtn={type}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
