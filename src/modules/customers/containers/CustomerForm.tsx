@@ -26,10 +26,10 @@ const CustomerFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     object,
-    type
+    disableLoading
   }: IButtonMutateProps) => {
     const callbackResponse = data => {
-      if (type) {
+      if (disableLoading) {
         return history.push(
           `/contacts/customers/details/${data.customersAdd._id}`
         );
@@ -45,6 +45,7 @@ const CustomerFormContainer = (props: FinalProps) => {
         callback={callbackResponse}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
+        disableLoading={disableLoading}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'

@@ -61,7 +61,10 @@ class FormBase extends React.Component<Props> {
       }
     }
 
-    if (this.props.kind === 'auto' && !doc.scheduleDate.type) {
+    if (
+      this.props.kind !== 'manual' &&
+      (!doc.scheduleDate || !doc.scheduleDate.type)
+    ) {
       return this.sendError(__('Choose a schedule'));
     }
 
