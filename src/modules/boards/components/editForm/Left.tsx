@@ -115,7 +115,7 @@ class Left extends React.Component<Props> {
           target={item.name}
           contentId={item._id}
           contentType={options.type}
-          extraTabs={[]}
+          extraTabs={[{ name: 'task', label: 'Task' }]}
         />
       </LeftContainer>
     );

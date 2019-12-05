@@ -86,7 +86,10 @@ export default withProps<Props>(
       name: 'editMutation'
     }),
     graphql<Props, RemoveMutationResponse>(gql(mutations.tasksRemove), {
-      name: 'removeMutation'
+      name: 'removeMutation',
+      options: () => ({
+        refetchQueries: ['activityLogs']
+      })
     })
   )(FormContainer)
 );

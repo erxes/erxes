@@ -114,7 +114,10 @@ export default withProps<Props>(
     graphql<Props, InternalNotesRemoveMutationResponse>(
       gql(mutations.internalNotesRemove),
       {
-        name: 'internalNotesRemove'
+        name: 'internalNotesRemove',
+        options: () => ({
+          refetchQueries: ['activityLogs']
+        })
       }
     )
   )(InternalNoteContainer)
