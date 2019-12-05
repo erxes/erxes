@@ -210,7 +210,7 @@ describe('engage messages model tests', () => {
       messengerReceivedCustomerIds: { $in: [customer._id] },
     });
 
-    expect(engageMessages).toHaveLength(0);
+    expect(engageMessages).toHaveLength(2);
     expect(messengerReceivedCustomerIds).toHaveLength(0);
   });
 });

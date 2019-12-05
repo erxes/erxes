@@ -1,5 +1,6 @@
 import { Conformities } from '../../../db/models';
 import { IConformityAdd, IConformityEdit } from '../../../db/models/definitions/conformities';
+
 const conformityMutations = {
   /**
    * Create new conformity

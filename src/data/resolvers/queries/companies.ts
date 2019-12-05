@@ -117,6 +117,7 @@ const companyQueries = {
       case 'byTag':
         counts.byTag = await countByTags(commonQuerySelector, args);
         break;
+
       case 'bySegment':
         counts.bySegment = await countBySegment(commonQuerySelector, args);
         break;

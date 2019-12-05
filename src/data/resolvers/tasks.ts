@@ -17,17 +17,21 @@ export default {
     const companyIds = await Conformities.savedConformity({
       mainType: 'task',
       mainTypeId: task._id,
-      relType: 'company',
+      relTypes: ['company'],
     });
 
     return Companies.find({ _id: { $in: companyIds || [] } });
+  },
+
+  async createdUser(task: ITaskDocument) {
+    return Users.findOne({ _id: task.userId });
   },
 
   async customers(task: ITaskDocument) {
     const customerIds = await Conformities.savedConformity({
       mainType: 'task',
       mainTypeId: task._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     return Customers.find({ _id: { $in: customerIds || [] } });

@@ -1,23 +1,16 @@
 export const types = `
-  type ActivityLogPerformerDetails {
-    avatar: String
-    fullName: String
-    position: String
-  }
-
-  type ActivityLogActionPerformer {
-    _id: String
-    type: String!
-    details: ActivityLogPerformerDetails
-  }
-
   type ActivityLog {
-    _id: String!
-    action: String!
-    id: String
-    createdAt: Date!
-    content: String
-    by: ActivityLogActionPerformer
+    _id: String
+    action: String
+    contentId: String
+    contentType: String
+    content: JSON
+    createdAt: Date
+    createdBy: String
+
+    createdByDetail: JSON
+    contentDetail: JSON
+    contentTypeDetail: JSON
   }
 `;
 

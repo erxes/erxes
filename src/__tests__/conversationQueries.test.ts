@@ -897,6 +897,21 @@ describe('conversationQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() => Promise.resolve());
+
+    try {
+      await graphqlRequest(
+        qryConversationDetail,
+        'conversationDetail',
+        { _id: facebookConversation._id },
+        { user, dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
   });
 
   test('Get last conversation by channel', async () => {
@@ -933,8 +948,8 @@ describe('conversationQueries', () => {
     process.env.INTEGRATION_API_DOMAIN = 'http://fake.erxes.io';
 
     const qry = `
-      query facebookComments($postId: String!) {
-        facebookComments(postId: $postId) {
+      query converstationFacebookComments($postId: String!) {
+        converstationFacebookComments(postId: $postId) {
           postId
         }
       }
@@ -943,7 +958,7 @@ describe('conversationQueries', () => {
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
     try {
-      await graphqlRequest(qry, 'facebookComments', { postId: 'postId' }, { dataSources });
+      await graphqlRequest(qry, 'converstationFacebookComments', { postId: 'postId' }, { dataSources });
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }

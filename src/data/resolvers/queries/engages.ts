@@ -189,7 +189,7 @@ const engageQueries = {
    * Engage messages list
    */
   engageMessages(_root, args: IListArgs, { user, commonQuerySelector }: IContext) {
-    return paginate(EngageMessages.find(listQuery(commonQuerySelector, args, user)).sort({ createdDate: -1 }), args);
+    return paginate(EngageMessages.find(listQuery(commonQuerySelector, args, user)).sort({ createdAt: -1 }), args);
   },
 
   /**

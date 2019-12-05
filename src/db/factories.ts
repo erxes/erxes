@@ -2,7 +2,6 @@ import { dateType } from 'aws-sdk/clients/sts'; // tslint:disable-line
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
-import { IActionPerformer, IActivity, IContentType } from '../db/models/definitions/activityLogs';
 import {
   ActivityLogs,
   Boards,
@@ -17,6 +16,7 @@ import {
   Conversations,
   Customers,
   Deals,
+  EmailDeliveries,
   EmailTemplates,
   EngageMessages,
   Fields,
@@ -49,10 +49,7 @@ import {
   UsersGroups,
 } from './models';
 import {
-  ACTIVITY_ACTIONS,
   ACTIVITY_CONTENT_TYPES,
-  ACTIVITY_PERFORMER_TYPES,
-  ACTIVITY_TYPES,
   BOARD_TYPES,
   CONVERSATION_STATUSES,
   FORM_TYPES,
@@ -83,31 +80,23 @@ const getUniqueValue = async (collection: any, fieldName: string = 'code', defau
 };
 
 interface IActivityLogFactoryInput {
-  performer?: IActionPerformer;
-  performedBy?: IActionPerformer;
-  activity?: IActivity;
-  contentType?: IContentType;
+  contentType?: string;
+  contentId?: string;
+  action?: string;
+  content?: any;
+  createdBy?: string;
 }
 
-export const activityLogFactory = (params: IActivityLogFactoryInput) => {
-  const doc = {
-    activity: {
-      type: ACTIVITY_TYPES.INTERNAL_NOTE,
-      action: ACTIVITY_ACTIONS.CREATE,
-      id: faker.random.uuid(),
-      content: faker.random.word(),
-    },
-    performer: {
-      type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: faker.random.uuid(),
-    },
-    contentType: {
-      type: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-      id: faker.random.uuid(),
-    },
-  };
+export const activityLogFactory = async (params: IActivityLogFactoryInput = {}) => {
+  const activity = new ActivityLogs({
+    contentType: params.contentType || 'customer',
+    action: params.action || 'create',
+    contentId: params.contentId || faker.random.uuid(),
+    content: params.content || 'content',
+    createdBy: params.createdBy || faker.random.uuid(),
+  });
 
-  return ActivityLogs.createDoc({ ...doc, ...params });
+  return activity.save();
 };
 
 interface IUserFactoryInput {
@@ -198,6 +187,7 @@ interface IEngageMessageFactoryInput {
 export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) => {
   const engageMessage = new EngageMessages({
     kind: params.kind || 'manual',
+    customerIds: params.customerIds || [],
     method: params.method || 'messenger',
     title: params.title || faker.random.word(),
     fromUserId: params.userId || faker.random.uuid(),
@@ -463,6 +453,7 @@ interface ICustomerFactoryInput {
   profileScore?: number;
   code?: string;
   visitorContactInfo?: any;
+  mergedIds?: string[];
 }
 
 export const customerFactory = async (params: ICustomerFactoryInput = {}, useModelMethod = false) => {
@@ -485,6 +476,7 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     profileScore: params.profileScore || 0,
     code: await getUniqueValue(Customers, 'code', params.code),
     visitorContactInfo: params.visitorContactInfo,
+    mergedIds: params.mergedIds || [],
   };
 
   if (useModelMethod) {
@@ -891,6 +883,7 @@ interface IDealFactoryInput {
   order?: number;
   probability?: string;
   searchText?: string;
+  userId?: string;
 }
 
 export const dealFactory = async (params: IDealFactoryInput = {}) => {
@@ -910,6 +903,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     description: faker.random.word(),
     productsDate: params.productsData,
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
+    userId: params.userId || faker.random.word(),
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
     order: params.order,
@@ -1210,4 +1204,34 @@ interface IConformityFactoryInput {
 
 export const conformityFactory = (params: IConformityFactoryInput) => {
   return Conformities.addConformity(params);
+};
+
+interface IEmailDeliveryFactoryInput {
+  attachments?: string[];
+  subject?: string;
+  body?: string;
+  to?: string;
+  cc?: string;
+  bcc?: string;
+  from?: string;
+  kind?: string;
+  userId?: string;
+  customerId?: string;
+}
+
+export const emailDeliveryFactory = async (params: IEmailDeliveryFactoryInput = {}) => {
+  const emailDelviry = new EmailDeliveries({
+    attachments: params.attachments || [],
+    subject: params.subject || 'subject',
+    body: params.body || 'body',
+    to: params.to || 'to',
+    cc: params.cc || 'cc',
+    bcc: params.bcc || 'bcc',
+    from: params.from || 'from',
+    kind: params.kind || 'kind',
+    userId: params.userId || faker.random.uuid(),
+    customerId: params.customerId || faker.random.uuid(),
+  });
+
+  return emailDelviry.save();
 };

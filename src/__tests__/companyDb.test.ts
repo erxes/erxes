@@ -192,7 +192,7 @@ describe('Companies model tests', () => {
     const conformities = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     expect(customers).toHaveLength(1);
@@ -318,7 +318,7 @@ describe('Companies model tests', () => {
     const newCusRelTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: updatedCompany._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     const customers = await Customers.find({
@@ -337,7 +337,7 @@ describe('Companies model tests', () => {
     const newRelTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: updatedCompany._id,
-      relType: 'deal',
+      relTypes: ['deal'],
     });
 
     const deals = await Deals.find({

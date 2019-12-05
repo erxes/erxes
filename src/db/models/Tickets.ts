@@ -43,7 +43,7 @@ export const loadTicketClass = () => {
       });
 
       // create log
-      await ActivityLogs.createTicketLog(ticket);
+      await ActivityLogs.createBoardItemLog({ item: ticket, contentType: 'ticket' });
 
       return ticket;
     }

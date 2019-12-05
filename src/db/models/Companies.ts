@@ -122,7 +122,7 @@ export const loadClass = () => {
       });
 
       // create log
-      await ActivityLogs.createCompanyLog(company);
+      await ActivityLogs.createCocLog({ coc: company, contentType: 'company' });
 
       return company;
     }

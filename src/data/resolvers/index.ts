@@ -10,6 +10,7 @@ import ConversationMessage from './conversationMessage';
 import Customer from './customer';
 import customScalars from './customScalars';
 import Deal from './deals';
+import EmailDelivery from './emailDeliveries';
 import EngageMessage from './engage';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
@@ -52,6 +53,7 @@ const resolvers: any = {
   Company,
   Segment,
   EngageMessage,
+  EmailDelivery,
   Conversation,
   ConversationMessage,
   Deal,

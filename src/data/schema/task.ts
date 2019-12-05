@@ -5,6 +5,7 @@ export const types = `
     _id: String!
     companies: [Company]
     customers: [Customer]
+    createdUser: User
     ${commonTypes}
   }
 `;

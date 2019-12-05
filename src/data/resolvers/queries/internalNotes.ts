@@ -2,6 +2,9 @@ import { InternalNotes } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 
 const internalNoteQueries = {
+  async internalNoteDetail(_root, { _id }: { _id: string }) {
+    return InternalNotes.findOne({ _id });
+  },
   /**
    * InternalNotes list
    */

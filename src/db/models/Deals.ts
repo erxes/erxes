@@ -40,7 +40,7 @@ export const loadDealClass = () => {
       });
 
       // create log
-      await ActivityLogs.createDealLog(deal);
+      await ActivityLogs.createBoardItemLog({ item: deal, contentType: 'deal' });
 
       return deal;
     }

@@ -12,7 +12,7 @@ export const types = `
     isDraft: Boolean
     isLive: Boolean
     stopDate: Date
-    createdDate: Date
+    createdAt: Date
     type: String
     messengerReceivedCustomerIds: [String]
     stats: JSON

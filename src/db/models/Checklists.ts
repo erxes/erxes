@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { ActivityLogs } from '.';
+
 import {
   checklistItemSchema,
   checklistSchema,
@@ -68,9 +68,6 @@ export const loadClass = () => {
         createdDate: new Date(),
         ...fields,
       });
-
-      // create log
-      await ActivityLogs.createChecklistLog(checklist);
 
       return checklist;
     }

@@ -17,7 +17,7 @@ export default {
     const companyIds = await Conformities.savedConformity({
       mainType: 'ticket',
       mainTypeId: ticket._id,
-      relType: 'company',
+      relTypes: ['company'],
     });
 
     return Companies.find({ _id: { $in: companyIds || [] } });
@@ -27,7 +27,7 @@ export default {
     const customerIds = await Conformities.savedConformity({
       mainType: 'ticket',
       mainTypeId: ticket._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     return Customers.find({ _id: { $in: customerIds || [] } });

@@ -1,18 +1,45 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { activityLogFactory, userFactory } from '../db/factories';
-import { ActivityLogs, Users } from '../db/models';
 import {
-  ACTIVITY_ACTIONS,
-  ACTIVITY_CONTENT_TYPES,
-  ACTIVITY_PERFORMER_TYPES,
-  ACTIVITY_TYPES,
-} from '../db/models/definitions/constants';
+  activityLogFactory,
+  brandFactory,
+  companyFactory,
+  conformityFactory,
+  conversationFactory,
+  customerFactory,
+  dealFactory,
+  engageMessageFactory,
+  growthHackFactory,
+  integrationFactory,
+  internalNoteFactory,
+  stageFactory,
+  taskFactory,
+  ticketFactory,
+  userFactory,
+} from '../db/factories';
+import {
+  ActivityLogs,
+  Brands,
+  Companies,
+  Conformities,
+  Customers,
+  GrowthHacks,
+  Tasks,
+  Tickets,
+  Users,
+} from '../db/models';
 
+import { IntegrationsAPI } from '../data/dataSources';
 import './setup.ts';
 
 describe('activityLogQueries', () => {
-  let user;
+  let brand;
+  let integration;
+  let deal;
+  let ticket;
+  let growtHack;
+  let task;
+
   const commonParamDefs = `
     $contentType: String!,
     $contentId: String!,
@@ -32,129 +59,224 @@ describe('activityLogQueries', () => {
       activityLogs(${commonParams}) {
         _id
         action
-        id
-        createdAt
+        contentId
+        contentType
         content
-        by {
-          _id
-          type
-          details {
-            avatar
-            fullName
-            position
-          }
-        }
+        createdAt
+        createdBy
+    
+        createdByDetail
+        contentDetail
+        contentTypeDetail
       }
     }
   `;
 
-  const contentType = ACTIVITY_CONTENT_TYPES.CUSTOMER;
-  const activityType = ACTIVITY_TYPES.CUSTOMER;
-
-  const contentId = faker.random.uuid();
-  const activityId = faker.random.uuid();
-
-  const args: any = {
-    activity: { id: activityId, type: activityType, action: ACTIVITY_ACTIONS.CREATE, content: 'content' },
-    contentType: { type: contentType, id: contentId },
-    performer: {},
-  };
-
-  const filter: any = { contentType, activityType, contentId };
-
   beforeEach(async () => {
-    user = await userFactory();
+    brand = await brandFactory();
+    integration = await integrationFactory({
+      brandId: brand._id,
+    });
+    deal = await dealFactory();
+    ticket = await ticketFactory();
+    growtHack = await growthHackFactory();
+    task = await taskFactory();
   });
 
   afterEach(async () => {
     // Clearing test data
     await ActivityLogs.deleteMany({});
     await Users.deleteMany({});
+    await GrowthHacks.deleteMany({});
+    await Tasks.deleteMany({});
+    await Companies.deleteMany({});
+    await Customers.deleteMany({});
+    await Tickets.deleteMany({});
+    await Brands.deleteMany({});
+    await Conformities.deleteMany({});
   });
 
-  test('Activity log list', async () => {
-    const activityLog = await activityLogFactory(args);
+  test('Activity log', async () => {
+    const contentId = faker.random.uuid();
+    const contentType = 'customer';
 
-    const responses = await graphqlRequest(qryActivityLogs, 'activityLogs', filter);
+    await activityLogFactory({ contentId, contentType });
+    await activityLogFactory({ contentId, contentType });
+    await activityLogFactory({ contentId, contentType });
 
-    const activity = activityLog.activity;
+    const args = { contentId, contentType };
 
-    expect(responses[0].id).toBe(activity.id);
-    expect(responses[0].action).toBe(`${activity.type}-${activity.action}`);
-    expect(responses[0].content).toBe(activity.content);
+    const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+
+    expect(response.length).toBe(3);
   });
 
-  test('Activity log list (performer`s type is USER)', async () => {
-    args.performer = {
-      type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: user._id,
+  test('Activity log with all activity types', async () => {
+    const customer = await customerFactory({});
+    await conformityFactory({
+      mainType: 'customer',
+      mainTypeId: customer._id,
+      relType: 'task',
+      relTypeId: task._id,
+    });
+
+    await conversationFactory({ customerId: customer._id });
+    await internalNoteFactory({ contentTypeId: customer._id });
+    await engageMessageFactory({ customerIds: [customer._id], method: 'email' });
+
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() => Promise.resolve());
+
+    const activityTypes = [
+      { type: 'conversation', content: 'company' },
+      { type: 'email', content: 'email' },
+      { type: 'internal_note', content: 'internal_note' },
+      { type: 'task', content: 'task' },
+    ];
+
+    for (const activityType of activityTypes) {
+      const args = { contentId: customer._id, contentType: 'customer', activityType: activityType.type };
+      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args, { dataSources });
+      expect(response.length).toBe(1);
+    }
+  });
+
+  test('Activity log with created by user', async () => {
+    const user = await userFactory();
+    const contentId = faker.random.uuid();
+    const contentType = 'customer';
+    const createdBy = user._id;
+
+    const doc = {
+      contentId,
+      contentType,
+      createdBy,
     };
 
-    await activityLogFactory(args);
+    await activityLogFactory(doc);
 
-    const responses = await graphqlRequest(qryActivityLogs, 'activityLogs', filter);
+    const args = { contentId, contentType };
 
-    expect(responses[0].by._id).toBe(user._id);
-    expect(responses[0].by.type).toBe(ACTIVITY_PERFORMER_TYPES.USER);
+    const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+
+    expect(response.length).toBe(1);
   });
 
-  test('Activity log list (performer`s type is USER and id is FAKE)', async () => {
-    args.performer = {
-      type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: 'fakeId',
+  test('Activity log with created by integration', async () => {
+    const contentId = faker.random.uuid();
+    const contentType = 'customer';
+    const createdBy = integration._id;
+
+    const doc = {
+      contentId,
+      contentType,
+      createdBy,
     };
 
-    await activityLogFactory(args);
+    await activityLogFactory(doc);
 
-    const responses = await graphqlRequest(qryActivityLogs, 'activityLogs', filter);
+    const args = { contentId, contentType };
 
-    expect(responses[0].by).toBeNull();
+    const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+
+    expect(response.length).toBe(1);
   });
 
-  test('Activity log list (performer`s type is USER and id is FAKE)', async () => {
-    args.performer = {
-      type: ACTIVITY_PERFORMER_TYPES.USER,
-      id: 'fakeId',
-    };
+  test('Activity log content type detail', async () => {
+    const createdBy = integration._id;
 
-    await activityLogFactory(args);
+    const types = [
+      { type: 'deal', content: deal },
+      { type: 'ticket', content: ticket },
+      { type: 'task', content: task },
+      { type: 'growthHack', content: growtHack },
+    ];
 
-    const responses = await graphqlRequest(qryActivityLogs, 'activityLogs', filter);
+    for (const type of types) {
+      const doc = {
+        contentId: type.content._id,
+        contentType: type.type,
+        createdBy,
+      };
 
-    expect(responses[0].by).toBeNull();
+      await activityLogFactory(doc);
+
+      const args = { contentId: type.content._id, contentType: type.type };
+
+      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+
+      expect(response.length).toBe(1);
+    }
   });
 
-  test('Activity log list (performer`s type is CUSTOMER and id is undefined)', async () => {
-    args.performer = {
-      type: ACTIVITY_PERFORMER_TYPES.CUSTOMER,
-    };
+  test('Activity log action merge', async () => {
+    const customer = await customerFactory();
+    const company = await companyFactory();
 
-    await activityLogFactory(args);
+    const types = [{ type: 'company', content: company }, { type: 'customer', content: customer }];
 
-    const responses = await graphqlRequest(qryActivityLogs, 'activityLogs', filter);
+    for (const type of types) {
+      const doc = {
+        contentId: type.content._id,
+        contentType: type.type,
+        action: 'merge',
+        content: [],
+      };
 
-    expect(responses[0].by.type).toBe(ACTIVITY_PERFORMER_TYPES.CUSTOMER);
+      await activityLogFactory(doc);
+
+      const args = { contentId: type.content._id, contentType: type.type };
+
+      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+
+      expect(response.length).toBe(1);
+    }
   });
 
-  test('Activity log list (limit filter)', async () => {
-    await activityLogFactory(args);
-    await activityLogFactory(args);
-    await activityLogFactory(args);
+  test('Activity log action moved', async () => {
+    const stage1 = await stageFactory();
+    const stage2 = await stageFactory();
 
-    filter.limit = 2;
-    const responses = await graphqlRequest(qryActivityLogs, 'activityLogs', filter);
+    const types = [
+      { type: 'deal', content: deal },
+      { type: 'ticket', content: ticket },
+      { type: 'task', content: task },
+      { type: 'growthHack', content: growtHack },
+    ];
 
-    expect(responses.length).toBe(2);
-  });
+    for (const type of types) {
+      const doc1 = {
+        contentId: type.content._id,
+        contentType: type.type,
+        action: 'moved',
+        content: {
+          oldStageId: stage1._id,
+          destinationStageId: stage2._id,
+        },
+      };
 
-  test('Activity log list (no activity type)', async () => {
-    await activityLogFactory({ contentType: { type: contentType, id: contentId } });
+      const doc2 = {
+        contentId: type.content._id,
+        contentType: type.type,
+        action: 'moved',
+        content: {
+          oldStageId: '',
+          destinationStageId: '',
+        },
+      };
 
-    // filtering when no activity type
-    filter.activityType = '';
+      await activityLogFactory(doc1);
+      await activityLogFactory(doc2);
 
-    const responses = await graphqlRequest(qryActivityLogs, 'activityLogs', filter);
+      const args = { contentId: type.content._id, contentType: type.type };
 
-    expect(responses.length).toBe(1);
+      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+
+      expect(response.length).toBe(2);
+    }
   });
 });

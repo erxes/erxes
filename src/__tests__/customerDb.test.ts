@@ -421,7 +421,7 @@ describe('Customers model tests', () => {
 
     const companyIds = await Conformities.savedConformity({
       mainType: 'customer',
-      relType: 'company',
+      relTypes: ['company'],
       mainTypeId: mergedCustomer._id,
     });
     expect(mergedCompanyIds.sort()).toEqual(companyIds.sort());
@@ -465,7 +465,7 @@ describe('Customers model tests', () => {
     const newRelTypeIds = await Conformities.savedConformity({
       mainType: 'customer',
       mainTypeId: mergedCustomer._id,
-      relType: 'deal',
+      relTypes: ['deal'],
     });
 
     const deals = await Deals.find({

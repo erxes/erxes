@@ -1,4 +1,4 @@
-import { GrowthHacks } from '../../../db/models';
+import { ActivityLogs, GrowthHacks } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
@@ -109,7 +109,7 @@ const growthHackMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(growthHack, 'growthHack', destinationStageId);
+    const { content, action } = await itemsChange(user._id, growthHack, 'growthHack', destinationStageId);
 
     await sendNotifications({
       item: growthHack,
@@ -145,6 +145,8 @@ const growthHackMutations = {
       contentType: 'growthHack',
     });
 
+    await ActivityLogs.removeActivityLog(growthHack._id);
+
     const removed = growthHack.remove();
 
     await putDeleteLog(
@@ -155,6 +157,8 @@ const growthHackMutations = {
       },
       user,
     );
+
+    await ActivityLogs.removeActivityLog(growthHack._id);
 
     return removed;
   },

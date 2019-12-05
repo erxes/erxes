@@ -69,7 +69,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
       const relIds = await Conformities.savedConformity({
         mainType: conformityMainType,
         mainTypeId: conformityMainTypeId,
-        relType: type,
+        relTypes: [type],
       });
 
       filter._id = contains(relIds || []);

@@ -1,4 +1,4 @@
-import { Checklists, Conformities, Tasks } from '../../../db/models';
+import { ActivityLogs, Checklists, Conformities, Tasks } from '../../../db/models';
 import { IItemCommonFields as ITask, IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission } from '../../permissions/wrappers';
@@ -99,7 +99,7 @@ const taskMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(task, 'task', destinationStageId);
+    const { content, action } = await itemsChange(user._id, task, 'task', destinationStageId);
 
     await sendNotifications({
       item: task,
@@ -137,6 +137,7 @@ const taskMutations = {
 
     await Conformities.removeConformity({ mainType: 'task', mainTypeId: task._id });
     await Checklists.removeChecklists('task', task._id);
+    await ActivityLogs.removeActivityLog(task._id);
 
     return task.remove();
   },

@@ -9,6 +9,7 @@ import conversations from './conversations';
 import customers from './customers';
 import dealInsights from './dealInsights';
 import deals from './deals';
+import emailDeliveries from './emailDelivery';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
 import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fields';
@@ -44,6 +45,7 @@ export default {
   ...responseTemplates,
   ...scripts,
   ...emailTemplates,
+  ...emailDeliveries,
   ...engages,
   ...forms,
   ...tags,
