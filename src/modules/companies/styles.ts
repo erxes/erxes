@@ -31,6 +31,10 @@ const List = styled(SidebarList)`
       margin: 0;
     }
 
+    i {
+      margin-left: ${dimensions.unitSpacing / 2}px;
+    }
+
     &:last-child {
       border: none;
     }
@@ -42,8 +46,4 @@ const FlexItem = styled.div`
   align-items: center;
 `;
 
-const RightSpace = styled.span`
-  padding-right: 5px;
-`;
-
-export { CompaniesTableWrapper, CompanyLogo, List, RightSpace, FlexItem };
+export { CompaniesTableWrapper, CompanyLogo, List, FlexItem };
