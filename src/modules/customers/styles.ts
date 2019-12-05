@@ -95,7 +95,7 @@ const ClickableRow = styled.span`
   cursor: pointer;
 
   &:hover {
-    color: ${colors.colorCoreGray};
+    color: ${colors.textSecondary};
   }
 `;
 
