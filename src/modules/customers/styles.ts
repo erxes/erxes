@@ -91,6 +91,14 @@ const TabContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
+const ClickableRow = styled.span`
+  cursor: pointer;
+
+  &:hover {
+    color: ${colors.textSecondary};
+  }
+`;
+
 export {
   InfoTitle,
   InfoDetail,
@@ -100,5 +108,6 @@ export {
   InfoAvatar,
   Contact,
   Name,
-  TabContent
+  TabContent,
+  ClickableRow
 };
