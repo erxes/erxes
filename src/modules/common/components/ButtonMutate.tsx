@@ -33,7 +33,7 @@ type Props = {
   isSubmitted?: boolean;
   type?: string;
   disabled?: boolean;
-  isSecondaryBtn?: boolean;
+  disableLoading?: boolean;
   block?: boolean;
   beforeSubmit?: () => void;
 };
@@ -67,14 +67,14 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       successMessage = '',
       refetchQueries,
       beforeSubmit,
-      isSecondaryBtn
+      disableLoading
     } = this.props;
 
     if (beforeSubmit) {
       beforeSubmit();
     }
 
-    if (!isSecondaryBtn) {
+    if (!disableLoading) {
       this.setState({ isLoading: true });
     }
 
@@ -94,7 +94,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
           callback(data);
         }
 
-        if (!isSecondaryBtn) {
+        if (!disableLoading) {
           this.setState({ isLoading: false });
         }
       })
@@ -106,7 +106,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         } else {
           Alert.error(error.message);
         }
-        if (!isSecondaryBtn) {
+        if (!disableLoading) {
           this.setState({ isLoading: false });
         }
       });

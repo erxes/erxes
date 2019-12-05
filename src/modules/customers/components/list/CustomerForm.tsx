@@ -38,7 +38,7 @@ type State = {
   hasAuthority: string;
   users: IUser[];
   avatar: string;
-  goToDetail: boolean;
+  hasRedirect: boolean;
   phones?: string[];
   emails?: string[];
   primaryPhone?: string;
@@ -57,7 +57,7 @@ class CustomerForm extends React.Component<Props, State> {
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
       avatar: customer.avatar,
-      goToDetail: false
+      hasRedirect: false
     };
   }
 
@@ -97,7 +97,7 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   onBtnClick = () => {
-    this.setState({ goToDetail: true });
+    this.setState({ hasRedirect: true });
   };
 
   getVisitorInfo(customer, key) {
@@ -156,7 +156,7 @@ class CustomerForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
-    const { goToDetail } = this.state;
+    const { hasRedirect } = this.state;
 
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
@@ -365,7 +365,7 @@ class CustomerForm extends React.Component<Props, State> {
             name: 'customer',
             values: this.generateDoc(values),
             isSubmitted,
-            type: goToDetail,
+            disableLoading: hasRedirect,
             object: this.props.customer
           })}
 
@@ -374,9 +374,9 @@ class CustomerForm extends React.Component<Props, State> {
               btnStyle="primary"
               onClick={this.onBtnClick}
               type="submit"
-              disabled={isSubmitted && goToDetail}
+              disabled={isSubmitted && hasRedirect}
             >
-              {isSubmitted && goToDetail && <SmallLoader />}
+              {isSubmitted && hasRedirect && <SmallLoader />}
               Save & continue
             </Button>
           )}
