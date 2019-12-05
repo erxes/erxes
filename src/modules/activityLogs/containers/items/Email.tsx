@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Email from 'modules/activityLogs/components/items/email/Email';
 import EngageEmail from 'modules/activityLogs/components/items/email/EngageEmail';
-import NylasEmail from 'modules/activityLogs/components/items/email/NylasEmail';
 import { EmailDeliveryDetailQueryResponse } from 'modules/activityLogs/types';
 import { withProps } from 'modules/common/utils';
 import { queries as engageQueries } from 'modules/engage/graphql';
@@ -47,7 +47,7 @@ class EmailContainer extends React.Component<FinalProps> {
     }
 
     return (
-      <NylasEmail
+      <Email
         {...this.props}
         email={emailDeliveryDetailQuery.emailDeliveryDetail}
       />
@@ -61,7 +61,7 @@ export default withProps<Props>(
       gql(engageQueries.engageMessageDetail),
       {
         name: 'engageMessageDetailQuery',
-        skip: ({ emailType }) => emailType === 'nylas',
+        skip: ({ emailType }) => emailType === 'email',
         options: ({ emailId }) => ({
           variables: {
             _id: emailId

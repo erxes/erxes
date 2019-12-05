@@ -20,7 +20,7 @@ type Props = {
   activity: any;
 };
 
-class NylasEmail extends React.Component<Props, { expand: boolean }> {
+class Email extends React.Component<Props, { expand: boolean }> {
   constructor(props) {
     super(props);
 
@@ -91,4 +91,4 @@ class NylasEmail extends React.Component<Props, { expand: boolean }> {
   }
 }
 
-export default NylasEmail;
+export default Email;
