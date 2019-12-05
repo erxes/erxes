@@ -108,6 +108,10 @@ class Histories extends React.Component<Props & IRouterProps> {
     const { REACT_APP_API_URL } = getEnv();
     let buttonText = `${currentType}s`;
 
+    if (currentType === 'product') {
+      return null;
+    }
+
     const exportData = () => {
       window.open(
         `${REACT_APP_API_URL}/file-export?type=${currentType}`,
@@ -162,7 +166,7 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Import histories'), link: '/settings/importHistories' },
+      { title: __('Import & Export'), link: '/settings/importHistories' },
       { title: __(currentType) }
     ];
 
@@ -176,7 +180,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             left={
               <HeaderDescription
                 icon="/images/actions/27.svg"
-                title="Import histories"
+                title="Import & export"
                 description="Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here."
               />
             }
@@ -184,7 +188,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           />
         }
         leftSidebar={
-          <Sidebar title="Import histories" currentType={currentType} />
+          <Sidebar title="Import & export" currentType={currentType} />
         }
         footer={<Pagination count={totalCount} />}
         content={
