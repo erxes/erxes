@@ -75,6 +75,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = doc => {
         doc.kind = message.kind ? message.kind : kind;
+        doc.scheduleDate = message.kind === 'auto' ? doc.scheduleDate : null;
 
         if (messageId) {
           return doMutation(
