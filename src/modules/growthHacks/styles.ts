@@ -1,3 +1,4 @@
+import { ColorButton } from 'modules/boards/styles/common';
 import { colors, dimensions } from 'modules/common/styles';
 import { FixedContent } from 'modules/deals/components/conversion/style';
 import { BoxItem } from 'modules/settings/growthHacks/styles';
@@ -268,14 +269,8 @@ const VotersContent = styled.div`
   }
 `;
 
-const VotersCount = styled.span`
-  cursor: pointer;
-  padding: 0px ${dimensions.unitSpacing}px;
+const VotersCount = styled(ColorButton)`
   display: inline-block;
-  margin-top: ${dimensions.unitSpacing / 2}px;
-  border: 1px solid ${colors.colorPrimary};
-  color: ${colors.colorPrimary};
-  border-radius: ${dimensions.unitSpacing * 2}px;
 `;
 
 const PipelineMeta = styled.div`
