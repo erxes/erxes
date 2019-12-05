@@ -13,7 +13,12 @@ dotenv.config();
 const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 const MONGO_URL = getEnv({ name: 'MONGO_URL', defaultValue: '' });
 
-mongoose.set('useFindAndModify', false);
+export const connectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  autoReconnect: true,
+  useFindAndModify: false,
+};
 
 mongoose.Promise = global.Promise;
 
@@ -34,9 +39,7 @@ export function connect(URL?: string, options?) {
   return mongoose.connect(
     URL || MONGO_URL,
     {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      autoReconnect: true,
+      ...connectionOptions,
       ...(options || { poolSize: 100 }),
     },
   );

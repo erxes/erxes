@@ -114,6 +114,7 @@
     "jest-tobetype": "^1.1.0",
     "lint-staged": "^3.6.0",
     "migrate": "^1.6.2",
+    "mongodb-memory-server": "^6.0.2",
     "ora": "^3.4.0",
     "prettier": "^1.14.2",
     "release-it": "^12.4.3",
