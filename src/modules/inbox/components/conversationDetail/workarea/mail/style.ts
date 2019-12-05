@@ -84,6 +84,7 @@ const AttachmentsContainer = styled.div`
   margin: 0 20px 10px 20px;
   overflow: hidden;
   display: flex;
+  flex-wrap: wrap;
 `;
 
 const FileName = styled.div`

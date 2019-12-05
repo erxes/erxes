@@ -73,7 +73,7 @@ const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
   margin: 0 5px 5px 0;
   color: ${colors.colorWhite};
   font-weight: 500;
-  border-radius: 3px;
+  border-radius: 4px;
   line-height: 1.2em;
   padding: 4px 10px;
 
