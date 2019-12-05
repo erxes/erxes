@@ -213,7 +213,8 @@ export const loadClass = () => {
 
       // if current user is not in read users list then add it
       if (!readUserIds.includes(userId)) {
-        await Conversations.updateConversation(_id, { readUserIds: userId });
+        readUserIds.push(userId);
+        await Conversations.updateConversation(_id, { readUserIds });
       }
 
       return Conversations.findOne({ _id });
