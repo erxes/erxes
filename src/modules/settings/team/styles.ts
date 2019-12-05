@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const FilterContainer = styled.div`
   position: relative;
-  padding: ${dimensions.coreSpacing}px;
+  padding-bottom: ${dimensions.coreSpacing}px;
   z-index: 2;
 `;
 

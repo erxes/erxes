@@ -49,7 +49,7 @@ const StyledTable = styledTS<{
 
     ${
       props.hover
-        ? `tr:hover td { background-color: ${tableHoverColor}; cursor: pointer; }`
+        ? `tr:hover td { background-color: ${tableHoverColor}; }`
         : null
     } ${
     props.bordered

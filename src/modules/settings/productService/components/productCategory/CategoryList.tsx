@@ -7,7 +7,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { HelperButtons, SidebarList } from 'modules/layout/styles';
+import { SidebarList } from 'modules/layout/styles';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -130,38 +130,10 @@ class List extends React.Component<IProps> {
     return result;
   }
 
-  renderSidebarHeader() {
-    const { Header } = Sidebar;
-
-    const trigger = (
-      <a href="#add">
-        <Tip text={__('Create group')}>
-          <Icon icon="add" />
-        </Tip>
-      </a>
-    );
-
-    return (
-      <Header uppercase={true}>
-        {__('Product & Service Category')}{' '}
-        <HelperButtons>
-          {this.renderFormTrigger(trigger)}
-          {router.getParam(this.props.history, 'categoryId') && (
-            <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-              <Tip text={__('Clear filter')}>
-                <Icon icon="cancel-1" />
-              </Tip>
-            </a>
-          )}
-        </HelperButtons>
-      </Header>
-    );
-  }
-
   renderCategoryHeader() {
     const trigger = (
       <a href="#add">
-        <Tip text={__('Create group')}>
+        <Tip text={__('Create group')} placement="bottom">
           <Icon icon="add" />
         </Tip>
       </a>
@@ -174,7 +146,7 @@ class List extends React.Component<IProps> {
           {this.renderFormTrigger(trigger)}
           {router.getParam(this.props.history, 'categoryId') && (
             <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-              <Tip text={__('Clear filter')}>
+              <Tip text={__('Clear filter')} placement="bottom">
                 <Icon icon="cancel-1" />
               </Tip>
             </a>
@@ -194,7 +166,8 @@ class List extends React.Component<IProps> {
           loading={loading}
           count={productCategoriesCount}
           emptyText="There is no product & service category"
-          emptyImage="/images/actions/26.svg"
+          emptyIcon="folder-2"
+          size="small"
         />
       </SidebarList>
     );

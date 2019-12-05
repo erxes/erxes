@@ -27,7 +27,7 @@ export default class RightSidebar extends React.Component<Props> {
     }
 
     let integrationNode: React.ReactNode = null;
-    let icon: string = 'check';
+    let icon: string = 'check-1';
     let color: string = colors.colorCoreGreen;
     let text: string = __('Active');
 
@@ -41,7 +41,7 @@ export default class RightSidebar extends React.Component<Props> {
       integrationNode = (
         <li>
           <div>{__('Integration')}:</div>
-          <span>{integration.name}</span>
+          {integration.name}
           <Tip text={text}>
             <Icon icon={icon} color={color} />
           </Tip>

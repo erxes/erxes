@@ -79,7 +79,7 @@ class DraggableContainer extends React.Component<
 
     return (
       <NotifiedContainer>
-        <Icon icon="bell" size={16} />
+        <Icon icon="bell" size={14} />
       </NotifiedContainer>
     );
   }

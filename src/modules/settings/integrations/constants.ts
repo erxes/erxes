@@ -214,7 +214,7 @@ export const INTEGRATIONS = [
         createUrl: '/settings/integrations/nylas-gmail'
       },
       {
-        name: 'Lead',
+        name: 'Pop Ups',
         description: 'Find your lead forms right here in your Widget',
         inMessenger: true,
         kind: 'lead',

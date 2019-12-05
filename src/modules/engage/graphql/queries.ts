@@ -62,7 +62,7 @@ const engageMessages = `
   }
 `;
 
-const engageDetailFields = `
+export const engageDetailFields = `
   _id
   kind
   segmentIds
