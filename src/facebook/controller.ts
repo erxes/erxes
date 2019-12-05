@@ -4,7 +4,7 @@ import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
-import { Comments, Conversations, Posts } from './models';
+import { Comments, Conversations, Customers, Posts } from './models';
 import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
@@ -180,6 +180,135 @@ const init = async app => {
     }
   });
 
+  app.get('/facebook/get-post', async (req, res) => {
+    debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
+
+    const { erxesApiId } = req.query;
+
+    const post = await Posts.getPost({ erxesApiId }, true);
+
+    const commentCount = await Comments.countDocuments({ postId: post.postId });
+
+    return res.json({
+      ...post,
+      commentCount,
+    });
+  });
+
+  app.get('/facebook/get-customer-posts', async (req, res) => {
+    debugFacebook(`Request to get customer post data with: ${JSON.stringify(req.query)}`);
+
+    const { customerId } = req.query;
+
+    const customer = await Customers.findOne({ erxesApiId: customerId });
+
+    if (!customer) {
+      return res.end();
+    }
+
+    const result = await Comments.aggregate([
+      { $match: { senderId: customer.userId } },
+      { $lookup: { from: 'posts_facebooks', localField: 'postId', foreignField: 'postId', as: 'post' } },
+      {
+        $unwind: {
+          path: '$post',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          conversationId: '$post.erxesApiId',
+        },
+      },
+      {
+        $project: { _id: 0, conversationId: 1 },
+      },
+    ]);
+
+    const conversationIds = result.map(conv => conv.conversationId);
+
+    return res.send(conversationIds);
+  });
+
+  app.get('/facebook/get-comments', async (req, res) => {
+    debugFacebook(`Request to get comments with: ${JSON.stringify(req.query)}`);
+
+    const { postId, commentId, senderId } = req.query;
+
+    const post = await Posts.getPost({ erxesApiId: postId });
+
+    const query: { postId: string; parentId?: string; senderId?: string } = { postId: post.postId };
+
+    let { limit } = req.query;
+
+    limit = parseInt(limit, 10);
+
+    if (senderId !== 'undefined') {
+      const customer = await Customers.findOne({ erxesApiId: senderId });
+
+      if (!customer) {
+        return res.end();
+      }
+      query.senderId = customer.userId;
+    } else {
+      query.parentId = commentId !== 'undefined' ? commentId : null;
+    }
+
+    const result = await Comments.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $lookup: {
+          from: 'customers_facebooks',
+          localField: 'senderId',
+          foreignField: 'userId',
+          as: 'customer',
+        },
+      },
+      {
+        $unwind: {
+          path: '$customer',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'posts_facebooks',
+          localField: 'postId',
+          foreignField: 'postId',
+          as: 'post',
+        },
+      },
+      {
+        $unwind: {
+          path: '$post',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'comments_facebooks',
+          localField: 'commentId',
+          foreignField: 'parentId',
+          as: 'replies',
+        },
+      },
+      {
+        $addFields: {
+          commentCount: { $size: '$replies' },
+          'customer.avatar': '$customer.profilePic',
+          conversationId: '$post.erxesApiId',
+        },
+      },
+
+      { $sort: { timestamp: -1 } },
+      { $limit: limit },
+    ]);
+
+    return res.json(result.reverse());
+  });
+
   const { FACEBOOK_VERIFY_TOKEN, FACEBOOK_APP_SECRET } = process.env;
 
   if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
@@ -284,96 +413,6 @@ const init = async app => {
         }
       }
     }
-  });
-
-  app.get('/facebook/get-post', async (req, res) => {
-    const { erxesApiId, integrationId } = req.query;
-
-    debugFacebook(`Request to get postData with: ${erxesApiId}`);
-
-    await Integrations.getIntegration({ erxesApiId: integrationId });
-
-    const post = await Posts.getPost({ erxesApiId }, true);
-
-    const commentCount = await Comments.countDocuments({ postId: post.postId });
-
-    return res.json({
-      ...post,
-      commentCount,
-    });
-  });
-
-  app.get('/facebook/get-comments', async (req, res) => {
-    const { postId, commentId } = req.query;
-
-    let { limit } = req.query;
-
-    limit = parseInt(limit, 10);
-
-    debugFacebook(`Request to get comments with: ${postId}`);
-
-    const query: { postId: string; parentId?: string } = { postId };
-
-    if (commentId !== 'undefined') {
-      query.parentId = commentId;
-      limit = 9999;
-    } else {
-      query.parentId = null;
-    }
-
-    const result = await Comments.aggregate([
-      {
-        $match: query,
-      },
-      {
-        $lookup: {
-          from: 'customers_facebooks',
-          localField: 'senderId',
-          foreignField: 'userId',
-          as: 'customer',
-        },
-      },
-      {
-        $unwind: {
-          path: '$customer',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: 'posts_facebooks',
-          localField: 'postId',
-          foreignField: 'postId',
-          as: 'post',
-        },
-      },
-      {
-        $unwind: {
-          path: '$post',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: 'comments_facebooks',
-          localField: 'commentId',
-          foreignField: 'parentId',
-          as: 'replies',
-        },
-      },
-      {
-        $addFields: {
-          commentCount: { $size: '$replies' },
-          'customer.avatar': '$customer.profilePic',
-          conversationId: '$post.erxesApiId',
-        },
-      },
-
-      { $sort: { timestamp: -1 } },
-      { $limit: limit },
-    ]);
-
-    return res.json(result.reverse());
   });
 };
 
