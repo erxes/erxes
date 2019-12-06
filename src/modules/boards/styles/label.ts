@@ -49,7 +49,6 @@ const PipelineLabelList = styled.div`
       font-weight: 700;
       left: auto;
       right: 7px;
-      margin-top: -9px;
     }
 
     &:last-child {
