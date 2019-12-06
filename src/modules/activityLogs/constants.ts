@@ -1,66 +1,70 @@
 export const ICON_AND_COLOR_TABLE = {
   customer: {
-    icon: 'user',
-    color: '#6465e2'
+    icon: 'user-plus',
+    color: '#3B85F4'
   },
   segment: {
-    icon: 'filter',
+    icon: 'chart-pie',
     color: '#63D2D6'
   },
   conversation: {
-    icon: 'speech-bubble-2',
+    icon: 'comment-plus',
     color: '#F44236'
   },
   note: {
-    icon: 'pushpin',
-    color: '#F7CE53'
+    icon: 'file-plus',
+    color: '#fbc531'
   },
   company: {
-    icon: 'briefcase',
-    color: '#EA475D'
+    icon: 'bag-alt',
+    color: '#273c75'
   },
   deal: {
-    icon: 'piggy-bank',
-    color: '#f33fab'
+    icon: 'dollar-alt',
+    color: '#8c7ae6'
   },
   email: {
-    icon: 'email-3',
-    color: '#673FBD'
+    icon: 'envelope-alt',
+    color: '#d74534'
   },
   task: {
-    icon: 'clipboard',
+    icon: 'file-check',
     color: '#34c1c6'
   },
+  ticket: {
+    icon: 'postcard',
+    color: '#3a6f81'
+  },
   messenger: {
-    icon: 'comment',
-    color: '#6569DF'
+    icon: 'comment-edit',
+    color: '#5b48a2'
   },
   lead: {
-    icon: 'doc-text-inv-1',
-    color: '#3CCC38'
+    icon: 'presentation',
+    color: '#16a085'
   },
   'facebook-messenger': {
     icon: 'messenger',
-    color: '#0084FF'
+    color: '#1472FB'
   },
   'facebook-post': {
     icon: 'facebook',
-    color: '#3b5998'
+    color: '#3A5999'
   },
   comment: {
-    icon: 'comment-alt-message',
-    color: '#3b5998'
+    icon: 'comment-alt-lines',
+    color: '#503b2c'
   },
   callpro: {
-    icon: 'phone-call',
-    color: '#0191c8'
+    icon: 'phone-volume',
+    color: '#1793c7'
   },
   chatfuel: {
-    icon: 'comment-dots',
-    color: '#2490f0'
+    icon: 'comment-1',
+    color: '#208ef0'
   },
   'nylas-gmail': {
-    icon: 'email-3',
-    color: '#d74534'
+    icon: 'envelope',
+    color: '#D44638'
   }
 };

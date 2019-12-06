@@ -341,7 +341,10 @@ export function formatValue(value) {
   }
 
   if (typeof value === 'string') {
-    if (dayjs(value).isValid() && value.includes('/') && value.includes('-')) {
+    if (
+      dayjs(value).isValid() &&
+      (value.includes('/') || value.includes('-'))
+    ) {
       return <DateWrapper>{dayjs(value).format('lll')}</DateWrapper>;
     }
 
