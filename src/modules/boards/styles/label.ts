@@ -32,20 +32,28 @@ const ChooseColor = styled.div`
 
 const PipelineLabelList = styled.div`
   ul {
-    padding: ${dimensions.coreSpacing}px;
+    padding: ${dimensions.unitSpacing * 1.5}px ${dimensions.unitSpacing + 2}px
+      ${dimensions.unitSpacing / 2}px ${dimensions.coreSpacing}px;
   }
 
   li {
     color: ${colors.colorWhite};
     font-weight: 500;
     margin-bottom: 5px;
-    border-radius: 300px;
-    padding: 5px ${dimensions.coreSpacing}px 5px 30px !important;
+    border-radius: 4px;
+    padding: 3px 30px 3px 10px !important;
     transition: all ease 0.3s;
 
     &:before {
       color: ${colors.colorWhite} !important;
       font-weight: 700;
+      left: auto;
+      right: 7px;
+      margin-top: -9px;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
     }
 
     &:hover {
@@ -114,8 +122,8 @@ const ChooseLabelWrapper = styled.div`
 `;
 
 const ButtonContainer = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px
-    ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px
+    ${dimensions.unitSpacing * 1.5}px ${dimensions.coreSpacing}px;
 `;
 
 export {

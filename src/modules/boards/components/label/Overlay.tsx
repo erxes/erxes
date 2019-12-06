@@ -67,7 +67,7 @@ export default class Overlay extends React.Component<
         style: { backgroundColor: colorCode },
         selectedBy: count === 1 ? 'all' : 'none',
         additionalIconOnClick: this.onEdit,
-        additionalIconClass: 'edit'
+        additionalIconClass: 'pen-1'
       };
     });
   }

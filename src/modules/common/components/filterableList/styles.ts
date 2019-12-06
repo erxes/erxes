@@ -20,6 +20,10 @@ const FlexRow = styled.div`
   justify-content: space-between;
   align-items: center;
 
+  &:last-child li {
+    margin-bottom: 0;
+  }
+
   > li {
     flex: 1;
   }
