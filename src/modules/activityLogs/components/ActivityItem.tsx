@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
 import React from 'react';
 import Task from '../containers/items/boardItems/Task';
 import Conversation from '../containers/items/Conversation';
@@ -7,7 +8,7 @@ import Email from '../containers/items/Email';
 import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
-import { getIconAndColor } from '../utils';
+import { formatText, getIconAndColor } from '../utils';
 import MovementLog from './items/boardItems/MovementLog';
 import CreatedLog from './items/CreatedLog';
 import MergedLog from './items/MergedLog';
@@ -28,9 +29,11 @@ class ActivityItem extends React.Component<Props> {
 
     return (
       <ActivityRow key={Math.random()}>
-        <ActivityIcon color={iconAndColor.color}>
-          <Icon icon={iconAndColor.icon} />
-        </ActivityIcon>
+        <Tip text={formatText(type)} placement="top">
+          <ActivityIcon color={iconAndColor.color}>
+            <Icon icon={iconAndColor.icon} />
+          </ActivityIcon>
+        </Tip>
         {children}
       </ActivityRow>
     );

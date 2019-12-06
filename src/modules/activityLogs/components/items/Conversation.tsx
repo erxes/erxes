@@ -11,7 +11,7 @@ import {
   FlexCenterContent,
   Header
 } from 'modules/activityLogs/styles';
-import { getIconAndColor } from 'modules/activityLogs/utils';
+import { formatText, getIconAndColor } from 'modules/activityLogs/utils';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { renderFullName } from 'modules/common/utils';
@@ -250,9 +250,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
     return (
       <ActivityRow key={Math.random()} isConversation={true}>
-        <ActivityIcon color={iconAndColor.color}>
-          <Icon icon={iconAndColor.icon} />
-        </ActivityIcon>
+        <Tip text={formatText(condition)} placement="top">
+          <ActivityIcon color={iconAndColor.color}>
+            <Icon icon={iconAndColor.icon} />
+          </ActivityIcon>
+        </Tip>
         <Collapse onClick={this.onCollapse}>{this.renderContent()}</Collapse>
       </ActivityRow>
     );
