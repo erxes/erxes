@@ -125,10 +125,14 @@ class Lead extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title, rules } = this.state;
+    const { brand, calloutTitle, title, rules, formData } = this.state;
 
     if (!title) {
       return Alert.error('Write title');
+    }
+
+    if (!formData.title) {
+      return Alert.error('Write form title');
     }
 
     if (!brand) {
