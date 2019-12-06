@@ -96,21 +96,21 @@ export interface ICustomerDocument extends ICustomer, Document {
 /* location schema */
 const locationSchema = new Schema(
   {
-    remoteAddress: String,
-    country: String,
-    city: String,
-    region: String,
-    hostname: String,
-    language: String,
-    userAgent: String,
+    remoteAddress: field({ type: String, label: 'Remote address' }),
+    country: field({ type: String, label: 'Country' }),
+    city: field({ type: String, label: 'City' }),
+    region: field({ type: String, label: 'Region' }),
+    hostname: field({ type: String, label: 'Host name' }),
+    language: field({ type: String, label: 'Language' }),
+    userAgent: field({ type: String, label: 'User agent' }),
   },
   { _id: false },
 );
 
 const visitorContactSchema = new Schema(
   {
-    email: String,
-    phone: String,
+    email: field({ type: String, label: 'Email' }),
+    phone: field({ type: String, label: 'Phone' }),
   },
   { _id: false },
 );
@@ -135,6 +135,7 @@ const messengerSchema = new Schema(
     customData: field({
       type: Object,
       optional: true,
+      label: 'Custom data',
     }),
   },
   { _id: false },
@@ -164,14 +165,14 @@ export const customerSchema = schemaWrapper(
     lastName: field({ type: String, label: 'Last name', optional: true }),
 
     primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
-    emails: field({ type: [String], optional: true }),
-    hasValidEmail: field({ type: Boolean, optional: true }),
+    emails: field({ type: [String], optional: true, label: 'Emails' }),
+    hasValidEmail: field({ type: Boolean, optional: true, label: 'Has valid email' }),
 
     primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
-    phones: field({ type: [String], optional: true }),
-    profileScore: field({ type: Number, index: true, optional: true }),
+    phones: field({ type: [String], optional: true, label: 'Phones' }),
+    profileScore: field({ type: Number, index: true, optional: true, label: 'Profile score' }),
 
-    ownerId: field({ type: String, optional: true }),
+    ownerId: field({ type: String, optional: true, label: 'Owner' }),
     position: field({ type: String, optional: true, label: 'Position' }),
     department: field({ type: String, optional: true, label: 'Department' }),
 
@@ -205,20 +206,20 @@ export const customerSchema = schemaWrapper(
       optional: true,
       label: 'Do not disturb',
     }),
-    links: field({ type: linkSchema, default: {} }),
+    links: field({ type: linkSchema, default: {}, label: 'Links' }),
 
     isUser: field({ type: Boolean, label: 'Is user', optional: true }),
 
-    integrationId: field({ type: String, optional: true }),
-    tagIds: field({ type: [String], optional: true, index: true }),
+    integrationId: field({ type: String, optional: true, label: 'Integration' }),
+    tagIds: field({ type: [String], optional: true, index: true, label: 'Tags' }),
 
     // Merged customer ids
-    mergedIds: field({ type: [String], optional: true }),
+    mergedIds: field({ type: [String], optional: true, label: 'Merged customers' }),
 
-    customFieldsData: field({ type: Object, optional: true }),
-    messengerData: field({ type: messengerSchema, optional: true }),
+    customFieldsData: field({ type: Object, optional: true, label: 'Custom fields' }),
+    messengerData: field({ type: messengerSchema, optional: true, label: 'Messenger data' }),
 
-    location: field({ type: locationSchema, optional: true }),
+    location: field({ type: locationSchema, optional: true, label: 'Location' }),
 
     // if customer is not a user then we will contact with this visitor using
     // this information
@@ -229,7 +230,7 @@ export const customerSchema = schemaWrapper(
     }),
     urlVisits: Object,
 
-    deviceTokens: field({ type: [String], default: [] }),
+    deviceTokens: field({ type: [String], default: [], label: 'Device tokens' }),
     searchText: field({ type: String, optional: true, index: true }),
     code: field({ type: String, label: 'Code', optional: true }),
   }),

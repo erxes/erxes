@@ -90,11 +90,13 @@ export const companySchema = schemaWrapper(
     names: field({
       type: [String],
       optional: true,
+      label: 'Names',
     }),
 
     avatar: field({
       type: String,
       optional: true,
+      label: 'Avatar',
     }),
 
     size: field({
@@ -128,11 +130,11 @@ export const companySchema = schemaWrapper(
       label: 'Parent Company',
     }),
 
-    primaryEmail: field({ type: String, optional: true, label: 'Email' }),
-    emails: field({ type: [String], optional: true }),
+    primaryEmail: field({ type: String, optional: true, label: 'Primary email' }),
+    emails: field({ type: [String], optional: true, label: 'Emails' }),
 
-    primaryPhone: field({ type: String, optional: true, label: 'Phone' }),
-    phones: field({ type: [String], optional: true }),
+    primaryPhone: field({ type: String, optional: true, label: 'Primary phone' }),
+    phones: field({ type: [String], optional: true, label: 'Phones' }),
 
     ownerId: field({ type: String, optional: true, label: 'Owner' }),
 
@@ -165,25 +167,27 @@ export const companySchema = schemaWrapper(
       label: 'Business Type',
     }),
 
-    description: field({ type: String, optional: true }),
+    description: field({ type: String, optional: true, label: 'Description' }),
     employees: field({ type: Number, optional: true, label: 'Employees' }),
     doNotDisturb: field({
       type: String,
       optional: true,
       label: 'Do not disturb',
     }),
-    links: field({ type: linkSchema, default: {} }),
+    links: field({ type: linkSchema, default: {}, label: 'Links' }),
 
     tagIds: field({
       type: [String],
       optional: true,
+      label: 'Tags',
     }),
 
     // Merged company ids
-    mergedIds: field({ type: [String], optional: true }),
+    mergedIds: field({ type: [String], optional: true, label: 'Merged companies' }),
 
     customFieldsData: field({
       type: Object,
+      label: 'Custom fields',
     }),
     searchText: field({ type: String, optional: true, index: true }),
   }),

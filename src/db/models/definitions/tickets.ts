@@ -14,5 +14,5 @@ export interface ITicketDocument extends ITicket, Document {
 export const ticketSchema = new Schema({
   ...commonItemFieldsSchema,
 
-  source: field({ type: String }),
+  source: field({ type: String, label: 'Source' }),
 });

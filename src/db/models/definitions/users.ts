@@ -61,8 +61,8 @@ export interface IUserDocument extends IUser, Document {
 // Mongoose schemas ===============================
 const emailSignatureSchema = new Schema(
   {
-    brandId: field({ type: String }),
-    signature: field({ type: String }),
+    brandId: field({ type: String, label: 'Brand' }),
+    signature: field({ type: String, label: 'Signature' }),
   },
   { _id: false },
 );
@@ -70,24 +70,24 @@ const emailSignatureSchema = new Schema(
 // Detail schema
 const detailSchema = new Schema(
   {
-    avatar: field({ type: String }),
-    shortName: field({ type: String, optional: true }),
-    fullName: field({ type: String }),
-    position: field({ type: String }),
-    location: field({ type: String, optional: true }),
-    description: field({ type: String, optional: true }),
+    avatar: field({ type: String, label: 'Avatar' }),
+    shortName: field({ type: String, optional: true, label: 'Short name' }),
+    fullName: field({ type: String, label: 'Full name' }),
+    position: field({ type: String, label: 'Position' }),
+    location: field({ type: String, optional: true, label: 'Location' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
   },
   { _id: false },
 );
 
 const linkSchema = new Schema(
   {
-    linkedIn: field({ type: String, optional: true }),
-    twitter: field({ type: String, optional: true }),
-    facebook: field({ type: String, optional: true }),
-    github: field({ type: String, optional: true }),
-    youtube: field({ type: String, optional: true }),
-    website: field({ type: String, optional: true }),
+    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
+    twitter: field({ type: String, optional: true, label: 'Twitter' }),
+    facebook: field({ type: String, optional: true, label: 'Facebook' }),
+    github: field({ type: String, optional: true, label: 'Github' }),
+    youtube: field({ type: String, optional: true, label: 'Youtube' }),
+    website: field({ type: String, optional: true, label: 'Website' }),
   },
   { _id: false },
 );
@@ -95,26 +95,27 @@ const linkSchema = new Schema(
 // User schema
 export const userSchema = new Schema({
   _id: field({ pkey: true }),
-  username: field({ type: String }),
+  username: field({ type: String, label: 'Username' }),
   password: field({ type: String }),
   resetPasswordToken: field({ type: String }),
   registrationToken: field({ type: String }),
   registrationTokenExpires: field({ type: Date }),
   resetPasswordExpires: field({ type: Date }),
-  isOwner: field({ type: Boolean }),
+  isOwner: field({ type: Boolean, label: 'Is owner' }),
   email: field({
     type: String,
     unique: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/, 'Please fill a valid email address'],
+    label: 'Email',
   }),
-  getNotificationByEmail: field({ type: Boolean }),
-  emailSignatures: field({ type: [emailSignatureSchema] }),
-  starredConversationIds: field({ type: [String] }),
-  details: field({ type: detailSchema, default: {} }),
-  links: field({ type: linkSchema, default: {} }),
-  isActive: field({ type: Boolean, default: true }),
-  brandIds: field({ type: [String] }),
-  groupIds: field({ type: [String] }),
-  deviceTokens: field({ type: [String], default: [] }),
+  getNotificationByEmail: field({ type: Boolean, label: 'Get notification by email' }),
+  emailSignatures: field({ type: [emailSignatureSchema], label: 'Email signatures' }),
+  starredConversationIds: field({ type: [String], label: 'Starred conversations' }),
+  details: field({ type: detailSchema, default: {}, label: 'Details' }),
+  links: field({ type: linkSchema, default: {}, label: 'Links' }),
+  isActive: field({ type: Boolean, default: true, label: 'Is active' }),
+  brandIds: field({ type: [String], label: 'Brands' }),
+  groupIds: field({ type: [String], label: 'Groups' }),
+  deviceTokens: field({ type: [String], default: [], label: 'Device tokens' }),
   doNotDisturb: field({ type: String, optional: true, default: 'No', label: 'Do not disturb' }),
 });

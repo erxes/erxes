@@ -25,12 +25,12 @@ export interface IPermissionDocument extends IPermission, Document {
 
 export const permissionSchema = new Schema({
   _id: field({ pkey: true }),
-  module: field({ type: String }),
-  action: field({ type: String }),
-  userId: field({ type: String }),
-  groupId: field({ type: String }),
-  requiredActions: field({ type: [String], default: [] }),
-  allowed: field({ type: Boolean, default: false }),
+  module: field({ type: String, label: 'Module' }),
+  action: field({ type: String, label: 'Action' }),
+  userId: field({ type: String, label: 'Created by' }),
+  groupId: field({ type: String, label: 'User group' }),
+  requiredActions: field({ type: [String], default: [], label: 'Required actions' }),
+  allowed: field({ type: Boolean, default: false, label: 'Allowed' }),
 });
 
 export interface IUserGroup {
@@ -44,6 +44,6 @@ export interface IUserGroupDocument extends IUserGroup, Document {
 
 export const userGroupSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String, unique: true }),
-  description: field({ type: String }),
+  name: field({ type: String, unique: true, label: 'Name' }),
+  description: field({ type: String, label: 'Description' }),
 });

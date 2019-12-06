@@ -884,6 +884,7 @@ interface IDealFactoryInput {
   probability?: string;
   searchText?: string;
   userId?: string;
+  initialStageId?: string;
 }
 
 export const dealFactory = async (params: IDealFactoryInput = {}) => {
