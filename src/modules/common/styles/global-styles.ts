@@ -467,11 +467,6 @@ a:hover {
   padding-right: 0;
 }
 
-.Select-clear {
-  font-size: ${typography.fontSizeHeading6}px;
-  line-height: 1.4;
-}
-
 .Select-clear-zone:hover {
   color: ${colors.colorCoreRed};
 }

@@ -49,7 +49,7 @@ class Top extends React.Component<Props> {
         <HeaderRow>
           <HeaderContent>
             <TitleRow>
-              <Icon icon="creditcard" />
+              <Icon icon="atm-card" />
               <FormControl
                 componentClass="textarea"
                 defaultValue={item.name}

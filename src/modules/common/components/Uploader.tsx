@@ -29,9 +29,9 @@ const UploadBtn = styled.div`
   margin-top: 10px;
 
   label {
-    padding: 8px 16px;
+    padding: 8px 20px;
     background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
-    border-radius: 4px;
+    border-radius: 20px;
     font-weight: 500;
     transition: background 0.3s ease;
     display: inline-block;
