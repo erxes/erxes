@@ -52,7 +52,7 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
             {!expand && <ContentShadow />}
             <ExpandButton onClick={this.onExpand}>
               {expand ? 'Collapse' : 'Expand'}&nbsp;
-              <Icon icon={expand ? 'uparrow-2' : 'downarrow'} />
+              <Icon icon={expand ? 'angle-up' : 'angle-down'} />
             </ExpandButton>
           </>
         )}
