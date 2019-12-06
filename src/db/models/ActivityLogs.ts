@@ -111,7 +111,7 @@ export const loadClass = () => {
         action: 'segment',
         content: {
           id: segment._id,
-          content: segment,
+          content: segment.name,
         },
       };
 
