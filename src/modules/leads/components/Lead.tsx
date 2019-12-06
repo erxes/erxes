@@ -132,7 +132,7 @@ class Lead extends React.Component<Props, State> {
     }
 
     if (!formData.title) {
-      return Alert.error('Write form title');
+      return Alert.error('Write Form title');
     }
 
     if (!brand) {
