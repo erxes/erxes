@@ -22,6 +22,10 @@ export const renderFullName = data => {
     return data.primaryEmail || data.primaryPhone;
   }
 
+  if (data.emails && data.emails.length > 0) {
+    return data.emails[0] || 'Unknown';
+  }
+
   const { visitorContactInfo } = data;
 
   if (visitorContactInfo) {
