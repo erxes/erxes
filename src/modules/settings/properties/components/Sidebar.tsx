@@ -28,35 +28,49 @@ class Sidebar extends React.Component<Props> {
     return '';
   }
 
+  renderListItem(type: string, text: string) {
+    return (
+      <li>
+        <Link to={`?type=${type}`} className={this.getClassName(type)}>
+          {__(text)}
+        </Link>
+      </li>
+    );
+  }
+
   render() {
     return (
       <LeftSidebar header={this.renderSidebarHeader()}>
         <LeftSidebar.Section>
           <List>
-            <li>
-              <Link
-                className={this.getClassName('customer')}
-                to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER}`}
-              >
-                {__('Customer')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                className={this.getClassName('company')}
-                to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.COMPANY}`}
-              >
-                {__('Company')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                className={this.getClassName('product')}
-                to={`?type=${FIELDS_GROUPS_CONTENT_TYPES.PRODUCT}`}
-              >
-                {__('Product & Service')}
-              </Link>
-            </li>
+            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.BRAND, 'Brands')}
+            {this.renderListItem(
+              FIELDS_GROUPS_CONTENT_TYPES.CHANNEL,
+              'Channels'
+            )}
+            {this.renderListItem(
+              FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
+              'Customers'
+            )}
+            {this.renderListItem(
+              FIELDS_GROUPS_CONTENT_TYPES.COMPANY,
+              'Companies'
+            )}
+            {this.renderListItem(
+              FIELDS_GROUPS_CONTENT_TYPES.PERMISSION,
+              'Permissions'
+            )}
+            {this.renderListItem(
+              FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
+              'Product & Service'
+            )}
+            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.DEAL, 'Deals')}
+            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.TASK, 'Tasks')}
+            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.TICKET, 'Tickets')}
+            {this.renderListItem(
+              FIELDS_GROUPS_CONTENT_TYPES.TEAM_MEMBER,
+              'Team members'
+            )}
           </List>
         </LeftSidebar.Section>
       </LeftSidebar>
