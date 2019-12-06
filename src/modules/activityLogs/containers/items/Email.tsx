@@ -37,7 +37,7 @@ class EmailContainer extends React.Component<FinalProps> {
       return null;
     }
 
-    if (emailType === 'enage') {
+    if (emailType === 'engage') {
       return (
         <EngageEmail
           {...this.props}
