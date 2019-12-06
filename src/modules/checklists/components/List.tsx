@@ -59,10 +59,10 @@ class List extends React.Component<Props, State> {
   };
 
   saveAddItem = () => {
-    const { addItem } = this.props;
+    const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
 
     this.setState({ isAddingItem: false }, () => {
-      addItem(this.state.itemContent);
+      (content || []).map(text => this.props.addItem(text));
 
       this.setState({ itemContent: '', isAddingItem: true });
     });
@@ -123,14 +123,9 @@ class List extends React.Component<Props, State> {
   };
 
   generateDoc = (values: { title: string }) => {
-    const { list } = this.props;
-    const { title } = this.state;
-
-    const finalValues = values;
-
     return {
-      _id: list._id,
-      title: finalValues.title || title
+      _id: this.props.list._id,
+      title: values.title || this.state.title
     };
   };
 
