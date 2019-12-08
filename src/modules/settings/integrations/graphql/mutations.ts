@@ -20,9 +20,9 @@ const mailParamsDef = `
   $subject: String!,
   $kind: String,
   $body: String!,
-  $to: String!,
-  $cc: String,
-  $bcc: String,
+  $to: [String]!,
+  $cc: [String],
+  $bcc: [String] ,
   $from: String!,
   $attachments: [JSON],
 `;
