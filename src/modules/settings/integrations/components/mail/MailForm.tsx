@@ -37,6 +37,7 @@ type Props = {
   fromEmail?: string;
   mailData?: IMail;
   isReply?: boolean;
+  toAll?: boolean;
   closeModal?: () => void;
   toggleReply?: () => void;
   sendMail: (
@@ -112,6 +113,7 @@ class MailForm extends React.Component<Props, State> {
   onSubmit = () => {
     const {
       isReply,
+      toAll,
       closeModal,
       toggleReply,
       integrationId,
@@ -139,8 +141,8 @@ class MailForm extends React.Component<Props, State> {
       threadId,
       replyToMessageId: messageId,
       to: formatStr(to),
-      cc: formatStr(cc),
-      bcc: formatStr(bcc),
+      cc: toAll ? formatStr(cc) : [],
+      bcc: toAll ? formatStr(bcc) : [],
       from: integrationId ? integrationId : from,
       subject: subject || mailData.subject,
       attachments,
@@ -558,12 +560,14 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderLeftSide() {
+    const { toAll } = this.props;
+
     return (
       <Column>
         {this.renderFrom()}
         {this.renderTo()}
-        {this.renderCC()}
-        {this.renderBCC()}
+        {toAll && this.renderCC()}
+        {toAll && this.renderBCC()}
       </Column>
     );
   }
