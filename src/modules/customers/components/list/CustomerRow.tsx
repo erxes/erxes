@@ -3,7 +3,6 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
-import { colors } from 'modules/common/styles';
 import { formatValue } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
 import { ClickableRow } from 'modules/customers/styles';
@@ -44,11 +43,7 @@ function displayValue(customer, name) {
   if (typeof value === 'boolean') {
     return (
       <div style={{ textAlign: 'center' }}>
-        <Icon
-          icon={value ? 'check-1' : 'times'}
-          size={16}
-          style={{ color: colors.colorCoreGreen }}
-        />
+        <Icon icon={value ? 'check-1' : 'times'} />
       </div>
     );
   }

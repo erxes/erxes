@@ -97,6 +97,19 @@ const ClickableRow = styled.span`
   &:hover {
     color: ${colors.textSecondary};
   }
+
+  i {
+    font-size: 16px;
+    textalign: center;
+  }
+
+  .icon-check-1 {
+    color: ${colors.colorCoreGreen};
+  }
+
+  .icon-times {
+    color: ${colors.colorCoreRed};
+  }
 `;
 
 export {
