@@ -97,10 +97,13 @@ const ClickableRow = styled.span`
   &:hover {
     color: ${colors.textSecondary};
   }
+`;
+
+const BooleanStatus = styled.div`
+  text-align: center;
 
   i {
     font-size: 16px;
-    textalign: center;
   }
 
   .icon-check-1 {
@@ -122,5 +125,6 @@ export {
   Contact,
   Name,
   TabContent,
-  ClickableRow
+  ClickableRow,
+  BooleanStatus
 };
