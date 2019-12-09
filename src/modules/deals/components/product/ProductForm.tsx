@@ -1,18 +1,22 @@
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import ProductItemForm from '../../containers/product/ProductItemForm';
 import { Add, FooterInfo, FormContainer } from '../../styles';
-import { IProductData } from '../../types';
+import { IPaymentsData, IProductData } from '../../types';
+import PaymentForm from './PaymentForm';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
   productsData: IProductData[];
   products: IProduct[];
+  paymentsData?: IPaymentsData;
   closeModal: () => void;
 };
 
@@ -20,6 +24,7 @@ type State = {
   total: { currency?: string; amount?: number };
   tax: { currency?: string; tax?: number };
   discount: { currency?: string; discount?: number };
+  currentTab: string;
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -29,7 +34,8 @@ class ProductForm extends React.Component<Props, State> {
     this.state = {
       total: {},
       discount: {},
-      tax: {}
+      tax: {},
+      currentTab: 'products'
     };
   }
 
@@ -151,8 +157,13 @@ class ProductForm extends React.Component<Props, State> {
     closeModal();
   };
 
-  render() {
-    const { total, tax, discount } = this.state;
+  renderTabContent() {
+    const { total, tax, discount, currentTab } = this.state;
+    if (currentTab === 'payments') {
+      return (
+        <PaymentForm total={total} paymentsData={this.props.paymentsData} />
+      );
+    }
 
     return (
       <FormContainer>
@@ -180,6 +191,36 @@ class ProductForm extends React.Component<Props, State> {
             </tbody>
           </table>
         </FooterInfo>
+      </FormContainer>
+    );
+  }
+
+  onTabClick = (currentTab: string) => {
+    this.setState({ currentTab });
+  };
+
+  render() {
+    const { currentTab } = this.state;
+    return (
+      <>
+        <Tabs grayBorder={true} full={true}>
+          <TabTitle
+            className={currentTab === 'products' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'products')}
+          >
+            <Icon icon="shoppingcart" />
+            {__('Choose products')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'payments' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'payments')}
+          >
+            <Icon icon="atm-card" />
+            {__('Payments')}
+          </TabTitle>
+        </Tabs>
+
+        {this.renderTabContent()}
 
         <ModalFooter>
           <Button
@@ -191,10 +232,10 @@ class ProductForm extends React.Component<Props, State> {
           </Button>
 
           <Button btnStyle="success" onClick={this.onClick} icon="checked-1">
-            Save
+            Savezz
           </Button>
         </ModalFooter>
-      </FormContainer>
+      </>
     );
   }
 }

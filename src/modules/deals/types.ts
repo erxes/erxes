@@ -34,6 +34,18 @@ export interface IProductData {
   amount: number;
 }
 
+export interface IPaymentData {
+  type: string;
+  currency?: string;
+  amount: number;
+}
+
+export interface IPaymentsData {
+  prepayment: IPaymentData[];
+  payment: IPaymentData[];
+  afterPayment: IPaymentData[];
+}
+
 export type DealsTotalAmountsQueryResponse = {
   dealsTotalAmounts: IDealTotalAmount;
   refetch: () => void;
@@ -56,6 +68,7 @@ export type ProductAddMutationResponse = {
 
 export interface IDeal extends IItem {
   products?: any;
+  payments?: IPaymentsData;
 }
 
 export interface IDealParams extends IItemParams {

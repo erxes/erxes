@@ -10,7 +10,7 @@ import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
-import { IDeal, IDealParams } from '../types';
+import { IDeal, IDealParams, IPaymentsData } from '../types';
 
 type Props = {
   options: IOptions;
@@ -26,6 +26,7 @@ type State = {
   amount: any;
   products: IProduct[];
   productsData: any;
+  paymentsData: IPaymentsData;
 };
 
 export default class DealEditForm extends React.Component<Props, State> {
@@ -38,7 +39,8 @@ export default class DealEditForm extends React.Component<Props, State> {
       amount: item.amount || {},
       productsData: item.products ? item.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
-      products: item.products ? item.products.map(p => p.product) : []
+      products: item.products ? item.products.map(p => p.product) : [],
+      paymentsData: item.payments
     };
   }
 
@@ -105,7 +107,7 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   renderProductSection = () => {
-    const { products, productsData } = this.state;
+    const { products, productsData, paymentsData } = this.state;
 
     const pDataChange = pData => this.onChangeField('productsData', pData);
     const prsChange = prs => this.onChangeField('products', prs);
@@ -115,6 +117,7 @@ export default class DealEditForm extends React.Component<Props, State> {
         onChangeProductsData={pDataChange}
         onChangeProducts={prsChange}
         productsData={productsData}
+        paymentsData={paymentsData}
         products={products}
         saveProductsData={this.saveProductsData}
       />

@@ -8,12 +8,13 @@ import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import { CustomField, ProductName } from '../styles';
-import { IProductData } from '../types';
+import { IPaymentsData, IProductData } from '../types';
 import ProductForm from './product/ProductForm';
 
 type Props = {
   productsData: IProductData[];
   products: IProduct[];
+  paymentsData: IPaymentsData;
   onChangeProductsData: (productsData: IProductData[]) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
@@ -22,6 +23,7 @@ type Props = {
 function ProductSection({
   products,
   productsData,
+  paymentsData,
   onChangeProductsData,
   saveProductsData
 }: Props) {
@@ -31,6 +33,7 @@ function ProductSection({
       onChangeProductsData={onChangeProductsData}
       productsData={productsData}
       products={products}
+      paymentsData={paymentsData}
       saveProductsData={saveProductsData}
     />
   );
