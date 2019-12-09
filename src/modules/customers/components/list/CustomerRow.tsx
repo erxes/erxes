@@ -3,13 +3,10 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
+import { colors } from 'modules/common/styles';
 import { formatValue } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
-import {
-  ClickableRow,
-  IconStatusFalse,
-  IconStatusTrue
-} from 'modules/customers/styles';
+import { ClickableRow } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
 import React from 'react';
@@ -44,19 +41,15 @@ function displayValue(customer, name) {
     return '-';
   }
 
-  if (name === 'messengerData.isActive') {
-    if (value) {
-      return (
-        <IconStatusTrue>
-          <Icon icon="check" />
-        </IconStatusTrue>
-      );
-    }
-
+  if (typeof value === 'boolean') {
     return (
-      <IconStatusFalse>
-        <Icon icon="cancel" />
-      </IconStatusFalse>
+      <div style={{ textAlign: 'center' }}>
+        <Icon
+          icon={value ? 'check-1' : 'times'}
+          size={16}
+          style={{ color: colors.colorCoreGreen }}
+        />
+      </div>
     );
   }
 
