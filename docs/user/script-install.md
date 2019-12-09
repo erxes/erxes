@@ -481,5 +481,112 @@ Basic steps to install Erxes scripts.
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/script-manager/40.png" />
 
+---
+## Advanced setup
+Advanced steps to install scripts.
+
+### Get data from your web app (for logged-in users)
+#### Step 1:Copy messenger install code.
+
+1. Go to Settings menu => Appstore.
+2. Click on the “Appstore” menu (see the below figure).
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/1.Appstore.png />
+
+3. Then choose your messenger and click on the install code button from the right side (see the below figure).
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/2.+List.png />
+
+4. Copy the code (see the below figure).
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/3.+Source+1.png />
+
+ 5. If your website is single page app then you can choose a single-page app and copy the code (see the below figure).
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/4.+Source+2.png />
+
+#### Step 2: Paste the code in the bottom of the body tag (see the below figure).
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/5.+Source+3.png />
+
+#### Step 3: If you want to get user email, phone  and code automatically.  You can write under brand id in your code:
+
+<aside class="notice">
+
+email: ”<Logged in user email>”,
+
+phone: “<Logged in user phone>”,
+
+code:”<Arbitrary unique value>",
+
+
+</aside>
+
+(see the below figure).
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/6.+Source+4.png />
+
+#### Step 4: After you edit you will see user email, phone, and code will be automatically displayed on the right sidebar.
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/7.+Result+1.png />
+
+
+<aside class="notice">
+
++  Email, phone, and code fields are automatically filled out by user profile.
+
+</aside>
+
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/8.+Result+2.png />
+
+#### Step 5: If you want to get firstname, lastname, bio automatically.  You can write under brand id in your code:
+
+<aside class="notice">
+
+data :{
+
+firstName:”<Firstname>”,
+
+lastName:”<LastName>”,
+
+bio:”<Bio>”,
+
+}
+
+</aside>
+
+(see the below figure).
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/9.+Source+5.png />
+
+
+#### Step 6:  After you edit you will see user firstname, lastname and bio will be automatically displayed on the right sidebar.
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/10.+Result+3.png />
+
+
+<aside class="notice">
+
++  Firstname, Lastname, and bio fields are automatically filled out by user profile.
+
+</aside>
+
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/11.+Result+4.png />
+
+#### Step 7:   Also If you want to get any data of your Web app  automatically.  You can just write in your source code inside the data section. (See the below figure).
+
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/13.+Source+6.png />
+
+
+<aside class="notice">
+
++ These fields are displayed in the messenger data section on the right sidebar.
+
+</aside>
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
 
 
