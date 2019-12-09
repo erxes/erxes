@@ -24,24 +24,18 @@ type State = {
   isEditing: boolean;
   content: string;
   isChecked: boolean;
-  isActive: boolean;
   disabled: boolean;
   beforeContent: string;
 };
 
 class ListRow extends React.Component<Props, State> {
-  private ref;
-
   constructor(props) {
     super(props);
 
     const item = props.item;
 
-    this.ref = React.createRef();
-
     this.state = {
       isEditing: false,
-      isActive: false,
       content: item.content,
       disabled: false,
       isChecked: item.isChecked,
@@ -50,9 +44,16 @@ class ListRow extends React.Component<Props, State> {
   }
 
   onClick = () => {
-    this.setState({
-      isEditing: !this.state.isEditing,
-      beforeContent: this.props.item.content
+    this.setState({ isEditing: true, beforeContent: this.props.item.content });
+  };
+
+  handleSave = () => {
+    const { content, isChecked } = this.state;
+
+    this.setState({ disabled: true });
+
+    this.props.editItem({ content, isChecked }, () => {
+      this.setState({ disabled: false, isEditing: false });
     });
   };
 
@@ -70,22 +71,15 @@ class ListRow extends React.Component<Props, State> {
     this.handleSave();
   };
 
-  handleSave = () => {
-    const { content, isChecked } = this.state;
-    const { editItem } = this.props;
-
-    this.setState({ disabled: true });
-
-    editItem({ content, isChecked }, () => {
-      this.setState({ disabled: false, isEditing: false });
-    });
-  };
-
   removeClick = () => {
     const { removeItem, item } = this.props;
 
     removeItem(item._id);
   };
+
+  // onBlur = () => {
+  //   this.setState({ isEditing: false })
+  // }
 
   onCheckChange = e => {
     const { editItem } = this.props;
@@ -97,20 +91,6 @@ class ListRow extends React.Component<Props, State> {
 
       editItem({ content, isChecked });
     });
-  };
-
-  handleClickOutside = event => {
-    if (this.ref.current && !this.ref.current.contains(event.target)) {
-      this.setState({ isEditing: false });
-    }
-  };
-
-  useEffect = () => {
-    document.addEventListener('click', this.handleClickOutside, true);
-
-    return () => {
-      document.removeEventListener('click', this.handleClickOutside, true);
-    };
   };
 
   renderContent() {
@@ -135,13 +115,14 @@ class ListRow extends React.Component<Props, State> {
               value={this.state.content}
               onKeyPress={this.onKeyPress}
               required={true}
+              // onBlur={this.onBlur}
             />
             <Button
               disabled={this.state.disabled}
               btnStyle="success"
               type="submit"
               size="small"
-              icon="check"
+              icon="check-1"
             />
             <Button
               btnStyle="simple"
@@ -156,7 +137,10 @@ class ListRow extends React.Component<Props, State> {
 
     return (
       <ChecklistText isChecked={this.state.isChecked}>
-        <label dangerouslySetInnerHTML={{ __html: xss(this.state.content) }} />
+        <label
+          onClick={this.onClick}
+          dangerouslySetInnerHTML={{ __html: xss(this.state.content) }}
+        />
         <Icon icon="times" onClick={this.removeClick} />
       </ChecklistText>
     );
@@ -164,7 +148,7 @@ class ListRow extends React.Component<Props, State> {
 
   render() {
     return (
-      <ChecklistItem onClick={this.onClick}>
+      <ChecklistItem>
         <FormControl
           componentClass="checkbox"
           checked={this.state.isChecked}

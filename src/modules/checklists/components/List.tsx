@@ -83,13 +83,12 @@ class List extends React.Component<Props, State> {
   };
 
   renderIsCheckedBtn = () => {
-    const { list } = this.props;
     const { isHidden } = this.state;
 
     const onClickHideShowBtn = () => this.setState({ isHidden: !isHidden });
     const btnText = isHidden ? 'Show checked items' : 'Hide completed items';
 
-    if (list.percent) {
+    if (this.props.list.percent) {
       return (
         <Button btnStyle="simple" size="small" onClick={onClickHideShowBtn}>
           {__(btnText)}
@@ -131,8 +130,6 @@ class List extends React.Component<Props, State> {
 
   renderTitleInput = (formProps: IFormProps) => {
     const { isEditingTitle, title, beforeTitle } = this.state;
-    const { renderButton } = this.props;
-
     const { isSubmitted, values } = formProps;
 
     if (!isEditingTitle) {
@@ -161,7 +158,7 @@ class List extends React.Component<Props, State> {
           required={true}
         />
 
-        {renderButton({
+        {this.props.renderButton({
           values: this.generateDoc(values),
           isSubmitted,
           callback: onSubmit
@@ -228,7 +225,7 @@ class List extends React.Component<Props, State> {
               btnStyle="success"
               type="submit"
               size="small"
-              icon="check"
+              icon="check-1"
             />
             <Button
               btnStyle="simple"
