@@ -151,8 +151,8 @@ const MailBox = styled.div`
 const SidebarCollapse = styled.a`
   color: ${colors.colorCoreGray};
   position: absolute;
-  top: ${dimensions.unitSpacing}px;
-  right: ${dimensions.coreSpacing}px;
+  top: ${dimensions.unitSpacing - 2}px;
+  right: ${dimensions.coreSpacing - 3}px;
   font-size: 14px;
 
   &:hover {

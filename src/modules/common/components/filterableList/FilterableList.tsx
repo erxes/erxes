@@ -87,7 +87,7 @@ class FilterableList extends React.Component<Props, State> {
       return (
         <EmptyState
           text="There aren’t any data at the moment."
-          icon="clipboard-1"
+          icon="clipboard-blank"
         />
       );
     }

@@ -351,5 +351,9 @@ export function formatValue(value) {
     return value;
   }
 
+  if (value && typeof value === 'object') {
+    return value.toString();
+  }
+
   return value || '-';
 }

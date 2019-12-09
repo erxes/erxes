@@ -231,7 +231,8 @@ const ContentShadow = styled.div`
 const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
   cursor: pointer;
   display: table;
-  margin-right: ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.unitSpacing - 2}px;
+  line-height: 33px;
 
   span {
     font-weight: 600;

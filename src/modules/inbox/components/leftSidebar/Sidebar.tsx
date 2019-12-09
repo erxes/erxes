@@ -1,6 +1,5 @@
 import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import FilterToggler from 'modules/inbox/containers/leftSidebar/FilterToggler';
@@ -20,7 +19,8 @@ import {
   DropdownWrapper,
   LeftContent,
   RightItems,
-  SidebarActions
+  SidebarActions,
+  ToggleButton
 } from './styles';
 
 const DateFilter = asyncComponent(
@@ -103,12 +103,9 @@ class LeftSidebar extends React.Component<Props, State> {
 
     return (
       <Sidebar.Header>
-        <Button
-          btnStyle={this.state.isOpen ? 'default' : 'simple'}
-          size="small"
-          onClick={this.onToggleSidebar}
-          icon="align"
-        />
+        <ToggleButton isOpen={this.state.isOpen} onClick={this.onToggleSidebar}>
+          <Icon icon="subject" />
+        </ToggleButton>
         <DropdownWrapper>
           <DateFilter
             queryParams={queryParams}

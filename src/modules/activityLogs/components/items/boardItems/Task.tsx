@@ -196,7 +196,7 @@ class Task extends React.Component<Props, State> {
           this.overlayTrigger = overlayTrigger;
         }}
         trigger="click"
-        placement="bottom"
+        placement="auto"
         overlay={content}
         rootClose={true}
         container={this}
@@ -204,7 +204,7 @@ class Task extends React.Component<Props, State> {
         <Date>
           <Icon icon="calendar-alt" />
           <span>{dayjs(closeDate).format('MM/DD/YYYY')}</span>
-          <Icon icon="downarrow" size={10} />
+          <Icon icon="angle-down" size={14} />
         </Date>
       </OverlayTrigger>
     );
@@ -294,7 +294,7 @@ class Task extends React.Component<Props, State> {
             onClick={this.onChange.bind(this, 'showDetail')}
             showDetail={showDetail}
           >
-            <Icon icon="rightarrow-2" /> {__('Details')}
+            <Icon icon="angle-right" /> {__('Details')}
           </Date>
           {this.renderDetails()}
         </Detail>

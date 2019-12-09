@@ -59,7 +59,7 @@ const PopoverList = styledTS<{ selectable?: boolean }>(styled.ul)`
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     font-size: 13px;
-    padding-left: ${props => props.selectable && '30px'};
+    padding-right: ${props => props.selectable && '30px'};
 
     i {
       margin-right: ${dimensions.unitSpacing / 2}px;
@@ -80,8 +80,8 @@ const PopoverList = styledTS<{ selectable?: boolean }>(styled.ul)`
       position: absolute;
       color: ${colors.colorCoreDarkGray};
       top: ${dimensions.headerSpacing}%;
-      left: ${dimensions.unitSpacing}px;
-      margin-top: -7px;
+      right: ${dimensions.unitSpacing * 1.5}px;
+      margin-top: -9px;
     }
 
     &.all:before {

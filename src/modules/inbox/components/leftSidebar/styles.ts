@@ -237,6 +237,22 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
   }
 `;
 
+const ToggleButton = styledTS<{ isOpen?: boolean }>(styled.div)`
+  font-size: 14px;
+  background: ${props => props.isOpen && colors.bgActive};
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 2px;
+  transition: background ease 0.3s;
+
+  &:hover {
+    background: ${colors.bgActive};
+    cursor: pointer;
+  }
+`;
+
 export {
   ConversationItems,
   RightItems,
@@ -255,5 +271,6 @@ export {
   AdditionalSidebar,
   GroupTitle,
   LeftContent,
-  DropdownWrapper
+  DropdownWrapper,
+  ToggleButton
 };
