@@ -99,6 +99,14 @@ const ClickableRow = styled.span`
   }
 `;
 
+const IconStatusTrue = styled.div`
+  color: ${colors.colorCoreGreen};
+`;
+
+const IconStatusFalse = styled.div`
+  color: ${colors.colorCoreRed};
+`;
+
 export {
   InfoTitle,
   InfoDetail,
@@ -109,5 +117,7 @@ export {
   Contact,
   Name,
   TabContent,
-  ClickableRow
+  ClickableRow,
+  IconStatusTrue,
+  IconStatusFalse
 };
