@@ -11,13 +11,19 @@ import {
   LEAD_STATUS_TYPES,
   LIFECYCLE_STATE_TYPES
 } from 'modules/customers/constants';
-import { Action, Name } from 'modules/customers/styles';
+import { Name } from 'modules/customers/styles';
+import {
+  Actions,
+  MailBox
+} from 'modules/inbox/components/conversationDetail/sidebar/styles';
 import Sidebar from 'modules/layout/components/Sidebar';
 import {
+  FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
 } from 'modules/layout/styles';
+import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import CompanyForm from '../../containers/CompanyForm';
@@ -32,6 +38,53 @@ type Props = {
 };
 
 class BasicInfo extends React.Component<Props> {
+  renderActions() {
+    const { company } = this.props;
+    const { primaryPhone, primaryEmail } = company;
+
+    const content = props => (
+      <MailBox>
+        <MailForm
+          fromEmail={primaryEmail}
+          refetchQueries={['activityLogsCompany']}
+          closeModal={props.closeModal}
+        />
+      </MailBox>
+    );
+
+    return (
+      <>
+        <ModalTrigger
+          dialogClassName="middle"
+          title="Email"
+          trigger={
+            <Button disabled={primaryEmail ? false : true} size="small">
+              {__('Email')}
+            </Button>
+          }
+          size="lg"
+          content={content}
+          paddingContent="no-padding"
+        />
+        <Button
+          href={primaryPhone && `tel:${primaryPhone}`}
+          size="small"
+          disabled={primaryPhone ? false : true}
+        >
+          {__('Call')}
+        </Button>
+      </>
+    );
+  }
+
+  renderButton() {
+    return (
+      <Button size="small">
+        {__('Action')} <Icon icon="angle-down" />
+      </Button>
+    );
+  }
+
   renderLink(value, icon) {
     let link = value;
 
@@ -66,7 +119,8 @@ class BasicInfo extends React.Component<Props> {
   renderRow = (label, value) => {
     return (
       <li>
-        {__(`${label}`)}:<SidebarCounter>{value || '-'}</SidebarCounter>
+        <FieldStyle>{__(`${label}`)}</FieldStyle>
+        <SidebarCounter>{value || '-'}</SidebarCounter>
       </li>
     );
   };
@@ -90,13 +144,11 @@ class BasicInfo extends React.Component<Props> {
         });
 
     return (
-      <Action>
+      <Actions>
+        {this.renderActions()}
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-company">
-            <Button btnStyle="simple" size="medium">
-              {__('Action')}
-              <Icon icon="angle-down" />
-            </Button>
+            {this.renderButton()}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
@@ -115,7 +167,7 @@ class BasicInfo extends React.Component<Props> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-      </Action>
+      </Actions>
     );
   }
 
