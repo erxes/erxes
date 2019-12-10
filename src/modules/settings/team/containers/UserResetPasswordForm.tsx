@@ -15,7 +15,7 @@ type Props = {
 const UserResetPasswordContainer = (
   props: Props & ResetMemberPasswordResponse
 ) => {
-  const { resetMemberPassword } = props;
+  const { usersResetMemberPassword } = props;
 
   const save = ({ _id, newPassword, repeatPassword }) => {
     if ((newPassword && !repeatPassword) || repeatPassword === 0) {
@@ -30,7 +30,7 @@ const UserResetPasswordContainer = (
       return Alert.error("Password didn't match");
     }
 
-    resetMemberPassword({ variables: { _id, newPassword } })
+    usersResetMemberPassword({ variables: { _id, newPassword } })
       .then(() => {
         Alert.success('Your password has been changed and updated');
         props.closeModal();
@@ -50,8 +50,8 @@ const UserResetPasswordContainer = (
 
 export default withProps<Props>(
   compose(
-    graphql(gql(mutations.resetMemberPassword), {
-      name: 'resetMemberPassword',
+    graphql(gql(mutations.usersResetMemberPassword), {
+      name: 'usersResetMemberPassword',
       options: {
         refetchQueries: ['users']
       }

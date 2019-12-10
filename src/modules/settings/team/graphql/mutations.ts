@@ -74,9 +74,9 @@ const usersConfirmInvitation = `
   }
 `;
 
-const resetMemberPassword = `
-  mutation resetMemberPassword($_id: String!, $newPassword: String!) {
-    resetMemberPassword(_id: $_id, newPassword: $newPassword) {
+const usersResetMemberPassword = `
+  mutation usersResetMemberPassword($_id: String!, $newPassword: String!) {
+    usersResetMemberPassword(_id: $_id, newPassword: $newPassword) {
       _id
     }
   }
@@ -89,5 +89,5 @@ export default {
   usersResendInvitation,
   usersConfirmInvitation,
   usersSetActiveStatus,
-  resetMemberPassword
+  usersResetMemberPassword
 };
