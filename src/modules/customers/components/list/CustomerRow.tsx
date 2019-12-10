@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import { formatValue } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
-import { ClickableRow } from 'modules/customers/styles';
+import { BooleanStatus, ClickableRow } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
 import React from 'react';
@@ -37,6 +38,14 @@ function displayValue(customer, name) {
     }
 
     return '-';
+  }
+
+  if (typeof value === 'boolean') {
+    return (
+      <BooleanStatus isTrue={value}>
+        <Icon icon={value ? 'check-1' : 'times'} />
+      </BooleanStatus>
+    );
   }
 
   return formatValue(value);
