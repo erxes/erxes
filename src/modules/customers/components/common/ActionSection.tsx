@@ -7,6 +7,11 @@ import TargetMerge from 'modules/customers/components/common/TargetMerge';
 import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
 import CustomerForm from 'modules/customers/containers/CustomerForm';
 import { ICustomer } from 'modules/customers/types';
+import {
+  Actions,
+  MailBox
+} from 'modules/inbox/components/conversationDetail/sidebar/styles';
+import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -19,28 +24,55 @@ type Props = {
 };
 
 class ActionSection extends React.Component<Props> {
-  renderButton() {
-    if (this.props.isSmall) {
-      return (
-        <Button size="small">
-          {__('Action')} <Icon icon="angle-down" />
-        </Button>
-      );
-    }
+  renderActions() {
+    const { customer } = this.props;
+    const { primaryPhone, primaryEmail } = customer;
+
+    const content = props => (
+      <MailBox>
+        <MailForm
+          fromEmail={primaryEmail}
+          refetchQueries={['activityLogsCustomer']}
+          closeModal={props.closeModal}
+        />
+      </MailBox>
+    );
 
     return (
-      <Button btnStyle="simple" size="medium">
+      <>
+        <ModalTrigger
+          dialogClassName="middle"
+          title="Email"
+          trigger={
+            <Button disabled={primaryEmail ? false : true} size="small">
+              {__('Email')}
+            </Button>
+          }
+          size="lg"
+          content={content}
+          paddingContent="no-padding"
+        />
+        <Button
+          href={primaryPhone && `tel:${primaryPhone}`}
+          size="small"
+          disabled={primaryPhone ? false : true}
+        >
+          {__('Call')}
+        </Button>
+      </>
+    );
+  }
+
+  renderButton() {
+    return (
+      <Button size="small">
         {__('Action')} <Icon icon="angle-down" />
       </Button>
     );
   }
 
   renderEditButton() {
-    const { customer, isSmall } = this.props;
-
-    if (!isSmall) {
-      return null;
-    }
+    const { customer } = this.props;
 
     const customerForm = props => {
       return <CustomerForm {...props} size="lg" customer={customer} />;
@@ -82,28 +114,31 @@ class ActionSection extends React.Component<Props> {
     };
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
-          {this.renderButton()}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {this.renderEditButton()}
-          <li>
-            <TargetMerge
-              onSave={merge}
-              object={customer}
-              searchObject={searchCustomer}
-              mergeForm={CustomersMerge}
-              generateOptions={generateOptions}
-            />
-          </li>
-          <li>
-            <a href="#delete" onClick={onClick}>
-              {__('Delete')}
-            </a>
-          </li>
-        </Dropdown.Menu>
-      </Dropdown>
+      <Actions>
+        {this.renderActions()}
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
+            {this.renderButton()}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {this.renderEditButton()}
+            <li>
+              <TargetMerge
+                onSave={merge}
+                object={customer}
+                searchObject={searchCustomer}
+                mergeForm={CustomersMerge}
+                generateOptions={generateOptions}
+              />
+            </li>
+            <li>
+              <a href="#delete" onClick={onClick}>
+                {__('Delete')}
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
+      </Actions>
     );
   }
 }
