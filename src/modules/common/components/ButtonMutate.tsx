@@ -26,6 +26,7 @@ type Props = {
   variables: any;
   successMessage?: string;
   btnSize?: string;
+  btnStyle?: string;
   icon?: string;
   callback?: (data?: any) => void;
   children?: React.ReactNode;
@@ -118,6 +119,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       btnSize,
       icon,
       type,
+      btnStyle = 'success',
       disabled,
       block
     } = this.props;
@@ -126,7 +128,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
     return (
       <Button
         disabled={disabled || isLoading}
-        btnStyle="success"
+        btnStyle={btnStyle}
         size={btnSize}
         type={type}
         onClick={type ? undefined : this.mutate}
