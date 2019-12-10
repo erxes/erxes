@@ -132,7 +132,7 @@ const FormLabel = styled.label`
   }
 `;
 
-const inputStyle = styled.input`
+const inputStyle = styledTS<{ disabled?: boolean }>(styled.input)`
   border: 0 !important;
   clip: rect(1px, 1px, 1px, 1px) !important;
   clip-path: inset(50%) !important;
@@ -142,6 +142,7 @@ const inputStyle = styled.input`
   position: absolute !important;
   width: 1px !important;
   white-space: nowrap !important;
+  cursor: ${props => props.disabled && 'not-allowed'}
 
   &:focus {
     + span {
@@ -185,6 +186,7 @@ const inputStyle = styled.input`
       height: ${inputHeight};
       display: inline-block;
       vertical-align: text-top;
+      cursor: ${props => props.disabled && 'not-allowed'}
     }
 
     &:after {

@@ -17,7 +17,7 @@ const RoundedBackground = styledTS<{ icon: string }>(styled.span)`
     (props.icon === 'chat' && colors.colorPrimary) ||
     (props.icon === 'piggy-bank' && colors.colorCoreBlue) ||
     (props.icon === 'creditcard' && colors.colorCoreTeal) ||
-    (props.icon === 'clipboard' && colors.colorCoreRed) ||
+    (props.icon === 'clipboard' && '#34c1c6') ||
     colors.colorCoreGreen};
 
   i {

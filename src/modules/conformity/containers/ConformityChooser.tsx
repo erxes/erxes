@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ItemChooser from 'modules/boards/components/portable/ItemChooser';
 import Chooser, { CommonProps } from 'modules/common/components/Chooser';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { mutations } from '../graphql';
 import { EditConformityMutation, IConformityEdit } from '../types';
 
@@ -75,7 +76,8 @@ export default withProps<Props>(
                 relType: data.relType,
                 isSaved: true
               }
-            }
+            },
+            'activityLogs'
           ]
         };
       }

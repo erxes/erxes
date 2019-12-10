@@ -1,4 +1,5 @@
 import DueDateChanger from 'modules/boards/components/DueDateChanger';
+import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
 import SelectItem from 'modules/boards/components/SelectItem';
 import { PRIORITIES } from 'modules/boards/constants';
 import { Watch } from 'modules/boards/containers/editForm/';
@@ -58,7 +59,11 @@ class Actions extends React.Component<Props> {
 
     const priorityTrigger = (
       <ColorButton>
-        <Icon icon="sort-amount-up" />
+        {item.priority ? (
+          <PriorityIndicator value={item.priority} />
+        ) : (
+          <Icon icon="sort-amount-up" />
+        )}
         {__('Priority')}
       </ColorButton>
     );

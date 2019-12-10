@@ -348,6 +348,7 @@ class RespondBox extends React.Component<Props, State> {
         componentClass="checkbox"
         checked={isInternal}
         onChange={this.toggleForm}
+        disabled={this.props.showInternal}
       >
         {__('Internal note')}
       </FormControl>

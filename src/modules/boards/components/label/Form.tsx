@@ -7,11 +7,10 @@ import {
 } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
 import Icon from 'modules/common/components/Icon';
-import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { BackgroundSelector } from 'modules/leads/components/step/style';
 import * as React from 'react';
-import { ChooseColor, FormContainer } from '../../styles/label';
+import { ChooseColor } from '../../styles/label';
 import { IPipelineLabel } from '../../types';
 
 type IProps = {
@@ -110,7 +109,7 @@ class FormComponent extends React.Component<IProps, State> {
         onClick={onClick}
       >
         <div style={{ backgroundColor: colorCode }}>
-          <Icon icon="check" />
+          <Icon icon="check-1" />
         </div>
       </BackgroundSelector>
     );
@@ -122,7 +121,7 @@ class FormComponent extends React.Component<IProps, State> {
     const { isSubmitted } = formProps;
 
     return (
-      <FormContainer>
+      <>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
@@ -140,31 +139,29 @@ class FormComponent extends React.Component<IProps, State> {
             {COLORS.map(colorCode => this.renderColors(colorCode))}
           </ChooseColor>
         </FormGroup>
-        <ModalFooter>
-          {label._id && (
-            <Button
-              btnStyle="danger"
-              type="button"
-              size="small"
-              icon="cancel-1"
-              onClick={this.onRemove}
-            >
-              Delete
-            </Button>
-          )}
+        {label._id && (
+          <Button
+            btnStyle="danger"
+            type="button"
+            size="small"
+            icon="cancel-1"
+            onClick={this.onRemove}
+          >
+            Delete
+          </Button>
+        )}
 
-          {renderButton({
-            name: 'label',
-            values: {
-              name: label.name,
-              colorCode: label.colorCode
-            },
-            isSubmitted,
-            callback: afterSave,
-            object: label || {}
-          })}
-        </ModalFooter>
-      </FormContainer>
+        {renderButton({
+          name: 'label',
+          values: {
+            name: label.name,
+            colorCode: label.colorCode
+          },
+          isSubmitted,
+          callback: afterSave,
+          object: label || {}
+        })}
+      </>
     );
   };
 

@@ -70,21 +70,22 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       <Wrapper
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         actionBar={
-          <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} />
+          <Wrapper.ActionBar
+            left={leftActionBar}
+            right={actionBarRight}
+            bottom={renderFilter && renderFilter()}
+          />
         }
         footer={<Pagination count={totalCount} />}
         center={center}
         content={
-          <>
-            {renderFilter && renderFilter()}
-            <DataWithLoader
-              data={renderContent({ objects, save, refetch, remove })}
-              loading={loading}
-              count={totalCount}
-              emptyText="Oops! No data here"
-              emptyImage="/images/actions/5.svg"
-            />
-          </>
+          <DataWithLoader
+            data={renderContent({ objects, save, refetch, remove })}
+            loading={loading}
+            count={totalCount}
+            emptyText="Oops! No data here"
+            emptyImage="/images/actions/5.svg"
+          />
         }
       />
     );

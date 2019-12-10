@@ -5,7 +5,7 @@ import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Icon from 'modules/common/components/Icon';
 import { __, router } from 'modules/common/utils';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IRouterProps } from '../../../common/types';
 import { LEAD_STATUS_TYPES } from '../../constants';
 import { leadStatusChoices } from '../../utils';
@@ -41,7 +41,7 @@ class LeadStatusFilter extends React.Component<IProps> {
                   }
                   onClick={onClick.bind(this, paramKey, value)}
                 >
-                  {label}
+                  <FieldStyle>{label}</FieldStyle>
                   <SidebarCounter>{counts ? counts[value] : 0}</SidebarCounter>
                 </a>
               </li>

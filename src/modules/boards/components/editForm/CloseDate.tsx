@@ -1,5 +1,6 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
+import { REMINDER_MINUTES } from 'modules/boards/constants';
 import {
   Button,
   CalenderWrapper,
@@ -79,17 +80,6 @@ class CloseDate extends React.Component<Props, State> {
     const day = dayjs(dueDate).format('YYYY/MM/DD');
     const time = dayjs(dueDate).format('HH:mm');
 
-    const options = [
-      { _id: '0', name: 'At Time of Due Date' },
-      { _id: '5', name: '5 Minutes Before' },
-      { _id: '10', name: '10 Minutes Before' },
-      { _id: '15', name: '15 Minutes Before' },
-      { _id: '60', name: '1 Hour Before' },
-      { _id: '120', name: '2 Hour Before' },
-      { _id: '1440', name: '1 Day Before' },
-      { _id: '2880', name: '2 Day Before' }
-    ];
-
     return (
       <Popover id="pipeline-popover">
         <CloseDateContent>
@@ -129,7 +119,7 @@ class CloseDate extends React.Component<Props, State> {
             isRequired={true}
             value={reminderMinute}
             onChange={this.minuteOnChange}
-            options={selectOptions(options)}
+            options={selectOptions(REMINDER_MINUTES)}
             clearable={false}
           />
 

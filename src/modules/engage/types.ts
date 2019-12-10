@@ -40,6 +40,23 @@ export interface IEngageStats {
   total: number;
 }
 
+export interface IEmailDelivery {
+  _id: string;
+  subject: string;
+  body: string;
+  to: string;
+  cc: string;
+  bcc: string;
+  attachments: [JSON];
+  from: string;
+  kind: string;
+  userId: string;
+  customerId: string;
+
+  fromUser: IUser;
+  fromEmail: string;
+}
+
 export interface IEngageMessageDoc {
   kind?: string;
   type?: string;

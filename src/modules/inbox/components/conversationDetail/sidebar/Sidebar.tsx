@@ -15,7 +15,7 @@ import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/components/common/ActionSection'),
+    import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection'),
   { height: '25px', width: '80px' }
 );
 
@@ -138,14 +138,12 @@ class Index extends React.Component<IndexProps, IndexState> {
   };
 
   renderActions() {
-    const { customer, conversation } = this.props;
+    const { customer } = this.props;
     const { primaryPhone, primaryEmail } = customer;
-    const { kind } = conversation.integration;
 
     const content = props => (
       <MailBox>
         <MailForm
-          kind={kind}
           fromEmail={primaryEmail}
           refetchQueries={['activityLogsCustomer']}
           closeModal={props.closeModal}

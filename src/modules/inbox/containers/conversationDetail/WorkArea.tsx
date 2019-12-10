@@ -1,11 +1,12 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
 import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
 import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
 import { isConversationMailKind } from 'modules/inbox/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import strip from 'strip';
 import { IUser } from '../../../auth/types';
 import { sendDesktopNotification, withProps } from '../../../common/utils';

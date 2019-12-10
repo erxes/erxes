@@ -1,9 +1,10 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
 import { queries } from 'modules/inbox/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import {
   CustomerDetailQueryResponse,

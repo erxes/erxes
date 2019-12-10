@@ -14,6 +14,7 @@ import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '../../constants';
 import { formatObj, formatStr } from '../../containers/utils';
+import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
   Attachments,
@@ -33,7 +34,6 @@ import { FlexRow, Subject } from './styles';
 type Props = {
   integrationId?: string;
   integrations: IIntegration[];
-  kind: string;
   fromEmail?: string;
   mailData?: IMail;
   isReply?: boolean;
@@ -55,6 +55,7 @@ type State = {
   hasCc?: boolean;
   hasBcc?: boolean;
   hasSubject?: boolean;
+  kind: string;
   content: string;
   isLoading: boolean;
   integrations: IIntegration[];
@@ -75,6 +76,11 @@ class MailForm extends React.Component<Props, State> {
     const [from] = mailData.from || [{}];
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
+    const fromId = this.getIntegrationId(
+      props.integrations,
+      props.integrationId
+    );
+
     this.state = {
       cc,
       bcc,
@@ -87,12 +93,13 @@ class MailForm extends React.Component<Props, State> {
       isLoading: false,
 
       fromEmail: sender,
-      from: this.getIntegrationId(props.integrations, props.integrationId),
+      from: fromId,
       subject: mailData.subject || '',
       content: '',
 
       status: 'draft',
       isUploading: false,
+      kind: this.getSelectedIntegrationKind(fromId),
 
       attachments: [],
       fileIds: [],
@@ -108,11 +115,20 @@ class MailForm extends React.Component<Props, State> {
       closeModal,
       toggleReply,
       integrationId,
-      kind,
       sendMail
     } = this.props;
+
     const mailData = this.props.mailData || ({} as IMail);
-    const { content, from, attachments, to, cc, bcc, subject } = this.state;
+    const {
+      content,
+      from,
+      attachments,
+      to,
+      cc,
+      bcc,
+      subject,
+      kind
+    } = this.state;
     const { references, headerId, threadId, messageId } = mailData;
 
     this.setState({ isLoading: true });
@@ -145,6 +161,13 @@ class MailForm extends React.Component<Props, State> {
         }
       }
     });
+  };
+
+  getSelectedIntegrationKind = (selectedId: string) => {
+    const integration = this.props.integrations.find(
+      obj => obj._id === selectedId
+    );
+    return (integration && integration.kind) || '';
   };
 
   getIntegrationId = (integrations, integrationId?: string) => {
@@ -306,31 +329,33 @@ class MailForm extends React.Component<Props, State> {
     }
   };
 
-  renderFromOption() {
-    const { integrations } = this.props;
+  renderFromValue = () => {
+    const { integrations = [], integrationId } = this.props;
 
-    return integrations.map(({ _id, name }) => (
-      <option key={_id} value={_id}>
-        {name}
-      </option>
-    ));
-  }
+    if (integrationId && integrationId.length > 0) {
+      const integration = integrations.find(obj => obj._id === integrationId);
 
-  renderFrom(integrationId?: string) {
+      return integration && integration.name;
+    }
+
+    const onChangeMail = (from: string) => {
+      this.setState({ from, kind: this.getSelectedIntegrationKind(from) });
+    };
+
+    return (
+      <MailChooser
+        onChange={onChangeMail}
+        integrations={integrations}
+        selectedItem={this.state.from}
+      />
+    );
+  };
+
+  renderFrom() {
     return (
       <FlexRow>
         <label>From:</label>
-        <FormControl
-          name="from"
-          onChange={this.onSelectChange.bind(this, 'from')}
-          componentClass="select"
-          required={true}
-          defaultValue={this.state.from}
-          disabled={integrationId ? integrationId.length > 0 : false}
-        >
-          <option />
-          {this.renderFromOption()}
-        </FormControl>
+        {this.renderFromValue()}
       </FlexRow>
     );
   }
@@ -361,6 +386,7 @@ class MailForm extends React.Component<Props, State> {
         <label>Cc:</label>
         <FormControl
           autoFocus={true}
+          componentClass="textarea"
           onChange={this.onSelectChange.bind(this, 'cc')}
           name="cc"
           defaultValue={cc}
@@ -382,6 +408,7 @@ class MailForm extends React.Component<Props, State> {
         <FormControl
           autoFocus={true}
           onChange={this.onSelectChange.bind(this, 'bcc')}
+          componentClass="textarea"
           name="bcc"
           defaultValue={bcc}
         />
@@ -464,8 +491,8 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderButtons() {
-    const { isLoading } = this.state;
-    const { kind, toggleReply } = this.props;
+    const { isLoading, kind } = this.state;
+    const { toggleReply } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -531,11 +558,9 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderLeftSide() {
-    const { integrationId } = this.props;
-
     return (
       <Column>
-        {this.renderFrom(integrationId)}
+        {this.renderFrom()}
         {this.renderTo()}
         {this.renderCC()}
         {this.renderBCC()}

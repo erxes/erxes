@@ -84,6 +84,7 @@ const AttachmentsContainer = styled.div`
   margin: 0 20px 10px 20px;
   overflow: hidden;
   display: flex;
+  flex-wrap: wrap;
 `;
 
 const FileName = styled.div`
@@ -210,6 +211,7 @@ const Title = styled.div`
 
 const Addresses = styled.div`
   color: ${colors.textSecondary};
+  word-break: break-word;
 `;
 
 export {

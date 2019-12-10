@@ -8,7 +8,6 @@ import styled from 'styled-components';
 const spacing = 30;
 
 const ParticipatorWrapper = styled.div`
-  display: inline-block;
   margin-left: 10px;
 
   &:hover {

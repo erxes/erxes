@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { queries as generalQueries } from 'modules/settings/general/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { ConfigDetailQueryResponse } from '../../../settings/general/types';
 import ProductItemForm from '../../components/product/ProductItemForm';

@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { UnreadConversationsTotalCountQueryResponse } from 'modules/inbox/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import strip from 'strip';
 import { sendDesktopNotification, withProps } from '../../common/utils';
 import Navigation from '../components/Navigation';

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { queries } from 'modules/boards/graphql';
 import { StagesQueryResponse } from 'modules/boards/types';
 import EmptyState from 'modules/common/components/EmptyState';
@@ -7,7 +8,7 @@ import { withProps } from 'modules/common/utils';
 import List from 'modules/deals/components/conversion/list/List';
 import Table from 'modules/deals/components/conversion/table/Table';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   pipelineId: string;

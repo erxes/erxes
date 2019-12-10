@@ -70,14 +70,18 @@ a:hover {
 .modal-dialog {
   padding: 0;
   margin: 50px auto;
-}
 
-.modal-dialog.middle {
-  width: 65%;
-}
+  &.modal-dialog-centered {
+    margin: 0 auto;
+  }
 
-.modal-dialog.full {
-  width: 85%;
+  &.middle {
+    width: 65%;
+  }
+
+  &.full {
+    width: 85%;
+  }
 }
 
 .modal-1000w {
@@ -461,11 +465,6 @@ a:hover {
 .Select--single > .Select-control .Select-value {
   padding-left: 0;
   padding-right: 0;
-}
-
-.Select-clear {
-  font-size: ${typography.fontSizeHeading6}px;
-  line-height: 1.4;
 }
 
 .Select-clear-zone:hover {

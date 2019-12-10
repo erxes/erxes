@@ -1,10 +1,9 @@
-import dayjs from 'dayjs';
 import _ from 'lodash';
 import FormControl from 'modules/common/components/form/Control';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
-import { isTimeStamp, urlParser } from 'modules/common/utils';
-import { Date } from 'modules/customers/styles';
+import { formatValue } from 'modules/common/utils';
+import { ClickableRow } from 'modules/customers/styles';
 import React from 'react';
 import { FlexItem } from '../../styles';
 import { ICompany } from '../../types';
@@ -16,43 +15,6 @@ type Props = {
   isChecked: boolean;
   toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
-
-function createLinkFromUrl(url) {
-  if (!url.includes('http')) {
-    url = 'http://' + url;
-  }
-
-  const onClick = e => {
-    e.stopPropagation();
-    window.open(url);
-  };
-
-  return (
-    <a href="#website" onClick={onClick}>
-      {urlParser.extractRootDomain(url)}
-    </a>
-  );
-}
-
-function formatValue(value) {
-  if (typeof value === 'boolean') {
-    return value.toString();
-  }
-
-  if (urlParser.isValidURL(value)) {
-    return createLinkFromUrl(value);
-  }
-
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  if (value && (dayjs(value).isValid() || isTimeStamp(value))) {
-    return <Date>{dayjs(value).format('lll')}</Date>;
-  }
-
-  return value || '-';
-}
 
 function displayValue(company, name) {
   const value = _.get(company, name);
@@ -102,7 +64,9 @@ function CompanyRow({
         />
       </td>
       {columnsConfig.map(({ name }) => (
-        <td key={name}>{displayValue(company, name)}</td>
+        <td key={name}>
+          <ClickableRow>{displayValue(company, name)}</ClickableRow>
+        </td>
       ))}
       <td>
         <Tags tags={tags} limit={2} />

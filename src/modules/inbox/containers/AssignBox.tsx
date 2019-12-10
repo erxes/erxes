@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Alert from 'modules/common/utils/Alert';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import AssignBox from '../components/assignBox/AssignBox';
 import { mutations } from '../graphql';

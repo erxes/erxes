@@ -39,13 +39,6 @@ const PopoverButton = styled.div`
   }
 `;
 
-const ConversationWrapper = styled.div`
-  height: 100%;
-  overflow: auto;
-  min-height: 100px;
-  background: ${colors.bgLight};
-`;
-
 const RichEditorRight = styled.div`
   float: right;
 `;
@@ -284,40 +277,6 @@ const FileName = styled.div`
   color: ${colors.colorWhite};
 `;
 
-const AssignText = styled.div`
-  display: inline-block;
-`;
-
-const ActionBarLeft = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`;
-
-const AssignTrigger = styled.div`
-  padding-left: 10px;
-
-  i {
-    margin-left: 5px;
-    margin-right: -3px;
-    transition: all ease 0.3s;
-    color: ${colors.colorCoreGray};
-    display: inline-block;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-
-    i {
-      transform: rotate(180deg);
-    }
-  }
-`;
-
 const MaskWrapper = styled.div`
   position: relative;
 `;
@@ -366,6 +325,11 @@ const SmallEditor = styled.div`
         min-height: auto;
         padding: 0px 15px;
       }
+
+      .public-DraftEditorPlaceholder-inner {
+        max-height: 20px;
+        overflow: hidden;
+      }
     }
   }
 
@@ -400,7 +364,6 @@ const CallLabel = styledTS<{ type: string }>(styled.span)`
 
 export {
   PopoverButton,
-  ConversationWrapper,
   RespondBoxStyled,
   ResponseSuggestions,
   ResponseSuggestionItem,
@@ -422,9 +385,6 @@ export {
   AttachmentIndicator,
   PreviewImg,
   FileName,
-  AssignText,
-  ActionBarLeft,
-  AssignTrigger,
   Mask,
   MaskWrapper,
   NoHeight,

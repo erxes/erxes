@@ -88,7 +88,7 @@ class NotificationList extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           onClick={this.markAllRead.bind(this, true)}
-          icon="checked-1"
+          icon="window-maximize"
         >
           Mark Page Read
         </Button>
@@ -96,7 +96,7 @@ class NotificationList extends React.Component<Props, State> {
           btnStyle="success"
           size="small"
           onClick={this.markAllRead.bind(this, false)}
-          icon="checked-1"
+          icon="eye-2"
         >
           Mark All Read
         </Button>

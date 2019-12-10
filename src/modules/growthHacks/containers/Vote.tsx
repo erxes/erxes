@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import {
   IGrowthHack,
@@ -6,7 +7,7 @@ import {
   VoteVariables
 } from 'modules/growthHacks/types';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { Vote } from '../components/editForm';
 import { mutations, queries } from '../graphql';
 

@@ -1,11 +1,12 @@
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import queryString from 'query-string';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import Bulk from '../../common/components/Bulk';
 import { IRouterProps } from '../../common/types';
@@ -37,6 +38,7 @@ type FinalProps = {
 
 type State = {
   loading: boolean;
+  mergeCustomerLoading: boolean;
   responseId: string;
 };
 
@@ -46,6 +48,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       loading: false,
+      mergeCustomerLoading: false,
       responseId: ''
     };
   }
@@ -82,7 +85,9 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const mergeCustomers = ({ ids, data, callback }) =>
+    const mergeCustomers = ({ ids, data, callback }) => {
+      this.setState({ mergeCustomerLoading: true });
+
       customersMerge({
         variables: {
           customerIds: ids,
@@ -91,6 +96,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then((result: any) => {
           callback();
+          this.setState({ mergeCustomerLoading: false });
           Alert.success('You successfully merged a customer');
           history.push(
             `/contacts/customers/details/${result.data.customersMerge._id}`
@@ -98,7 +104,9 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         })
         .catch(e => {
           Alert.error(e.message);
+          this.setState({ mergeCustomerLoading: false });
         });
+    };
 
     const exportCustomers = bulk => {
       const { REACT_APP_API_URL } = getEnv();
@@ -115,9 +123,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
       const stringified = queryString.stringify({
         ...queryParams,
-        type: 'customers'
+        type: 'customer'
       });
-      window.open(`${REACT_APP_API_URL}/coc-export?${stringified}`, '_blank');
+
+      window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
@@ -136,7 +145,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       loading: customersMainQuery.loading || this.state.loading,
       mergeCustomers,
       responseId: this.state.responseId,
-      removeCustomers
+      removeCustomers,
+      mergeCustomerLoading: this.state.mergeCustomerLoading
     };
 
     const content = props => {

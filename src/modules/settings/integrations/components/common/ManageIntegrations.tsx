@@ -19,7 +19,6 @@ type Props = {
   search: (searchValue: string, check?: boolean) => void;
   allIntegrations: IIntegration[];
   perPage: number;
-  clearState: () => void;
   closeModal?: () => void;
   renderConfirm?: (
     integration: IIntegration,
@@ -64,10 +63,6 @@ class ManageIntegrations extends React.Component<Props, State> {
       this.props.closeModal();
     }
   };
-
-  componentWillUnmount() {
-    this.props.clearState();
-  }
 
   componentWillReceiveProps(newProps) {
     const { allIntegrations, perPage } = newProps;

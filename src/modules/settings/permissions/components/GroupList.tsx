@@ -7,7 +7,7 @@ import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { HelperButtons, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, HelperButtons, SidebarList } from 'modules/layout/styles';
 import MemberAvatars from 'modules/settings/channels/components/MemberAvatars';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
@@ -82,11 +82,13 @@ class GroupList extends React.Component<IProps> {
     return objects.map(object => (
       <SidebarListItem key={object._id} isActive={this.isActive(object._id)}>
         <Link to={`?groupId=${object._id}`}>
-          {object.name}
-          <MemberAvatars
-            selectedMemberIds={object.memberIds || []}
-            allMembers={object.members || []}
-          />
+          <FieldStyle>
+            {object.name}
+            <MemberAvatars
+              selectedMemberIds={object.memberIds || []}
+              allMembers={object.members || []}
+            />
+          </FieldStyle>
         </Link>
         <ActionButtons>
           {this.renderEditAction(object)}
@@ -99,7 +101,7 @@ class GroupList extends React.Component<IProps> {
   renderContent() {
     const { objects } = this.props;
 
-    return this.renderObjects(objects);
+    return <SidebarList>{this.renderObjects(objects)}</SidebarList>;
   }
 
   renderSidebarHeader() {
@@ -136,16 +138,14 @@ class GroupList extends React.Component<IProps> {
 
     return (
       <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
-        <SidebarList>
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={loading}
-            count={totalCount}
-            emptyText="There is no group"
-            emptyImage="/images/actions/26.svg"
-          />
-          <LoadMore all={totalCount} loading={loading} />
-        </SidebarList>
+        <DataWithLoader
+          data={this.renderContent()}
+          loading={loading}
+          count={totalCount}
+          emptyText="There is no group"
+          emptyImage="/images/actions/26.svg"
+        />
+        <LoadMore all={totalCount} loading={loading} />
       </Sidebar>
     );
   }

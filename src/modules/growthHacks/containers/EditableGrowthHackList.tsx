@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { SaveMutation } from 'modules/boards/types';
 import { Alert, withProps } from 'modules/common/utils';
 import WeightedScore from 'modules/growthHacks/components/weightedScore/WeightedScore';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import {
   GrowthHacksCountQueryResponse,

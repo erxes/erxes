@@ -1,9 +1,10 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import Stage from '../components/stage/Stage';
 import {
   IFilterParams,

@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import { withProps } from 'modules/common/utils';
 import { AddMutationResponse } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import AutoAndManualForm from '../components/AutoAndManualForm';
 import FormBase from '../components/FormBase';

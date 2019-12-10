@@ -67,13 +67,16 @@ const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
 const ContentHeader = styledTS<{ background: string }>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
-  min-height: ${dimensions.headerSpacing}px;
   padding: ${props =>
     props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
+  z-index: 2;
+`;
+
+const HeaderContent = styled.div`
   display: flex;
   justify-content: space-between;
-  z-index: 2;
+  min-height: ${dimensions.headerSpacing}px;
 `;
 
 const ContenFooter = styled.div`
@@ -158,7 +161,7 @@ const SidebarTitle = styledTS<{ children: any }>(
   styled(SidebarHeader.withComponent('h3'))
 )`
   padding: 0 ${dimensions.coreSpacing}px;
-  margin: 0 0 -1px 0;
+  margin: 0;
   text-transform: uppercase;
 `;
 
@@ -271,7 +274,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 
   &.no-link li,
   a {
-    display: block;
+    display: flex;
     padding: 6px 20px;
     color: ${colors.textPrimary};
     white-space: nowrap;
@@ -280,7 +283,6 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     text-decoration: none;
     text-transform: ${props => (props.capitalize ? 'capitalize' : 'normal')};
     outline: 0;
-    position: relative;
     border-left: 2px solid transparent;
     transition: background 0.3s ease;
 
@@ -301,7 +303,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
       border-left: 2px solid ${colors.colorSecondary};
     }
   }
-
+  
   .icon {
     margin-right: 6px;
     color: ${colors.colorCoreGray};
@@ -309,18 +311,15 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
 `;
 
 const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
-  styled.span
+  styled.div
 )`
   font-size: ${typography.fontSizeHeading8}px;
-  text-align: ${props => (props.nowrap ? 'left' : 'right')};
+  text-align: ${props => (props.nowrap ? 'right' : 'left')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
-  position: ${props => !props.nowrap && 'absolute'};
-  right: ${dimensions.coreSpacing}px;
-  max-width: ${props => (props.nowrap ? '100%' : '45%')};
   overflow: hidden;
   text-overflow: ${props => !props.fullLength && 'ellipsis'};
-  padding-left: ${props => (props.nowrap ? '0' : '10px')};
+  padding-left: 5px;
 
   a {
     padding: 0;
@@ -338,6 +337,13 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
       display: block;
       white-space: normal;
     `};
+`;
+
+const FieldStyle = styledTS<{ overflow?: string }>(styled.div)`
+  white-space: nowrap;
+  overflow: ${props => (props.overflow ? props.overflow : 'hidden')};
+  text-overflow: ellipsis;
+  flex: 1;
 `;
 
 const SidebarFlexRow = styled.li`
@@ -548,6 +554,7 @@ export {
   ContentBox,
   ContenFooter,
   ContentHeader,
+  HeaderContent,
   CenterContent,
   HeaderItems,
   BarItems,
@@ -576,5 +583,6 @@ export {
   SectionBody,
   SectionBodyItem,
   MobileRecommend,
-  ButtonRelated
+  ButtonRelated,
+  FieldStyle
 };

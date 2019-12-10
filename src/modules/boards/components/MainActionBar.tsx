@@ -107,7 +107,9 @@ class MainActionBar extends React.Component<Props, State> {
     const { currentBoard, boards } = this.props;
 
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
-      return <EmptyState icon="layout" text="No other boards" size="small" />;
+      return (
+        <EmptyState icon="web-grid-alt" text="No other boards" size="small" />
+      );
     }
 
     return boards.map(board => {
@@ -137,7 +139,13 @@ class MainActionBar extends React.Component<Props, State> {
     const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
     if ((currentPipeline && pipelines.length === 1) || pipelines.length === 0) {
-      return <EmptyState icon="stop" text="No other pipeline" size="small" />;
+      return (
+        <EmptyState
+          icon="web-section-alt"
+          text="No other pipeline"
+          size="small"
+        />
+      );
     }
 
     if (!currentBoard) {

@@ -70,6 +70,7 @@ class Mail extends React.PureComponent<Props, State> {
           icon="corner-up-left-alt"
           size="small"
           onClick={this.toggleReply}
+          btnStyle="primary"
         >
           Reply
         </Button>
@@ -84,12 +85,11 @@ class Mail extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { conversationId, integrationId, kind } = this.props;
+    const { conversationId, integrationId } = this.props;
 
     return (
       <BoxItem>
         <MailForm
-          kind={kind}
           isReply={isReply}
           closeReply={this.closeReply}
           conversationId={conversationId}

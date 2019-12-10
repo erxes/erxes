@@ -6,7 +6,7 @@ import {
   ActivityRow,
   AvatarWrapper,
   FlexBody,
-  FlexContent
+  FlexCenterContent
 } from 'modules/activityLogs/styles';
 import { IUser } from 'modules/auth/types';
 import NameCard from 'modules/common/components/nameCard/NameCard';
@@ -40,7 +40,7 @@ class UserDetails extends React.Component<Props> {
     return (
       <ActivityRow key={conversation._id}>
         <React.Fragment>
-          <FlexContent>
+          <FlexCenterContent>
             <AvatarWrapper>
               <NameCard.Avatar user={user} size={50} />
             </AvatarWrapper>
@@ -67,7 +67,7 @@ class UserDetails extends React.Component<Props> {
                 {dayjs(conversation.createdAt).fromNow()}
               </ActivityDate>
             </Tip>
-          </FlexContent>
+          </FlexCenterContent>
         </React.Fragment>
       </ActivityRow>
     );
