@@ -123,9 +123,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
       const stringified = queryString.stringify({
         ...queryParams,
-        type: 'customers'
+        type: 'customer'
       });
-      window.open(`${REACT_APP_API_URL}/coc-export?${stringified}`, '_blank');
+
+      window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
     const searchValue = this.props.queryParams.searchValue || '';

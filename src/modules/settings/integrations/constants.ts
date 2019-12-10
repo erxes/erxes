@@ -100,8 +100,7 @@ export const KIND_CHOICES_WITH_TEXT = [
   { text: 'Pop Ups', value: 'lead' },
   { text: 'Callpro', value: 'callpro' },
   { text: 'Chatfuel', value: 'chatfuel' },
-  { text: 'Gmail', value: 'gmail' },
-  { text: 'Nylas gmail', value: 'nylas-gmail' }
+  { text: 'Gmail', value: 'nylas-gmail' }
 ];
 
 export const FORM_LOAD_TYPES = {

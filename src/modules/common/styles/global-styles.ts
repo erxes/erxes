@@ -467,11 +467,6 @@ a:hover {
   padding-right: 0;
 }
 
-.Select-clear {
-  font-size: ${typography.fontSizeHeading6}px;
-  line-height: 1.4;
-}
-
 .Select-clear-zone:hover {
   color: ${colors.colorCoreRed};
 }
@@ -1064,10 +1059,6 @@ a:hover {
 
   .rdt {
     display: block !important;
-  }
-
-  .cke_chrome {
-    border: none !important;
   }
 
   .modal-close-date {

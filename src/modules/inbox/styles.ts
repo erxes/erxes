@@ -325,6 +325,11 @@ const SmallEditor = styled.div`
         min-height: auto;
         padding: 0px 15px;
       }
+
+      .public-DraftEditorPlaceholder-inner {
+        max-height: 20px;
+        overflow: hidden;
+      }
     }
   }
 

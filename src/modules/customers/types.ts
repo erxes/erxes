@@ -1,6 +1,6 @@
 import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
-import { IActivityLogForMonth } from '../activityLogs/types';
+import { IActivityLog } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ISegmentDoc } from '../segments/types';
 import { IIntegration } from '../settings/integrations/types';
@@ -161,7 +161,7 @@ export type CustomerDetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
+  activityLogs: IActivityLog[];
   loading: boolean;
   refetch: () => void;
   subscribeToMore: any;

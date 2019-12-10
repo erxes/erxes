@@ -35,6 +35,7 @@ export default `
     avatar
     firstName
     lastName
+    emails
   }
   messageCount
   participatorCount

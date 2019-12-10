@@ -29,7 +29,7 @@ const engageMessages = `
       title
       isDraft
       isLive
-      createdDate
+      createdAt
       kind
       method
       brands {
@@ -76,8 +76,14 @@ export const engageDetailFields = `
   isDraft
   isLive
   stopDate
-  createdDate
+  createdAt
   messenger
+  fromUser {
+    email
+    details {
+      fullName
+    }
+  }
   scheduleDate {
     type
     month

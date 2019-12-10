@@ -88,7 +88,8 @@ class VisitorForm extends React.Component<Props, State> {
         brandId: messenger.brandId,
         sentAs: messenger.sentAs,
         content: this.state.content
-      }
+      },
+      scheduleDate: this.state.scheduleDate
     };
 
     const response = this.props.validateDoc(type, doc);

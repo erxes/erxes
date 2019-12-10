@@ -1,6 +1,5 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from 'modules/activityLogs/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Form from '../components/Form';
@@ -31,19 +30,14 @@ class FormContainer extends React.Component<
     const { contentType, contentTypeId, internalNotesAdd } = this.props;
 
     // create internalNote
-    const create = (
-      content: string,
-      mentionedUserIds,
-      callback: () => void
-    ) => {
+    const create = (variables, callback: () => void) => {
       this.setState({ isLoading: true });
 
       internalNotesAdd({
         variables: {
           contentType,
           contentTypeId,
-          mentionedUserIds,
-          content
+          ...variables
         }
       }).then(() => {
         callback();
@@ -52,7 +46,7 @@ class FormContainer extends React.Component<
       });
     };
 
-    return <Form create={create} isActionLoading={this.state.isLoading} />;
+    return <Form save={create} isActionLoading={this.state.isLoading} />;
   }
 }
 
@@ -63,17 +57,9 @@ export default compose(
     InternalNotesAddMutationVariables
   >(gql(mutations.internalNotesAdd), {
     name: 'internalNotesAdd',
-    options: (props: Props) => {
+    options: () => {
       return {
-        refetchQueries: [
-          {
-            query: gql(queries[`activityLogs`]),
-            variables: {
-              contentId: props.contentTypeId,
-              contentType: props.contentType
-            }
-          }
-        ]
+        refetchQueries: ['activityLogs']
       };
     }
   })

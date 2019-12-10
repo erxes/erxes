@@ -28,7 +28,9 @@ const ResolverContainer = (props: FinalProps) => {
   const changeStatus = notifyHandler => (conversationIds: string[], status) => {
     changeStatusMutation({ variables: { _ids: conversationIds, status } })
       .then(() => {
-        notifyHandler();
+        if (notifyHandler) {
+          notifyHandler();
+        }
 
         if (status === CONVERSATION_STATUSES.CLOSED) {
           Alert.success('The conversation has been resolved!');

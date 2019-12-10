@@ -57,7 +57,7 @@ const Actions = styled.div`
 
 const SectionContainer = styled.div`
   position: relative;
-  box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
   margin-bottom: 10px;
 
   > div {
@@ -151,8 +151,8 @@ const MailBox = styled.div`
 const SidebarCollapse = styled.a`
   color: ${colors.colorCoreGray};
   position: absolute;
-  top: ${dimensions.unitSpacing}px;
-  right: ${dimensions.coreSpacing}px;
+  top: ${dimensions.unitSpacing - 2}px;
+  right: ${dimensions.coreSpacing - 3}px;
   font-size: 14px;
 
   &:hover {

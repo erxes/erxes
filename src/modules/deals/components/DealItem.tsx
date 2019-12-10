@@ -18,7 +18,6 @@ import React from 'react';
 
 import Labels from 'modules/boards/components/label/Labels';
 import { IOptions } from 'modules/boards/types';
-import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { IDeal } from '../types';
 
@@ -54,16 +53,12 @@ class DealItem extends React.PureComponent<Props> {
     );
   };
 
-  renderDate(date, format = 'YYYY-MM-DD') {
+  renderDate(date) {
     if (!date) {
       return null;
     }
 
-    return (
-      <Tip text={dayjs(date).format(format)}>
-        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
-      </Tip>
-    );
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderStatusLabel(text, color) {
@@ -117,7 +112,7 @@ class DealItem extends React.PureComponent<Props> {
         <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
         <Footer>
-          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
+          {item.isWatched ? <Icon icon="eye-2" /> : __('Last updated')}
           <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </>

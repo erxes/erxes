@@ -75,7 +75,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = doc => {
         doc.kind = message.kind ? message.kind : kind;
-        doc.scheduleDate = doc.kind === 'auto' ? doc.scheduleDate : null;
+        doc.scheduleDate = doc.kind !== 'manual' ? doc.scheduleDate : null;
 
         if (messageId) {
           return doMutation(
@@ -168,7 +168,13 @@ function withSaveAndEdit<IComponentProps>(Component) {
         gql(mutations.messagesAdd),
         {
           name: 'addMutation',
-          options: crudMutationsOptions
+          options: {
+            refetchQueries: [
+              ...crudMutationsOptions().refetchQueries,
+              'engageMessageDetail',
+              'activityLogs'
+            ]
+          }
         }
       ),
       graphql<Props, WithFormEditMutationResponse, WithFormMutationVariables>(

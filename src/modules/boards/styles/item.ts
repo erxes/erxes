@@ -12,8 +12,6 @@ const FlexContent = styled.div`
 `;
 
 const PriceContainer = styled.div`
-  overflow: auto;
-
   ul {
     float: left;
   }

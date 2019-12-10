@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { SidebarList } from 'modules/layout/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Info = styled.div`
   margin-top: 5px;
@@ -91,6 +92,24 @@ const TabContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
+const ClickableRow = styled.span`
+  cursor: pointer;
+
+  &:hover {
+    color: ${colors.textSecondary};
+  }
+`;
+
+const BooleanStatus = styledTS<{ isTrue?: boolean }>(styled.div)`
+  text-align: center;
+
+  i {
+    font-size: 16px;
+    color: ${props =>
+      props.isTrue ? colors.colorCoreGreen : colors.colorCoreRed};
+  }
+`;
+
 export {
   InfoTitle,
   InfoDetail,
@@ -100,5 +119,7 @@ export {
   InfoAvatar,
   Contact,
   Name,
-  TabContent
+  TabContent,
+  ClickableRow,
+  BooleanStatus
 };
