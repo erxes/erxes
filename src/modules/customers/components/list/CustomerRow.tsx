@@ -42,7 +42,7 @@ function displayValue(customer, name) {
 
   if (typeof value === 'boolean') {
     return (
-      <BooleanStatus>
+      <BooleanStatus isTrue={value}>
         <Icon icon={value ? 'check-1' : 'times'} />
       </BooleanStatus>
     );
