@@ -80,6 +80,10 @@ export const ticketFields = `
   modifiedBy
   reminderMinute
   isComplete
+
+  products
+  productsData
+  amount
 `;
 
 const tickets = `

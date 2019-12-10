@@ -1,5 +1,6 @@
 import { IItem, IItemParams } from 'modules/boards/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
+import { IProductData } from '../deals/types';
 
 export type ActivityLogQueryResponse = {
   activityLogs: IActivityLogForMonth[];
@@ -8,8 +9,10 @@ export type ActivityLogQueryResponse = {
 
 export interface ITicket extends IItem {
   channel?: string;
+  products?: any;
 }
 
 export interface ITicketParams extends IItemParams {
   source?: string;
+  productsData?: IProductData[];
 }
