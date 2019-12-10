@@ -67,7 +67,7 @@
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.20.1",
-    "snyk": "^1.239.5",
+    "snyk": "^1.258.1",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
