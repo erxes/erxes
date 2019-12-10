@@ -30,31 +30,28 @@ class ManageIntegrationsContainer extends React.Component<FinalProps, State> {
     this.state = { perPage: 20 };
   }
 
+  search = (value, loadmore) => {
+    const { allIntegrationsQuery } = this.props;
+
+    if (!loadmore) {
+      this.setState({ perPage: 0 });
+    }
+
+    this.setState({ perPage: this.state.perPage + 20 }, () => {
+      allIntegrationsQuery.refetch({
+        searchValue: value,
+        perPage: this.state.perPage
+      });
+    });
+  };
+
   render() {
     const { allIntegrationsQuery, save } = this.props;
 
-    const search = (value, loadmore) => {
-      if (!loadmore) {
-        this.setState({ perPage: 0 });
-      }
-
-      this.setState({ perPage: this.state.perPage + 20 }, () => {
-        allIntegrationsQuery.refetch({
-          searchValue: value,
-          perPage: this.state.perPage
-        });
-      });
-    };
-
-    const clearState = () => {
-      allIntegrationsQuery.refetch({ searchValue: '' });
-    };
-
     const updatedProps = {
       ...this.props,
-      search,
+      search: this.search,
       save,
-      clearState,
       perPage: this.state.perPage,
       allIntegrations: allIntegrationsQuery.integrations || []
     };
