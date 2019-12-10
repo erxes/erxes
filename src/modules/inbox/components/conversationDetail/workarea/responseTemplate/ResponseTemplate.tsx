@@ -9,7 +9,8 @@ import { ResponseTemplateStyled } from 'modules/inbox/styles';
 import { IBrand } from 'modules/settings/brands/types';
 import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import strip from 'strip';
 
 type Props = {
@@ -40,21 +41,20 @@ class ResponseTemplate extends React.Component<Props, State> {
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
         <Tip text={__('Save as template')}>
-          <Icon icon="download-3" />
+          <Icon icon="file-upload-alt" />
         </Tip>
       </Button>
     );
 
     const popover = (
-      <Popover
-        className="popover-template"
-        id="templates-popover"
-        title={__('Response Templates')}
-      >
-        <PopoverContent
-          {...this.props}
-          onSelectTemplate={this.onSelectTemplate}
-        />
+      <Popover className="popover-template" id="templates-popover">
+        <Popover.Title as="h3">{__('Response Templates')}</Popover.Title>
+        <Popover.Content>
+          <PopoverContent
+            {...this.props}
+            onSelectTemplate={this.onSelectTemplate}
+          />
+        </Popover.Content>
       </Popover>
     );
 

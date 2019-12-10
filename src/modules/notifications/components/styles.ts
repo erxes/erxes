@@ -74,6 +74,7 @@ const NotifList = styled.ul`
 
 const NotificationList = styled(NotifList)`
   max-height: 420px !important;
+  overflow: auto;
 `;
 
 const NotifButton = styled.div`

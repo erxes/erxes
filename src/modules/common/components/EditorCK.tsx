@@ -23,6 +23,7 @@ class EditorCK extends React.Component<IEditorProps> {
 
     CKEditor.editorUrl = '/ckeditor/ckeditor.js';
   }
+
   render() {
     const {
       onCtrlEnter,
@@ -34,7 +35,12 @@ class EditorCK extends React.Component<IEditorProps> {
       removePlugins,
       toolbar,
       toolbarCanCollapse,
-      mentionUsers = []
+      mentionUsers = [],
+      autoFocus,
+      autoGrow,
+      autoGrowMinHeight = 180,
+      autoGrowMaxHeight,
+      toolbarLocation = 'top'
     } = this.props;
 
     const mentionDataFeed = (opts, callback) => {
@@ -58,10 +64,17 @@ class EditorCK extends React.Component<IEditorProps> {
         onChange={onChange}
         config={{
           height,
+          startupFocus: autoFocus,
           uiColor: colors.bgLight,
           dialog_backgroundCoverColor: '#30435C',
           allowedContent: true,
-          extraPlugins: 'codemirror,strinsert,onCtrlEnter',
+          toolbarLocation,
+          extraPlugins: `codemirror,strinsert,onCtrlEnter${
+            autoGrow ? ',autogrow' : ''
+          }`,
+          autoGrow_minHeight: autoGrowMinHeight,
+          autoGrow_maxHeight: autoGrowMaxHeight,
+          autoGrow_onStartup: true,
           strinsert: insertItems,
           autoGrowOnStartup: true,
           toolbar: toolbar || [

@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const AttachmentContainer = styled(Attachment)`
-  padding: 5px 10px;
+  padding: 3px 8px;
   border-radius: 2px;
-  margin: 0 0 5px 5px;
+  margin: 0 5px 5px 0;
   color: ${colors.colorWhite};
 
   i {
@@ -22,18 +22,16 @@ const AttachmentContainer = styled(Attachment)`
   }
 `;
 
-const Uploading = styled.div`
-  position: relative;
-  height: 33px;
-  top: -4px;
-  left: 25px;
+const FileSize = styled.div`
+  font-size: 90%;
+  opacity: 0.9;
+`;
 
-  span {
-    position: absolute;
-    width: 100px;
-    top: 6px;
-    left: 25px;
-  }
+const Uploading = styled.div`
+  display: flex;
+  align-items: baseline;
+  color: ${colors.colorCoreGray};
+  font-size: 12px;
 `;
 
 const ControlWrapper = styled.div`
@@ -52,33 +50,30 @@ const MailEditorWrapper = styled.div`
   background: ${colors.colorWhite};
 
   .cke {
-    border-top: 0;
-  }
-
-  .cke_bottom {
-    display: none;
+    border: 0;
+    border-bottom: 1px solid ${colors.borderPrimary};
   }
 
   .cke_inner {
     position: relative;
 
-    .cke_top {
-      position: absolute;
-      right: 0;
-      left: 0;
-      bottom: 0;
-      border-bottom: 0;
-      border-top: 1px solid ${colors.borderPrimary};
+    .cke_resizer {
+      display: none;
     }
 
-    .cke_contents {
-      min-height: 140px !important;
+    .cke_bottom {
+      background: ${colors.bgLight};
+      padding-left: ${dimensions.coreSpacing}px;
+      padding-right: ${dimensions.coreSpacing}px;
+      border-top: 1px solid ${colors.borderPrimary};
+      max-height: 60px;
+      overflow: hidden;
     }
   }
 
   .cke_toolgroup {
     border: 0;
-    padding-left: ${dimensions.unitSpacing}px;
+    margin-left: ${dimensions.unitSpacing / 2}px;
   }
 `;
 
@@ -87,6 +82,7 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
   font-size: 12px;
   color: ${colors.colorCoreLightGray};
   display: ${props => props.isActive && 'none'};
+  font-weight: 500;
 
   &:hover {
     cursor: pointer;
@@ -95,13 +91,15 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
 `;
 
 const EditorFooter = styled.div`
-  margin: 10px 15px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 `;
 
 const Attachments = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  padding: 6px ${dimensions.coreSpacing}px 2px ${dimensions.coreSpacing}px
+  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const FlexRow = styled.div`
@@ -109,8 +107,9 @@ const FlexRow = styled.div`
   align-items: center;
 
   > label {
-    margin-right: ${dimensions.unitSpacing}px;
+    margin: 2px ${dimensions.unitSpacing}px 2px 0;
     color: ${colors.colorCoreGray};
+    align-self: baseline;
   }
 `;
 
@@ -124,6 +123,7 @@ const ToolBar = styled.div`
     color: ${colors.colorCoreGray};
     margin-right: 10px;
     font-size: 14px;
+    margin-bottom: 0;
 
     &:hover {
       cursor: pointer;
@@ -141,11 +141,24 @@ const SpaceBetweenRow = styled.div`
   justify-content: space-between;
   align-items: center;
 
+  textarea,
   input,
   ${SelectWrapper} {
     height: ${dimensions.coreSpacing}px;
     border-bottom: 0;
     padding: 0;
+    min-height: auto;
+  }
+
+  ${SelectWrapper} {
+    width: auto;
+    display: inline-flex;
+    padding-right: 10px;
+    background: ${colors.bgActive};
+
+    &:after {
+      top: 5px;
+    }
 
     select {
       height: ${dimensions.coreSpacing}px;
@@ -158,7 +171,7 @@ const Column = styled.div`
 `;
 
 const Subject = styled.div`
-  padding: ${dimensions.unitSpacing}px 15px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
 
   input {
@@ -180,5 +193,6 @@ export {
   Uploading,
   AttachmentContainer,
   SpaceBetweenRow,
-  EditorFooter
+  EditorFooter,
+  FileSize
 };

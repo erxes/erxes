@@ -108,30 +108,22 @@ const stages = `
   query stages(
     $isNotLost: Boolean,
     $pipelineId: String!,
-    $search: String,
-    $customerIds: [String],
-    $companyIds: [String],
-    $assignedUserIds: [String],
-    $nextDay: String,
-    $nextWeek: String,
-    $nextMonth: String,
-    $noCloseDate: String,
-    $overdue: String,
-    $extraParams: JSON
+    $search: String,	
+    $customerIds: [String],	
+    $companyIds: [String],	
+    $assignedUserIds: [String],	
+    $extraParams: JSON,
+    $closeDateType: String
   ) {
     stages(
       isNotLost: $isNotLost,
       pipelineId: $pipelineId,
-      search: $search,
-      customerIds: $customerIds,
-      companyIds: $companyIds,
-      assignedUserIds: $assignedUserIds,
-      nextDay: $nextDay,
-      nextWeek: $nextWeek,
-      nextMonth: $nextMonth,
-      noCloseDate: $noCloseDate,
-      overdue: $overdue,
-      extraParams: $extraParams
+      search: $search,	
+      customerIds: $customerIds,	
+      companyIds: $companyIds,	
+      assignedUserIds: $assignedUserIds,	
+      extraParams: $extraParams,
+      closeDateType: $closeDateType
     ) {
       _id
       name
@@ -142,6 +134,7 @@ const stages = `
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
+      pipelineId
     }
   }
 `;

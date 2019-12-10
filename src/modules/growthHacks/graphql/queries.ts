@@ -1,22 +1,14 @@
 const commonParams = `
   $pipelineId: String,
   $assignedUserIds: [String],
-  $nextDay: String,
-  $nextWeek: String,
-  $nextMonth: String,
-  $noCloseDate: String,
-  $overdue: String,
+  $closeDateType: String,
   $search: String,
 `;
 
 const commonParamDefs = `
   pipelineId: $pipelineId,
   assignedUserIds: $assignedUserIds,
-  nextDay: $nextDay,
-  nextWeek: $nextWeek,
-  nextMonth: $nextMonth,
-  noCloseDate: $noCloseDate,
-  overdue: $overdue,
+  closeDateType: $closeDateType,
   search: $search,
 `;
 
@@ -110,8 +102,8 @@ const growthHacks = `
     $limit: Int,
     $sortField: String,
     $sortDirection: Int,
-    $hackStage: String,
-    $priority: String,
+    $hackStage: [String],
+    $priority: [String],
     ${commonParams}
   ) {
     growthHacks(
@@ -132,8 +124,8 @@ const growthHacks = `
 const growthHacksTotalCount = `
   query growthHacksTotalCount(
     $stageId: String,
-    $hackStage: String,
-    $priority: String,
+    $hackStage: [String],
+    $priority: [String],
     ${commonParams}
   ) {
     growthHacksTotalCount(

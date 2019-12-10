@@ -30,6 +30,18 @@ export const EMAIL_CONTENT = {
   label: 'Attributes'
 };
 
+export const EMAIL_TEMPLATE_KEYS_FOR_SELECT = [
+  { value: 'fullName', name: 'Fullname' },
+  { value: 'brandName', name: 'BrandName' },
+  { value: 'domain', name: 'Domain' }
+];
+
+export const EMAIL_TEMPLATE = {
+  items: EMAIL_TEMPLATE_KEYS_FOR_SELECT,
+  title: 'Attributes',
+  label: 'Attributes'
+};
+
 export const statusFilters = [
   { key: 'live', value: 'Live' },
   { key: 'draft', value: 'Draft' },

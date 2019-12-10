@@ -1,16 +1,16 @@
 import dayjs from 'dayjs';
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
 import { __, isTimeStamp, isValidDate } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { ICustomer } from '../../types';
 
 type Props = {
   customer: ICustomer;
-  // TODO: check query params. Because it was in context
   queryParams?: any;
+  collapseCallback?: () => void;
 };
 
 class MessengerSection extends React.Component<Props> {
@@ -35,7 +35,7 @@ class MessengerSection extends React.Component<Props> {
     return (
       <SidebarList className="no-link">
         <li>
-          {__('Status')}
+          <FieldStyle>{__('Status')}</FieldStyle>
           <SidebarCounter>
             {messengerData.isActive ? (
               <Label lblStyle="success">Online</Label>
@@ -45,18 +45,18 @@ class MessengerSection extends React.Component<Props> {
           </SidebarCounter>
         </li>
         <li>
-          {__('Last online')}
+          <FieldStyle>{__('Last online')}</FieldStyle>
           <SidebarCounter>
             {dayjs(messengerData.lastSeenAt).format('lll')}
           </SidebarCounter>
         </li>
         <li>
-          {__('Session count')}
+          <FieldStyle>{__('Session count')}</FieldStyle>
           <SidebarCounter>{messengerData.sessionCount}</SidebarCounter>
         </li>
         {customData.map((data, index) => (
           <li key={index}>
-            {data.name}
+            <FieldStyle>{data.name}</FieldStyle>
             <SidebarCounter>
               {this.renderCustomValue(data.value)}
             </SidebarCounter>
@@ -67,15 +67,16 @@ class MessengerSection extends React.Component<Props> {
   }
 
   render() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
+    const { collapseCallback } = this.props;
 
     return (
-      <Section>
-        <Title>{__('Messenger data')}</Title>
-
+      <Box
+        title={__('Messenger data')}
+        name="showMessengerData"
+        callback={collapseCallback}
+      >
         {this.renderContent()}
-      </Section>
+      </Box>
     );
   }
 }

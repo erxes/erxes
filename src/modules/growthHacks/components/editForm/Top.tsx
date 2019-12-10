@@ -7,47 +7,37 @@ import {
   MetaInfo,
   TitleRow
 } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
+import { IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
+import { IGrowthHack } from '../../types';
 
 type Props = {
-  item: IItem;
+  item: IGrowthHack;
   options: IOptions;
-  name: string;
-  stageId: string;
-  priority: string;
-  hackStages: string[];
-  onChangeField: (name: 'name' | 'stageId', value: any) => void;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
+  onChangeStage: (stageId: string) => void;
   score?: () => React.ReactNode;
   dueDate?: React.ReactNode;
-  formSubmissions: JSON;
 };
 
 class Top extends React.Component<Props> {
-  onChangeStage = stageId => {
-    const { onChangeField } = this.props;
-
-    onChangeField('stageId', stageId);
-  };
-
   renderMove() {
-    const { item, stageId, options } = this.props;
+    const { item, options, onChangeStage } = this.props;
 
     return (
       <Move
         options={options}
         item={item}
-        stageId={stageId}
-        onChangeStage={this.onChangeStage}
+        stageId={item.stageId}
+        onChangeStage={onChangeStage}
       />
     );
   }
 
   renderHackStage() {
-    const { hackStages } = this.props;
+    const hackStages = this.props.item.hackStages || [];
 
     if (hackStages.length === 0) {
       return null;
@@ -66,23 +56,15 @@ class Top extends React.Component<Props> {
   }
 
   render() {
-    const {
-      name,
-      onChangeField,
-      score,
-      dueDate,
-      priority,
-      onBlurFields,
-      item
-    } = this.props;
+    const { saveItem, score, dueDate, item } = this.props;
+    const { assignedUsers = [], name, priority } = item;
 
-    const { assignedUsers = [] } = item;
+    const onNameBlur = e => {
+      const value = e.target.value;
 
-    const nameOnChange = e =>
-      onChangeField('name', (e.target as HTMLInputElement).value);
-
-    const onSaveName = e => {
-      onBlurFields('name', e.target.value);
+      if (name !== value) {
+        saveItem({ name: e.target.value });
+      }
     };
 
     return (
@@ -95,8 +77,7 @@ class Top extends React.Component<Props> {
                 componentClass="textarea"
                 defaultValue={name}
                 required={true}
-                onChange={nameOnChange}
-                onBlur={onSaveName}
+                onBlur={onNameBlur}
               />
             </TitleRow>
             <MetaInfo>

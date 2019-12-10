@@ -31,6 +31,10 @@ const List = styled(SidebarList)`
       margin: 0;
     }
 
+    i {
+      margin-left: ${dimensions.unitSpacing / 2}px;
+    }
+
     &:last-child {
       border: none;
     }

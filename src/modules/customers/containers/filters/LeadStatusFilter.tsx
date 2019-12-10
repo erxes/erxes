@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import LeadStatusFilter from '../../components/list/LeadStatusFilter';
 import { queries } from '../../graphql';

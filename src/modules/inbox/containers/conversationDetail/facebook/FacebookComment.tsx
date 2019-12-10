@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import FacebookComment from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookComment';
 import { mutations } from 'modules/inbox/graphql';
@@ -8,7 +9,7 @@ import {
   ReplyFaceBookCommentMutationVariables
 } from 'modules/inbox/types';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 
 type Props = {
   comment: IFacebookComment;

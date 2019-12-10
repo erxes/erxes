@@ -1,9 +1,10 @@
 import apolloClient from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import Onboarding from '../components/Onboarding';
 import { FEATURE_DETAILS } from '../constants';

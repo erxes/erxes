@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IPipeline, WatchMutation, WatchVariables } from 'modules/boards/types';
 import { Alert, withProps } from 'modules/common/utils';
 import * as React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import PipelineWatch from '../components/PipelineWatch';
 import { mutations, queries } from '../graphql';
 

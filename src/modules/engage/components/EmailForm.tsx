@@ -1,32 +1,28 @@
 import EditorCK from 'modules/common/components/EditorCK';
+import ErrorMsg from 'modules/common/components/ErrorMsg';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import HelpPopover from 'modules/common/components/HelpPopover';
+import Icon from 'modules/common/components/Icon';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import Tip from 'modules/common/components/Tip';
 import Uploader from 'modules/common/components/Uploader';
+import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { EMAIL_CONTENT } from 'modules/engage/constants';
-import { EditorContainer } from 'modules/engage/styles';
+import {
+  EditorContainer,
+  VerifyCancel,
+  VerifyCheck,
+  VerifyStatus
+} from 'modules/engage/styles';
 import React from 'react';
-import { IUser } from '../../auth/types';
-import { IEmailTemplate } from '../../settings/emailTemplates/types';
-import { IEngageEmail, IEngageScheduleDate } from '../types';
+import Select from 'react-select-plus';
+import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
 import Scheduler from './Scheduler';
 
-type Props = {
-  onChange: (
-    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-    value: IEngageEmail | IEngageScheduleDate | string
-  ) => void;
-  message?: string;
-  users: IUser[];
-  templates: IEmailTemplate[];
-  kind: string;
-  email: IEngageEmail;
-  fromUserId: string;
-  content: string;
-  scheduleDate: IEngageScheduleDate;
-};
+type Props = IEmailFormProps & { verifiedEmails: string[]; error?: string };
 
 type State = {
   fromUserId: string;
@@ -57,7 +53,7 @@ class EmailForm extends React.Component<Props, State> {
     this.props.onChange('email', email);
   };
 
-  changeUser = fromUserId => {
+  changeUser = (fromUserId: string) => {
     this.setState({ fromUserId });
     this.props.onChange('fromUserId', fromUserId);
   };
@@ -99,11 +95,67 @@ class EmailForm extends React.Component<Props, State> {
     this.props.onChange('content', e.editor.getData());
   };
 
+  renderFrom() {
+    const { error } = this.props;
+
+    if (error) {
+      return <ErrorMsg>{error}</ErrorMsg>;
+    }
+
+    const onChangeUser = (value: ISelectedOption) => {
+      const userId = value ? value.value : '';
+
+      this.changeUser(userId);
+    };
+
+    const selectOptions = () => {
+      const { users, verifiedEmails } = this.props;
+      const options: any[] = [];
+
+      users.map(user =>
+        options.push({
+          value: user._id,
+          label: (user.details && user.details.fullName) || user.username,
+          disabled: !verifiedEmails.includes(user.email)
+        })
+      );
+
+      return options;
+    };
+
+    const optionRenderer = option => (
+      <VerifyStatus>
+        {!option.disabled ? (
+          <Tip placement="auto" text="Email verified">
+            <VerifyCheck>
+              <Icon icon="check-circle" />
+            </VerifyCheck>
+          </Tip>
+        ) : (
+          <Tip placement="auto" text="Email not verified">
+            <VerifyCancel>
+              <Icon icon="times-circle" />
+            </VerifyCancel>
+          </Tip>
+        )}
+        {option.label}
+      </VerifyStatus>
+    );
+
+    return (
+      <Select
+        placeholder={__('Choose users')}
+        value={this.state.fromUserId}
+        onChange={onChangeUser}
+        optionRenderer={optionRenderer}
+        options={selectOptions()}
+      />
+    );
+  }
+
   render() {
     const { attachments } = this.state.email;
 
-    const onChangeUser = e =>
-      this.changeUser((e.target as HTMLInputElement).value);
     const onChangeContent = e =>
       this.changeContent('subject', (e.target as HTMLInputElement).value);
     const onChangeTemplate = e =>
@@ -115,19 +167,30 @@ class EmailForm extends React.Component<Props, State> {
       <FlexItem>
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
-            <ControlLabel>From:</ControlLabel>
-            <FormControl
-              componentClass="select"
-              onChange={onChangeUser}
-              value={this.state.fromUserId}
-            >
-              <option />{' '}
-              {this.props.users.map(user => (
-                <option key={user._id} value={user._id}>
-                  {(user.details && user.details.fullName) || user.username}
-                </option>
-              ))}
-            </FormControl>
+            <ControlLabel>
+              From:
+              <HelpPopover title="The email address is not verified (x) by Amazon Ses services.">
+                <div>
+                  If you want to verify your email:
+                  <ol>
+                    <li>Log in to your AWS Management Console</li>
+                    <li>Click on the Services menu from the dropdown menu</li>
+                    <li>
+                      Click on the Simple Email Services menu from the left
+                      sidebar
+                    </li>
+                    <li>
+                      Click on the Email Addresses menu from the left sidebar
+                    </li>
+                    <li>
+                      Finally, click on the button that named "Verify a new
+                      email address"
+                    </li>
+                  </ol>
+                </div>
+              </HelpPopover>
+            </ControlLabel>
+            {this.renderFrom()}
           </FormGroup>
 
           <FormGroup>

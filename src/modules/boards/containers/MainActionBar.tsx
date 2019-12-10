@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { PageHeader } from 'modules/boards/styles/header';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import Spinner from 'modules/common/components/Spinner';
@@ -6,7 +7,7 @@ import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
@@ -33,14 +34,6 @@ export const getBoardId = ({ location }) => {
   return queryParams.id;
 };
 
-const dateFilterParams = [
-  'nextDay',
-  'nextWeek',
-  'nextMonth',
-  'overdue',
-  'noCloseDate'
-];
-
 const defaultParams = ['id', 'pipelineId'];
 
 /*
@@ -49,23 +42,6 @@ const defaultParams = ['id', 'pipelineId'];
 class Main extends React.Component<FinalProps> {
   onSearch = (search: string) => {
     routerUtils.setParams(this.props.history, { search });
-  };
-
-  onDateFilterSelect = (name: string, value: string) => {
-    const { history } = this.props;
-    const query = { [name]: value };
-    const params = generateQueryParams(history);
-
-    // Remove current selected date filter
-    for (const param in params) {
-      if (dateFilterParams.includes(param)) {
-        delete params[param];
-
-        return routerUtils.replaceParam(history, params, query);
-      }
-    }
-
-    routerUtils.setParams(history, query, true);
   };
 
   onSelect = (values: string[] | string, name: string) => {
@@ -209,7 +185,6 @@ class Main extends React.Component<FinalProps> {
     const extendedProps = {
       ...props,
       type,
-      onDateFilterSelect: this.onDateFilterSelect,
       onClear: this.onClear,
       onSelect: this.onSelect,
       isFiltered: this.isFiltered,

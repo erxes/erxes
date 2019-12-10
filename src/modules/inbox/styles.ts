@@ -39,13 +39,6 @@ const PopoverButton = styled.div`
   }
 `;
 
-const ConversationWrapper = styled.div`
-  height: 100%;
-  overflow: auto;
-  min-height: 100px;
-  background: ${colors.bgLight};
-`;
-
 const RichEditorRight = styled.div`
   float: right;
 `;
@@ -54,13 +47,16 @@ const ResponseSuggestions = styled.ul`
   position: absolute;
   left: 0px;
   bottom: 100%;
+  bottom: calc(100% + 2px);
   margin: 0;
   padding: 0;
   z-index: 1;
-  width: 100%;
+  width: 480px;
   list-style-type: none;
   background: ${colors.colorWhite};
   box-shadow: 0 -3px 20px -2px ${colors.darkShadow};
+  overflow: hidden;
+  border-radius: 3px;
 `;
 
 const ResponseSuggestionItem = styled.li`
@@ -68,7 +64,7 @@ const ResponseSuggestionItem = styled.li`
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
-  padding: 5px 20px;
+  padding: 5px 15px;
   text-overflow: ellipsis;
 
   :hover {
@@ -93,8 +89,9 @@ const RespondBoxStyled = styledTS<{
 `;
 
 const MailRespondBox = styled(RespondBoxStyled)`
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  background: ${colors.bgInternal};
+  padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing}px;
+  display: flex;
+  align-items: flex-start;
 `;
 
 const ResponseTemplateStyled = styled.div`
@@ -257,7 +254,7 @@ const Attachment = styled.div`
   align-items: center;
 
   > div {
-    margin-right: 10px;
+    margin-right: 8px;
   }
 `;
 
@@ -278,40 +275,6 @@ const FileName = styled.div`
   text-overflow: ellipsis;
   margin-right: 5px;
   color: ${colors.colorWhite};
-`;
-
-const AssignText = styled.div`
-  display: inline-block;
-`;
-
-const ActionBarLeft = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`;
-
-const AssignTrigger = styled.div`
-  padding-left: 10px;
-
-  i {
-    margin-left: 5px;
-    margin-right: -3px;
-    transition: all ease 0.3s;
-    color: ${colors.colorCoreGray};
-    display: inline-block;
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-
-    i {
-      transform: rotate(180deg);
-    }
-  }
 `;
 
 const MaskWrapper = styled.div`
@@ -345,10 +308,11 @@ const SmallEditor = styled.div`
   flex: 1;
   background: ${colors.colorWhite};
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 300px;
-  margin: 0 ${dimensions.unitSpacing}px;
-  padding: ${dimensions.unitSpacing}px;
-  overflow: hidden;
+  border-radius: ${dimensions.coreSpacing}px;
+  margin-left: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing - 2}px 110px ${dimensions.unitSpacing - 2}px
+    0;
+  position: relative;
 
   ${RichEditorRoot} {
     padding-top: 0;
@@ -370,8 +334,9 @@ const SmallEditor = styled.div`
 
   ${EditorActions} {
     position: absolute;
-    right: 2%;
-    top: 30%;
+    right: 0;
+    bottom: 0;
+    padding: 5px 10px;
 
     label:first-of-type {
       position: initial;
@@ -394,7 +359,6 @@ const CallLabel = styledTS<{ type: string }>(styled.span)`
 
 export {
   PopoverButton,
-  ConversationWrapper,
   RespondBoxStyled,
   ResponseSuggestions,
   ResponseSuggestionItem,
@@ -416,9 +380,6 @@ export {
   AttachmentIndicator,
   PreviewImg,
   FileName,
-  AssignText,
-  ActionBarLeft,
-  AssignTrigger,
   Mask,
   MaskWrapper,
   NoHeight,

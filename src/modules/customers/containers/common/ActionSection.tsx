@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import ActionSection from 'modules/customers/components/common/ActionSection';
 import { mutations, queries } from 'modules/customers/graphql';
@@ -11,7 +12,7 @@ import {
   RemoveMutationVariables
 } from 'modules/customers/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 

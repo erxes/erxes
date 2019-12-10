@@ -1,4 +1,5 @@
 import DueDateChanger from 'modules/boards/components/DueDateChanger';
+import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
 import SelectItem from 'modules/boards/components/SelectItem';
 import { PRIORITIES } from 'modules/boards/constants';
 import { Watch } from 'modules/boards/containers/editForm/';
@@ -15,9 +16,6 @@ import Vote from '../../containers/Vote';
 type Props = {
   item: IGrowthHack;
   onChangeField: (name: 'priority' | 'hackStages', value: any) => void;
-  closeDate: Date;
-  priority: string;
-  hackStages: string[];
   dateOnChange: (date) => void;
   options: IOptions;
   copy: () => void;
@@ -30,15 +28,14 @@ class Actions extends React.Component<Props> {
     const {
       item,
       onChangeField,
-      closeDate,
-      priority,
-      hackStages,
       options,
       copy,
       remove,
       dateOnChange,
       onUpdate
     } = this.props;
+
+    const hackStages = item.hackStages || [];
 
     const priorityOnChange = (value: string) => {
       onChangeField('priority', value);
@@ -62,7 +59,11 @@ class Actions extends React.Component<Props> {
 
     const priorityTrigger = (
       <ColorButton>
-        <Icon icon="sort-amount-up" />
+        {item.priority ? (
+          <PriorityIndicator value={item.priority} />
+        ) : (
+          <Icon icon="sort-amount-up" />
+        )}
         {__('Priority')}
       </ColorButton>
     );
@@ -76,10 +77,10 @@ class Actions extends React.Component<Props> {
 
     return (
       <ActionContainer>
-        <DueDateChanger value={closeDate} onChange={dateOnChange} />
+        <DueDateChanger value={item.closeDate} onChange={dateOnChange} />
         <SelectItem
           items={PRIORITIES}
-          selectedItems={priority}
+          selectedItems={item.priority}
           onChange={priorityOnChange}
           trigger={priorityTrigger}
         />

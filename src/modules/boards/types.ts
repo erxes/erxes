@@ -54,7 +54,10 @@ export interface IItemParams {
   description?: string;
   order?: number;
   isComplete?: boolean;
+  priority?: string;
   reminderMinute?: number;
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -68,7 +71,6 @@ export interface IPipeline {
   memberIds?: string[];
   bgColor?: string;
   isWatched: boolean;
-  // growth hack
   startDate?: Date;
   endDate?: Date;
   metric?: string;
@@ -76,6 +78,8 @@ export interface IPipeline {
   templateId?: string;
   state?: string;
   itemsTotalCount?: number;
+  isCheckUser?: boolean;
+  excludeCheckUserIds?: string[];
 }
 
 interface IStageComparisonInfo {
@@ -97,6 +101,7 @@ export interface IStage {
   stayedDealsTotalCount: number;
   compareNextStage: IStageComparisonInfo;
   formId: string;
+  pipelineId: string;
 }
 
 export interface IPipelineLabel {
@@ -118,11 +123,14 @@ export interface IItem {
   name: string;
   order: number;
   stageId: string;
+  boardId?: string;
   closeDate: Date;
   description: string;
   amount: number;
   modifiedAt: Date;
+  assignedUserIds?: string[];
   assignedUsers: IUser[];
+  createdUser?: IUser;
   companies: ICompany[];
   customers: ICustomer[];
   attachments?: IAttachment[];
@@ -135,6 +143,7 @@ export interface IItem {
   isComplete: boolean;
   reminderMinute: number;
   labelIds: string[];
+  createdAt: Date;
 }
 
 export interface IDraggableLocation {
@@ -227,6 +236,7 @@ export type RelatedItemsQueryResponse = {
 
 export type DetailQueryResponse = {
   loading: boolean;
+  error?: Error;
 };
 
 // query response
@@ -284,32 +294,14 @@ export interface IFilterParams extends ISavedConformity {
   customerIds?: string;
   companyIds?: string;
   assignedUserIds?: string;
-  nextDay?: string;
-  nextWeek?: string;
-  nextMonth?: string;
-  noCloseDate?: string;
-  overdue?: string;
+  closeDateType?: string;
   labelIds?: string;
 }
 
 export interface IEditFormContent {
   state: any;
-  onChangeAttachment: (attachments: IAttachment[]) => void;
-  onChangeField: (
-    name:
-      | 'name'
-      | 'stageId'
-      | 'description'
-      | 'closeDate'
-      | 'assignedUserIds'
-      | 'customers'
-      | 'companies'
-      | 'labels'
-      | 'isComplete'
-      | 'reminderMinute',
-    value: any
-  ) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
+  onChangeStage: (stageId: string) => void;
   copy: () => void;
   remove: (id: string) => void;
-  onBlurFields: (name: string, value: string) => void;
 }

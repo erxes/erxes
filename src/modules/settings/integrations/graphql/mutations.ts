@@ -76,6 +76,14 @@ const integrationsCreateExternalIntegration = `
   }
 `;
 
+const integrationsEditCommonFields = `
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId) {
+      _id
+    }
+  }
+`;
+
 const integrationsEditMessenger = `
   mutation integrationsEditMessengerIntegration($_id: String!, ${commonParamsDef}) {
     integrationsEditMessengerIntegration(_id: $_id, ${commonParams}) {
@@ -199,9 +207,19 @@ const addImapAccount = `
   }
 `;
 
+const integrationsArchive = `
+  mutation integrationsArchive($_id: String!) {
+    integrationsArchive(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
+  integrationsArchive,
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,
+  integrationsEditCommonFields,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,

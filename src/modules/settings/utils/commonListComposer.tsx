@@ -1,9 +1,9 @@
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { confirm, withProps } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
-import { compose } from 'react-apollo';
 
 interface IRemoveMutationVariables {
   _id: string;

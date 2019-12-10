@@ -15,7 +15,7 @@ import { ILeadData, ILeadIntegration } from '../types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { ImportLoader } from 'modules/common/components/ButtonMutate';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { IFormData } from 'modules/forms/types';
 import { IField } from 'modules/settings/properties/types';
 import {
@@ -125,10 +125,14 @@ class Lead extends React.Component<Props, State> {
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { brand, calloutTitle, title, rules } = this.state;
+    const { brand, calloutTitle, title, rules, formData } = this.state;
 
     if (!title) {
       return Alert.error('Write title');
+    }
+
+    if (!formData.title) {
+      return Alert.error('Write Form title');
     }
 
     if (!brand) {
@@ -193,7 +197,7 @@ class Lead extends React.Component<Props, State> {
           icon={isActionLoading ? undefined : 'checked-1'}
           onClick={this.handleSubmit}
         >
-          {isActionLoading && <ImportLoader />}
+          {isActionLoading && <SmallLoader />}
           Save
         </Button>
       </Button.Group>

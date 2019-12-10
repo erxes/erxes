@@ -188,7 +188,6 @@ class LogList extends React.Component<Props, State> {
             name="userId"
             value={userId || ''}
             onSelect={onUserChange}
-            filterParams={{ status: 'verified' }}
             multi={false}
           />
         </FilterItem>

@@ -26,6 +26,8 @@ const basicFields = `
   hasAuthority
   description
   doNotDisturb
+  code
+
   links {
     linkedIn
     twitter
@@ -140,6 +142,7 @@ const customerDetail = `
       integration {
         kind
         name
+        isActive
       }
       getMessengerCustomData
       companies {

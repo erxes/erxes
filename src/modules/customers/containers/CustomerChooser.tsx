@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, renderFullName, withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import CustomerForm from '../containers/CustomerForm';
 import { mutations, queries } from '../graphql';
 import {

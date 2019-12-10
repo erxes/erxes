@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { ImportLoader } from 'modules/common/components/ButtonMutate';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
@@ -26,8 +26,10 @@ const EditorWrapper = styled.div`
 `;
 
 type Prop = {
-  create: (content: string, mentionedUserIds, callback: () => void) => void;
+  save: (variables, callback: () => void) => void;
   isActionLoading: boolean;
+  content?: string;
+  callback?: () => void;
 };
 
 type State = {
@@ -39,7 +41,7 @@ class Form extends React.PureComponent<Prop, State> {
     super(props);
 
     this.state = {
-      content: ''
+      content: props.content ? props.content : ''
     };
   }
 
@@ -49,16 +51,17 @@ class Form extends React.PureComponent<Prop, State> {
 
   onSend = () => {
     const { content } = this.state;
+    const { callback } = this.props;
 
     const mentionedUserIds = getMentionedUserIds(content);
 
-    this.props.create(content, mentionedUserIds, () => {
-      this.clearContent();
+    this.props.save({ content, mentionedUserIds }, () => {
+      callback ? callback() : this.clearContent();
     });
   };
 
   renderFooter() {
-    const { isActionLoading } = this.props;
+    const { isActionLoading, content, callback } = this.props;
 
     if (!this.state.content) {
       return null;
@@ -66,6 +69,16 @@ class Form extends React.PureComponent<Prop, State> {
 
     return (
       <EditorActions>
+        {content && (
+          <Button
+            icon="cancel-1"
+            btnStyle="simple"
+            size="small"
+            onClick={callback}
+          >
+            Cancel
+          </Button>
+        )}
         <Button
           onClick={this.clearContent}
           btnStyle="warning"
@@ -82,7 +95,7 @@ class Form extends React.PureComponent<Prop, State> {
           size="small"
           icon={isActionLoading ? undefined : 'send'}
         >
-          {isActionLoading && <ImportLoader />}
+          {isActionLoading && <SmallLoader />}
           Save
         </Button>
       </EditorActions>

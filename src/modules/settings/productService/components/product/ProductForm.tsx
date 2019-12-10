@@ -3,9 +3,9 @@ import FormControl from 'modules/common/components/form/Control';
 import CommonForm from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
-import { Modal } from 'react-bootstrap';
 import { TYPES } from '../../constants';
 import { IProduct, IProductCategory } from '../../types';
 import { generateCategoryOptions } from '../../utils';
@@ -109,7 +109,7 @@ class Form extends React.Component<Props> {
           <FormControl {...formProps} name="sku" defaultValue={object.sku} />
         </FormGroup>
 
-        <Modal.Footer>
+        <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
@@ -121,7 +121,7 @@ class Form extends React.Component<Props> {
             callback: closeModal,
             object: product
           })}
-        </Modal.Footer>
+        </ModalFooter>
       </>
     );
   };

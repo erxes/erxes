@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Bulk from 'modules/common/components/Bulk';
 import { IRouterProps } from 'modules/common/types';
 import queryString from 'query-string';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { withProps } from '../../common/utils';
 import MessageList from '../components/MessageList';

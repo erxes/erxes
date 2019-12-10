@@ -25,7 +25,8 @@ import {
   MarkdownWrapper
 } from 'modules/settings/styles';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import ChromePicker from 'react-color/lib/Chrome';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
@@ -78,7 +79,7 @@ class KnowledgeForm extends React.Component<Props, State> {
 
   static getInstallTag() {
     return `
-      <div data-erxes-kbase></div>
+      <div data-erxes-kbase style="width:900px;height:300px"></div>
     `;
   }
 

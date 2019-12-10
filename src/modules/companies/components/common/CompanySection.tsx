@@ -1,10 +1,10 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __, urlParser } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import Sidebar from 'modules/layout/components/Sidebar';
 import {
   ButtonRelated,
   SectionBody,
@@ -21,21 +21,21 @@ type Props = {
   items?: ICompany[];
   mainType?: string;
   mainTypeId?: string;
-  isOpen?: boolean;
   onSelect?: (companies: ICompany[]) => void;
+  collapseCallback?: () => void;
 };
 
-function Component({
-  name,
-  items = [],
-  mainType = '',
-  mainTypeId = '',
-  isOpen,
-  onSelect
-}: Props) {
-  const { Section } = Sidebar;
-  const { Title, QuickButtons } = Section;
-
+function Component(
+  this: any,
+  {
+    name,
+    items = [],
+    mainType = '',
+    mainTypeId = '',
+    onSelect,
+    collapseCallback
+  }: Props
+) {
   const renderCompanyChooser = props => {
     return (
       <CompanyChooser
@@ -107,13 +107,15 @@ function Component({
   );
 
   return (
-    <Section>
-      <Title>{__('Companies')}</Title>
-
-      <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-
+    <Box
+      title={__('Companies')}
+      name="showCompanies"
+      extraButtons={quickButtons}
+      isOpen={true}
+      callback={collapseCallback}
+    >
       {content}
-    </Section>
+    </Box>
   );
 }
 
@@ -122,6 +124,7 @@ type IProps = {
   mainTypeId?: string;
   isOpen?: boolean;
   onSelect?: (datas: ICompany[]) => void;
+  collapseCallback?: () => void;
 };
 
 export default (props: IProps) => {

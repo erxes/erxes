@@ -1,12 +1,12 @@
+import Button from 'modules/common/components/Button';
 import FilterableList from 'modules/common/components/filterableList/FilterableList';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
-import { Popover } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
 import Form from '../../containers/label/Form';
 import {
-  Container,
-  CreateButton,
+  ButtonContainer,
   LabelWrapper,
   PipelineLabelList,
   Title
@@ -67,7 +67,7 @@ export default class Overlay extends React.Component<
         style: { backgroundColor: colorCode },
         selectedBy: count === 1 ? 'all' : 'none',
         additionalIconOnClick: this.onEdit,
-        additionalIconClass: 'edit'
+        additionalIconClass: 'pen-1'
       };
     });
   }
@@ -95,11 +95,12 @@ export default class Overlay extends React.Component<
   }
 
   componentDidMount() {
-    const elm = document.getElementById('filter-popover');
+    const elm = document.getElementById('filter-label');
 
     if (elm) {
       elm.className = 'popover bottom';
-      elm.style.marginTop = '45px';
+      elm.style.marginTop = '35px';
+      elm.style.left = '-80px';
     }
   }
 
@@ -112,9 +113,9 @@ export default class Overlay extends React.Component<
       onSelectLabels
     } = this.props;
 
-    return (
-      <>
-        <Container showForm={showForm}>
+    if (showForm) {
+      return (
+        <LabelWrapper>
           <Form
             selectedLabelIds={selectedLabelIds}
             onSelectLabels={onSelectLabels}
@@ -124,14 +125,24 @@ export default class Overlay extends React.Component<
             labelId={labelId}
             toggleConfirm={toggleConfirm}
           />
-        </Container>
+        </LabelWrapper>
+      );
+    }
 
-        <Container showForm={!showForm}>
-          {this.renderList()}
-          <CreateButton onClick={this.onCreate}>
+    return (
+      <>
+        {this.renderList()}
+        <ButtonContainer>
+          <Button
+            onClick={this.onCreate}
+            block={true}
+            icon="check-1"
+            size="small"
+            btnStyle="success"
+          >
             Create a new label
-          </CreateButton>
-        </Container>
+          </Button>
+        </ButtonContainer>
       </>
     );
   }
@@ -141,14 +152,14 @@ export default class Overlay extends React.Component<
     const title = labelId ? 'Edit label' : 'Create label';
 
     return (
-      <Popover id="filter-popover">
+      <Popover id="filter-label">
         <Title>
-          {showForm && <Icon icon="leftarrow-3" onClick={this.onChangeForm} />}
+          {showForm && <Icon icon="arrow-left" onClick={this.onChangeForm} />}
           {showForm ? __(title) : __('Labels')}
-          <Icon icon="cancel" onClick={this.onClose} />
+          <Icon icon="times" onClick={this.onClose} />
         </Title>
 
-        <LabelWrapper>{this.renderPopover()}</LabelWrapper>
+        {this.renderPopover()}
       </Popover>
     );
   }

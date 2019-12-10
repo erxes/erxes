@@ -81,6 +81,7 @@ export type IButtonMutateProps = {
   callback?: () => void;
   size?: string;
   object?: any;
+  disableLoading?: boolean;
 };
 
 export type IMentionUser = {
@@ -100,4 +101,9 @@ export type IEditorProps = {
   toolbarCanCollapse?: boolean;
   mentionUsers?: IMentionUser[];
   toolbar?: any[];
+  autoFocus?: boolean;
+  toolbarLocation?: 'top' | 'bottom';
+  autoGrow?: boolean;
+  autoGrowMinHeight?: number;
+  autoGrowMaxHeight?: number;
 };

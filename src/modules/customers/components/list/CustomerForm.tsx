@@ -1,6 +1,7 @@
 import { IUser, IUserLinks } from 'modules/auth/types';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
@@ -37,6 +38,7 @@ type State = {
   hasAuthority: string;
   users: IUser[];
   avatar: string;
+  hasRedirect: boolean;
   phones?: string[];
   emails?: string[];
   primaryPhone?: string;
@@ -54,7 +56,8 @@ class CustomerForm extends React.Component<Props, State> {
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
-      avatar: customer.avatar
+      avatar: customer.avatar,
+      hasRedirect: false
     };
   }
 
@@ -76,6 +79,7 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       lifecycleState: finalValues.lifecycleState,
       description: finalValues.description,
+      code: finalValues.code,
 
       links: {
         linkedIn: finalValues.linkedIn,
@@ -90,6 +94,10 @@ class CustomerForm extends React.Component<Props, State> {
 
   onAvatarUpload = url => {
     this.setState({ avatar: url });
+  };
+
+  onBtnClick = () => {
+    this.setState({ hasRedirect: true });
   };
 
   getVisitorInfo(customer, key) {
@@ -148,6 +156,7 @@ class CustomerForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
+    const { hasRedirect } = this.state;
 
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
@@ -252,6 +261,12 @@ class CustomerForm extends React.Component<Props, State> {
               options: lifecycleStateChoices(__)
             })}
 
+            {this.renderFormGroup('Code', {
+              ...formProps,
+              name: 'code',
+              defaultValue: customer.code || ''
+            })}
+
             {this.renderFormGroup('Has Authority', {
               ...formProps,
               name: 'hasAuthority',
@@ -350,9 +365,21 @@ class CustomerForm extends React.Component<Props, State> {
             name: 'customer',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
+            disableLoading: hasRedirect,
             object: this.props.customer
           })}
+
+          {!this.props.customer && (
+            <Button
+              btnStyle="primary"
+              onClick={this.onBtnClick}
+              type="submit"
+              disabled={isSubmitted && hasRedirect}
+            >
+              {isSubmitted && hasRedirect && <SmallLoader />}
+              Save & continue
+            </Button>
+          )}
         </ModalFooter>
       </>
     );

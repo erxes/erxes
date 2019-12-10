@@ -1,6 +1,6 @@
 import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
-import { IActivityLogForMonth } from '../activityLogs/types';
+import { IActivityLog } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ISegmentDoc } from '../segments/types';
 import { IIntegration } from '../settings/integrations/types';
@@ -55,6 +55,7 @@ export interface ICustomerDoc {
   messengerData?: IMessengerData;
   customFieldsData?: { [key: string]: any };
   visitorContactInfo?: IVisitorContact;
+  code?: string;
 }
 
 export interface ICustomer extends ICustomerDoc {
@@ -160,7 +161,7 @@ export type CustomerDetailQueryResponse = {
 };
 
 export type ActivityLogQueryResponse = {
-  activityLogs: IActivityLogForMonth[];
+  activityLogs: IActivityLog[];
   loading: boolean;
   refetch: () => void;
   subscribeToMore: any;

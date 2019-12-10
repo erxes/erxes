@@ -25,8 +25,8 @@ const commonParams = `
 `;
 
 const tasksAdd = `
-  mutation tasksAdd($name: String!, ${commonVariables}) {
-    tasksAdd(name: $name, ${commonParams}) {
+  mutation tasksAdd($name: String!, $companyIds: [String], $customerIds: [String], ${commonVariables}) {
+    tasksAdd(name: $name, companyIds: $companyIds, customerIds: $customerIds, ${commonParams}) {
       ${taskFields}
     }
   }

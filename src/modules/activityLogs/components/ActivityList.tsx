@@ -3,11 +3,11 @@ import EmptyState from 'modules/common/components/EmptyState';
 import React from 'react';
 import { IUser } from '../../auth/types';
 import { ActivityTitle, Timeline } from '../styles';
-import ActivityLogProcessor from '../utils';
+import { IActivityLog } from '../types';
 import ActivityItem from './ActivityItem';
 
 type Props = {
-  activities: any[];
+  activities: IActivityLog[];
   user: IUser;
   target?: string;
   type: string;
@@ -15,7 +15,9 @@ type Props = {
 
 class ActivityList extends React.Component<Props> {
   renderItem(data) {
-    return data.map((item, index) => <ActivityItem key={index} data={item} />);
+    return data.map((item, index) => (
+      <ActivityItem key={index} activity={item} currenUser={this.props.user} />
+    ));
   }
 
   renderList(activity, index) {
@@ -31,10 +33,19 @@ class ActivityList extends React.Component<Props> {
 
   renderTimeLine(activities) {
     const result = activities.reduce((item, activity) => {
+      const { contentType } = activity;
       const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
-      item[createdDate] = item[createdDate] || [];
-      item[createdDate].push(activity);
+      if (
+        contentType === 'taskDetail' &&
+        dayjs(activity.createdAt) >= dayjs()
+      ) {
+        item.Upcoming = item.Upcoming || [];
+        item.Upcoming.push(activity);
+      } else {
+        item[createdDate] = item[createdDate] || [];
+        item[createdDate].push(activity);
+      }
 
       return item;
     }, {});
@@ -49,10 +60,7 @@ class ActivityList extends React.Component<Props> {
   }
 
   render() {
-    let { activities } = this.props;
-    const activityLogProcessor = new ActivityLogProcessor(this.props);
-
-    activities = activityLogProcessor.process();
+    const { activities } = this.props;
 
     if (!activities || activities.length < 1) {
       return (

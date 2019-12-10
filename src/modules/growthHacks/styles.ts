@@ -1,3 +1,4 @@
+import { ColorButton } from 'modules/boards/styles/common';
 import { colors, dimensions } from 'modules/common/styles';
 import { FixedContent } from 'modules/deals/components/conversion/style';
 import { BoxItem } from 'modules/settings/growthHacks/styles';
@@ -258,31 +259,18 @@ const Vote = styled.div`
   }
 `;
 
-const VotersHeader = styled.span`
-  display: block;
-  text-align: center;
-  padding: ${dimensions.unitSpacing}px 0;
-  border-bottom: 1px solid ${colors.borderDarker};
-  margin: 0 ${dimensions.unitSpacing}px;
-`;
-
 const VotersContent = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
     ${dimensions.unitSpacing}px 0;
+
   img,
   span {
     margin-left: -1px;
   }
 `;
 
-const VotersCount = styled.span`
-  cursor: pointer;
-  padding: 0px ${dimensions.unitSpacing}px;
+const VotersCount = styled(ColorButton)`
   display: inline-block;
-  margin-top: ${dimensions.unitSpacing / 2}px;
-  border: 1px solid ${colors.colorPrimary};
-  color: ${colors.colorPrimary};
-  border-radius: ${dimensions.unitSpacing * 2}px;
 `;
 
 const PipelineMeta = styled.div`
@@ -326,6 +314,7 @@ const BottomAction = styled.div`
     display: block;
     padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
     background: ${colors.bgLight};
+    font-weight: 500;
   }
 `;
 
@@ -371,7 +360,6 @@ export {
   FunnelContent,
   Title,
   Vote,
-  VotersHeader,
   VotersContent,
   VotersCount,
   PipelineMeta,

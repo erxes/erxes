@@ -1,5 +1,6 @@
 import SelectWithSearch from 'modules/common/components/SelectWithSearch';
 import { IOption, IQueryParams } from 'modules/common/types';
+import { renderFullName } from 'modules/common/utils';
 import { queries } from 'modules/customers/graphql';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
@@ -10,7 +11,7 @@ function generateCustomerOptions(array: ICustomer[] = []): IOption[] {
 
     return {
       value: customer._id,
-      label: customer.firstName,
+      label: renderFullName(customer),
       avatar: customer.avatar
     };
   });

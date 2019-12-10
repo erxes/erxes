@@ -1,9 +1,9 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { ButtonRelated, SectionContainer } from 'modules/layout/styles';
+import { ButtonRelated } from 'modules/layout/styles';
 import React from 'react';
 import { ItemChooser } from '../../containers/portable/';
 import { IItem, IOptions } from '../../types';
@@ -16,13 +16,30 @@ type Props = {
   items: IItem[];
   mainType?: string;
   mainTypeId?: string;
-  onChangeItems: () => void;
-  isOpen?: boolean;
+  relType?: string;
+  onChangeItem: () => void;
 };
 
-class Items extends React.Component<Props> {
+class Items extends React.Component<Props, { openItemId?: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      openItemId: ''
+    };
+  }
+
+  onItemClick = (item: IItem) => {
+    this.setState({ openItemId: item._id });
+  };
+
+  beforePopupClose = () => {
+    this.setState({ openItemId: '' });
+  };
+
   renderItems = () => {
-    const { onChangeItems, items, data } = this.props;
+    const { openItemId } = this.state;
+    const { onChangeItem, items, data } = this.props;
 
     if (items.length === 0) {
       return <EmptyState icon="folder" text={`No ${data.options.type}`} />;
@@ -35,25 +52,25 @@ class Items extends React.Component<Props> {
         options={data.options}
         key={index}
         item={item}
-        onAdd={onChangeItems}
-        onUpdate={onChangeItems}
-        onRemove={onChangeItems}
+        beforePopupClose={this.beforePopupClose}
+        isFormVisible={item._id === openItemId}
+        onClick={this.onItemClick.bind(this, item)}
+        onAdd={onChangeItem}
+        onUpdate={onChangeItem}
+        onRemove={onChangeItem}
         portable={true}
       />
     ));
   };
 
   render() {
-    const { Section } = Sidebar;
-    const { Title, QuickButtons } = Section;
-
     const {
       mainType,
       mainTypeId,
-      isOpen,
       data,
-      onChangeItems,
-      items
+      onChangeItem,
+      items,
+      relType
     } = this.props;
 
     const trigger = (
@@ -72,7 +89,7 @@ class Items extends React.Component<Props> {
       <ItemChooser
         {...props}
         data={{ options: data.options, mainType, mainTypeId, items }}
-        callback={onChangeItems}
+        callback={onChangeItem}
         showSelect={true}
       />
     );
@@ -87,7 +104,7 @@ class Items extends React.Component<Props> {
           items,
           isRelated: true
         }}
-        callback={onChangeItems}
+        callback={onChangeItem}
         showSelect={true}
       />
     );
@@ -110,16 +127,17 @@ class Items extends React.Component<Props> {
       />
     );
 
+    const boxProps = {
+      extraButtons: quickButtons,
+      title: __(data.options.title),
+      name: relType && `show${relType}`
+    };
+
     return (
-      <Section>
-        <Title>{__(data.options.title)}</Title>
-
-        <QuickButtons isSidebarOpen={isOpen}>{quickButtons}</QuickButtons>
-
-        <SectionContainer>{this.renderItems()}</SectionContainer>
-
+      <Box {...boxProps}>
+        {this.renderItems()}
         {mainTypeId && mainType && relQuickButtons}
-      </Section>
+      </Box>
     );
   }
 }

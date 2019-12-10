@@ -2,7 +2,6 @@ import { IAttachmentPreview } from 'modules/common/types';
 import { FacebookPost } from 'modules/inbox/containers/conversationDetail';
 import React from 'react';
 import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { IConversation, IMessage } from '../../../../types';
 import MailConversation from '../mail/MailConversation';
 import AttachmentPreview from './AttachmentPreview';
@@ -16,11 +15,10 @@ type Props = {
   loading: boolean;
 };
 
-const Wrapper = styledTS<{ isEmail?: boolean }>(styled.div)`
-  padding: ${props => (props.isEmail ? '0' : '20px')};
+const Wrapper = styled.div`
+  padding: 20px;
   overflow: hidden;
   min-height: 100%;
-  background: ${props => props.isEmail && '#fff'};
 
   > div:first-child {
     margin-top: 0;
@@ -87,7 +85,7 @@ class Conversation extends React.Component<Props, {}> {
     const { attachmentPreview, scrollBottom } = this.props;
 
     return (
-      <Wrapper isEmail={false}>
+      <Wrapper>
         {this.renderConversation()}
         <AttachmentPreview
           onLoad={scrollBottom}

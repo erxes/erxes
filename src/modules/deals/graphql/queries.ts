@@ -7,13 +7,13 @@ const commonParams = `
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
-  $nextDay: String,
-  $nextWeek: String,
-  $nextMonth: String,
-  $noCloseDate: String,
-  $overdue: String,
   $productIds: [String],
   $labelIds: [String],
+  $search: String,
+  $priority: [String],
+  $date: ItemDate,
+  $pipelineId: String,
+  $closeDateType: String,
   ${conformityQueryFields}
 `;
 
@@ -21,13 +21,13 @@ const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
-  nextDay: $nextDay,
-  nextWeek: $nextWeek,
-  nextMonth: $nextMonth,
-  noCloseDate: $noCloseDate,
-  overdue: $overdue,
+  priority: $priority,
   productIds: $productIds,
   labelIds: $labelIds,
+  search: $search,
+  date: $date,
+  pipelineId: $pipelineId,
+  closeDateType: $closeDateType,
   ${conformityQueryFieldDefs}
 `;
 
@@ -41,6 +41,7 @@ export const dealFields = `
     name
   }
   boardId
+  priority
   companies {
     _id
     primaryName
@@ -92,13 +93,9 @@ export const dealFields = `
 
 const dealsTotalAmounts = `
   query dealsTotalAmounts(
-    $date: ItemDate
-    $pipelineId: String
     ${commonParams}
   ) {
     dealsTotalAmounts(
-      date: $date
-      pipelineId: $pipelineId
       ${commonParamDefs}
     ) {
       _id
@@ -118,20 +115,14 @@ const dealsTotalAmounts = `
 const deals = `
   query deals(
     $initialStageId: String,
-    $pipelineId: String,
     $stageId: String,
-    $date: ItemDate,
     $skip: Int,
-    $search: String
     ${commonParams}
   ) {
     deals(
-      pipelineId: $pipelineId,
       initialStageId: $initialStageId,
       stageId: $stageId,
-      date: $date,
       skip: $skip,
-      search: $search
       ${commonParamDefs}
     ) {
       ${dealFields}

@@ -1,3 +1,5 @@
+import { engageDetailFields } from './queries';
+
 const setPause = `
   mutation setPause($_id: String!) {
     engageMessageSetPause(_id: $_id) {
@@ -60,6 +62,7 @@ const messagesAdd = `
   mutation engageMessageAdd(${commonVariables}) {
     engageMessageAdd(${commonParams}) {
       _id
+      ${engageDetailFields}
     }
   }
 `;
@@ -68,6 +71,7 @@ const messagesEdit = `
   mutation engageMessageEdit($_id: String!, ${commonVariables}) {
     engageMessageEdit(_id: $_id, ${commonParams}) {
       _id
+      ${engageDetailFields}
     }
   }
 `;
