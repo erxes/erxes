@@ -46,9 +46,17 @@ export const taskFields = `
     primaryPhone
     visitorContactInfo
   }
+  createdUser {
+    _id
+    email
+    details {
+      fullName
+    }
+  }
   closeDate
   description
   priority
+  assignedUserIds
   assignedUsers {
     _id
     email

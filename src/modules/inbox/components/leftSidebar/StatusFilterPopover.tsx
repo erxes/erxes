@@ -6,7 +6,7 @@ import { __, Alert, router } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { PopoverButton } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -94,7 +94,7 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
           }
           onClick={onClick}
         >
-          {__(text)}
+          <FieldStyle>{__(text)}</FieldStyle>
           <SidebarCounter>{count}</SidebarCounter>
         </a>
       </li>

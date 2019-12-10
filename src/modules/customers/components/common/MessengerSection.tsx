@@ -56,7 +56,7 @@ class MessengerSection extends React.Component<Props> {
         </li>
         {customData.map((data, index) => (
           <li key={index}>
-            {data.name}
+            <FieldStyle>{data.name}</FieldStyle>
             <SidebarCounter>
               {this.renderCustomValue(data.value)}
             </SidebarCounter>

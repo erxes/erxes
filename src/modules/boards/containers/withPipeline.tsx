@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 

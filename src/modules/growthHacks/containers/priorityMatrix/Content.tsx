@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { withProps } from 'modules/common/utils';
 import Content from 'modules/growthHacks/components/priorityMatrix/Content';
 import { GrowthHacksPriorityQueryResponse } from 'modules/growthHacks/types';
 import { getFilterParams } from 'modules/growthHacks/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 
 type Props = {

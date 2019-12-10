@@ -53,7 +53,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
   renderDropBtn() {
     const { isOpen } = this.state;
-    const icon = isOpen ? 'downarrow' : 'rightarrow-2';
+    const icon = isOpen ? 'angle-down' : 'angle-right';
     const { QuickButtons } = Sidebar.Section;
     const { extraButtons } = this.props;
 
@@ -64,7 +64,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
             <QuickButtons isSidebarOpen={true}>{extraButtons}</QuickButtons>
           ))}
         <SidebarCollapse onClick={this.toggle}>
-          <Icon icon={icon} />
+          <Icon icon={icon} size={16} />
         </SidebarCollapse>
       </>
     );

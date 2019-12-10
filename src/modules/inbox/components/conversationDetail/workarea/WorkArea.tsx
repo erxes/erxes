@@ -10,13 +10,7 @@ import AssignBoxPopover from 'modules/inbox/components/assignBox/AssignBoxPopove
 import RespondBox from 'modules/inbox/containers/conversationDetail/RespondBox';
 import Resolver from 'modules/inbox/containers/Resolver';
 import Tagger from 'modules/inbox/containers/Tagger';
-import {
-  ActionBarLeft,
-  AssignText,
-  AssignTrigger,
-  ConversationWrapper,
-  PopoverButton
-} from 'modules/inbox/styles';
+import { PopoverButton } from 'modules/inbox/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { ContenFooter, ContentBox } from 'modules/layout/styles';
 import { BarItems } from 'modules/layout/styles';
@@ -27,6 +21,13 @@ import {
   IMessage
 } from '../../../types';
 import Conversation from './conversation/Conversation';
+import {
+  ActionBarLeft,
+  AssignText,
+  AssignTrigger,
+  ConversationWrapper,
+  MailSubject
+} from './styles';
 import TypingIndicator from './TypingIndicator';
 
 const Participators = asyncComponent(
@@ -133,6 +134,23 @@ export default class WorkArea extends React.Component<Props, State> {
     this.setState({ attachmentPreview });
   };
 
+  isMailConversation = (kind: string) =>
+    kind.includes('nylas') || kind === 'gmail' ? true : false;
+
+  renderExtraHeading = (kind: string, conversationMessage: IMessage) => {
+    if (!conversationMessage) {
+      return null;
+    }
+
+    if (this.isMailConversation(kind)) {
+      const { mailData } = conversationMessage;
+
+      return <MailSubject>{mailData && (mailData.subject || '')}</MailSubject>;
+    }
+
+    return null;
+  };
+
   render() {
     const {
       currentConversation,
@@ -147,8 +165,7 @@ export default class WorkArea extends React.Component<Props, State> {
     const participatedUsers = currentConversation.participatedUsers || [];
     const { kind } = currentConversation.integration;
 
-    const showInternal =
-      kind.includes('nylas') || kind === 'gmail' || kind === 'lead';
+    const showInternal = this.isMailConversation(kind) || kind === 'lead';
 
     const tagTrigger = (
       <PopoverButton>
@@ -213,6 +230,7 @@ export default class WorkArea extends React.Component<Props, State> {
         right={actionBarRight}
         left={actionBarLeft}
         background="colorWhite"
+        bottom={this.renderExtraHeading(kind, conversationMessages[0])}
       />
     );
 

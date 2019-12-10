@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { STORAGE_BOARD_KEY } from 'modules/boards/constants';
 import { BoardsQueryResponse } from 'modules/boards/types';
 import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
@@ -7,7 +8,7 @@ import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import routerUtils from 'modules/common/utils/router';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import Boards from '../components/Boards';
 import { mutations, queries } from '../graphql';

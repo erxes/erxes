@@ -85,8 +85,13 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>{__('Form title')}</ControlLabel>
-          <FormControl name="title" value={title} onChange={onChangeField} />
+          <ControlLabel required={true}>{__('Form title')}</ControlLabel>
+          <FormControl
+            required={true}
+            name="title"
+            value={title}
+            onChange={onChangeField}
+          />
         </FormGroup>
 
         <FormGroup>

@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import Resolver from '../components/Resolver';
 import { mutations } from '../graphql';
 import {
@@ -27,7 +28,9 @@ const ResolverContainer = (props: FinalProps) => {
   const changeStatus = notifyHandler => (conversationIds: string[], status) => {
     changeStatusMutation({ variables: { _ids: conversationIds, status } })
       .then(() => {
-        notifyHandler();
+        if (notifyHandler) {
+          notifyHandler();
+        }
 
         if (status === CONVERSATION_STATUSES.CLOSED) {
           Alert.success('The conversation has been resolved!');

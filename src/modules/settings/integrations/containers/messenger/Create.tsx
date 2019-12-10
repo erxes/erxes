@@ -8,6 +8,7 @@ import Form from 'modules/settings/integrations/components/messenger/Form';
 import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 
+import * as compose from 'lodash.flowright';
 import {
   IMessengerData,
   IUiOptions,
@@ -17,7 +18,7 @@ import {
   SaveMessengerMutationVariables
 } from 'modules/settings/integrations/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
 import { AllBrandsQueryResponse } from '../../../brands/types';

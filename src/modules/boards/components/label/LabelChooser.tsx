@@ -43,6 +43,8 @@ class ChooseLabel extends React.Component<
 
   onSelectLabels = (selectedLabelIds: string[]) => {
     this.setState({ selectedLabelIds });
+
+    this.props.doLabel(selectedLabelIds);
   };
 
   renderOverlay() {
@@ -61,10 +63,6 @@ class ChooseLabel extends React.Component<
     return <Overlay {...props} />;
   }
 
-  onExit = () => {
-    this.props.doLabel(this.state.selectedLabelIds);
-  };
-
   render() {
     return (
       <ChooseLabelWrapper>
@@ -77,7 +75,6 @@ class ChooseLabel extends React.Component<
           overlay={this.renderOverlay()}
           rootClose={!this.props.isConfirmVisible}
           container={this}
-          onExited={this.onExit}
         >
           <ColorButton>
             <Icon icon="tag-alt" />

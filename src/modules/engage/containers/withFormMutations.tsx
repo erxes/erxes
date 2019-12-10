@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { AllUsersQueryResponse } from '../../settings/team/types';
 import { mutations, queries } from '../graphql';
@@ -74,6 +75,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = doc => {
         doc.kind = message.kind ? message.kind : kind;
+        doc.scheduleDate = doc.kind !== 'manual' ? doc.scheduleDate : null;
 
         if (messageId) {
           return doMutation(
@@ -166,7 +168,13 @@ function withSaveAndEdit<IComponentProps>(Component) {
         gql(mutations.messagesAdd),
         {
           name: 'addMutation',
-          options: crudMutationsOptions
+          options: {
+            refetchQueries: [
+              ...crudMutationsOptions().refetchQueries,
+              'engageMessageDetail',
+              'activityLogs'
+            ]
+          }
         }
       ),
       graphql<Props, WithFormEditMutationResponse, WithFormMutationVariables>(

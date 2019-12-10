@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import Settings from '../../components/engages/Settings';
 import { mutations, queries } from '../../graphql';

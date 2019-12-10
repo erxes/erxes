@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
-import { ChildProps, compose, graphql } from 'react-apollo';
+import { ChildProps, graphql } from 'react-apollo';
 import Sidebar from '../components/Sidebar';
 import { mutations, queries } from '../graphql';
 import {

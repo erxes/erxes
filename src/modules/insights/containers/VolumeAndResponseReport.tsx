@@ -1,7 +1,8 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import ResponseReport from '../components/ResponseReport';
 import VolumeReport from '../components/VolumeReport';

@@ -40,6 +40,7 @@ interface IProps extends IRouterProps {
   toggleBulk: (target: ICustomer, toAdd: boolean) => void;
   toggleAll: (targets: ICustomer[], containerId: string) => void;
   loading: boolean;
+  mergeCustomerLoading: boolean;
   searchValue: string;
   removeCustomers: (
     doc: { customerIds: string[] },
@@ -139,12 +140,14 @@ class CustomersList extends React.Component<IProps, State> {
     if (this.timer) {
       clearTimeout(this.timer);
     }
+
     const { history } = this.props;
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -167,7 +170,8 @@ class CustomersList extends React.Component<IProps, State> {
       location,
       history,
       queryParams,
-      exportCustomers
+      exportCustomers,
+      mergeCustomerLoading
     } = this.props;
 
     const addTrigger = (
@@ -198,7 +202,14 @@ class CustomersList extends React.Component<IProps, State> {
     };
 
     const customersMerge = props => {
-      return <CustomersMerge {...props} objects={bulk} save={mergeCustomers} />;
+      return (
+        <CustomersMerge
+          {...props}
+          objects={bulk}
+          save={mergeCustomers}
+          mergeCustomerLoading={mergeCustomerLoading}
+        />
+      );
     };
 
     const actionBarRight = (

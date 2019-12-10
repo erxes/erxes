@@ -27,38 +27,7 @@ type Props = {
   onUpdate?: (item: ITicket) => void;
 };
 
-class TicketItem extends React.PureComponent<
-  Props,
-  { isPopupVisible: boolean }
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isPopupVisible: props.isFormVisible || false
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isFormVisible !== this.props.isFormVisible) {
-      this.setState({
-        isPopupVisible: nextProps.isFormVisible
-      });
-    }
-  }
-
-  beforePopupClose = () => {
-    const { portable, beforePopupClose } = this.props;
-
-    if (portable) {
-      this.setState({ isPopupVisible: false });
-    } else {
-      if (beforePopupClose) {
-        beforePopupClose();
-      }
-    }
-  };
-
+class TicketItem extends React.PureComponent<Props> {
   renderDate(date, format = 'YYYY-MM-DD') {
     if (!date) {
       return null;
@@ -72,10 +41,9 @@ class TicketItem extends React.PureComponent<
   }
 
   renderForm = () => {
-    const { item } = this.props;
-    const { isPopupVisible } = this.state;
+    const { item, isFormVisible } = this.props;
 
-    if (!isPopupVisible) {
+    if (!isFormVisible) {
       return null;
     }
 
@@ -83,9 +51,8 @@ class TicketItem extends React.PureComponent<
       <EditForm
         {...this.props}
         itemId={item._id}
-        beforePopupClose={this.beforePopupClose}
         hideHeader={true}
-        isPopupVisible={isPopupVisible}
+        isPopupVisible={isFormVisible}
       />
     );
   };
@@ -120,13 +87,9 @@ class TicketItem extends React.PureComponent<
   }
 
   render() {
-    const { item, portable } = this.props;
+    const { item, portable, onClick } = this.props;
 
     if (portable) {
-      const onClick = () => {
-        this.setState({ isPopupVisible: true });
-      };
-
       return (
         <>
           <ItemContainer onClick={onClick}>
@@ -140,7 +103,7 @@ class TicketItem extends React.PureComponent<
     return (
       <>
         <Labels labels={item.labels} indicator={true} />
-        <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
+        <Content onClick={onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
     );

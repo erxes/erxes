@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import { IOptions } from 'modules/boards/types';
 import { Alert, withProps } from 'modules/common/utils';
@@ -9,7 +10,7 @@ import {
   SaveFormSubmissionMutation
 } from 'modules/forms/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import GrowthHackEditForm from '../components/GrowthHackEditForm';
 import { IGrowthHack, IGrowthHackParams } from '../types';
 

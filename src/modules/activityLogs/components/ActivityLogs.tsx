@@ -1,5 +1,5 @@
 import ActivityList from 'modules/activityLogs/components/ActivityList';
-import { IActivityLogForMonth } from 'modules/activityLogs/types';
+import { IActivityLog } from 'modules/activityLogs/types';
 import { IUser } from 'modules/auth/types';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
@@ -9,7 +9,7 @@ import { hasAnyActivity } from 'modules/customers/utils';
 import React from 'react';
 
 type Props = {
-  activityLogs: IActivityLogForMonth[];
+  activityLogs: IActivityLog[];
   currentUser: IUser;
   target?: string;
   loadingLogs: boolean;
@@ -40,7 +40,6 @@ class ActivityLogs extends React.PureComponent<Props, State> {
 
   renderTabContent() {
     const { currentTab } = this.state;
-
     const { currentUser, activityLogs, loadingLogs, target } = this.props;
 
     const hasActivity = hasAnyActivity(activityLogs);

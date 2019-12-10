@@ -251,7 +251,7 @@ export type UnreadConversationsTotalCountQueryResponse = {
 };
 
 export type FacebookCommentsQueryResponse = {
-  facebookComments: IFacebookComment[];
+  converstationFacebookComments: IFacebookComment[];
   loading: boolean;
   refetch: () => void;
   fetchMore: (variables) => void;
