@@ -55,11 +55,11 @@ const siteConfig = {
       label: 'Docs'
     },
     {
-      href: 'https://erxes.io/en/pricing',
+      href: 'https://erxes.io/pricing',
       label: 'Pricing & Trial',
       external: true
     },
-    { href: 'https://medium.com/erxes', label: 'Blog', external: true }
+    { href: 'https://erxes.io/blog/', label: 'Blog', external: true }
   ],
 
   // If you have users set above, you add it here:
