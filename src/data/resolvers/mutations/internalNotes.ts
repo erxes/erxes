@@ -119,7 +119,9 @@ const internalNoteMutations = {
       }
     }
 
-    await utils.sendNotification(notifDoc);
+    if (notifDoc.contentType) {
+      await utils.sendNotification(notifDoc);
+    }
 
     const internalNote = await InternalNotes.createInternalNote(args, user);
 
