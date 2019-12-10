@@ -49,33 +49,23 @@ class List extends React.Component<Props, State> {
     };
   }
 
-  saveAddItem = () => {
-    const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
-
-    this.setState({ isAddingItem: false }, () => {
-      (content || []).map(text => this.props.addItem(text));
-
-      this.setState({ itemContent: '', isAddingItem: true });
-    });
-  };
-
-  shouldComponentUpdate(nextProps: Props) {
-    const { itemContent } = this.state;
-
-    if (itemContent !== '') {
-      localStorage.setItem(this.props.item._id, itemContent);
-    } else {
-      localStorage.removeItem(this.props.item._id);
-    }
-
-    return true;
-  }
-
   onAddItemClick = () => {
     this.setState({ isAddingItem: true });
   };
 
   onFocus = event => event.target.select();
+
+  onBlur = () => {
+    const { itemContent, isAddingItem } = this.state;
+
+    if (itemContent !== '') {
+      localStorage.setItem(this.props.item._id, itemContent);
+    }
+
+    setTimeout(() => {
+      this.setState({ isAddingItem: !isAddingItem });
+    }, 200);
+  };
 
   removeClick = () => {
     const { remove, item } = this.props;
@@ -104,6 +94,17 @@ class List extends React.Component<Props, State> {
 
       this.saveAddItem();
     }
+  };
+
+  saveAddItem = () => {
+    const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
+
+    this.setState({ isAddingItem: false }, () => {
+      (content || []).map(text => this.props.addItem(text));
+
+      this.setState({ itemContent: '' });
+      localStorage.removeItem(this.props.item._id);
+    });
   };
 
   renderIsCheckedBtn = () => {
@@ -226,16 +227,20 @@ class List extends React.Component<Props, State> {
   }
 
   renderAddInput() {
-    const cancel = () =>
-      this.setState({
-        isAddingItem: false,
-        itemContent: this.state.itemContent
-      });
+    const { itemContent, isAddingItem } = this.state;
 
-    if (this.state.isAddingItem) {
+    const cancel = () => {
+      this.setState({ isAddingItem: false, itemContent });
+
+      if (itemContent !== '') {
+        localStorage.setItem(this.props.item._id, itemContent);
+      }
+    };
+
+    if (isAddingItem) {
       return (
         <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
-          <FormControlWrapper>
+          <FormControlWrapper onBlur={this.onBlur}>
             <FormControl
               componentClass="textarea"
               placeholder="Add an item"

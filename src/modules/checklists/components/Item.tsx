@@ -77,9 +77,11 @@ class ListRow extends React.Component<Props, State> {
     removeItem(item._id);
   };
 
-  // onBlur = () => {
-  //   this.setState({ isEditing: false })
-  // }
+  onBlur = () => {
+    setTimeout(() => {
+      this.setState({ isEditing: false });
+    }, 200);
+  };
 
   onCheckChange = e => {
     const { editItem } = this.props;
@@ -106,7 +108,7 @@ class ListRow extends React.Component<Props, State> {
 
     if (this.state.isEditing) {
       return (
-        <FormWrapper onSubmit={this.onSubmit}>
+        <FormWrapper onSubmit={this.onSubmit} onBlur={this.onBlur}>
           <FormControlWrapper>
             <FormControl
               componentClass="textarea"
@@ -115,7 +117,6 @@ class ListRow extends React.Component<Props, State> {
               value={this.state.content}
               onKeyPress={this.onKeyPress}
               required={true}
-              // onBlur={this.onBlur}
             />
             <Button
               disabled={this.state.disabled}
