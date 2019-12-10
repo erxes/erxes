@@ -84,10 +84,10 @@ class ListContainer extends React.Component<FinalProps> {
       return null;
     }
 
-    const list = checklistDetailQuery.checklistDetail;
+    const item = checklistDetailQuery.checklistDetail;
 
     const extendedProps = {
-      list,
+      item,
       addItem: this.addItem,
       renderButton,
       remove: this.remove

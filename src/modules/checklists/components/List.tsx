@@ -18,7 +18,7 @@ import {
 import { IChecklist } from '../types';
 
 type Props = {
-  list: IChecklist;
+  item: IChecklist;
   addItem: (content: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (checklistId: string) => void;
@@ -37,26 +37,17 @@ class List extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const title = props.list.title;
+    const title = props.item.title;
 
     this.state = {
       isEditingTitle: false,
       isAddingItem: true,
       isHidden: false,
-      itemContent: '',
+      itemContent: this.getUnsavedContent(props.item._id) || '',
       title,
       beforeTitle: title
     };
   }
-
-  onAddItemClick = () => {
-    this.setState({ isAddingItem: true });
-  };
-
-  removeClick = () => {
-    const { remove, list } = this.props;
-    remove(list._id);
-  };
 
   saveAddItem = () => {
     const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
@@ -65,6 +56,39 @@ class List extends React.Component<Props, State> {
       (content || []).map(text => this.props.addItem(text));
 
       this.setState({ itemContent: '', isAddingItem: true });
+    });
+  };
+
+  shouldComponentUpdate(nextProps: Props) {
+    const { itemContent } = this.state;
+
+    if (itemContent !== '') {
+      localStorage.setItem(this.props.item._id, itemContent);
+    } else {
+      localStorage.removeItem(this.props.item._id);
+    }
+
+    return true;
+  }
+
+  onAddItemClick = () => {
+    this.setState({ isAddingItem: true });
+  };
+
+  onFocus = event => event.target.select();
+
+  removeClick = () => {
+    const { remove, item } = this.props;
+    remove(item._id);
+  };
+
+  getUnsavedContent = (id: string) => {
+    return localStorage.getItem(id) || '';
+  };
+
+  onContentChange = e => {
+    this.setState({
+      itemContent: (e.currentTarget as HTMLTextAreaElement).value
     });
   };
 
@@ -88,7 +112,7 @@ class List extends React.Component<Props, State> {
     const onClickHideShowBtn = () => this.setState({ isHidden: !isHidden });
     const btnText = isHidden ? 'Show checked items' : 'Hide completed items';
 
-    if (this.props.list.percent) {
+    if (this.props.item.percent) {
       return (
         <Button btnStyle="simple" size="small" onClick={onClickHideShowBtn}>
           {__(btnText)}
@@ -123,7 +147,7 @@ class List extends React.Component<Props, State> {
 
   generateDoc = (values: { title: string }) => {
     return {
-      _id: this.props.list._id,
+      _id: this.props.item._id,
       title: values.title || this.state.title
     };
   };
@@ -175,13 +199,13 @@ class List extends React.Component<Props, State> {
   };
 
   renderProgressBar = () => {
-    const { list } = this.props;
+    const { item } = this.props;
 
     return (
       <Progress>
-        <span>{list.percent.toFixed(0)}%</span>
+        <span>{item.percent.toFixed(0)}%</span>
         <ProgressBar
-          percentage={list.percent}
+          percentage={item.percent}
           color={colors.colorPrimary}
           height="10px"
         />
@@ -190,22 +214,22 @@ class List extends React.Component<Props, State> {
   };
 
   renderItems() {
-    const { list } = this.props;
+    const { item } = this.props;
 
     if (this.state.isHidden) {
-      return list.items
-        .filter(item => !item.isChecked)
-        .map(item => <Item key={item._id} item={item} />);
+      return item.items
+        .filter(data => !data.isChecked)
+        .map(data => <Item key={data._id} item={data} />);
     }
 
-    return list.items.map(item => <Item key={item._id} item={item} />);
+    return item.items.map(data => <Item key={data._id} item={data} />);
   }
 
   renderAddInput() {
-    const cancel = () => this.setState({ isAddingItem: false });
-    const onContentChange = e =>
+    const cancel = () =>
       this.setState({
-        itemContent: (e.currentTarget as HTMLTextAreaElement).value
+        isAddingItem: false,
+        itemContent: this.state.itemContent
       });
 
     if (this.state.isAddingItem) {
@@ -213,14 +237,15 @@ class List extends React.Component<Props, State> {
         <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
           <FormControlWrapper>
             <FormControl
-              autoFocus={true}
               componentClass="textarea"
-              onChange={onContentChange}
-              onKeyPress={this.onKeyPressAddItem}
               placeholder="Add an item"
+              onChange={this.onContentChange}
+              onKeyPress={this.onKeyPressAddItem}
+              defaultValue={this.getUnsavedContent(this.props.item._id)}
+              autoFocus={true}
+              onFocus={this.onFocus}
               required={true}
             />
-
             <Button
               btnStyle="success"
               type="submit"

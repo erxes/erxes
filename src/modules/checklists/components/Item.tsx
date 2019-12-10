@@ -100,7 +100,7 @@ class ListRow extends React.Component<Props, State> {
       });
     };
 
-    const onClickEdit = () => {
+    const onCancel = () => {
       this.setState({ isEditing: false, content: this.state.beforeContent });
     };
 
@@ -127,7 +127,7 @@ class ListRow extends React.Component<Props, State> {
             <Button
               btnStyle="simple"
               size="small"
-              onClick={onClickEdit}
+              onClick={onCancel}
               icon="times"
             />
           </FormControlWrapper>
