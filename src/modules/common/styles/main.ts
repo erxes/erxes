@@ -190,6 +190,16 @@ const DateWrapper = styled.time`
   font-size: 12px;
 `;
 
+const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
+  height: 50vh;
+  height: ${props =>
+    props.calcHeight
+      ? `calc(100vh - ${props.calcHeight}px)`
+      : 'calc(100vh - 280px)'};
+  overflow: auto;
+  padding-right: 10px;
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -205,5 +215,6 @@ export {
   MiddleContent,
   HomeContainer,
   DateWrapper,
-  CloseModal
+  CloseModal,
+  ScrollWrapper
 };
