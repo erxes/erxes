@@ -47,16 +47,6 @@ class ListRow extends React.Component<Props, State> {
     this.setState({ isEditing: true, beforeContent: this.props.item.content });
   };
 
-  handleSave = () => {
-    const { content, isChecked } = this.state;
-
-    this.setState({ disabled: true });
-
-    this.props.editItem({ content, isChecked }, () => {
-      this.setState({ disabled: false, isEditing: false });
-    });
-  };
-
   onKeyPress = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -69,12 +59,6 @@ class ListRow extends React.Component<Props, State> {
     e.preventDefault();
 
     this.handleSave();
-  };
-
-  removeClick = () => {
-    const { removeItem, item } = this.props;
-
-    removeItem(item._id);
   };
 
   onBlur = () => {
@@ -93,6 +77,22 @@ class ListRow extends React.Component<Props, State> {
 
       editItem({ content, isChecked });
     });
+  };
+
+  handleSave = () => {
+    const { content, isChecked } = this.state;
+
+    this.setState({ disabled: true });
+
+    this.props.editItem({ content, isChecked }, () => {
+      this.setState({ disabled: false, isEditing: false });
+    });
+  };
+
+  removeClick = () => {
+    const { removeItem, item } = this.props;
+
+    removeItem(item._id);
   };
 
   renderContent() {
