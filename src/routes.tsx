@@ -32,6 +32,10 @@ const MainBar = asyncComponent(() =>
   import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
 );
 
+const NotFound = asyncComponent(() =>
+  import(/* webpackChunkName: "NotFound" */ 'modules/layout/components/NotFound')
+);
+
 const renderRoutes = currentUser => {
   if (currentUser) {
     return (
@@ -56,6 +60,7 @@ const renderRoutes = currentUser => {
             <TicketRoutes />
             <TaskRoutes />
             <GrowthHackRoutes />
+            <Route component={NotFound} />
           </MainWrapper>
         </MainLayout>
       </>
