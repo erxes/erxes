@@ -15,11 +15,6 @@ beforeAll(async () => {
   await mongoose.connect(
     mongoUri,
     { ...connectionOptions, useUnifiedTopology: true },
-    err => {
-      if (err) {
-        console.error(err);
-      }
-    },
   );
 });
 
