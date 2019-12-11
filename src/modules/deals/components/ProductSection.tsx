@@ -16,8 +16,10 @@ type Props = {
   products: IProduct[];
   paymentsData: IPaymentsData;
   onChangeProductsData: (productsData: IProductData[]) => void;
+  onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
+  savePaymentsData: () => void;
 };
 
 function ProductSection({
@@ -25,16 +27,20 @@ function ProductSection({
   productsData,
   paymentsData,
   onChangeProductsData,
-  saveProductsData
+  onChangePaymentsData,
+  saveProductsData,
+  savePaymentsData
 }: Props) {
   const content = props => (
     <ProductForm
       {...props}
       onChangeProductsData={onChangeProductsData}
+      onChangePaymentsData={onChangePaymentsData}
       productsData={productsData}
       products={products}
       paymentsData={paymentsData}
       saveProductsData={saveProductsData}
+      savePaymentsData={savePaymentsData}
     />
   );
 
@@ -71,7 +77,7 @@ function ProductSection({
       size="lg"
       trigger={
         <button>
-          <Icon icon="add" />
+          <Icon icon="focus-add" />
         </button>
       }
       content={content}

@@ -6,14 +6,16 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
+import PaymentForm from '../../containers/product/PaymentForm';
 import ProductItemForm from '../../containers/product/ProductItemForm';
 import { Add, FooterInfo, FormContainer } from '../../styles';
 import { IPaymentsData, IProductData } from '../../types';
-import PaymentForm from './PaymentForm';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
+  savePaymentsData: () => void;
+  onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;
@@ -133,7 +135,12 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   onClick = () => {
-    const { saveProductsData, productsData, closeModal } = this.props;
+    const {
+      saveProductsData,
+      productsData,
+      closeModal,
+      savePaymentsData
+    } = this.props;
 
     if (productsData.length !== 0) {
       for (const data of productsData) {
@@ -154,14 +161,20 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     saveProductsData();
+    savePaymentsData();
     closeModal();
   };
 
   renderTabContent() {
+    const { onChangePaymentsData } = this.props;
     const { total, tax, discount, currentTab } = this.state;
     if (currentTab === 'payments') {
       return (
-        <PaymentForm total={total} paymentsData={this.props.paymentsData} />
+        <PaymentForm
+          total={total}
+          payments={this.props.paymentsData}
+          onChangePaymentsData={onChangePaymentsData}
+        />
       );
     }
 

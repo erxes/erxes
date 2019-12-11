@@ -34,16 +34,11 @@ export interface IProductData {
   amount: number;
 }
 
-export interface IPaymentData {
-  type: string;
-  currency?: string;
-  amount: number;
-}
-
 export interface IPaymentsData {
-  prepayment: IPaymentData[];
-  payment: IPaymentData[];
-  afterPayment: IPaymentData[];
+  [key: string]: {
+    currency?: string;
+    amount?: number;
+  };
 }
 
 export type DealsTotalAmountsQueryResponse = {
@@ -73,6 +68,7 @@ export interface IDeal extends IItem {
 
 export interface IDealParams extends IItemParams {
   productsData?: IProductData[];
+  paymentsData?: IPaymentsData;
 }
 
 export type DealsQueryResponse = {

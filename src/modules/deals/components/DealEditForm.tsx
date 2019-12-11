@@ -40,7 +40,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       productsData: item.products ? item.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
       products: item.products ? item.products.map(p => p.product) : [],
-      paymentsData: item.payments
+      paymentsData: item.paymentsData
     };
   }
 
@@ -106,20 +106,35 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
+  savePaymentsData = () => {
+    const { paymentsData } = this.state;
+    const { saveItem } = this.props;
+
+    this.setState({ paymentsData }, () => {
+      saveItem({ paymentsData: this.state.paymentsData }, updatedItem => {
+        this.props.onUpdate(updatedItem);
+      });
+    });
+  };
+
   renderProductSection = () => {
     const { products, productsData, paymentsData } = this.state;
 
     const pDataChange = pData => this.onChangeField('productsData', pData);
     const prsChange = prs => this.onChangeField('products', prs);
+    const payDataChange = payData =>
+      this.onChangeField('paymentsData', payData);
 
     return (
       <ProductSection
         onChangeProductsData={pDataChange}
         onChangeProducts={prsChange}
+        onChangePaymentsData={payDataChange}
         productsData={productsData}
         paymentsData={paymentsData}
         products={products}
         saveProductsData={this.saveProductsData}
+        savePaymentsData={this.savePaymentsData}
       />
     );
   };

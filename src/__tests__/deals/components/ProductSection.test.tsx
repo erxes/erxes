@@ -1,6 +1,6 @@
 import { shallow } from 'enzyme';
 import ProductSection from 'modules/deals/components/ProductSection';
-import { IProductData } from 'modules/deals/types';
+import { IPaymentsData, IProductData } from 'modules/deals/types';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 
@@ -65,12 +65,19 @@ describe('ProductSection component', () => {
     }
   ];
 
+  const testPaymentsData: IPaymentsData = {
+    cash: { amount: 1000, currency: 'MNT' }
+  };
+
   const defaultProps = {
     productsData: testProductDatas,
     products: testProducts,
+    paymentsData: testPaymentsData,
     onChangeProductsData: (productsData: IProductData[]) => null,
+    onChangePaymentsData: (paymentsData: IPaymentsData) => null,
     onChangeProducts: (prs: IProduct[]) => null,
-    saveProductsData: () => null
+    saveProductsData: () => null,
+    savePaymentsData: () => null
   };
 
   test('renders shallow successfully', () => {

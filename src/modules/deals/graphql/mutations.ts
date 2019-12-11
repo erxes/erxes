@@ -3,6 +3,7 @@ import { dealFields } from './queries';
 const commonVariables = `
   $stageId: String,
   $productsData: JSON,
+  $paymentsData: JSON,
   $closeDate: Date,
   $description: String,
   $assignedUserIds: [String],
@@ -16,6 +17,7 @@ const commonVariables = `
 const commonParams = `
   stageId: $stageId,
   productsData: $productsData,
+  paymentsData: $paymentsData,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,

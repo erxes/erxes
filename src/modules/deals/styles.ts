@@ -1,5 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import { darken, rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -119,6 +119,16 @@ const ProductName = styled.div`
   cursor: pointer;
 `;
 
+const Divider = styled.div`
+  border-bottom: 1px dotted ${darken(colors.borderDarker, 5)};
+  padding-bottom: ${dimensions.coreSpacing}px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0px;
+
+  @media (max-width: 1170px) {
+    margin-left: ${dimensions.coreSpacing}px;
+  }
+`;
+
 export {
   ProductName,
   FormContainer,
@@ -131,5 +141,6 @@ export {
   ContentRow,
   ContentColumn,
   TotalAmount,
-  ProductButton
+  ProductButton,
+  Divider
 };
