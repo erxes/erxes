@@ -12,54 +12,50 @@ import {
   RemoveItemMutationResponse
 } from '../types';
 
-type IProps = {
+type Props = {
   item: IChecklistItem;
 };
 
 type FinalProps = {
   editItemMutation: EditItemMutationResponse;
   removeItemMutation: RemoveItemMutationResponse;
-} & IProps;
+} & Props;
 
 class ItemContainer extends React.Component<FinalProps> {
-  editItem = (
-    doc: { content: string; isChecked: boolean },
-    callback?: () => void
-  ) => {
-    const { editItemMutation, item } = this.props;
-
-    editItemMutation({
-      variables: {
-        ...doc,
-        _id: item._id
-      }
-    }).then(() => {
-      if (callback) {
-        callback();
-      }
-    });
-  };
-
-  removeItem = (checklistItemId: string) => {
-    const { removeItemMutation } = this.props;
-
-    removeItemMutation({ variables: { _id: checklistItemId } });
-  };
-
   render() {
-    const { item } = this.props;
+    const { editItemMutation, item, removeItemMutation } = this.props;
+
+    const editItem = (
+      doc: { content: string; isChecked: boolean },
+      callback?: () => void
+    ) => {
+      editItemMutation({
+        variables: {
+          ...doc,
+          _id: item._id
+        }
+      }).then(() => {
+        if (callback) {
+          callback();
+        }
+      });
+    };
+
+    const removeItem = (checklistItemId: string) => {
+      removeItemMutation({ variables: { _id: checklistItemId } });
+    };
 
     const extendedProps = {
       item,
-      editItem: this.editItem,
-      removeItem: this.removeItem
+      editItem,
+      removeItem
     };
 
     return <Item {...extendedProps} />;
   }
 }
 
-const options = (props: IProps) => {
+const options = (props: Props) => {
   return {
     refetchQueries: [
       {
@@ -72,16 +68,16 @@ const options = (props: IProps) => {
   };
 };
 
-export default withProps<IProps>(
+export default withProps<Props>(
   compose(
-    graphql<IProps, EditItemMutationResponse, EditItemMutationVariables>(
+    graphql<Props, EditItemMutationResponse, EditItemMutationVariables>(
       gql(mutations.checklistItemsEdit),
       {
         name: 'editItemMutation',
         options
       }
     ),
-    graphql<IProps, RemoveItemMutationResponse, { _id: string }>(
+    graphql<Props, RemoveItemMutationResponse, { _id: string }>(
       gql(mutations.checklistItemsRemove),
       {
         name: 'removeItemMutation',

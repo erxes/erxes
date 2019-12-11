@@ -35,10 +35,6 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
     this.state = { perPage: 20 };
   }
 
-  clearState = () => {
-    this.props.productsQuery.refetch({ searchValue: '' });
-  };
-
   search = (value: string, reload?: boolean) => {
     if (!reload) {
       this.setState({ perPage: 0 });
@@ -95,7 +91,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       ),
       perPage: this.state.perPage,
       add: this.addProduct,
-      clearState: this.clearState,
+      clearState: () => this.search('', true),
       datas: productsQuery.products || [],
       onSelect
     };
