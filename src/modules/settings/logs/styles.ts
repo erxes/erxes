@@ -31,7 +31,7 @@ const FilterItem = styled.div`
 `;
 
 const LogBox = styledTS<{ color?: string }>(styled.div)`
-  border: 1px solid ${props =>
+  border: 1px dotted ${props =>
     props.color ? props.color : colors.colorPrimary};
   padding: 5px;
   margin: 5px;
