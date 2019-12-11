@@ -167,9 +167,11 @@ class PaymentForm extends React.Component<Props, State> {
   }
 
   renderPayments() {
-    return PAYMENT_TYPES.map(type => {
-      return <ContentRow>{this.renderPaymentsByType(type)}</ContentRow>;
-    });
+    return PAYMENT_TYPES.map(type => (
+      <>
+        <ContentRow>{this.renderPaymentsByType(type)}</ContentRow>
+      </>
+    ));
   }
 
   render() {
