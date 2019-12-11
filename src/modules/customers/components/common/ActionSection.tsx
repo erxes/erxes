@@ -3,6 +3,9 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __, Alert, confirm } from 'modules/common/utils';
+import CompaniesMerge from 'modules/companies/components/detail/CompaniesMerge';
+import CompanyForm from 'modules/companies/containers/CompanyForm';
+import { ICompany } from 'modules/companies/types';
 import TargetMerge from 'modules/customers/components/common/TargetMerge';
 import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
 import CustomerForm from 'modules/customers/containers/CustomerForm';
@@ -16,23 +19,27 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 type Props = {
-  customer: ICustomer;
+  coc: ICustomer | ICompany;
+  cocType: string;
   remove: () => void;
-  merge: (doc: { ids: string[]; data: ICustomer }) => void;
-  searchCustomer: (value: string, callback: (objects: any[]) => void) => void;
+  merge: (doc: { ids: string[]; data: ICustomer | ICompany }) => void;
+  search: (value: string, callback: (objects: any[]) => void) => void;
   isSmall?: boolean;
 };
-
 class ActionSection extends React.Component<Props> {
   renderActions() {
-    const { customer } = this.props;
-    const { primaryPhone, primaryEmail } = customer;
+    const { coc, cocType } = this.props;
+    const { primaryPhone, primaryEmail } = coc;
 
     const content = props => (
       <MailBox>
         <MailForm
           fromEmail={primaryEmail}
-          refetchQueries={['activityLogsCustomer']}
+          refetchQueries={
+            cocType === 'customer'
+              ? ['activityLogsCustomer']
+              : ['activityLogsCompany']
+          }
           closeModal={props.closeModal}
         />
       </MailBox>
@@ -72,10 +79,14 @@ class ActionSection extends React.Component<Props> {
   }
 
   renderEditButton() {
-    const { customer } = this.props;
+    const { cocType, coc } = this.props;
 
     const customerForm = props => {
-      return <CustomerForm {...props} size="lg" customer={customer} />;
+      return <CustomerForm {...props} size="lg" customer={coc} />;
+    };
+
+    const companyForm = props => {
+      return <CompanyForm {...props} size="lg" company={coc} />;
     };
 
     return (
@@ -84,14 +95,14 @@ class ActionSection extends React.Component<Props> {
           title="Edit basic info"
           trigger={<a href="#edit">{__('Edit')}</a>}
           size="lg"
-          content={customerForm}
+          content={cocType === 'company' ? companyForm : customerForm}
         />
       </li>
     );
   }
 
   render() {
-    const { customer, merge, remove, searchCustomer } = this.props;
+    const { coc, cocType, merge, remove, search } = this.props;
 
     const onClick = () =>
       confirm()
@@ -113,6 +124,14 @@ class ActionSection extends React.Component<Props> {
       }));
     };
 
+    const targetMergeOptions = companies => {
+      return companies.map((c, key) => ({
+        key,
+        value: JSON.stringify(c),
+        label: c.primaryName || c.website || 'Unknown'
+      }));
+    };
+
     return (
       <Actions>
         {this.renderActions()}
@@ -125,10 +144,14 @@ class ActionSection extends React.Component<Props> {
             <li>
               <TargetMerge
                 onSave={merge}
-                object={customer}
-                searchObject={searchCustomer}
-                mergeForm={CustomersMerge}
-                generateOptions={generateOptions}
+                object={coc}
+                searchObject={search}
+                mergeForm={
+                  cocType === 'customer' ? CustomersMerge : CompaniesMerge
+                }
+                generateOptions={
+                  cocType === 'customer' ? generateOptions : targetMergeOptions
+                }
               />
             </li>
             <li>
