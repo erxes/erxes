@@ -2,10 +2,12 @@ import { colors, dimensions } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const RightItems = styled.div`
+const FlexRoot = styled.div`
   display: flex;
   align-items: center;
+`;
 
+const RightItems = styled(FlexRoot)`
   > div {
     margin-right: 10px;
   }
@@ -78,17 +80,15 @@ const MainInfo = styled.div`
   }
 `;
 
-const CustomerName = styled.div`
+const FlexWidth = styled.div`
+  white-space: nowrap;
   overflow: hidden;
-  display: flex;
-  align-items: center;
+  text-overflow: ellipsis;
+  flex: 1;
+`;
 
-  > div {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-  }
+const CustomerName = styled(FlexRoot)`
+  overflow: hidden;
 
   time {
     padding-left: 5px;
@@ -97,38 +97,27 @@ const CustomerName = styled.div`
   }
 `;
 
-const SmallText = styled.div`
+const Count = styled.div`
+  min-width: 18px;
+  margin-left: 5px;
+  color: ${colors.colorCoreGray};
+  background-color: ${colors.bgGray};
+  line-height: 18px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0 4px;
+  border-radius: 9px;
+  text-align: center;
+`;
+
+const SmallTextOneLine = styled(FlexWidth)`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  min-height: ${dimensions.coreSpacing}px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex-shrink: 0;
 `;
 
-const SmallTextOneLine = styled(SmallText)`
-  max-height: ${dimensions.coreSpacing}px;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-`;
-
-const MessageContent = styled.div`
-  display: flex;
-  margin-top: 5px;
-
-  img {
-    margin-left: 5px;
-  }
-`;
-
-const Exerpt = styled.div`
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+const MessageContent = styled(FlexRoot)`
+  margin-top: 7px;
+  line-height: 18px;
 `;
 
 const RowItem = styledTS<{
@@ -175,10 +164,11 @@ const RowItem = styledTS<{
 `;
 
 const AssigneeImg = styled.img`
-  height: ${dimensions.coreSpacing}px;
-  width: ${dimensions.coreSpacing}px;
-  line-height: ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.coreSpacing / 2}px;
+  height: ${dimensions.coreSpacing - 2}px;
+  width: ${dimensions.coreSpacing - 2}px;
+  line-height: ${dimensions.coreSpacing - 2}px;
+  border-radius: ${dimensions.unitSpacing}px;
+  margin-left: 5px;
 `;
 
 const SidebarActions = styled.div`
@@ -256,13 +246,14 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
 `;
 
 const ToggleButton = styledTS<{ isOpen?: boolean }>(styled.div)`
-  font-size: 14px;
-  background: ${props => props.isOpen && colors.bgActive};
+  font-size: 15px;
+  background: ${props => props.isOpen && colors.bgGray};
   width: 24px;
   height: 24px;
   line-height: 24px;
   text-align: center;
   border-radius: 2px;
+  margin-left: -5px;
   transition: background ease 0.3s;
 
   &:hover {
@@ -280,10 +271,11 @@ export {
   CheckBox,
   MainInfo,
   CustomerName,
-  SmallText,
+  FlexRoot,
+  Count,
   SmallTextOneLine,
   MessageContent,
-  Exerpt,
+  FlexWidth,
   AssigneeImg,
   SidebarActions,
   AdditionalSidebar,

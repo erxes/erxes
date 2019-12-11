@@ -18,9 +18,11 @@ import { IConversation } from '../../types';
 import {
   AssigneeImg,
   CheckBox,
+  Count,
   CustomerName,
-  Exerpt,
   FlexContent,
+  FlexRoot,
+  FlexWidth,
   MainInfo,
   MessageContent,
   RowContent,
@@ -88,11 +90,11 @@ class ConversationItem extends React.Component<Props> {
     const customer = conversation.customer || ({} as ICustomer);
     const integration = conversation.integration || ({} as IIntegration);
     const brand = integration.brand || ({} as IBrand);
-    const brandName = brand.name;
     const tags = conversation.tags || [];
     const assignedUser = conversation.assignedUser;
     const isExistingCustomer = customer && customer._id;
     const isChecked = selectedIds.includes(conversation._id);
+    const messageCount = conversation.messageCount || 0;
 
     const isRead =
       conversation.readUserIds &&
@@ -124,37 +126,42 @@ class ConversationItem extends React.Component<Props> {
               )}
               <FlexContent>
                 <CustomerName>
-                  <div>{isExistingCustomer && renderFullName(customer)}</div>
+                  <FlexWidth>
+                    {isExistingCustomer && renderFullName(customer)}
+                  </FlexWidth>
                   <time>{dayjs(updatedAt || createdAt).fromNow(true)}</time>
                 </CustomerName>
 
                 <SmallTextOneLine>
-                  to {brandName} via{' '}
+                  to {brand.name} via{' '}
                   {cleanIntegrationKind(integration && integration.kind)}
                 </SmallTextOneLine>
               </FlexContent>
             </MainInfo>
 
             <MessageContent>
-              <Exerpt>
+              <FlexWidth>
                 {this.showMessageContent(integration.kind, content || '')}
-              </Exerpt>
-              {assignedUser && (
-                <Tip
-                  key={assignedUser._id}
-                  placement="top"
-                  text={assignedUser.details && assignedUser.details.fullName}
-                >
-                  <AssigneeImg
-                    src={
-                      assignedUser.details &&
-                      (assignedUser.details.avatar
-                        ? assignedUser.details.avatar
-                        : '/images/avatar-colored.svg')
-                    }
-                  />
-                </Tip>
-              )}
+              </FlexWidth>
+              <FlexRoot>
+                {messageCount > 1 && <Count>{messageCount}</Count>}
+                {assignedUser && (
+                  <Tip
+                    key={assignedUser._id}
+                    placement="top"
+                    text={assignedUser.details && assignedUser.details.fullName}
+                  >
+                    <AssigneeImg
+                      src={
+                        assignedUser.details &&
+                        (assignedUser.details.avatar
+                          ? assignedUser.details.avatar
+                          : '/images/avatar-colored.svg')
+                      }
+                    />
+                  </Tip>
+                )}
+              </FlexRoot>
             </MessageContent>
             <Tags tags={tags} limit={3} />
           </FlexContent>

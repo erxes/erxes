@@ -9,21 +9,21 @@ import { darken } from '../styles/color';
 const RoundedBackground = styledTS<{ type: string; size?: number }>(
   styled.span
 )`
-  width: ${props => (props.size ? `${props.size}px` : '22px')};
-  height: ${props => (props.size ? `${props.size}px` : '22px')};
+  width: ${props => (props.size ? `${props.size}px` : '20px')};
+  height: ${props => (props.size ? `${props.size}px` : '20px')};
   border-radius: ${props => (props.size ? `${props.size / 2}px` : '11px')};
   text-align: center;
   display: flex;
   justify-content: center;
-  border: 1px solid ${colors.colorWhite};
   background: ${props =>
-    (props.type === 'form' && darken(colors.colorCoreYellow, 32)) ||
-    (props.type === 'messenger' && colors.colorPrimary) ||
+    (props.type === 'lead' && darken(colors.colorCoreYellow, 32)) ||
+    (props.type === 'messenger' && colors.colorCoreTeal) ||
     (props.type === 'twitter-dm' && colors.socialTwitter) ||
     (props.type === 'facebook' && colors.socialFacebook) ||
+    (props.type === 'facebook-messenger' && colors.socialFacebookMessenger) ||
     (props.type === 'gmail' && colors.socialGmail) ||
     (props.type.includes('nylas') && colors.socialGmail) ||
-    colors.colorSecondary};
+    colors.colorCoreBlue};
 
   i {
     color: ${colors.colorWhite};
