@@ -99,7 +99,6 @@ class Left extends React.Component<Props> {
             componentClass="textarea"
             defaultValue={item.description}
             onBlur={descriptionOnBlur}
-            autoFocus={true}
           />
         </FormGroup>
 
