@@ -16,51 +16,80 @@ type Props = {
   queryParams: IQueryParams;
 };
 
+type State = {
+  redirectType?: string;
+};
+
 type FinalProps = {} & Props & IRouterProps;
+class CustomerFormContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
 
-const CustomerFormContainer = (props: FinalProps) => {
-  const { history, closeModal } = props;
+    this.state = {
+      redirectType: undefined
+    };
+  }
 
-  const renderButton = ({
-    name,
-    values,
-    isSubmitted,
-    object,
-    disableLoading
-  }: IButtonMutateProps) => {
-    const callbackResponse = data => {
-      if (disableLoading) {
-        return history.push(
-          `/contacts/customers/details/${data.customersAdd._id}`
-        );
-      }
+  changeRedirectType = (redirectType: string) => {
+    this.setState({ redirectType });
+  };
 
-      return closeModal();
+  render() {
+    const { closeModal, history } = this.props;
+    const { redirectType } = this.state;
+
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      object
+    }: IButtonMutateProps) => {
+      const afterSave = data => {
+        closeModal();
+
+        if (redirectType === 'detail') {
+          return history.push(
+            `/contacts/customers/details/${data.customersAdd._id}`
+          );
+        }
+
+        const currentLocation = `${window.location.pathname}${
+          window.location.search
+        }`;
+
+        if (redirectType === 'new') {
+          history.push(`/contacts`);
+          history.replace(`${currentLocation}#showCustomerModal=true`);
+        }
+      };
+
+      return (
+        <ButtonMutate
+          mutation={object ? mutations.customersEdit : mutations.customersAdd}
+          variables={values}
+          callback={afterSave}
+          refetchQueries={getRefetchQueries()}
+          isSubmitted={isSubmitted}
+          disableLoading={redirectType ? true : false}
+          disabled={isSubmitted}
+          type="submit"
+          icon="user-check"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        />
+      );
     };
 
-    return (
-      <ButtonMutate
-        mutation={object ? mutations.customersEdit : mutations.customersAdd}
-        variables={values}
-        callback={callbackResponse}
-        refetchQueries={getRefetchQueries()}
-        isSubmitted={isSubmitted}
-        disableLoading={disableLoading}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${name}`}
-      />
-    );
-  };
+    const updatedProps = {
+      ...this.props,
+      changeRedirectType: this.changeRedirectType,
+      renderButton
+    };
 
-  const updatedProps = {
-    ...props,
-    renderButton
-  };
-
-  return <CustomerForm {...updatedProps} />;
-};
+    return <CustomerForm {...updatedProps} />;
+  }
+}
 
 const getRefetchQueries = () => {
   return [

@@ -140,12 +140,14 @@ class CustomersList extends React.Component<IProps, State> {
     if (this.timer) {
       clearTimeout(this.timer);
     }
+
     const { history } = this.props;
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
