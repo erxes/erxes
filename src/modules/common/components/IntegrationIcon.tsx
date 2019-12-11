@@ -17,7 +17,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
   justify-content: center;
   background: ${props =>
     (props.type === 'lead' && darken(colors.colorCoreYellow, 32)) ||
-    (props.type === 'messenger' && colors.colorCoreTeal) ||
+    (props.type === 'messenger' && colors.colorCoreBlue) ||
     (props.type === 'twitter-dm' && colors.socialTwitter) ||
     (props.type === 'facebook' && colors.socialFacebook) ||
     (props.type === 'facebook-messenger' && colors.socialFacebookMessenger) ||
