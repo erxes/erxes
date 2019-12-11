@@ -65,7 +65,7 @@ class ListRow extends React.Component<Props, State> {
   };
 
   onBlur = () => {
-    debounce(() => this.setState({ isEditing: false }), 200)();
+    debounce(() => this.setState({ isEditing: false }), 100)();
   };
 
   onCheckChange = e => {
