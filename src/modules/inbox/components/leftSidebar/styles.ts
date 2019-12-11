@@ -40,24 +40,18 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
 
     ${CheckBox} {
       width: 30px;
-      left: 0;
     }
   }
 
   ${CheckBox} {
     width: ${props => (props.isChecked ? '30px' : '0')};
-    left: ${props => props.isChecked && '0'};
-
+    margin: 0;
     overflow: hidden;
     transition: all ease 0.3s;
 
     > label {
       margin-top: 7px;
     }
-  }
-
-  > div {
-    margin: 0;
   }
 `;
 
