@@ -72,6 +72,7 @@ class List extends React.Component<Props, State> {
   removeClick = () => {
     const { remove, item } = this.props;
     remove(item._id);
+    localStorage.removeItem(item._id);
   };
 
   getUnsavedContent = (id: string) => {
@@ -233,10 +234,6 @@ class List extends React.Component<Props, State> {
 
     const cancel = () => {
       this.setState({ itemContent });
-
-      if (itemContent !== '') {
-        localStorage.setItem(this.props.item._id, itemContent);
-      }
     };
 
     if (isAddingItem) {
