@@ -232,7 +232,7 @@ class List extends React.Component<Props, State> {
     const { itemContent, isAddingItem } = this.state;
 
     const cancel = () => {
-      this.setState({ isAddingItem: false, itemContent });
+      this.setState({ itemContent });
 
       if (itemContent !== '') {
         localStorage.setItem(this.props.item._id, itemContent);
