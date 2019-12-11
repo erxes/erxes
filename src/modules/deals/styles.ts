@@ -42,6 +42,12 @@ const ContentRow = styled.div`
   display: flex;
 `;
 
+const ContentRowTitle = styled.div`
+  display: flex;
+  text-align: center;
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
 const ContentColumn = styled.div`
   flex: 1;
   margin-right: 10px;
@@ -129,6 +135,10 @@ const Divider = styled.div`
   }
 `;
 
+const WrongLess = styled.span`
+  color: red;
+`;
+
 export {
   ProductName,
   FormContainer,
@@ -139,8 +149,10 @@ export {
   ItemText,
   ProductItem,
   ContentRow,
+  ContentRowTitle,
   ContentColumn,
   TotalAmount,
   ProductButton,
-  Divider
+  Divider,
+  WrongLess
 };

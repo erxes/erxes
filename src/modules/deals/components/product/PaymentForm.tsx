@@ -6,7 +6,13 @@ import { selectConfigOptions } from 'modules/deals/utils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { PAYMENT_TYPES } from '../../constants';
-import { ContentColumn, ContentRow, Divider } from '../../styles';
+import {
+  ContentColumn,
+  ContentRow,
+  ContentRowTitle,
+  Divider,
+  WrongLess
+} from '../../styles';
 import { IPaymentsData } from '../../types';
 
 type Props = {
@@ -59,10 +65,17 @@ class PaymentForm extends React.Component<Props, State> {
     this.setState({ lessPay });
   }
 
+  renderAmount(amount) {
+    if (amount < 0) {
+      return <WrongLess>{amount.toLocaleString()}</WrongLess>;
+    }
+    return amount.toLocaleString();
+  }
+
   renderTotal(value) {
     return Object.keys(value).map(key => (
       <div key={key}>
-        {value[key].toLocaleString()} <b>{key}</b>
+        {this.renderAmount(value[key])} <b>{key}</b>
       </div>
     ));
   }
@@ -142,7 +155,7 @@ class PaymentForm extends React.Component<Props, State> {
                 : ''
             }
             type="number"
-            placeholder="0"
+            placeholder={__('Type amount')}
             name={type.name}
             onChange={onChange}
             onClick={onClick}
@@ -151,7 +164,7 @@ class PaymentForm extends React.Component<Props, State> {
         <ContentColumn>
           <Select
             name={type.name}
-            placeholder={__('Choose')}
+            placeholder={__('Choose currency')}
             value={
               paymentsData[type.name]
                 ? paymentsData[type.name].currency || 0
@@ -179,7 +192,7 @@ class PaymentForm extends React.Component<Props, State> {
 
     return (
       <>
-        <ContentRow>
+        <ContentRowTitle>
           <ContentColumn>
             <ControlLabel>Total</ControlLabel>
             {this.renderTotal(total)}
@@ -188,23 +201,8 @@ class PaymentForm extends React.Component<Props, State> {
             <ControlLabel>Change</ControlLabel>
             {this.renderTotal(this.state.lessPay)}
           </ContentColumn>
-        </ContentRow>
-        <ContentRow>
-          <ContentColumn>
-            <Divider />
-          </ContentColumn>
-        </ContentRow>
-        <ContentRow>
-          <ContentColumn>
-            <ControlLabel>Kinds</ControlLabel>
-          </ContentColumn>
-          <ContentColumn>
-            <ControlLabel>Values</ControlLabel>
-          </ContentColumn>
-          <ContentColumn>
-            <ControlLabel>Currency</ControlLabel>
-          </ContentColumn>
-        </ContentRow>
+        </ContentRowTitle>
+        <Divider />
         <ContentRow>
           <ContentColumn>{this.renderPayments()}</ContentColumn>
         </ContentRow>
