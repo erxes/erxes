@@ -6,10 +6,10 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
-import PaymentForm from '../../containers/product/PaymentForm';
-import ProductItemForm from '../../containers/product/ProductItemForm';
 import { Add, FooterInfo, FormContainer } from '../../styles';
 import { IPaymentsData, IProductData } from '../../types';
+import PaymentForm from './PaymentForm';
+import ProductItemForm from './ProductItemForm';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -20,6 +20,8 @@ type Props = {
   products: IProduct[];
   paymentsData?: IPaymentsData;
   closeModal: () => void;
+  uom: string[];
+  currencies: string[];
 };
 
 type State = {
@@ -130,6 +132,8 @@ class ProductForm extends React.Component<Props, State> {
         productsData={productsData}
         onChangeProductsData={onChangeProductsData}
         updateTotal={this.updateTotal}
+        uom={this.props.uom}
+        currencies={this.props.currencies}
       />
     ));
   }
@@ -174,6 +178,7 @@ class ProductForm extends React.Component<Props, State> {
           total={total}
           payments={this.props.paymentsData}
           onChangePaymentsData={onChangePaymentsData}
+          currencies={this.props.currencies}
         />
       );
     }
