@@ -1,3 +1,4 @@
+import debounce from 'lodash/debounce';
 import Button from 'modules/common/components/Button';
 import { Form, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
@@ -41,7 +42,7 @@ class List extends React.Component<Props, State> {
 
     this.state = {
       isEditingTitle: false,
-      isAddingItem: true,
+      isAddingItem: false,
       isHidden: false,
       itemContent: this.getUnsavedContent(props.item._id) || '',
       title,
@@ -56,15 +57,16 @@ class List extends React.Component<Props, State> {
   onFocus = event => event.target.select();
 
   onBlur = () => {
-    const { itemContent, isAddingItem } = this.state;
+    const { itemContent } = this.state;
 
     if (itemContent !== '') {
       localStorage.setItem(this.props.item._id, itemContent);
     }
 
-    setTimeout(() => {
-      this.setState({ isAddingItem: !isAddingItem });
-    }, 200);
+    debounce(
+      () => this.setState({ isAddingItem: !this.state.isAddingItem }),
+      100
+    )();
   };
 
   removeClick = () => {
@@ -93,18 +95,18 @@ class List extends React.Component<Props, State> {
       e.preventDefault();
 
       this.saveAddItem();
+      this.onBlur();
     }
   };
 
   saveAddItem = () => {
     const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
 
-    this.setState({ isAddingItem: false }, () => {
-      (content || []).map(text => this.props.addItem(text));
+    (content || []).map(text => this.props.addItem(text));
 
-      this.setState({ itemContent: '' });
-      localStorage.removeItem(this.props.item._id);
-    });
+    this.setState({ itemContent: '', isAddingItem: false }, () =>
+      localStorage.removeItem(this.props.item._id)
+    );
   };
 
   renderIsCheckedBtn = () => {

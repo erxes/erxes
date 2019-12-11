@@ -1,3 +1,4 @@
+import debounce from 'lodash/debounce';
 import Button from 'modules/common/components/Button';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
@@ -43,6 +44,8 @@ class ListRow extends React.Component<Props, State> {
     };
   }
 
+  onFocus = event => event.target.select();
+
   onClick = () => {
     this.setState({ isEditing: true, beforeContent: this.props.item.content });
   };
@@ -62,9 +65,7 @@ class ListRow extends React.Component<Props, State> {
   };
 
   onBlur = () => {
-    setTimeout(() => {
-      this.setState({ isEditing: false });
-    }, 200);
+    debounce(() => this.setState({ isEditing: false }), 200)();
   };
 
   onCheckChange = e => {
@@ -113,6 +114,7 @@ class ListRow extends React.Component<Props, State> {
             <FormControl
               componentClass="textarea"
               autoFocus={true}
+              onFocus={this.onFocus}
               onChange={onChangeContent}
               value={this.state.content}
               onKeyPress={this.onKeyPress}
