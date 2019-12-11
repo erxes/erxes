@@ -16,13 +16,15 @@ const ChecklistTitle = styled.div`
   justify-content: space-between;
   flex-flow: row wrap;
   width: 100%;
-  align-items: center;
+  align-items: baseline;
 
   > h5 {
     margin: 0;
     flex: 1;
     font-size: 13px;
-    line-height: 31px;
+    padding: 8px 0;
+    min-height: 31px;
+    word-break: break-word;
   }
 
   > form {
@@ -48,6 +50,7 @@ const Progress = styled.div`
     border-radius: 5px;
   }
 `;
+
 const ChecklistWrapper = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 
@@ -78,6 +81,7 @@ const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
   > label {
     width: 100%;
     cursor: pointer;
+    word-break: break-word;
   }
 `;
 

@@ -84,10 +84,6 @@ const NotifButton = styled.div`
   position: relative;
   transition: all 0.3s ease;
 
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-  }
-
   i {
     font-size: 18px;
   }
