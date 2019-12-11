@@ -511,7 +511,7 @@ Advanced steps to install scripts.
 
 #### Step 3: If you want to get user email, phone  and code automatically.  You can write under brand id in your code:
 
-<aside class="notice">
+```
 
 email: ”<Logged in user email>”,
 
@@ -519,8 +519,7 @@ phone: “<Logged in user phone>”,
 
 code:”<Arbitrary unique value>",
 
-
-</aside>
+```
 
 (see the below figure).
 
@@ -530,20 +529,19 @@ code:”<Arbitrary unique value>",
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/7.+Result+1.png />
 
-
+<p>
 <aside class="notice">
 
-+  Email, phone, and code fields are automatically filled out by user profile.
+Email, phone, and code fields are automatically filled out by user profile.
 
 </aside>
-
+</p>
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/8.+Result+2.png />
 
 #### Step 5: If you want to get firstname, lastname, bio automatically.  You can write under brand id in your code:
 
-<aside class="notice">
-
+```
 data :{
 
 firstName:”<Firstname>”,
@@ -553,9 +551,7 @@ lastName:”<LastName>”,
 bio:”<Bio>”,
 
 }
-
-</aside>
-
+```
 (see the below figure).
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/9.+Source+5.png />
@@ -566,11 +562,13 @@ bio:”<Bio>”,
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/10.+Result+3.png />
 
 
+<p>
 <aside class="notice">
 
-+  Firstname, Lastname, and bio fields are automatically filled out by user profile.
+ Firstname, Lastname, and bio fields are automatically filled out by user profile.
 
 </aside>
+</p>
 
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/11.+Result+4.png />
@@ -581,12 +579,12 @@ bio:”<Bio>”,
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/13.+Source+6.png />
 
 
+<p>
 <aside class="notice">
 
-+ These fields are displayed in the messenger data section on the right sidebar.
+ These fields are displayed in the messenger data section on the right sidebar.
 
 </aside>
+</p>
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
-
-
