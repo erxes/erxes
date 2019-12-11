@@ -17,15 +17,14 @@ import { IIntegration } from '../../../settings/integrations/types';
 import { IConversation } from '../../types';
 import {
   AssigneeImg,
-  AssigneeWrapper,
   CheckBox,
   CustomerName,
+  Exerpt,
   FlexContent,
   MainInfo,
   MessageContent,
   RowContent,
   RowItem,
-  SmallText,
   SmallTextOneLine
 } from './styles';
 
@@ -117,14 +116,16 @@ class ConversationItem extends React.Component<Props> {
             <MainInfo>
               {isExistingCustomer && (
                 <NameCard.Avatar
-                  size={40}
+                  size={36}
+                  letterCount={1}
                   customer={customer}
                   icon={<IntegrationIcon integration={integration} />}
                 />
               )}
               <FlexContent>
                 <CustomerName>
-                  {isExistingCustomer && renderFullName(customer)}
+                  <div>{isExistingCustomer && renderFullName(customer)}</div>
+                  <time>{dayjs(updatedAt || createdAt).fromNow(true)}</time>
                 </CustomerName>
 
                 <SmallTextOneLine>
@@ -135,33 +136,29 @@ class ConversationItem extends React.Component<Props> {
             </MainInfo>
 
             <MessageContent>
-              {this.showMessageContent(integration.kind, content || '')}
+              <Exerpt>
+                {this.showMessageContent(integration.kind, content || '')}
+              </Exerpt>
+              {assignedUser && (
+                <Tip
+                  key={assignedUser._id}
+                  placement="top"
+                  text={assignedUser.details && assignedUser.details.fullName}
+                >
+                  <AssigneeImg
+                    src={
+                      assignedUser.details &&
+                      (assignedUser.details.avatar
+                        ? assignedUser.details.avatar
+                        : '/images/avatar-colored.svg')
+                    }
+                  />
+                </Tip>
+              )}
             </MessageContent>
             <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>
-
-        <SmallText>
-          {dayjs(updatedAt || createdAt).fromNow()}
-
-          {assignedUser && (
-            <AssigneeWrapper>
-              <Tip
-                key={assignedUser._id}
-                placement="top"
-                text={assignedUser.details && assignedUser.details.fullName}
-              >
-                <AssigneeImg
-                  src={
-                    assignedUser.details
-                      ? assignedUser.details.avatar
-                      : '/images/avatar-colored.svg'
-                  }
-                />
-              </Tip>
-            </AssigneeWrapper>
-          )}
-        </SmallText>
       </RowItem>
     );
   }

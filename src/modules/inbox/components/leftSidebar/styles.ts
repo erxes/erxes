@@ -20,28 +20,37 @@ const ConversationItems = styled.ul`
 const CheckBox = styled.div`
   margin-top: ${dimensions.unitSpacing}px;
   margin-right: ${dimensions.unitSpacing}px;
+  position: absolute;
+  left: 0px;
 `;
 
 const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: row;
+  max-width: 100%;
   transition: all ease 0.3s;
+  position: relative;
+  padding-left: ${props => props.isChecked && '30px'};
 
   &:hover {
+    padding-left: 30px;
+
     ${CheckBox} {
       width: 30px;
+      left: 0;
     }
   }
 
   ${CheckBox} {
     width: ${props => (props.isChecked ? '30px' : '0')};
+    left: ${props => props.isChecked && '0'};
 
     overflow: hidden;
     transition: all ease 0.3s;
 
     > label {
-      margin-top: 10px;
+      margin-top: 7px;
     }
   }
 
@@ -52,18 +61,17 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
 
 const FlexContent = styled.div`
   flex: 1;
+  max-width: 100%;
   transition: all ease 0.3s;
 
   .tags {
-    margin-top: ${dimensions.unitSpacing - 3}px;
+    margin-top: 5px;
+    line-height: 1;
   }
 `;
 
 const MainInfo = styled.div`
   overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 
   > span {
     margin-right: ${dimensions.unitSpacing}px;
@@ -71,18 +79,27 @@ const MainInfo = styled.div`
 `;
 
 const CustomerName = styled.div`
-  word-break: break-all;
   overflow: hidden;
-  height: ${dimensions.coreSpacing}px;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+  display: flex;
+  align-items: center;
+
+  > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  time {
+    padding-left: 5px;
+    color: ${colors.colorCoreGray};
+    font-size: 12px;
+  }
 `;
 
 const SmallText = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  margin: 2px 0;
   min-height: ${dimensions.coreSpacing}px;
   display: flex;
   flex-direction: column;
@@ -99,14 +116,19 @@ const SmallTextOneLine = styled(SmallText)`
 `;
 
 const MessageContent = styled.div`
-  margin-top: ${dimensions.unitSpacing - 3}px;
-  word-break: break-word;
+  display: flex;
+  margin-top: 5px;
+
+  img {
+    margin-left: 5px;
+  }
+`;
+
+const Exerpt = styled.div`
+  flex: 1;
+  white-space: nowrap;
   overflow: hidden;
-  word-wrap: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  max-height: 18px;
+  text-overflow: ellipsis;
 `;
 
 const RowItem = styledTS<{
@@ -154,13 +176,9 @@ const RowItem = styledTS<{
 
 const AssigneeImg = styled.img`
   height: ${dimensions.coreSpacing}px;
+  width: ${dimensions.coreSpacing}px;
   line-height: ${dimensions.coreSpacing}px;
   border-radius: ${dimensions.coreSpacing / 2}px;
-`;
-
-const AssigneeWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
 `;
 
 const SidebarActions = styled.div`
@@ -265,8 +283,8 @@ export {
   SmallText,
   SmallTextOneLine,
   MessageContent,
+  Exerpt,
   AssigneeImg,
-  AssigneeWrapper,
   SidebarActions,
   AdditionalSidebar,
   GroupTitle,
