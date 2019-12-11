@@ -42,7 +42,7 @@ class List extends React.Component<Props, State> {
 
     this.state = {
       isEditingTitle: false,
-      isAddingItem: false,
+      isAddingItem: props.item.items.length === 0 ? true : false,
       isHidden: false,
       itemContent: this.getUnsavedContent(props.item._id) || '',
       title,
