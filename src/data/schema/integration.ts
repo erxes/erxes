@@ -158,9 +158,9 @@ export const mutations = `
     erxesApiId: String!
     subject: String!
     body: String
-    to: String!
-    cc: String
-    bcc: String
+    to: [String]!
+    cc: [String]
+    bcc: [String]
     from: String!
     headerId: String
     threadId: String

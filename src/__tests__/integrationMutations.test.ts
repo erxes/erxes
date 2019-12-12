@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, integrationFactory, userFactory } from '../db/factories';
-import { Brands, Integrations, Users } from '../db/models';
+import { brandFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
+import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
 
 import { IntegrationsAPI } from '../data/dataSources';
 import './setup.ts';
@@ -48,6 +48,8 @@ describe('mutations', () => {
     // Clearing test data
     await Users.deleteMany({});
     await Brands.deleteMany({});
+    await Customers.deleteMany({});
+    await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
   });
 
@@ -459,7 +461,9 @@ describe('mutations', () => {
       mutation integrationSendMail(
         $erxesApiId: String!
         $subject: String!
-        $to: String!
+        $to: [String]!
+        $cc: [String]
+        $bcc: [String]
         $from: String!
         $kind: String
       ) {
@@ -467,6 +471,8 @@ describe('mutations', () => {
           erxesApiId: $erxesApiId
           subject: $subject
           to: $to
+          cc: $cc
+          bcc: $bcc
           from: $from
           kind: $kind
         )
@@ -476,29 +482,31 @@ describe('mutations', () => {
     const args = {
       erxesApiId: 'erxesApiId',
       subject: 'Subject',
-      to: 'to',
+      to: ['user@mail.com'],
+      cc: ['cc'],
+      bcc: ['bcc'],
       from: 'from',
       kind: 'nylas-gmail',
     };
 
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
-    try {
-      await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBeDefined();
-    }
-
-    args.kind = 'facebook-post';
-    try {
-      await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBeDefined();
-    }
+    const customer = await customerFactory({ primaryEmail: args.to[0] });
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
 
     spy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
+
+    const emailDeliverie = await EmailDeliveries.findOne({ customerId: customer._id });
+
+    if (emailDeliverie) {
+      expect(JSON.stringify(emailDeliverie.to)).toEqual(JSON.stringify(args.to));
+      expect(customer._id).toEqual(emailDeliverie.customerId);
+    }
+
+    spy.mockRestore();
 
     try {
       await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
