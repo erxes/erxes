@@ -111,7 +111,7 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  onSubmit = (shouldResolve = false) => {
+  onSubmit = (e, shouldResolve = false) => {
     const {
       isReply,
       toAll,
