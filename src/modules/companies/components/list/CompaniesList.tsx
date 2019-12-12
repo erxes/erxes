@@ -77,6 +77,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     this.setState({ searchValue });
     this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };

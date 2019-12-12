@@ -48,6 +48,7 @@ const sidebarConversations = `
       status
       updatedAt
       idleTime
+      messageCount
       assignedUser {
         _id
         details {

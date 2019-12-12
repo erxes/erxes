@@ -27,6 +27,7 @@ const bgMain = '#EDF1F5';
 const bgDark = rgba(colorBlack, 0.95);
 const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
+const bgGray = '#e6e6e6';
 const bgUnread = '#F7F8FC';
 const bgInternal = '#FFFCCC';
 
@@ -50,7 +51,7 @@ const darkShadow = rgba(colorBlack, 0.2);
 const socialFacebook = '#3A5999';
 const socialFacebookMessenger = '#1472FB';
 const socialTwitter = '#1DA1F2';
-const socialGmail = '#C71610';
+const socialGmail = '#D44638';
 const socialGoogleMeet = '#038476';
 
 export default {
@@ -79,6 +80,7 @@ export default {
   bgActive,
   bgUnread,
   bgInternal,
+  bgGray,
 
   linkPrimary,
   linkPrimaryHover,

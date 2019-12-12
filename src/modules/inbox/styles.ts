@@ -26,14 +26,6 @@ const PopoverButton = styled.div`
     color: ${colors.colorCoreGray};
   }
 
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-
-    i {
-      transform: rotate(180deg);
-    }
-  }
-
   &:hover {
     cursor: pointer;
   }
@@ -324,6 +316,11 @@ const SmallEditor = styled.div`
       .public-DraftEditorPlaceholder-root {
         min-height: auto;
         padding: 0px 15px;
+      }
+
+      .public-DraftEditorPlaceholder-inner {
+        max-height: 20px;
+        overflow: hidden;
       }
     }
   }
