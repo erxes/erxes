@@ -24,7 +24,7 @@ type Props = {
   message: IMessage;
   isContentCollapsed: boolean;
   onToggleContent: () => void;
-  onToggleReply: () => void;
+  onToggleReply: (e, toAll?: boolean) => void;
 };
 
 type State = {
@@ -64,17 +64,26 @@ class MailHeader extends React.Component<Props, State> {
       return null;
     }
 
-    const onToggleReply = e => {
+    const onToggleReply = (e, toAll: boolean = false) => {
       e.stopPropagation();
-      this.props.onToggleReply();
+      this.props.onToggleReply(e, toAll);
     };
 
+    const onToggleReplyAll = e => onToggleReply(e, true);
+
     return (
-      <Tip text={__('Reply')} placement="bottom">
-        <ActionButton onClick={onToggleReply}>
-          <Icon icon="corner-up-left-alt" />
-        </ActionButton>
-      </Tip>
+      <>
+        <Tip text={__('Reply')} placement="bottom">
+          <ActionButton onClick={onToggleReply}>
+            <Icon icon="reply" size={12} />
+          </ActionButton>
+        </Tip>
+        <Tip text={__('Reply all')} placement="bottom">
+          <ActionButton onClick={onToggleReplyAll}>
+            <Icon icon="replyall" size={12} />
+          </ActionButton>
+        </Tip>
+      </>
     );
   };
 
@@ -153,9 +162,11 @@ class MailHeader extends React.Component<Props, State> {
   };
 
   renderSecondaryContent = mailData => {
-    if (this.props.isContentCollapsed) {
+    const { message, isContentCollapsed } = this.props;
+
+    if (isContentCollapsed) {
       // remove all tags and convert plain text
-      const plainContent = sanitizeHtml(this.props.message.content || '', {
+      const plainContent = sanitizeHtml(message.content || '', {
         allowedTags: [],
         allowedAttributes: {}
       }).trim();

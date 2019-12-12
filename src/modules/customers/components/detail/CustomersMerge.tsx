@@ -75,7 +75,7 @@ class CustomersMerge extends React.Component<Props, State> {
   ) => {
     const selectedValues = { ...this.state.selectedValues };
 
-    if (type === 'add') {
+    if (type === 'plus-1') {
       selectedValues[key] = value;
 
       if (key === 'links') {
@@ -214,14 +214,14 @@ class CustomersMerge extends React.Component<Props, State> {
       <form onSubmit={this.save}>
         <Columns>
           <Column className="multiple">
-            {this.renderCustomer(customer1, 'add')}
+            {this.renderCustomer(customer1, 'plus-1')}
           </Column>
 
           <Column className="multiple">
-            {this.renderCustomer(customer2, 'add')}
+            {this.renderCustomer(customer2, 'plus-1')}
           </Column>
 
-          <Column>{this.renderCustomer(selectedValues, 'minus-circle')}</Column>
+          <Column>{this.renderCustomer(selectedValues, 'times')}</Column>
         </Columns>
 
         <ModalFooter>

@@ -15,6 +15,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
   text-align: center;
   display: flex;
   justify-content: center;
+  line-height: ${props => (props.size ? `${props.size - 1}px` : '20px')};
   background: ${props =>
     (props.type === 'lead' && darken(colors.colorCoreYellow, 32)) ||
     (props.type === 'messenger' && colors.colorCoreBlue) ||
@@ -27,8 +28,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
 
   i {
     color: ${colors.colorWhite};
-    font-size: ${props => (props.size ? '18px' : '11px')};
-    line-height: ${props => (props.size ? '38px' : '20px')};
+    font-size: ${props => (props.size ? `${props.size / 2}px` : '11px')};
   }
 
   img {

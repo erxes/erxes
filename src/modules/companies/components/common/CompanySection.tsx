@@ -91,7 +91,7 @@ function Component(
       {items.map((company, index) => (
         <SectionBodyItem key={index}>
           <Link to={`/contacts/companies/details/${company._id}`}>
-            <Icon icon="logout-2" />
+            <Icon icon="arrow-to-right" />
           </Link>
           <span>{company.primaryName || 'Unknown'}</span>
           <Tip text={company.website || ''}>

@@ -27,7 +27,7 @@ type FinalProps = Props &
   IRouterProps;
 
 const ActionSectionContainer = (props: FinalProps) => {
-  const { customer, customersRemove, customersMerge, history } = props;
+  const { isSmall, customer, customersRemove, customersMerge, history } = props;
 
   const { _id } = customer;
 
@@ -82,10 +82,12 @@ const ActionSectionContainer = (props: FinalProps) => {
   };
 
   const updatedProps = {
-    ...props,
+    isSmall,
+    coc: customer,
+    cocType: 'customer',
     remove,
     merge,
-    searchCustomer
+    search: searchCustomer
   };
 
   return <ActionSection {...updatedProps} />;
