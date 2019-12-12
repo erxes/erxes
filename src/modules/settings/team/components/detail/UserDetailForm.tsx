@@ -1,21 +1,9 @@
-import dayjs from 'dayjs';
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
-import {
-  ActivityDate,
-  ActivityRow,
-  AvatarWrapper,
-  FlexBody,
-  FlexCenterContent
-} from 'modules/activityLogs/styles';
 import { IUser } from 'modules/auth/types';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tip from 'modules/common/components/Tip';
-import { renderFullName } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IChannel } from 'modules/settings/channels/types';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';
 
@@ -33,45 +21,6 @@ class UserDetails extends React.Component<Props> {
   onTabClick = currentTab => {
     this.setState({ currentTab });
   };
-
-  renderConversation(conversation, user) {
-    const details = user.details || {};
-
-    return (
-      <ActivityRow key={conversation._id}>
-        <React.Fragment>
-          <FlexCenterContent>
-            <AvatarWrapper>
-              <NameCard.Avatar user={user} size={50} />
-            </AvatarWrapper>
-
-            <FlexBody>
-              <div>
-                {details.fullName} participated in a
-                <Link to={`/inbox?_id=${conversation._id}`}>
-                  <strong> conversation </strong>
-                </Link>
-                with{' '}
-                <Link
-                  to={`/contacts/customers/details/${
-                    conversation.customer._id
-                  }`}
-                >
-                  <strong>{renderFullName(conversation.customer)}</strong>
-                </Link>
-              </div>
-            </FlexBody>
-
-            <Tip text={dayjs(conversation.createdAt).format('lll')}>
-              <ActivityDate>
-                {dayjs(conversation.createdAt).fromNow()}
-              </ActivityDate>
-            </Tip>
-          </FlexCenterContent>
-        </React.Fragment>
-      </ActivityRow>
-    );
-  }
 
   render() {
     const { user, channels, renderEditForm } = this.props;
