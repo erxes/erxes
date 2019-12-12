@@ -19,6 +19,7 @@ export type CommonProps = {
   clearState: () => void;
   limit?: number;
   add?: any;
+  newItemId?: string;
   closeModal: () => void;
 };
 
@@ -58,9 +59,15 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(newProps) {
-    const { datas, perPage } = newProps;
+    const { datas, perPage, newItemId } = newProps;
 
     this.setState({ loadmore: datas.length === perPage && datas.length > 0 });
+
+    if (newItemId) {
+      const items = datas.filter(item => item._id === newItemId);
+
+      items.map(data => this.setState({ datas: [...this.state.datas, data] }));
+    }
   }
 
   handleChange = (type, data) => {
