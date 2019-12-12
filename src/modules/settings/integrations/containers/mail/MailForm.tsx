@@ -23,7 +23,8 @@ type Props = {
   fromEmail?: string;
   mailData?: IMail;
   isReply?: boolean;
-  toggleReply?: () => void;
+  toAll?: boolean;
+  toggleReply?: (toAll?: boolean) => void;
   closeModal?: () => void;
   closeReply?: () => void;
 };
@@ -40,6 +41,7 @@ const MailFormContainer = (props: FinalProps) => {
     integrationsQuery,
     fromEmail,
     conversationId,
+    toAll,
     isReply,
     toggleReply,
     closeModal,
@@ -154,6 +156,7 @@ const MailFormContainer = (props: FinalProps) => {
     integrationId,
     fromEmail,
     closeModal,
+    toAll,
     isReply,
     toggleReply,
     mailData
