@@ -115,7 +115,8 @@ const MailFormContainer = (props: FinalProps) => {
         body: variables.body,
         subject: variables.subject,
         attachments: variables.attachments,
-        integrationEmail: variables.from
+        integrationEmail: variables.from,
+        shouldResolve: false
       }
     };
 

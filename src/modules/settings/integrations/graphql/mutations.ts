@@ -24,6 +24,7 @@ const mailParamsDef = `
   $cc: [String],
   $bcc: [String] ,
   $from: String!,
+  $shouldResolve: Boolean,
   $attachments: [JSON],
 `;
 
@@ -41,6 +42,7 @@ const mailParams = `
   cc: $cc,
   bcc: $bcc,
   from: $from,
+  shouldResolve: $shouldResolve,
   attachments: $attachments,
 `;
 

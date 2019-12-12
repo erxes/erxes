@@ -1,3 +1,4 @@
+import { ButtonGroup } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
@@ -110,7 +111,7 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  onSubmit = () => {
+  onSubmit = (shouldResolve = false) => {
     const {
       isReply,
       toAll,
@@ -148,7 +149,8 @@ class MailForm extends React.Component<Props, State> {
       attachments,
       kind,
       body: content,
-      erxesApiId: from
+      erxesApiId: from,
+      shouldResolve
     };
 
     return sendMail({
@@ -492,8 +494,25 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
+  renderSubmit(label, onClick) {
+    const { isLoading } = this.state;
+
+    return (
+      <Button
+        onClick={onClick}
+        btnStyle="success"
+        size="small"
+        icon={isLoading ? undefined : 'message'}
+        disabled={isLoading}
+      >
+        {isLoading && <SmallLoader />}
+        {label}
+      </Button>
+    );
+  }
+
   renderButtons() {
-    const { isLoading, kind } = this.state;
+    const { kind } = this.state;
     const { toggleReply } = this.props;
 
     const inputProps = {
@@ -503,6 +522,8 @@ class MailForm extends React.Component<Props, State> {
         ? this.onAttachment
         : this.handleFileInput
     };
+
+    const onSubmitResolve = () => this.onSubmit(true);
 
     return (
       <EditorFooter>
@@ -525,16 +546,10 @@ class MailForm extends React.Component<Props, State> {
               <span>Uploading...</span>
             </Uploading>
           ) : (
-            <Button
-              onClick={this.onSubmit}
-              btnStyle="success"
-              size="small"
-              icon={isLoading ? undefined : 'message'}
-              disabled={isLoading}
-            >
-              {isLoading && <SmallLoader />}
-              Send
-            </Button>
+            <ButtonGroup>
+              {this.renderSubmit('Send', this.onSubmit)}
+              {this.renderSubmit('Send and Resolve', onSubmitResolve)}
+            </ButtonGroup>
           )}
         </SpaceBetweenRow>
       </EditorFooter>
