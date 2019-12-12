@@ -10,10 +10,8 @@ import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICustomer } from 'modules/customers/types';
 import { IConversation } from '../../../types';
 
-const ActionSection = asyncComponent(
-  () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection'),
-  { height: '25px', width: '80px' }
+const ActionSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection')
 );
 
 const CustomFieldsSection = asyncComponent(
