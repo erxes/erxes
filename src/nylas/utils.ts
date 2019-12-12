@@ -30,13 +30,12 @@ const checkCredentials = () => {
  * @param {String} emailStr - user1@mail.com, user2mail.com
  * @returns {Object} - [{ email }]
  */
-const buildEmailAddress = (emailStr: string) => {
-  if (!emailStr) {
+const buildEmailAddress = (emailStr: string[]) => {
+  if (!emailStr || emailStr.length === 0) {
     return;
   }
 
   return emailStr
-    .split(',')
     .map(email => {
       if (email.length > 0) {
         return { email };

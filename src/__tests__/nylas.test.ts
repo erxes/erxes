@@ -304,12 +304,13 @@ describe('Nylas gmail test', () => {
   });
 
   test('Update account', async () => {
-    await updateAccount(accountId, 'askljdklwj', 'qwejoiqwej');
+    await updateAccount(accountId, 'askljdklwj', 'qwejoiqwej', 'paid');
 
     const account = await Accounts.findOne({ _id: accountId });
 
     expect(account.uid).toEqual('askljdklwj');
     expect(account.nylasToken).toEqual('qwejoiqwej');
+    expect(account.billingState).toEqual('paid');
   });
 
   test('Create a webhook', async () => {
@@ -410,10 +411,10 @@ describe('Nylas gmail test', () => {
 
 describe('Utils test', () => {
   test('Convert string to email obj', () => {
-    const rawString = 'user1@mail.com,user2@mail.com';
+    const stringArr = ['user1@mail.com', 'user2@mail.com'];
 
-    const isUndefined = buildEmailAddress('');
-    const emailObj = buildEmailAddress(rawString);
+    const isUndefined = buildEmailAddress([]);
+    const emailObj = buildEmailAddress(stringArr);
 
     expect(isUndefined).toBe(undefined);
     expect(emailObj).toEqual([{ email: 'user1@mail.com' }, { email: 'user2@mail.com' }]);
