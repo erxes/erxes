@@ -15,6 +15,7 @@ import { IIntegration } from '../../types';
 import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
+  _id?: string;
   integration: IIntegration;
   archive: (id: string) => void;
   removeIntegration: (integration: IIntegration) => void;
@@ -108,6 +109,7 @@ class IntegrationListItem extends React.Component<Props> {
           </Tip>
 
           <ModalTrigger
+            isOpen={this.props._id === integration._id}
             title="Install code"
             size="lg"
             trigger={editTrigger}
