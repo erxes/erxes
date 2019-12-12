@@ -162,6 +162,7 @@ export const mutations = `
     cc: [String]
     bcc: [String]
     from: String!
+    shouldResolve: Boolean
     headerId: String
     threadId: String
     messageId: String
