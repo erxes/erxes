@@ -18,7 +18,7 @@ Your Erxes teams can be accessed on iOS mobile devices by downloading the Erxes 
 ---
 
 ## Android Setup
-Your Mattermost teams can be accessed on Android mobile devices by downloading the Mattermost App.
+Your Erxes teams can be accessed on Android mobile devices by downloading the Erxes App.
 
 1. Open the [Google Play Store](https://play.google.com/store/apps/details?id=io.erxes.erxes_android) on your Android device running Android 5.0 or later.
 2. Search for "Erxes" and click INSTALL to download the App for free.
