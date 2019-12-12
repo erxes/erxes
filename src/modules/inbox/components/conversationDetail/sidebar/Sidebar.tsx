@@ -163,6 +163,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           }
           size="lg"
           content={content}
+          enforceFocus={false}
           paddingContent="no-padding"
         />
         <Button

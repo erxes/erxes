@@ -63,6 +63,7 @@ type Props = {
   size?: number;
   icon?: React.ReactNode;
   hasAvatar?: boolean;
+  letterCount?: number;
 };
 
 function Element({
@@ -118,12 +119,12 @@ class Avatar extends React.Component<Props> {
   }
 
   renderInitials(fullName) {
-    const { size } = this.props;
+    const { size, letterCount = 2 } = this.props;
 
     const initials = fullName ? (
       fullName
         .split(' ')
-        .slice(0, 2)
+        .slice(0, letterCount)
         .map(s => s.charAt(0))
         .join('.')
         .toUpperCase()
