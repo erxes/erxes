@@ -72,7 +72,7 @@ class CompaniesMerge extends React.Component<Props, State> {
   handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
 
-    if (type === 'add') {
+    if (type === 'plus-1') {
       selectedValues[key] = value;
 
       if (key === 'links') {
@@ -196,14 +196,14 @@ class CompaniesMerge extends React.Component<Props, State> {
       <form onSubmit={this.save}>
         <Columns>
           <Column className="multiple">
-            {this.renderCompany(company1, 'add')}
+            {this.renderCompany(company1, 'plus-1')}
           </Column>
 
           <Column className="multiple">
-            {this.renderCompany(company2, 'add')}
+            {this.renderCompany(company2, 'plus-1')}
           </Column>
 
-          <Column>{this.renderCompany(selectedValues, 'minus-circle')}</Column>
+          <Column>{this.renderCompany(selectedValues, 'times')}</Column>
         </Columns>
 
         <ModalFooter>

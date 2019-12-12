@@ -25,56 +25,6 @@ type Props = {
 };
 
 class IntegrationListItem extends React.Component<Props> {
-  getTypeName(integration) {
-    const kind = integration.kind;
-
-    if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      return 'facebook messenger';
-    }
-
-    if (kind === KIND_CHOICES.FACEBOOK_POST) {
-      return 'facebook post';
-    }
-
-    if (kind === KIND_CHOICES.GMAIL || kind === KIND_CHOICES.NYLAS_GMAIL) {
-      return 'gmail';
-    }
-
-    if (kind === KIND_CHOICES.LEAD) {
-      return 'lead';
-    }
-
-    if (kind === KIND_CHOICES.CALLPRO) {
-      return 'callpro';
-    }
-
-    if (kind === KIND_CHOICES.CHATFUEL) {
-      return 'chatfuel';
-    }
-
-    if (kind === KIND_CHOICES.TWITTER_DM) {
-      return 'twitter';
-    }
-
-    if (kind === KIND_CHOICES.NYLAS_IMAP) {
-      return 'imap';
-    }
-
-    if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
-      return 'office365';
-    }
-
-    if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
-      return 'outlook';
-    }
-
-    if (kind === KIND_CHOICES.NYLAS_YAHOO) {
-      return 'yahoo';
-    }
-
-    return 'default';
-  }
-
   renderArchiveAction() {
     const { archive, integration } = this.props;
 
@@ -190,13 +140,14 @@ class IntegrationListItem extends React.Component<Props> {
 
   render() {
     const { integration } = this.props;
+    const integrationKind = cleanIntegrationKind(integration.kind);
 
     return (
       <tr key={integration._id}>
         <td>{integration.name}</td>
         <td>
-          <Label className={`label-${this.getTypeName(integration)}`}>
-            {cleanIntegrationKind(integration.kind)}
+          <Label className={`label-${integrationKind}`}>
+            {integrationKind}
           </Label>
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
