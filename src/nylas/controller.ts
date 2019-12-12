@@ -4,6 +4,7 @@ import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
+import { sendRequest } from '../utils';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
 import {
   connectImapToNylas,
@@ -213,7 +214,7 @@ const init = async app => {
     }
 
     try {
-      const { to, cc, bcc, body, threadId, subject, attachments, replyToMessageId } = params;
+      const { shouldResolve, to, cc, bcc, body, threadId, subject, attachments, replyToMessageId } = params;
 
       const doc = {
         to: buildEmailAddress(to),
@@ -226,15 +227,32 @@ const init = async app => {
         replyToMessageId,
       };
 
-      await sendMessage(account.nylasToken, doc);
+      const message = await sendMessage(account.nylasToken, doc);
+
+      debugNylas('Successfully sent message');
+
+      if (shouldResolve) {
+        debugNylas('Resolve this message ======');
+
+        return res.json({ status: 'ok' });
+      }
+
+      // Set mail to inbox
+      await sendRequest({
+        url: `https://api.nylas.com/messages/${message.id}`,
+        method: 'PUT',
+        headerParams: {
+          Authorization: `Basic ${Buffer.from(`${account.nylasToken}:`).toString('base64')}`,
+        },
+        body: { unread: true },
+      });
+
+      return res.json({ status: 'ok' });
     } catch (e) {
-      debugNylas('Failed to send message');
+      debugNylas(`Failed to send message: ${e}`);
+
       return next(e);
     }
-
-    debugNylas('Successfully sent message');
-
-    return res.json({ status: 'ok' });
   });
 };
 
