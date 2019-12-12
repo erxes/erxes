@@ -56,12 +56,12 @@ class ChannelStep extends React.Component<Props> {
       <FullContent center={true}>
         {this.renderBox(
           METHODS.EMAIL,
-          'email-1',
+          'envelope-edit',
           `Delivered to a user's email inbox Customize with your own templates`
         )}
         {this.renderBox(
           METHODS.MESSENGER,
-          'chat',
+          'comment-edit',
           'Delivered inside your app Reach active users'
         )}
       </FullContent>

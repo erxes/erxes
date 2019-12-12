@@ -97,7 +97,7 @@ class Attachment extends React.Component<Props> {
             href={readFile(attachment.url)}
             target="_blank"
           >
-            <Icon icon="download-1" />
+            <Icon icon="down-arrow" />
           </Download>
         </h5>
         <Meta>
