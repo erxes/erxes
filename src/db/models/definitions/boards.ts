@@ -114,11 +114,7 @@ const commonFieldsSchema = {
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'Created by' }),
-  createdAt: field({
-    type: Date,
-    default: new Date(),
-    label: 'Created at',
-  }),
+  createdAt: field({ type: Date, label: 'Created at' }),
   order: field({ type: Number, label: 'Order' }),
   name: field({ type: String, label: 'Name' }),
   closeDate: field({ type: Date, label: 'Close date' }),

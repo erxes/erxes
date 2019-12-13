@@ -35,6 +35,7 @@ export const loadDealClass = () => {
       const deal = await Deals.create({
         ...doc,
         order: dealsCount,
+        createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),
       });

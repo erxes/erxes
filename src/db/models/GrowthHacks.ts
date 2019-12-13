@@ -36,6 +36,7 @@ export const loadGrowthHackClass = () => {
       const growthHack = await GrowthHacks.create({
         ...doc,
         order: growthHacksCount,
+        createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),
       });
