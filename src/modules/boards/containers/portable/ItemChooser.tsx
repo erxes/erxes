@@ -74,6 +74,7 @@ class ItemChooserContainer extends React.Component<
       renderForm: formProps => (
         <AddForm
           {...formProps}
+          refetch={itemsQuery.refetch}
           options={data.options}
           boardId={this.props.boardId}
           pipelineId={this.props.pipelineId}
