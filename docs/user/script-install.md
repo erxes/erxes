@@ -588,3 +588,311 @@ bio:”<Bio>”,
 </p>
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
+
+## Advanced quick installation
+In the advanced quick installation is described combination of the following features.
+
++ Messenger + Pop-Ups
++ Messenger + Knowledgebase
++ Messenger + Pop-Ups + Knowledgebase (M+P+K) 
++ (M+P+K) + Pop-Ups 
++ (M+P+K) + Knowledgebase
++ (M+P+K) + Pop-Ups + Knowledgebase
+
+### Web messenger + Pop-Ups
+
+#### Step 1: Copy messenger code
+
+1. Go to Settings menu => Appstore. 
+2. You need to make sure the brand name that you created messenger (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/1.png" />
+
+3. Click the Add button of Pop-Ups in order to connect the messenger. 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/2.png" />
+
+4. Add Pop Ups (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/3.png" />
+
+5. Make sure MESSENGER INTEGRATION brand name is same as your created messenger (see the above figure section A and below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/4.png" />
+
+6. Make sure POP UPS brand name is same as your created Pop-Ups (see the above figure section B).  
+
+7. Go to Messenger and click on the install code button from the right side (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/5.png" />
+
+8. Copy the code (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/6.png" />
+
+9. If your website is single page app then you can choose a single-page app and copy the code (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/7.png" />
+
+#### Step 2:  Paste the code in your web source 
+
+10. Paste the code in the bottom of the body tag (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/8.png" />
+
+#### Step 3: Result 
+
+11. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/9.png" />
+
+### Web messenger + Knowledgebase
+
+#### Step 1: Copy messenger code
+
+1. Go to Settings menu => Appstore. 
+2. You need to make sure the brand name that you created messenger (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/1.png" />
+
+3. Click the Add button of Knowledge Base in order to connect the messenger.  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/10.png" />
+
+4. Add knowledge base (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/11.png" />
+
+5. Make sure MESSENGER INTEGRATION brand name is same as your created messenger (see the above figure section A and below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.png" />
+
+6. Go to Messenger and click on the install code button from the right side (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/5.png" />
+
+7. Copy the code (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/6.png" />
+
+8. If your website is single page app then you can choose a single-page app and copy the code (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/7.png" />
+
+
+#### Step 2:  Paste the code in your web source 
+
+9. Paste the code in the bottom of the body tag (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/13.png" />
+
+#### Step 3: Result 
+
+11. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/14.png" />
+
+### Web messenger + Pop-Ups + Knowledgebase (M+P+K)
+
+This is the install instruction of messenger based popup and knowledgebase combination (M+P+K). Next following combinations are expanded to this combination which refers to (M+P+K) + Pop-Ups, (M+P+K)+Knowledgebase and (M+P+K)+Knowledgebase+Pop-Ups. 
+
+#### Step 1: Copy messenger code
+
+1. Go to Settings menu => Appstore. 
+2. You need to make sure the brand name that you created messenger (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/1.png" />
+
+3. Click the Add button of Knowledge Base in order to connect the messenger.  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/10.png" />
+
+4. Add knowledge base (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/11.png" />
+
+5. Make sure MESSENGER INTEGRATION brand name is same as your created messenger (see the above figure section A and below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.png" />
+
+6. Then you need to connect Pop-Ups. Click the add button of Pop Ups.  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/2.png" />
+
+7. Add Pop Ups (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/3.png" />
+
+8. Make sure MESSENGER INTEGRATION brand name is same as your created messenger (see the above figure section A and below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/4.png" />
+
+9. Make sure POP UPS brand name is same as your created Pop-Ups (see the above figure section B).  
+
+10. Go to Messenger and click on the install code button from the right side (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/5.png" />
+
+11. Copy the code (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/6.png" />
+
+12. If your website is single page app then you can choose a single-page app and copy the code (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/7.png" />
+
+#### Step 2:  Paste the code in your web source 
+
+13. Paste the code in the bottom of the body tag (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/13.png" />
+
+#### Step 3: Result 
+
+11. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/14.png" />
+
+### (M + P + K) + Pop-Ups
+
+#### Step 1: Copy messenger code
+
+1. In this combination, first you need to follow the instruction of (M+P+K). Click to the link and check reference. 
+
+  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#(M+P+K))
+
+2. Go to Pop-Ups menu from left sidebar (see the below figure).
+3. Click on the install code button from the right side (see the below figure). 
+ 
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/15.png" />
+
+4. Copy the code (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/16.png" />
+
+<aside class="notice">
+
++ When you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Insert code section A and B onto the top of body tag in page of your website.
+
++ If your pop-up flow type is "Embedded", then you can choose the code included in section “A” (see the above figure).
+
++ If your pop-up flow type is "Popup" then you can choose the code section “B” (see the above figure).
+
++ ShoutBox, Dropdown, Slide-in Left, Slide-in Right types are, do not necessary to copy install code.
+
+</aside>
+
+#### Step 2:  Paste the code in your web source 
+
+5. Paste the code in the bottom of the body tag (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/17.png" />
+
+#### Step 3: Result 
+
+6. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/18.png" />
+
+### (M + P + K) + Knowledgebase
+
+#### Step 1: Copy messenger code
+
+1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
+
+  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#(M+P+K))
+
+2. Go to Knowledge Base menu from left sidebar (see the below figure). 
+ 
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/19.png" />
+
+3. Then choose the option that named "Manage Knowledgebase" from the dropdown menu (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/20.png" />
+
+4. Copy the code (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/21.png" />
+
+<aside class="notice">
+
++ Do not miss to copy the additional source of section “B” and copy it into top of body tag of the source code.
+
+</aside>
+
+#### Step 2:  Paste the code in your web source 
+
+5. Paste the code in the bottom of the body tag (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/22.png" />
+
+#### Step 3: Result 
+
+6. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/23.png" />
+
+### (M + P + K) + Pop-Ups + Knowledgebase
+
+#### Step 1: Copy messenger code
+
+1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
+
+  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#(M+P+K))
+
+2. Go to Pop-Ups menu from left sidebar (see the below figure).
+3. Click on the install code button from the right side (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/15.png" />
+
+4. Copy the code (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/16.png" />
+
+<aside class="notice">
+
+When you want to set an optional width and height of Popup scaling, it allows 2 flow types namely embedded and pop-ups. Insert code section A and B onto the top of body tag in page of your website.
++ If your pop-up flow type is "Embedded", then you can choose the code included in section “A” (see the above figure).
++ If your pop-up flow type is "Popup" then you can choose the code section “B” (see the above figure).
++ ShoutBox, Dropdown, Slide-in Left, Slide-in Right types are, do not necessary to copy install code.
+
+</aside>
+
+#### Step 2:  Paste the code in your web source 
+
+5. Paste the code in the bottom of the body tag (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/17.png" />
+
+#### Step 3: Copy the code of Knowledgebase
+
+5. Go to Knowledge Base menu from left sidebar (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/19.png" />
+
+6. Then choose the option that named "Manage Knowledgebase" from the dropdown menu (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/20.png" />
+
+7. Copy the code (see the below figure).  
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/21.png" />
+
+<aside class="notice">
+
+Do not miss to copy the additional source of section “B” and copy it into top of body tag of the source code.
+
+</aside>
+
+#### Step 4:  Paste the code in your web source 
+
+8. Paste the code in the bottom of the body tag (see the below figure). 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/24.png" />
+
+#### Step 3: Result 
+
+9. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/25.png" />
+
