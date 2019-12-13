@@ -5,7 +5,7 @@ import Icon from 'modules/common/components/Icon';
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, isEmptyContent } from 'modules/common/utils';
 import React from 'react';
 import Item from '../containers/Item';
 import {
@@ -32,7 +32,6 @@ type State = {
   isAddingItem: boolean;
   itemContent: string;
   isHidden: boolean;
-  isCancel: boolean;
 };
 
 class List extends React.Component<Props, State> {
@@ -45,7 +44,6 @@ class List extends React.Component<Props, State> {
       isEditingTitle: false,
       isAddingItem: props.item.items.length === 0 ? true : false,
       isHidden: false,
-      isCancel: false,
       itemContent: this.getUnsavedContent(props.item._id) || '',
       title,
       beforeTitle: title
@@ -58,23 +56,26 @@ class List extends React.Component<Props, State> {
 
   onFocus = event => event.target.select();
 
-  onBlur = () => {
-    if (this.isEmptyContent()) {
-      return;
-    }
-
+  onCancel = (toggle?: boolean) => {
     const { itemContent } = this.state;
 
-    if (itemContent !== '') {
-      localStorage.setItem(this.props.item._id, itemContent);
-    }
+    localStorage.setItem(this.props.item._id, itemContent);
 
     debounce(
       () =>
-        !this.state.isCancel &&
-        this.setState({ isAddingItem: !this.state.isAddingItem }),
+        this.setState({
+          isAddingItem: toggle ? !this.state.isAddingItem : false
+        }),
       100
     )();
+  };
+
+  onBlur = () => {
+    if (isEmptyContent(this.state.itemContent)) {
+      return;
+    }
+
+    this.onCancel(true);
   };
 
   removeClick = () => {
@@ -98,10 +99,6 @@ class List extends React.Component<Props, State> {
     this.saveAddItem();
   };
 
-  isEmptyContent = () => {
-    return !/\S/.test(this.state.itemContent);
-  };
-
   onKeyPressAddItem = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -113,7 +110,7 @@ class List extends React.Component<Props, State> {
 
   saveAddItem = () => {
     // check if a string contains whitespace or empty
-    if (this.isEmptyContent()) {
+    if (isEmptyContent(this.state.itemContent)) {
       return;
     }
 
@@ -248,10 +245,6 @@ class List extends React.Component<Props, State> {
   renderAddInput() {
     const { isAddingItem } = this.state;
 
-    const cancel = () => {
-      this.setState({ isCancel: true, isAddingItem: false });
-    };
-
     if (isAddingItem) {
       return (
         <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
@@ -275,7 +268,7 @@ class List extends React.Component<Props, State> {
             <Button
               btnStyle="simple"
               size="small"
-              onClick={cancel}
+              onClick={this.onCancel.bind(this, false)}
               icon="times"
             />
           </FormControlWrapper>
