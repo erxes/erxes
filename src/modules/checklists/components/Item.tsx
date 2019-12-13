@@ -65,6 +65,10 @@ class ListRow extends React.Component<Props, State> {
   };
 
   onBlur = () => {
+    if (this.isEmptyContent()) {
+      return;
+    }
+
     debounce(() => this.setState({ isEditing: false }), 100)();
   };
 
@@ -80,7 +84,15 @@ class ListRow extends React.Component<Props, State> {
     });
   };
 
+  isEmptyContent = () => {
+    return !/\S/.test(this.state.content);
+  };
+
   handleSave = () => {
+    if (this.isEmptyContent()) {
+      return;
+    }
+
     const { content, isChecked } = this.state;
 
     this.setState({ disabled: true });
