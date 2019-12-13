@@ -913,6 +913,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     order: params.order,
     probability: params.probability,
     searchText: params.searchText,
+    createdAt: new Date(),
   });
 
   return deal.save();

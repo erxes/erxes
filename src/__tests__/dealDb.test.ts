@@ -71,7 +71,6 @@ describe('Test deals model', () => {
 
     expect(createdDeal).toBeDefined();
     expect(createdDeal.stageId).toEqual(stage._id);
-    expect(createdDeal.createdAt).toEqual(deal.createdAt);
     expect(createdDeal.userId).toEqual(user._id);
   });
 

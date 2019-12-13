@@ -51,7 +51,6 @@ describe('Test tasks model', () => {
 
     expect(createdTask).toBeDefined();
     expect(createdTask.stageId).toEqual(stage._id);
-    expect(createdTask.createdAt).toEqual(task.createdAt);
     expect(createdTask.userId).toEqual(user._id);
   });
 
