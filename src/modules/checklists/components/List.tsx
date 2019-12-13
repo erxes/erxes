@@ -32,6 +32,7 @@ type State = {
   isAddingItem: boolean;
   itemContent: string;
   isHidden: boolean;
+  isCancel: boolean;
 };
 
 class List extends React.Component<Props, State> {
@@ -44,6 +45,7 @@ class List extends React.Component<Props, State> {
       isEditingTitle: false,
       isAddingItem: props.item.items.length === 0 ? true : false,
       isHidden: false,
+      isCancel: false,
       itemContent: this.getUnsavedContent(props.item._id) || '',
       title,
       beforeTitle: title
@@ -68,7 +70,9 @@ class List extends React.Component<Props, State> {
     }
 
     debounce(
-      () => this.setState({ isAddingItem: !this.state.isAddingItem }),
+      () =>
+        !this.state.isCancel &&
+        this.setState({ isAddingItem: !this.state.isAddingItem }),
       100
     )();
   };
@@ -242,10 +246,10 @@ class List extends React.Component<Props, State> {
   }
 
   renderAddInput() {
-    const { isAddingItem, itemContent } = this.state;
+    const { isAddingItem } = this.state;
 
     const cancel = () => {
-      this.setState({ itemContent });
+      this.setState({ isCancel: true, isAddingItem: false });
     };
 
     if (isAddingItem) {
