@@ -9,7 +9,12 @@ import { ILog, ILogDesc } from '../types';
 import { flattenObject, isObjectEmpty } from '../utils';
 
 // field names used to show properly formatted date values
-const DATE_FIELD_NAMES = ['createdAt', 'createdDate'];
+const DATE_FIELD_NAMES = [
+  'createdAt',
+  'createdDate',
+  'modifiedAt',
+  'lastSeenAt'
+];
 
 type Props = {
   log: ILog;
