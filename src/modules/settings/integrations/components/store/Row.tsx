@@ -35,9 +35,13 @@ class Row extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const {
+      queryParams: { kind }
+    } = props;
+
     this.state = {
-      isContentVisible: false,
-      kind: null
+      isContentVisible: Boolean(kind) || false,
+      kind
     };
   }
 
@@ -134,6 +138,10 @@ class Row extends React.Component<Props, State> {
   render() {
     const { integrations, title, totalCount, queryParams } = this.props;
 
+    const selected = integrations.find(
+      integration => integration.kind === this.state.kind
+    );
+
     return (
       <>
         {title && <h3>{__(title)}</h3>}
@@ -142,7 +150,10 @@ class Row extends React.Component<Props, State> {
             this.renderEntry(integration, totalCount, queryParams)
           )}
         </IntegrationRow>
-        <Collapse in={this.state.isContentVisible} unmountOnExit={true}>
+        <Collapse
+          in={this.state.isContentVisible && selected}
+          unmountOnExit={true}
+        >
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>
       </>

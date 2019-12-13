@@ -26,14 +26,6 @@ const PopoverButton = styled.div`
     color: ${colors.colorCoreGray};
   }
 
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-
-    i {
-      transform: rotate(180deg);
-    }
-  }
-
   &:hover {
     cursor: pointer;
   }

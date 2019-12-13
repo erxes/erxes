@@ -127,13 +127,9 @@ export const MAIL_TOOLBARS_CONFIG = [
       'Bold',
       'Italic',
       'Underline',
-      'Strike',
       'NumberedList',
       'BulletedList',
-      'Link',
-      'Image',
-      'Blockquote',
-      'EmojiPanel'
+      'Link'
     ]
   },
   { name: 'clear', items: ['RemoveFormat'] }

@@ -3,9 +3,9 @@ import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
 const inputPadding = '0px';
-const inputHeight = '16px';
+const inputHeight = '15px';
 const inputScale = '12px';
-const inputBorderWidth = '1px';
+const inputBorderWidth = '2px';
 const textInputHeight = '34px';
 
 const Label = styled.label`
@@ -180,12 +180,13 @@ const inputStyle = styledTS<{ disabled?: boolean }>(styled.input)`
       content: '';
       color: ${colors.colorWhite};
       margin-right: calc(${inputHeight} * 0.25);
-      top: 51%;
+      top: 53%;
       left: 0;
       width: ${inputHeight};
       height: ${inputHeight};
       display: inline-block;
       vertical-align: text-top;
+      border-radius: 2px;
       cursor: ${props => props.disabled && 'not-allowed'}
     }
 
@@ -248,7 +249,7 @@ const Checkbox = styled(inputStyle)`
   + span {
     &:after {
       background-color: transparent;
-      top: 51%;
+      top: 53%;
       left: calc(1px + ${inputHeight} / 5);
       width: calc(${inputHeight} / 2);
       height: calc(${inputHeight} / 5);

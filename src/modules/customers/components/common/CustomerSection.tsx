@@ -77,7 +77,7 @@ function Component({
         {customersObj.map((customer, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/contacts/customers/details/${customer._id}`}>
-              <Icon icon="logout-2" />
+              <Icon icon="arrow-to-right" />
             </Link>
             <span>{renderFullName(customer)}</span>
             {mailTo(customer.primaryEmail)}
