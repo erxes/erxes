@@ -57,6 +57,10 @@ class List extends React.Component<Props, State> {
   onFocus = event => event.target.select();
 
   onBlur = () => {
+    if (this.isEmptyContent()) {
+      return;
+    }
+
     const { itemContent } = this.state;
 
     if (itemContent !== '') {
@@ -90,6 +94,10 @@ class List extends React.Component<Props, State> {
     this.saveAddItem();
   };
 
+  isEmptyContent = () => {
+    return !/\S/.test(this.state.itemContent);
+  };
+
   onKeyPressAddItem = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -100,6 +108,11 @@ class List extends React.Component<Props, State> {
   };
 
   saveAddItem = () => {
+    // check if a string contains whitespace or empty
+    if (this.isEmptyContent()) {
+      return;
+    }
+
     const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
 
     (content || []).map(text => this.props.addItem(text));
@@ -229,7 +242,7 @@ class List extends React.Component<Props, State> {
   }
 
   renderAddInput() {
-    const { itemContent, isAddingItem } = this.state;
+    const { isAddingItem, itemContent } = this.state;
 
     const cancel = () => {
       this.setState({ itemContent });
