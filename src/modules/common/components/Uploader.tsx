@@ -83,6 +83,13 @@ class Uploader extends React.Component<Props, State> {
       },
 
       afterUpload: ({ status, response, fileInfo }) => {
+        if (fileInfo.size > 15000000) {
+          Alert.error(
+            `Your file size too large file. Upload file size is less than 15mb`
+          );
+          return this.setState({ loading: false });
+        }
+
         if (status !== 'ok') {
           Alert.error(response);
           return this.setState({ loading: false });
