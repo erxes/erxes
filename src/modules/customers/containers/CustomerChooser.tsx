@@ -5,11 +5,12 @@ import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import CustomerForm from '../containers/CustomerForm';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
   CustomersQueryResponse,
-  ICustomer
+  ICustomer,
+  ICustomerDoc
 } from '../types';
 
 type Props = {
@@ -110,7 +111,14 @@ const WithQuery = withProps<Props>(
           fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
         };
       }
-    })
+    }),
+    // mutations
+    graphql<Props, AddMutationResponse, ICustomerDoc>(
+      gql(mutations.customersAdd),
+      {
+        name: 'customersAdd'
+      }
+    )
   )(CustomerChooser)
 );
 
