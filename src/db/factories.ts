@@ -263,11 +263,13 @@ export const pipelineLabelFactory = (params: ILabelInput = {}) => {
 
 interface IEmailTemplateFactoryInput {
   content?: string;
+  customerId?: string;
 }
 
 export const emailTemplateFactory = (params: IEmailTemplateFactoryInput = {}) => {
   const emailTemplate = new EmailTemplates({
     name: faker.random.word(),
+    customerId: params.customerId || Random.id(),
     content: params.content || faker.random.word(),
   });
 
@@ -1212,9 +1214,9 @@ interface IEmailDeliveryFactoryInput {
   attachments?: string[];
   subject?: string;
   body?: string;
-  to?: string;
-  cc?: string;
-  bcc?: string;
+  to?: string[];
+  cc?: string[];
+  bcc?: string[];
   from?: string;
   kind?: string;
   userId?: string;
@@ -1226,9 +1228,9 @@ export const emailDeliveryFactory = async (params: IEmailDeliveryFactoryInput = 
     attachments: params.attachments || [],
     subject: params.subject || 'subject',
     body: params.body || 'body',
-    to: params.to || 'to',
-    cc: params.cc || 'cc',
-    bcc: params.bcc || 'bcc',
+    to: params.to || ['to'],
+    cc: params.cc || ['cc'],
+    bcc: params.bcc || ['bcc'],
     from: params.from || 'from',
     kind: params.kind || 'kind',
     userId: params.userId || faker.random.uuid(),

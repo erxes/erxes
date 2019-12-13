@@ -3,9 +3,9 @@ export const types = `
     _id: String!
     subject: String
     body: String
-    to: String
-    cc: String
-    bcc: String
+    to: [String]
+    cc: [String]
+    bcc: [String]
     attachments: [JSON]
     from: String
     kind: String

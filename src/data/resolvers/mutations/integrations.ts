@@ -242,12 +242,15 @@ const integrationMutations = {
       throw new Error(e);
     }
 
-    const customer = await Customers.findOne({ primaryEmail: doc.to });
+    const customerIds = await Customers.find({ primaryEmail: { $in: doc.to } }).distinct('_id');
 
     doc.userId = user._id;
-    doc.customerId = customer ? customer._id : '';
 
-    return EmailDeliveries.createEmailDelivery(doc);
+    for (const customerId of customerIds) {
+      await EmailDeliveries.createEmailDelivery({ ...doc, customerId });
+    }
+
+    return;
   },
 
   async integrationsArchive(_root, { _id }: { _id: string }, { user }: IContext) {

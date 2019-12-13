@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Companies, Customers, ImportHistory, Products } from '../db/models';
+import { Companies, Customers, ImportHistory, Products, Users } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 import { connect } from './utils';
 
@@ -71,6 +71,16 @@ connect().then(async () => {
         case 'customData':
           {
             coc[property.name] = value.toString();
+          }
+          break;
+
+        case 'ownerEmail':
+          {
+            const userEmail = value.toString();
+
+            const owner = await Users.findOne({ email: userEmail }).lean();
+
+            coc[property.name] = owner ? owner._id : '';
           }
           break;
 
