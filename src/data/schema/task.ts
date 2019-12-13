@@ -24,6 +24,8 @@ export const queries = `
     closeDateType: String
     priority: [String]
     labelIds: [String]
+    sortField: String
+    sortDirection: Int
     ${conformityQueryFields}
   ): [Task]
 `;

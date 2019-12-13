@@ -25,6 +25,8 @@ export const queries = `
     priority: [String]
     source: [String]
     labelIds: [String]
+    sortField: String
+    sortDirection: Int
     ${conformityQueryFields}
   ): [Ticket]
 `;

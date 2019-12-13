@@ -2,6 +2,7 @@ import * as moment from 'moment';
 import { Conformities, Pipelines, Stages } from '../../../db/models';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
+import { IListParams } from './boards';
 
 const contains = (values: string[]) => {
   return { $in: values };
@@ -202,6 +203,18 @@ export const generateTaskCommonFilters = async (currentUserId: string, args: any
   args.type = 'task';
 
   return generateCommonFilters(currentUserId, args);
+};
+
+export const generateSort = (args: IListParams) => {
+  let sort: any = { order: 1, createdAt: -1 };
+
+  const { sortField, sortDirection } = args;
+
+  if (sortField && sortDirection) {
+    sort = { [sortField]: sortDirection };
+  }
+
+  return sort;
 };
 
 export const generateGrowthHackCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {

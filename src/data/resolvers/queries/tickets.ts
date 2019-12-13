@@ -2,7 +2,7 @@ import { Tickets } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { checkItemPermByUser, generateTicketCommonFilters } from './boardUtils';
+import { checkItemPermByUser, generateSort, generateTicketCommonFilters } from './boardUtils';
 
 const ticketQueries = {
   /**
@@ -10,7 +10,7 @@ const ticketQueries = {
    */
   async tickets(_root, args: IListParams, { user }: IContext) {
     const filter = await generateTicketCommonFilters(user._id, args);
-    const sort = { order: 1, createdAt: -1 };
+    const sort = generateSort(args);
 
     return Tickets.find(filter)
       .sort(sort)

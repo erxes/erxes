@@ -2,7 +2,7 @@ import { Deals } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { checkItemPermByUser, generateDealCommonFilters } from './boardUtils';
+import { checkItemPermByUser, generateDealCommonFilters, generateSort } from './boardUtils';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -14,7 +14,7 @@ const dealQueries = {
    */
   async deals(_root, args: IDealListParams, { user }: IContext) {
     const filter = await generateDealCommonFilters(user._id, args);
-    const sort = { order: 1, createdAt: -1 };
+    const sort = generateSort(args);
 
     return Deals.find(filter)
       .sort(sort)

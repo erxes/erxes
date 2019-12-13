@@ -300,14 +300,14 @@ describe('dealQueries', () => {
     const currentUser = await userFactory({});
 
     const args = { stageId: stage._id };
-    const deal = await dealFactory(args);
-    await dealFactory(args);
-    await dealFactory(args);
+    const deal = await dealFactory({ ...args, name: 'b' });
+    await dealFactory({ ...args, name: 'c' });
+    await dealFactory({ ...args, name: 'a' });
 
     Object.assign(args, { pipelineId: stage.pipelineId });
     const qry = `
-      query deals($stageId: String!, $pipelineId: String) {
-        deals(stageId: $stageId, pipelineId: $pipelineId) {
+      query deals($stageId: String!, $pipelineId: String, $sortField: String, $sortDirection: Int) {
+        deals(stageId: $stageId, pipelineId: $pipelineId, sortField: $sortField, sortDirection: $sortDirection) {
           ${commonDealTypes}
         }
       }
@@ -316,6 +316,12 @@ describe('dealQueries', () => {
     let response = await graphqlRequest(qry, 'deals', args, { user: currentUser });
 
     expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'deals', { ...args, sortField: 'name', sortDirection: 1 });
+
+    expect(response[0].name).toBe('a');
+    expect(response[1].name).toBe('b');
+    expect(response[2].name).toBe('c');
 
     await Pipelines.updateOne({ _id: pipeline._id }, { $set: { isCheckUser: true } });
 
