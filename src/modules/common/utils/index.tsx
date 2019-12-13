@@ -357,3 +357,8 @@ export function formatValue(value) {
 
   return value || '-';
 }
+
+export function isEmptyContent(content: string) {
+  // check if a string contains whitespace or empty
+  return !/\S/.test(content);
+}
