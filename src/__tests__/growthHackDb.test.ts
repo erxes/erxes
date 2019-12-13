@@ -52,7 +52,6 @@ describe('Test growthHacks model', () => {
 
     expect(createdGrowthHack).toBeDefined();
     expect(createdGrowthHack.stageId).toEqual(stage._id);
-    expect(createdGrowthHack.createdAt).toEqual(growthHack.createdAt);
     expect(createdGrowthHack.userId).toEqual(user._id);
   });
 
