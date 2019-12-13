@@ -43,7 +43,7 @@ const FlexItem = styled.div`
 const Actions = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
   > a,
   button {

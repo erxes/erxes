@@ -10,6 +10,7 @@ import {
   MESSENGER_KINDS,
   SENT_AS_CHOICES
 } from 'modules/engage/constants';
+import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { IBrand } from '../../settings/brands/types';
 import MessengerPreview from '../containers/MessengerPreview';
@@ -130,6 +131,10 @@ class MessengerForm extends React.Component<Props, State> {
             <EditorCK
               content={this.props.content}
               onChange={this.onEditorChange}
+              toolbar={[
+                { name: 'insert', items: ['strinsert'] },
+                ...MAIL_TOOLBARS_CONFIG
+              ]}
               insertItems={EMAIL_CONTENT}
               height={300}
             />

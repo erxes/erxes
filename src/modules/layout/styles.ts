@@ -486,8 +486,9 @@ const SectionBodyItem = styled.div`
   }
 
   i {
-    color: ${colors.colorCoreLightGray};
+    color: ${colors.colorCoreGray};
     position: absolute;
+    font-size: 13px;
     right: ${dimensions.coreSpacing}px;
 
     &:hover {

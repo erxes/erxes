@@ -1,22 +1,17 @@
-import Button from 'modules/common/components/Button';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
-import { Actions, BasicInfo, MailBox, TabContent } from './styles';
+import { BasicInfo, TabContent } from './styles';
 
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import Box from 'modules/common/components/Box';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import { ICustomer } from 'modules/customers/types';
-import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import { IConversation } from '../../../types';
 
-const ActionSection = asyncComponent(
-  () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection'),
-  { height: '25px', width: '80px' }
+const ActionSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection')
 );
 
 const CustomFieldsSection = asyncComponent(
@@ -139,43 +134,8 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   renderActions() {
     const { customer } = this.props;
-    const { primaryPhone, primaryEmail } = customer;
 
-    const content = props => (
-      <MailBox>
-        <MailForm
-          fromEmail={primaryEmail}
-          refetchQueries={['activityLogsCustomer']}
-          closeModal={props.closeModal}
-        />
-      </MailBox>
-    );
-
-    return (
-      <Actions>
-        <ModalTrigger
-          dialogClassName="middle"
-          title="Email"
-          trigger={
-            <Button disabled={primaryEmail ? false : true} size="small">
-              {__('Email')}
-            </Button>
-          }
-          size="lg"
-          content={content}
-          enforceFocus={false}
-          paddingContent="no-padding"
-        />
-        <Button
-          href={primaryPhone && `tel:${primaryPhone}`}
-          size="small"
-          disabled={primaryPhone ? false : true}
-        >
-          {__('Call')}
-        </Button>
-        <ActionSection customer={customer} isSmall={true} />
-      </Actions>
-    );
+    return <ActionSection customer={customer} />;
   }
 
   renderTabSubContent() {
