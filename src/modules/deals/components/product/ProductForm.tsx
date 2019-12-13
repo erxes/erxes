@@ -250,7 +250,7 @@ class ProductForm extends React.Component<Props, State> {
           </Button>
 
           <Button btnStyle="success" onClick={this.onClick} icon="checked-1">
-            Savezz
+            Save
           </Button>
         </ModalFooter>
       </>
