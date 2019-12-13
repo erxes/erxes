@@ -60,6 +60,13 @@ const uploadHandler = (params: Params) => {
 
     const fileInfo = { name: file.name, size: file.size, type: file.type };
 
+    if (fileInfo.size > 15728640) {
+      Alert.error(
+        `Your file size too large file. Upload file size is less than 15MB`
+      );
+      return;
+    }
+
     // after read proccess done
     uploadReader.onloadend = () => {
       // before upload
