@@ -110,7 +110,9 @@ const WithQuery = withProps<Props>(
             perPage,
             mainType: data.mainType,
             mainTypeId: data.mainTypeId,
-            isRelated: data.isRelated
+            isRelated: data.isRelated,
+            sortField: 'createdAt',
+            sortDirection: -1
           },
           fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
         };
