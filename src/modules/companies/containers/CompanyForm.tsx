@@ -9,6 +9,7 @@ import { ICompany } from '../types';
 
 type Props = {
   company: ICompany;
+  getAssociatedCompany?: (companyId: string) => void;
   closeModal: () => void;
 };
 
@@ -22,14 +23,23 @@ const CompanyFromContainer = (props: FinalProps) => {
     name,
     values,
     isSubmitted,
-    callback,
     object
   }: IButtonMutateProps) => {
+    const { closeModal, getAssociatedCompany } = props;
+
+    const afterSave = data => {
+      closeModal();
+
+      if (getAssociatedCompany) {
+        getAssociatedCompany(data.companiesAdd._id);
+      }
+    };
+
     return (
       <ButtonMutate
         mutation={object ? mutations.companiesEdit : mutations.companiesAdd}
         variables={values}
-        callback={callback}
+        callback={afterSave}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"

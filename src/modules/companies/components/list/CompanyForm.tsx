@@ -358,7 +358,6 @@ class CompanyForm extends React.Component<Props, State> {
             name: 'company',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
             object: this.props.company
           })}
         </ModalFooter>
