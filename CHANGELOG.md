@@ -1,3 +1,10 @@
+## [0.11.2](https://github.com/erxes/erxes-integrations/compare/0.11.0...0.11.2) (2019-12-15)
+
+
+### Bug Fixes
+
+* **chatfuel:** encode issue ([141e376](https://github.com/erxes/erxes-integrations/commit/141e3767305b1f3a992a338fc2d51338de1baf74)), closes [#57](https://github.com/erxes/erxes-integrations/issues/57)
+
 # [0.11.0](https://github.com/erxes/erxes-integrations/compare/0.10.3...0.11.0) (2019-11-01)
 
 
