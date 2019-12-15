@@ -13,6 +13,7 @@ import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import Twitter from '../../containers/twitter/Twitter';
+import Website from '../../containers/website/Form';
 import { Box, IntegrationItem, Type } from './styles';
 
 type Props = {
@@ -133,6 +134,16 @@ class Entry extends React.Component<Props> {
           trigger={trigger}
           content={content}
         />
+      );
+    }
+
+    if (createModal === 'website') {
+      const trigger = <a href="#add">+ {__('Add')}</a>;
+
+      const content = props => <Website {...props} />;
+
+      return (
+        <ModalTrigger title="Add website" trigger={trigger} content={content} />
       );
     }
 
