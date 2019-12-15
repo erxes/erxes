@@ -215,7 +215,6 @@ requireLogin(userMutations, 'usersChangePassword');
 requireLogin(userMutations, 'usersEditProfile');
 requireLogin(userMutations, 'usersConfigGetNotificationByEmail');
 requireLogin(userMutations, 'usersConfigEmailSignatures');
-requireLogin(userMutations, 'usersResetMemberPassword');
 
 checkPermission(userMutations, 'usersEdit', 'usersEdit');
 checkPermission(userMutations, 'usersInvite', 'usersInvite');
