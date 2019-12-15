@@ -315,7 +315,6 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
             conversationId: currentId,
             limit: integration.kind === 'messenger' || isMail ? limit : 0
           },
-          notifyOnNetworkStatusChange: true,
           fetchPolicy: 'network-only'
         };
       }
