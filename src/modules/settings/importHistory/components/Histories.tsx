@@ -23,6 +23,9 @@ type Props = {
   totalCount: number;
 };
 
+// currently support import data types
+const DATA_IMPORT_TYPES = ['customer', 'company', 'product'];
+
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
     const { histories, removeHistory } = this.props;
@@ -55,9 +58,13 @@ class Histories extends React.Component<Props & IRouterProps> {
     );
   };
 
-  renderImportButton = () => {
+  renderTemplateButton() {
     const { REACT_APP_API_URL } = getEnv();
     const { currentType } = this.props;
+
+    if (!DATA_IMPORT_TYPES.includes(currentType)) {
+      return null;
+    }
 
     let name = 'company_template.xlsx';
 
@@ -70,19 +77,80 @@ class Histories extends React.Component<Props & IRouterProps> {
     }
 
     return (
+      <Button
+        btnStyle="simple"
+        size="small"
+        icon="folder-download"
+        href={`${REACT_APP_API_URL}/download-template/?name=${name}`}
+      >
+        {__('Download template')}
+      </Button>
+    );
+  }
+
+  renderDataImporter() {
+    const { currentType } = this.props;
+
+    if (!DATA_IMPORT_TYPES.includes(currentType)) {
+      return null;
+    }
+
+    return (
+      <DataImporter
+        type={currentType}
+        text={`${__('Import')} ${currentType}`}
+      />
+    );
+  }
+
+  renderExportButton = () => {
+    const { currentType } = this.props;
+    const { REACT_APP_API_URL } = getEnv();
+    let buttonText = `${currentType}s`;
+
+    if (currentType === 'product') {
+      return null;
+    }
+
+    const exportData = () => {
+      window.open(
+        `${REACT_APP_API_URL}/file-export?type=${currentType}`,
+        '_blank'
+      );
+    };
+
+    switch (currentType) {
+      case 'company':
+        buttonText = 'companies';
+        break;
+      case 'deal':
+        buttonText = 'Sales pipelines';
+        break;
+      case 'user':
+        buttonText = 'Team members';
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <Button
+        icon="export"
+        btnStyle="primary"
+        size="small"
+        onClick={exportData}
+      >
+        {__(`Export ${buttonText}`)}
+      </Button>
+    );
+  };
+
+  renderImportButton = () => {
+    return (
       <BarItems>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="folder-download"
-          href={`${REACT_APP_API_URL}/download-template/?name=${name}`}
-        >
-          {__('Download template')}
-        </Button>
-        <DataImporter
-          type={currentType}
-          text={`${__('Import')} ${currentType}`}
-        />
+        {this.renderTemplateButton()}
+        {this.renderDataImporter()}
+        {this.renderExportButton()}
       </BarItems>
     );
   };
@@ -98,7 +166,7 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Import histories'), link: '/settings/importHistories' },
+      { title: __('Import & Export'), link: '/settings/importHistories' },
       { title: __(currentType) }
     ];
 
@@ -112,7 +180,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             left={
               <HeaderDescription
                 icon="/images/actions/27.svg"
-                title="Import histories"
+                title="Import & export"
                 description="Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here."
               />
             }
@@ -120,7 +188,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           />
         }
         leftSidebar={
-          <Sidebar title="Import histories" currentType={currentType} />
+          <Sidebar title="Import & export" currentType={currentType} />
         }
         footer={<Pagination count={totalCount} />}
         content={

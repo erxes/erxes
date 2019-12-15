@@ -1,4 +1,5 @@
 import { IConditionsRule } from 'modules/common/types';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
 import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types';
@@ -37,6 +38,23 @@ export interface IEngageStats {
   renderingfailure: number;
   reject: number;
   total: number;
+}
+
+export interface IEmailDelivery {
+  _id: string;
+  subject: string;
+  body: string;
+  to: string;
+  cc: string;
+  bcc: string;
+  attachments: [JSON];
+  from: string;
+  kind: string;
+  userId: string;
+  customerId: string;
+
+  fromUser: IUser;
+  fromEmail: string;
 }
 
 export interface IEngageMessageDoc {
@@ -125,6 +143,12 @@ export type EngageMessageDetailQueryResponse = {
   loading: boolean;
 };
 
+export type EngageVerifiedEmailsQueryResponse = {
+  engageVerifiedEmails: string[];
+  error: Error;
+  loading: boolean;
+};
+
 export type ListQueryVariables = {
   page?: number;
   perPage?: number;
@@ -174,4 +198,19 @@ export type SegmentAdd = (params: { doc: ISegmentDoc }) => void;
 
 export type TargetCount = {
   [key: string]: number;
+};
+
+export type IEmailFormProps = {
+  onChange: (
+    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
+    value: IEngageEmail | IEngageScheduleDate | string
+  ) => void;
+  message?: string;
+  users: IUser[];
+  templates: IEmailTemplate[];
+  kind: string;
+  email: IEngageEmail;
+  fromUserId: string;
+  content: string;
+  scheduleDate: IEngageScheduleDate;
 };

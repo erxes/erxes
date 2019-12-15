@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { renderWithProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { ConformityQueryResponse, ISavedConformity } from '../types';
 
 type IProps = {
@@ -12,7 +13,7 @@ type IProps = {
   queryName: string;
   itemsQuery: string;
   data?: any;
-  isOpen?: boolean;
+  collapseCallback?: () => void;
 };
 
 type FinalProps = {
@@ -20,7 +21,7 @@ type FinalProps = {
 } & IProps;
 
 class PortableItemsContainer extends React.Component<FinalProps> {
-  onChangeItems = () => {
+  onChangeItem = () => {
     const { itemsQuery } = this.props;
 
     itemsQuery.refetch();
@@ -38,11 +39,11 @@ class PortableItemsContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       items,
-      onChangeItems: this.onChangeItems
+      onChangeItem: this.onChangeItem
     };
 
-    const Components = component;
-    return <Components {...extendedProps} />;
+    const Component = component;
+    return <Component {...extendedProps} />;
   }
 }
 

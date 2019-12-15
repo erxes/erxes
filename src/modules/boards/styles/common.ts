@@ -46,7 +46,7 @@ export const DropZone = styled.div`
 `;
 
 export const EmptyContainer = styled.div`
-  height: 160px;
+  height: 100px;
 `;
 
 export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
@@ -75,7 +75,7 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   }
 
   > span {
-    margin-right: 10px;
+    margin-right: 5px;
   }
 
   &:hover {
@@ -96,17 +96,14 @@ export const ItemDate = styled.span`
 
 export const NotifiedContainer = styled.div`
   position: absolute;
-  background: ${colors.colorWhite};
-  right: 0;
-  padding-left: 5px;
-
-  > i {
-    color: ${colors.colorWhite};
-    background: ${colors.colorCoreRed};
-    border-radius: 3px;
-    padding: 3px 5px;
-    margin-right: 8px;
-  }
+  right: 8px;
+  border-radius: 12px;
+  width: 22px;
+  height: 22px;
+  background-color: ${rgba(colors.colorCoreRed, 0.2)};
+  color: ${colors.colorCoreRed};
+  text-align: center;
+  line-height: 22px;
 `;
 
 export const ItemContainer = styledTS<{

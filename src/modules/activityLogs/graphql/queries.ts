@@ -3,22 +3,49 @@ const activityLogs = `
     activityLogs(contentType: $contentType, contentId: $contentId, activityType: $activityType, limit: $limit) {
       _id
       action
-      id
-      createdAt
+      contentId
+      contentType
       content
-      by {
+      createdAt
+      createdBy
+  
+      createdByDetail
+      contentDetail
+      contentTypeDetail
+    }
+  }
+`;
+
+const emailDeliveryDetail = `
+  query emailDeliveryDetail($_id: String! ) {
+    emailDeliveryDetail(_id: $_id ) {
+      _id
+      subject
+      body
+      to
+      cc
+      bcc
+      attachments
+      from
+      kind
+      userId
+      customerId
+      createdAt
+  
+      fromUser {
         _id
-        type
         details {
           avatar
           fullName
           position
         }
       }
+      fromEmail
     }
   }
 `;
 
 export default {
-  activityLogs
+  activityLogs,
+  emailDeliveryDetail
 };

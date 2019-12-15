@@ -6,56 +6,27 @@ import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
-import { IOptions } from 'modules/boards/types';
+import { IItem, IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
-import { ITask } from '../types';
 
 type Props = {
   stageId: string;
-  item: ITask;
+  item: IItem;
   onClick?: () => void;
   isFormVisible?: boolean;
   beforePopupClose?: () => void;
   options?: IOptions;
   portable?: boolean;
-  onAdd?: (stageId: string, item: ITask) => void;
+  onAdd?: (stageId: string, item: IItem) => void;
   onRemove?: (taskId: string, stageId: string) => void;
-  onUpdate?: (item: ITask) => void;
+  onUpdate?: (item: IItem) => void;
 };
 
-class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isPopupVisible: props.isFormVisible || false
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isFormVisible !== this.props.isFormVisible) {
-      this.setState({
-        isPopupVisible: nextProps.isFormVisible
-      });
-    }
-  }
-
-  beforePopupClose = () => {
-    const { portable, beforePopupClose } = this.props;
-
-    if (portable) {
-      this.setState({ isPopupVisible: false });
-    } else {
-      if (beforePopupClose) {
-        beforePopupClose();
-      }
-    }
-  };
-
+class TaskItem extends React.PureComponent<Props> {
   renderDate(date, format = 'YYYY-MM-DD') {
     if (!date) {
       return null;
@@ -69,10 +40,9 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
   }
 
   renderForm = () => {
-    const { item } = this.props;
-    const { isPopupVisible } = this.state;
+    const { item, isFormVisible } = this.props;
 
-    if (!isPopupVisible) {
+    if (!isFormVisible) {
       return null;
     }
 
@@ -81,8 +51,7 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
         {...this.props}
         itemId={item._id}
         hideHeader={true}
-        beforePopupClose={this.beforePopupClose}
-        isPopupVisible={isPopupVisible}
+        isPopupVisible={isFormVisible}
       />
     );
   };
@@ -93,8 +62,6 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
         <h5>
           {renderPriority(item.priority)}
           {item.name}
@@ -119,13 +86,9 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
   }
 
   render() {
-    const { portable } = this.props;
+    const { item, portable, onClick } = this.props;
 
     if (portable) {
-      const onClick = () => {
-        this.setState({ isPopupVisible: true });
-      };
-
       return (
         <>
           <ItemContainer onClick={onClick}>
@@ -138,7 +101,8 @@ class TaskItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
+        <Labels labels={item.labels} indicator={true} />
+        <Content onClick={onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
     );

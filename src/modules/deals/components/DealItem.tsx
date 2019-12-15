@@ -10,7 +10,7 @@ import {
   Status
 } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
-import { renderAmount } from 'modules/boards/utils';
+import { renderAmount, renderPriority } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
@@ -18,7 +18,6 @@ import React from 'react';
 
 import Labels from 'modules/boards/components/label/Labels';
 import { IOptions } from 'modules/boards/types';
-import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
 import { IDeal } from '../types';
 
@@ -35,40 +34,11 @@ type Props = {
   onUpdate?: (item: IDeal) => void;
 };
 
-class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isPopupVisible: props.isFormVisible || false
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isFormVisible !== this.props.isFormVisible) {
-      this.setState({
-        isPopupVisible: nextProps.isFormVisible
-      });
-    }
-  }
-
-  beforePopupClose = () => {
-    const { portable, beforePopupClose } = this.props;
-
-    if (portable) {
-      this.setState({ isPopupVisible: false });
-    } else {
-      if (beforePopupClose) {
-        beforePopupClose();
-      }
-    }
-  };
-
+class DealItem extends React.PureComponent<Props> {
   renderForm = () => {
-    const { stageId, item } = this.props;
-    const { isPopupVisible } = this.state;
+    const { stageId, item, isFormVisible } = this.props;
 
-    if (!isPopupVisible) {
+    if (!isFormVisible) {
       return null;
     }
 
@@ -78,22 +48,17 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
         stageId={stageId || item.stageId}
         itemId={item._id}
         hideHeader={true}
-        beforePopupClose={this.beforePopupClose}
-        isPopupVisible={isPopupVisible}
+        isPopupVisible={isFormVisible}
       />
     );
   };
 
-  renderDate(date, format = 'YYYY-MM-DD') {
+  renderDate(date) {
     if (!date) {
       return null;
     }
 
-    return (
-      <Tip text={dayjs(date).format(format)}>
-        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
-      </Tip>
-    );
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderStatusLabel(text, color) {
@@ -127,9 +92,10 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
-
-        <h5>{item.name}</h5>
+        <h5>
+          {renderPriority(item.priority)}
+          {item.name}
+        </h5>
 
         <Details color="#63D2D6" items={products} />
         <Details color="#F7CE53" items={customers || []} />
@@ -146,7 +112,7 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
         <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
         <Footer>
-          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
+          {item.isWatched ? <Icon icon="eye-2" /> : __('Last updated')}
           <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </>
@@ -154,13 +120,9 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
   }
 
   render() {
-    const { item, portable } = this.props;
+    const { item, portable, onClick } = this.props;
 
     if (portable) {
-      const onClick = () => {
-        this.setState({ isPopupVisible: true });
-      };
-
       return (
         <>
           <ItemContainer onClick={onClick}>
@@ -174,7 +136,8 @@ class DealItem extends React.PureComponent<Props, { isPopupVisible: boolean }> {
 
     return (
       <>
-        <Content onClick={this.props.onClick}>{this.renderContent()}</Content>
+        <Labels labels={item.labels} indicator={true} />
+        <Content onClick={onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>
     );

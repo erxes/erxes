@@ -1,14 +1,14 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
-  showComponent?: boolean;
   options?: IOptions;
 };
 
@@ -18,13 +18,11 @@ type ContainerProps = {
 
 const withPipeline = Component => {
   const Container = (props: ContainerProps) => {
-    const { pipelineDetailQuery, showComponent } = props;
+    const { pipelineDetailQuery } = props;
 
-    if (!pipelineDetailQuery) {
-      if (showComponent) {
-        return <Component {...props} />;
-      }
+    const pipeline = pipelineDetailQuery && pipelineDetailQuery.pipelineDetail;
 
+    if (!pipeline) {
       return (
         <EmptyState
           image="/images/actions/18.svg"
@@ -33,10 +31,6 @@ const withPipeline = Component => {
           light={true}
         />
       );
-    }
-
-    if (pipelineDetailQuery.loading) {
-      return null;
     }
 
     const updatedProps = {

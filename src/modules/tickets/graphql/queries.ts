@@ -7,14 +7,12 @@ const commonParams = `
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
-  $nextDay: String,
-  $nextWeek: String,
-  $nextMonth: String,
-  $noCloseDate: String,
-  $overdue: String,
+  $closeDateType: String,
   $priority: [String],
   $source: [String],
   $labelIds: [String],
+  $sortField: String,
+  $sortDirection: Int,
   ${conformityQueryFields}
 `;
 
@@ -22,14 +20,12 @@ const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
-  nextDay: $nextDay,
-  nextWeek: $nextWeek,
-  nextMonth: $nextMonth,
-  noCloseDate: $noCloseDate,
-  overdue: $overdue,
+  closeDateType: $closeDateType,
   priority: $priority,
   source: $source,
-  labelIds: $labelIds
+  labelIds: $labelIds,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
   ${conformityQueryFieldDefs}
 `;
 

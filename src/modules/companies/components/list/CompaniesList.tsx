@@ -15,7 +15,7 @@ import { BarItems } from 'modules/layout/styles';
 import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
@@ -77,6 +77,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     this.setState({ searchValue });
     this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -242,12 +243,12 @@ class CompaniesList extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
 
-        <Dropdown id="dropdown-engage" pullRight={true}>
-          <DropdownToggle bsRole="toggle">
+        <Dropdown className="dropdown-btn" alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
               {__('Customize ')} <Icon icon="angle-down" />
             </Button>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
               <ModalTrigger

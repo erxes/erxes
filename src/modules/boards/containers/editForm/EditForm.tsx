@@ -1,10 +1,12 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { queries as userQueries } from 'modules/settings/team/graphql';
 import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import ErrorMsg from '../../../common/components/ErrorMsg';
 import { queries } from '../../graphql';
 import {
   DetailQueryResponse,
@@ -81,8 +83,6 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
-        Alert.success(options.texts.updateSuccessText);
-
         if (callback) {
           callback(data[options.mutationsName.editMutation]);
         }
@@ -122,6 +122,10 @@ class EditFormContainer extends React.Component<FinalProps> {
 
     if (usersQuery.loading || detailQuery.loading) {
       return <Spinner />;
+    }
+
+    if (detailQuery.error) {
+      return <ErrorMsg>{detailQuery.error.message}</ErrorMsg>;
     }
 
     const users = usersQuery.allUsers;

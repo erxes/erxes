@@ -1,11 +1,17 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import IntegrationList from 'modules/settings/integrations/components/common/IntegrationList';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { IntegrationsQueryResponse, RemoveMutationResponse } from '../../types';
+import { graphql } from 'react-apollo';
+import {
+  ArchiveIntegrationResponse,
+  CommonFieldsEditResponse,
+  IntegrationsQueryResponse,
+  RemoveMutationResponse
+} from '../../types';
 import { integrationsListParams } from '../utils';
 
 type Props = {
@@ -17,10 +23,17 @@ type Props = {
 type FinalProps = {
   integrationsQuery: IntegrationsQueryResponse;
 } & Props &
-  RemoveMutationResponse;
+  RemoveMutationResponse &
+  ArchiveIntegrationResponse &
+  CommonFieldsEditResponse;
 
 const IntegrationListContainer = (props: FinalProps) => {
-  const { integrationsQuery, removeMutation } = props;
+  const {
+    integrationsQuery,
+    removeMutation,
+    archiveIntegration,
+    editCommonFields
+  } = props;
 
   if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
@@ -29,7 +42,13 @@ const IntegrationListContainer = (props: FinalProps) => {
   const integrations = integrationsQuery.integrations || [];
 
   const removeIntegration = integration => {
-    confirm().then(() => {
+    const message = `
+      If you remove an integration, then all related conversations, customers & pop ups
+      will also be removed.
+      Are you sure?
+    `;
+
+    confirm(message).then(() => {
       Alert.warning('Removing... Please wait!!!');
 
       removeMutation({ variables: { _id: integration._id } })
@@ -43,15 +62,86 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
+  const archive = (id: string) => {
+    const message = `
+      If you archive an integration, then you won't be able to see customers & conversations 
+      related to this integration anymore.
+      Are you sure?
+    `;
+
+    confirm(message).then(() => {
+      archiveIntegration({ variables: { _id: id } })
+        .then(({ data }) => {
+          const integration = data.integrationsArchive;
+
+          if (integration && integration._id) {
+            Alert.success('Integration has been archived.');
+          }
+        })
+        .catch((error: Error) => {
+          Alert.error(error.message);
+        });
+    });
+  };
+
+  const editIntegration = (
+    id: string,
+    { name, brandId }: { name: string; brandId: string }
+  ) => {
+    if (!name && !brandId) {
+      Alert.error('Name and brand must be chosen');
+
+      return;
+    }
+
+    editCommonFields({ variables: { _id: id, name, brandId } })
+      .then(({ data }) => {
+        const result = data.integrationsEditCommonFields;
+
+        if (result && result._id) {
+          Alert.success('Integration has been edited.');
+        }
+      })
+      .catch((error: Error) => {
+        Alert.error(error.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
     integrations,
     removeIntegration,
-    loading: integrationsQuery.loading
+    loading: integrationsQuery.loading,
+    archive,
+    editIntegration
   };
 
   return <IntegrationList {...updatedProps} />;
 };
+
+const mutationOptions = ({
+  queryParams,
+  variables,
+  kind
+}: {
+  queryParams?: any;
+  variables?: any;
+  kind?: any;
+}) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.integrations),
+      variables: {
+        ...variables,
+        ...integrationsListParams(queryParams || {}),
+        kind
+      }
+    },
+    {
+      query: gql(queries.integrationTotalCount)
+    }
+  ]
+});
 
 export default withProps<Props>(
   compose(
@@ -71,23 +161,21 @@ export default withProps<Props>(
     }),
     graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
       name: 'removeMutation',
-      options: ({ queryParams, variables, kind }) => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.integrations),
-              variables: {
-                ...variables,
-                ...integrationsListParams(queryParams || {}),
-                kind
-              }
-            },
-            {
-              query: gql(queries.integrationTotalCount)
-            }
-          ]
-        };
+      options: mutationOptions
+    }),
+    graphql<Props, ArchiveIntegrationResponse>(
+      gql(mutations.integrationsArchive),
+      {
+        name: 'archiveIntegration',
+        options: mutationOptions
       }
-    })
+    ),
+    graphql<Props, CommonFieldsEditResponse>(
+      gql(mutations.integrationsEditCommonFields),
+      {
+        name: 'editCommonFields',
+        options: mutationOptions
+      }
+    )
   )(IntegrationListContainer)
 );

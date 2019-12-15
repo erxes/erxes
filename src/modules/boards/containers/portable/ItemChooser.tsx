@@ -1,8 +1,9 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import {
   IFilterParams,
   IItem,
@@ -33,13 +34,25 @@ type FinalProps = {
 
 class ItemChooserContainer extends React.Component<
   WrapperProps & FinalProps,
-  {}
+  { newItemId?: string }
 > {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      newItemId: undefined
+    };
+  }
+
   render() {
     const { data, itemsQuery, search } = this.props;
 
     const renderName = item => {
       return item.name || 'Unknown';
+    };
+
+    const getAssociatedItem = (newItemId: string) => {
+      this.setState({ newItemId });
     };
 
     const updatedProps = {
@@ -61,14 +74,17 @@ class ItemChooserContainer extends React.Component<
       renderForm: formProps => (
         <AddForm
           {...formProps}
+          refetch={itemsQuery.refetch}
           options={data.options}
           boardId={this.props.boardId}
           pipelineId={this.props.pipelineId}
           stageId={this.props.stageId}
           showSelect={true}
+          getAssociatedItem={getAssociatedItem}
         />
       ),
       hasBoardChooser: true,
+      newItemId: this.state.newItemId,
       clearState: () => search(''),
       refetchQuery: data.options.queries.itemsQuery
     };
@@ -92,7 +108,9 @@ const WithQuery = ({ options }) => {
                 mainType: data.mainType,
                 mainTypeId: data.mainTypeId,
                 isRelated: data.isRelated,
-                relType: data.options.type
+                relType: data.options.type,
+                sortField: 'createdAt',
+                sortDirection: -1
               },
               fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
             };

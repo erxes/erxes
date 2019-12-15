@@ -23,6 +23,7 @@ class EditorCK extends React.Component<IEditorProps> {
 
     CKEditor.editorUrl = '/ckeditor/ckeditor.js';
   }
+
   render() {
     const {
       onCtrlEnter,
@@ -34,7 +35,12 @@ class EditorCK extends React.Component<IEditorProps> {
       removePlugins,
       toolbar,
       toolbarCanCollapse,
-      mentionUsers = []
+      mentionUsers = [],
+      autoFocus,
+      autoGrow,
+      autoGrowMinHeight = 180,
+      autoGrowMaxHeight,
+      toolbarLocation = 'top'
     } = this.props;
 
     const mentionDataFeed = (opts, callback) => {
@@ -58,26 +64,37 @@ class EditorCK extends React.Component<IEditorProps> {
         onChange={onChange}
         config={{
           height,
+          startupFocus: autoFocus,
           uiColor: colors.bgLight,
           dialog_backgroundCoverColor: '#30435C',
           allowedContent: true,
-          extraPlugins: 'codemirror,strinsert,onCtrlEnter',
+          toolbarLocation,
+          extraPlugins: `codemirror,strinsert,onCtrlEnter${
+            autoGrow ? ',autogrow' : ''
+          }`,
+          autoGrow_minHeight: autoGrowMinHeight,
+          autoGrow_maxHeight: autoGrowMaxHeight,
+          autoGrow_onStartup: true,
           strinsert: insertItems,
           autoGrowOnStartup: true,
           toolbar: toolbar || [
             {
               name: 'document',
               groups: ['mode', 'document', 'doctools'],
-              items: ['Source', 'NewPage', 'Preview']
+              items: ['Source', 'NewPage']
             },
+            { name: 'colors', items: ['TextColor', 'BGColor'] },
             {
-              name: 'insert',
+              name: 'basicstyles',
               items: [
+                'Bold',
+                'Italic',
+                'Underline',
+                'Strike',
+                '-',
                 'Image',
                 'Table',
-                'HorizontalRule',
-                'EmojiPanel',
-                'SpecialChar'
+                'EmojiPanel'
               ]
             },
             {
@@ -86,25 +103,17 @@ class EditorCK extends React.Component<IEditorProps> {
               items: [
                 'NumberedList',
                 'BulletedList',
-                'Outdent',
-                'Indent',
                 'Blockquote',
-                'CreateDiv',
                 'JustifyLeft',
                 'JustifyCenter',
                 'JustifyRight',
                 'JustifyBlock'
               ]
             },
-            {
-              name: 'basicstyles',
-              groups: ['basicstyles', 'cleanup'],
-              items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
-            },
-            { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+            { name: 'links', items: ['Link', 'Unlink'] },
             { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
-            { name: 'others', items: [insertItems ? 'strinsert' : '-'] },
-            { name: 'colors', items: ['TextColor', 'BGColor'] },
+            { name: 'others', items: [insertItems && 'strinsert'] },
+            { name: 'clear', items: ['RemoveFormat'] },
             { name: 'tools', items: ['Maximize'] }
           ],
           mentions: [

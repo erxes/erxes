@@ -100,8 +100,7 @@ export const KIND_CHOICES_WITH_TEXT = [
   { text: 'Pop Ups', value: 'lead' },
   { text: 'Callpro', value: 'callpro' },
   { text: 'Chatfuel', value: 'chatfuel' },
-  { text: 'Gmail', value: 'gmail' },
-  { text: 'Nylas gmail', value: 'nylas-gmail' }
+  { text: 'Gmail', value: 'nylas-gmail' }
 ];
 
 export const FORM_LOAD_TYPES = {
@@ -119,23 +118,21 @@ export const FORM_SUCCESS_ACTIONS = {
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
-  { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
-  { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
-  { name: 'tools', items: ['Maximize'] },
+  { name: 'styles', items: ['Font', 'FontSize'] },
   {
-    name: 'insert',
-    items: ['Image', 'HorizontalRule', 'EmojiPanel']
+    name: 'other',
+    items: [
+      'TextColor',
+      'BGColor',
+      'Bold',
+      'Italic',
+      'Underline',
+      'NumberedList',
+      'BulletedList',
+      'Link'
+    ]
   },
-  {
-    name: 'basicstyles',
-    groups: ['basicstyles', 'cleanup'],
-    items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
-  },
-  {
-    name: 'paragraph',
-    groups: ['list', 'indent', 'blocks', 'align', 'bidi'],
-    items: ['NumberedList', 'BulletedList']
-  }
+  { name: 'clear', items: ['RemoveFormat'] }
 ];
 
 export const INTEGRATIONS = [
@@ -169,7 +166,7 @@ export const INTEGRATIONS = [
       {
         name: 'Gmail',
         description:
-          'connect straight to your gmail and get those emails going',
+          'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
         inMessenger: false,
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
@@ -183,7 +180,8 @@ export const INTEGRATIONS = [
     rows: [
       {
         name: 'IMAP by Nylas',
-        description: 'Connect your custom mail server',
+        description:
+          'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
         inMessenger: false,
         kind: 'nylas-imap',
         logo: '/images/integrations/email.png',
@@ -192,7 +190,8 @@ export const INTEGRATIONS = [
       },
       {
         name: 'Office 365 by Nylas',
-        description: 'Connect your office 365 mail server',
+        description:
+          'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
         inMessenger: false,
         kind: 'nylas-office365',
         logo: '/images/integrations/office365.png',
@@ -202,7 +201,7 @@ export const INTEGRATIONS = [
       {
         name: 'Gmail by Nylas',
         description:
-          'Connect straight to your gmail and get those emails going powered by Nylas',
+          'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
         inMessenger: false,
         kind: 'nylas-gmail',
         logo: '/images/integrations/gmail.png',
@@ -210,7 +209,7 @@ export const INTEGRATIONS = [
         createUrl: '/settings/integrations/nylas-gmail'
       },
       {
-        name: 'Lead',
+        name: 'Pop Ups',
         description: 'Find your lead forms right here in your Widget',
         inMessenger: true,
         kind: 'lead',
@@ -226,7 +225,7 @@ export const INTEGRATIONS = [
       {
         name: 'Outlook by Nylas',
         description:
-          'Connect straight to your outlook and get those emails going powered by Nylas',
+          'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
         inMessenger: false,
         kind: 'nylas-outlook',
         logo: '/images/integrations/outlook.png',
@@ -236,7 +235,7 @@ export const INTEGRATIONS = [
       {
         name: 'Yahoo by Nylas',
         description:
-          'Connect straight to your yahoo and get those emails going powered by Nylas',
+          'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
         inMessenger: false,
         kind: 'nylas-yahoo',
         logo: '/images/integrations/yahoo.png',

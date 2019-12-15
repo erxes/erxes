@@ -1,10 +1,10 @@
+import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { __, renderFullName } from 'modules/common/utils';
 import { ICompany } from 'modules/companies/types';
 import { Contact } from 'modules/customers/styles';
-import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -24,7 +24,7 @@ class Contacts extends React.Component<Props> {
         {renderFullName(customer)}
 
         <Link to={`/contacts/customers/details/${customer._id}`}>
-          <Icon icon="logout-2" />
+          <Icon icon="arrow-to-right" />
         </Link>
       </Contact>
     ));
@@ -43,15 +43,10 @@ class Contacts extends React.Component<Props> {
   }
 
   render() {
-    const { Section } = Sidebar;
-    const { Title } = Section;
-
     return (
-      <Section>
-        <Title>{__('Contacts')}</Title>
-
+      <Box title={__('Contacts')} name="showContacts">
         {this.renderContent()}
-      </Section>
+      </Box>
     );
   }
 }

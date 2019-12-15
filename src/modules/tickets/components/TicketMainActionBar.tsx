@@ -1,5 +1,4 @@
 import MainActionBar from 'modules/boards/components/MainActionBar';
-import { PRIORITIES } from 'modules/boards/constants';
 import { IBoard, IPipeline } from 'modules/boards/types';
 import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -29,7 +28,6 @@ type Props = {
 const TicketMainActionBar = (props: Props) => {
   const { queryParams, onSelect } = props;
 
-  const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
   const sourceValues = KIND_CHOICES.ALL_LIST.map(key => ({
     label: key,
     value: key
@@ -39,26 +37,12 @@ const TicketMainActionBar = (props: Props) => {
     value: 'other'
   });
 
-  const priorities = queryParams ? queryParams.priority : [];
   const sources = queryParams ? queryParams.source : [];
-
-  const onPrioritySelect = (ops: IOption[]) =>
-    onSelect(ops.map(option => option.value), 'priority');
   const onSourceSelect = (ops: IOption[]) =>
     onSelect(ops.map(option => option.value), 'source');
 
   const extraFilter = (
     <>
-      <Select
-        placeholder="Choose a priority"
-        value={priorities}
-        options={priorityValues}
-        name="priority"
-        onChange={onPrioritySelect}
-        multi={true}
-        loadingPlaceholder={__('Loading...')}
-      />
-
       <Select
         placeholder="Choose a source"
         value={sources}

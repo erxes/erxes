@@ -74,6 +74,7 @@ const NotifList = styled.ul`
 
 const NotificationList = styled(NotifList)`
   max-height: 420px !important;
+  overflow: auto;
 `;
 
 const NotifButton = styled.div`
@@ -82,10 +83,6 @@ const NotifButton = styled.div`
   width: 100%;
   position: relative;
   transition: all 0.3s ease;
-
-  &[aria-describedby] {
-    color: ${colors.colorSecondary};
-  }
 
   i {
     font-size: 18px;

@@ -60,7 +60,8 @@ const LabelStyled = styledTS<{
     background: ${colors.colorPrimary};
   }
 
-  &.label-form {
+  &.label-form,
+  &.label-lead {
     background: ${colors.colorCoreYellow};
   }
 
@@ -69,15 +70,15 @@ const LabelStyled = styledTS<{
   }
 
   &.label-messenger {
-    background: ${colors.colorPrimary};
-  }
-
-  &.label-lead {
     background: ${colors.colorCoreBlue};
   }
 
+  &.label-facebook-messenger {
+    background: ${colors.socialFacebookMessenger};
+  }
+
   &.label-knowledgebase {
-    background: ${colors.colorPrimary};
+    background: ${colors.colorCoreTeal};
   }
 
   &.label-googleMeet {
@@ -86,6 +87,10 @@ const LabelStyled = styledTS<{
 
   &.label-twitter {
     background: ${colors.socialTwitter}
+  }
+
+  &.label-gmail {
+    background: ${colors.socialGmail}
   }
 `;
 

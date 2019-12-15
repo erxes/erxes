@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { PipelinesQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import Pipelines from '../components/Pipelines';
 import { mutations, queries } from '../graphql';
 import {

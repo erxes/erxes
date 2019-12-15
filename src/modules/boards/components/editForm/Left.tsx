@@ -2,7 +2,7 @@ import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
 
-import { IItem } from 'modules/boards/types';
+import { IItem, IOptions } from 'modules/boards/types';
 import Checklists from 'modules/checklists/containers/Checklists';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -10,52 +10,66 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, extractAttachment } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
-import { IPipelineLabel } from '../../types';
-import Labels from '..//label/Labels';
+import Labels from '../label/Labels';
+import Actions from './Actions';
 
 type Props = {
   item: IItem;
-  labels: IPipelineLabel[];
-  onChangeField: (name: 'description', value: any) => void;
-  type: string;
-  description: string;
-  onChangeAttachment: (attachments: IAttachment[]) => void;
-  attachments: IAttachment[];
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
+  options: IOptions;
+  copyItem: () => void;
+  removeItem: (itemId: string) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
+  onUpdate: (item: IItem, prevStageId?: string) => void;
 };
 
 class Left extends React.Component<Props> {
   render() {
     const {
       item,
-      onChangeField,
-      attachments,
-      onChangeAttachment,
-      description,
-      type,
-      labels
+      saveItem,
+      options,
+      copyItem,
+      removeItem,
+      onUpdate
     } = this.props;
 
-    const descriptionOnChange = e =>
-      onChangeField('description', (e.target as HTMLInputElement).value);
+    const descriptionOnBlur = e => {
+      const description = e.target.value;
 
-    const descriptionOnBlur = e =>
-      this.props.onBlurFields('description', e.target.value);
+      if (item.description !== description) {
+        saveItem({ description: e.target.value });
+      }
+    };
+
+    const onChangeAttachment = (files: IAttachment[]) =>
+      saveItem({ attachments: files });
+
+    const attachments =
+      (item.attachments && extractAttachment(item.attachments)) || [];
 
     return (
       <LeftContainer>
-        {labels.length > 0 && (
+        <Actions
+          item={item}
+          options={options}
+          copyItem={copyItem}
+          removeItem={removeItem}
+          saveItem={saveItem}
+          onUpdate={onUpdate}
+        />
+
+        {item.labels.length > 0 && (
           <FormGroup>
             <TitleRow>
               <ControlLabel>
-                <Icon icon="tag" />
+                <Icon icon="tag-alt" />
                 {__('Labels')}
               </ControlLabel>
             </TitleRow>
 
-            <Labels labels={labels} />
+            <Labels labels={item.labels} />
           </FormGroup>
         )}
 
@@ -83,26 +97,26 @@ class Left extends React.Component<Props> {
 
           <FormControl
             componentClass="textarea"
-            defaultValue={description}
-            onChange={descriptionOnChange}
+            defaultValue={item.description}
             onBlur={descriptionOnBlur}
-            autoFocus={true}
           />
         </FormGroup>
 
-        <Checklists contentType={type} contentTypeId={item._id} />
+        <Checklists contentType={options.type} contentTypeId={item._id} />
 
         <ActivityInputs
           contentTypeId={item._id}
-          contentType={type}
+          contentType={options.type}
           showEmail={false}
         />
 
         <ActivityLogs
           target={item.name}
           contentId={item._id}
-          contentType={type}
-          extraTabs={[]}
+          contentType={options.type}
+          extraTabs={
+            options.type === 'task' ? [] : [{ name: 'task', label: 'Task' }]
+          }
         />
       </LeftContainer>
     );

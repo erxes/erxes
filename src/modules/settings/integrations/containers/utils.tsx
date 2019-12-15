@@ -28,8 +28,12 @@ export const getRefetchQueries = (kind: string) => {
   ];
 };
 
-export const formatStr = (emailString: string) => {
-  return emailString ? emailString.split(/[ ]+/).join(',') : '';
+export const formatStr = (emailString?: string) => {
+  return emailString ? emailString.split(/[ ,]+/) : [];
+};
+
+export const cleanIntegrationKind = (name: string) => {
+  return name.replace('nylas-', '');
 };
 
 export const formatObj = (emailArray: IEmail[]) => {

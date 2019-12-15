@@ -4,6 +4,7 @@ import { IConversation } from '../../inbox/types';
 
 export type IInvitationEntry = {
   email: string;
+  password: string;
   groupId: string;
 };
 
@@ -66,5 +67,11 @@ export type ConfirmMutationVariables = {
 export type ConfirmMutationResponse = {
   usersConfirmInvitation: (
     params: { variables: ConfirmMutationVariables }
+  ) => Promise<any>;
+};
+
+export type ResetMemberPasswordResponse = {
+  usersResetMemberPassword: (
+    params: { variables: { _id: string; newPassword: string } }
   ) => Promise<any>;
 };

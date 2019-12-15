@@ -1,12 +1,12 @@
 import Button from 'modules/common/components/Button';
-import { ImportLoader } from 'modules/common/components/ButtonMutate';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import { getMentionedUserIds } from 'modules/common/components/EditorCK';
 import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
 import styled from 'styled-components';
 
-export const EditorActions = styled.div`
-  padding: 10px 15px 40px 20px;
+const EditorActions = styled.div`
+  padding: 0px 15px 37px 15px;
   text-align: right;
 `;
 
@@ -15,6 +15,8 @@ const EditorWrapper = styled.div`
 
   > .cke_chrome {
     border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
   }
 
   .cke_bottom {
@@ -23,11 +25,18 @@ const EditorWrapper = styled.div`
     right: 0;
     left: 0;
   }
+
+  .cke_toolgroup {
+    border: 0;
+    margin-left: 3px;
+  }
 `;
 
 type Prop = {
-  create: (content: string, mentionedUserIds, callback: () => void) => void;
+  save: (variables, callback: () => void) => void;
   isActionLoading: boolean;
+  content?: string;
+  callback?: () => void;
 };
 
 type State = {
@@ -39,7 +48,7 @@ class Form extends React.PureComponent<Prop, State> {
     super(props);
 
     this.state = {
-      content: ''
+      content: props.content ? props.content : ''
     };
   }
 
@@ -49,16 +58,17 @@ class Form extends React.PureComponent<Prop, State> {
 
   onSend = () => {
     const { content } = this.state;
+    const { callback } = this.props;
 
     const mentionedUserIds = getMentionedUserIds(content);
 
-    this.props.create(content, mentionedUserIds, () => {
-      this.clearContent();
+    this.props.save({ content, mentionedUserIds }, () => {
+      callback ? callback() : this.clearContent();
     });
   };
 
   renderFooter() {
-    const { isActionLoading } = this.props;
+    const { isActionLoading, content, callback } = this.props;
 
     if (!this.state.content) {
       return null;
@@ -66,6 +76,16 @@ class Form extends React.PureComponent<Prop, State> {
 
     return (
       <EditorActions>
+        {content && (
+          <Button
+            icon="cancel-1"
+            btnStyle="simple"
+            size="small"
+            onClick={callback}
+          >
+            Cancel
+          </Button>
+        )}
         <Button
           onClick={this.clearContent}
           btnStyle="warning"
@@ -80,9 +100,9 @@ class Form extends React.PureComponent<Prop, State> {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon={isActionLoading ? undefined : 'send'}
+          icon={isActionLoading ? undefined : 'message'}
         >
-          {isActionLoading && <ImportLoader />}
+          {isActionLoading && <SmallLoader />}
           Save
         </Button>
       </EditorActions>
@@ -105,12 +125,21 @@ class Form extends React.PureComponent<Prop, State> {
           onChange={this.onEditorChange}
           height={150}
           toolbar={[
-            { name: 'insert', items: ['Image', 'EmojiPanel'] },
-            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
-            { name: 'basicstyles', items: ['Bold', 'Italic'] },
-            { name: 'links', items: ['Link', 'Unlink'] }
+            {
+              name: 'basicstyles',
+              items: [
+                'Bold',
+                'Italic',
+                'NumberedList',
+                'BulletedList',
+                'Link',
+                'Unlink',
+                '-',
+                'Image',
+                'EmojiPanel'
+              ]
+            }
           ]}
-          toolbarCanCollapse={true}
         />
 
         {this.renderFooter()}

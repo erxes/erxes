@@ -42,7 +42,9 @@ class List extends React.Component<Props, State> {
     return (
       <>
         <Info>
-          <p>To find your Access Key and Secret Access Key:</p>
+          <p>
+            <strong>To find your Access Key and Secret Access Key:</strong>
+          </p>
           <ol>
             <li>
               <a
@@ -69,7 +71,41 @@ class List extends React.Component<Props, State> {
           </ol>
         </Info>
         <Info>
-          <p>If you want Access Key using only Amazon SES and Amazon SNS:</p>
+          <p>
+            <strong>To find your Region:</strong>
+          </p>
+          <ol>
+            <li>
+              <a
+                href="https://console.aws.amazon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Log in to your AWS Management Console.
+              </a>
+            </li>
+            <li>Click on services menu at the top left of the page.</li>
+            <li>Find Simple Email Service and Copy region code from url.</li>
+          </ol>
+          <p>If you choose not available region</p>
+          <ol>
+            <li>Click on your region at the top right of the menu.</li>
+            <li>Select any active region from list.</li>
+            <li>
+              Copy the selected Region code. <br />
+              <i>
+                (example: us-east-1, us-west-2, ap-south-1, ap-southeast-2,
+                eu-central-1, eu-west-1)
+              </i>
+            </li>
+          </ol>
+        </Info>
+        <Info>
+          <p>
+            <strong>
+              If you want Access Key using only Amazon SES and Amazon SNS:
+            </strong>
+          </p>
           <ol>
             <li>
               <a

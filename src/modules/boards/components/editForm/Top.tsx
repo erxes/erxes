@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
@@ -10,54 +9,39 @@ import CloseDate from './CloseDate';
 type Props = {
   item: IItem;
   options: IOptions;
-  name: string;
-  closeDate: Date;
-  reminderMinute: number;
-  isComplete: boolean;
   stageId: string;
-  users: IUser[];
-  onChangeField: (
-    name: 'stageId' | 'name' | 'closeDate' | 'reminderMinute' | 'isComplete',
-    value: any
-  ) => void;
+  saveItem: (doc: { [key: string]: any }) => void;
+  onChangeStage?: (stageId: string) => void;
   amount?: () => React.ReactNode;
-  onBlurFields: (name: 'description' | 'name', value: string) => void;
 };
 
 class Top extends React.Component<Props> {
-  onChangeStage = stageId => {
-    this.props.onChangeField('stageId', stageId);
-  };
-
   renderMove() {
-    const { item, stageId, options } = this.props;
+    const { item, stageId, options, onChangeStage } = this.props;
 
     return (
       <Move
         options={options}
         item={item}
         stageId={stageId}
-        onChangeStage={this.onChangeStage}
+        onChangeStage={onChangeStage}
       />
     );
   }
 
   render() {
-    const {
-      name,
-      closeDate,
-      onChangeField,
-      amount,
-      onBlurFields,
-      reminderMinute,
-      isComplete
-    } = this.props;
-
-    const nameOnChange = e =>
-      onChangeField('name', (e.target as HTMLInputElement).value);
+    const { saveItem, amount, item } = this.props;
 
     const onNameBlur = e => {
-      onBlurFields('name', e.target.value);
+      const name = e.target.value;
+
+      if (item.name !== name) {
+        saveItem({ name: e.target.value });
+      }
+    };
+
+    const onCloseDateFieldsChange = (name: string, value: any) => {
+      saveItem({ [name]: value });
     };
 
     return (
@@ -65,12 +49,11 @@ class Top extends React.Component<Props> {
         <HeaderRow>
           <HeaderContent>
             <TitleRow>
-              <Icon icon="creditcard" />
+              <Icon icon="atm-card" />
               <FormControl
                 componentClass="textarea"
-                defaultValue={name}
+                defaultValue={item.name}
                 required={true}
-                onChange={nameOnChange}
                 onBlur={onNameBlur}
               />
             </TitleRow>
@@ -83,10 +66,10 @@ class Top extends React.Component<Props> {
           <HeaderContent>{this.renderMove()}</HeaderContent>
 
           <CloseDate
-            onChangeField={onChangeField}
-            closeDate={closeDate}
-            reminderMinute={reminderMinute}
-            isComplete={isComplete}
+            onChangeField={onCloseDateFieldsChange}
+            closeDate={item.closeDate}
+            reminderMinute={item.reminderMinute}
+            isComplete={item.isComplete}
           />
         </HeaderRow>
       </React.Fragment>

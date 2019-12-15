@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
@@ -6,7 +7,7 @@ import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
 import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
 import { IntegrationsQueryResponse } from 'modules/settings/integrations/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { ICommonFormProps } from '../../common/types';
 import Form from '../components/Form';

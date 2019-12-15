@@ -20,10 +20,11 @@ const mailParamsDef = `
   $subject: String!,
   $kind: String,
   $body: String!,
-  $to: String!,
-  $cc: String,
-  $bcc: String,
+  $to: [String]!,
+  $cc: [String],
+  $bcc: [String] ,
   $from: String!,
+  $shouldResolve: Boolean,
   $attachments: [JSON],
 `;
 
@@ -41,6 +42,7 @@ const mailParams = `
   cc: $cc,
   bcc: $bcc,
   from: $from,
+  shouldResolve: $shouldResolve,
   attachments: $attachments,
 `;
 
@@ -72,6 +74,14 @@ const integrationsCreateExternalIntegration = `
         name
         code
       }
+    }
+  }
+`;
+
+const integrationsEditCommonFields = `
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId) {
+      _id
     }
   }
 `;
@@ -199,9 +209,19 @@ const addImapAccount = `
   }
 `;
 
+const integrationsArchive = `
+  mutation integrationsArchive($_id: String!) {
+    integrationsArchive(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
+  integrationsArchive,
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,
+  integrationsEditCommonFields,
   integrationsEditMessenger,
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,

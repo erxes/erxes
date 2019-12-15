@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
@@ -6,7 +7,7 @@ import { CountQueryResponse } from 'modules/customers/types';
 import { mutations } from 'modules/settings/brands/graphql';
 import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import BrandStep from '../components/step/BrandStep';
 import { queries } from '../graphql';
 import { sumCounts } from '../utils';

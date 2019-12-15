@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import Icon from 'modules/common/components/Icon';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { ModalFooter } from 'modules/common/styles/main';
@@ -22,6 +23,7 @@ import {
 
 type Props = {
   objects: ICustomer[];
+  mergeCustomerLoading: boolean;
   save: (
     doc: {
       ids: string[];
@@ -73,7 +75,7 @@ class CustomersMerge extends React.Component<Props, State> {
   ) => {
     const selectedValues = { ...this.state.selectedValues };
 
-    if (type === 'add') {
+    if (type === 'plus-1') {
       selectedValues[key] = value;
 
       if (key === 'links') {
@@ -205,28 +207,34 @@ class CustomersMerge extends React.Component<Props, State> {
 
   render() {
     const { selectedValues } = this.state;
-    const { objects, closeModal } = this.props;
+    const { objects, closeModal, mergeCustomerLoading } = this.props;
     const [customer1, customer2] = objects;
 
     return (
       <form onSubmit={this.save}>
         <Columns>
           <Column className="multiple">
-            {this.renderCustomer(customer1, 'add')}
+            {this.renderCustomer(customer1, 'plus-1')}
           </Column>
 
           <Column className="multiple">
-            {this.renderCustomer(customer2, 'add')}
+            {this.renderCustomer(customer2, 'plus-1')}
           </Column>
 
-          <Column>{this.renderCustomer(selectedValues, 'minus-circle')}</Column>
+          <Column>{this.renderCustomer(selectedValues, 'times')}</Column>
         </Columns>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>
-          <Button type="submit" btnStyle="success" icon="checked-1">
+          <Button
+            type="submit"
+            btnStyle="success"
+            icon={mergeCustomerLoading ? undefined : 'checked-1'}
+            disabled={mergeCustomerLoading}
+          >
+            {mergeCustomerLoading && <SmallLoader />}
             Save
           </Button>
         </ModalFooter>

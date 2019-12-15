@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const FilterContainer = styled.div`
   position: relative;
-  padding: ${dimensions.coreSpacing}px;
+  padding-bottom: ${dimensions.coreSpacing}px;
   z-index: 2;
 `;
 
@@ -39,8 +39,6 @@ const FlexRow = styled.div`
 `;
 
 const RemoveRow = styled.a`
-  position: absolute;
-  right: 0;
   top: ${dimensions.unitSpacing + 2}px;
   margin-left: ${dimensions.unitSpacing}px;
   padding: ${dimensions.unitSpacing / 2}px;
@@ -55,13 +53,6 @@ const RemoveRow = styled.a`
 const UserAvatar = styled.td`
   &:hover {
     cursor: pointer;
-  }
-`;
-
-const AlignedTd = styled.td`
-  > * {
-    vertical-align: middle;
-    margin-left: ${dimensions.unitSpacing}px;
   }
 `;
 
@@ -82,7 +73,6 @@ export {
   FlexRow,
   ButtonContainer,
   UserAvatar,
-  AlignedTd,
   LinkButton,
   RemoveRow,
   InviteOption

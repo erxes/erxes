@@ -9,7 +9,8 @@ import {
   ColumnTitle,
   FormColumn,
   FormWrapper,
-  ModalFooter
+  ModalFooter,
+  ScrollWrapper
 } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
@@ -163,186 +164,190 @@ class CompanyForm extends React.Component<Props, State> {
 
     return (
       <>
-        <AvatarUpload
-          avatar={company.avatar}
-          onAvatarUpload={this.onAvatarUpload}
-          defaultAvatar="/images/company.png"
-        />
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <ModifiableSelect
-                value={primaryName}
-                options={names || []}
-                placeholder="Primary name"
-                buttonText="Add name"
-                adding={true}
-                required={true}
-                onChange={this.onChange.bind(this, 'names', 'primaryName')}
-              />
-            </FormGroup>
+        <ScrollWrapper>
+          <AvatarUpload
+            avatar={company.avatar}
+            onAvatarUpload={this.onAvatarUpload}
+            defaultAvatar="/images/company.png"
+          />
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>Name</ControlLabel>
+                <ModifiableSelect
+                  value={primaryName}
+                  options={names || []}
+                  placeholder="Primary name"
+                  buttonText="Add name"
+                  adding={true}
+                  required={true}
+                  onChange={this.onChange.bind(this, 'names', 'primaryName')}
+                />
+              </FormGroup>
 
-            {this.renderFormGroup('Industry', {
-              ...formProps,
-              name: 'industry',
-              componentClass: 'select',
-              defaultValue: company.industry || '',
-              options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
-            })}
+              {this.renderFormGroup('Industry', {
+                ...formProps,
+                name: 'industry',
+                componentClass: 'select',
+                defaultValue: company.industry || '',
+                options: this.generateConstantParams(COMPANY_INDUSTRY_TYPES)
+              })}
 
-            <FormGroup>
-              <ControlLabel>Owner</ControlLabel>
-              <SelectTeamMembers
-                label="Choose an owner"
-                name="ownerId"
-                value={ownerId}
-                onSelect={onSelectOwner}
-                multi={false}
-              />
-            </FormGroup>
+              <FormGroup>
+                <ControlLabel>Owner</ControlLabel>
+                <SelectTeamMembers
+                  label="Choose an owner"
+                  name="ownerId"
+                  value={ownerId}
+                  onSelect={onSelectOwner}
+                  multi={false}
+                />
+              </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Email</ControlLabel>
-              <ModifiableSelect
-                value={primaryEmail}
-                options={emails || []}
-                placeholder="Primary Email"
-                buttonText="Add email"
-                onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
-                checkFormat={validator.isEmail}
-              />
-            </FormGroup>
+              <FormGroup>
+                <ControlLabel>Email</ControlLabel>
+                <ModifiableSelect
+                  value={primaryEmail}
+                  options={emails || []}
+                  placeholder="Primary Email"
+                  buttonText="Add email"
+                  onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
+                  checkFormat={validator.isEmail}
+                />
+              </FormGroup>
 
-            {this.renderFormGroup('Pop Ups Status', {
-              ...formProps,
-              name: 'leadStatus',
-              componentClass: 'select',
-              defaultValue: company.leadStatus || '',
-              options: leadStatusChoices(__)
-            })}
+              {this.renderFormGroup('Pop Ups Status', {
+                ...formProps,
+                name: 'leadStatus',
+                componentClass: 'select',
+                defaultValue: company.leadStatus || '',
+                options: leadStatusChoices(__)
+              })}
 
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                {...formProps}
-                max={140}
-                name="description"
-                componentClass="textarea"
-                defaultValue={company.description || ''}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>Parent Company</ControlLabel>
-              <SelectCompanies
-                label="Choose parent company"
-                name="parentCompanyId"
-                value={parentCompanyId}
-                onSelect={onSelectParentCompany}
-                multi={false}
-              />
-            </FormGroup>
-            {this.renderFormGroup('Business Type', {
-              ...formProps,
-              name: 'businessType',
-              componentClass: 'select',
-              defaultValue: company.businessType || '',
-              options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
-            })}
-            {this.renderFormGroup('Size', {
-              ...formProps,
-              name: 'size',
-              type: 'number',
-              defaultValue: company.size || 0
-            })}
+              <FormGroup>
+                <ControlLabel>Description</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  max={140}
+                  name="description"
+                  componentClass="textarea"
+                  defaultValue={company.description || ''}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Parent Company</ControlLabel>
+                <SelectCompanies
+                  label="Choose parent company"
+                  name="parentCompanyId"
+                  value={parentCompanyId}
+                  onSelect={onSelectParentCompany}
+                  multi={false}
+                />
+              </FormGroup>
+              {this.renderFormGroup('Business Type', {
+                ...formProps,
+                name: 'businessType',
+                componentClass: 'select',
+                defaultValue: company.businessType || '',
+                options: this.generateConstantParams(COMPANY_BUSINESS_TYPES)
+              })}
+              {this.renderFormGroup('Size', {
+                ...formProps,
+                name: 'size',
+                type: 'number',
+                defaultValue: company.size || 0
+              })}
 
-            <FormGroup>
-              <ControlLabel>Phone</ControlLabel>
-              <ModifiableSelect
-                value={primaryPhone}
-                options={phones || []}
-                placeholder="Primary phone"
-                buttonText="Add phone"
-                onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
-                checkFormat={validator.isMobilePhone}
-              />
-            </FormGroup>
+              <FormGroup>
+                <ControlLabel>Phone</ControlLabel>
+                <ModifiableSelect
+                  value={primaryPhone}
+                  options={phones || []}
+                  placeholder="Primary phone"
+                  buttonText="Add phone"
+                  onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
+                  checkFormat={validator.isMobilePhone}
+                />
+              </FormGroup>
 
-            {this.renderFormGroup('Lifecycle State', {
-              ...formProps,
-              name: 'lifecycleState',
-              componentClass: 'select',
-              defaultValue: company.lifecycleState || '',
-              options: lifecycleStateChoices(__)
-            })}
-            {this.renderFormGroup('Do not disturb', {
-              componentClass: 'radio',
-              options: [
-                {
-                  childNode: 'Yes',
-                  value: 'Yes',
-                  checked: this.state.doNotDisturb === 'Yes',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
-                },
-                {
-                  childNode: 'No',
-                  value: 'No',
-                  checked: this.state.doNotDisturb === 'No',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
-                }
-              ]
-            })}
-          </FormColumn>
-        </FormWrapper>
-        <ColumnTitle>{__('Links')}</ColumnTitle>
-        <FormWrapper>
-          <FormColumn>
-            {this.renderFormGroup('LinkedIn', {
-              ...formProps,
-              name: 'linkedIn',
-              defaultValue: links.linkedIn || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Lifecycle State', {
+                ...formProps,
+                name: 'lifecycleState',
+                componentClass: 'select',
+                defaultValue: company.lifecycleState || '',
+                options: lifecycleStateChoices(__)
+              })}
+              {this.renderFormGroup('Do not disturb', {
+                componentClass: 'radio',
+                options: [
+                  {
+                    childNode: 'Yes',
+                    value: 'Yes',
+                    checked: this.state.doNotDisturb === 'Yes',
+                    onChange: e =>
+                      this.setState({ doNotDisturb: e.target.value })
+                  },
+                  {
+                    childNode: 'No',
+                    value: 'No',
+                    checked: this.state.doNotDisturb === 'No',
+                    onChange: e =>
+                      this.setState({ doNotDisturb: e.target.value })
+                  }
+                ]
+              })}
+            </FormColumn>
+          </FormWrapper>
+          <ColumnTitle>{__('Links')}</ColumnTitle>
+          <FormWrapper>
+            <FormColumn>
+              {this.renderFormGroup('LinkedIn', {
+                ...formProps,
+                name: 'linkedIn',
+                defaultValue: links.linkedIn || '',
+                type: 'url'
+              })}
 
-            {this.renderFormGroup('Twitter', {
-              ...formProps,
-              name: 'twitter',
-              defaultValue: links.twitter || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Twitter', {
+                ...formProps,
+                name: 'twitter',
+                defaultValue: links.twitter || '',
+                type: 'url'
+              })}
 
-            {this.renderFormGroup('Facebook', {
-              ...formProps,
-              name: 'facebook',
-              defaultValue: links.facebook || '',
-              type: 'url'
-            })}
-          </FormColumn>
-          <FormColumn>
-            {this.renderFormGroup('Github', {
-              ...formProps,
-              name: 'github',
-              defaultValue: links.github || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Facebook', {
+                ...formProps,
+                name: 'facebook',
+                defaultValue: links.facebook || '',
+                type: 'url'
+              })}
+            </FormColumn>
+            <FormColumn>
+              {this.renderFormGroup('Github', {
+                ...formProps,
+                name: 'github',
+                defaultValue: links.github || '',
+                type: 'url'
+              })}
 
-            {this.renderFormGroup('Youtube', {
-              ...formProps,
-              name: 'youtube',
-              defaultValue: links.youtube || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Youtube', {
+                ...formProps,
+                name: 'youtube',
+                defaultValue: links.youtube || '',
+                type: 'url'
+              })}
 
-            {this.renderFormGroup('Website', {
-              ...formProps,
-              name: 'website',
-              defaultValue: links.website || '',
-              type: 'url'
-            })}
-          </FormColumn>
-        </FormWrapper>
+              {this.renderFormGroup('Website', {
+                ...formProps,
+                name: 'website',
+                defaultValue: links.website || '',
+                type: 'url'
+              })}
+            </FormColumn>
+          </FormWrapper>
+        </ScrollWrapper>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
@@ -353,7 +358,6 @@ class CompanyForm extends React.Component<Props, State> {
             name: 'company',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
             object: this.props.company
           })}
         </ModalFooter>

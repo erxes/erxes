@@ -34,12 +34,15 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
   renderAttachment(hasAttachment: boolean) {
     const { message } = this.props;
+    const { attachments } = message;
 
     if (!hasAttachment) {
       return null;
     }
 
-    return <Attachment attachment={message.attachments[0]} />;
+    return attachments.map((attachment, index) => (
+      <Attachment key={index} attachment={attachment} />
+    ));
   }
 
   renderContent(hasAttachment: boolean) {

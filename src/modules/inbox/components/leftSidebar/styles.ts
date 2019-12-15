@@ -2,10 +2,12 @@ import { colors, dimensions } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const RightItems = styled.div`
+const FlexRoot = styled.div`
   display: flex;
   align-items: center;
+`;
 
+const RightItems = styled(FlexRoot)`
   > div {
     margin-right: 10px;
   }
@@ -20,15 +22,22 @@ const ConversationItems = styled.ul`
 const CheckBox = styled.div`
   margin-top: ${dimensions.unitSpacing}px;
   margin-right: ${dimensions.unitSpacing}px;
+  position: absolute;
+  left: 0px;
 `;
 
 const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: row;
+  max-width: 100%;
   transition: all ease 0.3s;
+  position: relative;
+  padding-left: ${props => props.isChecked && '30px'};
 
   &:hover {
+    padding-left: 30px;
+
     ${CheckBox} {
       width: 30px;
     }
@@ -36,77 +45,73 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
 
   ${CheckBox} {
     width: ${props => (props.isChecked ? '30px' : '0')};
-
+    margin: 0;
     overflow: hidden;
     transition: all ease 0.3s;
 
     > label {
-      margin-top: 10px;
+      margin-top: 7px;
     }
-  }
-
-  > div {
-    margin: 0;
   }
 `;
 
 const FlexContent = styled.div`
   flex: 1;
+  max-width: 100%;
   transition: all ease 0.3s;
 
   .tags {
-    margin-top: ${dimensions.unitSpacing - 3}px;
+    margin-top: 5px;
+    line-height: 1;
   }
 `;
 
 const MainInfo = styled.div`
   overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 
   > span {
     margin-right: ${dimensions.unitSpacing}px;
   }
 `;
 
-const CustomerName = styled.div`
-  word-break: break-all;
+const FlexWidth = styled.div`
+  white-space: nowrap;
   overflow: hidden;
-  height: ${dimensions.coreSpacing}px;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+  text-overflow: ellipsis;
+  flex: 1;
 `;
 
-const SmallText = styled.div`
+const CustomerName = styled(FlexRoot)`
+  overflow: hidden;
+
+  time {
+    padding-left: 5px;
+    color: ${colors.colorCoreGray};
+    font-size: 12px;
+  }
+`;
+
+const Count = styled.div`
+  min-width: 18px;
+  margin-left: 5px;
+  color: ${colors.colorCoreGray};
+  background-color: ${colors.bgGray};
+  line-height: 18px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0 4px;
+  border-radius: 9px;
+  text-align: center;
+`;
+
+const SmallTextOneLine = styled(FlexWidth)`
   color: ${colors.colorCoreGray};
   font-size: 12px;
-  margin: 2px 0;
-  min-height: ${dimensions.coreSpacing}px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex-shrink: 0;
 `;
 
-const SmallTextOneLine = styled(SmallText)`
-  max-height: ${dimensions.coreSpacing}px;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-`;
-
-const MessageContent = styled.div`
-  margin-top: ${dimensions.unitSpacing - 3}px;
-  word-break: break-word;
-  overflow: hidden;
-  word-wrap: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  max-height: 18px;
+const MessageContent = styled(FlexRoot)`
+  margin-top: 7px;
+  line-height: 18px;
 `;
 
 const RowItem = styledTS<{
@@ -153,14 +158,11 @@ const RowItem = styledTS<{
 `;
 
 const AssigneeImg = styled.img`
-  height: ${dimensions.coreSpacing}px;
-  line-height: ${dimensions.coreSpacing}px;
-  border-radius: ${dimensions.coreSpacing / 2}px;
-`;
-
-const AssigneeWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
+  height: ${dimensions.coreSpacing - 2}px;
+  width: ${dimensions.coreSpacing - 2}px;
+  line-height: ${dimensions.coreSpacing - 2}px;
+  border-radius: ${dimensions.unitSpacing}px;
+  margin-left: 5px;
 `;
 
 const SidebarActions = styled.div`
@@ -204,7 +206,7 @@ const AdditionalSidebar = styled.div`
   bottom: 0;
 
   ul > li > a {
-    padding: 5px 30px;
+    padding: 5px 22px;
   }
 `;
 
@@ -237,6 +239,23 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
   }
 `;
 
+const ToggleButton = styledTS<{ isOpen?: boolean }>(styled.div)`
+  font-size: 15px;
+  background: ${props => props.isOpen && colors.bgGray};
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 2px;
+  margin-left: -5px;
+  transition: background ease 0.3s;
+
+  &:hover {
+    background: ${colors.bgActive};
+    cursor: pointer;
+  }
+`;
+
 export {
   ConversationItems,
   RightItems,
@@ -246,14 +265,16 @@ export {
   CheckBox,
   MainInfo,
   CustomerName,
-  SmallText,
+  FlexRoot,
+  Count,
   SmallTextOneLine,
   MessageContent,
+  FlexWidth,
   AssigneeImg,
-  AssigneeWrapper,
   SidebarActions,
   AdditionalSidebar,
   GroupTitle,
   LeftContent,
-  DropdownWrapper
+  DropdownWrapper,
+  ToggleButton
 };

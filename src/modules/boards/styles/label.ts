@@ -3,17 +3,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const LabelWrapper = styled.div`
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
-`;
-
-const CreateButton = styled.div`
-  padding: 7px;
-  background: ${colors.bgActive};
-  border: 1px solid ${colors.borderPrimary};
-  text-align: center;
-  cursor: pointer;
-  border-radius: 300px;
-  margin-top: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.coreSpacing}px;
 `;
 
 const Title = styled.h3`
@@ -28,9 +18,11 @@ const Title = styled.h3`
   color: ${colors.colorCoreGray};
   border-radius: 4px 4px 0 0;
   transition: all ease 0.3s;
+  align-items: center;
 
   > i {
     cursor: pointer;
+    font-size: 16px;
   }
 `;
 
@@ -38,22 +30,29 @@ const ChooseColor = styled.div`
   width: 260px;
 `;
 
-const FormContainer = styled.div`
-  margin-top: ${dimensions.unitSpacing}px;
-`;
-
 const PipelineLabelList = styled.div`
+  ul {
+    padding: ${dimensions.unitSpacing * 1.5}px ${dimensions.unitSpacing + 2}px
+      ${dimensions.unitSpacing / 2}px ${dimensions.coreSpacing}px;
+  }
+
   li {
     color: ${colors.colorWhite};
     font-weight: 500;
     margin-bottom: 5px;
-    border-radius: 300px;
-    padding: 8px ${dimensions.coreSpacing}px 8px 30px !important;
+    border-radius: 4px;
+    padding: 3px 30px 3px 10px !important;
     transition: all ease 0.3s;
 
     &:before {
       color: ${colors.colorWhite} !important;
       font-weight: 700;
+      left: auto;
+      right: 7px;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
     }
 
     &:hover {
@@ -62,11 +61,7 @@ const PipelineLabelList = styled.div`
   }
 `;
 
-const LabelList = styled.div`
-  display: inline-block;
-`;
-
-const Label = styledTS<{ color: string; isIndicator?: boolean }>(styled.div)`
+const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
   background-color: ${props => props.color && props.color};
   white-space: nowrap;
   overflow: hidden;
@@ -77,8 +72,47 @@ const Label = styledTS<{ color: string; isIndicator?: boolean }>(styled.div)`
   margin: 0 5px 5px 0;
   color: ${colors.colorWhite};
   font-weight: 500;
-  border-radius: 300px;
-  padding: ${props => (props.isIndicator ? '3px 10px' : '5px 10px')};
+  border-radius: 4px;
+  line-height: 1.2em;
+  padding: 4px 10px;
+
+  &:last-child {
+    margin: 0px;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+
+  ${props =>
+    props.timeout &&
+    `
+    line-height: 0;
+
+    span {
+      display: block;
+    }
+
+    .erxes-label-enter-done {
+      text-indent: 0px;
+      line-height: 1.2em;
+      transition: all ${props.timeout}ms ease-in;
+    }
+
+    span,
+    .erxes-label-exit-done {
+      line-height: 0em;
+      text-indent: -699px;
+      transition: all ${props.timeout}ms ease-out;
+    }`}
+`;
+
+const LabelList = styled.div`
+  display: inline-block;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const ChooseLabelWrapper = styled.div`
@@ -86,19 +120,18 @@ const ChooseLabelWrapper = styled.div`
   flex-shrink: 0;
 `;
 
-const Container = styledTS<{ showForm: boolean }>(styled.div)`
-  display: ${props => (!props.showForm ? 'none' : 'inherit')};
+const ButtonContainer = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px
+    ${dimensions.unitSpacing * 1.5}px ${dimensions.coreSpacing}px;
 `;
 
 export {
   LabelWrapper,
-  CreateButton,
   Title,
   Label,
   LabelList,
-  Container,
+  ButtonContainer,
   ChooseColor,
-  FormContainer,
   ChooseLabelWrapper,
   PipelineLabelList
 };

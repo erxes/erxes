@@ -29,7 +29,7 @@ const engageMessages = `
       title
       isDraft
       isLive
-      createdDate
+      createdAt
       kind
       method
       brands {
@@ -62,7 +62,7 @@ const engageMessages = `
   }
 `;
 
-const engageDetailFields = `
+export const engageDetailFields = `
   _id
   kind
   segmentIds
@@ -76,8 +76,14 @@ const engageDetailFields = `
   isDraft
   isLive
   stopDate
-  createdDate
+  createdAt
   messenger
+  fromUser {
+    email
+    details {
+      fullName
+    }
+  }
   scheduleDate {
     type
     month
@@ -100,9 +106,10 @@ const engageMessageDetail = `
 
 const users = `
   query users {
-    users {
+    allUsers(isActive: true) {
       _id
       username
+      email
       details {
         avatar
         fullName
@@ -233,7 +240,7 @@ const headSegments = `
 
 const combinedFields = `
   query fieldsCombinedByContentType {
-    fieldsCombinedByContentType(contentType: "customer")
+    fieldsCombinedByContentType(contentType: "customer", source: "fromSegments")
   }
 `;
 
@@ -255,6 +262,12 @@ const tagCounts = `
   }
 `;
 
+const verifiedEmails = `
+  query engageVerifiedEmails {
+    engageVerifiedEmails
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -271,5 +284,6 @@ export default {
   kindCounts,
   statusCounts,
   tagCounts,
-  tags
+  tags,
+  verifiedEmails
 };

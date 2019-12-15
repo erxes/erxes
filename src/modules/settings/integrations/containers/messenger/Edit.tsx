@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
@@ -15,7 +16,7 @@ import {
   SaveMessengerConfigsMutationResponse
 } from 'modules/settings/integrations/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
 import { BrandsQueryResponse } from '../../../brands/types';

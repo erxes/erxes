@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IBrandDoc } from 'modules/settings/brands/types';
 import { IChannelDoc } from 'modules/settings/channels/types';
 import ManageIntegrations from 'modules/settings/integrations/components/common/ManageIntegrations';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withProps } from '../../../../common/utils';
 import { IntegrationsQueryResponse } from '../../types';
 
@@ -29,31 +30,28 @@ class ManageIntegrationsContainer extends React.Component<FinalProps, State> {
     this.state = { perPage: 20 };
   }
 
+  search = (value, loadmore) => {
+    const { allIntegrationsQuery } = this.props;
+
+    if (!loadmore) {
+      this.setState({ perPage: 0 });
+    }
+
+    this.setState({ perPage: this.state.perPage + 20 }, () => {
+      allIntegrationsQuery.refetch({
+        searchValue: value,
+        perPage: this.state.perPage
+      });
+    });
+  };
+
   render() {
     const { allIntegrationsQuery, save } = this.props;
 
-    const search = (value, loadmore) => {
-      if (!loadmore) {
-        this.setState({ perPage: 0 });
-      }
-
-      this.setState({ perPage: this.state.perPage + 20 }, () => {
-        allIntegrationsQuery.refetch({
-          searchValue: value,
-          perPage: this.state.perPage
-        });
-      });
-    };
-
-    const clearState = () => {
-      allIntegrationsQuery.refetch({ searchValue: '' });
-    };
-
     const updatedProps = {
       ...this.props,
-      search,
+      search: this.search,
       save,
-      clearState,
       perPage: this.state.perPage,
       allIntegrations: allIntegrationsQuery.integrations || []
     };

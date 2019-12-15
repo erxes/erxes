@@ -1,10 +1,11 @@
 import client from 'apolloClient';
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, getCookie, setCookie, withProps } from 'modules/common/utils';
 import { queries as generalQueries } from 'modules/settings/general/graphql';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import QuickNavigation from '../components/QuickNavigation';
 
 type Props = {

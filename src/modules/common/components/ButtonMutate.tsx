@@ -7,7 +7,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Button from '../components/Button';
 
-export const ImportLoader = styled.i`
+export const SmallLoader = styled.i`
   width: 13px;
   height: 13px;
   animation: ${rotate} 0.75s linear infinite;
@@ -26,6 +26,7 @@ type Props = {
   variables: any;
   successMessage?: string;
   btnSize?: string;
+  btnStyle?: string;
   icon?: string;
   callback?: (data?: any) => void;
   children?: React.ReactNode;
@@ -33,6 +34,7 @@ type Props = {
   isSubmitted?: boolean;
   type?: string;
   disabled?: boolean;
+  disableLoading?: boolean;
   block?: boolean;
   beforeSubmit?: () => void;
 };
@@ -65,14 +67,17 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       variables,
       successMessage = '',
       refetchQueries,
-      beforeSubmit
+      beforeSubmit,
+      disableLoading
     } = this.props;
 
     if (beforeSubmit) {
       beforeSubmit();
     }
 
-    this.setState({ isLoading: true });
+    if (!disableLoading) {
+      this.setState({ isLoading: true });
+    }
 
     client
       .mutate({
@@ -90,7 +95,9 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
           callback(data);
         }
 
-        this.setState({ isLoading: false });
+        if (!disableLoading) {
+          this.setState({ isLoading: false });
+        }
       })
       .catch(error => {
         if (error.message.includes('Invalid login')) {
@@ -100,7 +107,9 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         } else {
           Alert.error(error.message);
         }
-        this.setState({ isLoading: false });
+        if (!disableLoading) {
+          this.setState({ isLoading: false });
+        }
       });
   };
 
@@ -110,6 +119,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       btnSize,
       icon,
       type,
+      btnStyle = 'success',
       disabled,
       block
     } = this.props;
@@ -118,14 +128,14 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
     return (
       <Button
         disabled={disabled || isLoading}
-        btnStyle="success"
+        btnStyle={btnStyle}
         size={btnSize}
         type={type}
         onClick={type ? undefined : this.mutate}
         icon={isLoading ? undefined : icon}
         block={block}
       >
-        {isLoading && <ImportLoader />}
+        {isLoading && <SmallLoader />}
         {children}
       </Button>
     );

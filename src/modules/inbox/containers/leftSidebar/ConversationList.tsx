@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import ConversationList from 'modules/inbox/components/leftSidebar/ConversationList';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import { generateParams } from 'modules/inbox/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
@@ -100,6 +101,7 @@ export default withProps<Props>(
         name: 'conversationsQuery',
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
+          notifyOnNetworkStatusChange: true,
           fetchPolicy: 'network-only',
           // every minute
           pollInterval: 60000

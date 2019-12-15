@@ -144,7 +144,7 @@ class AvatarUpload extends React.Component<Props, State> {
             src={readFile(avatarPreviewUrl)}
           />
           <label>
-            <Icon icon="upload-1" size={30} />
+            <Icon icon="export" size={30} />
             <input type="file" onChange={this.handleImageChange} />
           </label>
           {this.renderUploadLoader()}

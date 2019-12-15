@@ -43,7 +43,7 @@ const FlexItem = styled.div`
 const Actions = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
   > a,
   button {
@@ -57,7 +57,8 @@ const Actions = styled.div`
 
 const SectionContainer = styled.div`
   position: relative;
-  border-top: 1px solid ${colors.borderPrimary};
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
+  margin-bottom: 10px;
 
   > div {
     margin-bottom: 0;
@@ -140,11 +141,18 @@ const TabContent = styled.div`
   }
 `;
 
+const MailBox = styled.div`
+  background: ${colors.colorWhite};
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  transition: all ease 0.3s;
+`;
+
 const SidebarCollapse = styled.a`
   color: ${colors.colorCoreGray};
   position: absolute;
-  top: ${dimensions.unitSpacing}px;
-  right: ${dimensions.coreSpacing}px;
+  top: ${dimensions.unitSpacing - 2}px;
+  right: ${dimensions.coreSpacing - 3}px;
   font-size: 14px;
 
   &:hover {
@@ -165,5 +173,6 @@ export {
   ActivityLogContent,
   BasicInfo,
   SidebarCollapse,
-  TabContent
+  TabContent,
+  MailBox
 };

@@ -12,18 +12,17 @@ const RoundedBackground = styledTS<{ icon: string }>(styled.span)`
   text-align: center;
   display: flex;
   justify-content: center;
-  border: 1px solid ${colors.colorWhite};
   background: ${props =>
-    (props.icon === 'chat' && colors.colorPrimary) ||
-    (props.icon === 'piggy-bank' && colors.colorCoreBlue) ||
-    (props.icon === 'creditcard' && colors.colorCoreTeal) ||
-    (props.icon === 'clipboard' && colors.colorCoreRed) ||
-    colors.colorCoreGreen};
+    (props.icon === 'comment-1' && colors.colorCoreBlue) ||
+    (props.icon === 'dollar-alt' && colors.colorCoreRed) ||
+    (props.icon === 'postcard' && '#3a6f81') ||
+    (props.icon === 'file-check' && '#34c1c6') ||
+    '#8c7ae6'};
 
   i {
     color: ${colors.colorWhite};
-    font-size: 9px;
-    line-height: 15px;
+    font-size: 10px;
+    line-height: 18px;
   }
 `;
 
@@ -34,22 +33,22 @@ type Props = {
 class NotificationIcon extends React.PureComponent<Props> {
   getIcon() {
     const { notifType } = this.props.notification;
-    let icon = 'users-alt';
+    let icon = 'user-check';
 
     if (notifType.includes('conversation')) {
-      icon = 'chat';
+      icon = 'comment-1';
     }
 
     if (notifType.includes('deal')) {
-      icon = 'piggy-bank';
+      icon = 'dollar-alt';
     }
 
     if (notifType.includes('ticket')) {
-      icon = 'creditcard';
+      icon = 'postcard';
     }
 
     if (notifType.includes('task')) {
-      icon = 'clipboard';
+      icon = 'file-check';
     }
 
     return icon;

@@ -77,7 +77,10 @@ class Sidebar extends React.Component<Props, {}> {
         </SidebarList>
         {loading && <Spinner />}
         {!loading && channelsTotalCount === 0 && (
-          <EmptyState icon="sitemap" text="There is no channel" />
+          <EmptyState
+            image="/images/actions/18.svg"
+            text="There is no channel"
+          />
         )}
       </LeftSidebar>
     );

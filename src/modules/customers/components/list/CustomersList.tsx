@@ -12,7 +12,7 @@ import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
@@ -40,6 +40,7 @@ interface IProps extends IRouterProps {
   toggleBulk: (target: ICustomer, toAdd: boolean) => void;
   toggleAll: (targets: ICustomer[], containerId: string) => void;
   loading: boolean;
+  mergeCustomerLoading: boolean;
   searchValue: string;
   removeCustomers: (
     doc: { customerIds: string[] },
@@ -139,12 +140,14 @@ class CustomersList extends React.Component<IProps, State> {
     if (this.timer) {
       clearTimeout(this.timer);
     }
+
     const { history } = this.props;
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -167,7 +170,8 @@ class CustomersList extends React.Component<IProps, State> {
       location,
       history,
       queryParams,
-      exportCustomers
+      exportCustomers,
+      mergeCustomerLoading
     } = this.props;
 
     const addTrigger = (
@@ -198,7 +202,14 @@ class CustomersList extends React.Component<IProps, State> {
     };
 
     const customersMerge = props => {
-      return <CustomersMerge {...props} objects={bulk} save={mergeCustomers} />;
+      return (
+        <CustomersMerge
+          {...props}
+          objects={bulk}
+          save={mergeCustomers}
+          mergeCustomerLoading={mergeCustomerLoading}
+        />
+      );
     };
 
     const actionBarRight = (
@@ -214,12 +225,12 @@ class CustomersList extends React.Component<IProps, State> {
 
         {dateFilter}
 
-        <Dropdown id="dropdown-engage" pullRight={true}>
-          <DropdownToggle bsRole="toggle">
+        <Dropdown className="dropdown-btn" alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
               {__('Customize ')} <Icon icon="angle-down" />
             </Button>
-          </DropdownToggle>
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
               <ModalTrigger

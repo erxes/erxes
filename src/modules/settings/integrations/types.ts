@@ -92,6 +92,7 @@ export interface IIntegration {
   leadData: ILeadData;
   brand: IBrand;
   channels: IChannel[];
+  isActive?: boolean;
 }
 
 export interface IAccount {
@@ -249,7 +250,7 @@ export type SaveMessengerMutationResponse = {
 export type SaveMessengerAppearanceMutationResponse = {
   saveAppearanceMutation: (
     params: { variables: { _id: string; uiOptions: IUiOptions } }
-  ) => void;
+  ) => Promise<any>;
 };
 
 export type SaveMessengerConfigsMutationResponse = {
@@ -346,4 +347,14 @@ export type MessengerAppsQueryResponse = {
 
 export type MessengerAppsRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type ArchiveIntegrationResponse = {
+  archiveIntegration: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type CommonFieldsEditResponse = {
+  editCommonFields: (
+    params: { variables: { _id: string; name: string; brandId: string } }
+  ) => Promise<any>;
 };

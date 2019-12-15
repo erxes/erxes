@@ -1,10 +1,11 @@
 import { IBoard } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PipelineList from '../../containers/home/PipelineList';
@@ -21,13 +22,17 @@ class Home extends React.Component<Props> {
   renderBoards() {
     const { boardId, boards } = this.props;
 
+    if (boards.length === 0) {
+      return <EmptyState text="There is no campaign" icon="folder-2" />;
+    }
+
     return boards.map(board => (
       <li key={board._id}>
         <Link
           className={boardId === board._id ? 'active' : ''}
           to={`/growthHack/home?id=${board._id}`}
         >
-          {board.name}
+          <FieldStyle>{board.name}</FieldStyle>
           <SidebarCounter>
             {board.pipelines && board.pipelines.length}
           </SidebarCounter>

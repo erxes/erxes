@@ -12,7 +12,7 @@ import { ICommonFormProps } from 'modules/settings/common/types';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import { Description } from '../../styles';
-import { FlexRow, InviteOption, LinkButton, RemoveRow } from '../styles';
+import { InviteOption, LinkButton, RemoveRow } from '../styles';
 import { IInvitationEntry } from '../types';
 
 type Props = {
@@ -33,9 +33,9 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     this.state = {
       entries: [
-        { email: '', groupId: '' },
-        { email: '', groupId: '' },
-        { email: '', groupId: '' }
+        { email: '', password: '', groupId: '' },
+        { email: '', password: '', groupId: '' },
+        { email: '', password: '', groupId: '' }
       ],
       addMany: false,
       isSubmitted: false
@@ -56,7 +56,11 @@ class UserInvitationForm extends React.Component<Props, State> {
     return { entries: validEntries };
   };
 
-  onChange = (i: number, type: 'email' | 'groupId', e: React.FormEvent) => {
+  onChange = (
+    i: number,
+    type: 'email' | 'password' | 'groupId',
+    e: React.FormEvent
+  ) => {
     const { value } = e.target as HTMLInputElement;
 
     const entries = [...this.state.entries];
@@ -68,7 +72,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onAddMoreInput = () => {
     this.setState({
-      entries: [...this.state.entries, { email: '', groupId: '' }]
+      entries: [...this.state.entries, { email: '', password: '', groupId: '' }]
     });
   };
 
@@ -89,7 +93,9 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     const emails = values.split(',');
 
-    emails.map(e => entries.splice(0, 0, { email: e, groupId: '' }));
+    emails.map(e =>
+      entries.splice(0, 0, { email: e, password: '', groupId: '' })
+    );
 
     this.setState({ addMany: false });
   };
@@ -168,40 +174,68 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     return (
       <>
-        <FlexRow>
-          <ControlLabel required={true}>Email address</ControlLabel>
-          <ControlLabel required={true}>Permission</ControlLabel>
-        </FlexRow>
+        <table style={{ width: '100%' }}>
+          <thead>
+            <tr>
+              <th>
+                <ControlLabel required={true}>Email address</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel required={true}>Password</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel required={true}>Permission</ControlLabel>
+              </th>
+              <th />
+            </tr>
+          </thead>
 
-        {entries.map((input, i) => (
-          <FlexRow key={i}>
-            <FormControl
-              {...formProps}
-              name="email"
-              type="email"
-              placeholder="name@example.com"
-              value={input.email}
-              autoFocus={i === 0}
-              onChange={this.onChange.bind(this, i, 'email')}
-              required={true}
-            />
+          <tbody>
+            {entries.map((input, i) => (
+              <tr key={i}>
+                <td>
+                  <FormControl
+                    {...formProps}
+                    name="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    value={input.email}
+                    autoFocus={i === 0}
+                    onChange={this.onChange.bind(this, i, 'email')}
+                    required={true}
+                  />
+                </td>
 
-            <FormControl
-              {...formProps}
-              name="groupId"
-              componentClass="select"
-              placeholder={__('Choose group')}
-              options={[
-                { value: '', label: '' },
-                ...this.generateGroupsChoices()
-              ]}
-              onChange={this.onChange.bind(this, i, 'groupId')}
-              required={true}
-            />
+                <td>
+                  <FormControl
+                    {...formProps}
+                    name="password"
+                    type="password"
+                    value={input.password}
+                    onChange={this.onChange.bind(this, i, 'password')}
+                    required={true}
+                  />
+                </td>
 
-            {this.renderRemoveInput(i)}
-          </FlexRow>
-        ))}
+                <td>
+                  <FormControl
+                    {...formProps}
+                    name="groupId"
+                    componentClass="select"
+                    options={[
+                      { value: '', label: 'Choose group ...' },
+                      ...this.generateGroupsChoices()
+                    ]}
+                    onChange={this.onChange.bind(this, i, 'groupId')}
+                    required={true}
+                  />
+                </td>
+
+                <td>{this.renderRemoveInput(i)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         <InviteOption>
           <LinkButton onClick={this.onAddMoreInput}>

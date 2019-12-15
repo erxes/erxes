@@ -97,7 +97,7 @@ class Attachment extends React.Component<Props> {
             href={readFile(attachment.url)}
             target="_blank"
           >
-            <Icon icon="download-1" />
+            <Icon icon="down-arrow" />
           </Download>
         </h5>
         <Meta>
@@ -117,6 +117,19 @@ class Attachment extends React.Component<Props> {
           <Icon icon={icon} />
         </PreviewWrapper>
         <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
+      </AttachmentWrapper>
+    );
+  };
+
+  renderVideoFile = attachment => {
+    return (
+      <AttachmentWrapper>
+        <ItemInfo>
+          <video controls={true} loop={true}>
+            <source src={attachment.url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </ItemInfo>
       </AttachmentWrapper>
     );
   };
@@ -168,6 +181,8 @@ class Attachment extends React.Component<Props> {
         filePreview = this.renderOtherFile(attachment, 'file');
         break;
       case 'mp4':
+        filePreview = this.renderVideoFile(attachment);
+        break;
       case 'avi':
         filePreview = this.renderOtherFile(attachment, 'videocamera');
         break;

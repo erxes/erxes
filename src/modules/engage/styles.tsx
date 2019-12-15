@@ -11,7 +11,11 @@ import {
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
 
-const EngageTitle = styled.div`
+const RowTitle = styled.div`
+  > a {
+    color: ${colors.textPrimary};
+  }
+
   &:hover {
     text-decoration: underline;
     color: ${colors.colorBlack};
@@ -287,8 +291,25 @@ const SelectMessageType = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
+const VerifyStatus = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const VerifyCancel = styled.div`
+  font-size: 16px;
+  color: ${colors.colorCoreRed};
+  padding-right: 8px;
+`;
+
+const VerifyCheck = styled.div`
+  font-size: 16px;
+  color: ${colors.colorCoreGreen};
+  padding-right: 8px;
+`;
+
 export {
-  EngageTitle,
+  RowTitle,
   HelperText,
   EngageBox,
   FormWrapper,
@@ -316,5 +337,8 @@ export {
   ListWrapper,
   RadioContainer,
   CustomerCounts,
-  SelectMessageType
+  SelectMessageType,
+  VerifyStatus,
+  VerifyCancel,
+  VerifyCheck
 };

@@ -1,10 +1,11 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
-import BasicInfo from 'modules/companies/components/detail/BasicInfo';
 import { mutations, queries } from 'modules/companies/graphql';
+import ActionSection from 'modules/customers/components/common/ActionSection';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '../../../auth/types';
 import { IRouterProps } from '../../../common/types';
@@ -82,12 +83,14 @@ const BasicInfoContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    coc: company,
+    cocType: 'company',
     remove,
     merge,
-    searchCompany
+    search: searchCompany
   };
 
-  return <BasicInfo {...updatedProps} />;
+  return <ActionSection {...updatedProps} />;
 };
 
 const generateOptions = () => ({

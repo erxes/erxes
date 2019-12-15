@@ -1,9 +1,10 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import Stage from '../components/stage/Stage';
 import {
   IFilterParams,
@@ -65,6 +66,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         query: gql(options.queries.itemsQuery),
         variables: {
           stageId: stage._id,
+          pipelineId: stage.pipelineId,
           skip: items.length,
           ...getFilterParams(queryParams, options.getExtraParams)
         }
@@ -121,11 +123,7 @@ const getFilterParams = (
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
-    nextDay: queryParams.nextDay,
-    nextWeek: queryParams.nextWeek,
-    nextMonth: queryParams.nextMonth,
-    noCloseDate: queryParams.noCloseDate,
-    overdue: queryParams.overdue,
+    closeDateType: queryParams.closeDateType,
     labelIds: queryParams.labelIds,
     ...getExtraParams(queryParams)
   };
@@ -140,6 +138,7 @@ const withQuery = ({ options }) => {
         options: ({ stage, queryParams, loadingState }) => ({
           variables: {
             stageId: stage._id,
+            pipelineId: stage.pipelineId,
             ...getFilterParams(queryParams, options.getExtraParams)
           },
           fetchPolicy:

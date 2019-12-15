@@ -7,13 +7,11 @@ const commonParams = `
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
-  $nextDay: String,
-  $nextWeek: String,
-  $nextMonth: String,
-  $noCloseDate: String,
-  $overdue: String,
+  $closeDateType: String,
   $priority: [String],
   $labelIds: [String],
+  $sortField: String,
+  $sortDirection: Int,
   ${conformityQueryFields}
 `;
 
@@ -21,13 +19,11 @@ const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
-  nextDay: $nextDay,
-  nextWeek: $nextWeek,
-  nextMonth: $nextMonth,
-  noCloseDate: $noCloseDate,
-  overdue: $overdue,
+  closeDateType: $closeDateType,
   priority: $priority,
   labelIds: $labelIds,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
   ${conformityQueryFieldDefs}
 `;
 
@@ -54,9 +50,17 @@ export const taskFields = `
     primaryPhone
     visitorContactInfo
   }
+  createdUser {
+    _id
+    email
+    details {
+      fullName
+    }
+  }
   closeDate
   description
   priority
+  assignedUserIds
   assignedUsers {
     _id
     email

@@ -1,14 +1,14 @@
+import { formatText } from 'modules/activityLogs/utils';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
+import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import Tip from 'modules/common/components/Tip';
 import { Column, Columns, Title } from 'modules/common/styles/chooser';
 import { CenterContent, ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { IBrandDoc } from 'modules/settings/brands/types';
 import { IChannelDoc } from 'modules/settings/channels/types';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { BrandName, IntegrationName } from '../../styles';
 import { IIntegration } from '../../types';
@@ -19,7 +19,6 @@ type Props = {
   search: (searchValue: string, check?: boolean) => void;
   allIntegrations: IIntegration[];
   perPage: number;
-  clearState: () => void;
   closeModal?: () => void;
   renderConfirm?: (
     integration: IIntegration,
@@ -65,10 +64,6 @@ class ManageIntegrations extends React.Component<Props, State> {
     }
   };
 
-  componentWillUnmount() {
-    this.props.clearState();
-  }
-
   componentWillReceiveProps(newProps) {
     const { allIntegrations, perPage } = newProps;
 
@@ -94,76 +89,10 @@ class ManageIntegrations extends React.Component<Props, State> {
     this.props.search(this.state.searchValue, true);
   };
 
-  getTypeName(integration) {
-    const kind = integration.kind;
-    let type = 'messenger';
-
-    if (kind === KIND_CHOICES.LEAD) {
-      type = 'lead';
-    } else if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      type = 'facebook-messenger';
-    } else if (kind === KIND_CHOICES.FACEBOOK_POST) {
-      type = 'facebook-post';
-    } else if (kind === KIND_CHOICES.CALLPRO) {
-      type = 'callpro';
-    } else if (kind === KIND_CHOICES.CHATFUEL) {
-      type = 'chatfuel';
-    } else if (kind === KIND_CHOICES.GMAIL) {
-      type = 'gmail';
-    } else if (kind === KIND_CHOICES.NYLAS_GMAIL) {
-      type = 'nylas-gmail';
-    } else if (kind === KIND_CHOICES.TWITTER_DM) {
-      type = 'twitter';
-    } else if (kind === KIND_CHOICES.NYLAS_IMAP) {
-      type = 'nylas-imap';
-    } else if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
-      type = 'nylas-office365';
-    } else if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
-      type = 'nylas-outlook';
-    } else if (kind === KIND_CHOICES.NYLAS_YAHOO) {
-      type = 'nylas-yahoo';
-    }
-
-    return type;
-  }
-
-  getIconByKind(integration) {
-    const kind = integration.kind;
-    let icon = 'comment-alt';
-
-    if (kind === KIND_CHOICES.LEAD) {
-      icon = 'doc-text-inv-1';
-    } else if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      icon = 'facebook-official';
-    } else if (kind === KIND_CHOICES.FACEBOOK_POST) {
-      icon = 'facebook-official';
-    } else if (kind.includes(KIND_CHOICES.GMAIL)) {
-      icon = 'mail-alt';
-    } else if (kind === KIND_CHOICES.CALLPRO) {
-      icon = 'phone-call';
-    } else if (kind === KIND_CHOICES.TWITTER_DM) {
-      icon = 'twitter';
-    } else if (kind === KIND_CHOICES.CHATFUEL) {
-      icon = 'comment-dots';
-    } else if (kind === KIND_CHOICES.NYLAS_GMAIL) {
-      icon = 'mail-alt';
-    } else if (kind === KIND_CHOICES.NYLAS_IMAP) {
-      icon = 'mail-alt';
-    } else if (kind === KIND_CHOICES.NYLAS_OFFICE365) {
-      icon = 'mail-alt';
-    } else if (kind === KIND_CHOICES.NYLAS_OUTLOOK) {
-      icon = 'mail-alt';
-    } else if (kind === KIND_CHOICES.NYLAS_YAHOO) {
-      icon = 'mail-alt';
-    }
-
-    return icon;
-  }
-
   handleChange = (type, integration) => {
     const { selectedIntegrations } = this.state;
 
-    if (type === 'add') {
+    if (type === 'plus-1') {
       return this.setState({
         selectedIntegrations: [...selectedIntegrations, integration]
       });
@@ -184,15 +113,14 @@ class ManageIntegrations extends React.Component<Props, State> {
 
     const actionTrigger = (
       <li key={integration._id} onClick={onClick}>
-        <IntegrationName>{integration.name}</IntegrationName>
-        <Tip text={this.getTypeName(integration)}>
-          <Label
-            className={`label-${this.getTypeName(integration)} round`}
-            ignoreTrans={true}
-          >
-            <Icon icon={this.getIconByKind(integration)} />
-          </Label>
-        </Tip>
+        <IntegrationName>
+          {integration.name}
+          <Tip text={formatText(integration.kind)}>
+            <div>
+              <IntegrationIcon integration={integration} size={18} />
+            </div>
+          </Tip>
+        </IntegrationName>
         <BrandName>{brand.name}</BrandName>
         <Icon icon={icon} />
       </li>
@@ -218,7 +146,7 @@ class ManageIntegrations extends React.Component<Props, State> {
     const { selectedIntegrations } = this.state;
 
     if (
-      icon === 'add' &&
+      icon === 'plus-1' &&
       selectedIntegrations.some(e => e._id === integration._id)
     ) {
       return null;
@@ -242,7 +170,7 @@ class ManageIntegrations extends React.Component<Props, State> {
             />
             <ul>
               {allIntegrations.map(integration =>
-                this.renderRow(integration, 'add')
+                this.renderRow(integration, 'plus-1')
               )}
               {this.state.hasMore && (
                 <CenterContent>
@@ -266,7 +194,7 @@ class ManageIntegrations extends React.Component<Props, State> {
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, 'minus-circle')
+                this.renderRow(integration, 'times')
               )}
             </ul>
           </Column>

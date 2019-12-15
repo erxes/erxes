@@ -96,11 +96,12 @@ const WidgetBackgrounds = styled.div`
 
 const SubHeading = styled.h4`
   text-transform: uppercase;
-  font-weight: ${typography.fontWeightMedium};
+  font-weight: 600;
   border-bottom: 1px dotted ${colors.colorShadowGray};
   padding-bottom: ${dimensions.unitSpacing + 5}px;
   font-size: ${typography.fontSizeHeading8}px;
-  margin: 0 0 ${coreSpace};
+  margin: 0 0 ${dimensions.unitSpacing}px;
+  color: ${colors.colorCoreDarkGray};
 
   span {
     display: block;

@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from 'react-bootstrap/lib/Modal';
+import Modal from 'react-bootstrap/Modal';
 import styled from 'styled-components';
 import { colors, dimensions } from '../styles';
 import Button from './Button';
@@ -8,7 +8,7 @@ import Icon from './Icon';
 const ModalBody = styled.div`
   text-align: center;
   padding: ${dimensions.coreSpacing}px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
 `;
 
@@ -22,7 +22,7 @@ const ModalFooter = styled.div`
 `;
 
 const IconWrapper = styled.div`
-  font-size: 38px;
+  font-size: 40px;
   color: ${colors.colorSecondary};
 `;
 
@@ -91,11 +91,12 @@ class ConfirmDialog extends React.Component<Props, State> {
         onHide={this.dismiss}
         backdrop={enableEscape ? true : 'static'}
         keyboard={enableEscape}
-        bsSize="small"
+        size="sm"
+        centered={true}
       >
         <ModalBody>
           <IconWrapper>
-            <Icon icon="information" />
+            <Icon icon="exclamation-triangle" />
           </IconWrapper>
           {confirmation}
         </ModalBody>

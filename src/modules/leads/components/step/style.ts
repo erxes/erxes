@@ -52,7 +52,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   cursor: pointer;
   border-radius: 50%;
   padding: ${dimensions.unitSpacing / 2}px;
-  margin-right: ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.unitSpacing / 2}px;
   border: 1px solid
     ${props => (props.selected ? colors.colorShadowGray : 'transparent')};
 

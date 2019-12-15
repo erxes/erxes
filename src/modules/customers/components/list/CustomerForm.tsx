@@ -10,7 +10,8 @@ import {
   ColumnTitle,
   FormColumn,
   FormWrapper,
-  ModalFooter
+  ModalFooter,
+  ScrollWrapper
 } from 'modules/common/styles/main';
 import {
   IButtonMutateProps,
@@ -29,6 +30,7 @@ type Props = {
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams: IQueryParams;
+  changeRedirectType?: (type: string) => void;
 };
 
 type State = {
@@ -76,6 +78,7 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       lifecycleState: finalValues.lifecycleState,
       description: finalValues.description,
+      code: finalValues.code,
 
       links: {
         linkedIn: finalValues.linkedIn,
@@ -145,6 +148,14 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ ownerId });
   };
 
+  saveAndRedirect = (type: string) => {
+    const { changeRedirectType } = this.props;
+
+    if (changeRedirectType) {
+      changeRedirectType(type);
+    }
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -154,193 +165,204 @@ class CustomerForm extends React.Component<Props, State> {
 
     return (
       <>
-        <AvatarUpload
-          avatar={customer.avatar}
-          onAvatarUpload={this.onAvatarUpload}
-        />
-        <FormWrapper>
-          <FormColumn>
-            {this.renderFormGroup('First Name', {
-              ...formProps,
-              defaultValue: customer.firstName || '',
-              autoFocus: true,
-              required: true,
-              name: 'firstName'
-            })}
+        <ScrollWrapper>
+          <AvatarUpload
+            avatar={customer.avatar}
+            onAvatarUpload={this.onAvatarUpload}
+          />
+          <FormWrapper>
+            <FormColumn>
+              {this.renderFormGroup('First Name', {
+                ...formProps,
+                defaultValue: customer.firstName || '',
+                autoFocus: true,
+                required: true,
+                name: 'firstName'
+              })}
 
-            <FormGroup>
-              <ControlLabel required={true}>Email</ControlLabel>
-              <ModifiableSelect
-                value={primaryEmail}
-                type="email"
-                options={this.getEmailsOptions(customer)}
-                placeholder="Choose primary email"
-                buttonText="Add Email"
-                onChange={this.onEmailChange}
-                required={true}
-                checkFormat={validator.isEmail}
-              />
-            </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>Email</ControlLabel>
+                <ModifiableSelect
+                  value={primaryEmail}
+                  type="email"
+                  options={this.getEmailsOptions(customer)}
+                  placeholder="Choose primary email"
+                  buttonText="Add Email"
+                  onChange={this.onEmailChange}
+                  required={true}
+                  checkFormat={validator.isEmail}
+                />
+              </FormGroup>
 
-            {this.renderFormGroup('Position', {
-              ...formProps,
-              name: 'position',
-              defaultValue: customer.position || ''
-            })}
+              {this.renderFormGroup('Position', {
+                ...formProps,
+                name: 'position',
+                defaultValue: customer.position || ''
+              })}
 
-            {this.renderFormGroup('Pop Ups Status', {
-              ...formProps,
-              name: 'leadStatus',
-              componentClass: 'select',
-              defaultValue: customer.leadStatus || '',
-              options: leadStatusChoices(__)
-            })}
+              {this.renderFormGroup('Pop Ups Status', {
+                ...formProps,
+                name: 'leadStatus',
+                componentClass: 'select',
+                defaultValue: customer.leadStatus || '',
+                options: leadStatusChoices(__)
+              })}
 
-            <FormGroup>
-              <ControlLabel>Owner</ControlLabel>
-              <SelectTeamMembers
-                label="Choose an owner"
-                name="ownerId"
-                value={this.state.ownerId}
-                onSelect={this.onOwnerChange}
-                multi={false}
-              />
-            </FormGroup>
+              <FormGroup>
+                <ControlLabel>Owner</ControlLabel>
+                <SelectTeamMembers
+                  label="Choose an owner"
+                  name="ownerId"
+                  value={this.state.ownerId}
+                  onSelect={this.onOwnerChange}
+                  multi={false}
+                />
+              </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                {...formProps}
-                max={140}
-                name="description"
-                componentClass="textarea"
-                defaultValue={customer.description || ''}
-              />
-            </FormGroup>
-          </FormColumn>
+              <FormGroup>
+                <ControlLabel>Description</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  max={140}
+                  name="description"
+                  componentClass="textarea"
+                  defaultValue={customer.description || ''}
+                />
+              </FormGroup>
+            </FormColumn>
 
-          <FormColumn>
-            {this.renderFormGroup('Last Name', {
-              ...formProps,
-              name: 'lastName',
-              defaultValue: customer.lastName || ''
-            })}
+            <FormColumn>
+              {this.renderFormGroup('Last Name', {
+                ...formProps,
+                name: 'lastName',
+                defaultValue: customer.lastName || ''
+              })}
 
-            <FormGroup>
-              <ControlLabel>Phone</ControlLabel>
-              <ModifiableSelect
-                value={primaryPhone}
-                options={this.getPhonesOptions(customer)}
-                placeholder="Choose primary phone"
-                buttonText="Add Phone"
-                onChange={this.onPhoneChange}
-                checkFormat={validator.isMobilePhone}
-              />
-            </FormGroup>
+              <FormGroup>
+                <ControlLabel>Phone</ControlLabel>
+                <ModifiableSelect
+                  value={primaryPhone}
+                  options={this.getPhonesOptions(customer)}
+                  placeholder="Choose primary phone"
+                  buttonText="Add Phone"
+                  onChange={this.onPhoneChange}
+                  checkFormat={validator.isMobilePhone}
+                />
+              </FormGroup>
 
-            {this.renderFormGroup('Department', {
-              ...formProps,
-              name: 'department',
-              defaultValue: customer.department || ''
-            })}
+              {this.renderFormGroup('Department', {
+                ...formProps,
+                name: 'department',
+                defaultValue: customer.department || ''
+              })}
 
-            {this.renderFormGroup('Lifecycle State', {
-              ...formProps,
-              name: 'lifecycleState',
-              componentClass: 'select',
-              defaultValue: customer.lifecycleState || '',
-              options: lifecycleStateChoices(__)
-            })}
+              {this.renderFormGroup('Lifecycle State', {
+                ...formProps,
+                name: 'lifecycleState',
+                componentClass: 'select',
+                defaultValue: customer.lifecycleState || '',
+                options: lifecycleStateChoices(__)
+              })}
 
-            {this.renderFormGroup('Has Authority', {
-              ...formProps,
-              name: 'hasAuthority',
-              componentClass: 'radio',
-              options: [
-                {
-                  childNode: 'Yes',
-                  value: 'Yes',
-                  checked: this.state.hasAuthority === 'Yes',
-                  onChange: e => this.setState({ hasAuthority: e.target.value })
-                },
-                {
-                  childNode: 'No',
-                  value: 'No',
-                  checked: this.state.hasAuthority === 'No',
-                  onChange: e => this.setState({ hasAuthority: e.target.value })
-                }
-              ]
-            })}
+              {this.renderFormGroup('Code', {
+                ...formProps,
+                name: 'code',
+                defaultValue: customer.code || ''
+              })}
 
-            {this.renderFormGroup('Do not disturb', {
-              ...formProps,
-              name: 'doNotDisturb',
-              componentClass: 'radio',
-              options: [
-                {
-                  childNode: 'Yes',
-                  value: 'Yes',
-                  checked: this.state.doNotDisturb === 'Yes',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
-                },
-                {
-                  childNode: 'No',
-                  value: 'No',
-                  checked: this.state.doNotDisturb === 'No',
-                  onChange: e => this.setState({ doNotDisturb: e.target.value })
-                }
-              ]
-            })}
-          </FormColumn>
-        </FormWrapper>
-        <ColumnTitle>{__('Links')}</ColumnTitle>
-        <FormWrapper>
-          <FormColumn>
-            {this.renderFormGroup('LinkedIn', {
-              ...formProps,
-              name: 'linkedIn',
-              defaultValue: links.linkedIn || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Has Authority', {
+                ...formProps,
+                name: 'hasAuthority',
+                componentClass: 'radio',
+                options: [
+                  {
+                    childNode: 'Yes',
+                    value: 'Yes',
+                    checked: this.state.hasAuthority === 'Yes',
+                    onChange: e =>
+                      this.setState({ hasAuthority: e.target.value })
+                  },
+                  {
+                    childNode: 'No',
+                    value: 'No',
+                    checked: this.state.hasAuthority === 'No',
+                    onChange: e =>
+                      this.setState({ hasAuthority: e.target.value })
+                  }
+                ]
+              })}
 
-            {this.renderFormGroup('Twitter', {
-              ...formProps,
-              name: 'twitter',
-              defaultValue: links.twitter || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Do not disturb', {
+                ...formProps,
+                name: 'doNotDisturb',
+                componentClass: 'radio',
+                options: [
+                  {
+                    childNode: 'Yes',
+                    value: 'Yes',
+                    checked: this.state.doNotDisturb === 'Yes',
+                    onChange: e =>
+                      this.setState({ doNotDisturb: e.target.value })
+                  },
+                  {
+                    childNode: 'No',
+                    value: 'No',
+                    checked: this.state.doNotDisturb === 'No',
+                    onChange: e =>
+                      this.setState({ doNotDisturb: e.target.value })
+                  }
+                ]
+              })}
+            </FormColumn>
+          </FormWrapper>
+          <ColumnTitle>{__('Links')}</ColumnTitle>
+          <FormWrapper>
+            <FormColumn>
+              {this.renderFormGroup('LinkedIn', {
+                ...formProps,
+                name: 'linkedIn',
+                defaultValue: links.linkedIn || '',
+                type: 'url'
+              })}
 
-            {this.renderFormGroup('Facebook', {
-              ...formProps,
-              name: 'facebook',
-              defaultValue: links.facebook || '',
-              type: 'url'
-            })}
-          </FormColumn>
-          <FormColumn>
-            {this.renderFormGroup('Github', {
-              ...formProps,
-              name: 'github',
-              defaultValue: links.github || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Twitter', {
+                ...formProps,
+                name: 'twitter',
+                defaultValue: links.twitter || '',
+                type: 'url'
+              })}
 
-            {this.renderFormGroup('Youtube', {
-              ...formProps,
-              name: 'youtube',
-              defaultValue: links.youtube || '',
-              type: 'url'
-            })}
+              {this.renderFormGroup('Facebook', {
+                ...formProps,
+                name: 'facebook',
+                defaultValue: links.facebook || '',
+                type: 'url'
+              })}
+            </FormColumn>
+            <FormColumn>
+              {this.renderFormGroup('Github', {
+                ...formProps,
+                name: 'github',
+                defaultValue: links.github || '',
+                type: 'url'
+              })}
 
-            {this.renderFormGroup('Website', {
-              ...formProps,
-              name: 'website',
-              defaultValue: links.website || '',
-              type: 'url'
-            })}
-          </FormColumn>
-        </FormWrapper>
+              {this.renderFormGroup('Youtube', {
+                ...formProps,
+                name: 'youtube',
+                defaultValue: links.youtube || '',
+                type: 'url'
+              })}
 
+              {this.renderFormGroup('Website', {
+                ...formProps,
+                name: 'website',
+                defaultValue: links.website || '',
+                type: 'url'
+              })}
+            </FormColumn>
+          </FormWrapper>
+        </ScrollWrapper>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
@@ -350,9 +372,30 @@ class CustomerForm extends React.Component<Props, State> {
             name: 'customer',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
             object: this.props.customer
           })}
+
+          {!this.props.customer && (
+            <>
+              <Button
+                btnStyle="primary"
+                type="submit"
+                icon="user-square"
+                onClick={this.saveAndRedirect.bind(this, 'detail')}
+                disabled={isSubmitted}
+              >
+                Save & View
+              </Button>
+              <Button
+                type="submit"
+                onClick={this.saveAndRedirect.bind(this, 'new')}
+                disabled={isSubmitted}
+                icon="user-plus"
+              >
+                Save & New
+              </Button>
+            </>
+          )}
         </ModalFooter>
       </>
     );

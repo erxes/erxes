@@ -1,5 +1,6 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
+import { REMINDER_MINUTES } from 'modules/boards/constants';
 import {
   Button,
   CalenderWrapper,
@@ -11,7 +12,8 @@ import {
 import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
 import React from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import Select from 'react-select-plus';
 import { generateButtonClass, selectOptions } from '../../utils';
 
@@ -43,7 +45,7 @@ class CloseDate extends React.Component<Props, State> {
     };
   }
 
-  setOverlay = (overlay: HTMLFormElement) => {
+  setOverlay = overlay => {
     this.overlay = overlay;
   };
 
@@ -78,20 +80,9 @@ class CloseDate extends React.Component<Props, State> {
     const day = dayjs(dueDate).format('YYYY/MM/DD');
     const time = dayjs(dueDate).format('HH:mm');
 
-    const options = [
-      { _id: '0', name: 'At Time of Due Date' },
-      { _id: '5', name: '5 Minutes Before' },
-      { _id: '10', name: '10 Minutes Before' },
-      { _id: '15', name: '15 Minutes Before' },
-      { _id: '60', name: '1 Hour Before' },
-      { _id: '120', name: '2 Hour Before' },
-      { _id: '1440', name: '1 Day Before' },
-      { _id: '2880', name: '2 Day Before' }
-    ];
-
     return (
       <Popover id="pipeline-popover">
-        <CloseDateContent className="auto-width">
+        <CloseDateContent>
           {dueDate && (
             <DateGrid>
               <div>
@@ -128,7 +119,7 @@ class CloseDate extends React.Component<Props, State> {
             isRequired={true}
             value={reminderMinute}
             onChange={this.minuteOnChange}
-            options={selectOptions(options)}
+            options={selectOptions(REMINDER_MINUTES)}
             clearable={false}
           />
 
@@ -164,7 +155,7 @@ class CloseDate extends React.Component<Props, State> {
         <OverlayTrigger
           ref={this.setOverlay}
           trigger="click"
-          placement="bottom"
+          placement="bottom-end"
           overlay={this.renderContent()}
           rootClose={true}
           container={this.ref.current}

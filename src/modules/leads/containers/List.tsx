@@ -1,9 +1,12 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import Bulk from 'modules/common/components/Bulk';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
+import { mutations as integrationMutations } from 'modules/settings/integrations/graphql/index';
+import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
 import React from 'react';
-import { compose, graphql } from 'react-apollo';
-import { Alert, withProps } from '../../common/utils';
+import { graphql } from 'react-apollo';
 import { TagsQueryResponse } from '../../tags/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
@@ -23,15 +26,17 @@ type FinalProps = {
   integrationsQuery: LeadIntegrationsQueryResponse;
   tagsQuery: TagsQueryResponse;
 } & RemoveMutationResponse &
+  ArchiveIntegrationResponse &
   Props;
 
-class ListContainer extends React.Component<FinalProps, {}> {
+class ListContainer extends React.Component<FinalProps> {
   render() {
     const {
       integrationsQuery,
       integrationsTotalCountQuery,
       tagsQuery,
-      removeMutation
+      removeMutation,
+      archiveIntegration
     } = this.props;
 
     const counts = integrationsTotalCountQuery.integrationsTotalCount || {
@@ -42,20 +47,55 @@ class ListContainer extends React.Component<FinalProps, {}> {
 
     const integrations = integrationsQuery.integrations || [];
 
-    const remove = (integrationId: string, callback: (error?: any) => void) => {
-      removeMutation({
-        variables: { _id: integrationId }
-      })
-        .then(() => {
-          // refresh queries
-          integrationsQuery.refetch();
-          integrationsTotalCountQuery.refetch();
+    const refetch = () => {
+      integrationsQuery.refetch();
+      integrationsTotalCountQuery.refetch();
+    };
 
-          callback();
+    const remove = (integrationId: string) => {
+      const message = `
+        If you remove a pop ups, then all related conversations, customers will also be removed.
+        Are you sure?
+      `;
+
+      confirm(message).then(() => {
+        removeMutation({
+          variables: { _id: integrationId }
         })
-        .catch(e => {
-          Alert.error(e.message);
-        });
+          .then(() => {
+            // refresh queries
+            refetch();
+
+            Alert.success('You successfully deleted a pop ups.');
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
+    };
+
+    const archive = (integrationId: string) => {
+      const message = `
+        If you archive a pop ups, then you won't be able to see customers & conversations 
+        related to this pop ups anymore.
+        Are you sure?
+      `;
+
+      confirm(message).then(() => {
+        archiveIntegration({ variables: { _id: integrationId } })
+          .then(({ data }) => {
+            const integration = data.integrationsArchive;
+
+            if (integration) {
+              Alert.success('Pop ups has been archived.');
+            }
+
+            refetch();
+          })
+          .catch((e: Error) => {
+            Alert.error(e.message);
+          });
+      });
     };
 
     const updatedProps = {
@@ -65,16 +105,12 @@ class ListContainer extends React.Component<FinalProps, {}> {
       loading: integrationsQuery.loading,
       totalCount,
       tagsCount,
-      tags: tagsQuery.tags || []
+      tags: tagsQuery.tags || [],
+      archive
     };
 
     const content = props => {
       return <List {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.integrationsQuery.refetch();
-      this.props.integrationsTotalCountQuery.refetch();
     };
 
     return <Bulk content={content} refetch={refetch} />;
@@ -114,6 +150,12 @@ export default withProps<Props>(
       gql(mutations.integrationRemove),
       {
         name: 'removeMutation'
+      }
+    ),
+    graphql<Props, ArchiveIntegrationResponse>(
+      gql(integrationMutations.integrationsArchive),
+      {
+        name: 'archiveIntegration'
       }
     )
   )(ListContainer)
