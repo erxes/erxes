@@ -16,6 +16,7 @@ export interface IAccount {
   expireDate?: string;
   scope?: string;
   name: string;
+  billingState?: string;
   uid: string;
 }
 
@@ -25,6 +26,10 @@ export const accountSchema = new Schema({
   _id: field({ pkey: true }),
   kind: {
     type: String,
+  },
+  billingState: {
+    type: String,
+    optional: true,
   },
   email: {
     type: String,

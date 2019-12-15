@@ -1,14 +1,21 @@
+import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
+import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts, Integrations } from '../models';
+import { sendRequest } from '../utils';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
-import { connectImapToNylas, connectProviderToNylas, connectYahooAndOutlookToNylas } from './auth';
+import {
+  connectImapToNylas,
+  connectProviderToNylas,
+  connectYahooAndOutlookToNylas,
+  enableOrDisableAccount,
+} from './auth';
 import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
 import { createWebhook } from './tracker';
-import { INylasAttachment } from './types';
-import { buildEmailAddress, verifyNylasSignature } from './utils';
+import { buildEmailAddress } from './utils';
 
 // load config
 dotenv.config();
@@ -68,7 +75,7 @@ const init = async app => {
     // Connect provider to nylas ===========
     switch (kind) {
       case 'imap':
-        await connectImapToNylas(kind, account);
+        await connectImapToNylas(account);
         break;
       case 'outlook':
         await connectYahooAndOutlookToNylas(kind, account);
@@ -79,6 +86,12 @@ const init = async app => {
       default:
         await connectProviderToNylas(kind, account);
         break;
+    }
+
+    const updatedAccount = await Accounts.getAccount({ _id: accountId });
+
+    if (updatedAccount.billingState === 'cancelled') {
+      await enableOrDisableAccount(updatedAccount.uid, true);
     }
 
     debugNylas(`Successfully created the integration and connected to nylas`);
@@ -120,40 +133,37 @@ const init = async app => {
   app.post('/nylas/upload', async (req, res, next) => {
     debugNylas('Uploading a file...');
 
-    const { name, path, type, erxesApiId } = req.body;
+    const form = new formidable.IncomingForm();
 
-    const integration = await Integrations.findOne({ erxesApiId }).lean();
+    form.parse(req, async (_error, fields, response) => {
+      const { erxesApiId } = fields;
 
-    if (!integration) {
-      return next('Integration not found');
-    }
+      const integration = await Integrations.findOne({ erxesApiId }).lean();
 
-    const account = await Accounts.findOne({ _id: integration.accountId }).lean();
+      if (!integration) {
+        return next('Integration not found');
+      }
 
-    if (!account) {
-      return next('Account not found');
-    }
+      const account = await Accounts.findOne({ _id: integration.accountId }).lean();
 
-    const args: INylasAttachment = {
-      name,
-      path,
-      type,
-      accessToken: account.nylasToken,
-    };
+      if (!account) {
+        return next('Account not found');
+      }
 
-    try {
-      const file = await uploadFile(args);
+      const file = response.file || response.upload;
 
-      debugNylas('Successfully uploaded the file');
+      try {
+        const result = await uploadFile(file, account.nylasToken);
 
-      return res.json(file);
-    } catch (e) {
-      return next(new Error(e));
-    }
+        return res.send(result);
+      } catch (e) {
+        return res.status(500).send(e.message);
+      }
+    });
   });
 
   app.get('/nylas/get-attachment', async (req, res, next) => {
-    const { attachmentId, integrationId, filename } = req.query;
+    const { attachmentId, integrationId, filename, contentType } = req.query;
 
     const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
 
@@ -169,16 +179,19 @@ const init = async app => {
 
     const response: { body?: Buffer } = await getAttachment(attachmentId, account.nylasToken);
 
-    const attachment = { data: response.body, filename };
-
-    if (!attachment) {
+    if (!response) {
       return next('Attachment not found');
     }
 
-    res.attachment(attachment.filename);
-    res.write(attachment.data, 'base64');
+    const headerOptions = { 'Content-Type': contentType };
 
-    return res.end();
+    if (!['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(contentType)) {
+      headerOptions['Content-Disposition'] = `attachment;filename=${filename}`;
+    }
+
+    res.writeHead(200, headerOptions);
+
+    return res.end(response.body, 'base64');
   });
 
   app.post('/nylas/send', async (req, res, next) => {
@@ -201,7 +214,7 @@ const init = async app => {
     }
 
     try {
-      const { to, cc, bcc, body, threadId, subject, attachments, replyToMessageId } = params;
+      const { shouldResolve, to, cc, bcc, body, threadId, subject, attachments, replyToMessageId } = params;
 
       const doc = {
         to: buildEmailAddress(to),
@@ -214,16 +227,52 @@ const init = async app => {
         replyToMessageId,
       };
 
-      await sendMessage(account.nylasToken, doc);
+      const message = await sendMessage(account.nylasToken, doc);
+
+      debugNylas('Successfully sent message');
+
+      if (shouldResolve) {
+        debugNylas('Resolve this message ======');
+
+        return res.json({ status: 'ok' });
+      }
+
+      // Set mail to inbox
+      await sendRequest({
+        url: `https://api.nylas.com/messages/${message.id}`,
+        method: 'PUT',
+        headerParams: {
+          Authorization: `Basic ${Buffer.from(`${account.nylasToken}:`).toString('base64')}`,
+        },
+        body: { unread: true },
+      });
+
+      return res.json({ status: 'ok' });
     } catch (e) {
-      debugNylas('Failed to send message');
+      debugNylas(`Failed to send message: ${e}`);
+
       return next(e);
     }
-
-    debugNylas('Successfully sent message');
-
-    return res.json({ status: 'ok' });
   });
+};
+
+const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
+
+/**
+ * Verify request by nylas signature
+ * @param {Request} req
+ * @returns {Boolean} verified request state
+ */
+const verifyNylasSignature = req => {
+  if (!NYLAS_CLIENT_SECRET) {
+    debugNylas('Nylas client secret not configured');
+    return;
+  }
+
+  const hmac = crypto.createHmac('sha256', NYLAS_CLIENT_SECRET);
+  const digest = hmac.update(req.rawBody).digest('hex');
+
+  return digest === req.get('x-nylas-signature');
 };
 
 /**
@@ -231,8 +280,6 @@ const init = async app => {
  * @returns void
  */
 const setupNylas = () => {
-  const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
-
   if (!NYLAS_CLIENT_ID || !NYLAS_CLIENT_SECRET) {
     return debugNylas(`
       Missing following config

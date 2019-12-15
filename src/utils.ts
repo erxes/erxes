@@ -1,6 +1,7 @@
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
+import { IProviderSettings } from './nylas/types';
 
 interface IRequestParams {
   url?: string;
@@ -9,7 +10,7 @@ interface IRequestParams {
   headerParams?: { [key: string]: string };
   method: string;
   params?: { [key: string]: string };
-  body?: { [key: string]: string | string[] };
+  body?: { [key: string]: string | string[] | boolean | IProviderSettings };
 }
 
 /**
@@ -41,7 +42,7 @@ export const sendRequest = ({ url, headerType, headerParams, method, body, param
       `);
 
     request({
-      uri: url,
+      uri: encodeURI(url),
       method,
       headers: {
         'Content-Type': headerType || 'application/json',
@@ -80,7 +81,12 @@ export const sendRequest = ({ url, headerType, headerParams, method, body, param
  * @returns {String} striped text
  */
 export const cleanHtml = (body: string) => {
-  return sanitizeHtml(body || '').replace(/^(.{20}[^\s]*).*/, '$1');
+  const clean = sanitizeHtml(body || '', {
+    allowedTags: [],
+    allowedAttributes: {},
+  }).trim();
+
+  return clean.substring(0, 65);
 };
 
 /**
@@ -112,3 +118,37 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
  * @returns {Promise} fns value
  */
 export const compose = (...fns) => arg => fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
+
+/*
+ * Generate url depending on given file upload publicly or not
+ */
+export const generateAttachmentUrl = (urlOrName: string) => {
+  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+
+  if (urlOrName.startsWith('http')) {
+    return urlOrName;
+  }
+
+  return `${MAIN_API_DOMAIN}/read-file?key=${urlOrName}`;
+};
+
+export const downloadAttachment = urlOrName => {
+  return new Promise(async (resolve, reject) => {
+    const url = generateAttachmentUrl(urlOrName);
+
+    const options = {
+      url,
+      encoding: null,
+    };
+
+    try {
+      await request.get(options).then(res => {
+        const buffer = Buffer.from(res, 'utf8');
+
+        resolve(buffer.toString('base64'));
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};

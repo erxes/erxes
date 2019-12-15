@@ -7,7 +7,7 @@ import { connect } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
-import { removeIntegration } from './helpers';
+import { removeAccount, removeIntegration } from './helpers';
 import './messageQueue';
 import Accounts from './models/Accounts';
 import initNylas from './nylas/controller';
@@ -31,9 +31,14 @@ const rawBodySaver = (req, _res, buf, encoding) => {
   }
 };
 
-app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
+app.use(bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true }));
 app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
-app.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }));
+
+// Intentionally placing this route above raw bodyParser
+// File upload in nylas controller is not working with rawParser
+initNylas(app);
+
+app.use(bodyParser.raw({ limit: '10mb', verify: rawBodySaver, type: '*/*' }));
 
 app.post('/integrations/remove', async (req, res) => {
   debugRequest(debugIntegrations, req);
@@ -75,15 +80,16 @@ app.post('/accounts/remove', async (req, res) => {
   const { _id } = req.body;
 
   try {
-    await removeIntegration(_id);
+    const integrationIds = await removeAccount(_id);
+
     await Accounts.deleteOne({ _id });
+
+    debugResponse(debugIntegrations, req);
+
+    return res.json({ erxesApiIds: integrationIds });
   } catch (e) {
     return res.json({ status: e.message });
   }
-
-  debugResponse(debugIntegrations, req);
-
-  return res.json({ status: 'removed' });
 });
 
 // init bots
@@ -100,9 +106,6 @@ initTwitter(app);
 
 // init chatfuel
 initChatfuel(app);
-
-// init nylas
-initNylas(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {

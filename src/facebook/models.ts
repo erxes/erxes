@@ -24,7 +24,31 @@ export const customerSchema = new Schema({
   integrationId: String,
 });
 
-export interface ICustomerModel extends Model<ICustomerDocument> {}
+export interface ICustomerModel extends Model<ICustomerDocument> {
+  getCustomer(selector: any, isLean?: boolean): Promise<ICustomerDocument>;
+}
+
+export const loadCustomerClass = () => {
+  class Customer {
+    public static async getCustomer(selector: any, isLean: boolean) {
+      let customer = await Customers.findOne(selector);
+
+      if (isLean) {
+        customer = await Customers.findOne(selector).lean();
+      }
+
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+
+      return customer;
+    }
+  }
+
+  customerSchema.loadClass(Customer);
+
+  return customerSchema;
+};
 
 // conversation ===========================
 export interface IConversation {
@@ -192,6 +216,8 @@ export const loadCommentClass = () => {
 
   return commentSchema;
 };
+
+loadCustomerClass();
 
 loadCommentClass();
 

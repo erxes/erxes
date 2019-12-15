@@ -1,6 +1,7 @@
 import * as graph from 'fbgraph';
 import { debugFacebook } from '../debuggers';
 import { Accounts, Integrations } from '../models';
+import { generateAttachmentUrl } from '../utils';
 import { IAttachment, IAttachmentMessage } from './types';
 
 export const graphRequest = {
@@ -151,6 +152,10 @@ export const sendReply = async (url: string, data: any, recipientId: string, int
       await integration.updateOne({ facebookPageTokensMap });
     }
 
+    if (e.message.includes('does not exist')) {
+      throw new Error('Comment has been deleted by the customer');
+    }
+
     throw new Error(e.message);
   }
 };
@@ -165,11 +170,13 @@ export const generateAttachmentMessages = (attachments: IAttachment[]) => {
       type = 'image';
     }
 
+    const url = generateAttachmentUrl(attachment.url);
+
     messages.push({
       attachment: {
         type,
         payload: {
-          url: attachment.url,
+          url,
         },
       },
     });

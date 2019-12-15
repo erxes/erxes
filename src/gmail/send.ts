@@ -11,7 +11,7 @@ const encodeBase64 = (subject: string) => {
  * Create a MIME message that complies with RFC 2822
  * @see {https://tools.ietf.org/html/rfc2822}
  */
-const createMimeMessage = (mailParams: IMailParams): string => {
+export const createMimeMessage = (mailParams: IMailParams): string => {
   const { bcc, cc, to, body, headerId, references, from, subject, attachments } = mailParams;
 
   const nl = '\n';
@@ -92,7 +92,7 @@ export const sendGmail = async (accountId: string, email: string, mailParams: IM
 /**
  * Request to gmail API to send email
  */
-const composeEmail = async ({
+export const composeEmail = async ({
   credentials,
   message,
   accountId,

@@ -63,9 +63,9 @@ const NYLAS_MODELS = {
  * @param {String} accountId
  * @param {String} access_token
  */
-const updateAccount = async (_id: string, accountId: string, accessToken: string) => {
+const updateAccount = async (_id: string, accountId: string, accessToken: string, billingState: string) => {
   const selector = { _id };
-  const updateFields = { $set: { uid: accountId, nylasToken: accessToken } };
+  const updateFields = { $set: { uid: accountId, nylasToken: accessToken, billingState } };
 
   try {
     await Accounts.updateOne(selector, updateFields);
@@ -146,11 +146,15 @@ const createOrGetNylasConversation = async ({
 
   debugNylas(`Creating nylas conversation kind: ${kind}`);
 
+  const createdAt = message.date * 1000; // get milliseconds
+
   const doc = {
     to: toEmail,
     from: fromEmail,
     integrationId: id,
     threadId: message.thread_id,
+    unread: message.unread,
+    createdAt,
   };
 
   // fields to save on api
@@ -158,6 +162,8 @@ const createOrGetNylasConversation = async ({
     customerId,
     content: message.subject,
     integrationId: erxesApiId,
+    unread: message.unread,
+    createdAt,
   };
 
   const conversation = await getOrCreate({
@@ -196,6 +202,8 @@ const createOrGetNylasConversationMessage = async ({
 
   debugNylas(`Creating nylas conversation message kind: ${kind}`);
 
+  const createdAt = message.date * 1000; // get milliseconds
+
   const doc = {
     customerId,
     conversationId: id,
@@ -215,6 +223,8 @@ const createOrGetNylasConversationMessage = async ({
     body: message.body,
     attachments: message.files,
     labels: message.labels,
+    unread: message.unread,
+    createdAt,
   };
 
   // fields to save on api
@@ -222,6 +232,8 @@ const createOrGetNylasConversationMessage = async ({
     customerId,
     conversationId: erxesApiId,
     content: cleanHtml(message.body),
+    unread: message.unread,
+    createdAt,
   };
 
   const conversationMessage = await getOrCreate({
@@ -305,4 +317,5 @@ export {
   createOrGetNylasConversationMessage,
   NYLAS_MODELS,
   updateAccount,
+  requestMainApi,
 };

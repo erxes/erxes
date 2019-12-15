@@ -3,8 +3,7 @@ import * as querystring from 'querystring';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts } from '../models';
 import { sendRequest } from '../utils';
-import { getUserEmailFromGoogle, getUserEmailFromO365 } from './api';
-import { AUTHORIZED_REDIRECT_URL } from './constants';
+import { AUTHORIZED_REDIRECT_URL, GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
 import { checkCredentials, encryptPassword, getClientConfig, getProviderConfigs } from './utils';
 
 // loading config
@@ -71,7 +70,7 @@ const getOAuthCredentials = async (req, res, next) => {
     ...(kind === 'office365' ? { scope: 'https://graph.microsoft.com/user.read' } : {}), // for graph api to get user info
   };
 
-  const { access_token, refresh_token } = await sendRequest({
+  const { access_token, refresh_token, billing_state } = await sendRequest({
     url: urls.tokenUrl,
     method: 'post',
     body: data,
@@ -82,10 +81,27 @@ const getOAuthCredentials = async (req, res, next) => {
 
   switch (kind) {
     case 'gmail':
-      email = await getUserEmailFromGoogle(access_token);
+      const gmailDoc = {
+        access_token,
+        fields: ['email'],
+      };
+
+      const gmailResponse = await sendRequest({
+        url: GOOGLE_OAUTH_TOKEN_VALIDATION_URL,
+        method: 'post',
+        body: gmailDoc,
+      });
+
+      email = gmailResponse.email;
       break;
     case 'office365':
-      email = await getUserEmailFromO365(access_token);
+      const officeResponse = await sendRequest({
+        url: `${MICROSOFT_GRAPH_URL}/me`,
+        method: 'GET',
+        headerParams: { Authorization: `Bearer ${access_token}` },
+      });
+
+      email = officeResponse.mail;
       break;
   }
 
@@ -96,6 +112,7 @@ const getOAuthCredentials = async (req, res, next) => {
     scope: params.scope,
     token: access_token,
     tokenSecret: refresh_token,
+    billingState: billing_state,
   };
 
   await Accounts.create(doc);

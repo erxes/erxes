@@ -1,9 +1,5 @@
 import { IAttachments, IEmail, ILabels, INylasConversationMessage } from './models';
 
-export interface IFilter {
-  [key: string]: string;
-}
-
 interface ICommonType {
   name?: string;
   email?: string;
@@ -28,7 +24,7 @@ export interface IMessageDraft {
   bcc?: ICommonType[];
   replyToMessageId?: string;
   threadId?: string;
-  files: [INylasAttachment];
+  files?: INylasAttachment[];
   subject: string;
   body?: string;
 }
@@ -38,7 +34,7 @@ export interface IGetOrCreateArguments {
   collectionName: string;
   selector: { [key: string]: string };
   fields: {
-    doc: { [key: string]: string | string[] | IEmail[] | IAttachments[] | ILabels[] };
+    doc: { [key: string]: string | string[] | boolean | number | IEmail[] | IAttachments[] | ILabels[] };
     api: IAPIConversation | IAPIConversationMessage | IAPICustomer;
   };
 }
@@ -47,7 +43,7 @@ export interface IIntegrateProvider {
   email: string;
   kind: string;
   settings: IProviderSettings;
-  scopes?: string;
+  scopes?: string | string[];
 }
 
 export interface IProviderSettings {
@@ -83,12 +79,16 @@ export interface IAPIConversation {
   integrationId: string;
   customerId: string;
   content: string;
+  unread: boolean;
+  createdAt: number;
 }
 
 export interface IAPIConversationMessage {
   conversationId: string;
   customerId: string;
   content: string;
+  unread: boolean;
+  createdAt: number;
 }
 
 // Store =======================
