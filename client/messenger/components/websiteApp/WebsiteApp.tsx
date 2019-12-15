@@ -15,7 +15,12 @@ function WebsiteApp(props: Props) {
   return (
     <div className="websiteApp-home">
       <p>{config.description}</p>
-      <button onClick={onClick} style={{ backgroundColor: color }}>
+
+      <button
+        onClick={onClick}
+        className="erxes-button btn-block"
+        style={{ backgroundColor: color }}
+      >
         {config.buttonText}
       </button>
     </div>
