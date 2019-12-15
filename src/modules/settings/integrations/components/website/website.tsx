@@ -5,7 +5,6 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
 import { Options } from '../../styles';
