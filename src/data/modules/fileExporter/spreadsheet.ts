@@ -2,14 +2,23 @@ import * as moment from 'moment';
 import { commonItemFieldsSchema, IStageDocument } from '../../../db/models/definitions/boards';
 import { brandSchema, IBrandDocument } from '../../../db/models/definitions/brands';
 import { channelSchema } from '../../../db/models/definitions/channels';
-import { companySchema } from '../../../db/models/definitions/companies';
-import { customerSchema } from '../../../db/models/definitions/customers';
+import { companySchema, ICompanyDocument } from '../../../db/models/definitions/companies';
+import { customerSchema, ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import { IUserGroupDocument, permissionSchema } from '../../../db/models/definitions/permissions';
 import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
 import { ticketSchema } from '../../../db/models/definitions/tickets';
 import { IUserDocument, userSchema } from '../../../db/models/definitions/users';
-import { Brands, Integrations, PipelineLabels, Stages, Users, UsersGroups } from '../../../db/models/index';
+import {
+  Brands,
+  Companies,
+  Customers,
+  Integrations,
+  PipelineLabels,
+  Stages,
+  Users,
+  UsersGroups,
+} from '../../../db/models/index';
 
 import { MODULE_NAMES } from '../../constants';
 import {
@@ -79,8 +88,22 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   return columnNames;
 };
 
+/**
+ * Finds given field of database collection row and format it in a human-friendly way.
+ * @param {string} colName Database field name
+ * @param {any} item Database row
+ * @todo If same field names from different collections arrive, then this function will
+ * not find the from the proper collection. As for now, those field names are defined
+ * in distinctly defined static variables.
+ */
 export const fillCellValue = async (colName: string, item: any): Promise<string> => {
-  let cellValue: any = item[colName];
+  const emptyMsg = '-';
+
+  if (!item) {
+    return emptyMsg;
+  }
+
+  let cellValue: any = item[colName] || emptyMsg;
 
   if (typeof item[colName] === 'boolean') {
     cellValue = item[colName] ? 'Yes' : 'No';
@@ -103,13 +126,13 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
     case 'assignedUserIds':
       const assignedUsers: IUserDocument[] = await Users.find({ _id: { $in: item.assignedUserIds } });
 
-      cellValue = assignedUsers.map(user => user.username).join(', ');
+      cellValue = assignedUsers.map(user => user.username || user.email).join(', ');
 
       break;
     case 'watchedUserIds':
       const watchedUsers: IUserDocument[] = await Users.find({ _id: { $in: item.watchedUserIds } });
 
-      cellValue = watchedUsers.map(user => user.username).join(', ');
+      cellValue = watchedUsers.map(user => user.username || user.email).join(', ');
 
       break;
     case 'labelIds':
@@ -121,19 +144,19 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
     case 'stageId':
       const stage: IStageDocument | null = await Stages.findOne({ _id: item.stageId });
 
-      cellValue = stage ? stage.name : 'stage not found';
+      cellValue = stage ? stage.name : emptyMsg;
 
       break;
     case 'initialStageId':
       const initialStage: IStageDocument | null = await Stages.findOne({ _id: item.initialStageId });
 
-      cellValue = initialStage ? initialStage.name : 'stage not found';
+      cellValue = initialStage ? initialStage.name : emptyMsg;
 
       break;
     case 'modifiedBy':
       const modifiedBy: IUserDocument | null = await Users.findOne({ _id: item.modifiedBy });
 
-      cellValue = modifiedBy ? modifiedBy.username : 'modified user not found';
+      cellValue = modifiedBy ? modifiedBy.username : emptyMsg;
 
       break;
 
@@ -169,16 +192,46 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
     case 'groupId':
       const group: IUserGroupDocument | null = await UsersGroups.findOne({ _id: item.groupId });
 
-      cellValue = group ? group.name : 'no user group chosen';
+      cellValue = group ? group.name : emptyMsg;
 
       break;
     case 'requiredActions':
       cellValue = item.requiredActions.join(', ');
 
       break;
+    // customer fields
+    case 'integrationId':
+      const integration: IIntegrationDocument | null = await Integrations.findOne({ _id: item.integrationId });
+
+      cellValue = integration ? integration.name : emptyMsg;
+
+      break;
+    case 'emails':
+      cellValue = item.emails.join(', ');
+      break;
+    case 'phones':
+      cellValue = item.phones.join(', ');
+      break;
+    case 'mergedIds':
+      const customers: ICustomerDocument[] | null = await Customers.find({ _id: { $in: item.mergedIds } });
+
+      cellValue = customers.map(cus => cus.firstName || cus.primaryEmail).join(', ');
+
+      break;
+    // company fields
+    case 'names':
+      cellValue = item.names.join(', ');
+
+      break;
+    case 'parentCompanyId':
+      const parent: ICompanyDocument | null = await Companies.findOne({ _id: item.parentCompanyId });
+
+      cellValue = parent ? parent.primaryName : '';
+
+      break;
     default:
       break;
   }
 
-  return cellValue;
+  return cellValue || emptyMsg;
 };

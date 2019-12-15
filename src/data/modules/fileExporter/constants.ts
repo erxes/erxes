@@ -47,19 +47,26 @@ export const CUSTOMER_BASIC_INFOS = [
   'firstName',
   'lastName',
   'primaryEmail',
+  'emails',
   'primaryPhone',
+  'phones',
   'ownerId',
   'position',
   'department',
   'leadStatus',
+  'status',
   'lifecycleState',
   'hasAuthority',
   'description',
   'doNotDisturb',
+  'integrationId',
+  'code',
+  'mergedIds',
 ];
 
 export const COMPANY_BASIC_INFOS = [
   'primaryName',
+  'names',
   'size',
   'industry',
   'website',
@@ -71,6 +78,7 @@ export const COMPANY_BASIC_INFOS = [
   'businessType',
   'description',
   'doNotDisturb',
+  'parentCompanyId',
 ];
 
 export const PRODUCT_BASIC_INFOS = ['name', 'categoryCode', 'type', 'description', 'sku', 'code', 'unitPrice'];

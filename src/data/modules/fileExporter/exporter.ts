@@ -158,11 +158,9 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
 
     // Iterating through basic info columns
     for (const column of headers) {
-      if (item[column.name] && item[column.name] !== '') {
-        const cellValue = await fillCellValue(column.name, item);
+      const cellValue = await fillCellValue(column.name, item);
 
-        addCell(column, cellValue);
-      }
+      addCell(column, cellValue);
     }
 
     if (type === MODULE_NAMES.CUSTOMER || type === MODULE_NAMES.COMPANY) {
