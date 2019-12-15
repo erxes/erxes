@@ -1,5 +1,6 @@
 import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
+import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -71,7 +72,7 @@ const countByBrands = async (qb: any): Promise<ICountBy> => {
   for (const brand of brands) {
     byBrands[brand._id] = await count({
       ...qb.mainQuery(),
-      ...qb.intersectIntegrationIds(qb.queries.channel, await qb.brandFilter(brand._id)),
+      ...(await qb.intersectIntegrationIds(qb.queries.channel, await qb.brandFilter(brand._id))),
     });
   }
 
@@ -112,26 +113,34 @@ const conversationQueries = {
       conversationId,
       skip,
       limit,
+      getFirst,
     }: {
       conversationId: string;
       skip: number;
       limit: number;
+      getFirst: boolean;
     },
   ) {
     const query = { conversationId };
 
+    let messages: IMessageDocument[] = [];
+
     if (limit) {
-      const messages = await ConversationMessages.find(query)
-        .sort({ createdAt: -1 })
+      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+
+      messages = await ConversationMessages.find(query)
+        .sort(sort)
         .skip(skip || 0)
         .limit(limit);
 
-      return messages.reverse();
+      return getFirst ? messages : messages.reverse();
     }
 
-    return ConversationMessages.find(query)
-      .sort({ createdAt: 1 })
+    messages = await ConversationMessages.find(query)
+      .sort({ createdAt: -1 })
       .limit(50);
+
+    return messages.reverse();
   },
 
   /**
@@ -141,14 +150,15 @@ const conversationQueries = {
     return ConversationMessages.countDocuments({ conversationId });
   },
 
-  async facebookComments(
+  async converstationFacebookComments(
     _root,
-    { postId, commentId, limit }: { commentId: string; postId: string; limit: number },
+    { postId, commentId, limit, senderId }: { commentId: string; postId: string; senderId: string; limit: number },
     { dataSources }: IContext,
   ) {
     return dataSources.IntegrationsAPI.fetchApi('/facebook/get-comments', {
       postId,
       commentId,
+      senderId,
       limit: limit || 10,
     });
   },
@@ -265,6 +275,7 @@ const conversationQueries = {
   async conversationsTotalUnreadCount(_root, _args, { user }: IContext) {
     // initiate query builder
     const qb = new QueryBuilder({}, { _id: user._id });
+    await qb.buildAllQueries();
 
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();

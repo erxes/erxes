@@ -20,10 +20,7 @@ const generateFilter = (commonSelector, args: IListParams) => {
   }
 
   if (searchValue) {
-    filter.$or = [
-      { name: new RegExp(`.*${searchValue || ''}.*`, 'i') },
-      { content: new RegExp(`.*${searchValue || ''}.*`, 'i') },
-    ];
+    filter.$or = [{ name: new RegExp(`.*${searchValue}.*`, 'i') }, { content: new RegExp(`.*${searchValue}.*`, 'i') }];
   }
 
   return filter;

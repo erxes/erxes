@@ -1,25 +1,19 @@
 import * as moment from 'moment';
-import { Conformities, Stages } from '../../../db/models';
+import { Conformities, Pipelines, Stages } from '../../../db/models';
+import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { getNextMonth, getToday, regexSearchText } from '../../utils';
+import { IListParams } from './boards';
 
-export const contains = (values: string[] = [], empty = false) => {
-  if (empty) {
-    return [];
-  }
-
+const contains = (values: string[]) => {
   return { $in: values };
 };
 
-export const generateCommonFilters = async (args: any) => {
+export const generateCommonFilters = async (currentUserId: string, args: any) => {
   const {
-    $and,
+    pipelineId,
     stageId,
     search,
-    overdue,
-    nextMonth,
-    nextDay,
-    nextWeek,
-    noCloseDate,
+    closeDateType,
     assignedUserIds,
     customerIds,
     companyIds,
@@ -27,14 +21,13 @@ export const generateCommonFilters = async (args: any) => {
     conformityMainTypeId,
     conformityIsRelated,
     conformityIsSaved,
-    order,
-    probability,
     initialStageId,
     type,
     labelIds,
+    priority,
   } = args;
 
-  const assignedToNoOne = value => {
+  const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
   };
 
@@ -43,13 +36,9 @@ export const generateCommonFilters = async (args: any) => {
 
   if (assignedUserIds) {
     // Filter by assigned to no one
-    const notAssigned = assignedToNoOne(assignedUserIds);
+    const notAssigned = isListEmpty(assignedUserIds);
 
-    filter.assignedUserIds = notAssigned ? contains([], true) : contains(assignedUserIds);
-  }
-
-  if ($and) {
-    filter.$and = $and;
+    filter.assignedUserIds = notAssigned ? [] : contains(assignedUserIds);
   }
 
   if (customerIds && type) {
@@ -81,7 +70,7 @@ export const generateCommonFilters = async (args: any) => {
       const relIds = await Conformities.savedConformity({
         mainType: conformityMainType,
         mainTypeId: conformityMainTypeId,
-        relType: type,
+        relTypes: [type],
       });
 
       filter._id = contains(relIds || []);
@@ -94,64 +83,58 @@ export const generateCommonFilters = async (args: any) => {
         relType: type,
       });
 
-      filter._id = contains(relIds || []);
+      filter._id = contains(relIds);
     }
-  }
-
-  if (order) {
-    filter.order = order;
-  }
-
-  if (probability) {
-    filter.probability = probability;
   }
 
   if (initialStageId) {
     filter.initialStageId = initialStageId;
   }
 
-  if (nextDay) {
-    const tommorrow = moment().add(1, 'days');
+  if (closeDateType) {
+    if (closeDateType === 'nextDay') {
+      const tommorrow = moment().add(1, 'days');
 
-    filter.closeDate = {
-      $gte: new Date(tommorrow.startOf('day').toISOString()),
-      $lte: new Date(tommorrow.endOf('day').toISOString()),
-    };
-  }
+      filter.closeDate = {
+        $gte: new Date(tommorrow.startOf('day').toISOString()),
+        $lte: new Date(tommorrow.endOf('day').toISOString()),
+      };
+    }
 
-  if (nextWeek) {
-    const monday = moment()
-      .day(1 + 7)
-      .format('YYYY-MM-DD');
-    const nextSunday = moment()
-      .day(7 + 7)
-      .format('YYYY-MM-DD');
+    if (closeDateType === 'nextWeek') {
+      const monday = moment()
+        .day(1 + 7)
+        .format('YYYY-MM-DD');
+      const nextSunday = moment()
+        .day(7 + 7)
+        .format('YYYY-MM-DD');
 
-    filter.closeDate = {
-      $gte: new Date(monday),
-      $lte: new Date(nextSunday),
-    };
-  }
+      filter.closeDate = {
+        $gte: new Date(monday),
+        $lte: new Date(nextSunday),
+      };
+    }
 
-  if (nextMonth) {
-    const now = new Date();
-    const { start, end } = getNextMonth(now);
+    if (closeDateType === 'nextMonth') {
+      const now = new Date();
+      const { start, end } = getNextMonth(now);
 
-    filter.closeDate = {
-      $gte: new Date(start),
-      $lte: new Date(end),
-    };
-  }
+      filter.closeDate = {
+        $gte: new Date(start),
+        $lte: new Date(end),
+      };
+    }
 
-  if (noCloseDate) {
-    filter.closeDate = { $exists: false };
-  }
+    if (closeDateType === 'noCloseDate') {
+      filter.closeDate = { $exists: false };
+    }
 
-  if (overdue) {
-    const now = new Date();
-    const today = getToday(now);
+    if (closeDateType === 'overdue') {
+      const now = new Date();
+      const today = getToday(now);
 
-    filter.closeDate = { $lt: today };
+      filter.closeDate = { $lt: today };
+    }
   }
 
   if (search) {
@@ -163,15 +146,28 @@ export const generateCommonFilters = async (args: any) => {
   }
 
   if (labelIds) {
-    filter.labelIds = { $in: labelIds };
+    const isEmpty = isListEmpty(labelIds);
+
+    filter.labelIds = isEmpty ? { $in: [null, []] } : { $in: labelIds };
+  }
+
+  if (priority) {
+    filter.priority = contains(priority);
+  }
+
+  if (pipelineId) {
+    const pipeline = await Pipelines.getPipeline(pipelineId);
+    if (pipeline.isCheckUser && !(pipeline.excludeCheckUserIds || []).includes(currentUserId)) {
+      Object.assign(filter, { $or: [{ assignedUserIds: { $in: [currentUserId] } }, { userId: currentUserId }] });
+    }
   }
 
   return filter;
 };
 
-export const generateDealCommonFilters = async (args: any, extraParams?: any) => {
+export const generateDealCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
   args.type = 'deal';
-  const filter = await generateCommonFilters(args);
+  const filter = await generateCommonFilters(currentUserId, args);
   const { productIds } = extraParams || args;
 
   if (productIds) {
@@ -191,14 +187,10 @@ export const generateDealCommonFilters = async (args: any, extraParams?: any) =>
   return filter;
 };
 
-export const generateTicketCommonFilters = async (args: any, extraParams?: any) => {
+export const generateTicketCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
   args.type = 'ticket';
-  const filter = await generateCommonFilters(args);
-  const { priority, source } = extraParams || args;
-
-  if (priority) {
-    filter.priority = contains(priority);
-  }
+  const filter = await generateCommonFilters(currentUserId, args);
+  const { source } = extraParams || args;
 
   if (source) {
     filter.source = contains(source);
@@ -207,31 +199,33 @@ export const generateTicketCommonFilters = async (args: any, extraParams?: any) 
   return filter;
 };
 
-export const generateTaskCommonFilters = async (args: any, extraParams?: any) => {
+export const generateTaskCommonFilters = async (currentUserId: string, args: any) => {
   args.type = 'task';
-  const filter = await generateCommonFilters(args);
-  const { priority } = extraParams || args;
 
-  if (priority) {
-    filter.priority = contains(priority);
-  }
-
-  return filter;
+  return generateCommonFilters(currentUserId, args);
 };
 
-export const generateGrowthHackCommonFilters = async (args: any, extraParams?: any) => {
-  args.type = 'growthHack';
+export const generateSort = (args: IListParams) => {
+  let sort: any = { order: 1, createdAt: -1 };
 
-  const { hackStage, priority, pipelineId, stageId } = extraParams || args;
+  const { sortField, sortDirection } = args;
 
-  const filter = await generateCommonFilters(args);
-
-  if (hackStage) {
-    filter.hackStages = { $in: [hackStage] };
+  if (sortField && sortDirection) {
+    sort = { [sortField]: sortDirection };
   }
 
-  if (priority) {
-    filter.priority = priority;
+  return sort;
+};
+
+export const generateGrowthHackCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
+  args.type = 'growthHack';
+
+  const { hackStage, pipelineId, stageId } = extraParams || args;
+
+  const filter = await generateCommonFilters(currentUserId, args);
+
+  if (hackStage) {
+    filter.hackStages = contains(hackStage);
   }
 
   if (!stageId && pipelineId) {
@@ -248,15 +242,37 @@ interface IDate {
   year: number;
 }
 
-export const dateSelector = (date: IDate) => {
+const dateSelector = (date: IDate) => {
   const { year, month } = date;
-  const currentDate = new Date();
 
-  const start = currentDate.setFullYear(year, month, 1);
-  const end = currentDate.setFullYear(year, month + 1, 0);
+  const start = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+  const end = new Date(Date.UTC(year, month + 1, 0, 0, 0, 0));
 
   return {
-    $gte: new Date(start),
-    $lte: new Date(end),
+    $gte: start,
+    $lte: end,
   };
+};
+
+export const checkItemPermByUser = async (currentUserId: string, item: IItemCommonFields) => {
+  const stage = await Stages.getStage(item.stageId);
+
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+
+  if (pipeline.visibility === 'private' && !(pipeline.memberIds || []).includes(currentUserId)) {
+    throw new Error('You do not have permission to view.');
+  }
+
+  // pipeline is Show only the users assigned(created) cards checked
+  // and current user nothing dominant users
+  // current user hans't this carts assigned and created
+  if (
+    pipeline.isCheckUser &&
+    !(pipeline.excludeCheckUserIds || []).includes(currentUserId) &&
+    !((item.assignedUserIds || []).includes(currentUserId) || item.userId === currentUserId)
+  ) {
+    throw new Error('You do not have permission to view.');
+  }
+
+  return item;
 };

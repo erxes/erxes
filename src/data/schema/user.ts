@@ -24,6 +24,7 @@ export const types = `
 
   input InvitationEntry {
     email: String
+    password: String
     groupId: String
   }
 
@@ -57,6 +58,7 @@ export const types = `
     getNotificationByEmail: Boolean
     groupIds: [String]
     brandIds: [String]
+    doNotDisturb: String
 
     brands: [Brand]
     isOwner: Boolean
@@ -100,6 +102,7 @@ export const mutations = `
   logout: String
   forgotPassword(email: String!): String!
   resetPassword(token: String!, newPassword: String!): JSON
+  usersResetMemberPassword(_id: String!, newPassword: String!): User
   usersEditProfile(
     username: String!,
     email: String!,

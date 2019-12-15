@@ -80,6 +80,13 @@ const userMutations = {
   },
 
   /*
+   * Reset member's password
+   */
+  usersResetMemberPassword(_root, args: { _id: string; newPassword: string }) {
+    return Users.resetMemberPassword(args);
+  },
+
+  /*
    * Change user password
    */
   usersChangePassword(_root, args: { currentPassword: string; newPassword: string }, { user }: IContext) {
@@ -90,7 +97,7 @@ const userMutations = {
    * Update user
    */
   async usersEdit(_root, args: IUsersEdit) {
-    const { _id, username, email, channelIds = [], groupIds = [], brandIds = [], details, links } = args;
+    const { _id, username, email, channelIds, groupIds = [], brandIds = [], details, links } = args;
 
     const updatedUser = await Users.updateUser(_id, {
       username,
@@ -102,7 +109,7 @@ const userMutations = {
     });
 
     // add new user to channels
-    await Channels.updateUserChannels(channelIds, _id);
+    await Channels.updateUserChannels(channelIds || [], _id);
 
     resetPermissionsCache();
 
@@ -129,11 +136,7 @@ const userMutations = {
     },
     { user }: IContext,
   ) {
-    const userOnDb = await Users.findOne({ _id: user._id });
-
-    if (!userOnDb) {
-      throw new Error('User not found');
-    }
+    const userOnDb = await Users.getUser(user._id);
 
     const valid = await Users.comparePassword(password, userOnDb.password);
 
@@ -159,11 +162,11 @@ const userMutations = {
   /*
    * Invites users to team members
    */
-  async usersInvite(_root, { entries }: { entries: Array<{ email: string; groupId: string }> }) {
+  async usersInvite(_root, { entries }: { entries: Array<{ email: string; password: string; groupId: string }> }) {
     for (const entry of entries) {
       await Users.checkDuplication({ email: entry.email });
 
-      const token = await Users.createUserWithConfirmation(entry);
+      const token = await Users.invite(entry);
 
       sendInvitationEmail({ email: entry.email, token });
     }
@@ -217,5 +220,6 @@ checkPermission(userMutations, 'usersEdit', 'usersEdit');
 checkPermission(userMutations, 'usersInvite', 'usersInvite');
 checkPermission(userMutations, 'usersResendInvitation', 'usersInvite');
 checkPermission(userMutations, 'usersSetActiveStatus', 'usersSetActiveStatus');
+checkPermission(userMutations, 'usersResetMemberPassword', 'usersEdit');
 
 export default userMutations;

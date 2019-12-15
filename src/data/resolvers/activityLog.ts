@@ -1,59 +1,111 @@
-import { Users } from '../../db/models';
-import { IActivityLogDocument } from '../../db/models/definitions/activityLogs';
-import { ACTIVITY_PERFORMER_TYPES } from '../../db/models/definitions/constants';
+import {
+  Brands,
+  Companies,
+  Customers,
+  Deals,
+  GrowthHacks,
+  Integrations,
+  Stages,
+  Tasks,
+  Tickets,
+  Users,
+} from '../../db/models';
+import { IActivityLog } from '../../db/models/definitions/activityLogs';
+import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
 
-/*
- * Placeholder object for ActivityLog resolver (used with graphql)
- */
 export default {
-  /**
-   * Finds id of the activity
-   */
-  id(obj: IActivityLogDocument) {
-    return obj.activity.id;
-  },
+  async createdByDetail(activityLog: IActivityLog) {
+    const user = await Users.findOne({ _id: activityLog.createdBy });
 
-  /**
-   * Finds action of the activity
-   */
-  action(obj: IActivityLogDocument) {
-    return `${obj.activity.type}-${obj.activity.action}`;
-  },
-
-  /**
-   * Finds content of the activity
-   */
-  content(obj: IActivityLogDocument) {
-    return obj.activity.content;
-  },
-
-  /**
-   * Finds content of the activity
-   */
-  async by(obj: IActivityLogDocument) {
-    const performedBy = obj.performedBy;
-
-    if (!performedBy) {
-      return null;
+    if (user) {
+      return { type: 'user', content: user };
     }
 
-    if (performedBy.type === ACTIVITY_PERFORMER_TYPES.USER) {
-      const user = await Users.findOne({ _id: performedBy.id });
+    const integration = await Integrations.findOne({ _id: activityLog.createdBy });
 
-      if (!user) {
-        return null;
+    if (integration) {
+      const brand = await Brands.findOne({ _id: integration.brandId });
+      return { type: 'brand', content: brand };
+    }
+
+    return;
+  },
+
+  async contentTypeDetail(activityLog: IActivityLog) {
+    const { contentType, contentId } = activityLog;
+
+    let item = {};
+
+    switch (contentType) {
+      case 'deal':
+        item = await Deals.getDeal(contentId);
+        break;
+      case 'task':
+        item = await Tasks.getTask(contentId);
+        break;
+      case 'growthHack':
+        item = await GrowthHacks.getGrowthHack(contentId);
+        break;
+      case 'ticket':
+        item = await Tickets.getTicket(contentId);
+        break;
+    }
+
+    return item;
+  },
+
+  async contentDetail(activityLog: IActivityLog) {
+    const { action, content, contentType, contentId } = activityLog;
+
+    if (action === ACTIVITY_ACTIONS.MOVED) {
+      let item = {};
+
+      switch (contentType) {
+        case 'deal':
+          item = await Deals.getDeal(contentId);
+          break;
+        case 'task':
+          item = await Tasks.getTask(contentId);
+          break;
+        case 'growthHack':
+          item = await GrowthHacks.getGrowthHack(contentId);
+          break;
+        case 'ticket':
+          item = await Tickets.getTicket(contentId);
+          break;
+      }
+
+      const { oldStageId, destinationStageId } = content;
+
+      const destinationStage = await Stages.findOne({ _id: destinationStageId });
+      const oldStage = await Stages.findOne({ _id: oldStageId });
+
+      if (destinationStage && oldStage) {
+        return {
+          destinationStage: destinationStage.name,
+          oldStage: oldStage.name,
+          item,
+        };
       }
 
       return {
-        _id: user._id,
-        type: performedBy.type,
-        details: user.details,
+        text: content.text,
       };
     }
 
-    return {
-      type: performedBy.type,
-      details: {},
-    };
+    if (action === ACTIVITY_ACTIONS.MERGE) {
+      let result = {};
+
+      switch (contentType) {
+        case 'company':
+          result = await Companies.find({ _id: { $in: activityLog.content } });
+          break;
+        case 'customer':
+          result = await Customers.find({ _id: { $in: activityLog.content } });
+          break;
+      }
+
+      return result;
+    }
   },
 };

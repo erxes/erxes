@@ -3,7 +3,7 @@ import { createScheduleRule } from '../cronJobs/engages';
 
 import './setup.ts';
 
-describe('Engage tracker tests', async () => {
+describe('Engage tracker tests', () => {
   test('Create schedule cron job by year', () => {
     const doc = {
       type: 'year',

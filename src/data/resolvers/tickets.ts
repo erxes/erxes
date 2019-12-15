@@ -17,7 +17,7 @@ export default {
     const companyIds = await Conformities.savedConformity({
       mainType: 'ticket',
       mainTypeId: ticket._id,
-      relType: 'company',
+      relTypes: ['company'],
     });
 
     return Companies.find({ _id: { $in: companyIds || [] } });
@@ -27,18 +27,18 @@ export default {
     const customerIds = await Conformities.savedConformity({
       mainType: 'ticket',
       mainTypeId: ticket._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
   assignedUsers(ticket: ITicketDocument) {
-    return Users.find({ _id: { $in: ticket.assignedUserIds } });
+    return Users.find({ _id: { $in: ticket.assignedUserIds || [] } });
   },
 
   async pipeline(ticket: ITicketDocument) {
-    const stage = await Stages.getStage(ticket.stageId || '');
+    const stage = await Stages.getStage(ticket.stageId);
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -48,7 +48,7 @@ export default {
   },
 
   stage(ticket: ITicketDocument) {
-    return Stages.getStage(ticket.stageId || '');
+    return Stages.getStage(ticket.stageId);
   },
 
   isWatched(ticket: ITicketDocument, _args, { user }: IContext) {
@@ -66,6 +66,6 @@ export default {
   },
 
   labels(ticket: ITicketDocument) {
-    return PipelineLabels.find({ _id: { $in: ticket.labelIds } });
+    return PipelineLabels.find({ _id: { $in: ticket.labelIds || [] } });
   },
 };

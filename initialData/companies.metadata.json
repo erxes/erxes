@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"erxes.companies"},{"v":2,"key":{"searchText":1},"name":"searchText_1","background":true,"ns":"erxes.companies"}],"uuid":"c6e3742bc0904d049da4104c5d5ce111"}

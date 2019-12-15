@@ -91,7 +91,7 @@ describe('testings helper methods', () => {
 
     const content = `${channel.name} channel`;
 
-    const spySendNotification = jest.spyOn(utils, 'sendNotification').mockImplementation(() => ({}));
+    const spySendNotification = jest.spyOn(utils, 'sendNotification').mockImplementation(() => Promise.resolve(true));
 
     await sendChannelNotifications(channel, 'invited', _user);
 

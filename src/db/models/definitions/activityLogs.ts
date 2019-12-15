@@ -1,140 +1,33 @@
 import { Document, Schema } from 'mongoose';
-import { ACTIVITY_ACTIONS, ACTIVITY_CONTENT_TYPES, ACTIVITY_PERFORMER_TYPES, ACTIVITY_TYPES } from './constants';
 import { field } from './utils';
 
-export interface IActionPerformer {
-  type: string;
-  id: string;
-}
-
-interface IActionPerformerDocument extends IActionPerformer, Document {
-  id: string;
-}
-
-export interface IActivity {
-  type: string;
+export interface IActivityLogInput {
   action: string;
-  content?: string;
-  id?: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
+}
+export interface IActivityLog {
+  action: string;
+  content?: any;
+  contentType: string;
+  contentId: string;
+  createdBy: string;
 }
 
-interface IActivityDocument extends IActivity, Document {
-  id?: string;
-}
-
-export interface IContentType {
-  id: string;
-  type: string;
-}
-
-interface IContentTypeDocument extends IContentType, Document {
-  id: string;
-}
-
-export interface IActivityLogDocument extends Document {
+export interface IActivityLogDocument extends IActivityLog, Document {
   _id: string;
-  activity: IActivityDocument;
-  performedBy?: IActionPerformerDocument;
-  contentType: IContentTypeDocument;
   createdAt: Date;
 }
 
-export interface IActivityLog {
-  contentType: string;
-  contentId: string;
-  activityType: string;
-  limit: number;
-}
-
-// Mongoose schemas ===========
-
-/* Performer of the action:
-   *system* cron job, user
-   ex: Sales manager that has registered a new customer
-   Sales manager is the action performer */
-const actionPerformerSchema = new Schema(
-  {
-    type: field({
-      type: String,
-      enum: ACTIVITY_PERFORMER_TYPES.ALL,
-      default: ACTIVITY_PERFORMER_TYPES.SYSTEM,
-      required: true,
-    }),
-    id: field({
-      type: String,
-    }),
-  },
-  { _id: false },
-);
-
-/*
-   The action that is being performed
-   ex1: A user writes an internal note
-   in this case: type is InternalNote
-                 action is create (write)
-                 id is the InternalNote id
-   ex2: Sales manager registers a new customer
-   in this case: type is customer
-                 action is create (register)
-                 id is Customer id
-   customer and activity contentTypes are the same in this case
-   ex3: Cronjob runs and a customer is found to be suitable for a particular segment
-                 action is create: a new segment user
-                 type is segment
-                 id is Segment id
-   ex4: An internalNote concerning a customer was updated
-                 action is update
-                 type is InternalNote
-                 id is InternalNote id
- */
-const activitySchema = new Schema(
-  {
-    type: field({
-      type: String,
-      required: true,
-      enum: ACTIVITY_TYPES.ALL,
-    }),
-    action: field({
-      type: String,
-      required: true,
-      enum: ACTIVITY_ACTIONS.ALL,
-    }),
-    content: field({
-      type: String,
-      optional: true,
-    }),
-    id: field({
-      type: String,
-    }),
-  },
-  { _id: false },
-);
-
-/* the customer that is related to a given ActivityLog
- can be both Company or Customer documents */
-const contentTypeSchema = new Schema(
-  {
-    id: field({
-      type: String,
-      required: true,
-    }),
-    type: field({
-      type: String,
-      enum: ACTIVITY_CONTENT_TYPES.ALL,
-      required: true,
-    }),
-  },
-  { _id: false },
-);
-
 export const activityLogSchema = new Schema({
   _id: field({ pkey: true }),
-  activity: { type: activitySchema },
-  performedBy: { type: actionPerformerSchema, optional: true },
-  contentType: { type: contentTypeSchema },
-  // TODO: remove
-  coc: { type: contentTypeSchema, optional: true },
-
+  contentId: field({ type: String }),
+  contentType: field({ type: String }),
+  action: field({ type: String }),
+  content: Schema.Types.Mixed,
+  createdBy: field({ type: String }),
   createdAt: field({
     type: Date,
     required: true,

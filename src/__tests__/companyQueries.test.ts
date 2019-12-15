@@ -45,42 +45,6 @@ describe('companyQueries', () => {
     query companies(${commonParamDefs}) {
       companies(${commonParams}) {
         _id
-        createdAt
-        modifiedAt
-
-        primaryName
-        names
-        size
-        industry
-        plan
-
-        parentCompanyId
-        primaryEmail
-        emails
-        ownerId
-        primaryPhone
-        phones
-        leadStatus
-        lifecycleState
-        businessType
-        description
-        doNotDisturb
-        links {
-          linkedIn
-          twitter
-          facebook
-          github
-          youtube
-          website
-        }
-        owner { _id }
-        parentCompany { _id }
-
-        tagIds
-
-        customFieldsData
-
-        getTags { _id }
       }
     }
   `;
@@ -102,8 +66,8 @@ describe('companyQueries', () => {
   `;
 
   const qryCount = `
-    query companyCounts(${commonParamDefs}, $only: String) {
-      companyCounts(${commonParams}, only: $only)
+    query companyCounts(${commonParamDefs}, $only: String, $byFakeSegment: JSON) {
+      companyCounts(${commonParams}, only: $only, byFakeSegment: $byFakeSegment)
     }
   `;
 
@@ -230,7 +194,6 @@ describe('companyQueries', () => {
     });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].primaryName).toBe(name);
 
     // companies by industry ==========
     responses = await graphqlRequest(qryCompanies, 'companies', {
@@ -238,7 +201,6 @@ describe('companyQueries', () => {
     });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].industry).toBe('Banks');
 
     // companies by plan ==============
     responses = await graphqlRequest(qryCompanies, 'companies', {
@@ -246,7 +208,6 @@ describe('companyQueries', () => {
     });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].plan).toBe(plan);
   });
 
   test('Companies filtered by brandId', async () => {
@@ -293,18 +254,65 @@ describe('companyQueries', () => {
     expect(responses.totalCount).toBe(4);
   });
 
-  test('Count companies', async () => {
+  test('Count companies by segment', async () => {
     // Creating test data
     await companyFactory({});
     await companyFactory({});
 
     await segmentFactory({ contentType: 'company' });
 
-    const response = await graphqlRequest(qryCount, 'companyCounts', {
+    let response = await graphqlRequest(qryCount, 'companyCounts', {
       only: 'bySegment',
     });
 
     expect(count(response.bySegment)).toBe(1);
+
+    const args: any = {
+      contentType: 'company',
+      conditions: [
+        {
+          field: 'primaryName',
+          operator: 'c',
+          value: name,
+          type: 'date',
+        },
+      ],
+    };
+
+    await segmentFactory(args);
+
+    try {
+      response = await graphqlRequest(qryCount, 'companyCounts', {
+        only: 'bySegment',
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('TypeError: str.replace is not a function');
+    }
+  });
+
+  test('Company count by segment (CastError)', async () => {
+    await companyFactory({});
+    await companyFactory({});
+
+    const args = {
+      contentType: 'company',
+      conditions: [
+        {
+          field: 'size',
+          operator: 'igt',
+          value: name,
+          type: 'string',
+        },
+      ],
+    };
+
+    const segment = await segmentFactory(args);
+
+    const response = await graphqlRequest(qryCount, 'companyCounts', {
+      only: 'bySegment',
+    });
+
+    expect(response.bySegment[segment._id]).toBe(0);
   });
 
   test('Company count by tag', async () => {
@@ -349,20 +357,6 @@ describe('companyQueries', () => {
     expect(response.byLifecycleState.lead).toBe(2);
   });
 
-  test('Company count by segment', async () => {
-    await companyFactory({});
-    await companyFactory({});
-
-    await segmentFactory({ contentType: 'company' });
-    await segmentFactory();
-
-    const response = await graphqlRequest(qryCount, 'companyCounts', {
-      only: 'bySegment',
-    });
-
-    expect(count(response.bySegment)).toBe(1);
-  });
-
   test('Company count by brand', async () => {
     const brand = await brandFactory({});
     const integration = await integrationFactory({ brandId: brand._id });
@@ -394,6 +388,20 @@ describe('companyQueries', () => {
     expect(response.byBrand[brand._id]).toBe(2);
   });
 
+  test('Company count by fake segment', async () => {
+    await companyFactory({});
+    await companyFactory({});
+
+    await segmentFactory({ contentType: 'company' });
+    await segmentFactory();
+
+    const response = await graphqlRequest(qryCount, 'companyCounts', {
+      byFakeSegment: {},
+    });
+
+    expect(count(response.bySegment)).toBe(0);
+  });
+
   test('Company detail', async () => {
     const company = await companyFactory();
 
@@ -401,6 +409,43 @@ describe('companyQueries', () => {
       query companyDetail($_id: String!) {
         companyDetail(_id: $_id) {
           _id
+          createdAt
+          modifiedAt
+
+          primaryName
+          names
+          size
+          industry
+          plan
+
+          parentCompanyId
+          primaryEmail
+          emails
+          ownerId
+          primaryPhone
+          phones
+          leadStatus
+          lifecycleState
+          businessType
+          description
+          doNotDisturb
+          links {
+            linkedIn
+            twitter
+            facebook
+            github
+            youtube
+            website
+          }
+          customers { _id }
+          owner { _id }
+          parentCompany { _id }
+
+          tagIds
+
+          customFieldsData
+
+          getTags { _id }
         }
       }
     `;

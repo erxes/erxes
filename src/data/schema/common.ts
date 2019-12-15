@@ -43,5 +43,6 @@ export const commonTypes = `
   stage: Stage
   pipeline: Pipeline
   boardId: String
+  priority: String
   attachments: [Attachment]
 `;

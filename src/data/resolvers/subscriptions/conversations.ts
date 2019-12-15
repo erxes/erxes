@@ -62,7 +62,7 @@ export default {
           return false;
         }
 
-        const availableChannelsCount = await Channels.count({
+        const availableChannelsCount = await Channels.countDocuments({
           integrationIds: { $in: [integration._id] },
           memberIds: { $in: [variables.userId] },
         });

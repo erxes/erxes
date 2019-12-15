@@ -251,7 +251,7 @@ export const generateTagReport = async (args: IListArgs, user: IUserDocument) =>
 
   const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
 
-  const integrationIds = await Integrations.find(filterSelector.integration).select('_id');
+  const integrationIds = await Integrations.findIntegrations(filterSelector.integration).select('_id');
 
   const rawIntegrationIds = integrationIds.map(row => row._id);
 

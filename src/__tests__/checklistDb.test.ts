@@ -48,6 +48,30 @@ describe('Checklists model test', () => {
     await Users.deleteMany({});
   });
 
+  test('Get checklist', async () => {
+    try {
+      await Checklists.getChecklist('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Checklist not found');
+    }
+
+    const response = await Checklists.getChecklist(_checklist._id);
+
+    expect(response).toBeDefined();
+  });
+
+  test('Get checklist item', async () => {
+    try {
+      await ChecklistItems.getChecklistItem('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Checklist item not found');
+    }
+
+    const response = await ChecklistItems.getChecklistItem(_checklistItem._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('Create Checklist, item', async () => {
     // valid
     const doc = generateData();
@@ -133,5 +157,9 @@ describe('Checklists model test', () => {
 
     expect(checklists).toHaveLength(0);
     expect(checklistItems).toHaveLength(0);
+
+    const response = await Checklists.removeChecklists(ACTIVITY_CONTENT_TYPES.COMPANY, deal._id);
+
+    expect(response).toBeUndefined();
   });
 });

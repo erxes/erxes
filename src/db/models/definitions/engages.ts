@@ -25,7 +25,7 @@ export interface IMessenger {
   brandId?: string;
   kind?: string;
   sentAs?: string;
-  content?: string;
+  content: string;
   rules?: IRule[];
 }
 
@@ -119,7 +119,7 @@ export const engageMessageSchema = schemaWrapper(
     isDraft: field({ type: Boolean }),
     isLive: field({ type: Boolean }),
     stopDate: field({ type: Date }),
-    createdDate: field({ type: Date }),
+    createdAt: field({ type: Date, default: Date.now }),
     tagIds: field({ type: [String], optional: true }),
     messengerReceivedCustomerIds: field({ type: [String] }),
 

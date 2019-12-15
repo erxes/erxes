@@ -18,12 +18,14 @@ describe('Test growthHacks mutations', () => {
     $name: String!,
     $stageId: String!
     $hackStages: [String]
+    $assignedUserIds: [String]
   `;
 
   const commonGrowthHackParams = `
     name: $name
     stageId: $stageId
     hackStages: $hackStages
+    assignedUserIds: $assignedUserIds
   `;
 
   beforeEach(async () => {
@@ -69,7 +71,7 @@ describe('Test growthHacks mutations', () => {
   });
 
   test('Update growthHack', async () => {
-    const args = {
+    const args: any = {
       _id: growthHack._id,
       name: growthHack.name,
       stageId: stage._id,
@@ -85,7 +87,12 @@ describe('Test growthHacks mutations', () => {
       }
     `;
 
-    const updatedGrowthHack = await graphqlRequest(mutation, 'growthHacksEdit', args, context);
+    let updatedGrowthHack = await graphqlRequest(mutation, 'growthHacksEdit', args, context);
+
+    expect(updatedGrowthHack.stageId).toEqual(stage._id);
+
+    args.assignedUserIds = [(await userFactory())._id];
+    updatedGrowthHack = await graphqlRequest(mutation, 'growthHacksEdit', args, context);
 
     expect(updatedGrowthHack.stageId).toEqual(stage._id);
   });

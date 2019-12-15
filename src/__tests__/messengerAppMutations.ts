@@ -1,24 +1,13 @@
 import { graphqlRequest } from '../db/connection';
-import { formFactory, messengerAppFactory, userFactory } from '../db/factories';
-import { MessengerApps, Users } from '../db/models';
+import { formFactory, messengerAppFactory } from '../db/factories';
+import { MessengerApps } from '../db/models';
 
 import './setup.ts';
 
 describe('mutations', () => {
-  let _user;
-  let context;
-
-  beforeEach(async () => {
-    // Creating test data
-    _user = await userFactory({});
-
-    context = { user: _user };
-  });
-
   afterEach(async () => {
     // Clearing test data
     await MessengerApps.deleteMany({});
-    await Users.deleteMany({});
   });
 
   test('Add knowledgebase', async () => {
@@ -39,7 +28,7 @@ describe('mutations', () => {
       }
     `;
 
-    const app = await graphqlRequest(mutation, 'messengerAppsAddKnowledgebase', args, context);
+    const app = await graphqlRequest(mutation, 'messengerAppsAddKnowledgebase', args);
 
     expect(app.kind).toBe('knowledgebase');
     expect(app.showInInbox).toBe(false);
@@ -70,7 +59,7 @@ describe('mutations', () => {
       }
     `;
 
-    const app = await graphqlRequest(mutation, 'messengerAppsAddLead', args, context);
+    const app = await graphqlRequest(mutation, 'messengerAppsAddLead', args);
 
     expect(app.kind).toBe('lead');
     expect(app.showInInbox).toBe(false);
@@ -90,7 +79,7 @@ describe('mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'messengerAppsRemove', { _id: app._id }, context);
+    await graphqlRequest(mutation, 'messengerAppsRemove', { _id: app._id });
 
     const count = await MessengerApps.find().countDocuments();
 

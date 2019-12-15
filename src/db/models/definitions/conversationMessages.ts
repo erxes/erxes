@@ -26,6 +26,7 @@ interface IEngageDataDocument extends IEngageData, Document {
 
 export interface IMessage {
   content?: string;
+  createdAt?: Date;
   attachments?: any;
   mentionedUserIds?: string[];
   conversationId: string;
@@ -80,7 +81,7 @@ const engageDataSchema = new Schema(
 
 export const messageSchema = new Schema({
   _id: field({ pkey: true }),
-  content: field({ type: String }),
+  content: field({ type: String, optional: true }),
   attachments: [attachmentSchema],
   mentionedUserIds: field({ type: [String] }),
   conversationId: field({ type: String, index: true }),

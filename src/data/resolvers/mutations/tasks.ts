@@ -1,12 +1,10 @@
-import { Checklists, Conformities, Tasks } from '../../../db/models';
-import { IOrderInput } from '../../../db/models/definitions/boards';
+import { ActivityLogs, Checklists, Conformities, Tasks } from '../../../db/models';
+import { IItemCommonFields as ITask, IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
-import { ITask } from '../../../db/models/definitions/tasks';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog } from '../../utils';
-import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
-import { checkUserIds } from './notifications';
+import { checkUserIds, putCreateLog } from '../../utils';
+import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 
 interface ITasksEdit extends ITask {
   _id: string;
@@ -23,6 +21,13 @@ const taskMutations = {
       ...doc,
       modifiedBy: user._id,
       userId: user._id,
+    });
+
+    await createConformity({
+      mainType: 'task',
+      mainTypeId: task._id,
+      companyIds: doc.companyIds,
+      customerIds: doc.customerIds,
     });
 
     await sendNotifications({
@@ -94,7 +99,7 @@ const taskMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(task, 'task', destinationStageId);
+    const { content, action } = await itemsChange(user._id, task, 'task', destinationStageId);
 
     await sendNotifications({
       item: task,
@@ -132,6 +137,7 @@ const taskMutations = {
 
     await Conformities.removeConformity({ mainType: 'task', mainTypeId: task._id });
     await Checklists.removeChecklists('task', task._id);
+    await ActivityLogs.removeActivityLog(task._id);
 
     return task.remove();
   },

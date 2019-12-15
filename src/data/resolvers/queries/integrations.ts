@@ -1,5 +1,5 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
-import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
+import { INTEGRATION_NAMES_MAP, KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -8,16 +8,20 @@ import { paginate } from '../../utils';
  * Common helper for integrations & integrationsTotalCount
  */
 const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag }) => {
-  const query: any = {};
+  const query: any = { isActive: true };
 
   if (kind) {
     query.kind = kind;
   }
 
+  if (kind === 'mail') {
+    query.kind = { $in: ['gmail', 'nylas-gmail', 'nylas-imap', 'nylas-office365', 'nylas-outlook', 'nylas-yahoo'] };
+  }
+
   // filter integrations by channel
   if (channelId) {
-    const channel = await Channels.findOne({ _id: channelId });
-    query._id = { $in: channel ? channel.integrationIds : [] };
+    const channel = await Channels.getChannel(channelId);
+    query._id = { $in: channel.integrationIds || [] };
   }
 
   // filter integrations by brand
@@ -54,9 +58,24 @@ const integrationQueries = {
     },
   ) {
     const query = await generateFilterQuery(args);
-    const integrations = paginate(Integrations.find(query), args);
+    const integrations = paginate(Integrations.findIntegrations(query), args);
 
     return integrations.sort({ name: 1 });
+  },
+
+  /**
+   * Get used integration types
+   */
+  async integrationsGetUsedTypes(_root, {}) {
+    const usedTypes: Array<{ _id: string; name: string }> = [];
+
+    for (const kind of KIND_CHOICES.ALL) {
+      if ((await Integrations.findIntegrations({ kind }).countDocuments()) > 0) {
+        usedTypes.push({ _id: kind, name: INTEGRATION_NAMES_MAP[kind] });
+      }
+    }
+
+    return usedTypes;
   },
 
   /**
@@ -79,7 +98,7 @@ const integrationQueries = {
     };
 
     const count = query => {
-      return Integrations.find(query).countDocuments();
+      return Integrations.findIntegrations(query).countDocuments();
     };
 
     // Counting integrations by tag

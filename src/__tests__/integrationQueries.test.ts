@@ -1,9 +1,10 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
-import { Brands, Channels, Integrations } from '../db/models';
+import { Brands, Channels, Integrations, Tags } from '../db/models';
 import { TAG_TYPES } from '../db/models/definitions/constants';
 
+import { IntegrationsAPI } from '../data/dataSources';
 import './setup.ts';
 
 describe('integrationQueries', () => {
@@ -27,19 +28,6 @@ describe('integrationQueries', () => {
         tag: $tag
       ) {
         _id
-        kind
-        name
-        brandId
-        languageCode
-        code
-        formId
-        leadData
-        messengerData
-        uiOptions
-
-        brand { _id }
-        form { _id }
-        channels { _id }
       }
     }
   `;
@@ -63,6 +51,7 @@ describe('integrationQueries', () => {
     await Integrations.deleteMany({});
     await Channels.deleteMany({});
     await Brands.deleteMany({});
+    await Tags.deleteMany({});
   });
 
   test('Integrations', async () => {
@@ -115,6 +104,18 @@ describe('integrationQueries', () => {
     expect(responses.length).toBe(1);
   });
 
+  test('Integrations filtered by mail', async () => {
+    await integrationFactory({ kind: 'gmail' });
+    await integrationFactory({ kind: 'nylas-gmail' });
+
+    // mail ========================
+    const responses = await graphqlRequest(qryIntegrations, 'integrations', {
+      kind: 'mail',
+    });
+
+    expect(responses.length).toBe(2);
+  });
+
   test('Integrations filtered by channel', async () => {
     const integration1 = await integrationFactory({ kind: 'facebook-messenger' });
     const integration2 = await integrationFactory({ kind: 'facebook-messenger' });
@@ -137,7 +138,7 @@ describe('integrationQueries', () => {
 
     await integrationFactory({ kind: 'messenger', brandId: brand._id });
     await integrationFactory({ kind: 'lead', brandId: brand._id });
-    await integrationFactory({ kind: 'lead' });
+    await integrationFactory({ kind: 'lead', brandId: 'fakeId' });
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
       brandId: brand._id,
@@ -159,21 +160,37 @@ describe('integrationQueries', () => {
   });
 
   test('Integration detail', async () => {
-    const integration = await integrationFactory();
-
     const qry = `
       query integrationDetail($_id: String!) {
         integrationDetail(_id: $_id) {
           _id
+          kind
+          name
+          brandId
+          languageCode
+          code
+          formId
+          leadData
+          messengerData
+          uiOptions
+
+          brand { _id }
+          form { _id }
+          channels { _id }
+          tags { _id }
         }
       }
     `;
+
+    const tag = await tagsFactory();
+    const integration = await integrationFactory({ tagIds: [tag._id], brandId: 'fakeId' });
 
     const response = await graphqlRequest(qry, 'integrationDetail', {
       _id: integration._id,
     });
 
     expect(response._id).toBe(integration._id);
+    expect(response.tags.length).toBe(1);
   });
 
   test('Get total count of integrations by kind', async () => {
@@ -216,5 +233,54 @@ describe('integrationQueries', () => {
     const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
 
     expect(response.byBrand[brand._id]).toBe(2);
+  });
+
+  test('Get total count of integrations by tag', async () => {
+    await integrationFactory({});
+    await integrationFactory({});
+    await integrationFactory({});
+
+    const tagObj = await tagsFactory({ type: TAG_TYPES.INTEGRATION });
+    await integrationFactory({ tagIds: [tagObj._id] });
+
+    const responses = await graphqlRequest(qryCount, 'integrationsTotalCount');
+
+    expect(responses.byTag[tagObj._id]).toBe(1);
+  });
+
+  test('Fetch integration api', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const qry = `
+      query integrationsFetchApi($path: String!, $params: JSON!) {
+        integrationsFetchApi(path: $path, params: $params)
+      }
+    `;
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(qry, 'integrationsFetchApi', { path: '/', params: { type: 'facebook' } }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
+  test('Get used types', async () => {
+    const qry = `
+      query integrationsGetUsedTypes {
+        integrationsGetUsedTypes {
+          _id
+          name
+        }
+      }
+    `;
+
+    await integrationFactory({ kind: 'messenger' });
+
+    const usedTypes = await graphqlRequest(qry, 'integrationsGetUsedTypes');
+
+    expect(usedTypes[0]._id).toBe('messenger');
+    expect(usedTypes[0].name).toBe('Web messenger');
   });
 });

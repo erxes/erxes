@@ -89,7 +89,7 @@ export interface IUiOptions {
 export interface IUiOptionsDocument extends IUiOptions, Document {}
 
 export interface IIntegration {
-  kind?: string;
+  kind: string;
   name?: string;
   brandId?: string;
   languageCode?: string;
@@ -98,6 +98,7 @@ export interface IIntegration {
   leadData?: ILeadData;
   messengerData?: IMessengerData;
   uiOptions?: IUiOptions;
+  isActive?: boolean;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
@@ -268,11 +269,12 @@ export const integrationSchema = new Schema({
     type: String,
     optional: true,
   }),
-  tagIds: field({ type: [String], optional: true }),
+  tagIds: field({ type: [String] }),
   formId: field({ type: String }),
   leadData: field({ type: leadDataSchema }),
   // TODO: remove
   formData: field({ type: leadDataSchema }),
   messengerData: field({ type: messengerDataSchema }),
   uiOptions: field({ type: uiOptionsSchema }),
+  isActive: field({ type: Boolean, optional: true, default: true }),
 });

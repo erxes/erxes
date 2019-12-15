@@ -3,7 +3,7 @@ import { IChannelDocument } from '../../db/models/definitions/channels';
 
 export default {
   integrations(channel: IChannelDocument) {
-    return Integrations.find({ _id: { $in: channel.integrationIds } });
+    return Integrations.findIntegrations({ _id: { $in: channel.integrationIds } });
   },
 
   members(channel: IChannelDocument) {
@@ -14,6 +14,6 @@ export default {
       'details.fullName': 1,
     };
 
-    return Users.find({ _id: { $in: channel.memberIds } }).select(selector);
+    return Users.find({ _id: { $in: channel.memberIds }, isActive: { $ne: false } }).select(selector);
   },
 };

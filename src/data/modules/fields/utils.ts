@@ -1,5 +1,5 @@
 import { Fields } from '../../../db/models';
-import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS, PRODUCT_BASIC_INFOS } from '../../constants';
+import { COMPANY_BASIC_INFOS, CUSTOMER_BASIC_INFOS, PRODUCT_BASIC_INFOS } from '../fileExporter/constants';
 
 // Checking field names, All field names must be configured correctly
 export const checkFieldNames = async (type: string, fields: string[]) => {
@@ -42,6 +42,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
     if (fieldObj) {
       property.type = 'customProperty';
       property.id = fieldObj._id;
+    }
+
+    if (fieldName === 'ownerEmail') {
+      property.name = 'ownerId';
+      property.type = 'ownerEmail';
     }
 
     if (!property.type) {

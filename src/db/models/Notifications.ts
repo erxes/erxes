@@ -24,7 +24,7 @@ export const loadNotificationClass = () => {
     public static markAsRead(ids: string[], userId: string) {
       let selector: any = { receiver: userId };
 
-      if (ids) {
+      if (ids && ids.length > 0) {
         selector = { _id: { $in: ids } };
       }
 

@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"erxes.deals"},{"v":2,"key":{"searchText":1},"name":"searchText_1","ns":"erxes.deals","background":true}],"uuid":"e10dd67a69b44f82b9c2befc4f9dc89d"}

@@ -46,7 +46,7 @@ export const sortBuilder = (params: IListArgs): TSortBuilder => {
  * Brand filter
  */
 export const brandFilter = async (brandId: string): Promise<IBrandFilter> => {
-  const integrations = await Integrations.find({ brandId }, { _id: 1 });
+  const integrations = await Integrations.findIntegrations({ brandId }, { _id: 1 });
   const integrationIds = integrations.map(i => i._id);
 
   const customers = await Customers.find({ integrationId: { $in: integrationIds } }, { companyIds: 1 });

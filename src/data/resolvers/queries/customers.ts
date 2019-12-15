@@ -91,7 +91,7 @@ const countByField = async (
 const countByIntegration = async (mainQuery: any): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const integrations = await Integrations.find({ kind: { $in: INTEGRATION_KIND_CHOICES.ALL } }).select({
+  const integrations = await Integrations.findIntegrations({ kind: { $in: INTEGRATION_KIND_CHOICES.ALL } }).select({
     _id: 1,
     name: 1,
     kind: 1,
@@ -103,7 +103,7 @@ const countByIntegration = async (mainQuery: any): Promise<ICountBy> => {
   integrations.forEach(element => {
     rawIntegrationIds.push(element._id);
     integrationMap[element._id] = element.kind;
-    counts[element.kind || ''] = 0;
+    counts[element.kind] = 0;
   });
 
   const query = { integrationId: { $in: rawIntegrationIds } };
@@ -237,6 +237,7 @@ const customerQueries = {
       case 'byForm':
         counts.byForm = await countByForm(qb, mainQuery, params);
         break;
+
       case 'byLeadStatus':
         counts.byLeadStatus = await countByLeadStatus(mainQuery);
         break;

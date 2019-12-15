@@ -1,3 +1,4 @@
+import * as faker from 'faker';
 import * as moment from 'moment';
 import { sendMessageEmail } from '../cronJobs/conversations';
 import utils from '../data/utils';
@@ -23,8 +24,7 @@ describe('Cronjob conversation send email', () => {
 
   beforeEach(async () => {
     // Creating test data
-
-    _customer = await customerFactory({});
+    _customer = await customerFactory({ primaryEmail: faker.internet.email() });
     _brand = await brandFactory({});
     _user = await userFactory({});
 
@@ -57,18 +57,19 @@ describe('Cronjob conversation send email', () => {
     process.env.COMPANY_EMAIL_FROM = ' ';
 
     const spyEmail = jest.spyOn(utils, 'sendEmail');
+    spyEmail.mockImplementation();
 
     const spyNewOrOpenConversation = jest.spyOn(Conversations, 'newOrOpenConversation');
     spyNewOrOpenConversation.mockImplementation(() => [_conversation]);
 
     const spyGetNonAsnweredMessage = jest.spyOn(ConversationMessages, 'getNonAsnweredMessage');
-    spyGetNonAsnweredMessage.mockImplementation(() => _conversationMessage);
+    spyGetNonAsnweredMessage.mockImplementation(() => Promise.resolve(_conversationMessage));
 
     const spyGetAdminMessages = jest.spyOn(ConversationMessages, 'getAdminMessages');
-    spyGetAdminMessages.mockImplementation(() => [_conversationMessage]);
+    spyGetAdminMessages.mockImplementation(() => Promise.resolve([_conversationMessage]));
 
     const spyMarkSentAsReadMessages = jest.spyOn(ConversationMessages, 'markSentAsReadMessages');
-    spyMarkSentAsReadMessages.mockImplementation(() => jest.fn());
+    spyMarkSentAsReadMessages.mockImplementation();
 
     // create fake emailSignatures ===================
     _user.emailSignatures = [{ brandId: _brand.id, signature: 'test' }];
@@ -118,14 +119,16 @@ describe('Cronjob conversation send email', () => {
 
     const calledArgs = spyEmail.mock.calls[0][0];
 
-    expect(expectedArgs.toEmails[0]).toBe(calledArgs.toEmails[0]);
+    expect(expectedArgs.toEmails[0]).toBe(calledArgs.toEmails && calledArgs.toEmails[0]);
     expect(expectedArgs.title).toBe(calledArgs.title);
-    expect(expectedArgs.template.name).toBe(calledArgs.template.name);
-    expect(expectedArgs.template.isCustom).toBe(calledArgs.template.isCustom);
-    expect(expectedArgs.template.data.question.toJSON()).toEqual(calledArgs.template.data.question);
 
-    expect(expectedArgs.template.data.brand.toJSON()).toEqual(calledArgs.template.data.brand.toJSON());
-    expect(expectedArgs.template.data.customer.toJSON()).toEqual(calledArgs.template.data.customer.toJSON());
+    if (calledArgs.template) {
+      expect(expectedArgs.template.name).toBe(calledArgs.template.name);
+      expect(expectedArgs.template.isCustom).toBe(calledArgs.template.isCustom);
+      expect(expectedArgs.template.data.question.toJSON()).toEqual(calledArgs.template.data.question);
+      expect(expectedArgs.template.data.brand.toJSON()).toEqual(calledArgs.template.data.brand.toJSON());
+      expect(expectedArgs.template.data.customer.toJSON()).toEqual(calledArgs.template.data.customer.toJSON());
+    }
 
     // mark as read: check called parameters ===============
     expect(spyMarkSentAsReadMessages.mock.calls.length).toBe(1);
@@ -147,7 +150,8 @@ describe('Cronjob conversation send email', () => {
   });
 
   test('Conversations utils without answer messages', async () => {
-    ConversationMessages.getAdminMessages = jest.fn(() => []);
+    const spyGetAdminMessages = jest.spyOn(ConversationMessages, 'getAdminMessages');
+    spyGetAdminMessages.mockImplementation(() => Promise.resolve([]));
 
     await sendMessageEmail();
   });

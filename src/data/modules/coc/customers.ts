@@ -65,10 +65,18 @@ export class Builder {
     this.params = params;
   }
 
-  public defaultFilters(): { status: {}; profileScore: { $gt: number } } {
+  public async defaultFilters(): Promise<any> {
+    const activeIntegrations = await Integrations.findIntegrations({}, { _id: 1 });
+
     return {
       status: { $ne: STATUSES.DELETED },
       profileScore: { $gt: 0 },
+      $or: [
+        {
+          integrationId: { $in: [null, undefined, ''] },
+        },
+        { integrationId: { $in: activeIntegrations.map(integration => integration._id) } },
+      ],
     };
   }
 
@@ -80,7 +88,7 @@ export class Builder {
     const brands = await Brands.find({});
 
     for (const brand of brands) {
-      const integrations = await Integrations.find({ brandId: brand._id });
+      const integrations = await Integrations.findIntegrations({ brandId: brand._id });
 
       const integrationIds = integrations.map(integration => integration._id);
 
@@ -92,23 +100,21 @@ export class Builder {
 
   // filter by brand
   public async brandFilter(brandId: string): Promise<IIntegrationIds> {
-    const integrations = await Integrations.find({ brandId });
+    const integrations = await Integrations.findIntegrations({ brandId });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   // filter by integration kind
   public async integrationTypeFilter(kind: string): Promise<IIntegrationIds> {
-    const integrations = await Integrations.find({ kind });
+    const integrations = await Integrations.findIntegrations({ kind });
 
     return { integrationId: { $in: integrations.map(i => i._id) } };
   }
 
   // filter by integration
   public async integrationFilter(integration: string): Promise<IIntegrationIds> {
-    const integrations = await Integrations.find({
-      kind: integration,
-    });
+    const integrations = await Integrations.findIntegrations({ kind: integration });
     /**
      * Since both of brand and integration filters use a same integrationId field
      * we need to intersect two arrays of integration ids.
@@ -174,7 +180,7 @@ export class Builder {
    */
   public async buildAllQueries(): Promise<void> {
     this.queries = {
-      default: this.defaultFilters(),
+      default: await this.defaultFilters(),
       type: {},
       segment: {},
       tag: {},

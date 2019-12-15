@@ -26,7 +26,7 @@ describe('internalNoteQueries', () => {
           contentTypeId
           content
           createdUserId
-          createdDate
+          createdAt
 
           createdUser { _id }
         }
@@ -48,5 +48,30 @@ describe('internalNoteQueries', () => {
     });
 
     expect(responses.length).toBe(1);
+  });
+
+  test('Internal note details', async () => {
+    const internalNote = await internalNoteFactory({});
+
+    const qry = `
+      query internalNoteDetail($_id: String!) {
+        internalNoteDetail(_id: $_id) {
+          _id
+          contentType
+          contentTypeId
+          content
+          createdUserId
+          createdAt
+
+          createdUser { _id }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'internalNoteDetail', {
+      _id: internalNote._id,
+    });
+
+    expect(response._id).toBe(internalNote._id);
   });
 });

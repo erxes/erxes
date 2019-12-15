@@ -6,7 +6,7 @@ import { IFieldsQuery } from './queries/fields';
 
 export default {
   async formSubmissions(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId || '');
+    const stage = await Stages.getStage(growthHack.stageId);
 
     const result = {};
 
@@ -28,7 +28,7 @@ export default {
   },
 
   async formFields(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId || '');
+    const stage = await Stages.getStage(growthHack.stageId);
 
     const query: IFieldsQuery = { contentType: 'form' };
 
@@ -40,19 +40,21 @@ export default {
   },
 
   assignedUsers(growthHack: IGrowthHackDocument) {
-    return Users.find({ _id: { $in: growthHack.assignedUserIds } });
+    return Users.find({ _id: { $in: growthHack.assignedUserIds || [] } });
   },
 
   votedUsers(growthHack: IGrowthHackDocument) {
-    return Users.find({ _id: { $in: growthHack.votedUserIds } });
+    return Users.find({ _id: { $in: growthHack.votedUserIds || [] } });
   },
 
   isVoted(growthHack: IGrowthHackDocument, _args, { user }: { user: IUserDocument }) {
-    return growthHack.votedUserIds ? growthHack.votedUserIds.indexOf(user._id) !== -1 : false;
+    return growthHack.votedUserIds && growthHack.votedUserIds.length > 0
+      ? growthHack.votedUserIds.indexOf(user._id) !== -1
+      : false;
   },
 
   async pipeline(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId || '');
+    const stage = await Stages.getStage(growthHack.stageId);
 
     return Pipelines.findOne({ _id: stage.pipelineId });
   },
@@ -62,20 +64,20 @@ export default {
   },
 
   async formId(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId || '');
+    const stage = await Stages.getStage(growthHack.stageId);
 
     return stage.formId;
   },
 
   async scoringType(growthHack: IGrowthHackDocument) {
-    const stage = await Stages.getStage(growthHack.stageId || '');
+    const stage = await Stages.getStage(growthHack.stageId);
     const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
     return pipeline.hackScoringType;
   },
 
   stage(growthHack: IGrowthHackDocument) {
-    return Stages.getStage(growthHack.stageId || '');
+    return Stages.getStage(growthHack.stageId);
   },
 
   isWatched(growthHack: IGrowthHackDocument, _args, { user }: { user: IUserDocument }) {
@@ -89,6 +91,6 @@ export default {
   },
 
   labels(growthHack: IGrowthHackDocument) {
-    return PipelineLabels.find({ _id: { $in: growthHack.labelIds } });
+    return PipelineLabels.find({ _id: { $in: growthHack.labelIds || [] } });
   },
 };

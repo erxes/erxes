@@ -1,15 +1,14 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, integrationFactory, userFactory } from '../db/factories';
-import { Brands, Integrations, Users } from '../db/models';
+import { brandFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
+import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
 
+import { IntegrationsAPI } from '../data/dataSources';
 import './setup.ts';
 
 describe('mutations', () => {
   let _integration;
   let _brand;
-  let _user;
-  let context;
 
   const commonParamDefs = `
     $name: String!
@@ -41,17 +40,16 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _user = await userFactory({});
     _integration = await integrationFactory({});
     _brand = await brandFactory({});
-
-    context = { user: _user };
   });
 
   afterEach(async () => {
     // Clearing test data
     await Users.deleteMany({});
     await Brands.deleteMany({});
+    await Customers.deleteMany({});
+    await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
   });
 
@@ -72,7 +70,7 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await graphqlRequest(mutation, 'integrationsCreateMessengerIntegration', args, context);
+    const integration = await graphqlRequest(mutation, 'integrationsCreateMessengerIntegration', args);
 
     expect(integration.name).toBe(args.name);
     expect(integration.brandId).toBe(args.brandId);
@@ -104,7 +102,7 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await graphqlRequest(mutation, 'integrationsEditMessengerIntegration', args, context);
+    const integration = await graphqlRequest(mutation, 'integrationsEditMessengerIntegration', args);
 
     expect(integration._id).toBe(args._id);
     expect(integration.name).toBe(args.name);
@@ -136,20 +134,17 @@ describe('mutations', () => {
       }
     `;
 
-    const messengerAppearanceData = await graphqlRequest(
-      mutation,
-      'integrationsSaveMessengerAppearanceData',
-      args,
-      context,
-    );
+    const messengerAppearanceData = await graphqlRequest(mutation, 'integrationsSaveMessengerAppearanceData', args);
 
     expect(messengerAppearanceData._id).toBe(args._id);
     expect(messengerAppearanceData.uiOptions.toJSON()).toEqual(args.uiOptions);
   });
 
   test('Save messenger integration config', async () => {
+    const user = await userFactory({});
+
     const messengerData = {
-      supporterIds: [_user.id],
+      supporterIds: [user.id],
       notifyCustomer: false,
       isOnline: false,
       availabilityMethod: 'auto',
@@ -194,17 +189,19 @@ describe('mutations', () => {
       }
     `;
 
-    const messengerConfig = await graphqlRequest(mutation, 'integrationsSaveMessengerConfigs', args, context);
+    const messengerConfig = await graphqlRequest(mutation, 'integrationsSaveMessengerConfigs', args);
 
     expect(messengerConfig._id).toBe(args._id);
     expect(messengerConfig.messengerData.toJSON()).toEqual(args.messengerData);
   });
 
   test('Create lead integration', async () => {
+    const leadIntegration = await integrationFactory({ formId: 'formId', kind: 'lead' });
+
     const args = {
-      name: _integration.name,
+      name: leadIntegration.name,
       brandId: _brand._id,
-      formId: _integration.formId,
+      formId: leadIntegration.formId,
       ...commonLeadProperties,
     };
 
@@ -228,20 +225,22 @@ describe('mutations', () => {
       }
     `;
 
-    const leadIntegration = await graphqlRequest(mutation, 'integrationsCreateLeadIntegration', args, context);
+    const response = await graphqlRequest(mutation, 'integrationsCreateLeadIntegration', args);
 
-    expect(leadIntegration.name).toBe(args.name);
-    expect(leadIntegration.brandId).toBe(args.brandId);
-    expect(leadIntegration.languageCode).toBe(args.languageCode);
-    expect(leadIntegration.formId).toBe(args.formId);
+    expect(response.name).toBe(args.name);
+    expect(response.brandId).toBe(args.brandId);
+    expect(response.languageCode).toBe(args.languageCode);
+    expect(response.formId).toBe(args.formId);
   });
 
   test('Edit lead integration', async () => {
+    const leadIntegration = await integrationFactory({ formId: 'formId', kind: 'lead' });
+
     const args = {
-      _id: _integration._id,
-      name: _integration.name,
+      _id: leadIntegration._id,
+      name: leadIntegration.name,
       brandId: _brand._id,
-      formId: _integration.formId,
+      formId: leadIntegration.formId,
       ...commonLeadProperties,
     };
 
@@ -268,12 +267,329 @@ describe('mutations', () => {
       }
     `;
 
-    const leadIntegration = await graphqlRequest(mutation, 'integrationsEditLeadIntegration', args, context);
+    const response = await graphqlRequest(mutation, 'integrationsEditLeadIntegration', args);
 
-    expect(leadIntegration._id).toBe(args._id);
-    expect(leadIntegration.name).toBe(args.name);
-    expect(leadIntegration.brandId).toBe(args.brandId);
-    expect(leadIntegration.languageCode).toBe(args.languageCode);
-    expect(leadIntegration.formId).toBe(args.formId);
+    expect(response._id).toBe(args._id);
+    expect(response.name).toBe(args.name);
+    expect(response.brandId).toBe(args.brandId);
+    expect(response.languageCode).toBe(args.languageCode);
+    expect(response.formId).toBe(args.formId);
+  });
+
+  test('Create external integration', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation integrationsCreateExternalIntegration(
+        $kind: String!
+        $name: String!
+        $brandId: String!
+        $accountId: String,
+        $data: JSON
+      ) {
+        integrationsCreateExternalIntegration(
+          kind: $kind
+          name: $name
+          brandId: $brandId
+          accountId: $accountId
+          data: $data
+        ) {
+          _id
+          name
+          kind
+          brandId
+        }
+      }
+    `;
+
+    const brand = await brandFactory();
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    const args: any = {
+      kind: 'nylas-gmail',
+      name: 'Nyals gmail integration',
+      brandId: brand._id,
+    };
+
+    try {
+      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Error: Integrations api is not running');
+    }
+
+    args.kind = 'facebook-post';
+    try {
+      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Error: Integrations api is not running');
+    }
+
+    args.kind = 'twitter-dm';
+    args.data = { data: 'data' };
+
+    try {
+      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Error: Integrations api is not running');
+    }
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'createIntegration');
+    spy.mockImplementation(() => Promise.resolve());
+
+    const response = await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+
+    expect(response).toBeDefined();
+  });
+
+  test('Add mail account', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation integrationAddMailAccount(
+        $email: String!
+        $password: String!
+        $kind: String!
+      ) {
+        integrationAddMailAccount(
+          email: $email
+          password: $password
+          kind: $kind
+        )
+      }
+    `;
+
+    const args = {
+      email: 'email',
+      password: 'pass',
+      kind: 'facebook-post',
+    };
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(mutation, 'integrationAddMailAccount', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
+  test('Add imap account', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation integrationAddImapAccount(
+        $email: String!
+        $password: String!
+        $imapHost: String!
+        $imapPort: Int!
+        $smtpHost: String!
+        $smtpPort: Int!
+        $kind: String!
+      ) {
+        integrationAddImapAccount(
+          email: $email
+          password: $password
+          imapHost: $imapHost
+          imapPort: $imapPort
+          smtpHost: $smtpHost
+          smtpPort: $smtpPort
+          kind: $kind
+        )
+      }
+    `;
+
+    const args = {
+      email: 'email@yahoo.com',
+      password: 'pass',
+      imapHost: 'imapHost',
+      imapPort: 10,
+      smtpHost: 'smtpHost',
+      smtpPort: 10,
+      kind: 'facebook-post',
+    };
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(mutation, 'integrationAddImapAccount', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
+  test('Remove account', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation integrationsRemoveAccount($_id: String!) {
+        integrationsRemoveAccount(_id: $_id)
+      }
+    `;
+
+    const integration = await integrationFactory();
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'removeAccount');
+    spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration._id] }));
+
+    const user = { user: await userFactory() };
+
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsRemoveAccount',
+      { _id: 'accountId' },
+      { dataSources, user },
+    );
+
+    expect(response).toBe('success');
+
+    spy.mockRestore();
+
+    try {
+      await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
+  test('Send mail', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation integrationSendMail(
+        $erxesApiId: String!
+        $subject: String!
+        $to: [String]!
+        $cc: [String]
+        $bcc: [String]
+        $from: String!
+        $kind: String
+      ) {
+        integrationSendMail(
+          erxesApiId: $erxesApiId
+          subject: $subject
+          to: $to
+          cc: $cc
+          bcc: $bcc
+          from: $from
+          kind: $kind
+        )
+      }
+    `;
+
+    const args = {
+      erxesApiId: 'erxesApiId',
+      subject: 'Subject',
+      to: ['user@mail.com'],
+      cc: ['cc'],
+      bcc: ['bcc'],
+      from: 'from',
+      kind: 'nylas-gmail',
+    };
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    const customer = await customerFactory({ primaryEmail: args.to[0] });
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
+
+    spy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
+
+    const emailDeliverie = await EmailDeliveries.findOne({ customerId: customer._id });
+
+    if (emailDeliverie) {
+      expect(JSON.stringify(emailDeliverie.to)).toEqual(JSON.stringify(args.to));
+      expect(customer._id).toEqual(emailDeliverie.customerId);
+    }
+
+    spy.mockRestore();
+
+    try {
+      await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
+  });
+
+  test('Integrations remove', async () => {
+    const mutation = `
+      mutation integrationsRemove($_id: String!) {
+        integrationsRemove(_id: $_id)
+      }
+    `;
+
+    const messengerIntegration = await integrationFactory({ kind: 'messenger' });
+    await graphqlRequest(mutation, 'integrationsRemove', {
+      _id: messengerIntegration._id,
+    });
+
+    expect(await Integrations.findOne({ _id: messengerIntegration._id })).toBe(null);
+
+    const facebookPostIntegration = await integrationFactory({ kind: 'facebook-post' });
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(
+        mutation,
+        'integrationsRemove',
+        {
+          _id: facebookPostIntegration._id,
+        },
+        {
+          dataSources,
+        },
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
+  test('Integrations archive', async () => {
+    const mutation = `
+      mutation integrationsArchive($_id: String!) {
+        integrationsArchive(_id: $_id) {
+          _id
+          isActive
+        }
+      }
+    `;
+
+    const integration = await integrationFactory();
+    const response = await graphqlRequest(mutation, 'integrationsArchive', {
+      _id: integration._id,
+    });
+
+    expect(response.isActive).toBeFalsy();
+  });
+
+  test('Integrations edit common fields', async () => {
+    const mutation = `
+      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
+        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId) {
+          _id
+          name
+          brandId
+        }
+      }
+    `;
+
+    const integration = await integrationFactory();
+
+    const doc = {
+      _id: integration._id,
+      name: 'updated',
+      brandId: 'brandId',
+    };
+
+    const response = await graphqlRequest(mutation, 'integrationsEditCommonFields', doc);
+
+    expect(response._id).toBe(doc._id);
+    expect(response.name).toBe(doc.name);
+    expect(response.brandId).toBe(doc.brandId);
   });
 });

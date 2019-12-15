@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { pipelineFactory, pipelineLabelFactory } from '../db/factories';
-import { PipelineLabels, Pipelines } from '../db/models';
+import { dealFactory, pipelineFactory, pipelineLabelFactory } from '../db/factories';
+import { Deals, PipelineLabels, Pipelines } from '../db/models';
 
 import './setup.ts';
 
@@ -10,6 +10,7 @@ import './setup.ts';
  */
 
 describe('PipelineLabels mutations', () => {
+  let pipeline;
   let pipelineLabel;
 
   const commonParamDefs = `
@@ -37,8 +38,8 @@ describe('PipelineLabels mutations', () => {
   };
 
   beforeEach(async () => {
+    pipeline = await pipelineFactory();
 
-    const pipeline = await pipelineFactory();
     pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id });
   });
 
@@ -92,5 +93,25 @@ describe('PipelineLabels mutations', () => {
     await graphqlRequest(mutation, 'pipelineLabelsRemove', { _id: pipelineLabel._id });
 
     expect(await PipelineLabels.find({ _id: { $in: [pipelineLabel._id] } })).toEqual([]);
+  });
+
+  test('Pipeline labels label', async () => {
+    const mutation = `
+      mutation pipelineLabelsLabel($pipelineId: String!, $targetId: String!, $labelIds: [String!]!) {
+        pipelineLabelsLabel(pipelineId: $pipelineId, targetId: $targetId, labelIds: $labelIds)
+      }
+    `;
+
+    const deal = await dealFactory();
+
+    const pipelineLabelsLabelArgs = {
+      pipelineId: pipeline._id,
+      targetId: deal._id,
+      labelIds: [pipelineLabel._id],
+    };
+
+    await graphqlRequest(mutation, 'pipelineLabelsLabel', pipelineLabelsLabelArgs);
+
+    expect((await Deals.getDeal(deal._id)).labelIds).toContain(pipelineLabel._id);
   });
 });

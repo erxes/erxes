@@ -4,8 +4,7 @@ import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/mode
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils, { putCreateLog, putDeleteLog, putUpdateLog, registerOnboardHistory } from '../../utils';
-import { checkUserIds } from './notifications';
+import utils, { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog, registerOnboardHistory } from '../../utils';
 
 interface IChannelsEdit extends IChannel {
   _id: string;
@@ -37,7 +36,7 @@ export const sendChannelNotifications = async (
     link: `/inbox/index?channelId=${channel._id}`,
 
     // exclude current user
-    receivers: receivers ? receivers : (channel.memberIds || []).filter(id => id !== channel.userId),
+    receivers: receivers || (channel.memberIds || []).filter(id => id !== channel.userId),
   });
 };
 
@@ -67,11 +66,7 @@ const channelMutations = {
    * Update channel data
    */
   async channelsEdit(_root, { _id, ...doc }: IChannelsEdit, { user }: IContext) {
-    const channel = await Channels.findOne({ _id });
-
-    if (!channel) {
-      throw new Error('Channel not found');
-    }
+    const channel = await Channels.getChannel(_id);
 
     const { memberIds } = doc;
 
@@ -103,11 +98,7 @@ const channelMutations = {
    * Remove a channel
    */
   async channelsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const channel = await Channels.findOne({ _id });
-
-    if (!channel) {
-      throw new Error('Channel not found');
-    }
+    const channel = await Channels.getChannel(_id);
 
     await sendChannelNotifications(channel, 'removed', user);
 

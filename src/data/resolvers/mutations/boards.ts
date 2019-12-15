@@ -44,20 +44,18 @@ const boardMutations = {
   async boardsEdit(_root, { _id, ...doc }: IBoardsEdit, { user }: IContext) {
     await checkPermission(doc.type, user, 'boardsEdit');
 
-    const board = await Boards.findOne({ _id });
+    const board = await Boards.getBoard(_id);
     const updated = await Boards.updateBoard(_id, doc);
 
-    if (board) {
-      await putUpdateLog(
-        {
-          type: `${doc.type}Boards`,
-          newData: JSON.stringify(doc),
-          description: `${doc.name} has been edited`,
-          object: board,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: `${doc.type}Boards`,
+        newData: JSON.stringify(doc),
+        description: `${doc.name} has been edited`,
+        object: board,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -68,24 +66,22 @@ const boardMutations = {
   async boardsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const board = await Boards.getBoard(_id);
 
-    if (board) {
-      await checkPermission(board.type, user, 'boardsRemove');
-    }
+    await checkPermission(board.type, user, 'boardsRemove');
 
     const type = `${board.type}Boards`;
 
     const removed = await Boards.removeBoard(_id);
 
-    if (removed) {
-      await putDeleteLog(
-        {
-          type,
-          object: board,
-          description: `${board.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type,
+        object: board,
+        description: `${board.name} has been removed`,
+      },
+      user,
+    );
+
+    return removed;
   },
 
   /**
@@ -131,12 +127,6 @@ const boardMutations = {
   async pipelinesWatch(_root, { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string }, { user }: IContext) {
     await checkPermission(type, user, 'pipelinesWatch');
 
-    const pipeline = await Pipelines.findOne({ _id });
-
-    if (!pipeline) {
-      throw new Error('Pipeline not found');
-    }
-
     return Pipelines.watchPipeline(_id, isAdd, user._id);
   },
 
@@ -144,11 +134,9 @@ const boardMutations = {
    * Remove pipeline
    */
   async pipelinesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const pipeline = await Pipelines.findOne({ _id });
+    const pipeline = await Pipelines.getPipeline(_id);
 
-    if (pipeline) {
-      await checkPermission(pipeline.type, user, 'pipelinesRemove');
-    }
+    await checkPermission(pipeline.type, user, 'pipelinesRemove');
 
     return Pipelines.removePipeline(_id);
   },

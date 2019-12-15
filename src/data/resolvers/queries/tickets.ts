@@ -1,15 +1,16 @@
 import { Tickets } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { generateTicketCommonFilters } from './boardUtils';
+import { checkItemPermByUser, generateSort, generateTicketCommonFilters } from './boardUtils';
 
 const ticketQueries = {
   /**
    * Tickets list
    */
-  async tickets(_root, args: IListParams) {
-    const filter = await generateTicketCommonFilters(args);
-    const sort = { order: 1, createdAt: -1 };
+  async tickets(_root, args: IListParams, { user }: IContext) {
+    const filter = await generateTicketCommonFilters(user._id, args);
+    const sort = generateSort(args);
 
     return Tickets.find(filter)
       .sort(sort)
@@ -20,8 +21,10 @@ const ticketQueries = {
   /**
    * Tickets detail
    */
-  ticketDetail(_root, { _id }: { _id: string }) {
-    return Tickets.findOne({ _id });
+  async ticketDetail(_root, { _id }: { _id: string }, { user }: IContext) {
+    const ticket = await Tickets.getTicket(_id);
+
+    return checkItemPermByUser(user._id, ticket);
   },
 };
 

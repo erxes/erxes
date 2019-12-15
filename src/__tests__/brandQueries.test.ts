@@ -11,33 +11,32 @@ describe('brandQueries', () => {
   });
 
   test('Brands', async () => {
-    const args = {
-      page: 1,
-      perPage: 3,
-    };
-
-    await brandFactory({});
-    await brandFactory({});
-    await brandFactory({});
+    await brandFactory({ name: 'name 1' });
+    await brandFactory({ name: 'name 2' });
+    await brandFactory({ name: 'name 3' });
 
     const qry = `
-      query brands($page: Int $perPage: Int) {
-        brands(page: $page perPage: $perPage) {
+      query brands($searchValue: String) {
+        brands(searchValue: $searchValue) {
           _id
-          name
-          description
-          code
-          userId
-          createdAt
-          emailConfig
-          integrations { _id }
         }
       }
     `;
 
-    const response = await graphqlRequest(qry, 'brands', args);
+    let response = await graphqlRequest(qry, 'brands');
 
     expect(response.length).toBe(3);
+
+    await brandFactory({ name: 'search 1' });
+    await brandFactory({ name: 'search 2' });
+
+    const args = {
+      searchValue: 'search',
+    };
+
+    response = await graphqlRequest(qry, 'brands', args);
+
+    expect(response.length).toBe(2);
   });
 
   test('Brand detail', async () => {
@@ -45,6 +44,9 @@ describe('brandQueries', () => {
       query brandDetail($_id: String!) {
         brandDetail(_id: $_id) {
           _id
+          integrations {
+            _id
+          }
         }
       }
     `;
@@ -80,9 +82,6 @@ describe('brandQueries', () => {
         }
       }
     `;
-
-    await brandFactory({});
-    await brandFactory({});
 
     const brand = await brandFactory({});
 

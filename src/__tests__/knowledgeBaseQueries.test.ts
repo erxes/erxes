@@ -22,6 +22,23 @@ describe('knowledgeBaseQueries', () => {
       query knowledgeBaseTopics($page: Int $perPage: Int) {
         knowledgeBaseTopics(page: $page perPage: $perPage) {
           _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'knowledgeBaseTopics', {
+      page: 1,
+      perPage: 2,
+    });
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Knowledge base topic detail', async () => {
+    const qry = `
+      query knowledgeBaseTopicDetail($_id: String!) {
+        knowledgeBaseTopicDetail(_id: $_id) {
+          _id
           title
           description
           categories { _id }
@@ -36,30 +53,19 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'knowledgeBaseTopics', {
-      page: 1,
-      perPage: 2,
-    });
-
-    expect(response.length).toBe(2);
-  });
-
-  test('Knowledge base topic detail', async () => {
     const knowledgeBaseTopic = await knowledgeBaseTopicFactory();
-
-    const qry = `
-      query knowledgeBaseTopicDetail($_id: String!) {
-        knowledgeBaseTopicDetail(_id: $_id) {
-          _id
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'knowledgeBaseTopicDetail', {
+    let response = await graphqlRequest(qry, 'knowledgeBaseTopicDetail', {
       _id: knowledgeBaseTopic._id,
     });
 
     expect(response._id).toBe(knowledgeBaseTopic._id);
+
+    const knowledgeBaseTopicWithColor = await knowledgeBaseTopicFactory({ color: '#fff' });
+    response = await graphqlRequest(qry, 'knowledgeBaseTopicDetail', {
+      _id: knowledgeBaseTopicWithColor._id,
+    });
+
+    expect(response._id).toBe(knowledgeBaseTopicWithColor._id);
   });
 
   test('Get total count of knowledge base topic', async () => {
@@ -142,9 +148,14 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args);
+    let responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args);
 
     expect(responses.length).toBe(2);
+
+    delete args.topicIds;
+    responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args);
+
+    expect(responses.length).toBe(3);
   });
 
   test('Knowledge base category detail', async () => {
@@ -183,11 +194,35 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'knowledgeBaseCategoriesTotalCount', {
+    let response = await graphqlRequest(qry, 'knowledgeBaseCategoriesTotalCount', {
       topicIds: topic._id,
     });
 
     expect(response).toBe(2);
+
+    response = await graphqlRequest(qry, 'knowledgeBaseCategoriesTotalCount');
+
+    expect(response).toBe(3);
+  });
+
+  test('Knowledge base category detail', async () => {
+    const topic = await knowledgeBaseTopicFactory();
+
+    const lastCategory = await knowledgeBaseCategoryFactory({
+      topicIds: [topic._id],
+    });
+
+    const qry = `
+      query knowledgeBaseCategoriesGetLast {
+        knowledgeBaseCategoriesGetLast {
+          _id
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'knowledgeBaseCategoriesGetLast');
+
+    expect(response._id).toBe(lastCategory._id);
   });
 
   test('Knowledge base articles', async () => {
@@ -229,9 +264,14 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const responses = await graphqlRequest(qry, 'knowledgeBaseArticles', args);
+    let responses = await graphqlRequest(qry, 'knowledgeBaseArticles', args);
 
     expect(responses.length).toBe(2);
+
+    delete args.categoryIds;
+    responses = await graphqlRequest(qry, 'knowledgeBaseArticles', args);
+
+    expect(responses.length).toBe(3);
   });
 
   test('Knowledge base article detail', async () => {
@@ -270,10 +310,14 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'knowledgeBaseArticlesTotalCount', {
+    let response = await graphqlRequest(qry, 'knowledgeBaseArticlesTotalCount', {
       categoryIds: [category._id],
     });
 
     expect(response).toBe(2);
+
+    response = await graphqlRequest(qry, 'knowledgeBaseArticlesTotalCount');
+
+    expect(response).toBe(3);
   });
 });

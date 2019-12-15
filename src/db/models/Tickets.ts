@@ -38,12 +38,13 @@ export const loadTicketClass = () => {
       const ticket = await Tickets.create({
         ...doc,
         order: ticketsCount,
+        createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),
       });
 
       // create log
-      await ActivityLogs.createTicketLog(ticket);
+      await ActivityLogs.createBoardItemLog({ item: ticket, contentType: 'ticket' });
 
       return ticket;
     }

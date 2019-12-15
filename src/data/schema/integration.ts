@@ -12,6 +12,7 @@ export const types = `
     leadData: JSON
     messengerData: JSON
     uiOptions: JSON
+    isActive: Boolean
 
     brand: Brand
     form: Form
@@ -24,6 +25,11 @@ export const types = `
     byChannel: JSON
     byBrand: JSON
     byKind: JSON
+  }
+
+  type integrationsGetUsedTypes {
+    _id: String
+    name: String
   }
 
   input IntegrationLeadData {
@@ -90,6 +96,8 @@ export const queries = `
     tag: String
   ): [Integration]
 
+  integrationsGetUsedTypes: [integrationsGetUsedTypes]
+
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
@@ -139,17 +147,22 @@ export const mutations = `
     accountId: String,
     data: JSON): Integration
 
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!): Integration
+
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!): JSON
+
+  integrationsArchive(_id: String!): Integration
 
   integrationSendMail(
     erxesApiId: String!
     subject: String!
     body: String
-    to: String!
-    cc: String
-    bcc: String
+    to: [String]!
+    cc: [String]
+    bcc: [String]
     from: String!
+    shouldResolve: Boolean
     headerId: String
     threadId: String
     messageId: String

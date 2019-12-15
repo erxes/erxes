@@ -1,12 +1,26 @@
 import { Model, model } from 'mongoose';
-import { configSchema, IConfigDocument } from './definitions/configs';
+import { configSchema, IConfig, IConfigDocument } from './definitions/configs';
 
 export interface IConfigModel extends Model<IConfigDocument> {
-  createOrUpdateConfig({ code, value }: { code: string; value: string[] }): IConfigDocument;
+  getConfig(code: string): Promise<IConfigDocument>;
+  createOrUpdateConfig({ code, value }: IConfig): IConfigDocument;
 }
 
 export const loadClass = () => {
   class Config {
+    /*
+     * Get a Config
+     */
+    public static async getConfig(code: string) {
+      const config = await Configs.findOne({ code });
+
+      if (!config) {
+        throw new Error('Config not found');
+      }
+
+      return config;
+    }
+
     /**
      * Create or update config
      */

@@ -12,8 +12,8 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _channel = await channelFactory({});
-    _integration = await integrationFactory({});
+    _integration = await integrationFactory();
+    _channel = await channelFactory({ integrationIds: [_integration._id] });
     _user = await userFactory({});
 
     context = { user: _user };
@@ -101,6 +101,12 @@ describe('mutations', () => {
     expect(channel.description).toBe(args.description);
     expect(channel.memberIds).toEqual([member._id]);
     expect(channel.integrationIds).toEqual(args.integrationIds);
+
+    // if channel integrationIds changed
+    args.integrationIds = ['updatedId'];
+    const channelNoIntegration = await graphqlRequest(mutation, 'channelsEdit', args, context);
+
+    expect(channelNoIntegration.integrationIds).toEqual(args.integrationIds);
   });
 
   test('Remove channel', async () => {

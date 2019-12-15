@@ -64,7 +64,7 @@ describe('mutations', () => {
     let relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     let savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -81,7 +81,7 @@ describe('mutations', () => {
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -98,7 +98,7 @@ describe('mutations', () => {
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -107,7 +107,7 @@ describe('mutations', () => {
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company1._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -124,7 +124,7 @@ describe('mutations', () => {
     relTypeIds = await Conformities.savedConformity({
       mainType: 'customer',
       mainTypeId: customer2._id,
-      relType: 'company',
+      relTypes: ['customer'],
     });
 
     let relatedCompanies = await Companies.find({ _id: { $in: relTypeIds } });
@@ -170,9 +170,10 @@ describe('mutations', () => {
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relType: 'task',
+      relTypes: ['customer'],
     });
-    expect(relTypeIds.length).toEqual(0);
+
+    expect(relTypeIds.length).toEqual(2);
   });
 
   test('Add conformity mutations', async () => {
@@ -208,7 +209,7 @@ describe('mutations', () => {
     const relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
     expect(relTypeIds.length).toEqual(1);
   });

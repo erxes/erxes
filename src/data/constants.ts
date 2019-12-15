@@ -7,8 +7,9 @@ export const INTEGRATION_KIND_CHOICES = {
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
   GMAIL: 'gmail',
+  NYLAS_GMAIL: 'nylas-gmail',
   CALLPRO: 'callpro',
-  ALL: ['messenger', 'lead', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro'],
+  ALL: ['messenger', 'lead', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro', 'nylas-gmail'],
 };
 
 export const MESSAGE_KINDS = {
@@ -77,38 +78,6 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   PRODUCT: 'product',
   ALL: ['customer', 'company', 'product'],
 };
-
-export const CUSTOMER_BASIC_INFOS = [
-  'firstName',
-  'lastName',
-  'primaryEmail',
-  'primaryPhone',
-  'ownerId',
-  'position',
-  'department',
-  'leadStatus',
-  'lifecycleState',
-  'hasAuthority',
-  'description',
-  'doNotDisturb',
-];
-
-export const COMPANY_BASIC_INFOS = [
-  'primaryName',
-  'size',
-  'industry',
-  'website',
-  'plan',
-  'primaryEmail',
-  'primaryPhone',
-  'leadStatus',
-  'lifecycleState',
-  'businessType',
-  'description',
-  'doNotDisturb',
-];
-
-export const PRODUCT_BASIC_INFOS = ['name', 'categoryCode', 'type', 'description', 'sku', 'code', 'unitPrice'];
 
 export const INSIGHT_BASIC_INFOS = {
   count: 'Customer count',
@@ -280,3 +249,15 @@ export const NOTIFICATION_MODULES = [
     ],
   },
 ];
+
+export const MODULE_NAMES = {
+  BRAND: 'brand',
+  CHANNEL: 'channel',
+  COMPANY: 'company',
+  CUSTOMER: 'customer',
+  DEAL: 'deal',
+  TASK: 'task',
+  TICKET: 'ticket',
+  PERMISSION: 'permission',
+  USER: 'user',
+};

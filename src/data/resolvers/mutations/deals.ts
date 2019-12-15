@@ -1,12 +1,11 @@
-import { Checklists, Conformities, Deals } from '../../../db/models';
+import { ActivityLogs, Checklists, Conformities, Deals } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
-import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
-import { checkUserIds } from './notifications';
+import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -24,6 +23,13 @@ const dealMutations = {
       ...doc,
       modifiedBy: user._id,
       userId: user._id,
+    });
+
+    await createConformity({
+      mainType: 'deal',
+      mainTypeId: deal._id,
+      customerIds: doc.customerIds,
+      companyIds: doc.companyIds,
     });
 
     await sendNotifications({
@@ -78,17 +84,16 @@ const dealMutations = {
 
     await sendNotifications(notificationDoc);
 
-    if (updatedDeal) {
-      await putUpdateLog(
-        {
-          type: 'deal',
-          object: updatedDeal,
-          newData: JSON.stringify(doc),
-          description: `${updatedDeal.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'deal',
+        object: updatedDeal,
+        newData: JSON.stringify(doc),
+        description: `${updatedDeal.name} has been edited`,
+      },
+      user,
+    );
+
     return updatedDeal;
   },
 
@@ -108,7 +113,7 @@ const dealMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(deal, 'deal', destinationStageId);
+    const { content, action } = await itemsChange(user._id, deal, 'deal', destinationStageId);
 
     await sendNotifications({
       item: deal,
@@ -155,6 +160,7 @@ const dealMutations = {
 
     await Conformities.removeConformity({ mainType: 'deal', mainTypeId: deal._id });
     await Checklists.removeChecklists('deal', deal._id);
+    await ActivityLogs.removeActivityLog(deal._id);
 
     return deal.remove();
   },

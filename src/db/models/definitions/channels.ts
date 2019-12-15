@@ -18,21 +18,24 @@ export interface IChannelDocument extends IChannel, Document {
 
 export const channelSchema = new Schema({
   _id: field({ pkey: true }),
-  createdAt: field({ type: Date }),
-  name: field({ type: String }),
+  createdAt: field({ type: Date, label: 'Created at' }),
+  name: field({ type: String, label: 'Name' }),
   description: field({
     type: String,
     optional: true,
+    label: 'Description',
   }),
-  integrationIds: field({ type: [String] }),
-  memberIds: field({ type: [String] }),
-  userId: field({ type: String }),
+  integrationIds: field({ type: [String], label: 'Integrations' }),
+  memberIds: field({ type: [String], label: 'Members' }),
+  userId: field({ type: String, label: 'Created by' }),
   conversationCount: field({
     type: Number,
     default: 0,
+    label: 'Conversation count',
   }),
   openConversationCount: field({
     type: Number,
     default: 0,
+    label: 'Open conversation count',
   }),
 });

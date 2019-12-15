@@ -1,6 +1,6 @@
 import * as schedule from 'node-schedule';
 import QueryBuilder from '../data/modules/segments/queryBuilder';
-import { ActivityLogs, Customers, Segments } from '../db/models';
+import { ActivityLogs, Companies, Customers, Segments } from '../db/models';
 
 /**
  * Send conversation messages to customer
@@ -11,9 +11,14 @@ export const createActivityLogsFromSegments = async () => {
   for (const segment of segments) {
     const selector = await QueryBuilder.segments(segment);
     const customers = await Customers.find(selector);
+    const companies = await Companies.find(selector);
 
     for (const customer of customers) {
-      await ActivityLogs.createSegmentLog(segment, customer);
+      await ActivityLogs.createSegmentLog(segment, customer, 'customer');
+    }
+
+    for (const company of companies) {
+      await ActivityLogs.createSegmentLog(segment, company, 'company');
     }
   }
 };

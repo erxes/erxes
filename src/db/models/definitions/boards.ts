@@ -21,7 +21,7 @@ export interface IItemCommonFields {
   notifiedUserIds?: string[];
   labelIds?: string[];
   attachments?: any[];
-  stageId?: string;
+  stageId: string;
   initialStageId?: string;
   modifiedAt?: Date;
   modifiedBy?: string;
@@ -29,6 +29,11 @@ export interface IItemCommonFields {
   createdAt?: Date;
   order?: number;
   searchText?: string;
+  priority?: string;
+}
+
+export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
+  _id: string;
 }
 
 export interface IBoard extends ICommonFields {
@@ -41,17 +46,19 @@ export interface IBoardDocument extends IBoard, Document {
 
 export interface IPipeline extends ICommonFields {
   name?: string;
-  boardId?: string;
+  boardId: string;
   visibility?: string;
   memberIds?: string[];
   bgColor?: string;
   watchedUserIds?: string[];
-  // growth hack
+
   startDate?: Date;
   endDate?: Date;
   metric?: string;
   hackScoringType?: string;
   templateId?: string;
+  isCheckUser?: boolean;
+  excludeCheckUserIds?: string[];
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -79,96 +86,102 @@ export interface IOrderInput {
 
 const attachmentSchema = new Schema(
   {
-    name: field({ type: String }),
-    url: field({ type: String }),
-    type: field({ type: String }),
-    size: field({ type: Number, optional: true }),
+    name: field({ type: String, label: 'Name' }),
+    url: field({ type: String, label: 'Url' }),
+    type: field({ type: String, label: 'Type' }),
+    size: field({ type: Number, optional: true, label: 'Size' }),
   },
   { _id: false },
 );
 
 // Mongoose schemas =======================
 const commonFieldsSchema = {
-  userId: field({ type: String }),
+  userId: field({ type: String, label: 'Created by' }),
   createdAt: field({
     type: Date,
     default: new Date(),
+    label: 'Created by',
   }),
-  order: field({ type: Number }),
+  order: field({ type: Number, label: 'Order' }),
   type: field({
     type: String,
     enum: BOARD_TYPES.ALL,
     required: true,
+    label: 'Type',
   }),
 };
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
-  userId: field({ type: String }),
-  createdAt: field({
-    type: Date,
-    default: new Date(),
-  }),
-  order: field({ type: Number }),
-  name: field({ type: String }),
-  closeDate: field({ type: Date }),
-  reminderMinute: field({ type: Number }),
-  isComplete: field({ type: Boolean, default: false }),
-  description: field({ type: String, optional: true }),
-  assignedUserIds: field({ type: [String] }),
-  watchedUserIds: field({ type: [String] }),
-  labelIds: field({ type: [String] }),
-  attachments: field({ type: [attachmentSchema] }),
-  stageId: field({ type: String }),
-  initialStageId: field({ type: String, optional: true }),
+  userId: field({ type: String, label: 'Created by' }),
+  createdAt: field({ type: Date, label: 'Created at' }),
+  order: field({ type: Number, label: 'Order' }),
+  name: field({ type: String, label: 'Name' }),
+  closeDate: field({ type: Date, label: 'Close date' }),
+  reminderMinute: field({ type: Number, label: 'Reminder minute' }),
+  isComplete: field({ type: Boolean, default: false, label: 'Is complete' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  assignedUserIds: field({ type: [String], label: 'Assigned users' }),
+  watchedUserIds: field({ type: [String], label: 'Watched users' }),
+  labelIds: field({ type: [String], label: 'Labels' }),
+  attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
+  stageId: field({ type: String, label: 'Stage' }),
+  initialStageId: field({ type: String, optional: true, label: 'Initial stage' }),
   modifiedAt: field({
     type: Date,
     default: new Date(),
+    label: 'Modified at',
   }),
-  modifiedBy: field({ type: String }),
+  modifiedBy: field({ type: String, label: 'Modified by' }),
   searchText: field({ type: String, optional: true, index: true }),
+  priority: field({ type: String, optional: true, label: 'Priority' }),
 };
 
 export const boardSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String }),
+    name: field({ type: String, label: 'Name' }),
     ...commonFieldsSchema,
   }),
 );
 
 export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String }),
-  boardId: field({ type: String }),
+  name: field({ type: String, label: 'Name' }),
+  boardId: field({ type: String, label: 'Board' }),
   visibility: field({
     type: String,
     enum: PIPELINE_VISIBLITIES.ALL,
     default: PIPELINE_VISIBLITIES.PUBLIC,
+    label: 'Visibility',
   }),
-  watchedUserIds: field({ type: [String] }),
-  memberIds: field({ type: [String] }),
-  bgColor: field({ type: String }),
+  watchedUserIds: field({ type: [String], label: 'Watched users' }),
+  memberIds: field({ type: [String], label: 'Members' }),
+  bgColor: field({ type: String, label: 'Background color' }),
   // Growth hack
-  startDate: field({ type: Date, optional: true }),
-  endDate: field({ type: Date, optional: true }),
-  metric: field({ type: String, optional: true }),
+  startDate: field({ type: Date, optional: true, label: 'Start date' }),
+  endDate: field({ type: Date, optional: true, label: 'End date' }),
+  metric: field({ type: String, optional: true, label: 'Metric' }),
   hackScoringType: field({
     type: String,
     enum: HACK_SCORING_TYPES.ALL,
+    label: 'Hacking scoring type',
   }),
-  templateId: field({ type: String, optional: true }),
+  templateId: field({ type: String, optional: true, label: 'Template' }),
+  isCheckUser: field({ type: Boolean, optional: true }),
+  excludeCheckUserIds: field({ type: [String], optional: true }),
   ...commonFieldsSchema,
 });
 
 export const stageSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String }),
+  name: field({ type: String, label: 'Name' }),
   probability: field({
     type: String,
     enum: PROBABILITY.ALL,
+    label: 'Probability',
   }), // Win probability
-  pipelineId: field({ type: String }),
-  formId: field({ type: String }),
+  pipelineId: field({ type: String, label: 'Pipeline' }),
+  formId: field({ type: String, label: 'Form' }),
   ...commonFieldsSchema,
 });

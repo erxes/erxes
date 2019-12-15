@@ -25,17 +25,15 @@ const messengerAppMutations = {
       }),
     );
 
-    if (kb) {
-      await putCreateLog(
-        {
-          type: 'messengerAppKb',
-          newData: JSON.stringify(params),
-          object: kb,
-          description: `${name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'messengerAppKb',
+        newData: JSON.stringify(params),
+        object: kb,
+        description: `${name} has been created`,
+      },
+      user,
+    );
 
     return kb;
   },
@@ -48,11 +46,7 @@ const messengerAppMutations = {
    */
   async messengerAppsAddLead(_root, params, { user, docModifier }: IContext) {
     const { name, integrationId, formId } = params;
-    const form = await Forms.findOne({ _id: formId });
-
-    if (!form) {
-      throw new Error('Form not found');
-    }
+    const form = await Forms.getForm(formId);
 
     const lead = await MessengerApps.createApp(
       docModifier({
@@ -61,22 +55,20 @@ const messengerAppMutations = {
         showInInbox: false,
         credentials: {
           integrationId,
-          formCode: form.code || '',
+          formCode: form.code,
         },
       }),
     );
 
-    if (lead) {
-      await putCreateLog(
-        {
-          type: 'messengerAppLead',
-          newData: JSON.stringify(params),
-          object: lead,
-          description: `${name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'messengerAppLead',
+        newData: JSON.stringify(params),
+        object: lead,
+        description: `${name} has been created`,
+      },
+      user,
+    );
 
     return lead;
   },
@@ -85,19 +77,17 @@ const messengerAppMutations = {
    * Remove app
    */
   async messengerAppsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const messengerApp = await MessengerApps.findOne({ _id });
+    const messengerApp = await MessengerApps.getApp(_id);
     const removed = await MessengerApps.deleteOne({ _id });
 
-    if (messengerApp) {
-      await putDeleteLog(
-        {
-          type: 'messengerApp',
-          object: messengerApp,
-          description: `${messengerApp.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'messengerApp',
+        object: messengerApp,
+        description: `${messengerApp.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

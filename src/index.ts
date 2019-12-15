@@ -11,11 +11,16 @@ import * as path from 'path';
 import * as request from 'request';
 import { filterXSS } from 'xss';
 import apolloServer from './apolloClient';
-import { IntegrationsAPI } from './data/dataSources';
-import { companiesExport, customersExport } from './data/modules/coc/exporter';
+import { buildFile } from './data/modules/fileExporter/exporter';
 import insightExports from './data/modules/insights/insightExports';
-import { handleEngageUnSubscribe } from './data/resolvers/mutations/engageUtils';
-import { checkFile, getEnv, readFileRequest, registerOnboardHistory, uploadFile } from './data/utils';
+import {
+  checkFile,
+  getEnv,
+  handleUnsubscription,
+  readFileRequest,
+  registerOnboardHistory,
+  uploadFile,
+} from './data/utils';
 import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
 import './messageBroker';
@@ -76,33 +81,17 @@ app.use(userMiddleware);
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get('/download-template', (req: any, res) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
   const name = req.query.name;
 
   registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
-  return res.redirect(`/static/importTemplates/${name}`);
+  return res.redirect(`${DOMAIN}/static/importTemplates/${name}`);
 });
 
 // for health check
 app.get('/status', async (_req, res) => {
   res.end('ok');
-});
-
-// export coc
-app.get('/coc-export', async (req: any, res) => {
-  const { query, user } = req;
-  const { type } = query;
-
-  try {
-    const { name, response } =
-      type === 'customers' ? await customersExport(query, user) : await companiesExport(query, user);
-
-    res.attachment(`${name}.xlsx`);
-
-    return res.send(response);
-  } catch (e) {
-    return res.end(filterXSS(e.message));
-  }
 });
 
 // export insights
@@ -113,6 +102,23 @@ app.get('/insights-export', async (req: any, res) => {
     res.attachment(`${name}.xlsx`);
 
     return res.send(response);
+  } catch (e) {
+    return res.end(filterXSS(e.message));
+  }
+});
+
+// export board
+app.get('/file-export', async (req: any, res) => {
+  const { query, user } = req;
+
+  let result: { name: string; response: string };
+
+  try {
+    result = await buildFile(query, user);
+
+    res.attachment(`${result.name}.xlsx`);
+
+    return res.send(result.response);
   } catch (e) {
     return res.end(filterXSS(e.message));
   }
@@ -139,24 +145,49 @@ app.get('/read-file', async (req: any, res) => {
 
 // get mail attachment file
 app.get('/read-mail-attachment', async (req: any, res) => {
-  const { messageId, attachmentId, kind, integrationId, filename } = req.query;
+  const { messageId, attachmentId, kind, integrationId, filename, contentType } = req.query;
 
-  if (!messageId || !attachmentId || !integrationId) {
+  if (!messageId || !attachmentId || !integrationId || !contentType) {
     return res.status(404).send('Attachment not found');
   }
 
   const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
 
   res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}`,
+    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}`,
   );
 });
 
 // file upload
-app.post('/upload-file', async (req, res) => {
+app.post('/upload-file', async (req: any, res, next) => {
+  // require login
+  if (!req.user) {
+    return res.end('foribidden');
+  }
+
+  if (req.query.kind === 'nylas') {
+    debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
+
+    return req.pipe(
+      request
+        .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
+        .on('response', response => {
+          if (response.statusCode !== 200) {
+            return next(response.statusMessage);
+          }
+
+          return response.pipe(res);
+        })
+        .on('error', e => {
+          debugExternalApi(`Error from pipe ${e.message}`);
+          next(e);
+        }),
+    );
+  }
+
   const form = new formidable.IncomingForm();
 
-  form.parse(req, async (_error, fields, response) => {
+  form.parse(req, async (_error, _fields, response) => {
     const file = response.file || response.upload;
 
     // check file ====
@@ -164,17 +195,6 @@ app.post('/upload-file', async (req, res) => {
 
     if (status === 'ok') {
       try {
-        if (fields && fields.kind === 'nylas') {
-          const nylasApi = new IntegrationsAPI();
-
-          const apiResponse = await nylasApi.nylasUpload({
-            ...file,
-            erxesApiId: fields.erxesApiId,
-          });
-
-          return res.send(apiResponse);
-        }
-
         const result = await uploadFile(file, response.upload ? true : false);
 
         return res.send(result);
@@ -227,8 +247,8 @@ app.post('/import-file', async (req: any, res, next) => {
 });
 
 // engage unsubscribe
-app.get('/unsubscribe', async (req, res) => {
-  const unsubscribed = await handleEngageUnSubscribe(req.query);
+app.get('/unsubscribe', async (req: any, res) => {
+  const unsubscribed = await handleUnsubscription(req.query);
 
   if (unsubscribed) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

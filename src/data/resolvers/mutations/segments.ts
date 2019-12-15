@@ -15,17 +15,15 @@ const segmentMutations = {
   async segmentsAdd(_root, doc: ISegment, { user, docModifier }: IContext) {
     const segment = await Segments.createSegment(docModifier(doc));
 
-    if (segment) {
-      await putCreateLog(
-        {
-          type: `${doc.contentType}Segment`,
-          newData: JSON.stringify(doc),
-          object: segment,
-          description: `${segment.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: `${doc.contentType}Segment`,
+        newData: JSON.stringify(doc),
+        object: segment,
+        description: `${segment.name} has been created`,
+      },
+      user,
+    );
 
     return segment;
   },
@@ -34,20 +32,18 @@ const segmentMutations = {
    * Update segment
    */
   async segmentsEdit(_root, { _id, ...doc }: ISegmentsEdit, { user }: IContext) {
-    const segment = await Segments.findOne({ _id });
+    const segment = await Segments.getSegment(_id);
     const updated = await Segments.updateSegment(_id, doc);
 
-    if (segment) {
-      await putUpdateLog(
-        {
-          type: 'segment',
-          object: segment,
-          newData: JSON.stringify(doc),
-          description: `${segment.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'segment',
+        object: segment,
+        newData: JSON.stringify(doc),
+        description: `${segment.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -56,19 +52,17 @@ const segmentMutations = {
    * Delete segment
    */
   async segmentsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const segment = await Segments.findOne({ _id });
+    const segment = await Segments.getSegment(_id);
     const removed = await Segments.removeSegment(_id);
 
-    if (segment) {
-      await putDeleteLog(
-        {
-          type: 'segment',
-          object: segment,
-          description: `${segment.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'segment',
+        object: segment,
+        description: `${segment.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

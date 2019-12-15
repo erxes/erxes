@@ -10,14 +10,16 @@ const paramsDef = `
   $pipelineIds: String,
   $boardId: String,
   $startDate: String,
-  $endDate: String
+  $endDate: String,
+  $status: String
 `;
 
 const paramsValue = `
   pipelineIds: $pipelineIds,
   boardId: $boardId,
   startDate: $startDate,
-  endDate: $endDate
+  endDate: $endDate,
+  status: $status
 `;
 
 describe('dealInsightQueries', () => {
@@ -85,12 +87,37 @@ describe('dealInsightQueries', () => {
     expect(response.length).toBe(1);
   });
 
+  test('dealInsightsMain', async () => {
+    const qry = `
+      query dealInsightsMain(${paramsDef}) {
+        dealInsightsMain(${paramsValue})
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'dealInsightsMain', doc);
+
+    expect(response.trend.length).toBe(1);
+
+    doc.status = 'won';
+    response = await graphqlRequest(qry, 'dealInsightsMain', doc);
+
+    expect(response.trend.length).toBe(0);
+  });
+
   test('dealInsightsByTeamMember', async () => {
     const user = await userFactory({});
 
-    Deals.findByIdAndUpdate(deal._id, {
+    await Deals.findByIdAndUpdate(deal._id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
+    });
+
+    const deal2 = await dealFactory({ stageId: stage._id });
+    const user2 = await userFactory({});
+
+    await Deals.findByIdAndUpdate(deal2._id, {
+      modifiedAt: new Date(),
+      modifiedBy: user2._id,
     });
 
     const qry = `
@@ -99,7 +126,12 @@ describe('dealInsightQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'dealInsightsByTeamMember', doc);
-    expect(response.length).toBe(1);
+    let response = await graphqlRequest(qry, 'dealInsightsByTeamMember', doc);
+    expect(response.length).toBe(2);
+
+    doc.boardId = 'fakeBoardId';
+
+    response = await graphqlRequest(qry, 'dealInsightsByTeamMember', { boardId: 'fakeBoardId' });
+    expect(response.length).toBe(0);
   });
 });

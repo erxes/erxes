@@ -4,7 +4,6 @@ export const types = `
   type GrowthHack {
     _id: String!
     hackStages: [String]
-    priority: String
     reach: Int
     impact: Int
     confidence: Int
@@ -28,13 +27,9 @@ const commonQueryFields = `
   limit: Int
   search: String
   assignedUserIds: [String]
-  nextDay: String
-  nextWeek: String
-  nextMonth: String
-  noCloseDate: String
-  overdue: String
-  hackStage: String
-  priority: String
+  closeDateType: String
+  hackStage: [String]
+  priority: [String]
 `;
 
 export const queries = `
@@ -53,11 +48,7 @@ export const queries = `
     pipelineId: String
     search: String
     assignedUserIds: [String]
-    nextDay: String
-    nextWeek: String
-    nextMonth: String
-    noCloseDate: String
-    overdue: String
+    closeDateType: String
   ): JSON
 `;
 

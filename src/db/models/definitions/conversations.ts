@@ -11,10 +11,12 @@ export interface IConversation {
   participatedUserIds?: string[];
   readUserIds?: string[];
 
+  createdAt?: Date;
+  updatedAt?: Date;
   closedAt?: Date;
   closedUserId?: string;
 
-  status?: string;
+  status: string;
   messageCount?: number;
   tagIds?: string[];
 

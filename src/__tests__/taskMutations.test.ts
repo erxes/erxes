@@ -12,16 +12,17 @@ describe('Test tasks mutations', () => {
   let pipeline: IPipelineDocument;
   let stage: IStageDocument;
   let task: ITaskDocument;
-  let context;
 
   const commonTaskParamDefs = `
     $name: String!,
     $stageId: String!
+    $assignedUserIds: [String]
   `;
 
   const commonTaskParams = `
     name: $name
     stageId: $stageId
+    assignedUserIds: $assignedUserIds
   `;
 
   beforeEach(async () => {
@@ -30,7 +31,6 @@ describe('Test tasks mutations', () => {
     pipeline = await pipelineFactory({ boardId: board._id });
     stage = await stageFactory({ pipelineId: pipeline._id });
     task = await taskFactory({ stageId: stage._id });
-    context = { user: await userFactory({}) };
   });
 
   afterEach(async () => {
@@ -57,13 +57,13 @@ describe('Test tasks mutations', () => {
       }
     `;
 
-    const createdTask = await graphqlRequest(mutation, 'tasksAdd', args, context);
+    const response = await graphqlRequest(mutation, 'tasksAdd', args);
 
-    expect(createdTask.stageId).toEqual(stage._id);
+    expect(response.stageId).toEqual(stage._id);
   });
 
   test('Update task', async () => {
-    const args = {
+    const args: any = {
       _id: task._id,
       name: task.name,
       stageId: stage._id,
@@ -79,7 +79,14 @@ describe('Test tasks mutations', () => {
       }
     `;
 
-    const updatedTask = await graphqlRequest(mutation, 'tasksEdit', args, context);
+    let updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
+
+    expect(updatedTask.stageId).toEqual(stage._id);
+
+    const user = await userFactory();
+    args.assignedUserIds = [user.id];
+
+    updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
 
     expect(updatedTask.stageId).toEqual(stage._id);
   });
@@ -99,7 +106,7 @@ describe('Test tasks mutations', () => {
       }
     `;
 
-    const updatedTask = await graphqlRequest(mutation, 'tasksChange', args, context);
+    const updatedTask = await graphqlRequest(mutation, 'tasksChange', args);
 
     expect(updatedTask._id).toEqual(args._id);
   });
@@ -122,7 +129,7 @@ describe('Test tasks mutations', () => {
       }
     `;
 
-    const [updatedTask, updatedTaskToOrder] = await graphqlRequest(mutation, 'tasksUpdateOrder', args, context);
+    const [updatedTask, updatedTaskToOrder] = await graphqlRequest(mutation, 'tasksUpdateOrder', args);
 
     expect(updatedTask.order).toBe(3);
     expect(updatedTaskToOrder.order).toBe(9);
@@ -138,7 +145,7 @@ describe('Test tasks mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'tasksRemove', { _id: task._id }, context);
+    await graphqlRequest(mutation, 'tasksRemove', { _id: task._id });
 
     expect(await Tasks.findOne({ _id: task._id })).toBe(null);
   });
@@ -153,11 +160,11 @@ describe('Test tasks mutations', () => {
       }
     `;
 
-    const watchAddTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: true }, context);
+    const watchAddTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: true });
 
     expect(watchAddTask.isWatched).toBe(true);
 
-    const watchRemoveTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: false }, context);
+    const watchRemoveTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: false });
 
     expect(watchRemoveTask.isWatched).toBe(false);
   });

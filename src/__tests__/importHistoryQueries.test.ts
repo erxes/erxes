@@ -19,17 +19,17 @@ describe('Import history queries', () => {
         importHistories(type: $type) {
           list {
             _id
-          contentType
-          date
-          user {
-            details {
-              fullName
+            contentType
+            date
+            user {
+              details {
+                fullName
+              }
             }
-          }
-          success
-          failed
-          total
-          ids
+            success
+            failed
+            total
+            ids
           }
           count
         }
@@ -42,6 +42,7 @@ describe('Import history queries', () => {
     });
 
     expect(responses.list.length).toBe(1);
+    expect(responses.count).toBe(1);
 
     // company ============================
     responses = await graphqlRequest(qry, 'importHistories', {
@@ -49,5 +50,29 @@ describe('Import history queries', () => {
     });
 
     expect(responses.list.length).toBe(1);
+    expect(responses.count).toBe(1);
+  });
+
+  test('Import history detail', async () => {
+    const qry = `
+      query importHistoryDetail($_id: String!) {
+        importHistoryDetail(_id: $_id) {
+          _id
+          user { _id }
+        }
+      }
+    `;
+
+    const importHistory = await importHistoryFactory({ errorMsgs: ['error messages'] });
+
+    let response = await graphqlRequest(qry, 'importHistoryDetail', { _id: importHistory._id });
+
+    expect(response._id).toBe(importHistory._id);
+
+    const importHistoryNoError = await importHistoryFactory({});
+
+    response = await graphqlRequest(qry, 'importHistoryDetail', { _id: importHistoryNoError._id });
+
+    expect(response._id).toBe(importHistoryNoError._id);
   });
 });

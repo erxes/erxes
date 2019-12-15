@@ -40,21 +40,19 @@ const pipelineTemplateMutations = {
   async pipelineTemplatesEdit(_root, { _id, stages, ...doc }: IPipelineTemplatesEdit, { user }: IContext) {
     await checkPermission(doc.type, user, 'templatesEdit');
 
-    const pipelineTemplate = await PipelineTemplates.findOne({ _id });
+    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
 
     const updated = await PipelineTemplates.updatePipelineTemplate(_id, doc, stages);
 
-    if (pipelineTemplate) {
-      await putUpdateLog(
-        {
-          type: 'pipelineTemplate',
-          newData: JSON.stringify(doc),
-          description: `${doc.name} has been edited`,
-          object: pipelineTemplate,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'pipelineTemplate',
+        newData: JSON.stringify(doc),
+        description: `${doc.name} has been edited`,
+        object: pipelineTemplate,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -63,11 +61,9 @@ const pipelineTemplateMutations = {
    * Duplicate pipeline template
    */
   async pipelineTemplatesDuplicate(_root, { _id }: { _id: string }, { user }: IContext) {
-    const pipelineTemplate = await PipelineTemplates.findOne({ _id });
+    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
 
-    if (pipelineTemplate) {
-      await checkPermission(pipelineTemplate.type, user, 'templatesDuplicate');
-    }
+    await checkPermission(pipelineTemplate.type, user, 'templatesDuplicate');
 
     return PipelineTemplates.duplicatePipelineTemplate(_id);
   },
@@ -76,24 +72,22 @@ const pipelineTemplateMutations = {
    * Remove pipeline template
    */
   async pipelineTemplatesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const pipelineTemplate = await PipelineTemplates.findOne({ _id });
+    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
 
-    if (pipelineTemplate) {
-      await checkPermission(pipelineTemplate.type, user, 'templatesRemove');
-    }
+    await checkPermission(pipelineTemplate.type, user, 'templatesRemove');
 
     const removed = await PipelineTemplates.removePipelineTemplate(_id);
 
-    if (pipelineTemplate && removed) {
-      await putDeleteLog(
-        {
-          type: 'pipelineTemplate',
-          object: pipelineTemplate,
-          description: `${pipelineTemplate.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'pipelineTemplate',
+        object: pipelineTemplate,
+        description: `${pipelineTemplate.name} has been removed`,
+      },
+      user,
+    );
+
+    return removed;
   },
 };
 

@@ -36,6 +36,7 @@ import Tickets from './Tickets';
 import Users from './Users';
 
 export {
+  EmailDeliveries,
   Users,
   Channels,
   ResponseTemplates,
@@ -52,7 +53,6 @@ export {
   InternalNotes,
   Customers,
   Companies,
-  EmailDeliveries,
   Conformities,
   Conversations,
   ConversationMessages,

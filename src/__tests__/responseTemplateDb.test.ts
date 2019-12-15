@@ -16,6 +16,18 @@ describe('Response template db', () => {
     await ResponseTemplates.deleteMany({});
   });
 
+  test('Get response template', async () => {
+    try {
+      await ResponseTemplates.getResponseTemplate('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Response template not found');
+    }
+
+    const response = await ResponseTemplates.getResponseTemplate(_responseTemplate._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('Create response template', async () => {
     const responseTemplateObj = await ResponseTemplates.create({
       name: _responseTemplate.name,

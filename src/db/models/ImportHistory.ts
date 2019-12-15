@@ -3,12 +3,26 @@ import { IImportHistory, IImportHistoryDocument, importHistorySchema } from './d
 import { IUserDocument } from './definitions/users';
 
 export interface IImportHistoryModel extends Model<IImportHistoryDocument> {
+  getImportHistory(_id: string): Promise<IImportHistoryDocument>;
   createHistory(doc: IImportHistory, user: IUserDocument): Promise<IImportHistoryDocument>;
   removeHistory(_id: string): Promise<string>;
 }
 
 export const loadClass = () => {
   class ImportHistory {
+    /*
+     * Get a import history
+     */
+    public static async getImportHistory(_id: string) {
+      const importHistory = await ImportHistories.findOne({ _id });
+
+      if (!importHistory) {
+        throw new Error('Import history not found');
+      }
+
+      return importHistory;
+    }
+
     /*
      * Create new history
      */

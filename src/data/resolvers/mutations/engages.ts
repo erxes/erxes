@@ -1,10 +1,9 @@
 import { EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
-import { debugExternalApi } from '../../../debuggers';
 import { MESSAGE_KINDS } from '../../constants';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { fetchCronsApi, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import utils, { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -20,17 +19,15 @@ const engageMutations = {
 
     await send(engageMessage);
 
-    if (engageMessage) {
-      await putCreateLog(
-        {
-          type: 'engage',
-          newData: JSON.stringify(doc),
-          object: engageMessage,
-          description: `${engageMessage.title} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'engage',
+        newData: JSON.stringify(doc),
+        object: engageMessage,
+        description: `${engageMessage.title} has been created`,
+      },
+      user,
+    );
 
     return engageMessage;
   },
@@ -39,26 +36,24 @@ const engageMutations = {
    * Edit message
    */
   async engageMessageEdit(_root, { _id, ...doc }: IEngageMessageEdit, { user }: IContext) {
-    const engageMessage = await EngageMessages.findOne({ _id });
+    const engageMessage = await EngageMessages.getEngageMessage(_id);
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
     try {
-      await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });
+      await utils.fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });
     } catch (e) {
-      debugExternalApi(`Error occurred : ${e.body || e.message}`);
+      throw new Error(e);
     }
 
-    if (engageMessage) {
-      await putUpdateLog(
-        {
-          type: 'engage',
-          object: engageMessage,
-          newData: JSON.stringify(updated),
-          description: `${engageMessage.title} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'engage',
+        object: engageMessage,
+        newData: JSON.stringify(updated),
+        description: `${engageMessage.title} has been edited`,
+      },
+      user,
+    );
 
     return EngageMessages.findOne({ _id });
   },
@@ -67,26 +62,24 @@ const engageMutations = {
    * Remove message
    */
   async engageMessageRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const engageMessage = await EngageMessages.findOne({ _id });
+    const engageMessage = await EngageMessages.getEngageMessage(_id);
 
     try {
-      await fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id } });
+      await utils.fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id } });
     } catch (e) {
-      debugExternalApi(`Error occurred : ${e.body || e.message}`);
+      throw new Error(e);
     }
 
     const removed = await EngageMessages.removeEngageMessage(_id);
 
-    if (engageMessage) {
-      await putDeleteLog(
-        {
-          type: 'engage',
-          object: engageMessage,
-          description: `${engageMessage.title} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'engage',
+        object: engageMessage,
+        description: `${engageMessage.title} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },
@@ -99,15 +92,15 @@ const engageMutations = {
 
     const { kind } = engageMessage;
 
-    if (kind === MESSAGE_KINDS.AUTO || kind === MESSAGE_KINDS.VISITOR_AUTO) {
+    if (kind !== MESSAGE_KINDS.MANUAL) {
       try {
-        await fetchCronsApi({
+        await utils.fetchCronsApi({
           path: '/create-schedule',
           method: 'POST',
           body: { message: JSON.stringify(engageMessage) },
         });
       } catch (e) {
-        debugExternalApi(`Error occurred : ${e.body || e.message}`);
+        throw new Error(e);
       }
     }
 

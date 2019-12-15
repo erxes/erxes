@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import { checklistFactory, checklistItemFactory } from '../db/factories';
-import { Checklists } from '../db/models';
+import { ChecklistItems, Checklists } from '../db/models';
 
 import './setup.ts';
 
@@ -9,6 +9,7 @@ describe('checklistQueries', () => {
   afterEach(async () => {
     // Clearing test data
     await Checklists.deleteMany({});
+    await ChecklistItems.deleteMany({});
   });
 
   test('checklists', async () => {
@@ -16,12 +17,12 @@ describe('checklistQueries', () => {
     const contentTypeId = (faker && faker.random ? faker.random.number() : 999).toString();
 
     const checklist1 = await checklistFactory({ contentType: 'deal', contentTypeId });
-    const checklist2 = await checklistFactory({ contentType: 'task', contentTypeId });
+    await checklistFactory({ contentType: 'task', contentTypeId });
+
     await checklistItemFactory({ checklistId: checklist1._id, isChecked: true });
     await checklistItemFactory({ checklistId: checklist1._id, isChecked: true });
     await checklistItemFactory({ checklistId: checklist1._id });
     await checklistItemFactory({ checklistId: checklist1._id });
-    await checklistItemFactory({ checklistId: checklist2._id });
 
     const qry = `
       query checklists($contentType: String! $contentTypeId: String) {
@@ -59,7 +60,22 @@ describe('checklistQueries', () => {
     });
 
     expect(responses.length).toBe(1);
-    expect(responses[0].items.length).toBe(1);
     expect(responses[0].percent).toBe(0);
+  });
+
+  test('Checklist detail', async () => {
+    const qry = `
+      query checklistDetail($_id: String!) {
+        checklistDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const checklist = await checklistFactory({});
+
+    const response = await graphqlRequest(qry, 'checklistDetail', { _id: checklist._id });
+
+    expect(response._id).toBe(checklist._id);
   });
 });

@@ -11,6 +11,6 @@ export default {
   },
 
   color(topic: ITopicDocument) {
-    return topic.color ? topic.color : '';
+    return topic.color || '';
   },
 };

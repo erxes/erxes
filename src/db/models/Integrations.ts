@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model, model, Query } from 'mongoose';
 import 'mongoose-type-email';
 import { ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from './definitions/constants';
@@ -12,6 +12,7 @@ import {
 } from './definitions/integrations';
 
 export interface IMessengerIntegration {
+  kind: string;
   name: string;
   brandId: string;
   languageCode: string;
@@ -24,7 +25,14 @@ export interface IExternalIntegrationParams {
   accountId: string;
 }
 
+interface IIntegrationBasicInfo {
+  name: string;
+  brandId: string;
+}
+
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
+  getIntegration(_id: string): IIntegrationDocument;
+  findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData): IIntegration;
   createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
@@ -35,10 +43,31 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   updateLeadIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
   createExternalIntegration(doc: IExternalIntegrationParams, userId: string): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
+  updateBasicInfo(_id: string, doc: IIntegrationBasicInfo): Promise<IIntegrationDocument>;
 }
 
 export const loadClass = () => {
   class Integration {
+    /**
+     * Retreives integration
+     */
+    public static async getIntegration(_id: string) {
+      const integration = await Integrations.findOne({ _id });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      return integration;
+    }
+
+    /**
+     * Find integrations
+     */
+    public static findIntegrations(query, options) {
+      return Integrations.find({ ...query, isActive: { $ne: false } }, options);
+    }
+
     /**
      * Generate lead integration data based on the given lead data (leadData)
      * and integration data (mainDoc)
@@ -55,7 +84,7 @@ export const loadClass = () => {
      * Create an integration, intended as a private method
      */
     public static createIntegration(doc: IIntegration, userId: string) {
-      return Integrations.create({ ...doc, createdUserId: userId });
+      return Integrations.create({ ...doc, isActive: true, createdUserId: userId });
     }
 
     /**
@@ -101,7 +130,7 @@ export const loadClass = () => {
     public static createLeadIntegration({ leadData = {}, ...mainDoc }: IIntegration, userId: string) {
       const doc = this.generateLeadDoc({ ...mainDoc }, leadData);
 
-      if (Object.keys(leadData || {}).length === 0) {
+      if (Object.keys(leadData).length === 0) {
         throw new Error('leadData must be supplied');
       }
 
@@ -161,6 +190,18 @@ export const loadClass = () => {
       }
 
       return Integrations.deleteMany({ _id });
+    }
+
+    public static async updateBasicInfo(_id: string, doc: IIntegrationBasicInfo) {
+      const integration = await Integrations.findOne({ _id });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      await Integrations.updateOne({ _id }, { $set: doc });
+
+      return Integrations.findOne({ _id });
     }
   }
 

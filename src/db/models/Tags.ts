@@ -11,6 +11,7 @@ interface ITagObjectParams {
 }
 
 export interface ITagModel extends Model<ITagDocument> {
+  getTag(_id: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
   updateTag(_id: string, doc: ITag): Promise<ITagDocument>;
   removeTag(ids: string[]): void;
@@ -21,6 +22,18 @@ export interface ITagModel extends Model<ITagDocument> {
 
 export const loadClass = () => {
   class Tag {
+    /*
+     * Get a tag
+     */
+    public static async getTag(_id: string) {
+      const tag = await Tags.findOne({ _id });
+
+      if (!tag) {
+        throw new Error('Tag not found');
+      }
+
+      return tag;
+    }
     /*
      * Validates tag uniquness
      */
@@ -131,7 +144,7 @@ export const loadClass = () => {
       count += await Conversations.find({ tagIds: { $in: ids } }).countDocuments();
       count += await EngageMessages.find({ tagIds: { $in: ids } }).countDocuments();
       count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Integrations.find({ tagIds: { $in: ids } }).countDocuments();
+      count += await Integrations.findIntegrations({ tagIds: { $in: ids } }).countDocuments();
       count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
 
       if (count > 0) {

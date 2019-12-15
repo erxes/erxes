@@ -32,20 +32,18 @@ const brandMutations = {
    * Update brand
    */
   async brandsEdit(_root, { _id, ...fields }: IBrandsEdit, { user }: IContext) {
-    const brand = await Brands.findOne({ _id });
+    const brand = await Brands.getBrand(_id);
     const updated = await Brands.updateBrand(_id, fields);
 
-    if (brand) {
-      await putUpdateLog(
-        {
-          type: 'brand',
-          object: brand,
-          newData: JSON.stringify(fields),
-          description: `${fields.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'brand',
+        object: brand,
+        newData: JSON.stringify(fields),
+        description: `${fields.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -54,19 +52,17 @@ const brandMutations = {
    * Delete brand
    */
   async brandsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const brand = await Brands.findOne({ _id });
+    const brand = await Brands.getBrand(_id);
     const removed = await Brands.removeBrand(_id);
 
-    if (brand && removed) {
-      await putDeleteLog(
-        {
-          type: 'brand',
-          object: brand,
-          description: `${brand.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'brand',
+        object: brand,
+        description: `${brand.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },
@@ -79,19 +75,17 @@ const brandMutations = {
     { _id, emailConfig }: { _id: string; emailConfig: IBrandEmailConfig },
     { user }: IContext,
   ) {
-    const brand = await Brands.findOne({ _id });
+    const brand = await Brands.getBrand(_id);
     const updated = await Brands.updateEmailConfig(_id, emailConfig);
 
-    if (brand) {
-      await putUpdateLog(
-        {
-          type: 'brand',
-          object: brand,
-          description: `${brand.name} email config has been changed`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'brand',
+        object: brand,
+        description: `${brand.name} email config has been changed`,
+      },
+      user,
+    );
 
     return updated;
   },

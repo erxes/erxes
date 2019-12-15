@@ -1,13 +1,6 @@
-import { ActivityLogs, ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import { ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
 import { graphqlPubsub } from '../pubsub';
-
-interface IMessage {
-  status: string;
-  attachments: string[];
-  readUserIds: string[];
-  content?: string;
-}
 
 /*
  * Handle requests from integrations api
@@ -58,14 +51,12 @@ const integrationsApiMiddleware = async (req, res) => {
     if (doc.conversationId) {
       const { conversationId, content } = doc;
 
-      await Conversations.updateOne({ _id: conversationId }, { $set: { content } });
+      await Conversations.updateConversation(conversationId, { content });
 
       return res.json({ _id: conversationId });
     }
 
     const conversation = await Conversations.createConversation(doc);
-
-    await ActivityLogs.createConversationLog(conversation);
 
     return res.json({ _id: conversation._id });
   }
@@ -73,21 +64,23 @@ const integrationsApiMiddleware = async (req, res) => {
   if (action === 'create-conversation-message') {
     const message = await ConversationMessages.createMessage(doc);
 
-    const messageDoc: IMessage = {
+    const conversationDoc: { status: string; readUserIds: string[]; content?: string; updatedAt?: Date } = {
       // Reopen its conversation if it's closed
-      status: CONVERSATION_STATUSES.OPEN,
-
-      attachments: message.attachments,
+      status: doc.unread || doc.unread === undefined ? CONVERSATION_STATUSES.OPEN : CONVERSATION_STATUSES.CLOSED,
 
       // Mark as unread
       readUserIds: [],
     };
 
     if (message.content && metaInfo === 'replaceContent') {
-      messageDoc.content = message.content;
+      conversationDoc.content = message.content;
     }
 
-    await Conversations.updateOne({ _id: message.conversationId }, { $set: messageDoc });
+    if (doc.createdAt) {
+      conversationDoc.updatedAt = doc.createdAt;
+    }
+
+    await Conversations.updateConversation(message.conversationId, conversationDoc);
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
       conversationClientMessageInserted: message,

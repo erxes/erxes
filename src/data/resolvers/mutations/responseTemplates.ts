@@ -15,17 +15,15 @@ const responseTemplateMutations = {
   async responseTemplatesAdd(_root, doc: IResponseTemplate, { user, docModifier }: IContext) {
     const template = await ResponseTemplates.create(docModifier(doc));
 
-    if (template) {
-      await putCreateLog(
-        {
-          type: 'responseTemplate',
-          newData: JSON.stringify(doc),
-          object: template,
-          description: `${template.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'responseTemplate',
+        newData: JSON.stringify(doc),
+        object: template,
+        description: `${template.name} has been created`,
+      },
+      user,
+    );
 
     return template;
   },
@@ -34,20 +32,18 @@ const responseTemplateMutations = {
    * Update response template
    */
   async responseTemplatesEdit(_root, { _id, ...fields }: IResponseTemplatesEdit, { user }: IContext) {
-    const template = await ResponseTemplates.findOne({ _id });
+    const template = await ResponseTemplates.getResponseTemplate(_id);
     const updated = await ResponseTemplates.updateResponseTemplate(_id, fields);
 
-    if (template) {
-      await putUpdateLog(
-        {
-          type: 'responseTemplate',
-          object: template,
-          newData: JSON.stringify(fields),
-          description: `${template.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'responseTemplate',
+        object: template,
+        newData: JSON.stringify(fields),
+        description: `${template.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -56,19 +52,17 @@ const responseTemplateMutations = {
    * Delete response template
    */
   async responseTemplatesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const template = await ResponseTemplates.findOne({ _id });
+    const template = await ResponseTemplates.getResponseTemplate(_id);
     const removed = await ResponseTemplates.removeResponseTemplate(_id);
 
-    if (template) {
-      await putDeleteLog(
-        {
-          type: 'responseTemplate',
-          object: template,
-          description: `${template.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'responseTemplate',
+        object: template,
+        description: `${template.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

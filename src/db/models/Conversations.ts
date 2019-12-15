@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Users } from '.';
+import { cleanHtml } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
 import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
@@ -12,8 +13,10 @@ interface ISTATUSES {
 }
 
 export interface IConversationModel extends Model<IConversationDocument> {
+  getConversation(_id: string): IConversationDocument;
   getConversationStatuses(): ISTATUSES;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
+  updateConversation(_id: string, doc): Promise<IConversationDocument>;
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
 
@@ -39,6 +42,19 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
 export const loadClass = () => {
   class Conversation {
+    /**
+     * Retreives conversation
+     */
+    public static async getConversation(_id: string) {
+      const conversation = await Conversations.findOne({ _id });
+
+      if (!conversation) {
+        throw new Error('Conversation not found');
+      }
+
+      return conversation;
+    }
+
     public static getConversationStatuses() {
       return CONVERSATION_STATUSES;
     }
@@ -66,32 +82,39 @@ export const loadClass = () => {
       return Conversations.create({
         status: this.getConversationStatuses().NEW,
         ...doc,
-        createdAt: now,
-        updatedAt: now,
+        content: cleanHtml(doc.content),
+        createdAt: doc.createdAt || now,
+        updatedAt: doc.createdAt || now,
         number: (await Conversations.find().countDocuments()) + 1,
         messageCount: 0,
       });
+    }
+
+    /**
+     * Update a conversation
+     */
+    public static async updateConversation(_id, doc) {
+      if (doc.content) {
+        doc.content = cleanHtml(doc.content);
+      }
+
+      return Conversations.updateOne({ _id }, { $set: doc });
     }
 
     /*
      * Reopens conversation
      */
     public static async reopen(_id: string) {
-      await Conversations.updateOne(
-        { _id },
-        {
-          $set: {
-            // reset read state
-            readUserIds: [],
+      await Conversations.updateConversation(_id, {
+        // reset read state
+        readUserIds: [],
 
-            // if closed, reopen
-            status: this.getConversationStatuses().OPEN,
+        // if closed, reopen
+        status: this.getConversationStatuses().OPEN,
 
-            closedAt: null,
-            closedUserId: null,
-          },
-        },
-      );
+        closedAt: null,
+        closedUserId: null,
+      });
 
       return Conversations.findOne({ _id });
     }
@@ -185,12 +208,13 @@ export const loadClass = () => {
 
       // if current user is first one
       if (!readUserIds || readUserIds.length === 0) {
-        await Conversations.updateOne({ _id }, { $set: { readUserIds: [userId] } });
+        await Conversations.updateConversation(_id, { readUserIds: [userId] });
       }
 
       // if current user is not in read users list then add it
       if (!readUserIds.includes(userId)) {
-        await Conversations.updateOne({ _id }, { $push: { readUserIds: userId } });
+        readUserIds.push(userId);
+        await Conversations.updateConversation(_id, { readUserIds });
       }
 
       return Conversations.findOne({ _id });
@@ -210,27 +234,23 @@ export const loadClass = () => {
      * Add participated users
      */
     public static addManyParticipatedUsers(conversationId: string, userIds: string[]) {
-      if (conversationId && userIds) {
-        return Conversations.updateOne(
-          { _id: conversationId },
-          {
-            $addToSet: { participatedUserIds: { $each: userIds } },
-          },
-        );
-      }
+      return Conversations.updateOne(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: { $each: userIds } },
+        },
+      );
     }
     /**
      * Add participated user
      */
     public static addParticipatedUsers(conversationId: string, userId: string) {
-      if (conversationId && userId) {
-        return Conversations.updateOne(
-          { _id: conversationId },
-          {
-            $addToSet: { participatedUserIds: userId },
-          },
-        );
-      }
+      return Conversations.updateOne(
+        { _id: conversationId },
+        {
+          $addToSet: { participatedUserIds: userId },
+        },
+      );
     }
 
     /**

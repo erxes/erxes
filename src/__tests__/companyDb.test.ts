@@ -5,6 +5,7 @@ import {
   dealFactory,
   fieldFactory,
   internalNoteFactory,
+  userFactory,
 } from '../db/factories';
 import { Companies, Conformities, Customers, Deals, InternalNotes } from '../db/models';
 import { ICompany, ICompanyDocument } from '../db/models/definitions/companies';
@@ -55,8 +56,20 @@ describe('Companies model tests', () => {
     await Companies.deleteMany({});
   });
 
+  test('Get company', async () => {
+    try {
+      await Companies.getCompany('fakeId');
+    } catch (e) {
+      expect(e.message).toBe('Company not found');
+    }
+
+    const response = await Companies.getCompany(_company._id);
+
+    expect(response).toBeDefined();
+  });
+
   test('Create company', async () => {
-    expect.assertions(15);
+    expect.assertions(4);
 
     // check duplication ==============
     try {
@@ -71,11 +84,17 @@ describe('Companies model tests', () => {
       expect(e.message).toBe('Duplicated name');
     }
 
+    let companyObj = await Companies.createCompany({}, await userFactory());
+
+    expect(companyObj).toBeDefined();
+
     const doc = generateDoc();
+    // primary name is empty
+    doc.primaryName = '';
 
-    const companyObj = await Companies.createCompany(doc);
+    companyObj = await Companies.createCompany(doc);
 
-    check(companyObj, doc);
+    expect(companyObj.primaryName).toBe('');
   });
 
   test('Create company: with company fields validation error', async () => {
@@ -173,7 +192,7 @@ describe('Companies model tests', () => {
     const conformities = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     expect(customers).toHaveLength(1);
@@ -189,6 +208,7 @@ describe('Companies model tests', () => {
       names: ['company1'],
       phones: ['phone1'],
       emails: ['email1'],
+      scopeBrandIds: ['123'],
     });
 
     const company2 = await companyFactory({
@@ -197,6 +217,8 @@ describe('Companies model tests', () => {
       phones: ['phone2'],
       emails: ['email2'],
     });
+
+    const company3 = await companyFactory();
 
     const customer1 = await customerFactory({});
     await conformityFactory({
@@ -214,7 +236,7 @@ describe('Companies model tests', () => {
       relTypeId: company2._id,
     });
 
-    const companyIds = [company1._id, company2._id];
+    const companyIds = [company1._id, company2._id, company3._id];
     const mergedTagIds = ['123', '456', '1234', '1231', 'asd12'];
 
     // test duplication =================
@@ -296,7 +318,7 @@ describe('Companies model tests', () => {
     const newCusRelTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: updatedCompany._id,
-      relType: 'customer',
+      relTypes: ['customer'],
     });
 
     const customers = await Customers.find({
@@ -315,7 +337,7 @@ describe('Companies model tests', () => {
     const newRelTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: updatedCompany._id,
-      relType: 'deal',
+      relTypes: ['deal'],
     });
 
     const deals = await Deals.find({

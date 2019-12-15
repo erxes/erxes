@@ -1,4 +1,4 @@
-import { Customers } from '../../../db/models';
+import { ActivityLogs, Customers } from '../../../db/models';
 import { ICustomer } from '../../../db/models/definitions/customers';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -32,20 +32,18 @@ const customerMutations = {
    * Update customer
    */
   async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: IContext) {
-    const customer = await Customers.findOne({ _id });
+    const customer = await Customers.getCustomer(_id);
     const updated = await Customers.updateCustomer(_id, doc);
 
-    if (customer) {
-      await putUpdateLog(
-        {
-          type: 'customer',
-          object: customer,
-          newData: JSON.stringify(doc),
-          description: `${customer.firstName} has been updated`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'customer',
+        object: customer,
+        newData: JSON.stringify(doc),
+        description: `${customer.firstName} has been updated`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -53,8 +51,12 @@ const customerMutations = {
   /**
    * Merge customers
    */
-  async customersMerge(_root, { customerIds, customerFields }: { customerIds: string[]; customerFields: ICustomer }) {
-    return Customers.mergeCustomers(customerIds, customerFields);
+  async customersMerge(
+    _root,
+    { customerIds, customerFields }: { customerIds: string[]; customerFields: ICustomer },
+    { user }: IContext,
+  ) {
+    return Customers.mergeCustomers(customerIds, customerFields, user);
   },
 
   /**
@@ -66,16 +68,16 @@ const customerMutations = {
     await Customers.removeCustomers(customerIds);
 
     for (const customer of customers) {
-      if (customer) {
-        await putDeleteLog(
-          {
-            type: 'customer',
-            object: customer,
-            description: `${customer.firstName} has been deleted`,
-          },
-          user,
-        );
-      }
+      await ActivityLogs.removeActivityLog(customer._id);
+
+      await putDeleteLog(
+        {
+          type: 'customer',
+          object: customer,
+          description: `${customer.firstName} has been deleted`,
+        },
+        user,
+      );
     }
 
     return customerIds;

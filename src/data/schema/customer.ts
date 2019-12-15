@@ -49,6 +49,7 @@ export const types = `
     hasAuthority: String
     description: String
     doNotDisturb: String
+    code: String
 
     integration: Integration
     links: CustomerLinks
@@ -112,6 +113,7 @@ const fields = `
   doNotDisturb: String
   links: JSON
   customFieldsData: JSON
+  code: String
 `;
 
 export const mutations = `

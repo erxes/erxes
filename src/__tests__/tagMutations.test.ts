@@ -1,6 +1,6 @@
 import { graphqlRequest } from '../db/connection';
-import { engageMessageFactory, tagsFactory, userFactory } from '../db/factories';
-import { EngageMessages, Tags, Users } from '../db/models';
+import { conversationFactory, engageMessageFactory, tagsFactory, userFactory } from '../db/factories';
+import { Conversations, EngageMessages, Tags, Users } from '../db/models';
 
 import './setup.ts';
 
@@ -96,7 +96,7 @@ describe('Test tags mutations', () => {
   });
 
   test('Tag tags', async () => {
-    const args = {
+    let args = {
       type: 'engageMessage',
       targetIds: [_message._id],
       tagIds: [_tag._id],
@@ -118,12 +118,23 @@ describe('Test tags mutations', () => {
 
     await graphqlRequest(mutation, 'tagsTag', args, context);
 
-    const engageMessage = await EngageMessages.findOne({ _id: _message._id });
+    const engageMessage = await EngageMessages.getEngageMessage(_message._id);
 
-    if (!engageMessage) {
-      throw new Error('Engage message not found');
-    }
+    expect(engageMessage.tagIds).toContain(args.tagIds[0]);
 
-    expect(engageMessage.tagIds).toContain(args.tagIds);
+    // conversation
+    const conversation = await conversationFactory();
+
+    const conversationTag = await tagsFactory({ type: 'conversation' });
+
+    args = {
+      type: 'conversation',
+      targetIds: [conversation._id],
+      tagIds: [conversationTag._id],
+    };
+
+    await graphqlRequest(mutation, 'tagsTag', args, context);
+
+    expect((await Conversations.getConversation(conversation._id)).tagIds).toContain(args.tagIds[0]);
   });
 });

@@ -7,7 +7,6 @@ export interface IImportHistory {
   total: number;
   ids: string[];
   contentType: string;
-  errorMsgs?: string[];
   status?: string;
   percentage?: number;
 }
@@ -16,6 +15,7 @@ export interface IImportHistoryDocument extends IImportHistory, Document {
   _id: string;
   userId: string;
   date: Date;
+  errorMsgs: string[];
 }
 
 export const importHistorySchema = new Schema({

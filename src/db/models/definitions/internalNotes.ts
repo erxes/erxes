@@ -12,7 +12,7 @@ export interface IInternalNote {
 export interface IInternalNoteDocument extends IInternalNote, Document {
   _id: string;
   createdUserId: string;
-  createdDate: Date;
+  createdAt: Date;
 }
 
 // Mongoose schemas =======================
@@ -30,7 +30,7 @@ export const internalNoteSchema = new Schema({
   createdUserId: field({
     type: String,
   }),
-  createdDate: field({
+  createdAt: field({
     type: Date,
   }),
 });

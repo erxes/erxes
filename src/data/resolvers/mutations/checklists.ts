@@ -19,17 +19,15 @@ const checklistMutations = {
   async checklistsAdd(_root, args: IChecklist, { user }: IContext) {
     const checklist = await Checklists.createChecklist(args, user);
 
-    if (checklist) {
-      await putCreateLog(
-        {
-          type: 'checklist',
-          newData: JSON.stringify(args),
-          object: checklist,
-          description: `${checklist.contentType} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'checklist',
+        newData: JSON.stringify(args),
+        object: checklist,
+        description: `${checklist.contentType} has been created`,
+      },
+      user,
+    );
 
     return checklist;
   },
@@ -38,20 +36,18 @@ const checklistMutations = {
    * Updates checklist object
    */
   async checklistsEdit(_root, { _id, ...doc }: IChecklistsEdit, { user }: IContext) {
-    const checklist = await Checklists.findOne({ _id });
+    const checklist = await Checklists.getChecklist(_id);
     const updated = await Checklists.updateChecklist(_id, doc);
 
-    if (checklist) {
-      await putUpdateLog(
-        {
-          type: 'checklist',
-          object: checklist,
-          newData: JSON.stringify(doc),
-          description: `${checklist.contentType} written at ${checklist.createdDate} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'checklist',
+        object: checklist,
+        newData: JSON.stringify(doc),
+        description: `${checklist.contentType} written at ${checklist.createdDate} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -83,17 +79,15 @@ const checklistMutations = {
 
     const checklistItem = await ChecklistItems.createChecklistItem(args, user);
 
-    if (checklistItem) {
-      await putCreateLog(
-        {
-          type: 'checklistItem',
-          newData: JSON.stringify(args),
-          object: checklistItem,
-          description: `${checklist.contentType} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'checklistItem',
+        newData: JSON.stringify(args),
+        object: checklistItem,
+        description: `${checklist.contentType} has been created`,
+      },
+      user,
+    );
 
     return checklistItem;
   },

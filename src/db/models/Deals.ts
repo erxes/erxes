@@ -35,12 +35,13 @@ export const loadDealClass = () => {
       const deal = await Deals.create({
         ...doc,
         order: dealsCount,
+        createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),
       });
 
       // create log
-      await ActivityLogs.createDealLog(deal);
+      await ActivityLogs.createBoardItemLog({ item: deal, contentType: 'deal' });
 
       return deal;
     }
@@ -66,7 +67,7 @@ export const loadDealClass = () => {
     /**
      * Watch deal
      */
-    public static async watchDeal(_id: string, isAdd: boolean, userId: string) {
+    public static watchDeal(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Deals, _id, isAdd, userId);
     }
   }

@@ -6,6 +6,8 @@ import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
+  getCompanyName(company: ICompany): string;
+
   checkDuplication(
     companyFields: {
       primaryName?: string;
@@ -43,7 +45,7 @@ export const loadClass = () => {
 
       // Adding exclude operator to the query
       if (idsToExclude) {
-        query._id = idsToExclude instanceof Array ? { $nin: idsToExclude } : { $ne: idsToExclude };
+        query._id = { $nin: idsToExclude };
       }
 
       if (companyFields.primaryName) {
@@ -81,6 +83,10 @@ export const loadClass = () => {
       ]);
     }
 
+    public static getCompanyName(company: ICompany) {
+      return company.primaryName || company.primaryEmail || company.primaryPhone || 'Unknown';
+    }
+
     /**
      * Retreives company
      */
@@ -116,7 +122,7 @@ export const loadClass = () => {
       });
 
       // create log
-      await ActivityLogs.createCompanyLog(company);
+      await ActivityLogs.createCocLog({ coc: company, contentType: 'company' });
 
       return company;
     }
@@ -128,10 +134,8 @@ export const loadClass = () => {
       // Checking duplicated fields of company
       await Companies.checkDuplication(doc, [_id]);
 
-      if (doc.customFieldsData) {
-        // clean custom field values
-        doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
-      }
+      // clean custom field values
+      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
       const searchText = Companies.fillSearchText(Object.assign(await Companies.getCompany(_id), doc) as ICompany);
 
@@ -162,6 +166,7 @@ export const loadClass = () => {
       await this.checkDuplication(companyFields, companyIds);
 
       let scopeBrandIds: string[] = [];
+      let customFieldsData = {};
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -169,33 +174,35 @@ export const loadClass = () => {
 
       // Merging company tags
       for (const companyId of companyIds) {
-        const companyObj = await Companies.findOne({ _id: companyId });
+        const companyObj = await Companies.getCompany(companyId);
 
-        if (companyObj) {
-          const companyTags = companyObj.tagIds || [];
-          const companyNames = companyObj.names || [];
-          const companyEmails = companyObj.emails || [];
-          const companyPhones = companyObj.phones || [];
+        const companyTags = companyObj.tagIds || [];
+        const companyNames = companyObj.names || [];
+        const companyEmails = companyObj.emails || [];
+        const companyPhones = companyObj.phones || [];
+        const companyScopeBrandIds = companyObj.scopeBrandIds || [];
 
-          // Merging scopeBrandIds
-          scopeBrandIds = [...scopeBrandIds, ...(companyObj.scopeBrandIds || [])];
+        // Merging scopeBrandIds
+        scopeBrandIds = scopeBrandIds.concat(companyScopeBrandIds);
 
-          // Merging company's tag into 1 array
-          tagIds = tagIds.concat(companyTags);
+        // merge custom fields data
+        customFieldsData = { ...customFieldsData, ...(companyObj.customFieldsData || {}) };
 
-          // Merging company names
-          names = names.concat(companyNames);
+        // Merging company's tag into 1 array
+        tagIds = tagIds.concat(companyTags);
 
-          // Merging company emails
-          emails = emails.concat(companyEmails);
+        // Merging company names
+        names = names.concat(companyNames);
 
-          // Merging company phones
-          phones = phones.concat(companyPhones);
+        // Merging company emails
+        emails = emails.concat(companyEmails);
 
-          companyObj.status = STATUSES.DELETED;
+        // Merging company phones
+        phones = phones.concat(companyPhones);
 
-          await Companies.findByIdAndUpdate(companyId, { $set: { status: STATUSES.DELETED } });
-        }
+        companyObj.status = STATUSES.DELETED;
+
+        await Companies.findByIdAndUpdate(companyId, { $set: { status: STATUSES.DELETED } });
       }
 
       // Removing Duplicates
@@ -208,6 +215,7 @@ export const loadClass = () => {
       const company = await Companies.createCompany({
         ...companyFields,
         scopeBrandIds,
+        customFieldsData,
         tagIds,
         mergedIds: companyIds,
         names,

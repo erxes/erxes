@@ -4,6 +4,7 @@ import { Conversations } from '.';
 import { IMessage, IMessageDocument, messageSchema } from './definitions/conversationMessages';
 
 export interface IMessageModel extends Model<IMessageDocument> {
+  getMessage(_id: string): Promise<IMessageDocument>;
   createMessage(doc: IMessage): Promise<IMessageDocument>;
   addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
@@ -14,30 +15,36 @@ export interface IMessageModel extends Model<IMessageDocument> {
 export const loadClass = () => {
   class Message {
     /**
+     * Retreives message
+     */
+    public static async getMessage(_id: string) {
+      const message = await Messages.findOne({ _id });
+
+      if (!message) {
+        throw new Error('Conversation message not found');
+      }
+
+      return message;
+    }
+    /**
      * Create a message
      */
     public static async createMessage(doc: IMessage) {
       const message = await Messages.create({
         internal: false,
         ...doc,
-        createdAt: new Date(),
+        createdAt: doc.createdAt || new Date(),
       });
 
       const messageCount = await Messages.find({
         conversationId: message.conversationId,
       }).countDocuments();
 
-      await Conversations.updateOne(
-        { _id: message.conversationId },
-        {
-          $set: {
-            messageCount,
-
-            // updating updatedAt
-            updatedAt: new Date(),
-          },
-        },
-      );
+      await Conversations.updateConversation(message.conversationId, {
+        messageCount,
+        // updating updatedAt
+        updatedAt: new Date(),
+      });
 
       if (message.userId) {
         // add created user to participators
@@ -45,9 +52,7 @@ export const loadClass = () => {
       }
 
       // add mentioned users to participators
-      if (message.mentionedUserIds) {
-        await Conversations.addManyParticipatedUsers(message.conversationId, message.mentionedUserIds);
-      }
+      await Conversations.addManyParticipatedUsers(message.conversationId, message.mentionedUserIds || []);
 
       return message;
     }
@@ -92,7 +97,7 @@ export const loadClass = () => {
         modifier.firstRespondedDate = new Date();
       }
 
-      await Conversations.updateOne({ _id: doc.conversationId }, { $set: modifier });
+      await Conversations.updateConversation(doc.conversationId, modifier);
 
       return this.createMessage({ ...doc, userId });
     }

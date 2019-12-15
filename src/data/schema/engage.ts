@@ -12,7 +12,7 @@ export const types = `
     isDraft: Boolean
     isLive: Boolean
     stopDate: Date
-    createdDate: Date
+    createdAt: Date
     type: String
     messengerReceivedCustomerIds: [String]
     stats: JSON
@@ -76,6 +76,7 @@ export const queries = `
   engageMessagesTotalCount(${listParams}): Int
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
+  engageVerifiedEmails: [String]
 `;
 
 const commonParams = `

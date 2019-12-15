@@ -42,7 +42,7 @@ const count = async (selector: {}): Promise<number> => {
 const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
 
 // status query builder
-const statusQueryBuilder = (status: string, user?: IUserDocument): IStatusQueryBuilder => {
+const statusQueryBuilder = (status: string, user?: IUserDocument): IStatusQueryBuilder | undefined => {
   if (status === 'live') {
     return { isLive: true };
   }
@@ -51,15 +51,12 @@ const statusQueryBuilder = (status: string, user?: IUserDocument): IStatusQueryB
     return { isDraft: true };
   }
 
-  if (status === 'paused') {
-    return { isLive: false };
-  }
-
   if (status === 'yours' && user) {
     return { fromUserId: user._id };
   }
 
-  return {};
+  // status is 'paused'
+  return { isLive: false };
 };
 
 // count for each kind
@@ -185,16 +182,14 @@ const engageQueries = {
       return countsByStatus(commonQuerySelector, { kind, user });
     }
 
-    if (name === 'tag') {
-      return countsByTag(commonQuerySelector, { kind, status, user });
-    }
+    return countsByTag(commonQuerySelector, { kind, status, user });
   },
 
   /**
    * Engage messages list
    */
   engageMessages(_root, args: IListArgs, { user, commonQuerySelector }: IContext) {
-    return paginate(EngageMessages.find(listQuery(commonQuerySelector, args, user)).sort({ createdDate: -1 }), args);
+    return paginate(EngageMessages.find(listQuery(commonQuerySelector, args, user)).sort({ createdAt: -1 }), args);
   },
 
   /**
@@ -209,6 +204,13 @@ const engageQueries = {
    */
   engageMessagesTotalCount(_root, args: IListArgs, { user, commonQuerySelector }: IContext) {
     return EngageMessages.find(listQuery(commonQuerySelector, args, user)).countDocuments();
+  },
+
+  /**
+   * Get all verified emails
+   */
+  engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesGetVerifiedEmails();
   },
 };
 

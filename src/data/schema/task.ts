@@ -3,9 +3,9 @@ import { commonTypes, conformityQueryFields } from './common';
 export const types = `
   type Task {
     _id: String!
-    priority: String
     companies: [Company]
     customers: [Customer]
+    createdUser: User
     ${commonTypes}
   }
 `;
@@ -21,13 +21,11 @@ export const queries = `
     skip: Int
     search: String
     assignedUserIds: [String]
-    nextDay: String
-    nextWeek: String
-    nextMonth: String
-    noCloseDate: String
-    overdue: String
+    closeDateType: String
     priority: [String]
     labelIds: [String]
+    sortField: String
+    sortDirection: Int
     ${conformityQueryFields}
   ): [Task]
 `;
@@ -45,7 +43,7 @@ const commonParams = `
 `;
 
 export const mutations = `
-  tasksAdd(name: String!, ${commonParams}): Task
+  tasksAdd(name: String!, customerIds: [String], companyIds: [String], ${commonParams}): Task
   tasksEdit(_id: String!, name: String, ${commonParams}): Task
   tasksChange( _id: String!, destinationStageId: String): Task
   tasksUpdateOrder(stageId: String!, orders: [OrderItem]): [Task]

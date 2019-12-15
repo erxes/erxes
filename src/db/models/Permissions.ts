@@ -17,6 +17,7 @@ export interface IPermissionModel extends Model<IPermissionDocument> {
 }
 
 export interface IUserGroupModel extends Model<IUserGroupDocument> {
+  getGroup(_id: string): Promise<IUserGroupDocument>;
   createGroup(doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
   updateGroup(_id: string, doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
   removeGroup(_id: string): Promise<IUserGroupDocument>;
@@ -113,6 +114,16 @@ export const permissionLoadClass = () => {
 
 export const userGroupLoadClass = () => {
   class UserGroup {
+    public static async getGroup(_id: string) {
+      const userGroup = await UsersGroups.findOne({ _id });
+
+      if (!userGroup) {
+        throw new Error('User group not found');
+      }
+
+      return userGroup;
+    }
+
     /**
      * Create a group
      */
@@ -131,7 +142,7 @@ export const userGroupLoadClass = () => {
       // remove groupId from old members
       await Users.updateMany({ groupIds: { $in: [_id] } }, { $pull: { groupIds: { $in: [_id] } } });
 
-      await UsersGroups.update({ _id }, { $set: doc });
+      await UsersGroups.updateOne({ _id }, { $set: doc });
 
       // add groupId to new members
       await Users.updateMany({ _id: { $in: memberIds || [] } }, { $push: { groupIds: _id } });

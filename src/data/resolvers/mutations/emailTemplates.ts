@@ -15,17 +15,15 @@ const emailTemplateMutations = {
   async emailTemplatesAdd(_root, doc: IEmailTemplate, { user, docModifier }: IContext) {
     const template = await EmailTemplates.create(docModifier(doc));
 
-    if (template) {
-      await putCreateLog(
-        {
-          type: 'emailTemplate',
-          newData: JSON.stringify(doc),
-          object: template,
-          description: `${template.name} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: 'emailTemplate',
+        newData: JSON.stringify(doc),
+        object: template,
+        description: `${template.name} has been created`,
+      },
+      user,
+    );
 
     return template;
   },
@@ -34,20 +32,18 @@ const emailTemplateMutations = {
    * Update email template
    */
   async emailTemplatesEdit(_root, { _id, ...fields }: IEmailTemplatesEdit, { user }: IContext) {
-    const template = await EmailTemplates.findOne({ _id });
+    const template = await EmailTemplates.getEmailTemplate(_id);
     const updated = await EmailTemplates.updateEmailTemplate(_id, fields);
 
-    if (template) {
-      await putUpdateLog(
-        {
-          type: 'emailTemplate',
-          object: template,
-          newData: JSON.stringify(fields),
-          description: `${template.name} has been edited`,
-        },
-        user,
-      );
-    }
+    await putUpdateLog(
+      {
+        type: 'emailTemplate',
+        object: template,
+        newData: JSON.stringify(fields),
+        description: `${template.name} has been edited`,
+      },
+      user,
+    );
 
     return updated;
   },
@@ -56,19 +52,17 @@ const emailTemplateMutations = {
    * Delete email template
    */
   async emailTemplatesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
-    const template = await EmailTemplates.findOne({ _id });
+    const template = await EmailTemplates.getEmailTemplate(_id);
     const removed = await EmailTemplates.removeEmailTemplate(_id);
 
-    if (template) {
-      await putDeleteLog(
-        {
-          type: 'emailTemplate',
-          object: template,
-          description: `${template.name} has been removed`,
-        },
-        user,
-      );
-    }
+    await putDeleteLog(
+      {
+        type: 'emailTemplate',
+        object: template,
+        description: `${template.name} has been removed`,
+      },
+      user,
+    );
 
     return removed;
   },

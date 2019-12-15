@@ -32,6 +32,8 @@ import {
   types as EmailTemplate,
 } from './emailTemplate';
 
+import { queries as EmailDeliveryQueries, types as EmailDelivery } from './emailDelivery';
+
 import {
   fieldsGroupsMutations as FieldGroupMutations,
   fieldsGroupsQueries as FieldGroupQueries,
@@ -139,6 +141,7 @@ export const types = `
   ${Script}
   ${EmailTemplate}
   ${EngageTypes}
+  ${EmailDelivery}
   ${TagTypes}
   ${FieldTypes}
   ${FormTypes}
@@ -177,6 +180,7 @@ export const queries = `
     ${ResponseTemplateQueries}
     ${ScriptQueries}
     ${EmailTemplateQueries}
+    ${EmailDeliveryQueries}
     ${FieldQueries}
     ${EngageQueries}
     ${FormQueries}

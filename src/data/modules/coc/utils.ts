@@ -16,7 +16,7 @@ export const conformityFilterUtils = async (baseQuery, params, relType) => {
       const relTypeIds = await Conformities.savedConformity({
         mainType: params.conformityMainType || '',
         mainTypeId: params.conformityMainTypeId || '',
-        relType,
+        relTypes: [relType],
       });
 
       baseQuery = { _id: { $in: relTypeIds || [] } };

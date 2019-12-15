@@ -22,6 +22,7 @@ interface IUpdateUser extends IEditProfile {
 }
 
 export interface IUserModel extends Model<IUserDocument> {
+  getUser(_id: string): Promise<IUserDocument>;
   checkDuplication({
     email,
     idsToExclude,
@@ -40,7 +41,7 @@ export interface IUserModel extends Model<IUserDocument> {
   configGetNotificationByEmail(_id: string, isAllowed: boolean): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): string;
-  createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }): string;
+  invite({ email, password, groupId }: { email: string; password: string; groupId: string }): string;
   resendInvitation({ email }: { email: string }): string;
   confirmInvitation({
     token,
@@ -57,6 +58,7 @@ export interface IUserModel extends Model<IUserDocument> {
   }): Promise<IUserDocument>;
   comparePassword(password: string, userPassword: string): boolean;
   resetPassword({ token, newPassword }: { token: string; newPassword: string }): Promise<IUserDocument>;
+  resetMemberPassword({ _id, newPassword }: { _id: string; newPassword: string }): Promise<IUserDocument>;
   changePassword({
     _id,
     currentPassword,
@@ -82,24 +84,25 @@ export interface IUserModel extends Model<IUserDocument> {
 
 export const loadClass = () => {
   class User {
+    public static async getUser(_id: string) {
+      const user = await Users.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      return user;
+    }
     /**
      * Checking if user has duplicated properties
      */
-    public static async checkDuplication({
-      email,
-      idsToExclude,
-      emails,
-    }: {
-      email?: string;
-      idsToExclude?: string | string[];
-      emails?: string[];
-    }) {
+    public static async checkDuplication({ email, idsToExclude }: { email?: string; idsToExclude?: string }) {
       const query: { [key: string]: any } = {};
       let previousEntry;
 
       // Adding exclude operator to the query
       if (idsToExclude) {
-        query._id = idsToExclude instanceof Array ? { $nin: idsToExclude } : { $ne: idsToExclude };
+        query._id = { $ne: idsToExclude };
       }
 
       // Checking if user has email
@@ -109,14 +112,6 @@ export const loadClass = () => {
         // Checking if duplicated
         if (previousEntry.length > 0) {
           throw new Error('Duplicated email');
-        }
-      }
-
-      if (emails) {
-        previousEntry = await Users.find({ email: { $in: [emails] } });
-
-        if (previousEntry.length > 0) {
-          throw new Error('Duplicated emails');
         }
       }
     }
@@ -188,7 +183,7 @@ export const loadClass = () => {
     /**
      * Create new user with invitation token
      */
-    public static async createUserWithConfirmation({ email, groupId }: { email: string; groupId: string }) {
+    public static async invite({ email, password, groupId }: { email: string; password: string; groupId: string }) {
       // Checking duplicated email
       await Users.checkDuplication({ email });
 
@@ -201,6 +196,9 @@ export const loadClass = () => {
       await Users.create({
         email,
         groupIds: [groupId],
+        isActive: true,
+        // hash password
+        password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
       });
@@ -394,6 +392,21 @@ export const loadClass = () => {
       return Users.findOne({ _id: user._id });
     }
 
+    /**
+     * Reset member's password by given _id & newPassword
+     */
+    public static async resetMemberPassword({ _id, newPassword }: { _id: string; newPassword: string }) {
+      const user = await Users.getUser(_id);
+
+      if (!newPassword) {
+        throw new Error('Password is required.');
+      }
+
+      await Users.updateOne({ _id }, { $set: { password: await this.generatePassword(newPassword) } });
+
+      return Users.findOne({ _id: user._id });
+    }
+
     /*
      * Change user password
      */
@@ -411,11 +424,7 @@ export const loadClass = () => {
         throw new Error('Password can not be empty');
       }
 
-      const user = await Users.findOne({ _id });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
+      const user = await Users.getUser(_id);
 
       // check current password ============
       const valid = await this.comparePassword(currentPassword, user.password);
@@ -489,24 +498,19 @@ export const loadClass = () => {
      * Renews tokens
      */
     public static async refreshTokens(refreshToken: string) {
-      let _id = null;
+      let _id = '';
 
       try {
         // validate refresh token
         const { user } = jwt.verify(refreshToken, this.getSecret());
 
         _id = user._id;
-
         // if refresh token is expired then force to login
       } catch (e) {
         return {};
       }
 
-      const dbUser = await Users.findOne({ _id });
-
-      if (!dbUser) {
-        throw new Error('User not found');
-      }
+      const dbUser = await Users.getUser(_id);
 
       // recreate tokens
       const [newToken, newRefreshToken] = await this.createTokens(dbUser, this.getSecret());
@@ -531,7 +535,10 @@ export const loadClass = () => {
       deviceToken?: string;
     }) {
       const user = await Users.findOne({
-        $or: [{ email: { $regex: new RegExp(email, 'i') } }, { username: { $regex: new RegExp(email, 'i') } }],
+        $or: [
+          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { username: { $regex: new RegExp(`^${email}$`, 'i') } },
+        ],
         isActive: true,
       });
 

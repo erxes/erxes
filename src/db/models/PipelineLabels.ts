@@ -14,6 +14,7 @@ interface ILabelObjectParams {
 }
 
 export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
+  getPipelineLabel(_id: string): Promise<IPipelineLabelDocument>;
   createPipelineLabel(doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
   updatePipelineLabel(_id: string, doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
   removePipelineLabel(_id: string): void;
@@ -24,6 +25,15 @@ export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
 
 export const loadPipelineLabelClass = () => {
   class PipelineLabel {
+    public static async getPipelineLabel(_id: string) {
+      const pipelineLabel = await PipelineLabels.findOne({ _id });
+
+      if (!pipelineLabel) {
+        throw new Error('Label not found');
+      }
+
+      return pipelineLabel;
+    }
     /*
      * Validates label uniquness
      */
@@ -49,7 +59,7 @@ export const loadPipelineLabelClass = () => {
       }).countDocuments();
 
       if (prevLabelsCount !== labelIds.length) {
-        throw new Error('Label not found.');
+        throw new Error('Label not found');
       }
 
       await collection.updateMany({ _id: targetId }, { $set: { labelIds } }, { multi: true });
