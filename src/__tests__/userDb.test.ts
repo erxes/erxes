@@ -584,4 +584,22 @@ describe('User db utils', () => {
     expect(token).toBeDefined();
     expect(refreshToken).toBeDefined();
   });
+
+  test('Reset member password', async () => {
+    expect.assertions(2);
+
+    try {
+      await Users.resetMemberPassword({ _id: _user._id, newPassword: '' });
+    } catch (e) {
+      expect(e.message).toBe('Password is required.');
+    }
+
+    // valid
+    const updatedUser = await Users.resetMemberPassword({
+      _id: _user._id,
+      newPassword: 'newpassword',
+    });
+
+    expect(await Users.comparePassword('newpassword', updatedUser.password)).toBeTruthy();
+  });
 });
