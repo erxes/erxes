@@ -41,10 +41,6 @@ export class LeadProvider extends React.Component<{}, IState> {
     };
   }
 
-  // componentDidMount() {
-  //   this.increaseViewCount();
-  // }
-
   /*
    * Increasing view count
    */

@@ -128,3 +128,32 @@
     height: 100%;
   }
 }
+
+.websiteApp {
+  height: 100%;
+  border: none;
+}
+
+.websiteApp-home {
+  padding: 0px 20px;
+
+  p {
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 15px;
+  }
+
+  button {
+    width: 100%;
+    min-height: 40px;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: rgb(70, 155, 211);
+    color: rgb(255, 255, 255);
+    padding: 6px 12px;
+    border-radius: 3px;
+    margin-bottom: 15px;
+  }
+}
