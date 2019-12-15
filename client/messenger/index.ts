@@ -24,6 +24,7 @@ widgetConnect({
         brandCode: setting.brand_id,
         email: setting.email,
         phone: setting.phone,
+        code: setting.code,
 
         cachedCustomerId: getLocalStorageItem("customerId"),
 
