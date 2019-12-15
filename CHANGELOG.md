@@ -1,3 +1,25 @@
+## [0.11.2](https://github.com/erxes/erxes-api/compare/0.11.1...0.11.2) (2019-12-15)
+
+
+### Bug Fixes
+
+* **conversation:** cleaning content ([710d6e7](https://github.com/erxes/erxes-api/commit/710d6e7)), closes [#641](https://github.com/erxes/erxes-api/issues/641)
+* **conversation:** read conversation becoming unread sometimes ([a6b1254](https://github.com/erxes/erxes-api/commit/a6b1254)), closes [#664](https://github.com/erxes/erxes-api/issues/664)
+* **deal/ticket/task:** copy customer, companies when copy ([50969f0](https://github.com/erxes/erxes-api/commit/50969f0)), closes [#626](https://github.com/erxes/erxes-api/issues/626)
+* **integration:** remove related integration when account remove ([72c9cba](https://github.com/erxes/erxes-api/commit/72c9cba)), closes [#617](https://github.com/erxes/erxes-api/issues/617)
+* **user:** invalid regex in login ([6cc2dc0](https://github.com/erxes/erxes-api/commit/6cc2dc0)), closes [#634](https://github.com/erxes/erxes-api/issues/634)
+
+
+### Features
+
+* **activity-log:** reimplement activity log ([dd68af5](https://github.com/erxes/erxes-api/commit/dd68af5)), closes [#665](https://github.com/erxes/erxes-api/issues/665)
+* **customer/company:** merge customFieldsData ([b4f3e46](https://github.com/erxes/erxes-api/commit/b4f3e46))
+* **customers:** added code field ([7a696d4](https://github.com/erxes/erxes-api/commit/7a696d4)), closes [#631](https://github.com/erxes/erxes-api/issues/631)
+* **exports:** add some exporters ([bfd892f](https://github.com/erxes/erxes-api/commit/bfd892f)), closes [#662](https://github.com/erxes/erxes-api/issues/662)
+* **integration:** archive ([0f0ae7a](https://github.com/erxes/erxes-api/commit/0f0ae7a)), closes [#624](https://github.com/erxes/erxes-api/issues/624)
+* **ticket/task/deal:** add no labels assigned filter ([38e3373](https://github.com/erxes/erxes-api/commit/38e3373)), closes [erxes/erxes#1387](https://github.com/erxes/erxes/issues/1387)
+* **user:** now users can unsubscribe from notification emails ([c9896ad](https://github.com/erxes/erxes-api/commit/c9896ad)), closes [#655](https://github.com/erxes/erxes-api/issues/655) [#654](https://github.com/erxes/erxes-api/issues/654)
+
 
 
 ## [0.11.1](https://github.com/erxes/erxes-api/compare/0.11.0...0.11.1) (2019-11-01)
