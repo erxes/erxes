@@ -16,6 +16,7 @@ export const queries = `
 
 export const mutations = `
   messengerAppsAddKnowledgebase(name: String!, integrationId: String!, topicId: String!): MessengerApp
+  messengerAppsAddWebsite(name: String!, integrationId: String!, description: String!, buttonText: String!, url: String!): MessengerApp
   messengerAppsAddLead(name: String!, integrationId: String!, formId: String!): MessengerApp
   messengerAppsRemove(_id: String!): JSON
 `;
