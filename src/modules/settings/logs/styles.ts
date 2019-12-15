@@ -45,6 +45,10 @@ const LogBox = styledTS<{ color?: string }>(styled.div)`
     font-weight: 700;
     color: ${props => (props.color ? props.color : colors.colorPrimary)}
   }
+
+  &:hover {
+    overflow: auto;
+  }
 `;
 
 export { FilterWrapper, FilterItem, LogBox };
