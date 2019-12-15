@@ -45,12 +45,17 @@ class UserResetPasswordForm extends React.Component<Props> {
       <form onSubmit={this.handleSubmit}>
         <FormGroup>
           <ControlLabel>New Password</ControlLabel>
+
           <FormControl
             type="password"
             placeholder={__('Enter new password')}
             id="new-password"
           />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Repeat Password</ControlLabel>
+
           <FormControl
             type="password"
             placeholder={__('repeat password')}
