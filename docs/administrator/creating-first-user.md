@@ -16,9 +16,15 @@ username: admin@erxes.io
 password: erxes
 ```
 
-## Load initial permissions
+## Load initial data
 
-Below command will create initial permission groups & permissions
+Below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data
+
+```
+yarn loadInitialData
+```
+
+If do not want to load sample data then you can run following command just to load permissions
 
 ```
 yarn loadPermission
