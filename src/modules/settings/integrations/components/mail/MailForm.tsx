@@ -513,7 +513,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { toggleReply } = this.props;
+    const { isReply, toggleReply } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -548,7 +548,8 @@ class MailForm extends React.Component<Props, State> {
           ) : (
             <ButtonGroup>
               {this.renderSubmit('Send', this.onSubmit)}
-              {this.renderSubmit('Send and Resolve', onSubmitResolve)}
+              {isReply &&
+                this.renderSubmit('Send and Resolve', onSubmitResolve)}
             </ButtonGroup>
           )}
         </SpaceBetweenRow>
