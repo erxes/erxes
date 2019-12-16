@@ -13,6 +13,7 @@ type Props = {
     id: string,
     { name, brandId }: { name: string; brandId: string }
   ) => void;
+  queryParams: any;
 };
 
 class IntegrationList extends React.Component<Props> {
@@ -21,12 +22,14 @@ class IntegrationList extends React.Component<Props> {
       integrations,
       removeIntegration,
       archive,
-      editIntegration
+      editIntegration,
+      queryParams: { _id }
     } = this.props;
 
     return integrations.map(i => (
       <IntegrationListItem
         key={i._id}
+        _id={_id}
         integration={i}
         removeIntegration={removeIntegration}
         archive={archive}

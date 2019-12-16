@@ -7,6 +7,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
+import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { IEmailSignatureWithBrand } from '../types';
 
@@ -95,6 +96,10 @@ class Signature extends React.Component<Props, State> {
 
         <EditorCK
           content={this.state.content}
+          toolbar={MAIL_TOOLBARS_CONFIG}
+          autoFocus={true}
+          autoGrow={true}
+          autoGrowMinHeight={120}
           onChange={this.onChangeContent}
         />
       </FormGroup>

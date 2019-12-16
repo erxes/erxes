@@ -135,7 +135,7 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     return (
       <Button
-        icon="upload"
+        icon="export"
         btnStyle="primary"
         size="small"
         onClick={exportData}

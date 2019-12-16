@@ -10,6 +10,8 @@ const commonParams = `
   $closeDateType: String,
   $priority: [String],
   $labelIds: [String],
+  $sortField: String,
+  $sortDirection: Int,
   ${conformityQueryFields}
 `;
 
@@ -20,6 +22,8 @@ const commonParamDefs = `
   closeDateType: $closeDateType,
   priority: $priority,
   labelIds: $labelIds,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
   ${conformityQueryFieldDefs}
 `;
 

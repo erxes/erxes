@@ -97,7 +97,7 @@ class Attachment extends React.Component<Props> {
             href={readFile(attachment.url)}
             target="_blank"
           >
-            <Icon icon="download-1" />
+            <Icon icon="down-arrow" />
           </Download>
         </h5>
         <Meta>
@@ -125,7 +125,7 @@ class Attachment extends React.Component<Props> {
     return (
       <AttachmentWrapper>
         <ItemInfo>
-          <video controls={false} loop={true} autoPlay={true}>
+          <video controls={true} loop={true}>
             <source src={attachment.url} type="video/mp4" />
             Your browser does not support the video tag.
           </video>

@@ -21,6 +21,7 @@ type IProps = {
   relType?: string;
   relTypeIds?: string[];
   assignedUserIds?: string[];
+  getAssociatedItem?: (itemId: string) => void;
   closeModal: () => void;
   refetch?: () => void;
 };
@@ -39,6 +40,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       relTypeIds,
       editConformity,
       refetch,
+      getAssociatedItem,
       assignedUserIds
     } = this.props;
 
@@ -60,6 +62,10 @@ class AddFormContainer extends React.Component<FinalProps> {
         }
 
         callback(data[options.mutationsName.addMutation]);
+
+        if (getAssociatedItem) {
+          getAssociatedItem(data[options.mutationsName.addMutation]._id);
+        }
 
         if (refetch) {
           refetch();
