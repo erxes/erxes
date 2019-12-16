@@ -79,6 +79,11 @@ class WorkArea extends React.Component<FinalProps, State> {
           const message = subscriptionData.data.conversationMessageInserted;
           const kind = currentConversation.integration.kind;
 
+          // Whenever mail thread receives a new message refetch for optimistic ui
+          if (kind === 'gmail' || kind.includes('nylas')) {
+            return messagesQuery.refetch();
+          }
+
           // current user's message is being showed after insert message
           // mutation. So to prevent from duplication we are ignoring current
           // user's messages from subscription
