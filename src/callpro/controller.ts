@@ -34,11 +34,11 @@ const init = async app => {
   app.post('/callpro-receive', async (req, res, next) => {
     debugRequest(debugCallPro, req);
 
-    const { numberTo, numberFrom, disp, recordUrl, callID } = req.body;
+    const { numberTo, numberFrom, disp, recordUrl, callID, owner } = req.body;
     const integration = await Integrations.findOne({ phoneNumber: numberTo }).lean();
 
     if (!integration) {
-      debugCallPro(`Integrtion not found with: ${numberTo}`);
+      debugCallPro(`Integration not found with: ${numberTo}`);
       return next();
     }
 
@@ -107,6 +107,7 @@ const init = async app => {
             payload: JSON.stringify({
               content: disp,
               conversationId: conversation.erxesApiId,
+              owner,
             }),
           },
         });
@@ -128,6 +129,7 @@ const init = async app => {
             customerId: customer.erxesApiId,
             content: disp,
             integrationId: integration.erxesApiId,
+            owner,
           }),
         },
       });
