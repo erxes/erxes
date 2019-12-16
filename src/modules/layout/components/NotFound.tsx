@@ -44,7 +44,7 @@ function NotFound() {
     <Layout>
       <AuthContent>
         <NotFoundWrapper>
-          <img src="/images/actions/404.svg" alt="404" />
+          <img src="/images/public_images_actions_404.svg" alt="404" />
           <h1>{__('This page is not found.')}</h1>
           <p>
             {__("I can't seem to find the page you're looking for.")}
