@@ -38,20 +38,29 @@ const Thumbnail = styled.div`
 
   i {
     position: absolute;
-    background: ${colors.colorCoreRed};
-    width: 50px;
-    height: 36px;
-    border-radius: 12px;
-    color: ${colors.colorWhite};
-    line-height: 36px;
-    text-align: center;
+    line-height: 46px;
+    width: 46px;
+    height: 46px;
+    color: ${colors.colorCoreRed};
     left: 50%;
     top: 50%;
-    margin-left: -25px;
-    margin-top: -18px;
+    margin-left: -23px;
+    margin-top: -23px;
     opacity: 0.9;
-    font-size: 16px;
+    font-size: 46px;
     transition: opacity ease 0.3s;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -6px;
+      margin-top: -7px;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-left: 14px solid ${colors.colorWhite};
+    }
   }
 `;
 
@@ -68,7 +77,7 @@ class VideoPopup extends React.Component<Props> {
 
     const trigger = (
       <Thumbnail>
-        <Icon icon="play-1" />
+        <Icon icon="youtube-play" />
         <img src={thumbImage} alt={name} />
       </Thumbnail>
     );

@@ -88,7 +88,8 @@ export const FEATURE_DETAILS = {
     icon: 'laptop',
     description:
       'Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.',
-    videoUrl: 'url',
+    videoUrl: 'https://www.youtube.com/embed/P2muPQVTTD8?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/P2muPQVTTD8/mqdefault.jpg',
     settingsDetails: {
       leadIntegrationCreate: {
         name: 'Create pop ups',
