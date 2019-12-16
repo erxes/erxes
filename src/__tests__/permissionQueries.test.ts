@@ -2,7 +2,7 @@ import { permissionQueries, usersGroupQueries } from '../data/resolvers/queries/
 
 import { graphqlRequest } from '../db/connection';
 import { permissionFactory, userFactory, usersGroupFactory } from '../db/factories';
-import { Permissions, UsersGroups } from '../db/models';
+import { Permissions, Users, UsersGroups } from '../db/models';
 import './setup.ts';
 
 describe('permissionQueries', () => {
@@ -23,6 +23,7 @@ describe('permissionQueries', () => {
   afterEach(async () => {
     // Clearing test data
     await Permissions.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test(`test if Error('Login required') exception is working as intended`, async () => {
@@ -97,8 +98,12 @@ describe('permissionQueries', () => {
   });
 
   test(`Permissions by userId`, async () => {
-    await permissionFactory({ userId: 'userId' });
-    await permissionFactory({ userId: 'userId' });
+    const group = await usersGroupFactory({});
+    await permissionFactory({ groupId: group._id });
+    const user = await userFactory({ groupIds: [group._id] });
+
+    await permissionFactory({ userId: user._id });
+    await permissionFactory({ userId: user._id });
     await permissionFactory();
 
     const qry = `
@@ -109,9 +114,9 @@ describe('permissionQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'permissions', { userId: 'userId' });
+    const response = await graphqlRequest(qry, 'permissions', { userId: user._id });
 
-    expect(response.length).toBe(2);
+    expect(response.length).toBe(3);
   });
 
   test(`Permissions by groupId`, async () => {

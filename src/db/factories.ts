@@ -1177,7 +1177,7 @@ export const permissionFactory = async (params: IPermissionParams = {}) => {
   const permission = new Permissions({
     module: params.module || faker.random.word(),
     action: params.action || faker.random.word(),
-    allowed: params.allowed || false,
+    allowed: typeof params.allowed === 'undefined' ? true : params.allowed,
     userId: params.userId,
     requiredActions: params.requiredActions || [],
     groupId: params.groupId,
