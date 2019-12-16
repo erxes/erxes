@@ -40,18 +40,22 @@ class ChooseType extends React.Component<Props, {}> {
             <ControlLabel>Choose a flow type</ControlLabel>
           </FormGroup>
           <BoxRow>
-            {this.renderBox('ShoutBox', 'speech-bubble-3', 'shoutbox')}
-            {this.renderBox('Popup', 'expand', 'popup')}
+            {this.renderBox('ShoutBox', 'comment-1', 'shoutbox')}
+            {this.renderBox('Popup', 'window', 'popup')}
           </BoxRow>
 
           <BoxRow>
-            {this.renderBox('Embedded', 'computer', 'embedded')}
-            {this.renderBox('Dropdown', 'downarrow', 'dropdown')}
+            {this.renderBox('Embedded', 'focus', 'embedded')}
+            {this.renderBox('Dropdown', 'arrow-from-top', 'dropdown')}
           </BoxRow>
 
           <BoxRow>
-            {this.renderBox('Slide-in Left', 'logout-2', 'slideInLeft')}
-            {this.renderBox('Slide-in Right', 'logout-1', 'slideInRight')}
+            {this.renderBox('Slide-in Left', 'arrow-from-right', 'slideInLeft')}
+            {this.renderBox(
+              'Slide-in Right',
+              'left-arrow-from-left',
+              'slideInRight'
+            )}
           </BoxRow>
         </LeftItem>
         <Preview>

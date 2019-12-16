@@ -12,6 +12,7 @@ import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { METHODS } from 'modules/engage/constants';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
@@ -161,20 +162,14 @@ class WidgetForm extends React.Component<Props, State> {
         content={this.state.content}
         onChange={this.onEditorChange}
         insertItems={EMAIL_CONTENT}
+        toolbar={[
+          { name: 'insert', items: ['strinsert'] },
+          ...MAIL_TOOLBARS_CONFIG
+        ]}
       />
     );
 
     if (this.state.channel === 'messenger') {
-      const options = {
-        toolbar: [
-          { items: ['Image', 'EmojiPanel'] },
-          { items: ['NumberedList', 'BulletedList'] },
-          { items: ['Bold', 'Italic', 'Underline'] },
-          { items: ['Link', 'Unlink'] },
-          { items: ['strinsert'] }
-        ]
-      };
-
       return (
         <FlexContent>
           <FlexItem>
@@ -227,7 +222,7 @@ class WidgetForm extends React.Component<Props, State> {
               </FlexContent>
             </div>
 
-            {editor(options)}
+            {editor()}
           </FlexItem>
 
           <FlexItem>

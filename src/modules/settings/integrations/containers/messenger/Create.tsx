@@ -77,10 +77,18 @@ const CreateMessenger = (props: FinalProps) => {
           variables: { _id: integrationId, uiOptions }
         });
       })
-      .then(() => {
-        Alert.success('You successfully added an integration');
-        history.push('/settings/integrations?refetch=true');
-      })
+      .then(
+        ({
+          data: {
+            integrationsSaveMessengerAppearanceData: { _id }
+          }
+        }) => {
+          Alert.success('You successfully added an integration');
+          history.push(
+            `/settings/integrations?refetch=true&_id=${_id}&kind=messenger`
+          );
+        }
+      )
       .catch(error => {
         Alert.error(error.message);
       });

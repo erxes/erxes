@@ -127,13 +127,9 @@ export const MAIL_TOOLBARS_CONFIG = [
       'Bold',
       'Italic',
       'Underline',
-      'Strike',
       'NumberedList',
       'BulletedList',
-      'Link',
-      'Image',
-      'Blockquote',
-      'EmojiPanel'
+      'Link'
     ]
   },
   { name: 'clear', items: ['RemoveFormat'] }
@@ -292,6 +288,15 @@ export const INTEGRATIONS = [
         kind: 'chatfuel',
         logo: '/images/integrations/chatfuel.png',
         createModal: 'chatfuel'
+      },
+      {
+        name: 'Website',
+        description: 'Show your responsive website right in your Widget',
+        inMessenger: true,
+        kind: 'website',
+        logo: '/images/integrations/website.png',
+        createModal: 'website',
+        createUrl: '/settings/integrations/website'
       }
     ]
   },

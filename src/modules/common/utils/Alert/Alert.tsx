@@ -1,5 +1,6 @@
 import Icon from 'modules/common/components/Icon';
 import { colors, dimensions, typography } from 'modules/common/styles';
+import { darken } from 'modules/common/styles/color';
 import { slideDown } from 'modules/common/utils/animations';
 import React from 'react';
 import styled from 'styled-components';
@@ -12,7 +13,7 @@ const types = {
   },
 
   warning: {
-    background: colors.colorCoreYellow,
+    background: darken(colors.colorCoreYellow, 10),
     icon: 'exclamation-triangle'
   },
 

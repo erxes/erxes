@@ -1,3 +1,4 @@
+import { ButtonGroup } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
@@ -37,6 +38,7 @@ type Props = {
   fromEmail?: string;
   mailData?: IMail;
   isReply?: boolean;
+  toAll?: boolean;
   closeModal?: () => void;
   toggleReply?: () => void;
   sendMail: (
@@ -109,9 +111,10 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  onSubmit = () => {
+  onSubmit = (e, shouldResolve = false) => {
     const {
       isReply,
+      toAll,
       closeModal,
       toggleReply,
       integrationId,
@@ -139,14 +142,15 @@ class MailForm extends React.Component<Props, State> {
       threadId,
       replyToMessageId: messageId,
       to: formatStr(to),
-      cc: formatStr(cc),
-      bcc: formatStr(bcc),
+      cc: toAll ? formatStr(cc) : [],
+      bcc: toAll ? formatStr(bcc) : [],
       from: integrationId ? integrationId : from,
       subject: subject || mailData.subject,
       attachments,
       kind,
       body: content,
-      erxesApiId: from
+      erxesApiId: from,
+      shouldResolve
     };
 
     return sendMail({
@@ -490,9 +494,26 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
+  renderSubmit(label, onClick) {
+    const { isLoading } = this.state;
+
+    return (
+      <Button
+        onClick={onClick}
+        btnStyle="success"
+        size="small"
+        icon={isLoading ? undefined : 'message'}
+        disabled={isLoading}
+      >
+        {isLoading && <SmallLoader />}
+        {label}
+      </Button>
+    );
+  }
+
   renderButtons() {
-    const { isLoading, kind } = this.state;
-    const { toggleReply } = this.props;
+    const { kind } = this.state;
+    const { isReply, toggleReply } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -501,6 +522,8 @@ class MailForm extends React.Component<Props, State> {
         ? this.onAttachment
         : this.handleFileInput
     };
+
+    const onSubmitResolve = () => this.onSubmit(true);
 
     return (
       <EditorFooter>
@@ -523,16 +546,11 @@ class MailForm extends React.Component<Props, State> {
               <span>Uploading...</span>
             </Uploading>
           ) : (
-            <Button
-              onClick={this.onSubmit}
-              btnStyle="success"
-              size="small"
-              icon={isLoading ? undefined : 'message'}
-              disabled={isLoading}
-            >
-              {isLoading && <SmallLoader />}
-              Send
-            </Button>
+            <ButtonGroup>
+              {this.renderSubmit('Send', this.onSubmit)}
+              {isReply &&
+                this.renderSubmit('Send and Resolve', onSubmitResolve)}
+            </ButtonGroup>
           )}
         </SpaceBetweenRow>
       </EditorFooter>
@@ -558,12 +576,14 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderLeftSide() {
+    const { toAll } = this.props;
+
     return (
       <Column>
         {this.renderFrom()}
         {this.renderTo()}
-        {this.renderCC()}
-        {this.renderBCC()}
+        {toAll && this.renderCC()}
+        {toAll && this.renderBCC()}
       </Column>
     );
   }
