@@ -93,7 +93,7 @@ class Row extends React.Component<Props, State> {
   }
 
   isMessengerApp(kind: string | null) {
-    if (kind === 'lead' || kind === 'knowledgebase') {
+    if (kind === 'lead' || kind === 'knowledgebase' || kind === 'website') {
       return true;
     }
 
