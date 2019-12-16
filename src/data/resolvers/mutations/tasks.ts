@@ -4,7 +4,13 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { checkUserIds, putCreateLog } from '../../utils';
-import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
+import {
+  copyPipelineLabels,
+  createConformity,
+  IBoardNotificationParams,
+  itemsChange,
+  sendNotifications,
+} from '../boardUtils';
 
 interface ITasksEdit extends ITask {
   _id: string;
@@ -64,6 +70,9 @@ const taskMutations = {
       modifiedBy: user._id,
     });
 
+    // labels should be copied to newly moved pipeline
+    await copyPipelineLabels({ item: oldTask, doc, user });
+
     const notificationDoc: IBoardNotificationParams = {
       item: updatedTask,
       user,
@@ -72,7 +81,7 @@ const taskMutations = {
     };
 
     if (doc.assignedUserIds) {
-      const { addedUserIds, removedUserIds } = checkUserIds(oldTask.assignedUserIds || [], doc.assignedUserIds);
+      const { addedUserIds, removedUserIds } = checkUserIds(oldTask.assignedUserIds, doc.assignedUserIds);
 
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;

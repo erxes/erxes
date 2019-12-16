@@ -6,6 +6,7 @@ export const types = `
     position: String
     location: String
     description: String
+    operatorPhone: String
   }
 
   input UserLinks {
@@ -35,6 +36,7 @@ export const types = `
     position: String
     location: String
     description: String
+    operatorPhone: String
   }
 
   type UserLinksType {
