@@ -5,7 +5,13 @@ import { IDeal } from '../../../db/models/definitions/deals';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
-import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
+import {
+  copyPipelineLabels,
+  createConformity,
+  IBoardNotificationParams,
+  itemsChange,
+  sendNotifications,
+} from '../boardUtils';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -66,6 +72,8 @@ const dealMutations = {
       modifiedBy: user._id,
     });
 
+    await copyPipelineLabels({ item: oldDeal, doc, user });
+
     const notificationDoc: IBoardNotificationParams = {
       item: updatedDeal,
       user,
@@ -76,7 +84,7 @@ const dealMutations = {
     };
 
     if (doc.assignedUserIds) {
-      const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds || [], doc.assignedUserIds);
+      const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds, doc.assignedUserIds);
 
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;

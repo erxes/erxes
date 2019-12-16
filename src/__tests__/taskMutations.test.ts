@@ -1,8 +1,16 @@
 import { graphqlRequest } from '../db/connection';
-import { boardFactory, pipelineFactory, stageFactory, taskFactory, userFactory } from '../db/factories';
-import { Boards, Pipelines, Stages, Tasks } from '../db/models';
+import {
+  boardFactory,
+  pipelineFactory,
+  pipelineLabelFactory,
+  stageFactory,
+  taskFactory,
+  userFactory,
+} from '../db/factories';
+import { Boards, PipelineLabels, Pipelines, Stages, Tasks } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { ITaskDocument } from '../db/models/definitions/tasks';
 
 import './setup.ts';
@@ -12,6 +20,8 @@ describe('Test tasks mutations', () => {
   let pipeline: IPipelineDocument;
   let stage: IStageDocument;
   let task: ITaskDocument;
+  let label: IPipelineLabelDocument;
+  let label2: IPipelineLabelDocument;
 
   const commonTaskParamDefs = `
     $name: String!,
@@ -30,7 +40,9 @@ describe('Test tasks mutations', () => {
     board = await boardFactory({ type: BOARD_TYPES.TASK });
     pipeline = await pipelineFactory({ boardId: board._id });
     stage = await stageFactory({ pipelineId: pipeline._id });
-    task = await taskFactory({ stageId: stage._id });
+    label = await pipelineLabelFactory({ pipelineId: pipeline._id });
+    label2 = await pipelineLabelFactory({ pipelineId: pipeline._id, name: 'new label' });
+    task = await taskFactory({ stageId: stage._id, labelIds: [label._id, label2._id] });
   });
 
   afterEach(async () => {
@@ -39,6 +51,7 @@ describe('Test tasks mutations', () => {
     await Pipelines.deleteMany({});
     await Stages.deleteMany({});
     await Tasks.deleteMany({});
+    await PipelineLabels.deleteMany({});
   });
 
   test('Create task', async () => {
@@ -75,6 +88,8 @@ describe('Test tasks mutations', () => {
           _id
           name
           stageId
+          labelIds
+          assignedUserIds
         }
       }
     `;
@@ -88,7 +103,56 @@ describe('Test tasks mutations', () => {
 
     updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
 
-    expect(updatedTask.stageId).toEqual(stage._id);
+    expect(updatedTask.assignedUserIds.length).toBe(1);
+  });
+
+  test('Move task between pipelines', async () => {
+    expect.assertions(3);
+
+    const pipeline2 = await pipelineFactory();
+    const stage2 = await stageFactory({ pipelineId: pipeline2._id });
+
+    await pipelineLabelFactory({
+      pipelineId: pipeline2._id,
+      name: label.name,
+      colorCode: label.colorCode,
+    });
+
+    const args: any = {
+      _id: task._id,
+      name: 'Edited task',
+      stageId: stage2._id,
+    };
+
+    const mutation = `
+      mutation tasksEdit($_id: String!, ${commonTaskParamDefs}) {
+        tasksEdit(_id: $_id, ${commonTaskParams}) {
+          _id
+          name
+          stageId
+          labelIds
+        }
+      }
+    `;
+
+    let updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
+
+    expect(updatedTask.stageId).toBe(stage2._id);
+
+    if (task.labelIds) {
+      const copiedLabels = await PipelineLabels.find({ pipelineId: pipeline2._id });
+
+      expect(copiedLabels.length).toBe(2);
+    }
+
+    try {
+      // to improve boardUtils coverage
+      args.stageId = 'demo-stage';
+
+      updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
+    } catch (e) {
+      expect(e[0].message).toBe('Stage not found');
+    }
   });
 
   test('Change task', async () => {
