@@ -79,12 +79,13 @@ class ConversationItem extends React.Component<Props> {
       kind === 'form' ||
       kind.includes('nylas') ||
       kind === 'gmail' ||
-      this.props.conversation.status !== 'closed'
+      this.props.conversation.status === 'closed'
     ) {
       return false;
     }
 
-    return idleTime >= 1;
+    // become idle in 3 minutes
+    return idleTime >= 3;
   };
 
   showMessageContent(kind: string, content: string) {
