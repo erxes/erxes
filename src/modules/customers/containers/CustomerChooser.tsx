@@ -23,51 +23,71 @@ type FinalProps = {
   customersQuery: CustomersQueryResponse;
 } & Props &
   AddMutationResponse;
+class CustomerChooser extends React.Component<
+  WrapperProps & FinalProps,
+  { newCustomerId?: string }
+> {
+  constructor(props) {
+    super(props);
 
-const CustomerChooser = (props: WrapperProps & FinalProps) => {
-  const { data, customersQuery, customersAdd, search } = props;
+    this.state = {
+      newCustomerId: undefined
+    };
+  }
 
-  // add customer
-  const addCustomer = ({ doc, callback }) => {
-    customersAdd({
-      variables: doc
-    })
-      .then(() => {
-        customersQuery.refetch();
+  render() {
+    const { data, customersQuery, customersAdd, search } = this.props;
 
-        Alert.success('You successfully added a customer');
-
-        callback();
+    // add customer
+    const addCustomer = ({ doc, callback }) => {
+      customersAdd({
+        variables: doc
       })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
+        .then(() => {
+          customersQuery.refetch();
 
-  const updatedProps = {
-    ...props,
-    data: {
-      _id: data._id,
-      name: data.name,
-      datas: data.customers,
-      mainTypeId: data.mainTypeId,
-      mainType: data.mainType,
-      relType: 'customer'
-    },
-    search,
-    clearState: () => search(''),
-    title: 'Customer',
-    renderName: renderFullName,
-    renderForm: formProps => (
-      <CustomerForm {...formProps} action={addCustomer} />
-    ),
-    add: addCustomer,
-    datas: customersQuery.customers || [],
-    refetchQuery: queries.customers
-  };
+          Alert.success('You successfully added a customer');
 
-  return <ConformityChooser {...updatedProps} />;
-};
+          callback();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    const getAssociatedCustomer = (newCustomerId: string) => {
+      this.setState({ newCustomerId });
+    };
+
+    const updatedProps = {
+      ...this.props,
+      data: {
+        _id: data._id,
+        name: data.name,
+        datas: data.customers,
+        mainTypeId: data.mainTypeId,
+        mainType: data.mainType,
+        relType: 'customer'
+      },
+      search,
+      clearState: () => search(''),
+      title: 'Customer',
+      renderName: renderFullName,
+      renderForm: formProps => (
+        <CustomerForm
+          {...formProps}
+          getAssociatedCustomer={getAssociatedCustomer}
+        />
+      ),
+      add: addCustomer,
+      newItemId: this.state.newCustomerId,
+      datas: customersQuery.customers || [],
+      refetchQuery: queries.customers
+    };
+
+    return <ConformityChooser {...updatedProps} />;
+  }
+}
 
 const WithQuery = withProps<Props>(
   compose(
@@ -84,7 +104,9 @@ const WithQuery = withProps<Props>(
             perPage,
             mainType: data.mainType,
             mainTypeId: data.mainTypeId,
-            isRelated: data.isRelated
+            isRelated: data.isRelated,
+            sortField: 'createdAt',
+            sortDirection: -1
           },
           fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
         };

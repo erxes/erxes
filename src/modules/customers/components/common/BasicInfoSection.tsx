@@ -1,4 +1,3 @@
-import { Action } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
@@ -19,9 +18,7 @@ class BasicInfo extends React.Component<Props> {
     return (
       <Section>
         <InfoSection customer={customer} />
-        <Action>
-          <ActionSection customer={customer} />
-        </Action>
+        <ActionSection customer={customer} />
         <DetailInfo customer={customer} hasPosition={true} />
       </Section>
     );

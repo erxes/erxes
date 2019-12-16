@@ -5,8 +5,8 @@ import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
 import styled from 'styled-components';
 
-export const EditorActions = styled.div`
-  padding: 10px 15px 40px 20px;
+const EditorActions = styled.div`
+  padding: 0px 15px 37px 15px;
   text-align: right;
 `;
 
@@ -15,6 +15,8 @@ const EditorWrapper = styled.div`
 
   > .cke_chrome {
     border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
   }
 
   .cke_bottom {
@@ -22,6 +24,11 @@ const EditorWrapper = styled.div`
     bottom: 0;
     right: 0;
     left: 0;
+  }
+
+  .cke_toolgroup {
+    border: 0;
+    margin-left: 3px;
   }
 `;
 
@@ -93,7 +100,7 @@ class Form extends React.PureComponent<Prop, State> {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon={isActionLoading ? undefined : 'send'}
+          icon={isActionLoading ? undefined : 'message'}
         >
           {isActionLoading && <SmallLoader />}
           Save
@@ -118,12 +125,21 @@ class Form extends React.PureComponent<Prop, State> {
           onChange={this.onEditorChange}
           height={150}
           toolbar={[
-            { name: 'insert', items: ['Image', 'EmojiPanel'] },
-            { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
-            { name: 'basicstyles', items: ['Bold', 'Italic'] },
-            { name: 'links', items: ['Link', 'Unlink'] }
+            {
+              name: 'basicstyles',
+              items: [
+                'Bold',
+                'Italic',
+                'NumberedList',
+                'BulletedList',
+                'Link',
+                'Unlink',
+                '-',
+                'Image',
+                'EmojiPanel'
+              ]
+            }
           ]}
-          toolbarCanCollapse={true}
         />
 
         {this.renderFooter()}

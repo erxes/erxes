@@ -13,6 +13,7 @@ import { mutations } from '../graphql';
 type Props = {
   customer: ICustomer;
   closeModal: () => void;
+  getAssociatedCustomer?: (customerId: string) => void;
   queryParams: IQueryParams;
 };
 
@@ -35,7 +36,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { closeModal, history } = this.props;
+    const { closeModal, history, getAssociatedCustomer } = this.props;
     const { redirectType } = this.state;
 
     const renderButton = ({
@@ -56,6 +57,10 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
         const currentLocation = `${window.location.pathname}${
           window.location.search
         }`;
+
+        if (getAssociatedCustomer) {
+          getAssociatedCustomer(data.customersAdd._id);
+        }
 
         if (redirectType === 'new') {
           history.push(`/contacts`);

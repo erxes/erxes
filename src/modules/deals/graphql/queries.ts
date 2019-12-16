@@ -14,6 +14,8 @@ const commonParams = `
   $date: ItemDate,
   $pipelineId: String,
   $closeDateType: String,
+  $sortField: String,
+  $sortDirection: Int,
   ${conformityQueryFields}
 `;
 
@@ -28,6 +30,8 @@ const commonParamDefs = `
   date: $date,
   pipelineId: $pipelineId,
   closeDateType: $closeDateType,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
   ${conformityQueryFieldDefs}
 `;
 

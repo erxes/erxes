@@ -54,8 +54,13 @@ const MessengerPreview = styled.div`
   width: 40%;
 `;
 
-const IntegrationName = styled.span`
-  margin-right: ${dimensions.unitSpacing}px;
+const IntegrationName = styled.div`
+  display: flex;
+  align-items: center;
+
+  > div {
+    margin-left: ${dimensions.unitSpacing / 2}px;
+  }
 `;
 
 const BrandName = styled.div`

@@ -81,16 +81,20 @@ class EditorCK extends React.Component<IEditorProps> {
             {
               name: 'document',
               groups: ['mode', 'document', 'doctools'],
-              items: ['Source', 'NewPage', 'Preview']
+              items: ['Source', 'NewPage']
             },
+            { name: 'colors', items: ['TextColor', 'BGColor'] },
             {
-              name: 'insert',
+              name: 'basicstyles',
               items: [
+                'Bold',
+                'Italic',
+                'Underline',
+                'Strike',
+                '-',
                 'Image',
                 'Table',
-                'HorizontalRule',
-                'EmojiPanel',
-                'SpecialChar'
+                'EmojiPanel'
               ]
             },
             {
@@ -99,25 +103,17 @@ class EditorCK extends React.Component<IEditorProps> {
               items: [
                 'NumberedList',
                 'BulletedList',
-                'Outdent',
-                'Indent',
                 'Blockquote',
-                'CreateDiv',
                 'JustifyLeft',
                 'JustifyCenter',
                 'JustifyRight',
                 'JustifyBlock'
               ]
             },
-            {
-              name: 'basicstyles',
-              groups: ['basicstyles', 'cleanup'],
-              items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat']
-            },
-            { name: 'links', items: ['Link', 'Unlink', 'Anchor'] },
+            { name: 'links', items: ['Link', 'Unlink'] },
             { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
-            { name: 'others', items: [insertItems ? 'strinsert' : '-'] },
-            { name: 'colors', items: ['TextColor', 'BGColor'] },
+            { name: 'others', items: [insertItems && 'strinsert'] },
+            { name: 'clear', items: ['RemoveFormat'] },
             { name: 'tools', items: ['Maximize'] }
           ],
           mentions: [

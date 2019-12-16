@@ -2,6 +2,7 @@ import debounce from 'lodash/debounce';
 import Button from 'modules/common/components/Button';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
+import { isEmptyContent } from 'modules/common/utils';
 import React from 'react';
 import xss from 'xss';
 import {
@@ -65,6 +66,10 @@ class ListRow extends React.Component<Props, State> {
   };
 
   onBlur = () => {
+    if (isEmptyContent(this.state.content)) {
+      return;
+    }
+
     debounce(() => this.setState({ isEditing: false }), 100)();
   };
 
@@ -81,6 +86,10 @@ class ListRow extends React.Component<Props, State> {
   };
 
   handleSave = () => {
+    if (isEmptyContent(this.state.content)) {
+      return;
+    }
+
     const { content, isChecked } = this.state;
 
     this.setState({ disabled: true });
