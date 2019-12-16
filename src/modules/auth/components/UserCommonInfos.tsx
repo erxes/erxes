@@ -59,13 +59,11 @@ class UserCommonInfos extends React.PureComponent<Props> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Description</ControlLabel>
+              <ControlLabel>Phone (operator)</ControlLabel>
               <FormControl
                 type="text"
-                name="description"
-                max={250}
-                componentClass="textarea"
-                defaultValue={details.description || ''}
+                name="operatorPhone"
+                defaultValue={details.operatorPhone || ''}
                 {...formProps}
               />
             </FormGroup>
@@ -97,6 +95,17 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 defaultValue={details.location}
                 name="location"
                 options={timezones}
+                {...formProps}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Description</ControlLabel>
+              <FormControl
+                type="text"
+                name="description"
+                max={250}
+                componentClass="textarea"
+                defaultValue={details.description || ''}
                 {...formProps}
               />
             </FormGroup>

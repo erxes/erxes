@@ -88,7 +88,8 @@ export const FEATURE_DETAILS = {
     icon: 'laptop',
     description:
       'Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.',
-    videoUrl: 'url',
+    videoUrl: 'https://www.youtube.com/embed/P2muPQVTTD8?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/P2muPQVTTD8/mqdefault.jpg',
     settingsDetails: {
       leadIntegrationCreate: {
         name: 'Create pop ups',
@@ -104,9 +105,10 @@ export const FEATURE_DETAILS = {
     text: 'Engages',
     color: '#e359ae',
     icon: 'megaphone',
+    videoUrl: 'https://www.youtube.com/embed/hd07s0oZ83A?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/hd07s0oZ83A/mqdefault.jpg',
     description:
       'Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close.',
-    videoUrl: 'url',
     settingsDetails: {
       emailTemplateCreate: {
         name: 'Create email template',

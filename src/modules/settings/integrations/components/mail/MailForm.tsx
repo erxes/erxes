@@ -1,4 +1,3 @@
-import { ButtonGroup } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
@@ -494,13 +493,13 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  renderSubmit(label, onClick) {
+  renderSubmit(label, onClick, type: string) {
     const { isLoading } = this.state;
 
     return (
       <Button
         onClick={onClick}
-        btnStyle="success"
+        btnStyle={type}
         size="small"
         icon={isLoading ? undefined : 'message'}
         disabled={isLoading}
@@ -546,11 +545,15 @@ class MailForm extends React.Component<Props, State> {
               <span>Uploading...</span>
             </Uploading>
           ) : (
-            <ButtonGroup>
-              {this.renderSubmit('Send', this.onSubmit)}
+            <div>
+              {this.renderSubmit('Send', this.onSubmit, 'primary')}
               {isReply &&
-                this.renderSubmit('Send and Resolve', onSubmitResolve)}
-            </ButtonGroup>
+                this.renderSubmit(
+                  'Send and Resolve',
+                  onSubmitResolve,
+                  'success'
+                )}
+            </div>
           )}
         </SpaceBetweenRow>
       </EditorFooter>
