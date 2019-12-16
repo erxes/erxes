@@ -20,10 +20,11 @@ const mailParamsDef = `
   $subject: String!,
   $kind: String,
   $body: String!,
-  $to: String!,
-  $cc: String,
-  $bcc: String,
+  $to: [String]!,
+  $cc: [String],
+  $bcc: [String] ,
   $from: String!,
+  $shouldResolve: Boolean,
   $attachments: [JSON],
 `;
 
@@ -41,6 +42,7 @@ const mailParams = `
   cc: $cc,
   bcc: $bcc,
   from: $from,
+  shouldResolve: $shouldResolve,
   attachments: $attachments,
 `;
 
@@ -159,6 +161,26 @@ const messengerAppsAddKnowledgebase = `
   }
 `;
 
+const messengerAppsAddWebsite = `
+  mutation messengerAppsAddWebsite(
+    $name: String!
+    $integrationId: String!
+    $description: String!
+    $buttonText: String!
+    $url: String!
+  ) {
+    messengerAppsAddWebsite(
+      name: $name
+      integrationId: $integrationId
+      description: $description
+      buttonText: $buttonText
+      url: $url
+    ) {
+      _id
+    }
+  }
+`;
+
 const messengerAppsRemove = `
   mutation messengerAppsRemove($_id: String!) {
     messengerAppsRemove(_id: $_id)
@@ -227,6 +249,7 @@ export default {
   engagesConfigSave,
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
+  messengerAppsAddWebsite,
   messengerAppsRemove,
   removeAccount,
   integrationSendMail,

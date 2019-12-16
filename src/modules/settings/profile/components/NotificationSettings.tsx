@@ -1,4 +1,5 @@
 import Toggle from 'modules/common/components/Toggle';
+import { ScrollWrapper } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import {
@@ -106,11 +107,13 @@ class NotificationSettings extends React.Component<Props> {
             "If your team hasn't received messages that you sent on the site, we can send it to them via email"
           )}
         </Description>
-        <ModuleBox>
-          {this.props.modules.map((module, index) =>
-            this.renderModule(module, index)
-          )}
-        </ModuleBox>
+        <ScrollWrapper calcHeight="365">
+          <ModuleBox>
+            {this.props.modules.map((module, index) =>
+              this.renderModule(module, index)
+            )}
+          </ModuleBox>
+        </ScrollWrapper>
       </React.Fragment>
     );
 

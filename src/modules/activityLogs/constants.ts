@@ -66,5 +66,13 @@ export const ICON_AND_COLOR_TABLE = {
   'nylas-gmail': {
     icon: 'envelope',
     color: '#D44638'
+  },
+  'twitter-dm': {
+    icon: 'twitter',
+    color: '#1da1f2'
+  },
+  twitter: {
+    icon: 'twitter',
+    color: '#1da1f2'
   }
 };

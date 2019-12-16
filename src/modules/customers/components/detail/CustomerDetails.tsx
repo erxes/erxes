@@ -50,6 +50,7 @@ class CustomerDetails extends React.Component<Props> {
         size="lg"
         content={content}
         paddingContent="no-padding"
+        enforceFocus={false}
       />
     );
   };

@@ -19,6 +19,7 @@ export type CommonProps = {
   clearState: () => void;
   limit?: number;
   add?: any;
+  newItemId?: string;
   closeModal: () => void;
 };
 
@@ -58,15 +59,21 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(newProps) {
-    const { datas, perPage } = newProps;
+    const { datas, perPage, newItemId } = newProps;
 
     this.setState({ loadmore: datas.length === perPage && datas.length > 0 });
+
+    if (newItemId) {
+      const items = datas.filter(item => item._id === newItemId);
+
+      items.map(data => this.setState({ datas: [...this.state.datas, data] }));
+    }
   }
 
   handleChange = (type, data) => {
     const { datas } = this.state;
 
-    if (type === 'add') {
+    if (type === 'plus-1') {
       if (this.props.limit && this.props.limit === datas.length) {
         return;
       }
@@ -97,7 +104,7 @@ class CommonChooser extends React.Component<Props, State> {
   };
 
   renderRow(data, icon) {
-    if (icon === 'add' && this.state.datas.some(e => e._id === data._id)) {
+    if (icon === 'plus-1' && this.state.datas.some(e => e._id === data._id)) {
       return null;
     }
 
@@ -114,9 +121,7 @@ class CommonChooser extends React.Component<Props, State> {
   renderSelected(selectedDatas) {
     if (selectedDatas.length) {
       return (
-        <ul>
-          {selectedDatas.map(data => this.renderRow(data, 'minus-circle'))}
-        </ul>
+        <ul>{selectedDatas.map(data => this.renderRow(data, 'times'))}</ul>
       );
     }
 
@@ -151,7 +156,7 @@ class CommonChooser extends React.Component<Props, State> {
               onChange={this.search}
             />
             <ul>
-              {datas.map(dataItem => this.renderRow(dataItem, 'add'))}
+              {datas.map(dataItem => this.renderRow(dataItem, 'plus-1'))}
               {this.state.loadmore && (
                 <CenterContent>
                   <Button

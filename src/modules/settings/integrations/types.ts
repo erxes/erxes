@@ -250,7 +250,7 @@ export type SaveMessengerMutationResponse = {
 export type SaveMessengerAppearanceMutationResponse = {
   saveAppearanceMutation: (
     params: { variables: { _id: string; uiOptions: IUiOptions } }
-  ) => void;
+  ) => Promise<any>;
 };
 
 export type SaveMessengerConfigsMutationResponse = {

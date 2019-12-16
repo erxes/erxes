@@ -1,10 +1,11 @@
+import debounce from 'lodash/debounce';
 import Button from 'modules/common/components/Button';
 import { Form, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, isEmptyContent } from 'modules/common/utils';
 import React from 'react';
 import Item from '../containers/Item';
 import {
@@ -18,8 +19,8 @@ import {
 import { IChecklist } from '../types';
 
 type Props = {
-  list: IChecklist;
-  addItem: (doc: { content: string }) => void;
+  item: IChecklist;
+  addItem: (content: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (checklistId: string) => void;
 };
@@ -37,13 +38,13 @@ class List extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const title = props.list.title;
+    const title = props.item.title;
 
     this.state = {
       isEditingTitle: false,
-      isAddingItem: false,
+      isAddingItem: props.item.items.length === 0 ? true : false,
       isHidden: false,
-      itemContent: '',
+      itemContent: this.getUnsavedContent(props.item._id) || '',
       title,
       beforeTitle: title
     };
@@ -53,18 +54,42 @@ class List extends React.Component<Props, State> {
     this.setState({ isAddingItem: true });
   };
 
-  removeClick = () => {
-    const { remove, list } = this.props;
-    remove(list._id);
+  onFocus = event => event.target.select();
+
+  onCancel = (toggle?: boolean) => {
+    const { itemContent } = this.state;
+
+    localStorage.setItem(this.props.item._id, itemContent);
+
+    debounce(
+      () =>
+        this.setState({
+          isAddingItem: toggle ? !this.state.isAddingItem : false
+        }),
+      100
+    )();
   };
 
-  saveAddItem = () => {
-    const { addItem } = this.props;
+  onBlur = () => {
+    if (isEmptyContent(this.state.itemContent)) {
+      return;
+    }
 
-    this.setState({ isAddingItem: false }, () => {
-      addItem({ content: this.state.itemContent });
+    this.onCancel(true);
+  };
 
-      this.setState({ itemContent: '', isAddingItem: true });
+  removeClick = () => {
+    const { remove, item } = this.props;
+    remove(item._id);
+  };
+
+  getUnsavedContent = (id: string) => {
+    return localStorage.getItem(id) || '';
+  };
+
+  onContentChange = e => {
+    this.setState({
+      itemContent: (e.currentTarget as HTMLTextAreaElement).value
     });
   };
 
@@ -79,17 +104,32 @@ class List extends React.Component<Props, State> {
       e.preventDefault();
 
       this.saveAddItem();
+      this.onBlur();
     }
   };
 
+  saveAddItem = () => {
+    // check if a string contains whitespace or empty
+    if (isEmptyContent(this.state.itemContent)) {
+      return;
+    }
+
+    const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
+
+    (content || []).map(text => this.props.addItem(text));
+
+    this.setState({ itemContent: '', isAddingItem: false }, () =>
+      localStorage.removeItem(this.props.item._id)
+    );
+  };
+
   renderIsCheckedBtn = () => {
-    const { list } = this.props;
     const { isHidden } = this.state;
 
     const onClickHideShowBtn = () => this.setState({ isHidden: !isHidden });
     const btnText = isHidden ? 'Show checked items' : 'Hide completed items';
 
-    if (list.percent) {
+    if (this.props.item.percent) {
       return (
         <Button btnStyle="simple" size="small" onClick={onClickHideShowBtn}>
           {__(btnText)}
@@ -123,21 +163,14 @@ class List extends React.Component<Props, State> {
   };
 
   generateDoc = (values: { title: string }) => {
-    const { list } = this.props;
-    const { title } = this.state;
-
-    const finalValues = values;
-
     return {
-      _id: list._id,
-      title: finalValues.title || title
+      _id: this.props.item._id,
+      title: values.title || this.state.title
     };
   };
 
   renderTitleInput = (formProps: IFormProps) => {
     const { isEditingTitle, title, beforeTitle } = this.state;
-    const { renderButton } = this.props;
-
     const { isSubmitted, values } = formProps;
 
     if (!isEditingTitle) {
@@ -166,7 +199,7 @@ class List extends React.Component<Props, State> {
           required={true}
         />
 
-        {renderButton({
+        {this.props.renderButton({
           values: this.generateDoc(values),
           isSubmitted,
           callback: onSubmit
@@ -182,53 +215,14 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderAddItemForm = () => {
-    const { isAddingItem } = this.state;
-
-    if (!isAddingItem) {
-      return null;
-    }
-
-    const cancel = () => this.setState({ isAddingItem: false });
-    const onContentChange = e =>
-      this.setState({
-        itemContent: (e.currentTarget as HTMLTextAreaElement).value
-      });
-
-    return (
-      <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
-        <FormControlWrapper>
-          <FormControl
-            autoFocus={true}
-            componentClass="textarea"
-            onChange={onContentChange}
-            onKeyPress={this.onKeyPressAddItem}
-            required={true}
-          />
-
-          <Button btnStyle="success" type="submit" size="small">
-            Add
-          </Button>
-
-          <Button
-            btnStyle="simple"
-            size="small"
-            onClick={cancel}
-            icon="times"
-          />
-        </FormControlWrapper>
-      </FormWrapper>
-    );
-  };
-
   renderProgressBar = () => {
-    const { list } = this.props;
+    const { item } = this.props;
 
     return (
       <Progress>
-        <span>{list.percent.toFixed(0)}%</span>
+        <span>{item.percent.toFixed(0)}%</span>
         <ProgressBar
-          percentage={list.percent}
+          percentage={item.percent}
           color={colors.colorPrimary}
           height="10px"
         />
@@ -236,35 +230,64 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderItems = () => {
-    const { list } = this.props;
+  renderItems() {
+    const { item } = this.props;
 
     if (this.state.isHidden) {
-      return list.items
-        .filter(item => !item.isChecked)
-        .map(item => <Item key={item._id} item={item} />);
+      return item.items
+        .filter(data => !data.isChecked)
+        .map(data => <Item key={data._id} item={data} />);
     }
 
-    return list.items.map(item => <Item key={item._id} item={item} />);
-  };
+    return item.items.map(data => <Item key={data._id} item={data} />);
+  }
 
-  renderAddItemBtn() {
-    if (!this.state.isAddingItem) {
+  renderAddInput() {
+    const { isAddingItem } = this.state;
+
+    if (isAddingItem) {
       return (
-        <Button size="small" btnStyle="simple" onClick={this.onAddItemClick}>
-          {__('Add an item')}
-        </Button>
+        <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
+          <FormControlWrapper onBlur={this.onBlur}>
+            <FormControl
+              componentClass="textarea"
+              placeholder="Add an item"
+              onChange={this.onContentChange}
+              onKeyPress={this.onKeyPressAddItem}
+              defaultValue={this.getUnsavedContent(this.props.item._id)}
+              autoFocus={true}
+              onFocus={this.onFocus}
+              required={true}
+            />
+            <Button
+              btnStyle="success"
+              type="submit"
+              size="small"
+              icon="check-1"
+            />
+            <Button
+              btnStyle="simple"
+              size="small"
+              onClick={this.onCancel.bind(this, false)}
+              icon="times"
+            />
+          </FormControlWrapper>
+        </FormWrapper>
       );
     }
 
-    return null;
+    return (
+      <Button size="small" btnStyle="simple" onClick={this.onAddItemClick}>
+        {__('Add an item')}
+      </Button>
+    );
   }
 
   render() {
     return (
       <>
         <ChecklistTitleWrapper>
-          <Icon icon="check-square" />
+          <Icon icon="checked" />
 
           <ChecklistTitle>
             {this.renderTitle()}
@@ -276,8 +299,7 @@ class List extends React.Component<Props, State> {
 
         <ChecklistWrapper>
           {this.renderItems()}
-          {this.renderAddItemForm()}
-          {this.renderAddItemBtn()}
+          {this.renderAddInput()}
         </ChecklistWrapper>
       </>
     );

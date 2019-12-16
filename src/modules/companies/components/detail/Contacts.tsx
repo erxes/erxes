@@ -24,7 +24,7 @@ class Contacts extends React.Component<Props> {
         {renderFullName(customer)}
 
         <Link to={`/contacts/customers/details/${customer._id}`}>
-          <Icon icon="logout-2" />
+          <Icon icon="arrow-to-right" />
         </Link>
       </Contact>
     ));
