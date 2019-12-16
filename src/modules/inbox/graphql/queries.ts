@@ -59,6 +59,7 @@ const sidebarConversations = `
       integration {
         _id
         kind
+        name
         brand {
           _id
           name

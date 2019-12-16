@@ -134,7 +134,9 @@ class ConversationItem extends React.Component<Props> {
 
                 <SmallTextOneLine>
                   to {brand.name} via{' '}
-                  {cleanIntegrationKind(integration && integration.kind)}
+                  {integration.kind === 'callpro'
+                    ? integration.name
+                    : cleanIntegrationKind(integration && integration.kind)}
                 </SmallTextOneLine>
               </FlexContent>
             </MainInfo>
