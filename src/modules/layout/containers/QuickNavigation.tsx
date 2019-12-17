@@ -1,7 +1,8 @@
 import client from 'apolloClient';
-import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import { IUser } from 'modules/auth/types';
 import { Alert, getCookie, setCookie, withProps } from 'modules/common/utils';
 import { queries as generalQueries } from 'modules/settings/general/graphql';
 import React from 'react';
@@ -10,6 +11,7 @@ import QuickNavigation from '../components/QuickNavigation';
 
 type Props = {
   getEnvQuery: any;
+  currentUser: IUser;
 };
 
 type State = {
@@ -61,26 +63,22 @@ class QuickNavigationContainer extends React.Component<Props, State> {
   };
 
   render() {
-    const { getEnvQuery } = this.props;
+    const { getEnvQuery, currentUser } = this.props;
     const config = getEnvQuery.configsGetEnv || {};
 
     return (
-      <AppConsumer>
-        {({ currentUser }) =>
-          currentUser && (
-            <QuickNavigation
-              showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}
-              onChangeBrands={this.onChangeBrands}
-              selectedBrands={this.state.selectedBrands}
-              logout={this.logout}
-              currentUser={currentUser}
-            />
-          )
-        }
-      </AppConsumer>
+      <QuickNavigation
+        showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}
+        onChangeBrands={this.onChangeBrands}
+        selectedBrands={this.state.selectedBrands}
+        logout={this.logout}
+        currentUser={currentUser}
+      />
     );
   }
 }
+
+const WithUser = withCurrentUser(QuickNavigationContainer);
 
 export default withProps(
   compose(
@@ -90,5 +88,5 @@ export default withProps(
         fetchPolicy: 'network-only'
       })
     })
-  )(QuickNavigationContainer)
+  )(WithUser)
 );
