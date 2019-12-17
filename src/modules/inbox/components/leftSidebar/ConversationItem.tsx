@@ -23,6 +23,7 @@ import {
   FlexContent,
   FlexRoot,
   FlexWidth,
+  Idle,
   MainInfo,
   MessageContent,
   RowContent,
@@ -71,6 +72,22 @@ class ConversationItem extends React.Component<Props> {
     e.stopPropagation();
   };
 
+  isIdle = (integration: IIntegration, idleTime: number) => {
+    const kind = integration.kind;
+
+    if (
+      kind === 'form' ||
+      kind.includes('nylas') ||
+      kind === 'gmail' ||
+      this.props.conversation.status === 'closed'
+    ) {
+      return false;
+    }
+
+    // become idle in 3 minutes
+    return idleTime >= 3;
+  };
+
   showMessageContent(kind: string, content: string) {
     if (kind === 'callpro') {
       return (
@@ -100,18 +117,8 @@ class ConversationItem extends React.Component<Props> {
       conversation.readUserIds &&
       conversation.readUserIds.indexOf(currentUser._id) > -1;
 
-    const isIdle =
-      integration.kind !== 'form' &&
-      conversation.status !== 'closed' &&
-      idleTime >= 1;
-
     return (
-      <RowItem
-        onClick={this.onClick}
-        isActive={isActive}
-        isRead={isRead}
-        isIdle={isIdle}
-      >
+      <RowItem onClick={this.onClick} isActive={isActive} isRead={isRead}>
         <RowContent isChecked={isChecked}>
           {this.renderCheckbox()}
           <FlexContent>
@@ -134,7 +141,9 @@ class ConversationItem extends React.Component<Props> {
 
                 <SmallTextOneLine>
                   to {brand.name} via{' '}
-                  {cleanIntegrationKind(integration && integration.kind)}
+                  {integration.kind === 'callpro'
+                    ? integration.name
+                    : cleanIntegrationKind(integration && integration.kind)}
                 </SmallTextOneLine>
               </FlexContent>
             </MainInfo>
@@ -166,6 +175,11 @@ class ConversationItem extends React.Component<Props> {
             <Tags tags={tags} limit={3} />
           </FlexContent>
         </RowContent>
+        {this.isIdle(integration, idleTime) && (
+          <Tip placement="left" text="Idle">
+            <Idle />
+          </Tip>
+        )}
       </RowItem>
     );
   }

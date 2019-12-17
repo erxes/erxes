@@ -105,7 +105,8 @@ export default compose(
         module: queryParams.module,
         action: queryParams.action,
         userId: queryParams.userId,
-        groupId: queryParams.groupId
+        groupId: queryParams.groupId,
+        allowed: queryParams.allowed === 'notAllowed' ? false : true
       }
     })
   }),
@@ -118,6 +119,7 @@ export default compose(
         action: queryParams.action,
         userId: queryParams.userId,
         groupId: queryParams.groupId,
+        allowed: queryParams.allowed === 'notAllowed' ? false : true,
         ...generatePaginationParams(queryParams)
       }
     })

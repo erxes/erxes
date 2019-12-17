@@ -14,6 +14,7 @@ const userDetail = `
         position
         location
         description
+        operatorPhone
       }
       links {
         linkedIn
