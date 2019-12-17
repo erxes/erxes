@@ -1,6 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { queries } from 'modules/auth/graphql';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as teamQueries } from 'modules/settings/team/graphql';
@@ -115,7 +116,14 @@ const WithQuery = withProps<Props>(
         }
       `,
       {
-        name: 'saveMutation'
+        name: 'saveMutation',
+        options: () => ({
+          refetchQueries: [
+            {
+              query: gql(queries.currentUser)
+            }
+          ]
+        })
       }
     )
   )(SignatureContainer)

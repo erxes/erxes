@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { queries } from 'modules/auth/graphql';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
@@ -115,7 +116,14 @@ export default withProps<{}>(
         }
       `,
       {
-        name: 'configGetNotificationByEmailMutation'
+        name: 'configGetNotificationByEmailMutation',
+        options: () => ({
+          refetchQueries: [
+            {
+              query: gql(queries.currentUser)
+            }
+          ]
+        })
       }
     ),
     graphql<
