@@ -6,12 +6,15 @@ import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModifiableSelect from 'modules/common/components/ModifiableSelect';
+
+import DateControl from 'modules/common/components/form/DateControl';
 import {
   ColumnTitle,
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper
+  ScrollWrapper,
+  DateContainer
 } from 'modules/common/styles/main';
 import {
   IButtonMutateProps,
@@ -23,7 +26,11 @@ import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMember
 import React from 'react';
 import validator from 'validator';
 import { ICustomer, ICustomerDoc } from '../../types';
-import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
+import {
+  genderChoices,
+  leadStatusChoices,
+  lifecycleStateChoices
+} from '../../utils';
 
 type Props = {
   customer?: ICustomer;
@@ -42,6 +49,7 @@ type State = {
   phones?: string[];
   emails?: string[];
   primaryPhone?: string;
+  birthDate: string;
   primaryEmail?: string;
 };
 
@@ -56,6 +64,7 @@ class CustomerForm extends React.Component<Props, State> {
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
+      birthDate: customer.birthDate || '',
       avatar: customer.avatar
     };
   }
@@ -73,6 +82,7 @@ class CustomerForm extends React.Component<Props, State> {
       ...this.state,
       firstName: finalValues.firstName,
       lastName: finalValues.lastName,
+      sex: Number(finalValues.sex),
       position: finalValues.position,
       department: finalValues.department,
       leadStatus: finalValues.leadStatus,
@@ -148,6 +158,10 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ ownerId });
   };
 
+  onDateChange = birthDate => {
+    this.setState({ birthDate });
+  };
+
   saveAndRedirect = (type: string) => {
     const { changeRedirectType } = this.props;
 
@@ -192,6 +206,28 @@ class CustomerForm extends React.Component<Props, State> {
                   required={true}
                   checkFormat={validator.isEmail}
                 />
+              </FormGroup>
+
+              {this.renderFormGroup('Gender', {
+                ...formProps,
+                name: 'sex',
+                componentClass: 'select',
+                defaultValue: customer.sex || 0,
+                options: genderChoices(__)
+              })}
+
+              <FormGroup>
+                <ControlLabel required={false}>Birth date</ControlLabel>
+                <DateContainer>
+                  <DateControl
+                    {...formProps}
+                    required={false}
+                    name="birthDate"
+                    placeholder={'Birth date'}
+                    value={this.state.birthDate}
+                    onChange={this.onDateChange}
+                  />
+                </DateContainer>
               </FormGroup>
 
               {this.renderFormGroup('Position', {
