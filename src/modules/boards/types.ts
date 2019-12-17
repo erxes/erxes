@@ -304,4 +304,6 @@ export interface IEditFormContent {
   onChangeStage: (stageId: string) => void;
   copy: () => void;
   remove: (id: string) => void;
+  renderAmount?: () => React.ReactNode;
+  renderSidebar?: () => React.ReactNode;
 }
