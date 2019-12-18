@@ -196,7 +196,7 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
 
       break;
     case 'requiredActions':
-      cellValue = item.requiredActions.join(', ');
+      cellValue = (item.requiredActions || []).join(', ');
 
       break;
     // customer fields
@@ -207,10 +207,10 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
 
       break;
     case 'emails':
-      cellValue = item.emails.join(', ');
+      cellValue = (item.emails || []).join(', ');
       break;
     case 'phones':
-      cellValue = item.phones.join(', ');
+      cellValue = (item.phones || []).join(', ');
       break;
     case 'mergedIds':
       const customers: ICustomerDocument[] | null = await Customers.find({ _id: { $in: item.mergedIds } });
@@ -220,7 +220,7 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
       break;
     // company fields
     case 'names':
-      cellValue = item.names.join(', ');
+      cellValue = (item.names || []).join(', ');
 
       break;
     case 'parentCompanyId':
