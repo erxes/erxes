@@ -180,7 +180,7 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveItemOrders = (itemMap: IItemMap, stageIds: string[]) => {
-    const { options } = this.props;
+    const { options, queryParams } = this.props;
 
     for (const stageId of stageIds) {
       const orders = collectOrders(itemMap[stageId]);
@@ -196,7 +196,13 @@ export class PipelineProvider extends React.Component<Props, State> {
             {
               query: gql(queries.stageDetail),
               variables: {
-                _id: stageId
+                _id: stageId,
+                search: queryParams.search,
+                customerIds: queryParams.customerIds,
+                companyIds: queryParams.companyIds,
+                assignedUserIds: queryParams.assignedUserIds,
+                extraParams: options.getExtraParams(queryParams),
+                closeDateType: queryParams.closeDateType
               }
             }
           ]

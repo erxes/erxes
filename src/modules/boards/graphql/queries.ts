@@ -104,26 +104,34 @@ const pipelineDetail = `
   }
 `;
 
+const commonParams = `
+  $search: String,
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $extraParams: JSON,
+  $closeDateType: String
+`;
+
+const commonParamDefs = `
+  search: $search,
+  customerIds: $customerIds,
+  companyIds: $companyIds,
+  assignedUserIds: $assignedUserIds,
+  extraParams: $extraParams,
+  closeDateType: $closeDateType
+`;
+
 const stages = `
   query stages(
     $isNotLost: Boolean,
     $pipelineId: String!,
-    $search: String,	
-    $customerIds: [String],	
-    $companyIds: [String],	
-    $assignedUserIds: [String],	
-    $extraParams: JSON,
-    $closeDateType: String
+    ${commonParams}
   ) {
     stages(
       isNotLost: $isNotLost,
       pipelineId: $pipelineId,
-      search: $search,	
-      customerIds: $customerIds,	
-      companyIds: $companyIds,	
-      assignedUserIds: $assignedUserIds,	
-      extraParams: $extraParams,
-      closeDateType: $closeDateType
+      ${commonParamDefs}
     ) {
       _id
       name
@@ -140,8 +148,14 @@ const stages = `
 `;
 
 const stageDetail = `
-  query stageDetail($_id: String!) {
-    stageDetail(_id: $_id) {
+  query stageDetail(
+    $_id: String!,
+    ${commonParams}
+  ) {
+    stageDetail(
+      _id: $_id,
+      ${commonParamDefs}
+    ) {
       _id
       name
       pipelineId
