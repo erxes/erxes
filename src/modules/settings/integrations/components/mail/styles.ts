@@ -170,9 +170,10 @@ const Column = styled.div`
   flex: 1;
 `;
 
-const Subject = styled.div`
+const Subject = styledTS<{ hasMargin?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
+  margin-right: ${props => props.hasMargin && '20px'};
 
   input {
     height: ${dimensions.coreSpacing}px;

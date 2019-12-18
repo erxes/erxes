@@ -29,6 +29,7 @@ const HelperText = styled.div`
 `;
 
 const EngageBox = styled.div`
+  display: flex;
   padding: ${coreSpace} ${coreSpace} 0;
 `;
 
@@ -153,14 +154,18 @@ const FlexItemCentered = styled.div`
 `;
 
 const Box = styled(BoxRoot)`
-  width: 23%;
+  width: 30%;
   height: 200px;
-  margin-top: ${coreSpace};
+  margin-bottom: 30px;
 `;
 
 const BoxContent = styled.div`
-  margin-top: 40px;
+  margin-top: 30px;
   font-size: 18px;
+
+  h5 {
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
 `;
 
 const BoxHeader = styled.div`
@@ -308,6 +313,19 @@ const VerifyCheck = styled.div`
   padding-right: 8px;
 `;
 
+const RightSection = styled.div`
+  border-left: 1px solid ${colors.borderPrimary};
+  height: 100%;
+  padding-left: ${dimensions.coreSpacing}px;
+`;
+
+const Email = styled.div`
+  padding: 1px 5px;
+  background: ${colors.bgActive};
+  border-radius: 4px;
+  line-height: 18px;
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -321,6 +339,7 @@ export {
   Recipients,
   Recipient,
   Half,
+  Email,
   StepContent,
   FlexItemCentered,
   Box,
@@ -340,5 +359,6 @@ export {
   SelectMessageType,
   VerifyStatus,
   VerifyCancel,
-  VerifyCheck
+  VerifyCheck,
+  RightSection
 };
