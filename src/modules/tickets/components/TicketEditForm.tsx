@@ -105,7 +105,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
     remove,
     saveItem,
     onChangeStage,
-    renderAmount,
     renderSidebar
   }: IEditFormContent) => {
     const { item, options, onUpdate } = this.props;
@@ -121,7 +120,6 @@ export default class TicketEditForm extends React.Component<Props, State> {
           item={item}
           saveItem={saveItem}
           onChangeStage={onChangeStage}
-          amount={renderAmount}
         />
 
         <FlexContent>

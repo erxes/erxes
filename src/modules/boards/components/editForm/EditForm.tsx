@@ -94,14 +94,17 @@ class EditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ productsData: filteredProductsData, products }, () => {
-      this.props.saveItem(
-        { productsData: this.state.productsData },
-        updatedItem => {
-          this.props.onUpdate(updatedItem);
-        }
-      );
-    });
+    this.setState(
+      { productsData: filteredProductsData, products, amount },
+      () => {
+        this.props.saveItem(
+          { productsData: this.state.productsData },
+          updatedItem => {
+            this.props.onUpdate(updatedItem);
+          }
+        );
+      }
+    );
   };
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
