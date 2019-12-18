@@ -101,6 +101,7 @@ export interface IIntegrationMessengerData {
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
   formCode: string;
+  websiteAppData?: { [key: string]: string };
   availabilityMethod: string;
   isOnline: boolean;
   requireAuth: boolean;
