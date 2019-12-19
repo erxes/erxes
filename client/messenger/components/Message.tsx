@@ -1,6 +1,7 @@
 import * as classNames from "classnames";
 import * as moment from "moment";
 import * as React from "react";
+import * as xss from "xss";
 import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { readFile } from "../../utils";
@@ -56,7 +57,7 @@ class Message extends React.Component<Props> {
     return (
       <div style={messageBackground} className={messageClasses}>
         {hasAttachment ? <Attachment attachment={attachments[0]} /> : null}
-        <span dangerouslySetInnerHTML={{ __html: content }} />
+        <span dangerouslySetInnerHTML={{ __html: xss(content) }} />
       </div>
     );
   }
