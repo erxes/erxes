@@ -52,13 +52,15 @@ const userConversations = `
 const listParamsDef = `
   $searchValue: String,
   $isActive: Boolean,
-  $ids: [String]
+  $ids: [String],
+  $brandIds: [String]
 `;
 
 const listParamsValue = `
   searchValue: $searchValue,
   isActive: $isActive,
-  ids: $ids
+  ids: $ids,
+  brandIds: $brandIds
 `;
 
 const users = `
@@ -71,6 +73,7 @@ const users = `
       isActive
       groupIds
       brandIds
+
       details {
         avatar
         fullName
@@ -79,6 +82,7 @@ const users = `
         description
         location
       }
+
       links {
         linkedIn
         twitter

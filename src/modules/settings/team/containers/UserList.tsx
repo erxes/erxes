@@ -7,6 +7,7 @@ import {
   ICommonFormProps,
   ICommonListProps
 } from 'modules/settings/common/types';
+import { queries as generalQueries } from 'modules/settings/general/graphql';
 import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
@@ -98,7 +99,8 @@ const options = ({ queryParams }: { queryParams: any }) => {
     variables: {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
-      isActive: queryParams.isActive === 'false' ? false : true
+      isActive: queryParams.isActive === 'false' ? false : true,
+      brandIds: queryParams.brandIds
     }
   };
 };
@@ -140,5 +142,9 @@ export default commonListComposer<{ queryParams: any; history: any }>({
     name: 'totalCountQuery',
     options
   }),
-  ListComponent: UserListContainer
+  ListComponent: UserListContainer,
+  gqlConfigsQuery: graphql(gql(generalQueries.configsGetEnv), {
+    name: 'configsEnvQuery',
+    options: { fetchPolicy: 'network-only' }
+  })
 });
