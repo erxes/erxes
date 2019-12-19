@@ -217,13 +217,13 @@ class CustomerForm extends React.Component<Props, State> {
               })}
 
               <FormGroup>
-                <ControlLabel required={false}>Birth date</ControlLabel>
+                <ControlLabel required={false}>Birthday</ControlLabel>
                 <DateContainer>
                   <DateControl
                     {...formProps}
                     required={false}
                     name="birthDate"
-                    placeholder={'Birth date'}
+                    placeholder={'Birthday'}
                     value={this.state.birthDate}
                     onChange={this.onDateChange}
                   />
