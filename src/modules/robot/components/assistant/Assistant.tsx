@@ -1,7 +1,8 @@
+import Icon from 'modules/common/components/Icon';
 import { HomeContainer } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import ModulItem from 'modules/robot/components/ModulItem';
-import { Content, Greeting } from 'modules/robot/components/styles';
+import { Content, Greeting, NavButton } from 'modules/robot/components/styles';
 import * as React from 'react';
 import RTG from 'react-transition-group';
 
@@ -12,8 +13,8 @@ type Props = {
 };
 
 class Assistant extends React.Component<Props> {
-  startOnboard = () => {
-    this.props.changeRoute('onboardStart');
+  changeRoute = (route?: string) => {
+    this.props.changeRoute(route || '');
   };
 
   render() {
@@ -28,6 +29,9 @@ class Assistant extends React.Component<Props> {
         unmountOnExit={true}
       >
         <Content>
+          <NavButton onClick={this.changeRoute.bind(this, '')} right={true}>
+            <Icon icon="times" size={17} />
+          </NavButton>
           <HomeContainer>
             <Greeting>
               Hello! <b>{currentUserName} </b>
@@ -45,7 +49,7 @@ class Assistant extends React.Component<Props> {
               description={__('Your step by step guide')}
               color="#de59b2"
               icon="list-2"
-              onClick={this.startOnboard}
+              onClick={this.changeRoute.bind(this, 'onboardStart')}
             />
 
             <ModulItem

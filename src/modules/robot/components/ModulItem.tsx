@@ -16,6 +16,7 @@ const Modul = styled(GroupHead)`
 
   &:last-child {
     margin-right: 0;
+    margin-bottom: 0;
   }
 
   &:nth-child(3n + 2) {
