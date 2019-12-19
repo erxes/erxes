@@ -70,7 +70,10 @@ export default class FilterList extends React.PureComponent<Props, State> {
         .then(({ data }: any) => {
           if (this.mounted) {
             this.setState({
-              fields: [...this.state.fields, ...data[dataName]],
+              fields:
+                dataName === 'channels'
+                  ? [...this.state.fields, ...data[dataName]]
+                  : data[dataName],
               page: page + 1
             });
           }
