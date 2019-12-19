@@ -130,6 +130,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 </div>
 
 <aside class="notice">
+
 Full Preview of Created Lead in Desktop, Tablet and Mobile. 
 You can use Pop-Ups script to install on your webpage or inside the messenger or both. There are different installation case of Pop-Up form. 
 
