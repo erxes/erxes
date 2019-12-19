@@ -19,8 +19,10 @@ Educate both your customers and staff by creating a help center related to your 
 Knowledge Base is a part of your widget section where you address common concerns, questions or objections that customers have.
 + Please follow the steps for setup: Knowledge Base
 
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image1.png"/>
 ---
+
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image1.png"/>
+
 
 
 ## Add knowledge base
@@ -86,7 +88,9 @@ Knowledge Base is a part of your widget section where you address common concern
 <img  src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image8.png"/>
 
 <aside class="notice">
-*You may add article in each category
+You may add article in each category.
+
+You can use Knowledgebase script to install on your webpage or inside the messenger or both. There are different installation case of Knowledgebase form. Go to [instruction](https://docs.erxes.io/docs/user/script-install). 
 </aside>
 
 ---
