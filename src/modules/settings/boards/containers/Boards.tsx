@@ -61,8 +61,6 @@ class BoardsContainer extends React.Component<FinalProps> {
               );
             }
 
-            history.push('/settings/boards/' + type);
-
             Alert.success('You successfully deleted a board');
           })
           .catch(error => {
