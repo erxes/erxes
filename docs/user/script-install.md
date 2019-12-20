@@ -1172,7 +1172,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the instruction of (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#(M+P+K))
+  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
 
 2. Go to Pop-Ups menu from left sidebar (see the below figure).
 3. Click on the install code button from the right side (see the below figure). 
@@ -1243,7 +1243,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#(M+P+K))
+  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
 
 2. Go to Knowledge Base menu from left sidebar (see the below figure). 
  
@@ -1297,7 +1297,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#(M+P+K))
+  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
 
 2. Go to Pop-Ups menu from left sidebar (see the below figure).
 3. Click on the install code button from the right side (see the below figure). 
