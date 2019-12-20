@@ -10,6 +10,7 @@ import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
 import { IMail } from 'modules/inbox/types';
+import { IEmailSignature } from 'modules/settings/email/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '../../constants';
@@ -38,8 +39,10 @@ type Props = {
   mailData?: IMail;
   isReply?: boolean;
   toAll?: boolean;
+  brandId?: string;
   closeModal?: () => void;
   toggleReply?: () => void;
+  emailSignatures: IEmailSignature[];
   sendMail: (
     { variables, callback }: { variables: any; callback: () => void }
   ) => void;
@@ -64,6 +67,7 @@ type State = {
   fileIds: string[];
   totalFileSize: number;
   isUploading: boolean;
+  emailSignature: string;
 };
 
 class MailForm extends React.Component<Props, State> {
@@ -96,11 +100,12 @@ class MailForm extends React.Component<Props, State> {
       fromEmail: sender,
       from: fromId,
       subject: mailData.subject || '',
-      content: '',
+      content: `</br></br>${this.getEmailSignature(props.brandId)}`,
+      emailSignature: this.getEmailSignature(props.brandId),
 
       status: 'draft',
       isUploading: false,
-      kind: this.getSelectedIntegrationKind(fromId),
+      kind: this.getSelectedIntegration(fromId).kind,
 
       attachments: [],
       fileIds: [],
@@ -166,11 +171,65 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
-  getSelectedIntegrationKind = (selectedId: string) => {
+  getSelectedIntegration = (selectedId: string) => {
     const integration = this.props.integrations.find(
       obj => obj._id === selectedId
     );
-    return (integration && integration.kind) || '';
+
+    return integration || ({} as IIntegration);
+  };
+
+  changeEmailSignature = (selectedIntegrationId: string) => {
+    const brand = this.getSelectedIntegration(selectedIntegrationId).brand;
+    const brandId = brand._id;
+    const emailSignatureToChange = this.getEmailSignature(brandId);
+    console.log('change', emailSignatureToChange);
+    console.log('prev', this.state.emailSignature);
+
+    if (this.state.emailSignature === emailSignatureToChange) {
+      return;
+    }
+    console.log('sss');
+    if (this.state.content.includes(this.state.emailSignature)) {
+      return this.setState(
+        {
+          content: this.state.content.replace(
+            this.state.emailSignature,
+            emailSignatureToChange
+          )
+        },
+        () => {
+          this.setState({ emailSignature: emailSignatureToChange });
+        }
+      );
+    } else {
+      return this.setState(
+        { content: `${this.state.content}${emailSignatureToChange}` },
+        () => {
+          this.setState({ emailSignature: emailSignatureToChange });
+        }
+      );
+    }
+  };
+
+  getEmailSignature = (brandId?: string) => {
+    if (!brandId) {
+      const integrations = this.props.integrations;
+
+      return this.findSignature(integrations[0].brand._id);
+    }
+
+    return this.findSignature(brandId);
+  };
+
+  findSignature = (brandId: string) => {
+    const found = this.props.emailSignatures.find(
+      obj => obj.brandId === brandId
+    );
+
+    const content = (found && found.signature) || '';
+
+    return content;
   };
 
   getIntegrationId = (integrations, integrationId?: string) => {
@@ -342,7 +401,9 @@ class MailForm extends React.Component<Props, State> {
     }
 
     const onChangeMail = (from: string) => {
-      this.setState({ from, kind: this.getSelectedIntegrationKind(from) });
+      this.setState({ from, kind: this.getSelectedIntegration(from).kind });
+
+      this.changeEmailSignature(from);
     };
 
     return (
