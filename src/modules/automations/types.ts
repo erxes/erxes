@@ -1,77 +1,74 @@
-export interface IChecklistDoc {
-  contentType: string;
-  contentTypeId: string;
-  title: string;
+export interface IAutomationDoc {
+  name: string;
 }
 
-export interface IChecklist extends IChecklistDoc {
+export interface IAutomation extends IAutomationDoc {
   _id: string;
-  createdUserId: string;
-  createdDate: Date;
-  items: IChecklistItem[];
-  percent: number;
+  name: string;
+  description: string;
+  userId: string;
+  createdAt: Date;
+  modifiedAt: Date;
+  shapes: IShape[];
 }
 
-export interface IChecklistsParam {
-  contentType: string;
-  contentTypeId: string;
-}
-
-export type ChecklistsQueryResponse = {
-  checklists: IChecklist[];
+export type AutomationsQueryResponse = {
+  automations: IAutomation[];
   loading: boolean;
   refetch: () => void;
 };
 
-export type AddMutationResponse = ({
-  variables: IChecklistDoc
-}) => Promise<any>;
+export type AddMutationResponse = (
+  { variables: IAutomationDoc }
+) => Promise<any>;
 
 export type EditMutationVariables = {
   _id: string;
-  title: string;
-} & IChecklistsParam;
+  name: string;
+  description: string;
+};
 
-export type EditMutationResponse = ({
-  variables: EditMutationVariables
-}) => Promise<any>;
+export type EditMutationResponse = (
+  { variables: EditMutationVariables }
+) => Promise<any>;
 
 export type RemoveMutationVariables = {
   _id: string;
 };
 
-export type RemoveMutationResponse = ({
-  variables: RemoveMutationVariables
-}) => Promise<any>;
+export type RemoveMutationResponse = (
+  { variables: RemoveMutationVariables }
+) => Promise<any>;
 
-// checklists items
+// automations shapes
 
-export interface IChecklistItemDoc {
-  checklistId: string;
-  isChecked?: boolean;
-  content: string;
+export interface IShapeDoc {
+  automationId: string;
+  async?: boolean;
+  type: string;
+  kind: string;
 }
 
-export interface IChecklistItem extends IChecklistItemDoc {
+export interface IShape extends IShapeDoc {
   _id: string;
 }
 
-export type AddItemMutationResponse = ({
-  variables: IChecklistItemDoc
-}) => Promise<any>;
+export type AddShapeMutationResponse = (
+  { variables: IShapeDoc }
+) => Promise<any>;
 
-export type EditItemMutationVariables = {
+export type EditShapeMutationVariables = {
   _id: string;
-} & IChecklistItemDoc;
+} & IShapeDoc;
 
-export type EditItemMutationResponse = ({
-  variables: EditItemMutationVariables
-}) => Promise<any>;
+export type EditShapeMutationResponse = (
+  { variables: EditShapeMutationVariables }
+) => Promise<any>;
 
-export type RemoveItemMutationVariables = {
+export type RemoveShapeMutationVariables = {
   _id: string;
 };
 
-export type RemoveItemMutationResponse = ({
-  variables: RemoveItemMutationVariables
-}) => Promise<any>;
+export type RemoveShapeMutationResponse = (
+  { variables: RemoveShapeMutationVariables }
+) => Promise<any>;

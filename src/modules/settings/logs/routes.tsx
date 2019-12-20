@@ -9,7 +9,6 @@ const LogList = asyncComponent(() =>
 
 const logList = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
-
   return <LogList queryParams={queryParams} history={history} />;
 };
 

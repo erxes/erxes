@@ -1,8 +1,6 @@
-const commonParams = `
-`;
+const commonParams = ``;
 
-const commonParamDefs = `
-`;
+const commonParamDefs = ``;
 
 const automations = `
   query automations(
