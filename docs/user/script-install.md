@@ -657,7 +657,7 @@ This is the script install instruction of Messenger contains Pop-Ups form or Mes
 
 #### Step 2:  Paste the code in your web source 
 
-10. Paste the code in the bottom of the body tag (see the below figure). 
+10. Paste the Messenger script code in the bottom of the body tag. In this case, Messenger + Knowledgebase code is similar to Messenger + Pop-Ups.   (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/8.png" />
 
