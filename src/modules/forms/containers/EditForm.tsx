@@ -31,6 +31,7 @@ type Props = {
   isReadyToSave: boolean;
   formId: string;
   integration?: IIntegration;
+  showMessage?: boolean;
 };
 
 type FinalProps = {
@@ -44,6 +45,10 @@ type FinalProps = {
   IRouterProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
+  static defaultProps = {
+    showMessage: true
+  };
+
   componentWillReceiveProps(nextProps: FinalProps) {
     const { onInit, fieldsQuery } = this.props;
 
@@ -61,7 +66,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       editFormMutation,
       removeFieldMutation,
       fieldsQuery,
-      formDetailQuery
+      formDetailQuery,
+      showMessage
     } = this.props;
 
     if (fieldsQuery.loading || formDetailQuery.loading) {
@@ -136,7 +142,9 @@ class EditFormContainer extends React.Component<FinalProps> {
         })
 
         .then(() => {
-          Alert.success('You successfully updated a form');
+          if (showMessage) {
+            Alert.success('You successfully updated a form');
+          }
 
           fieldsQuery.refetch().then(() => {
             afterDbSave(formId);
