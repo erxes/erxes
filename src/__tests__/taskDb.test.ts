@@ -1,4 +1,11 @@
-import { boardFactory, pipelineFactory, stageFactory, taskFactory, userFactory } from '../db/factories';
+import {
+  boardFactory,
+  conversationFactory,
+  pipelineFactory,
+  stageFactory,
+  taskFactory,
+  userFactory,
+} from '../db/factories';
 import { Boards, Pipelines, Stages, Tasks } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { ITaskDocument } from '../db/models/definitions/tasks';
@@ -52,6 +59,27 @@ describe('Test tasks model', () => {
     expect(createdTask).toBeDefined();
     expect(createdTask.stageId).toEqual(stage._id);
     expect(createdTask.userId).toEqual(user._id);
+  });
+
+  test('Create task Error(`Already converted a task`)', async () => {
+    const conversation = await conversationFactory();
+
+    const args = {
+      stageId: task.stageId,
+      userId: user._id,
+      sourceConversationId: conversation._id,
+    };
+
+    const createdTicket = await Tasks.createTask(args);
+
+    expect(createdTicket).toBeDefined();
+
+    // Already converted a task
+    try {
+      await Tasks.createTask(args);
+    } catch (e) {
+      expect(e.message).toBe('Already converted a task');
+    }
   });
 
   test('Update task', async () => {

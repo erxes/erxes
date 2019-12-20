@@ -40,11 +40,20 @@ export const loadClass = () => {
     }
 
     public static createBoardItemLog({ item, contentType }: { item: IItemCommonFieldsDocument; contentType: string }) {
+      let action = ACTIVITY_ACTIONS.CREATE;
+      let content = '';
+
+      if (item.sourceConversationId) {
+        action = ACTIVITY_ACTIONS.CONVERT;
+        content = item.sourceConversationId;
+      }
+
       return ActivityLogs.addActivityLog({
         contentType,
         contentId: item._id,
-        action: ACTIVITY_ACTIONS.CREATE,
+        action,
         createdBy: item.userId || '',
+        content,
       });
     }
 

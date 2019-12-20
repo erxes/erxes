@@ -1,5 +1,15 @@
 import { graphqlRequest } from '../db/connection';
-import { boardFactory, dealFactory, pipelineFactory, productFactory, stageFactory, userFactory } from '../db/factories';
+import {
+  boardFactory,
+  conversationFactory,
+  dealFactory,
+  pipelineFactory,
+  productFactory,
+  stageFactory,
+  taskFactory,
+  ticketFactory,
+  userFactory,
+} from '../db/factories';
 import { Boards, Pipelines, Stages } from '../db/models';
 
 import moment = require('moment');
@@ -355,5 +365,49 @@ describe('boardQueries', () => {
     const response = await graphqlRequest(qry, 'stageDetail', { _id: stage._id });
 
     expect(response._id).toBe(stage._id);
+  });
+
+  test('Convert to info', async () => {
+    const conversation = await conversationFactory();
+
+    const qry = `
+      query convertToInfo($conversationId: String!) {
+        convertToInfo(conversationId: $conversationId) {
+          dealUrl
+          ticketUrl
+          taskUrl
+        }
+      }
+    `;
+
+    const dealBoard = await boardFactory({ type: BOARD_TYPES.DEAL });
+    const dealPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL, boardId: dealBoard._id });
+    const dealStage = await stageFactory({ type: BOARD_TYPES.DEAL, pipelineId: dealPipeline._id });
+
+    const deal = await dealFactory({ sourceConversationId: conversation._id, stageId: dealStage._id });
+
+    const taskBoard = await boardFactory({ type: BOARD_TYPES.TASK });
+    const taskPipeline = await pipelineFactory({ type: BOARD_TYPES.TASK, boardId: taskBoard._id });
+    const taskStage = await stageFactory({ type: BOARD_TYPES.TASK, pipelineId: taskPipeline._id });
+    const task = await taskFactory({ sourceConversationId: conversation._id, stageId: taskStage._id });
+
+    const ticketBoard = await boardFactory({ type: BOARD_TYPES.DEAL });
+    const ticketPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL, boardId: ticketBoard._id });
+    const ticketStage = await stageFactory({ type: BOARD_TYPES.DEAL, pipelineId: ticketPipeline._id });
+    const ticket = await ticketFactory({ sourceConversationId: conversation._id, stageId: ticketStage._id });
+
+    let response = await graphqlRequest(qry, 'convertToInfo', { conversationId: conversation._id });
+
+    expect(response.dealUrl).toBe(`/deal/board?_id=${dealBoard._id}&pipelineId=${dealPipeline._id}&itemId=${deal._id}`);
+    expect(response.taskUrl).toBe(`/task/board?_id=${taskBoard._id}&pipelineId=${taskPipeline._id}&itemId=${task._id}`);
+    expect(response.ticketUrl).toBe(
+      `/inbox/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`,
+    );
+
+    response = await graphqlRequest(qry, 'convertToInfo', { conversationId: 'fakeId' });
+
+    expect(response.dealUrl).toBe('');
+    expect(response.ticketUrl).toBe('');
+    expect(response.taskUrl).toBe('');
   });
 });

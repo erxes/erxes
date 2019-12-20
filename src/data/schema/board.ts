@@ -49,6 +49,12 @@ export const types = `
     ${commonTypes}
   }
 
+  type ConvertTo {
+    ticketUrl: String,
+    dealUrl: String,
+    taskUrl: String,
+  }
+
   input ItemDate {
     month: Int
     year: Int
@@ -76,6 +82,7 @@ export const queries = `
     ${stageParams}
   ): [Stage]
   stageDetail(_id: String!, ${stageParams}): Stage
+  convertToInfo(conversationId: String!): ConvertTo
 `;
 
 const commonParams = `

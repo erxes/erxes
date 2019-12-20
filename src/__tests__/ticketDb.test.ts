@@ -1,4 +1,11 @@
-import { boardFactory, pipelineFactory, stageFactory, ticketFactory, userFactory } from '../db/factories';
+import {
+  boardFactory,
+  conversationFactory,
+  pipelineFactory,
+  stageFactory,
+  ticketFactory,
+  userFactory,
+} from '../db/factories';
 import { Boards, Pipelines, Stages, Tickets } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { ITicketDocument } from '../db/models/definitions/tickets';
@@ -42,7 +49,6 @@ describe('Test Tickets model', () => {
     expect(response).toBeDefined();
   });
 
-  // Test ticket
   test('Create ticket', async () => {
     const createdTicket = await Tickets.createTicket({
       stageId: ticket.stageId,
@@ -52,6 +58,27 @@ describe('Test Tickets model', () => {
     expect(createdTicket).toBeDefined();
     expect(createdTicket.stageId).toEqual(stage._id);
     expect(createdTicket.userId).toEqual(user._id);
+  });
+
+  test('Create ticket Error(`Already converted a ticket`)', async () => {
+    const conversation = await conversationFactory();
+
+    const args = {
+      stageId: ticket.stageId,
+      sourceConversationId: conversation._id,
+      userId: user._id,
+    };
+
+    const createdTicket = await Tickets.createTicket(args);
+
+    expect(createdTicket).toBeDefined();
+
+    // Already converted a ticket
+    try {
+      await Tickets.createTicket(args);
+    } catch (e) {
+      expect(e.message).toBe('Already converted a ticket');
+    }
   });
 
   test('Update ticket', async () => {
