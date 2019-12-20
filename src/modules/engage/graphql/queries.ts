@@ -79,6 +79,7 @@ export const engageDetailFields = `
   createdAt
   messenger
   fromUser {
+    _id
     email
     details {
       fullName

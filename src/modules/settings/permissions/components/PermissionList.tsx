@@ -1,6 +1,7 @@
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
@@ -133,6 +134,12 @@ class PermissionList extends React.Component<Props> {
       this.setFilter('userId', users);
     };
 
+    const allowedOnChange = e => {
+      this.setFilter('allowed', {
+        value: e.target.checked ? 'allowed' : 'notAllowed'
+      });
+    };
+
     const actionBarRight = (
       <NotWrappable>
         <ModalTrigger
@@ -171,6 +178,18 @@ class PermissionList extends React.Component<Props> {
             onSelect={usersOnChange}
             multi={false}
           />
+        </FilterItem>
+
+        <FilterItem>
+          <div style={{ marginTop: '5px' }}>
+            <label>Granted: </label>
+            <FormControl
+              componentClass="checkbox"
+              defaultChecked={queryParams.allowed !== 'notAllowed'}
+              id="allowed"
+              onChange={allowedOnChange}
+            />
+          </div>
         </FilterItem>
       </FilterWrapper>
     );
