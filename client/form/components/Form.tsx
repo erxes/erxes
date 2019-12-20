@@ -1,4 +1,5 @@
 import * as React from "react";
+import { AppConsumer } from "../../messenger/containers/AppContext";
 import { IEmailParams, IIntegration } from "../../types";
 import { __ } from "../../utils";
 import {
@@ -20,13 +21,14 @@ type Props = {
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
   hasTopBar: boolean;
+  color: string;
 };
 
 type State = {
   doc: IFormDoc;
 };
 
-export default class Form extends React.Component<Props, State> {
+class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -90,8 +92,10 @@ export default class Form extends React.Component<Props, State> {
     return doc;
   }
 
-  renderHead(title: string, color: string) {
-    if (this.props.hasTopBar) {
+  renderHead(title: string) {
+    const { hasTopBar, color } = this.props;
+
+    if (hasTopBar) {
       return <TopBar title={title} color={color} />;
     }
 
@@ -119,12 +123,12 @@ export default class Form extends React.Component<Props, State> {
     });
   }
 
-  renderForm(color: string) {
-    const { form, integration } = this.props;
+  renderForm() {
+    const { form, integration, color } = this.props;
 
     return (
       <div className="erxes-form">
-        {this.renderHead(form.title || integration.name, color)}
+        {this.renderHead(form.title || integration.name)}
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
           {this.renderFields()}
@@ -142,12 +146,12 @@ export default class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSuccessForm(color: string, thankContent?: string) {
-    const { integration, form, onCreateNew } = this.props;
+  renderSuccessForm(thankContent?: string) {
+    const { integration, form, onCreateNew, color } = this.props;
 
     return (
       <div className="erxes-form">
-        {this.renderHead(form.title || integration.name, color)}
+        {this.renderHead(form.title || integration.name)}
         <div className="erxes-form-content">
           <div className="erxes-result">
             <p>
@@ -225,9 +229,26 @@ export default class Form extends React.Component<Props, State> {
         }
       }
 
-      return this.renderSuccessForm(themeColor, thankContent);
+      return this.renderSuccessForm(thankContent);
     }
 
-    return this.renderForm(integration.leadData.themeColor || "");
+    return this.renderForm();
   }
 }
+
+export default (props: Props) => (
+  <AppConsumer>
+    {({ getColor }) => {
+      return (
+        <Form
+          {...props}
+          // if lead is in a messenger, return messenger theme color (getColor())
+          // else return lead theme color
+          color={
+            getColor ? getColor() : props.integration.leadData.themeColor || ""
+          }
+        />
+      );
+    }}
+  </AppConsumer>
+);

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { AppConsumer } from "../../messenger/containers/AppContext";
 import { readFile } from "../../utils";
 import { ICallout } from "../types";
 import { TopBar } from "./";
@@ -28,8 +29,10 @@ class Callout extends React.Component<Props> {
     );
   }
 
-  renderHead(title: string, color: string) {
-    if (this.props.hasTopBar) {
+  renderHead(title: string) {
+    const { hasTopBar, color } = this.props;
+
+    if (hasTopBar) {
       return <TopBar title={title} color={color} />;
     }
 
@@ -54,7 +57,7 @@ class Callout extends React.Component<Props> {
 
     return (
       <div className="erxes-form">
-        {this.renderHead(title, color)}
+        {this.renderHead(title)}
 
         <div className="erxes-form-content">
           <div className="erxes-callout-body">
@@ -75,4 +78,17 @@ class Callout extends React.Component<Props> {
   }
 }
 
-export default Callout;
+export default (props: Props) => (
+  <AppConsumer>
+    {({ getColor }) => {
+      return (
+        <Callout
+          {...props}
+          // if lead is in a messenger, return messenger theme color (getColor())
+          // else return lead theme color
+          color={getColor ? getColor() : props.color}
+        />
+      );
+    }}
+  </AppConsumer>
+);
