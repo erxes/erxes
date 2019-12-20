@@ -659,7 +659,13 @@ This is the script install instruction of Messenger contains Pop-Ups form or Mes
 
 10. Paste the Messenger script code in the bottom of the body tag. In this case, Messenger + Knowledgebase code is similar to Messenger + Pop-Ups.   (see the below figure).
 
+**Messenger+Pop-Ups script code.**
+
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/8.png" />
+
+**Messenger+Knowledgebase script code.**
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/13.png" />
 
 #### Step 3: Result 
 
@@ -667,6 +673,7 @@ This is the script install instruction of Messenger contains Pop-Ups form or Mes
 **Messenger+Pop-Ups**
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/9.png" />
+
 **Messenger+Knowledgebase**
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/14.png" />
@@ -728,7 +735,7 @@ This is the install instruction of Messenger contains Pop-Ups and Knowledgebase 
 
 #### Step 3: Result 
 
-11. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
+11. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure). Click the support button to show Pop-Up form.
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/14.png" />
 
