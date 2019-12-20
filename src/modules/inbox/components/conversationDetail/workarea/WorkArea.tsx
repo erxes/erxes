@@ -36,7 +36,8 @@ const Participators = asyncComponent(
 );
 
 const ConvertTo = asyncComponent(
-  () => import(/* webpackChunkName:"Inbox-ConvertTo" */ './ConvertTo'),
+  () =>
+    import(/* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'),
   { height: '22px', width: '100px', marginRight: '10px' }
 );
 
@@ -195,18 +196,7 @@ export default class WorkArea extends React.Component<Props, State> {
       <BarItems>
         <Tagger targets={[currentConversation]} trigger={tagTrigger} />
 
-        <ConvertTo
-          customerIds={
-            currentConversation.customerId
-              ? [currentConversation.customerId]
-              : []
-          }
-          assignedUserIds={
-            currentConversation.assignedUserId
-              ? [currentConversation.assignedUserId]
-              : []
-          }
-        />
+        <ConvertTo conversation={currentConversation} />
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>

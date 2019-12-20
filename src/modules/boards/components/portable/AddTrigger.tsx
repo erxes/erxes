@@ -6,13 +6,12 @@ import { IOptions } from '../../types';
 type Props = {
   relType: string;
   relTypeIds?: string[];
-  assignedUserIds?: string[];
   options: IOptions;
   refetch?: () => void;
 };
 
 export default (props: Props) => {
-  const { relType, relTypeIds, options, refetch, assignedUserIds } = props;
+  const { relType, relTypeIds, options, refetch } = props;
 
   const trigger = <a href="#title">{options.texts.addText}</a>;
 
@@ -23,7 +22,6 @@ export default (props: Props) => {
       refetch={refetch}
       relType={relType}
       relTypeIds={relTypeIds}
-      assignedUserIds={assignedUserIds}
       showSelect={true}
     />
   );
