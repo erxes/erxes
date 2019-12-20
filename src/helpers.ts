@@ -49,16 +49,20 @@ import {
   Conversations as TwitterConversations,
   Customers as TwitterCustomers,
 } from './twitter/models';
+import { getEnv, sendRequest } from './utils';
 
 /**
  * Remove integration integrationId
  */
-export const removeIntegration = async (id: string): Promise<string> => {
-  const integration = await Integrations.findOne({ erxesApiId: id });
+export const removeIntegration = async (integrationErxesApiId: string): Promise<string> => {
+  const integration = await Integrations.findOne({ erxesApiId: integrationErxesApiId });
 
   if (!integration) {
     return;
   }
+
+  // Remove endpoint
+  let integrationRemoveBy;
 
   const { _id, kind, accountId, erxesApiId } = integration;
   const account = await Accounts.findOne({ _id: accountId });
@@ -82,9 +86,11 @@ export const removeIntegration = async (id: string): Promise<string> => {
       await unsubscribePage(pageId, pageTokenResponse);
     }
 
+    integrationRemoveBy = { fbPageIds: integration.facebookPageIds };
+
     const conversationIds = await FacebookConversations.find(selector).distinct('_id');
 
-    await FacebookCustomers.deleteMany({ integrationId: _id });
+    await FacebookCustomers.deleteMany({ integrationId: integrationErxesApiId });
     await FacebookConversations.deleteMany(selector);
     await FacebookConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
 
@@ -96,6 +102,8 @@ export const removeIntegration = async (id: string): Promise<string> => {
 
     const credentials = await getCredentialsByEmailAccountId({ email: account.uid });
     const conversationIds = await GmailConversations.find(selector).distinct('_id');
+
+    integrationRemoveBy = { email: integration.email };
 
     await stopPushNotification(account.uid, credentials);
 
@@ -122,6 +130,8 @@ export const removeIntegration = async (id: string): Promise<string> => {
 
     const conversationIds = await CallProConversations.find(selector).distinct('_id');
 
+    integrationRemoveBy = { phoneNumber: integration.phoneNumber };
+
     await CallProCustomers.deleteMany(selector);
     await CallProConversations.deleteMany(selector);
     await CallProConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
@@ -137,6 +147,26 @@ export const removeIntegration = async (id: string): Promise<string> => {
     await TwitterConversationMessages.deleteMany(selector);
     await TwitterConversations.deleteMany(selector);
     await TwitterCustomers.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  // Remove from core =========
+  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (ENDPOINT_URL) {
+    // send domain to core endpoints
+    try {
+      await sendRequest({
+        url: `${ENDPOINT_URL}/remove-endpoint`,
+        method: 'POST',
+        body: {
+          domain: DOMAIN,
+          ...integrationRemoveBy,
+        },
+      });
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 
   if (kind === 'imap') {
