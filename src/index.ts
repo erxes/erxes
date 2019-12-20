@@ -37,6 +37,7 @@ const { NODE_ENV } = process.env;
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
 const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
 const INTEGRATIONS_API_DOMAIN = getEnv({ name: 'INTEGRATIONS_API_DOMAIN', defaultValue: '' });
+const AUTOMATIONS_API_DOMAIN = getEnv({ name: 'AUTOMATIONS_API_DOMAIN', defaultValue: '' });
 
 // firebase app initialization
 fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
@@ -216,6 +217,17 @@ app.get('/connect-integration', async (req: any, res, _next) => {
   const { link, kind } = req.query;
 
   return res.redirect(`${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}`);
+});
+
+// redirect to automation
+app.get('/connect-automation', async (req: any, res, _next) => {
+  if (!req.user) {
+    return res.end('forbidden');
+  }
+
+  const { link } = req.query;
+
+  return res.redirect(`${AUTOMATIONS_API_DOMAIN}/${link}`);
 });
 
 // file import

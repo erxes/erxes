@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import { checkTrigger, checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import {
   copyPipelineLabels,
   createConformity,
@@ -114,6 +114,7 @@ const dealMutations = {
     { user }: IContext,
   ) {
     const deal = await Deals.getDeal(_id);
+    const sourceStageId = deal.stageId;
 
     await Deals.updateDeal(_id, {
       modifiedAt: new Date(),
@@ -131,6 +132,8 @@ const dealMutations = {
       action,
       contentType: 'deal',
     });
+
+    await checkTrigger('changeDeal', { deal, sourceStageId, destinationStageId }, user);
 
     return deal;
   },

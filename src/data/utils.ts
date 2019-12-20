@@ -21,6 +21,7 @@ export const checkFile = async file => {
   if (!file) {
     throw new Error('Invalid file');
   }
+  MESSENGER_KINDS;
 
   const { size } = file;
 
@@ -909,4 +910,32 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
   }
 
   return true;
+};
+
+// export const checkTrigger = async ()
+
+export const checkTrigger = async (kind: string, body: any, user: IUserDocument) => {
+  const AUTOMATION_DOMAIN = getEnv({ name: 'AUTOMATIONS_API_DOMAIN' });
+
+  if (!AUTOMATION_DOMAIN) {
+    return;
+  }
+
+  const doc = {
+    ...body,
+    userId: user._id,
+    kind,
+  };
+  console.log(doc);
+  // console.log({ url: `${AUTOMATION_DOMAIN}/check-trigger`, method: 'post', body: JSON.stringify(doc) });
+  return new Promise(resolve => {
+    sendRequest(
+      { url: `${AUTOMATION_DOMAIN}/check-trigger`, method: 'post', body: { postData: JSON.stringify(doc) } },
+      'Failed to connect to automations api. Check whether AUTOMATIONS_API_DOMAIN env is missing or automations api is not running',
+    )
+      .then(response => console.log(response))
+      .catch(error => console.log(error.message));
+
+    return resolve('received zz');
+  });
 };
