@@ -88,7 +88,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         return doMutation(
           addMutation,
           doc,
-          `You successfully added a engagement message, "Please, Click PLAY button!"`
+          `You successfully added a engagement message`
         );
       };
 

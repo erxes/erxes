@@ -24,6 +24,7 @@ type Props = {
   onDocChange?: (doc: IFormData) => void;
   type: string;
   isReadyToSave: boolean;
+  showMessage?: boolean;
 };
 
 type FinalProps = {} & Props &
@@ -32,8 +33,17 @@ type FinalProps = {} & Props &
   AddFormMutationResponse;
 
 class CreateFormContainer extends React.Component<FinalProps, {}> {
+  static defaultProps = {
+    showMessage: true
+  };
+
   render() {
-    const { addFormMutation, addFieldsMutation, afterDbSave } = this.props;
+    const {
+      addFormMutation,
+      addFieldsMutation,
+      afterDbSave,
+      showMessage
+    } = this.props;
 
     const saveForm = doc => {
       let formId;
@@ -71,7 +81,9 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
         })
 
         .then(() => {
-          Alert.success('You successfully added a form');
+          if (showMessage) {
+            Alert.success('You successfully added a form');
+          }
         })
 
         .catch(error => {

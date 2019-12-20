@@ -16,6 +16,7 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import {
+  isValidPhone,
   leadStatusChoices,
   lifecycleStateChoices
 } from 'modules/customers/utils';
@@ -268,7 +269,7 @@ class CompanyForm extends React.Component<Props, State> {
                   placeholder="Primary phone"
                   buttonText="Add phone"
                   onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
-                  checkFormat={validator.isMobilePhone}
+                  checkFormat={isValidPhone}
                 />
               </FormGroup>
 
