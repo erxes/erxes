@@ -1,3 +1,4 @@
+import Attachment from 'modules/common/components/Attachment';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -42,6 +43,29 @@ class EmailStatistics extends React.Component<Props> {
     );
   }
 
+  renderAttachments() {
+    const { email } = this.props.message;
+
+    if (
+      !email ||
+      (email && email.attachments && email.attachments.length === 0)
+    ) {
+      return null;
+    }
+
+    return (
+      <Subject hasMargin={true} noBorder={true}>
+        <FlexRow>
+          <label>Attachments:</label>
+
+          {(email.attachments || []).map((attachment, index) => (
+            <Attachment key={index} attachment={attachment} />
+          ))}
+        </FlexRow>
+      </Subject>
+    );
+  }
+
   renderLeft() {
     const { message } = this.props;
 
@@ -67,17 +91,19 @@ class EmailStatistics extends React.Component<Props> {
             {message.email && message.email.subject}
           </FlexRow>
         </Subject>
-        <Subject hasMargin={true}>
+        <Subject hasMargin={true} noBorder={true}>
           <FlexRow>
             <label>Content:</label>
           </FlexRow>
           <PreviewContent
             isFullmessage={false}
+            showOverflow={true}
             dangerouslySetInnerHTML={{
               __html: message.email ? message.email.content : ''
             }}
           />
         </Subject>
+        {this.renderAttachments()}
       </Half>
     );
   }

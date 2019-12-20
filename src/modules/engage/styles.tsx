@@ -30,7 +30,6 @@ const HelperText = styled.div`
 
 const EngageBox = styled.div`
   display: flex;
-  padding: ${coreSpace} ${coreSpace} 0;
 `;
 
 const FormWrapper = styled.div`
@@ -40,7 +39,10 @@ const FormWrapper = styled.div`
   height: 100%;
 `;
 
-const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
+const PreviewContent = styledTS<{
+  isFullmessage: boolean;
+  showOverflow?: boolean;
+}>(styled.div)`
   padding: 0 ${coreSpace};
   line-height: 22px;
   margin-bottom: ${coreSpace};
@@ -51,7 +53,7 @@ const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
   ${props => {
     if (!props.isFullmessage) {
       return `
-        overflow: hidden;
+        overflow: ${props.showOverflow ? 'auto' : 'hidden'};
         -webkit-box-orient: vertical;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -157,6 +159,10 @@ const Box = styled(BoxRoot)`
   width: 30%;
   height: 200px;
   margin-bottom: 30px;
+
+  @media (max-width: 1400px) {
+    width: 28%;
+  }
 `;
 
 const BoxContent = styled.div`
@@ -316,7 +322,7 @@ const VerifyCheck = styled.div`
 const RightSection = styled.div`
   border-left: 1px solid ${colors.borderPrimary};
   height: 100%;
-  padding-left: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
 `;
 
 const Email = styled.div`
