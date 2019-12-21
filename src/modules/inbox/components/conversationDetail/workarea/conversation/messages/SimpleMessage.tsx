@@ -41,7 +41,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     return attachments.map((attachment, index) => (
-      <Attachment key={index} attachment={attachment} />
+      <Attachment key={index} attachment={attachment} type="conversation" />
     ));
   }
 
@@ -80,9 +80,13 @@ export default class SimpleMessage extends React.Component<Props, {}> {
         {this.renderAvatar()}
 
         <MessageBody staff={isStaff}>
-          <MessageContent staff={isStaff} internal={message.internal}>
-            {this.renderContent(hasAttachment)}
-          </MessageContent>
+          {!message.content && hasAttachment ? (
+            this.renderContent(hasAttachment)
+          ) : (
+            <MessageContent staff={isStaff} internal={message.internal}>
+              {this.renderContent(hasAttachment)}
+            </MessageContent>
+          )}
           <Tip text={dayjs(messageDate).format('lll')}>
             <footer>{dayjs(messageDate).format('LT')}</footer>
           </Tip>

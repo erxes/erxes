@@ -82,6 +82,7 @@ type Props = {
   attachment: IAttachment;
   scrollBottom?: () => void;
   additionalItem?: React.ReactNode;
+  type?: string;
 };
 
 class Attachment extends React.Component<Props> {
@@ -142,21 +143,31 @@ class Attachment extends React.Component<Props> {
     }
   };
 
+  renderImagePreview(attachment) {
+    return (
+      <ImageWithPreview
+        onLoad={this.onLoadImage}
+        alt={attachment.url}
+        src={attachment.url}
+      />
+    );
+  }
+
   renderAtachment = ({ attachment }) => {
+    const { type } = this.props;
+
     if (!attachment.type) {
       return null;
     }
 
     if (attachment.type.startsWith('image')) {
+      if (type && type === 'conversation') {
+        return this.renderImagePreview(attachment);
+      }
+
       return (
         <AttachmentWrapper>
-          <PreviewWrapper>
-            <ImageWithPreview
-              onLoad={this.onLoadImage}
-              alt={attachment.url}
-              src={attachment.url}
-            />
-          </PreviewWrapper>
+          <PreviewWrapper>{this.renderImagePreview(attachment)}</PreviewWrapper>
           <ItemInfo>{this.renderOtherInfo(attachment)}</ItemInfo>
         </AttachmentWrapper>
       );
@@ -200,9 +211,7 @@ class Attachment extends React.Component<Props> {
   };
 
   render() {
-    const props = this.props;
-
-    return this.renderAtachment(props);
+    return this.renderAtachment(this.props);
   }
 }
 
