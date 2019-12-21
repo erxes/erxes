@@ -135,9 +135,7 @@ class PaymentForm extends React.Component<Props, State> {
         <ContentColumn>
           <FormControl
             value={
-              paymentsData[type.name]
-                ? paymentsData[type.name].amount || ''
-                : ''
+              paymentsData[type.name] ? paymentsData[type.name].amount : ''
             }
             type="number"
             placeholder={__('Type amount')}
@@ -151,9 +149,7 @@ class PaymentForm extends React.Component<Props, State> {
             name={type.name}
             placeholder={__('Choose currency')}
             value={
-              paymentsData[type.name]
-                ? paymentsData[type.name].currency || 0
-                : 0
+              paymentsData[type.name] ? paymentsData[type.name].currency : 0
             }
             onChange={currencyOnChange}
             optionRenderer={this.selectOption}
@@ -166,9 +162,9 @@ class PaymentForm extends React.Component<Props, State> {
 
   renderPayments() {
     return PAYMENT_TYPES.map(type => (
-      <>
-        <ContentRow>{this.renderPaymentsByType(type)}</ContentRow>
-      </>
+      <ContentRow key={Math.random()}>
+        {this.renderPaymentsByType(type)}
+      </ContentRow>
     ));
   }
 
