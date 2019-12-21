@@ -99,7 +99,7 @@ class Signature extends React.Component<Props, State> {
           toolbar={MAIL_TOOLBARS_CONFIG}
           autoFocus={true}
           autoGrow={true}
-          autoGrowMinHeight={120}
+          autoGrowMinHeight={160}
           onChange={this.onChangeContent}
         />
       </FormGroup>
@@ -109,11 +109,7 @@ class Signature extends React.Component<Props, State> {
   render() {
     return (
       <div>
-        <Info>
-          {__('Signatures are only included in response emails.')}
-          <br />
-          {__('You can use Markdown to format your signature.')}
-        </Info>
+        <Info>{__('You can use Markdown to format your signature.')}</Info>
 
         <form id="signature-form" onSubmit={this.handleSubmit}>
           <FormGroup>
