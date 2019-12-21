@@ -41,7 +41,7 @@ class DevicePropertiesSection extends React.Component<Props> {
       <img
         alt="Flag"
         style={{ marginBottom: '2px', width: '17px' }}
-        src={`https://www.countryflags.io/${countryCode}/flat/64.png`}
+        src={`https://www.countryflags.io/${countryCode}/shiny/24.png`}
       />
     );
   };
