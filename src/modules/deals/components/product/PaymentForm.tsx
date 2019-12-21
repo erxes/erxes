@@ -128,16 +128,14 @@ class PaymentForm extends React.Component<Props, State> {
     };
 
     return (
-      <>
+      <ContentRow key={type.name}>
         <ContentColumn>
           <ControlLabel>{__(type.title)}</ControlLabel>
         </ContentColumn>
         <ContentColumn>
           <FormControl
             value={
-              paymentsData[type.name]
-                ? paymentsData[type.name].amount || ''
-                : ''
+              paymentsData[type.name] ? paymentsData[type.name].amount : ''
             }
             type="number"
             placeholder={__('Type amount')}
@@ -151,25 +149,19 @@ class PaymentForm extends React.Component<Props, State> {
             name={type.name}
             placeholder={__('Choose currency')}
             value={
-              paymentsData[type.name]
-                ? paymentsData[type.name].currency || 0
-                : 0
+              paymentsData[type.name] ? paymentsData[type.name].currency : 0
             }
             onChange={currencyOnChange}
             optionRenderer={this.selectOption}
             options={selectConfigOptions(currencies, CURRENCIES)}
           />
         </ContentColumn>
-      </>
+      </ContentRow>
     );
   }
 
   renderPayments() {
-    return PAYMENT_TYPES.map(type => (
-      <>
-        <ContentRow>{this.renderPaymentsByType(type)}</ContentRow>
-      </>
-    ));
+    return PAYMENT_TYPES.map(type => this.renderPaymentsByType(type));
   }
 
   render() {
@@ -188,9 +180,8 @@ class PaymentForm extends React.Component<Props, State> {
           </ContentColumn>
         </ContentRowTitle>
         <Divider />
-        <ContentRow>
-          <ContentColumn>{this.renderPayments()}</ContentColumn>
-        </ContentRow>
+
+        {this.renderPayments()}
       </>
     );
   }

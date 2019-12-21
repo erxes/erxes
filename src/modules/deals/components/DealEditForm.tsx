@@ -10,7 +10,6 @@ import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
-import { isNumber } from 'util';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
 
 type Props = {
@@ -116,7 +115,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     Object.keys(paymentsData).forEach(key => {
       const perData = paymentsData[key];
 
-      if (!perData.currency || !perData.amount || !isNumber(perData.amount)) {
+      if (!perData.currency || !perData.amount || perData.amount === 0) {
         delete paymentsData[key];
       }
     });
