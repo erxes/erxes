@@ -2,9 +2,10 @@ import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import DealAddTrigger from 'modules/deals/components/DealAddTrigger';
-import TaskAddTrigger from 'modules/tasks/components/TaskAddTrigger';
-import TicketAddTrigger from 'modules/tickets/components/TicketAddTrigger';
+import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
+import { IConversation } from 'modules/inbox/types';
+import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
+import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
@@ -23,11 +24,32 @@ const Container = styled.div`
 `;
 
 type Props = {
-  customerIds?: string[];
-  assignedUserIds?: string[];
+  conversation: IConversation;
+  convertToInfo: {
+    ticketUrl?: string;
+    dealUrl?: string;
+    taskUrl?: string;
+  };
+  refetch: () => void;
 };
 
 export default (props: Props) => {
+  const { conversation, convertToInfo, refetch } = props;
+
+  const assignedUserIds = conversation.assignedUserId
+    ? [conversation.assignedUserId]
+    : [];
+  const customerIds = conversation.customerId ? [conversation.customerId] : [];
+  const sourceConversationId = conversation._id;
+
+  const triggerProps = {
+    assignedUserIds,
+    relTypeIds: customerIds,
+    relType: 'customer',
+    sourceConversationId,
+    refetch
+  };
+
   return (
     <Container>
       <Dropdown>
@@ -38,25 +60,16 @@ export default (props: Props) => {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           <li key="ticket">
-            <TicketAddTrigger
-              assignedUserIds={props.assignedUserIds}
-              relTypeIds={props.customerIds}
-              relType="customer"
+            <TicketConvertTrigger
+              {...triggerProps}
+              url={convertToInfo.ticketUrl}
             />
           </li>
           <li key="deal">
-            <DealAddTrigger
-              assignedUserIds={props.assignedUserIds}
-              relTypeIds={props.customerIds}
-              relType="customer"
-            />
+            <DealConvertTrigger {...triggerProps} url={convertToInfo.dealUrl} />
           </li>
           <li key="task">
-            <TaskAddTrigger
-              assignedUserIds={props.assignedUserIds}
-              relTypeIds={props.customerIds}
-              relType="customer"
-            />
+            <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
           </li>
         </Dropdown.Menu>
       </Dropdown>

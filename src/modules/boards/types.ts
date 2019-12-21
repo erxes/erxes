@@ -58,6 +58,7 @@ export interface IItemParams {
   reminderMinute?: number;
   companyIds?: string[];
   customerIds?: string[];
+  sourceConversationId?: string;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;

@@ -12,6 +12,7 @@ const commonVariables = `
   $reminderMinute: Int,
   $isComplete: Boolean,
   $priority: String,
+  $sourceConversationId: String,
 `;
 
 const commonParams = `
@@ -26,6 +27,7 @@ const commonParams = `
   reminderMinute: $reminderMinute,
   isComplete: $isComplete,
   priority: $priority,
+  sourceConversationId: $sourceConversationId,
 `;
 
 const dealsAdd = `
