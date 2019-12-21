@@ -100,7 +100,7 @@ class MailForm extends React.Component<Props, State> {
       fromEmail: sender,
       from: fromId,
       subject: mailData.subject || '',
-      content: `</br></br>${this.getEmailSignature(props.brandId)}`,
+      content: '',
       emailSignature: this.getEmailSignature(props.brandId),
 
       status: 'draft',
@@ -171,6 +171,13 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
+  componentDidMount = () => {
+    // content with email signature
+    this.setState({
+      content: `<p>&nbsp;</p><p>&nbsp;</p> ${this.state.emailSignature}`
+    });
+  };
+
   getSelectedIntegration = (selectedId: string) => {
     const integration = this.props.integrations.find(
       obj => obj._id === selectedId
@@ -179,37 +186,38 @@ class MailForm extends React.Component<Props, State> {
     return integration || ({} as IIntegration);
   };
 
+  changeEditorContent = (content: string, emailSignature: string) => {
+    this.setState({ content }, () => {
+      this.setState({ emailSignature });
+    });
+  };
+
   changeEmailSignature = (selectedIntegrationId: string) => {
+    // find selected brand
     const brand = this.getSelectedIntegration(selectedIntegrationId).brand;
     const brandId = brand._id;
-    const emailSignatureToChange = this.getEmailSignature(brandId);
-    console.log('change', emailSignatureToChange);
-    console.log('prev', this.state.emailSignature);
 
-    if (this.state.emailSignature === emailSignatureToChange) {
+    // email signature of selected brand
+    const emailSignatureToChange = this.getEmailSignature(brandId);
+
+    // email signature, content before change
+    const { emailSignature, content } = this.state;
+
+    if (emailSignature === emailSignatureToChange) {
       return;
     }
-    console.log('sss');
-    if (this.state.content.includes(this.state.emailSignature)) {
-      return this.setState(
-        {
-          content: this.state.content.replace(
-            this.state.emailSignature,
-            emailSignatureToChange
-          )
-        },
-        () => {
-          this.setState({ emailSignature: emailSignatureToChange });
-        }
-      );
-    } else {
-      return this.setState(
-        { content: `${this.state.content}${emailSignatureToChange}` },
-        () => {
-          this.setState({ emailSignature: emailSignatureToChange });
-        }
+
+    if (content.includes(emailSignature)) {
+      return this.changeEditorContent(
+        content.replace(emailSignature, emailSignatureToChange),
+        emailSignatureToChange
       );
     }
+
+    return this.changeEditorContent(
+      content.concat(emailSignatureToChange),
+      emailSignatureToChange
+    );
   };
 
   getEmailSignature = (brandId?: string) => {
