@@ -29,6 +29,7 @@ type State = {
   tax: { currency?: string; tax?: number };
   discount: { currency?: string; discount?: number };
   currentTab: string;
+  changePayData: { currency?: string; amount?: number };
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -39,7 +40,8 @@ class ProductForm extends React.Component<Props, State> {
       total: {},
       discount: {},
       tax: {},
-      currentTab: 'products'
+      currentTab: 'products',
+      changePayData: {}
     };
   }
 
@@ -138,6 +140,30 @@ class ProductForm extends React.Component<Props, State> {
     ));
   }
 
+  calcChangePay = () => {
+    const { paymentsData } = this.props;
+    const { total } = this.state;
+
+    const changePayData = Object.assign({}, total);
+    const payments = paymentsData || {};
+
+    Object.keys(payments || {}).forEach(key => {
+      const perPaid = payments[key];
+      const currency = perPaid.currency || '';
+
+      if (Object.keys(changePayData).includes(currency)) {
+        changePayData[currency] =
+          changePayData[currency] - (perPaid.amount || 0);
+      } else {
+        if (perPaid.currency && perPaid.amount) {
+          changePayData[currency] = -(perPaid.amount || 0);
+        }
+      }
+    });
+
+    this.setState({ changePayData });
+  };
+
   onClick = () => {
     const {
       saveProductsData,
@@ -145,6 +171,8 @@ class ProductForm extends React.Component<Props, State> {
       closeModal,
       savePaymentsData
     } = this.props;
+
+    const { total, changePayData } = this.state;
 
     if (productsData.length !== 0) {
       for (const data of productsData) {
@@ -164,6 +192,30 @@ class ProductForm extends React.Component<Props, State> {
       }
     }
 
+    if (
+      Object.keys(total).length > 0 &&
+      Object.keys(changePayData).length > 0
+    ) {
+      let alertMsg = '';
+      for (const key of Object.keys(changePayData)) {
+        // warning greater pay
+        if (changePayData[key] > 0) {
+          alertMsg =
+            alertMsg + `Greater than total: ${changePayData[key]} ${key},`;
+        }
+
+        // warning less pay
+        if (changePayData[key] < 0) {
+          alertMsg =
+            alertMsg + `Less than total: ${changePayData[key]} ${key},`;
+        }
+      }
+
+      if (alertMsg) {
+        Alert.warning('Change payment has problem: (' + alertMsg + ')');
+      }
+    }
+
     saveProductsData();
     savePaymentsData();
     closeModal();
@@ -179,6 +231,8 @@ class ProductForm extends React.Component<Props, State> {
           payments={this.props.paymentsData}
           onChangePaymentsData={onChangePaymentsData}
           currencies={this.props.currencies}
+          calcChangePay={this.calcChangePay}
+          changePayData={this.state.changePayData}
         />
       );
     }

@@ -224,7 +224,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 <Select
                   name="currency"
                   placeholder={__('Choose')}
-                  value={productData.currency}
+                  value={productData.currency || currencies[0]}
                   onChange={this.currencyOnChange}
                   optionRenderer={selectOption}
                   options={selectConfigOptions(currencies, CURRENCIES)}

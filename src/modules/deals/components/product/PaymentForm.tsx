@@ -20,11 +20,12 @@ type Props = {
   payments?: IPaymentsData;
   currencies: string[];
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  calcChangePay: () => void;
+  changePayData: { currency?: string; amount?: number };
 };
 
 type State = {
   paymentsData: IPaymentsData;
-  lessPay: { currency?: string; amount?: number };
 };
 
 class PaymentForm extends React.Component<Props, State> {
@@ -34,35 +35,12 @@ class PaymentForm extends React.Component<Props, State> {
     const { payments } = this.props;
 
     this.state = {
-      paymentsData: payments || {},
-      lessPay: {}
+      paymentsData: payments || {}
     };
-
-    this.calcLess();
   }
 
   componentWillMount() {
-    this.calcLess();
-  }
-
-  calcLess() {
-    const { total } = this.props;
-    const { paymentsData } = this.state;
-
-    const lessPay = Object.assign({}, total);
-
-    Object.keys(paymentsData).forEach(key => {
-      const perPaid = paymentsData[key];
-      const currency = perPaid.currency || '';
-
-      if (Object.keys(lessPay).includes(currency)) {
-        lessPay[currency] = lessPay[currency] - (perPaid.amount || 0);
-      } else {
-        lessPay[currency] = -(perPaid.amount || 0);
-      }
-    });
-
-    this.setState({ lessPay });
+    this.props.calcChangePay();
   }
 
   renderAmount(amount) {
@@ -80,8 +58,8 @@ class PaymentForm extends React.Component<Props, State> {
     ));
   }
 
-  paymentStateChange = (kind: string, name: string, value: string) => {
-    const { onChangePaymentsData } = this.props;
+  paymentStateChange = (kind: string, name: string, value: string | number) => {
+    const { onChangePaymentsData, calcChangePay } = this.props;
     const { paymentsData } = this.state;
 
     if (!paymentsData[name]) {
@@ -89,7 +67,7 @@ class PaymentForm extends React.Component<Props, State> {
     }
     paymentsData[name][kind] = value;
 
-    this.calcLess();
+    calcChangePay();
     this.setState({ paymentsData });
     onChangePaymentsData(paymentsData);
   };
@@ -101,14 +79,21 @@ class PaymentForm extends React.Component<Props, State> {
   );
 
   renderPaymentsByType(type) {
-    const { currencies } = this.props;
-    const { paymentsData, lessPay } = this.state;
+    const { currencies, changePayData } = this.props;
+    const { paymentsData } = this.state;
 
     const onChange = e => {
+      if (
+        (!paymentsData[type.name] || !paymentsData[type.name].currency) &&
+        currencies.length > 0
+      ) {
+        this.paymentStateChange('currency', type.name, currencies[0]);
+      }
+
       this.paymentStateChange(
         'amount',
         type.name,
-        (e.target as HTMLInputElement).value
+        parseFloat((e.target as HTMLInputElement).value)
       );
     };
 
@@ -121,21 +106,21 @@ class PaymentForm extends React.Component<Props, State> {
     };
 
     const onClick = () => {
-      Object.keys(lessPay).forEach(key => {
+      Object.keys(changePayData).forEach(key => {
         if (
-          lessPay[key] > 0 &&
+          changePayData[key] > 0 &&
           (!paymentsData[type.name] || !paymentsData[type.name].amount)
         ) {
           if (!paymentsData[type.name]) {
             paymentsData[type.name] = {};
           }
 
-          paymentsData[type.name].amount = lessPay[key];
+          paymentsData[type.name].amount = changePayData[key];
           paymentsData[type.name].currency = key;
 
-          lessPay[key] = 0;
+          changePayData[key] = 0;
 
-          this.setState({ paymentsData, lessPay });
+          this.setState({ paymentsData });
 
           return;
         }
@@ -199,7 +184,7 @@ class PaymentForm extends React.Component<Props, State> {
           </ContentColumn>
           <ContentColumn>
             <ControlLabel>Change</ControlLabel>
-            {this.renderTotal(this.state.lessPay)}
+            {this.renderTotal(this.props.changePayData)}
           </ContentColumn>
         </ContentRowTitle>
         <Divider />

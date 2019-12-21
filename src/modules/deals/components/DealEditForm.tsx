@@ -10,6 +10,7 @@ import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
+import { isNumber } from 'util';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
 
 type Props = {
@@ -27,6 +28,7 @@ type State = {
   products: IProduct[];
   productsData: any;
   paymentsData: IPaymentsData;
+  changePayData: IPaymentsData;
 };
 
 export default class DealEditForm extends React.Component<Props, State> {
@@ -40,7 +42,8 @@ export default class DealEditForm extends React.Component<Props, State> {
       productsData: item.products ? item.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
       products: item.products ? item.products.map(p => p.product) : [],
-      paymentsData: item.paymentsData
+      paymentsData: item.paymentsData,
+      changePayData: {}
     };
   }
 
@@ -109,6 +112,14 @@ export default class DealEditForm extends React.Component<Props, State> {
   savePaymentsData = () => {
     const { paymentsData } = this.state;
     const { saveItem } = this.props;
+
+    Object.keys(paymentsData).forEach(key => {
+      const perData = paymentsData[key];
+
+      if (!perData.currency || !perData.amount || !isNumber(perData.amount)) {
+        delete paymentsData[key];
+      }
+    });
 
     this.setState({ paymentsData }, () => {
       saveItem({ paymentsData: this.state.paymentsData }, updatedItem => {
