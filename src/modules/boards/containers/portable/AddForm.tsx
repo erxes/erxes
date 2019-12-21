@@ -19,6 +19,7 @@ type IProps = {
   stageId?: string;
   showSelect?: boolean;
   relType?: string;
+  sourceConversationId?: string;
   relTypeIds?: string[];
   assignedUserIds?: string[];
   getAssociatedItem?: (itemId: string) => void;
@@ -40,11 +41,13 @@ class AddFormContainer extends React.Component<FinalProps> {
       relTypeIds,
       editConformity,
       refetch,
-      getAssociatedItem,
-      assignedUserIds
+      assignedUserIds,
+      sourceConversationId,
+      getAssociatedItem
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
+    doc.sourceConversationId = sourceConversationId;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
