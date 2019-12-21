@@ -63,7 +63,11 @@ class Mail extends React.PureComponent<Props, State> {
   }
 
   renderReplyButton() {
-    if (this.state.isReply || !this.props.isLast) {
+    if (
+      this.state.isReply ||
+      !this.props.isLast ||
+      typeof this.props.message._id !== 'string'
+    ) {
       return null;
     }
 

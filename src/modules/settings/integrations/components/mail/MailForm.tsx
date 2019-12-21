@@ -224,20 +224,20 @@ class MailForm extends React.Component<Props, State> {
     if (!brandId) {
       const integrations = this.props.integrations;
 
-      return this.findSignature(integrations[0].brand._id);
+      return this.findEmailSignature(integrations[0].brand._id);
     }
 
-    return this.findSignature(brandId);
+    return this.findEmailSignature(brandId);
   };
 
-  findSignature = (brandId: string) => {
+  findEmailSignature = (brandId: string) => {
     const found = this.props.emailSignatures.find(
       obj => obj.brandId === brandId
     );
 
-    const content = (found && found.signature) || '';
+    const signatureContent = (found && found.signature) || '';
 
-    return content;
+    return signatureContent;
   };
 
   getIntegrationId = (integrations, integrationId?: string) => {
@@ -552,6 +552,10 @@ class MailForm extends React.Component<Props, State> {
     element?: ReactNode;
     onClick?: () => void;
   }) => {
+    if (!onClick && !element) {
+      return null;
+    }
+
     return (
       <Tip text={__(text)} placement="top">
         <Label>
@@ -562,7 +566,7 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  renderSubmit(label, onClick, type: string) {
+  renderSubmit(label, onClick, type: string, icon = 'message') {
     const { isLoading } = this.state;
 
     return (
@@ -570,7 +574,7 @@ class MailForm extends React.Component<Props, State> {
         onClick={onClick}
         btnStyle={type}
         size="small"
-        icon={isLoading ? undefined : 'message'}
+        icon={isLoading ? undefined : icon}
         disabled={isLoading}
       >
         {isLoading && <SmallLoader />}
@@ -620,7 +624,8 @@ class MailForm extends React.Component<Props, State> {
                 this.renderSubmit(
                   'Send and Resolve',
                   onSubmitResolve,
-                  'success'
+                  'success',
+                  'check-circle'
                 )}
             </div>
           )}
