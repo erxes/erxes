@@ -9,7 +9,8 @@ const commonVariables = `
   $priority: String,
   $attachments: [AttachmentInput],
   $reminderMinute: Int,
-  $isComplete: Boolean
+  $isComplete: Boolean,
+  $sourceConversationId: String,
 `;
 
 const commonParams = `
@@ -21,7 +22,8 @@ const commonParams = `
   priority: $priority,
   attachments: $attachments,
   reminderMinute: $reminderMinute,
-  isComplete: $isComplete
+  isComplete: $isComplete,
+  sourceConversationId: $sourceConversationId,
 `;
 
 const tasksAdd = `

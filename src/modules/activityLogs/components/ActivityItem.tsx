@@ -10,6 +10,7 @@ import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
 import { formatText, getIconAndColor } from '../utils';
 import MovementLog from './items/boardItems/MovementLog';
+import ConvertLog from './items/ConvertLog';
 import CreatedLog from './items/CreatedLog';
 import MergedLog from './items/MergedLog';
 import SegmentLog from './items/SegmentLog';
@@ -89,6 +90,11 @@ class ActivityItem extends React.Component<Props> {
         return this.renderDetail(
           activity.contentType,
           <MergedLog activity={activity} />
+        );
+      case 'convert':
+        return this.renderDetail(
+          activity.contentType,
+          <ConvertLog activity={activity} />
         );
       case 'segment':
         return this.renderDetail(

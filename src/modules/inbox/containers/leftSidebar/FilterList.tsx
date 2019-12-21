@@ -6,7 +6,6 @@ import { Alert } from 'modules/common/utils';
 import { queries } from 'modules/inbox/graphql';
 import { NoHeight } from 'modules/inbox/styles';
 import { generateParams } from 'modules/inbox/utils';
-import { queries as ChannelQueries } from 'modules/settings/channels/graphql';
 import React from 'react';
 
 type Props = {
@@ -23,8 +22,6 @@ type State = {
   fields: any[];
   counts: any;
   loading: boolean;
-  fieldsTotalCount: number;
-  page: number;
 };
 
 export default class FilterList extends React.PureComponent<Props, State> {
@@ -44,9 +41,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
     this.state = {
       fields: props.fields || [],
       counts: {},
-      loading,
-      fieldsTotalCount: 0,
-      page: 1
+      loading
     };
   }
 
@@ -54,63 +49,23 @@ export default class FilterList extends React.PureComponent<Props, State> {
     const { query, counts, queryParams } = this.props;
 
     this.mounted = true;
+
     // Fetching filter lists channels, brands, tags etc
     if (query) {
       const { queryName, dataName, variables = {} } = query;
-      const { page } = this.state;
-
       client
         .query({
           query: gql(queries[queryName]),
-          variables:
-            dataName === 'channels'
-              ? { ...variables, page, perPage: 10 }
-              : variables
+          variables
         })
         .then(({ data }: any) => {
           if (this.mounted) {
-            this.setState({
-              fields:
-                dataName === 'channels'
-                  ? [...this.state.fields, ...data[dataName]]
-                  : data[dataName],
-              page: page + 1
-            });
+            this.setState({ fields: data[dataName] });
           }
         })
         .catch(e => {
           Alert.error(e.message);
         });
-
-      if (dataName === 'channels') {
-        if (this.state.fieldsTotalCount === 0) {
-          client
-            .query({
-              query: gql(ChannelQueries.channelsCount),
-              variables: {}
-            })
-            .then(({ data }: any) => {
-              this.setState({ fieldsTotalCount: data.channelsTotalCount || 0 });
-            })
-            .catch(e => {
-              Alert.error(e.message);
-            });
-        }
-
-        const handle = setInterval(() => {
-          const { fieldsTotalCount, fields } = this.state;
-
-          if (fieldsTotalCount === 0) {
-            return;
-          }
-
-          if (fields.length < fieldsTotalCount) {
-            this.fetchData(true);
-          } else {
-            clearInterval(handle);
-          }
-        }, 1000);
-      }
     }
 
     // Fetching count query
