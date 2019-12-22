@@ -200,3 +200,42 @@ AWS_ENDPOINT='your erxes-api domain'
 2. Run `yarn engageSubscriptions` command to automatically create all the necessary configs for you
 
 3. Before start sending email you should verify sender's email address through [here](https://console.aws.amazon.com/ses/home?#verified-senders-email:)
+
+## Nylas Integration
+
+1. Create the Nylas account go to [website](https://dashboard.nylas.com/register)
+2. After you created the Nylas account, copy your clientId and clientSecret to `erxes-integrations.env` like below
+```Shel
+# Nylas
+NYLAS_CLIENT_ID='nylas account CLIENT ID'
+NYLAS_CLIENT_SECRET='nylas account CLIENT_SECRET'
+NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
+```
+3. In order to receive email and updates, we need to have endpoint for our webhook.
+  - Use ngrok service for erxes-integration repo as follows:
+  ```Shell
+  cd /path/to/erxes-integrations
+  ngrok http 3400
+  ```
+  - Copy the IP address with https and replace `erxes-integrations.env` as follows:
+  ```Shell
+  NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
+  NYLAS_WEBHOOK_CALLBACK_URL=https://NGROK_IP/nylas/webhook
+  ```
+  When you start erxes-integration repo webhook will automatically created according to `.env`
+  #### Now we are ready to config our provider
+### Gmail
+1. Create the Google project and config gmail for the [Nylas guide](https://docs.nylas.com/docs/creating-a-google-project-for-dev)
+    - Get the following config from your Google project and config as follows in `erxes-integrations.env`
+    ```Shell
+    GOOGLE_PROJECT_ID='google project id'
+    GOOGLE_CLIENT_ID='google client id'
+    GOOGLE_CLIENT_SECRET='google client secret'
+    GOOGLE_APPLICATION_CREDENTIALS=./google_cred.json
+    ```
+    - In order to have Google OAuth token, add authorized redirect URIs to your google credentials
+      - Select Google project
+      - Go to credentials from left side menu
+      - Select OAuth 2.0 client ID
+      - Add following uri in authorized redirect URI `http://localhost:3400/nylas/oauth2/callback`
+    - After you create the Google service account download json and replace with `google_cred.json`

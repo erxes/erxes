@@ -27,3 +27,7 @@ Erxes app can be integrated with AWS S3 service and that means we can upload fil
 * [AWS SES integration](../administrator/integrations#aws-ses-integration)
 
 Erxes app can be integrated with AWS SES service and that means we can send emails to customers we want. Moreover, we can monitor about how many emails have sent successfully, how many emails are opened by customers and so on.
+
+* [Nylas integration](../administrator/integrations#nylas-integration)
+
+Erxes app can be integrated with Nylas service and that means we can send emails to customers we want. Moreover, we can monitor about how many emails have sent successfully, how many emails are opened by customers and so on.
