@@ -26,7 +26,9 @@ type Props = {
   fromEmail?: string;
   mailData?: IMail;
   isReply?: boolean;
-  toAll?: boolean;
+  isForward?: boolean;
+  replyAll?: boolean;
+  createdAt?: Date;
   toggleReply?: (toAll?: boolean) => void;
   closeModal?: () => void;
   closeReply?: () => void;

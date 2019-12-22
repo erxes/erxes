@@ -19,7 +19,8 @@ type Props = {
 
 type State = {
   isReply: boolean;
-  toAll: boolean;
+  isForward: boolean;
+  replyAll: boolean;
   isCollapsed: boolean;
 };
 
@@ -29,7 +30,8 @@ class Mail extends React.PureComponent<Props, State> {
 
     this.state = {
       isReply: false,
-      toAll: false,
+      isForward: false,
+      replyAll: false,
       isCollapsed: !props.isLast
     };
   }
@@ -38,12 +40,12 @@ class Mail extends React.PureComponent<Props, State> {
     this.setState({ isCollapsed: !this.state.isCollapsed });
   };
 
-  toggleReply = (_, toAll: boolean = false) => {
-    this.setState({ isReply: !this.state.isReply, toAll });
+  toggleReply = (_, replyAll: boolean = false, isForward: boolean = false) => {
+    this.setState({ isReply: !this.state.isReply, replyAll, isForward });
   };
 
   closeReply = () => {
-    this.setState({ isReply: false });
+    this.setState({ isReply: false, replyAll: false, isForward: false });
   };
 
   cleanHtml(mailContent: string) {
@@ -72,6 +74,7 @@ class Mail extends React.PureComponent<Props, State> {
     }
 
     const toggleReplyAll = e => this.toggleReply(e, true);
+    const toggleForward = e => this.toggleReply(e, false, true);
 
     return (
       <Reply>
@@ -91,25 +94,35 @@ class Mail extends React.PureComponent<Props, State> {
         >
           Reply to all
         </Button>
+        <Button
+          icon="corner-down-right-alt"
+          size="small"
+          onClick={toggleForward}
+          btnStyle="primary"
+        >
+          Forward
+        </Button>
       </Reply>
     );
   }
 
   renderMailForm(mailData) {
-    const { toAll, isReply } = this.state;
+    const { replyAll, isReply, isForward } = this.state;
 
     if (!isReply) {
       return null;
     }
 
-    const { conversationId, integrationId, brandId } = this.props;
+    const { conversationId, message, integrationId, brandId } = this.props;
 
     return (
       <BoxItem>
         <MailForm
-          toAll={toAll}
+          replyAll={replyAll}
           isReply={isReply}
+          isForward={isForward}
           closeReply={this.closeReply}
+          createdAt={message.createdAt}
           conversationId={conversationId}
           toggleReply={this.toggleReply}
           integrationId={integrationId}
@@ -179,7 +192,7 @@ class Mail extends React.PureComponent<Props, State> {
             message={message}
             isContentCollapsed={this.state.isCollapsed}
             onToggleContent={this.onToggleContent}
-            onToggleReply={this.toggleReply}
+            onToggleMailForm={this.toggleReply}
           />
           {this.renderMailBody(mailData)}
         </BoxItem>
