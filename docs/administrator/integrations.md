@@ -204,7 +204,7 @@ AWS_ENDPOINT='your erxes-api domain'
 ## Nylas Integration
 
 1. Create the Nylas account go to [website](https://dashboard.nylas.com/register)
-2. After you created the Nylas account, copy your clientId and clientSecret to `erxes-integrations.env` like below
+2. After you created the Nylas account, copy your clientId and clientSecret from [here](https://dashboard.nylas.com/applications/) and config in `erxes-integrations/.env` like below
 ```Shel
 # Nylas
 NYLAS_CLIENT_ID='nylas account CLIENT ID'
@@ -217,7 +217,7 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
   cd /path/to/erxes-integrations
   ngrok http 3400
   ```
-  - Copy the IP address with https and replace `erxes-integrations.env` as follows:
+  - Copy the IP address with https and replace `erxes-integrations/.env` as follows:
   ```Shell
   NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
   NYLAS_WEBHOOK_CALLBACK_URL=https://NGROK_IP/nylas/webhook
@@ -226,7 +226,7 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
   #### Now we are ready to config our provider
 ### Gmail
 1. Create the Google project and config gmail for the [Nylas guide](https://docs.nylas.com/docs/creating-a-google-project-for-dev)
-    - Get the following config from your Google project and config as follows in `erxes-integrations.env`
+    - Get the following config from your Google project and config as follows in `erxes-integrations/.env`
     ```Shell
     GOOGLE_PROJECT_ID='google project id'
     GOOGLE_CLIENT_ID='google client id'
