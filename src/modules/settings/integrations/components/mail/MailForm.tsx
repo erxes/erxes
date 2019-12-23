@@ -106,7 +106,7 @@ class MailForm extends React.Component<Props, State> {
 
       status: 'draft',
       isUploading: false,
-      kind: this.getSelectedIntegration(fromId).kind,
+      kind: this.getSelectedIntegration(fromId).kind || '',
 
       attachments: [],
       fileIds: [],
