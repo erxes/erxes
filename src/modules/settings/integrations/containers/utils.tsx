@@ -88,7 +88,7 @@ export const generateForwardMailContent = (params: Params) => {
     emailSignature
   } = params;
 
-  return `
+  const generatedContent = `
     <p>&nbsp;</p>
     ---------- Forwarded message ---------
     <br/>
@@ -121,4 +121,6 @@ export const generateForwardMailContent = (params: Params) => {
     <br/>
      ${emailSignature}
   `;
+
+  return cleanHtml(generatedContent);
 };

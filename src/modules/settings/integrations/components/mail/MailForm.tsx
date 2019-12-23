@@ -16,7 +16,6 @@ import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '../../constants';
 import {
-  cleanHtml,
   formatObj,
   formatStr,
   generateForwardMailContent
@@ -144,18 +143,16 @@ class MailForm extends React.Component<Props, State> {
 
     const [{ email: fromEmail }] = from;
 
-    return cleanHtml(
-      generateForwardMailContent({
-        fromEmail,
-        date: dayjs(createdAt).format('lll'),
-        to,
-        cc,
-        bcc,
-        subject,
-        body,
-        emailSignature
-      })
-    );
+    return generateForwardMailContent({
+      fromEmail,
+      date: dayjs(createdAt).format('lll'),
+      to,
+      cc,
+      bcc,
+      subject,
+      body,
+      emailSignature
+    });
   }
 
   onSubmit = (e, shouldResolve = false) => {
