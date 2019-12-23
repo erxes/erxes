@@ -15,7 +15,13 @@ import { IEmailSignature } from 'modules/settings/email/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '../../constants';
-import { formatObj, formatStr } from '../../containers/utils';
+import {
+  cleanHtml,
+  formatObj,
+  formatStr,
+  generateForwardMailContent
+} from '../../containers/utils';
+
 import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
@@ -89,6 +95,8 @@ class MailForm extends React.Component<Props, State> {
       props.integrationId
     );
 
+    const emailSignature = this.getEmailSignature(props.brandId);
+
     this.state = {
       cc,
       bcc,
@@ -103,8 +111,8 @@ class MailForm extends React.Component<Props, State> {
       fromEmail: sender,
       from: fromId,
       subject: mailData.subject || '',
-      content: '',
-      emailSignature: this.getEmailSignature(props.brandId),
+      emailSignature,
+      content: this.getContent(mailData, emailSignature),
 
       status: 'draft',
       isUploading: false,
@@ -118,9 +126,8 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
-  getContent() {
-    const { emailSignature } = this.state;
-    const { createdAt, mailData = {} as IMail, isForward } = this.props;
+  getContent(mailData: IMail, emailSignature) {
+    const { createdAt, isForward } = this.props;
 
     if (!isForward) {
       return `<p>&nbsp;</p><p>&nbsp;</p> ${emailSignature}`;
@@ -134,36 +141,21 @@ class MailForm extends React.Component<Props, State> {
       subject = '',
       body = ''
     } = mailData;
+
     const [{ email: fromEmail }] = from;
 
-    return `
-      <p>&nbsp;</p><p>&nbsp;</p> ${emailSignature}
-      <hr tabindex="-1" style="display:inline-block; width:98%">
-      <b>From</b>: ${fromEmail}
-      <br/>
-      <b>Sent</b>: ${dayjs(createdAt).format('lll')}
-      <br/>
-      <b>To</b>: ${formatObj(to)}
-      <br/>
-      ${
-        cc.length > 0
-          ? `
-        <b>Cc</b>: ${formatObj(cc)}
-        <br/>
-        `
-          : ''
-      }
-      ${
-        bcc.length > 0
-          ? `
-        <b>Bcc</b>: ${formatObj(bcc)}
-        <br/>
-        `
-          : ''
-      }
-      <b>Subject</b>: ${subject}
-      ${body}
-    `;
+    return cleanHtml(
+      generateForwardMailContent({
+        fromEmail,
+        date: dayjs(createdAt).format('lll'),
+        to,
+        cc,
+        bcc,
+        subject,
+        body,
+        emailSignature
+      })
+    );
   }
 
   onSubmit = (e, shouldResolve = false) => {
@@ -697,7 +689,7 @@ class MailForm extends React.Component<Props, State> {
           insertItems={EMAIL_CONTENT}
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
-          content={this.getContent()}
+          content={this.state.content}
           onChange={this.onEditorChange}
           toolbarLocation="bottom"
           autoFocus={!this.props.isForward}

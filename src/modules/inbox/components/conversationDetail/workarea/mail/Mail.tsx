@@ -1,9 +1,8 @@
-import juice from 'juice';
 import Button from 'modules/common/components/Button';
 import { IMessage } from 'modules/inbox/types';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
+import { cleanHtml } from 'modules/settings/integrations/containers/utils';
 import React from 'react';
-import sanitizeHtml from 'sanitize-html';
 import Attachments from './Attachments';
 import MailHeader from './MailHeader';
 import { BoxItem, Content, Reply } from './style';
@@ -47,22 +46,6 @@ class Mail extends React.PureComponent<Props, State> {
   closeReply = () => {
     this.setState({ isReply: false, replyAll: false, isForward: false });
   };
-
-  cleanHtml(mailContent: string) {
-    return sanitizeHtml(mailContent, {
-      allowedTags: false,
-      allowedAttributes: false,
-      transformTags: {
-        html: 'div',
-        body: 'div'
-      },
-
-      // remove some unusual tags
-      exclusiveFilter: n => {
-        return n.tag === 'meta' || n.tag === 'head' || n.tag === 'style';
-      }
-    });
-  }
 
   renderReplyButton() {
     if (
@@ -139,10 +122,7 @@ class Mail extends React.PureComponent<Props, State> {
       return null;
     }
 
-    // all style inlined
-    const mailContent = juice(mailData.body || '');
-
-    const innerHTML = { __html: this.cleanHtml(mailContent) };
+    const innerHTML = { __html: cleanHtml(mailData.body || '') };
 
     return (
       <>
