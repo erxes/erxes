@@ -10,7 +10,7 @@ import {
 } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
 
-import { INTEGRATION_KIND_CHOICES } from '../data/constants';
+import { KIND_CHOICES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('fieldQueries', () => {
@@ -104,10 +104,10 @@ describe('fieldQueries', () => {
 
     // customer =======================
     const brand = await brandFactory({});
-    const integration = await integrationFactory({ brandId: brand._id, kind: INTEGRATION_KIND_CHOICES.MESSENGER });
-    const integration1 = await integrationFactory({ brandId: brand._id, kind: INTEGRATION_KIND_CHOICES.MESSENGER });
-    const integration2 = await integrationFactory({ brandId: brand._id, kind: INTEGRATION_KIND_CHOICES.MESSENGER });
-    const integration3 = await integrationFactory({ brandId: brand._id, kind: INTEGRATION_KIND_CHOICES.MESSENGER });
+    const integration = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
+    const integration1 = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
+    const integration2 = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
+    const integration3 = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
 
     await customerFactory({ integrationId: integration._id });
     await customerFactory({ integrationId: integration1._id, messengerData: {} });

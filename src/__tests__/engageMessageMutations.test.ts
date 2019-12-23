@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import * as moment from 'moment';
-import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../data/constants';
+import { MESSAGE_KINDS } from '../data/constants';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -28,7 +28,7 @@ import {
 } from '../db/models';
 
 import utils, { handleUnsubscription } from '../data/utils';
-import { STATUSES } from '../db/models/definitions/constants';
+import { KIND_CHOICES, STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('engage message mutation tests', () => {
@@ -201,7 +201,7 @@ describe('engage message mutation tests', () => {
 
     const integration = await integrationFactory({
       brandId: brand._id,
-      kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER,
     });
 
     const emessageWithBrand = await engageMessageFactory({
@@ -280,7 +280,7 @@ describe('engage message mutation tests', () => {
 
     await integrationFactory({
       brandId: brand._id,
-      kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER,
     });
 
     const emessage = await engageMessageFactory({

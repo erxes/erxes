@@ -7,12 +7,12 @@ import {
   Segments,
   Users,
 } from '../../../db/models';
-import { CONVERSATION_STATUSES, METHODS } from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES, METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { sendMessage } from '../../../messageBroker';
-import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../../constants';
+import { MESSAGE_KINDS } from '../../constants';
 import { Builder as CustomerQueryBuilder } from '../../modules/coc/customers';
 import QueryBuilder from '../../modules/segments/queryBuilder';
 
@@ -176,7 +176,7 @@ const sendViaMessenger = async (
   // find integration
   const integration = await Integrations.findOne({
     brandId,
-    kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+    kind: KIND_CHOICES.MESSENGER,
   });
 
   if (integration === null) {

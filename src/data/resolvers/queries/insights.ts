@@ -1,6 +1,5 @@
 import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
-import { TAG_TYPES } from '../../../db/models/definitions/constants';
-import { INTEGRATION_KIND_CHOICES } from '../../constants';
+import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { getDateFieldAsStr, getDurationField } from '../../modules/insights/aggregationUtils';
 import { IListArgs, IPieChartData } from '../../modules/insights/types';
 import {
@@ -40,7 +39,7 @@ const insightQueries = {
     const integrations: IPieChartData[] = [];
 
     // count conversations by each integration kind
-    for (const kind of INTEGRATION_KIND_CHOICES.ALL) {
+    for (const kind of KIND_CHOICES.ALL) {
       const integrationIds = await Integrations.findIntegrations({
         ...filterSelector.integration,
         kind,

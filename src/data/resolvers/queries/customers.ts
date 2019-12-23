@@ -1,7 +1,7 @@
 import { Brands, Customers, Forms, Integrations, Segments, Tags } from '../../../db/models';
-import { ACTIVITY_CONTENT_TYPES, TAG_TYPES } from '../../../db/models/definitions/constants';
+import { ACTIVITY_CONTENT_TYPES, KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { ISegment } from '../../../db/models/definitions/segments';
-import { COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES, INTEGRATION_KIND_CHOICES } from '../../constants';
+import { COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES } from '../../constants';
 import { Builder as BuildQuery, IListArgs, sortBuilder } from '../../modules/coc/customers';
 import QueryBuilder from '../../modules/segments/queryBuilder';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
@@ -91,7 +91,7 @@ const countByField = async (
 const countByIntegration = async (mainQuery: any): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const integrations = await Integrations.findIntegrations({ kind: { $in: INTEGRATION_KIND_CHOICES.ALL } }).select({
+  const integrations = await Integrations.findIntegrations({ kind: { $in: KIND_CHOICES.ALL } }).select({
     _id: 1,
     name: 1,
     kind: 1,

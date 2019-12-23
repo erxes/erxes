@@ -1,7 +1,6 @@
 import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../../../db/models';
-import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
-import { INTEGRATION_KIND_CHOICES } from '../../constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
@@ -38,7 +37,7 @@ const countByChannels = async (qb: any): Promise<ICountBy> => {
 const countByIntegrationTypes = async (qb: any): Promise<ICountBy> => {
   const byIntegrationTypes: ICountBy = {};
 
-  for (const intT of INTEGRATION_KIND_CHOICES.ALL) {
+  for (const intT of KIND_CHOICES.ALL) {
     byIntegrationTypes[intT] = await count({
       ...qb.mainQuery(),
       ...(await qb.integrationTypeFilter(intT)),

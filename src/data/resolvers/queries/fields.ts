@@ -1,5 +1,6 @@
-import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES, INTEGRATION_KIND_CHOICES } from '../../../data/constants';
+import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
 import { Brands, Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
+import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -42,7 +43,7 @@ const generateFieldsFromSchema = (queSchema: any, namePrefix: string) => {
  */
 const generateMessengerDataCustomDataFields = async fields => {
   const messengerIntegrations = await Integrations.findIntegrations({
-    kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+    kind: KIND_CHOICES.MESSENGER,
   });
 
   // generate messengerData.customData fields
