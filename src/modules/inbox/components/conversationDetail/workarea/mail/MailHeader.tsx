@@ -24,7 +24,7 @@ type Props = {
   message: IMessage;
   isContentCollapsed: boolean;
   onToggleContent: () => void;
-  onToggleReply: (e, toAll?: boolean) => void;
+  onToggleMailForm: (event, replyToAll?: boolean, isForward?: boolean) => void;
 };
 
 type State = {
@@ -59,17 +59,30 @@ class MailHeader extends React.Component<Props, State> {
     this.setState({ isDetailExpanded: !this.state.isDetailExpanded });
   };
 
+  onToggleMailForm = ({
+    event,
+    replyToAll = false,
+    isForward = false
+  }: {
+    event: any;
+    replyToAll?: boolean;
+    isForward?: boolean;
+  }) => {
+    event.stopPropagation();
+
+    this.props.onToggleMailForm(event, replyToAll, isForward);
+  };
+
   renderTopButton = () => {
     if (this.props.isContentCollapsed) {
       return null;
     }
 
-    const onToggleReply = (e, toAll: boolean = false) => {
-      e.stopPropagation();
-      this.props.onToggleReply(e, toAll);
-    };
-
-    const onToggleReplyAll = e => onToggleReply(e, true);
+    const onToggleReply = event => this.onToggleMailForm({ event });
+    const onToggleReplyAll = event =>
+      this.onToggleMailForm({ event, replyToAll: true });
+    const onToggleForward = event =>
+      this.onToggleMailForm({ event, isForward: true });
 
     return (
       <>
@@ -81,6 +94,11 @@ class MailHeader extends React.Component<Props, State> {
         <Tip text={__('Reply all')} placement="bottom">
           <ActionButton onClick={onToggleReplyAll}>
             <Icon icon="replyall" size={12} />
+          </ActionButton>
+        </Tip>
+        <Tip text={__('Forward')} placement="bottom">
+          <ActionButton onClick={onToggleForward}>
+            <Icon icon="rightarrow" size={12} />
           </ActionButton>
         </Tip>
       </>

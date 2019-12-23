@@ -1,9 +1,8 @@
-import juice from 'juice';
 import Button from 'modules/common/components/Button';
 import { IMessage } from 'modules/inbox/types';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
+import { cleanHtml } from 'modules/settings/integrations/containers/utils';
 import React from 'react';
-import sanitizeHtml from 'sanitize-html';
 import Attachments from './Attachments';
 import MailHeader from './MailHeader';
 import { BoxItem, Content, Reply } from './style';
@@ -19,7 +18,8 @@ type Props = {
 
 type State = {
   isReply: boolean;
-  toAll: boolean;
+  isForward: boolean;
+  replyAll: boolean;
   isCollapsed: boolean;
 };
 
@@ -29,7 +29,8 @@ class Mail extends React.PureComponent<Props, State> {
 
     this.state = {
       isReply: false,
-      toAll: false,
+      isForward: false,
+      replyAll: false,
       isCollapsed: !props.isLast
     };
   }
@@ -38,29 +39,13 @@ class Mail extends React.PureComponent<Props, State> {
     this.setState({ isCollapsed: !this.state.isCollapsed });
   };
 
-  toggleReply = (_, toAll: boolean = false) => {
-    this.setState({ isReply: !this.state.isReply, toAll });
+  toggleReply = (_, replyAll: boolean = false, isForward: boolean = false) => {
+    this.setState({ isReply: !this.state.isReply, replyAll, isForward });
   };
 
   closeReply = () => {
-    this.setState({ isReply: false });
+    this.setState({ isReply: false, replyAll: false, isForward: false });
   };
-
-  cleanHtml(mailContent: string) {
-    return sanitizeHtml(mailContent, {
-      allowedTags: false,
-      allowedAttributes: false,
-      transformTags: {
-        html: 'div',
-        body: 'div'
-      },
-
-      // remove some unusual tags
-      exclusiveFilter: n => {
-        return n.tag === 'meta' || n.tag === 'head' || n.tag === 'style';
-      }
-    });
-  }
 
   renderReplyButton() {
     if (
@@ -72,6 +57,7 @@ class Mail extends React.PureComponent<Props, State> {
     }
 
     const toggleReplyAll = e => this.toggleReply(e, true);
+    const toggleForward = e => this.toggleReply(e, false, true);
 
     return (
       <Reply>
@@ -91,25 +77,35 @@ class Mail extends React.PureComponent<Props, State> {
         >
           Reply to all
         </Button>
+        <Button
+          icon="corner-down-right-alt"
+          size="small"
+          onClick={toggleForward}
+          btnStyle="primary"
+        >
+          Forward
+        </Button>
       </Reply>
     );
   }
 
   renderMailForm(mailData) {
-    const { toAll, isReply } = this.state;
+    const { replyAll, isReply, isForward } = this.state;
 
     if (!isReply) {
       return null;
     }
 
-    const { conversationId, integrationId, brandId } = this.props;
+    const { conversationId, message, integrationId, brandId } = this.props;
 
     return (
       <BoxItem>
         <MailForm
-          toAll={toAll}
+          replyAll={replyAll}
           isReply={isReply}
+          isForward={isForward}
           closeReply={this.closeReply}
+          createdAt={message.createdAt}
           conversationId={conversationId}
           toggleReply={this.toggleReply}
           integrationId={integrationId}
@@ -126,10 +122,7 @@ class Mail extends React.PureComponent<Props, State> {
       return null;
     }
 
-    // all style inlined
-    const mailContent = juice(mailData.body || '');
-
-    const innerHTML = { __html: this.cleanHtml(mailContent) };
+    const innerHTML = { __html: cleanHtml(mailData.body || '') };
 
     return (
       <>
@@ -179,7 +172,7 @@ class Mail extends React.PureComponent<Props, State> {
             message={message}
             isContentCollapsed={this.state.isCollapsed}
             onToggleContent={this.onToggleContent}
-            onToggleReply={this.toggleReply}
+            onToggleMailForm={this.toggleReply}
           />
           {this.renderMailBody(mailData)}
         </BoxItem>
