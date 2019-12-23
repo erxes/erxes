@@ -55,6 +55,12 @@ export const types = `
     taskUrl: String,
   }
 
+  type BoardCount {
+    _id: String
+    name: String
+    count: Int
+  }
+
   input ItemDate {
     month: Int
     year: Int
@@ -72,6 +78,7 @@ const stageParams = `
 
 export const queries = `
   boards(type: String!): [Board]
+  boardCounts(type: String!): [BoardCount]
   boardGetLast(type: String!): Board
   boardDetail(_id: String!): Board
   pipelines(boardId: String!): [Pipeline]

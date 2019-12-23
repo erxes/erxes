@@ -31,6 +31,25 @@ const boardQueries = {
   },
 
   /**
+   *  Boards count
+   */
+  async boardCounts(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
+    const boards = await Boards.find({ ...commonQuerySelector, type }).sort({ name: 1 });
+
+    const counts = [{ _id: '', name: 'All', count: await Pipelines.find({ type }).countDocuments() }];
+
+    for (const board of boards) {
+      counts.push({
+        _id: board._id,
+        name: board.name || '',
+        count: await Pipelines.find({ boardId: board._id }).countDocuments(),
+      });
+    }
+
+    return counts;
+  },
+
+  /**
    *  Board detail
    */
   boardDetail(_root, { _id }: { _id: string }, { commonQuerySelector }: IContext) {

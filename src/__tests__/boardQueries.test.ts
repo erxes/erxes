@@ -82,6 +82,43 @@ describe('boardQueries', () => {
     expect(response.length).toBe(3);
   });
 
+  test('Board count', async () => {
+    const boardOne = await boardFactory({ name: 'A' });
+    await pipelineFactory({ boardId: boardOne._id });
+    await pipelineFactory({ boardId: boardOne._id });
+
+    const boardTwo = await boardFactory({ name: 'B' });
+    await pipelineFactory({ boardId: boardTwo._id });
+
+    const boardThree = await boardFactory({ name: 'C' });
+
+    const qry = `
+      query boardCounts($type: String!) {
+        boardCounts(type: $type) {
+          _id
+          name
+          count
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'boardCounts', { type: 'deal' });
+
+    expect(response.length).toBe(4);
+
+    expect(response[0].name).toBe('All');
+    expect(response[0].count).toBe(3);
+
+    expect(response[1].name).toBe(boardOne.name);
+    expect(response[1].count).toBe(2);
+
+    expect(response[2].name).toBe(boardTwo.name);
+    expect(response[2].count).toBe(1);
+
+    expect(response[3].name).toBe(boardThree.name);
+    expect(response[3].count).toBe(0);
+  });
+
   test('Board detail', async () => {
     const board = await boardFactory();
 
@@ -106,7 +143,7 @@ describe('boardQueries', () => {
   });
 
   test('Board get last', async () => {
-    const board = await boardFactory({ type: BOARD_TYPES.DEAL });
+    const board = await boardFactory();
 
     const qry = `
       query boardGetLast($type: String!) {

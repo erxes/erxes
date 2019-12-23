@@ -802,12 +802,13 @@ export const knowledgeBaseArticleFactory = async (params: IKnowledgeBaseArticleC
 };
 
 interface IBoardFactoryInput {
+  name?: string;
   type?: string;
 }
 
 export const boardFactory = (params: IBoardFactoryInput = {}) => {
   const board = new Boards({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     userId: Random.id(),
     type: params.type || BOARD_TYPES.DEAL,
   });
@@ -830,11 +831,17 @@ interface IPipelineFactoryInput {
 
 export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
   const type = params.type || BOARD_TYPES.DEAL;
-  const board = await boardFactory({ type });
+  let boardId = params.boardId;
+
+  if (!boardId) {
+    const board = await boardFactory({ type });
+
+    boardId = board._id;
+  }
 
   return Pipelines.create({
     name: faker.random.word(),
-    boardId: params.boardId || board._id,
+    boardId,
     type,
     visibility: params.visibility || 'public',
     bgColor: params.bgColor || 'fff',
