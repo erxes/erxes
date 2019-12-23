@@ -10,6 +10,7 @@ import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
 import { IMail } from 'modules/inbox/types';
+import { IBrand } from 'modules/settings/brands/types';
 import { IEmailSignature } from 'modules/settings/email/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
@@ -223,8 +224,10 @@ class MailForm extends React.Component<Props, State> {
   getEmailSignature = (brandId?: string) => {
     if (!brandId) {
       const integrations = this.props.integrations;
+      const brand =
+        integrations.length > 0 ? integrations[0].brand : ({} as IBrand);
 
-      return this.findEmailSignature(integrations[0].brand._id);
+      return this.findEmailSignature(brand._id);
     }
 
     return this.findEmailSignature(brandId);
