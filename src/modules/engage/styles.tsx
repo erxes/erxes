@@ -32,6 +32,12 @@ const EngageBox = styled.div`
   display: flex;
 `;
 
+const Title = styled.h3`
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
+`;
+
 const FormWrapper = styled.div`
   padding: ${coreSpace};
   flex: 1;
@@ -144,6 +150,11 @@ const Recipient = styled.div`
 
 const Half = styled.div`
   width: 50%;
+  border-right: 1px solid ${colors.borderPrimary};
+
+  &:last-of-type {
+    border: none;
+  }
 `;
 
 const StepContent = styled.div`
@@ -156,12 +167,14 @@ const FlexItemCentered = styled.div`
 `;
 
 const Box = styled(BoxRoot)`
-  width: 30%;
   height: 200px;
-  margin-bottom: 30px;
+  margin-bottom: ${coreSpace};
+  margin-right: 0;
+  flex-basis: 31%;
+  flex-shrink: 0;
 
   @media (max-width: 1400px) {
-    width: 28%;
+    flex-basis: 48%;
   }
 `;
 
@@ -320,16 +333,10 @@ const VerifyCheck = styled.div`
 `;
 
 const RightSection = styled.div`
-  border-left: 1px solid ${colors.borderPrimary};
-  height: 100%;
-  padding: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
-`;
-
-const Email = styled.div`
-  padding: 1px 5px;
-  background: ${colors.bgActive};
-  border-radius: 4px;
-  line-height: 18px;
+  padding: ${coreSpace};
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 `;
 
 export {
@@ -345,7 +352,7 @@ export {
   Recipients,
   Recipient,
   Half,
-  Email,
+  Title,
   StepContent,
   FlexItemCentered,
   Box,

@@ -11,16 +11,14 @@ import {
   Box,
   BoxContent,
   BoxHeader,
-  Email,
   EngageBox,
   Half,
   IconContainer,
   PreviewContent,
-  RightSection
+  RightSection,
+  Title
 } from '../styles';
 import { IEngageMessage, IEngageStats } from '../types';
-
-const { Section } = Wrapper.Sidebar;
 
 type Props = {
   message: IEngageMessage;
@@ -46,15 +44,12 @@ class EmailStatistics extends React.Component<Props> {
   renderAttachments() {
     const { email } = this.props.message;
 
-    if (
-      !email ||
-      (email && email.attachments && email.attachments.length === 0)
-    ) {
+    if (!email || (email.attachments && email.attachments.length === 0)) {
       return null;
     }
 
     return (
-      <Subject hasMargin={true} noBorder={true}>
+      <Subject noBorder={true}>
         <FlexRow>
           <label>Attachments:</label>
 
@@ -71,29 +66,25 @@ class EmailStatistics extends React.Component<Props> {
 
     return (
       <Half>
-        <Subject hasMargin={true}>
+        <Subject>
           <FlexRow>
-            <label>From:</label>
-            <Email>
+            <label>{__('From')}:</label>
+            <strong>
               {message.fromUser.details
                 ? message.fromUser.details.fullName
                 : message.fromUser.email}
-            </Email>
-          </FlexRow>
-          <FlexRow>
-            <label>Title:</label>
-            <>{message.title}</>
+            </strong>
           </FlexRow>
         </Subject>
-        <Subject hasMargin={true}>
+        <Subject>
           <FlexRow>
-            <label>Subject:</label>
+            <label>{__('Subject')}:</label>
             {message.email && message.email.subject}
           </FlexRow>
         </Subject>
-        <Subject hasMargin={true} noBorder={true}>
+        <Subject noBorder={true}>
           <FlexRow>
-            <label>Content:</label>
+            <label>{__('Content')}:</label>
           </FlexRow>
           <PreviewContent
             isFullmessage={false}
@@ -112,30 +103,27 @@ class EmailStatistics extends React.Component<Props> {
     const stats = this.props.message.stats || ({} as IEngageStats);
     const totalCount = stats.total;
 
+    const actionBar = (
+      <Wrapper.ActionBar left={<Title>{this.props.message.title}</Title>} />
+    );
+
     const content = (
-      <>
-        <Section.Title>Engage statistics</Section.Title>
-        <EngageBox>
-          {this.renderLeft()}
-          <Half>
-            <RightSection>
-              {this.renderBox('cube', 'Total', totalCount)}
-              {this.renderBox('paper-plane-1', 'Sent', stats.send)}
-              {this.renderBox('checked', 'Delivered', stats.delivery)}
-              {this.renderBox('openlock', 'Opened', stats.open)}
-              {this.renderBox('clicker', 'Clicked', stats.click)}
-              {this.renderBox('sad', 'Complaint', stats.complaint)}
-              {this.renderBox('basketball', 'Bounce', stats.bounce)}
-              {this.renderBox(
-                'dislike',
-                'Rendering failure',
-                stats.renderingfailure
-              )}
-              {this.renderBox('cancel', 'Rejected', stats.reject)}
-            </RightSection>
-          </Half>
-        </EngageBox>
-      </>
+      <EngageBox>
+        {this.renderLeft()}
+        <Half>
+          <RightSection>
+            {this.renderBox('cube-2', 'Total', totalCount)}
+            {this.renderBox('telegram-alt', 'Sent', stats.send)}
+            {this.renderBox('comment-check', 'Delivered', stats.delivery)}
+            {this.renderBox('envelope-open', 'Opened', stats.open)}
+            {this.renderBox('mouse-alt', 'Clicked', stats.click)}
+            {this.renderBox('frown', 'Complaint', stats.complaint)}
+            {this.renderBox('arrows-up-right', 'Bounce', stats.bounce)}
+            {this.renderBox('ban', 'Rendering failure', stats.renderingfailure)}
+            {this.renderBox('times-circle', 'Rejected', stats.reject)}
+          </RightSection>
+        </Half>
+      </EngageBox>
     );
 
     return (
@@ -143,9 +131,13 @@ class EmailStatistics extends React.Component<Props> {
         header={
           <Wrapper.Header
             title={__('Show statistics')}
-            breadcrumb={[{ title: __('Show statistics') }]}
+            breadcrumb={[
+              { title: __('Engage'), link: '/engage' },
+              { title: __('Show statistics') }
+            ]}
           />
         }
+        actionBar={actionBar}
         content={content}
       />
     );
