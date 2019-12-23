@@ -888,6 +888,7 @@ interface IDealFactoryInput {
   searchText?: string;
   userId?: string;
   initialStageId?: string;
+  sourceConversationId?: string;
 }
 
 export const dealFactory = async (params: IDealFactoryInput = {}) => {
@@ -913,6 +914,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     order: params.order,
     probability: params.probability,
     searchText: params.searchText,
+    sourceConversationId: params.sourceConversationId,
     createdAt: new Date(),
   });
 
@@ -927,6 +929,7 @@ interface ITaskFactoryInput {
   priority?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
+  sourceConversationId?: string;
 }
 
 export const taskFactory = async (params: ITaskFactoryInput = {}) => {
@@ -944,6 +947,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     priority: params.priority,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
+    sourceConversationId: params.sourceConversationId,
   });
 
   return task.save();
@@ -958,6 +962,7 @@ interface ITicketFactoryInput {
   source?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
+  sourceConversationId?: string;
 }
 
 export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
@@ -976,6 +981,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
     source: params.source,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
+    sourceConversationId: params.sourceConversationId,
   });
 
   return ticket.save();

@@ -1,5 +1,6 @@
 import {
   boardFactory,
+  conversationFactory,
   dealFactory,
   pipelineFactory,
   pipelineLabelFactory,
@@ -62,16 +63,38 @@ describe('Test deals model', () => {
     expect(response).toBeDefined();
   });
 
-  // Test deal
   test('Create deal', async () => {
-    const createdDeal = await Deals.createDeal({
+    const args = {
       stageId: deal.stageId,
       userId: user._id,
-    });
+    };
+
+    const createdDeal = await Deals.createDeal(args);
 
     expect(createdDeal).toBeDefined();
     expect(createdDeal.stageId).toEqual(stage._id);
     expect(createdDeal.userId).toEqual(user._id);
+  });
+
+  test('Create deal Error(`Already converted a deal`)', async () => {
+    const conversation = await conversationFactory();
+
+    const args = {
+      stageId: deal.stageId,
+      userId: user._id,
+      sourceConversationId: conversation._id,
+    };
+
+    const createdDeal = await Deals.createDeal(args);
+
+    expect(createdDeal).toBeDefined();
+
+    // Already converted a deal
+    try {
+      await Deals.createDeal(args);
+    } catch (e) {
+      expect(e.message).toBe('Already converted a deal');
+    }
   });
 
   test('Update deal', async () => {
