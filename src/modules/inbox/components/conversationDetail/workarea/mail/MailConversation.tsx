@@ -18,7 +18,7 @@ class MailConversation extends React.Component<Props, {}> {
 
     const messages = conversationMessages || [];
     const { integration } = conversation;
-    const { _id, kind } = integration;
+    const { _id, kind, brandId } = integration;
 
     const length = messages.length;
 
@@ -41,6 +41,7 @@ class MailConversation extends React.Component<Props, {}> {
           isLast={length === index + 1}
           message={message}
           integrationId={_id}
+          brandId={brandId}
         />
       );
     });

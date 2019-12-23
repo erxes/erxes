@@ -1,6 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
@@ -18,6 +20,7 @@ import {
 
 type Props = {
   integrationId?: string;
+  brandId?: string;
   conversationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
@@ -30,6 +33,7 @@ type Props = {
 };
 
 type FinalProps = {
+  currentUser: IUser;
   sendMailMutation: any;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
@@ -37,16 +41,13 @@ type FinalProps = {
 const MailFormContainer = (props: FinalProps) => {
   const {
     mailData,
-    integrationId,
-    integrationsQuery,
-    fromEmail,
     conversationId,
-    toAll,
+    integrationsQuery,
     isReply,
-    toggleReply,
     closeModal,
     closeReply,
-    sendMailMutation
+    sendMailMutation,
+    currentUser
   } = props;
 
   if (integrationsQuery.loading) {
@@ -151,15 +152,10 @@ const MailFormContainer = (props: FinalProps) => {
   };
 
   const updatedProps = {
+    ...props,
     sendMail,
     integrations,
-    integrationId,
-    fromEmail,
-    closeModal,
-    toAll,
-    isReply,
-    toggleReply,
-    mailData
+    emailSignatures: currentUser.emailSignatures || []
   };
 
   return <MailForm {...updatedProps} />;
@@ -182,5 +178,5 @@ export default withProps<Props>(
         refetchQueries: ['activityLogs']
       })
     })
-  )(MailFormContainer)
+  )(withCurrentUser(MailFormContainer))
 );

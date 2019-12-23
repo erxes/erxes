@@ -32,7 +32,7 @@ class DevicePropertiesSection extends React.Component<Props> {
     return null;
   };
 
-  renderFlag = (countryCode: string | undefined) => {
+  renderFlag = (countryCode?: string) => {
     if (!countryCode) {
       return null;
     }
@@ -40,8 +40,8 @@ class DevicePropertiesSection extends React.Component<Props> {
     return (
       <img
         alt="Flag"
-        style={{ marginBottom: '2px' }}
-        src={`https://www.countryflags.io/${countryCode}/shiny/16.png`}
+        style={{ marginBottom: '2px', width: '17px' }}
+        src={`https://www.countryflags.io/${countryCode}/shiny/24.png`}
       />
     );
   };
