@@ -29,7 +29,13 @@ const HelperText = styled.div`
 `;
 
 const EngageBox = styled.div`
-  padding: ${coreSpace} ${coreSpace} 0;
+  display: flex;
+`;
+
+const Title = styled.h3`
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
 `;
 
 const FormWrapper = styled.div`
@@ -39,7 +45,10 @@ const FormWrapper = styled.div`
   height: 100%;
 `;
 
-const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
+const PreviewContent = styledTS<{
+  isFullmessage: boolean;
+  showOverflow?: boolean;
+}>(styled.div)`
   padding: 0 ${coreSpace};
   line-height: 22px;
   margin-bottom: ${coreSpace};
@@ -50,7 +59,7 @@ const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
   ${props => {
     if (!props.isFullmessage) {
       return `
-        overflow: hidden;
+        overflow: ${props.showOverflow ? 'auto' : 'hidden'};
         -webkit-box-orient: vertical;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -141,6 +150,11 @@ const Recipient = styled.div`
 
 const Half = styled.div`
   width: 50%;
+  border-right: 1px solid ${colors.borderPrimary};
+
+  &:last-of-type {
+    border: none;
+  }
 `;
 
 const StepContent = styled.div`
@@ -153,14 +167,24 @@ const FlexItemCentered = styled.div`
 `;
 
 const Box = styled(BoxRoot)`
-  width: 23%;
   height: 200px;
-  margin-top: ${coreSpace};
+  margin-bottom: ${coreSpace};
+  margin-right: 0;
+  flex-basis: 31%;
+  flex-shrink: 0;
+
+  @media (max-width: 1400px) {
+    flex-basis: 48%;
+  }
 `;
 
 const BoxContent = styled.div`
-  margin-top: 40px;
+  margin-top: 30px;
   font-size: 18px;
+
+  h5 {
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
 `;
 
 const BoxHeader = styled.div`
@@ -308,6 +332,13 @@ const VerifyCheck = styled.div`
   padding-right: 8px;
 `;
 
+const RightSection = styled.div`
+  padding: ${coreSpace};
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -321,6 +352,7 @@ export {
   Recipients,
   Recipient,
   Half,
+  Title,
   StepContent,
   FlexItemCentered,
   Box,
@@ -340,5 +372,6 @@ export {
   SelectMessageType,
   VerifyStatus,
   VerifyCancel,
-  VerifyCheck
+  VerifyCheck,
+  RightSection
 };
