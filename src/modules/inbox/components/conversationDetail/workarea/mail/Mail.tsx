@@ -47,7 +47,7 @@ class Mail extends React.PureComponent<Props, State> {
     this.setState({ isReply: false, replyAll: false, isForward: false });
   };
 
-  renderReplyButton() {
+  renderButtons(addressLength: number) {
     if (
       this.state.isReply ||
       !this.props.isLast ||
@@ -69,14 +69,16 @@ class Mail extends React.PureComponent<Props, State> {
         >
           Reply
         </Button>
-        <Button
-          icon="corner-up-left-alt"
-          size="small"
-          onClick={toggleReplyAll}
-          btnStyle="primary"
-        >
-          Reply to all
-        </Button>
+        {addressLength > 1 && (
+          <Button
+            icon="corner-up-left-alt"
+            size="small"
+            onClick={toggleReplyAll}
+            btnStyle="primary"
+          >
+            Reply to all
+          </Button>
+        )}
         <Button
           icon="corner-down-right-alt"
           size="small"
@@ -123,12 +125,14 @@ class Mail extends React.PureComponent<Props, State> {
     }
 
     const innerHTML = { __html: cleanHtml(mailData.body || '') };
+    const { to, cc, bcc } = mailData;
+    const addresses = to.concat(cc, bcc);
 
     return (
       <>
         <Content dangerouslySetInnerHTML={innerHTML} />
         {this.renderAttachments(mailData)}
-        {this.renderReplyButton()}
+        {this.renderButtons(addresses.length)}
       </>
     );
   }
