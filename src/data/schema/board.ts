@@ -81,7 +81,7 @@ export const queries = `
   boardCounts(type: String!): [BoardCount]
   boardGetLast(type: String!): Board
   boardDetail(_id: String!): Board
-  pipelines(boardId: String!): [Pipeline]
+  pipelines(boardId: String, type: String, page: Int, perPage: Int): [Pipeline]
   pipelineDetail(_id: String!): Pipeline
   stages(
     isNotLost: Boolean,

@@ -2,6 +2,7 @@ import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from '../../../db/mo
 import { IConformityQueryParams } from '../../modules/conformities/types';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { paginate } from '../../utils';
 
 export interface IDate {
   month: number;
@@ -74,8 +75,26 @@ const boardQueries = {
   /**
    *  Pipelines list
    */
-  pipelines(_root, { boardId }: { boardId: string; type: string }) {
-    return Pipelines.find({ boardId }).sort({ order: 1, createdAt: -1 });
+  pipelines(
+    _root,
+    { boardId, type, ...queryParams }: { boardId: string; type: string; page: number; perPage: number },
+  ) {
+    const query: any = {};
+    const { page, perPage } = queryParams;
+
+    if (boardId) {
+      query.boardId = boardId;
+    }
+
+    if (type) {
+      query.type = type;
+    }
+
+    if (page && perPage) {
+      return paginate(Pipelines.find(query).sort({ createdAt: 1 }), queryParams);
+    }
+
+    return Pipelines.find(query).sort({ order: 1, createdAt: -1 });
   },
 
   /**
