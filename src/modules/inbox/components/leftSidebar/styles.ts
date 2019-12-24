@@ -117,7 +117,6 @@ const MessageContent = styled(FlexRoot)`
 const RowItem = styledTS<{
   isActive?: boolean;
   isRead?: boolean;
-  isIdle?: boolean;
 }>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
@@ -141,19 +140,33 @@ const RowItem = styledTS<{
       !props.isRead || props.isActive ? '' : colors.bgLight};
     cursor: pointer;
   }
+`;
 
-  &:after {
-    content: '';
+const Idle = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 5px solid transparent;
+  border-right-color: ${colors.colorCoreRed};
+  border-bottom-color: ${colors.colorCoreRed};
+  transition: all ease 0.3s;
+
+  &:before {
+    font-family: 'erxes';
+    content: '\\ea47';
+    font-size: 10px;
     position: absolute;
-    bottom: 0;
-    right: 0;
-    border: 5px solid transparent;
-    ${props =>
-      props.isIdle &&
-      css`
-        border-right-color: ${colors.colorCoreRed};
-        border-bottom-color: ${colors.colorCoreRed};
-      `};
+    color: ${colors.colorWhite};
+    top: -4px;
+    opacity: 0;
+  }
+
+  &:hover {
+    border-width: 10px;
+
+    &:before {
+      opacity: 1;
+    }
   }
 `;
 
@@ -276,5 +289,6 @@ export {
   GroupTitle,
   LeftContent,
   DropdownWrapper,
-  ToggleButton
+  ToggleButton,
+  Idle
 };

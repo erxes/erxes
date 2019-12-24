@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import Avatar from 'modules/common/components/nameCard/Avatar';
 import Tip from 'modules/common/components/Tip';
@@ -6,7 +7,7 @@ import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { IMail, IMessage } from 'modules/inbox/types';
 import * as React from 'react';
-import * as sanitizeHtml from 'sanitize-html';
+import Dropdown from 'react-bootstrap/Dropdown';
 import {
   ActionButton,
   AddressContainer,
@@ -24,7 +25,7 @@ type Props = {
   message: IMessage;
   isContentCollapsed: boolean;
   onToggleContent: () => void;
-  onToggleReply: (e, toAll?: boolean) => void;
+  onToggleMailForm: (event, replyToAll?: boolean, isForward?: boolean) => void;
 };
 
 type State = {
@@ -59,30 +60,62 @@ class MailHeader extends React.Component<Props, State> {
     this.setState({ isDetailExpanded: !this.state.isDetailExpanded });
   };
 
+  onToggleMailForm = ({
+    event,
+    replyToAll = false,
+    isForward = false
+  }: {
+    event: any;
+    replyToAll?: boolean;
+    isForward?: boolean;
+  }) => {
+    event.stopPropagation();
+
+    this.props.onToggleMailForm(event, replyToAll, isForward);
+  };
+
   renderTopButton = () => {
     if (this.props.isContentCollapsed) {
       return null;
     }
 
-    const onToggleReply = (e, toAll: boolean = false) => {
-      e.stopPropagation();
-      this.props.onToggleReply(e, toAll);
-    };
-
-    const onToggleReplyAll = e => onToggleReply(e, true);
+    const onToggleReply = event => this.onToggleMailForm({ event });
+    const onToggleReplyAll = event =>
+      this.onToggleMailForm({ event, replyToAll: true });
+    const onToggleForward = event =>
+      this.onToggleMailForm({ event, isForward: true });
 
     return (
       <>
         <Tip text={__('Reply')} placement="bottom">
           <ActionButton onClick={onToggleReply}>
-            <Icon icon="reply" size={12} />
+            <Icon icon="corner-up-left-alt" />
           </ActionButton>
         </Tip>
-        <Tip text={__('Reply all')} placement="bottom">
-          <ActionButton onClick={onToggleReplyAll}>
-            <Icon icon="replyall" size={12} />
-          </ActionButton>
-        </Tip>
+        <Dropdown alignRight={true}>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-engage">
+            <ActionButton>
+              <Icon icon="ellipsis-v" />
+            </ActionButton>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <li>
+              <a href="#action" onClick={onToggleReply}>
+                Reply
+              </a>
+            </li>
+            <li>
+              <a href="#action" onClick={onToggleReplyAll}>
+                Reply all
+              </a>
+            </li>
+            <li>
+              <a href="#action" onClick={onToggleForward}>
+                Forward
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
       </>
     );
   };
@@ -166,12 +199,9 @@ class MailHeader extends React.Component<Props, State> {
 
     if (isContentCollapsed) {
       // remove all tags and convert plain text
-      const plainContent = sanitizeHtml(message.content || '', {
-        allowedTags: [],
-        allowedAttributes: {}
-      }).trim();
+      const plainContent = (message.content || '').trim();
 
-      return <div>{plainContent.substring(0, 100)}</div>;
+      return <div>{plainContent.substring(0, 100)}...</div>;
     }
 
     return (
@@ -209,7 +239,7 @@ class MailHeader extends React.Component<Props, State> {
 
     return (
       <Meta toggle={isContentCollapsed} onClick={onToggleContent}>
-        <Avatar customer={customer} size={32} />
+        <Avatar customer={customer} size={32} letterCount={1} />
         {this.renderDetails(mailData)}
         {this.renderRightSide(hasAttachments, createdAt)}
       </Meta>

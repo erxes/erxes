@@ -69,3 +69,9 @@ export type ConfirmMutationResponse = {
     params: { variables: ConfirmMutationVariables }
   ) => Promise<any>;
 };
+
+export type ResetMemberPasswordResponse = {
+  usersResetMemberPassword: (
+    params: { variables: { _id: string; newPassword: string } }
+  ) => Promise<any>;
+};

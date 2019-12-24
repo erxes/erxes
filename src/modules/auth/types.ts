@@ -8,6 +8,7 @@ export interface IUserDetails {
   description?: string;
   position?: string;
   location?: string;
+  operatorPhone?: string;
 }
 
 export interface IUserLinks {

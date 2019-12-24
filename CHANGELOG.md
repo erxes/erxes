@@ -1,3 +1,36 @@
+## [0.11.2](https://github.com/erxes/erxes/compare/0.11.1...0.11.2) (2019-12-15)
+
+## [0.11.1](https://github.com/erxes/erxes/compare/0.11.0...0.11.1) (2019-12-15)
+
+
+### Bug Fixes
+
+* **board:** improve checklist ([0571565](https://github.com/erxes/erxes/commit/0571565)), closes [#1489](https://github.com/erxes/erxes/issues/1489) [#1490](https://github.com/erxes/erxes/issues/1490) [#1491](https://github.com/erxes/erxes/issues/1491) [#1492](https://github.com/erxes/erxes/issues/1492)
+* **customer:** add save and continue button close [#1451](https://github.com/erxes/erxes/issues/1451) ([5a3e949](https://github.com/erxes/erxes/commit/5a3e949))
+* **customers:** use renderFullName in SelectCustomers ([67aa25d](https://github.com/erxes/erxes/commit/67aa25d)), closes [#1466](https://github.com/erxes/erxes/issues/1466)
+* **date:** displaying numbers as date ([657eabb](https://github.com/erxes/erxes/commit/657eabb)), closes [#1460](https://github.com/erxes/erxes/issues/1460)
+* **deal/ticket/task:** saving labels on click ([dc33631](https://github.com/erxes/erxes/commit/dc33631)), closes [#1462](https://github.com/erxes/erxes/issues/1462)
+* **inbox:** overlapping text in sidebar ([ed5fddf](https://github.com/erxes/erxes/commit/ed5fddf))
+* **inbox:** show email subject close [#1468](https://github.com/erxes/erxes/issues/1468) ([dac6466](https://github.com/erxes/erxes/commit/dac6466))
+* **integration:** add ability to edit common fields ([fef660a](https://github.com/erxes/erxes/commit/fef660a)), closes [#1434](https://github.com/erxes/erxes/issues/1434)
+* **labels:** saving labels even no labels changed ([fb1e221](https://github.com/erxes/erxes/commit/fb1e221)), closes [#1461](https://github.com/erxes/erxes/issues/1461)
+* **select-with-search:** implemented logic to cancel prev queries ([dbda70c](https://github.com/erxes/erxes/commit/dbda70c)), closes [#1458](https://github.com/erxes/erxes/issues/1458)
+
+
+### Features
+
+* **common:** add help popover ([072c9a1](https://github.com/erxes/erxes/commit/072c9a1))
+* **dea/task/ticket:** add ability to restrict users by assigned & created users ([17fe9f8](https://github.com/erxes/erxes/commit/17fe9f8)), closes [#1428](https://github.com/erxes/erxes/issues/1428)
+* **users:** change password from admin ([da05b50](https://github.com/erxes/erxes/commit/da05b50)), closes [#1505](https://github.com/erxes/erxes/issues/1505)
+
+
+### Performance Improvements
+
+* **contacts:** save & new possibility on customer form. close [#1485](https://github.com/erxes/erxes/issues/1485), Not showing search result if not on the first page. close [#1486](https://github.com/erxes/erxes/issues/1486) ([1c1ca21](https://github.com/erxes/erxes/commit/1c1ca21))
+* **contacts:** show action buttons in detail page ([44692de](https://github.com/erxes/erxes/commit/44692de)), closes [#1497](https://github.com/erxes/erxes/issues/1497)
+* **integrations:** auto appear install code after saving messenger integration ([2fedfbc](https://github.com/erxes/erxes/commit/2fedfbc))
+* **mail:** improve dropdown of from email ([12c0fa7](https://github.com/erxes/erxes/commit/12c0fa7))
+
 # [0.11.0](https://github.com/erxes/erxes/compare/0.10.1...0.11.0) (2019-11-01)
 
 

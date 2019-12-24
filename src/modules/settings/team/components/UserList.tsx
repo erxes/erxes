@@ -23,6 +23,7 @@ import Select from 'react-select-plus';
 import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import UserForm from '../containers/UserForm';
+import UserResetPasswordForm from '../containers/UserResetPasswordForm';
 import { FilterContainer, UserAvatar } from '../styles';
 import UserInvitationForm from './UserInvitationForm';
 
@@ -102,6 +103,33 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
+  renderResetPasswordForm = props => {
+    return <UserResetPasswordForm {...props} />;
+  };
+
+  renderResetPassword = (user: IUser) => {
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Reset Member Password')}>
+          <Icon icon="settings" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => {
+      return this.renderResetPasswordForm({ ...props, object: user });
+    };
+
+    return (
+      <ModalTrigger
+        size="lg"
+        title="Reset member password"
+        trigger={editTrigger}
+        content={content}
+      />
+    );
+  };
+
   renderResendInvitation(user: IUser) {
     const onClick = () => {
       this.props.resendInvitation(user.email);
@@ -152,6 +180,7 @@ class UserList extends React.Component<FinalProps, States> {
             <ActionButtons>
               {this.renderResendInvitation(object)}
               {this.renderEditAction(object)}
+              {this.renderResetPassword(object)}
             </ActionButtons>
           </td>
         </tr>
