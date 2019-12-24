@@ -83,11 +83,12 @@ const boardDetail = `
 `;
 
 const pipelines = `
-  query pipelines($boardId: String!) {
-    pipelines(boardId: $boardId) {
+  query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
+    pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
       _id
       name
       boardId
+      state
     }
   }
 `;
@@ -165,10 +166,21 @@ const stageDetail = `
   }
 `;
 
+const boardCounts = `
+  query boardCounts($type: String!) {
+    boardCounts(type: $type) {
+      _id
+      name
+      count
+    }
+  }
+`;
+
 export default {
   boards,
   boardGetLast,
   boardDetail,
+  boardCounts,
   pipelines,
   pipelineDetail,
   stages,

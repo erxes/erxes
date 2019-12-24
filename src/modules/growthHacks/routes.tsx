@@ -1,4 +1,3 @@
-import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
@@ -28,18 +27,7 @@ const FunnelImpact = asyncComponent(() =>
 );
 
 const growthHack = () => {
-  let growthHacksLink = '/growthHack/home';
-
-  const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
-
-  const [defaultBoardId, defaultPipelineId] = [
-    defaultBoards.growthHack,
-    defaultPipelines.growthHack
-  ];
-
-  if (defaultBoardId && defaultPipelineId) {
-    growthHacksLink = `/growthHack/home?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
-  }
+  const growthHacksLink = '/growthHack/home';
 
   return <Redirect to={growthHacksLink} />;
 };
@@ -51,12 +39,9 @@ const boards = ({ location }) => {
 };
 
 const home = ({ location }) => {
-  const { defaultBoards } = getDefaultBoardAndPipelines();
   const queryParams = queryString.parse(location.search);
 
-  const state = queryParams.state || '';
-
-  return <GrowthHackHome state={state} id={defaultBoards.growthHack} />;
+  return <GrowthHackHome queryParams={queryParams} />;
 };
 
 const priorityMatrix = ({ location }) => {
