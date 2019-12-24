@@ -21,7 +21,7 @@ type Props = {
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
   hasTopBar: boolean;
-  color: string;
+  color?: string;
 };
 
 type State = {
@@ -93,7 +93,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderHead(title: string) {
-    const { hasTopBar, color } = this.props;
+    const { hasTopBar, color = "" } = this.props;
 
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
