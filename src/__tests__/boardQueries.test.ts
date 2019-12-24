@@ -104,8 +104,6 @@ describe('boardQueries', () => {
 
     const response = await graphqlRequest(qry, 'boardCounts', { type: 'deal' });
 
-    expect(response.length).toBe(4);
-
     expect(response[0].name).toBe('All');
     expect(response[0].count).toBe(3);
 

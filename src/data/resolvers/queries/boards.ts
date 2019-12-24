@@ -36,15 +36,23 @@ const boardQueries = {
   async boardCounts(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
     const boards = await Boards.find({ ...commonQuerySelector, type }).sort({ name: 1 });
 
-    const counts = [{ _id: '', name: 'All', count: await Pipelines.find({ type }).countDocuments() }];
+    const counts: Array<{ _id: string; name: string; count: number }> = [];
+
+    let allCount = 0;
 
     for (const board of boards) {
+      const count = await Pipelines.find({ boardId: board._id }).countDocuments();
+
       counts.push({
         _id: board._id,
         name: board.name || '',
-        count: await Pipelines.find({ boardId: board._id }).countDocuments(),
+        count,
       });
+
+      allCount += count;
     }
+
+    counts.unshift({ _id: '', name: 'All', count: allCount });
 
     return counts;
   },
