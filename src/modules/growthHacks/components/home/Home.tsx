@@ -14,20 +14,20 @@ const { Section } = Wrapper.Sidebar;
 
 type Props = {
   queryParams: any;
-  boardCounts: IBoardCount[];
+  boardsWithCount: IBoardCount[];
 };
 
 class Home extends React.Component<Props> {
   renderBoards() {
-    const { queryParams, boardCounts } = this.props;
+    const { queryParams, boardsWithCount } = this.props;
 
     const { id = '', state = '' } = queryParams;
 
-    if (boardCounts.length === 0) {
+    if (boardsWithCount.length === 0) {
       return <EmptyState text="There is no campaign" icon="folder-2" />;
     }
 
-    return boardCounts.map(board => (
+    return boardsWithCount.map(board => (
       <li key={board._id}>
         <Link
           className={id === board._id ? 'active' : ''}

@@ -21,7 +21,7 @@ class HomeContainer extends React.Component<FinalProps> {
 
     const props = {
       queryParams,
-      boardCounts: boardCountsQuery.boardCounts || []
+      boardsWithCount: boardCountsQuery.boardCounts || []
     };
 
     return <Home {...props} />;
@@ -33,7 +33,8 @@ export default withProps<Props>(
     graphql<Props, BoardCountsQueryResponse>(gql(queries.boardCounts), {
       name: 'boardCountsQuery',
       options: () => ({
-        variables: { type: 'growthHack' }
+        variables: { type: 'growthHack' },
+        fetchPolicy: 'network-only'
       })
     })
   )(HomeContainer)
