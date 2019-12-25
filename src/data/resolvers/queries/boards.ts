@@ -2,6 +2,7 @@ import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from '../../../db/mo
 import { IConformityQueryParams } from '../../modules/conformities/types';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { paginate } from '../../utils';
 
 export interface IDate {
   month: number;
@@ -31,6 +32,33 @@ const boardQueries = {
   },
 
   /**
+   *  Boards count
+   */
+  async boardCounts(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
+    const boards = await Boards.find({ ...commonQuerySelector, type }).sort({ name: 1 });
+
+    const counts: Array<{ _id: string; name: string; count: number }> = [];
+
+    let allCount = 0;
+
+    for (const board of boards) {
+      const count = await Pipelines.find({ boardId: board._id }).countDocuments();
+
+      counts.push({
+        _id: board._id,
+        name: board.name || '',
+        count,
+      });
+
+      allCount += count;
+    }
+
+    counts.unshift({ _id: '', name: 'All', count: allCount });
+
+    return counts;
+  },
+
+  /**
    *  Board detail
    */
   boardDetail(_root, { _id }: { _id: string }, { commonQuerySelector }: IContext) {
@@ -47,8 +75,26 @@ const boardQueries = {
   /**
    *  Pipelines list
    */
-  pipelines(_root, { boardId }: { boardId: string; type: string }) {
-    return Pipelines.find({ boardId }).sort({ order: 1, createdAt: -1 });
+  pipelines(
+    _root,
+    { boardId, type, ...queryParams }: { boardId: string; type: string; page: number; perPage: number },
+  ) {
+    const query: any = {};
+    const { page, perPage } = queryParams;
+
+    if (boardId) {
+      query.boardId = boardId;
+    }
+
+    if (type) {
+      query.type = type;
+    }
+
+    if (page && perPage) {
+      return paginate(Pipelines.find(query).sort({ createdAt: 1 }), queryParams);
+    }
+
+    return Pipelines.find(query).sort({ order: 1, createdAt: -1 });
   },
 
   /**

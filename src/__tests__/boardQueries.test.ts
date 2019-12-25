@@ -57,6 +57,14 @@ describe('boardQueries', () => {
     }
   `;
 
+  const pipelineQry = `
+    query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
+      pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
+        ${commonPipelineTypes}
+      }
+    }
+  `;
+
   afterEach(async () => {
     // Clearing test data
     await Boards.deleteMany({});
@@ -80,6 +88,41 @@ describe('boardQueries', () => {
     const response = await graphqlRequest(qry, 'boards', { type: 'deal' });
 
     expect(response.length).toBe(3);
+  });
+
+  test('Board count', async () => {
+    const boardOne = await boardFactory({ name: 'A' });
+    await pipelineFactory({ boardId: boardOne._id });
+    await pipelineFactory({ boardId: boardOne._id });
+
+    const boardTwo = await boardFactory({ name: 'B' });
+    await pipelineFactory({ boardId: boardTwo._id });
+
+    const boardThree = await boardFactory({ name: 'C' });
+
+    const qry = `
+      query boardCounts($type: String!) {
+        boardCounts(type: $type) {
+          _id
+          name
+          count
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'boardCounts', { type: 'deal' });
+
+    expect(response[0].name).toBe('All');
+    expect(response[0].count).toBe(3);
+
+    expect(response[1].name).toBe(boardOne.name);
+    expect(response[1].count).toBe(2);
+
+    expect(response[2].name).toBe(boardTwo.name);
+    expect(response[2].count).toBe(1);
+
+    expect(response[3].name).toBe(boardThree.name);
+    expect(response[3].count).toBe(0);
   });
 
   test('Board detail', async () => {
@@ -106,7 +149,7 @@ describe('boardQueries', () => {
   });
 
   test('Board get last', async () => {
-    const board = await boardFactory({ type: BOARD_TYPES.DEAL });
+    const board = await boardFactory();
 
     const qry = `
       query boardGetLast($type: String!) {
@@ -122,25 +165,39 @@ describe('boardQueries', () => {
   });
 
   test('Pipelines', async () => {
-    const board = await boardFactory();
+    await pipelineFactory();
+    await pipelineFactory();
+    await pipelineFactory();
 
-    const args = { boardId: board._id };
-
-    await pipelineFactory(args);
-    await pipelineFactory(args);
-    await pipelineFactory(args);
-
-    const qry = `
-      query pipelines($boardId: String!) {
-        pipelines(boardId: $boardId) {
-          ${commonPipelineTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'pipelines', args);
+    const response = await graphqlRequest(pipelineQry, 'pipelines');
 
     expect(response.length).toBe(3);
+  });
+
+  test('Pipelines with filter', async () => {
+    const board = await boardFactory();
+    const args = { boardId: board._id, type: 'deal' };
+
+    await pipelineFactory(args);
+    await pipelineFactory(args);
+    await pipelineFactory();
+
+    const response = await graphqlRequest(pipelineQry, 'pipelines', args);
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Pipelines with pagination', async () => {
+    const board = await boardFactory();
+    const args = { boardId: board._id, type: 'deal' };
+
+    await pipelineFactory(args);
+    await pipelineFactory(args);
+    await pipelineFactory(args);
+
+    const response = await graphqlRequest(pipelineQry, 'pipelines', { ...args, perPage: 2, page: 1 });
+
+    expect(response.length).toBe(2);
   });
 
   test('Pipeline detail', async () => {
