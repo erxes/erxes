@@ -8,6 +8,7 @@ type Props = {
 class DropdownToggle extends React.Component<Props> {
   handleClick = e => {
     e.preventDefault();
+    e.stopPropagation();
 
     const { onClick } = this.props;
 
