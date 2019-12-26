@@ -62,7 +62,7 @@ class ScriptList extends React.Component<Props> {
                 {object.kbTopic.title}
               </div>
             )}
-            {object.leads && (
+            {object.leads.length > 0 && (
               <div>
                 <Tip text="Pop ups" placement="top">
                   <Icon icon="window" />
