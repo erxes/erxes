@@ -63,6 +63,13 @@ class ReplyingMessage extends React.Component<Props, State> {
     });
   };
 
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
+
   render() {
     return (
       <form onSubmit={this.doAction}>
@@ -73,6 +80,7 @@ class ReplyingMessage extends React.Component<Props, State> {
             onChange={this.onContentChange}
             defaultValue={this.getContent()}
             required={true}
+            onFocus={this.moveCursorAtTheEnd}
           />
         </FormGroup>
 

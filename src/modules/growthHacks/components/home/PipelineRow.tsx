@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { IBoard, IPipeline } from 'modules/boards/types';
+import { IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import { __ } from 'modules/common/utils';
@@ -14,7 +14,6 @@ import {
 
 type Props = {
   pipeline: IPipeline;
-  currentBoard: IBoard;
 };
 
 class PipelineRow extends React.Component<Props, {}> {
@@ -54,7 +53,7 @@ class PipelineRow extends React.Component<Props, {}> {
   }
 
   render() {
-    const { pipeline, currentBoard } = this.props;
+    const { pipeline } = this.props;
 
     return (
       <ProjectItem key={pipeline._id}>
@@ -74,7 +73,7 @@ class PipelineRow extends React.Component<Props, {}> {
 
         <BottomAction>
           <Link
-            to={`/growthHack/board?id=${currentBoard._id}&pipelineId=${
+            to={`/growthHack/board?id=${pipeline.boardId}&pipelineId=${
               pipeline._id
             }`}
           >

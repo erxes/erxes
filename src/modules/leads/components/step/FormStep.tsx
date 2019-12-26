@@ -53,6 +53,7 @@ class FormStep extends React.Component<Props> {
       onDocChange,
       isReadyToSave: isReadyToSaveForm,
       onInit,
+      showMessage: false,
       type: 'lead'
     };
 

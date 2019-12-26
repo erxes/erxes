@@ -1,4 +1,4 @@
-import { IBoard } from 'modules/boards/types';
+import { IBoardCount } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
@@ -13,36 +13,36 @@ import PipelineList from '../../containers/home/PipelineList';
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
-  state: string;
-  boards: IBoard[];
-  boardId: string;
+  queryParams: any;
+  boardsWithCount: IBoardCount[];
 };
 
 class Home extends React.Component<Props> {
   renderBoards() {
-    const { boardId, boards } = this.props;
+    const { queryParams, boardsWithCount } = this.props;
 
-    if (boards.length === 0) {
+    const { id = '', state = '' } = queryParams;
+
+    if (boardsWithCount.length === 0) {
       return <EmptyState text="There is no campaign" icon="folder-2" />;
     }
 
-    return boards.map(board => (
+    return boardsWithCount.map(board => (
       <li key={board._id}>
         <Link
-          className={boardId === board._id ? 'active' : ''}
-          to={`/growthHack/home?id=${board._id}`}
+          className={id === board._id ? 'active' : ''}
+          to={`/growthHack/home?id=${board._id}&state=${state}`}
         >
           <FieldStyle>{board.name}</FieldStyle>
-          <SidebarCounter>
-            {board.pipelines && board.pipelines.length}
-          </SidebarCounter>
+          <SidebarCounter>{board.count}</SidebarCounter>
         </Link>
       </li>
     ));
   }
 
   renderSidebar() {
-    const { boardId, state } = this.props;
+    const { queryParams } = this.props;
+    const { state, id = '' } = queryParams;
 
     return (
       <>
@@ -62,7 +62,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={!state ? 'active' : ''}
-                to={`/growthHack/home?id=${boardId}`}
+                to={`/growthHack/home?id=${id}`}
               >
                 All
               </Link>
@@ -70,7 +70,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={state === 'In progress' ? 'active' : ''}
-                to={`/growthHack/home?id=${boardId}&state=In progress`}
+                to={`/growthHack/home?id=${id}&state=In progress`}
               >
                 In progress
               </Link>
@@ -78,7 +78,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={state === 'Not started' ? 'active' : ''}
-                to={`/growthHack/home?id=${boardId}&state=Not started`}
+                to={`/growthHack/home?id=${id}&state=Not started`}
               >
                 Not started
               </Link>
@@ -86,7 +86,7 @@ class Home extends React.Component<Props> {
             <li>
               <Link
                 className={state === 'Completed' ? 'active' : ''}
-                to={`/growthHack/home?id=${boardId}&state=Completed`}
+                to={`/growthHack/home?id=${id}&state=Completed`}
               >
                 Completed
               </Link>
@@ -98,7 +98,7 @@ class Home extends React.Component<Props> {
   }
 
   renderContent = () => {
-    return <PipelineList state={this.props.state} />;
+    return <PipelineList queryParams={this.props.queryParams} />;
   };
 
   render() {
