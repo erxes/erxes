@@ -46,29 +46,29 @@ class ScriptList extends React.Component<Props> {
         <tr key={index}>
           <td>{object.name}</td>
           <td>
-            {object.messenger ? (
-              <small>
-                <Icon icon="comment-1" /> {object.messenger.name}
-              </small>
-            ) : (
-              ''
-            )}{' '}
-            <br />
-            {object.kbTopic ? (
-              <small>
-                <Icon icon="book-alt" /> {object.kbTopic.title}
-              </small>
-            ) : (
-              ''
-            )}{' '}
-            <br />
-            {object.leads ? (
-              <small>
-                <Icon icon="window" />{' '}
-                {object.leads.map(lead => `${lead.name} `)}
-              </small>
-            ) : (
-              ''
+            {object.messenger && (
+              <div>
+                <Tip text="Messenger" placement="top">
+                  <Icon icon="comment-1" />
+                </Tip>{' '}
+                {object.messenger.name}
+              </div>
+            )}
+            {object.kbTopic && (
+              <div>
+                <Tip text="Knowledge Base" placement="top">
+                  <Icon icon="book-open" />
+                </Tip>{' '}
+                {object.kbTopic.title}
+              </div>
+            )}
+            {object.leads && (
+              <div>
+                <Tip text="Pop ups" placement="top">
+                  <Icon icon="window" />
+                </Tip>
+                {object.leads.map(lead => ` ${lead.name},`)}
+              </div>
             )}
           </td>
           <RowActions
