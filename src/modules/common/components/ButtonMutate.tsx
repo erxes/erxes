@@ -24,7 +24,6 @@ export const SmallLoader = styled.i`
 type Props = {
   mutation: string;
   variables: any;
-  successMessage?: string;
   btnSize?: string;
   btnStyle?: string;
   icon?: string;
@@ -41,7 +40,6 @@ type Props = {
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   static defaultProps = {
-    successMessage: 'Successfull',
     btnSize: 'medium',
     icon: 'checked-1'
   };
@@ -65,7 +63,6 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       mutation,
       callback,
       variables,
-      successMessage = '',
       refetchQueries,
       beforeSubmit,
       disableLoading
@@ -87,10 +84,6 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       })
 
       .then(({ data }) => {
-        if (successMessage) {
-          Alert.success(successMessage);
-        }
-
         if (callback) {
           callback(data);
         }

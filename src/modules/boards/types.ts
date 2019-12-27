@@ -29,9 +29,6 @@ export interface IOptions {
   };
   texts: {
     addText: string;
-    addSuccessText: string;
-    updateSuccessText: string;
-    deleteSuccessText: string;
     copySuccessText: string;
     changeSuccessText: string;
   };

@@ -34,9 +34,6 @@ const options = {
   },
   texts: {
     addText: 'Add a ticket',
-    addSuccessText: 'You successfully added a ticket',
-    updateSuccessText: 'You successfully updated a ticket',
-    deleteSuccessText: 'You successfully deleted a ticket',
     copySuccessText: 'You successfully copied a ticket',
     changeSuccessText: 'You successfully changed a ticket'
   },

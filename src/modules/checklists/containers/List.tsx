@@ -32,7 +32,6 @@ class ListContainer extends React.Component<FinalProps> {
     confirm().then(() => {
       removeMutation({ variables: { _id: checklistId } })
         .then(() => {
-          Alert.success('You successfully deleted a checklist');
           localStorage.removeItem(checklistId);
         })
         .catch(e => {
@@ -74,7 +73,6 @@ class ListContainer extends React.Component<FinalProps> {
           btnSize="small"
           type="submit"
           icon=""
-          successMessage={`You successfully edited a checklist`}
         />
       );
     };
