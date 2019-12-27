@@ -158,7 +158,8 @@ export default class Button extends React.Component<ButtonProps> {
     btnStyle: 'default',
     size: 'medium',
     block: false,
-    type: 'button'
+    type: 'button',
+    href: 'string'
   };
 
   render() {

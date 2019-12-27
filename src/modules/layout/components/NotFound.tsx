@@ -4,7 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { AuthContent } from '../styles';
 
-const Layout = styled.main`
+const Layout = styled.div`
   height: 100%;
   flex: 1;
   max-width: 100%;
@@ -51,7 +51,7 @@ function NotFound() {
             <br />
             {__("Looks like this page doesn't exist.")}
           </p>
-          <Button btnStyle="success" href="http://erxes.io/">
+          <Button btnStyle="success" href="https://office.erxes.io/">
             {__('Go to home page')}
           </Button>
         </NotFoundWrapper>
