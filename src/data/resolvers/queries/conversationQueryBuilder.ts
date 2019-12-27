@@ -166,9 +166,9 @@ export default class Builder {
   }
 
   // filter by participating
-  public participatingFilter(): { participatedUserIds: IIn } {
+  public participatingFilter(): { $or: object[] } {
     return {
-      participatedUserIds: { $in: [this.user._id] },
+      $or: [{ participatedUserIds: { $in: [this.user._id] } }, { assignedUserId: this.user._id }],
     };
   }
 
