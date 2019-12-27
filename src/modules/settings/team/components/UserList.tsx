@@ -233,7 +233,7 @@ class UserList extends React.Component<FinalProps, States> {
     };
 
     return (
-      <>
+      <FlexItem>
         <ControlLabel>{__('Brand')}</ControlLabel>
         <SelectBrands
           label={__('Choose brands')}
@@ -241,7 +241,7 @@ class UserList extends React.Component<FinalProps, States> {
           value={this.state.brandIds}
           name="selectedBrands"
         />
-      </>
+      </FlexItem>
     );
   }
 
@@ -249,7 +249,7 @@ class UserList extends React.Component<FinalProps, States> {
     return (
       <FilterContainer>
         <FlexRow>
-          <FlexItem>{this.renderBrandChooser()}</FlexItem>
+          {this.renderBrandChooser()}
           <FlexItem>
             <ControlLabel>{__('Search')}</ControlLabel>
             <FormControl
