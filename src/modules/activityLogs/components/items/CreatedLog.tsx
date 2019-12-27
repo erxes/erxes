@@ -28,6 +28,7 @@ class CreatedLog extends React.Component<Props> {
         userName = createdByDetail.content.details.fullName || 'Unknown';
       }
     }
+
     const body = (
       <Link
         to={`/${contentType}/board?_id=${activity._id}&itemId=${

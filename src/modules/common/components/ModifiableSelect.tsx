@@ -44,7 +44,7 @@ type Props = {
   value?: string;
   placeholder?: string;
   buttonText?: string;
-  checkFormat?: (value: string | number) => boolean;
+  checkFormat?: (value) => boolean;
   adding?: boolean;
   formProps?: IFormProps;
   type?: string;

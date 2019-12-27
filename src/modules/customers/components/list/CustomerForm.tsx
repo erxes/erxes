@@ -23,7 +23,11 @@ import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMember
 import React from 'react';
 import validator from 'validator';
 import { ICustomer, ICustomerDoc } from '../../types';
-import { leadStatusChoices, lifecycleStateChoices } from '../../utils';
+import {
+  isValidPhone,
+  leadStatusChoices,
+  lifecycleStateChoices
+} from '../../utils';
 
 type Props = {
   customer?: ICustomer;
@@ -246,7 +250,7 @@ class CustomerForm extends React.Component<Props, State> {
                   placeholder="Choose primary phone"
                   buttonText="Add Phone"
                   onChange={this.onPhoneChange}
-                  checkFormat={validator.isMobilePhone}
+                  checkFormat={isValidPhone}
                 />
               </FormGroup>
 

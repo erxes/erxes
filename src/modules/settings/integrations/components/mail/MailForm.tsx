@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
@@ -10,10 +11,17 @@ import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
 import { IMail } from 'modules/inbox/types';
+import { IBrand } from 'modules/settings/brands/types';
+import { IEmailSignature } from 'modules/settings/email/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React, { ReactNode } from 'react';
 import { MAIL_TOOLBARS_CONFIG } from '../../constants';
-import { formatObj, formatStr } from '../../containers/utils';
+import {
+  formatObj,
+  formatStr,
+  generateForwardMailContent
+} from '../../containers/utils';
+
 import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
@@ -37,9 +45,13 @@ type Props = {
   fromEmail?: string;
   mailData?: IMail;
   isReply?: boolean;
-  toAll?: boolean;
+  isForward?: boolean;
+  replyAll?: boolean;
+  brandId?: string;
   closeModal?: () => void;
   toggleReply?: () => void;
+  emailSignatures: IEmailSignature[];
+  createdAt?: Date;
   sendMail: (
     { variables, callback }: { variables: any; callback: () => void }
   ) => void;
@@ -64,16 +76,18 @@ type State = {
   fileIds: string[];
   totalFileSize: number;
   isUploading: boolean;
+  emailSignature: string;
 };
 
 class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const mailData = props.mailData || ({} as IMail);
+    const { replyAll, mailData = {} as IMail } = props;
 
-    const cc = formatObj(mailData.cc || []);
-    const bcc = formatObj(mailData.bcc || []);
+    const cc = replyAll ? formatObj(mailData.cc || []) : '';
+    const bcc = replyAll ? formatObj(mailData.bcc || []) : '';
+
     const [from] = mailData.from || [{}];
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
@@ -82,10 +96,12 @@ class MailForm extends React.Component<Props, State> {
       props.integrationId
     );
 
+    const emailSignature = this.getEmailSignature(props.brandId);
+
     this.state = {
       cc,
       bcc,
-      to: sender,
+      to: props.isForward ? '' : sender,
 
       hasCc: cc ? cc.length > 0 : false,
       hasBcc: bcc ? bcc.length > 0 : false,
@@ -96,11 +112,12 @@ class MailForm extends React.Component<Props, State> {
       fromEmail: sender,
       from: fromId,
       subject: mailData.subject || '',
-      content: '',
+      emailSignature,
+      content: this.getContent(mailData, emailSignature),
 
       status: 'draft',
       isUploading: false,
-      kind: this.getSelectedIntegrationKind(fromId),
+      kind: this.getSelectedIntegration(fromId).kind || '',
 
       attachments: [],
       fileIds: [],
@@ -110,14 +127,44 @@ class MailForm extends React.Component<Props, State> {
     };
   }
 
+  getContent(mailData: IMail, emailSignature) {
+    const { createdAt, isForward } = this.props;
+
+    if (!isForward) {
+      return `<p>&nbsp;</p><p>&nbsp;</p> ${emailSignature}`;
+    }
+
+    const {
+      from = [],
+      to = [],
+      cc = [],
+      bcc = [],
+      subject = '',
+      body = ''
+    } = mailData;
+
+    const [{ email: fromEmail }] = from;
+
+    return generateForwardMailContent({
+      fromEmail,
+      date: dayjs(createdAt).format('lll'),
+      to,
+      cc,
+      bcc,
+      subject,
+      body,
+      emailSignature
+    });
+  }
+
   onSubmit = (e, shouldResolve = false) => {
     const {
       isReply,
-      toAll,
       closeModal,
       toggleReply,
       integrationId,
-      sendMail
+      sendMail,
+      isForward
     } = this.props;
 
     const mailData = this.props.mailData || ({} as IMail);
@@ -131,25 +178,35 @@ class MailForm extends React.Component<Props, State> {
       subject,
       kind
     } = this.state;
+
+    if (!to) {
+      return Alert.error('This message must have at least one recipient.');
+    }
+
     const { references, headerId, threadId, messageId } = mailData;
 
     this.setState({ isLoading: true });
+
+    const subjectValue = subject || mailData.subject || '';
 
     const variables = {
       headerId,
       references,
       threadId,
-      replyToMessageId: messageId,
-      to: formatStr(to),
-      cc: toAll ? formatStr(cc) : [],
-      bcc: toAll ? formatStr(bcc) : [],
-      from: integrationId ? integrationId : from,
-      subject: subject || mailData.subject,
       attachments,
       kind,
       body: content,
       erxesApiId: from,
-      shouldResolve
+      shouldResolve,
+      ...(!isForward ? { replyToMessageId: messageId } : {}),
+      to: formatStr(to),
+      cc: formatStr(cc),
+      bcc: formatStr(bcc),
+      from: integrationId ? integrationId : from,
+      subject:
+        isForward && !subjectValue.includes('Fw:')
+          ? `Fw: ${subjectValue}`
+          : subjectValue
     };
 
     return sendMail({
@@ -166,11 +223,68 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
-  getSelectedIntegrationKind = (selectedId: string) => {
+  getSelectedIntegration = (selectedId: string) => {
     const integration = this.props.integrations.find(
       obj => obj._id === selectedId
     );
-    return (integration && integration.kind) || '';
+
+    return integration || ({} as IIntegration);
+  };
+
+  changeEditorContent = (content: string, emailSignature: string) => {
+    this.setState({ content }, () => {
+      this.setState({ emailSignature });
+    });
+  };
+
+  changeEmailSignature = (selectedIntegrationId: string) => {
+    // find selected brand
+    const brand = this.getSelectedIntegration(selectedIntegrationId).brand;
+    const brandId = brand._id;
+
+    // email signature of selected brand
+    const emailSignatureToChange = this.getEmailSignature(brandId);
+
+    // email signature, content before change
+    const { emailSignature, content } = this.state;
+
+    if (emailSignature === emailSignatureToChange) {
+      return;
+    }
+
+    if (content.includes(emailSignature)) {
+      return this.changeEditorContent(
+        content.replace(emailSignature, emailSignatureToChange),
+        emailSignatureToChange
+      );
+    }
+
+    return this.changeEditorContent(
+      content.concat(emailSignatureToChange),
+      emailSignatureToChange
+    );
+  };
+
+  getEmailSignature = (brandId?: string) => {
+    if (!brandId) {
+      const integrations = this.props.integrations;
+      const brand =
+        integrations.length > 0 ? integrations[0].brand : ({} as IBrand);
+
+      return this.findEmailSignature(brand._id);
+    }
+
+    return this.findEmailSignature(brandId);
+  };
+
+  findEmailSignature = (brandId: string) => {
+    const found = this.props.emailSignatures.find(
+      obj => obj.brandId === brandId
+    );
+
+    const signatureContent = (found && found.signature) || '';
+
+    return signatureContent;
   };
 
   getIntegrationId = (integrations, integrationId?: string) => {
@@ -342,7 +456,9 @@ class MailForm extends React.Component<Props, State> {
     }
 
     const onChangeMail = (from: string) => {
-      this.setState({ from, kind: this.getSelectedIntegrationKind(from) });
+      this.setState({ from, kind: this.getSelectedIntegration(from).kind });
+
+      this.changeEmailSignature(from);
     };
 
     return (
@@ -368,6 +484,7 @@ class MailForm extends React.Component<Props, State> {
       <FlexRow>
         <label>To:</label>
         <FormControl
+          autoFocus={this.props.isForward}
           defaultValue={this.state.to}
           onChange={this.onSelectChange.bind(this, 'to')}
           name="to"
@@ -483,6 +600,10 @@ class MailForm extends React.Component<Props, State> {
     element?: ReactNode;
     onClick?: () => void;
   }) => {
+    if (!onClick && !element) {
+      return null;
+    }
+
     return (
       <Tip text={__(text)} placement="top">
         <Label>
@@ -493,7 +614,7 @@ class MailForm extends React.Component<Props, State> {
     );
   };
 
-  renderSubmit(label, onClick, type: string) {
+  renderSubmit(label, onClick, type: string, icon = 'message') {
     const { isLoading } = this.state;
 
     return (
@@ -501,7 +622,7 @@ class MailForm extends React.Component<Props, State> {
         onClick={onClick}
         btnStyle={type}
         size="small"
-        icon={isLoading ? undefined : 'message'}
+        icon={isLoading ? undefined : icon}
         disabled={isLoading}
       >
         {isLoading && <SmallLoader />}
@@ -551,7 +672,8 @@ class MailForm extends React.Component<Props, State> {
                 this.renderSubmit(
                   'Send and Resolve',
                   onSubmitResolve,
-                  'success'
+                  'success',
+                  'check-circle'
                 )}
             </div>
           )}
@@ -570,7 +692,7 @@ class MailForm extends React.Component<Props, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           toolbarLocation="bottom"
-          autoFocus={true}
+          autoFocus={!this.props.isForward}
           autoGrow={true}
           autoGrowMinHeight={120}
         />
@@ -579,14 +701,12 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderLeftSide() {
-    const { toAll } = this.props;
-
     return (
       <Column>
         {this.renderFrom()}
         {this.renderTo()}
-        {toAll && this.renderCC()}
-        {toAll && this.renderBCC()}
+        {this.renderCC()}
+        {this.renderBCC()}
       </Column>
     );
   }
