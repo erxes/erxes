@@ -34,6 +34,9 @@ const options = {
   },
   texts: {
     addText: 'Add a deal',
+    addSuccessText: 'You successfully added a deal',
+    updateSuccessText: 'You successfully updated a deal',
+    deleteSuccessText: 'You successfully deleted a deal',
     changeSuccessText: 'You successfully changed a deal',
     copySuccessText: 'You successfully copied a deal'
   },

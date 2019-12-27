@@ -25,6 +25,7 @@ type Props = {
   mutation: string;
   variables: any;
   btnSize?: string;
+  successMessage?: string;
   btnStyle?: string;
   icon?: string;
   callback?: (data?: any) => void;
@@ -40,6 +41,7 @@ type Props = {
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   static defaultProps = {
+    successMessage: 'success',
     btnSize: 'medium',
     icon: 'checked-1'
   };
@@ -63,6 +65,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       mutation,
       callback,
       variables,
+      successMessage = '',
       refetchQueries,
       beforeSubmit,
       disableLoading
@@ -84,6 +87,10 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       })
 
       .then(({ data }) => {
+        if (successMessage) {
+          Alert.success(successMessage);
+        }
+
         if (callback) {
           callback(data);
         }
