@@ -95,15 +95,12 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   removeItem = (itemId: string, callback) => {
-    const { removeMutation, onRemove, stageId, options } = this.props;
+    const { removeMutation, onRemove, stageId } = this.props;
 
     confirm().then(() =>
       removeMutation({ variables: { _id: itemId } })
         .then(() => {
           callback();
-
-          Alert.success(options.texts.deleteSuccessText);
-
           if (onRemove) {
             invalidateCache();
 

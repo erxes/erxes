@@ -26,7 +26,7 @@ class AddFormContainer extends React.Component<Props> {
           isSubmitted={isSubmitted}
           btnSize="small"
           type="submit"
-          successMessage={`You successfully added a checklist`}
+          successMessage=""
         />
       );
     };

@@ -30,7 +30,7 @@ const SignInContainer = (props: IRouterProps) => {
         type="submit"
         block={true}
         icon="none"
-        successMessage="Congrats! You successfully sign in"
+        successMessage=""
       >
         {__('Sign in')}
       </ButtonMutate>
