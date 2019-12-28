@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
+import { Box as TypeBox } from 'modules/settings/growthHacks/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import {
@@ -28,8 +29,9 @@ const HelperText = styled.div`
   font-size: 12px;
 `;
 
-const EngageBox = styled.div`
+const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
   display: flex;
+  flex-direction: ${props => props.direction};
 `;
 
 const Title = styled.h3`
@@ -157,12 +159,7 @@ const Half = styled.div`
   }
 `;
 
-const StepContent = styled.div`
-  display: flex;
-`;
-
-const FlexItemCentered = styled.div`
-  display: flex;
+const FlexItemCentered = styled(FlexContainer)`
   justify-content: center;
 `;
 
@@ -175,6 +172,26 @@ const Box = styled(BoxRoot)`
 
   @media (max-width: 1400px) {
     flex-basis: 48%;
+  }
+`;
+
+const ChooseBox = styled(TypeBox)`
+  margin-right: 0;
+
+  &:last-of-type {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  b {
+    font-size: 15px;
+    line-height: 20px;
+    color: ${colors.textPrimary};
+    text-transform: none;
+  }
+
+  a {
+    color: ${colors.textPrimary};
+    padding: ${dimensions.unitSpacing}px;
   }
 `;
 
@@ -294,14 +311,6 @@ const CustomerCounts = styled.div`
   }
 `;
 
-const MessageDescription = styled.div`
-  width: 300px;
-  white-space: normal;
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
-  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
-`;
-
 const EditorContainer = styled.div`
   padding: ${coreSpace};
   flex: 1;
@@ -342,7 +351,7 @@ const RightSection = styled.div`
 export {
   RowTitle,
   HelperText,
-  EngageBox,
+  FlexContainer,
   FormWrapper,
   WebPreview,
   PreviewContent,
@@ -353,8 +362,8 @@ export {
   Recipient,
   Half,
   Title,
-  StepContent,
   FlexItemCentered,
+  ChooseBox,
   Box,
   BoxContent,
   BoxHeader,
@@ -363,7 +372,6 @@ export {
   SelectMonth,
   LauncherContainer,
   WidgetPreview,
-  MessageDescription,
   EditorContainer,
   StepFormWrapper,
   ListWrapper,
