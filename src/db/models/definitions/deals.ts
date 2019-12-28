@@ -50,6 +50,7 @@ interface IProductData extends Document {
 
 export interface IDeal extends IItemCommonFields {
   productsData?: IProductData[];
+  response?: any;
 }
 
 export interface IDealDocument extends IDeal, Document {

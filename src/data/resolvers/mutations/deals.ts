@@ -4,7 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkTrigger, checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import { checkAutomation, checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import {
   copyPipelineLabels,
   createConformity,
@@ -133,8 +133,9 @@ const dealMutations = {
       contentType: 'deal',
     });
 
-    await checkTrigger('changeDeal', { deal, sourceStageId, destinationStageId }, user);
-
+    const response = await checkAutomation('changeDeal', { deal, sourceStageId, destinationStageId }, user);
+    const jsonResp = JSON.parse(response);
+    deal.response = jsonResp.response ? jsonResp.response : {};
     return deal;
   },
 

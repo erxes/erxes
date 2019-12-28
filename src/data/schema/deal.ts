@@ -9,6 +9,7 @@ export const types = `
     products: JSON
     productsData: JSON
     ${commonTypes}
+    response: JSON
   }
 
   type DealTotalCurrency {
