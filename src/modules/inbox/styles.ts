@@ -248,6 +248,19 @@ const Attachment = styled.div`
   > div {
     margin-right: 8px;
   }
+
+  i {
+    color: ${colors.colorWhite};
+    opacity: 0.7;
+    margin: 0 3px;
+    font-size: 13px;
+    transition: all ease 0.3s;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 1;
+    }
+  }
 `;
 
 const AttachmentThumb = styled.div`

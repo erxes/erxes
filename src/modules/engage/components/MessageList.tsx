@@ -1,19 +1,17 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
 import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import MessageListRow from '../containers/MessageListRow';
 import Sidebar from '../containers/Sidebar';
-import { MessageDescription } from '../styles';
+import { ChooseBox, FlexContainer } from '../styles';
 import { IEngageMessage } from '../types';
 
 type Props = {
@@ -58,6 +56,56 @@ class List extends React.Component<Props> {
     );
   }
 
+  renderBox(title, desc, url) {
+    return (
+      <ChooseBox>
+        <Link to={url}>
+          <b>{__(title)}</b>
+          <p>{__(desc)}</p>
+        </Link>
+      </ChooseBox>
+    );
+  }
+
+  renderRightActionBar = () => {
+    const trigger = (
+      <Button btnStyle="success" size="small" icon="add">
+        {__('New message')}
+      </Button>
+    );
+
+    const content = props => (
+      <FlexContainer direction="column">
+        {this.renderBox(
+          'Auto message',
+          'Auto message description',
+          '/engage/messages/create?kind=auto'
+        )}
+        {this.renderBox(
+          'Manual message',
+          'Manual message description',
+          '/engage/messages/create?kind=manual'
+        )}
+        {this.renderBox(
+          'Visitor auto message',
+          'Visitor auto message description',
+          '/engage/messages/create?kind=visitorAuto'
+        )}
+      </FlexContainer>
+    );
+
+    return (
+      <ModalTrigger
+        title="New message"
+        trigger={trigger}
+        content={content}
+        hideHeader={true}
+        enforceFocus={false}
+        centered={true}
+      />
+    );
+  };
+
   render() {
     const {
       messages,
@@ -69,44 +117,11 @@ class List extends React.Component<Props> {
       isAllSelected
     } = this.props;
 
-    const actionBarRight = (
-      <Dropdown alignRight={true}>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-engage">
-          <Button btnStyle="success" size="small" icon="add">
-            {__('New message')} <Icon icon="angle-down" />
-          </Button>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <li>
-            <Link to={'/engage/messages/create?kind=auto'}>
-              {__('Auto message')}
-              <MessageDescription>
-                {__('Auto message description')}
-              </MessageDescription>
-            </Link>
-          </li>
-          <li>
-            <Link to={'/engage/messages/create?kind=manual'}>
-              {__('Manual message')}
-              <MessageDescription>
-                {__('Manual message description')}
-              </MessageDescription>
-            </Link>
-          </li>
-          <li>
-            <Link to={'/engage/messages/create?kind=visitorAuto'}>
-              {__('Visitor auto message')}
-              <MessageDescription>
-                {__('Visitor auto message description')}
-              </MessageDescription>
-            </Link>
-          </li>
-        </Dropdown.Menu>
-      </Dropdown>
-    );
-
     const actionBar = (
-      <Wrapper.ActionBar left={this.renderTagger()} right={actionBarRight} />
+      <Wrapper.ActionBar
+        left={this.renderTagger()}
+        right={this.renderRightActionBar()}
+      />
     );
 
     const mainContent = (

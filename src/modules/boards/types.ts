@@ -180,10 +180,24 @@ export type BoardsQueryResponse = {
   refetch: () => void;
 };
 
+export interface IBoardCount {
+  _id: string;
+  name: string;
+  count: number;
+}
+
+export type BoardCountsQueryResponse = {
+  boardCounts: IBoardCount[];
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type PipelinesQueryResponse = {
   pipelines: IPipeline[];
   loading: boolean;
-  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
+  refetch: (
+    { boardId, type }: { boardId?: string; type?: string }
+  ) => Promise<any>;
 };
 
 export type StagesQueryResponse = {
