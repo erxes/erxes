@@ -167,7 +167,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         break;
       case 'lead':
         action = 'filled in';
-        kind = 'Lead form';
+        kind = 'Pop ups';
         item = '';
         break;
       case 'nylas-gmail':
