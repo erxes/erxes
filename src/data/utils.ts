@@ -153,6 +153,28 @@ export const uploadFileAWS = async (file: { name: string; path: string; type: st
 };
 
 /*
+ * Delete file from amazon s3
+ */
+const deleteFileAWS = (fileName: string) => {
+  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+
+  const params = { Bucket: AWS_BUCKET, Key: fileName };
+
+  // initialize s3
+  const s3 = createAWS();
+
+  return new Promise((resolve, reject) => {
+    s3.deleteObject(params, err => {
+      if (err) {
+        return reject(err);
+      }
+
+      return resolve('ok');
+    });
+  });
+};
+
+/*
  * Save file to google cloud storage
  */
 export const uploadFileGCS = async (file: { name: string; path: string; type: string }): Promise<string> => {
@@ -192,6 +214,29 @@ export const uploadFileGCS = async (file: { name: string; path: string; type: st
   const { metadata, name } = response;
 
   return IS_PUBLIC === 'true' ? metadata.mediaLink : name;
+};
+
+const deleteFileGCS = async (fileName: string) => {
+  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+
+  // initialize GCS
+  const storage = createGCS();
+
+  // select bucket
+  const bucket = storage.bucket(BUCKET);
+
+  return new Promise((resolve, reject) => {
+    bucket
+      .file(fileName)
+      .delete()
+      .then(err => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve('ok');
+      });
+  });
 };
 
 /**
@@ -255,6 +300,16 @@ export const uploadFile = async (file, fromEditor = false): Promise<any> => {
   }
 
   return nameOrLink;
+};
+
+export const deleteFile = async (fileName: string): Promise<any> => {
+  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+
+  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+    return deleteFileAWS(fileName);
+  }
+
+  return deleteFileGCS(fileName);
 };
 
 /**
