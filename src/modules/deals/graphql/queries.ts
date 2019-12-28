@@ -93,6 +93,7 @@ export const dealFields = `
   modifiedBy
   reminderMinute
   isComplete
+  response
 `;
 
 const dealsTotalAmounts = `

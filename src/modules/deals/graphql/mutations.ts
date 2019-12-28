@@ -55,7 +55,7 @@ const dealsRemove = `
 const dealsChange = `
   mutation dealsChange($_id: String!, $destinationStageId: String!) {
     dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
-      _id
+      ${dealFields}
     }
   }
 `;
