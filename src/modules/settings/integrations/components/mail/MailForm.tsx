@@ -83,10 +83,11 @@ class MailForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const mailData = props.mailData || ({} as IMail);
+    const { replyAll, mailData = {} as IMail } = props;
 
-    const cc = formatObj(mailData.cc || []);
-    const bcc = formatObj(mailData.bcc || []);
+    const cc = replyAll ? formatObj(mailData.cc || []) : '';
+    const bcc = replyAll ? formatObj(mailData.bcc || []) : '';
+
     const [from] = mailData.from || [{}];
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
@@ -159,7 +160,6 @@ class MailForm extends React.Component<Props, State> {
   onSubmit = (e, shouldResolve = false) => {
     const {
       isReply,
-      replyAll,
       closeModal,
       toggleReply,
       integrationId,
@@ -200,8 +200,8 @@ class MailForm extends React.Component<Props, State> {
       shouldResolve,
       ...(!isForward ? { replyToMessageId: messageId } : {}),
       to: formatStr(to),
-      cc: replyAll ? formatStr(cc) : [],
-      bcc: replyAll ? formatStr(bcc) : [],
+      cc: formatStr(cc),
+      bcc: formatStr(bcc),
       from: integrationId ? integrationId : from,
       subject:
         isForward && !subjectValue.includes('Fw:')
@@ -701,14 +701,12 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderLeftSide() {
-    const { replyAll } = this.props;
-
     return (
       <Column>
         {this.renderFrom()}
         {this.renderTo()}
-        {replyAll && this.renderCC()}
-        {replyAll && this.renderBCC()}
+        {this.renderCC()}
+        {this.renderBCC()}
       </Column>
     );
   }

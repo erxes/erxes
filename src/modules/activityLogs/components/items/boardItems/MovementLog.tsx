@@ -42,7 +42,7 @@ class MovementLog extends React.Component<Props> {
           </Link>
           &nbsp;
           {contentType} from&nbsp;
-          <q>{destinationStage}</q> to <q>{oldStage}</q>
+          <q>{oldStage}</q> to <q>{destinationStage}</q>
         </span>
       );
     }
