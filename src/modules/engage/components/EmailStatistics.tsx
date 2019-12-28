@@ -11,7 +11,7 @@ import {
   Box,
   BoxContent,
   BoxHeader,
-  EngageBox,
+  FlexContainer,
   Half,
   IconContainer,
   PreviewContent,
@@ -108,7 +108,7 @@ class EmailStatistics extends React.Component<Props> {
     );
 
     const content = (
-      <EngageBox>
+      <FlexContainer>
         {this.renderLeft()}
         <Half>
           <RightSection>
@@ -123,7 +123,7 @@ class EmailStatistics extends React.Component<Props> {
             {this.renderBox('times-circle', 'Rejected', stats.reject)}
           </RightSection>
         </Half>
-      </EngageBox>
+      </FlexContainer>
     );
 
     return (
