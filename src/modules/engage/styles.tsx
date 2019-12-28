@@ -1,6 +1,7 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { BoxRoot } from 'modules/common/styles/main';
+import { Box as TypeBox } from 'modules/settings/growthHacks/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import {
@@ -28,8 +29,15 @@ const HelperText = styled.div`
   font-size: 12px;
 `;
 
-const EngageBox = styled.div`
-  padding: ${coreSpace} ${coreSpace} 0;
+const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
+  display: flex;
+  flex-direction: ${props => props.direction};
+`;
+
+const Title = styled.h3`
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
 `;
 
 const FormWrapper = styled.div`
@@ -39,7 +47,10 @@ const FormWrapper = styled.div`
   height: 100%;
 `;
 
-const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
+const PreviewContent = styledTS<{
+  isFullmessage: boolean;
+  showOverflow?: boolean;
+}>(styled.div)`
   padding: 0 ${coreSpace};
   line-height: 22px;
   margin-bottom: ${coreSpace};
@@ -50,7 +61,7 @@ const PreviewContent = styledTS<{ isFullmessage: boolean }>(styled.div)`
   ${props => {
     if (!props.isFullmessage) {
       return `
-        overflow: hidden;
+        overflow: ${props.showOverflow ? 'auto' : 'hidden'};
         -webkit-box-orient: vertical;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -141,26 +152,56 @@ const Recipient = styled.div`
 
 const Half = styled.div`
   width: 50%;
+  border-right: 1px solid ${colors.borderPrimary};
+
+  &:last-of-type {
+    border: none;
+  }
 `;
 
-const StepContent = styled.div`
-  display: flex;
-`;
-
-const FlexItemCentered = styled.div`
-  display: flex;
+const FlexItemCentered = styled(FlexContainer)`
   justify-content: center;
 `;
 
 const Box = styled(BoxRoot)`
-  width: 23%;
   height: 200px;
-  margin-top: ${coreSpace};
+  margin-bottom: ${coreSpace};
+  margin-right: 0;
+  flex-basis: 31%;
+  flex-shrink: 0;
+
+  @media (max-width: 1400px) {
+    flex-basis: 48%;
+  }
+`;
+
+const ChooseBox = styled(TypeBox)`
+  margin-right: 0;
+
+  &:last-of-type {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  b {
+    font-size: 15px;
+    line-height: 20px;
+    color: ${colors.textPrimary};
+    text-transform: none;
+  }
+
+  a {
+    color: ${colors.textPrimary};
+    padding: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const BoxContent = styled.div`
-  margin-top: 40px;
+  margin-top: 30px;
   font-size: 18px;
+
+  h5 {
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
 `;
 
 const BoxHeader = styled.div`
@@ -270,14 +311,6 @@ const CustomerCounts = styled.div`
   }
 `;
 
-const MessageDescription = styled.div`
-  width: 300px;
-  white-space: normal;
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
-  padding: ${dimensions.unitSpacing - 5}px 0 ${dimensions.unitSpacing}px;
-`;
-
 const EditorContainer = styled.div`
   padding: ${coreSpace};
   flex: 1;
@@ -308,10 +341,17 @@ const VerifyCheck = styled.div`
   padding-right: 8px;
 `;
 
+const RightSection = styled.div`
+  padding: ${coreSpace};
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
+
 export {
   RowTitle,
   HelperText,
-  EngageBox,
+  FlexContainer,
   FormWrapper,
   WebPreview,
   PreviewContent,
@@ -321,8 +361,9 @@ export {
   Recipients,
   Recipient,
   Half,
-  StepContent,
+  Title,
   FlexItemCentered,
+  ChooseBox,
   Box,
   BoxContent,
   BoxHeader,
@@ -331,7 +372,6 @@ export {
   SelectMonth,
   LauncherContainer,
   WidgetPreview,
-  MessageDescription,
   EditorContainer,
   StepFormWrapper,
   ListWrapper,
@@ -340,5 +380,6 @@ export {
   SelectMessageType,
   VerifyStatus,
   VerifyCancel,
-  VerifyCheck
+  VerifyCheck,
+  RightSection
 };

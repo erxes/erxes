@@ -1,5 +1,4 @@
 import { AppConsumer } from 'appContext';
-import debounce from 'lodash/debounce';
 import { IUser } from 'modules/auth/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
@@ -45,6 +44,8 @@ type States = {
 };
 
 class UserList extends React.Component<FinalProps, States> {
+  private timer?: NodeJS.Timer;
+
   constructor(props: FinalProps) {
     super(props);
 
@@ -189,12 +190,17 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
     const searchValue = e.target.value;
+
     this.setState({ searchValue });
-    debounce(
-      () => router.setParams(this.props.history, { searchValue }),
-      500
-    )();
+
+    this.timer = setTimeout(() => {
+      router.setParams(this.props.history, { searchValue });
+    }, 500);
   };
 
   moveCursorAtTheEnd(e) {

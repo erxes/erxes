@@ -55,7 +55,7 @@ export default (props: Props) => {
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
           <Button size="small">
-            {__('Convert to')} <Icon icon="angle-down" />
+            {__('Convert')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
