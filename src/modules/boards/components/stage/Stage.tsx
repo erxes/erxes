@@ -8,16 +8,25 @@ import {
   IndicatorItem,
   LoadingContent,
   StageFooter,
-  StageRoot
+  StageRoot,
+  StageTitle
 } from 'modules/boards/styles/stage';
+import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import PipelineSelector from '../../containers/PipelineSelector';
 import { AddForm } from '../../containers/portable';
-import { IItem, IOptions, IStage } from '../../types';
+import {
+  IFilterParams,
+  IItem,
+  IOptions,
+  IStage,
+  IStageRefetchParams
+} from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 
@@ -30,6 +39,8 @@ type Props = {
   onAddItem: (stageId: string, item: IItem) => void;
   loadMore: () => void;
   options: IOptions;
+  queryParams: IFilterParams;
+  refetchStages: (params: IStageRefetchParams) => Promise<any>;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -100,6 +111,40 @@ export default class Stage extends React.Component<Props, {}> {
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
 
+  renderCopyMoveTrigger(type: string) {
+    const { options, stage, refetchStages, queryParams } = this.props;
+
+    let action: string = 'Copy';
+    let icon: string = 'copy';
+    let btnStyle: string = 'success';
+
+    if (type === 'move') {
+      action = 'Move';
+      icon = 'move';
+      btnStyle = 'default';
+    }
+
+    const trigger = <Button icon={icon} size="small" btnStyle={btnStyle} />;
+
+    const formProps = {
+      type: options.type,
+      action,
+      stageId: stage._id,
+      refetchStages,
+      currentPipelineId: queryParams.pipelineId
+    };
+
+    const content = props => <PipelineSelector {...props} {...formProps} />;
+
+    return (
+      <ModalTrigger
+        title={`${action} "${stage.name}"`}
+        trigger={trigger}
+        content={content}
+      />
+    );
+  }
+
   renderIndicator() {
     const index = this.props.index || 0;
     const length = this.props.length || 0;
@@ -163,10 +208,16 @@ export default class Stage extends React.Component<Props, {}> {
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
             <StageRoot isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
-                <h4>
-                  {stage.name}
-                  <span>{stage.itemsTotalCount}</span>
-                </h4>
+                <StageTitle>
+                  <div>
+                    {stage.name}
+                    <span>{stage.itemsTotalCount}</span>
+                  </div>
+                  <div>
+                    {this.renderCopyMoveTrigger('copy')}
+                    {this.renderCopyMoveTrigger('move')}
+                  </div>
+                </StageTitle>
                 <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>

@@ -43,11 +43,30 @@ const pipelineLabelsLabel = `
   }
 `;
 
+const copyMoveParamDefs =
+  '$_id: String!, $pipelineId: String!, $includeCards: Boolean';
+const copyMoveParams =
+  '_id: $_id, pipelineId: $pipelineId, includeCards: $includeCards';
+
+const stagesCopy = `
+  mutation stagesCopy(${copyMoveParamDefs}) {
+    stagesCopy(${copyMoveParams}) { _id }
+  }
+`;
+
+const stagesMove = `
+  mutation stagesMove(${copyMoveParamDefs}) {
+    stagesMove(${copyMoveParams}) { _id }
+  }
+`;
+
 export default {
   stagesUpdateOrder,
   pipelinesWatch,
   pipelineLabelsLabel,
   pipelineLabelsAdd,
   pipelineLabelsEdit,
-  pipelineLabelsRemove
+  pipelineLabelsRemove,
+  stagesCopy,
+  stagesMove
 };

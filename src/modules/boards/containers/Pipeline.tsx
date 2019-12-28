@@ -31,7 +31,7 @@ type Props = {
   options: IOptions;
 };
 
-class WithStages extends React.Component<WithStatesQueryProps, {}> {
+class WithStages extends React.Component<WithStagesQueryProps, {}> {
   componentWillReceiveProps(nextProps: Props) {
     const { stagesQuery, queryParams } = this.props;
     const { pipelineId } = queryParams;
@@ -65,7 +65,8 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
       pipeline,
       stageMap,
       options,
-      queryParams
+      queryParams,
+      stagesQuery
     } = this.props;
 
     const stagesCount = this.countStages(stageMap);
@@ -120,6 +121,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
                           items={itemMap[stageId]}
                           queryParams={queryParams}
                           loadingState={stageLoadMap[stageId]}
+                          refetchStages={stagesQuery.refetch}
                         />
                       );
                     })}
@@ -135,11 +137,11 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
   }
 }
 
-type WithStatesQueryProps = {
+type WithStagesQueryProps = {
   stagesQuery: StagesQueryResponse;
 } & Props;
 
-const WithStatesQuery = (props: WithStatesQueryProps) => {
+const WithStagesQuery = (props: WithStagesQueryProps) => {
   const { stagesQuery } = props;
 
   if (stagesQuery.loading) {
@@ -175,5 +177,5 @@ export default withProps<Props>(
         }
       })
     })
-  )(WithStatesQuery)
+  )(WithStagesQuery)
 );

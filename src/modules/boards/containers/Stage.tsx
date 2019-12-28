@@ -11,6 +11,7 @@ import {
   IItem,
   IOptions,
   IStage,
+  IStageRefetchParams,
   ItemsQueryResponse,
   SaveItemMutation
 } from '../types';
@@ -23,6 +24,7 @@ type WrapperProps = {
   length: number;
   queryParams: IFilterParams;
   options: IOptions;
+  refetchStages: (params: IStageRefetchParams) => Promise<any>;
 };
 
 type StageProps = {
@@ -90,7 +92,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       items,
       itemsQuery,
       options,
-      onAddItem
+      onAddItem,
+      queryParams,
+      refetchStages
     } = this.props;
 
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
@@ -105,6 +109,8 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         loadingItems={loadingItems}
         loadMore={this.loadMore}
         onAddItem={onAddItem}
+        queryParams={queryParams}
+        refetchStages={refetchStages}
       />
     );
   }

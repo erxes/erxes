@@ -311,6 +311,7 @@ export interface IFilterParams extends ISavedConformity {
   assignedUserIds?: string;
   closeDateType?: string;
   labelIds?: string;
+  pipelineId?: string;
 }
 
 export interface IEditFormContent {
@@ -319,4 +320,26 @@ export interface IEditFormContent {
   onChangeStage: (stageId: string) => void;
   copy: () => void;
   remove: (id: string) => void;
+}
+
+export interface IStageCopyMove {
+  _id: string;
+  pipelineId: string;
+  includeCards?: boolean;
+}
+
+export type StageMoveMutationResponse = {
+  stagesMove: (params: { variables: IStageCopyMove }) => Promise<IStage>;
+};
+
+export type StageCopyMutationResponse = {
+  stagesCopy: (params: { variables: IStageCopyMove }) => Promise<IStage>;
+};
+
+export type StageCopyMoveMutation = (
+  { variables: IStageCopyMove }
+) => Promise<IStage>;
+
+export interface IStageRefetchParams {
+  pipelineId: string;
 }

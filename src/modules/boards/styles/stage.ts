@@ -172,6 +172,11 @@ const LoadingContent = styled.div`
   }
 `;
 
+const StageTitle = styled.h4`
+  display: flex;
+  justify-content: space-between;
+`;
+
 export {
   AddNew,
   Container,
@@ -185,5 +190,6 @@ export {
   IndicatorItem,
   StageFooter,
   LoadingContent,
-  StageRoot
+  StageRoot,
+  StageTitle
 };
