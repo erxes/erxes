@@ -24,10 +24,6 @@ const configMutations = {
 
     return config;
   },
-
-  engagesConfigSave(_root, args, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engagesConfigSave(args);
-  },
 };
 
 moduleCheckPermission(configMutations, 'manageGeneralSettings');

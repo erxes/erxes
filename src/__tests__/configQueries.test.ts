@@ -75,24 +75,4 @@ describe('configQueries', () => {
     expect(config.widgetApiVersion.packageVersion).toBe(null);
     expect(config.widgetVersion.packageVersion).toBe(null);
   });
-
-  test('config get env', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
-    const qry = `
-      query engagesConfigDetail {
-        engagesConfigDetail {
-          accessKeyId
-        }
-      }
-    `;
-
-    const dataSources = { EngagesAPI: new EngagesAPI() };
-
-    try {
-      await graphqlRequest(qry, 'engagesConfigDetail', {}, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Engages api is not running');
-    }
-  });
 });

@@ -200,6 +200,13 @@ const engageQueries = {
   },
 
   /**
+   * Config detail
+   */
+  engagesConfigDetail(_root, _args, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesConfigDetail();
+  },
+
+  /**
    * Get all messages count. We will use it in pager
    */
   engageMessagesTotalCount(_root, args: IListArgs, { user, commonQuerySelector }: IContext) {

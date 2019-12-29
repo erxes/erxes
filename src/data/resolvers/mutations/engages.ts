@@ -117,10 +117,30 @@ const engageMutations = {
   /**
    * Engage message set live manual
    */
-  async engageMessageSetLiveManual(_root, { _id }: { _id: string }) {
-    const engageMessage = await EngageMessages.engageMessageSetLive(_id);
+  engageMessageSetLiveManual(_root, { _id }: { _id: string }) {
+    return EngageMessages.engageMessageSetLive(_id);
+  },
 
-    return engageMessage;
+  engagesConfigSave(_root, args, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesConfigSave(args);
+  },
+
+  /**
+   * Engage message verify email
+   */
+  engageMessageVerifyEmail(_root, { email }: { email: string }, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesVerifyEmail({ email });
+  },
+
+  /**
+   * Engage message remove verified email
+   */
+  engageMessageRemoveVerifiedEmail(_root, { email }: { email: string }, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesRemoveVerifiedEmail({ email });
+  },
+
+  engageMessageSendTestEmail(_root, args, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesSendTestEmail(args);
   },
 };
 
@@ -130,5 +150,8 @@ checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
 checkPermission(engageMutations, 'engageMessageSetLive', 'engageMessageSetLive');
 checkPermission(engageMutations, 'engageMessageSetPause', 'engageMessageSetPause');
 checkPermission(engageMutations, 'engageMessageSetLiveManual', 'engageMessageSetLiveManual');
+checkPermission(engageMutations, 'engageMessageVerifyEmail', 'engageMessageRemove');
+checkPermission(engageMutations, 'engageMessageRemoveVerifiedEmail', 'engageMessageRemove');
+checkPermission(engageMutations, 'engageMessageSendTestEmail', 'engageMessageRemove');
 
 export default engageMutations;
