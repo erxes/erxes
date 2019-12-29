@@ -1,7 +1,6 @@
 import { graphqlRequest } from '../db/connection';
 import { configFactory } from '../db/factories';
 
-import { EngagesAPI } from '../data/dataSources';
 import './setup.ts';
 
 describe('configQueries', () => {

@@ -1,6 +1,5 @@
 import { graphqlRequest } from '../db/connection';
 
-import { EngagesAPI } from '../data/dataSources';
 import './setup.ts';
 
 describe('Test configs mutations', () => {
