@@ -182,13 +182,15 @@ describe('engageQueries', () => {
           email
           messenger
 
-          stats
           brands { _id }
           segments { _id }
           brand { _id }
           tags { _id }
           fromUser { _id }
           getTags { _id }
+
+          stats
+          logs
         }
       }
     `;
