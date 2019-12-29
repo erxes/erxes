@@ -79,12 +79,14 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stopDate: Date;
   createdDate: Date;
   messengerReceivedCustomerIds?: string[];
-  stats?: IEngageStats;
   brand: IBrand;
   segment: ISegment;
   fromUser: IUser;
   tagIds: string[];
   getTags: ITag[];
+
+  stats?: IEngageStats;
+  logs?: Array<{ message: string }>;
 }
 
 // mutation types

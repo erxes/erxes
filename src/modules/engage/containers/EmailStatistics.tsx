@@ -34,7 +34,7 @@ const EmailStatisticsContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, EngageMessageDetailQueryResponse, { _id: string }>(
-      gql(queries.engageMessageDetail),
+      gql(queries.engageMessageStats),
       {
         name: 'engageMessageDetailQuery',
         options: ({ messageId }) => ({
