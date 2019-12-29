@@ -43,67 +43,8 @@ class List extends React.Component<Props, State> {
       <>
         <Info>
           <p>
-            <strong>To find your Access Key and Secret Access Key:</strong>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://console.aws.amazon.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Log in to your AWS Management Console.
-              </a>
-            </li>
-            <li>Click on your user name at the top right of the page.</li>
-            <li>
-              Click on the My Security Credentials link from the drop-down menu.
-            </li>
-            <li>
-              Find the Access Credentials section, and copy the latest Access
-              Key ID. If you don't have then Click access keys from the toggle
-              and click Create New Access key and copy the keys.
-            </li>
-            <li>
-              Click on the Show link in the same row, and copy the Secret Access
-              Key.
-            </li>
-          </ol>
-        </Info>
-        <Info>
-          <p>
-            <strong>To find your Region:</strong>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://console.aws.amazon.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Log in to your AWS Management Console.
-              </a>
-            </li>
-            <li>Click on services menu at the top left of the page.</li>
-            <li>Find Simple Email Service and Copy region code from url.</li>
-          </ol>
-          <p>If you choose not available region</p>
-          <ol>
-            <li>Click on your region at the top right of the menu.</li>
-            <li>Select any active region from list.</li>
-            <li>
-              Copy the selected Region code. <br />
-              <i>
-                (example: us-east-1, us-west-2, ap-south-1, ap-southeast-2,
-                eu-central-1, eu-west-1)
-              </i>
-            </li>
-          </ol>
-        </Info>
-        <Info>
-          <p>
             <strong>
-              If you want Access Key using only Amazon SES and Amazon SNS:
+              Configure Amazon SES and Amazon SNS to track each email responses
             </strong>
           </p>
           <ol>
@@ -134,6 +75,36 @@ class List extends React.Component<Props, State> {
             <li>
               Finally click on the create user and copy the Access Key Id and
               Secret Access Key.
+            </li>
+          </ol>
+        </Info>
+        <Info>
+          <p>
+            <strong>To find your Region:</strong>
+          </p>
+          <ol>
+            <li>
+              <a
+                href="https://console.aws.amazon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Log in to your AWS Management Console.
+              </a>
+            </li>
+            <li>Click on services menu at the top left of the page.</li>
+            <li>Find Simple Email Service and Copy region code from url.</li>
+          </ol>
+          <p>If you choose not available region</p>
+          <ol>
+            <li>Click on your region at the top right of the menu.</li>
+            <li>Select any active region from list.</li>
+            <li>
+              Copy the selected Region code. <br />
+              <i>
+                (example: us-east-1, us-west-2, ap-south-1, ap-southeast-2,
+                eu-central-1, eu-west-1)
+              </i>
             </li>
           </ol>
         </Info>
