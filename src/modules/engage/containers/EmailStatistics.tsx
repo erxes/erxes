@@ -18,6 +18,10 @@ type FinalProps = {
 const EmailStatisticsContainer = (props: FinalProps) => {
   const { engageMessageDetailQuery } = props;
 
+  if (engageMessageDetailQuery.error) {
+    return null;
+  }
+
   if (engageMessageDetailQuery.loading) {
     return null;
   }

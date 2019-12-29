@@ -140,6 +140,7 @@ export type WithFormEditMutationResponse = {
 
 export type EngageMessageDetailQueryResponse = {
   engageMessageDetail: IEngageMessage;
+  error: Error;
   loading: boolean;
 };
 
