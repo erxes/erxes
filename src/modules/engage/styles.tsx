@@ -349,6 +349,8 @@ const RightSection = styled.div`
 `;
 
 const Shell = styled.div`
+  width: 100%;
+
   .shell-wrap {
     width: 100%;
     margin: 100px auto 0 auto;
@@ -405,6 +407,7 @@ const Shell = styled.div`
   }
 
   .shell-body {
+    min-height: 50px;
     margin: 0;
     padding: 5px;
     list-style: none;
