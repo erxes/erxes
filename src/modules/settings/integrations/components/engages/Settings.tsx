@@ -6,19 +6,27 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { IEngageConfig } from 'modules/engage/types';
 import React from 'react';
-import { IEngageConfig } from '../../types';
 
 type Props = {
   engagesConfigDetail: IEngageConfig;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  verifyEmail: (email: string) => void;
+  removeVerifiedEmail: (email: string) => void;
+  sendTestEmail: (from: string, to: string, content: string) => void;
   closeModal: () => void;
+  verifiedEmails: string[];
 };
 
 type State = {
   secretAccessKey?: string;
   accessKeyId?: string;
   region?: string;
+  emailToVerify?: string;
+  testFrom?: string;
+  testTo?: string;
+  testContent?: string;
 };
 
 class List extends React.Component<Props, State> {
@@ -36,6 +44,31 @@ class List extends React.Component<Props, State> {
 
   generateDoc = values => {
     return values;
+  };
+
+  onChangeCommon = (
+    name: 'emailToVerify' | 'testFrom' | 'testTo' | 'testContent',
+    e
+  ) => {
+    this.setState({ [name]: e.currentTarget.value });
+  };
+
+  onVerifyEmail = () => {
+    const { emailToVerify } = this.state;
+
+    if (emailToVerify) {
+      this.props.verifyEmail(emailToVerify);
+    }
+  };
+
+  onSendTestEmail = () => {
+    const { testFrom, testTo, testContent } = this.state;
+
+    this.props.sendTestEmail(testFrom || '', testTo || '', testContent || '');
+  };
+
+  onRemoveVerifiedEmail = (email: string) => {
+    this.props.removeVerifiedEmail(email);
   };
 
   renderDescription() {
@@ -108,12 +141,58 @@ class List extends React.Component<Props, State> {
             </li>
           </ol>
         </Info>
+
+        <Info>
+          <p>
+            <strong>To determine if your account is in the sandbox:</strong>
+          </p>
+          <ol>
+            <li>
+              <a
+                href="https://console.aws.amazon.com/ses/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open the Amazon SES console at
+                https://console.aws.amazon.com/ses/
+              </a>
+            </li>
+            <li>Use the Region selector to choose an AWS Region.</li>
+            <li>
+              If your account is in the sandbox in the AWS Region that you
+              selected, you see a banner at the top of the page that resembles
+              the example in the following image.
+              <img
+                alt="sandbox"
+                style={{ maxWidth: '100%' }}
+                src="/images/sandbox-banner-send-statistics.png"
+              />
+            </li>
+            <li>
+              If so follow the instructions described{' '}
+              <a
+                href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                here
+              </a>{' '}
+              to move out of the Amazon SES Sandbox
+            </li>
+          </ol>
+        </Info>
       </>
     );
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { engagesConfigDetail, renderButton, closeModal } = this.props;
+    const {
+      engagesConfigDetail,
+      renderButton,
+      closeModal,
+      verifiedEmails
+    } = this.props;
+
     const { values, isSubmitted } = formProps;
 
     return (
@@ -166,6 +245,47 @@ class List extends React.Component<Props, State> {
             object: this.props.engagesConfigDetail
           })}
         </ModalFooter>
+
+        <h4>Verified emails:</h4>
+
+        <ul>
+          {verifiedEmails.map((email, index) => (
+            <li
+              key={index}
+              onClick={this.onRemoveVerifiedEmail.bind(this, email)}
+            >
+              {email}
+            </li>
+          ))}
+        </ul>
+
+        <input
+          type="email"
+          onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+        />
+
+        <Button size="small" onClick={this.onVerifyEmail}>
+          Verify new email
+        </Button>
+
+        <h4>Send test email:</h4>
+
+        <input
+          placeholder="From"
+          onChange={this.onChangeCommon.bind(this, 'testFrom')}
+        />
+        <input
+          placeholder="To"
+          onChange={this.onChangeCommon.bind(this, 'testTo')}
+        />
+        <input
+          placeholder="Content"
+          onChange={this.onChangeCommon.bind(this, 'testContent')}
+        />
+
+        <Button size="small" onClick={this.onSendTestEmail}>
+          Send test email
+        </Button>
       </>
     );
   };
