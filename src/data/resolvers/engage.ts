@@ -34,4 +34,8 @@ export default {
   stats(engageMessage: IEngageMessageDocument, _args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesStats(engageMessage._id);
   },
+
+  logs(engageMessage: IEngageMessageDocument, _args, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesLogs(engageMessage._id);
+  },
 };

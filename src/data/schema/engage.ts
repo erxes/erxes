@@ -15,7 +15,6 @@ export const types = `
     createdAt: Date
     type: String
     messengerReceivedCustomerIds: [String]
-    stats: JSON
     brand: Brand
 
     email: JSON
@@ -27,6 +26,9 @@ export const types = `
     brands: [Brand]
     fromUser: User
     getTags: [Tag]
+
+    stats: JSON
+    logs: JSON
   }
 
   type EngageScheduleDate {

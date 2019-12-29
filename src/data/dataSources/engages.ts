@@ -1,5 +1,4 @@
 import { HTTPCache, RESTDataSource } from 'apollo-datasource-rest';
-import { debugBase } from '../../debuggers';
 import { getEnv } from '../utils';
 
 export default class EngagesAPI extends RESTDataSource {
@@ -32,19 +31,15 @@ export default class EngagesAPI extends RESTDataSource {
     return this.post(`/configs/save`, params);
   }
 
-  public async engagesGetVerifiedEmails() {
+  public engagesGetVerifiedEmails() {
     return this.get(`/configs/get-verified-emails`);
   }
 
   public async engagesStats(engageMessageId) {
-    let stats = {};
+    return this.get(`/deliveryReports/statsList/${engageMessageId}`);
+  }
 
-    try {
-      stats = await this.get(`/deliveryReports/statsList/${engageMessageId}`);
-    } catch (e) {
-      debugBase(e.message);
-    }
-
-    return stats;
+  public engagesLogs(engageMessageId) {
+    return this.get(`/deliveryReports/logs/${engageMessageId}`);
   }
 }
