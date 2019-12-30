@@ -6,19 +6,27 @@ import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { IEngageConfig } from 'modules/engage/types';
 import React from 'react';
-import { IEngageConfig } from '../../types';
 
 type Props = {
   engagesConfigDetail: IEngageConfig;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  verifyEmail: (email: string) => void;
+  removeVerifiedEmail: (email: string) => void;
+  sendTestEmail: (from: string, to: string, content: string) => void;
   closeModal: () => void;
+  verifiedEmails: string[];
 };
 
 type State = {
   secretAccessKey?: string;
   accessKeyId?: string;
   region?: string;
+  emailToVerify?: string;
+  testFrom?: string;
+  testTo?: string;
+  testContent?: string;
 };
 
 class List extends React.Component<Props, State> {
@@ -38,72 +46,38 @@ class List extends React.Component<Props, State> {
     return values;
   };
 
+  onChangeCommon = (
+    name: 'emailToVerify' | 'testFrom' | 'testTo' | 'testContent',
+    e
+  ) => {
+    this.setState({ [name]: e.currentTarget.value });
+  };
+
+  onVerifyEmail = () => {
+    const { emailToVerify } = this.state;
+
+    if (emailToVerify) {
+      this.props.verifyEmail(emailToVerify);
+    }
+  };
+
+  onSendTestEmail = () => {
+    const { testFrom, testTo, testContent } = this.state;
+
+    this.props.sendTestEmail(testFrom || '', testTo || '', testContent || '');
+  };
+
+  onRemoveVerifiedEmail = (email: string) => {
+    this.props.removeVerifiedEmail(email);
+  };
+
   renderDescription() {
     return (
       <>
         <Info>
           <p>
-            <strong>To find your Access Key and Secret Access Key:</strong>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://console.aws.amazon.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Log in to your AWS Management Console.
-              </a>
-            </li>
-            <li>Click on your user name at the top right of the page.</li>
-            <li>
-              Click on the My Security Credentials link from the drop-down menu.
-            </li>
-            <li>
-              Find the Access Credentials section, and copy the latest Access
-              Key ID. If you don't have then Click access keys from the toggle
-              and click Create New Access key and copy the keys.
-            </li>
-            <li>
-              Click on the Show link in the same row, and copy the Secret Access
-              Key.
-            </li>
-          </ol>
-        </Info>
-        <Info>
-          <p>
-            <strong>To find your Region:</strong>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://console.aws.amazon.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Log in to your AWS Management Console.
-              </a>
-            </li>
-            <li>Click on services menu at the top left of the page.</li>
-            <li>Find Simple Email Service and Copy region code from url.</li>
-          </ol>
-          <p>If you choose not available region</p>
-          <ol>
-            <li>Click on your region at the top right of the menu.</li>
-            <li>Select any active region from list.</li>
-            <li>
-              Copy the selected Region code. <br />
-              <i>
-                (example: us-east-1, us-west-2, ap-south-1, ap-southeast-2,
-                eu-central-1, eu-west-1)
-              </i>
-            </li>
-          </ol>
-        </Info>
-        <Info>
-          <p>
             <strong>
-              If you want Access Key using only Amazon SES and Amazon SNS:
+              Configure Amazon SES and Amazon SNS to track each email responses
             </strong>
           </p>
           <ol>
@@ -137,12 +111,88 @@ class List extends React.Component<Props, State> {
             </li>
           </ol>
         </Info>
+        <Info>
+          <p>
+            <strong>To find your Region:</strong>
+          </p>
+          <ol>
+            <li>
+              <a
+                href="https://console.aws.amazon.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Log in to your AWS Management Console.
+              </a>
+            </li>
+            <li>Click on services menu at the top left of the page.</li>
+            <li>Find Simple Email Service and Copy region code from url.</li>
+          </ol>
+          <p>If you choose not available region</p>
+          <ol>
+            <li>Click on your region at the top right of the menu.</li>
+            <li>Select any active region from list.</li>
+            <li>
+              Copy the selected Region code. <br />
+              <i>
+                (example: us-east-1, us-west-2, ap-south-1, ap-southeast-2,
+                eu-central-1, eu-west-1)
+              </i>
+            </li>
+          </ol>
+        </Info>
+
+        <Info>
+          <p>
+            <strong>To determine if your account is in the sandbox:</strong>
+          </p>
+          <ol>
+            <li>
+              <a
+                href="https://console.aws.amazon.com/ses/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open the Amazon SES console at
+                https://console.aws.amazon.com/ses/
+              </a>
+            </li>
+            <li>Use the Region selector to choose an AWS Region.</li>
+            <li>
+              If your account is in the sandbox in the AWS Region that you
+              selected, you see a banner at the top of the page that resembles
+              the example in the following image.
+              <img
+                alt="sandbox"
+                style={{ maxWidth: '100%' }}
+                src="/images/sandbox-banner-send-statistics.png"
+              />
+            </li>
+            <li>
+              If so follow the instructions described{' '}
+              <a
+                href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                here
+              </a>{' '}
+              to move out of the Amazon SES Sandbox
+            </li>
+          </ol>
+        </Info>
       </>
     );
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { engagesConfigDetail, renderButton, closeModal } = this.props;
+    const {
+      engagesConfigDetail,
+      renderButton,
+      closeModal,
+      verifiedEmails
+    } = this.props;
+
     const { values, isSubmitted } = formProps;
 
     return (
@@ -195,6 +245,47 @@ class List extends React.Component<Props, State> {
             object: this.props.engagesConfigDetail
           })}
         </ModalFooter>
+
+        <h4>Verified emails:</h4>
+
+        <ul>
+          {verifiedEmails.map((email, index) => (
+            <li
+              key={index}
+              onClick={this.onRemoveVerifiedEmail.bind(this, email)}
+            >
+              {email}
+            </li>
+          ))}
+        </ul>
+
+        <input
+          type="email"
+          onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+        />
+
+        <Button size="small" onClick={this.onVerifyEmail}>
+          Verify new email
+        </Button>
+
+        <h4>Send test email:</h4>
+
+        <input
+          placeholder="From"
+          onChange={this.onChangeCommon.bind(this, 'testFrom')}
+        />
+        <input
+          placeholder="To"
+          onChange={this.onChangeCommon.bind(this, 'testTo')}
+        />
+        <input
+          placeholder="Content"
+          onChange={this.onChangeCommon.bind(this, 'testContent')}
+        />
+
+        <Button size="small" onClick={this.onSendTestEmail}>
+          Send test email
+        </Button>
       </>
     );
   };

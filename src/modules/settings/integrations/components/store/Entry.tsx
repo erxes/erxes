@@ -115,7 +115,7 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger
-          title="Add engage config"
+          title="Manage engage config"
           size="lg"
           trigger={trigger}
           content={content}
