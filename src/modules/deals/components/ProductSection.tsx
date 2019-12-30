@@ -77,7 +77,7 @@ function ProductSection({
       size="lg"
       trigger={
         <button>
-          <Icon icon="focus-add" />
+          <Icon icon="add" />
         </button>
       }
       content={content}
