@@ -12,7 +12,8 @@ export const createWebhook = async () => {
   const NYLAS_WEBHOOK_CALLBACK_URL = getEnv({ name: 'NYLAS_WEBHOOK_CALLBACK_URL', defaultValue: '' });
 
   if (!checkCredentials()) {
-    return debugNylas('Nylas is not configured');
+    debugNylas('Nylas is not configured');
+    return;
   }
 
   const options = {
@@ -21,13 +22,19 @@ export const createWebhook = async () => {
     callbackUrl: NYLAS_WEBHOOK_CALLBACK_URL,
   };
 
-  return nylasInstance('webhooks', 'build', options, 'save')
-    .then(webhook => {
-      debugNylas('Successfully created a webhook id: ' + webhook.id);
-      return webhook.id;
-    })
-    .catch(e => {
-      debugNylas('Error occured while creating webhook: ' + e.message);
-      return e.message;
-    });
+  try {
+    const nylasWebhook = await nylasInstance('webhooks', 'build', options, 'save');
+
+    debugNylas(`Successfully created a webhook id: ${nylasWebhook.id}`);
+
+    return nylasWebhook.id;
+  } catch (e) {
+    if (e.message.includes('already exists')) {
+      return debugNylas('Nylas webhook callback url already exists');
+    }
+
+    debugNylas(`Error occured while creating webhook: ${e.message}`);
+
+    return e;
+  }
 };

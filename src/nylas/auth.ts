@@ -96,28 +96,46 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
 const integrateProviderToNylas = async (args: IIntegrateProvider) => {
   const { email, kind, settings, scopes } = args;
 
-  const { code } = await sendRequest({
-    url: CONNECT_AUTHORIZE_URL,
-    method: 'post',
-    body: {
-      provider: kind,
-      settings,
-      name: email,
-      email_address: email,
-      client_id: NYLAS_CLIENT_ID,
-      ...(scopes ? { scopes } : {}),
-    },
-  });
+  let code;
 
-  return sendRequest({
-    url: CONNECT_TOKEN_URL,
-    method: 'post',
-    body: {
-      code,
-      client_id: NYLAS_CLIENT_ID,
-      client_secret: NYLAS_CLIENT_SECRET,
-    },
-  });
+  try {
+    const codeResponse = await sendRequest({
+      url: CONNECT_AUTHORIZE_URL,
+      method: 'post',
+      body: {
+        provider: kind,
+        settings,
+        name: email,
+        email_address: email,
+        client_id: NYLAS_CLIENT_ID,
+        ...(scopes ? { scopes } : {}),
+      },
+    });
+
+    code = codeResponse.code;
+  } catch (e) {
+    debugNylas(`Failed to get code from nylas: ${e.message}`);
+    throw new Error(e);
+  }
+
+  let response;
+
+  try {
+    response = await sendRequest({
+      url: CONNECT_TOKEN_URL,
+      method: 'post',
+      body: {
+        code,
+        client_id: NYLAS_CLIENT_ID,
+        client_secret: NYLAS_CLIENT_SECRET,
+      },
+    });
+
+    return response;
+  } catch (e) {
+    debugNylas(`Failed to get token from nylas: ${e.message}`);
+    throw new Error(e);
+  }
 };
 
 /**

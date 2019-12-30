@@ -281,11 +281,13 @@ const verifyNylasSignature = req => {
  */
 const setupNylas = () => {
   if (!NYLAS_CLIENT_ID || !NYLAS_CLIENT_SECRET) {
-    return debugNylas(`
+    debugNylas(`
       Missing following config
       NYLAS_CLIENT_ID: ${NYLAS_CLIENT_ID}
       NYLAS_CLIENT_SECRET: ${NYLAS_CLIENT_SECRET}
     `);
+
+    return;
   }
 
   Nylas.config({

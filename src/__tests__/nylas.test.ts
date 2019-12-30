@@ -322,12 +322,12 @@ describe('Nylas gmail test', () => {
 
     mock2.restore();
 
-    const mock3 = sinon.stub(nylasUtils, 'nylasInstance').returns(Promise.reject('error'));
+    const mock3 = sinon.stub(nylasUtils, 'nylasInstance').returns(Promise.reject({ message: 'error' }));
 
     try {
       await tracker.createWebhook();
     } catch (e) {
-      expect(e).toEqual('error');
+      expect(e.message).toEqual('error');
     }
 
     mock1.restore();
