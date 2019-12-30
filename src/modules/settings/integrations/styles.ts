@@ -90,6 +90,26 @@ const Description = styled.p`
   text-transform: initial;
 `;
 
+const Verify = styled.div`
+  display: flex;
+  align-items: center;
+  margin: ${dimensions.coreSpacing}px ${dimensions.coreSpacing * 8}px
+    ${dimensions.coreSpacing}px 0;
+
+  > * {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
+
+  > i {
+    color: ${colors.colorPrimary};
+    margin: 0 ${dimensions.unitSpacing}px 0;
+  }
+
+  label {
+    margin: 0;
+  }
+`;
+
 export {
   FlexRow,
   Row,
@@ -98,5 +118,6 @@ export {
   BrandName,
   Options,
   Description,
-  Script
+  Script,
+  Verify
 };
