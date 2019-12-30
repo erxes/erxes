@@ -25,6 +25,7 @@ type IProps = {
   getAssociatedItem?: (itemId: string) => void;
   closeModal: () => void;
   refetch?: () => void;
+  addSuccessText?: string;
 };
 
 type FinalProps = {
@@ -43,7 +44,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       refetch,
       assignedUserIds,
       sourceConversationId,
-      getAssociatedItem
+      getAssociatedItem,
+      addSuccessText
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
@@ -51,6 +53,10 @@ class AddFormContainer extends React.Component<FinalProps> {
 
     addMutation({ variables: doc })
       .then(({ data }) => {
+        if (addSuccessText) {
+          Alert.success(options.texts.addSuccessText);
+        }
+
         if (relType && relTypeIds) {
           editConformity({
             variables: {

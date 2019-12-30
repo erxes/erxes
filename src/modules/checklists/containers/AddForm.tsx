@@ -26,7 +26,6 @@ class AddFormContainer extends React.Component<Props> {
           isSubmitted={isSubmitted}
           btnSize="small"
           type="submit"
-          successMessage=""
         />
       );
     };

@@ -45,6 +45,7 @@ type FinalProps = {
   addMutation: SaveMutation;
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
+  deleteSuccessText?: string;
 } & ContainerProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
@@ -95,12 +96,22 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   removeItem = (itemId: string, callback) => {
-    const { removeMutation, onRemove, stageId } = this.props;
+    const {
+      removeMutation,
+      onRemove,
+      stageId,
+      options,
+      deleteSuccessText
+    } = this.props;
 
     confirm().then(() =>
       removeMutation({ variables: { _id: itemId } })
         .then(() => {
           callback();
+          if (deleteSuccessText) {
+            Alert.success(options.texts.deleteSuccessText);
+          }
+
           if (onRemove) {
             invalidateCache();
 

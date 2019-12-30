@@ -41,7 +41,6 @@ type Props = {
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   static defaultProps = {
-    successMessage: 'successfully',
     btnSize: 'medium',
     icon: 'checked-1'
   };
