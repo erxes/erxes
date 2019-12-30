@@ -200,6 +200,10 @@ const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
   padding-right: 10px;
 `;
 
+const TabContent = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -216,5 +220,6 @@ export {
   HomeContainer,
   DateWrapper,
   CloseModal,
-  ScrollWrapper
+  ScrollWrapper,
+  TabContent
 };

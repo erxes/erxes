@@ -137,17 +137,33 @@ const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
 
 const Recipients = styled.div`
   flex: 1;
+  display: flex;
+  flex-wrap: wrap;
 `;
 
 const Recipient = styled.div`
-  padding: 3px 5px;
+  padding: 3px 6px;
   border: 1px solid ${colors.colorShadowGray};
   border-radius: 4px;
-  display: inline-block;
+  display: flex;
   margin-right: 5px;
   margin-bottom: 5px;
   background: ${colors.bgLight};
   font-size: 13px;
+
+  > span {
+    margin-left: 6px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0 3px;
+    border-radius: 2px;
+    margin-right: -2px;
+
+    &:hover {
+      color: ${colors.colorCoreRed};
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.08);
+    }
+  }
 `;
 
 const Half = styled.div`
