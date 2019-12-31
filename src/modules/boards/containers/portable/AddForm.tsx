@@ -25,7 +25,6 @@ type IProps = {
   getAssociatedItem?: (itemId: string) => void;
   closeModal: () => void;
   refetch?: () => void;
-  addSuccessText?: string;
 };
 
 type FinalProps = {
