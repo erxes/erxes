@@ -57,17 +57,11 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.removeItem = this.removeItem.bind(this);
   }
 
-  addItem(
-    doc: IItemParams,
-    callback: () => void,
-    msg = this.props.options.texts.addSuccessText
-  ) {
+  addItem(doc: IItemParams, callback: () => void) {
     const { onAdd, addMutation, stageId, options } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
-        Alert.success(msg);
-
         callback();
 
         if (onAdd) {
@@ -96,19 +90,14 @@ class EditFormContainer extends React.Component<FinalProps> {
   };
 
   removeItem = (itemId: string, callback) => {
-    const {
-      removeMutation,
-      onRemove,
-      stageId,
-      options,
-      deleteSuccessText
-    } = this.props;
+    const { removeMutation, onRemove, stageId, options } = this.props;
 
     confirm().then(() =>
       removeMutation({ variables: { _id: itemId } })
         .then(() => {
           callback();
-          if (deleteSuccessText) {
+
+          if (options.texts.deleteSuccessText) {
             Alert.success(options.texts.deleteSuccessText);
           }
 

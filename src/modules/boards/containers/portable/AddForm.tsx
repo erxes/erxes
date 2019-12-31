@@ -44,8 +44,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       refetch,
       assignedUserIds,
       sourceConversationId,
-      getAssociatedItem,
-      addSuccessText
+      getAssociatedItem
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
@@ -53,7 +52,7 @@ class AddFormContainer extends React.Component<FinalProps> {
 
     addMutation({ variables: doc })
       .then(({ data }) => {
-        if (addSuccessText) {
+        if (options.texts.addSuccessText) {
           Alert.success(options.texts.addSuccessText);
         }
 
