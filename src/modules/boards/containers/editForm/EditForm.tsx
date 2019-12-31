@@ -45,7 +45,6 @@ type FinalProps = {
   addMutation: SaveMutation;
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
-  deleteSuccessText?: string;
 } & ContainerProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
