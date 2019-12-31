@@ -14,7 +14,6 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-  inSidebar?: boolean;
   onChangeBoard: (value: string) => void;
   onChangePipeline: (value: string) => void;
   onChangeStage: (value: string, callback?: () => void) => void;

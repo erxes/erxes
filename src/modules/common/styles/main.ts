@@ -184,6 +184,11 @@ const CloseModal = styled.div`
     background: ${rgba(colors.colorBlack, 0.4)};
     cursor: pointer;
   }
+
+  @media screen and (max-width: 1092px) {
+    right: 10px;
+    top: 10px;
+  }
 `;
 
 const DateWrapper = styled.time`
