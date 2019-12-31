@@ -4,10 +4,10 @@ title: Upgrade
 sidebar_label: Upgrade
 ---
 
-## Upgrading from v0.9 to v0.10
+## Upgrading from v0.9+ to the latest release vx.x.x
 
 ### Breaking Changes
-- Since version `0.10` erxes started using RabbitMQ as message broker service. See example changes at docker [installation guide.](docker)
+- Since version `latest vx.x.x` erxes started using RabbitMQ as message broker service. See example changes at docker [installation guide.](docker)
 - Engage module is moved to [separate repository](https://github.com/erxes/erxes-engages-email-sender). Also docker [installation guide](docker) is updated to reflect related changes.
 
 ### Env changes

@@ -8,7 +8,9 @@ title: Signing in
 To sign in, navigate to the erxes sign-in page. <br>
 If you don't have account? Create a new one from <a href="https://erxes.io/en/create" target="_blank">https://erxes.io/</a>.
 
-### Email Address or Username Sign In
+
+
+## Email Address or Username Sign In
 
 When enabled by your System Admin, you can sign in with the username or email address used to create your account.
 
@@ -27,9 +29,13 @@ When enabled by your System Admin, you can sign in with the username or email ad
 
 ---
 
-### Sign out
+
+## Sign out
+
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/log-out.png" />
 <br>
+
+
 
 1. You can sign out from the Main Menu, which is accessed by clicking the __profile image__ in the top header on the right side of the screen.
 2. Clicking __Sign out__ logs you out of all teams on the server.

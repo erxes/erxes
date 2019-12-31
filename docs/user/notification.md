@@ -21,7 +21,7 @@ Notifications in Erxes alert you to channels and conversations events
 
 
 
-### Inbox sidebar notifications
+## Inbox sidebar notifications
 
 It will inform you of unread messages and mentions across inbox.
 

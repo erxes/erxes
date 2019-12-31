@@ -139,7 +139,14 @@ _If these ports aren't available for you, you can always change it. But don't fo
 
 ### docker-compose.yml file
 
+<aside class="notice">
+
 **Note:** Following ENVs are configured for localhost only.
+All erxes version have to changed the latest version.
+The latest version [**release**](https://github.com/erxes/erxes/releases) source code.
+
+</aside>
+
 
 ```yaml
 version: "2.1"

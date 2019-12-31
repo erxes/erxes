@@ -143,7 +143,7 @@ FACEBOOK_PERMISSIONS='manage_pages, pages_show_list, pages_messaging, publish_pa
 - FACEBOOK_APP_SECRET is your faceboook application's secret key
 - FACEBOOK_PERMISSIONS you should not have to modify this option. Those are the necessary permissions for facebook integration
 
-### Gmail
+## Gmail
 
 ```
 GOOGLE_CLIENT_ID=''
