@@ -3,6 +3,7 @@ import * as compose from 'lodash.flowright';
 import Email from 'modules/activityLogs/components/items/email/Email';
 import EngageEmail from 'modules/activityLogs/components/items/email/EngageEmail';
 import { EmailDeliveryDetailQueryResponse } from 'modules/activityLogs/types';
+import EmptyState from 'modules/common/components/EmptyState';
 import { withProps } from 'modules/common/utils';
 import { queries as engageQueries } from 'modules/engage/graphql';
 import { EngageMessageDetailQueryResponse } from 'modules/engage/types';
@@ -38,6 +39,10 @@ class EmailContainer extends React.Component<FinalProps> {
     }
 
     if (emailType === 'engage') {
+      if (!engageMessageDetailQuery.engageMessageDetail) {
+        return <EmptyState icon="email-4" text="Email not found" />;
+      }
+
       return (
         <EngageEmail
           {...this.props}
