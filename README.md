@@ -34,8 +34,7 @@ This configuration matches with the default configurations of other erxes platfo
 ```env
 PORT=3200                                                (Server port)
 ROOT_URL=http://localhost:3200                           (Widgets server url)
-MAIN_API_URL=http://localhost:3300                       (erxes-api server url)
-API_GRAPHQL_URL=http://localhost:3100/graphql            (erxes-widgets-api server url)
+API_URL=http://localhost:3100                            (erxes-widgets-api server url)
 API_SUBSCRIPTIONS_URL=ws://localhost:3300/subscriptions  (erxes-api server)
 ```
 

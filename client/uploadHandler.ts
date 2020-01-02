@@ -30,9 +30,9 @@ const uploadHandler = (params: UploaderParams) => {
     afterRead
   } = params;
 
-  const { MAIN_API_URL } = getEnv();
+  const { API_URL } = getEnv();
 
-  const url = `${MAIN_API_URL}/upload-file`;
+  const url = `${API_URL}/upload-file`;
 
   // initiate upload file reader
   const uploadReader = new FileReader();

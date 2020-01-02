@@ -1,8 +1,7 @@
 import { ICallout } from "./form/types";
 
 export type ENV = {
-  MAIN_API_URL: string;
-  API_GRAPHQL_URL: string;
+  API_URL: string;
   API_SUBSCRIPTIONS_URL: string;
 };
 
