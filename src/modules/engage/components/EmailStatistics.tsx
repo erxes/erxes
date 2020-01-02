@@ -16,6 +16,7 @@ import {
   IconContainer,
   PreviewContent,
   RightSection,
+  Shell,
   Title
 } from '../styles';
 import { IEngageMessage, IEngageStats } from '../types';
@@ -100,7 +101,9 @@ class EmailStatistics extends React.Component<Props> {
   }
 
   render() {
-    const stats = this.props.message.stats || ({} as IEngageStats);
+    const { message } = this.props;
+    const stats = message.stats || ({} as IEngageStats);
+    const logs = message.logs || [];
     const totalCount = stats.total;
 
     const actionBar = (
@@ -121,6 +124,17 @@ class EmailStatistics extends React.Component<Props> {
             {this.renderBox('arrows-up-right', 'Bounce', stats.bounce)}
             {this.renderBox('ban', 'Rendering failure', stats.renderingfailure)}
             {this.renderBox('times-circle', 'Rejected', stats.reject)}
+
+            <Shell>
+              <div className="shell-wrap">
+                <p className="shell-top-bar">Log messages</p>
+                <ul className="shell-body">
+                  {logs.map((log, index) => (
+                    <li key={index}>{log.message}</li>
+                  ))}
+                </ul>
+              </div>
+            </Shell>
           </RightSection>
         </Half>
       </FlexContainer>

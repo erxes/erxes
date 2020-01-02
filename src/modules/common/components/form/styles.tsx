@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors, dimensions, typography } from '../../styles';
 
@@ -21,9 +21,21 @@ const Label = styled.label`
   }
 `;
 
-const Formgroup = styled.div`
+const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
   margin-bottom: 20px;
   position: relative;
+
+  ${props =>
+    props.horizontal &&
+    css`
+      display: flex;
+      justify-content: center;
+
+      label {
+        margin-bottom: 0;
+        align-self: center;
+      }
+    `};
 
   > label {
     margin-right: ${dimensions.unitSpacing}px;

@@ -31,6 +31,7 @@ const FirstLine = styled.a`
 const SecondLine = styled.div`
   font-size: 12px;
   color: ${colors.colorLightGray};
+  white-space: nowrap;
 `;
 
 type Props = {

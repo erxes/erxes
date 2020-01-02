@@ -66,6 +66,7 @@ function ProductSection({
     <ModalTrigger
       title="New Product & Service"
       size="lg"
+      dialogClassName="modal-1000w"
       trigger={
         <button>
           <Icon icon="add" />

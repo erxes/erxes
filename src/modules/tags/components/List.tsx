@@ -36,6 +36,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
       autoOpenKey={`showTag${type}Modal`}
       trigger={trigger}
       content={modalContent}
+      enforceFocus={false}
     />
   );
 
