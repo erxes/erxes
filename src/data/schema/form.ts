@@ -17,6 +17,8 @@ export const types = `
     createdUserId: String
     createdUser: User
     createdDate: Date
+
+    fields: [Field]
   }
 `;
 

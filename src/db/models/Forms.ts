@@ -1,5 +1,6 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
+import * as validator from 'validator';
 import { FIELD_CONTENT_TYPES } from '../../data/constants';
 import { Fields } from './';
 import {
@@ -11,6 +12,19 @@ import {
   IFormSubmissionDocument,
 } from './definitions/forms';
 
+interface ISubmission {
+  _id: string;
+  value: any;
+  type?: string;
+  validation?: string;
+}
+
+interface IError {
+  fieldId: string;
+  code: string;
+  text: string;
+}
+
 export interface IFormModel extends Model<IFormDocument> {
   getForm(_id: string): Promise<IFormDocument>;
   generateCode(): string;
@@ -20,6 +34,8 @@ export interface IFormModel extends Model<IFormDocument> {
 
   removeForm(_id: string): void;
   duplicate(_id: string): Promise<IFormDocument>;
+
+  validate(formId: string, submissions: ISubmission[]): Promise<IError[]>;
 }
 
 export const loadFormClass = () => {
@@ -54,11 +70,7 @@ export const loadFormClass = () => {
     public static async createForm(doc: IForm, createdUserId: string) {
       doc.code = await this.generateCode();
 
-      return Forms.create({
-        ...doc,
-        createdDate: new Date(),
-        createdUserId,
-      });
+      return Forms.create({ ...doc, createdDate: new Date(), createdUserId });
     }
 
     /**
@@ -88,11 +100,7 @@ export const loadFormClass = () => {
 
       // duplicate form ===================
       const newForm = await this.createForm(
-        {
-          title: `${form.title} duplicated`,
-          description: form.description,
-          type: form.type,
-        },
+        { title: `${form.title} duplicated`, description: form.description, type: form.type },
         form.createdUserId,
       );
 
@@ -114,6 +122,57 @@ export const loadFormClass = () => {
       }
 
       return newForm;
+    }
+
+    public static async validate(formId: string, submissions: ISubmission[]) {
+      const fields = await Fields.find({ contentTypeId: formId });
+      const errors: Array<{ fieldId: string; code: string; text: string }> = [];
+
+      for (const field of fields) {
+        // find submission object by _id
+        const submission = submissions.find(sub => sub._id === field._id);
+
+        if (!submission) {
+          continue;
+        }
+
+        const value = submission.value || '';
+
+        const type = field.type;
+        const validation = field.validation;
+
+        // required
+        if (field.isRequired && !value) {
+          errors.push({ fieldId: field._id, code: 'required', text: 'Required' });
+        }
+
+        if (value) {
+          // email
+          if ((type === 'email' || validation === 'email') && !validator.isEmail(value)) {
+            errors.push({ fieldId: field._id, code: 'invalidEmail', text: 'Invalid email' });
+          }
+
+          // phone
+          if (
+            (type === 'phone' || validation === 'phone') &&
+            !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ''))
+          ) {
+            errors.push({ fieldId: field._id, code: 'invalidPhone', text: 'Invalid phone' });
+          }
+
+          // number
+          if (validation === 'number' && !validator.isNumeric(value.toString())) {
+            errors.push({ fieldId: field._id, code: 'invalidNumber', text: 'Invalid number' });
+          }
+
+          // date
+          if (validation === 'date' && !validator.isISO8601(value)) {
+            errors.push({ fieldId: field._id, code: 'invalidDate', text: 'Invalid Date' });
+          }
+        }
+      }
+
+      return errors;
     }
   }
 

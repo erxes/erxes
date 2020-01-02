@@ -174,4 +174,93 @@ describe('form duplication', () => {
     expect(formSubmissionObj.customerId).toBe(customer._id);
     expect(formSubmissionObj.formId).toBe(_form._id);
   });
+
+  const formId = 'DFDFDAFD';
+  const contentTypeId = formId;
+
+  test('validate', async () => {
+    // not submitted field
+    await fieldFactory({
+      contentTypeId,
+    });
+
+    const requiredField = await fieldFactory({
+      contentTypeId,
+      isRequired: true,
+    });
+
+    const emailField = await fieldFactory({
+      contentTypeId,
+      validation: 'email',
+    });
+
+    const phoneField = await fieldFactory({
+      contentTypeId,
+      validation: 'phone',
+    });
+
+    const validPhoneField = await fieldFactory({
+      contentTypeId,
+      validation: 'phone',
+    });
+
+    const numberField = await fieldFactory({
+      contentTypeId,
+      validation: 'number',
+    });
+
+    const validNumberField = await fieldFactory({
+      contentTypeId,
+      validation: 'number',
+    });
+
+    const validDateField = await fieldFactory({
+      contentTypeId,
+      validation: 'date',
+    });
+
+    const dateField = await fieldFactory({
+      contentTypeId,
+      validation: 'date',
+    });
+
+    const submissions = [
+      { _id: requiredField._id, value: null },
+      { _id: emailField._id, value: 'email', validation: 'email' },
+      { _id: phoneField._id, value: 'phone', validation: 'phone' },
+      { _id: validPhoneField._id, value: '88183943', validation: 'phone' },
+      { _id: numberField._id, value: 'number', validation: 'number' },
+      { _id: validNumberField._id, value: 10, validation: 'number' },
+      { _id: dateField._id, value: 'date', validation: 'date' },
+      { _id: validDateField._id, value: '2012-09-01', validation: 'date' },
+    ];
+
+    // call function
+    const errors = await Forms.validate(formId, submissions);
+
+    // must be 4 error
+    expect(errors.length).toEqual(5);
+
+    const [requiredError, emailError, phoneError, numberError, dateError] = errors;
+
+    // required
+    expect(requiredError.fieldId).toEqual(requiredField._id);
+    expect(requiredError.code).toEqual('required');
+
+    // email
+    expect(emailError.fieldId).toEqual(emailField._id);
+    expect(emailError.code).toEqual('invalidEmail');
+
+    // phone
+    expect(phoneError.fieldId).toEqual(phoneField._id);
+    expect(phoneError.code).toEqual('invalidPhone');
+
+    // number
+    expect(numberError.fieldId).toEqual(numberField._id);
+    expect(numberError.code).toEqual('invalidNumber');
+
+    // date
+    expect(dateError.fieldId).toEqual(dateField._id);
+    expect(dateError.code).toEqual('invalidDate');
+  });
 });

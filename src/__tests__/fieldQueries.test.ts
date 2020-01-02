@@ -32,6 +32,7 @@ describe('fieldQueries', () => {
     const qry = `
       query fields($contentType: String! $contentTypeId: String) {
         fields(contentType: $contentType contentTypeId: $contentTypeId) {
+          name
           _id
           lastUpdatedUser {
             _id
