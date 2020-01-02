@@ -13,12 +13,10 @@ const configQueries = {
   async configsVersions(_root) {
     const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
     const domain = getEnv({ name: 'DOMAIN' });
-    const widgetsApiDomain = getEnv({ name: 'WIDGETS_API_DOMAIN' });
     const widgetsDomain = getEnv({ name: 'WIDGETS_DOMAIN' });
 
     let erxesVersion;
     let apiVersion;
-    let widgetApiVersion;
     let widgetVersion;
 
     try {
@@ -34,12 +32,6 @@ const configQueries = {
     }
 
     try {
-      widgetApiVersion = await sendRequest({ url: `${widgetsApiDomain}/static/version.json`, method: 'GET' });
-    } catch (e) {
-      widgetApiVersion = {};
-    }
-
-    try {
       widgetVersion = await sendRequest({ url: `${widgetsDomain}/build/version.json`, method: 'GET' });
     } catch (e) {
       widgetVersion = {};
@@ -48,7 +40,6 @@ const configQueries = {
     return {
       erxesVersion,
       apiVersion,
-      widgetApiVersion,
       widgetVersion,
     };
   },
