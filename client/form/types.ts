@@ -43,8 +43,8 @@ export interface IForm {
 export type FieldValue = string | number | Date | string[];
 
 export interface IFieldError {
-  fieldId: string;
-  code: string;
+  fieldId?: string;
+  code?: string;
   text: string;
 }
 

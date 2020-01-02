@@ -1,7 +1,7 @@
 import * as React from "react";
 import { AppConsumer } from "../../messenger/containers/AppContext";
 import { IEmailParams, IIntegration } from "../../types";
-import { __ } from "../../utils";
+import { __, fixErrorMessage } from "../../utils";
 import {
   FieldValue,
   ICurrentStatus,
@@ -105,9 +105,11 @@ class Form extends React.Component<Props, State> {
   renderFields() {
     const { form, currentStatus } = this.props;
     const { fields } = form;
-    const errors = currentStatus.errors || [];
 
-    return fields.map(field => {
+    const errors = currentStatus.errors || [];
+    const nonFieldError = errors.find(error => !error.fieldId);
+
+    const renderedFields = fields.map(field => {
       const fieldError = errors.find(
         (error: IFieldError) => error.fieldId === field._id
       );
@@ -121,6 +123,15 @@ class Form extends React.Component<Props, State> {
         />
       );
     });
+
+    return (
+      <>
+        {nonFieldError ? (
+          <p style={{ color: "red" }}>{fixErrorMessage(nonFieldError.text)}</p>
+        ) : null}
+        {renderedFields}
+      </>
+    );
   }
 
   renderForm() {
@@ -131,6 +142,7 @@ class Form extends React.Component<Props, State> {
         {this.renderHead(form.title || integration.name)}
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
+
           {this.renderFields()}
 
           <button

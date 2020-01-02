@@ -109,5 +109,9 @@ export const saveLead = (params: {
       if (data) {
         saveCallback(data.widgetsSaveLead);
       }
+    })
+
+    .catch(e => {
+      saveCallback({ status: "error", errors: [{ text: e.message }] });
     });
 };

@@ -298,3 +298,6 @@ export const striptags = (htmlString: string) => {
   _text = _text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
   return _text;
 };
+
+export const fixErrorMessage = (msg: string) =>
+  msg.replace("GraphQL error: ", "");
