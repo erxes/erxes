@@ -184,7 +184,7 @@ export const loadClass = () => {
     /**
      * Create a customer
      */
-    public static async createCustomer(doc: ICustomer, user?: IUserDocument) {
+    public static async createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc);
 
@@ -211,7 +211,7 @@ export const loadClass = () => {
 
       await ActivityLogs.createCocLog({ coc: customer, contentType: 'customer' });
 
-      return customer;
+      return Customers.getCustomer(customer._id);
     }
 
     /*
