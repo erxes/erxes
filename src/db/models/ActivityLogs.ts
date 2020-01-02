@@ -29,10 +29,8 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
 
 export const loadClass = () => {
   class ActivityLog {
-    public static async addActivityLog(doc: IActivityLogInput) {
-      const activity = await ActivityLogs.create(doc);
-
-      return activity;
+    public static addActivityLog(doc: IActivityLogInput) {
+      return ActivityLogs.create(doc);
     }
 
     public static async removeActivityLog(contentId: IActivityLogInput) {

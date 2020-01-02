@@ -1,6 +1,5 @@
 import { graphqlRequest } from '../db/connection';
 
-import { EngagesAPI } from '../data/dataSources';
 import './setup.ts';
 
 describe('Test configs mutations', () => {
@@ -31,27 +30,5 @@ describe('Test configs mutations', () => {
 
     expect(config.value.length).toEqual(1);
     expect(config.value[0]).toEqual('USD');
-  });
-
-  test('Insert config', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
-    const mutation = `
-      mutation engagesConfigSave($accessKeyId: String, $secretAccessKey: String, $region: String) {
-        engagesConfigSave(accessKeyId: $accessKeyId, secretAccessKey: $secretAccessKey, region: $region) {
-          accessKeyId
-          secretAccessKey
-          region
-        }
-      }
-    `;
-
-    const dataSources = { EngagesAPI: new EngagesAPI() };
-
-    try {
-      await graphqlRequest(mutation, 'engagesConfigSave', {}, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Engages api is not running');
-    }
   });
 });

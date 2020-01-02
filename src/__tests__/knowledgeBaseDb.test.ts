@@ -488,5 +488,23 @@ describe('test knowledge base models', () => {
 
       expect(await KnowledgeBaseArticles.find().countDocuments()).toBe(0);
     });
+
+    test('Article: incReactionCount', async () => {
+      try {
+        await KnowledgeBaseArticles.incReactionCount('_id', 'wow');
+      } catch (e) {
+        expect(e.message).toBe('Article not found');
+      }
+
+      const article = await knowledgeBaseArticleFactory({
+        reactionChoices: ['wow'],
+      });
+
+      await KnowledgeBaseArticles.incReactionCount(article._id, 'wow');
+
+      const updated = (await KnowledgeBaseArticles.findOne({ _id: article._id })) || ({ reactionCounts: {} } as any);
+
+      expect(updated.reactionCounts.wow).toBe(1);
+    });
   });
 });

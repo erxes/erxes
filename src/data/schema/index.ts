@@ -126,6 +126,8 @@ import {
   types as PipelineLabelTypes,
 } from './pipelineLabel';
 
+import { mutations as WidgetMutations, queries as WidgetQueries, types as WidgetTypes } from './widget';
+
 export const types = `
   scalar JSON
   scalar Date
@@ -168,6 +170,7 @@ export const types = `
   ${ChecklistTypes}
   ${RobotTypes}
   ${PipelineLabelTypes}
+  ${WidgetTypes}
 `;
 
 export const queries = `
@@ -209,6 +212,7 @@ export const queries = `
     ${ChecklistQueries}
     ${RobotQueries}
     ${PipelineLabelQueries}
+    ${WidgetQueries}
   }
 `;
 
@@ -248,6 +252,7 @@ export const mutations = `
     ${ChecklistMutations}
     ${RobotMutations}
     ${PipelineLabelMutations}
+    ${WidgetMutations}
   }
 `;
 

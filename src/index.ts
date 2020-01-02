@@ -15,6 +15,7 @@ import { buildFile } from './data/modules/fileExporter/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import {
   checkFile,
+  deleteFile,
   getEnv,
   handleUnsubscription,
   readFileRequest,
@@ -26,6 +27,7 @@ import { debugExternalApi, debugInit } from './debuggers';
 import './messageBroker';
 import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
+import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { initRedis } from './redisClient';
 
 initRedis();
@@ -76,6 +78,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.get('/script-manager', widgetsMiddleware);
 
 app.use(userMiddleware);
 
@@ -157,6 +161,22 @@ app.get('/read-mail-attachment', async (req: any, res) => {
   res.redirect(
     `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}`,
   );
+});
+
+// delete file
+app.post('/delete-file', async (req: any, res) => {
+  // require login
+  if (!req.user) {
+    return res.end('foribidden');
+  }
+
+  const status = await deleteFile(req.body.fileName);
+
+  if (status === 'ok') {
+    return res.send(status);
+  }
+
+  return res.status(500).send(status);
 });
 
 // file upload

@@ -10,6 +10,7 @@ export interface IMessageModel extends Model<IMessageDocument> {
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
   getAdminMessages(conversationId: string): Promise<IMessageDocument[]>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
+  forceReadCustomerPreviousEngageMessages(customerId: string): Promise<IMessageDocument>;
 }
 
 export const loadClass = () => {
@@ -135,6 +136,21 @@ export const loadClass = () => {
           conversationId,
           userId: { $exists: true },
           isCustomerRead: { $exists: false },
+        },
+        { $set: { isCustomerRead: true } },
+        { multi: true },
+      );
+    }
+
+    /**
+     * Force read previous unread engage messages ============
+     */
+    public static forceReadCustomerPreviousEngageMessages(customerId: string) {
+      return Messages.updateMany(
+        {
+          customerId,
+          engageData: { $exists: true },
+          isCustomerRead: { $ne: true },
         },
         { $set: { isCustomerRead: true } },
         { multi: true },

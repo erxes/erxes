@@ -22,5 +22,7 @@ afterAll(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();
 
-  global.gc();
+  if (global.gc) {
+    global.gc();
+  }
 });

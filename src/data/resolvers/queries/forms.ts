@@ -1,5 +1,5 @@
 import { Forms } from '../../../db/models';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 const formQueries = {
@@ -18,7 +18,6 @@ const formQueries = {
   },
 };
 
-requireLogin(formQueries, 'formDetail');
 checkPermission(formQueries, 'forms', 'showForms', []);
 
 export default formQueries;

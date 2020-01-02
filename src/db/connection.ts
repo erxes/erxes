@@ -35,7 +35,7 @@ mongoose.connection
     debugDb(`Database connection error: ${MONGO_URL}`, error);
   });
 
-export function connect(URL?: string, options?) {
+export const connect = async (URL?: string, options?) => {
   return mongoose.connect(
     URL || MONGO_URL,
     {
@@ -43,7 +43,7 @@ export function connect(URL?: string, options?) {
       ...(options || { poolSize: 100 }),
     },
   );
-}
+};
 
 export function disconnect() {
   return mongoose.connection.close();

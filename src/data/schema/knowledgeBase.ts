@@ -35,6 +35,8 @@ export const types = `
     modifiedDate: Date
 
     firstTopic: KnowledgeBaseTopic
+    authors: [User]
+    numOfArticles: Float
   }
 
   input KnowledgeBaseCategoryDoc {
@@ -68,6 +70,10 @@ export const types = `
     color: String
     backgroundImage: String
     languageCode: String
+  }
+
+  type KnowledgeBaseLoader {
+    loadType: String
   }
 `;
 

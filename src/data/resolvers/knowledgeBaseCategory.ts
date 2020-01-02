@@ -1,4 +1,4 @@
-import { KnowledgeBaseArticles, KnowledgeBaseTopics } from '../../db/models';
+import { KnowledgeBaseArticles, KnowledgeBaseTopics, Users } from '../../db/models';
 import { ICategoryDocument } from '../../db/models/definitions/knowledgebase';
 
 export default {
@@ -6,9 +6,32 @@ export default {
     return KnowledgeBaseArticles.find({ _id: { $in: category.articleIds } });
   },
 
+  async authors(category: ICategoryDocument) {
+    const articles = await KnowledgeBaseArticles.find(
+      {
+        _id: { $in: category.articleIds },
+        status: 'publish',
+      },
+      { createdBy: 1 },
+    );
+
+    const authorIds = articles.map(article => article.createdBy);
+
+    return Users.find({
+      _id: { $in: authorIds },
+    });
+  },
+
   firstTopic(category: ICategoryDocument) {
     return KnowledgeBaseTopics.findOne({
       categoryIds: { $in: [category._id] },
     });
+  },
+
+  numOfArticles(category: ICategoryDocument) {
+    return KnowledgeBaseArticles.find({
+      _id: { $in: category.articleIds },
+      status: 'publish',
+    }).countDocuments();
   },
 };

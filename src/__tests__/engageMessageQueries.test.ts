@@ -182,13 +182,15 @@ describe('engageQueries', () => {
           email
           messenger
 
-          stats
           brands { _id }
           segments { _id }
           brand { _id }
           tags { _id }
           fromUser { _id }
           getTags { _id }
+
+          stats
+          logs
         }
       }
     `;
@@ -316,6 +318,26 @@ describe('engageQueries', () => {
 
     try {
       await graphqlRequest(qry, 'engageVerifiedEmails', {}, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Engages api is not running');
+    }
+  });
+
+  test('configDetail', async () => {
+    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
+
+    const qry = `
+      query engagesConfigDetail {
+        engagesConfigDetail {
+          accessKeyId
+        }
+      }
+    `;
+
+    const dataSources = { EngagesAPI: new EngagesAPI() };
+
+    try {
+      await graphqlRequest(qry, 'engagesConfigDetail', {}, { dataSources });
     } catch (e) {
       expect(e[0].message).toBe('Engages api is not running');
     }

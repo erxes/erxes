@@ -27,6 +27,7 @@ import {
   Users,
 } from '../db/models';
 
+import { EngagesAPI } from '../data/dataSources';
 import utils, { handleUnsubscription } from '../data/utils';
 import { KIND_CHOICES, STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
@@ -666,5 +667,71 @@ describe('engage message mutation tests', () => {
     const updatedUser = await Users.getUser(user._id);
 
     expect(updatedUser.doNotDisturb).toBe('Yes');
+  });
+
+  test('configSave', async () => {
+    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation engagesConfigSave($accessKeyId: String, $secretAccessKey: String, $region: String) {
+        engagesConfigSave(accessKeyId: $accessKeyId, secretAccessKey: $secretAccessKey, region: $region) {
+          accessKeyId
+          secretAccessKey
+          region
+        }
+      }
+    `;
+
+    const dataSources = { EngagesAPI: new EngagesAPI() };
+
+    try {
+      await graphqlRequest(mutation, 'engagesConfigSave', {}, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Engages api is not running');
+    }
+  });
+
+  test('dataSources', async () => {
+    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
+
+    const dataSources = { EngagesAPI: new EngagesAPI() };
+
+    const check = async (mutation, name, args) => {
+      try {
+        await graphqlRequest(mutation, name, args, { dataSources });
+      } catch (e) {
+        expect(e[0].message).toBe('Engages api is not running');
+      }
+    };
+
+    check(
+      `
+      mutation engageMessageVerifyEmail($email: String!) {
+        engageMessageVerifyEmail(email: $email)
+      }
+    `,
+      'engageMessageVerifyEmail',
+      { email: 'email@yahoo.com' },
+    );
+
+    check(
+      `
+      mutation engageMessageRemoveVerifiedEmail($email: String!) {
+        engageMessageRemoveVerifiedEmail(email: $email)
+      }
+    `,
+      'engageMessageRemoveVerifiedEmail',
+      { email: 'email@yahoo.com' },
+    );
+
+    check(
+      `
+      mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
+        engageMessageSendTestEmail(from: $from, to: $to, content: $content)
+      }
+    `,
+      'engageMessageSendTestEmail',
+      { from: 'from@yahoo.com', to: 'to@yahoo.com', content: 'content' },
+    );
   });
 });
