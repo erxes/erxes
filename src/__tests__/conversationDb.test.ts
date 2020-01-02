@@ -1,4 +1,10 @@
-import { conversationFactory, conversationMessageFactory, customerFactory, userFactory } from '../db/factories';
+import {
+  conversationFactory,
+  conversationMessageFactory,
+  customerFactory,
+  engageDataFactory,
+  userFactory,
+} from '../db/factories';
 import { ConversationMessages, Conversations, Users } from '../db/models';
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
 
@@ -15,6 +21,7 @@ describe('Conversation db', () => {
     _conversation = await conversationFactory({});
     _conversationMessage = await conversationMessageFactory({
       conversationId: _conversation._id,
+      internal: false,
       content: 'content',
     });
 
@@ -386,5 +393,69 @@ describe('Conversation db', () => {
 
     expect(await Conversations.find({ customerId: customer._id })).toHaveLength(0);
     expect(await ConversationMessages.find({ conversationId: conversation._id })).toHaveLength(0);
+  });
+
+  test('forceReadCustomerPreviousEngageMessages', async () => {
+    const customerId = '_id';
+
+    // isCustomRead is defined ===============
+    await conversationMessageFactory({
+      customerId,
+      engageData: engageDataFactory({ messageId: '_id' }),
+      isCustomerRead: false,
+    });
+
+    await ConversationMessages.forceReadCustomerPreviousEngageMessages(customerId);
+
+    let messages = await ConversationMessages.find({
+      customerId,
+      engageData: { $exists: true },
+      isCustomerRead: true,
+    });
+
+    expect(messages.length).toBe(1);
+
+    // isCustomRead is undefined ===============
+    await ConversationMessages.deleteMany({});
+
+    await conversationMessageFactory({
+      customerId,
+      engageData: engageDataFactory({ messageId: '_id' }),
+    });
+
+    await ConversationMessages.forceReadCustomerPreviousEngageMessages(customerId);
+
+    messages = await ConversationMessages.find({
+      customerId,
+      engageData: { $exists: true },
+      isCustomerRead: true,
+    });
+
+    expect(messages.length).toBe(1);
+  });
+
+  test('widgetsUnreadMessagesQuery', async () => {
+    const conversation = await conversationFactory({});
+
+    const response = await Conversations.widgetsUnreadMessagesQuery([conversation]);
+
+    expect(JSON.stringify(response)).toBe(
+      JSON.stringify({
+        conversationId: { $in: [conversation._id] },
+        userId: { $exists: true },
+        internal: false,
+        isCustomerRead: { $ne: true },
+      }),
+    );
+  });
+
+  test('updateConversation', async () => {
+    const conversation = await conversationFactory({});
+
+    await Conversations.updateConversation(conversation._id, { content: 'updated' });
+
+    const updated = await Conversations.findOne({ _id: conversation._id });
+
+    expect(updated && updated.content).toBe('updated');
   });
 });

@@ -1,6 +1,6 @@
 import { Model, model, Query } from 'mongoose';
 import 'mongoose-type-email';
-import { ConversationMessages, Conversations, Customers, Forms } from '.';
+import { Brands, ConversationMessages, Conversations, Customers, Forms } from '.';
 import { KIND_CHOICES } from './definitions/constants';
 import {
   IIntegration,
@@ -30,6 +30,15 @@ interface IIntegrationBasicInfo {
   brandId: string;
 }
 
+export const isTimeInBetween = (date: Date, startTime: string, closeTime: string): boolean => {
+  // concatnating time ranges with today's date
+  const dateString = date.toLocaleDateString();
+  const startDate = new Date(`${dateString} ${startTime}`);
+  const closeDate = new Date(`${dateString} ${closeTime}`);
+
+  return startDate <= date && date <= closeDate;
+};
+
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(_id: string): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
@@ -44,6 +53,11 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   createExternalIntegration(doc: IExternalIntegrationParams, userId: string): Promise<IIntegrationDocument>;
   removeIntegration(_id: string): void;
   updateBasicInfo(_id: string, doc: IIntegrationBasicInfo): Promise<IIntegrationDocument>;
+
+  getWidgetIntegration(brandCode: string, kind: string, brandObject?: boolean): any;
+  increaseViewCount(formId: string): Promise<IIntegrationDocument>;
+  increaseContactsGathered(formId: string): Promise<IIntegrationDocument>;
+  isOnline(integration: IIntegrationDocument, now?: Date): boolean;
 }
 
 export const loadClass = () => {
@@ -73,11 +87,7 @@ export const loadClass = () => {
      * and integration data (mainDoc)
      */
     public static generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData) {
-      return {
-        ...mainDoc,
-        kind: KIND_CHOICES.LEAD,
-        leadData,
-      };
+      return { ...mainDoc, kind: KIND_CHOICES.LEAD, leadData };
     }
 
     /**
@@ -172,9 +182,7 @@ export const loadClass = () => {
       const conversations = await Conversations.find({ integrationId: _id }, { _id: true });
       const conversationIds = conversations.map(conv => conv._id);
 
-      await ConversationMessages.deleteMany({
-        conversationId: { $in: conversationIds },
-      });
+      await ConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
 
       await Conversations.deleteMany({ integrationId: _id });
 
@@ -202,6 +210,126 @@ export const loadClass = () => {
       await Integrations.updateOne({ _id }, { $set: doc });
 
       return Integrations.findOne({ _id });
+    }
+
+    public static async getWidgetIntegration(brandCode: string, kind: string, brandObject = false) {
+      const brand = await Brands.findOne({ code: brandCode });
+
+      if (!brand) {
+        throw new Error('Brand not found');
+      }
+
+      const integration = await Integrations.findOne({ brandId: brand._id, kind });
+
+      if (brandObject) {
+        return { integration, brand };
+      }
+
+      return integration;
+    }
+
+    public static async increaseViewCount(formId: string) {
+      const integration = await Integrations.findOne({ formId });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      const leadData = integration.leadData || { viewCount: 0 };
+
+      let viewCount = leadData.viewCount || 0;
+
+      viewCount++;
+
+      leadData.viewCount = viewCount;
+
+      await Integrations.updateOne({ formId }, { leadData });
+
+      return Integrations.findOne({ formId });
+    }
+
+    /*
+     * Increase form submitted count
+     */
+    public static async increaseContactsGathered(formId: string) {
+      const integration = await Integrations.findOne({ formId });
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+
+      const leadData = integration.leadData || { contactsGathered: 0 };
+
+      let contactsGathered = leadData.contactsGathered || 0;
+
+      contactsGathered++;
+
+      leadData.contactsGathered = contactsGathered;
+
+      await Integrations.updateOne({ formId }, { leadData });
+
+      return Integrations.findOne({ formId });
+    }
+
+    public static isOnline(integration: IIntegrationDocument, now = new Date()) {
+      const daysAsString = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+      const isWeekday = (d: string): boolean => {
+        return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].includes(d);
+      };
+
+      const isWeekend = (d: string): boolean => {
+        return ['saturday', 'sunday'].includes(d);
+      };
+
+      if (!integration.messengerData) {
+        return false;
+      }
+
+      const { messengerData } = integration;
+      const { availabilityMethod, onlineHours = [] } = messengerData;
+
+      /*
+       * Manual: We can determine state from isOnline field value when method is manual
+       */
+      if (availabilityMethod === 'manual') {
+        return messengerData.isOnline;
+      }
+
+      /*
+       * Auto
+       */
+      const day = daysAsString[now.getDay()];
+
+      // check by everyday config
+      const everydayConf = onlineHours.find(c => c.day === 'everyday');
+
+      if (everydayConf) {
+        return isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
+      }
+
+      // check by weekdays config
+      const weekdaysConf = onlineHours.find(c => c.day === 'weekdays');
+
+      if (weekdaysConf && isWeekday(day)) {
+        return isTimeInBetween(now, weekdaysConf.from || '', weekdaysConf.to || '');
+      }
+
+      // check by weekends config
+      const weekendsConf = onlineHours.find(c => c.day === 'weekends');
+
+      if (weekendsConf && isWeekend(day)) {
+        return isTimeInBetween(now, weekendsConf.from || '', weekendsConf.to || '');
+      }
+
+      // check by regular day config
+      const dayConf = onlineHours.find(c => c.day === day);
+
+      if (dayConf) {
+        return isTimeInBetween(now, dayConf.from || '', dayConf.to || '');
+      }
+
+      return false;
     }
   }
 

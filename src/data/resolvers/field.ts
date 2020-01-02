@@ -2,6 +2,10 @@ import { Fields, Users } from '../../db/models';
 import { IFieldDocument, IFieldGroupDocument } from '../../db/models/definitions/fields';
 
 export const field = {
+  name(root: IFieldDocument) {
+    return `erxes-form-field-${root._id}`;
+  },
+
   lastUpdatedUser(root: IFieldDocument) {
     const { lastUpdatedUserId } = root;
 

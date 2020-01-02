@@ -1,5 +1,10 @@
 import { graphqlRequest } from '../db/connection';
-import { knowledgeBaseArticleFactory, knowledgeBaseCategoryFactory, knowledgeBaseTopicFactory } from '../db/factories';
+import {
+  knowledgeBaseArticleFactory,
+  knowledgeBaseCategoryFactory,
+  knowledgeBaseTopicFactory,
+  userFactory,
+} from '../db/factories';
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../db/models';
 
 import './setup.ts';
@@ -86,12 +91,15 @@ describe('knowledgeBaseQueries', () => {
   });
 
   test('Knowledge base categories', async () => {
+    const user = await userFactory({});
     const topic = await knowledgeBaseTopicFactory();
 
     // Creating test data
-    await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
+    const category = await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
     await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
     await knowledgeBaseCategoryFactory({});
+
+    await knowledgeBaseArticleFactory({ categoryIds: [category._id], status: 'publish', userId: user._id });
 
     const args = {
       page: 1,
@@ -144,11 +152,17 @@ describe('knowledgeBaseQueries', () => {
             modifiedBy
             modifiedDate
           }
+
+          authors {
+            _id
+          }
+
+          numOfArticles
         }
       }
     `;
 
-    let responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args);
+    let responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args, { user });
 
     expect(responses.length).toBe(2);
 

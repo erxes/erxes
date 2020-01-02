@@ -5,16 +5,8 @@ import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
 import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
 
-interface ISTATUSES {
-  NEW: 'new';
-  OPEN: 'open';
-  CLOSED: 'closed';
-  ALL_LIST: ['new', 'open', 'closed'];
-}
-
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
-  getConversationStatuses(): ISTATUSES;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   updateConversation(_id: string, doc): Promise<IConversationDocument>;
   checkExistanceConversations(ids: string[]): any;
@@ -38,6 +30,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument[]>;
 
   removeCustomersConversations(customerId: string[]): Promise<{ n: number; ok: number }>;
+  widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
 }
 
 export const loadClass = () => {
@@ -53,10 +46,6 @@ export const loadClass = () => {
       }
 
       return conversation;
-    }
-
-    public static getConversationStatuses() {
-      return CONVERSATION_STATUSES;
     }
 
     /**
@@ -80,7 +69,7 @@ export const loadClass = () => {
       const now = new Date();
 
       return Conversations.create({
-        status: this.getConversationStatuses().NEW,
+        status: CONVERSATION_STATUSES.NEW,
         ...doc,
         content: cleanHtml(doc.content),
         createdAt: doc.createdAt || now,
@@ -110,7 +99,7 @@ export const loadClass = () => {
         readUserIds: [],
 
         // if closed, reopen
-        status: this.getConversationStatuses().OPEN,
+        status: CONVERSATION_STATUSES.OPEN,
 
         closedAt: null,
         closedUserId: null,
@@ -182,7 +171,7 @@ export const loadClass = () => {
       let closedAt;
       let closedUserId;
 
-      if (status === this.getConversationStatuses().CLOSED) {
+      if (status === CONVERSATION_STATUSES.CLOSED) {
         closedAt = new Date();
         closedUserId = userId;
       }
@@ -226,7 +215,7 @@ export const loadClass = () => {
     public static async newOrOpenConversation() {
       return Conversations.find({
         status: {
-          $in: [this.getConversationStatuses().NEW, this.getConversationStatuses().OPEN],
+          $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
         },
       });
     }
@@ -286,6 +275,14 @@ export const loadClass = () => {
       });
 
       await Conversations.deleteMany({ _id: { $in: conversationIds } });
+    }
+
+    public static widgetsUnreadMessagesQuery(conversations: IConversationDocument[]) {
+      const unreadMessagesSelector = { userId: { $exists: true }, internal: false, isCustomerRead: { $ne: true } };
+
+      const conversationIds = conversations.map(c => c._id);
+
+      return { conversationId: { $in: conversationIds }, ...unreadMessagesSelector };
     }
   }
 

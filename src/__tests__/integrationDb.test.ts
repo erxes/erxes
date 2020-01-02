@@ -12,6 +12,7 @@ import {
 import { Brands, ConversationMessages, Forms, Integrations, Users } from '../db/models';
 import { KIND_CHOICES, LEAD_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../db/models/definitions/constants';
 
+import { isTimeInBetween } from '../db/models/Integrations';
 import './setup.ts';
 
 describe('messenger integration model add method', () => {
@@ -505,5 +506,226 @@ describe('save integration messenger configurations test', () => {
     expect(integration.messengerData.messages.en.welcome).toEqual(messengerData.messages.en.welcome);
     expect(integration.messengerData.messages.en.away).toEqual(messengerData.messages.en.away);
     expect(integration.messengerData.messages.en.thank).toEqual(messengerData.messages.en.thank);
+  });
+
+  test('Increase view count of lead', async () => {
+    expect.assertions(3);
+
+    try {
+      await Integrations.increaseViewCount('_id');
+    } catch (e) {
+      expect(e.message).toBe('Integration not found');
+    }
+
+    let updated = await Integrations.increaseViewCount(_integration.formId);
+
+    expect(updated.leadData && updated.leadData.viewCount).toBe(1);
+
+    updated = await Integrations.increaseViewCount(_integration.formId);
+    expect(updated.leadData && updated.leadData.viewCount).toBe(2);
+  });
+
+  test('Increase contacts gathered', async () => {
+    expect.assertions(3);
+
+    try {
+      await Integrations.increaseContactsGathered('_id');
+    } catch (e) {
+      expect(e.message).toBe('Integration not found');
+    }
+
+    let updated = await Integrations.increaseContactsGathered(_integration.formId);
+
+    expect(updated.leadData && updated.leadData.contactsGathered).toBe(1);
+
+    updated = await Integrations.increaseContactsGathered(_integration.formId);
+    expect(updated.leadData && updated.leadData.contactsGathered).toBe(2);
+  });
+
+  describe('Manual mode', () => {
+    test('empty', async () => {
+      const integration = await integrationFactory({});
+      expect(Integrations.isOnline(integration)).toBeFalsy();
+    });
+
+    test('isOnline() must return status as it is', async () => {
+      const integration = await integrationFactory({
+        messengerData: {
+          availabilityMethod: 'manual',
+        },
+      });
+
+      if (!integration.messengerData) {
+        throw new Error('Messenger data undefined');
+      }
+
+      // online
+      integration.messengerData.isOnline = true;
+      expect(Integrations.isOnline(integration)).toBeTruthy();
+
+      // offline
+      integration.messengerData.isOnline = false;
+      expect(Integrations.isOnline(integration)).toBeFalsy();
+    });
+  });
+
+  describe('Auto mode', () => {
+    test('isTimeInBetween()', () => {
+      const time1 = '09:00 AM';
+      const time2 = '6:00 PM';
+
+      expect(isTimeInBetween(new Date('2017/05/08 11:10 AM'), time1, time2)).toBeTruthy();
+      expect(isTimeInBetween(new Date('2017/05/08 7:00 PM'), time1, time2)).toBeFalsy();
+    });
+
+    test('isOnline() must return false if there is no config for current day', async () => {
+      const integration = await integrationFactory({
+        messengerData: {
+          availabilityMethod: 'auto',
+          onlineHours: [
+            {
+              day: 'tuesday',
+              from: '09:00 AM',
+              to: '05:00 PM',
+            },
+          ],
+        },
+      });
+
+      // 2017-05-08, monday
+      expect(Integrations.isOnline(integration, new Date('2017/05/08 11:10 AM'))).toBeFalsy();
+    });
+
+    test('isOnline() for specific day', async () => {
+      const integration = await integrationFactory({
+        messengerData: {
+          availabilityMethod: 'auto',
+          onlineHours: [
+            {
+              day: 'tuesday',
+              from: '09:00 AM',
+              to: '05:00 PM',
+            },
+          ],
+        },
+      });
+
+      // 2017-05-09, tuesday
+      expect(Integrations.isOnline(integration, new Date('2017/05/09 06:10 PM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/09 09:01 AM'))).toBeTruthy();
+    });
+
+    test('isOnline() for everyday', async () => {
+      const integration = await integrationFactory({
+        messengerData: {
+          availabilityMethod: 'auto',
+          onlineHours: [
+            {
+              day: 'everyday',
+              from: '09:00 AM',
+              to: '05:00 PM',
+            },
+          ],
+        },
+      });
+
+      // monday -> sunday
+      expect(Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/13 3:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/14 4:00 PM'))).toBeTruthy();
+
+      // monday -> sunday
+      expect(Integrations.isOnline(integration, new Date('2017/05/08 3:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/09 4:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/10 5:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/11 6:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/12 6:00 PM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/13 7:00 PM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/14 8:00 PM'))).toBeFalsy();
+    });
+
+    test('isOnline() for weekdays', async () => {
+      const integration = await integrationFactory({
+        messengerData: {
+          availabilityMethod: 'auto',
+          onlineHours: [
+            {
+              day: 'weekdays',
+              from: '09:00 AM',
+              to: '05:00 PM',
+            },
+          ],
+        },
+      });
+
+      // weekdays
+      expect(Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/11 11:00 PM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/12 07:00 AM'))).toBeFalsy();
+
+      // weekend
+      expect(Integrations.isOnline(integration, new Date('2017/05/13 10:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/14 11:00 AM'))).toBeFalsy();
+    });
+
+    test('isOnline() for weekend', async () => {
+      const integration = await integrationFactory({
+        messengerData: {
+          availabilityMethod: 'auto',
+          onlineHours: [
+            {
+              day: 'weekends',
+              from: '09:00 AM',
+              to: '05:00 PM',
+            },
+          ],
+        },
+      });
+
+      // weekdays
+      expect(Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeFalsy();
+
+      // weekend
+      expect(Integrations.isOnline(integration, new Date('2017/05/13 10:00 AM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/14 11:00 AM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/13 07:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/14 11:00 PM'))).toBeFalsy();
+    });
+  });
+
+  test('getWidgetIntegration', async () => {
+    expect.assertions(4);
+
+    try {
+      await Integrations.getWidgetIntegration('_id', 'messenger');
+    } catch (e) {
+      expect(e.message).toBe('Brand not found');
+    }
+
+    const brand = await brandFactory({});
+    const integration = await integrationFactory({ brandId: brand._id, kind: 'messenger' });
+
+    // brandObject false
+    let response = await Integrations.getWidgetIntegration(brand.code || '', 'messenger');
+
+    expect(response._id).toBe(integration._id);
+
+    // brandObject true
+    response = await Integrations.getWidgetIntegration(brand.code || '', 'messenger', true);
+
+    expect(response.integration._id).toBe(integration._id);
+    expect(response.brand._id).toBe(brand._id);
   });
 });

@@ -6,6 +6,7 @@ export const fieldsTypes = `
     type: String
     validation: String
     text: String
+    name: String
     description: String
     options: [String]
     isRequired: Boolean
