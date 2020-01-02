@@ -15,7 +15,8 @@ const ActionBarLeft = styled.div`
 `;
 
 const AssignTrigger = styled.div`
-  padding-left: 10px;
+  padding-left: ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.unitSpacing}px;
 
   i {
     margin-left: 5px;
