@@ -33,7 +33,7 @@
     "bat-draft-js-mention-plugin": "^2.0.1",
     "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",
-    "color": "^3.0.0",
+    "color": "^3.1.2",
     "crypto": "^1.0.1",
     "dayjs": "^1.8.15",
     "draft-js": "^0.10.5",

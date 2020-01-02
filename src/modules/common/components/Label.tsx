@@ -1,4 +1,5 @@
-import { __, colorParser } from 'modules/common/utils';
+import color from 'color';
+import { __ } from 'modules/common/utils';
 import { shake } from 'modules/common/utils/animations';
 import React from 'react';
 import styled from 'styled-components';
@@ -115,7 +116,7 @@ class Label extends React.Component<Props> {
     const updatedProps = {
       ...this.props,
       hasLightBackground: style
-        ? colorParser.isColorLight(style.backgroundColor || '')
+        ? color(style.backgroundColor).isLight()
         : undefined
     };
 

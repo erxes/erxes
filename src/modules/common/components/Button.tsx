@@ -11,7 +11,8 @@ const types = {
     background: colors.colorPrimary
   },
   primary: {
-    background: colors.colorSecondary
+    background: colors.colorSecondary,
+    border: darken(colors.colorSecondary, 20)
   },
   success: {
     background: colors.colorCoreGreen
@@ -20,12 +21,13 @@ const types = {
     background: colors.colorCoreRed
   },
   warning: {
-    background: colors.colorCoreYellow
+    background: colors.colorCoreYellow,
+    border: darken(colors.colorCoreYellow, 25)
   },
   simple: {
-    background: colors.colorWhite,
-    borderColor: colors.borderDarker,
-    color: colors.colorCoreGray
+    background: 'rgba(0,0,0,0.05)',
+    color: colors.colorCoreGray,
+    border: colors.colorCoreGray
   },
   link: {
     background: 'transparent',
@@ -66,21 +68,25 @@ const ButtonStyled = styledTS<{
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
       : colors.colorWhite};
-    border: ${props.btnStyle === 'simple'
-      ? `1px solid ${colors.borderDarker}`
-      : 'none'};
+    border: none;
     display: ${props.block && 'block'};
     width: ${props.block && '100%'};
-    box-shadow: 0 1px 10px 0 ${lighten(types[props.btnStyle].background, 45)};
 
     &:hover {
       cursor: pointer;
       text-decoration: none;
-      color: ${types[props.btnStyle].color
-        ? darken(colors.colorCoreGray, 24)
-        : colors.colorWhite};
-      box-shadow: ${props.btnStyle !== 'link' &&
-        `0 1px 15px 0 ${lighten(types[props.btnStyle].background, 25)}`};
+      color: ${types[props.btnStyle].color &&
+        darken(types[props.btnStyle].color, 35)};
+      background: ${props.btnStyle !== 'link' &&
+        `${darken(types[props.btnStyle].background, 20)}`};
+    }
+
+    &:active,
+    &:focus {
+      box-shadow: ${types[props.btnStyle].border
+        ? `0 0 0 2px ${lighten(types[props.btnStyle].border, 65)}`
+        : `0 0 0 2px ${lighten(types[props.btnStyle].background, 65)}`};
+      box-shadow: ${props.btnStyle === 'link' && 'none'};
     }
 
     &:disabled {
