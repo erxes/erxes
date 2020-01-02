@@ -110,6 +110,7 @@ const commonParams = `
   $customerIds: [String],
   $companyIds: [String],
   $assignedUserIds: [String],
+  $labelIds: [String],
   $extraParams: JSON,
   $closeDateType: String
 `;
@@ -119,6 +120,7 @@ const commonParamDefs = `
   customerIds: $customerIds,
   companyIds: $companyIds,
   assignedUserIds: $assignedUserIds,
+  labelIds: $labelIds,
   extraParams: $extraParams,
   closeDateType: $closeDateType
 `;
