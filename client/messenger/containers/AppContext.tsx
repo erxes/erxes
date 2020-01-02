@@ -153,9 +153,9 @@ export class AppProvider extends React.Component<{}, IState> {
             variables
           })
 
-          .then(({ data: { saveBrowserInfo } }: any) => {
+          .then(({ data: { widgetsSaveBrowserInfo } }: any) => {
             this.setState({
-              lastUnreadMessage: saveBrowserInfo,
+              lastUnreadMessage: widgetsSaveBrowserInfo,
               isBrowserInfoSaved: true
             });
           });
@@ -280,12 +280,12 @@ export class AppProvider extends React.Component<{}, IState> {
     client
       .mutate({
         mutation: gql`
-          mutation saveCustomerGetNotified(
+          mutation widgetsSaveCustomerGetNotified(
             $customerId: String!
             $type: String!
             $value: String!
           ) {
-            saveCustomerGetNotified(
+            widgetsSaveCustomerGetNotified(
               customerId: $customerId
               type: $type
               value: $value
@@ -384,7 +384,7 @@ export class AppProvider extends React.Component<{}, IState> {
     if (activeConversation) {
       optimisticResponse = {
         __typename: "Mutation",
-        insertMessage: {
+        widgetsInsertMessage: {
           __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
           conversationId: activeConversation,
@@ -400,27 +400,29 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       };
 
-      update = (proxy: any, { data: { insertMessage } }: any) => {
+      update = (proxy: any, { data: { widgetsInsertMessage } }: any) => {
         const selector = {
           query: gql(graphqlTypes.conversationDetailQuery),
           variables: {
-            _id: insertMessage.conversationId,
+            _id: widgetsInsertMessage.conversationId,
             integrationId: connection.data.integrationId
           }
         };
 
         // Read data from our cache for this query
-        const data = proxy.readQuery(selector);
+        const cacheData = proxy.readQuery(selector);
 
-        const messages = data.conversationDetail.messages;
+        const messages = cacheData.widgetsConversationDetail.messages;
 
         // check duplications
-        if (!messages.find((m: IMessage) => m._id === insertMessage._id)) {
+        if (
+          !messages.find((m: IMessage) => m._id === widgetsInsertMessage._id)
+        ) {
           // Add our message from the mutation to the end
-          messages.push(insertMessage);
+          messages.push(widgetsInsertMessage);
 
           // Write out data back to the cache
-          proxy.writeQuery({ ...selector, data });
+          proxy.writeQuery({ ...selector, data: cacheData });
         }
       };
     }
@@ -436,14 +438,14 @@ export class AppProvider extends React.Component<{}, IState> {
       client
         .mutate({
           mutation: gql`
-            mutation insertMessage(
+            mutation widgetsInsertMessage(
               ${connection.queryVariables}
               $message: String
               $conversationId: String
               $attachments: [AttachmentInput]
             ) {
 
-            insertMessage(
+            widgetsInsertMessage(
               ${connection.queryParams}
               message: $message
               conversationId: $conversationId
@@ -468,10 +470,10 @@ export class AppProvider extends React.Component<{}, IState> {
         .then(({ data }: any) => {
           this.setState({ sendingMessage: false });
 
-          const { insertMessage } = data;
+          const { widgetsInsertMessage } = data;
 
           if (!activeConversation) {
-            this.changeConversation(insertMessage.conversationId);
+            this.changeConversation(widgetsInsertMessage.conversationId);
           }
         })
 

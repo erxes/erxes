@@ -11,7 +11,7 @@ type Props = {
 };
 
 type Response = {
-  unreadCount: number;
+  widgetsUnreadCount: number;
 };
 
 class ConversationItem extends React.PureComponent<
@@ -40,7 +40,7 @@ class ConversationItem extends React.PureComponent<
 
     const extendedProps = {
       ...this.props,
-      notificationCount: data ? data.unreadCount || 0 : 0
+      notificationCount: data ? data.widgetsUnreadCount || 0 : 0
     };
 
     return <DumbConversationItem {...extendedProps} />;

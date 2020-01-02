@@ -2,9 +2,9 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { Callout, Form as DumbForm } from "../../../form/components";
+import { formDetailQuery } from "../../../form/graphql";
 import { ICurrentStatus, IForm, IFormDoc } from "../../../form/types";
 import { IEmailParams, IIntegration } from "../../../types";
-import queries from "../../graphql";
 import { LeadConsumer, LeadProvider } from "./LeadContext";
 
 const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
@@ -14,20 +14,20 @@ const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
     return null;
   }
 
-  if (!data.form || !(data.form.title || "").trim()) {
+  if (!data.formDetail || !(data.formDetail.title || "").trim()) {
     return null;
   }
 
   const extendedProps = {
     ...props,
-    form: data.form
+    form: data.formDetail
   };
 
   return <DumbForm {...extendedProps} hasTopBar={false} />;
 };
 
 type QueryResponse = {
-  form: IForm;
+  formDetail: IForm;
 };
 
 interface IProps {
@@ -39,11 +39,11 @@ interface IProps {
   sendEmail: (params: IEmailParams) => void;
 }
 
-const FormWithData = graphql<IProps, QueryResponse>(gql(queries.formQuery), {
+const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery), {
   options: ({ form }) => ({
     fetchPolicy: "network-only",
     variables: {
-      formId: form._id
+      _id: form._id
     }
   })
 })(LeadContent);
@@ -64,7 +64,7 @@ const WithContext = () => (
         const integration = getIntegration();
         const form = getForm();
 
-        const callout = integration.leadData.callout;
+        const callout = integration.leadData && integration.leadData.callout;
 
         if (isCallOutVisible && callout && !callout.skip) {
           return (

@@ -8,7 +8,7 @@ import graphqTypes from "../graphql";
 import { AppConsumer } from "./AppContext";
 
 type QueryResponse = {
-  messengerSupporters: IUser[];
+  widgetsMessengerSupporters: IUser[];
 };
 
 class MessengerContainer extends React.Component<
@@ -16,7 +16,9 @@ class MessengerContainer extends React.Component<
   {}
 > {
   render() {
-    const { data = { messengerSupporters: [], loading: true } } = this.props;
+    const {
+      data = { widgetsMessengerSupporters: [], loading: true }
+    } = this.props;
 
     return (
       <AppConsumer>
@@ -25,7 +27,7 @@ class MessengerContainer extends React.Component<
             <DumbMessenger
               activeRoute={activeRoute}
               loading={data.loading}
-              supporters={data.messengerSupporters || []}
+              supporters={data.widgetsMessengerSupporters || []}
             />
           );
         }}

@@ -47,7 +47,7 @@ const userFields = `
 
 const conversationDetailQuery = `
   query ($_id: String, $integrationId: String!) {
-    conversationDetail(_id: $_id, integrationId: $integrationId) {
+    widgetsConversationDetail(_id: $_id, integrationId: $integrationId) {
       _id
       messages {
         ${messageFields}
@@ -100,22 +100,22 @@ const adminMessageInserted = `
 `;
 
 const unreadCountQuery = `
-  query unreadCount($conversationId: String) {
-    unreadCount(conversationId: $conversationId)
+  query widgetsUnreadCount($conversationId: String) {
+    widgetsUnreadCount(conversationId: $conversationId)
   }
 `;
 
 const messengerSupportersQuery = `
-  query messengerSupporters($integrationId: String!) {
-    messengerSupporters(integrationId: $integrationId) {
+  query widgetsMessengerSupporters($integrationId: String!) {
+    widgetsMessengerSupporters(integrationId: $integrationId) {
       ${userFields}
     }
   }
 `;
 
 const totalUnreadCountQuery = `
-  query totalUnreadCount(${connection.queryVariables}) {
-    totalUnreadCount(${connection.queryParams})
+  query widgetsTotalUnreadCount(${connection.queryVariables}) {
+    widgetsTotalUnreadCount(${connection.queryParams})
   }
 `;
 
@@ -128,8 +128,8 @@ const conversationChanged = `
 `;
 
 const allConversations = `
-  query allConversations(${connection.queryVariables}) {
-    conversations(${connection.queryParams}) {
+  query widgetsConversations(${connection.queryVariables}) {
+    widgetsConversations(${connection.queryParams}) {
       _id
       content
       createdAt
@@ -144,8 +144,8 @@ const allConversations = `
 `;
 
 const readConversationMessages = `
-  mutation readConversationMessages($conversationId: String) {
-    readConversationMessages(conversationId: $conversationId)
+  mutation widgetsReadConversationMessages($conversationId: String) {
+    widgetsReadConversationMessages(conversationId: $conversationId)
   }
 `;
 
@@ -153,7 +153,8 @@ const connect = `
   mutation connect($brandCode: String!, $email: String, $phone: String, $code: String
     $isUser: Boolean, $data: JSON,
     $companyData: JSON, $cachedCustomerId: String) {
-    messengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
+
+    widgetsMessengerConnect(brandCode: $brandCode, email: $email, phone: $phone, code: $code,
       isUser: $isUser, data: $data, companyData: $companyData,
       cachedCustomerId: $cachedCustomerId) {
       integrationId,
@@ -170,16 +171,16 @@ const connect = `
 `;
 
 const saveBrowserInfo = `
-  mutation saveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
-    saveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
+  mutation widgetsSaveBrowserInfo($customerId: String!  $browserInfo: JSON!) {
+    widgetsSaveBrowserInfo(customerId: $customerId browserInfo: $browserInfo) {
       ${messageFields}
     }
   }
 `;
 
 const sendTypingInfo = `
-  mutation sendTypingInfo($conversationId: String!  $text: String) {
-    sendTypingInfo(conversationId: $conversationId text: $text)
+  mutation widgetsSendTypingInfo($conversationId: String!  $text: String) {
+    widgetsSendTypingInfo(conversationId: $conversationId text: $text)
   }
 `;
 
@@ -202,8 +203,8 @@ const categoryFields = `
 `;
 
 const getFaqCategoryQuery = `
-  query knowledgeBaseCategoriesDetail($categoryId: String!) {
-    knowledgeBaseCategoriesDetail(categoryId: $categoryId) {
+  query knowledgeBaseCategoryDetail($_id: String!) {
+    knowledgeBaseCategoryDetail(_id: $_id) {
       ${categoryFields}
       articles {
         ${faqFields}
@@ -213,8 +214,8 @@ const getFaqCategoryQuery = `
 `;
 
 const getFaqTopicQuery = `
-  query knowledgeBaseTopicsDetail($topicId: String!) {
-    knowledgeBaseTopicsDetail(topicId: $topicId) {
+  query knowledgeBaseTopicDetail($_id: String!) {
+    knowledgeBaseTopicDetail(_id: $_id) {
       title
       description
       categories {
@@ -225,51 +226,9 @@ const getFaqTopicQuery = `
 `;
 
 const faqSearchArticlesQuery = `
-  query knowledgeBaseArticles($topicId: String!, $searchString: String!) {
-    knowledgeBaseArticles(topicId: $topicId, searchString: $searchString) {
+  query widgetsKnowledgeBaseArticles($topicId: String!, $searchString: String!) {
+    widgetsKnowledgeBaseArticles(topicId: $topicId, searchString: $searchString) {
       ${faqFields}
-    }
-  }
-`;
-
-// lead
-const formQuery = `
-  query form($formId: String) {
-    form(formId: $formId) {
-      title
-      description
-      buttonText
-
-      fields {
-        _id
-        formId
-        name
-        type
-        check
-        text
-        description
-        options
-        isRequired
-        order
-        validation
-      }
-    }
-  }
-`;
-
-const formConnectMutation = `
-  mutation leadConnect($brandCode: String!, $formCode: String!) {
-    leadConnect(brandCode: $brandCode, formCode: $formCode) {
-      form {
-        _id
-        title
-        description
-      }
-      integration {
-        _id
-        name
-        leadData
-      }
     }
   }
 `;
@@ -290,7 +249,5 @@ export default {
   messengerSupportersQuery,
   getFaqCategoryQuery,
   getFaqTopicQuery,
-  faqSearchArticlesQuery,
-  formQuery,
-  formConnectMutation
+  faqSearchArticlesQuery
 };

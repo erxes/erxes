@@ -8,7 +8,7 @@ import { AppConsumer } from "./AppContext";
 import queries from "./graphql";
 
 type QueryResponse = {
-  knowledgeBaseArticles: IKbArticle[];
+  widgetsKnowledgeBaseArticles: IKbArticle[];
 };
 
 const Articles = (props: ChildProps<{}, QueryResponse>) => {
@@ -19,7 +19,7 @@ const Articles = (props: ChildProps<{}, QueryResponse>) => {
   }
 
   const extendedProps = {
-    articles: data.knowledgeBaseArticles || []
+    articles: data.widgetsKnowledgeBaseArticles || []
   };
 
   return <DumbArticles {...extendedProps} />;

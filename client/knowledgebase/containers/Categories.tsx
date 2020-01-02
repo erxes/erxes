@@ -18,14 +18,14 @@ const Categories = (props: ChildProps<{}, QueryResponse>) => {
 
   const extendedProps = {
     ...props,
-    kbTopic: data.knowledgeBaseTopicsDetail
+    kbTopic: data.knowledgeBaseTopicDetail
   };
 
   return <DumbCategories {...extendedProps} />;
 };
 
 type QueryResponse = {
-  knowledgeBaseTopicsDetail: IKbTopic;
+  knowledgeBaseTopicDetail: IKbTopic;
 };
 
 const CategoriesWithData = graphql<{}, QueryResponse>(
@@ -34,7 +34,7 @@ const CategoriesWithData = graphql<{}, QueryResponse>(
     options: () => ({
       fetchPolicy: "network-only",
       variables: {
-        topicId: connection.setting.topic_id
+        _id: connection.setting.topic_id
       }
     })
   }

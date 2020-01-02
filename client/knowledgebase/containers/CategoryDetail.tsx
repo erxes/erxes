@@ -12,7 +12,7 @@ type Props = {
 };
 
 type QueryResponse = {
-  knowledgeBaseCategoriesDetail: IKbCategory;
+  knowledgeBaseCategoryDetail: IKbCategory;
 };
 
 const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
@@ -26,7 +26,7 @@ const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
   }
   const extendedProps = {
     ...props,
-    category: data.knowledgeBaseCategoriesDetail || null
+    category: data.knowledgeBaseCategoryDetail || null
   };
 
   return <DumbCategoryDetail {...extendedProps} />;
@@ -38,7 +38,7 @@ const WithData = graphql<Props, QueryResponse>(
     options: ({ category }) => ({
       fetchPolicy: "network-only",
       variables: {
-        categoryId: category ? category._id : ""
+        _id: category ? category._id : ""
       }
     })
   }

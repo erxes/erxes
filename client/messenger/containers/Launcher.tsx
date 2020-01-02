@@ -17,7 +17,7 @@ type BaseProps = {
 };
 
 type QueryResponse = {
-  totalUnreadCount: number;
+  widgetsTotalUnreadCount: number;
 };
 
 type Props = ChildProps<BaseProps, QueryResponse>;
@@ -42,8 +42,8 @@ class Launcher extends React.Component<Props, {}> {
 
     let totalUnreadCount = 0;
 
-    if (data && data.totalUnreadCount) {
-      totalUnreadCount = data.totalUnreadCount;
+    if (data && data.widgetsTotalUnreadCount) {
+      totalUnreadCount = data.widgetsTotalUnreadCount;
     }
 
     return <DumpLauncher {...this.props} totalUnreadCount={totalUnreadCount} />;

@@ -107,7 +107,7 @@ export const saveLead = (params: {
 
     .then(({ data }) => {
       if (data) {
-        saveCallback(data.saveLead);
+        saveCallback(data.widgetsSaveLead);
       }
     });
 };

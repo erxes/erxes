@@ -16,14 +16,14 @@ const Categories = (props: ChildProps<{}, QueryResponse>) => {
   const extendedProps = {
     ...props,
     loading: data.loading,
-    faqTopics: data.knowledgeBaseTopicsDetail
+    faqTopics: data.knowledgeBaseTopicDetail
   };
 
   return <DumbCategories {...extendedProps} />;
 };
 
 type QueryResponse = {
-  knowledgeBaseTopicsDetail: IFaqTopic;
+  knowledgeBaseTopicDetail: IFaqTopic;
 };
 
 type Props = {
@@ -37,7 +37,7 @@ const CategoriesWithData = graphql<Props, QueryResponse>(
     options: ({ topicId }) => ({
       fetchPolicy: "network-only",
       variables: {
-        topicId
+        _id: topicId
       }
     })
   }
