@@ -1,5 +1,3 @@
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { CategoryContainer } from 'modules/deals/styles';
@@ -71,18 +69,15 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
     return (
       <CategoryContainer>
-        <FormGroup>
-          <ControlLabel>Product category</ControlLabel>
-          <Select
-            isRequired={true}
-            placeholder={__('Choose a category')}
-            optionRenderer={this.renderOptions}
-            options={this.selectOptions(categories)}
-            value={this.state.categoryId}
-            onChange={onChangeCategory}
-            clearable={false}
-          />
-        </FormGroup>
+        <Select
+          isRequired={true}
+          placeholder={__('Choose a category')}
+          optionRenderer={this.renderOptions}
+          options={this.selectOptions(categories)}
+          value={this.state.categoryId}
+          onChange={onChangeCategory}
+          clearable={false}
+        />
       </CategoryContainer>
     );
   }

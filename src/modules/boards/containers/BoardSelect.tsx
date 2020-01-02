@@ -14,7 +14,6 @@ import {
 
 type Props = {
   type: string;
-  inSidebar?: boolean;
   stageId?: string;
   boardId: string;
   pipelineId: string;

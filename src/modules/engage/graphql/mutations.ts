@@ -24,6 +24,22 @@ const setLiveManual = `
   }
 `;
 
+const configSave = `
+  mutation engagesConfigSave($secretAccessKey: String!, $accessKeyId: String!, $region: String!) {
+    engagesConfigSave(secretAccessKey: $secretAccessKey, accessKeyId: $accessKeyId, region: $region) {
+      accessKeyId
+      secretAccessKey
+      region
+    }
+  }
+`;
+
+const sendTestEmail = `
+  mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
+    engageMessageSendTestEmail(from: $from, to: $to, content: $content)
+  }
+`;
+
 const commonVariables = `
   $title: String!,
   $kind: String!,
@@ -84,6 +100,18 @@ const messageRemove = `
   }
 `;
 
+const verifyEmail = `
+  mutation engageMessageVerifyEmail($email: String!) {
+    engageMessageVerifyEmail(email: $email)
+  }
+`;
+
+const removeVerifiedEmail = `
+  mutation engageMessageRemoveVerifiedEmail($email: String!) {
+    engageMessageRemoveVerifiedEmail(email: $email)
+  }
+`;
+
 const segmentsAdd = `
   mutation segmentsAdd(
     $name: String!,
@@ -115,5 +143,9 @@ export default {
   messageRemove,
   messagesAdd,
   messagesEdit,
-  segmentsAdd
+  configSave,
+  segmentsAdd,
+  removeVerifiedEmail,
+  verifyEmail,
+  sendTestEmail
 };
