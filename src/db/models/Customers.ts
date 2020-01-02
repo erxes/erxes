@@ -192,6 +192,14 @@ export const loadClass = () => {
         doc.ownerId = user._id;
       }
 
+      if (doc.primaryEmail && !doc.emails) {
+        doc.emails = [doc.primaryEmail];
+      }
+
+      if (doc.primaryPhone && !doc.phones) {
+        doc.phones = [doc.primaryPhone];
+      }
+
       // clean custom field values
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
       const isValid = await validateEmail(doc.primaryEmail);
