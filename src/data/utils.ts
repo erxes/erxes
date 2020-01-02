@@ -925,15 +925,27 @@ export const checkAutomation = async (kind: string, body: any, user: IUserDocume
   };
 
   return new Promise<any>(resolve => {
-    const response = sendRequest(
+    sendRequest(
       { url: `${AUTOMATION_DOMAIN}/check-trigger`, method: 'post', body: { postData: JSON.stringify(doc) } },
       'Failed to connect to automations api. Check whether AUTOMATIONS_API_DOMAIN env is missing or automations api is not running',
     )
-      .then(responser => {
-        return responser;
+      .then(response => {
+        try {
+          graphqlPubsub.publish('automationResponded', {
+            automationResponded: {
+              userId: user._id,
+              content: response,
+            },
+          });
+        } catch (e) {
+          // Any other error is serious
+          if (e.message !== 'Configuration does not exist') {
+            throw e;
+          }
+        }
       })
       .catch(error => console.log(error.message));
 
-    return resolve(response);
+    return resolve('response');
   });
 };
