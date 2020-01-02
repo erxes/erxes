@@ -180,7 +180,7 @@ cd ~/erxes.io/erxes-api-0.9.15 && yarn install
 cd ~/erxes.io/erxes-widgets-0.9.15 && yarn install
 ```
 
-- erxes-widgets-api-x.x.x   The latest version [release](https://github.com/erxes/erxes/releases) source code.
+- erxes-widgets-api-x.x.x  The latest version [release](https://github.com/erxes/erxes/releases) source code.
 
 ```sh
 cd ~/erxes.io/erxes-widgets-api-0.9.15 && yarn install
