@@ -704,7 +704,7 @@ describe('engage message mutation tests', () => {
       }
     };
 
-    check(
+    await check(
       `
       mutation engageMessageVerifyEmail($email: String!) {
         engageMessageVerifyEmail(email: $email)
@@ -714,7 +714,7 @@ describe('engage message mutation tests', () => {
       { email: 'email@yahoo.com' },
     );
 
-    check(
+    await check(
       `
       mutation engageMessageRemoveVerifiedEmail($email: String!) {
         engageMessageRemoveVerifiedEmail(email: $email)
@@ -724,7 +724,7 @@ describe('engage message mutation tests', () => {
       { email: 'email@yahoo.com' },
     );
 
-    check(
+    await check(
       `
       mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
         engageMessageSendTestEmail(from: $from, to: $to, content: $content)

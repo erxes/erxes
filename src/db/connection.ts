@@ -35,18 +35,14 @@ mongoose.connection
     debugDb(`Database connection error: ${MONGO_URL}`, error);
   });
 
-export let connectionInstance;
-
 export const connect = async (URL?: string, options?) => {
-  connectionInstance = await mongoose.connect(
+  return mongoose.connect(
     URL || MONGO_URL,
     {
       ...connectionOptions,
       ...(options || { poolSize: 100 }),
     },
   );
-
-  return connectionInstance;
 };
 
 export function disconnect() {

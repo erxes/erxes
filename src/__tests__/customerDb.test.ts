@@ -89,8 +89,6 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer', async () => {
-    expect.assertions(14);
-
     // check duplication ===============
     try {
       await Customers.createCustomer({ primaryEmail: 'email@gmail.com' });
@@ -143,6 +141,7 @@ describe('Customers model tests', () => {
     expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
     expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
+    expect(customerObj.searchText).toEqual('dombo@yahoo.com 12312132 firstName lastName code1234');
 
     customerObj = await Customers.createCustomer(
       {
@@ -152,6 +151,17 @@ describe('Customers model tests', () => {
     );
 
     expect(customerObj).toBeDefined();
+  });
+
+  test('Create customer: searchText', async () => {
+    const doc = {
+      primaryEmail: 'dombo@yahoo.com',
+      primaryPhone: '12312132',
+    };
+
+    const customerObj = await Customers.createCustomer(doc);
+
+    expect(customerObj.searchText).toEqual('dombo@yahoo.com 12312132');
   });
 
   test('Create customer: with customer fields validation error', async () => {
@@ -523,6 +533,8 @@ describe('Customers model tests', () => {
     expect(customer).toBeDefined();
 
     expect(customer.createdAt).toBeDefined();
+    expect(customer.searchText).toBeDefined();
+    expect(customer.profileScore).toBeDefined();
     expect(customer.modifiedAt).toBeDefined();
     expect(customer.primaryEmail).toBe(email);
     expect(customer.emails).toContain(email);

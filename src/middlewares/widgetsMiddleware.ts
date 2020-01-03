@@ -1,12 +1,12 @@
-import { connectionInstance } from '../db/connection';
+import { Scripts } from '../db/models';
 
 const widgetsMiddleware = async (req, res) => {
   const { WIDGETS_DOMAIN } = process.env;
 
-  const script = await connectionInstance.connection.db.collection('scripts').findOne({ _id: req.query.id });
+  const script = await Scripts.findOne({ _id: req.query.id });
 
   if (!script) {
-    res.end('Not found');
+    return res.end('Not found');
   }
 
   const generateScript = type => {
