@@ -71,4 +71,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://www.browserstack.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/browserstack.png" width="130px;" /></a>
 
 ## Copyright & License
-Copyright (c) 2018 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">GNU General Public License v3.0</a>
+Copyright (c) 2020 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">GNU General Public License v3.0</a>
