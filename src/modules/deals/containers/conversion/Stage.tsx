@@ -136,8 +136,8 @@ export default withProps<Props>(
       name: 'dealsQuery',
       options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
-          initialStageId: 'get',
-          // pipelineId,
+          initialStageId: stage._id,
+          pipelineId,
           ...getFilterParams(queryParams)
         }
       })
