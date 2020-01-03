@@ -184,12 +184,20 @@ export const loadClass = () => {
     /**
      * Create a customer
      */
-    public static async createCustomer(doc: ICustomer, user?: IUserDocument) {
+    public static async createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc);
 
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
+      }
+
+      if (doc.primaryEmail && !doc.emails) {
+        doc.emails = [doc.primaryEmail];
+      }
+
+      if (doc.primaryPhone && !doc.phones) {
+        doc.phones = [doc.primaryPhone];
       }
 
       // clean custom field values
@@ -211,7 +219,7 @@ export const loadClass = () => {
 
       await ActivityLogs.createCocLog({ coc: customer, contentType: 'customer' });
 
-      return customer;
+      return Customers.getCustomer(customer._id);
     }
 
     /*

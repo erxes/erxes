@@ -16,7 +16,6 @@ export const types = `
     erxesVersion: GitInfos
     apiVersion: GitInfos
     widgetVersion: GitInfos
-    widgetApiVersion: GitInfos
   }
 
   type ENV {

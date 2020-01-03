@@ -72,6 +72,7 @@ const stageParams = `
   companyIds: [String]
   customerIds: [String]
   assignedUserIds: [String]
+  labelIds: [String]
   extraParams: JSON,
   closeDateType: String
 `;

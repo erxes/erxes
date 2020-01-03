@@ -43,7 +43,6 @@ describe('configQueries', () => {
   test('config get env', async () => {
     process.env.MAIN_APP_DOMAIN = 'http://fake.erxes.io';
     process.env.DOMAIN = 'http://fake.erxes.io';
-    process.env.WIDGETS_API_DOMAIN = 'http://fake.erxes.io';
     process.env.WIDGETS_DOMAIN = 'http://fake.erxes.io';
 
     process.env.NODE_ENV = 'dev';
@@ -57,9 +56,6 @@ describe('configQueries', () => {
           apiVersion {
             packageVersion
           }
-          widgetApiVersion {
-            packageVersion
-          }
           widgetVersion {
             packageVersion
           }
@@ -71,7 +67,6 @@ describe('configQueries', () => {
 
     expect(config.erxesVersion.packageVersion).toBe(null);
     expect(config.apiVersion.packageVersion).toBe(null);
-    expect(config.widgetApiVersion.packageVersion).toBe(null);
     expect(config.widgetVersion.packageVersion).toBe(null);
   });
 });
