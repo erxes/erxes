@@ -15,30 +15,24 @@ type Props = {
   abortController;
 } & WrapperProps;
 
-const content = (
-  option: IOption,
-  showAvatar: boolean = true
-): React.ReactNode => (
-  <React.Fragment>
-    {showAvatar ? (
-      <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
-    ) : null}
+const content = (option: IOption): React.ReactNode => (
+  <>
+    <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
     {option.label}
-  </React.Fragment>
+  </>
 );
 
-export const selectOptionRenderer = (
+export const selectItemRenderer = (
   option: IOption,
-  showAvatar: boolean
-): React.ReactNode => (
-  <SelectOption className="simple-propOption">
-    {content(option, showAvatar)}
-  </SelectOption>
-);
+  showAvatar: boolean,
+  OptionWrapper
+): React.ReactNode => {
+  if (!showAvatar) {
+    return option.label;
+  }
 
-export const selectValueRenderer = (option: IOption): React.ReactNode => (
-  <SelectValue>{content(option)}</SelectValue>
-);
+  return <OptionWrapper>{content(option)}</OptionWrapper>;
+};
 
 class SelectWithSearch extends React.Component<
   Props,
@@ -122,10 +116,10 @@ class SelectWithSearch extends React.Component<
     let valueRenderer;
 
     if (multi) {
-      valueRenderer = selectValueRenderer;
-      optionRenderer = (option: IOption) => {
-        return selectOptionRenderer(option, showAvatar);
-      };
+      valueRenderer = (option: IOption) =>
+        selectItemRenderer(option, showAvatar, SelectValue);
+      optionRenderer = (option: IOption) =>
+        selectItemRenderer(option, showAvatar, SelectOption);
     }
 
     return (
