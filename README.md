@@ -1,4 +1,4 @@
-# erxes Inc
+# erxes
 
 erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
 
