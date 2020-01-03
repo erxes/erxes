@@ -26,6 +26,10 @@ const EmailStatisticsContainer = (props: FinalProps) => {
     return null;
   }
 
+  if (!engageMessageDetailQuery.engageMessageDetail) {
+    return null;
+  }
+
   const message = engageMessageDetailQuery.engageMessageDetail;
 
   return <EmailStatistics message={message} {...props} />;

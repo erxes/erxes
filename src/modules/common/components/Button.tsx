@@ -81,7 +81,8 @@ const ButtonStyled = styledTS<{
         `${darken(types[props.btnStyle].background, 20)}`};
     }
 
-    &:active {
+    &:active,
+    &:focus {
       box-shadow: ${types[props.btnStyle].border
         ? `0 0 0 2px ${lighten(types[props.btnStyle].border, 65)}`
         : `0 0 0 2px ${lighten(types[props.btnStyle].background, 65)}`};
