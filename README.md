@@ -5,9 +5,16 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 <a href="https://demo.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://slack.erxes.io">Join us on Slack</a>
 
 ## Status  <br>
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)  [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability) [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)  [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/) [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes) 
+[![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability)
+[![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)
+[![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master)
+![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes)
+[![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes)
+[![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/)
+[![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
 
-<a href="https://erxes.io" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/git-erxes.gif" alt="erxes is an AI meets open source messaging platform for sales, marketing and support "></a>
+<a href="https://erxes.io" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
 
 ## Features
 
