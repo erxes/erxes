@@ -4,7 +4,8 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Row from './Row';
-import { IntegrationWrapper } from './styles';
+import Sidebar from './Sidebar';
+import { Content, IntegrationWrapper } from './styles';
 
 type Props = {
   totalCount: {
@@ -27,17 +28,20 @@ class Home extends React.Component<Props> {
     const { totalCount, queryParams } = this.props;
 
     return (
-      <IntegrationWrapper>
-        {INTEGRATIONS.map(obj => (
-          <Row
-            key={obj.name}
-            title={obj.title}
-            integrations={obj.rows}
-            totalCount={totalCount}
-            queryParams={queryParams}
-          />
-        ))}
-      </IntegrationWrapper>
+      <Content>
+        <Sidebar />
+        <IntegrationWrapper>
+          {INTEGRATIONS.map(obj => (
+            <Row
+              key={obj.name}
+              title={obj.title}
+              integrations={obj.rows}
+              totalCount={totalCount}
+              queryParams={queryParams}
+            />
+          ))}
+        </IntegrationWrapper>
+      </Content>
     );
   }
 

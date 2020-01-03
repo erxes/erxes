@@ -1,5 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { Contents } from 'modules/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -117,11 +118,27 @@ const CollapsibleContent = styled.div`
   }
 `;
 
+const Content = styled(Contents)`
+  padding-left: ${dimensions.unitSpacing}px;
+`;
+
+const SidebarList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  h4 {
+    margin-bottom: ${dimensions.coreSpacing - 5}px;
+  }
+`;
+
 export {
   IntegrationWrapper,
   IntegrationRow,
   IntegrationItem,
   CollapsibleContent,
   Box,
-  Type
+  Type,
+  Content,
+  SidebarList
 };
