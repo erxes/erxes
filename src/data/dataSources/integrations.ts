@@ -39,14 +39,6 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post('/accounts/remove', params);
   }
 
-  public async replyFacebook(params) {
-    return this.post('/facebook/reply', params);
-  }
-
-  public async replyFacebookPost(params) {
-    return this.post('/facebook/reply-post', params);
-  }
-
   public async replyChatfuel(params) {
     return this.post('/chatfuel/reply', params);
   }
