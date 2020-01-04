@@ -10,8 +10,8 @@ module.exports.up = async () => {
     for (const stage of stages) {
       const pipeline = await Pipelines.findOne({ _id: stage.pipelineId });
 
-      // no pipeline
-      if (!pipeline) {
+      // no pipeline or specific stages
+      if (!pipeline || filter) {
         await Stages.deleteOne({ _id: stage._id });
 
         if (stage.formId) {
