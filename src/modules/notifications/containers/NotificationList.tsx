@@ -32,7 +32,7 @@ class NotificationListContainer extends React.Component<FinalProps> {
 
     const markAsRead = (notificationIds?: string[]) => {
       notificationsMarkAsReadMutation({
-        variables: { _ids: notificationIds }
+        variables: { _ids: undefined }
       })
         .then(() => {
           notificationsQuery.refetch();

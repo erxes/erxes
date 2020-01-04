@@ -13,11 +13,16 @@ export interface INotification {
   isRead: boolean;
 }
 
+type NotificationQueryRefetchParams = {
+  requireRead: boolean;
+  limit: number;
+};
+
 export type NotificationsQueryResponse = {
   notifications: INotification[];
   subscribeToMore: any;
   loading: boolean;
-  refetch: () => void;
+  refetch: (params?: NotificationQueryRefetchParams) => void;
 };
 
 export type MarkAsReadMutationResponse = {

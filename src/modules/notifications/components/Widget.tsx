@@ -6,12 +6,14 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import NotificationsLatest from '../containers/NotificationsLatest';
 import { INotification } from '../types';
-import { NotifButton, PopoverHeader } from './styles';
+import { NotifButton, PopoverHeader, PopoverLink } from './styles';
 
 type Props = {
   unreadCount: number;
   notifications: INotification[];
   markAsRead: () => void;
+  showNotifications: (requireRead: boolean) => void;
+  markAsAllRead: () => void;
   isLoading: boolean;
 };
 
@@ -35,12 +37,36 @@ class Widget extends React.Component<Props, State> {
   }
 
   render() {
-    const { notifications, markAsRead, isLoading } = this.props;
+    const {
+      notifications,
+      markAsRead,
+      isLoading,
+      showNotifications,
+      markAsAllRead
+    } = this.props;
 
-    const popoverProps = { notifications, markAsRead, isLoading };
+    const popoverProps = {
+      notifications,
+      markAsRead,
+      isLoading,
+      requireRead: true,
+      markAsAllRead
+    };
     const popoverNotification = (
       <Popover id="npopover" className="notification-popover">
-        <PopoverHeader>{__('Notifications')}</PopoverHeader>
+        <PopoverHeader>
+          <PopoverLink>
+            <span onClick={showNotifications.bind(this, false)}>
+              {__('Notifications')}
+            </span>
+          </PopoverLink>
+          <PopoverLink>
+            <span onClick={showNotifications.bind(this, true)}>
+              {' '}
+              {__('Show unread')}
+            </span>
+          </PopoverLink>
+        </PopoverHeader>
         <NotificationsLatest {...popoverProps} />
       </Popover>
     );

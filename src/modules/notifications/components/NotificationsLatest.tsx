@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { INotification } from '../types';
 import NotificationRow from './NotificationRow';
 import {
+  MarkAllRead,
   NotificationList,
   NotificationSeeAll,
   NotificationWrapper,
@@ -15,6 +16,7 @@ type Props = {
   notifications: INotification[];
   markAsRead: (notificationIds?: string[]) => void;
   update?: () => void;
+  markAsAllRead: () => void;
 };
 
 class NotificationsLatest extends React.Component<Props> {
@@ -28,7 +30,7 @@ class NotificationsLatest extends React.Component<Props> {
   }
 
   render() {
-    const { notifications, markAsRead } = this.props;
+    const { notifications, markAsRead, markAsAllRead } = this.props;
     const notifCount = notifications.length;
 
     const mainContent = (
@@ -45,6 +47,9 @@ class NotificationsLatest extends React.Component<Props> {
         <NotificationSeeAll>
           <Link to="/notifications">{__('See all')}</Link>
         </NotificationSeeAll>
+        <MarkAllRead>
+          <span onClick={markAsAllRead}>{__('Mark all as read')}</span>{' '}
+        </MarkAllRead>
       </React.Fragment>
     );
 

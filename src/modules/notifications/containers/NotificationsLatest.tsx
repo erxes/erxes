@@ -12,6 +12,8 @@ type Props = {
   notifications: INotification[];
   markAsRead: () => void;
   isLoading: boolean;
+  requireRead: boolean;
+  markAsAllRead: () => void;
 };
 
 type FinalProps = Props & MarkAsReadMutationResponse;
