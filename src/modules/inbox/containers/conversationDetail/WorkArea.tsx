@@ -20,8 +20,7 @@ import {
 } from '../../types';
 
 // messages limit
-let limit = 10;
-let skip;
+let initialLimit = 10;
 
 type Props = {
   currentConversation: IConversation;
@@ -164,19 +163,15 @@ class WorkArea extends React.Component<FinalProps, State> {
       update = (proxy, { data: { conversationMessageAdd } }) => {
         const message = conversationMessageAdd;
 
-        const optimisticResponseVariables = {
-          conversationId: currentId,
-          limit,
-          skip: undefined
-        };
-
-        if (skip) {
-          optimisticResponseVariables.skip = skip;
-        }
-
+        // trying to read query by initial variables. Because currenty it is apollo bug.
+        // https://github.com/apollographql/apollo-client/issues/2499
         const selector = {
           query: gql(queries.conversationMessages),
-          variables: optimisticResponseVariables
+          variables: {
+            conversationId: currentId,
+            limit: initialLimit,
+            skip: 0
+          }
         };
 
         // Read the data from our cache for this query.
@@ -233,14 +228,11 @@ class WorkArea extends React.Component<FinalProps, State> {
     if (!loading && hasMore) {
       this.setState({ loadingMessages: true });
 
-      limit = 10;
-      skip = conversationMessages.length;
-
       messagesQuery.fetchMore({
         variables: {
           conversationId: currentId,
-          limit,
-          skip
+          limit: 10,
+          skip: conversationMessages.length
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           this.setState({ loadingMessages: false });
@@ -306,14 +298,14 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
 
         // 330 - height of above and below sections of detail area
         // 45 -  min height of per message
-        limit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 10;
-
-        skip = null;
+        initialLimit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 10;
 
         return {
           variables: {
             conversationId: currentId,
-            limit: integration.kind === 'messenger' || isMail ? limit : 0
+            limit:
+              integration.kind === 'messenger' || isMail ? initialLimit : 0,
+            skip: 0
           },
           fetchPolicy: 'network-only'
         };
@@ -323,7 +315,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       gql(queries.conversationMessagesTotalCount),
       {
         name: 'messagesTotalCountQuery',
-        options: ({ currentId, currentConversation }) => ({
+        options: ({ currentId }) => ({
           variables: { conversationId: currentId },
           fetchPolicy: 'network-only'
         })
@@ -332,10 +324,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
       gql(mutations.conversationMessageAdd),
       {
-        name: 'addMessageMutation',
-        options: {
-          refetchQueries: ['conversationMessages']
-        }
+        name: 'addMessageMutation'
       }
     )
   )(WorkArea)
@@ -344,9 +333,13 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
 const WithConsumer = (props: Props) => {
   return (
     <AppConsumer>
-      {({ currentUser }) => (
-        <WithQuery {...props} currentUser={currentUser || ({} as IUser)} />
-      )}
+      {({ currentUser }) => {
+        if (!currentUser) {
+          return null;
+        }
+
+        return <WithQuery {...props} currentUser={currentUser} />;
+      }}
     </AppConsumer>
   );
 };
