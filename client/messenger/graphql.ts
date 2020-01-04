@@ -94,7 +94,7 @@ const conversationMessageInserted = `
 const adminMessageInserted = `
   subscription conversationAdminMessageInserted($customerId: String!) {
     conversationAdminMessageInserted(customerId: $customerId) {
-      _id
+      unreadCount
     }
   }
 `;

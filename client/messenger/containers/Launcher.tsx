@@ -12,6 +12,8 @@ type BaseProps = {
   isMessengerVisible: boolean;
   isBrowserInfoSaved: boolean;
   onClick: (isVisible?: boolean) => void;
+  unreadCount: number;
+  setUnreadCount: (count: number) => void;
   uiOptions: IIntegrationUiOptions;
   lastUnreadMessage?: IMessage;
 };
@@ -24,29 +26,33 @@ type Props = ChildProps<BaseProps, QueryResponse>;
 
 class Launcher extends React.Component<Props, {}> {
   componentDidMount() {
-    const { data } = this.props;
+    const { data, setUnreadCount } = this.props;
 
     if (data) {
       data.subscribeToMore({
         document: gql(graphqlTypes.adminMessageInserted),
         variables: { customerId: connection.data.customerId },
-        updateQuery: () => {
-          data.refetch();
+        updateQuery: (prev, { subscriptionData }) => {
+          setUnreadCount(
+            subscriptionData.data.conversationAdminMessageInserted.unreadCount
+          );
         }
       });
     }
   }
 
-  render() {
-    const { data } = this.props;
+  componentDidUpdate({ data }: Props) {
+    const cData = this.props.data;
 
-    let totalUnreadCount = 0;
-
-    if (data && data.widgetsTotalUnreadCount) {
-      totalUnreadCount = data.widgetsTotalUnreadCount;
+    if (data && data.loading && cData && !cData.loading) {
+      this.props.setUnreadCount(cData.widgetsTotalUnreadCount || 0);
     }
+  }
 
-    return <DumpLauncher {...this.props} totalUnreadCount={totalUnreadCount} />;
+  render() {
+    const { unreadCount } = this.props;
+
+    return <DumpLauncher {...this.props} totalUnreadCount={unreadCount} />;
   }
 }
 
@@ -66,12 +72,16 @@ const container = () => (
       isBrowserInfoSaved,
       lastUnreadMessage,
       toggle,
+      unreadCount,
+      setUnreadCount,
       getUiOptions
     }) => {
       return (
         <WithQuery
           isMessengerVisible={isMessengerVisible}
           isBrowserInfoSaved={isBrowserInfoSaved}
+          unreadCount={unreadCount}
+          setUnreadCount={setUnreadCount}
           onClick={toggle}
           uiOptions={getUiOptions()}
           lastUnreadMessage={lastUnreadMessage}

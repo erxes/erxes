@@ -18,7 +18,9 @@ import graphqlTypes from "../graphql";
 import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 
 interface IState {
+  unreadCount: number;
   sendingMessage: boolean;
+  lastSentTypingInfo?: string;
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
   isSavingNotified: boolean;
@@ -58,6 +60,7 @@ interface IStore extends IState {
   sendTypingInfo: (conversationId: string, text: string) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
+  setUnreadCount: (count: number) => void;
   isLoggedIn: () => boolean;
 }
 
@@ -88,6 +91,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     this.state = {
+      unreadCount: 0,
       sendingMessage: false,
       lastUnreadMessage: undefined,
       isMessengerVisible: false,
@@ -350,26 +354,39 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   readMessages = (conversationId: string) => {
-    client.mutate({
-      mutation: gql(graphqlTypes.readConversationMessages),
-      variables: { conversationId },
-      refetchQueries: [
-        {
-          query: gql(graphqlTypes.unreadCountQuery),
-          variables: { conversationId }
-        },
-        {
-          query: gql(graphqlTypes.totalUnreadCountQuery),
-          variables: connection.data
-        }
-      ]
-    });
+    if (this.state.unreadCount === 0) {
+      return;
+    }
+
+    client
+      .mutate({
+        mutation: gql(graphqlTypes.readConversationMessages),
+        variables: { conversationId },
+        refetchQueries: [
+          {
+            query: gql(graphqlTypes.unreadCountQuery),
+            variables: { conversationId }
+          }
+        ]
+      })
+
+      .then(() => {
+        this.setUnreadCount(0);
+      });
   };
 
   sendTypingInfo = (conversationId: string, text: string) => {
-    client.mutate({
-      mutation: gql(graphqlTypes.sendTypingInfo),
-      variables: { conversationId, text }
+    const { lastSentTypingInfo } = this.state;
+
+    if (lastSentTypingInfo === text) {
+      return;
+    }
+
+    this.setState({ lastSentTypingInfo: text }, () => {
+      client.mutate({
+        mutation: gql(graphqlTypes.sendTypingInfo),
+        variables: { conversationId, text }
+      });
     });
   };
 
@@ -505,6 +522,10 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  setUnreadCount = (count: number) => {
+    this.setState({ unreadCount: count });
+  };
+
   public render() {
     return (
       <AppContext.Provider
@@ -533,6 +554,7 @@ export class AppProvider extends React.Component<{}, IState> {
           sendTypingInfo: this.sendTypingInfo,
           sendFile: this.sendFile,
           setHeadHeight: this.setHeadHeight,
+          setUnreadCount: this.setUnreadCount,
           isLoggedIn: this.isLoggedIn
         }}
       >
