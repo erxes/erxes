@@ -1,5 +1,5 @@
 import { Activity } from 'botbuilder';
-import { sendMessage, sendRPCMessage } from '../messageBroker';
+import { sendRPCMessage } from '../messageBroker';
 import Integrations from '../models/Integrations';
 import { ConversationMessages, Conversations } from './models';
 import { getOrCreateCustomer } from './store';
@@ -80,7 +80,7 @@ const receiveMessage = async (activity: Activity) => {
 
     // save message on api
     try {
-      await sendMessage({
+      await sendRPCMessage({
         action: 'create-conversation-message',
         metaInfo: 'replaceContent',
         payload: JSON.stringify({
