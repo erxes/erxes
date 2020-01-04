@@ -1,6 +1,7 @@
 import { debugNylas } from '../debuggers';
+import { sendRPCMessage } from '../messageBroker';
 import { Accounts } from '../models';
-import { cleanHtml, fetchMainApi } from '../utils';
+import { cleanHtml } from '../utils';
 import { checkConcurrentError } from '../utils';
 import {
   NylasGmailConversationMessages,
@@ -321,14 +322,10 @@ const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCre
  * @returns {Promise} main api response
  */
 const requestMainApi = (action: string, params: IAPICustomer | IAPIConversation | IAPIConversationMessage) => {
-  return fetchMainApi({
-    path: '/integrations-api',
-    method: 'POST',
-    body: {
-      action,
-      metaInfo: action.includes('message') ? 'replaceContent' : null,
-      payload: JSON.stringify(params),
-    },
+  return sendRPCMessage({
+    action,
+    metaInfo: action.includes('message') ? 'replaceContent' : null,
+    payload: JSON.stringify(params),
   });
 };
 

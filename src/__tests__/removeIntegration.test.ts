@@ -71,8 +71,7 @@ describe('Facebook remove integration test', async () => {
     const erxesApiIds = await removeAccount(accountId);
 
     // Remove integration
-    expect(erxesApiIds[0]).toEqual(erxesApiId1);
-    expect(erxesApiIds[1]).toEqual(erxesApiId2);
+    expect(erxesApiIds).toEqual({ erxesApiIds: ['jaskjda', 'asljkdas'] });
 
     expect(await Integrations.find({ kind: 'facebook' })).toEqual([]);
 
@@ -162,7 +161,7 @@ describe('Nylas remove integration test', () => {
     const erxesApiIds = await removeAccount(accountId);
 
     // Remove integration
-    expect(erxesApiIds).toEqual([erxesApiId]);
+    expect(erxesApiIds).toEqual({ erxesApiIds: ['alkjdlkj'] });
     expect(await Integrations.findOne({ kind: 'gmail' })).toBe(null);
 
     // Remove entries

@@ -1,5 +1,5 @@
+import { sendRPCMessage } from '../messageBroker';
 import { IIntegration } from '../models/Integrations';
-import { fetchMainApi } from '../utils';
 import { Customers } from './models';
 
 export interface IUser {
@@ -37,18 +37,14 @@ export const getOrCreateCustomer = async (integration: IIntegration, userId: str
 
   // save on api
   try {
-    const apiCustomerResponse = await fetchMainApi({
-      path: '/integrations-api',
-      method: 'POST',
-      body: {
-        action: 'get-create-update-customer',
-        payload: JSON.stringify({
-          integrationId: integration.erxesApiId,
-          firstName: receiver.screen_name,
-          avatar: receiver.profile_image_url_https,
-          isUser: true,
-        }),
-      },
+    const apiCustomerResponse = await sendRPCMessage({
+      action: 'get-create-update-customer',
+      payload: JSON.stringify({
+        integrationId: integration.erxesApiId,
+        firstName: receiver.screen_name,
+        avatar: receiver.profile_image_url_https,
+        isUser: true,
+      }),
     });
 
     customer.erxesApiId = apiCustomerResponse._id;

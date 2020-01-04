@@ -1,5 +1,5 @@
+import { sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
-import { fetchMainApi } from '../utils';
 import { ConversationMessages, Conversations } from './models';
 import { getOrCreateCustomer, IUser } from './store';
 
@@ -85,17 +85,13 @@ const receiveDms = async requestBody => {
 
         // save on api
         try {
-          const apiConversationResponse = await fetchMainApi({
-            path: '/integrations-api',
-            method: 'POST',
-            body: {
-              action: 'create-or-update-conversation',
-              payload: JSON.stringify({
-                customerId: customer.erxesApiId,
-                integrationId: integration.erxesApiId,
-                content: message_data.text,
-              }),
-            },
+          const apiConversationResponse = await sendRPCMessage({
+            action: 'create-or-update-conversation',
+            payload: JSON.stringify({
+              customerId: customer.erxesApiId,
+              integrationId: integration.erxesApiId,
+              content: message_data.text,
+            }),
           });
 
           conversation.erxesApiId = apiConversationResponse._id;
@@ -123,19 +119,15 @@ const receiveDms = async requestBody => {
 
         // save message on api
         try {
-          await fetchMainApi({
-            path: '/integrations-api',
-            method: 'POST',
-            body: {
-              action: 'create-conversation-message',
-              metaInfo: 'replaceContent',
-              payload: JSON.stringify({
-                content: message_data.text,
-                conversationId: conversation.erxesApiId,
-                customerId: customer.erxesApiId,
-                attachments,
-              }),
-            },
+          await sendRPCMessage({
+            action: 'create-conversation-message',
+            metaInfo: 'replaceContent',
+            payload: JSON.stringify({
+              content: message_data.text,
+              conversationId: conversation.erxesApiId,
+              customerId: customer.erxesApiId,
+              attachments,
+            }),
           });
         } catch (e) {
           await ConversationMessages.deleteOne({ messageId: id });

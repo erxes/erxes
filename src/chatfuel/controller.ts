@@ -1,7 +1,8 @@
 import { debugChatfuel, debugRequest } from '../debuggers';
 import { generateAttachmentMessages } from '../facebook/utils';
+import { sendRPCMessage } from '../messageBroker';
 import { Integrations } from '../models';
-import { fetchMainApi, sendRequest } from '../utils';
+import { sendRequest } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 
 const init = async app => {
@@ -95,19 +96,15 @@ const init = async app => {
 
       // save on api
       try {
-        const apiCustomerResponse = await fetchMainApi({
-          path: '/integrations-api',
-          method: 'POST',
-          body: {
-            action: 'get-create-update-customer',
-            payload: JSON.stringify({
-              integrationId: integration.erxesApiId,
-              firstName,
-              lastName,
-              avatar: profilePicUrl,
-              isUser: true,
-            }),
-          },
+        const apiCustomerResponse = await sendRPCMessage({
+          action: 'get-create-update-customer',
+          payload: JSON.stringify({
+            integrationId: integration.erxesApiId,
+            firstName,
+            lastName,
+            avatar: profilePicUrl,
+            isUser: true,
+          }),
         });
         customer.erxesApiId = apiCustomerResponse._id;
         await customer.save();
@@ -135,17 +132,13 @@ const init = async app => {
 
       // save on api
       try {
-        const apiConversationResponse = await fetchMainApi({
-          path: '/integrations-api',
-          method: 'POST',
-          body: {
-            action: 'create-or-update-conversation',
-            payload: JSON.stringify({
-              customerId: customer.erxesApiId,
-              content: `Button name: ${lastClickedButtonName}, ${message}`,
-              integrationId: integration.erxesApiId,
-            }),
-          },
+        const apiConversationResponse = await sendRPCMessage({
+          action: 'create-or-update-conversation',
+          payload: JSON.stringify({
+            customerId: customer.erxesApiId,
+            content: `Button name: ${lastClickedButtonName}, ${message}`,
+            integrationId: integration.erxesApiId,
+          }),
         });
 
         conversation.erxesApiId = apiConversationResponse._id;
@@ -164,17 +157,13 @@ const init = async app => {
 
     // save message on api
     try {
-      await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-conversation-message',
-          payload: JSON.stringify({
-            content: message,
-            conversationId: conversation.erxesApiId,
-            customerId: customer.erxesApiId,
-          }),
-        },
+      await sendRPCMessage({
+        action: 'create-conversation-message',
+        payload: JSON.stringify({
+          content: message,
+          conversationId: conversation.erxesApiId,
+          customerId: customer.erxesApiId,
+        }),
       });
     } catch (e) {
       await ConversationMessages.deleteOne({ _id: conversationMessage._id });

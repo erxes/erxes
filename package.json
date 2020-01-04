@@ -60,7 +60,8 @@
     "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
     "sinon": "^7.5.0",
-    "snyk": "^1.239.5"
+    "snyk": "^1.239.5",
+    "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"

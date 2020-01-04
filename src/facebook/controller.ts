@@ -4,20 +4,13 @@ import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
-import { Comments, Conversations, Customers, Posts } from './models';
+import { Comments, Customers, Posts } from './models';
 import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
 
 import { FACEBOOK_POST_TYPES } from './constants';
-import {
-  generateAttachmentMessages,
-  getPageAccessToken,
-  getPageAccessTokenFromMap,
-  getPageList,
-  sendReply,
-  subscribePage,
-} from './utils';
+import { getPageAccessToken, getPageAccessTokenFromMap, getPageList, subscribePage } from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -110,74 +103,6 @@ const init = async app => {
     debugResponse(debugFacebook, req, JSON.stringify(pages));
 
     return res.json(pages);
-  });
-
-  app.post('/facebook/reply', async (req, res, next) => {
-    debugRequest(debugFacebook, req);
-
-    const { integrationId, conversationId, content, attachments } = req.body;
-
-    const conversation = await Conversations.getConversation({ erxesApiId: conversationId });
-
-    const { recipientId, senderId } = conversation;
-
-    try {
-      if (content) {
-        await sendReply(
-          'me/messages',
-          { recipient: { id: senderId }, message: { text: content } },
-          recipientId,
-          integrationId,
-        );
-      }
-
-      for (const message of generateAttachmentMessages(attachments)) {
-        await sendReply('me/messages', { recipient: { id: senderId }, message }, recipientId, integrationId);
-      }
-
-      return res.json({ status: 'success' });
-    } catch (e) {
-      return next(new Error(e));
-    }
-  });
-
-  app.post('/facebook/reply-post', async (req, res, next) => {
-    debugRequest(debugFacebook, req);
-
-    const { integrationId, conversationId, content, attachments } = req.body;
-
-    const comment = await Comments.findOne({ commentId: conversationId });
-
-    const post = await Posts.findOne({
-      $or: [{ erxesApiId: conversationId }, { postId: comment ? comment.postId : '' }],
-    });
-
-    const { recipientId } = post;
-
-    let attachment: { url?: string; type?: string; payload?: { url: string } } = {};
-
-    if (attachments && attachments.length > 0) {
-      attachment = {
-        type: 'file',
-        payload: {
-          url: attachments[0].url,
-        },
-      };
-    }
-
-    const data = {
-      message: content,
-      attachment_url: attachment.url,
-    };
-
-    const id = comment ? comment.commentId : post.postId;
-
-    try {
-      const response = await sendReply(`${id}/comments`, data, recipientId, integrationId);
-      res.json(response);
-    } catch (e) {
-      return next(new Error(e));
-    }
   });
 
   app.get('/facebook/get-post', async (req, res) => {

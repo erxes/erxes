@@ -1,6 +1,6 @@
 import { debugCallPro, debugRequest } from '../debuggers';
+import { sendRPCMessage } from '../messageBroker';
 import { Integrations } from '../models';
-import { fetchMainApi } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 
 const init = async app => {
@@ -54,18 +54,14 @@ const init = async app => {
 
       // save on api
       try {
-        const apiCustomerResponse = await fetchMainApi({
-          path: '/integrations-api',
-          method: 'POST',
-          body: {
-            action: 'get-create-update-customer',
-            payload: JSON.stringify({
-              integrationId: integration.erxesApiId,
-              primaryPhone: numberFrom,
-              isUser: true,
-              phones: [numberFrom],
-            }),
-          },
+        const apiCustomerResponse = await sendRPCMessage({
+          action: 'get-create-update-customer',
+          payload: JSON.stringify({
+            integrationId: integration.erxesApiId,
+            primaryPhone: numberFrom,
+            isUser: true,
+            phones: [numberFrom],
+          }),
         });
         customer.erxesApiId = apiCustomerResponse._id;
         await customer.save();
@@ -99,17 +95,13 @@ const init = async app => {
       await Conversations.updateOne({ callId: callID }, { $set: { state: disp } });
 
       try {
-        await fetchMainApi({
-          path: '/integrations-api',
-          method: 'POST',
-          body: {
-            action: 'create-or-update-conversation',
-            payload: JSON.stringify({
-              content: disp,
-              conversationId: conversation.erxesApiId,
-              owner,
-            }),
-          },
+        await sendRPCMessage({
+          action: 'create-or-update-conversation',
+          payload: JSON.stringify({
+            content: disp,
+            conversationId: conversation.erxesApiId,
+            owner,
+          }),
         });
       } catch (e) {
         throw new Error(e.message);
@@ -120,18 +112,14 @@ const init = async app => {
 
     // save on api
     try {
-      const apiConversationResponse = await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customer.erxesApiId,
-            content: disp,
-            integrationId: integration.erxesApiId,
-            owner,
-          }),
-        },
+      const apiConversationResponse = await sendRPCMessage({
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          content: disp,
+          integrationId: integration.erxesApiId,
+          owner,
+        }),
       });
 
       conversation.erxesApiId = apiConversationResponse._id;
@@ -157,17 +145,13 @@ const init = async app => {
 
       // save message on api
       try {
-        await fetchMainApi({
-          path: '/integrations-api',
-          method: 'POST',
-          body: {
-            action: 'create-conversation-message',
-            payload: JSON.stringify({
-              content: audioElement(recordUrl || ''),
-              conversationId: conversation.erxesApiId,
-              customerId: customer.erxesApiId,
-            }),
-          },
+        await sendRPCMessage({
+          action: 'create-conversation-message',
+          payload: JSON.stringify({
+            content: audioElement(recordUrl || ''),
+            conversationId: conversation.erxesApiId,
+            customerId: customer.erxesApiId,
+          }),
         });
       } catch (e) {
         await ConversationMessages.deleteOne({ callId: callID });

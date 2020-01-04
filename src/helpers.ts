@@ -239,7 +239,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 /**
  * Remove integration by or accountId
  */
-export const removeAccount = async (_id: string): Promise<string | string[]> => {
+export const removeAccount = async (_id: string): Promise<{ erxesApiIds: string | string[] }> => {
   const account = await Accounts.findOne({ _id });
 
   if (!account) {
@@ -254,5 +254,5 @@ export const removeAccount = async (_id: string): Promise<string | string[]> => 
     erxesApiIds.push(await removeIntegration(integration.erxesApiId));
   }
 
-  return erxesApiIds;
+  return { erxesApiIds };
 };

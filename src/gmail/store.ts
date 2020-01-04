@@ -1,4 +1,5 @@
-import { cleanHtml, fetchMainApi } from '../utils';
+import { sendRPCMessage } from '../messageBroker';
+import { cleanHtml } from '../utils';
 import { ConversationMessages, Conversations, Customers } from './models';
 import { buildEmail } from './util';
 
@@ -25,19 +26,15 @@ const createOrGetCustomer = async (email: string, integrationIds: IIntegrationId
     }
 
     try {
-      const apiCustomerResponse = await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'get-create-update-customer',
-          payload: JSON.stringify({
-            emails: [email],
-            firstName: '',
-            lastName: '',
-            primaryEmail: email,
-            integrationId: erxesApiId,
-          }),
-        },
+      const apiCustomerResponse = await sendRPCMessage({
+        action: 'get-create-update-customer',
+        payload: JSON.stringify({
+          emails: [email],
+          firstName: '',
+          lastName: '',
+          primaryEmail: email,
+          integrationId: erxesApiId,
+        }),
       });
 
       customer.erxesApiId = apiCustomerResponse._id;
@@ -89,17 +86,13 @@ const createOrGetConversation = async (args: {
 
     // save on api
     try {
-      const apiConversationResponse = await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customerErxesApiId,
-            integrationId: erxesApiId,
-            content: subject,
-          }),
-        },
+      const apiConversationResponse = await sendRPCMessage({
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customerErxesApiId,
+          integrationId: erxesApiId,
+          content: subject,
+        }),
       });
 
       conversation.erxesApiId = apiConversationResponse._id;
@@ -149,18 +142,14 @@ const createOrGetConversationMessage = async (args: {
     const newConversationMessage = await ConversationMessages.create(doc);
 
     try {
-      const apiMessageResponse = await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-conversation-message',
-          metaInfo: 'replaceContent',
-          payload: JSON.stringify({
-            conversationId: erxesApiId,
-            customerId: customerErxesApiId,
-            content: cleanHtml(doc.body),
-          }),
-        },
+      const apiMessageResponse = await sendRPCMessage({
+        action: 'create-conversation-message',
+        metaInfo: 'replaceContent',
+        payload: JSON.stringify({
+          conversationId: erxesApiId,
+          customerId: customerErxesApiId,
+          content: cleanHtml(doc.body),
+        }),
       });
 
       newConversationMessage.erxesApiMessageId = apiMessageResponse._id;

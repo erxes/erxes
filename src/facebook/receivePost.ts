@@ -10,7 +10,7 @@ const receivePost = async (params: IPostParams, pageId: string) => {
   });
 
   if (!integration) {
-    return;
+    throw new Error('Integration not found');
   }
 
   const userId = params.from.id;
