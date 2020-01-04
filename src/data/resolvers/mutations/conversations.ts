@@ -13,6 +13,7 @@ import { IConversationDocument } from '../../../db/models/definitions/conversati
 import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugExternalApi } from '../../../debuggers';
+import { sendMessage } from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -37,12 +38,26 @@ interface IReplyFacebookComment {
  */
 
 const sendConversationToIntegrations = (
+  type: string,
   integrationId: string,
   conversationId: string,
   requestName: string,
   doc: IConversationMessageAdd,
   dataSources: any,
+  action?: string,
 ) => {
+  if (type === 'facebook') {
+    return sendMessage('erxes-api:integrations-notification', {
+      action,
+      type,
+      payload: JSON.stringify({
+        integrationId,
+        conversationId,
+        content: strip(doc.content),
+      }),
+    });
+  }
+
   if (dataSources && dataSources.IntegrationsAPI && requestName) {
     return dataSources.IntegrationsAPI[requestName]({
       conversationId,
@@ -222,31 +237,22 @@ const conversationMutations = {
     }
 
     let requestName;
+    let type;
+    let action;
 
     if (kind === KIND_CHOICES.FACEBOOK_POST) {
-      requestName = 'replyFacebookPost';
+      type = 'facebook';
+      action = 'reply-post';
 
-      try {
-        const response = await sendConversationToIntegrations(
-          integrationId,
-          conversationId,
-          requestName,
-          doc,
-          dataSources,
-        );
-
-        return debugExternalApi(response);
-      } catch (e) {
-        debugExternalApi(e.message);
-        return e;
-      }
+      return sendConversationToIntegrations(type, integrationId, conversationId, requestName, doc, dataSources, action);
     }
 
     const message = await ConversationMessages.addMessage(doc, user._id);
 
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      requestName = 'replyFacebook';
+      type = 'facebook';
+      action = 'reply-messenger';
     }
 
     // send reply to chatfuel
@@ -258,21 +264,7 @@ const conversationMutations = {
       requestName = 'replyTwitterDm';
     }
 
-    try {
-      const response = await sendConversationToIntegrations(
-        integrationId,
-        conversationId,
-        requestName,
-        doc,
-        dataSources,
-      );
-
-      debugExternalApi(response);
-    } catch (e) {
-      debugExternalApi(e.message);
-      ConversationMessages.deleteOne({ _id: message._id });
-      return e;
-    }
+    await sendConversationToIntegrations(type, integrationId, conversationId, requestName, doc, dataSources, action);
 
     const dbMessage = await ConversationMessages.getMessage(message._id);
 
@@ -297,16 +289,11 @@ const conversationMutations = {
     const requestName = 'replyFacebookPost';
     const integrationId = integration.id;
     const conversationId = doc.commentId;
+    const type = 'facebook';
+    const action = 'reply-post';
 
     try {
-      const response = await sendConversationToIntegrations(
-        integrationId,
-        conversationId,
-        requestName,
-        doc,
-        dataSources,
-      );
-      return debugExternalApi(response);
+      await sendConversationToIntegrations(type, integrationId, conversationId, requestName, doc, dataSources, action);
     } catch (e) {
       debugExternalApi(e.message);
       throw new Error(e.message);

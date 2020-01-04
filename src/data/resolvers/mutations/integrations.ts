@@ -2,6 +2,7 @@ import { Customers, EmailDeliveries, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
+import { sendRPCMessage } from '../../../messageBroker';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
@@ -210,8 +211,8 @@ const integrationMutations = {
   /**
    * Delete an account
    */
-  async integrationsRemoveAccount(_root, { _id }: { _id: string }, { dataSources }: IContext) {
-    const { erxesApiIds } = await dataSources.IntegrationsAPI.removeAccount({ _id });
+  async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
+    const { erxesApiIds } = await sendRPCMessage({ action: 'remove-account', data: { _id } });
 
     for (const id of erxesApiIds) {
       await Integrations.removeIntegration(id);
