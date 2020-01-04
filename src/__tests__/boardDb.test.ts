@@ -7,7 +7,7 @@ import {
   stageFactory,
   userFactory,
 } from '../db/factories';
-import { Boards, Pipelines, Stages } from '../db/models';
+import { Boards, Forms, Pipelines, Stages } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { IUserDocument } from '../db/models/definitions/users';
 
@@ -77,13 +77,14 @@ describe('Test board model', () => {
   });
 
   test('Remove board', async () => {
-    const doc = { boardId: 'boardId' };
+    const removeBoard = await boardFactory();
 
-    await Pipelines.updateMany({}, { $set: doc });
+    const removedPipeline = await pipelineFactory({ boardId: removeBoard._id });
 
-    const isDeleted = await Boards.removeBoard(board.id);
+    const isDeleted = await Boards.removeBoard(removeBoard.id);
 
     expect(isDeleted).toBeTruthy();
+    expect(await Stages.findOne({ _id: removedPipeline._id })).toBeNull();
   });
 
   test('Remove board not found', async () => {
@@ -258,12 +259,13 @@ describe('Test board model', () => {
   });
 
   test('Remove pipeline', async () => {
-    const doc = { pipelineId: 'pipelineId' };
+    const removePipeline = await pipelineFactory();
+    const removedStage = await stageFactory({ pipelineId: removePipeline._id });
 
-    await Stages.updateMany({}, { $set: doc });
+    const isDeleted = await Pipelines.removePipeline(removePipeline.id);
 
-    const isDeleted = await Pipelines.removePipeline(pipeline.id);
     expect(isDeleted).toBeTruthy();
+    expect(await Stages.findOne({ _id: removedStage._id })).toBeNull();
   });
 
   test('Remove pipeline not found', async () => {
@@ -315,7 +317,6 @@ describe('Test board model', () => {
     expect(response).toBeDefined();
   });
 
-  // Test deal stage
   test('Create stage', async () => {
     const createdStage = await Stages.createStage({
       name: stage.name,
@@ -330,6 +331,23 @@ describe('Test board model', () => {
     expect(createdStage.pipelineId).toEqual(pipeline._id);
     expect(createdStage.createdAt).toEqual(stage.createdAt);
     expect(createdStage.userId).toEqual(user._id);
+  });
+
+  test('Remove stage', async () => {
+    const isDeleted = await Stages.removeStage(stage._id);
+
+    expect(isDeleted).toBeTruthy();
+  });
+
+  test('Remove stage with form', async () => {
+    const form = await formFactory();
+
+    const stageWithForm = await stageFactory({ formId: form._id });
+
+    const isDeleted = await Stages.removeStage(stageWithForm._id);
+
+    expect(isDeleted).toBeTruthy();
+    expect(await Forms.findOne({ _id: form._id })).toBeNull();
   });
 
   test('Update stage', async () => {
