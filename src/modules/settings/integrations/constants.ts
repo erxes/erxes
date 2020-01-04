@@ -333,3 +333,37 @@ export const INTEGRATIONS = [
     ]
   }
 ];
+
+export const INTEGRATION_FILTERS = [
+  {
+    name: 'Featured',
+    items: [
+      'All integrations',
+      'For support teams',
+      'For sales teams',
+      'For marketing teams'
+    ]
+  },
+  {
+    name: 'Plans',
+    items: ['Free', 'Team', 'Organization', 'Enterprise']
+  },
+  {
+    name: 'Works with',
+    items: ['Conversation', 'Sales pipeline', 'Contacts', 'Pop ups', 'Engage']
+  },
+  {
+    name: 'Categories',
+    items: [
+      'Analytics',
+      'Email',
+      'Email marketing',
+      'Messaging',
+      'Tools',
+      'Marketing automation',
+      'Phone and video',
+      'Social media',
+      'Surveys and Feedback'
+    ]
+  }
+];
