@@ -170,6 +170,7 @@ export default withProps<Props>(
           customerIds: queryParams.customerIds,
           companyIds: queryParams.companyIds,
           assignedUserIds: queryParams.assignedUserIds,
+          labelIds: queryParams.labelIds,
           extraParams: getExtraParams(queryParams),
           closeDateType: queryParams.closeDateType
         }

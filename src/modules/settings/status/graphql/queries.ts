@@ -20,10 +20,6 @@ const configsVersions = `
         packageVersion
        ${commonFields}
       }
-
-      widgetApiVersion {
-        ${commonFields}
-      }
     }
   }
 `;
