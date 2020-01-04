@@ -124,12 +124,7 @@ export default {
   widgetsUnreadCount(_root, args: { conversationId: string }) {
     const { conversationId } = args;
 
-    return Messages.countDocuments({
-      conversationId,
-      userId: { $exists: true },
-      internal: false,
-      isCustomerRead: { $ne: true },
-    });
+    return Messages.widgetsGetUnreadMessagesCount(conversationId);
   },
 
   async widgetsTotalUnreadCount(_root, args: { integrationId: string; customerId: string }) {

@@ -1,6 +1,7 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
+import Messages from '../../../db/models/ConversationMessages';
 import {
   CONVERSATION_STATUSES,
   KIND_CHOICES,
@@ -97,7 +98,7 @@ export const publishConversationsChanged = (_ids: string[], type: string): strin
 /**
  * Publish admin's message
  */
-export const publishMessage = (message: IMessageDocument, customerId?: string) => {
+export const publishMessage = async (message: IMessageDocument, customerId?: string) => {
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message,
   });
@@ -105,11 +106,13 @@ export const publishMessage = (message: IMessageDocument, customerId?: string) =
   // widget is listening for this subscription to show notification
   // customerId available means trying to notify to client
   if (customerId) {
-    const extendedMessage = message.toJSON();
-    extendedMessage.customerId = customerId;
+    const unreadCount = await Messages.widgetsGetUnreadMessagesCount(message.conversationId);
 
     graphqlPubsub.publish('conversationAdminMessageInserted', {
-      conversationAdminMessageInserted: extendedMessage,
+      conversationAdminMessageInserted: {
+        customerId,
+        unreadCount,
+      },
     });
   }
 };
