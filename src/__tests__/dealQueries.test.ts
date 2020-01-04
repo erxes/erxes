@@ -187,6 +187,9 @@ describe('dealQueries', () => {
       {
         productId: productNoCustomData._id,
       },
+      {
+        productId: undefined,
+      },
     ];
 
     await dealFactory({ productsData });
