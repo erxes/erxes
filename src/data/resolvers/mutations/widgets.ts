@@ -11,6 +11,7 @@ import {
   Integrations,
   KnowledgeBaseArticles,
   MessengerApps,
+  Users,
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
 import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Customers';
@@ -18,6 +19,9 @@ import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants'
 import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
 import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
 import { graphqlPubsub } from '../../../pubsub';
+import { get, set } from '../../../redisClient';
+import { registerOnboardHistory, sendMobileNotification } from '../../utils';
+import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
   _id: string;
@@ -95,8 +99,9 @@ const widgetMutations = {
       await Integrations.increaseViewCount(form._id);
     }
 
-    // notify main api
-    graphqlPubsub.publish('leadInstalled', { integrationId: integ._id });
+    const user = await Users.getUser(integ.createdUserId);
+
+    registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
 
     // return integration details
     return {
@@ -392,6 +397,41 @@ const widgetMutations = {
     graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: msg });
     graphqlPubsub.publish('conversationClientTypingStatusChanged', {
       conversationClientTypingStatusChanged: { conversationId, text: '' },
+    });
+
+    const customerLastStatus = await get(`customer_last_status_${customerId}`, 'left');
+
+    if (customerLastStatus === 'left') {
+      set(`customer_last_status_${customerId}`, 'joined');
+
+      // customer has joined + time
+      const conversationMessages = await Conversations.changeCustomerStatus(
+        'joined',
+        customerId,
+        conversation.integrationId,
+      );
+
+      for (const mg of conversationMessages) {
+        graphqlPubsub.publish('conversationMessageInserted', {
+          conversationMessageInserted: mg,
+        });
+      }
+
+      // notify as connected
+      graphqlPubsub.publish('customerConnectionChanged', {
+        customerConnectionChanged: {
+          _id: customerId,
+          status: 'connected',
+        },
+      });
+    }
+
+    sendMobileNotification({
+      title: 'You have a new message',
+      body: conversationContent,
+      customerId,
+      conversationId: conversation._id,
+      receivers: conversationNotifReceivers(conversation, customerId),
     });
 
     return msg;
