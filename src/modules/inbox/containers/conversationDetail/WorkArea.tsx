@@ -78,6 +78,10 @@ class WorkArea extends React.Component<FinalProps, State> {
           const message = subscriptionData.data.conversationMessageInserted;
           const kind = currentConversation.integration.kind;
 
+          if (!prev) {
+            return;
+          }
+
           // Whenever mail thread receives a new message refetch for optimistic ui
           if (kind === 'gmail' || kind.includes('nylas')) {
             return messagesQuery.refetch();
