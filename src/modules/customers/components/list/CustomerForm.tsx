@@ -6,7 +6,7 @@ import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModifiableSelect from 'modules/common/components/ModifiableSelect';
-
+import { Alert } from 'modules/common/utils';
 import DateControl from 'modules/common/components/form/DateControl';
 import {
   ColumnTitle,
@@ -159,7 +159,12 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   onDateChange = birthDate => {
-    this.setState({ birthDate });
+    const currentDate = new Date();
+    if (currentDate > birthDate) {
+      this.setState({ birthDate });
+    } else {
+      Alert.error('Invalid date');
+    }
   };
 
   saveAndRedirect = (type: string) => {
