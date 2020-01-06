@@ -262,7 +262,7 @@ export const subscriptions = `
     conversationMessageInserted(_id: String!): ConversationMessage
     conversationClientMessageInserted(userId: String!): ConversationMessage
     conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
-    conversationAdminMessageInserted(customerId: String!): ConversationMessage
+    conversationAdminMessageInserted(customerId: String!): ConversationAdminMessageInsertedResponse
     conversationExternalIntegrationMessageInserted: JSON
     customerConnectionChanged(_id: String): CustomerConnectionChangedResponse
     activityLogsChanged: Boolean

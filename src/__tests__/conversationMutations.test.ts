@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import * as sinon from 'sinon';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -15,6 +16,8 @@ import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/co
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IUserDocument } from '../db/models/definitions/users';
+import * as messageBroker from '../messageBroker';
+
 import './setup.ts';
 
 const toJSON = value => {
@@ -160,6 +163,10 @@ describe('Conversation message mutations', () => {
   });
 
   test('Add conversation message using third party integration', async () => {
+    const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     const args = { conversationId: facebookConversation._id, content: 'content' };
 
     const response = await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources: {} });
@@ -187,7 +194,7 @@ describe('Conversation message mutations', () => {
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
     } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
+      expect(e).toBeDefined();
     }
 
     args.conversationId = twitterConversation._id;
@@ -195,8 +202,10 @@ describe('Conversation message mutations', () => {
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
     } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
+      expect(e).toBeDefined();
     }
+
+    mock.restore();
   });
 
   test('Reply facebook comment', async () => {
@@ -217,6 +226,9 @@ describe('Conversation message mutations', () => {
       }
     `;
 
+    let mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+      return Promise.resolve('success');
+    });
     const message = await conversationMessageFactory({ conversationId: facebookConversation._id });
     const comment = await integrationFactory({ kind: 'facebook-post' });
 
@@ -232,13 +244,18 @@ describe('Conversation message mutations', () => {
 
     expect(response).toBeDefined();
 
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+    mock.restore();
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+    mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+      throw new Error();
+    });
+
     try {
-      await graphqlRequest(commentMutation, 'conversationsReplyFacebookComment', args, { dataSources });
+      await graphqlRequest(commentMutation, 'conversationsReplyFacebookComment', args, {
+        dataSources: {},
+      });
     } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
+      expect(e).toBeDefined();
     }
   });
 

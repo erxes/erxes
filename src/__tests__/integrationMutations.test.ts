@@ -2,6 +2,7 @@ import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
+import * as messageBroker from '../messageBroker';
 
 import { IntegrationsAPI } from '../data/dataSources';
 import './setup.ts';
@@ -427,31 +428,28 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await integrationFactory();
+    const integration1 = await integrationFactory();
+    const integration2 = await integrationFactory();
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+    const spy1 = jest.spyOn(messageBroker, 'sendRPCMessage');
+    spy1.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
 
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'removeAccount');
-    spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration._id] }));
-
-    const user = { user: await userFactory() };
-
-    const response = await graphqlRequest(
-      mutation,
-      'integrationsRemoveAccount',
-      { _id: 'accountId' },
-      { dataSources, user },
-    );
+    const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
 
     expect(response).toBe('success');
 
-    spy.mockRestore();
+    spy1.mockRestore();
+
+    const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
+    spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration2._id] }));
 
     try {
-      await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' }, { dataSources });
+      await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+
+    spy.mockRestore();
   });
 
   test('Send mail', async () => {

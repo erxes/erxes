@@ -184,9 +184,18 @@ describe('companyQueries', () => {
   });
 
   test('Companies filtered by search value', async () => {
-    await companyFactory({ names: [name], primaryName: name });
-    await companyFactory({ plan });
-    await companyFactory({ industry: 'Banks' });
+    const phone = '99999999';
+    const email = 'email@email.com';
+    const website = 'www.google.com';
+
+    await companyFactory({
+      names: [name],
+      plan,
+      industry: 'Banks',
+      website,
+      emails: [email],
+      phones: [phone],
+    });
 
     // companies by name ==============
     let responses = await graphqlRequest(qryCompanies, 'companies', {
@@ -205,6 +214,27 @@ describe('companyQueries', () => {
     // companies by plan ==============
     responses = await graphqlRequest(qryCompanies, 'companies', {
       searchValue: plan,
+    });
+
+    expect(responses.length).toBe(1);
+
+    // companies by website ==============
+    responses = await graphqlRequest(qryCompanies, 'companies', {
+      searchValue: website,
+    });
+
+    expect(responses.length).toBe(1);
+
+    // companies by email ==============
+    responses = await graphqlRequest(qryCompanies, 'companies', {
+      searchValue: email,
+    });
+
+    expect(responses.length).toBe(1);
+
+    // companies by phone ==============
+    responses = await graphqlRequest(qryCompanies, 'companies', {
+      searchValue: phone,
     });
 
     expect(responses.length).toBe(1);

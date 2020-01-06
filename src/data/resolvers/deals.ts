@@ -39,6 +39,10 @@ export default {
     const products: any = [];
 
     for (const data of deal.productsData || []) {
+      if (!data.productId) {
+        continue;
+      }
+
       const product = await Products.getProduct({ _id: data.productId });
 
       const { customFieldsData } = product;

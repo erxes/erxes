@@ -9,6 +9,7 @@ export interface IMessageModel extends Model<IMessageDocument> {
   addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string): Promise<IMessageDocument>;
   getAdminMessages(conversationId: string): Promise<IMessageDocument[]>;
+  widgetsGetUnreadMessagesCount(conversationId: string): Promise<number>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
   forceReadCustomerPreviousEngageMessages(customerId: string): Promise<IMessageDocument>;
 }
@@ -125,6 +126,15 @@ export const loadClass = () => {
         // exclude internal notes
         internal: false,
       }).sort({ createdAt: 1 });
+    }
+
+    public static widgetsGetUnreadMessagesCount(conversationId: string) {
+      return Messages.countDocuments({
+        conversationId,
+        userId: { $exists: true },
+        internal: false,
+        isCustomerRead: { $ne: true },
+      });
     }
 
     /**

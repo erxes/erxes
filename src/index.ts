@@ -25,7 +25,6 @@ import {
 import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
 import './messageBroker';
-import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { initRedis } from './redisClient';
@@ -292,9 +291,6 @@ app.get('/unsubscribe', async (req: any, res) => {
 });
 
 apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-
-// handle integrations api requests
-app.post('/integrations-api', integrationsApiMiddleware);
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {
