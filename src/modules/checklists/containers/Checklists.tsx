@@ -10,6 +10,7 @@ import List from './List';
 type IProps = {
   contentType: string;
   contentTypeId: string;
+  stageId: string;
 };
 
 type FinalProps = {
@@ -17,7 +18,7 @@ type FinalProps = {
 } & IProps;
 
 const ChecklistsContainer = (props: FinalProps) => {
-  const { checklistsQuery } = props;
+  const { checklistsQuery, stageId } = props;
 
   if (checklistsQuery.loading) {
     return null;
@@ -25,7 +26,9 @@ const ChecklistsContainer = (props: FinalProps) => {
 
   const checklists = checklistsQuery.checklists || [];
 
-  return checklists.map(list => <List key={list._id} listId={list._id} />);
+  return checklists.map(list => (
+    <List key={list._id} listId={list._id} stageId={stageId} />
+  ));
 };
 
 export default withProps<IProps>(

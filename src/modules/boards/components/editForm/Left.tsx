@@ -35,6 +35,8 @@ class Left extends React.Component<Props> {
       onUpdate
     } = this.props;
 
+    console.log('aaaaa', item);
+
     const descriptionOnBlur = e => {
       const description = e.target.value;
 
@@ -102,7 +104,11 @@ class Left extends React.Component<Props> {
           />
         </FormGroup>
 
-        <Checklists contentType={options.type} contentTypeId={item._id} />
+        <Checklists
+          contentType={options.type}
+          contentTypeId={item._id}
+          stageId={item.stageId}
+        />
 
         <ActivityInputs
           contentTypeId={item._id}

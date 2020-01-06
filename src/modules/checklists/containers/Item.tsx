@@ -14,6 +14,7 @@ import {
 
 type Props = {
   item: IChecklistItem;
+  convertToCard: (name: string) => void;
 };
 
 type FinalProps = {
@@ -46,6 +47,7 @@ class ItemContainer extends React.Component<FinalProps> {
     };
 
     const extendedProps = {
+      ...this.props,
       item,
       editItem,
       removeItem

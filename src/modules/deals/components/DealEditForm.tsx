@@ -138,6 +138,9 @@ export default class DealEditForm extends React.Component<Props, State> {
   }: IEditFormContent) => {
     const { item, options, onUpdate } = this.props;
 
+    console.log(item);
+    console.log(options);
+
     return (
       <>
         <Top

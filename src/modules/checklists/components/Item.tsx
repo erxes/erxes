@@ -19,6 +19,7 @@ type Props = {
     doc: { content: string; isChecked: boolean },
     callback?: () => void
   ) => void;
+  convertToCard: (name: string) => void;
   removeItem: (checklistItemId: string) => void;
 };
 
@@ -99,10 +100,16 @@ class ListRow extends React.Component<Props, State> {
     });
   };
 
-  removeClick = () => {
+  onRemove = () => {
     const { removeItem, item } = this.props;
 
     removeItem(item._id);
+  };
+
+  onConvert = () => {
+    this.props.convertToCard(this.state.content);
+
+    this.onRemove();
   };
 
   renderContent() {
@@ -153,7 +160,8 @@ class ListRow extends React.Component<Props, State> {
           onClick={this.onClick}
           dangerouslySetInnerHTML={{ __html: xss(this.state.content) }}
         />
-        <Icon icon="times" onClick={this.removeClick} />
+        <Icon icon="times" onClick={this.onRemove} />
+        <Icon icon="ban" onClick={this.onConvert} />
       </ChecklistText>
     );
   }

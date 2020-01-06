@@ -1,8 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { queries as stageQuery } from 'modules/boards/graphql';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
+import { mutations as dealMutations } from 'modules/deals/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
@@ -16,11 +18,13 @@ import {
 
 type Props = {
   listId: string;
+  stageId: string;
 };
 
 type FinalProps = {
   checklistDetailQuery: any;
   addItemMutation: AddItemMutationResponse;
+  convertToCardMutations;
   editMutation: EditMutationResponse;
   removeMutation: RemoveMutationResponse;
 } & Props;
@@ -50,6 +54,23 @@ class ListContainer extends React.Component<FinalProps> {
         content: item
       }
     });
+  };
+
+  convertToCard = (name: string) => {
+    const { convertToCardMutations, stageId } = this.props;
+
+    convertToCardMutations({
+      variables: {
+        stageId,
+        name
+      }
+    })
+      .then(() => {
+        Alert.success('You successfully converted to card');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   render() {
@@ -86,14 +107,15 @@ class ListContainer extends React.Component<FinalProps> {
 
     const item = checklistDetailQuery.checklistDetail;
 
-    const extendedProps = {
+    const props = {
       item,
       addItem: this.addItem,
       renderButton,
-      remove: this.remove
+      remove: this.remove,
+      convertToCard: this.convertToCard
     };
 
-    return <List {...extendedProps} />;
+    return <List {...props} />;
   }
 }
 
@@ -135,6 +157,17 @@ export default withProps<Props>(
           refetchQueries: ['checklists']
         })
       }
-    )
+    ),
+    graphql<Props>(gql(dealMutations.dealsAdd), {
+      name: 'convertToCardMutations',
+      options: ({ stageId }) => ({
+        refetchQueries: [
+          {
+            query: gql(stageQuery.stageDetail),
+            variables: { _id: stageId }
+          }
+        ]
+      })
+    })
   )(ListContainer)
 );

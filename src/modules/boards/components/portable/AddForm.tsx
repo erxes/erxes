@@ -70,6 +70,7 @@ class AddForm extends React.Component<Props, State> {
       // after save, enable save button
       this.setState({ disabled: false });
 
+      console.log(item);
       closeModal();
 
       if (callback) {
