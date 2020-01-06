@@ -8,9 +8,10 @@
       "overview/integrations-overview"
     ],
     "Installation Guide": [
-      "installation/docker",
-      "installation/kubernetes",
       "installation/ubuntu",
+      "installation/docker",
+      "installation/heroku",
+      "installation/kubernetes",
       "installation/upgrade"
     ],
     "User's Guide": [
