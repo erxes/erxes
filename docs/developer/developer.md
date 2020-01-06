@@ -1,6 +1,6 @@
 ---
 id: developer
-title: Developing and Testing erxes
+title: Developing erxes
 sidebar_label: Developer
 ---
 
@@ -22,37 +22,57 @@ Before you can develop and test erxes, you must install and configure the follow
 - [MongoDB](https://www.mongodb.com) version 3.6.x
 - [Redis](https://redis.io) version 3.x +
 
-## Getting the Sources
-Fork and clone the erxes repository:
-
+## Getting the Sources and running locally
 1. Login to your GitHub account or create one by following the instructions given [here](https://github.com/signup/free).
 
-2. Fork the relevant [erxes repository](https://github.com/erxes/erxes).
+2. Configure your ssh key [here](https://github.com/settings/keys).
 
-3. Clone your fork of the erxes repository and define an upstream remote pointing back to the erxes repository that you forked in the first place.
+3. Run erxes backend.
 
 ```sh
 # Clone your GitHub repository:
-git clone git@github.com:<github username>/erxes.git
+git clone git@github.com:erxes/erxes-api.git
+
+# Go to the erxes directory:
+cd erxes-api
+
+# Copy preconfigured environment variables:
+cp .env.sample .env
+
+# Install dependencies (package.json)
+yarn install
+
+# Load sample data
+yarn loadInitialData
+
+# Run
+yarn dev
+```
+
+4. Run erxes frontend.
+
+```sh
+# Clone your GitHub repository:
+git clone git@github.com:erxes/erxes.git
 
 # Go to the erxes directory:
 cd erxes
 
-# Add the main erxes repository as an upstream remote to your repository:
-git remote add upstream https://github.com/erxes/erxes.git
-```
+# Copy preconfigured environment variables:
+cp .env.sample .env
 
-
-## Installing NPM Modules
-Next, install the JavaScript modules needed to develop and test erxes:
-
-```sh
-# Install erxes project dependencies (package.json)
+# Install dependencies (package.json)
 yarn install
+
+# Run
+yarn start
 ```
 
-## Running Tests Locally
+## Checkout running website
+
+Visit http://localhost:3000 and login using following credentials
 
 ```
-yarn test
+username: admin@erxes.io
+password: erxes
 ```
