@@ -12,7 +12,7 @@ const IntegrationWrapper = styled.div`
   flex: 1;
 
   h3 {
-    margin: ${storeSpace}px 0 0 ${storeSpace}px;
+    margin: 30px 0 0 ${storeSpace}px;
   }
 `;
 
