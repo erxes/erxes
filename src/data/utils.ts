@@ -12,6 +12,7 @@ import { Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { OnboardingHistories } from '../db/models/Robot';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
+import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 
 /*
@@ -978,29 +979,54 @@ export const checkAutomation = async (kind: string, body: any, user: IUserDocume
     userId: user._id,
     kind,
   };
-
-  return new Promise<any>(resolve => {
-    sendRequest(
-      { url: `${AUTOMATION_DOMAIN}/check-trigger`, method: 'post', body: { postData: JSON.stringify(doc) } },
-      'Failed to connect to automations api. Check whether AUTOMATIONS_API_DOMAIN env is missing or automations api is not running',
-    )
-      .then(response => {
-        try {
-          graphqlPubsub.publish('automationResponded', {
-            automationResponded: {
-              userId: user._id,
-              content: response,
-            },
-          });
-        } catch (e) {
-          // Any other error is serious
-          if (e.message !== 'Configuration does not exist') {
-            throw e;
-          }
-        }
-      })
-      .catch(error => console.log(error.message));
-
-    return resolve('response');
+  console.log('api-utilssss');
+  const apiAutomationResponse = await sendRPCMessage({
+    action: 'get-response-check-automation',
+    data: JSON.stringify({
+      doc,
+    }),
   });
+
+  console.log(apiAutomationResponse);
+
+  try {
+    graphqlPubsub.publish('automationResponded', {
+      automationResponded: {
+        userId: user._id,
+        content: apiAutomationResponse.response,
+      },
+    });
+  } catch (e) {
+    // Any other error is serious
+    if (e.message !== 'Configuration does not exist') {
+      throw e;
+    }
+  }
+
+  // return new Promise<any>(async resolve => {
+  //   sendRequest(
+  //     { url: `${AUTOMATION_DOMAIN}/check-trigger`, method: 'post', body: { postData: JSON.stringify(doc) } },
+  //     'Failed to connect to automations api. Check whether AUTOMATIONS_API_DOMAIN env is missing or automations api is not running',
+  //   )
+  //     .then(response => {
+  //       const content = JSON.parse(response)
+  //       try {
+  //         graphqlPubsub.publish('automationResponded', {
+  //           automationResponded: {
+  //             userId: user._id,
+  //             content: content.response,
+  //           },
+  //         });
+
+  //       } catch (e) {
+  //         // Any other error is serious
+  //         if (e.message !== 'Configuration does not exist') {
+  //           throw e;
+  //         }
+  //       }
+  //     })
+  //     .catch(error => console.log(error.message));
+
+  //   return resolve('responded');
+  // });
 };

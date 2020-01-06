@@ -132,6 +132,17 @@ const initConsumer = async () => {
         channel.ack(msg);
       }
     });
+
+    await channel.assertQueue('automation-api');
+    channel.consume('automation-api', async msg => {
+      if (msg !== null) {
+        debugBase(`Received automation ${msg.content.toString()}`);
+
+        const data = JSON.parse(msg.content.toString());
+        console.log(data);
+        channel.ack(msg);
+      }
+    });
   } catch (e) {
     debugBase(e.message);
   }

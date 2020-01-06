@@ -133,9 +133,7 @@ const dealMutations = {
       contentType: 'deal',
     });
 
-    const response = await checkAutomation('changeDeal', { deal, sourceStageId, destinationStageId }, user);
-    const jsonResp = JSON.parse(response);
-    deal.response = jsonResp.response ? jsonResp.response : {};
+    await checkAutomation('changeDeal', { deal, sourceStageId, destinationStageId }, user);
     return deal;
   },
 
