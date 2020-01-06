@@ -102,7 +102,7 @@ class SelectWithSearch extends React.Component<
 
     const onSearch = (searchValue: string) => {
       if (searchValue) {
-        debounce(() => search(searchValue), 500)();
+        debounce(() => search(searchValue), 1000)();
       }
     };
 
