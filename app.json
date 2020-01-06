@@ -9,7 +9,7 @@
     "CRM"
   ],
   "website": "https://erxes.io",
-  "repository": "https://github.com/batnasan/erxes",
+  "repository": "https://github.com/erxes/erxes",
   "logo": "https://erxes.io/static/images/logo/logo-dark.png",
   "success_url": "/",
   "env": {
