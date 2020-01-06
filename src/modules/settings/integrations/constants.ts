@@ -145,7 +145,9 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'facebook-post',
         logo: '/images/integrations/facebook.png',
-        createModal: 'facebook-post'
+        createModal: 'facebook-post',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Social media'
       },
       {
         name: 'Facebook messenger',
@@ -153,7 +155,9 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'facebook-messenger',
         logo: '/images/integrations/fb-messenger.png',
-        createModal: 'facebook-messenger'
+        createModal: 'facebook-messenger',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Social media, Conversation'
       },
       {
         name: 'Messenger',
@@ -161,7 +165,9 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'messenger',
         logo: '/images/integrations/messenger.png',
-        createUrl: '/settings/integrations/createMessenger'
+        createUrl: '/settings/integrations/createMessenger',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Conversation'
       },
       {
         name: 'Gmail',
@@ -171,7 +177,9 @@ export const INTEGRATIONS = [
         kind: 'gmail',
         logo: '/images/integrations/gmail.png',
         createModal: 'gmail',
-        createUrl: '/settings/integrations/gmail'
+        createUrl: '/settings/integrations/gmail',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Email marketing, Marketing automation, Conversation'
       }
     ]
   },
@@ -186,7 +194,9 @@ export const INTEGRATIONS = [
         kind: 'nylas-imap',
         logo: '/images/integrations/email.png',
         createModal: 'nylas-imap',
-        createUrl: '/settings/integrations/nylas-imap'
+        createUrl: '/settings/integrations/nylas-imap',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Email marketing'
       },
       {
         name: 'Office 365 by Nylas',
@@ -196,7 +206,9 @@ export const INTEGRATIONS = [
         kind: 'nylas-office365',
         logo: '/images/integrations/office365.png',
         createModal: 'nylas-office365',
-        createUrl: '/settings/integrations/nylas-office365'
+        createUrl: '/settings/integrations/nylas-office365',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Email marketing'
       },
       {
         name: 'Gmail by Nylas',
@@ -206,7 +218,9 @@ export const INTEGRATIONS = [
         kind: 'nylas-gmail',
         logo: '/images/integrations/gmail.png',
         createModal: 'nylas-gmail',
-        createUrl: '/settings/integrations/nylas-gmail'
+        createUrl: '/settings/integrations/nylas-gmail',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Email marketing, Marketing automation, Conversation'
       },
       {
         name: 'Pop Ups',
@@ -215,7 +229,9 @@ export const INTEGRATIONS = [
         kind: 'lead',
         logo: '/images/integrations/lead.png',
         createModal: 'lead',
-        createUrl: '/settings/integrations/lead'
+        createUrl: '/settings/integrations/lead',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Surveys and Feedback, Pop ups'
       }
     ]
   },
@@ -230,7 +246,9 @@ export const INTEGRATIONS = [
         kind: 'nylas-outlook',
         logo: '/images/integrations/outlook.png',
         createModal: 'nylas-outlook',
-        createUrl: '/settings/integrations/nylas-outlook'
+        createUrl: '/settings/integrations/nylas-outlook',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Email marketing, Conversation'
       },
       {
         name: 'Yahoo by Nylas',
@@ -240,7 +258,9 @@ export const INTEGRATIONS = [
         kind: 'nylas-yahoo',
         logo: '/images/integrations/yahoo.png',
         createModal: 'nylas-yahoo',
-        createUrl: '/settings/integrations/nylas-yahoo'
+        createUrl: '/settings/integrations/nylas-yahoo',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Email marketing, Conversation'
       },
       {
         name: 'Knowledge Base',
@@ -249,7 +269,9 @@ export const INTEGRATIONS = [
         kind: 'knowledgebase',
         logo: '/images/integrations/knowledge-base.png',
         createModal: 'knowledgeBase',
-        createUrl: '/settings/integrations/knowledgeBase'
+        createUrl: '/settings/integrations/knowledgeBase',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Surveys and Feedback'
       },
       {
         name: 'Engage config',
@@ -258,7 +280,9 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'amazon-ses',
         logo: '/images/integrations/aws-ses.png',
-        createModal: 'sesconfig'
+        createModal: 'sesconfig',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation, Engage'
       }
     ]
   },
@@ -271,7 +295,9 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'callpro',
         logo: '/images/integrations/callpro.png',
-        createModal: 'callpro'
+        createModal: 'callpro',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Phone and video, Conversation'
       },
       {
         name: 'Twitter',
@@ -279,7 +305,9 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'twitter-dm',
         logo: '/images/integrations/twitter.png',
-        createModal: 'twitter'
+        createModal: 'twitter',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Social media, Messaging'
       },
       {
         name: 'Chatfuel',
@@ -287,7 +315,9 @@ export const INTEGRATIONS = [
         inMessenger: false,
         kind: 'chatfuel',
         logo: '/images/integrations/chatfuel.png',
-        createModal: 'chatfuel'
+        createModal: 'chatfuel',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Analytics, Conversation'
       },
       {
         name: 'Website',
@@ -296,39 +326,48 @@ export const INTEGRATIONS = [
         kind: 'website',
         logo: '/images/integrations/website.png',
         createModal: 'website',
-        createUrl: '/settings/integrations/website'
+        createUrl: '/settings/integrations/website',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Social media'
       }
     ]
   },
   {
     title: 'Coming soon',
-    name: 'row-5',
+    name: 'row-coming-soon',
     rows: [
       {
         name: 'Viber',
         description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
         inMessenger: false,
-        logo: '/images/integrations/viber.png'
+        logo: '/images/integrations/viber.png',
+        category:
+          'All integrations, For support teams, Marketing automation, Messaging, Conversation'
       },
       {
         name: 'WhatsApp',
         description:
           'Get a hold of your Whatsapp messages through your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/whatsapp.png'
+        logo: '/images/integrations/whatsapp.png',
+        category: 'All integrations, For support teams, Messaging, Conversation'
       },
       {
         name: 'Wechat',
         description:
           'Connect with Wechat and start messaging right from your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/wechat.png'
+        logo: '/images/integrations/wechat.png',
+        category:
+          'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
       },
       {
         name: 'Line',
         description: 'See and reply to Line messages in your Team Inbox',
         inMessenger: false,
-        logo: '/images/integrations/line.png'
+        logo: '/images/integrations/line.png',
+        category:
+          'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
       }
     ]
   }
@@ -345,21 +384,15 @@ export const INTEGRATION_FILTERS = [
     ]
   },
   {
-    name: 'Plans',
-    items: ['Free', 'Team', 'Organization', 'Enterprise']
-  },
-  {
     name: 'Works with',
-    items: ['Conversation', 'Sales pipeline', 'Contacts', 'Pop ups', 'Engage']
+    items: ['Conversation', 'Pop ups', 'Engage']
   },
   {
     name: 'Categories',
     items: [
       'Analytics',
-      'Email',
       'Email marketing',
       'Messaging',
-      'Tools',
       'Marketing automation',
       'Phone and video',
       'Social media',

@@ -23,6 +23,7 @@ type Props = {
     outlook: number;
     yahoo: number;
   };
+  filteredItem: string;
   queryParams: any;
 };
 
@@ -136,17 +137,30 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const { integrations, title, totalCount, queryParams } = this.props;
+    const {
+      integrations,
+      title,
+      totalCount,
+      queryParams,
+      filteredItem
+    } = this.props;
 
     const selected = integrations.find(
       integration => integration.kind === this.state.kind
     );
 
+    const filteredIntegrations = integrations.filter(integration => {
+      return (
+        integration.category &&
+        integration.category.indexOf(filteredItem) !== -1
+      );
+    });
+
     return (
       <>
-        {title && <h3>{__(title)}</h3>}
+        {title && filteredIntegrations.length > 0 && <h3>{__(title)}</h3>}
         <IntegrationRow>
-          {integrations.map(integration =>
+          {filteredIntegrations.map(integration =>
             this.renderEntry(integration, totalCount, queryParams)
           )}
         </IntegrationRow>

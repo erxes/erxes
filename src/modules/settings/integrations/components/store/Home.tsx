@@ -23,19 +23,37 @@ type Props = {
   queryParams: any;
 };
 
-class Home extends React.Component<Props> {
+class Home extends React.Component<Props, { filteredItem: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      filteredItem: 'All integrations'
+    };
+  }
+
+  getFilteredItem = (filteredItem: string) => {
+    this.setState({ filteredItem });
+  };
+
   renderContent() {
     const { totalCount, queryParams } = this.props;
+    const { filteredItem } = this.state;
 
     return (
       <Content>
-        <Sidebar />
+        <Sidebar
+          getFilteredItem={this.getFilteredItem}
+          filteredItem={filteredItem}
+        />
         <IntegrationWrapper>
+          <h3>{filteredItem}</h3>
           {INTEGRATIONS.map(obj => (
             <Row
               key={obj.name}
               title={obj.title}
               integrations={obj.rows}
+              filteredItem={filteredItem}
               totalCount={totalCount}
               queryParams={queryParams}
             />

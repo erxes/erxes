@@ -9,15 +9,17 @@ const storeSpace = dimensions.coreSpacing * 2;
 
 const IntegrationWrapper = styled.div`
   padding-bottom: ${storeSpace}px;
+  flex: 1;
 
   h3 {
-    margin: ${storeSpace}px ${storeSpace}px -10px ${storeSpace}px;
+    margin: ${storeSpace}px 0 0 ${storeSpace}px;
   }
 `;
 
 const IntegrationRow = styled.div`
   padding-right: ${storeSpace}px;
   display: flex;
+  flex-wrap: wrap;
 `;
 
 const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
@@ -41,7 +43,7 @@ const Type = styled.span`
   padding-top: ${dimensions.coreSpacing - 5}px;
 `;
 
-const IntegrationItem = styledTS(styled.div)`
+const IntegrationItem = styled.div`
   width: 25%;
   display: flex;
   padding-left: ${storeSpace}px;
@@ -122,14 +124,36 @@ const Content = styled(Contents)`
   padding-left: ${dimensions.unitSpacing}px;
 `;
 
+const Category = styledTS<{ isActive?: boolean }>(styled.li)`
+  margin-bottom: ${dimensions.unitSpacing}px;
+  transition: all ease 0.3s;
+  cursor: pointer;
+  color: ${props => props.isActive && colors.colorPrimary};
+  font-weight: ${props => props.isActive && 500};
+
+  &:hover {
+    color: ${colors.colorPrimary};
+  }
+`;
+
 const SidebarList = styled.ul`
   margin: 0;
-  padding: 0;
+  padding: ${dimensions.unitSpacing}px 0;
   list-style: none;
 
   h4 {
     margin-bottom: ${dimensions.coreSpacing - 5}px;
   }
+`;
+
+const LeftSidebar = styled.div`
+  width: 200px;
+  position: relative;
+  margin: 10px 10px 10px 0;
+`;
+
+const FixedSection = styled.div`
+  position: fixed;
 `;
 
 export {
@@ -140,5 +164,8 @@ export {
   Box,
   Type,
   Content,
-  SidebarList
+  Category,
+  SidebarList,
+  LeftSidebar,
+  FixedSection
 };
