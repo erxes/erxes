@@ -5,7 +5,7 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { Column, Columns, Footer, Title } from '../styles/chooser';
+import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
 
 export type CommonProps = {
@@ -25,7 +25,7 @@ export type CommonProps = {
 
 type Props = {
   onSelect: (datas: any[]) => void;
-  renderSidebar?: () => any;
+  renderFilter?: () => any;
 } & CommonProps;
 
 type State = {
@@ -135,7 +135,7 @@ class CommonChooser extends React.Component<Props, State> {
       title,
       data,
       closeModal,
-      renderSidebar
+      renderFilter
     } = this.props;
     const selectedDatas = this.state.datas;
 
@@ -149,12 +149,15 @@ class CommonChooser extends React.Component<Props, State> {
     return (
       <>
         <Columns>
-          {renderSidebar && renderSidebar()}
           <Column>
-            <FormControl
-              placeholder={__('Type to search')}
-              onChange={this.search}
-            />
+            <ActionTop>
+              <FormControl
+                placeholder={__('Type to search')}
+                onChange={this.search}
+              />
+              {renderFilter && renderFilter()}
+            </ActionTop>
+
             <ul>
               {datas.map(dataItem => this.renderRow(dataItem, 'plus-1'))}
               {this.state.loadmore && (

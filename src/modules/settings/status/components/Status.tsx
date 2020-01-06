@@ -48,12 +48,7 @@ class Status extends React.PureComponent<{
 
     const { versions } = this.props;
 
-    const {
-      erxesVersion,
-      apiVersion,
-      widgetVersion,
-      widgetApiVersion
-    } = versions;
+    const { erxesVersion, apiVersion, widgetVersion } = versions;
 
     const content = (
       <div>
@@ -62,8 +57,6 @@ class Status extends React.PureComponent<{
         {this.renderData('Erxes API Status', apiVersion)}
 
         {this.renderData('Erxes Widget Status', widgetVersion)}
-
-        {this.renderData('Widget Api Version', widgetApiVersion)}
       </div>
     );
 

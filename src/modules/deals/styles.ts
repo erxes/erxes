@@ -106,8 +106,8 @@ const ProductButton = styled.div`
 `;
 
 const CategoryContainer = styled.div`
-  width: 30%;
-  margin-right: ${dimensions.coreSpacing}px;
+  flex: 1;
+  flex-shrink: 0;
 `;
 
 const CustomField = styled.div`

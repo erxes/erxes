@@ -34,7 +34,6 @@ const options = {
   },
   texts: {
     addText: 'Add a task',
-    addSuccessText: 'You successfully added a task',
     updateSuccessText: 'You successfully updated a task',
     deleteSuccessText: 'You successfully deleted a task',
     copySuccessText: 'You successfully copied a task',

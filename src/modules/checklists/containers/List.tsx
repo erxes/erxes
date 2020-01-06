@@ -74,7 +74,6 @@ class ListContainer extends React.Component<FinalProps> {
           btnSize="small"
           type="submit"
           icon=""
-          successMessage={`You successfully edited a checklist`}
         />
       );
     };

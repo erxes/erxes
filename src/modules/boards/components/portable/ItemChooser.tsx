@@ -1,6 +1,11 @@
+import { PipelinePopoverContent } from 'modules/boards/styles/item';
 import Chooser, { CommonProps } from 'modules/common/components/Chooser';
-import { SelectChooser } from 'modules/common/styles/chooser';
+import Icon from 'modules/common/components/Icon';
+import { Select } from 'modules/common/styles/chooser';
+import { __ } from 'modules/common/utils';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import BoardSelect from '../../containers/BoardSelect';
 
 type Props = {
@@ -23,8 +28,12 @@ type State = {
 };
 
 class ItemChooser extends React.Component<Props, State> {
+  private ref;
+
   constructor(props) {
     super(props);
+
+    this.ref = React.createRef();
 
     this.state = {
       stageId: this.props.stageId || '',
@@ -32,6 +41,13 @@ class ItemChooser extends React.Component<Props, State> {
       pipelineId: this.props.pipelineId || ''
     };
   }
+
+  clearFilter = e => {
+    e.stopPropagation();
+    this.onChangeField('stageId', '');
+    this.onChangeField('pipelineId', '');
+    this.onChangeField('boardId', '');
+  };
 
   renderSelectChooser = () => {
     const { showSelect, data } = this.props;
@@ -42,23 +58,46 @@ class ItemChooser extends React.Component<Props, State> {
 
     const { stageId, pipelineId, boardId } = this.state;
 
+    const filtered = stageId || pipelineId || boardId;
+
     const stgIdOnChange = stgId => this.onChangeField('stageId', stgId);
     const plIdOnChange = plId => this.onChangeField('pipelineId', plId);
     const brIdOnChange = brId => this.onChangeField('boardId', brId);
 
+    const content = (
+      <Popover id="board-popover">
+        <PipelinePopoverContent>
+          <BoardSelect
+            type={data.options.type}
+            stageId={stageId}
+            pipelineId={pipelineId}
+            boardId={boardId}
+            onChangeStage={stgIdOnChange}
+            onChangePipeline={plIdOnChange}
+            onChangeBoard={brIdOnChange}
+          />
+        </PipelinePopoverContent>
+      </Popover>
+    );
+
     return (
-      <SelectChooser>
-        <BoardSelect
-          inSidebar={true}
-          type={data.options.type}
-          stageId={stageId}
-          pipelineId={pipelineId}
-          boardId={boardId}
-          onChangeStage={stgIdOnChange}
-          onChangePipeline={plIdOnChange}
-          onChangeBoard={brIdOnChange}
-        />
-      </SelectChooser>
+      <div ref={this.ref}>
+        <OverlayTrigger
+          trigger="click"
+          placement="bottom-start"
+          overlay={content}
+          rootClose={true}
+          container={this.ref.current}
+        >
+          <Select>
+            {__('Filter')}
+            <span>
+              {filtered && <Icon icon="times" onClick={this.clearFilter} />}
+              <Icon icon="angle-down" />
+            </span>
+          </Select>
+        </OverlayTrigger>
+      </div>
     );
   };
 
@@ -73,7 +112,7 @@ class ItemChooser extends React.Component<Props, State> {
   };
 
   render() {
-    return <Chooser {...this.props} renderSidebar={this.renderSelectChooser} />;
+    return <Chooser {...this.props} renderFilter={this.renderSelectChooser} />;
   }
 }
 
