@@ -35,7 +35,7 @@ Please try clicking the deploy button below, then set all the config vars and hi
 `REACT_APP_CDN_HOST = https://bat-erxes-widget.herokuapp.com` - **update it based on your app name you have chosen for erxes widget**  
 `REACT_APP_CDN_HOST_API = https://bat-erxes-widget-api.herokuapp.com` - **update it based on your app name you have chosen for erxes widget api**
 
-[![Deploy erxes](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes/tree/develop)
+[![Deploy erxes](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes")](https://heroku.com/deploy?template=https://github.com/erxes/erxes)
 
 2.**Install erxes API**
 
@@ -75,7 +75,7 @@ Now it's time to install erxes API - click the button below and set the config v
 `WIDGETS_API_DOMAIN = https://bat-erxes-widget-api.herokuapp.com` - **update it based on your app name you have chosen for widget api**  
 `WIDGETS_DOMAIN = https://bat-erxes-widget.herokuapp.com` - **update it based on your app name you have chosen for widget**
 
-[![Deploy erxes API](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes API")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-api)
+[![Deploy erxes API](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes API")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-api)
 
 3.**Install erxes Widgets**
 
@@ -89,7 +89,7 @@ Now install erxes Widget app by clicking the deploy button below and set config 
 `PORT = 3200`  
 `ROOT_URL = https://bat-erxes-widget.herokuapp.com` - **update it based on your app name you have chosen for widget**
 
-[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes Widgets")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-widgets)
+[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes Widgets")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-widgets)
 
 4.**Install erxes Widgets API**
 
@@ -102,7 +102,7 @@ You are doing great! And now it's time to install last app - erxes Widgets API.
 `RABBITMQ_HOST = amqp://localhost` - we will update it later on  
 `WIDGET_URL = https://bat-erxes-widget.herokuapp.com` - we will update it later on
 
-[![Deploy Widgets API](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes Widgets API")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-widgets-api)
+[![Deploy Widgets API](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes Widgets API")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-widgets-api)
 
 Now go to Heroku dashboard and select the **erxes api app** from the Apps tab.
 
