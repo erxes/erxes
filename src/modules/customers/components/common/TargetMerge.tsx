@@ -1,3 +1,4 @@
+import debounce from 'lodash/debounce';
 import EmptyState from 'modules/common/components/EmptyState';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
@@ -29,11 +30,12 @@ class TargetMergeModal extends React.Component<Props, State> {
   }
 
   handleSearch = value => {
-    const { objects } = this.state;
+    const { searchObject } = this.props;
 
-    if (objects.length < 1) {
-      this.props.searchObject(value, objs => this.setState({ objects: objs }));
-    }
+    debounce(
+      () => searchObject(value, objs => this.setState({ objects: objs })),
+      1000
+    )();
   };
 
   onSelect = option => {

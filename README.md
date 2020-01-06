@@ -1,13 +1,19 @@
-# erxes Inc
+# erxes
 
 erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
 
-<a href="https://demo.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://slack.erxes.io">Join us on Slack</a>
+<a href="https://demo.erxes.io/">Online demo</a> <b>| </b> <a href="https://rocketchat.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join us on RocketChat</a>
 
-## Status  <br>
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)  [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability) [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)  [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master) [![Dependencies checker](https://david-dm.org/erxes/erxes.svg)](https://david-dm.org/erxes/erxes) [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes) [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/) [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes) 
+[![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability)
+[![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)
+[![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master)
+![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes)
+[![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes)
+[![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/)
+[![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
 
-<a href="https://erxes.io" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/git-erxes.gif" alt="erxes is an AI meets open source messaging platform for sales, marketing and support "></a>
+<a href="https://erxes.io" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
 
 ## Features
 
@@ -64,4 +70,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://www.browserstack.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/browserstack.png" width="130px;" /></a>
 
 ## Copyright & License
-Copyright (c) 2018 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">GNU General Public License v3.0</a>
+Copyright (c) 2020 erxes Inc - Released under the <a href="https://github.com/erxes/erxes/blob/develop/LICENSE.md">GNU General Public License v3.0</a>
