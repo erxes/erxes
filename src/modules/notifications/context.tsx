@@ -18,9 +18,8 @@ import {
 interface IStore {
   notifications: INotification[];
   unreadCount: number;
-  markAsRead: () => void;
   showNotifications: (requireRead: boolean) => void;
-  markAsAllRead: () => void;
+  markAsRead: (notificationIds?: string[]) => void;
   isLoading: boolean;
 }
 
@@ -57,51 +56,47 @@ class Provider extends React.Component<Props> {
     });
   }
 
-  markAsRead() {
-    const { notificationsQuery, notificationCountQuery } = this.props;
+  markAsRead = (notificationIds?: string[]) => {
+    const {
+      notificationsMarkAsReadMutation,
+      notificationsQuery,
+      notificationCountQuery
+    } = this.props;
 
-    notificationsQuery.refetch();
-    notificationCountQuery.refetch();
-  }
-
-  markAsAllRead = () => {
-    const { notificationsMarkAsReadMutation, notificationsQuery } = this.props;
     notificationsMarkAsReadMutation({
-      variables: { _ids: undefined }
+      variables: { _ids: notificationIds }
     })
       .then(() => {
         notificationsQuery.refetch();
-        Alert.success('All notifications have been seen');
+        notificationCountQuery.refetch();
+
+        Alert.success('Notifications have been seen');
       })
       .catch(error => {
         Alert.error(error.message);
       });
   };
 
-  showNotifications(requireRead: boolean) {
+  showNotifications = (requireRead: boolean) => {
     const { notificationsQuery } = this.props;
 
     notificationsQuery.refetch({ limit: 10, requireRead });
-  }
+  };
 
   public render() {
     const { notificationsQuery, notificationCountQuery } = this.props;
 
-    const notifications = notificationsQuery.notifications;
+    const notifications = notificationsQuery.notifications || [];
     const isLoading = notificationsQuery.loading;
-    const unreadCount = notificationCountQuery.notificationCounts;
-    const markAsRead = () => this.markAsRead();
-    const showNotifications = (requireRead: boolean) =>
-      this.showNotifications(requireRead);
-    const markAsAllRead = () => this.markAsAllRead();
+    const unreadCount = notificationCountQuery.notificationCounts || 0;
+
     return (
       <NotifContext.Provider
         value={{
           notifications,
           unreadCount,
-          markAsRead,
-          showNotifications,
-          markAsAllRead,
+          showNotifications: this.showNotifications,
+          markAsRead: this.markAsRead,
           isLoading
         }}
       >

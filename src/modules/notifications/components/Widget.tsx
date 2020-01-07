@@ -1,27 +1,35 @@
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import NotificationsLatest from '../containers/NotificationsLatest';
 import { INotification } from '../types';
-import { NotifButton, PopoverHeader, PopoverLink } from './styles';
+import NotificationsLatest from './NotificationsLatest';
+import { NotifButton } from './styles';
 
 type Props = {
   unreadCount: number;
   notifications: INotification[];
-  markAsRead: () => void;
   showNotifications: (requireRead: boolean) => void;
-  markAsAllRead: () => void;
+  markAsRead: (notificationIds?: string[]) => void;
   isLoading: boolean;
 };
 
 type State = {
-  activeFirst: boolean;
+  currentTab: string;
 };
 
 class Widget extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentTab: 'Recent'
+    };
+  }
+
   renderUnreadCount() {
     const { unreadCount } = this.props;
 
@@ -36,37 +44,52 @@ class Widget extends React.Component<Props, State> {
     return null;
   }
 
+  onTabClick = currentTab => {
+    this.setState({ currentTab });
+  };
+
   render() {
     const {
       notifications,
-      markAsRead,
       isLoading,
       showNotifications,
-      markAsAllRead
+      markAsRead
     } = this.props;
+
+    const { currentTab } = this.state;
 
     const popoverProps = {
       notifications,
-      markAsRead,
       isLoading,
-      requireRead: true,
-      markAsAllRead
+      markAsRead
     };
+
+    const recentOnClick = () => {
+      this.onTabClick('Recent');
+      showNotifications(false);
+    };
+
+    const unreadOnClick = () => {
+      this.onTabClick('Unread');
+      showNotifications(true);
+    };
+
     const popoverNotification = (
       <Popover id="npopover" className="notification-popover">
-        <PopoverHeader>
-          <PopoverLink>
-            <span onClick={showNotifications.bind(this, false)}>
-              {__('Notifications')}
-            </span>
-          </PopoverLink>
-          <PopoverLink>
-            <span onClick={showNotifications.bind(this, true)}>
-              {' '}
-              {__('Show unread')}
-            </span>
-          </PopoverLink>
-        </PopoverHeader>
+        <Tabs full={true}>
+          <TabTitle
+            className={currentTab === 'Recent' ? 'active' : ''}
+            onClick={recentOnClick}
+          >
+            {__('Recent')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'Unread' ? 'active' : ''}
+            onClick={unreadOnClick}
+          >
+            {__('Unread')}
+          </TabTitle>
+        </Tabs>
         <NotificationsLatest {...popoverProps} />
       </Popover>
     );

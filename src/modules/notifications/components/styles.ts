@@ -69,7 +69,6 @@ const NotifList = styled.ul`
         background: ${colors.colorWhite};
       }
     }
-  }
 
     &:hover,
     &:focus {

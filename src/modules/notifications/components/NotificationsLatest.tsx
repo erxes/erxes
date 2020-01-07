@@ -4,6 +4,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { INotification } from '../types';
 import NotificationRow from './NotificationRow';
+import Spinner from 'modules/common/components/Spinner';
 import {
   MarkAllRead,
   NotificationList,
@@ -15,23 +16,16 @@ import {
 type Props = {
   notifications: INotification[];
   markAsRead: (notificationIds?: string[]) => void;
-  update?: () => void;
-  markAsAllRead: () => void;
+  isLoading: boolean;
 };
 
 class NotificationsLatest extends React.Component<Props> {
-  componentDidMount() {
-    // update popover position
-    const { update } = this.props;
-
-    if (update) {
-      update();
-    }
-  }
-
   render() {
-    const { notifications, markAsRead, markAsAllRead } = this.props;
-    const notifCount = notifications.length;
+    const { notifications, markAsRead, isLoading } = this.props;
+
+    if (isLoading) {
+      return <Spinner objective={true} />;
+    }
 
     const mainContent = (
       <React.Fragment>
@@ -48,7 +42,9 @@ class NotificationsLatest extends React.Component<Props> {
           <Link to="/notifications">{__('See all')}</Link>
         </NotificationSeeAll>
         <MarkAllRead>
-          <span onClick={markAsAllRead}>{__('Mark all as read')}</span>{' '}
+          <span onClick={markAsRead.bind(this, [])}>
+            {__('Mark all as read')}
+          </span>{' '}
         </MarkAllRead>
       </React.Fragment>
     );
@@ -63,9 +59,10 @@ class NotificationsLatest extends React.Component<Props> {
     );
 
     const content = () => {
-      if (notifCount === 0) {
+      if (notifications.length === 0) {
         return emptyContent;
       }
+
       return <NotificationWrapper>{mainContent}</NotificationWrapper>;
     };
 
