@@ -518,6 +518,11 @@ export class AppProvider extends React.Component<{}, IState> {
 
         // send message with attachment
         self.sendMessage("This message has an attachment", [attachment]);
+      },
+
+      onError: message => {
+        alert(message);
+        self.setState({ isAttachingFile: false });
       }
     });
   };

@@ -10,6 +10,7 @@ type UploaderParams = {
   file: File;
   beforeUpload?: () => void;
   afterUpload?: (doc: { response: string; fileInfo: FileInfo }) => void;
+  onError: (message: string) => void;
   afterRead?: (
     doc: { result: string | ArrayBuffer | null; fileInfo: FileInfo }
   ) => void;
@@ -25,6 +26,7 @@ const uploadHandler = (params: UploaderParams) => {
 
     beforeUpload,
     afterUpload,
+    onError,
 
     // for preview purpose
     afterRead
@@ -47,13 +49,21 @@ const uploadHandler = (params: UploaderParams) => {
     }
 
     const formData = new FormData();
+
     formData.append("file", file);
 
     fetch(url, {
       method: "post",
-      body: formData
+      body: formData,
+      headers: {
+        source: "widgets"
+      }
     })
       .then(response => {
+        if (!response.ok) {
+          throw response;
+        }
+
         return response.text();
       })
 
@@ -64,8 +74,10 @@ const uploadHandler = (params: UploaderParams) => {
         }
       })
 
-      .catch(e => {
-        console.log(e); // eslint-disable-line
+      .catch(errorResponse => {
+        errorResponse.text().then((text: string) => {
+          onError(text);
+        });
       });
   };
 
