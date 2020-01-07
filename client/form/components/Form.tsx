@@ -177,13 +177,6 @@ class Form extends React.Component<Props, State> {
                   "Thanks for your message. We will respond as soon as we can."
                 )}
             </p>
-            <button
-              style={{ background: color }}
-              className="erxes-button btn-block"
-              onClick={onCreateNew}
-            >
-              {__("Create new")}
-            </button>
           </div>
         </div>
       </div>
