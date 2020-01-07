@@ -557,11 +557,11 @@ describe('lead', () => {
       isRequired: true,
     });
 
-    const checkField = await fieldFactory({
-      type: 'check',
+    const firstNameField = await fieldFactory({
+      type: 'firstName',
       contentTypeId: form._id,
       validation: 'text',
-      options: ['check1', 'check2'],
+      isRequired: true,
     });
 
     const lastNameField = await fieldFactory({
@@ -575,6 +575,13 @@ describe('lead', () => {
       type: 'phone',
       contentTypeId: form._id,
       isRequired: true,
+    });
+
+    const checkField = await fieldFactory({
+      type: 'check',
+      contentTypeId: form._id,
+      validation: 'text',
+      options: ['check1', 'check2'],
     });
 
     const radioField = await fieldFactory({
@@ -593,10 +600,11 @@ describe('lead', () => {
         formId: form._id,
         submissions: [
           { _id: emailField._id, type: 'email', value: 'email@yahoo.com' },
-          { _id: checkField._id, type: 'check', value: 'check1, check2' },
+          { _id: firstNameField._id, type: 'firstName', value: 'firstName' },
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },
+          { _id: checkField._id, type: 'check', value: 'check1, check2' },
         ],
         browserInfo: {
           currentPageUrl: '/page',
@@ -619,9 +627,10 @@ describe('lead', () => {
     }
 
     expect(formData[0].value).toBe('email@yahoo.com');
-    expect(formData[1].value).toBe('check1, check2');
+    expect(formData[1].value).toBe('firstName');
     expect(formData[2].value).toBe('lastName');
     expect(formData[3].value).toBe('88998833');
     expect(formData[4].value).toBe('radio2');
+    expect(formData[5].value).toBe('check1, check2');
   });
 });
