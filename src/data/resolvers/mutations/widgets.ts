@@ -99,9 +99,11 @@ const widgetMutations = {
       await Integrations.increaseViewCount(form._id);
     }
 
-    const user = await Users.getUser(integ.createdUserId);
+    if (integ.createdUserId) {
+      const user = await Users.getUser(integ.createdUserId);
 
-    registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
+      registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
+    }
 
     // return integration details
     return {
