@@ -577,6 +577,20 @@ describe('lead', () => {
       isRequired: true,
     });
 
+    const checkField = await fieldFactory({
+      type: 'check',
+      contentTypeId: form._id,
+      validation: 'text',
+      options: ['check1', 'check2'],
+    });
+
+    const radioField = await fieldFactory({
+      type: 'radio',
+      contentTypeId: form._id,
+      validation: 'text',
+      options: ['radio1', 'radio2'],
+    });
+
     const integration = await integrationFactory({ formId: form._id });
 
     const response = await widgetMutations.widgetsSaveLead(
@@ -589,6 +603,8 @@ describe('lead', () => {
           { _id: firstNameField._id, type: 'firstName', value: 'firstName' },
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '88998833' },
+          { _id: radioField._id, type: 'radio', value: 'radio2' },
+          { _id: checkField._id, type: 'check', value: 'check1, check2' },
         ],
         browserInfo: {
           currentPageUrl: '/page',
@@ -602,5 +618,19 @@ describe('lead', () => {
     expect(await ConversationMessages.find().count()).toBe(1);
     expect(await Customers.find().count()).toBe(1);
     expect(await FormSubmissions.find().count()).toBe(1);
+
+    const message = await ConversationMessages.findOne();
+    const formData = message ? message.formWidgetData : {};
+
+    if (!message || !formData) {
+      throw new Error('Message not found');
+    }
+
+    expect(formData[0].value).toBe('email@yahoo.com');
+    expect(formData[1].value).toBe('firstName');
+    expect(formData[2].value).toBe('lastName');
+    expect(formData[3].value).toBe('88998833');
+    expect(formData[4].value).toBe('radio2');
+    expect(formData[5].value).toBe('check1, check2');
   });
 });

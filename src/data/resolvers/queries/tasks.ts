@@ -8,8 +8,8 @@ const taskQueries = {
   /**
    * Tasks list
    */
-  async tasks(_root, args: IListParams, { user }: IContext) {
-    const filter = await generateTaskCommonFilters(user._id, args);
+  async tasks(_root, args: IListParams, { user, commonQuerySelector }: IContext) {
+    const filter = { ...commonQuerySelector, ...(await generateTaskCommonFilters(user._id, args)) };
     const sort = generateSort(args);
 
     return Tasks.find(filter)
