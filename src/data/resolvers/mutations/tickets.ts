@@ -21,11 +21,11 @@ const ticketMutations = {
   /**
    * Create new ticket
    */
-  async ticketsAdd(_root, doc: ITicket, { user }: IContext) {
+  async ticketsAdd(_root, doc: ITicket, { user, docModifier }: IContext) {
     doc.watchedUserIds = [user._id];
 
     const ticket = await Tickets.createTicket({
-      ...doc,
+      ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
     });

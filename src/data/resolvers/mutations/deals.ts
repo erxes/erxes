@@ -21,12 +21,12 @@ const dealMutations = {
   /**
    * Create new deal
    */
-  async dealsAdd(_root, doc: IDeal, { user }: IContext) {
+  async dealsAdd(_root, doc: IDeal, { user, docModifier }: IContext) {
     doc.initialStageId = doc.stageId;
     doc.watchedUserIds = [user._id];
 
     const deal = await Deals.createDeal({
-      ...doc,
+      ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
     });

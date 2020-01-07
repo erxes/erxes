@@ -32,6 +32,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
   };
 
   const filter: any = {};
+
   let filterIds: string[] = [];
 
   if (assignedUserIds) {
@@ -167,6 +168,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
 
 export const generateDealCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
   args.type = 'deal';
+
   const filter = await generateCommonFilters(currentUserId, args);
   const { productIds } = extraParams || args;
 
@@ -189,6 +191,7 @@ export const generateDealCommonFilters = async (currentUserId: string, args: any
 
 export const generateTicketCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
   args.type = 'ticket';
+
   const filter = await generateCommonFilters(currentUserId, args);
   const { source } = extraParams || args;
 
