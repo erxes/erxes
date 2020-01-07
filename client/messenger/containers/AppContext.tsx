@@ -175,7 +175,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isSmallContainer: this.isSmallContainer()
     });
 
-    let state = { isMessengerVisible: !isVisible };
+    let state: any = { isMessengerVisible: !isVisible };
 
     if (activeRoute.includes("conversation")) {
       state = { ...state, ...this.prepareOpenLastConversation() };
