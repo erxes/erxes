@@ -62,7 +62,7 @@ You can also determine whether your account is in the sandbox by sending email t
 
 ## Test configuration.
 
-Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazzon have applied the following restrictions to your account:
+Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
 
 + You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
 
