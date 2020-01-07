@@ -32,7 +32,12 @@ type FinalProps = {
 
 class PipelineSelectContainer extends React.Component<FinalProps> {
   copyStage = (stageId: string, pipelineId: string) => {
-    const { closeModal, stagesCopy } = this.props;
+    const {
+      closeModal,
+      currentPipelineId,
+      refetchStages,
+      stagesCopy
+    } = this.props;
 
     const variables = {
       _id: stageId,
@@ -45,6 +50,9 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
         Alert.success('Stage successfully copied');
 
         closeModal();
+
+        refetchStages({ pipelineId });
+        refetchStages({ pipelineId: currentPipelineId });
       })
       .catch(e => {
         Alert.error(e.message);
@@ -71,6 +79,7 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
 
         closeModal();
 
+        refetchStages({ pipelineId });
         refetchStages({ pipelineId: currentPipelineId });
       })
       .catch(e => {
