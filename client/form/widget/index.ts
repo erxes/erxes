@@ -65,16 +65,6 @@ const createIframe = (setting: Setting) => {
     const handlerSelector = `[data-erxes-modal="${setting.form_id}"]`;
 
     if (iframe.contentWindow) {
-      const style = document.createElement("style");
-
-      style.appendChild(document.createTextNode(setting.css || ""));
-
-      const head = iframe.contentWindow.document.querySelector("head");
-
-      if (head) {
-        head.appendChild(style);
-      }
-
       iframe.contentWindow.postMessage(
         {
           fromPublisher: true,
