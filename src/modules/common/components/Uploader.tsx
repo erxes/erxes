@@ -50,6 +50,7 @@ const UploadBtn = styled.div`
 type Props = {
   defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
+  limit?: number;
   multiple?: boolean;
 };
 
@@ -59,6 +60,10 @@ type State = {
 };
 
 class Uploader extends React.Component<Props, State> {
+  static defaultProps = {
+    multiple: true
+  };
+
   constructor(props: Props) {
     super(props);
 
@@ -126,28 +131,40 @@ class Uploader extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const { loading, attachments } = this.state;
-    const { multiple = true } = this.props;
+  renderBtn() {
+    const { multiple, limit } = this.props;
+    const { attachments, loading } = this.state;
 
+    if (limit && limit === attachments.length) {
+      return null;
+    }
+
+    return (
+      <UploadBtn>
+        <label>
+          {__('Upload an attachment')}
+          <input
+            type="file"
+            multiple={multiple}
+            onChange={this.handleFileInput}
+          />
+        </label>
+        {loading && (
+          <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
+        )}
+      </UploadBtn>
+    );
+  }
+
+  render() {
     return (
       <>
         <List>
-          {attachments.map((item, index) => this.renderItem(item, index))}
-        </List>
-        <UploadBtn>
-          <label>
-            {__('Upload an attachment')}
-            <input
-              type="file"
-              multiple={multiple}
-              onChange={this.handleFileInput}
-            />
-          </label>
-          {loading && (
-            <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
+          {this.state.attachments.map((item, index) =>
+            this.renderItem(item, index)
           )}
-        </UploadBtn>
+        </List>
+        {this.renderBtn()}
       </>
     );
   }
