@@ -491,6 +491,7 @@ export const sendNotification = async (doc: ISendNotification) => {
 
       graphqlPubsub.publish('notificationInserted', {
         notificationInserted: {
+          _id: notification._id,
           userId: receiverId,
           title: notification.title,
           content: notification.content,
