@@ -84,9 +84,14 @@ a:hover {
   }
 }
 
-.modal-1000w {
-  width: 1000px;
+.modal-1000w { 
+  width: 100%;
   max-width: 1000px;
+  
+  @media screen and (min-width: 992px) {
+    width: 1000px;
+    max-width: 1000px;
+  }
 }
 
 .modal-content {
@@ -936,6 +941,7 @@ a:hover {
   margin: 0;
   background-color: #EA475D;
 }
+
 @media screen and (min-width: 768px) {
   .carousel-control .icon-prev,
   .carousel-control .icon-next {

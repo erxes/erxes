@@ -1,13 +1,15 @@
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
+import { IAttachment } from 'modules/common/types';
 import React from 'react';
 import { SelectInput } from '../styles';
 import { IField } from '../types';
 
 type Props = {
   field: IField;
-  onValueChange?: (data: { _id: string; value: string }) => void;
+  onValueChange?: (data: { _id: string; value: any }) => void;
   defaultValue?: any;
 };
 
@@ -108,6 +110,27 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderFile({ id, value }) {
+    const onChangeFile = (attachments: IAttachment[]) => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: attachments });
+
+        onValueChange({ _id: id, value: attachments });
+      }
+    };
+
+    return (
+      <Uploader
+        defaultFileList={value || []}
+        onChange={onChangeFile}
+        multiple={false}
+        limit={1}
+      />
+    );
+  }
+
   /*
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -174,6 +197,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'textarea':
         return this.renderTextarea(attrs);
+
+      case 'file': {
+        return this.renderFile(attrs);
+      }
 
       default:
         return this.renderInput(attrs);

@@ -12,7 +12,6 @@ export type ProjectVersions = {
   erxesVersion: Version;
   apiVersion: Version;
   widgetVersion: Version;
-  widgetApiVersion: Version;
 };
 
 export type VersionsQueryResponse = {

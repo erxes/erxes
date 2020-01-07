@@ -66,8 +66,7 @@ class HistoryDetail extends React.Component<Props> {
   };
 
   renderContent = (importHistory: IImportHistory) => {
-    const { status, total, failed, success } = importHistory;
-    const { errorMsgs = [] } = importHistory;
+    const { status, total, failed, success, errorMsgs } = importHistory;
 
     return (
       <>
@@ -106,7 +105,7 @@ class HistoryDetail extends React.Component<Props> {
             </tr>
           </thead>
           <tbody>
-            {errorMsgs.map((msg, index) => {
+            {(errorMsgs || []).map((msg, index) => {
               return (
                 <tr key={index}>
                   <td>{msg}</td>

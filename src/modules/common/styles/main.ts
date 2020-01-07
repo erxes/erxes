@@ -184,6 +184,11 @@ const CloseModal = styled.div`
     background: ${rgba(colors.colorBlack, 0.4)};
     cursor: pointer;
   }
+
+  @media screen and (max-width: 1092px) {
+    right: 10px;
+    top: 10px;
+  }
 `;
 
 const DateWrapper = styled.time`
@@ -198,6 +203,10 @@ const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
       : 'calc(100vh - 280px)'};
   overflow: auto;
   padding-right: 10px;
+`;
+
+const TabContent = styled.div`
+  margin-top: ${dimensions.coreSpacing}px;
 `;
 
 export {
@@ -216,5 +225,6 @@ export {
   HomeContainer,
   DateWrapper,
   CloseModal,
-  ScrollWrapper
+  ScrollWrapper,
+  TabContent
 };

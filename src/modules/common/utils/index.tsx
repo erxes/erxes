@@ -6,7 +6,6 @@ import React from 'react';
 import { DateWrapper } from '../styles/main';
 import { IAttachment } from '../types';
 import Alert from './Alert';
-import colorParser from './colorParser';
 import confirm from './confirmation/confirm';
 import router from './router';
 import toggleCheckBoxes from './toggleCheckBoxes';
@@ -104,15 +103,7 @@ export const difference = (array1: any[], array2: any[]) => {
   return array1.filter(n => !array2.includes(n));
 };
 
-export {
-  Alert,
-  uploadHandler,
-  router,
-  confirm,
-  toggleCheckBoxes,
-  urlParser,
-  colorParser
-};
+export { Alert, uploadHandler, router, confirm, toggleCheckBoxes, urlParser };
 
 export const can = (actionName: string, currentUser: IUser): boolean => {
   if (!currentUser) {

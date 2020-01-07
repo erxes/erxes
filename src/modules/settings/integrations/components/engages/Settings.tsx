@@ -3,22 +3,37 @@ import { FormControl } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
-import { ModalFooter } from 'modules/common/styles/main';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { ModalFooter, TabContent } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __, Alert } from 'modules/common/utils';
+import { Recipient, Recipients } from 'modules/engage/styles';
+import { IEngageConfig } from 'modules/engage/types';
 import React from 'react';
-import { IEngageConfig } from '../../types';
+import { Verify } from '../../styles';
+import Description from './Description';
 
 type Props = {
   engagesConfigDetail: IEngageConfig;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  verifyEmail: (email: string) => void;
+  removeVerifiedEmail: (email: string) => void;
+  sendTestEmail: (from: string, to: string, content: string) => void;
   closeModal: () => void;
+  verifiedEmails: string[];
 };
 
 type State = {
   secretAccessKey?: string;
   accessKeyId?: string;
   region?: string;
+  emailToVerify?: string;
+  testFrom?: string;
+  testTo?: string;
+  testContent?: string;
+  currentTab?: string;
 };
 
 class List extends React.Component<Props, State> {
@@ -30,7 +45,8 @@ class List extends React.Component<Props, State> {
     this.state = {
       secretAccessKey: engagesConfigDetail.secretAccessKey || '',
       accessKeyId: engagesConfigDetail.accessKeyId || '',
-      region: engagesConfigDetail.region || ''
+      region: engagesConfigDetail.region || '',
+      currentTab: 'config'
     };
   }
 
@@ -38,116 +54,144 @@ class List extends React.Component<Props, State> {
     return values;
   };
 
-  renderDescription() {
+  onChangeCommon = (
+    name: 'emailToVerify' | 'testFrom' | 'testTo' | 'testContent',
+    e
+  ) => {
+    this.setState({ [name]: e.currentTarget.value });
+  };
+
+  onVerifyEmail = () => {
+    const { emailToVerify } = this.state;
+
+    if (emailToVerify) {
+      return this.props.verifyEmail(emailToVerify);
+    }
+
+    return Alert.error('Write your email to verify!');
+  };
+
+  onSendTestEmail = () => {
+    const { testFrom, testTo, testContent } = this.state;
+
+    this.props.sendTestEmail(testFrom || '', testTo || '', testContent || '');
+  };
+
+  onRemoveVerifiedEmail = (email: string) => {
+    this.props.removeVerifiedEmail(email);
+  };
+
+  onTabClick = currentTab => {
+    this.setState({ currentTab });
+  };
+
+  renderTabContent = () => {
+    if (this.state.currentTab === 'config') {
+      return <Form renderContent={this.renderContent} />;
+    }
+
+    return this.renderTestContent();
+  };
+
+  renderVerifiedEmails = () => {
+    const { verifiedEmails } = this.props;
+
+    if (verifiedEmails.length === 0) {
+      return;
+    }
+
     return (
       <>
-        <Info>
-          <p>
-            <strong>To find your Access Key and Secret Access Key:</strong>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://console.aws.amazon.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Log in to your AWS Management Console.
-              </a>
-            </li>
-            <li>Click on your user name at the top right of the page.</li>
-            <li>
-              Click on the My Security Credentials link from the drop-down menu.
-            </li>
-            <li>
-              Find the Access Credentials section, and copy the latest Access
-              Key ID. If you don't have then Click access keys from the toggle
-              and click Create New Access key and copy the keys.
-            </li>
-            <li>
-              Click on the Show link in the same row, and copy the Secret Access
-              Key.
-            </li>
-          </ol>
+        <h4>Verified emails:</h4>
+
+        <Recipients>
+          {verifiedEmails.map((email, index) => (
+            <Recipient key={index}>
+              {email}
+              <span onClick={this.onRemoveVerifiedEmail.bind(this, email)}>
+                <Icon icon="times" />
+              </span>
+            </Recipient>
+          ))}
+        </Recipients>
+      </>
+    );
+  };
+
+  renderTestContent = () => {
+    return (
+      <>
+        <Info bordered={false}>
+          {this.renderVerifiedEmails()}
+
+          <Verify>
+            <Icon icon="shield-check" size={36} />
+            <ControlLabel required={true}>Email:</ControlLabel>
+            <FormControl
+              type="email"
+              onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+            />
+
+            <Button
+              size="small"
+              onClick={this.onVerifyEmail}
+              btnStyle="success"
+              icon="check-1"
+            >
+              Verify
+            </Button>
+          </Verify>
         </Info>
-        <Info>
-          <p>
-            <strong>To find your Region:</strong>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://console.aws.amazon.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Log in to your AWS Management Console.
-              </a>
-            </li>
-            <li>Click on services menu at the top left of the page.</li>
-            <li>Find Simple Email Service and Copy region code from url.</li>
-          </ol>
-          <p>If you choose not available region</p>
-          <ol>
-            <li>Click on your region at the top right of the menu.</li>
-            <li>Select any active region from list.</li>
-            <li>
-              Copy the selected Region code. <br />
-              <i>
-                (example: us-east-1, us-west-2, ap-south-1, ap-southeast-2,
-                eu-central-1, eu-west-1)
-              </i>
-            </li>
-          </ol>
-        </Info>
-        <Info>
-          <p>
-            <strong>
-              If you want Access Key using only Amazon SES and Amazon SNS:
-            </strong>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://console.aws.amazon.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Log in to your AWS Management Console.
-              </a>
-            </li>
-            <li>Click on your user name at the top right of the page.</li>
-            <li>
-              Click on the My Security Credentials link from the drop-down menu.
-            </li>
-            <li>Click on the Users menu from left Sidebar.</li>
-            <li>Click on the Add user.</li>
-            <li>
-              Then create your username and check Programmatic access type and
-              click next.
-            </li>
-            <li>
-              Click on the Create group then write group name and check
-              amazonSesFullAccess and amazonSNSFullAccess.
-            </li>
-            <li>Then check your created group and click on the Next button.</li>
-            <li>
-              Finally click on the create user and copy the Access Key Id and
-              Secret Access Key.
-            </li>
-          </ol>
+
+        <Info bordered={false}>
+          <h4>Send test email:</h4>
+
+          <FormGroup>
+            <ControlLabel>From:</ControlLabel>
+            <FormControl
+              placeholder="from@email.com"
+              onChange={this.onChangeCommon.bind(this, 'testFrom')}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>To:</ControlLabel>
+            <FormControl
+              placeholder="to@email.com"
+              onChange={this.onChangeCommon.bind(this, 'testTo')}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Content:</ControlLabel>
+            <FormControl
+              placeholder="Write your content..."
+              componentClass="textarea"
+              onChange={this.onChangeCommon.bind(this, 'testContent')}
+            />
+          </FormGroup>
+
+          <Button
+            size="small"
+            btnStyle="primary"
+            icon="message"
+            onClick={this.onSendTestEmail}
+          >
+            Send test email
+          </Button>
         </Info>
       </>
     );
-  }
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { engagesConfigDetail, renderButton, closeModal } = this.props;
+
     const { values, isSubmitted } = formProps;
 
     return (
       <>
-        {this.renderDescription()}
+        <Description />
         <FormGroup>
           <ControlLabel>AWS-SES Access key ID</ControlLabel>
           <FormControl
@@ -200,7 +244,27 @@ class List extends React.Component<Props, State> {
   };
 
   render() {
-    return <Form renderContent={this.renderContent} />;
+    const { currentTab } = this.state;
+
+    return (
+      <>
+        <Tabs full={true}>
+          <TabTitle
+            className={currentTab === 'config' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'config')}
+          >
+            {__('Configure')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'test' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'test')}
+          >
+            {__('Test configuration')}
+          </TabTitle>
+        </Tabs>
+        <TabContent>{this.renderTabContent()}</TabContent>
+      </>
+    );
   }
 }
 
