@@ -16,7 +16,7 @@ type Props = {
   form: IForm;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
-  callSubmit: boolean;
+  callSubmit?: boolean;
   onSubmit: (doc: IFormDoc) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
