@@ -48,7 +48,6 @@ interface IStore extends IState {
   goToFaqCategory: (category?: IFaqCategory) => void;
   goToFaqArticle: (article: IFaqArticle) => void;
   goToConversationList: () => void;
-  openLastConversation: () => void;
   saveGetNotified: (
     doc: { type: string; value: string },
     callback?: () => void
@@ -176,11 +175,13 @@ export class AppProvider extends React.Component<{}, IState> {
       isSmallContainer: this.isSmallContainer()
     });
 
-    this.setState({ isMessengerVisible: !isVisible });
+    let state = { isMessengerVisible: !isVisible };
 
     if (activeRoute.includes("conversation")) {
-      this.openLastConversation();
+      state = { ...state, ...this.prepareOpenLastConversation() };
     }
+
+    this.setState(state);
   };
 
   setHeadHeight = (headHeight: number) => {
@@ -262,13 +263,13 @@ export class AppProvider extends React.Component<{}, IState> {
     this.changeRoute("conversationList");
   };
 
-  openLastConversation = () => {
+  prepareOpenLastConversation = () => {
     const _id = getLocalStorageItem("lastConversationId");
 
-    this.setState({
+    return {
       activeConversation: _id || "",
       activeRoute: _id ? "conversationDetail" : "conversationCreate"
-    });
+    };
   };
 
   saveGetNotified = (
@@ -307,6 +308,7 @@ export class AppProvider extends React.Component<{}, IState> {
       // after mutation
       .then(() => {
         this.setState({ isSavingNotified: false });
+
         if (callback) {
           callback();
         }
@@ -316,7 +318,7 @@ export class AppProvider extends React.Component<{}, IState> {
         setLocalStorageItem("getNotifiedValue", value);
 
         // redirect to conversation
-        this.openLastConversation();
+        this.setState(this.prepareOpenLastConversation());
 
         // notify parent window launcher state
         postMessage("fromMessenger", "messenger", {
@@ -550,7 +552,6 @@ export class AppProvider extends React.Component<{}, IState> {
           goToFaqCategory: this.goToFaqCategory,
           goToFaqArticle: this.goToFaqArticle,
           goToConversationList: this.goToConversationList,
-          openLastConversation: this.openLastConversation,
           saveGetNotified: this.saveGetNotified,
           endConversation: this.endConversation,
           readConversation: this.readConversation,
