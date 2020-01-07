@@ -16,6 +16,7 @@ type Props = {
   form: IForm;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
+  callSubmit: boolean;
   onSubmit: (doc: IFormDoc) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
@@ -54,6 +55,10 @@ class Form extends React.Component<Props, State> {
     // after successfull save and create new button, reset doc state
     if (currentStatus !== nextStatus && nextStatus === "INITIAL") {
       this.setState({ doc: this.resetDocState() });
+    }
+
+    if (!this.props.callSubmit && nextProps.callSubmit) {
+      this.onSubmit();
     }
   }
 
