@@ -1,6 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { queries as stageQuery } from 'modules/boards/graphql';
+import { IItem } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
@@ -19,6 +21,7 @@ import {
 type Props = {
   listId: string;
   stageId: string;
+  callback: (stageId: string, item: IItem) => void;
 };
 
 type FinalProps = {
@@ -65,8 +68,14 @@ class ListContainer extends React.Component<FinalProps> {
         name
       }
     })
-      .then(() => {
+      .then(data => {
         Alert.success('You successfully converted to card');
+
+        console.log(data);
+
+        if (this.props.callback) {
+          this.props.callback(stageId, data.dealsAdd);
+        }
       })
       .catch(e => {
         Alert.error(e.message);
@@ -132,7 +141,7 @@ const options = (props: Props) => {
   };
 };
 
-export default withProps<Props>(
+const WithProps = withProps<Props>(
   compose(
     graphql<Props>(gql(queries.checklistDetail), {
       name: 'checklistDetailQuery',
@@ -171,3 +180,13 @@ export default withProps<Props>(
     })
   )(ListContainer)
 );
+
+export default props => {
+  return (
+    <PipelineConsumer>
+      {({ onAddItem }) => {
+        return <WithProps {...props} callback={onAddItem} />;
+      }}
+    </PipelineConsumer>
+  );
+};

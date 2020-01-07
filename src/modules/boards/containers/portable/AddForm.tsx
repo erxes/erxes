@@ -55,6 +55,12 @@ class AddFormContainer extends React.Component<FinalProps> {
           Alert.success(options.texts.addSuccessText);
         }
 
+        console.log('sss', data);
+
+        console.log('sssss', data[options.mutationsName.addMutation]);
+        console.log('sssss1', options.mutationsName.addMutation);
+        console.log('sssss2', data);
+
         if (relType && relTypeIds) {
           editConformity({
             variables: {
