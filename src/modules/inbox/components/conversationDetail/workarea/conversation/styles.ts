@@ -1,5 +1,7 @@
+import { AttachmentWrapper, Meta } from 'modules/common/components/Attachment';
 import { colors, dimensions } from 'modules/common/styles';
-import styled from 'styled-components';
+import { rgba } from 'modules/common/styles/color';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
@@ -16,16 +18,16 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   color: ${props => props.staff && !props.internal && colors.colorWhite};
   text-align: left;
 
-  ${props => {
-    if (!props.staff) {
-      return '';
-    }
-
-    return `
+  ${props =>
+    props.staff &&
+    css`
       border-bottom-right-radius: 2px;
       border-bottom-left-radius: 20px;
-    `;
-  }};
+
+      ${AttachmentWrapper}, ${Meta} {
+        color: ${rgba(colors.colorWhite, 0.9)};
+      }
+    `};
 
   a {
     color: ${props =>
@@ -42,7 +44,7 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   }
 
   img {
-    max-width: 100%;
+    max-width: 300px;
     border-radius: 2px;
   }
 
