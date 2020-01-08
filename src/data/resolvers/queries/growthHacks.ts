@@ -13,8 +13,8 @@ const growthHackQueries = {
   /**
    * Growth hack list
    */
-  async growthHacks(_root, args: IGrowthHackListParams, { user }: IContext) {
-    const filter = await generateGrowthHackCommonFilters(user._id, args);
+  async growthHacks(_root, args: IGrowthHackListParams, { user, commonQuerySelector }: IContext) {
+    const filter = { ...commonQuerySelector, ...(await generateGrowthHackCommonFilters(user._id, args)) };
     const { sortField, sortDirection, skip = 0, limit = 10 } = args;
 
     const sort: { [key: string]: any } = {};

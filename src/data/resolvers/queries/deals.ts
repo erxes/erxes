@@ -12,8 +12,8 @@ const dealQueries = {
   /**
    * Deals list
    */
-  async deals(_root, args: IDealListParams, { user }: IContext) {
-    const filter = await generateDealCommonFilters(user._id, args);
+  async deals(_root, args: IDealListParams, { user, commonQuerySelector }: IContext) {
+    const filter = { ...commonQuerySelector, ...(await generateDealCommonFilters(user._id, args)) };
     const sort = generateSort(args);
 
     return Deals.find(filter)

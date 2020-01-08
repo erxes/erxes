@@ -8,8 +8,8 @@ const ticketQueries = {
   /**
    * Tickets list
    */
-  async tickets(_root, args: IListParams, { user }: IContext) {
-    const filter = await generateTicketCommonFilters(user._id, args);
+  async tickets(_root, args: IListParams, { user, commonQuerySelector }: IContext) {
+    const filter = { ...commonQuerySelector, ...(await generateTicketCommonFilters(user._id, args)) };
     const sort = generateSort(args);
 
     return Tickets.find(filter)

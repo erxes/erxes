@@ -4,6 +4,7 @@ import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
 
@@ -15,12 +16,12 @@ const growthHackMutations = {
   /**
    * Create new growth hack
    */
-  async growthHacksAdd(_root, doc: IGrowthHack, { user }: { user: IUserDocument }) {
+  async growthHacksAdd(_root, doc: IGrowthHack, { user, docModifier }: IContext) {
     doc.initialStageId = doc.stageId;
     doc.watchedUserIds = [user._id];
 
     const growthHack = await GrowthHacks.createGrowthHack({
-      ...doc,
+      ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
     });

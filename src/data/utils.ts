@@ -18,7 +18,7 @@ import { graphqlPubsub } from '../pubsub';
 /*
  * Check that given file is not harmful
  */
-export const checkFile = async file => {
+export const checkFile = async (file, source?: string) => {
   if (!file) {
     throw new Error('Invalid file');
   }
@@ -50,7 +50,7 @@ export const checkFile = async file => {
     'image/gif',
   ];
 
-  const UPLOAD_FILE_TYPES = getEnv({ name: 'UPLOAD_FILE_TYPES' });
+  const UPLOAD_FILE_TYPES = getEnv({ name: source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES' });
 
   const { mime } = ft;
 
@@ -492,6 +492,7 @@ export const sendNotification = async (doc: ISendNotification) => {
 
       graphqlPubsub.publish('notificationInserted', {
         notificationInserted: {
+          _id: notification._id,
           userId: receiverId,
           title: notification.title,
           content: notification.content,
