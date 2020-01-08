@@ -128,5 +128,8 @@
     "tslint-config-standard": "^7.0.0",
     "typescript": "^3.6.4"
   },
-  "snyk": true
+  "snyk": true,
+  "engines": {
+    "node": "10.16.3"
+  }
 }
