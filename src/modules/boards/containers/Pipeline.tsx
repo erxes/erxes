@@ -146,7 +146,7 @@ const WithStatesQuery = (props: WithStatesQueryProps) => {
     return <Spinner />;
   }
 
-  const stages = stagesQuery.stages;
+  const stages = stagesQuery.stages || [];
 
   const itemMap: IItemMap = {};
   const stageMap: IStageMap = {};

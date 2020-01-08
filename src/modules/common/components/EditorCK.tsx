@@ -7,7 +7,8 @@ import { IEditorProps } from '../types';
 const { REACT_APP_API_URL } = getEnv();
 
 export const getMentionedUserIds = (content: string) => {
-  const re = new RegExp('mentioned-user-id="(?<name>.+?)"', 'g');
+  const re = new RegExp('<a[^>]* mentioned-user-id="([^"]*)"', 'g');
+
   const mentionedUserIds: string[] = (content.match(re) || []).map(m =>
     m.replace(re, '$1')
   );

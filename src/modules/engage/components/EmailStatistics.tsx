@@ -1,5 +1,4 @@
 import Attachment from 'modules/common/components/Attachment';
-import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -103,9 +102,6 @@ class EmailStatistics extends React.Component<Props> {
 
   render() {
     const { message } = this.props;
-    if (!message) {
-      return <EmptyState text="Message not found" icon="web-section-alt" />;
-    }
     const stats = message.stats || ({} as IEngageStats);
     const logs = message.logs || [];
     const totalCount = stats.total;

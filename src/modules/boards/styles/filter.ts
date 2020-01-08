@@ -3,7 +3,7 @@ import { lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 const FilterBox = styled.div`
-  padding: 10px 20px 0 20px;
+  padding: 0 20px 0 20px;
   width: 300px;
   max-height: 400px;
   overflow-y: auto;
