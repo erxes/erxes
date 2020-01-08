@@ -66,7 +66,7 @@ class CommonFieldForm extends React.PureComponent<Props, State> {
   renderSpecificContent = () => {
     const { integrationKind } = this.props;
 
-    if (integrationKind.includes('facebook')) {
+    if (integrationKind && integrationKind.includes('facebook')) {
       return this.renderFacebookContent();
     }
 
