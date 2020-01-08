@@ -8,6 +8,7 @@ import { syncPartially } from './receiveEmails';
 import { ICredentials, IPubsubMessage } from './types';
 import { getCredentialsByEmailAccountId } from './util';
 
+const USE_NATIVE_GMAIL = getEnv({ name: 'USE_NATIVE_GMAIL', defaultValue: 'false' });
 const GOOGLE_PROJECT_ID = getEnv({ name: 'GOOGLE_PROJECT_ID' });
 const GOOGLE_GMAIL_TOPIC = getEnv({ name: 'GOOGLE_GMAIL_TOPIC', defaultValue: 'gmail_topic' });
 const GOOGLE_APPLICATION_CREDENTIALS = getEnv({ name: 'GOOGLE_APPLICATION_CREDENTIALS', defaultValue: '' });
@@ -20,6 +21,10 @@ const GOOGLE_GMAIL_SUBSCRIPTION_NAME = getEnv({
  * Create topic and subscription for gmail
  */
 export const trackGmail = async () => {
+  if (USE_NATIVE_GMAIL === 'false') {
+    return debugGmail('USE_NATIVE_GMAIL env is false, if you want to use native gmail set true in .env');
+  }
+
   if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC || !GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_GMAIL_SUBSCRIPTION_NAME) {
     return debugGmail(`
       Error Google: Failed to create google pubsub topic following config missing
@@ -43,8 +48,24 @@ export const trackGmail = async () => {
 
   debugGmail(`Pubsub: Check existing gmail topic in google cloud`);
 
-  let topic = await pubsubClient.topic(GOOGLE_GMAIL_TOPIC);
-  const [topicExists] = await topic.exists();
+  let topic;
+
+  try {
+    topic = await pubsubClient.topic(GOOGLE_GMAIL_TOPIC);
+  } catch (e) {
+    debugGmail(`Pubsub: Failed to create topic: ${e.message}`);
+    return e;
+  }
+
+  let topicExists;
+
+  try {
+    [topicExists] = await topic.exists();
+  } catch (e) {
+    debugGmail(`Pubsub: Failed to check topic exists: ${e.message}`);
+
+    return e;
+  }
 
   if (!topicExists) {
     let topicResponse;
@@ -62,8 +83,24 @@ export const trackGmail = async () => {
 
   debugGmail(`Pubsub: Check existing gmail subscription in google cloud`);
 
-  const subscription = await pubsubClient.subscription(GOOGLE_GMAIL_SUBSCRIPTION_NAME);
-  const [subscriptionExists] = await subscription.exists();
+  let subscription;
+
+  try {
+    subscription = await pubsubClient.subscription(GOOGLE_GMAIL_SUBSCRIPTION_NAME);
+  } catch (e) {
+    debugGmail(`Pubsub: Failed to get subscription: ${e.message}`);
+    return e;
+  }
+
+  let subscriptionExists;
+
+  try {
+    [subscriptionExists] = await subscription.exists();
+  } catch (e) {
+    debugGmail(`Pubsub: Failed to check subscription exists: ${e.message}`);
+
+    return e;
+  }
 
   if (!subscriptionExists) {
     debugGmail(`Pubsub: Creating a subscription of gmail topic`);
@@ -122,10 +159,12 @@ const onMessage = async (message: IPubsubMessage) => {
  */
 export const watchPushNotification = async (accountId: string, credentials: ICredentials) => {
   if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC) {
-    return debugGmail(
+    debugGmail(
       `GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID || 'Not defined'}`,
       `GOOGLE_GMAIL_TOPIC: ${GOOGLE_GMAIL_TOPIC || 'Not defined'}`,
     );
+
+    return;
   }
 
   const auth = getAuth(credentials, accountId);

@@ -1,6 +1,6 @@
 import { Activity } from 'botbuilder';
+import { sendRPCMessage } from '../messageBroker';
 import Integrations from '../models/Integrations';
-import { fetchMainApi } from '../utils';
 import { ConversationMessages, Conversations } from './models';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
@@ -17,7 +17,6 @@ const receiveMessage = async (activity: Activity) => {
   const kind = 'facebook-messenger';
 
   // get or create customer
-
   const customer = await getOrCreateCustomer(pageId, userId, kind);
 
   // get conversation
@@ -43,17 +42,13 @@ const receiveMessage = async (activity: Activity) => {
 
     // save on api
     try {
-      const apiConversationResponse = await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customer.erxesApiId,
-            integrationId: integration.erxesApiId,
-            content: text,
-          }),
-        },
+      const apiConversationResponse = await sendRPCMessage({
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
+          content: text,
+        }),
       });
 
       conversation.erxesApiId = apiConversationResponse._id;
@@ -72,33 +67,33 @@ const receiveMessage = async (activity: Activity) => {
 
   if (!conversationMessage) {
     // save on integrations db
-    await ConversationMessages.create({
-      conversationId: conversation._id,
-      mid: message.mid,
-      timestamp,
-      content: text,
-    });
+    try {
+      await ConversationMessages.create({
+        conversationId: conversation._id,
+        mid: message.mid,
+        timestamp,
+        content: text,
+      });
+    } catch (e) {
+      throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation message duplication' : e);
+    }
 
     // save message on api
     try {
-      await fetchMainApi({
-        path: '/integrations-api',
-        method: 'POST',
-        body: {
-          action: 'create-conversation-message',
-          metaInfo: 'replaceContent',
-          payload: JSON.stringify({
-            content: text,
-            attachments: (attachments || [])
-              .filter(att => att.type !== 'fallback')
-              .map(att => ({
-                type: att.type,
-                url: att.payload ? att.payload.url : '',
-              })),
-            conversationId: conversation.erxesApiId,
-            customerId: customer.erxesApiId,
-          }),
-        },
+      await sendRPCMessage({
+        action: 'create-conversation-message',
+        metaInfo: 'replaceContent',
+        payload: JSON.stringify({
+          content: text,
+          attachments: (attachments || [])
+            .filter(att => att.type !== 'fallback')
+            .map(att => ({
+              type: att.type,
+              url: att.payload ? att.payload.url : '',
+            })),
+          conversationId: conversation.erxesApiId,
+          customerId: customer.erxesApiId,
+        }),
       });
     } catch (e) {
       await ConversationMessages.deleteOne({ mid: message.mid });

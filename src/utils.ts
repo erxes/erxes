@@ -89,15 +89,6 @@ export const cleanHtml = (body: string) => {
   return clean.substring(0, 65);
 };
 
-/**
- * Send request to main api
- */
-export const fetchMainApi = async ({ path, method, body, params }: IRequestParams) => {
-  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
-
-  return sendRequest({ url: `${MAIN_API_DOMAIN}${path}`, method, body, params });
-};
-
 export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
   const value = process.env[name];
 

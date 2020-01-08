@@ -1,12 +1,12 @@
 import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
+import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
-import { fetchMainApi } from '../utils';
 import { getFacebookUser, getFacebookUserProfilePic } from './utils';
 
 export const generatePostDoc = (postParams: IPostParams, pageId: string, userId: string) => {
-  const { post_id, id, video_id, link, photo_id, photos, created_time, message } = postParams;
+  const { post_id, id, link, photos, created_time, message } = postParams;
 
   const doc = {
     postId: post_id || id,
@@ -18,16 +18,7 @@ export const generatePostDoc = (postParams: IPostParams, pageId: string, userId:
   };
 
   if (link) {
-    // Posted video
-    if (video_id) {
-      doc.attachments = [link];
-
-      // Posted photo
-    } else if (photo_id) {
-      doc.attachments = [link];
-    } else {
-      doc.attachments = [link];
-    }
+    doc.attachments = [link];
   }
 
   // Posted multiple image
@@ -110,17 +101,13 @@ export const getOrCreatePost = async (
 
   // create conversation in api
   try {
-    const apiConversationResponse = await fetchMainApi({
-      path: '/integrations-api',
-      method: 'POST',
-      body: {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customerErxesApiId,
-          integrationId: integration.erxesApiId,
-          content: post.content,
-        }),
-      },
+    const apiConversationResponse = await sendRPCMessage({
+      action: 'create-or-update-conversation',
+      payload: JSON.stringify({
+        customerId: customerErxesApiId,
+        integrationId: integration.erxesApiId,
+        content: post.content,
+      }),
     });
 
     post.erxesApiId = apiConversationResponse._id;
@@ -150,17 +137,7 @@ export const getOrCreateComment = async (commentParams: ICommentParams, pageId: 
 
   await Comments.create(doc);
 
-  try {
-    fetchMainApi({
-      path: '/integrations-api',
-      method: 'POST',
-      body: {
-        action: 'external-integration-entry-added',
-      },
-    });
-  } catch (e) {
-    throw new Error(e);
-  }
+  sendMessage({ action: 'external-integration-entry-added' });
 };
 
 export const getOrCreateCustomer = async (pageId: string, userId: string, kind: string) => {
@@ -176,7 +153,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
     return customer;
   }
   // create customer
-  const fbUser = await getFacebookUser(pageId, facebookPageTokensMap, userId);
+  const fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
   const fbUserProfilePic =
     fbUser.profile_pic || (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
 
@@ -195,19 +172,15 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
 
   // save on api
   try {
-    const apiCustomerResponse = await fetchMainApi({
-      path: '/integrations-api',
-      method: 'POST',
-      body: {
-        action: 'get-create-update-customer',
-        payload: JSON.stringify({
-          integrationId: integration.erxesApiId,
-          firstName: fbUser.first_name || fbUser.name,
-          lastName: fbUser.last_name,
-          avatar: fbUserProfilePic,
-          isUser: true,
-        }),
-      },
+    const apiCustomerResponse = await sendRPCMessage({
+      action: 'get-create-update-customer',
+      payload: JSON.stringify({
+        integrationId: integration.erxesApiId,
+        firstName: fbUser.first_name || fbUser.name,
+        lastName: fbUser.last_name,
+        avatar: fbUserProfilePic,
+        isUser: true,
+      }),
     });
 
     customer.erxesApiId = apiCustomerResponse._id;

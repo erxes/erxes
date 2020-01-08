@@ -81,7 +81,15 @@ const syncMessages = async (accountId: string, messageId: string) => {
 
   const { nylasToken, email, kind } = account;
 
-  const message = await getMessageById(nylasToken, messageId);
+  let message;
+
+  try {
+    message = await getMessageById(nylasToken, messageId);
+  } catch (e) {
+    debugNylas(`Failed to get nylas message by id: ${e.message}`);
+
+    return e;
+  }
 
   const [from] = message.from;
 

@@ -8,6 +8,7 @@ import {
   nylasGmailCustomerFactory,
 } from '../factories';
 import { buildEmail } from '../gmail/util';
+import * as messageBroker from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import * as api from '../nylas/api';
 import * as auth from '../nylas/auth';
@@ -211,7 +212,9 @@ describe('Nylas gmail test', () => {
       },
     };
 
-    const mock = sinon.stub(utils, 'fetchMainApi').callsFake(() => Promise.resolve({ _id: 'erxesApiId123' }));
+    const mock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
+      return Promise.resolve({ _id: 'erxesApiId123' });
+    });
 
     await utils.compose(storeMessage, storeConversation, storeCustomer)(doc);
 
@@ -322,12 +325,12 @@ describe('Nylas gmail test', () => {
 
     mock2.restore();
 
-    const mock3 = sinon.stub(nylasUtils, 'nylasInstance').returns(Promise.reject('error'));
+    const mock3 = sinon.stub(nylasUtils, 'nylasInstance').returns(Promise.reject({ message: 'error' }));
 
     try {
       await tracker.createWebhook();
     } catch (e) {
-      expect(e).toEqual('error');
+      expect(e.message).toEqual('error');
     }
 
     mock1.restore();

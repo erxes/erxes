@@ -76,7 +76,13 @@ export const getFacebookUser = async (pageId: string, pageTokens: { [key: string
 
   const pageToken = pageAccessToken;
 
-  return await graphRequest.get(`/${fbUserId}`, pageToken);
+  try {
+    const response = await graphRequest.get(`/${fbUserId}`, pageToken);
+    return response;
+  } catch (e) {
+    debugFacebook(`Error occurred while getting facebook user: ${e.message}`);
+    return null;
+  }
 };
 
 export const getFacebookUserProfilePic = async (
@@ -97,6 +103,7 @@ export const getFacebookUserProfilePic = async (
     const response: any = await graphRequest.get(`/${fbId}/picture?height=600`, pageAccessToken);
     return response.image ? response.location : '';
   } catch (e) {
+    debugFacebook(`Error occurred while getting facebook user profile pic: ${e.message}`);
     return null;
   }
 };

@@ -8,8 +8,8 @@ import * as send from '../gmail/send';
 import * as store from '../gmail/store';
 import { getCredentialsByEmailAccountId } from '../gmail/util';
 import * as watch from '../gmail/watch';
+import * as messageBroker from '../messageBroker';
 import { Accounts } from '../models';
-import * as utils from '../utils';
 import './setup.ts';
 
 describe('Gmail test', () => {
@@ -54,7 +54,7 @@ describe('Gmail test', () => {
   });
 
   test('Create or get customer', async () => {
-    const mock = sinon.stub(utils, 'fetchMainApi').callsFake(() => {
+    const mock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
       return Promise.resolve({ _id: 'asdlkajsdklj' });
     });
 
@@ -73,7 +73,7 @@ describe('Gmail test', () => {
   });
 
   test('Create or get conversation', async () => {
-    const mock = sinon.stub(utils, 'fetchMainApi').callsFake(() => {
+    const mock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
       return Promise.resolve({ _id: 'dkjskldj' });
     });
 
@@ -98,7 +98,7 @@ describe('Gmail test', () => {
   });
 
   test('Create or get message', async () => {
-    const mock = sinon.stub(utils, 'fetchMainApi').callsFake(() => {
+    const mock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
       return Promise.resolve({ _id: 'dkjskldj' });
     });
 

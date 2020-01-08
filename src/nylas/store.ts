@@ -1,6 +1,7 @@
 import { debugNylas } from '../debuggers';
+import { sendRPCMessage } from '../messageBroker';
 import { Accounts } from '../models';
-import { cleanHtml, fetchMainApi } from '../utils';
+import { cleanHtml } from '../utils';
 import { checkConcurrentError } from '../utils';
 import {
   NylasGmailConversationMessages,
@@ -105,12 +106,19 @@ const createOrGetNylasCustomer = async ({ kind, toEmail, integrationIds, message
     ...common,
   };
 
-  const customer = await getOrCreate({
-    kind,
-    collectionName: 'customers',
-    selector: { email },
-    fields: { doc, api },
-  });
+  let customer;
+
+  try {
+    customer = await getOrCreate({
+      kind,
+      collectionName: 'customers',
+      selector: { email },
+      fields: { doc, api },
+    });
+  } catch (e) {
+    debugNylas(`Failed to getOrCreate customer: ${e.message}`);
+    throw new Error(e);
+  }
 
   return {
     kind,
@@ -166,12 +174,19 @@ const createOrGetNylasConversation = async ({
     createdAt,
   };
 
-  const conversation = await getOrCreate({
-    kind,
-    collectionName: 'conversations',
-    fields: { doc, api },
-    selector: { threadId: message.thread_id },
-  });
+  let conversation;
+
+  try {
+    conversation = await getOrCreate({
+      kind,
+      collectionName: 'conversations',
+      fields: { doc, api },
+      selector: { threadId: message.thread_id },
+    });
+  } catch (e) {
+    debugNylas(`Failed to getOrCreate conversation: ${e.message}`);
+    throw new Error(e);
+  }
 
   return {
     kind,
@@ -236,12 +251,19 @@ const createOrGetNylasConversationMessage = async ({
     createdAt,
   };
 
-  const conversationMessage = await getOrCreate({
-    kind,
-    collectionName: 'conversationMessages',
-    selector: { messageId: message.id },
-    fields: { doc, api },
-  });
+  let conversationMessage;
+
+  try {
+    conversationMessage = await getOrCreate({
+      kind,
+      collectionName: 'conversationMessages',
+      selector: { messageId: message.id },
+      fields: { doc, api },
+    });
+  } catch (e) {
+    debugNylas(`Failed to getOrCreate conversationMessage: ${e.message}`);
+    throw new Error(e);
+  }
 
   return conversationMessage;
 };
@@ -300,14 +322,10 @@ const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCre
  * @returns {Promise} main api response
  */
 const requestMainApi = (action: string, params: IAPICustomer | IAPIConversation | IAPIConversationMessage) => {
-  return fetchMainApi({
-    path: '/integrations-api',
-    method: 'POST',
-    body: {
-      action,
-      metaInfo: action.includes('message') ? 'replaceContent' : null,
-      payload: JSON.stringify(params),
-    },
+  return sendRPCMessage({
+    action,
+    metaInfo: action.includes('message') ? 'replaceContent' : null,
+    payload: JSON.stringify(params),
   });
 };
 

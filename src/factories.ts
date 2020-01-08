@@ -1,10 +1,11 @@
-import { ConversationMessages, Conversations, Customers } from './facebook/models';
+import { Comments, ConversationMessages, Conversations, Customers, Posts } from './facebook/models';
 import { Accounts } from './models';
 import Integrations from './models/Integrations';
 import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from './nylas/models';
 
 export const accountFactory = (params: {
   kind?: string;
+  name?: string;
   email?: string;
   scope?: string;
   expireDate?: string;
@@ -20,6 +21,7 @@ export const accountFactory = (params: {
 }) => {
   const account = new Accounts({
     kind: params.kind || '',
+    name: params.name || '',
     email: params.email || '',
     token: params.token || '',
     scope: params.scope || '',
@@ -43,6 +45,7 @@ export const integrationFactory = (params: {
   erxesApiId?: string;
   email?: string;
   facebookPageIds?: string[];
+  facebookPageTokensMap?: object;
 }) => {
   const integration = new Integrations({
     kind: params.kind || 'facebook',
@@ -50,6 +53,7 @@ export const integrationFactory = (params: {
     email: params.email || 'user@mail.com',
     erxesApiId: params.erxesApiId || '_id',
     facebookPageIds: params.facebookPageIds || [],
+    facebookPageTokensMap: params.facebookPageTokensMap || {},
   });
 
   return integration.save();
@@ -74,10 +78,22 @@ export const facebookConversationFactory = (params: { senderId: string; recipien
   return conversation.save();
 };
 
-export const facebookConversationMessagFactory = (params: { conversationId?: string }) => {
-  const message = new ConversationMessages({ conversationId: params.conversationId || '' });
+export const facebookConversationMessagFactory = (params: { conversationId?: string; mid?: string }) => {
+  const message = new ConversationMessages({ conversationId: params.conversationId || '', mid: params.mid || '' });
 
   return message.save();
+};
+
+export const facebookPostFactory = (params: { postId?: string }) => {
+  const post = new Posts({ postId: params.postId || '' });
+
+  return post.save();
+};
+
+export const facebookCommentFactory = (params: { postId?: string }) => {
+  const comment = new Comments({ postId: params.postId || '' });
+
+  return comment.save();
 };
 
 // Nylas gmail customer ===================
