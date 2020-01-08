@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { IItemParams } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
@@ -16,11 +17,14 @@ import {
 
 type Props = {
   listId: string;
+  stageId: string;
+  addItem: (doc: IItemParams, callback: () => void) => void;
 };
 
 type FinalProps = {
   checklistDetailQuery: any;
   addItemMutation: AddItemMutationResponse;
+  convertToCardMutations;
   editMutation: EditMutationResponse;
   removeMutation: RemoveMutationResponse;
 } & Props;
@@ -50,6 +54,17 @@ class ListContainer extends React.Component<FinalProps> {
         content: item
       }
     });
+  };
+
+  convertToCard = (name: string, callback: () => void) => {
+    const { stageId } = this.props;
+
+    const afterConvert = () => {
+      callback();
+      Alert.success('You successfully converted a card');
+    };
+
+    this.props.addItem({ stageId, name }, afterConvert);
   };
 
   render() {
@@ -86,14 +101,15 @@ class ListContainer extends React.Component<FinalProps> {
 
     const item = checklistDetailQuery.checklistDetail;
 
-    const extendedProps = {
+    const props = {
       item,
       addItem: this.addItem,
       renderButton,
-      remove: this.remove
+      remove: this.remove,
+      convertToCard: this.convertToCard
     };
 
-    return <List {...extendedProps} />;
+    return <List {...props} />;
   }
 }
 

@@ -21,6 +21,7 @@ import { IChecklist } from '../types';
 type Props = {
   item: IChecklist;
   addItem: (content: string) => void;
+  convertToCard: (name: string, callback: () => void) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (checklistId: string) => void;
 };
@@ -236,10 +237,22 @@ class List extends React.Component<Props, State> {
     if (this.state.isHidden) {
       return item.items
         .filter(data => !data.isChecked)
-        .map(data => <Item key={data._id} item={data} />);
+        .map(data => (
+          <Item
+            key={data._id}
+            item={data}
+            convertToCard={this.props.convertToCard}
+          />
+        ));
     }
 
-    return item.items.map(data => <Item key={data._id} item={data} />);
+    return item.items.map(data => (
+      <Item
+        key={data._id}
+        item={data}
+        convertToCard={this.props.convertToCard}
+      />
+    ));
   }
 
   renderAddInput() {

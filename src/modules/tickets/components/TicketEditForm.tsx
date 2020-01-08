@@ -104,7 +104,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, onUpdate } = this.props;
+    const { item, options, onUpdate, addItem } = this.props;
 
     const renderSidebar = () => this.renderSidebarFields(saveItem);
 
@@ -126,6 +126,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             removeItem={remove}
             onUpdate={onUpdate}
             item={item}
+            addItem={addItem}
           />
 
           <Sidebar

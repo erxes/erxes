@@ -15,7 +15,7 @@ import { IDeal, IDealParams } from '../types';
 type Props = {
   options: IOptions;
   item: IDeal;
-  addItem: (doc: IDealParams, callback: () => void, msg?: string) => void;
+  addItem: (doc: IDealParams, callback: () => void) => void;
   saveItem: (doc: IDealParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
@@ -136,7 +136,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     copy,
     remove
   }: IEditFormContent) => {
-    const { item, options, onUpdate } = this.props;
+    const { item, options, onUpdate, addItem } = this.props;
 
     return (
       <>
@@ -157,6 +157,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             removeItem={remove}
             onUpdate={onUpdate}
             item={item}
+            addItem={addItem}
           />
 
           <Sidebar
