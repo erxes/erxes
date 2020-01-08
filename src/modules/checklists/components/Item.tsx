@@ -1,9 +1,11 @@
 import debounce from 'lodash/debounce';
 import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import { isEmptyContent } from 'modules/common/utils';
 import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import xss from 'xss';
 import {
   ChecklistItem,
@@ -19,7 +21,7 @@ type Props = {
     doc: { content: string; isChecked: boolean },
     callback?: () => void
   ) => void;
-  convertToCard: (name: string) => void;
+  convertToCard: (name: string, callback: () => void) => void;
   removeItem: (checklistItemId: string) => void;
 };
 
@@ -107,9 +109,7 @@ class ListRow extends React.Component<Props, State> {
   };
 
   onConvert = () => {
-    this.props.convertToCard(this.state.content);
-
-    this.onRemove();
+    this.props.convertToCard(this.state.content, this.onRemove);
   };
 
   renderContent() {
@@ -160,8 +160,24 @@ class ListRow extends React.Component<Props, State> {
           onClick={this.onClick}
           dangerouslySetInnerHTML={{ __html: xss(this.state.content) }}
         />
-        <Icon icon="times" onClick={this.onRemove} />
-        <Icon icon="ban" onClick={this.onConvert} />
+
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-brand">
+            <Icon icon="ellipsis-h" />
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <li>
+              <a onClick={this.onConvert} href="#">
+                Convert to Card
+              </a>
+            </li>
+            <li>
+              <a onClick={this.onRemove} href="#">
+                Delete
+              </a>
+            </li>
+          </Dropdown.Menu>
+        </Dropdown>
       </ChecklistText>
     );
   }

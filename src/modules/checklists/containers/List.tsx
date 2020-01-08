@@ -1,12 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
-import { queries as stageQuery } from 'modules/boards/graphql';
-import { IItem } from 'modules/boards/types';
+import { IItemParams } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import { mutations as dealMutations } from 'modules/deals/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
@@ -21,7 +18,7 @@ import {
 type Props = {
   listId: string;
   stageId: string;
-  callback: (stageId: string, item: IItem) => void;
+  addItem: (doc: IItemParams, callback: () => void) => void;
 };
 
 type FinalProps = {
@@ -59,27 +56,15 @@ class ListContainer extends React.Component<FinalProps> {
     });
   };
 
-  convertToCard = (name: string) => {
-    const { convertToCardMutations, stageId } = this.props;
+  convertToCard = (name: string, callback: () => void) => {
+    const { stageId } = this.props;
 
-    convertToCardMutations({
-      variables: {
-        stageId,
-        name
-      }
-    })
-      .then(data => {
-        Alert.success('You successfully converted to card');
+    const afterConvert = () => {
+      callback();
+      Alert.success('You successfully converted a card');
+    };
 
-        console.log(data);
-
-        if (this.props.callback) {
-          this.props.callback(stageId, data.dealsAdd);
-        }
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+    this.props.addItem({ stageId, name }, afterConvert);
   };
 
   render() {
@@ -141,7 +126,7 @@ const options = (props: Props) => {
   };
 };
 
-const WithProps = withProps<Props>(
+export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.checklistDetail), {
       name: 'checklistDetailQuery',
@@ -166,27 +151,6 @@ const WithProps = withProps<Props>(
           refetchQueries: ['checklists']
         })
       }
-    ),
-    graphql<Props>(gql(dealMutations.dealsAdd), {
-      name: 'convertToCardMutations',
-      options: ({ stageId }) => ({
-        refetchQueries: [
-          {
-            query: gql(stageQuery.stageDetail),
-            variables: { _id: stageId }
-          }
-        ]
-      })
-    })
+    )
   )(ListContainer)
 );
-
-export default props => {
-  return (
-    <PipelineConsumer>
-      {({ onAddItem }) => {
-        return <WithProps {...props} callback={onAddItem} />;
-      }}
-    </PipelineConsumer>
-  );
-};

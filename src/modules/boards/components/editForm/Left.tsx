@@ -2,7 +2,7 @@ import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import React from 'react';
 
-import { IItem, IOptions } from 'modules/boards/types';
+import { IItem, IItemParams, IOptions } from 'modules/boards/types';
 import Checklists from 'modules/checklists/containers/Checklists';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -22,6 +22,7 @@ type Props = {
   removeItem: (itemId: string) => void;
   saveItem: (doc: { [key: string]: any }) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
+  addItem: (doc: IItemParams, callback: () => void) => void;
 };
 
 class Left extends React.Component<Props> {
@@ -32,10 +33,9 @@ class Left extends React.Component<Props> {
       options,
       copyItem,
       removeItem,
-      onUpdate
+      onUpdate,
+      addItem
     } = this.props;
-
-    console.log('aaaaa', item);
 
     const descriptionOnBlur = e => {
       const description = e.target.value;
@@ -108,6 +108,7 @@ class Left extends React.Component<Props> {
           contentType={options.type}
           contentTypeId={item._id}
           stageId={item.stageId}
+          addItem={addItem}
         />
 
         <ActivityInputs

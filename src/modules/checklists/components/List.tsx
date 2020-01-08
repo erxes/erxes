@@ -21,7 +21,7 @@ import { IChecklist } from '../types';
 type Props = {
   item: IChecklist;
   addItem: (content: string) => void;
-  convertToCard: (name: string) => void;
+  convertToCard: (name: string, callback: () => void) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (checklistId: string) => void;
 };
@@ -295,10 +295,6 @@ class List extends React.Component<Props, State> {
       </Button>
     );
   }
-
-  convert = () => {
-    this.props.convertToCard('1aaaaasss33aaaa');
-  };
 
   render() {
     return (

@@ -14,7 +14,7 @@ import {
 
 type Props = {
   item: IChecklistItem;
-  convertToCard: (name: string) => void;
+  convertToCard: (name: string, callback: () => void) => void;
 };
 
 type FinalProps = {
