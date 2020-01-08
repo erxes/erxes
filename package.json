@@ -81,10 +81,11 @@
     "request": "^2.88.0",
     "requestify": "^0.2.5",
     "sha256": "^0.2.0",
-    "snyk": "^1.239.5",
+    "snyk": "^1.277.1",
     "strip": "^3.0.0",
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
+    "uuid": "^3.3.3",
     "validator": "^9.0.0",
     "xlsx-populate": "^1.20.1",
     "xss": "^1.0.6"

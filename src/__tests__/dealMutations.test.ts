@@ -1,9 +1,17 @@
 import { graphqlRequest } from '../db/connection';
-import { boardFactory, dealFactory, pipelineFactory, stageFactory, userFactory } from '../db/factories';
-import { Boards, Deals, Pipelines, Stages } from '../db/models';
+import {
+  boardFactory,
+  dealFactory,
+  pipelineFactory,
+  pipelineLabelFactory,
+  stageFactory,
+  userFactory,
+} from '../db/factories';
+import { Boards, Deals, PipelineLabels, Pipelines, Stages } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { BOARD_TYPES } from '../db/models/definitions/constants';
 import { IDealDocument } from '../db/models/definitions/deals';
+import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 
 import './setup.ts';
 
@@ -12,6 +20,7 @@ describe('Test deals mutations', () => {
   let pipeline: IPipelineDocument;
   let stage: IStageDocument;
   let deal: IDealDocument;
+  let label: IPipelineLabelDocument;
 
   const commonDealParamDefs = `
     $name: String!,
@@ -32,7 +41,8 @@ describe('Test deals mutations', () => {
     board = await boardFactory({ type: BOARD_TYPES.DEAL });
     pipeline = await pipelineFactory({ boardId: board._id, watchedUserIds: [user._id] });
     stage = await stageFactory({ pipelineId: pipeline._id });
-    deal = await dealFactory({ stageId: stage._id });
+    label = await pipelineLabelFactory({ pipelineId: pipeline._id });
+    deal = await dealFactory({ stageId: stage._id, labelIds: [label._id] });
   });
 
   afterEach(async () => {
@@ -41,6 +51,7 @@ describe('Test deals mutations', () => {
     await Pipelines.deleteMany({});
     await Stages.deleteMany({});
     await Deals.deleteMany({});
+    await PipelineLabels.deleteMany({});
   });
 
   test('Create deal', async () => {

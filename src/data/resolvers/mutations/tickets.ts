@@ -5,7 +5,13 @@ import { ITicket } from '../../../db/models/definitions/tickets';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { checkUserIds, putCreateLog } from '../../utils';
-import { createConformity, IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
+import {
+  copyPipelineLabels,
+  createConformity,
+  IBoardNotificationParams,
+  itemsChange,
+  sendNotifications,
+} from '../boardUtils';
 
 interface ITicketsEdit extends ITicket {
   _id: string;
@@ -15,11 +21,11 @@ const ticketMutations = {
   /**
    * Create new ticket
    */
-  async ticketsAdd(_root, doc: ITicket, { user }: IContext) {
+  async ticketsAdd(_root, doc: ITicket, { user, docModifier }: IContext) {
     doc.watchedUserIds = [user._id];
 
     const ticket = await Tickets.createTicket({
-      ...doc,
+      ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
     });
@@ -65,6 +71,8 @@ const ticketMutations = {
       modifiedBy: user._id,
     });
 
+    await copyPipelineLabels({ item: oldTicket, doc, user });
+
     const notificationDoc: IBoardNotificationParams = {
       item: updatedTicket,
       user,
@@ -73,7 +81,7 @@ const ticketMutations = {
     };
 
     if (doc.assignedUserIds) {
-      const { addedUserIds, removedUserIds } = checkUserIds(oldTicket.assignedUserIds || [], doc.assignedUserIds);
+      const { addedUserIds, removedUserIds } = checkUserIds(oldTicket.assignedUserIds, doc.assignedUserIds);
 
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;

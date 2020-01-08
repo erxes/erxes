@@ -1,112 +1,58 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
-import { conversationNotifReceivers } from './data/resolvers/mutations/conversations';
-import { registerOnboardHistory, sendMobileNotification } from './data/utils';
-import { ActivityLogs, Conversations, Customers, Integrations, RobotEntries, Users } from './db/models';
+import * as uuid from 'uuid';
+import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
+import { Customers, RobotEntries } from './db/models';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
-import { get, set } from './redisClient';
 
 dotenv.config();
 
-const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
-
-interface IWidgetMessage {
-  action: string;
-  data: {
-    trigger: string;
-    type: string;
-    payload: any;
-  };
-}
+const { RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 
 let connection;
 let channel;
 
-const receiveWidgetNotification = async ({ action, data }: IWidgetMessage) => {
-  if (NODE_ENV === 'test') {
-    return;
-  }
+export const sendRPCMessage = async (message): Promise<any> => {
+  const response = await new Promise((resolve, reject) => {
+    const correlationId = uuid();
 
-  if (action === 'callPublish') {
-    if (data.trigger === 'conversationMessageInserted') {
-      const { customerId, conversationId, content } = data.payload;
-      const conversation = await Conversations.findOne(
-        { _id: conversationId },
-        {
-          integrationId: 1,
-          participatedUserIds: 1,
-          assignedUserId: 1,
-        },
-      );
-      const customerLastStatus = await get(`customer_last_status_${customerId}`);
-
-      // if customer's last status is left then mark as joined when customer ask
-      if (conversation) {
-        if (customerLastStatus === 'left') {
-          set(`customer_last_status_${customerId}`, 'joined');
-
-          // customer has joined + time
-          const conversationMessages = await Conversations.changeCustomerStatus(
-            'joined',
-            customerId,
-            conversation.integrationId,
-          );
-
-          for (const message of conversationMessages) {
-            graphqlPubsub.publish('conversationMessageInserted', {
-              conversationMessageInserted: message,
-            });
+    return channel.assertQueue('', { exclusive: true }).then(q => {
+      channel.consume(
+        q.queue,
+        msg => {
+          if (!msg) {
+            return reject(new Error('consumer cancelled by rabbitmq'));
           }
 
-          // notify as connected
-          graphqlPubsub.publish('customerConnectionChanged', {
-            customerConnectionChanged: {
-              _id: customerId,
-              status: 'connected',
-            },
-          });
-        }
+          if (msg.properties.correlationId === correlationId) {
+            const res = JSON.parse(msg.content.toString());
 
-        sendMobileNotification({
-          title: 'You have a new message',
-          body: content,
-          customerId,
-          conversationId,
-          receivers: conversationNotifReceivers(conversation, customerId),
-        });
-      }
-    }
+            if (res.status === 'success') {
+              resolve(res.data);
+            } else {
+              reject(res.errorMessage);
+            }
 
-    graphqlPubsub.publish(data.trigger, { [data.trigger]: data.payload });
-  }
+            channel.deleteQueue(q.queue);
+          }
+        },
+        { noAck: true },
+      );
 
-  if (action === 'activityLog') {
-    ActivityLogs.createLogFromWidget(data.type, data.payload);
-  }
+      channel.sendToQueue('rpc_queue:erxes-api', Buffer.from(JSON.stringify(message)), {
+        correlationId,
+        replyTo: q.queue,
+      });
+    });
+  });
 
-  if (action === 'leadInstalled') {
-    const integration = await Integrations.findOne({ _id: data.payload.integrationId });
-
-    if (!integration) {
-      return;
-    }
-
-    const user = await Users.findOne({ _id: integration.createdUserId });
-
-    if (!user) {
-      return;
-    }
-
-    registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
-  }
+  return response;
 };
 
 export const sendMessage = async (queueName: string, data?: any) => {
-  if (channel) {
-    await channel.assertQueue(queueName);
-    await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
-  }
+  await channel.assertQueue(queueName);
+  await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
 };
 
 const initConsumer = async () => {
@@ -114,6 +60,23 @@ const initConsumer = async () => {
   try {
     connection = await amqplib.connect(RABBITMQ_HOST);
     channel = await connection.createChannel();
+
+    // listen for rpc queue =========
+    await channel.assertQueue('rpc_queue:erxes-integrations');
+
+    channel.consume('rpc_queue:erxes-integrations', async msg => {
+      if (msg !== null) {
+        debugBase(`Received rpc queue message ${msg.content.toString()}`);
+
+        const response = await receiveRpcMessage(JSON.parse(msg.content.toString()));
+
+        channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
+          correlationId: msg.properties.correlationId,
+        });
+
+        channel.ack(msg);
+      }
+    });
 
     // graphql subscriptions call =========
     await channel.assertQueue('callPublish');
@@ -128,12 +91,12 @@ const initConsumer = async () => {
       }
     });
 
-    // listen for widgets api =========
-    await channel.assertQueue('widgetNotification');
+    // listen for integrations api =========
+    await channel.assertQueue('integrationsNotification');
 
-    channel.consume('widgetNotification', async msg => {
+    channel.consume('integrationsNotification', async msg => {
       if (msg !== null) {
-        await receiveWidgetNotification(JSON.parse(msg.content.toString()));
+        await receiveIntegrationsNotification(JSON.parse(msg.content.toString()));
         channel.ack(msg);
       }
     });

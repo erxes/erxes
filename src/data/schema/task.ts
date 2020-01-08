@@ -39,7 +39,8 @@ const commonParams = `
   order: Int,
   priority: String,
   reminderMinute: Int,
-  isComplete: Boolean
+  isComplete: Boolean,
+  sourceConversationId: String,
 `;
 
 export const mutations = `

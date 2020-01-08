@@ -187,6 +187,9 @@ describe('dealQueries', () => {
       {
         productId: productNoCustomData._id,
       },
+      {
+        productId: undefined,
+      },
     ];
 
     await dealFactory({ productsData });
@@ -284,7 +287,7 @@ describe('dealQueries', () => {
     await dealFactory({ closeDate: date, stageId: stage._id });
 
     const args = {
-      date: { year: date.getFullYear(), month: date.getMonth() },
+      date: { year: date.getUTCFullYear(), month: date.getUTCMonth() },
       pipelineId: pipeline._id,
     };
 

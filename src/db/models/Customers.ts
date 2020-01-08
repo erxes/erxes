@@ -5,10 +5,56 @@ import { STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
+interface IGetCustomerParams {
+  email?: string;
+  phone?: string;
+  code?: string;
+  cachedCustomerId?: string;
+}
+
 interface ICustomerFieldsInput {
   primaryEmail?: string;
   primaryPhone?: string;
   code?: string;
+}
+
+interface ICreateMessengerCustomerParams {
+  integrationId?: string;
+  email?: string;
+  hasValidEmail?: boolean;
+  phone?: string;
+  code?: string;
+  isUser?: boolean;
+  firstName?: string;
+  lastName?: string;
+  description?: string;
+  messengerData?: any;
+  deviceToken?: string;
+}
+
+export interface IUpdateMessengerCustomerParams {
+  _id: string;
+  doc: {
+    email?: string;
+    phone?: string;
+    code?: string;
+    isUser?: boolean;
+    deviceToken?: string;
+  };
+  customData?: any;
+}
+
+export interface IVisitorContactInfoParams {
+  customerId: string;
+  type: string;
+  value: string;
+}
+
+export interface IBrowserInfo {
+  language?: string;
+  url?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
@@ -23,6 +69,14 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   mergeCustomers(customerIds: string[], customerFields: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
   updateProfileScore(customerId: string, save: boolean): never;
+
+  // widgets ===
+  getWidgetCustomer(doc: IGetCustomerParams): Promise<ICustomerDocument | null>;
+  createMessengerCustomer(doc: ICreateMessengerCustomerParams, customData: any): Promise<ICustomerDocument>;
+  updateMessengerCustomer(param: IUpdateMessengerCustomerParams): Promise<ICustomerDocument>;
+  updateMessengerSession(_id: string, url: string): Promise<ICustomerDocument>;
+  updateLocation(_id: string, browserInfo: IBrowserInfo): Promise<ICustomerDocument>;
+  saveVisitorContactInfo(doc: IVisitorContactInfoParams): Promise<ICustomerDocument>;
 }
 
 export const loadClass = () => {
@@ -130,12 +184,20 @@ export const loadClass = () => {
     /**
      * Create a customer
      */
-    public static async createCustomer(doc: ICustomer, user?: IUserDocument) {
+    public static async createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc);
 
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
+      }
+
+      if (doc.primaryEmail && !doc.emails) {
+        doc.emails = [doc.primaryEmail];
+      }
+
+      if (doc.primaryPhone && !doc.phones) {
+        doc.phones = [doc.primaryPhone];
       }
 
       // clean custom field values
@@ -157,7 +219,7 @@ export const loadClass = () => {
 
       await ActivityLogs.createCocLog({ coc: customer, contentType: 'customer' });
 
-      return customer;
+      return Customers.getCustomer(customer._id);
     }
 
     /*
@@ -363,6 +425,253 @@ export const loadClass = () => {
       await InternalNotes.changeCustomer(customer._id, customerIds);
 
       return customer;
+    }
+
+    /*
+     * Fix firstName, lastName, description abbriviations
+     */
+    public static fixCustomData(customData: any): { extractedInfo: any; updatedCustomData: any } {
+      const extractedInfo: any = {};
+      const updatedCustomData = { ...customData };
+
+      // Setting customData fields to customer fields
+      Object.keys(updatedCustomData).forEach(key => {
+        if (key === 'first_name' || key === 'firstName') {
+          extractedInfo.firstName = updatedCustomData[key];
+
+          delete updatedCustomData[key];
+        }
+
+        if (key === 'last_name' || key === 'lastName') {
+          extractedInfo.lastName = updatedCustomData[key];
+
+          delete updatedCustomData[key];
+        }
+
+        if (key === 'bio' || key === 'description') {
+          extractedInfo.description = updatedCustomData[key];
+
+          delete updatedCustomData[key];
+        }
+      });
+
+      return { extractedInfo, updatedCustomData };
+    }
+
+    /*
+     * Get widget customer
+     */
+    public static async getWidgetCustomer(params: IGetCustomerParams) {
+      const { email, phone, code, cachedCustomerId } = params;
+
+      let customer: ICustomerDocument | null = null;
+
+      if (email) {
+        customer = await Customers.findOne({
+          $or: [{ emails: { $in: [email] } }, { primaryEmail: email }],
+        });
+      }
+
+      if (!customer && phone) {
+        customer = await Customers.findOne({
+          $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }],
+        });
+      }
+
+      if (!customer && code) {
+        customer = await Customers.findOne({ code });
+      }
+
+      if (!customer && cachedCustomerId) {
+        customer = await Customers.findOne({ _id: cachedCustomerId });
+      }
+
+      return customer;
+    }
+
+    public static fixMessengerListFields(doc: any, customer?: ICustomerDocument) {
+      let emails: string[] = [];
+      let phones: string[] = [];
+      let deviceTokens: string[] = [];
+
+      if (customer) {
+        emails = customer.emails || [];
+        phones = customer.phones || [];
+        deviceTokens = customer.deviceTokens || [];
+      }
+
+      if (doc.email) {
+        if (!emails.includes(doc.email)) {
+          emails.push(doc.email);
+        }
+
+        doc.primaryEmail = doc.email;
+
+        delete doc.email;
+      }
+
+      if (doc.phone) {
+        if (!phones.includes(doc.phone)) {
+          phones.push(doc.phone);
+        }
+
+        doc.primaryPhone = doc.phone;
+
+        delete doc.phone;
+      }
+
+      if (doc.deviceToken) {
+        if (!deviceTokens.includes(doc.deviceToken)) {
+          deviceTokens.push(doc.deviceToken);
+        }
+
+        delete doc.deviceToken;
+      }
+
+      doc.emails = emails;
+      doc.phones = phones;
+      doc.deviceTokens = deviceTokens;
+
+      return doc;
+    }
+
+    /*
+     * Create a new messenger customer
+     */
+    public static async createMessengerCustomer(doc: ICreateMessengerCustomerParams, customData: any) {
+      const { extractedInfo, updatedCustomData } = this.fixCustomData(customData || {});
+
+      return this.createCustomer({
+        ...extractedInfo,
+        ...this.fixMessengerListFields(doc),
+        messengerData: {
+          lastSeenAt: new Date(),
+          isActive: true,
+          sessionCount: 1,
+          customData: updatedCustomData,
+        },
+      });
+    }
+
+    /*
+     * Update messenger customer
+     */
+    public static async updateMessengerCustomer(param: IUpdateMessengerCustomerParams) {
+      const { _id, doc, customData } = param;
+
+      const customer = await Customers.findOne({ _id });
+
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+
+      const { extractedInfo, updatedCustomData } = this.fixCustomData(customData || {});
+
+      if (customer.isUser) {
+        doc.isUser = true;
+      }
+
+      let fixedCustomData = updatedCustomData;
+
+      // Do not replace previous non empty value with empty value
+      if (customer.messengerData && customer.messengerData.customData && Object.keys(updatedCustomData).length === 0) {
+        fixedCustomData = customer.messengerData.customData;
+      }
+
+      const modifier = {
+        ...extractedInfo,
+        ...this.fixMessengerListFields(doc, customer),
+        modifiedAt: new Date(),
+        'messengerData.customData': fixedCustomData,
+      };
+
+      await Customers.updateOne({ _id }, { $set: modifier });
+
+      await Customers.updateProfileScore(customer._id, true);
+
+      return Customers.findOne({ _id });
+    }
+
+    /*
+     * Update messenger session data
+     */
+    public static async updateMessengerSession(_id: string, url: string) {
+      const now = new Date();
+      const customer = await Customers.findOne({ _id });
+
+      if (!customer) {
+        return null;
+      }
+
+      const query: any = {
+        $set: {
+          // update messengerData
+          'messengerData.lastSeenAt': now,
+          'messengerData.isActive': true,
+        },
+      };
+
+      const messengerData = customer.messengerData;
+
+      // Preventing session count to increase on page every refresh
+      // Close your web site tab and reopen it after 6 seconds then it will increase
+      // session count by 1
+      if (messengerData && messengerData.lastSeenAt && now.getTime() - messengerData.lastSeenAt > 6 * 1000) {
+        // update session count
+        query.$inc = { 'messengerData.sessionCount': 1 };
+
+        // save access history by location.pathname
+        const urlVisits = customer.urlVisits || {};
+
+        urlVisits[url] = (urlVisits[url] || 0) + 1;
+
+        query.urlVisits = urlVisits;
+      }
+
+      // update
+      await Customers.findByIdAndUpdate(_id, query);
+
+      // updated customer
+      return Customers.findOne({ _id });
+    }
+
+    /*
+     * Update customer's location info
+     */
+    public static async updateLocation(_id: string, browserInfo: IBrowserInfo) {
+      await Customers.findByIdAndUpdate(
+        { _id },
+        {
+          $set: { location: browserInfo },
+        },
+      );
+
+      return Customers.findOne({ _id });
+    }
+
+    /*
+     * If customer is a visitor then we will contact with this customer using
+     * this information later
+     */
+    public static async saveVisitorContactInfo(args: IVisitorContactInfoParams) {
+      const { customerId, type, value } = args;
+
+      if (type === 'email') {
+        await Customers.updateOne(
+          { _id: customerId },
+          {
+            $set: { 'visitorContactInfo.email': value },
+          },
+        );
+      }
+
+      if (type === 'phone') {
+        await Customers.updateOne({ _id: customerId }, { $set: { 'visitorContactInfo.phone': value } });
+      }
+
+      await Customers.updateProfileScore(customerId, true);
+
+      return Customers.findOne({ _id: customerId });
     }
   }
 

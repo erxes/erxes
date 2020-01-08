@@ -1,6 +1,7 @@
 import * as faker from 'faker';
 import * as moment from 'moment';
-import { INTEGRATION_KIND_CHOICES, MESSAGE_KINDS } from '../data/constants';
+import * as sinon from 'sinon';
+import { MESSAGE_KINDS } from '../data/constants';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -26,9 +27,11 @@ import {
   Tags,
   Users,
 } from '../db/models';
+import * as messageBroker from '../messageBroker';
 
+import { EngagesAPI } from '../data/dataSources';
 import utils, { handleUnsubscription } from '../data/utils';
-import { STATUSES } from '../db/models/definitions/constants';
+import { KIND_CHOICES, STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('engage message mutation tests', () => {
@@ -201,7 +204,7 @@ describe('engage message mutation tests', () => {
 
     const integration = await integrationFactory({
       brandId: brand._id,
-      kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER,
     });
 
     const emessageWithBrand = await engageMessageFactory({
@@ -280,7 +283,7 @@ describe('engage message mutation tests', () => {
 
     await integrationFactory({
       brandId: brand._id,
-      kind: INTEGRATION_KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER,
     });
 
     const emessage = await engageMessageFactory({
@@ -298,6 +301,10 @@ describe('engage message mutation tests', () => {
   });
 
   test('Engage utils send via email', async () => {
+    const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     process.env.AWS_SES_ACCESS_KEY_ID = '123';
     process.env.AWS_SES_SECRET_ACCESS_KEY = '123';
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
@@ -365,6 +372,8 @@ describe('engage message mutation tests', () => {
     });
 
     await engageUtils.send(emessageNotLive);
+
+    mock.restore();
   });
 
   const engageMessageAddMutation = `
@@ -405,6 +414,10 @@ describe('engage message mutation tests', () => {
   `;
 
   test('Add engage message', async () => {
+    const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     process.env.AWS_SES_ACCESS_KEY_ID = '123';
     process.env.AWS_SES_SECRET_ACCESS_KEY = '123';
     process.env.AWS_SES_CONFIG_SET = 'aws-ses';
@@ -440,6 +453,8 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.scheduleDate.month).toEqual('2');
     expect(engageMessage.scheduleDate.day).toEqual('14');
     expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
+
+    mock.restore();
   });
 
   test('Edit engage message', async () => {
@@ -666,5 +681,71 @@ describe('engage message mutation tests', () => {
     const updatedUser = await Users.getUser(user._id);
 
     expect(updatedUser.doNotDisturb).toBe('Yes');
+  });
+
+  test('configSave', async () => {
+    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation engagesConfigSave($accessKeyId: String, $secretAccessKey: String, $region: String) {
+        engagesConfigSave(accessKeyId: $accessKeyId, secretAccessKey: $secretAccessKey, region: $region) {
+          accessKeyId
+          secretAccessKey
+          region
+        }
+      }
+    `;
+
+    const dataSources = { EngagesAPI: new EngagesAPI() };
+
+    try {
+      await graphqlRequest(mutation, 'engagesConfigSave', {}, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Engages api is not running');
+    }
+  });
+
+  test('dataSources', async () => {
+    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
+
+    const dataSources = { EngagesAPI: new EngagesAPI() };
+
+    const check = async (mutation, name, args) => {
+      try {
+        await graphqlRequest(mutation, name, args, { dataSources });
+      } catch (e) {
+        expect(e[0].message).toBe('Engages api is not running');
+      }
+    };
+
+    await check(
+      `
+      mutation engageMessageVerifyEmail($email: String!) {
+        engageMessageVerifyEmail(email: $email)
+      }
+    `,
+      'engageMessageVerifyEmail',
+      { email: 'email@yahoo.com' },
+    );
+
+    await check(
+      `
+      mutation engageMessageRemoveVerifiedEmail($email: String!) {
+        engageMessageRemoveVerifiedEmail(email: $email)
+      }
+    `,
+      'engageMessageRemoveVerifiedEmail',
+      { email: 'email@yahoo.com' },
+    );
+
+    await check(
+      `
+      mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
+        engageMessageSendTestEmail(from: $from, to: $to, content: $content)
+      }
+    `,
+      'engageMessageSendTestEmail',
+      { from: 'from@yahoo.com', to: 'to@yahoo.com', content: 'content' },
+    );
   });
 });

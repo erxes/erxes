@@ -7,6 +7,7 @@ import { field, schemaWrapper } from './utils';
 export interface ILocation {
   remoteAddress: string;
   country: string;
+  countryCode: string;
   city: string;
   region: string;
   hostname: string;
@@ -98,6 +99,7 @@ const locationSchema = new Schema(
   {
     remoteAddress: field({ type: String, label: 'Remote address' }),
     country: field({ type: String, label: 'Country' }),
+    countryCode: field({ type: String, label: 'Country code' }),
     city: field({ type: String, label: 'City' }),
     region: field({ type: String, label: 'Region' }),
     hostname: field({ type: String, label: 'Host name' }),

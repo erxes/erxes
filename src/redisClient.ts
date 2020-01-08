@@ -49,7 +49,7 @@ export const initRedis = (callback?: (client) => void) => {
 export const get = (key: string, defaultValue?: any): Promise<any> => {
   return new Promise((resolve, reject) => {
     if (NODE_ENV === 'test') {
-      return resolve('');
+      return resolve(defaultValue || '');
     }
 
     client.get(key, (error, reply) => {

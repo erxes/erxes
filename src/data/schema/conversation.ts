@@ -142,6 +142,11 @@ export const types = `
     text: String
   }
 
+  type ConversationAdminMessageInsertedResponse {
+    customerId: String!
+    unreadCount: Int
+  }
+
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],

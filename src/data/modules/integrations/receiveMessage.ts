@@ -1,19 +1,29 @@
-import { ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
-import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
-import { graphqlPubsub } from '../pubsub';
+import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../../../db/models';
+import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
+import { graphqlPubsub } from '../../../pubsub';
+
+const sendError = message => ({
+  status: 'error',
+  errorMessage: message,
+});
+
+const sendSuccess = data => ({
+  status: 'success',
+  data,
+});
 
 /*
  * Handle requests from integrations api
  */
-const integrationsApiMiddleware = async (req, res) => {
-  const { action, metaInfo, payload } = req.body;
+export const receiveRpcMessage = async msg => {
+  const { action, metaInfo, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
     const integration = await Integrations.findOne({ _id: doc.integrationId });
 
     if (!integration) {
-      throw new Error(`Integration not found: ${doc.integrationId}`);
+      return sendError(`Integration not found: ${doc.integrationId}`);
     }
 
     const { primaryEmail, primaryPhone } = doc;
@@ -27,7 +37,7 @@ const integrationsApiMiddleware = async (req, res) => {
 
       if (customer) {
         await Customers.updateCustomer(customer._id, doc);
-        return res.json({ _id: customer._id });
+        return sendSuccess({ _id: customer._id });
       }
     }
 
@@ -36,7 +46,7 @@ const integrationsApiMiddleware = async (req, res) => {
     }
 
     if (customer) {
-      return res.json({ _id: customer._id });
+      return sendSuccess({ _id: customer._id });
     } else {
       customer = await Customers.createCustomer({
         ...doc,
@@ -44,21 +54,31 @@ const integrationsApiMiddleware = async (req, res) => {
       });
     }
 
-    return res.json({ _id: customer._id });
+    return sendSuccess({ _id: customer._id });
   }
 
   if (action === 'create-or-update-conversation') {
-    if (doc.conversationId) {
-      const { conversationId, content } = doc;
+    const { conversationId, content, owner } = doc;
 
-      await Conversations.updateConversation(conversationId, { content });
+    let user;
 
-      return res.json({ _id: conversationId });
+    if (owner) {
+      user = await Users.findOne({ 'details.operatorPhone': owner });
     }
+
+    const assignedUserId = user ? user._id : null;
+
+    if (conversationId) {
+      await Conversations.updateConversation(conversationId, { content, assignedUserId });
+
+      return sendSuccess({ _id: conversationId });
+    }
+
+    doc.assignedUserId = assignedUserId;
 
     const conversation = await Conversations.createConversation(doc);
 
-    return res.json({ _id: conversation._id });
+    return sendSuccess({ _id: conversation._id });
   }
 
   if (action === 'create-conversation-message') {
@@ -90,14 +110,19 @@ const integrationsApiMiddleware = async (req, res) => {
       conversationMessageInserted: message,
     });
 
-    return res.json({ _id: message._id });
+    return sendSuccess({ _id: message._id });
   }
+};
+
+/*
+ * Integrations api notification
+ */
+export const receiveIntegrationsNotification = async msg => {
+  const { action } = msg;
 
   if (action === 'external-integration-entry-added') {
     graphqlPubsub.publish('conversationExternalIntegrationMessageInserted');
 
-    return res.json({ status: 'ok' });
+    return sendSuccess({ status: 'ok' });
   }
 };
-
-export default integrationsApiMiddleware;

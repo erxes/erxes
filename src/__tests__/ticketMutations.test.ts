@@ -1,8 +1,16 @@
 import { graphqlRequest } from '../db/connection';
-import { boardFactory, pipelineFactory, stageFactory, ticketFactory, userFactory } from '../db/factories';
-import { Boards, Pipelines, Stages, Tickets } from '../db/models';
+import {
+  boardFactory,
+  pipelineFactory,
+  pipelineLabelFactory,
+  stageFactory,
+  ticketFactory,
+  userFactory,
+} from '../db/factories';
+import { Boards, PipelineLabels, Pipelines, Stages, Tickets } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { ITicketDocument } from '../db/models/definitions/tickets';
 
 import './setup.ts';
@@ -12,6 +20,7 @@ describe('Test tickets mutations', () => {
   let pipeline: IPipelineDocument;
   let stage: IStageDocument;
   let ticket: ITicketDocument;
+  let label: IPipelineLabelDocument;
   let context;
 
   const commonTicketParamDefs = `
@@ -31,7 +40,8 @@ describe('Test tickets mutations', () => {
     board = await boardFactory({ type: BOARD_TYPES.TICKET });
     pipeline = await pipelineFactory({ boardId: board._id });
     stage = await stageFactory({ pipelineId: pipeline._id });
-    ticket = await ticketFactory({ stageId: stage._id });
+    label = await pipelineLabelFactory({ pipelineId: pipeline._id });
+    ticket = await ticketFactory({ stageId: stage._id, labelIds: [label._id] });
     context = { user: await userFactory({}) };
   });
 
@@ -41,6 +51,7 @@ describe('Test tickets mutations', () => {
     await Pipelines.deleteMany({});
     await Stages.deleteMany({});
     await Tickets.deleteMany({});
+    await PipelineLabels.deleteMany({});
   });
 
   test('Create ticket', async () => {

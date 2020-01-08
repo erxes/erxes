@@ -28,6 +28,14 @@ export const loadDealClass = () => {
      * Create a deal
      */
     public static async createDeal(doc: IDeal) {
+      if (doc.sourceConversationId) {
+        const convertedDeal = await Deals.findOne({ sourceConversationId: doc.sourceConversationId });
+
+        if (convertedDeal) {
+          throw new Error('Already converted a deal');
+        }
+      }
+
       const dealsCount = await Deals.find({
         stageId: doc.stageId,
       }).countDocuments();

@@ -33,7 +33,8 @@ const commonParams = `
   module: String,
   action: String,
   userId: String,
-  groupId: String
+  groupId: String,
+  allowed: Boolean
 `;
 
 const commonUserGroupParams = `

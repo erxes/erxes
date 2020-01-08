@@ -1,4 +1,5 @@
 import { Model, model } from 'mongoose';
+import { Forms } from './';
 import { getCollection, updateOrder, watchItem } from './boardUtils';
 import {
   boardSchema,
@@ -144,6 +145,10 @@ export const loadBoardClass = () => {
         await hasItem(pipeline.type, pipeline._id);
       }
 
+      for (const pipeline of pipelines) {
+        await Pipelines.removePipeline(pipeline._id, true);
+      }
+
       return Boards.deleteOne({ _id });
     }
   }
@@ -159,7 +164,7 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
   updatePipeline(_id: string, doc: IPipeline, stages?: IPipelineStage[]): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
-  removePipeline(_id: string): void;
+  removePipeline(_id: string, checked?: boolean): object;
 }
 
 export const loadPipelineClass = () => {
@@ -233,10 +238,18 @@ export const loadPipelineClass = () => {
     /**
      * Remove a pipeline
      */
-    public static async removePipeline(_id: string) {
+    public static async removePipeline(_id: string, checked?: boolean) {
       const pipeline = await Pipelines.getPipeline(_id);
 
-      await hasItem(pipeline.type, pipeline._id);
+      if (!checked) {
+        await hasItem(pipeline.type, pipeline._id);
+      }
+
+      const stages = await Stages.find({ pipelineId: pipeline._id });
+
+      for (const stage of stages) {
+        await Stages.removeStage(stage._id);
+      }
 
       return Pipelines.deleteOne({ _id });
     }
@@ -254,6 +267,7 @@ export const loadPipelineClass = () => {
 export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;
   createStage(doc: IStage): Promise<IStageDocument>;
+  removeStage(_id: string): object;
   updateStage(_id: string, doc: IStage): Promise<IStageDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
 }
@@ -294,6 +308,16 @@ export const loadStageClass = () => {
      */
     public static async updateOrder(orders: IOrderInput[]) {
       return updateOrder(Stages, orders);
+    }
+
+    public static async removeStage(_id: string) {
+      const stage = await Stages.getStage(_id);
+
+      if (stage.formId) {
+        await Forms.removeForm(stage.formId);
+      }
+
+      return Stages.deleteOne({ _id });
     }
   }
 

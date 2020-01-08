@@ -1,17 +1,6 @@
 export const EMAIL_CONTENT_CLASS = 'erxes-email-content';
 export const EMAIL_CONTENT_PLACEHOLDER = `<div class="${EMAIL_CONTENT_CLASS}"></div>`;
 
-export const INTEGRATION_KIND_CHOICES = {
-  MESSENGER: 'messenger',
-  LEAD: 'lead',
-  FACEBOOK_MESSENGER: 'facebook-messenger',
-  FACEBOOK_POST: 'facebook-post',
-  GMAIL: 'gmail',
-  NYLAS_GMAIL: 'nylas-gmail',
-  CALLPRO: 'callpro',
-  ALL: ['messenger', 'lead', 'facebook-messenger', 'facebook-post', 'gmail', 'callpro', 'nylas-gmail'],
-};
-
 export const MESSAGE_KINDS = {
   AUTO: 'auto',
   VISITOR_AUTO: 'visitorAuto',

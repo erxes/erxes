@@ -15,6 +15,7 @@ import { buildFile } from './data/modules/fileExporter/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import {
   checkFile,
+  deleteFile,
   getEnv,
   handleUnsubscription,
   readFileRequest,
@@ -24,8 +25,8 @@ import {
 import { connect } from './db/connection';
 import { debugExternalApi, debugInit } from './debuggers';
 import './messageBroker';
-import integrationsApiMiddleware from './middlewares/integrationsApiMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
+import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { initRedis } from './redisClient';
 
 initRedis();
@@ -75,6 +76,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.get('/script-manager', widgetsMiddleware);
 
 app.use(userMiddleware);
 
@@ -158,13 +161,24 @@ app.get('/read-mail-attachment', async (req: any, res) => {
   );
 });
 
-// file upload
-app.post('/upload-file', async (req: any, res, next) => {
+// delete file
+app.post('/delete-file', async (req: any, res) => {
   // require login
   if (!req.user) {
     return res.end('foribidden');
   }
 
+  const status = await deleteFile(req.body.fileName);
+
+  if (status === 'ok') {
+    return res.send(status);
+  }
+
+  return res.status(500).send(status);
+});
+
+// file upload
+app.post('/upload-file', async (req: any, res, next) => {
   if (req.query.kind === 'nylas') {
     debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
 
@@ -191,7 +205,7 @@ app.post('/upload-file', async (req: any, res, next) => {
     const file = response.file || response.upload;
 
     // check file ====
-    const status = await checkFile(file);
+    const status = await checkFile(file, req.headers.source);
 
     if (status === 'ok') {
       try {
@@ -260,9 +274,6 @@ app.get('/unsubscribe', async (req: any, res) => {
 });
 
 apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-
-// handle integrations api requests
-app.post('/integrations-api', integrationsApiMiddleware);
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {

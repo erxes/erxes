@@ -35,6 +35,7 @@ import tags from './tags';
 import tasks from './tasks';
 import tickets from './tickets';
 import users from './users';
+import widgets from './widgets';
 
 export default {
   ...users,
@@ -76,4 +77,5 @@ export default {
   ...checklists,
   ...robot,
   ...pipelineLabels,
+  ...widgets,
 };

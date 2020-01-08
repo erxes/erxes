@@ -39,6 +39,37 @@ describe('mutations', () => {
     });
   });
 
+  test('Add website', async () => {
+    const args = {
+      name: 'website',
+      integrationId: 'integrationId',
+      description: 'description',
+      buttonText: 'submit',
+      url: 'https://google.com',
+    };
+
+    const mutation = `
+      mutation messengerAppsAddWebsite($name: String!, $integrationId: String!, $description: String!, $buttonText: String!, $url: String!) {
+        messengerAppsAddWebsite(name: $name, integrationId: $integrationId, description: $description, buttonText: $buttonText, url: $url) {
+          name
+          kind
+          credentials
+        }
+      }
+    `;
+
+    const app = await graphqlRequest(mutation, 'messengerAppsAddWebsite', args);
+
+    expect(app.kind).toBe('website');
+    expect(app.name).toBe(args.name);
+    expect(app.credentials).toEqual({
+      integrationId: args.integrationId,
+      description: args.description,
+      buttonText: args.buttonText,
+      url: args.url,
+    });
+  });
+
   test('Add lead', async () => {
     const form = await formFactory({});
 

@@ -16,13 +16,6 @@ export const types = `
     erxesVersion: GitInfos
     apiVersion: GitInfos
     widgetVersion: GitInfos
-    widgetApiVersion: GitInfos
-  }
-
-  type EngagesConfig {
-    accessKeyId: String
-    secretAccessKey: String
-    region: String
   }
 
   type ENV {
@@ -33,11 +26,9 @@ export const types = `
 export const queries = `
   configsDetail(code: String!): Config
   configsVersions: ProjectInfos
-  engagesConfigDetail: EngagesConfig
   configsGetEnv: ENV
 `;
 
 export const mutations = `
   configsInsert(code: String!, value: [String]!): Config
-  engagesConfigSave(accessKeyId: String, secretAccessKey: String, region: String): EngagesConfig
 `;

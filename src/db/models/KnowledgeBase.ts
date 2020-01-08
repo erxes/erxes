@@ -22,6 +22,7 @@ export interface IArticleModel extends Model<IArticleDocument> {
   createDoc({ categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
   updateDoc(_id: string, { categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
   removeDoc(_id: string): void;
+  incReactionCount(articleId: string, reactionChoice): void;
 }
 
 export const loadArticleClass = () => {
@@ -120,6 +121,23 @@ export const loadArticleClass = () => {
      */
     public static removeDoc(_id: string) {
       return KnowledgeBaseArticles.deleteOne({ _id });
+    }
+
+    /*
+     * Increase form view count
+     */
+    public static async incReactionCount(articleId: string, reactionChoice: string) {
+      const article = await KnowledgeBaseArticles.findOne({ _id: articleId });
+
+      if (!article) {
+        throw new Error('Article not found');
+      }
+
+      const reactionCounts = article.reactionCounts || {};
+
+      reactionCounts[reactionChoice] = (reactionCounts[reactionChoice] || 0) + 1;
+
+      await KnowledgeBaseArticles.updateOne({ _id: articleId }, { $set: { reactionCounts } });
     }
   }
 

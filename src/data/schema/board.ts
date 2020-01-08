@@ -49,29 +49,48 @@ export const types = `
     ${commonTypes}
   }
 
+  type ConvertTo {
+    ticketUrl: String,
+    dealUrl: String,
+    taskUrl: String,
+  }
+
+  type BoardCount {
+    _id: String
+    name: String
+    count: Int
+  }
+
   input ItemDate {
     month: Int
     year: Int
   }
 `;
 
+const stageParams = `
+  search: String,
+  companyIds: [String]
+  customerIds: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  extraParams: JSON,
+  closeDateType: String
+`;
+
 export const queries = `
   boards(type: String!): [Board]
+  boardCounts(type: String!): [BoardCount]
   boardGetLast(type: String!): Board
   boardDetail(_id: String!): Board
-  pipelines(boardId: String!): [Pipeline]
+  pipelines(boardId: String, type: String, page: Int, perPage: Int): [Pipeline]
   pipelineDetail(_id: String!): Pipeline
   stages(
     isNotLost: Boolean,
     pipelineId: String!,
-    search: String,
-    companyIds: [String]
-    customerIds: [String]
-    assignedUserIds: [String]
-    extraParams: JSON,
-    closeDateType: String,
+    ${stageParams}
   ): [Stage]
-  stageDetail(_id: String!): Stage
+  stageDetail(_id: String!, ${stageParams}): Stage
+  convertToInfo(conversationId: String!): ConvertTo
 `;
 
 const commonParams = `

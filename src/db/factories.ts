@@ -454,12 +454,18 @@ interface ICustomerFactoryInput {
   hasValidEmail?: boolean;
   profileScore?: number;
   code?: string;
+  isActive?: boolean;
   visitorContactInfo?: any;
+  urlVisits?: object;
+  deviceTokens?: string[];
   mergedIds?: string[];
 }
 
 export const customerFactory = async (params: ICustomerFactoryInput = {}, useModelMethod = false) => {
+  const createdAt = faker.date.past();
+
   const doc = {
+    createdAt,
     integrationId: params.integrationId,
     firstName: params.firstName,
     lastName: params.lastName,
@@ -470,7 +476,12 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     leadStatus: params.leadStatus || 'open',
     status: params.status || STATUSES.ACTIVE,
     lifecycleState: params.lifecycleState || 'lead',
-    messengerData: params.messengerData,
+    messengerData: params.messengerData || {
+      lastSeenAt: faker.date.between(createdAt, new Date()),
+      isActive: params.isActive || false,
+      sessionCount: faker.random.number(),
+    },
+    urlVisits: params.urlVisits,
     customFieldsData: params.customFieldsData || {},
     tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
@@ -478,6 +489,7 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     profileScore: params.profileScore || 0,
     code: await getUniqueValue(Customers, 'code', params.code),
     visitorContactInfo: params.visitorContactInfo,
+    deviceTokens: params.deviceTokens || [],
     mergedIds: params.mergedIds || [],
   };
 
@@ -594,7 +606,7 @@ export const conversationMessageFactory = async (params: IConversationMessageFac
     internal: params.internal === undefined || params.internal === null ? true : params.internal,
     customerId: params.customerId || Random.id(),
     userId,
-    isCustomerRead: params.isCustomerRead || true,
+    isCustomerRead: params.isCustomerRead,
     engageData: params.engageData || {},
     formWidgetData: params.formWidgetData || {},
   });
@@ -605,10 +617,11 @@ interface IIntegrationFactoryInput {
   kind?: string;
   brandId?: string;
   formId?: string;
-  leadData?: any | string;
+  leadData?: any;
   tagIds?: string[];
   isActive?: boolean;
   messengerData?: object;
+  languageCode?: string;
 }
 
 export const integrationFactory = async (params: IIntegrationFactoryInput = {}) => {
@@ -617,10 +630,11 @@ export const integrationFactory = async (params: IIntegrationFactoryInput = {}) 
   const doc = {
     name: params.name || faker.random.word(),
     kind,
+    languageCode: params.languageCode,
     brandId: params.brandId,
     formId: params.formId,
     messengerData: params.messengerData,
-    leadData: params.leadData === 'lead' ? params.leadData : kind === 'lead' ? { thankContent: 'thankContent' } : null,
+    leadData: params.leadData ? params.leadData : { thankContent: 'thankContent' },
     tagIds: params.tagIds,
     isActive: params.isActive === undefined || params.isActive === null ? true : params.isActive,
   };
@@ -788,6 +802,8 @@ export const knowledgeBaseCategoryFactory = async (params: IKnowledgeBaseCategor
 interface IKnowledgeBaseArticleCategoryInput {
   categoryIds?: string[];
   userId?: string;
+  reactionChoices?: string[];
+  status?: string;
 }
 
 export const knowledgeBaseArticleFactory = async (params: IKnowledgeBaseArticleCategoryInput = {}) => {
@@ -796,18 +812,21 @@ export const knowledgeBaseArticleFactory = async (params: IKnowledgeBaseArticleC
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),
+    reactionChoices: params.reactionChoices || ['wow'],
+    status: params.status || 'draft',
   };
 
   return KnowledgeBaseArticles.createDoc({ ...doc, ...params }, params.userId || faker.random.word());
 };
 
 interface IBoardFactoryInput {
+  name?: string;
   type?: string;
 }
 
 export const boardFactory = (params: IBoardFactoryInput = {}) => {
   const board = new Boards({
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     userId: Random.id(),
     type: params.type || BOARD_TYPES.DEAL,
   });
@@ -830,11 +849,17 @@ interface IPipelineFactoryInput {
 
 export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
   const type = params.type || BOARD_TYPES.DEAL;
-  const board = await boardFactory({ type });
+  let boardId = params.boardId;
+
+  if (!boardId) {
+    const board = await boardFactory({ type });
+
+    boardId = board._id;
+  }
 
   return Pipelines.create({
     name: faker.random.word(),
-    boardId: params.boardId || board._id,
+    boardId,
     type,
     visibility: params.visibility || 'public',
     bgColor: params.bgColor || 'fff',
@@ -888,6 +913,7 @@ interface IDealFactoryInput {
   searchText?: string;
   userId?: string;
   initialStageId?: string;
+  sourceConversationId?: string;
 }
 
 export const dealFactory = async (params: IDealFactoryInput = {}) => {
@@ -913,6 +939,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
     order: params.order,
     probability: params.probability,
     searchText: params.searchText,
+    sourceConversationId: params.sourceConversationId,
     createdAt: new Date(),
   });
 
@@ -927,6 +954,7 @@ interface ITaskFactoryInput {
   priority?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
+  sourceConversationId?: string;
 }
 
 export const taskFactory = async (params: ITaskFactoryInput = {}) => {
@@ -944,6 +972,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     priority: params.priority,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
+    sourceConversationId: params.sourceConversationId,
   });
 
   return task.save();
@@ -958,6 +987,7 @@ interface ITicketFactoryInput {
   source?: string;
   watchedUserIds?: string[];
   labelIds?: string[];
+  sourceConversationId?: string;
 }
 
 export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
@@ -976,6 +1006,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
     source: params.source,
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
+    sourceConversationId: params.sourceConversationId,
   });
 
   return ticket.save();
@@ -1177,7 +1208,7 @@ export const permissionFactory = async (params: IPermissionParams = {}) => {
   const permission = new Permissions({
     module: params.module || faker.random.word(),
     action: params.action || faker.random.word(),
-    allowed: params.allowed || false,
+    allowed: typeof params.allowed === 'undefined' ? true : params.allowed,
     userId: params.userId,
     requiredActions: params.requiredActions || [],
     groupId: params.groupId,
@@ -1240,3 +1271,23 @@ export const emailDeliveryFactory = async (params: IEmailDeliveryFactoryInput = 
 
   return emailDelviry.save();
 };
+
+interface IMessageEngageDataParams {
+  messageId?: string;
+  brandId?: string;
+  content?: string;
+  fromUserId?: string;
+  kind?: string;
+  sentAs?: string;
+}
+
+export function engageDataFactory(params: IMessageEngageDataParams) {
+  return {
+    messageId: params.messageId || Random.id(),
+    brandId: params.brandId || Random.id(),
+    content: params.content || faker.lorem.sentence(),
+    fromUserId: params.fromUserId || Random.id(),
+    kind: params.kind || 'popup',
+    sentAs: params.sentAs || 'post',
+  };
+}

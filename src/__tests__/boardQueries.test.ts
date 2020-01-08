@@ -1,5 +1,15 @@
 import { graphqlRequest } from '../db/connection';
-import { boardFactory, dealFactory, pipelineFactory, productFactory, stageFactory, userFactory } from '../db/factories';
+import {
+  boardFactory,
+  conversationFactory,
+  dealFactory,
+  pipelineFactory,
+  productFactory,
+  stageFactory,
+  taskFactory,
+  ticketFactory,
+  userFactory,
+} from '../db/factories';
 import { Boards, Pipelines, Stages } from '../db/models';
 
 import moment = require('moment');
@@ -47,6 +57,14 @@ describe('boardQueries', () => {
     }
   `;
 
+  const pipelineQry = `
+    query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
+      pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
+        ${commonPipelineTypes}
+      }
+    }
+  `;
+
   afterEach(async () => {
     // Clearing test data
     await Boards.deleteMany({});
@@ -70,6 +88,41 @@ describe('boardQueries', () => {
     const response = await graphqlRequest(qry, 'boards', { type: 'deal' });
 
     expect(response.length).toBe(3);
+  });
+
+  test('Board count', async () => {
+    const boardOne = await boardFactory({ name: 'A' });
+    await pipelineFactory({ boardId: boardOne._id });
+    await pipelineFactory({ boardId: boardOne._id });
+
+    const boardTwo = await boardFactory({ name: 'B' });
+    await pipelineFactory({ boardId: boardTwo._id });
+
+    const boardThree = await boardFactory({ name: 'C' });
+
+    const qry = `
+      query boardCounts($type: String!) {
+        boardCounts(type: $type) {
+          _id
+          name
+          count
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'boardCounts', { type: 'deal' });
+
+    expect(response[0].name).toBe('All');
+    expect(response[0].count).toBe(3);
+
+    expect(response[1].name).toBe(boardOne.name);
+    expect(response[1].count).toBe(2);
+
+    expect(response[2].name).toBe(boardTwo.name);
+    expect(response[2].count).toBe(1);
+
+    expect(response[3].name).toBe(boardThree.name);
+    expect(response[3].count).toBe(0);
   });
 
   test('Board detail', async () => {
@@ -96,7 +149,7 @@ describe('boardQueries', () => {
   });
 
   test('Board get last', async () => {
-    const board = await boardFactory({ type: BOARD_TYPES.DEAL });
+    const board = await boardFactory();
 
     const qry = `
       query boardGetLast($type: String!) {
@@ -112,25 +165,39 @@ describe('boardQueries', () => {
   });
 
   test('Pipelines', async () => {
-    const board = await boardFactory();
+    await pipelineFactory();
+    await pipelineFactory();
+    await pipelineFactory();
 
-    const args = { boardId: board._id };
-
-    await pipelineFactory(args);
-    await pipelineFactory(args);
-    await pipelineFactory(args);
-
-    const qry = `
-      query pipelines($boardId: String!) {
-        pipelines(boardId: $boardId) {
-          ${commonPipelineTypes}
-        }
-      }
-    `;
-
-    const response = await graphqlRequest(qry, 'pipelines', args);
+    const response = await graphqlRequest(pipelineQry, 'pipelines');
 
     expect(response.length).toBe(3);
+  });
+
+  test('Pipelines with filter', async () => {
+    const board = await boardFactory();
+    const args = { boardId: board._id, type: 'deal' };
+
+    await pipelineFactory(args);
+    await pipelineFactory(args);
+    await pipelineFactory();
+
+    const response = await graphqlRequest(pipelineQry, 'pipelines', args);
+
+    expect(response.length).toBe(2);
+  });
+
+  test('Pipelines with pagination', async () => {
+    const board = await boardFactory();
+    const args = { boardId: board._id, type: 'deal' };
+
+    await pipelineFactory(args);
+    await pipelineFactory(args);
+    await pipelineFactory(args);
+
+    const response = await graphqlRequest(pipelineQry, 'pipelines', { ...args, perPage: 2, page: 1 });
+
+    expect(response.length).toBe(2);
   });
 
   test('Pipeline detail', async () => {
@@ -355,5 +422,49 @@ describe('boardQueries', () => {
     const response = await graphqlRequest(qry, 'stageDetail', { _id: stage._id });
 
     expect(response._id).toBe(stage._id);
+  });
+
+  test('Convert to info', async () => {
+    const conversation = await conversationFactory();
+
+    const qry = `
+      query convertToInfo($conversationId: String!) {
+        convertToInfo(conversationId: $conversationId) {
+          dealUrl
+          ticketUrl
+          taskUrl
+        }
+      }
+    `;
+
+    const dealBoard = await boardFactory({ type: BOARD_TYPES.DEAL });
+    const dealPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL, boardId: dealBoard._id });
+    const dealStage = await stageFactory({ type: BOARD_TYPES.DEAL, pipelineId: dealPipeline._id });
+
+    const deal = await dealFactory({ sourceConversationId: conversation._id, stageId: dealStage._id });
+
+    const taskBoard = await boardFactory({ type: BOARD_TYPES.TASK });
+    const taskPipeline = await pipelineFactory({ type: BOARD_TYPES.TASK, boardId: taskBoard._id });
+    const taskStage = await stageFactory({ type: BOARD_TYPES.TASK, pipelineId: taskPipeline._id });
+    const task = await taskFactory({ sourceConversationId: conversation._id, stageId: taskStage._id });
+
+    const ticketBoard = await boardFactory({ type: BOARD_TYPES.DEAL });
+    const ticketPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL, boardId: ticketBoard._id });
+    const ticketStage = await stageFactory({ type: BOARD_TYPES.DEAL, pipelineId: ticketPipeline._id });
+    const ticket = await ticketFactory({ sourceConversationId: conversation._id, stageId: ticketStage._id });
+
+    let response = await graphqlRequest(qry, 'convertToInfo', { conversationId: conversation._id });
+
+    expect(response.dealUrl).toBe(`/deal/board?_id=${dealBoard._id}&pipelineId=${dealPipeline._id}&itemId=${deal._id}`);
+    expect(response.taskUrl).toBe(`/task/board?_id=${taskBoard._id}&pipelineId=${taskPipeline._id}&itemId=${task._id}`);
+    expect(response.ticketUrl).toBe(
+      `/inbox/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`,
+    );
+
+    response = await graphqlRequest(qry, 'convertToInfo', { conversationId: 'fakeId' });
+
+    expect(response.dealUrl).toBe('');
+    expect(response.ticketUrl).toBe('');
+    expect(response.taskUrl).toBe('');
   });
 });

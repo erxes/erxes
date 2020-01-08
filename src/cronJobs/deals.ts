@@ -40,7 +40,7 @@ export const sendNotifications = async () => {
       if (Math.abs(diffMinute - (object.reminderMinute || 0)) < 5) {
         const content = `${object.name} ${type} is due in upcoming`;
 
-        const url = `/${type === 'ticket' ? `inbox/${type}` : { type }}/board`;
+        const url = type === 'ticket' ? `/inbox/${type}/board` : `${type}/board`;
 
         utils.sendNotification({
           notifType: `${type}DueDate`,

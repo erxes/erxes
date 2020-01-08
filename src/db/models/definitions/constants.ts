@@ -162,8 +162,9 @@ export const ACTIVITY_ACTIONS = {
   MERGE: 'merge',
   SEND: 'send',
   MOVED: 'moved',
+  CONVERT: 'convert',
 
-  ALL: ['create', 'update', 'delete', 'merge', 'send', 'moved'],
+  ALL: ['create', 'update', 'delete', 'merge', 'send', 'moved', 'convert'],
 };
 
 export const ACTIVITY_PERFORMER_TYPES = {
