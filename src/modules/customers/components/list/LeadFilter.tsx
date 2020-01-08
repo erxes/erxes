@@ -1,4 +1,5 @@
 import Box from 'modules/common/components/Box';
+import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
@@ -11,9 +12,18 @@ interface IProps extends IRouterProps {
   counts: { [key: string]: number };
   integrations: IIntegration[];
   loading: boolean;
+  loadMore: () => void;
+  all: number;
 }
 
-function Leads({ history, counts, integrations, loading }: IProps) {
+function Leads({
+  history,
+  counts,
+  integrations,
+  loading,
+  loadMore,
+  all
+}: IProps) {
   const onClick = formId => {
     router.setParams(history, { form: formId });
   };
@@ -39,15 +49,22 @@ function Leads({ history, counts, integrations, loading }: IProps) {
           </li>
         );
       })}
+
+      {all !== integrations.length ? (
+        <Button
+          block={true}
+          btnStyle="link"
+          onClick={loadMore}
+          icon="angle-double-down"
+        >
+          Load more
+        </Button>
+      ) : null}
     </SidebarList>
   );
 
   return (
-    <Box
-      title={__('Filter by Pop Ups')}
-      collapsible={integrations.length > 5}
-      name="showFilterByPopUps"
-    >
+    <Box title={__('Filter by Pop Ups')} name="showFilterByPopUps">
       <DataWithLoader
         data={data}
         loading={loading}

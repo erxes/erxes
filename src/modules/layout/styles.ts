@@ -308,6 +308,11 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     margin-right: 6px;
     color: ${colors.colorCoreGray};
   }
+
+  button {
+    font-size: 11px;
+    padding-bottom: 0;
+  }
 `;
 
 const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(

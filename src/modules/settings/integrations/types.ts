@@ -122,7 +122,7 @@ export type IntegrationTypes =
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
   loading: boolean;
-  refetch: (variables?: QueryVariables) => void;
+  refetch: (variables?: QueryVariables) => Promise<any>;
 };
 
 export type IntegrationDetailQueryResponse = {
@@ -135,7 +135,7 @@ type By = { [key: string]: number };
 
 export type ByKind = {
   messenger: number;
-  form: number;
+  lead: number;
   facebook: number;
   gmail: number;
   callpro: number;
