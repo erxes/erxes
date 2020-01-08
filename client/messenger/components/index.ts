@@ -14,6 +14,7 @@ import MessagesList from "./MessagesList";
 import Messenger from "./Messenger";
 import Notifier from "./Notifier";
 import TopBar from "./TopBar";
+import WebsiteApp from "./websiteApp/WebsiteApp";
 
 export {
   App,
@@ -31,5 +32,6 @@ export {
   AccquireInformation,
   Home,
   Integrations,
+  WebsiteApp,
   IntegrationItem
 };

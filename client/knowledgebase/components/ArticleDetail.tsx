@@ -82,7 +82,7 @@ export default class ArticleDetail extends React.PureComponent<
     }
 
     const {
-      author,
+      createdUser,
       modifiedDate,
       createdDate,
       title,
@@ -90,7 +90,7 @@ export default class ArticleDetail extends React.PureComponent<
       content
     } = article;
 
-    const authorDetails = author.details || {
+    const authorDetails = createdUser.details || {
       fullName: "",
       avatar: defaultAvatar
     };

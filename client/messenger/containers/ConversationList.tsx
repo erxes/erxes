@@ -8,7 +8,7 @@ import { IConversation } from "../types";
 import { AppConsumer } from "./AppContext";
 
 type QueryResponse = {
-  conversations: IConversation[];
+  widgetsConversations: IConversation[];
 };
 
 class ConversationList extends React.PureComponent<
@@ -16,9 +16,9 @@ class ConversationList extends React.PureComponent<
   {}
 > {
   render() {
-    const { data = { conversations: [], loading: true } } = this.props;
+    const { data = { widgetsConversations: [], loading: true } } = this.props;
 
-    let conversations = data.conversations || [];
+    let conversations = data.widgetsConversations || [];
 
     // show empty list while waiting
     if (data.loading) {

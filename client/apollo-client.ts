@@ -6,11 +6,11 @@ import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
 import { getEnv } from "./utils";
 
-const { API_GRAPHQL_URL, API_SUBSCRIPTIONS_URL } = getEnv();
+const { API_URL, API_SUBSCRIPTIONS_URL } = getEnv();
 
 // Create an http link:
 const httpLink = createHttpLink({
-  uri: `${API_GRAPHQL_URL}`
+  uri: `${API_URL}/graphql`
 });
 
 // Subscription config

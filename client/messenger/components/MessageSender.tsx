@@ -37,11 +37,11 @@ class MessageSender extends React.Component<Props, State> {
     this.handleClick = this.handleClick.bind(this);
   }
 
-  readMessage() {
+  readMessages = () => {
     if (this.props.conversationId) {
       this.props.readMessages(this.props.conversationId);
     }
-  }
+  };
 
   componentDidMount() {
     if (this.textarea && window.innerWidth > 415) {
@@ -49,10 +49,8 @@ class MessageSender extends React.Component<Props, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(nextProps: Props) {
     if (nextProps.isParentFocused) {
-      this.readMessage();
-
       if (this.textarea) {
         this.textarea.focus();
       }
@@ -163,6 +161,7 @@ class MessageSender extends React.Component<Props, State> {
           placeholder={this.props.placeholder}
           value={this.state.message}
           onChange={this.handleMessageChange}
+          onFocus={this.readMessages}
           onBlur={this.handleOnBlur}
           onClick={this.handleClick}
           onKeyDown={this.handleKeyPress}

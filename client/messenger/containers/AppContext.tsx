@@ -18,7 +18,9 @@ import graphqlTypes from "../graphql";
 import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 
 interface IState {
+  unreadCount: number;
   sendingMessage: boolean;
+  lastSentTypingInfo?: string;
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
   isSavingNotified: boolean;
@@ -46,7 +48,6 @@ interface IStore extends IState {
   goToFaqCategory: (category?: IFaqCategory) => void;
   goToFaqArticle: (article: IFaqArticle) => void;
   goToConversationList: () => void;
-  openLastConversation: () => void;
   saveGetNotified: (
     doc: { type: string; value: string },
     callback?: () => void
@@ -58,6 +59,7 @@ interface IStore extends IState {
   sendTypingInfo: (conversationId: string, text: string) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
+  setUnreadCount: (count: number) => void;
   isLoggedIn: () => boolean;
 }
 
@@ -88,6 +90,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     this.state = {
+      unreadCount: 0,
       sendingMessage: false,
       lastUnreadMessage: undefined,
       isMessengerVisible: false,
@@ -153,9 +156,9 @@ export class AppProvider extends React.Component<{}, IState> {
             variables
           })
 
-          .then(({ data: { saveBrowserInfo } }: any) => {
+          .then(({ data: { widgetsSaveBrowserInfo } }: any) => {
             this.setState({
-              lastUnreadMessage: saveBrowserInfo,
+              lastUnreadMessage: widgetsSaveBrowserInfo,
               isBrowserInfoSaved: true
             });
           });
@@ -172,11 +175,13 @@ export class AppProvider extends React.Component<{}, IState> {
       isSmallContainer: this.isSmallContainer()
     });
 
-    this.setState({ isMessengerVisible: !isVisible });
+    let state: any = { isMessengerVisible: !isVisible };
 
     if (activeRoute.includes("conversation")) {
-      this.openLastConversation();
+      state = { ...state, ...this.prepareOpenLastConversation() };
     }
+
+    this.setState(state);
   };
 
   setHeadHeight = (headHeight: number) => {
@@ -258,13 +263,13 @@ export class AppProvider extends React.Component<{}, IState> {
     this.changeRoute("conversationList");
   };
 
-  openLastConversation = () => {
+  prepareOpenLastConversation = () => {
     const _id = getLocalStorageItem("lastConversationId");
 
-    this.setState({
+    return {
       activeConversation: _id || "",
       activeRoute: _id ? "conversationDetail" : "conversationCreate"
-    });
+    };
   };
 
   saveGetNotified = (
@@ -280,12 +285,12 @@ export class AppProvider extends React.Component<{}, IState> {
     client
       .mutate({
         mutation: gql`
-          mutation saveCustomerGetNotified(
+          mutation widgetsSaveCustomerGetNotified(
             $customerId: String!
             $type: String!
             $value: String!
           ) {
-            saveCustomerGetNotified(
+            widgetsSaveCustomerGetNotified(
               customerId: $customerId
               type: $type
               value: $value
@@ -303,6 +308,7 @@ export class AppProvider extends React.Component<{}, IState> {
       // after mutation
       .then(() => {
         this.setState({ isSavingNotified: false });
+
         if (callback) {
           callback();
         }
@@ -312,7 +318,7 @@ export class AppProvider extends React.Component<{}, IState> {
         setLocalStorageItem("getNotifiedValue", value);
 
         // redirect to conversation
-        this.openLastConversation();
+        this.setState(this.prepareOpenLastConversation());
 
         // notify parent window launcher state
         postMessage("fromMessenger", "messenger", {
@@ -350,26 +356,39 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   readMessages = (conversationId: string) => {
-    client.mutate({
-      mutation: gql(graphqlTypes.readConversationMessages),
-      variables: { conversationId },
-      refetchQueries: [
-        {
-          query: gql(graphqlTypes.unreadCountQuery),
-          variables: { conversationId }
-        },
-        {
-          query: gql(graphqlTypes.totalUnreadCountQuery),
-          variables: connection.data
-        }
-      ]
-    });
+    if (this.state.unreadCount === 0) {
+      return;
+    }
+
+    client
+      .mutate({
+        mutation: gql(graphqlTypes.readConversationMessages),
+        variables: { conversationId },
+        refetchQueries: [
+          {
+            query: gql(graphqlTypes.unreadCountQuery),
+            variables: { conversationId }
+          }
+        ]
+      })
+
+      .then(() => {
+        this.setUnreadCount(0);
+      });
   };
 
   sendTypingInfo = (conversationId: string, text: string) => {
-    client.mutate({
-      mutation: gql(graphqlTypes.sendTypingInfo),
-      variables: { conversationId, text }
+    const { lastSentTypingInfo } = this.state;
+
+    if (lastSentTypingInfo === text) {
+      return;
+    }
+
+    this.setState({ lastSentTypingInfo: text }, () => {
+      client.mutate({
+        mutation: gql(graphqlTypes.sendTypingInfo),
+        variables: { conversationId, text }
+      });
     });
   };
 
@@ -384,7 +403,7 @@ export class AppProvider extends React.Component<{}, IState> {
     if (activeConversation) {
       optimisticResponse = {
         __typename: "Mutation",
-        insertMessage: {
+        widgetsInsertMessage: {
           __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
           conversationId: activeConversation,
@@ -400,27 +419,29 @@ export class AppProvider extends React.Component<{}, IState> {
         }
       };
 
-      update = (proxy: any, { data: { insertMessage } }: any) => {
+      update = (proxy: any, { data: { widgetsInsertMessage } }: any) => {
         const selector = {
           query: gql(graphqlTypes.conversationDetailQuery),
           variables: {
-            _id: insertMessage.conversationId,
+            _id: widgetsInsertMessage.conversationId,
             integrationId: connection.data.integrationId
           }
         };
 
         // Read data from our cache for this query
-        const data = proxy.readQuery(selector);
+        const cacheData = proxy.readQuery(selector);
 
-        const messages = data.conversationDetail.messages;
+        const messages = cacheData.widgetsConversationDetail.messages;
 
         // check duplications
-        if (!messages.find((m: IMessage) => m._id === insertMessage._id)) {
+        if (
+          !messages.find((m: IMessage) => m._id === widgetsInsertMessage._id)
+        ) {
           // Add our message from the mutation to the end
-          messages.push(insertMessage);
+          messages.push(widgetsInsertMessage);
 
           // Write out data back to the cache
-          proxy.writeQuery({ ...selector, data });
+          proxy.writeQuery({ ...selector, data: cacheData });
         }
       };
     }
@@ -436,14 +457,14 @@ export class AppProvider extends React.Component<{}, IState> {
       client
         .mutate({
           mutation: gql`
-            mutation insertMessage(
+            mutation widgetsInsertMessage(
               ${connection.queryVariables}
               $message: String
               $conversationId: String
               $attachments: [AttachmentInput]
             ) {
 
-            insertMessage(
+            widgetsInsertMessage(
               ${connection.queryParams}
               message: $message
               conversationId: $conversationId
@@ -468,10 +489,10 @@ export class AppProvider extends React.Component<{}, IState> {
         .then(({ data }: any) => {
           this.setState({ sendingMessage: false });
 
-          const { insertMessage } = data;
+          const { widgetsInsertMessage } = data;
 
           if (!activeConversation) {
-            this.changeConversation(insertMessage.conversationId);
+            this.changeConversation(widgetsInsertMessage.conversationId);
           }
         })
 
@@ -499,8 +520,17 @@ export class AppProvider extends React.Component<{}, IState> {
 
         // send message with attachment
         self.sendMessage("This message has an attachment", [attachment]);
+      },
+
+      onError: message => {
+        alert(message);
+        self.setState({ isAttachingFile: false });
       }
     });
+  };
+
+  setUnreadCount = (count: number) => {
+    this.setState({ unreadCount: count });
   };
 
   public render() {
@@ -522,7 +552,6 @@ export class AppProvider extends React.Component<{}, IState> {
           goToFaqCategory: this.goToFaqCategory,
           goToFaqArticle: this.goToFaqArticle,
           goToConversationList: this.goToConversationList,
-          openLastConversation: this.openLastConversation,
           saveGetNotified: this.saveGetNotified,
           endConversation: this.endConversation,
           readConversation: this.readConversation,
@@ -531,6 +560,7 @@ export class AppProvider extends React.Component<{}, IState> {
           sendTypingInfo: this.sendTypingInfo,
           sendFile: this.sendFile,
           setHeadHeight: this.setHeadHeight,
+          setUnreadCount: this.setUnreadCount,
           isLoggedIn: this.isLoggedIn
         }}
       >

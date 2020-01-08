@@ -87,16 +87,28 @@ document.body.appendChild(erxesContainer);
 iframe.onload = async () => {
   iframe.style.display = "block";
 
-  if (!iframe.contentWindow) {
+  const contentWindow = iframe.contentWindow;
+
+  if (!contentWindow) {
     return;
   }
 
-  iframe.contentWindow.postMessage(
+  const setting = window.erxesSettings.messenger;
+
+  window.showErxesMessenger = () => {
+    contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        action: "showMessenger"
+      },
+      "*"
+    );
+  };
+
+  contentWindow.postMessage(
     {
       fromPublisher: true,
-      setting: {
-        ...window.erxesSettings.messenger
-      }
+      setting
     },
     "*"
   );

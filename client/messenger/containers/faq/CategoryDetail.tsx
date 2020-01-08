@@ -13,7 +13,7 @@ type Props = {
 };
 
 type QueryResponse = {
-  knowledgeBaseCategoriesDetail: IFaqCategory;
+  knowledgeBaseCategoryDetail: IFaqCategory;
 };
 
 const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
@@ -30,8 +30,8 @@ const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
   };
   let loading: boolean = true;
 
-  if (data && data.knowledgeBaseCategoriesDetail) {
-    category = data.knowledgeBaseCategoriesDetail;
+  if (data && data.knowledgeBaseCategoryDetail) {
+    category = data.knowledgeBaseCategoryDetail;
     loading = data.loading;
   }
 
@@ -50,7 +50,7 @@ const WithData = graphql<Props, QueryResponse>(
     options: ({ categoryId }) => ({
       fetchPolicy: "network-only",
       variables: {
-        categoryId
+        _id: categoryId
       }
     })
   }

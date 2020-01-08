@@ -3,7 +3,7 @@ import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { IEmailParams, IIntegration } from "../../types";
 import { Form as DumbForm } from "../components";
-import { formQuery } from "../graphql";
+import { formDetailQuery } from "../graphql";
 import { ICurrentStatus, IForm, IFormDoc } from "../types";
 import { AppConsumer } from "./AppContext";
 
@@ -14,20 +14,20 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
     return null;
   }
 
-  if (!data.form) {
+  if (!data.formDetail) {
     return null;
   }
 
   const extendedProps = {
     ...props,
-    form: data.form
+    form: data.formDetail
   };
 
   return <DumbForm {...extendedProps} hasTopBar={true} />;
 };
 
 type QueryResponse = {
-  form: IForm;
+  formDetail: IForm;
 };
 
 interface IProps {
@@ -38,16 +38,18 @@ interface IProps {
   onCreateNew: () => void;
   setHeight: () => void;
   sendEmail: (params: IEmailParams) => void;
+  callSubmit: boolean;
+  isSubmitting?: boolean;
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(
-  gql(formQuery),
+  gql(formDetailQuery),
 
   {
     options: ({ form }) => ({
       fetchPolicy: "network-only",
       variables: {
-        formId: form._id
+        _id: form._id
       }
     })
   }
@@ -62,6 +64,8 @@ const WithContext = () => (
       sendEmail,
       setHeight,
       getIntegration,
+      callSubmit,
+      isSubmitting,
       getForm
     }) => {
       const integration = getIntegration();
@@ -69,6 +73,7 @@ const WithContext = () => (
 
       return (
         <FormWithData
+          isSubmitting={isSubmitting}
           currentStatus={currentStatus}
           onSubmit={save}
           onCreateNew={createNew}
@@ -76,6 +81,7 @@ const WithContext = () => (
           setHeight={setHeight}
           form={form}
           integration={integration}
+          callSubmit={callSubmit}
         />
       );
     }}

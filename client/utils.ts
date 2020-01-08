@@ -177,13 +177,13 @@ const isValidURL = (url: string) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  const { MAIN_API_URL } = getEnv();
+  const { API_URL } = getEnv();
 
   if (!value || isValidURL(value) || value.includes("/")) {
     return value;
   }
 
-  return `${MAIN_API_URL}/read-file?key=${value}`;
+  return `${API_URL}/read-file?key=${value}`;
 };
 
 export const checkRule = async (rule: IRule, browserInfo: IBrowserInfo) => {
@@ -298,3 +298,6 @@ export const striptags = (htmlString: string) => {
   _text = _text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
   return _text;
 };
+
+export const fixErrorMessage = (msg: string) =>
+  msg.replace("GraphQL error: ", "");

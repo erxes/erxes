@@ -9,13 +9,13 @@ import { AppConsumer, AppProvider } from "./AppContext";
 import queries from "./graphql";
 
 type QueryResponse = {
-  knowledgeBaseTopicsDetail: IKbTopic;
+  knowledgeBaseTopicDetail: IKbTopic;
 };
 
 const Topic = (props: ChildProps<{}, QueryResponse>) => {
   const { data } = props;
 
-  if (!data || data.loading || !data.knowledgeBaseTopicsDetail) {
+  if (!data || data.loading || !data.knowledgeBaseTopicDetail) {
     return null;
   }
 
@@ -23,7 +23,7 @@ const Topic = (props: ChildProps<{}, QueryResponse>) => {
     color,
     languageCode,
     backgroundImage
-  } = data.knowledgeBaseTopicsDetail;
+  } = data.knowledgeBaseTopicDetail;
 
   // set language
   setLocale(languageCode);
@@ -50,7 +50,7 @@ const TopicWithData = graphql<{}, QueryResponse>(gql(queries.getKbTopicQuery), {
   options: () => ({
     fetchPolicy: "network-only",
     variables: {
-      topicId: connection.setting.topic_id
+      _id: connection.setting.topic_id
     }
   })
 })(Topic);

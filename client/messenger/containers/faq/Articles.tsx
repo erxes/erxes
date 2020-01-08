@@ -6,7 +6,7 @@ import queries from "../../graphql";
 import { IFaqArticle } from "../../types";
 
 type QueryResponse = {
-  knowledgeBaseArticles: IFaqArticle[];
+  widgetsKnowledgeBaseArticles: IFaqArticle[];
 };
 
 const Articles = (props: ChildProps<{}, QueryResponse>) => {
@@ -19,7 +19,7 @@ const Articles = (props: ChildProps<{}, QueryResponse>) => {
   return (
     <DumbArticles
       loading={data.loading}
-      articles={data.knowledgeBaseArticles || []}
+      articles={data.widgetsKnowledgeBaseArticles || []}
     />
   );
 };

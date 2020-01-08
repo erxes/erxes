@@ -12,6 +12,7 @@ type Props = {
   closePopup: () => void;
   showPopup: () => void;
   setHeight: () => void;
+  setCallSubmit: (state: boolean) => void;
 };
 
 class App extends React.Component<Props> {
@@ -28,6 +29,11 @@ class App extends React.Component<Props> {
         // receive show popup command from publisher
         if (event.data.action === "showPopup") {
           this.props.showPopup();
+        }
+
+        // receive call submit command
+        if (event.data.action === "callSubmit") {
+          this.props.setCallSubmit(true);
         }
       }
     });
@@ -117,7 +123,8 @@ const WithContext = () => (
           isFormVisible,
           isCalloutVisible,
           setHeight,
-          getIntegrationConfigs
+          getIntegrationConfigs,
+          setCallSubmit
         } = value;
 
         return (
@@ -127,6 +134,7 @@ const WithContext = () => (
             isFormVisible={isFormVisible}
             isCalloutVisible={isCalloutVisible}
             init={init}
+            setCallSubmit={setCallSubmit}
             setHeight={setHeight}
             closePopup={closePopup}
             showPopup={showPopup}

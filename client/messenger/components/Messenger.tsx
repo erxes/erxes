@@ -2,6 +2,7 @@ import * as React from "react";
 import { IUser } from "../../types";
 import { AccquireInformation, ConversationDetail, Home } from "../containers";
 import { ArticleDetail, CategoryDetail } from "../containers/faq";
+import WebsiteAppDetail from "../containers/websiteApp/WebsiteAppDetail";
 
 type Props = {
   activeRoute: string | "";
@@ -28,6 +29,9 @@ function Messenger({ activeRoute, supporters, loading }: Props) {
 
     case "faqArticle":
       return <ArticleDetail />;
+
+    case "websiteApp":
+      return <WebsiteAppDetail />;
 
     default:
       return WithSupporters(Home);

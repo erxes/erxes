@@ -1,6 +1,7 @@
 import * as React from "react";
+import { AppConsumer } from "../../messenger/containers/AppContext";
 import { IEmailParams, IIntegration } from "../../types";
-import { __ } from "../../utils";
+import { __, fixErrorMessage } from "../../utils";
 import {
   FieldValue,
   ICurrentStatus,
@@ -15,18 +16,21 @@ type Props = {
   form: IForm;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
+  callSubmit?: boolean;
   onSubmit: (doc: IFormDoc) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
   hasTopBar: boolean;
+  isSubmitting?: boolean;
+  color?: string;
 };
 
 type State = {
   doc: IFormDoc;
 };
 
-export default class Form extends React.Component<Props, State> {
+class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -52,6 +56,10 @@ export default class Form extends React.Component<Props, State> {
     // after successfull save and create new button, reset doc state
     if (currentStatus !== nextStatus && nextStatus === "INITIAL") {
       this.setState({ doc: this.resetDocState() });
+    }
+
+    if (!this.props.callSubmit && nextProps.callSubmit) {
+      this.onSubmit();
     }
   }
 
@@ -90,8 +98,10 @@ export default class Form extends React.Component<Props, State> {
     return doc;
   }
 
-  renderHead(title: string, color: string) {
-    if (this.props.hasTopBar) {
+  renderHead(title: string) {
+    const { hasTopBar, color = "" } = this.props;
+
+    if (hasTopBar) {
       return <TopBar title={title} color={color} />;
     }
 
@@ -101,9 +111,11 @@ export default class Form extends React.Component<Props, State> {
   renderFields() {
     const { form, currentStatus } = this.props;
     const { fields } = form;
-    const errors = currentStatus.errors || [];
 
-    return fields.map(field => {
+    const errors = currentStatus.errors || [];
+    const nonFieldError = errors.find(error => !error.fieldId);
+
+    const renderedFields = fields.map(field => {
       const fieldError = errors.find(
         (error: IFieldError) => error.fieldId === field._id
       );
@@ -117,37 +129,50 @@ export default class Form extends React.Component<Props, State> {
         />
       );
     });
+
+    return (
+      <>
+        {nonFieldError ? (
+          <p style={{ color: "red" }}>{fixErrorMessage(nonFieldError.text)}</p>
+        ) : null}
+        {renderedFields}
+      </>
+    );
   }
 
-  renderForm(color: string) {
-    const { form, integration } = this.props;
+  renderForm() {
+    const { form, integration, color, isSubmitting } = this.props;
 
     return (
       <div className="erxes-form">
-        {this.renderHead(form.title || integration.name, color)}
+        {this.renderHead(form.title || integration.name)}
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
+
           {this.renderFields()}
 
           <button
             style={{ background: color }}
             type="button"
             onClick={this.onSubmit}
-            className="erxes-button btn-block"
+            className={`erxes-button btn-block ${
+              isSubmitting ? "disabled" : ""
+            }`}
+            disabled={isSubmitting}
           >
-            {form.buttonText || __("Send")}
+            {isSubmitting ? __("Loading ...") : form.buttonText || __("Send")}
           </button>
         </div>
       </div>
     );
   }
 
-  renderSuccessForm(color: string, thankContent?: string) {
-    const { integration, form, onCreateNew } = this.props;
+  renderSuccessForm(thankContent?: string) {
+    const { integration, form, onCreateNew, color } = this.props;
 
     return (
       <div className="erxes-form">
-        {this.renderHead(form.title || integration.name, color)}
+        {this.renderHead(form.title || integration.name)}
         <div className="erxes-form-content">
           <div className="erxes-result">
             <p>
@@ -156,13 +181,6 @@ export default class Form extends React.Component<Props, State> {
                   "Thanks for your message. We will respond as soon as we can."
                 )}
             </p>
-            <button
-              style={{ background: color }}
-              className="erxes-button btn-block"
-              onClick={onCreateNew}
-            >
-              {__("Create new")}
-            </button>
           </div>
         </div>
       </div>
@@ -225,9 +243,26 @@ export default class Form extends React.Component<Props, State> {
         }
       }
 
-      return this.renderSuccessForm(themeColor, thankContent);
+      return this.renderSuccessForm(thankContent);
     }
 
-    return this.renderForm(integration.leadData.themeColor || "");
+    return this.renderForm();
   }
 }
+
+export default (props: Props) => (
+  <AppConsumer>
+    {({ getColor }) => {
+      return (
+        <Form
+          {...props}
+          // if lead is in a messenger, return messenger theme color (getColor())
+          // else return lead theme color
+          color={
+            getColor ? getColor() : props.integration.leadData.themeColor || ""
+          }
+        />
+      );
+    }}
+  </AppConsumer>
+);

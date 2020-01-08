@@ -18,6 +18,7 @@ document.getElementsByTagName("head")[0].appendChild(meta);
 type Setting = {
   form_id: string;
   brand_id: string;
+  css?: string;
 };
 
 // create iframe helper
@@ -101,7 +102,7 @@ window.addEventListener("message", async (event: MessageEvent) => {
 
   if (message === "connected") {
     const loadType =
-      data.connectionInfo.leadConnect.integration.leadData.loadType;
+      data.connectionInfo.widgetsLeadConnect.integration.leadData.loadType;
 
     // track popup handlers
     if (loadType === "popup") {

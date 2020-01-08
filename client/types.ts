@@ -1,8 +1,7 @@
 import { ICallout } from "./form/types";
 
 export type ENV = {
-  MAIN_API_URL: string;
-  API_GRAPHQL_URL: string;
+  API_URL: string;
   API_SUBSCRIPTIONS_URL: string;
 };
 
@@ -101,6 +100,7 @@ export interface IIntegrationMessengerData {
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
   formCode: string;
+  websiteAppData?: { [key: string]: string };
   availabilityMethod: string;
   isOnline: boolean;
   requireAuth: boolean;

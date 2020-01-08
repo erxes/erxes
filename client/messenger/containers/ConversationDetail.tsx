@@ -20,7 +20,7 @@ type Props = {
 };
 
 type QueryResponse = {
-  conversationDetail: IConversation;
+  widgetsConversationDetail: IConversation;
 };
 
 class ConversationDetail extends React.Component<
@@ -45,8 +45,8 @@ class ConversationDetail extends React.Component<
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
-        const conversationDetail = prev.conversationDetail || {};
-        const messages = conversationDetail.messages || [];
+        const widgetsConversationDetail = prev.widgetsConversationDetail || {};
+        const messages = widgetsConversationDetail.messages || [];
 
         // check whether or not already inserted
         const prevEntry = messages.find((m: IMessage) => m._id === message._id);
@@ -63,8 +63,8 @@ class ConversationDetail extends React.Component<
         // add new message to messages list
         const next = {
           ...prev,
-          conversationDetail: {
-            ...conversationDetail,
+          widgetsConversationDetail: {
+            ...widgetsConversationDetail,
             messages: [...messages, message]
           }
         };
@@ -96,8 +96,8 @@ class ConversationDetail extends React.Component<
     let participators: IParticipator[] = [];
     let state: boolean = isOnline || false;
 
-    if (data && data.conversationDetail) {
-      const conversationDetail = data.conversationDetail;
+    if (data && data.widgetsConversationDetail) {
+      const conversationDetail = data.widgetsConversationDetail;
       messages = conversationDetail.messages;
       participators = conversationDetail.participatedUsers || [];
       state = conversationDetail.isOnline;

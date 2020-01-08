@@ -14,7 +14,7 @@ export interface IKbArticle extends ICommonFields {
   content: string;
   status: string;
   reactionChoices?: string[];
-  author: IUser;
+  createdUser: IUser;
 }
 
 export interface IKbCategory extends ICommonFields {

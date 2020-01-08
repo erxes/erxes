@@ -1,9 +1,9 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import client from "../../../apollo-client";
+import { formConnectMutation } from "../../../form/graphql";
 import { __, requestBrowserInfo } from "../../../utils";
 import { connection } from "../../connection";
-import queries from "../../graphql";
 import LeadContent from "./LeadContent";
 
 interface IState {
@@ -37,14 +37,14 @@ class LeadConnect extends React.PureComponent<Props, IState> {
 
     client
       .mutate({
-        mutation: gql(queries.formConnectMutation),
+        mutation: gql(formConnectMutation),
         variables: {
           brandCode,
           formCode
         }
       })
-      .then(({ data = { leadConnect: {} } }) => {
-        const response = data.leadConnect;
+      .then(({ data = { widgetsLeadConnect: {} } }) => {
+        const response = data.widgetsLeadConnect;
 
         if (!response) {
           this.setState({ hasError: true });

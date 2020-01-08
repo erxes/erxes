@@ -36,6 +36,16 @@ const widgetConnect = (params) => {
           '*',
         );
 
+        const style = document.createElement("style");
+
+        style.appendChild(document.createTextNode(event.data.setting.css || ""));
+
+        const head = document.querySelector("head");
+
+        if (head) {
+          head.appendChild(style);
+        }
+
         // render root react component
         ReactDOM.render(
           <ApolloProvider client={client}>

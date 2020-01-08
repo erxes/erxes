@@ -124,7 +124,7 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    this.onChange(values);
+    this.onChange(values.join(","));
   };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {

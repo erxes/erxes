@@ -1,15 +1,14 @@
-export const formQuery = `
-  query form($formId: String) {
-    form(formId: $formId) {
+export const formDetailQuery = `
+  query formDetail($_id: String!) {
+    formDetail(_id: $_id) {
       title
       description
       buttonText
+
       fields {
         _id
-        formId
         name
         type
-        check
         text
         description
         options
@@ -21,9 +20,9 @@ export const formQuery = `
   }
 `;
 
-export const connectMutation = `
-  mutation leadConnect($brandCode: String!, $formCode: String!) {
-    leadConnect(brandCode: $brandCode, formCode: $formCode) {
+export const formConnectMutation = `
+  mutation widgetsLeadConnect($brandCode: String!, $formCode: String!) {
+    widgetsLeadConnect(brandCode: $brandCode, formCode: $formCode) {
       form {
         _id
         title
@@ -32,7 +31,6 @@ export const connectMutation = `
       integration {
         _id
         name
-        languageCode
         leadData
       }
     }
@@ -40,8 +38,8 @@ export const connectMutation = `
 `;
 
 export const saveFormMutation = `
-  mutation saveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!) {
-    saveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo) {
+  mutation widgetsSaveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!) {
+    widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo) {
       status
       messageId
       errors {
@@ -60,7 +58,7 @@ export const sendEmailMutation = `
 `;
 
 export const increaseViewCountMutation = `
-  mutation leadIncreaseViewCount($formId: String!) {
-    leadIncreaseViewCount(formId: $formId)
+  mutation widgetsLeadIncreaseViewCount($formId: String!) {
+    widgetsLeadIncreaseViewCount(formId: $formId)
   }
 `;

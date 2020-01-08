@@ -20,8 +20,9 @@ export default class Article extends React.Component<Props> {
 
   render() {
     const { article } = this.props;
-    const { author } = article;
-    const authorDetails = author.details || {
+    const { createdUser } = article;
+
+    const authorDetails = createdUser.details || {
       fullName: "",
       avatar: defaultAvatar
     };

@@ -10,6 +10,8 @@ interface IState {
   isFormVisible: boolean;
   isCalloutVisible: boolean;
   currentStatus: ICurrentStatus;
+  isSubmitting?: boolean;
+  callSubmit: boolean;
 }
 
 interface IStore extends IState {
@@ -22,6 +24,7 @@ interface IStore extends IState {
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
+  setCallSubmit: (state: boolean) => void;
   getIntegration: () => IIntegration;
   getForm: () => IForm;
   getIntegrationConfigs: () => IIntegrationLeadData;
@@ -39,7 +42,8 @@ export class AppProvider extends React.Component<{}, IState> {
       isPopupVisible: false,
       isFormVisible: false,
       isCalloutVisible: false,
-      currentStatus: { status: "INITIAL" }
+      currentStatus: { status: "INITIAL" },
+      callSubmit: false
     };
   }
 
@@ -152,6 +156,8 @@ export class AppProvider extends React.Component<{}, IState> {
    * Save user submissions
    */
   save = (doc: IFormDoc) => {
+    this.setState({ isSubmitting: true });
+
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
@@ -161,6 +167,8 @@ export class AppProvider extends React.Component<{}, IState> {
         const { status, errors } = response;
 
         this.setState({
+          callSubmit: false,
+          isSubmitting: false,
           currentStatus: {
             status: status === "ok" ? "SUCCESS" : "ERROR",
             errors
@@ -169,6 +177,11 @@ export class AppProvider extends React.Component<{}, IState> {
       }
     });
   };
+
+  setCallSubmit = (state: boolean) => {
+    this.setState({ callSubmit: state });
+  };
+
   /*
    * Redisplay form component after submission
    */
@@ -217,6 +230,7 @@ export class AppProvider extends React.Component<{}, IState> {
           createNew: this.createNew,
           sendEmail,
           setHeight: this.setHeight,
+          setCallSubmit: this.setCallSubmit,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
           getIntegrationConfigs: this.getIntegrationConfigs

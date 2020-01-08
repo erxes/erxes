@@ -38,8 +38,8 @@ widgetConnect({
     });
   },
 
-  connectCallback: (data: { messengerConnect: IConnectResponse }) => {
-    const messengerData = data.messengerConnect;
+  connectCallback: (data: { widgetsMessengerConnect: IConnectResponse }) => {
+    const messengerData = data.widgetsMessengerConnect;
 
     if (!messengerData.integrationId) {
       throw new Error("Integration not found");

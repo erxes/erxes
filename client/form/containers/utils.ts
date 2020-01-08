@@ -107,7 +107,11 @@ export const saveLead = (params: {
 
     .then(({ data }) => {
       if (data) {
-        saveCallback(data.saveLead);
+        saveCallback(data.widgetsSaveLead);
       }
+    })
+
+    .catch(e => {
+      saveCallback({ status: "error", errors: [{ text: e.message }] });
     });
 };
