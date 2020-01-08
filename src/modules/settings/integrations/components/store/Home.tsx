@@ -36,8 +36,38 @@ class Home extends React.Component<Props, { filteredItem: string }> {
     this.setState({ filteredItem });
   };
 
-  renderContent() {
+  renderIntegrations() {
+    const { filteredItem } = this.state;
     const { totalCount, queryParams } = this.props;
+
+    return INTEGRATIONS.map(obj => {
+      const datas = [] as any;
+
+      const rows = [
+        ...obj.rows.filter(
+          integration =>
+            integration.category &&
+            integration.category.indexOf(filteredItem) !== -1
+        )
+      ];
+
+      while (rows.length > 0) {
+        datas.push(
+          <Row
+            key={obj.name}
+            title={obj.title}
+            integrations={rows.splice(0, 4)}
+            totalCount={totalCount}
+            queryParams={queryParams}
+          />
+        );
+      }
+
+      return datas;
+    });
+  }
+
+  renderContent() {
     const { filteredItem } = this.state;
 
     return (
@@ -48,16 +78,7 @@ class Home extends React.Component<Props, { filteredItem: string }> {
         />
         <IntegrationWrapper>
           <h3>{filteredItem}</h3>
-          {INTEGRATIONS.map(obj => (
-            <Row
-              key={obj.name}
-              title={obj.title}
-              integrations={obj.rows}
-              filteredItem={filteredItem}
-              totalCount={totalCount}
-              queryParams={queryParams}
-            />
-          ))}
+          {this.renderIntegrations()}
         </IntegrationWrapper>
       </Content>
     );

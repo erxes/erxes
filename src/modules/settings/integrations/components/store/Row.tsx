@@ -23,7 +23,6 @@ type Props = {
     outlook: number;
     yahoo: number;
   };
-  filteredItem: string;
   queryParams: any;
 };
 
@@ -137,30 +136,17 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      integrations,
-      title,
-      totalCount,
-      queryParams,
-      filteredItem
-    } = this.props;
+    const { integrations, title, totalCount, queryParams } = this.props;
 
     const selected = integrations.find(
       integration => integration.kind === this.state.kind
     );
 
-    const filteredIntegrations = integrations.filter(integration => {
-      return (
-        integration.category &&
-        integration.category.indexOf(filteredItem) !== -1
-      );
-    });
-
     return (
-      <>
-        {title && filteredIntegrations.length > 0 && <h3>{__(title)}</h3>}
+      <div>
+        {title && integrations.length > 0 && <h3>{__(title)}</h3>}
         <IntegrationRow>
-          {filteredIntegrations.map(integration =>
+          {integrations.map(integration =>
             this.renderEntry(integration, totalCount, queryParams)
           )}
         </IntegrationRow>
@@ -170,7 +156,7 @@ class Row extends React.Component<Props, State> {
         >
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>
-      </>
+      </div>
     );
   }
 }

@@ -9,6 +9,7 @@ const storeSpace = dimensions.coreSpacing * 2;
 
 const IntegrationWrapper = styled.div`
   padding-bottom: ${storeSpace}px;
+  margin-bottom: auto;
   flex: 1;
 
   h3 {

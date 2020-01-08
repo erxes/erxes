@@ -137,7 +137,7 @@ export const MAIL_TOOLBARS_CONFIG = [
 
 export const INTEGRATIONS = [
   {
-    name: 'row-1',
+    name: 'row-available',
     rows: [
       {
         name: 'Facebook post',
@@ -180,12 +180,7 @@ export const INTEGRATIONS = [
         createUrl: '/settings/integrations/gmail',
         category:
           'All integrations, For support teams, For sales teams, For marketing teams, Email marketing, Marketing automation, Conversation'
-      }
-    ]
-  },
-  {
-    name: 'row-2',
-    rows: [
+      },
       {
         name: 'IMAP by Nylas',
         description:
@@ -232,12 +227,7 @@ export const INTEGRATIONS = [
         createUrl: '/settings/integrations/lead',
         category:
           'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Surveys and Feedback, Pop ups'
-      }
-    ]
-  },
-  {
-    name: 'row-3',
-    rows: [
+      },
       {
         name: 'Outlook by Nylas',
         description:
@@ -283,12 +273,7 @@ export const INTEGRATIONS = [
         createModal: 'sesconfig',
         category:
           'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation, Engage'
-      }
-    ]
-  },
-  {
-    name: 'row-4',
-    rows: [
+      },
       {
         name: 'Call Pro',
         description: 'Connect your call pro phone number',
