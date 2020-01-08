@@ -27,7 +27,7 @@ const siteConfig = {
   tagline: 'Documentation',
   url: 'https://docs.erxes.io', // Your website URL
   baseUrl: '/', // Base URL for your project */
-  editUrl: 'https://github.com/erxes/docs/edit/master/docs/',
+  editUrl: 'https://github.com/erxes/erxes/edit/develop/docs/docs/',
   cname: 'docs.erxes.io',
   gaTrackingId: "UA-87254317-8",
   gaGtag: true,
@@ -59,7 +59,12 @@ const siteConfig = {
       label: 'Pricing & Trial',
       external: true
     },
-    { href: 'https://erxes.io/blog/', label: 'Blog', external: true }
+    { href: 'https://erxes.io/blog/', label: 'Blog', external: true },
+    {
+      href: 'https://github.com/erxes/erxes',
+      label: 'GitHub',
+      external: true
+    },
   ],
 
   // If you have users set above, you add it here:
