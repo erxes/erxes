@@ -45,7 +45,7 @@ const Type = styled.span`
 `;
 
 const IntegrationItem = styled.div`
-  width: 25%;
+  width: 20%;
   display: flex;
   padding-left: ${storeSpace}px;
   padding-top: ${storeSpace}px;
@@ -103,7 +103,7 @@ const IntegrationItem = styled.div`
 `;
 
 const CollapsibleContent = styled.div`
-  margin-top: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.coreSpacing}px 40px 0;
   padding: ${dimensions.coreSpacing}px;
   background: ${collapsibleBackground};
   box-shadow: inset 0px 11px 5px -10px ${colors.colorShadowGray},

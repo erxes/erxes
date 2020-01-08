@@ -40,31 +40,27 @@ class Home extends React.Component<Props, { filteredItem: string }> {
     const { filteredItem } = this.state;
     const { totalCount, queryParams } = this.props;
 
-    return INTEGRATIONS.map(obj => {
-      const datas = [] as any;
+    const datas = [] as any;
 
-      const rows = [
-        ...obj.rows.filter(
-          integration =>
-            integration.category &&
-            integration.category.indexOf(filteredItem) !== -1
-        )
-      ];
+    const rows = [
+      ...INTEGRATIONS.filter(
+        integration =>
+          integration.category &&
+          integration.category.indexOf(filteredItem) !== -1
+      )
+    ];
 
-      while (rows.length > 0) {
-        datas.push(
-          <Row
-            key={obj.name}
-            title={obj.title}
-            integrations={rows.splice(0, 4)}
-            totalCount={totalCount}
-            queryParams={queryParams}
-          />
-        );
-      }
+    while (rows.length > 0) {
+      datas.push(
+        <Row
+          integrations={rows.splice(0, 5)}
+          totalCount={totalCount}
+          queryParams={queryParams}
+        />
+      );
+    }
 
-      return datas;
-    });
+    return datas;
   }
 
   renderContent() {
