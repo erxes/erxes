@@ -1,3 +1,19 @@
+# [0.12.0](https://github.com/erxes/erxes-widgets/compare/0.11.2...0.12.0) (2020-01-08)
+
+
+### Bug Fixes
+
+* **form:** checkbox error ([4b64aa5](https://github.com/erxes/erxes-widgets/commit/4b64aa5)), closes [#157](https://github.com/erxes/erxes-widgets/issues/157)
+* **form:** multiple submit bug ([e04e206](https://github.com/erxes/erxes-widgets/commit/e04e206)), closes [#160](https://github.com/erxes/erxes-widgets/issues/160)
+* **upload:** forbidden error ([2c84ad5](https://github.com/erxes/erxes-widgets/commit/2c84ad5)), closes [#156](https://github.com/erxes/erxes-widgets/issues/156)
+
+
+### Features
+
+* **form:** ability call submit action from parent website ([dbb252c](https://github.com/erxes/erxes-widgets/commit/dbb252c)), closes [#158](https://github.com/erxes/erxes-widgets/issues/158)
+* **form:** ability to change css from parent ([d833901](https://github.com/erxes/erxes-widgets/commit/d833901)), closes [#159](https://github.com/erxes/erxes-widgets/issues/159)
+* **messenger:** added showErxesMessenger trigger ([80469cc](https://github.com/erxes/erxes-widgets/commit/80469cc)), closes [#148](https://github.com/erxes/erxes-widgets/issues/148)
+
 ## [0.11.2](https://github.com/erxes/erxes-widgets/compare/0.11.0...0.11.2) (2019-12-15)
 
 # [0.11.0](https://github.com/erxes/erxes-widgets/compare/0.10.1...0.11.0) (2019-11-01)
