@@ -96,3 +96,6 @@ patch:
         patched: '2019-10-29T23:34:16.286Z'
     - snyk > snyk-go-plugin > graphlib > lodash:
         patched: '2019-10-29T23:34:16.286Z'
+  SNYK-JS-TREEKILL-536781:
+    - snyk > snyk-sbt-plugin > tree-kill:
+        patched: '2020-01-08T11:06:24.493Z'
