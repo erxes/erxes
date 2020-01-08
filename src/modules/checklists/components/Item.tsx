@@ -167,12 +167,12 @@ class ListRow extends React.Component<Props, State> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <a onClick={this.onConvert} href="#">
+              <a onClick={this.onConvert} href="#convert">
                 Convert to Card
               </a>
             </li>
             <li>
-              <a onClick={this.onRemove} href="#">
+              <a onClick={this.onRemove} href="#remove">
                 Delete
               </a>
             </li>
