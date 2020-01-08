@@ -8,7 +8,7 @@ const loginMiddleware = (req, res) => {
   const {
     FACEBOOK_APP_ID,
     FACEBOOK_APP_SECRET,
-    FACEBOOK_PERMISSIONS = 'manage_pages, pages_show_list, publish_pages, pages_messaging',
+    FACEBOOK_PERMISSIONS = 'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions',
   } = process.env;
 
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
