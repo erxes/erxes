@@ -24,18 +24,6 @@ type State = {
 };
 
 class LeadFilterContainer extends React.Component<Props, State> {
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const query = nextProps.integrationsQuery;
-
-    if (query && prevState.integrations !== query.integrations) {
-      return {
-        integrations: query.integrations || []
-      };
-    }
-
-    return { integrations: prevState.integrations };
-  }
-
   constructor(props) {
     super(props);
 
@@ -44,19 +32,34 @@ class LeadFilterContainer extends React.Component<Props, State> {
     };
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { integrationsQuery } = this.props;
+
+    if (
+      integrationsQuery &&
+      prevProps.integrationsQuery &&
+      integrationsQuery.integrations !==
+        prevProps.integrationsQuery.integrations
+    ) {
+      this.setState({
+        integrations: [
+          ...prevState.integrations,
+          ...integrationsQuery.integrations
+        ]
+      });
+    }
+  }
+
   loadMore = () => {
     const { integrationsQuery } = this.props;
 
     if (integrationsQuery) {
-      integrationsQuery
-        .refetch({
-          perPage: this.state.integrations.length + 10
-        })
-        .then(({ data }) => {
-          this.setState({
-            integrations: data.integrations
-          });
-        });
+      const { integrations } = this.state;
+
+      integrationsQuery.refetch({
+        perPage: 10,
+        page: Math.floor(integrations.length / 10) + 1
+      });
     }
   };
 
@@ -94,7 +97,7 @@ export default withProps<{ loadingMainQuery: boolean }>(
       {
         name: 'integrationsQuery',
         options: () => ({
-          variables: { kind: 'lead', perPage: 10 }
+          variables: { kind: 'lead', perPage: 10, page: 1 }
         }),
         skip: ({ loadingMainQuery }) => loadingMainQuery
       }
