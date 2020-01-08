@@ -110,6 +110,20 @@ const Verify = styled.div`
   }
 `;
 
+const RefreshPermission = styled.div`
+  padding-top: ${dimensions.unitSpacing}px;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: ${colors.colorSecondary};
+  font-weight: 500;
+  opacity: 0.8;
+  transition: all ease 0.3s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
 export {
   FlexRow,
   Row,
@@ -119,5 +133,6 @@ export {
   Options,
   Description,
   Script,
-  Verify
+  Verify,
+  RefreshPermission
 };
