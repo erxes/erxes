@@ -1,3 +1,28 @@
+# [0.12.0](https://github.com/erxes/erxes-api/compare/0.11.2...0.12.0) (2020-01-08)
+
+
+### Bug Fixes
+
+* **deal/ticket/task:** move card labels bug ([35136a1](https://github.com/erxes/erxes-api/commit/35136a1)), closes [#676](https://github.com/erxes/erxes-api/issues/676)
+* **mail:** not receiving updates in realtime ([2e4a382](https://github.com/erxes/erxes-api/commit/2e4a382)), closes [#683](https://github.com/erxes/erxes-api/issues/683)
+
+
+### Performance Improvements
+
+* **integrations:** using rabbitmq for erxes-integrations communication ([6fd595e](https://github.com/erxes/erxes-api/commit/6fd595e)), closes [#690](https://github.com/erxes/erxes-api/issues/690)
+* **widgets:** merge erxes-widgets-api with erxes-api ([71e89ba](https://github.com/erxes/erxes-api/commit/71e89ba)), closes [erxes/erxes#1542](https://github.com/erxes/erxes/issues/1542)
+* **widgets:** merge erxes-widgets-api with erxes-api ([81e3880](https://github.com/erxes/erxes-api/commit/81e3880)), closes [#1542](https://github.com/erxes/erxes-api/issues/1542)
+
+
+### BREAKING CHANGES
+
+* **widgets:** erxes-widgets-api is making code duplication difficult to maintain and we decided that it is an unnecessary abstraction.
+1. Remove MAIN_API_URL env variable
+2. Point API_GRAPHQL_URL env variable to http://localhost:3300/graphql AKA erxes-api
+* **widgets:** erxes-widgets-api is making code duplication difficult to maintain and we decided that it is an unnecessary abstraction.
+1. Remove MAIN_API_URL env variable
+2. Point API_GRAPHQL_URL env variable to http://localhost:3300/graphql AKA erxes-api
+
 ## [0.11.2](https://github.com/erxes/erxes-api/compare/0.11.1...0.11.2) (2019-12-15)
 
 
