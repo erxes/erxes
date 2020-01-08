@@ -27,7 +27,7 @@
     },
     "REACT_APP_API_SUBSCRIPTION_URL": {
       "description": "Erxes API Subscriptions URL",
-      "value": "ws://erxes-api.herokuapp.com/subscriptions"
+      "value": "wss://erxes-api.herokuapp.com/subscriptions"
     }
   },
   "addons": [],
