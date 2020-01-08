@@ -41,21 +41,27 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     return attachments.map((attachment, index) => (
-      <Attachment key={index} attachment={attachment} type="conversation" />
+      <Attachment key={index} attachment={attachment} simple={true} />
     ));
   }
 
   renderContent(hasAttachment: boolean) {
-    const { message, renderContent } = this.props;
+    const { message, renderContent, isStaff } = this.props;
 
     if (renderContent) {
       return renderContent();
     }
 
+    if (!message.content) {
+      return this.renderAttachment(hasAttachment);
+    }
+
     return (
       <>
-        <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
-        {this.renderAttachment(hasAttachment)}
+        <MessageContent staff={isStaff} internal={message.internal}>
+          <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
+          {this.renderAttachment(hasAttachment)}
+        </MessageContent>
       </>
     );
   }
@@ -80,13 +86,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
         {this.renderAvatar()}
 
         <MessageBody staff={isStaff}>
-          {!message.content && hasAttachment ? (
-            this.renderContent(hasAttachment)
-          ) : (
-            <MessageContent staff={isStaff} internal={message.internal}>
-              {this.renderContent(hasAttachment)}
-            </MessageContent>
-          )}
+          {this.renderContent(hasAttachment)}
           <Tip text={dayjs(messageDate).format('lll')}>
             <footer>{dayjs(messageDate).format('LT')}</footer>
           </Tip>

@@ -38,7 +38,6 @@ const PreviewWrapper = styled.div`
 const Image = styled.img`
   cursor: zoom-in;
   transition: all 0.3s;
-  max-width: 300px;
 
   &:hover {
     opacity: 0.8;

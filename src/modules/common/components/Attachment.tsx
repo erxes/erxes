@@ -7,7 +7,7 @@ import colors from '../styles/colors';
 import { IAttachment } from '../types';
 import { readFile } from '../utils';
 
-const AttachmentWrapper = styled.div`
+export const AttachmentWrapper = styled.div`
   border-radius: 4px;
   transition: all 0.3s ease;
   display: flex;
@@ -26,7 +26,6 @@ const AttachmentWrapper = styled.div`
 const ItemInfo = styled.div`
   flex: 1;
   padding: 10px 15px;
-  color: ${colors.textPrimary};
   word-wrap: break-word;
 
   h5 {
@@ -61,7 +60,7 @@ const PreviewWrapper = styled.div`
   }
 `;
 
-const Meta = styled.div`
+export const Meta = styled.div`
   position: relative;
   font-weight: 500;
   color: ${colors.colorCoreGray};
@@ -82,7 +81,7 @@ type Props = {
   attachment: IAttachment;
   scrollBottom?: () => void;
   additionalItem?: React.ReactNode;
-  type?: string;
+  simple?: boolean;
 };
 
 class Attachment extends React.Component<Props> {
@@ -154,14 +153,14 @@ class Attachment extends React.Component<Props> {
   }
 
   renderAtachment = ({ attachment }) => {
-    const { type } = this.props;
-
     if (!attachment.type) {
       return null;
     }
 
+    const { simple } = this.props;
+
     if (attachment.type.startsWith('image')) {
-      if (type && type === 'conversation') {
+      if (simple) {
         return this.renderImagePreview(attachment);
       }
 
