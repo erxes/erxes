@@ -139,8 +139,5 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "snyk": true,
-  "engines": {
-    "node": "10.16.0"
-  }
+  "snyk": true
 }
