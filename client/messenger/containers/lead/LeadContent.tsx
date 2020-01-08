@@ -31,6 +31,7 @@ type QueryResponse = {
 };
 
 interface IProps {
+  isSubmitting?: boolean;
   integration: IIntegration;
   form: IForm;
   currentStatus: ICurrentStatus;
@@ -59,6 +60,7 @@ const WithContext = () => (
         getIntegration,
         getForm,
         isCallOutVisible,
+        isSubmitting,
         showForm
       }) => {
         const integration = getIntegration();
@@ -74,6 +76,7 @@ const WithContext = () => (
 
         return (
           <FormWithData
+            isSubmitting={isSubmitting}
             currentStatus={currentStatus}
             onSubmit={save}
             onCreateNew={createNew}

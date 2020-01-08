@@ -39,6 +39,7 @@ interface IProps {
   setHeight: () => void;
   sendEmail: (params: IEmailParams) => void;
   callSubmit: boolean;
+  isSubmitting?: boolean;
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(
@@ -64,6 +65,7 @@ const WithContext = () => (
       setHeight,
       getIntegration,
       callSubmit,
+      isSubmitting,
       getForm
     }) => {
       const integration = getIntegration();
@@ -71,6 +73,7 @@ const WithContext = () => (
 
       return (
         <FormWithData
+          isSubmitting={isSubmitting}
           currentStatus={currentStatus}
           onSubmit={save}
           onCreateNew={createNew}

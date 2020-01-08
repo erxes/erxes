@@ -10,6 +10,7 @@ interface IState {
   isFormVisible: boolean;
   isCalloutVisible: boolean;
   currentStatus: ICurrentStatus;
+  isSubmitting?: boolean;
   callSubmit: boolean;
 }
 
@@ -155,6 +156,8 @@ export class AppProvider extends React.Component<{}, IState> {
    * Save user submissions
    */
   save = (doc: IFormDoc) => {
+    this.setState({ isSubmitting: true });
+
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
@@ -165,6 +168,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
         this.setState({
           callSubmit: false,
+          isSubmitting: false,
           currentStatus: {
             status: status === "ok" ? "SUCCESS" : "ERROR",
             errors

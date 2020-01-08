@@ -22,6 +22,7 @@ type Props = {
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
   hasTopBar: boolean;
+  isSubmitting?: boolean;
   color?: string;
 };
 
@@ -140,7 +141,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderForm() {
-    const { form, integration, color } = this.props;
+    const { form, integration, color, isSubmitting } = this.props;
 
     return (
       <div className="erxes-form">
@@ -154,9 +155,12 @@ class Form extends React.Component<Props, State> {
             style={{ background: color }}
             type="button"
             onClick={this.onSubmit}
-            className="erxes-button btn-block"
+            className={`erxes-button btn-block ${
+              isSubmitting ? "disabled" : ""
+            }`}
+            disabled={isSubmitting}
           >
-            {form.buttonText || __("Send")}
+            {isSubmitting ? __("Loading ...") : form.buttonText || __("Send")}
           </button>
         </div>
       </div>

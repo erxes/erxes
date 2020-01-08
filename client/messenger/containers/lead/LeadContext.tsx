@@ -16,6 +16,7 @@ import { connection } from "../../connection";
 interface IState {
   currentStatus: ICurrentStatus;
   isCallOutVisible: boolean;
+  isSubmitting?: boolean;
 }
 
 interface IStore extends IState {
@@ -53,6 +54,8 @@ export class LeadProvider extends React.Component<{}, IState> {
    * Save user submissions
    */
   save = (doc: IFormDoc) => {
+    this.setState({ isSubmitting: true });
+
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
@@ -62,6 +65,7 @@ export class LeadProvider extends React.Component<{}, IState> {
         const { status, errors } = response;
 
         this.setState({
+          isSubmitting: false,
           currentStatus: {
             status: status === "ok" ? "SUCCESS" : "ERROR",
             errors
