@@ -145,6 +145,7 @@ type ButtonProps = {
   children?: React.ReactNode;
   className?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onMouseDown?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   href?: string;
   type?: string;
   btnStyle?: string;
