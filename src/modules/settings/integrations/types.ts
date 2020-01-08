@@ -133,7 +133,7 @@ export type IntegrationDetailQueryResponse = {
 
 type By = { [key: string]: number };
 
-export type ByKind = {
+export type ByKindTotalCount = {
   messenger: number;
   lead: number;
   facebook: number;
@@ -151,7 +151,7 @@ type IntegrationsCount = {
   byTag: By;
   byChannel: By;
   byBrand: By;
-  byKind: ByKind;
+  byKind: ByKindTotalCount;
 };
 
 export type IntegrationsCountQueryResponse = {

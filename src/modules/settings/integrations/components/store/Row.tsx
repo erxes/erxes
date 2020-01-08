@@ -5,24 +5,14 @@ import MessengerAppList from 'modules/settings/integrations/containers/Messenger
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import StoreEntry from '../../containers/StoreEntry';
+import { ByKindTotalCount } from '../../types';
 import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';
 
 type Props = {
   integrations: any[];
   title?: string;
-  totalCount: {
-    messenger: number;
-    form: number;
-    facebook: number;
-    gmail: number;
-    callpro: number;
-    chatfuel: number;
-    imap: number;
-    office365: number;
-    outlook: number;
-    yahoo: number;
-  };
+  totalCount: ByKindTotalCount;
   queryParams: any;
 };
 
