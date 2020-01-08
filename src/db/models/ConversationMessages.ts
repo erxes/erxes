@@ -42,11 +42,16 @@ export const loadClass = () => {
         conversationId: message.conversationId,
       }).countDocuments();
 
-      await Conversations.updateConversation(message.conversationId, {
-        messageCount,
-        // updating updatedAt
+      // update conversation ====
+      const convDocModifier: { messageCount?: number; updatedAt: Date } = {
         updatedAt: new Date(),
-      });
+      };
+
+      if (!doc.fromBot) {
+        convDocModifier.messageCount = messageCount;
+      }
+
+      await Conversations.updateConversation(message.conversationId, convDocModifier);
 
       if (message.userId) {
         // add created user to participators

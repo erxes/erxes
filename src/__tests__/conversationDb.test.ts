@@ -98,8 +98,6 @@ describe('Conversation db', () => {
   });
 
   test('Create conversation message', async () => {
-    expect.assertions(17);
-
     // setting updatedAt to null to check when new message updatedAt field
     // must be setted
     _conversation.updatedAt = null;
@@ -121,6 +119,7 @@ describe('Conversation db', () => {
     }
 
     expect(updatedConversation.updatedAt).toEqual(expect.any(Date));
+    expect(updatedConversation.messageCount).toBe(2);
 
     expect(messageObj.content).toBe(_conversationMessage.content);
     expect(messageObj.attachments.length).toBe(1);
@@ -173,6 +172,21 @@ describe('Conversation db', () => {
 
     // check if message count increase
     expect(afterConversationObj.messageCount).toBe(2);
+
+    // Do not update conversation message count when bot message
+    _doc.fromBot = true;
+    _doc.content = 'content';
+    _doc.conversationId = messageObj.conversationId;
+
+    let conversation = await Conversations.getConversation(_doc.conversationId);
+    const prevMessageCount = conversation.messageCount;
+
+    await ConversationMessages.addMessage(_doc, _user);
+
+    conversation = await Conversations.getConversation(_doc.conversationId);
+    const updatedMessageCount = conversation.messageCount;
+
+    expect(prevMessageCount).toBe(updatedMessageCount);
   });
 
   // if user assigned to conversation
