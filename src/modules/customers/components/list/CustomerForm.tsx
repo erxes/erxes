@@ -195,6 +195,7 @@ class CustomerForm extends React.Component<Props, State> {
                   onChange={this.onEmailChange}
                   required={true}
                   checkFormat={validator.isEmail}
+                  adding={!customer.emails}
                 />
               </FormGroup>
 
