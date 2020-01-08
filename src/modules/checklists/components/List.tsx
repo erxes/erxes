@@ -260,7 +260,7 @@ class List extends React.Component<Props, State> {
 
     if (isAddingItem) {
       return (
-        <FormWrapper add={true} onSubmit={this.onSubmitAddItem}>
+        <FormWrapper add={true}>
           <FormControlWrapper onBlur={this.onBlur}>
             <FormControl
               componentClass="textarea"
@@ -274,9 +274,9 @@ class List extends React.Component<Props, State> {
             />
             <Button
               btnStyle="success"
-              type="submit"
               size="small"
               icon="check-1"
+              onMouseDown={this.onSubmitAddItem}
             />
             <Button
               btnStyle="simple"
