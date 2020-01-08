@@ -1,3 +1,30 @@
+# [0.12.0](https://github.com/erxes/erxes/compare/0.11.2...0.12.0) (2020-01-08)
+
+
+### Bug Fixes
+
+* able to add cc bcc in reply ([#1528](https://github.com/erxes/erxes/issues/1528)) ([8af13a0](https://github.com/erxes/erxes/commit/8af13a0))
+
+
+### Features
+
+* **checklist:** add possibility to convert checklist item to card and remove close [#1562](https://github.com/erxes/erxes/issues/1562) ([fa7a9a0](https://github.com/erxes/erxes/commit/fa7a9a0))
+* **email:** nylas forward feature ([#1526](https://github.com/erxes/erxes/issues/1526)) ([50dd13a](https://github.com/erxes/erxes/commit/50dd13a))
+* **engage:** show active process logs ([9f6de8c](https://github.com/erxes/erxes/commit/9f6de8c)), closes [#1538](https://github.com/erxes/erxes/issues/1538)
+* **engage:** verification management ([509c32d](https://github.com/erxes/erxes/commit/509c32d)), closes [#1539](https://github.com/erxes/erxes/issues/1539)
+* **integration:** added web kinded messenger app ([a29ce77](https://github.com/erxes/erxes/commit/a29ce77)), closes [#1507](https://github.com/erxes/erxes/issues/1507)
+* **permissions:** improved filter ([58ebf77](https://github.com/erxes/erxes/commit/58ebf77)), closes [#1512](https://github.com/erxes/erxes/issues/1512)
+
+
+### Performance Improvements
+
+* **checklist:** can not add checklist item sometimes close [#1566](https://github.com/erxes/erxes/issues/1566) ([db39ba4](https://github.com/erxes/erxes/commit/db39ba4))
+* **engage:** show sent content close [#1523](https://github.com/erxes/erxes/issues/1523) ([f5d3c50](https://github.com/erxes/erxes/commit/f5d3c50))
+* **growthHack:** show all campaign ([60cc9e8](https://github.com/erxes/erxes/commit/60cc9e8))
+* **inbox:** improve attachment view in inbox (close [#1568](https://github.com/erxes/erxes/issues/1568)) ([c45de57](https://github.com/erxes/erxes/commit/c45de57))
+* **upload:** warning when upload large file ([09bceda](https://github.com/erxes/erxes/commit/09bceda))
+* **upload:** warning when upload large file ([d66222d](https://github.com/erxes/erxes/commit/d66222d))
+
 ## [0.11.2](https://github.com/erxes/erxes/compare/0.11.1...0.11.2) (2019-12-15)
 
 ## [0.11.1](https://github.com/erxes/erxes/compare/0.11.0...0.11.1) (2019-12-15)
