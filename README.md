@@ -9,7 +9,7 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)
 [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master)
 ![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes)
-[![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes)
+![Snyk Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/github/erxes/erxes)
 [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/)
 [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
 
