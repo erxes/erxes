@@ -19,15 +19,15 @@
     },
     "REACT_APP_CDN_HOST": {
       "description": "Erxes Widget URL",
-      "value": "https://ERXESWIDGETAPPNAME.herokuapp.com"
+      "value": "https://erxes-widget.herokuapp.com"
     },
     "REACT_APP_API_URL": {
       "description": "Erxes API URL",
-      "value": "https://ERXESAPIAPPNAME.herokuapp.com"
+      "value": "https://erxes-api.herokuapp.com"
     },
     "REACT_APP_API_SUBSCRIPTION_URL": {
-      "description": "A secret key for verifying the integrity of signed cookies.",
-      "value": "ws://ERXESAPIAPPNAME.herokuapp.com/subscriptions"
+      "description": "Erxes API Subscriptions URL",
+      "value": "ws://erxes-api.herokuapp.com/subscriptions"
     }
   },
   "addons": [],
