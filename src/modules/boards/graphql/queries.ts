@@ -83,11 +83,12 @@ const boardDetail = `
 `;
 
 const pipelines = `
-  query pipelines($boardId: String!) {
-    pipelines(boardId: $boardId) {
+  query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
+    pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
       _id
       name
       boardId
+      state
     }
   }
 `;
@@ -104,26 +105,36 @@ const pipelineDetail = `
   }
 `;
 
+const commonParams = `
+  $search: String,
+  $customerIds: [String],
+  $companyIds: [String],
+  $assignedUserIds: [String],
+  $labelIds: [String],
+  $extraParams: JSON,
+  $closeDateType: String
+`;
+
+const commonParamDefs = `
+  search: $search,
+  customerIds: $customerIds,
+  companyIds: $companyIds,
+  assignedUserIds: $assignedUserIds,
+  labelIds: $labelIds,
+  extraParams: $extraParams,
+  closeDateType: $closeDateType
+`;
+
 const stages = `
   query stages(
     $isNotLost: Boolean,
     $pipelineId: String!,
-    $search: String,	
-    $customerIds: [String],	
-    $companyIds: [String],	
-    $assignedUserIds: [String],	
-    $extraParams: JSON,
-    $closeDateType: String
+    ${commonParams}
   ) {
     stages(
       isNotLost: $isNotLost,
       pipelineId: $pipelineId,
-      search: $search,	
-      customerIds: $customerIds,	
-      companyIds: $companyIds,	
-      assignedUserIds: $assignedUserIds,	
-      extraParams: $extraParams,
-      closeDateType: $closeDateType
+      ${commonParamDefs}
     ) {
       _id
       name
@@ -140,8 +151,14 @@ const stages = `
 `;
 
 const stageDetail = `
-  query stageDetail($_id: String!) {
-    stageDetail(_id: $_id) {
+  query stageDetail(
+    $_id: String!,
+    ${commonParams}
+  ) {
+    stageDetail(
+      _id: $_id,
+      ${commonParamDefs}
+    ) {
       _id
       name
       pipelineId
@@ -151,10 +168,21 @@ const stageDetail = `
   }
 `;
 
+const boardCounts = `
+  query boardCounts($type: String!) {
+    boardCounts(type: $type) {
+      _id
+      name
+      count
+    }
+  }
+`;
+
 export default {
   boards,
   boardGetLast,
   boardDetail,
+  boardCounts,
   pipelines,
   pipelineDetail,
   stages,

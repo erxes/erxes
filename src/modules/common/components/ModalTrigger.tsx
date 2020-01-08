@@ -22,6 +22,7 @@ type Props = {
   isOpen?: boolean;
   history: any;
   paddingContent?: 'no-padding';
+  centered?: boolean;
   onExit?: () => void;
 } & IRouterProps;
 
@@ -88,7 +89,8 @@ class ModalTrigger extends React.Component<Props, State> {
       backDrop,
       enforceFocus,
       onExit,
-      paddingContent
+      paddingContent,
+      centered
     } = this.props;
 
     const { isOpen } = this.state;
@@ -114,6 +116,7 @@ class ModalTrigger extends React.Component<Props, State> {
           enforceFocus={enforceFocus}
           onExit={onExit}
           animation={false}
+          centered={centered}
         >
           {this.renderHeader()}
           <Modal.Body className={paddingContent}>

@@ -33,7 +33,7 @@
     "bat-draft-js-mention-plugin": "^2.0.1",
     "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",
-    "color": "^3.0.0",
+    "color": "^3.1.2",
     "crypto": "^1.0.1",
     "dayjs": "^1.8.15",
     "draft-js": "^0.10.5",
@@ -73,7 +73,7 @@
     "styled-components-ts": "^0.0.14",
     "subscriptions-transport-ws": "^0.9.16",
     "ua-parser-js": "^0.7.17",
-    "validator": "^10.11.0",
+    "validator": "^12.1.0",
     "xss": "^1.0.3"
   },
   "lint-staged": {

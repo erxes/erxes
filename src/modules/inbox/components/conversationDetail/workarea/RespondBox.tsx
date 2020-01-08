@@ -1,11 +1,13 @@
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { IAttachmentPreview } from 'modules/common/types';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
+import { deleteHandler } from 'modules/common/utils/uploadHandler';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {
   Attachment,
@@ -58,6 +60,7 @@ type State = {
   content: string;
   mentionedUserIds: string[];
   editorKey: string;
+  loading: object;
 };
 
 class RespondBox extends React.Component<Props, State> {
@@ -72,7 +75,8 @@ class RespondBox extends React.Component<Props, State> {
       attachments: [],
       responseTemplate: '',
       content: '',
-      mentionedUserIds: []
+      mentionedUserIds: [],
+      loading: {}
     };
   }
 
@@ -186,6 +190,41 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
+  handleDeleteFile = (url: string) => {
+    const urlArray = url.split('/');
+
+    // checking whether url is full path or just file name
+    const fileName =
+      urlArray.length === 1 ? url : urlArray[urlArray.length - 1];
+
+    let loading = this.state.loading;
+    loading[url] = true;
+
+    this.setState({ loading });
+
+    deleteHandler({
+      fileName,
+      afterUpload: ({ status }) => {
+        if (status === 'ok') {
+          const remainedAttachments = this.state.attachments.filter(
+            a => a.url !== url
+          );
+
+          this.setState({ attachments: remainedAttachments });
+
+          Alert.success('You successfully deleted a file');
+        } else {
+          Alert.error(status);
+        }
+
+        loading = this.state.loading;
+        delete loading[url];
+
+        this.setState({ loading });
+      }
+    });
+  };
+
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     const { setAttachmentPreview } = this.props;
@@ -259,7 +298,8 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   renderIncicator() {
-    const attachments = this.state.attachments;
+    const { attachments, loading } = this.state;
+
     if (attachments.length > 0) {
       return (
         <AttachmentIndicator>
@@ -279,6 +319,14 @@ class RespondBox extends React.Component<Props, State> {
                 ({Math.round(attachment.size / 1000)}
                 kB)
               </div>
+              {loading[attachment.url] ? (
+                <SmallLoader />
+              ) : (
+                <Icon
+                  icon="times"
+                  onClick={this.handleDeleteFile.bind(this, attachment.url)}
+                />
+              )}
             </Attachment>
           ))}
         </AttachmentIndicator>
@@ -368,7 +416,11 @@ class RespondBox extends React.Component<Props, State> {
         <Tip text={__('Attach file')}>
           <label>
             <Icon icon="paperclip" />
-            <input type="file" onChange={this.handleFileInput} />
+            <input
+              type="file"
+              onChange={this.handleFileInput}
+              multiple={true}
+            />
           </label>
         </Tip>
 

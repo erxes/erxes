@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IStage } from 'modules/boards/types';
+import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import Stage from 'modules/deals/components/conversion/table/Stage';
@@ -94,6 +95,10 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     }
 
     const deals = dealsQuery.deals;
+
+    if (!deals) {
+      return <EmptyState text="Deals not found" icon="piggy-bank" />;
+    }
 
     const hasMore = stage.initialDealsTotalCount > deals.length;
 

@@ -79,6 +79,7 @@ export const engageDetailFields = `
   createdAt
   messenger
   fromUser {
+    _id
     email
     details {
       fullName
@@ -90,9 +91,18 @@ export const engageDetailFields = `
     day
     time
   }
-  stats
   brand {
     name
+  }
+`;
+
+const engageMessageStats = `
+  query engageMessageDetail($_id: String) {
+    engageMessageDetail(_id: $_id){
+      ${engageDetailFields}
+      stats
+      logs
+    }
   }
 `;
 
@@ -272,6 +282,7 @@ export default {
   engageMessages,
   engageMessagesTotalCount,
   engageMessageDetail,
+  engageMessageStats,
   users,
   userDetail,
   segments,

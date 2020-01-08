@@ -56,17 +56,11 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.removeItem = this.removeItem.bind(this);
   }
 
-  addItem(
-    doc: IItemParams,
-    callback: () => void,
-    msg = this.props.options.texts.addSuccessText
-  ) {
+  addItem(doc: IItemParams, callback: () => void) {
     const { onAdd, addMutation, stageId, options } = this.props;
 
     addMutation({ variables: doc })
       .then(({ data }) => {
-        Alert.success(msg);
-
         callback();
 
         if (onAdd) {
@@ -102,7 +96,9 @@ class EditFormContainer extends React.Component<FinalProps> {
         .then(() => {
           callback();
 
-          Alert.success(options.texts.deleteSuccessText);
+          if (options.texts.deleteSuccessText) {
+            Alert.success(options.texts.deleteSuccessText);
+          }
 
           if (onRemove) {
             invalidateCache();

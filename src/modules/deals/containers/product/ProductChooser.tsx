@@ -99,7 +99,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
     return (
       <Chooser
         {...updatedProps}
-        renderSidebar={this.renderProductCategoryChooser}
+        renderFilter={this.renderProductCategoryChooser}
       />
     );
   }

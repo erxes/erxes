@@ -28,6 +28,7 @@ class CreatedLog extends React.Component<Props> {
         userName = createdByDetail.content.details.fullName || 'Unknown';
       }
     }
+
     const body = (
       <Link
         to={`/${contentType}/board?_id=${activity._id}&itemId=${
@@ -69,7 +70,7 @@ class CreatedLog extends React.Component<Props> {
 
       return (
         <span>
-          This customer registered to erxes
+          This customer registered to erxes by
           {content ? ` ${content.name}'s integrations` : ''}
         </span>
       );

@@ -90,6 +90,40 @@ const Description = styled.p`
   text-transform: initial;
 `;
 
+const Verify = styled.div`
+  display: flex;
+  align-items: center;
+  margin: ${dimensions.coreSpacing}px ${dimensions.coreSpacing * 8}px
+    ${dimensions.coreSpacing}px 0;
+
+  > * {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
+
+  > i {
+    color: ${colors.colorPrimary};
+    margin: 0 ${dimensions.unitSpacing}px 0;
+  }
+
+  label {
+    margin: 0;
+  }
+`;
+
+const RefreshPermission = styled.div`
+  padding-top: ${dimensions.unitSpacing}px;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: ${colors.colorSecondary};
+  font-weight: 500;
+  opacity: 0.8;
+  transition: all ease 0.3s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
 export {
   FlexRow,
   Row,
@@ -98,5 +132,7 @@ export {
   BrandName,
   Options,
   Description,
-  Script
+  Script,
+  Verify,
+  RefreshPermission
 };

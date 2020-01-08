@@ -29,7 +29,7 @@ export interface IOptions {
   };
   texts: {
     addText: string;
-    addSuccessText: string;
+    addSuccessText?: string;
     updateSuccessText: string;
     deleteSuccessText: string;
     copySuccessText: string;
@@ -58,6 +58,7 @@ export interface IItemParams {
   reminderMinute?: number;
   companyIds?: string[];
   customerIds?: string[];
+  sourceConversationId?: string;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -179,10 +180,24 @@ export type BoardsQueryResponse = {
   refetch: () => void;
 };
 
+export interface IBoardCount {
+  _id: string;
+  name: string;
+  count: number;
+}
+
+export type BoardCountsQueryResponse = {
+  boardCounts: IBoardCount[];
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type PipelinesQueryResponse = {
   pipelines: IPipeline[];
   loading: boolean;
-  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
+  refetch: (
+    { boardId, type }: { boardId?: string; type?: string }
+  ) => Promise<any>;
 };
 
 export type StagesQueryResponse = {

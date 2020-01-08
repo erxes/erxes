@@ -39,20 +39,18 @@ class PropertyForm extends React.Component<Props, State> {
     };
 
     if (props.field) {
+      const { type, options } = props.field;
+
       doc = {
         ...doc,
-        type: props.field.type
+        type
       };
 
-      if (
-        props.field.type === 'select' ||
-        props.field.type === 'radio' ||
-        props.field.type === 'check'
-      ) {
+      if (type === 'select' || type === 'radio' || type === 'check') {
         doc = {
-          type: props.field.type,
+          type,
           hasOptions: true,
-          options: Object.assign([], props.field.options || [])
+          options: Object.assign([], options || [])
         };
       }
     }
@@ -202,6 +200,7 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="select">Select</option>
             <option value="check">Checkbox</option>
             <option value="radio">Radio button</option>
+            <option value="file">File</option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}

@@ -2,7 +2,8 @@ const commonParamsDef = `
   $module: String,
   $action: String,
   $userId: String,
-  $groupId: String
+  $groupId: String,
+  $allowed: Boolean
 `;
 
 const commonParams = `
@@ -10,6 +11,7 @@ const commonParams = `
   action: $action,
   userId: $userId,
   groupId: $groupId
+  allowed: $allowed
 `;
 
 const usersGroups = `

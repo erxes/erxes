@@ -66,6 +66,7 @@ class IntegrationListItem extends React.Component<Props> {
         name={integration.name}
         brandId={integration.brandId}
         integrationId={integration._id}
+        integrationKind={integration.kind}
       />
     );
 

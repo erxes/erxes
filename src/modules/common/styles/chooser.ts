@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { dimensions } from '.';
 import colors from './colors';
 
 const columnSizing = '20px';
@@ -14,7 +15,6 @@ const Columns = styled.div`
 const Column = styled.div`
   flex: 4;
   position: relative;
-  overflow: hidden;
 
   > input {
     margin-bottom: ${columnSizing};
@@ -119,8 +119,37 @@ const Footer = styled.div`
   }
 `;
 
-const SelectChooser = styled(Column)`
-  overflow: initial;
+const Select = styled.div`
+  line-height: 33px;
+  border-bottom: 1px solid ${colors.colorShadowGray};
+  min-width: 100px;
+  display: flex;
+  justify-content: space-between;
+
+  > span {
+    margin-left: ${dimensions.unitSpacing / 2}px;
+  }
+
+  i {
+    margin-left: ${dimensions.unitSpacing / 2}px;
+
+    &:hover {
+      color: ${colors.colorPrimary};
+      cursor: pointer;
+    }
+  }
 `;
 
-export { Columns, Column, Title, Footer, SelectChooser };
+const ActionTop = styled.div`
+  display: flex;
+
+  > * {
+    margin-left: ${dimensions.coreSpacing}px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+`;
+
+export { Columns, Column, Title, Footer, Select, ActionTop };

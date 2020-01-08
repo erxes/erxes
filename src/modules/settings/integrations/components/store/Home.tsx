@@ -3,22 +3,12 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { INTEGRATIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
+import { ByKindTotalCount } from '../../types';
 import Row from './Row';
 import { IntegrationWrapper } from './styles';
 
 type Props = {
-  totalCount: {
-    messenger: number;
-    form: number;
-    facebook: number;
-    gmail: number;
-    callpro: number;
-    chatfuel: number;
-    imap: number;
-    office365: number;
-    outlook: number;
-    yahoo: number;
-  };
+  totalCount: ByKindTotalCount;
   queryParams: any;
 };
 

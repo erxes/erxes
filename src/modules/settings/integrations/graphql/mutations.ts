@@ -119,16 +119,6 @@ const integrationsRemove = `
   }
 `;
 
-const engagesConfigSave = `
-  mutation engagesConfigSave($secretAccessKey: String!, $accessKeyId: String!, $region: String!) {
-    engagesConfigSave(secretAccessKey: $secretAccessKey, accessKeyId: $accessKeyId, region: $region) {
-      accessKeyId
-      secretAccessKey
-      region
-    }
-  }
-`;
-
 const messengerAppsAddLead = `
   mutation messengerAppsAddLead(
     $name: String!
@@ -155,6 +145,26 @@ const messengerAppsAddKnowledgebase = `
       name: $name
       integrationId: $integrationId
       topicId: $topicId
+    ) {
+      _id
+    }
+  }
+`;
+
+const messengerAppsAddWebsite = `
+  mutation messengerAppsAddWebsite(
+    $name: String!
+    $integrationId: String!
+    $description: String!
+    $buttonText: String!
+    $url: String!
+  ) {
+    messengerAppsAddWebsite(
+      name: $name
+      integrationId: $integrationId
+      description: $description
+      buttonText: $buttonText
+      url: $url
     ) {
       _id
     }
@@ -226,9 +236,9 @@ export default {
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
   integrationsRemove,
-  engagesConfigSave,
   messengerAppsAddLead,
   messengerAppsAddKnowledgebase,
+  messengerAppsAddWebsite,
   messengerAppsRemove,
   removeAccount,
   integrationSendMail,

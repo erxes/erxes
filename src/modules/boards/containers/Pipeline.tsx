@@ -146,7 +146,7 @@ const WithStatesQuery = (props: WithStatesQueryProps) => {
     return <Spinner />;
   }
 
-  const stages = stagesQuery.stages;
+  const stages = stagesQuery.stages || [];
 
   const itemMap: IItemMap = {};
   const stageMap: IStageMap = {};
@@ -170,6 +170,7 @@ export default withProps<Props>(
           customerIds: queryParams.customerIds,
           companyIds: queryParams.companyIds,
           assignedUserIds: queryParams.assignedUserIds,
+          labelIds: queryParams.labelIds,
           extraParams: getExtraParams(queryParams),
           closeDateType: queryParams.closeDateType
         }

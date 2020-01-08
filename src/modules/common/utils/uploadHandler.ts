@@ -29,6 +29,44 @@ type Params = {
   extraFormData?: Array<{ key: string; value: string }>;
 };
 
+export const deleteHandler = (params: {
+  fileName: string;
+  url?: string;
+  afterUpload: ({ status }: { status: string }) => any;
+}) => {
+  const { REACT_APP_API_URL } = getEnv();
+
+  const {
+    url = `${REACT_APP_API_URL}/delete-file`,
+    fileName,
+    afterUpload
+  } = params;
+
+  fetch(`${url}`, {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    },
+    body: `fileName=${fileName}`,
+    credentials: 'include'
+  }).then(response => {
+    response
+      .text()
+      .then(text => {
+        if (!response.ok) {
+          return afterUpload({
+            status: text
+          });
+        }
+
+        return afterUpload({ status: 'ok' });
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  });
+};
+
 const uploadHandler = (params: Params) => {
   const { REACT_APP_API_URL } = getEnv();
 
@@ -59,6 +97,17 @@ const uploadHandler = (params: Params) => {
     const uploadReader = new FileReader();
 
     const fileInfo = { name: file.name, size: file.size, type: file.type };
+
+    // skip file that size is more than 15mb
+    if (fileInfo.size > 15728640) {
+      Alert.warning(
+        `Your file ${
+          fileInfo.name
+        } size too large file. Upload file size is less than 15MB`
+      );
+
+      continue;
+    }
 
     // after read proccess done
     uploadReader.onloadend = () => {

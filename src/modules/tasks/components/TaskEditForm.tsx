@@ -40,7 +40,7 @@ export default class TaskEditForm extends React.Component<Props> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, onUpdate } = this.props;
+    const { item, options, onUpdate, addItem } = this.props;
 
     return (
       <>
@@ -60,6 +60,7 @@ export default class TaskEditForm extends React.Component<Props> {
             removeItem={remove}
             onUpdate={onUpdate}
             item={item}
+            addItem={addItem}
           />
 
           <Sidebar

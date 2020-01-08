@@ -44,7 +44,7 @@ class Actions extends React.Component<Props> {
         ) : (
           <Icon icon="sort-amount-up" />
         )}
-        {__('Priority')}
+        {item.priority ? item.priority : __('Priority')}
       </ColorButton>
     );
 

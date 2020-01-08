@@ -154,7 +154,8 @@ class UserForm extends React.Component<Props, State> {
         fullName: finalValues.fullName,
         position: finalValues.position,
         location: finalValues.location,
-        description: finalValues.description
+        description: finalValues.description,
+        operatorPhone: finalValues.operatorPhone
       },
       channelIds: this.collectValues(selectedChannels),
       links: {
