@@ -1,10 +1,10 @@
 import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INotification } from '../types';
 import NotificationRow from './NotificationRow';
-import Spinner from 'modules/common/components/Spinner';
 import {
   MarkAllRead,
   NotificationList,
