@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import Response from 'modules/automations/containers/Response';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
@@ -114,6 +115,9 @@ const QuickNavigation = ({
           </Link>
         </NavItem>
       </Tip>
+
+      {/* <Response userId={currentUser._id} /> */}
+      <Response />
 
       <NavItem>
         <Widget />

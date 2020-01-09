@@ -158,18 +158,6 @@ export class PipelineProvider extends React.Component<Props, State> {
           destinationStageId
         }
       })
-      .then((data: any) => {
-        // console.log(data.data.dealsChange.response);
-        if (
-          data.data.dealsChange.response &&
-          data.data.dealsChange.response.length > 0
-        ) {
-          const output = data.data.dealsChange.response;
-          const doc = document;
-          doc.open();
-          doc.write(output);
-        }
-      })
       .catch((e: Error) => {
         Alert.error(e.message);
       });
