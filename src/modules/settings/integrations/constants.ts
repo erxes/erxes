@@ -206,7 +206,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-office365',
     createUrl: '/settings/integrations/nylas-office365',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
+      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
     name: 'Gmail by Nylas',
@@ -244,7 +244,7 @@ export const INTEGRATIONS = [
     createModal: 'nylas-outlook',
     createUrl: '/settings/integrations/nylas-outlook',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
+      'All integrations, For support teams, Marketing automation, Email marketing'
   },
   {
     name: 'Yahoo by Nylas',
@@ -301,7 +301,7 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/twitter.png',
     createModal: 'twitter',
     category:
-      'All integrations, For support teams, Marketing automation, Social media, Messaging'
+      'All integrations, For support teams, Marketing automation, Social media, Messaging, Conversation'
   },
   {
     name: 'Chatfuel',
@@ -396,7 +396,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/amazon-lex.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'Cisco Jabber',
@@ -405,7 +405,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/cisco-jabber.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Phone and video, Conversation'
   },
   {
     name: 'Cisco Webex',
@@ -415,7 +415,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/cisco-webex.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Phone and video, Conversation'
   },
   {
     name: 'Dashbot',
@@ -424,7 +424,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/dashbot.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'Google Dialog Flow',
@@ -433,7 +433,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/google-dialogflow.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
   },
   {
     name: 'Google Hangouts',
@@ -443,7 +443,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/google-hangouts.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Phone and video, Conversation'
   },
   {
     name: 'IBM Watson',
@@ -452,7 +452,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/ibm-watson.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Natural language processing, Conversation'
   },
   {
     name: 'Microsoft Luis',
@@ -461,7 +461,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/microsoft.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Natural language processing, Conversation'
   },
   {
     name: 'Microsoft Teams',
@@ -471,7 +471,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/ms-teams.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Cloud storage, Messaging, Phone and video, Conversation'
   },
   {
     name: 'Rasa',
@@ -480,7 +480,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/rasa.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
   },
   {
     name: 'SAP Conversational AI',
@@ -489,7 +489,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/sap.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation'
   },
   {
     name: 'Slack',
@@ -499,7 +499,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/slack.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Conversation'
   },
   {
     name: 'Twilio IPM',
@@ -508,7 +508,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/twilio-ipm.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'Twilio SMS',
@@ -517,7 +517,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/twilio-ipm.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
   },
   {
     name: 'WIT.AI',
@@ -527,7 +527,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/wit.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Natural language processing, Conversation'
   },
   {
     name: 'Agatha Answers',
@@ -536,7 +536,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/agatha-answers.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'Asana',
@@ -545,7 +545,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/asana.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Project management'
   },
   {
     name: 'Asknicely',
@@ -555,7 +555,16 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/ask-nicely.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Analytics, Marketing automation, Conversation'
+  },
+  {
+    name: 'Chatbase',
+    description: 'See and reply to Line messages in your Team Inbox',
+    inMessenger: false,
+    isAvailable: false,
+    logo: '/images/integrations/chatbase.png',
+    category:
+      'All integrations, For support teams, For sales teams, For marketing teams, Analytics, Marketing automation, Messaging, Phone and video, Conversation'
   },
   {
     name: 'Autopilot',
@@ -564,7 +573,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/autopilot.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Email marketing, Phone and video, Engage'
   },
   {
     name: 'Base',
@@ -573,7 +582,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/base.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, CRM, Marketing automation, Social media, Sales pipeline'
   },
   {
     name: 'Chatbot.mn',
@@ -583,7 +592,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/chatbot.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
   },
   {
     name: 'Clearbit',
@@ -593,7 +602,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/clearbit.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, Marketing automation, Contacts'
   },
   {
     name: 'Classbox',
@@ -602,7 +611,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/classbox.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For marketing teams, Analytics, Marketing automation, Messaging, Phone and video'
   },
   {
     name: 'Doorbell.io',
@@ -611,7 +620,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/doorbell.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Surveys and Feedback, Conversation'
   },
   {
     name: 'Dropbox',
@@ -621,7 +630,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/dropbox.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Cloud storage'
   },
   {
     name: 'Fivetran',
@@ -630,8 +639,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/fivetran.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, For marketing teams, Analytics'
   },
   {
     name: 'Full contact',
@@ -640,7 +648,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/full-contact.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For sales teams, For marketing teams, Contacts, Data'
   },
   {
     name: 'Github',
@@ -648,8 +656,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/github.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, Tools'
   },
   {
     name: 'Google calendar',
@@ -659,7 +666,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/google-calendar.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Scheduling, Sales pipeline'
   },
   {
     name: 'Google Drive',
@@ -669,7 +676,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/google-drive.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Cloud storage'
   },
   {
     name: 'Hubspot import',
@@ -678,7 +685,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/hubspot.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For sales teams, For marketing teams, Contacts, CRM, Data, Tools'
   },
   {
     name: 'Jira',
@@ -688,7 +695,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/jira.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Project management'
   },
   {
     name: 'Justcall.io',
@@ -698,7 +705,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/justcall.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, Messaging, Marketing automation, Phone and video, Conversation'
   },
   {
     name: 'Keen',
@@ -706,8 +713,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/keen.png',
-    category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+    category: 'All integrations, For marketing teams, Analytics'
   },
   {
     name: 'LinkedIn',
@@ -717,7 +723,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/linkedin.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Social media'
   },
   {
     name: 'Loom',
@@ -727,7 +733,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/loom.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, Screen capture, Conversation'
   },
   {
     name: 'Mailchimp import',
@@ -736,7 +742,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/mailchimp_logo.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For sales teams, For marketing teams, Contacts, CRM, Data, Tools'
   },
   {
     name: 'ManDrill',
@@ -745,7 +751,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/mandrill.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Email marketing, Marketing automation, Engage'
   },
   {
     name: 'ManyChat',
@@ -755,7 +761,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/manychat.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For support teams, Messaging, Marketing automation, Conversation'
   },
   {
     name: 'Marketo Import',
@@ -764,8 +770,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/marketo-logo.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, For sales teams, For marketing teams, Tools,'
   },
   {
     name: 'Meya',
@@ -774,7 +779,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/meya.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'Mixpanel',
@@ -783,7 +788,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/mix-panel.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Analytics, Messaging, Marketing automation, Social media'
   },
   {
     name: 'Outlook calendar',
@@ -793,7 +798,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/outlook-calendar.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Scheduling, Sales pipeline'
   },
   {
     name: 'Parabola',
@@ -802,8 +807,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/parabola.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, For marketing teams, Project management'
   },
   {
     name: 'Piesync',
@@ -812,7 +816,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/piesync.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For sales teams, For marketing teams, Contacts, Data'
   },
   {
     name: 'Pipedrive',
@@ -820,8 +824,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/pipedrive.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, For sales teams, CRM, Sales pipeline'
   },
   {
     name: 'Salesforce',
@@ -830,8 +833,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/wechat.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, For sales teams, CRM, Sales pipeline'
   },
   {
     name: 'Salesforce import',
@@ -840,8 +842,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/salesforce.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, Tools'
   },
   {
     name: 'Sendgrid',
@@ -850,7 +851,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/sendgrid.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For sales teams, For marketing teams, Email marketing, Engage'
   },
   {
     name: 'Sendinblue',
@@ -859,7 +860,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/sendinblue.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For marketing teams, Email marketing, Marketing automation, Engage'
   },
   {
     name: 'Shipamax',
@@ -869,7 +870,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/shipamax.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Project management, Conversation'
   },
   {
     name: 'Stitch',
@@ -878,8 +879,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/stitch.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, For marketing teams, Data'
   },
   {
     name: 'Talkdesk',
@@ -888,7 +888,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/talkdesk.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For support teams, Phone and video, Conversation'
   },
   {
     name: 'Trello',
@@ -897,7 +897,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/trello.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Project management'
   },
   {
     name: 'Webhook',
@@ -906,8 +906,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/webhook.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, Tools'
   },
   {
     name: 'Youtube',
@@ -917,7 +916,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/youtube.jpeg',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Social media'
   },
   {
     name: 'Zapier',
@@ -927,7 +926,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/zapier.png',
     category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+      'All integrations, For sales teams, For marketing teams, Contacts, CRM'
   },
   {
     name: 'Zoho',
@@ -936,7 +935,7 @@ export const INTEGRATIONS = [
     isAvailable: false,
     logo: '/images/integrations/zoho.png',
     category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+      'All integrations, For sales teams, CRM, Project management, Sales pipeline'
   },
   {
     name: 'Calendly',
@@ -944,8 +943,7 @@ export const INTEGRATIONS = [
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/calendly.png',
-    category:
-      'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
+    category: 'All integrations, For sales teams, Scheduling, Sales pipeline'
   }
 ];
 
@@ -961,17 +959,26 @@ export const INTEGRATION_FILTERS = [
   },
   {
     name: 'Works with',
-    items: ['Conversation', 'Pop ups', 'Engage']
+    items: ['Conversation', 'Sales pipeline', 'Contacts', 'Pop ups', 'Engage']
   },
   {
     name: 'Categories',
     items: [
       'Analytics',
+      'Cloud storage',
+      'Contacts',
+      'Connector',
+      'CRM',
+      'Data',
       'Email marketing',
       'Messaging',
+      'Tools',
       'Marketing automation',
+      'Natural language processing',
       'Phone and video',
       'Social media',
+      'Scheduling',
+      'Screen capture',
       'Surveys and Feedback'
     ]
   }

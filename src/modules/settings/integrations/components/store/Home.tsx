@@ -53,6 +53,7 @@ class Home extends React.Component<Props, { filteredItem: string }> {
     while (rows.length > 0) {
       datas.push(
         <Row
+          key={rows.length}
           integrations={rows.splice(0, 5)}
           totalCount={totalCount}
           queryParams={queryParams}

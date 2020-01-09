@@ -38,6 +38,56 @@ const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
   }
 `;
 
+const Ribbon = styled.div`
+  overflow: hidden;
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  width: 100px;
+  height: 100px;
+
+  span {
+    position: absolute;
+    width: 130px;
+    color: ${colors.colorWhite};
+    font-size: ${dimensions.unitSpacing}px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: ${dimensions.coreSpacing + 5}px;
+    transform: rotate(45deg);
+    background: linear-gradient(
+      ${colors.colorPrimary} 0%,
+      ${colors.colorSecondary} 100%
+    );
+    box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 1);
+    top: 25px;
+    right: -27px;
+
+    &:before {
+      content: '';
+      position: absolute;
+      left: 0px;
+      top: 100%;
+      border-left: 3px solid ${colors.colorPrimary};
+      border-right: 3px solid transparent;
+      border-bottom: 3px solid transparent;
+      border-top: 3px solid ${colors.colorPrimary};
+    }
+
+    &:after {
+      content: '';
+      position: absolute;
+      right: 0px;
+      top: 100%;
+      border-left: 3px solid transparent;
+      border-right: 3px solid ${colors.colorPrimary};
+      border-bottom: 3px solid transparent;
+      border-top: 3px solid ${colors.colorPrimary};
+    }
+  }
+`;
+
 const Type = styled.span`
   display: block;
   color: ${colors.colorCoreGray};
@@ -126,7 +176,7 @@ const Content = styled(Contents)`
 `;
 
 const Category = styledTS<{ isActive?: boolean }>(styled.li)`
-  margin-bottom: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing - 5}px;
   transition: all ease 0.3s;
   cursor: pointer;
   color: ${props => props.isActive && colors.colorPrimary};
@@ -168,5 +218,6 @@ export {
   Category,
   SidebarList,
   LeftSidebar,
-  FixedSection
+  FixedSection,
+  Ribbon
 };

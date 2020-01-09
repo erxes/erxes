@@ -14,7 +14,7 @@ import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import Twitter from '../../containers/twitter/Twitter';
 import Website from '../../containers/website/Form';
-import { Box, IntegrationItem, Type } from './styles';
+import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type Props = {
   integration: any;
@@ -286,6 +286,11 @@ class Entry extends React.Component<Props> {
             {integration.description}
             {this.renderType(integration.inMessenger)}
           </p>
+          {!integration.isAvailable && (
+            <Ribbon>
+              <span>Coming soon</span>
+            </Ribbon>
+          )}
         </Box>
         {this.renderCreate(createUrl, createModal)}
       </IntegrationItem>
