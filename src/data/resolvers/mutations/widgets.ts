@@ -162,7 +162,7 @@ const widgetMutations = {
     });
 
     // get or create customer
-    let customer = await Customers.getWidgetCustomer({ email });
+    let customer = await Customers.getWidgetCustomer({ email, phone });
 
     if (!customer) {
       customer = await Customers.createCustomer({

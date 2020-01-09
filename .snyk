@@ -74,6 +74,8 @@ patch:
   SNYK-JS-LODASH-450202:
     - apollo-server-express > apollo-server-core > apollo-engine-reporting > lodash:
         patched: '2019-10-29T23:28:52.891Z'
+      '@snyk/dep-graph > graphlib > lodash':
+        patched: '2020-01-08T11:18:38.625Z'
     - apollo-server-express > apollo-server-core > lodash:
         patched: '2019-10-29T23:28:52.891Z'
     - firebase-admin > @google-cloud/storage > async > lodash:
@@ -96,3 +98,6 @@ patch:
         patched: '2019-10-29T23:34:16.286Z'
     - snyk > snyk-go-plugin > graphlib > lodash:
         patched: '2019-10-29T23:34:16.286Z'
+  SNYK-JS-TREEKILL-536781:
+    - snyk > snyk-sbt-plugin > tree-kill:
+        patched: '2020-01-08T11:06:24.493Z'
