@@ -4,13 +4,13 @@ import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
+interface IFieldsDefaultColmns {
+  [index: number]: { name: string; label: string; order: number } | {};
+}
+
 export interface IFieldsQuery {
   contentType: string;
   contentTypeId?: string;
-}
-
-interface IfieldsDefaultColmns {
-  [index: number]: { name: string; label: string; order: number } | {};
 }
 
 /*
@@ -146,7 +146,7 @@ const fieldQueries = {
   /**
    * Default list columns config
    */
-  fieldsDefaultColumnsConfig(_root, { contentType }: { contentType: string }): IfieldsDefaultColmns {
+  fieldsDefaultColumnsConfig(_root, { contentType }: { contentType: string }): IFieldsDefaultColmns {
     if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
       return [
         { name: 'firstName', label: 'First name', order: 1 },
