@@ -319,6 +319,15 @@ class List extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>DOMAIN</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.domain}
+            onChange={this.onChangeInput.bind(this, 'domain')}
+          />
+        </FormGroup>
+
       </ContentBox>
     );
 
