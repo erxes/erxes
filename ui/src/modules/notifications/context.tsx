@@ -34,14 +34,16 @@ const NotifContext = React.createContext({} as IStore);
 export const NotifConsumer = NotifContext.Consumer;
 
 class Provider extends React.Component<Props> {
-  componentWillMount() {
+  private unsubscribe;
+
+  componentDidMount() {
     const {
       notificationsQuery,
       notificationCountQuery,
       currentUser
     } = this.props;
 
-    notificationsQuery.subscribeToMore({
+    this.unsubscribe = notificationsQuery.subscribeToMore({
       document: gql(subscriptions.notificationSubscription),
       variables: { userId: currentUser ? currentUser._id : null },
       updateQuery: (prev, { subscriptionData: { data } }) => {
@@ -56,12 +58,21 @@ class Provider extends React.Component<Props> {
     });
   }
 
+<<<<<<< HEAD:ui/src/modules/notifications/context.tsx
   markAsRead = (notificationIds?: string[]) => {
     const {
       notificationsMarkAsReadMutation,
       notificationsQuery,
       notificationCountQuery
     } = this.props;
+=======
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  markAsRead() {
+    const { notificationsQuery, notificationCountQuery } = this.props;
+>>>>>>> 9dd902fc9bde3589e211675b37dcb06aec371df4:ui/src/modules/notifications/context.tsx
 
     notificationsMarkAsReadMutation({
       variables: { _ids: notificationIds }
