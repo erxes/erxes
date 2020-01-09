@@ -160,6 +160,14 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
+  hasEmail = () => {
+    const customer = this.props.customer || ({} as ICustomer);
+
+    const { emails = [] } = customer;
+
+    return this.getVisitorInfo(customer, 'email') || emails.length > 0;
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
@@ -195,15 +203,16 @@ class CustomerForm extends React.Component<Props, State> {
                   onChange={this.onEmailChange}
                   required={true}
                   checkFormat={validator.isEmail}
+                  adding={!this.hasEmail()}
                 />
               </FormGroup>
-
+              
               {this.renderFormGroup('Position', {
                 ...formProps,
                 name: 'position',
                 defaultValue: customer.position || ''
               })}
-
+  
               {this.renderFormGroup('Pop Ups Status', {
                 ...formProps,
                 name: 'leadStatus',
