@@ -58,21 +58,16 @@ class Provider extends React.Component<Props> {
     });
   }
 
-<<<<<<< HEAD:ui/src/modules/notifications/context.tsx
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
   markAsRead = (notificationIds?: string[]) => {
     const {
       notificationsMarkAsReadMutation,
       notificationsQuery,
       notificationCountQuery
     } = this.props;
-=======
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  markAsRead() {
-    const { notificationsQuery, notificationCountQuery } = this.props;
->>>>>>> 9dd902fc9bde3589e211675b37dcb06aec371df4:ui/src/modules/notifications/context.tsx
 
     notificationsMarkAsReadMutation({
       variables: { _ids: notificationIds }
