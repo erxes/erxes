@@ -3,6 +3,7 @@ import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndica
 import SelectItem from 'modules/boards/components/SelectItem';
 import { PRIORITIES } from 'modules/boards/constants';
 import { Watch } from 'modules/boards/containers/editForm/';
+import LabelChooser from 'modules/boards/containers/label/LabelChooser';
 import { ColorButton } from 'modules/boards/styles/common';
 import { ActionContainer } from 'modules/boards/styles/item';
 import { IOptions } from 'modules/boards/types';
@@ -15,7 +16,10 @@ import Vote from '../../containers/Vote';
 
 type Props = {
   item: IGrowthHack;
-  onChangeField: (name: 'priority' | 'hackStages', value: any) => void;
+  onChangeField: (
+    name: 'labels' | 'priority' | 'hackStages',
+    value: any
+  ) => void;
   dateOnChange: (date) => void;
   options: IOptions;
   copy: () => void;
@@ -39,6 +43,9 @@ class Actions extends React.Component<Props> {
 
     const priorityOnChange = (value: string) => {
       onChangeField('priority', value);
+    };
+    const onLabelChange = labels => {
+      onChangeField('labels', labels);
     };
 
     const hackStageOnChange = (value: string) => {
@@ -92,6 +99,7 @@ class Actions extends React.Component<Props> {
           multiple={true}
         />
         <Vote item={item} onUpdate={onUpdate} />
+        <LabelChooser item={item} onSelect={onLabelChange} />
         <Watch item={item} options={options} isSmall={true} />
         <ColorButton onClick={copy}>
           <Icon icon="copy-1" />

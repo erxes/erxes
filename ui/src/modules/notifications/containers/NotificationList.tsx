@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { IQueryParams } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
@@ -13,29 +14,28 @@ import {
 } from '../types';
 
 type Props = {
-  queryParams: any;
+  queryParams: IQueryParams;
 };
 
 type FinalProps = {
   notificationsQuery: NotificationsQueryResponse;
   notificationCountQuery: NotificationsCountQueryResponse;
-} & Props &
-  MarkAsReadMutationResponse;
+} & Props & MarkAsReadMutationResponse;
 
 class NotificationListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      notificationsQuery,
-      notificationCountQuery,
-      notificationsMarkAsReadMutation
-    } = this.props;
+    const { notificationsQuery, notificationCountQuery, notificationsMarkAsReadMutation } = this.props;
 
     const markAsRead = (notificationIds?: string[]) => {
       notificationsMarkAsReadMutation({
         variables: { _ids: notificationIds }
       })
         .then(() => {
-          notificationsQuery.refetch();
+          if(notificationsQuery.refetch) {
+            notificationsQuery.refetch();
+            notificationCountQuery.refetch();
+          }
+
           Alert.success('Notification have been seen');
         })
         .catch(error => {
@@ -45,7 +45,6 @@ class NotificationListContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-
       markAsRead,
       notifications: notificationsQuery.notifications || [],
       count: notificationCountQuery.notificationCounts || 0,
@@ -88,7 +87,16 @@ export default withProps<Props>(
       {
         name: 'notificationsMarkAsReadMutation',
         options: {
-          refetchQueries: () => ['notificationCounts']
+          refetchQueries: [
+            {
+              query: gql(queries.notifications),
+              variables: {
+                limit: 10,
+                requireRead: false
+              }
+            },
+            'notificationCounts'
+          ]
         }
       }
     )

@@ -4,12 +4,19 @@ import { NotifConsumer } from '../context';
 
 const WidgetContainer = () => (
   <NotifConsumer>
-    {({ unreadCount, notifications, markAsRead, isLoading }) => {
+    {({
+      unreadCount,
+      notifications,
+      isLoading,
+      showNotifications,
+      markAsRead
+    }) => {
       const updatedProps = {
         unreadCount,
         notifications,
-        markAsRead,
-        isLoading
+        isLoading,
+        showNotifications,
+        markAsRead
       };
       return <Widget {...updatedProps} />;
     }}
