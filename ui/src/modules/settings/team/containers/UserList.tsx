@@ -94,14 +94,15 @@ class UserListContainer extends React.Component<
   }
 }
 
-const options = ({ queryParams }: { queryParams: any }) => {
+const options = ({ queryParams }: { queryParams: any }): any => {
   return {
     variables: {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
       isActive: queryParams.isActive === 'false' ? false : true,
       brandIds: queryParams.brandIds
-    }
+    },
+    fetchPolicy: 'network-only'
   };
 };
 

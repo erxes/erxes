@@ -43,7 +43,6 @@ type FinalProps = ICommonListProps &
 
 type States = {
   searchValue: string;
-  brandIds: string[];
 };
 
 class UserList extends React.Component<FinalProps, States> {
@@ -52,13 +51,10 @@ class UserList extends React.Component<FinalProps, States> {
   constructor(props: FinalProps) {
     super(props);
 
-    const {
-      queryParams: { searchValue, brandIds }
-    } = props;
+    const { queryParams: { searchValue } } = props;
 
     this.state = {
-      searchValue: searchValue || '',
-      brandIds
+      searchValue: searchValue || ''
     };
   }
 
@@ -218,7 +214,7 @@ class UserList extends React.Component<FinalProps, States> {
   };
 
   renderBrandChooser() {
-    const { configsEnvQuery = {}, history } = this.props;
+    const { configsEnvQuery = {}, history, queryParams } = this.props;
 
     const env = configsEnvQuery.configsGetEnv || {};
 
@@ -227,8 +223,6 @@ class UserList extends React.Component<FinalProps, States> {
     }
 
     const onSelect = brandIds => {
-      this.setState({ brandIds });
-
       router.setParams(history, { brandIds });
     };
 
@@ -238,7 +232,7 @@ class UserList extends React.Component<FinalProps, States> {
         <SelectBrands
           label={__('Choose brands')}
           onSelect={onSelect}
-          value={this.state.brandIds}
+          value={queryParams.brandIds}
           name="selectedBrands"
         />
       </FlexItem>
