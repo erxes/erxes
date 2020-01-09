@@ -1,12 +1,15 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IUser } from 'modules/auth/types';
-import { sendDesktopNotification } from 'modules/common/utils';
-import { INotification } from 'modules/notifications/types';
+import { Alert, sendDesktopNotification } from 'modules/common/utils';
+import {
+  INotification,
+  MarkAsReadMutationResponse
+} from 'modules/notifications/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import strip from 'strip';
-import { queries, subscriptions } from './graphql';
+import { mutations, queries, subscriptions } from './graphql';
 import {
   NotificationsCountQueryResponse,
   NotificationsQueryResponse
@@ -15,7 +18,8 @@ import {
 interface IStore {
   notifications: INotification[];
   unreadCount: number;
-  markAsRead: () => void;
+  showNotifications: (requireRead: boolean) => void;
+  markAsRead: (notificationIds?: string[]) => void;
   isLoading: boolean;
 }
 
@@ -23,7 +27,7 @@ type Props = {
   notificationsQuery: NotificationsQueryResponse;
   notificationCountQuery: NotificationsCountQueryResponse;
   currentUser: IUser;
-};
+} & MarkAsReadMutationResponse;
 
 const NotifContext = React.createContext({} as IStore);
 
@@ -58,24 +62,49 @@ class Provider extends React.Component<Props> {
     this.unsubscribe();
   }
 
-  markAsRead() {
-    const { notificationsQuery, notificationCountQuery } = this.props;
+  markAsRead = (notificationIds?: string[]) => {
+    const {
+      notificationsMarkAsReadMutation,
+      notificationsQuery,
+      notificationCountQuery
+    } = this.props;
 
-    notificationsQuery.refetch();
-    notificationCountQuery.refetch();
-  }
+    notificationsMarkAsReadMutation({
+      variables: { _ids: notificationIds }
+    })
+      .then(() => {
+        notificationsQuery.refetch();
+        notificationCountQuery.refetch();
+
+        Alert.success('Notifications have been seen');
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  showNotifications = (requireRead: boolean) => {
+    const { notificationsQuery } = this.props;
+
+    notificationsQuery.refetch({ limit: 10, requireRead });
+  };
 
   public render() {
     const { notificationsQuery, notificationCountQuery } = this.props;
 
-    const notifications = notificationsQuery.notifications;
+    const notifications = notificationsQuery.notifications || [];
     const isLoading = notificationsQuery.loading;
-    const unreadCount = notificationCountQuery.notificationCounts;
-    const markAsRead = () => this.markAsRead();
+    const unreadCount = notificationCountQuery.notificationCounts || 0;
 
     return (
       <NotifContext.Provider
-        value={{ notifications, unreadCount, markAsRead, isLoading }}
+        value={{
+          notifications,
+          unreadCount,
+          showNotifications: this.showNotifications,
+          markAsRead: this.markAsRead,
+          isLoading
+        }}
       >
         {this.props.children}
       </NotifContext.Provider>
@@ -106,6 +135,15 @@ export const NotifProvider = compose(
           requireRead: true
         }
       })
+    }
+  ),
+  graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
+    gql(mutations.markAsRead),
+    {
+      name: 'notificationsMarkAsReadMutation',
+      options: {
+        refetchQueries: () => ['notificationCounts']
+      }
     }
   )
 )(Provider);
