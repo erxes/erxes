@@ -24,16 +24,19 @@ interface IStore {
 }
 
 type Props = {
+  currentUser: IUser;
+};
+
+type FinalProps = {
   notificationsQuery: NotificationsQueryResponse;
   notificationCountQuery: NotificationsCountQueryResponse;
-  currentUser: IUser;
-} & MarkAsReadMutationResponse;
+} & Props & MarkAsReadMutationResponse;
 
 const NotifContext = React.createContext({} as IStore);
 
 export const NotifConsumer = NotifContext.Consumer;
 
-class Provider extends React.Component<Props> {
+class Provider extends React.Component<FinalProps> {
   private unsubscribe;
 
   componentDidMount() {
@@ -114,7 +117,7 @@ class Provider extends React.Component<Props> {
 
 export const NotifProvider = compose(
   graphql<
-    {},
+    Props,
     NotificationsQueryResponse,
     { limit: number; requireRead: boolean }
   >(gql(queries.notifications), {

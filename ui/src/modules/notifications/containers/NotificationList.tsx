@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
+import { IQueryParams } from 'modules/common/types';
+import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import NotificationList from '../components/NotificationList';
-import { NotifConsumer } from '../context';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
@@ -14,22 +14,38 @@ import {
 } from '../types';
 
 type Props = {
-  queryParams: any;
-  markAsRead: (notificationIds?: string[]) => void;
+  queryParams: IQueryParams;
 };
 
 type FinalProps = {
   notificationsQuery: NotificationsQueryResponse;
   notificationCountQuery: NotificationsCountQueryResponse;
-} & Props &
-  MarkAsReadMutationResponse;
+} & Props & MarkAsReadMutationResponse;
 
 class NotificationListContainer extends React.Component<FinalProps> {
   render() {
-    const { notificationsQuery, notificationCountQuery } = this.props;
+    const { notificationsQuery, notificationCountQuery, notificationsMarkAsReadMutation } = this.props;
+
+    const markAsRead = (notificationIds?: string[]) => {
+      notificationsMarkAsReadMutation({
+        variables: { _ids: notificationIds }
+      })
+        .then(() => {
+          if(notificationsQuery.refetch) {
+            notificationsQuery.refetch();
+            notificationCountQuery.refetch();
+          }
+
+          Alert.success('Notification have been seen');
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
     const updatedProps = {
       ...this.props,
+      markAsRead,
       notifications: notificationsQuery.notifications || [],
       count: notificationCountQuery.notificationCounts || 0,
       loading: notificationsQuery.loading
@@ -39,7 +55,7 @@ class NotificationListContainer extends React.Component<FinalProps> {
   }
 }
 
-const List = withProps<Props>(
+export default withProps<Props>(
   compose(
     graphql<
       Props,
@@ -65,18 +81,24 @@ const List = withProps<Props>(
           }
         })
       }
+    ),
+    graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
+      gql(mutations.markAsRead),
+      {
+        name: 'notificationsMarkAsReadMutation',
+        options: {
+          refetchQueries: [
+            {
+              query: gql(queries.notifications),
+              variables: {
+                limit: 10,
+                requireRead: false
+              }
+            },
+            'notificationCounts'
+          ]
+        }
+      }
     )
   )(NotificationListContainer)
-);
-
-export default props => (
-  <NotifConsumer>
-    {({ markAsRead }) => {
-      const updatedProps = {
-        markAsRead,
-        ...props
-      };
-      return <List {...updatedProps} />;
-    }}
-  </NotifConsumer>
 );
