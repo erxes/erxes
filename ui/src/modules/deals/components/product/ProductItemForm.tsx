@@ -96,6 +96,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
           const product = value as IProduct;
 
           productData.unitPrice = product.unitPrice;
+          productData.currency = productData.currency || this.props.currencies[0];
         }
 
         productData[type] = value;

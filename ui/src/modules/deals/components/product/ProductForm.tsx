@@ -222,9 +222,10 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   renderTabContent() {
-    const { onChangePaymentsData } = this.props;
     const { total, tax, discount, currentTab } = this.state;
     if (currentTab === 'payments') {
+      const { onChangePaymentsData } = this.props;
+
       return (
         <PaymentForm
           total={total}
