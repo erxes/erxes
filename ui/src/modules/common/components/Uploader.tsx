@@ -75,8 +75,8 @@ class Uploader extends React.Component<Props, State> {
     };
   }
 
-  handleFileInput = e => {
-    const files = e.target.files;
+  handleFileInput = ({ target }) => {
+    const files = target.files;
 
     uploadHandler({
       files,
@@ -108,6 +108,8 @@ class Uploader extends React.Component<Props, State> {
         });
       }
     });
+
+    target.value = '';
   };
 
   removeAttachment = (index: number) => {
