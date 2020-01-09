@@ -98,8 +98,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
     });
   };
 
-  handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  handleSubmit = (): void => {
+    const { kind } = this.props;
+    
     const doc = {
       segmentIds: this.state.segmentIds,
       tagIds: this.state.tagIds,
@@ -107,7 +108,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method,
-      scheduleDate: this.state.scheduleDate
+      scheduleDate: this.state.scheduleDate,
+      kind
     } as IEngageMessageDoc;
 
     if (this.state.method === 'email') {
@@ -130,7 +132,10 @@ class AutoAndManualForm extends React.Component<Props, State> {
       };
     }
 
-    this.props.save(doc);
+    const response = this.props.validateDoc(kind, doc);
+    if (response.status === 'ok' && response.doc) {
+      this.props.save(response.doc);
+    }
   };
 
   renderSaveButton = () => {
