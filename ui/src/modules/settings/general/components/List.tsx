@@ -256,6 +256,69 @@ class List extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>MAIL_SERVICE</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.mailService}
+            onChange={this.onChangeInput.bind(this, 'mailService')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>MAIL_PORT</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.mailPort}
+            onChange={this.onChangeInput.bind(this, 'mailPort')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>MAIL_USER</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.mailUser}
+            onChange={this.onChangeInput.bind(this, 'mailUser')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>MAIL_PASS</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.mailPass}
+            onChange={this.onChangeInput.bind(this, 'mailPass')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>MAIL_HOST</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.mailHost}
+            onChange={this.onChangeInput.bind(this, 'mailHost')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>COMPANY_EMAIL_FROM</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.companyEmailFrom}
+            onChange={this.onChangeInput.bind(this, 'companyEmailFrom')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>DEFAULT_EMAIL_SERVICE</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.defaultEmailService}
+            onChange={this.onChangeInput.bind(this, 'defaultEmailService')}
+          />
+        </FormGroup>
+
       </ContentBox>
     );
 
