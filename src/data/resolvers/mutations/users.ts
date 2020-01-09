@@ -32,12 +32,12 @@ const userMutations = {
   /*
    * Login
    */
-  async login(_root, args: { email: string; password: string; deviceToken?: string }, { res }: IContext) {
+  async login(_root, args: { email: string; password: string; deviceToken?: string }, { res, requestInfo }: IContext) {
     const response = await Users.login(args);
 
     const { token } = response;
 
-    res.cookie('auth-token', token, authCookieOptions());
+    res.cookie('auth-token', token, authCookieOptions(requestInfo.secure));
 
     return 'loggedIn';
   },

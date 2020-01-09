@@ -48,6 +48,10 @@ const apolloServer = new ApolloServer({
       };
     }
 
+    const requestInfo = {
+      secure: req.secure,
+    };
+
     const user = req.user;
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -58,6 +62,7 @@ const apolloServer = new ApolloServer({
         commonQuerySelector: {},
         user,
         res,
+        requestInfo,
       };
     }
 
@@ -88,6 +93,7 @@ const apolloServer = new ApolloServer({
       userBrandIdsSelector,
       user,
       res,
+      requestInfo,
     };
   },
   subscriptions: {
