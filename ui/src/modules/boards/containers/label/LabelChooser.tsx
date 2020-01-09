@@ -81,7 +81,7 @@ class LabelChooserContainer extends React.Component<
 
     const updatedProps = {
       pipelineId: item.pipeline._id,
-      selectedLabelIds: item.labelIds,
+      selectedLabelIds: item.labelIds || [],
       labels,
       doLabel,
       isConfirmVisible: this.state.isConfirmVisible,

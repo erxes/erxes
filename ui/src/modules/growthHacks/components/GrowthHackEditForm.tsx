@@ -10,7 +10,7 @@ import { Left, StageForm, Top } from './editForm/';
 import Actions from './editForm/Actions';
 import Score from './Score';
 
-const reactiveFields = ['priority', 'hackStages'];
+const reactiveFields = ['priority', 'hackStages', 'labels'];
 
 type Props = {
   options: IOptions;
