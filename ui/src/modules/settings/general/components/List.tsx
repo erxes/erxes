@@ -219,6 +219,43 @@ class List extends React.Component<Props, State> {
             onChange={this.onChangeInput.bind(this, 'fileSystemPublic')}
           />
         </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_SES_ACCESS_KEY_ID</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsSesAccessKeyId}
+            onChange={this.onChangeInput.bind(this, 'awsSesAccessKeyId')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_SES_SECRET_ACCESS_KEY</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsSesSecretAccessKey}
+            onChange={this.onChangeInput.bind(this, 'awsSesSecretAccessKey')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_REGION</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsRegion}
+            onChange={this.onChangeInput.bind(this, 'awsRegion')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_SES_CONFIG_SET</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsSesConfigSet}
+            onChange={this.onChangeInput.bind(this, 'awsSesConfigSet')}
+          />
+        </FormGroup>
+
       </ContentBox>
     );
 
