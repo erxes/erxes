@@ -1,27 +1,41 @@
 import AnimatedLoader from 'modules/common/components/AnimatedLoader';
 import Spinner from 'modules/common/components/Spinner';
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { IAnimatedLoader } from '../types';
 
 export default function asyncComponent(
   importComponent: any,
   loaderStyle?: IAnimatedLoader
 ) {
-  const AsyncComponent = props => {
-    let fallback = <Spinner />;
+  class AsyncComponent extends React.Component<any, { component: any }> {
+    constructor(props) {
+      super(props);
 
-    if (loaderStyle) {
-      fallback = <AnimatedLoader loaderStyle={loaderStyle} />;
+      this.state = {
+        component: null
+      };
     }
 
-    const Comp = lazy(importComponent);
+    async componentDidMount() {
+      const { default: component } = await importComponent();
 
-    return (
-      <Suspense fallback={fallback}>
-        <Comp {...props} />
-      </Suspense>
-    );
-  };
+      this.setState({ component });
+    }
+
+    render() {
+      const Comp = this.state.component;
+
+      if (Comp) {
+        return <Comp {...this.props} />;
+      }
+
+      if (loaderStyle) {
+        return <AnimatedLoader loaderStyle={loaderStyle} />;
+      }
+
+      return <Spinner />;
+    }
+  }
 
   return AsyncComponent;
 }
