@@ -1,9 +1,7 @@
-const insertConfig = `
-  mutation configsInsert($code: String!, $value: [String]!) {
-    configsInsert(code: $code, value: $value) {
-      _id
-    }
+const updateConfigs = `
+  mutation configsUpdate($configsMap: JSON!) {
+    configsUpdate(configsMap: $configsMap)
   }
 `;
 
-export default { insertConfig };
+export default { updateConfigs };

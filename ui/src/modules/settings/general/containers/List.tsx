@@ -7,33 +7,28 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
-import {
-  ConfigDetailQueryResponse,
-  ConfigsInsertMutationResponse,
-  ConfigsInsertMutationVariables
-} from '../types';
+import { ConfigsQueryResponse, IConfigsMap } from '../types';
 
 type FinalProps = {
-  currencyConfigQuery: ConfigDetailQueryResponse;
-  uomConfigQuery: ConfigDetailQueryResponse;
-} & ConfigsInsertMutationResponse;
+  configsQuery: ConfigsQueryResponse;
+  updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
+}
 
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const { insertConfig, currencyConfigQuery, uomConfigQuery } = this.props;
+    const { updateConfigs, configsQuery } = this.props;
 
-    if (currencyConfigQuery.loading || uomConfigQuery.loading) {
+    if (configsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     // create or update action
-    const save = (code, value) => {
-      insertConfig({
-        variables: { code, value }
+    const save = (map: IConfigsMap) => {
+      updateConfigs({
+        variables: { configsMap: map }
       })
         .then(() => {
-          currencyConfigQuery.refetch();
-          uomConfigQuery.refetch();
+          configsQuery.refetch();
 
           Alert.success('You successfully updated general settings');
         })
@@ -42,21 +37,21 @@ class ListContainer extends React.Component<FinalProps> {
         });
     };
 
-    const currencies = currencyConfigQuery.configsDetail;
-    const uom = uomConfigQuery.configsDetail;
+    const configs = configsQuery.configs || [];
 
-    const updatedProps = {
-      ...this.props,
-      currencies: currencies ? currencies.value : [],
-      uom: uom ? uom.value : [],
-      save
-    };
+    const configsMap = {};
+
+    for (const config of configs) {
+      configsMap[config.code] = config.value;
+    }
 
     return (
       <AppConsumer>
         {({ currentLanguage, changeLanguage }) => (
           <List
-            {...updatedProps}
+            {...this.props}
+            configsMap={configsMap}
+            save={save}
             currentLanguage={currentLanguage}
             changeLanguage={changeLanguage}
           />
@@ -68,34 +63,16 @@ class ListContainer extends React.Component<FinalProps> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, ConfigDetailQueryResponse, { code: string }>(
-      gql(queries.configsDetail),
+    graphql<{}, ConfigsQueryResponse>(
+      gql(queries.configs),
       {
-        name: 'currencyConfigQuery',
-        options: () => ({
-          variables: {
-            code: 'dealCurrency'
-          },
-          fetchPolicy: 'network-only'
-        })
+        name: 'configsQuery',
       }
     ),
-    graphql<{}, ConfigDetailQueryResponse, { code: string }>(
-      gql(queries.configsDetail),
+    graphql<{}>(
+      gql(mutations.updateConfigs),
       {
-        name: 'uomConfigQuery',
-        options: () => ({
-          variables: {
-            code: 'dealUOM'
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{}, ConfigsInsertMutationResponse, ConfigsInsertMutationVariables>(
-      gql(mutations.insertConfig),
-      {
-        name: 'insertConfig'
+        name: 'updateConfigs'
       }
     )
   )(ListContainer)

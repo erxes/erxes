@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
@@ -11,21 +12,18 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
 import { LANGUAGES, MEASUREMENTS } from '../constants';
+import { IConfigsMap } from '../types';
 
 type Props = {
   currentLanguage: string;
   changeLanguage: (language: string) => void;
-  save: (name: string, object: any) => void;
-  // TODO: check currencies type
-  currencies: string[];
-  uom: string[];
+  save: (configsMap: IConfigsMap) => void;
+  configsMap: IConfigsMap;
 };
 
 type State = {
-  currencies: string[];
-  uom: string[];
+  configsMap: IConfigsMap,
   language: string;
-  removeSelected: boolean;
 };
 
 class List extends React.Component<Props, State> {
@@ -33,30 +31,35 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currencies: props.currencies,
-      uom: props.uom,
+      configsMap: props.configsMap,
       language: props.currentLanguage,
-      removeSelected: false
     };
   }
 
   save = e => {
     e.preventDefault();
 
-    const { currencies, uom, language } = this.state;
+    const { configsMap, language } = this.state;
 
-    this.props.save('dealCurrency', currencies);
-    this.props.save('dealUOM', uom);
+    this.props.save(configsMap);
 
     this.props.changeLanguage(language);
   };
 
-  onCurrenciesChange = currencies => {
-    this.setState({ currencies: currencies.map(el => el.value) });
+  onChangeConfig = (code: string, value) => {
+    const { configsMap } = this.state;
+
+    configsMap[code] = value;
+
+    this.setState({ configsMap });
   };
 
-  onUOMChange = uom => {
-    this.setState({ uom: uom.map(el => el.value) });
+  onChangeMultiCombo = (code: string, values) => {
+    this.onChangeConfig(code, values.map(el => el.value));
+  };
+
+  onChangeInput = (code: string, e) => {
+    this.onChangeConfig(code, e.target.value);
   };
 
   onLanguageChange = language => {
@@ -64,6 +67,8 @@ class List extends React.Component<Props, State> {
   };
 
   render() {
+    const { configsMap } = this.state;
+
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('General') }
@@ -104,13 +109,13 @@ class List extends React.Component<Props, State> {
             clearable={false}
           />
         </FormGroup>
+
         <FormGroup>
           <ControlLabel>Currency</ControlLabel>
           <Select
             options={CURRENCIES}
-            value={this.state.currencies}
-            removeSelected={this.state.removeSelected}
-            onChange={this.onCurrenciesChange}
+            value={configsMap.dealCurrency}
+            onChange={this.onChangeMultiCombo.bind(this, 'dealCurrency')}
             multi={true}
           />
         </FormGroup>
@@ -119,10 +124,99 @@ class List extends React.Component<Props, State> {
           <ControlLabel>Unit of measurement</ControlLabel>
           <Select
             options={MEASUREMENTS}
-            value={this.state.uom}
-            removeSelected={this.state.removeSelected}
-            onChange={this.onUOMChange}
+            value={configsMap.dealUOM}
+            onChange={this.onChangeMultiCombo.bind(this, 'dealUOM')}
             multi={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>UPLOAD_FILE_TYPES</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.uploadFileTypes}
+            onChange={this.onChangeInput.bind(this, 'uploadFileTypes')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>WIDGETS_UPLOAD_FILE_TYPES</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.widgetsUploadFileTypes}
+            onChange={this.onChangeInput.bind(this, 'widgetsUploadFileTypes')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_ACCESS_KEY_ID</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsAccessKeyId}
+            onChange={this.onChangeInput.bind(this, 'awsAccessKeyId')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_SECRET_ACCESS_KEY</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsSecretAccessKey}
+            onChange={this.onChangeInput.bind(this, 'awsSecretAccessKey')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_BUCKET</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsBucket}
+            onChange={this.onChangeInput.bind(this, 'awsBucket')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_PREFIX</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsPrefix}
+            onChange={this.onChangeInput.bind(this, 'awsPrefix')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_COMPATIBLE_SERVICE_ENDPOINT</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsCompatibleServiceEndPoint}
+            onChange={this.onChangeInput.bind(this, 'awsCompatibleServiceEndPoint')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS_FORCE_PATH_STYLE</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.awsForcePathStyle}
+            onChange={this.onChangeInput.bind(this, 'awsForcePathStyle')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>UPLOAD_SERVICE_TYPE</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.uploadServiceType}
+            onChange={this.onChangeInput.bind(this, 'uploadServiceType')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>FILE_SYSTEM_PUBLIC</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.fileSystemPublic}
+            onChange={this.onChangeInput.bind(this, 'fileSystemPublic')}
           />
         </FormGroup>
       </ContentBox>
