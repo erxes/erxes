@@ -1,4 +1,6 @@
 import { IUser } from 'modules/auth/types';
+import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import FormControl from 'modules/common/components/form/Control';
 import { Step, Steps } from 'modules/common/components/step';
 import {
@@ -10,6 +12,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { IBreadCrumbItem } from '../../common/types';
 import {
   IEngageEmail,
@@ -95,7 +98,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
     });
   };
 
-  save = (type: string): Promise<any> | void => {
+  handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const doc = {
       segmentIds: this.state.segmentIds,
       tagIds: this.state.tagIds,
@@ -126,15 +130,40 @@ class AutoAndManualForm extends React.Component<Props, State> {
       };
     }
 
-    const response = this.props.validateDoc(type, doc);
+    this.props.save(doc);
+  };
 
-    if (response.status === 'ok' && response.doc) {
-      return this.props.save(response.doc);
-    }
+  renderSaveButton = () => {
+    const { isActionLoading } = this.props;
+
+    const cancelButton = (
+      <Link to="/engage">
+        <Button btnStyle="simple" size="small" icon="cancel-1">
+          Cancel
+        </Button>
+      </Link>
+    );
+
+    return (
+      <Button.Group>
+        {cancelButton}
+
+        <Button
+          disabled={isActionLoading}
+          btnStyle="success"
+          size="small"
+          icon={isActionLoading ? undefined : 'checked-1'}
+          onClick={this.handleSubmit}
+        >
+          {isActionLoading && <SmallLoader />}
+          Save
+        </Button>
+      </Button.Group>
+    );
   };
 
   render() {
-    const { renderTitle, breadcrumbs, isActionLoading } = this.props;
+    const { renderTitle, breadcrumbs } = this.props;
 
     const {
       activeStep,
@@ -146,6 +175,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate,
       segmentIds,
       brandIds,
+      title,
       tagIds
     } = this.state;
 
@@ -155,17 +185,16 @@ class AutoAndManualForm extends React.Component<Props, State> {
     return (
       <StepWrapper>
         <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />
-
         <TitleContainer>
           <div>{__('Title')}</div>
           <FormControl
             required={true}
             onChange={onChange}
-            defaultValue={this.state.title}
+            defaultValue={title}
             autoFocus={true}
           />
+          {this.renderSaveButton()}
         </TitleContainer>
-
         <Steps maxStep={maxStep} active={activeStep}>
           <Step img="/images/icons/erxes-05.svg" title="Choose channel">
             <ChannelStep
@@ -190,12 +219,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
-            save={this.save.bind(
-              this,
-              this.props.kind === 'manual' ? 'live' : 'draft'
-            )}
-            isActionLoading={isActionLoading}
-            message={this.props.message}
+            noButton={true}
           >
             <MessageStep
               brands={this.props.brands}
