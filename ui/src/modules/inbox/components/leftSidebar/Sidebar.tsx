@@ -103,7 +103,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
     return (
       <Sidebar.Header>
-        <ToggleButton isOpen={this.state.isOpen} onClick={this.onToggleSidebar}>
+        <ToggleButton isActive={this.state.isOpen} onClick={this.onToggleSidebar}>
           <Icon icon="subject" />
         </ToggleButton>
         <DropdownWrapper>

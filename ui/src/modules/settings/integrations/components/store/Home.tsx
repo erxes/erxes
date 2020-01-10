@@ -39,15 +39,11 @@ class Home extends React.Component<Props> {
         header={
           <Wrapper.Header title={__('App store')} breadcrumb={breadcrumb} />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/33.svg"
-                title="App store"
-                description="Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable."
-              />
-            }
+        mainHead={
+          <HeaderDescription
+            icon="/images/actions/33.svg"
+            title="App store"
+            description="Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable."
           />
         }
         content={this.renderContent()}
