@@ -185,6 +185,15 @@ class IntegrationConfigs extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>ENCRYPTION_KEY: Must be 256 bits (32 characters)</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.ENCRYPTION_KEY}
+            onChange={this.onChangeInput.bind(this, 'ENCRYPTION_KEY')}
+          />
+        </FormGroup>
+
       </ContentBox>
     );
 
