@@ -29,8 +29,8 @@ const commonParams = `
 `;
 
 const growthHacksAdd = `
-  mutation growthHacksAdd($name: String!, ${commonVariables}) {
-    growthHacksAdd(name: $name, ${commonParams}) {
+  mutation growthHacksAdd($name: String!, ${commonVariables}, $labelIds: [String]) {
+    growthHacksAdd(name: $name, ${commonParams}, labelIds: $labelIds) {
       ${growthHackFields}
     }
   }
