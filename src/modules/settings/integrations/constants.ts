@@ -391,7 +391,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Amazon Lex',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Building conversational interfaces into any application using voice and text',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/amazon-lex.png',
@@ -400,7 +401,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Cisco Jabber',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description:
+      'Connect your Cisco account and collaborate anywhere from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/cisco-jabber.png',
@@ -410,7 +412,7 @@ export const INTEGRATIONS = [
   {
     name: 'Cisco Webex',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect your Cisco account and make calls for business right from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/cisco-webex.png',
@@ -419,7 +421,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Dashbot',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Connect to bot analytics platform Dashbot account',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/dashbot.png',
@@ -428,7 +430,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Google Dialog Flow',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect an email address and build conversational experience',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/google-dialogflow.png',
@@ -438,7 +440,7 @@ export const INTEGRATIONS = [
   {
     name: 'Google Hangouts',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect an email address and start free video, voice calls or message with one person or a group',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/google-hangouts.png',
@@ -447,7 +449,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'IBM Watson',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Get access to your IBM Watson right in your Widget',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/ibm-watson.png',
@@ -456,7 +458,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Microsoft Luis',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Get fast and effective way messages in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/microsoft.png',
@@ -465,8 +467,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Microsoft Teams',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Meet team members and shared file through your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/ms-teams.png',
@@ -475,7 +476,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Rasa',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Connect Rasa straight to your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/rasa.png',
@@ -484,7 +485,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'SAP Conversational AI',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect SAP AI and send voice messages to your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/sap.png',
@@ -493,8 +494,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Slack',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Connect Slack to instant message in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/slack.png',
@@ -503,7 +503,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Twilio IPM',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Connect Twilio IPM account then integrating with third party software in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/twilio-ipm.png',
@@ -512,7 +513,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Twilio SMS',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description:
+      'Connect Twilio API for SMS then send and receive text messages anywhere in the world',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/twilio-ipm.png',
@@ -521,8 +523,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'WIT.AI',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Connect WIT.AI then shared knowledge in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/wit.png',
@@ -531,7 +532,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Agatha Answers',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Connect Agatha Answers then increases productivity in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/agatha-answers.png',
@@ -540,7 +542,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Asana',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect Asana then track and manage in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/asana.png',
@@ -549,8 +551,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Asknicely',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Close the loop in a hands-on manner in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/ask-nicely.png',
@@ -559,7 +560,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Chatbase',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Build your best customer service virtual agent analytics',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/chatbase.png',
@@ -568,7 +569,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Autopilot',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Use the marketing automation section in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/autopilot.png',
@@ -577,7 +578,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Base',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect Base chat then fun unlimited in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/base.png',
@@ -587,7 +588,7 @@ export const INTEGRATIONS = [
   {
     name: 'Chatbot.mn',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect Chatbot then can benefit by business in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/chatbot.png',
@@ -597,7 +598,7 @@ export const INTEGRATIONS = [
   {
     name: 'Clearbit',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Get a hold of your Clearbit message deeply understand in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/clearbit.png',
@@ -605,17 +606,19 @@ export const INTEGRATIONS = [
       'All integrations, For sales teams, Marketing automation, Contacts'
   },
   {
-    name: 'Classbox',
-    description: 'See and reply to Line messages in your Team Inbox',
+    name: 'Glassbox',
+    description:
+      'Help your organization manage the results of big data analytics',
     inMessenger: false,
     isAvailable: false,
-    logo: '/images/integrations/classbox.png',
+    logo: '/images/integrations/glassbox.png',
     category:
       'All integrations, For marketing teams, Analytics, Marketing automation, Messaging, Phone and video'
   },
   {
     name: 'Doorbell.io',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description:
+      'Connect DoorBell and understand many languages in your TeamInbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/doorbell.png',
@@ -624,8 +627,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Dropbox',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Connect Dropbox files right from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/dropbox.png',
@@ -635,7 +637,7 @@ export const INTEGRATIONS = [
   {
     name: 'Fivetran',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect Fivertran and get all the data you need, with no duplicates in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/fivetran.png',
@@ -643,7 +645,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Full contact',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Improve your customer interactions with a simple, real-time API integration',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/full-contact.png',
@@ -652,7 +655,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Github',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect to Github repositories right from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/github.png',
@@ -661,7 +664,7 @@ export const INTEGRATIONS = [
   {
     name: 'Google calendar',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect to Google calendar time-management and scheduling calendar service',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/google-calendar.png',
@@ -670,8 +673,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Google Drive',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Get started with Google drive right from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/google-drive.png',
@@ -680,7 +682,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Hubspot import',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Connect to Hubspot import file from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/hubspot.png',
@@ -690,7 +692,7 @@ export const INTEGRATIONS = [
   {
     name: 'Jira',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect Jira then bug tracking and agile project management in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/jira.png',
@@ -699,8 +701,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Justcall.io',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Connect to JustCall and join cloud-based phone system',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/justcall.png',
@@ -709,7 +710,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Keen',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Connect Keen then analysis fast in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/keen.png',
@@ -718,7 +719,7 @@ export const INTEGRATIONS = [
   {
     name: 'LinkedIn',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Apply and navigate your career with confidence to your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/linkedin.png',
@@ -728,7 +729,7 @@ export const INTEGRATIONS = [
   {
     name: 'Loom',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Get Loom and make quick videos using a lightning-fast video recorder',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/loom.png',
@@ -737,7 +738,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Mailchimp import',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Join all‑in‑one Marketing Platform Mailchimp',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/mailchimp_logo.png',
@@ -746,7 +747,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'ManDrill',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect to ManDrill and sending data-driven mails',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/mandrill.png',
@@ -756,7 +757,7 @@ export const INTEGRATIONS = [
   {
     name: 'ManyChat',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect with Facebook account and join Sales and Marketing platform ManyChat',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/manychat.png',
@@ -765,8 +766,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Marketo Import',
-    description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+    description: 'Connect to Marketo and enrich your leads with Intercom data',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/marketo-logo.png',
@@ -774,7 +774,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Meya',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Connect to Meya and build a highly sophisticated bot or cognitive application',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/meya.png',
@@ -783,7 +784,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Mixpanel',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description:
+      'Grow your business by analyzing, measuring and improving your customer experience',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/mix-panel.png',
@@ -793,7 +795,7 @@ export const INTEGRATIONS = [
   {
     name: 'Outlook calendar',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect with Microsoft account and join fully integrated scheduling component of Outlook',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/outlook-calendar.png',
@@ -803,7 +805,7 @@ export const INTEGRATIONS = [
   {
     name: 'Parabola',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect to Parabola using your email address then hand off your routine data tasks',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/parabola.png',
@@ -811,7 +813,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Piesync',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Connect to Piesync then keep your customer data 2-way in sync across all your business apps and devices',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/piesync.png',
@@ -820,7 +823,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Pipedrive',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect to Pipedrive and boost your close rate',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/pipedrive.png',
@@ -829,7 +832,7 @@ export const INTEGRATIONS = [
   {
     name: 'Salesforce',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect SalesForce then  marketing automation, analytics in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/wechat.png',
@@ -838,7 +841,7 @@ export const INTEGRATIONS = [
   {
     name: 'Salesforce import',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect SalesForce to import data with the Data Import Wizard in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/salesforce.png',
@@ -846,7 +849,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Sendgrid',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Connect to Sendgrid and send promotional emails, shipping notifications and email newsletters',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/sendgrid.png',
@@ -855,7 +859,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Sendinblue',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description:
+      'Make your business take flight with the complete sales & marketing toolbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/sendinblue.png',
@@ -865,7 +870,7 @@ export const INTEGRATIONS = [
   {
     name: 'Shipamax',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect to Shipmamax then aggregation of data in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/shipamax.png',
@@ -875,7 +880,7 @@ export const INTEGRATIONS = [
   {
     name: 'Stitch',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Sign in to Stitch, cloud first, open source platform for rapidly moving back',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/stitch.png',
@@ -883,7 +888,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Talkdesk',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description:
+      'Connect to Talkdesk combines enterprise performances with consumer simplicity',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/talkdesk.png',
@@ -892,7 +898,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Trello',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Sign up and start planning, work with any team',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/trello.png',
@@ -902,7 +908,7 @@ export const INTEGRATIONS = [
   {
     name: 'Webhook',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Transparently capture your API interactions and debug them in real-time',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/webhook.png',
@@ -911,7 +917,7 @@ export const INTEGRATIONS = [
   {
     name: 'Youtube',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Watch stream and discover what the world is watching with Youtube',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/youtube.jpeg',
@@ -921,7 +927,7 @@ export const INTEGRATIONS = [
   {
     name: 'Zapier',
     description:
-      'Connect with Wechat and start messaging right from your Team Inbox',
+      'Connect your apps and automate workflows from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/zapier.png',
@@ -930,7 +936,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Zoho',
-    description: 'See and reply to Line messages in your Team Inbox',
+    description: 'Sign up and transform your business',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/zoho.png',
@@ -939,7 +945,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Calendly',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Schedule your first meeting from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/calendly.png',
@@ -967,7 +973,6 @@ export const INTEGRATION_FILTERS = [
       'Analytics',
       'Cloud storage',
       'Contacts',
-      'Connector',
       'CRM',
       'Data',
       'Email marketing',
