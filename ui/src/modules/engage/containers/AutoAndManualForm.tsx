@@ -23,7 +23,6 @@ type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   users: IUser[];
   isActionLoading: boolean;
-  handlesubmit?: (name: string, e: React.MouseEvent) => void;
   save: (doc: IEngageMessageDoc) => Promise<any>;
 } & Props &
   AddMutationResponse;

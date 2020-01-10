@@ -32,6 +32,7 @@ type Props = {
   templates: IEmailTemplate[];
   kind: string;
   isActionLoading: boolean;
+  handleSubmit?: (name: string, e: React.MouseEvent) => void;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
