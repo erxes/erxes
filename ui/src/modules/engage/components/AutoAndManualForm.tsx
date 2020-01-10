@@ -98,9 +98,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
     });
   };
 
-  handleSubmit = (): void => {
-    const { kind } = this.props;
-    
+  handleSubmit = (type: string): Promise<any> | void => {  
+
     const doc = {
       segmentIds: this.state.segmentIds,
       tagIds: this.state.tagIds,
@@ -108,8 +107,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method,
-      scheduleDate: this.state.scheduleDate,
-      kind
+      scheduleDate: this.state.scheduleDate
     } as IEngageMessageDoc;
 
     if (this.state.method === 'email') {
@@ -132,14 +130,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
       };
     }
 
-    const response = this.props.validateDoc(kind, doc);
+    const response = this.props.validateDoc(type, doc);
+    
     if (response.status === 'ok' && response.doc) {
-      this.props.save(response.doc);
+      return this.props.save(response.doc);
     }
   };
 
   renderSaveButton = () => {
-    const { isActionLoading } = this.props;
+    const { isActionLoading, kind } = this.props;
 
     const cancelButton = (
       <Link to="/engage">
@@ -149,20 +148,50 @@ class AutoAndManualForm extends React.Component<Props, State> {
       </Link>
     );
 
+    const saveButton = () => {
+      if (kind === 'auto') 
+      {
+        return (
+          <>
+            <Button
+              disabled={isActionLoading}
+              btnStyle="warning"
+              size="small"
+              icon={isActionLoading ? undefined : 'file-alt'}
+              onClick={this.handleSubmit.bind(this, 'draft')}
+            >
+              Save & Draft
+            </Button>
+            <Button
+              disabled={isActionLoading}
+              btnStyle="success"
+              size="small"
+              icon={isActionLoading ? undefined : 'checked-1'}
+              onClick={this.handleSubmit.bind(this, 'live')}
+            >
+              Save & Live
+            </Button>
+          </>
+        );
+      }
+        return (
+          <Button
+            disabled={isActionLoading}
+            btnStyle="success"
+            size="small"
+            icon={isActionLoading ? undefined : 'checked-1'}
+            onClick={this.handleSubmit.bind(this, 'save')}
+          >
+            {isActionLoading && <SmallLoader />}
+            Save
+        </Button>
+        );
+      };
+
     return (
       <Button.Group>
         {cancelButton}
-
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          size="small"
-          icon={isActionLoading ? undefined : 'checked-1'}
-          onClick={this.handleSubmit}
-        >
-          {isActionLoading && <SmallLoader />}
-          Save
-        </Button>
+        {saveButton()}
       </Button.Group>
     );
   };
@@ -225,6 +254,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
             noButton={true}
+            message={this.props.message}
           >
             <MessageStep
               brands={this.props.brands}
