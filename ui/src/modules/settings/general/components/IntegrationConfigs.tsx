@@ -167,6 +167,24 @@ class IntegrationConfigs extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>MICROSOFT_CLIENT_ID</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.MICROSOFT_CLIENT_ID}
+            onChange={this.onChangeInput.bind(this, 'MICROSOFT_CLIENT_ID')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>MICROSOFT_CLIENT_SECRET</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.MICROSOFT_CLIENT_SECRET}
+            onChange={this.onChangeInput.bind(this, 'MICROSOFT_CLIENT_SECRET')}
+          />
+        </FormGroup>
+
       </ContentBox>
     );
 
