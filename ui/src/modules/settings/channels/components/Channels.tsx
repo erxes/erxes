@@ -9,6 +9,7 @@ import IntegrationList from 'modules/settings/integrations/containers/common/Int
 import React from 'react';
 import ManageIntegrations from '../containers/ManageIntegrations';
 import Sidebar from '../containers/Sidebar';
+import { Title } from '../styles';
 import { IChannel } from '../types';
 
 type Props = {
@@ -34,8 +35,8 @@ class Channels extends React.Component<Props, {}> {
     ];
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="computer">
-        Manage integration
+      <Button uppercase={false} btnStyle="simple" icon="web-grid-alt">
+        {__('Manage integration')}
       </Button>
     );
 
@@ -57,6 +58,8 @@ class Channels extends React.Component<Props, {}> {
       />
     );
 
+    const leftActionBar = <Title>{currentChannel.name}</Title>;
+
     return (
       <Wrapper
         header={
@@ -65,16 +68,11 @@ class Channels extends React.Component<Props, {}> {
             breadcrumb={breadcrumb}
           />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/31.svg"
-                title="Channels"
-                description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
-              />
-            }
-            right={rightActionBar}
+        mainHead={
+          <HeaderDescription
+            icon="/images/actions/31.svg"
+            title="Channels"
+            description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
           />
         }
         leftSidebar={
@@ -83,13 +81,21 @@ class Channels extends React.Component<Props, {}> {
             queryParams={queryParams}
           />
         }
-        footer={currentChannel._id && <Pagination count={integrationsCount} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={leftActionBar}
+            right={rightActionBar}
+            background="colorWhite"
+          />
+        }
         content={
           <DataWithLoader
             data={
               <IntegrationList
                 queryParams={queryParams}
                 variables={{ channelId: currentChannel._id }}
+                disableAction={true}
+                integrationsCount={integrationsCount}
               />
             }
             loading={loading}
@@ -98,6 +104,7 @@ class Channels extends React.Component<Props, {}> {
             emptyImage="/images/actions/2.svg"
           />
         }
+        footer={currentChannel._id && <Pagination count={integrationsCount} />}
       />
     );
   }

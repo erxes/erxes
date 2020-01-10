@@ -38,10 +38,33 @@ const Contents = styled.div`
   flex: 1;
   margin-left: ${dimensions.unitSpacing}px;
   max-height: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
 
   @-moz-document url-prefix() {
     overflow: hidden;
   }
+`;
+
+const VerticalContent = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-height: 100%;
+`;
+
+const HeightedWrapper = styled.div`
+  flex: 1;
+  position: relative;
+`;
+
+const MainHead = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px;
+  background: ${colors.colorWhite};
+  box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
 `;
 
 const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
@@ -538,24 +561,13 @@ const CenterContent = styled.div`
   }
 `;
 
-const ButtonRelated = styled.div`
-  text-align: center;
-  button {
-    background: rgba(0, 0, 0, 0.04);
-    margin: 10px auto;
-    color: #888;
-    border: 0;
-    border-radius: 25px;
-    outline: none;
-    cursor: pointer;
-    font-size: 12px;
-  }
-`;
-
 export {
   Layout,
   MainWrapper,
+  VerticalContent,
+  HeightedWrapper,
   Contents,
+  MainHead,
   MainContent,
   ContentBox,
   ContenFooter,
@@ -589,6 +601,5 @@ export {
   SectionBody,
   SectionBodyItem,
   MobileRecommend,
-  ButtonRelated,
   FieldStyle
 };

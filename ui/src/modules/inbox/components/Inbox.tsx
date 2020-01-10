@@ -2,7 +2,7 @@ import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { can } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
-import { Contents } from 'modules/layout/styles';
+import { Contents, HeightedWrapper } from 'modules/layout/styles';
 import React from 'react';
 
 const Sidebar = asyncComponent(() =>
@@ -32,18 +32,20 @@ function Inbox({ currentConversationId, queryParams, currentUser }: Props) {
   }
 
   return (
-    <Contents>
+    <HeightedWrapper>
       <Header
         title={'Conversation'}
         queryParams={queryParams}
         submenu={menuInbox}
       />
-      <Sidebar
-        queryParams={queryParams}
-        currentConversationId={currentConversationId}
-      />
-      <ConversationDetail currentId={currentConversationId} />
-    </Contents>
+      <Contents>
+        <Sidebar
+          queryParams={queryParams}
+          currentConversationId={currentConversationId}
+        />
+        <ConversationDetail currentId={currentConversationId} />
+      </Contents>
+    </HeightedWrapper>
   );
 }
 

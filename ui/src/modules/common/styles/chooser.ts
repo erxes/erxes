@@ -36,7 +36,6 @@ const Column = styled.div`
       transition: all 0.3s ease;
       text-overflow: ellipsis;
       overflow: hidden;
-      white-space: nowrap;
 
       > i {
         position: absolute;

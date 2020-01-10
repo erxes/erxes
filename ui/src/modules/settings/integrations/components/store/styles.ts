@@ -115,6 +115,10 @@ const CollapsibleContent = styled.div`
     position: inherit;
     z-index: 0;
   }
+
+  table td {
+    background: none;
+  }
 `;
 
 export {
