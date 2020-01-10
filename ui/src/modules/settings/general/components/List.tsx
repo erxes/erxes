@@ -134,8 +134,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>UPLOAD_FILE_TYPES</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.uploadFileTypes}
-            onChange={this.onChangeInput.bind(this, 'uploadFileTypes')}
+            defaultValue={configsMap.UPLOAD_FILE_TYPES}
+            onChange={this.onChangeInput.bind(this, 'UPLOAD_FILE_TYPES')}
           />
         </FormGroup>
 
@@ -143,8 +143,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>WIDGETS_UPLOAD_FILE_TYPES</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.widgetsUploadFileTypes}
-            onChange={this.onChangeInput.bind(this, 'widgetsUploadFileTypes')}
+            defaultValue={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
+            onChange={this.onChangeInput.bind(this, 'WIDGETS_UPLOAD_FILE_TYPES')}
           />
         </FormGroup>
 
@@ -152,8 +152,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_ACCESS_KEY_ID</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsAccessKeyId}
-            onChange={this.onChangeInput.bind(this, 'awsAccessKeyId')}
+            defaultValue={configsMap.AWS_ACCESS_KEY_ID}
+            onChange={this.onChangeInput.bind(this, 'AWS_ACCESS_KEY_ID')}
           />
         </FormGroup>
 
@@ -161,8 +161,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_SECRET_ACCESS_KEY</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsSecretAccessKey}
-            onChange={this.onChangeInput.bind(this, 'awsSecretAccessKey')}
+            defaultValue={configsMap.AWS_SECRET_ACCESS_KEY}
+            onChange={this.onChangeInput.bind(this, 'AWS_SECRET_ACCESS_KEY')}
           />
         </FormGroup>
 
@@ -170,8 +170,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_BUCKET</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsBucket}
-            onChange={this.onChangeInput.bind(this, 'awsBucket')}
+            defaultValue={configsMap.AWS_BUCKET}
+            onChange={this.onChangeInput.bind(this, 'AWS_BUCKET')}
           />
         </FormGroup>
 
@@ -179,8 +179,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_PREFIX</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsPrefix}
-            onChange={this.onChangeInput.bind(this, 'awsPrefix')}
+            defaultValue={configsMap.AWS_PREFIX}
+            onChange={this.onChangeInput.bind(this, 'AWS_PREFIX')}
           />
         </FormGroup>
 
@@ -188,8 +188,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_COMPATIBLE_SERVICE_ENDPOINT</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsCompatibleServiceEndPoint}
-            onChange={this.onChangeInput.bind(this, 'awsCompatibleServiceEndPoint')}
+            defaultValue={configsMap.AWS_COMPATIBLE_SERVICE_ENDPOINT}
+            onChange={this.onChangeInput.bind(this, 'AWS_COMPATIBLE_SERVICE_ENDPOINT')}
           />
         </FormGroup>
 
@@ -197,8 +197,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_FORCE_PATH_STYLE</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsForcePathStyle}
-            onChange={this.onChangeInput.bind(this, 'awsForcePathStyle')}
+            defaultValue={configsMap.AWS_FORCE_PATH_STYLE}
+            onChange={this.onChangeInput.bind(this, 'AWS_FORCE_PATH_STYLE')}
           />
         </FormGroup>
 
@@ -206,8 +206,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>UPLOAD_SERVICE_TYPE</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.uploadServiceType}
-            onChange={this.onChangeInput.bind(this, 'uploadServiceType')}
+            defaultValue={configsMap.UPLOAD_SERVICE_TYPE}
+            onChange={this.onChangeInput.bind(this, 'UPLOAD_SERVICE_TYPE')}
           />
         </FormGroup>
 
@@ -215,8 +215,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>FILE_SYSTEM_PUBLIC</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.fileSystemPublic}
-            onChange={this.onChangeInput.bind(this, 'fileSystemPublic')}
+            defaultValue={configsMap.FILE_SYSTEM_PUBLIC}
+            onChange={this.onChangeInput.bind(this, 'FILE_SYSTEM_PUBLIC')}
           />
         </FormGroup>
 
@@ -224,8 +224,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_SES_ACCESS_KEY_ID</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsSesAccessKeyId}
-            onChange={this.onChangeInput.bind(this, 'awsSesAccessKeyId')}
+            defaultValue={configsMap.AWS_SES_ACCESS_KEY_ID}
+            onChange={this.onChangeInput.bind(this, 'AWS_SES_ACCESS_KEY_ID')}
           />
         </FormGroup>
 
@@ -233,8 +233,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_SES_SECRET_ACCESS_KEY</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsSesSecretAccessKey}
-            onChange={this.onChangeInput.bind(this, 'awsSesSecretAccessKey')}
+            defaultValue={configsMap.AWS_SES_SECRET_ACCESS_KEY}
+            onChange={this.onChangeInput.bind(this, 'AWS_SES_SECRET_ACCESS_KEY')}
           />
         </FormGroup>
 
@@ -242,8 +242,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_REGION</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsRegion}
-            onChange={this.onChangeInput.bind(this, 'awsRegion')}
+            defaultValue={configsMap.AWS_REGION}
+            onChange={this.onChangeInput.bind(this, 'AWS_REGION')}
           />
         </FormGroup>
 
@@ -251,8 +251,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>AWS_SES_CONFIG_SET</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.awsSesConfigSet}
-            onChange={this.onChangeInput.bind(this, 'awsSesConfigSet')}
+            defaultValue={configsMap.AWS_SES_CONFIG_SET}
+            onChange={this.onChangeInput.bind(this, 'AWS_SES_CONFIG_SET')}
           />
         </FormGroup>
 
@@ -260,8 +260,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>MAIL_SERVICE</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.mailService}
-            onChange={this.onChangeInput.bind(this, 'mailService')}
+            defaultValue={configsMap.MAIL_SERVICE}
+            onChange={this.onChangeInput.bind(this, 'MAIL_SERVICE')}
           />
         </FormGroup>
 
@@ -269,8 +269,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>MAIL_PORT</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.mailPort}
-            onChange={this.onChangeInput.bind(this, 'mailPort')}
+            defaultValue={configsMap.MAIL_PORT}
+            onChange={this.onChangeInput.bind(this, 'MAIL_PORT')}
           />
         </FormGroup>
 
@@ -278,8 +278,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>MAIL_USER</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.mailUser}
-            onChange={this.onChangeInput.bind(this, 'mailUser')}
+            defaultValue={configsMap.MAIL_USER}
+            onChange={this.onChangeInput.bind(this, 'MAIL_USER')}
           />
         </FormGroup>
 
@@ -287,8 +287,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>MAIL_PASS</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.mailPass}
-            onChange={this.onChangeInput.bind(this, 'mailPass')}
+            defaultValue={configsMap.MAIL_PASS}
+            onChange={this.onChangeInput.bind(this, 'MAIL_PASS')}
           />
         </FormGroup>
 
@@ -296,8 +296,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>MAIL_HOST</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.mailHost}
-            onChange={this.onChangeInput.bind(this, 'mailHost')}
+            defaultValue={configsMap.MAIL_HOST}
+            onChange={this.onChangeInput.bind(this, 'MAIL_HOST')}
           />
         </FormGroup>
 
@@ -305,8 +305,8 @@ class List extends React.Component<Props, State> {
           <ControlLabel>COMPANY_EMAIL_FROM</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.companyEmailFrom}
-            onChange={this.onChangeInput.bind(this, 'companyEmailFrom')}
+            defaultValue={configsMap.COMPANY_EMAIL_FROM}
+            onChange={this.onChangeInput.bind(this, 'COMPANY_EMAIL_FROM')}
           />
         </FormGroup>
 
@@ -314,20 +314,10 @@ class List extends React.Component<Props, State> {
           <ControlLabel>DEFAULT_EMAIL_SERVICE</ControlLabel>
 
           <FormControl
-            defaultValue={configsMap.defaultEmailService}
-            onChange={this.onChangeInput.bind(this, 'defaultEmailService')}
+            defaultValue={configsMap.DEFAULT_EMAIL_SERVICE}
+            onChange={this.onChangeInput.bind(this, 'DEFAULT_EMAIL_SERVICE')}
           />
         </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>DOMAIN</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.domain}
-            onChange={this.onChangeInput.bind(this, 'domain')}
-          />
-        </FormGroup>
-
       </ContentBox>
     );
 
