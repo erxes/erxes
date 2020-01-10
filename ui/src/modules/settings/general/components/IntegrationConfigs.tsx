@@ -140,6 +140,33 @@ class IntegrationConfigs extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>NYLAS_CLIENT_ID</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.NYLAS_CLIENT_ID}
+            onChange={this.onChangeInput.bind(this, 'NYLAS_CLIENT_ID')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>NYLAS_CLIENT_SECRET</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.NYLAS_CLIENT_SECRET}
+            onChange={this.onChangeInput.bind(this, 'NYLAS_CLIENT_SECRET')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>NYLAS_WEBHOOK_CALLBACK_URL</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.NYLAS_WEBHOOK_CALLBACK_URL}
+            onChange={this.onChangeInput.bind(this, 'NYLAS_WEBHOOK_CALLBACK_URL')}
+          />
+        </FormGroup>
+
       </ContentBox>
     );
 
