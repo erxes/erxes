@@ -95,7 +95,7 @@ const Type = styled.span`
 `;
 
 const IntegrationItem = styled.div`
-  width: 20%;
+  width: 25%;
   display: flex;
   padding-left: ${storeSpace}px;
   padding-top: ${storeSpace}px;
@@ -149,6 +149,11 @@ const IntegrationItem = styled.div`
       border-right: ${dimensions.coreSpacing}px solid transparent;
       border-bottom: ${dimensions.coreSpacing}px solid #e8e8e8;
     }
+  }
+
+  @media (max-width: 1400px) {
+    padding-left: ${dimensions.coreSpacing}px;
+    padding-top: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -205,6 +210,23 @@ const LeftSidebar = styled.div`
 
 const FixedSection = styled.div`
   position: fixed;
+  width: 200px;
+  top: 220px;
+  bottom: ${dimensions.coreSpacing}px;
+  transition: all ease 0.5s;
+  overflow-y: hidden;
+
+  &:hover {
+    overflow-y: scroll;
+  }
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+  }
 `;
 
 export {
