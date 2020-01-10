@@ -18,8 +18,15 @@ const NotificationSeeAll = styled.div`
   a {
     padding: 5px ${dimensions.coreSpacing}px;
     display: block;
-    text-align: center;
+    text-align: left;
   }
+`;
+
+const MarkAllRead = styled.a`
+  position: relative;
+  cursor: pointer;
+  padding: 5px ${dimensions.coreSpacing}px;
+  float: right;
 `;
 
 const AvatarSection = styled.div`
@@ -62,7 +69,6 @@ const NotifList = styled.ul`
         background: ${colors.colorWhite};
       }
     }
-  }
 
     &:hover,
     &:focus {
@@ -100,6 +106,13 @@ const NotifButton = styled.div`
 
 const PopoverHeader = styled.div`
   padding: ${dimensions.coreSpacing / 2}px ${dimensions.coreSpacing}px;
+`;
+
+const PopoverLink = styled.a`
+  cursor: pointer;
+  span {
+    padding-right: 5px;
+  }
 `;
 
 const PopoverContent = styled.div`
@@ -178,5 +191,7 @@ export {
   AvatarSection,
   InfoSection,
   PopoverContent,
-  Item
+  Item,
+  PopoverLink,
+  MarkAllRead
 };
