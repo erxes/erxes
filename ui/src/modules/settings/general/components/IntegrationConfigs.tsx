@@ -194,6 +194,69 @@ class IntegrationConfigs extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>USE_NATIVE_GMAIL</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.USE_NATIVE_GMAIL}
+            onChange={this.onChangeInput.bind(this, 'USE_NATIVE_GMAIL')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>GOOGLE_PROJECT_ID</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.GOOGLE_PROJECT_ID}
+            onChange={this.onChangeInput.bind(this, 'GOOGLE_PROJECT_ID')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>GOOGLE_GMAIL_TOPIC</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.GOOGLE_GMAIL_TOPIC}
+            onChange={this.onChangeInput.bind(this, 'GOOGLE_GMAIL_TOPIC')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>GOOGLE_APPLICATION_CREDENTIALS</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.GOOGLE_APPLICATION_CREDENTIALS}
+            onChange={this.onChangeInput.bind(this, 'GOOGLE_APPLICATION_CREDENTIALS')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>GOOGLE_GMAIL_SUBSCRIPTION_NAME</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.GOOGLE_GMAIL_SUBSCRIPTION_NAME}
+            onChange={this.onChangeInput.bind(this, 'GOOGLE_GMAIL_SUBSCRIPTION_NAME')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>GOOGLE_CLIENT_ID</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.GOOGLE_CLIENT_ID}
+            onChange={this.onChangeInput.bind(this, 'GOOGLE_CLIENT_ID')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>GOOGLE_CLIENT_SECRET</ControlLabel>
+
+          <FormControl
+            defaultValue={configsMap.GOOGLE_CLIENT_SECRET}
+            onChange={this.onChangeInput.bind(this, 'GOOGLE_CLIENT_SECRET')}
+          />
+        </FormGroup>
+
       </ContentBox>
     );
 
