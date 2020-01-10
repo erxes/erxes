@@ -21,7 +21,7 @@ export default class ProductItemFormContainer extends React.Component<Props> {
             return;
           }
 
-          const { configs } = currentUser;
+          const configs = currentUser.configs || [];
 
           const uomConf = configs.find(c => c.code === 'dealUOM') || { value: [] };
           const currenciesConf = configs.find(c => c.code === 'dealCurrency') || { value: [] };
