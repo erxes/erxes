@@ -39,3 +39,4 @@ build:
     refs:
       - master
       - develop
+      - apm
