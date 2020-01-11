@@ -1,4 +1,4 @@
-test:
+ui_test:
   stage: test
   image: node:10.16-alpine
   before_script:
@@ -10,23 +10,24 @@ test:
     - yarn lint
     - yarn tsc
     - yarn build
-#   only:
-#     refs:
-#       - master
-#       - develop
-#   # cache:
-#   #   key:
-#   #     files:
-#   #       - ui/package.json
-#   #   paths:
-#   #     - ui/node_modules/
+  rules:
+    - changes:
+        - ui/**/*
+  cache:
+    key:
+      files:
+        - ui/package.json
+    paths:
+      - ui/node_modules/
   artifacts:
     expire_in: 1h
     paths:
       - ui/build/
 
-build:
+ui_build:
   stage: build
+  needs:
+    - ui_test
   before_script:
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
   script:
@@ -34,7 +35,7 @@ build:
     - docker build -t erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME} -f Dockerfile .
     - docker push erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME}
   dependencies:
-    - test
+    - ui_test
   only:
     refs:
       - master
