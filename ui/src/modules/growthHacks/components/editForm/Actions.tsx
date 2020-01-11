@@ -7,6 +7,7 @@ import LabelChooser from 'modules/boards/containers/label/LabelChooser';
 import { ColorButton } from 'modules/boards/styles/common';
 import { ActionContainer } from 'modules/boards/styles/item';
 import { IOptions } from 'modules/boards/types';
+import ChecklistAdd from 'modules/checklists/components/AddButton';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IGrowthHack } from 'modules/growthHacks/types';
@@ -100,6 +101,7 @@ class Actions extends React.Component<Props> {
         />
         <Vote item={item} onUpdate={onUpdate} />
         <LabelChooser item={item} onSelect={onLabelChange} />
+        <ChecklistAdd itemId={item._id} type={options.type} />
         <Watch item={item} options={options} isSmall={true} />
         <ColorButton onClick={copy}>
           <Icon icon="copy-1" />

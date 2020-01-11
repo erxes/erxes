@@ -3,6 +3,7 @@ import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import Labels from 'modules/boards/components/label/Labels';
 import { TitleRow } from 'modules/boards/styles/item';
 import { IOptions } from 'modules/boards/types';
+import Checklists from 'modules/checklists/containers/Checklists';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -10,7 +11,7 @@ import Icon from 'modules/common/components/Icon';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
-import { IGrowthHack } from 'modules/growthHacks/types';
+import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Votes from './Votes';
@@ -18,6 +19,7 @@ import Votes from './Votes';
 type Props = {
   item: IGrowthHack;
   saveItem: (doc: { [key: string]: any }) => void;
+  addItem: (doc: IGrowthHackParams, callback: () => void) => void;
   type: string;
   options: IOptions;
 };
@@ -44,7 +46,7 @@ class Left extends React.Component<Props> {
   }
 
   render() {
-    const { item, saveItem, type } = this.props;
+    const { item, saveItem, type, addItem } = this.props;
 
     const onDescriptionBlur = e => {
       const value = e.target.value;
@@ -109,6 +111,13 @@ class Left extends React.Component<Props> {
             onBlur={onDescriptionBlur}
           />
         </FormGroup>
+
+        <Checklists
+          contentType={type}
+          contentTypeId={item._id}
+          stageId={item.stageId}
+          addItem={addItem}
+        />
 
         <FormGroup>
           <TitleRow>
