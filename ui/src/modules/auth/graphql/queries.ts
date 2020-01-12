@@ -28,10 +28,7 @@ const currentUser = `
       emailSignatures
       getNotificationByEmail
       permissionActions
-      configs {
-        code
-        value
-      }
+      configs
     }
   }
 `;

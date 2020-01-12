@@ -36,7 +36,7 @@ export interface IUserDoc {
   getNotificationByEmail?: boolean;
   participatedConversations?: IUserConversation[];
   permissionActions?: string[];
-  configs?: Array<{ code: string, value: any }>;
+  configs?: any;
 }
 
 export interface IUser extends IUserDoc {

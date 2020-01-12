@@ -21,15 +21,12 @@ export default class ProductItemFormContainer extends React.Component<Props> {
             return;
           }
 
-          const configs = currentUser.configs || [];
-
-          const uomConf = configs.find(c => c.code === 'dealUOM') || { value: [] };
-          const currenciesConf = configs.find(c => c.code === 'dealCurrency') || { value: [] };
+          const configs = currentUser.configs || {};
 
           const extendedProps = {
             ...this.props,
-            uom: uomConf.value,
-            currencies: currenciesConf.value
+            uom: configs.dealUOM || [],
+            currencies: configs.dealCurrency || []
           };
 
           return <ProductItemForm {...extendedProps} />
