@@ -170,7 +170,7 @@ class Row extends React.Component<Props> {
 
         <td>
           <Icon icon="calender" />{' '}
-          {dayjs(message.createdDate).format('DD MMM YYYY')}
+          {dayjs(message.createdAt).format('DD MMM YYYY')}
         </td>
 
         <td>

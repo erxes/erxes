@@ -209,6 +209,37 @@ const TabContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
+const ButtonRelated = styled.div`
+  text-align: center;
+  
+  button {
+    background: rgba(0, 0, 0, 0.04);
+    margin: 10px auto;
+    color: #888;
+    border: 0;
+    border-radius: 25px;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+  }
+`;
+
+const SimpleButton = styledTS<{ isActive?: boolean }>(styled.div)`
+  font-size: 15px;
+  background: ${props => props.isActive && colors.bgGray};
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 2px;
+  transition: background ease 0.3s;
+
+  &:hover {
+    background: ${colors.bgActive};
+    cursor: pointer;
+  }
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -226,5 +257,7 @@ export {
   DateWrapper,
   CloseModal,
   ScrollWrapper,
-  TabContent
+  TabContent,
+  ButtonRelated,
+  SimpleButton
 };

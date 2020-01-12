@@ -18,6 +18,8 @@ type Props = {
   queryParams: any;
   kind?: string | null;
   variables?: { brandId?: string; channelId?: string };
+  disableAction?: boolean;
+  integrationsCount: number;
 };
 
 type FinalProps = {

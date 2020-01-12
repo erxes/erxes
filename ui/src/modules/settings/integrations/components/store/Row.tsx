@@ -119,7 +119,7 @@ class Row extends React.Component<Props, State> {
 
     return (
       <>
-        <IntegrationList kind={kind} queryParams={queryParams} />
+        <IntegrationList kind={kind} queryParams={queryParams} integrationsCount={totalCount[kind || '']} />
         {this.renderPagination(totalCount[kind || ''])}
       </>
     );

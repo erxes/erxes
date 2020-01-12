@@ -31,4 +31,15 @@ const More = styled(MemberImg.withComponent('span'))`
   cursor: pointer;
 `;
 
-export { MemberImg, Members, More };
+const TopHeader = styled.div`
+  padding: 18px 20px;
+`;
+
+const Title = styled.div`
+  font-size: 24px;
+  margin: 20px 0;
+  display: flex;
+  line-height: 30px;
+`;
+
+export { MemberImg, Members, More, TopHeader, Title };

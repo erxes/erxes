@@ -10,13 +10,13 @@ import { Left, StageForm, Top } from './editForm/';
 import Actions from './editForm/Actions';
 import Score from './Score';
 
-const reactiveFields = ['priority', 'hackStages'];
+const reactiveFields = ['priority', 'hackStages', 'labels'];
 
 type Props = {
   options: IOptions;
   item: IGrowthHack;
   users: IUser[];
-  addItem: (doc: IGrowthHackParams, callback: () => void, msg?: string) => void;
+  addItem: (doc: IGrowthHackParams, callback: () => void) => void;
   saveFormSubmission: (doc: IFormSubmission) => void;
   saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
@@ -90,7 +90,7 @@ export default class GrowthHackEditForm extends React.Component<Props> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, saveFormSubmission, onUpdate } = this.props;
+    const { item, options, saveFormSubmission, onUpdate, addItem } = this.props;
 
     const dateOnChange = date => saveItem({ closeDate: date });
 
@@ -121,6 +121,7 @@ export default class GrowthHackEditForm extends React.Component<Props> {
               item={item}
               saveItem={saveItem}
               options={options}
+              addItem={addItem}
             />
           </LeftContainer>
 
