@@ -10,9 +10,9 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
 import React from 'react';
-import Sidebar from '../../properties/components/Sidebar';
 import { IImportHistory } from '../types';
 import HistoryRow from './Row';
+import Sidebar from './Sidebar';
 
 type Props = {
   queryParams: any;
