@@ -1,3 +1,15 @@
+# [0.12.0](https://github.com/erxes/erxes-integrations/compare/0.11.2...0.12.0) (2020-01-08)
+
+
+### Bug Fixes
+
+* check env in startup and add handle promise error ([8133160](https://github.com/erxes/erxes-integrations/commit/81331607bace41f8c6ac4be30db4fbda7563172e))
+
+
+### Features
+
+* **integration:** auto assign callpro user ([6770a31](https://github.com/erxes/erxes-integrations/commit/6770a3150dd19082be4dffba1f1010ca4c4a0564)), closes [#69](https://github.com/erxes/erxes-integrations/issues/69)
+
 ## [0.11.2](https://github.com/erxes/erxes-integrations/compare/0.11.0...0.11.2) (2019-12-15)
 
 
