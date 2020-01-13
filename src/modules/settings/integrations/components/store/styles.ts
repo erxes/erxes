@@ -229,6 +229,25 @@ const FixedSection = styled.div`
   }
 `;
 
+const SearchInput = styled.div`
+  position: relative;
+
+  input {
+    border: 1px solid ${colors.borderPrimary};
+    padding: 20px 20px 20px 30px;
+    border-radius: 5px;
+    min-width: 500px;
+    background: ${colors.colorWhite};
+  }
+
+  i {
+    position: absolute;
+    top: 11px;
+    left: 10px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
 export {
   IntegrationWrapper,
   IntegrationRow,
@@ -241,5 +260,6 @@ export {
   SidebarList,
   LeftSidebar,
   FixedSection,
+  SearchInput,
   Ribbon
 };
