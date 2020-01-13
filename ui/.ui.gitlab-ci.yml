@@ -5,7 +5,7 @@ ui_test:
     - cd ui
     - yarn install
     - apk add --no-cache --update git
-    - git checkout ${CI_COMMIT_REF_SLUG}
+    - git checkout ${CI_COMMIT_REF_NAME}
   script:
     - yarn lint
     - yarn tsc
