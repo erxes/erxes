@@ -1,0 +1,14 @@
+# docs:
+#   stage: test
+#   image: node:10.16-alpine
+#   # before_script:
+#   #   - cd docs/website
+#   #   - yarn install
+#   script:
+#     - echo "doc is updated"
+#     # - yarn lint
+#     # - yarn tsc
+#     # - yarn build
+#   rules:
+#     - changes:
+#         - docs/**/*
