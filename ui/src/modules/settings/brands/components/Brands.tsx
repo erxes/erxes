@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
@@ -39,6 +40,16 @@ class Brands extends React.Component<Props, {}> {
         Manage integration
       </Button>
     );
+
+    if (!currentBrand._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    };
 
     const content = props => (
       <ManageIntegrations
