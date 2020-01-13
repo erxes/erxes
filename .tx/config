@@ -1,0 +1,10 @@
+[main]
+host = https://www.transifex.com
+
+[widgets-1.en-json]
+file_filter = locales/<lang>.json
+minimum_perc = 0
+source_file = locales/en.json
+source_lang = en_US
+type = KEYVALUEJSON
+
