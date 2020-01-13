@@ -12,4 +12,4 @@ stages:
 
 include:
 - local: '/ui/.ui.gitlab-ci.yml'
-# - local: '/docs/.docs.gitlab-ci.yml'
+- local: '/docs/.docs.gitlab-ci.yml'
