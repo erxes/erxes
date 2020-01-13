@@ -43,8 +43,10 @@ const commonParams = `
   sourceConversationId: String,
 `;
 
+const copyParams = `customerIds: [String], companyIds: [String], labelIds: [String]`;
+
 export const mutations = `
-  tasksAdd(name: String!, customerIds: [String], companyIds: [String], ${commonParams}): Task
+  tasksAdd(name: String!, ${copyParams}, ${commonParams}): Task
   tasksEdit(_id: String!, name: String, ${commonParams}): Task
   tasksChange( _id: String!, destinationStageId: String): Task
   tasksUpdateOrder(stageId: String!, orders: [OrderItem]): [Task]
