@@ -1,6 +1,7 @@
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import { IUser } from 'modules/auth/types';
+import EmptyState from 'modules/common/components/EmptyState';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IChannel } from 'modules/settings/channels/types';
 import React from 'react';
@@ -30,6 +31,12 @@ class UserDetails extends React.Component<Props> {
 
     const breadcrumb = [{ title: 'Users', link: '/settings/team' }, { title }];
 
+    if(!user._id) {
+      return (
+        <EmptyState image="/images/actions/11.svg" text="User not found" size="small"/>
+      );
+    }
+    
     const content = (
       <>
         <ActivityInputs
