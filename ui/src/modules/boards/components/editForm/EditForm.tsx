@@ -72,7 +72,8 @@ class EditForm extends React.Component<Props, State> {
       attachments: item.attachments && extractAttachment(item.attachments),
       assignedUserIds: item.assignedUsers.map(user => user._id),
       customerIds: customers.map(customer => customer._id),
-      companyIds: companies.map(company => company._id)
+      companyIds: companies.map(company => company._id),
+      labelIds: item.labelIds || []
     };
 
     addItem(doc, this.closeModal, options.texts.copySuccessText);

@@ -16,6 +16,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
+import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import Select from 'react-select-plus';
@@ -33,6 +34,7 @@ type IProps = {
   refetchQueries: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams?: any;
+  configsEnvQuery?: any;
 };
 
 type FinalProps = ICommonListProps &
@@ -49,9 +51,7 @@ class UserList extends React.Component<FinalProps, States> {
   constructor(props: FinalProps) {
     super(props);
 
-    const {
-      queryParams: { searchValue }
-    } = props;
+    const { queryParams: { searchValue } } = props;
 
     this.state = {
       searchValue: searchValue || ''
@@ -213,12 +213,39 @@ class UserList extends React.Component<FinalProps, States> {
     router.setParams(this.props.history, { isActive: status.value });
   };
 
+  renderBrandChooser() {
+    const { configsEnvQuery = {}, history, queryParams } = this.props;
+
+    const env = configsEnvQuery.configsGetEnv || {};
+
+    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
+      return null;
+    }
+
+    const onSelect = brandIds => {
+      router.setParams(history, { brandIds });
+    };
+
+    return (
+      <FlexItem>
+        <ControlLabel>{__('Brand')}</ControlLabel>
+        <SelectBrands
+          label={__('Choose brands')}
+          onSelect={onSelect}
+          value={queryParams.brandIds}
+          name="selectedBrands"
+        />
+      </FlexItem>
+    );
+  }
+
   renderFilter = () => {
     return (
       <FilterContainer>
         <FlexRow>
+          {this.renderBrandChooser()}
           <FlexItem>
-            <ControlLabel>Search</ControlLabel>
+            <ControlLabel>{__('Search')}</ControlLabel>
             <FormControl
               placeholder="Search"
               name="searchValue"
@@ -230,7 +257,7 @@ class UserList extends React.Component<FinalProps, States> {
           </FlexItem>
 
           <FlexItem>
-            <ControlLabel>Status</ControlLabel>
+            <ControlLabel>{__('Status')}</ControlLabel>
             <Select
               placeholder={__('Choose status')}
               value={this.props.queryParams.isActive || true}
