@@ -45,7 +45,7 @@ class Home extends React.Component<Props, State> {
       prevState.searchValue !== searchValue) {
       this.setState({
         rows: INTEGRATIONS.filter(integration => (
-          searchValue && integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
+          integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
           integration.category.indexOf(filteredItem) !== -1
         ))
       })

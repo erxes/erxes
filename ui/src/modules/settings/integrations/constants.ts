@@ -972,7 +972,6 @@ export const INTEGRATION_FILTERS = [
     items: [
       'Analytics',
       'Cloud storage',
-      'Contacts',
       'CRM',
       'Data',
       'Email marketing',
