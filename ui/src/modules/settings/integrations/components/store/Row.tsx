@@ -1,5 +1,4 @@
 import Pagination from 'modules/common/components/pagination/Pagination';
-import { __ } from 'modules/common/utils';
 import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
 import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import React from 'react';
@@ -11,7 +10,6 @@ import { CollapsibleContent, IntegrationRow } from './styles';
 
 type Props = {
   integrations: any[];
-  title?: string;
   totalCount: ByKindTotalCount;
   queryParams: any;
 };
@@ -124,7 +122,7 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const { integrations, title, totalCount, queryParams } = this.props;
+    const { integrations, totalCount, queryParams } = this.props;
 
     const selected = integrations.find(
       integration => integration.kind === this.state.kind
@@ -132,7 +130,6 @@ class Row extends React.Component<Props, State> {
 
     return (
       <>
-        {title && integrations.length > 0 && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration =>
             this.renderEntry(integration, totalCount, queryParams)

@@ -58,7 +58,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => (
         <Facebook kind={KIND_CHOICES.FACEBOOK_MESSENGER} {...props} />
@@ -75,7 +75,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.FACEBOOK_POST) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => (
         <Facebook kind={KIND_CHOICES.FACEBOOK_POST} {...props} />
@@ -95,7 +95,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'lead') {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <Lead {...props} />;
 
@@ -106,9 +106,9 @@ class Entry extends React.Component<Props> {
 
     if (createModal === 'sesconfig') {
       const trigger = (
-        <a href="#add">
+        <h6>
           <Icon icon="link-1" /> {__('Manage')}
-        </a>
+        </h6>
       );
 
       const content = props => <Settings {...props} />;
@@ -124,7 +124,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'knowledgeBase') {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <KnowledgeBase {...props} />;
 
@@ -138,7 +138,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'website') {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <Website {...props} />;
 
@@ -148,7 +148,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'callpro') {
-      const trigger = <a href="#add">+ {'Add'}</a>;
+      const trigger = <h6>+ {'Add'}</h6>;
 
       const content = props => <CallPro {...props} />;
 
@@ -162,7 +162,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'chatfuel') {
-      const trigger = <a href="#add">+ {'Add'}</a>;
+      const trigger = <h6>+ {'Add'}</h6>;
 
       const content = props => <Chatfuel {...props} />;
 
@@ -176,7 +176,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_OFFICE365) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -190,7 +190,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_IMAP) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -200,7 +200,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_GMAIL) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -210,7 +210,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_OUTLOOK) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -220,7 +220,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_YAHOO) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -230,7 +230,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.GMAIL) {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <Gmail {...props} />;
 
@@ -240,7 +240,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === 'twitter') {
-      const trigger = <a href="#add">+ {__('Add')}</a>;
+      const trigger = <h6>+ {__('Add')}</h6>;
 
       const content = props => <Twitter {...props} />;
 
