@@ -13,6 +13,4 @@ docs:
   rules:
     - changes:
         - docs/**/*
-  only:
-    refs:
-      - develop
+      if: '$CI_COMMIT_BRANCH' == "develop"'
