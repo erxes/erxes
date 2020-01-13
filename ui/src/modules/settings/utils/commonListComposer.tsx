@@ -111,12 +111,15 @@ function commonListComposer<ComponentProps>(options) {
     composeAttr.push(gqlRemoveMutation);
   }
 
+  if (gqlConfigsQuery) {
+    composeAttr.push(gqlConfigsQuery);
+  }
+
   return withProps<ComponentProps>(
     compose(
       ...composeAttr,
       gqlListQuery,
       gqlTotalCountQuery,
-      gqlConfigsQuery
     )(ListContainer)
   );
 }
