@@ -18,7 +18,8 @@ function commonListComposer<ComponentProps>(options) {
     gqlListQuery,
     gqlTotalCountQuery,
     gqlRemoveMutation,
-    ListComponent
+    ListComponent,
+    gqlConfigsQuery
   } = options;
 
   type Props = {
@@ -114,7 +115,8 @@ function commonListComposer<ComponentProps>(options) {
     compose(
       ...composeAttr,
       gqlListQuery,
-      gqlTotalCountQuery
+      gqlTotalCountQuery,
+      gqlConfigsQuery
     )(ListContainer)
   );
 }
