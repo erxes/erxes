@@ -33,7 +33,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 * **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity.
 ## Documentation
   * <a href="https://docs.erxes.io/installation/docker">Install erxes</a> <br>
-  * <a href="https://docs.erxes.io/installation/docker">erxes documentation</a> <br>
+  * <a href="https://docs.erxes.io">erxes documentation</a> <br>
   * <a href="https://docs.erxes.io/developer/contributing">Contributing to erxes</a> <br>
 
 ## Contributors
