@@ -1,3 +1,4 @@
+import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
@@ -8,7 +9,7 @@ import React from 'react';
 import { ByKindTotalCount } from '../../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
-import { Content, IntegrationWrapper, SearchInput } from './styles';
+import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -57,7 +58,7 @@ class Home extends React.Component<Props, State> {
   };
 
   renderIntegrations() {
-    const { rows } = this.state;
+    const { rows, searchValue } = this.state;
     const { totalCount, queryParams } = this.props;
 
     const datas = [] as any;
@@ -70,6 +71,17 @@ class Home extends React.Component<Props, State> {
           totalCount={totalCount}
           queryParams={queryParams}
         />
+      );
+    }
+
+    if (datas.length === 0) {
+      return (
+        <FullHeight>
+          <EmptyState
+            text={`No results for "${searchValue}"`}
+            image='/images/actions/2.svg'
+          />
+        </FullHeight>
       );
     }
 

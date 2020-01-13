@@ -9,7 +9,6 @@ const storeSpace = dimensions.coreSpacing * 2;
 
 const IntegrationWrapper = styled.div`
   padding-bottom: ${storeSpace}px;
-  margin-bottom: auto;
   flex: 1;
 
   h3 {
@@ -252,6 +251,10 @@ const SearchInput = styled.div`
   }
 `;
 
+const FullHeight = styled.div`
+  height: 100%;
+`;
+
 export {
   IntegrationWrapper,
   IntegrationRow,
@@ -265,5 +268,6 @@ export {
   LeftSidebar,
   FixedSection,
   SearchInput,
-  Ribbon
+  Ribbon,
+  FullHeight
 };
