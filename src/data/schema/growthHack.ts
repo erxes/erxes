@@ -30,6 +30,7 @@ const commonQueryFields = `
   closeDateType: String
   hackStage: [String]
   priority: [String]
+  labelIds: [String]
 `;
 
 export const queries = `
