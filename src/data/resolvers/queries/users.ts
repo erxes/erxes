@@ -12,10 +12,11 @@ interface IListArgs {
   ids?: string[];
   email?: string;
   status?: string;
+  brandIds?: string[];
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  const { searchValue, isActive, requireUsername, ids, status } = params;
+  const { searchValue, isActive, requireUsername, ids, status, brandIds } = params;
 
   const selector: any = {
     isActive,
@@ -45,6 +46,10 @@ const queryBuilder = async (params: IListArgs) => {
 
   if (status) {
     selector.registrationToken = { $eq: null };
+  }
+
+  if (brandIds && brandIds.length > 0) {
+    selector.brandIds = { $in: brandIds };
   }
 
   return selector;
