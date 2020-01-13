@@ -9,155 +9,6 @@ import { ByKindTotalCount } from '../../types';
 import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 type Props = {
   integrations: any[];
   title?: string;
@@ -174,9 +25,7 @@ class Row extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const {
-      queryParams: { kind }
-    } = props;
+    const { queryParams: { kind } } = props;
 
     this.state = {
       isContentVisible: Boolean(kind) || false,
@@ -282,7 +131,7 @@ class Row extends React.Component<Props, State> {
     );
 
     return (
-      <div>
+      <>
         {title && integrations.length > 0 && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration =>
@@ -290,12 +139,12 @@ class Row extends React.Component<Props, State> {
           )}
         </IntegrationRow>
         <Collapse
-          in={this.state.isContentVisible && selected}
+          in={this.state.isContentVisible && selected ? true : false}
           unmountOnExit={true}
         >
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>
-      </div>
+      </>
     );
   }
 }

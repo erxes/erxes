@@ -241,6 +241,10 @@ const SearchInput = styled.div`
     border-radius: 5px;
     min-width: 500px;
     background: ${colors.colorWhite};
+
+    @media (max-width: 1300px) {
+      min-width: 300px;
+    }
   }
 
   i {
