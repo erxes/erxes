@@ -1,0 +1,54 @@
+{
+  "docs": {
+    "Overview": [
+      "overview/getting-started",
+      "overview/overview",
+      "overview/architecture-overview",
+      "overview/deployment-overview",
+      "overview/integrations-overview"
+    ],
+    "Installation Guide": [
+      "installation/ubuntu",
+      "installation/docker",
+      "installation/heroku",
+      "installation/kubernetes",
+      "installation/upgrade"
+    ],
+    "User's Guide": [
+      "user/initial-setup",
+      "user/general-settings",
+      "user/team-inbox",
+      "user/knowledge-base",
+      "user/popups",
+      "user/script-install",
+      "user/contacts",
+      "user/sales-pipeline",
+      "user/sales-pipeline-settings",
+      "user/engage",
+      "user/insights",
+      "user/email-templates",
+      "user/third-party-integrations",
+      "user/signing-in",
+      "user/profile-settings",
+      "user/notification",
+      "user/mobile-apps",
+      "user/subscription-getting-started"
+    ],
+    "Administrator's guide": [
+      "administrator/creating-first-user",
+      "administrator/environment-variables",
+      "administrator/file-upload",
+      "administrator/integrations",
+      "administrator/migration"
+    ],
+    "Developer's guide": [
+      "developer/developer",
+      "developer/contributing",
+      "developer/graphql-api",
+      "developer/push-notifications",
+      "developer/android-sdk",
+      "developer/ios-sdk",
+      "developer/amazon-ses"
+    ]
+  }
+}
