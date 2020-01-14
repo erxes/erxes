@@ -225,6 +225,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
     white-space: normal;
     flex: 1;
     padding: 10px 0 10px 20px;
+    font-weight: 500;
 
     &:hover {
       background: none;

@@ -1,6 +1,7 @@
 import Button from 'modules/common/components/Button';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
@@ -46,7 +47,7 @@ class KnowledgeBase extends React.Component<Props> {
     const { articlesCount, queryParams, currentCategory } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
+      <Button btnStyle="simple" uppercase={false} icon="plus-circle">
         Add Article
       </Button>
     );
@@ -71,6 +72,15 @@ class KnowledgeBase extends React.Component<Props> {
       />
     );
 
+    const leftActionBar = (
+      <Title>
+        {currentCategory.title} 
+        <span>
+          ({articlesCount} {articlesCount > 1 ? __('articles') : __('artcile')})
+        </span>
+      </Title>
+    );
+
     return (
       <Wrapper
         header={
@@ -86,7 +96,7 @@ class KnowledgeBase extends React.Component<Props> {
             queryParams={queryParams}
           />
         }
-        actionBar={<Wrapper.ActionBar right={actionBarLeft} />}
+        actionBar={<Wrapper.ActionBar left={leftActionBar} right={actionBarLeft} />}
         footer={currentCategory._id && <Pagination count={articlesCount} />}
         transparent={true}
         content={

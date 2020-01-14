@@ -4,7 +4,7 @@ import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
-import { Title } from 'modules/settings/channels/styles';
+import { Title } from 'modules/common/styles/main';
 import React from 'react';
 import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
@@ -46,7 +46,7 @@ class Brands extends React.Component<Props, {}> {
     };
 
     const trigger = (
-      <Button btnStyle="simple" uppercase={false} icon="computer">
+      <Button btnStyle="simple" uppercase={false} icon="web-grid-alt">
         Manage integration
       </Button>
     );

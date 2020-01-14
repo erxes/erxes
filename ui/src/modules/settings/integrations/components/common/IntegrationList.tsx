@@ -1,17 +1,10 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import Table from 'modules/common/components/table';
+import { Count } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import styled from 'styled-components';
 import { IIntegration } from '../../types';
 import IntegrationListItem from './IntegrationListItem';
-
-const Count = styled.div`
-  font-size: 15px;
-  font-weight: bold;
-  margin: 10px 20px;
-  color: #666;
-`;
 
 type Props = {
   integrations: IIntegration[];

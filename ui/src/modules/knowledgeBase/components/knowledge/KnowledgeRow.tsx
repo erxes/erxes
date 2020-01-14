@@ -78,7 +78,7 @@ class KnowledgeRow extends React.Component<Props, State> {
 
     const addCategory = <Dropdown.Item>{__('Add category')}</Dropdown.Item>;
     const manageTopic = (
-      <Dropdown.Item>{__('Manage Knowledge Base')}</Dropdown.Item>
+      <Dropdown.Item>{__('Edit Knowledge Base')}</Dropdown.Item>
     );
 
     const content = props => (

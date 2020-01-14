@@ -4,13 +4,13 @@ import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
 import React from 'react';
 import ManageIntegrations from '../containers/ManageIntegrations';
 import Sidebar from '../containers/Sidebar';
-import { Title } from '../styles';
 import { IChannel } from '../types';
 
 type Props = {
@@ -35,12 +35,6 @@ class Channels extends React.Component<Props, {}> {
       { title: `${currentChannel.name || ''}` }
     ];
 
-    const trigger = (
-      <Button uppercase={false} btnStyle="simple" icon="web-grid-alt">
-        {__('Manage integration')}
-      </Button>
-    );
-
     if (!currentChannel._id) {
       return (
         <EmptyState
@@ -50,6 +44,12 @@ class Channels extends React.Component<Props, {}> {
         />
       );
     };
+
+    const trigger = (
+      <Button uppercase={false} btnStyle="simple" icon="web-grid-alt">
+        {__('Manage integration')}
+      </Button>
+    );
 
     const content = props => (
       <ManageIntegrations
