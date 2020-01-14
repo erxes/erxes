@@ -46,8 +46,10 @@ const commonParams = `
   sourceConversationId: String,
 `;
 
+const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
+
 export const mutations = `
-  ticketsAdd(name: String!, companyIds: [String], customerIds: [String], ${commonParams}): Ticket
+  ticketsAdd(name: String!, ${copyParams}, ${commonParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${commonParams}): Ticket
   ticketsChange( _id: String!, destinationStageId: String): Ticket
   ticketsUpdateOrder(stageId: String!, orders: [OrderItem]): [Ticket]
