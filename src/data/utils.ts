@@ -980,6 +980,12 @@ export const checkAutomation = async (kind: string, body: any, user: IUserDocume
     data,
   });
 
+  console.log(apiAutomationResponse);
+
+  if (!apiAutomationResponse.response) {
+    return;
+  }
+
   try {
     graphqlPubsub.publish('automationResponded', {
       automationResponded: {
