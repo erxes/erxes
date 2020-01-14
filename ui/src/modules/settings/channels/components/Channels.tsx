@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
@@ -40,6 +41,16 @@ class Channels extends React.Component<Props, {}> {
       </Button>
     );
 
+    if (!currentChannel._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Channels"
+          size="small"
+        />
+      );
+    };
+
     const content = props => (
       <ManageIntegrations
         {...props}
@@ -57,7 +68,7 @@ class Channels extends React.Component<Props, {}> {
         content={content}
       />
     );
-
+   
     const leftActionBar = <Title>{currentChannel.name}</Title>;
 
     return (
