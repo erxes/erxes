@@ -1,0 +1,44 @@
+widgets:test:
+  stage: test
+  image: node:10.16-slim
+  before_script:
+    - apt-get update && apt-get install -y git
+    - cd widgets
+    - yarn install
+    - git checkout ${CI_COMMIT_REF_NAME}
+  script:
+    - yarn lint
+    - yarn build
+  rules:
+    - changes:
+        - widgets/**/*
+  cache:
+    key:
+      files:
+        - widgets/package.json
+    paths:
+      - widgets/node_modules/
+  artifacts:
+    expire_in: 1h
+    paths:
+      - widgets/dist/
+      - widgets/static/
+      - widgets/node_modules/
+
+widgets:build:
+  stage: build
+  needs:
+    - widgets:test
+  before_script:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  script:
+    - cd widgets
+    - docker build -t erxes/erxes-widgets:${CI_COMMIT_REF_NAME} -f Dockerfile .
+    - docker push erxes/erxes-widgets:${CI_COMMIT_REF_NAME}
+  dependencies:
+    - widgets:test
+  only:
+    refs:
+      - master
+      - develop
+      - apm
