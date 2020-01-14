@@ -1,5 +1,4 @@
 import Pagination from 'modules/common/components/pagination/Pagination';
-import { __ } from 'modules/common/utils';
 import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
 import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import React from 'react';
@@ -11,7 +10,6 @@ import { CollapsibleContent, IntegrationRow } from './styles';
 
 type Props = {
   integrations: any[];
-  title?: string;
   totalCount: ByKindTotalCount;
   queryParams: any;
 };
@@ -25,9 +23,7 @@ class Row extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const {
-      queryParams: { kind }
-    } = props;
+    const { queryParams: { kind } } = props;
 
     this.state = {
       isContentVisible: Boolean(kind) || false,
@@ -126,7 +122,7 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const { integrations, title, totalCount, queryParams } = this.props;
+    const { integrations, totalCount, queryParams } = this.props;
 
     const selected = integrations.find(
       integration => integration.kind === this.state.kind
@@ -134,14 +130,13 @@ class Row extends React.Component<Props, State> {
 
     return (
       <>
-        {title && <h3>{__(title)}</h3>}
         <IntegrationRow>
           {integrations.map(integration =>
             this.renderEntry(integration, totalCount, queryParams)
           )}
         </IntegrationRow>
         <Collapse
-          in={this.state.isContentVisible && selected}
+          in={this.state.isContentVisible && selected ? true : false}
           unmountOnExit={true}
         >
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>

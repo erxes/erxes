@@ -24,11 +24,11 @@ class FieldsPreview extends React.Component<Props, State> {
     };
   }
 
-  componentWillUpdate(nextProps: Props) {
-    if ((this.state.fields || []).length !== (nextProps.fields || []).length) {
-      this.setState({
-        fields: nextProps.fields
-      });
+  componentDidUpdate(prevProps: Props) {
+    const { fields } = this.props;
+
+    if (fields !== prevProps.fields) {
+      this.setState({ fields });
     }
   }
 
