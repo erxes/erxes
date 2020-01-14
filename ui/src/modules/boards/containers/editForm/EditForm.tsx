@@ -9,6 +9,7 @@ import { graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
 import { queries } from '../../graphql';
 import {
+  CopyMutation,
   DetailQueryResponse,
   IItem,
   IItemParams,
@@ -45,6 +46,7 @@ type FinalProps = {
   addMutation: SaveMutation;
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
+  copyMutation: CopyMutation;
 } & ContainerProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
@@ -54,6 +56,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.addItem = this.addItem.bind(this);
     this.saveItem = this.saveItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
+    this.copyItem = this.copyItem.bind(this);
   }
 
   addItem(doc: IItemParams, callback: () => void) {
@@ -70,6 +73,20 @@ class EditFormContainer extends React.Component<FinalProps> {
       .catch(error => {
         Alert.error(error.message);
       });
+  }
+
+  copyItem(itemId: string, callback: () => void) {
+    const { copyMutation, onAdd, options, stageId } = this.props;
+
+    copyMutation({ variables: { _id: itemId } }).then(({ data }) => {
+      callback();
+      
+      if (onAdd) {
+        onAdd(stageId, data[options.mutationsName.copyMutation]);
+      }
+    }).catch(error => {
+      Alert.error(error.message);
+    });
   }
 
   saveItem = (doc: IItemParams, callback: (item) => void) => {
@@ -137,6 +154,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       addItem: this.addItem,
       removeItem: this.removeItem,
       saveItem: this.saveItem,
+      copyItem: this.copyItem,
       users
     };
 
@@ -148,6 +166,15 @@ class EditFormContainer extends React.Component<FinalProps> {
 
 const withQuery = (props: ContainerProps) => {
   const { options } = props;
+
+  const refetchOptions = ({ stageId }: { stageId: string }) => ({
+    refetchQueries: [
+      {
+        query: gql(queries.stageDetail),
+        variables: { _id: stageId }
+      }
+    ]
+  });
 
   return withProps<ContainerProps>(
     compose(
@@ -175,14 +202,14 @@ const withQuery = (props: ContainerProps) => {
         gql(options.mutations.addMutation),
         {
           name: 'addMutation',
-          options: ({ stageId }: { stageId: string }) => ({
-            refetchQueries: [
-              {
-                query: gql(queries.stageDetail),
-                variables: { _id: stageId }
-              }
-            ]
-          })
+          options: refetchOptions
+        }
+      ),
+      graphql<ContainerProps, SaveMutation, IItemParams>(
+        gql(options.mutations.copyMutation),
+        {
+          name: 'copyMutation',
+          options: refetchOptions
         }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
@@ -195,14 +222,7 @@ const withQuery = (props: ContainerProps) => {
         gql(options.mutations.removeMutation),
         {
           name: 'removeMutation',
-          options: ({ stageId }: { stageId: string }) => ({
-            refetchQueries: [
-              {
-                query: gql(queries.stageDetail),
-                variables: { _id: stageId }
-              }
-            ]
-          })
+          options: refetchOptions
         }
       )
     )(EditFormContainer)

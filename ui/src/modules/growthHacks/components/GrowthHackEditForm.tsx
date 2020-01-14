@@ -17,6 +17,7 @@ type Props = {
   item: IGrowthHack;
   users: IUser[];
   addItem: (doc: IGrowthHackParams, callback: () => void) => void;
+  copyItem: (itemId: string, callback: () => void) => void;
   saveFormSubmission: (doc: IFormSubmission) => void;
   saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
