@@ -7,9 +7,11 @@ default:
     - docker:19.03-dind
 
 stages:
+  - docs
   - test
   - build
 
 include:
-- local: '/ui/.ui.gitlab-ci.yml'
 - local: '/docs/.docs.gitlab-ci.yml'
+- local: '/ui/.ui.gitlab-ci.yml'
+- local: '/widgets/.widgets.gitlab-ci.yml'

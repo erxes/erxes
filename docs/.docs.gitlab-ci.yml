@@ -1,5 +1,5 @@
 docs:
-  stage: test
+  stage: docs
   image: node:10.16-slim
   before_script:
     - apt-get update && apt-get install -y git
