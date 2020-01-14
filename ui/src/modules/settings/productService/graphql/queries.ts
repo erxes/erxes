@@ -1,22 +1,22 @@
 const productFields = `
-      _id
-      name
-      type
-      code
-      categoryId
-      description
-      unitPrice
-      sku
-      getTags {
-        _id
-        name
-        colorCode
-      }
-      tagIds
-      createdAt
-      category {
-        name
-      }
+  _id
+  name
+  type
+  code
+  categoryId
+  description
+  unitPrice
+  sku
+  getTags {
+    _id
+    name
+    colorCode
+  }
+  tagIds
+  createdAt
+  category {
+    name
+  }
 `;
 
 const products = `
@@ -70,11 +70,22 @@ const productDetail = `
   }
 `;
 
+const productCategoryDetail = `
+  query productCategoryDetail($_id: String) {
+    productCategoryDetail(_id: $_id) {
+      _id
+      name
+      productCount
+    }
+  }
+`;
+
 export default {
   products,
   productDetail,
   productCountByTags,
   productsCount,
   productCategories,
-  productCategoriesCount
+  productCategoriesCount,
+  productCategoryDetail
 };

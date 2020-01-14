@@ -235,6 +235,11 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
       color: inherit;
       text-decoration: none;
     }
+
+    > span {
+      color: #666;
+      font-weight: normal;
+    }
   }
 
   &:last-child {
