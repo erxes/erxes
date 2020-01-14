@@ -51,6 +51,16 @@ class Brands extends React.Component<Props, {}> {
       </Button>
     );
 
+    if (!currentBrand._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    };
+
     const content = props => (
       <ManageIntegrations
         {...props}
