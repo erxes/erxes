@@ -1,0 +1,11 @@
+*.md
+*.yml
+.env*
+.git*
+.snyk
+Dockerfile*
+client
+locales
+scripts
+server
+*.tar.gz
