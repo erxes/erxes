@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 // import * as compose from 'lodash.flowright';
 // import { IUser } from 'modules/auth/types';
 import React from 'react';
-import { graphql, useSubscription } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { subscriptions } from './graphql';
 // import { AutomationRespondedQueryResponse } from './types';
 
