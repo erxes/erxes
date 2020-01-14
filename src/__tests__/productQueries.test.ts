@@ -145,6 +145,22 @@ describe('productQueries', () => {
     expect(response._id).toBe(product._id);
   });
 
+  test('Product category detail', async () => {
+    const qry = `
+      query productCategoryDetail($_id: String!) {
+        productCategoryDetail(_id: $_id) {
+          _id
+        }
+      }
+    `;
+
+    const productCategory = await productCategoryFactory();
+
+    const response = await graphqlRequest(qry, 'productDetail', { _id: productCategory._id });
+
+    expect(response._id).toBe(productCategory._id);
+  });
+
   test('Product count by tag', async () => {
     const tag1 = await tagsFactory({ type: TAG_TYPES.PRODUCT });
     const tag2 = await tagsFactory({ type: TAG_TYPES.PRODUCT });
