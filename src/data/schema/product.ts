@@ -50,6 +50,7 @@ const productCategoryParams = `
 export const queries = `
   productCategories(parentId: String, searchValue: String): [ProductCategory]
   productCategoriesTotalCount: Int
+  productCategoryDetail(_id: String): ProductCategory
 
   products(type: String, categoryId: String, searchValue: String, tag: String, page: Int, perPage: Int ids: [String]): [Product]
   productsTotalCount(type: String): Int

@@ -93,6 +93,10 @@ const productQueries = {
     return Products.findOne({ _id });
   },
 
+  productCategoryDetail(_root, { _id }: { _id: string }) {
+    return ProductCategories.findOne({ _id });
+  },
+
   async productCountByTags() {
     const counts = {};
 
