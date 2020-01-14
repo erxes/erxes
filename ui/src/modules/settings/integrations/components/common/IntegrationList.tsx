@@ -58,7 +58,7 @@ class IntegrationList extends React.Component<Props> {
 
     return (
       <>
-        <Count>{integrationsCount} {kind} integrations</Count>
+        <Count>{integrationsCount} {kind} integration{integrationsCount > 1 && 's'}</Count>
         <Table>
           <thead>
             <tr>

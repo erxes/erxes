@@ -47,7 +47,7 @@ class KnowledgeBase extends React.Component<Props> {
     const { articlesCount, queryParams, currentCategory } = this.props;
 
     const trigger = (
-      <Button btnStyle="simple" uppercase={false} icon="plus-circle">
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add Article
       </Button>
     );

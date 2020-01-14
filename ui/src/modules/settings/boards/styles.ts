@@ -1,5 +1,4 @@
-import { colors, typography } from 'modules/common/styles';
-import { SortItem } from 'modules/common/styles/sort';
+import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '../styles';
@@ -24,34 +23,6 @@ const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   }
 `;
 
-const PipelineContainer = styled.div`
-  h3 {
-    text-transform: uppercase;
-    color: ${colors.colorCoreLightGray};
-    font-size: ${typography.fontSizeUppercase}px;
-    padding: 10px 20px;
-    margin: 0;
-  }
-
-  ${SortItem} {
-    z-index: 100;
-    margin-bottom: -1px;
-    border: 0;
-    border-top: 1px solid ${colors.borderPrimary};
-    border-bottom: 1px solid ${colors.borderPrimary};
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-`;
-
-const PipelineRowContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
-  border-top: 1px solid rgb(238, 238, 238);
-  padding: 10px 20px;
-`;
-
 const StageList = styled.div`
   background: ${colors.colorWhite};
   padding: 20px;
@@ -64,10 +35,12 @@ const StageList = styled.div`
   }
 `;
 
-const StageItemContainer = styled(PipelineRowContainer)`
+const StageItemContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
   background-color: ${colors.colorWhite};
   padding: 0;
-  border-top: 0;
   align-items: center;
 
   > *:not(button) {
@@ -91,8 +64,6 @@ const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
 
 export {
   BoardItem,
-  PipelineContainer,
-  PipelineRowContainer,
   StageList,
   StageItemContainer,
   SelectMemberStyled
