@@ -18,7 +18,7 @@ type Props = {
 
 type State = {
   searchValue: string;
-  rows: any;
+  integrations: any;
 };
 
 class Home extends React.Component<Props, State> {
@@ -26,7 +26,7 @@ class Home extends React.Component<Props, State> {
     super(props);
     this.state = {
       searchValue: '',
-      rows: INTEGRATIONS.filter(
+      integrations: INTEGRATIONS.filter(
         integration => integration.category.indexOf('All integrations') !== -1
       )
     };
@@ -39,7 +39,7 @@ class Home extends React.Component<Props, State> {
     if (prevProps.queryParams.type !== queryParams.type ||
       prevState.searchValue !== searchValue) {
       this.setState({
-        rows: INTEGRATIONS.filter(integration => (
+        integrations: INTEGRATIONS.filter(integration => (
           integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
           integration.category.indexOf(queryParams.type) !== -1
         ))
@@ -52,18 +52,17 @@ class Home extends React.Component<Props, State> {
   };
 
   renderIntegrations() {
-    const { rows, searchValue } = this.state;
+    const { integrations, searchValue } = this.state;
     const { totalCount, queryParams } = this.props;
 
     const datas = [] as any;
+    const rows = [...integrations];
 
-    const a = [...rows];
-
-    while (a.length > 0) {
+    while (rows.length > 0) {
       datas.push(
         <Row
-          key={a.length}
-          integrations={a.splice(0, 4)}
+          key={rows.length}
+          integrations={rows.splice(0, 4)}
           totalCount={totalCount}
           queryParams={queryParams}
         />
