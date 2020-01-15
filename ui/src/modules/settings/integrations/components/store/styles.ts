@@ -202,6 +202,10 @@ const SidebarList = styled.ul`
   padding: ${dimensions.unitSpacing}px 0;
   list-style: none;
 
+  a {
+    color: ${colors.textPrimary};
+  }
+
   h4 {
     margin-bottom: ${dimensions.coreSpacing - 5}px;
   }
