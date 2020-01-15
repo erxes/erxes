@@ -1,8 +1,4 @@
-import {
-  ConversationMessages as CallProConversationMessages,
-  Conversations as CallProConversations,
-  Customers as CallProCustomers,
-} from './callpro/models';
+import { Conversations as CallProConversations, Customers as CallProCustomers } from './callpro/models';
 import {
   ConversationMessages as ChatfuelConversationMessages,
   Conversations as ChatfuelConversations,
@@ -134,7 +130,6 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     await CallProCustomers.deleteMany(selector);
     await CallProConversations.deleteMany(selector);
-    await CallProConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
   if (kind === 'twitter-dm') {
