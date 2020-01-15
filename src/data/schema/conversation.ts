@@ -27,6 +27,7 @@ export const types = `
 
     messages: [ConversationMessage]
     facebookPost: FacebookPost
+    callProAudio: String
     tags: [Tag]
     customer: Customer
     integration: Integration
