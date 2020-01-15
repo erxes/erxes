@@ -124,7 +124,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'callpro') {
     debugCallPro('Removing callpro entries');
 
-    const conversationIds = await CallProConversations.find(selector).distinct('_id');
+    await CallProConversations.find(selector).distinct('_id');
 
     integrationRemoveBy = { phoneNumber: integration.phoneNumber };
 
