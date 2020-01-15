@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
 import { Step, Steps } from 'modules/common/components/step';
@@ -17,6 +18,7 @@ import {
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
 import MessengerForm from './MessengerForm';
 
@@ -25,6 +27,7 @@ type Props = {
   message?: IEngageMessage;
   brands: IBrand[];
   users: IUser[];
+  handleSubmit?: (name: string, e: React.MouseEvent) => void;
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
@@ -32,6 +35,7 @@ type Props = {
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
   breadcrumbs: IBreadCrumbItem[];
+  isActionLoading: boolean;
 };
 
 type State = {
@@ -70,11 +74,10 @@ class VisitorForm extends React.Component<Props, State> {
   }
 
   changeState = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState({ [key]: value } as Pick<State, keyof State>);
+    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
-  save = (type: string, e: React.MouseEvent<Element>): Promise<any> | void => {
-    e.preventDefault();
+  handleSubmit = (type: string): Promise<any> | void => {  
 
     const messenger = this.state.messenger || ({} as IEngageMessenger);
 
@@ -95,8 +98,57 @@ class VisitorForm extends React.Component<Props, State> {
     const response = this.props.validateDoc(type, doc);
 
     if (response.status === 'ok' && response.doc) {
-      return this.props.save(response.doc);
+     return this.props.save(response.doc);
     }
+  };
+
+  renderSaveButton = () => {
+    const { isActionLoading, kind } = this.props;
+
+    const cancelButton = (
+      <Link to="/engage">
+        <Button btnStyle="simple" size="small" icon="cancel-1">
+          Cancel
+        </Button>
+      </Link>
+    );
+
+    const saveButton = () => {
+      if (kind === 'visitorAuto') 
+      {
+        return (
+          <>
+            <Button
+              disabled={isActionLoading}
+              btnStyle="warning"
+              size="small"
+              icon={isActionLoading ? undefined : 'file-alt'}
+              onClick={this.handleSubmit.bind(this, 'draft')}
+            >
+              Save & Draft
+            </Button>
+            <Button
+              disabled={isActionLoading}
+              btnStyle="success"
+              size="small"
+              icon={isActionLoading ? undefined : 'checked-1'}
+              onClick={this.handleSubmit.bind(this, 'live')}
+            >
+              Save & Live
+            </Button>
+          </>
+        );
+      }
+      return;
+      };
+
+    return (
+      <Button.Group>
+        {cancelButton}
+
+        {saveButton()}
+      </Button.Group>
+    );
   };
 
   render() {
@@ -113,13 +165,20 @@ class VisitorForm extends React.Component<Props, State> {
 
     const onChange = e =>
       this.changeState('title', (e.target as HTMLInputElement).value);
+      
     return (
       <StepWrapper>
         <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />
 
         <TitleContainer>
           <div>{__('Title')}</div>
-          <FormControl onChange={onChange} defaultValue={this.state.title} />
+          <FormControl
+            required={true}
+            onChange={onChange}
+            defaultValue={this.state.title}
+            autoFocus={true}
+          />
+          {this.renderSaveButton()}
         </TitleContainer>
 
         <Steps maxStep={maxStep} active={activeStep}>
@@ -136,8 +195,7 @@ class VisitorForm extends React.Component<Props, State> {
           <Step
             img="/images/icons/erxes-08.svg"
             title="Compose your message"
-            save={this.save}
-            message={this.props.message}
+            noButton={true}
           >
             <MessengerForm
               brands={brands}

@@ -1,15 +1,16 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
 import React from 'react';
 import ManageIntegrations from '../containers/ManageIntegrations';
 import Sidebar from '../containers/Sidebar';
-import { Title } from '../styles';
 import { IChannel } from '../types';
 
 type Props = {
@@ -34,6 +35,16 @@ class Channels extends React.Component<Props, {}> {
       { title: `${currentChannel.name || ''}` }
     ];
 
+    if (!currentChannel._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Channels"
+          size="small"
+        />
+      );
+    };
+
     const trigger = (
       <Button uppercase={false} btnStyle="simple" icon="web-grid-alt">
         {__('Manage integration')}
@@ -57,7 +68,7 @@ class Channels extends React.Component<Props, {}> {
         content={content}
       />
     );
-
+   
     const leftActionBar = <Title>{currentChannel.name}</Title>;
 
     return (

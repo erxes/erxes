@@ -1,9 +1,10 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
-import { Title } from 'modules/settings/channels/styles';
+import { Title } from 'modules/common/styles/main';
 import React from 'react';
 import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
@@ -34,11 +35,31 @@ class Brands extends React.Component<Props, {}> {
       { title: `${currentBrand.name || ''}` }
     ];
 
+    if (!currentBrand._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    };
+
     const trigger = (
-      <Button btnStyle="simple" uppercase={false} icon="computer">
+      <Button btnStyle="simple" uppercase={false} icon="web-grid-alt">
         Manage integration
       </Button>
     );
+
+    if (!currentBrand._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    };
 
     const content = props => (
       <ManageIntegrations

@@ -1,0 +1,278 @@
+// transitions
+
+// fade in
+.fade-enter {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  height: auto;
+  opacity: 1;
+  transition: opacity 300ms linear;
+}
+
+.fade-enter-done {
+  height: auto;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  height: 0;
+  opacity: 0;
+  transition: opacity 300ms linear;
+}
+
+.fade-exit-done {
+  opacity: 0;
+}
+
+// fade in
+.fade-slide-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-slide-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide;
+}
+
+.fade-slide-exit {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide;
+}
+
+.fade-slide-exit-active {
+  opacity: 0;
+  transition: all 300ms linear;
+}
+
+.fade-slide-exit-done {
+  opacity: 0;
+}
+
+// slide in
+.slide-in-enter,
+.slide-in-appear {
+  opacity: .2;
+  transform: translateY(10px);
+}
+
+.slide-in-enter-active,
+.slide-in-appear-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide;
+}
+
+.slide-in-exit,
+.slide-in-exit-active {
+  display: none;
+}
+
+// slide
+.slide-enter,
+.slide-appear {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-enter-active,
+.slide-appear-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 300ms $timing-slide 300ms;
+}
+
+.slide-exit,
+.slide-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 300ms $timing-slide;
+}
+
+.slide-enter-done {
+  display: block;
+}
+
+.slide-exit-done {
+  display: none;
+}
+
+// scale in
+.scale-in-enter,
+.scale-in-appear {
+  opacity: 0;
+  transform: scale(.4);
+  transform-origin: 100% 100%;
+}
+
+.scale-in-enter-active,
+.scale-in-appear-active {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: 100% 100%;
+  transition: all .2s $timing-scale .1s;
+  transition-property: transform, opacity;
+}
+
+.scale-in-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.scale-in-exit-active {
+  opacity: 0;
+  transform: scale(.4);
+  transform-origin: 100% 100%;
+  transition: all .3s $timing-scale;
+  transition-property: transform, opacity;
+}
+
+.slide-in {
+  animation-delay: .15s;
+  animation-duration: .2s;
+  animation-fill-mode: both;
+  animation-name: slideIn;
+  animation-timing-function: $timing-slide;
+  transform-origin: bottom;
+  will-change: transform, opacity;
+}
+
+.fade-in,
+.fade-in-left,
+.fade-in-right {
+  animation-delay: .15s;
+  animation-duration: .3s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-in;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.fade-in-right {
+  animation-name: fadeInRight;
+}
+
+.fade-in-left {
+  animation-name: fadeInLeft;
+}
+
+@include keyframe(animationPulse) {
+  0% {
+    box-shadow: 0 0 0 0;
+    opacity: .5;
+  }
+
+  40% {
+    box-shadow: 0 0 0 8px;
+    opacity: 0;
+  }
+
+  80% {
+    box-shadow: 0 0 0 8px;
+    opacity: 0;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0;
+    opacity: 0;
+  }
+}
+
+
+@include keyframe(animationSpin) {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@include keyframe(shake) {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+@include keyframe(pop) {
+  from {
+    opacity: 0;
+    transform: scale(.5);
+    transform-origin: 50% 50%;
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    transform-origin: 50% 50%;
+  }
+}
+
+@include keyframe(slideIn) {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+@include keyframe(fadeIn) {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@include keyframe(fadeInRight) {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@include keyframe(fadeInLeft) {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

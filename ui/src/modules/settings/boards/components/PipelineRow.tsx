@@ -5,7 +5,6 @@ import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';
-import { PipelineRowContainer } from '../styles';
 import { IOption } from '../types';
 
 type Props = {
@@ -42,14 +41,14 @@ class PipelineRow extends React.Component<Props, State> {
     };
 
     return (
-      <ActionButtons>
+      <>
         <Tip text="Edit">
           <Button btnStyle="link" onClick={edit} icon="edit" />
         </Tip>
         <Tip text="Delete">
           <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
-      </ActionButtons>
+      </>
     );
   }
 
@@ -79,11 +78,15 @@ class PipelineRow extends React.Component<Props, State> {
     const { pipeline } = this.props;
 
     return (
-      <PipelineRowContainer>
-        <span>{pipeline.name}</span>
-        {this.renderExtraLinks()}
-        {this.renderEditForm()}
-      </PipelineRowContainer>
+      <tr>
+        <td>{pipeline.name}</td>
+        <td>
+          <ActionButtons>
+            {this.renderExtraLinks()}
+            {this.renderEditForm()}
+          </ActionButtons>
+        </td>
+      </tr>
     );
   }
 }

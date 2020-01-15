@@ -17,37 +17,31 @@ type Props = {
 };
 
 type State = {
-  filteredItem: string;
   searchValue: string;
-  rows: any;
+  integrations: any;
 };
 
 class Home extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-
     this.state = {
-      filteredItem: 'All integrations',
       searchValue: '',
-      rows: INTEGRATIONS.filter(
+      integrations: INTEGRATIONS.filter(
         integration => integration.category.indexOf('All integrations') !== -1
       )
     };
   }
 
-  getFilteredItem = (filteredItem: string) => {
-    this.setState({ filteredItem });
-  };
-
   componentDidUpdate(prevProps, prevState) {
-    const { searchValue, filteredItem } = this.state;
+    const { searchValue } = this.state;
+    const { queryParams } = this.props;
 
-    if (prevState.filteredItem !== filteredItem ||
+    if (prevProps.queryParams.type !== queryParams.type ||
       prevState.searchValue !== searchValue) {
       this.setState({
-        rows: INTEGRATIONS.filter(integration => (
+        integrations: INTEGRATIONS.filter(integration => (
           integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-          integration.category.indexOf(filteredItem) !== -1
+          integration.category.indexOf(queryParams.type) !== -1
         ))
       })
     }
@@ -58,10 +52,11 @@ class Home extends React.Component<Props, State> {
   };
 
   renderIntegrations() {
-    const { rows, searchValue } = this.state;
+    const { integrations, searchValue } = this.state;
     const { totalCount, queryParams } = this.props;
 
     const datas = [] as any;
+    const rows = [...integrations];
 
     while (rows.length > 0) {
       datas.push(
@@ -89,16 +84,13 @@ class Home extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { filteredItem } = this.state;
+    const { queryParams } = this.props;
 
     return (
       <Content>
-        <Sidebar
-          getFilteredItem={this.getFilteredItem}
-          filteredItem={filteredItem}
-        />
+        <Sidebar currentType={queryParams.type} />
         <IntegrationWrapper>
-          <h3>{filteredItem}</h3>
+          <h3>{queryParams.type}</h3>
           {this.renderIntegrations()}
         </IntegrationWrapper>
       </Content>
@@ -119,7 +111,11 @@ class Home extends React.Component<Props, State> {
   }
 
   render() {
-    const breadcrumb = [{ title: __('App store') }];
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('App store') },
+      { title: `${this.props.queryParams.type || 'All integrations'}` }
+    ];
 
     return (
       <Wrapper
