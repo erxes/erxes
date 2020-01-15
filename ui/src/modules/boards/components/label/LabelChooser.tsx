@@ -28,12 +28,12 @@ class ChooseLabel extends React.Component<
     this.state = { selectedLabelIds: props.selectedLabelIds };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     if (
       this.props.selectedLabelIds.toString() !==
-      nextProps.selectedLabelIds.toString()
+      prevProps.selectedLabelIds.toString()
     ) {
-      this.setState({ selectedLabelIds: nextProps.selectedLabelIds });
+      this.setState({ selectedLabelIds: this.props.selectedLabelIds });
     }
   }
 

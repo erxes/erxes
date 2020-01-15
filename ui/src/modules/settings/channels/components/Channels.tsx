@@ -1,8 +1,10 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
@@ -33,9 +35,19 @@ class Channels extends React.Component<Props, {}> {
       { title: `${currentChannel.name || ''}` }
     ];
 
+    if (!currentChannel._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Channels"
+          size="small"
+        />
+      );
+    };
+
     const trigger = (
-      <Button btnStyle="success" size="small" icon="computer">
-        Manage integration
+      <Button uppercase={false} btnStyle="simple" icon="web-grid-alt">
+        {__('Manage integration')}
       </Button>
     );
 
@@ -56,6 +68,8 @@ class Channels extends React.Component<Props, {}> {
         content={content}
       />
     );
+   
+    const leftActionBar = <Title>{currentChannel.name}</Title>;
 
     return (
       <Wrapper
@@ -65,16 +79,11 @@ class Channels extends React.Component<Props, {}> {
             breadcrumb={breadcrumb}
           />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/31.svg"
-                title="Channels"
-                description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
-              />
-            }
-            right={rightActionBar}
+        mainHead={
+          <HeaderDescription
+            icon="/images/actions/31.svg"
+            title="Channels"
+            description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
           />
         }
         leftSidebar={
@@ -83,13 +92,21 @@ class Channels extends React.Component<Props, {}> {
             queryParams={queryParams}
           />
         }
-        footer={currentChannel._id && <Pagination count={integrationsCount} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={leftActionBar}
+            right={rightActionBar}
+            background="colorWhite"
+          />
+        }
         content={
           <DataWithLoader
             data={
               <IntegrationList
                 queryParams={queryParams}
                 variables={{ channelId: currentChannel._id }}
+                disableAction={true}
+                integrationsCount={integrationsCount}
               />
             }
             loading={loading}
@@ -98,6 +115,7 @@ class Channels extends React.Component<Props, {}> {
             emptyImage="/images/actions/2.svg"
           />
         }
+        footer={currentChannel._id && <Pagination count={integrationsCount} />}
       />
     );
   }

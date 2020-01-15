@@ -66,6 +66,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
   );
 
   const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
     { title: __('Tags'), link: '/tags/engageMessage' },
     { title: __(type) }
   ];

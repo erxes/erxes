@@ -11,6 +11,7 @@ export const stageHeight = 'calc(100vh - 200px)';
 
 export const BoardContainer = styled(Contents)`
   margin: 0;
+  position: unset;
 
   > div {
     padding-left: 20px;

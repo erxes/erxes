@@ -3,10 +3,10 @@ import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
+import { ButtonRelated } from 'modules/common/styles/main';
 import { __, urlParser } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
 import {
-  ButtonRelated,
   SectionBody,
   SectionBodyItem
 } from 'modules/layout/styles';

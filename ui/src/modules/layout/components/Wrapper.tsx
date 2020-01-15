@@ -1,6 +1,6 @@
 import { FullContent, MiddleContent } from 'modules/common/styles/main';
 import React from 'react';
-import { Contents } from '../styles';
+import { Contents, HeightedWrapper, MainHead, VerticalContent } from '../styles';
 import ActionBar from './ActionBar';
 import Header from './Header';
 import PageContent from './PageContent';
@@ -15,6 +15,7 @@ type Props = {
   footer?: React.ReactNode;
   transparent?: boolean;
   center?: boolean;
+  mainHead?: React.ReactNode;
 };
 
 class Wrapper extends React.Component<Props> {
@@ -54,15 +55,22 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const { header, leftSidebar, rightSidebar } = this.props;
+    const { header, leftSidebar, rightSidebar, mainHead } = this.props;
 
     return (
-      <Contents>
+      <VerticalContent>
         {header}
-        {leftSidebar}
-        {this.renderContent()}
-        {rightSidebar}
-      </Contents>
+        <MainHead>
+          {mainHead}
+        </MainHead>
+        <HeightedWrapper>
+          <Contents>
+            {leftSidebar}
+            {this.renderContent()}
+            {rightSidebar}
+          </Contents>
+        </HeightedWrapper>
+      </VerticalContent>
     );
   }
 }

@@ -89,8 +89,8 @@ class Row extends React.Component<Props> {
 
   render() {
     const { integration, isChecked, toggleBulk } = this.props;
-    const form = integration.form;
-    const lead = integration.leadData;
+    const form = integration.form || {};
+    const lead = integration.leadData || {};
 
     const createdUser = form.createdUser || {
       _id: '',

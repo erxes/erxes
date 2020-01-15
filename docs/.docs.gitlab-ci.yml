@@ -1,0 +1,16 @@
+docs:
+  stage: docs
+  image: node:10.16-slim
+  before_script:
+    - apt-get update && apt-get install -y git
+    - cd docs/website
+    - yarn install
+  script:
+    - git config --global user.email "$GITHUB_USERNAME@users.noreply.github.com"
+    - git config --global user.name "Jason-2020"
+    - echo "machine github.com login $GITHUB_USERNAME password $GITHUB_TOKEN" > ~/.netrc
+    - GIT_USER=$GITHUB_USERNAME CURRENT_BRANCH=develop yarn run publish-gh-pages
+  rules:
+    - changes:
+        - docs/**/*
+      if: '$CI_COMMIT_BRANCH == "develop"'
