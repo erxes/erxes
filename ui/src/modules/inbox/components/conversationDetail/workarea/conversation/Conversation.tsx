@@ -3,6 +3,7 @@ import { FacebookPost } from 'modules/inbox/containers/conversationDetail';
 import React from 'react';
 import styled from 'styled-components';
 import { IConversation, IMessage } from '../../../../types';
+import CallPro from '../callpro/Callpro';
 import MailConversation from '../mail/MailConversation';
 import AttachmentPreview from './AttachmentPreview';
 import Message from './messages/Message';
@@ -59,6 +60,8 @@ class Conversation extends React.Component<Props, {}> {
     }
 
     const { kind } = conversation.integration;
+    const messages = (conversationMessages || []).slice();
+    const firstMessage = messages[0];
 
     if (kind.includes('nylas' || kind === 'gmail')) {
       return (
@@ -75,8 +78,14 @@ class Conversation extends React.Component<Props, {}> {
       );
     }
 
-    const messages = (conversationMessages || []).slice();
-    const firstMessage = messages[0];
+    if (kind === 'callpro') {
+      return (
+        <>
+          <CallPro conversation={conversation} />
+          {this.renderMessages(messages, firstMessage)}
+        </>
+      );
+    }
 
     return this.renderMessages(messages, firstMessage);
   }
