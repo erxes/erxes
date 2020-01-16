@@ -1,4 +1,6 @@
 import {
+  ActionButton,
+  ActionList,
   AddNew,
   Body,
   Container,
@@ -11,13 +13,14 @@ import {
   StageRoot,
   StageTitle
 } from 'modules/boards/styles/stage';
-import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import PipelineSelector from '../../containers/PipelineSelector';
 import { AddForm } from '../../containers/portable';
 import {
@@ -115,16 +118,18 @@ export default class Stage extends React.Component<Props, {}> {
     const { options, stage, refetchStages, queryParams } = this.props;
 
     let action: string = 'Copy';
-    let icon: string = 'copy';
-    let btnStyle: string = 'success';
 
-    if (type === 'move') {
+    if (type === 'Move') {
       action = 'Move';
-      icon = 'move';
-      btnStyle = 'default';
     }
 
-    const trigger = <Button icon={icon} size="small" btnStyle={btnStyle} />;
+    const trigger = (
+      <li>
+        <a href={`#${type}`}>
+          {type}
+        </a>
+      </li>
+    );
 
     const formProps = {
       type: options.type,
@@ -195,6 +200,17 @@ export default class Stage extends React.Component<Props, {}> {
     );
   }
 
+  renderPopover = () => {
+    return (
+      <Popover id="score-popover">
+        <ActionList>
+          {this.renderCopyMoveTrigger('Copy')}
+          {this.renderCopyMoveTrigger('Move')}
+        </ActionList>
+      </Popover>
+    );
+  };
+
   render() {
     const { index, stage } = this.props;
 
@@ -213,10 +229,16 @@ export default class Stage extends React.Component<Props, {}> {
                     {stage.name}
                     <span>{stage.itemsTotalCount}</span>
                   </div>
-                  <div>
-                    {this.renderCopyMoveTrigger('copy')}
-                    {this.renderCopyMoveTrigger('move')}
-                  </div>
+                  <OverlayTrigger
+                    trigger="click"
+                    placement="bottom-start"
+                    rootClose={true}
+                    overlay={this.renderPopover()}
+                  >
+                    <ActionButton>
+                      <Icon icon="ellipsis-h" />
+                    </ActionButton>
+                  </OverlayTrigger>
                 </StageTitle>
                 <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
                 <Indicator>{this.renderIndicator()}</Indicator>

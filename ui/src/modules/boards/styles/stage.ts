@@ -1,3 +1,4 @@
+import { PopoverList } from 'modules/common/components/filterableList/styles';
 import { colors } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -177,6 +178,28 @@ const StageTitle = styled.h4`
   justify-content: space-between;
 `;
 
+const ActionList = styled(PopoverList)`
+  min-width: 160px;
+
+  li a {
+    color: ${colors.textPrimary};
+    text-transform: capitalize;
+  }
+`;
+
+const ActionButton = styled.div`
+  padding: 4px 5px;
+  margin-top: -4px;
+  margin-right: -5px;
+  border-radius: 2px;
+  font-size: 15px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+`;
+
 export {
   AddNew,
   Container,
@@ -191,5 +214,7 @@ export {
   StageFooter,
   LoadingContent,
   StageRoot,
-  StageTitle
+  StageTitle,
+  ActionList,
+  ActionButton
 };
