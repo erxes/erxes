@@ -45,24 +45,6 @@ export const conversationSchema = new Schema({
 
 export interface IConversationModel extends Model<IConversationDocument> {}
 
-// conversation message ===========================
-export interface IConversationMessage {
-  content: string;
-  conversationId: string;
-  callId: string;
-}
-
-export interface IConversationMessageDocument extends IConversationMessage, Document {}
-
-export const conversationMessageSchema = new Schema({
-  _id: field({ pkey: true }),
-  content: String,
-  conversationId: String,
-  callId: String,
-});
-
-export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
-
 // tslint:disable-next-line
 export const Customers = model<ICustomerDocument, ICustomerModel>('customers_callpro', customerSchema);
 
@@ -70,10 +52,4 @@ export const Customers = model<ICustomerDocument, ICustomerModel>('customers_cal
 export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_callpro',
   conversationSchema,
-);
-
-// tslint:disable-next-line
-export const ConversationMessages = model<IConversationMessageDocument, IConversationMessageModel>(
-  'conversation_messages_callpro',
-  conversationMessageSchema,
 );

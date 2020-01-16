@@ -19,7 +19,6 @@ import './setup.ts';
 describe('Facebook remove integration test', async () => {
   let integrationId1: string;
   let erxesApiId1: string;
-  let erxesApiId2: string;
   let accountId: string;
 
   beforeEach(async () => {
@@ -31,7 +30,7 @@ describe('Facebook remove integration test', async () => {
       erxesApiId: 'jaskjda',
     });
 
-    const integration2 = await integrationFactory({
+    await integrationFactory({
       kind: 'facebook',
       accountId: account._id,
       erxesApiId: 'asljkdas',
@@ -39,7 +38,6 @@ describe('Facebook remove integration test', async () => {
 
     accountId = account._id;
     erxesApiId1 = integration1.erxesApiId;
-    erxesApiId2 = integration2.erxesApiId;
     integrationId1 = integration1._id;
   });
 
