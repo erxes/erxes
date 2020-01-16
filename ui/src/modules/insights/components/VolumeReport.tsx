@@ -20,7 +20,7 @@ import {
   SummaryData
 } from '../types';
 import Chart from './Chart';
-import InboxFilter from './filter/InboxFilter';
+import InsightFilter from './filter/InsightFilter';
 import Insights from './Insights';
 import PunchCard from './PunchCard';
 import Sidebar from './Sidebar';
@@ -159,7 +159,7 @@ class VolumeReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <InboxFilter
+        <InsightFilter
           history={history}
           brands={brands}
           queryParams={queryParams}

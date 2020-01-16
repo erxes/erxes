@@ -11,7 +11,7 @@ import {
 } from '../styles';
 import { IChartParams, IQueryParams, SummaryData } from '../types';
 import Chart from './Chart';
-import InboxFilter from './filter/InboxFilter';
+import InsightFilter from './filter/InsightFilter';
 import Sidebar from './Sidebar';
 import Summary from './Summary';
 
@@ -86,7 +86,7 @@ class SummaryReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightWrapper>
-        <InboxFilter
+        <InsightFilter
           history={history}
           brands={brands}
           queryParams={queryParams}

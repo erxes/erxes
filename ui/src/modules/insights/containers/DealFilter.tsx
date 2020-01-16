@@ -10,12 +10,12 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import DealFilter from '../components/filter/DealFilter';
-import { IQueryParams } from '../types';
+import { IDealQueryParams } from '../types';
 
 type Props = {
   location: any;
   history: any;
-  queryParams: IQueryParams;
+  queryParams: IDealQueryParams;
 };
 
 type FinalProps = {

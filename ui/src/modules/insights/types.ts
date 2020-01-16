@@ -1,10 +1,13 @@
 export interface IQueryParams {
   brandIds: string;
   integrationIds: string;
-  boardId: string;
-  pipelineIds: string;
   endDate: string;
   startDate: string;
+}
+
+export interface IDealQueryParams extends IQueryParams {
+  boardId: string;
+  pipelineIds: string;
 }
 
 export interface IParams {
@@ -13,7 +16,7 @@ export interface IParams {
 }
 
 export interface IDealParams {
-  queryParams: IQueryParams;
+  queryParams: IDealQueryParams;
   status: string;
 }
 

@@ -12,7 +12,7 @@ import {
 import { IChartParams, IQueryParams } from '../types';
 import { convertTime } from '../utils';
 import Chart from './Chart';
-import InboxFilter from './filter/InboxFilter';
+import InsightFilter from './filter/InsightFilter';
 import Sidebar from './Sidebar';
 import TeamMembers from './TeamMembers';
 
@@ -65,7 +65,7 @@ class ResponseCloseReport extends React.Component<Props> {
 
     return (
       <InsightWrapper>
-        <InboxFilter
+        <InsightFilter
           history={history}
           brands={brands}
           queryParams={queryParams}
