@@ -45,7 +45,7 @@ class PermissionRow extends React.Component<Props> {
     return (
       <tr key={permission._id}>
         <td>
-          <Capitalize>{permission.module}-{permission._id}</Capitalize>
+          <Capitalize>{permission.module}</Capitalize>
         </td>
         <td>{permissionAction.map(action => action.label)}</td>
         <td>{permission.user ? permission.user.email : ''}</td>
