@@ -9,10 +9,11 @@ import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { FieldStyle, HelperButtons, SidebarList } from 'modules/layout/styles';
 import MemberAvatars from 'modules/settings/channels/components/MemberAvatars';
-import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
+import { SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
+import { ActionButtons } from '../styles';
 import { IUserGroup, IUserGroupDocument } from '../types';
 import GroupForm from './GroupForm';
 
@@ -24,6 +25,7 @@ interface IProps extends IRouterProps {
   objects: IUserGroupDocument[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (id: string) => void;
+  copyItem: (id: string, key: string, list?: string[]) => void;
 }
 
 class GroupList extends React.Component<IProps> {
@@ -78,6 +80,16 @@ class GroupList extends React.Component<IProps> {
     );
   }
 
+  renderCopyAction(object: IUserGroupDocument) {
+    const onCopy = () => this.props.copyItem(object._id, 'memberIds', object.memberIds || []);
+    
+    return (
+      <Button btnStyle="link" onClick={onCopy}>
+        <Tip text="Copy"><Icon icon="copy" /></Tip>
+      </Button>
+    );
+  }
+
   renderObjects(objects: IUserGroupDocument[]) {
     return objects.map(object => (
       <SidebarListItem key={object._id} isActive={this.isActive(object._id)}>
@@ -91,6 +103,7 @@ class GroupList extends React.Component<IProps> {
           </FieldStyle>
         </Link>
         <ActionButtons>
+          {this.renderCopyAction(object)}
           {this.renderEditAction(object)}
           {this.renderRemoveAction(object)}
         </ActionButtons>
