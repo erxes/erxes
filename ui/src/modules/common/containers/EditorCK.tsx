@@ -7,6 +7,7 @@ import { queries } from '../../settings/team/graphql';
 import { AllUsersQueryResponse } from '../../settings/team/types';
 import EditorCK from '../components/EditorCK';
 import { IEditorProps, IMentionUser } from '../types';
+import { isValidURL } from '../utils/urlParser';
 
 type Props = {
   showMentions?: boolean;
@@ -24,14 +25,15 @@ const EditorContainer = (props: FinalProps) => {
   }
 
   const users = usersQuery.allUsers || [];
-
   const mentionUsers: IMentionUser[] = [];
 
   for (const user of users) {
     if (user.details && user.details.fullName) {
+      const avatar = user.details.avatar || '/images/avatar-colored.svg';
+      
       mentionUsers.push({
         id: user._id,
-        avatar: user.details.avatar || '/images/avatar.svg',
+        avatar: isValidURL(avatar) ? avatar : '/images/avatar-colored.svg',
         fullName: user.details.fullName
       });
     }

@@ -1054,11 +1054,25 @@ a:hover {
 }
 
 /* ckEditor */
-  .editor-avatar {
-    width: 25px;
-    margin-right: 4px;
-    border-radius: 11px;
+  ul.cke_autocomplete_panel {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 6px 2px;
+    width: 240px;
+    border: none;
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;;
+
+    > li {
+      padding: 5px 10px;
+      line-height: 24px;
+    }
   }
+
+  .editor-avatar {
+    width: 24px;
+    height: 24px;
+    margin-right: 7px;
+    border-radius: 13px;
+  }
+
   .editor-id {
     display: none;
   }
