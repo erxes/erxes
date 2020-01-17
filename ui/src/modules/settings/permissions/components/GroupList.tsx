@@ -82,10 +82,12 @@ class GroupList extends React.Component<IProps> {
 
   renderCopyAction(object: IUserGroupDocument) {
     const onCopy = () => this.props.copyItem(object._id, 'memberIds', object.memberIds || []);
+
+    const tipText = 'Copies user group along with the permissions & users';
     
     return (
       <Button btnStyle="link" onClick={onCopy}>
-        <Tip text="Copy"><Icon icon="copy" /></Tip>
+        <Tip text={tipText}><Icon icon="copy" /></Tip>
       </Button>
     );
   }
