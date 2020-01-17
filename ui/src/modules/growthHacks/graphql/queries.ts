@@ -3,6 +3,7 @@ const commonParams = `
   $assignedUserIds: [String],
   $closeDateType: String,
   $search: String,
+  $labelIds: [String],
 `;
 
 const commonParamDefs = `
@@ -10,17 +11,15 @@ const commonParamDefs = `
   assignedUserIds: $assignedUserIds,
   closeDateType: $closeDateType,
   search: $search,
+  labelIds: $labelIds,
 `;
 
-const growthHackFields = `
+export const growthHackFields = `
   _id
   name
-  priority
-  reach
-  impact
-  confidence
-  ease
-  scoringType
+  stageId
+  closeDate
+  description
   assignedUsers {
     _id
     email
@@ -30,7 +29,20 @@ const growthHackFields = `
     }
   }
   voteCount
+  priority
+  hackStages
+  reach
+  impact
+  confidence
+  ease
+  scoringType
   modifiedAt
+  labels {
+    _id
+    name
+    colorCode
+  }
+  labelIds
 `;
 
 const growthHackDetailFields = `
@@ -82,6 +94,12 @@ const growthHackDetailFields = `
     order
   }
   formId
+  labels {
+    _id
+    name
+    colorCode
+  }
+  labelIds
   voteCount
   votedUsers {
     _id

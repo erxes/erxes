@@ -1,0 +1,43 @@
+ui:test:
+  stage: test
+  image: node:10.16-alpine
+  before_script:
+    - cd ui
+    - yarn install
+    - apk add --no-cache --update git
+    - git checkout ${CI_COMMIT_REF_NAME}
+  script:
+    - yarn lint
+    - yarn tsc
+    - yarn build
+  rules:
+    - changes:
+        - ui/**/*
+  cache:
+    key:
+      files:
+        - ui/package.json
+    paths:
+      - ui/node_modules/
+  artifacts:
+    expire_in: 1h
+    paths:
+      - ui/build/
+
+ui:build:
+  stage: build
+  needs:
+    - ui:test
+  before_script:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  script:
+    - cd ui
+    - docker build -t erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME} -f Dockerfile .
+    - docker push erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME}
+  dependencies:
+    - ui:test
+  only:
+    refs:
+      - master
+      - develop
+      - apm

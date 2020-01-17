@@ -154,9 +154,12 @@ const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
 `;
 
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
+  font-size: 18px;
+  line-height: 18px;
+
   &:after {
     cursor: pointer;
-    content: '\\e827';
+    content: '\\e9a6';
     font-family: 'erxes';
     float: right;
     transition: all ease 0.3s;
@@ -209,6 +212,62 @@ const TabContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
 
+const ButtonRelated = styled.div`
+  text-align: center;
+  
+  button {
+    background: rgba(0, 0, 0, 0.04);
+    margin: 10px auto;
+    color: #888;
+    border: 0;
+    border-radius: 25px;
+    outline: none;
+    cursor: pointer;
+    font-size: 12px;
+  }
+`;
+
+const SimpleButton = styledTS<{ isActive?: boolean }>(styled.div)`
+  font-size: 15px;
+  background: ${props => props.isActive && colors.bgGray};
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 2px;
+  transition: background ease 0.3s;
+
+  &:hover {
+    background: ${colors.bgActive};
+    cursor: pointer;
+  }
+`;
+
+const TopHeader = styled.div`
+  padding: 18px 20px;
+`;
+
+const Title = styled.div`
+  font-size: 24px;
+  margin: 20px 0;
+  display: flex;
+  line-height: 30px;
+
+  > span {
+    font-size: 75%;
+    color: #666;
+    margin-left: 10px;
+    margin-top: 2px;
+  }
+`;
+
+const Count = styled.div`
+  font-size: 15px;
+  font-weight: bold;
+  margin: 10px 20px;
+  color: #666;
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -226,5 +285,10 @@ export {
   DateWrapper,
   CloseModal,
   ScrollWrapper,
-  TabContent
+  TabContent,
+  ButtonRelated,
+  SimpleButton,
+  TopHeader,
+  Title,
+  Count
 };

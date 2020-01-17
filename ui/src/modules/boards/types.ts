@@ -59,6 +59,7 @@ export interface IItemParams {
   companyIds?: string[];
   customerIds?: string[];
   sourceConversationId?: string;
+  labelIds?: string[];
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;

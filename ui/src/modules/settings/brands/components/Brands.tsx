@@ -1,8 +1,10 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import { Title } from 'modules/common/styles/main';
 import React from 'react';
 import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
@@ -33,11 +35,31 @@ class Brands extends React.Component<Props, {}> {
       { title: `${currentBrand.name || ''}` }
     ];
 
+    if (!currentBrand._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    };
+
     const trigger = (
-      <Button btnStyle="success" size="small" icon="computer">
+      <Button btnStyle="simple" uppercase={false} icon="web-grid-alt">
         Manage integration
       </Button>
     );
+
+    if (!currentBrand._id) {
+      return (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    };
 
     const content = props => (
       <ManageIntegrations
@@ -56,6 +78,8 @@ class Brands extends React.Component<Props, {}> {
       />
     );
 
+    const leftActionBar = <Title>{currentBrand.name}</Title>;
+
     return (
       <Wrapper
         header={
@@ -64,15 +88,16 @@ class Brands extends React.Component<Props, {}> {
             breadcrumb={breadcrumb}
           />
         }
+        mainHead={
+          <HeaderDescription
+            icon="/images/actions/32.svg"
+            title="Brands"
+            description="Add unlimited Brands with unlimited support to further your growth and accelerate your business."
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/32.svg"
-                title="Brands"
-                description="Add unlimited Brands with unlimited support to further your growth and accelerate your business."
-              />
-            }
+            left={leftActionBar}
             right={rightActionBar}
           />
         }
@@ -82,13 +107,14 @@ class Brands extends React.Component<Props, {}> {
             queryParams={queryParams}
           />
         }
-        footer={currentBrand._id && <Pagination count={integrationsCount} />}
         content={
           <DataWithLoader
             data={
               <IntegrationList
                 queryParams={queryParams}
                 variables={{ brandId: currentBrand._id }}
+                disableAction={true}
+                integrationsCount={integrationsCount}
               />
             }
             loading={loading}
@@ -97,6 +123,7 @@ class Brands extends React.Component<Props, {}> {
             emptyImage="/images/actions/2.svg"
           />
         }
+        footer={currentBrand._id && <Pagination count={integrationsCount} />}
       />
     );
   }

@@ -1,0 +1,16 @@
+[main]
+host = https://www.transifex.com
+
+[erxes.en-json]
+file_filter = ui/src/locales/<lang>.json
+minimum_perc = 0
+source_file = ui/src/locales/en.json
+source_lang = en
+
+[widgets-1.en-json]
+file_filter = widgets/locales/<lang>.json
+minimum_perc = 0
+source_file = widgets/locales/en.json
+source_lang = en_US
+type = KEYVALUEJSON
+

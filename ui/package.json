@@ -77,10 +77,13 @@
     "xss": "^1.0.3"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx,json,css}": [
-      "prettier --single-quote --write",
-      "git add"
-    ]
+    "gitDir": "../",
+    "linters": {
+      "src/**/*.{ts,tsx,json,css}": [
+        "prettier --single-quote --write",
+        "git add"
+      ]
+    }
   },
   "collective": {
     "type": "opencollective",

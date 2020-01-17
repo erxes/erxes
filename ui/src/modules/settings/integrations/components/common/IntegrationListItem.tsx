@@ -19,6 +19,7 @@ type Props = {
   integration: IIntegration;
   archive: (id: string) => void;
   removeIntegration: (integration: IIntegration) => void;
+  disableAction?: boolean;
   editIntegration: (
     id: string,
     { name, brandId }: { name: string; brandId: string }
@@ -27,9 +28,9 @@ type Props = {
 
 class IntegrationListItem extends React.Component<Props> {
   renderArchiveAction() {
-    const { archive, integration } = this.props;
+    const { archive, integration, disableAction } = this.props;
 
-    if (!archive) {
+    if (!archive || disableAction) {
       return null;
     }
 
@@ -124,9 +125,9 @@ class IntegrationListItem extends React.Component<Props> {
   }
 
   renderRemoveAction() {
-    const { integration, removeIntegration } = this.props;
+    const { integration, removeIntegration, disableAction } = this.props;
 
-    if (!removeIntegration) {
+    if (!removeIntegration || disableAction) {
       return null;
     }
 

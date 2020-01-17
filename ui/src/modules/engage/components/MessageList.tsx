@@ -128,7 +128,7 @@ class List extends React.Component<Props> {
       <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
-            <th>
+            <th style={{ width: 60 }}>
               <FormControl
                 checked={isAllSelected}
                 componentClass="checkbox"

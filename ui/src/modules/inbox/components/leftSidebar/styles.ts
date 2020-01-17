@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { SimpleButton } from 'modules/common/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -252,21 +253,8 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
   }
 `;
 
-const ToggleButton = styledTS<{ isOpen?: boolean }>(styled.div)`
-  font-size: 15px;
-  background: ${props => props.isOpen && colors.bgGray};
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  text-align: center;
-  border-radius: 2px;
+const ToggleButton = styled(SimpleButton)`
   margin-left: -5px;
-  transition: background ease 0.3s;
-
-  &:hover {
-    background: ${colors.bgActive};
-    cursor: pointer;
-  }
 `;
 
 export {
