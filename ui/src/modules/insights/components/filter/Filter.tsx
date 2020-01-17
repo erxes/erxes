@@ -1,11 +1,16 @@
-import Datetime from '@nateradebaugh/react-datetime';
+// import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../../styles';
 import { IQueryParams } from '../../types';
+
+const Datetime = asyncComponent(() =>
+  import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
+);
 
 type Props = {
   content: React.ReactNode;

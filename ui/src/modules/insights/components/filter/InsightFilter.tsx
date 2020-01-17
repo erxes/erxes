@@ -23,7 +23,7 @@ type States = {
   brandIds: string[];
 };
 
-class InboxFilter extends React.Component<Props, States> {
+class InsightsFilter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
 
@@ -126,4 +126,4 @@ class InboxFilter extends React.Component<Props, States> {
   }
 }
 
-export default InboxFilter;
+export default InsightsFilter;

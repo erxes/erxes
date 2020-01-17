@@ -1,9 +1,10 @@
 import * as React from 'react';
 
 import { createMemoryHistory } from 'history';
-import SummaryReport from '../../../modules/insights/components/SummaryReport';
-import { brandFactory } from '../../../testing-utils/factories';
-import { withRouter } from '../../../testing-utils/withRouter';
+import { brandFactory } from 'modules/testing-utils/factories';
+import { withRouter } from 'modules/testing-utils/withRouter';
+import { create } from 'react-test-renderer';
+import SummaryReport from '../SummaryReport';
 
 const brands = [
   brandFactory.build(),
@@ -30,16 +31,20 @@ const history = createMemoryHistory({
 
 describe('Summary Reports', () => {
   it('should render loading state initially', () => {
-    withRouter(
-      <SummaryReport
-        brands={brands}
-        trend={[]}
-        history={{ history }}
-        loading={false}
-        queryParams={queryParamsMock}
-        summary={[]}
-      />,
-      { route, history }
+    const test = create(
+      withRouter(
+        <SummaryReport
+          brands={brands}
+          trend={[]}
+          history={{ history }}
+          loading={false}
+          queryParams={queryParamsMock}
+          summary={[]}
+        />,
+        { route, history }
+      )
     );
+
+    console.log(test);
   });
 });

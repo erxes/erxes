@@ -1,10 +1,10 @@
 import * as React from 'react';
 
 import { createMemoryHistory } from 'history';
-import { router } from '../../../../modules/common/utils';
-import Filter from '../../../../modules/insights/components/filter/Filter';
-import { formatDate } from '../../../../modules/insights/utils';
-import { withRouter } from '../../../../testing-utils/withRouter';
+import { router } from 'modules/common/utils';
+import { formatDate } from 'modules/insights/utils';
+import { withRouter } from 'modules/testing-utils/withRouter';
+import Filter from '../../filter/Filter';
 
 const queryParamsMock = {
   brandIds: '',
