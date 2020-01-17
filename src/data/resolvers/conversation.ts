@@ -65,6 +65,30 @@ export default {
     }
   },
 
+  async callProAudio(conv: IConversationDocument, _args, { dataSources, user }: IContext) {
+    const integration = await Integrations.findOne({ _id: conv.integrationId }).lean();
+
+    if (integration && integration.kind !== 'callpro') {
+      return null;
+    }
+
+    if (user.isOwner || user._id === conv.assignedUserId) {
+      try {
+        const response = await dataSources.IntegrationsAPI.fetchApi('/callpro/get-audio', {
+          erxesApiId: conv._id,
+          integrationId: integration._id,
+        });
+
+        return response ? response.audioSrc : '';
+      } catch (e) {
+        debugExternalApi(e);
+        return null;
+      }
+    }
+
+    return null;
+  },
+
   tags(conv: IConversationDocument) {
     return Tags.find({ _id: { $in: conv.tagIds || [] } });
   },

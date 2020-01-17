@@ -126,6 +126,7 @@ describe('conversationQueries', () => {
         facebookPost {
           postId
         }
+        callProAudio
       }
     }
   `;
@@ -908,6 +909,54 @@ describe('conversationQueries', () => {
         'conversationDetail',
         { _id: facebookConversation._id },
         { user, dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
+  });
+
+  test('Conversation detail callpro audio', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const callProIntegration = await integrationFactory({ kind: 'callpro' });
+    const callProConverstaion = await conversationFactory({ integrationId: callProIntegration._id });
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(
+        qryConversationDetail,
+        'conversationDetail',
+        { _id: callProConverstaion._id },
+        { user, dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() => Promise.resolve());
+
+    const normalUser = await userFactory({ isOwner: false });
+
+    try {
+      await graphqlRequest(
+        qryConversationDetail,
+        'conversationDetail',
+        { _id: callProConverstaion._id },
+        { user, dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
+
+    try {
+      await graphqlRequest(
+        qryConversationDetail,
+        'conversationDetail',
+        { _id: callProConverstaion._id },
+        { user: normalUser, dataSources },
       );
     } catch (e) {
       expect(e[0].message).toBeDefined();
