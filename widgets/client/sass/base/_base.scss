@@ -1,0 +1,256 @@
+@import '../animations';
+
+html,
+body,
+#root,
+.erxes-widget {
+  height: 100%;
+}
+
+body {
+  @include prefix((box-sizing: border-box), webkit moz ms o);
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+  margin: 0;
+}
+
+.erxes-widget {
+  @include prefix((box-sizing: border-box), webkit moz ms o);
+  font-size: $font-size;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  margin: 0;
+
+  button,
+  input,
+  textarea {
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+  }
+}
+
+.icon {
+  height: 40px;
+
+  &.white {
+    fill: $white;
+  }
+
+  &.attach {
+    fill: $text-color;
+    height: 35px;
+    stroke: $text-color;
+  }
+}
+
+.loader {
+  @include animation(0, 1s, animationSpin, linear, infinite);
+  border: 2px solid rgba($black, .3);
+  border-radius: 50%;
+  border-top: 2px solid rgba($black, .2);
+  height: 20px;
+  margin-right: -10px;
+  margin-top: -10px;
+  position: absolute;
+  right: 50%;
+  top: 50%;
+  width: 20px;
+
+  &.bigger {
+    height: 28px;
+    margin-right: -14px;
+    margin-top: 0;
+    width: 28px;
+  }
+  &.top-space{
+    margin-top:100px;
+  }
+}
+
+.erxes-tooltip {
+  position: relative;
+
+  &:hover {
+    cursor: pointer;
+
+    &::before {
+      opacity: 1;
+      transform: translateY(15%);
+    }
+  }
+
+  &::before {
+    @include prefix((box-shadow: $base-shadow), webkit moz);
+    background: $white;
+    border-radius: $border-radius / 2;
+    color: lighten($black, 20%);
+    content: attr(data-tooltip);
+    font-size: 12px;
+    left: auto;
+    max-width: 150px;
+    opacity: 0;
+    overflow: hidden;
+    padding: 5px 10px;
+    pointer-events: none;
+    position: absolute;
+    right: auto;
+    text-align: center;
+    text-overflow: ellipsis;
+    top: 100%;
+    transform: translateY(0%);
+    transition: transform .3s cubic-bezier(.2, 1, .2, 1), opacity .2s cubic-bezier(.2, 1, .2, 1);
+    white-space: nowrap;
+    will-change: transform, opacity;
+    z-index: 1;
+  }
+
+  &.tooltip-center::before {
+    left: -100%;
+  }
+}
+
+// button
+.erxes-button {
+  @include prefix((
+    transition: all .3s ease-in-out
+  ), webkit moz ms o);
+  background: $green;
+  border: 0;
+  border-radius: $border-radius / 2;
+  color: $white;
+  font-size: 12px;
+  outline: 0;
+  padding: 10px 20px;
+  position: relative;
+
+  span {
+    color: $white;
+  }
+
+  &:hover,
+  &:focus {
+    background: darken($green, 5%);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  &.btn-block {
+    display: block;
+    width: 100%;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+
+
+// form control
+.form-control {
+  @include prefix((
+    box-sizing: border-box
+  ), webkit moz ms o);
+  @include prefix((
+    transition: all .3s ease-in-out
+  ), webkit moz ms o);
+  -webkit-appearance: none;
+  background: $bg-color;
+  border: 1px solid $border-color;
+  border-radius: $border-radius / 2;
+  box-shadow: inset 0 1px 3px 0 rgba($black, .07);
+  color: lighten($black, 10%);
+  display: block;
+  font-size: $font-size;
+  height: 36px;
+  line-height: 1.42857143;
+  margin-top: 8px;
+  outline: 0;
+  padding: 6px 15px;
+  width: 100%;
+
+  &[type="checkbox"],
+  &[type="radio"] {
+    display: inline-block;
+    height: inherit;
+    margin: 0 8px 5px 0;
+    width: inherit;
+    background: none;
+    box-shadow: none;
+    -webkit-appearance: checkbox;
+  }
+
+  &[type="radio"] {
+    -webkit-appearance: radio;
+  }
+
+
+  &:focus {
+    background: $white;
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+
+  .control-label {
+    font-weight: 500;
+    max-width: 100%;
+
+    > .required {
+      margin-left: 2px;
+    }
+  }
+
+  .description {
+    color: $text-color;
+    display: block;
+    font-size: 13px;
+  }
+
+  .check-control {
+    margin-top: 8px;
+  }
+
+  textarea.form-control {
+    height: auto;
+    min-height: 70px;
+  }
+
+  .error {
+    color: $red;
+    font-size: 12px;
+    margin-left: 4px;
+  }
+}
+
+.erxes-callout-body {
+  color: lighten($black, 36%);
+  display: block;
+  margin-bottom: 10px;
+  overflow: hidden;
+  width: 100%;
+
+  img {
+    float: left;
+    margin-right: 10px;
+    max-width: 30%;
+  }
+}
+
+// scrollbar
+
+::-webkit-scrollbar {
+  border-radius: 0;
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $scroll-color;
+  border-radius: 4px;
+  box-shadow: inset 0 -3px 0 0 transparent, inset 0 3px 0 0 transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

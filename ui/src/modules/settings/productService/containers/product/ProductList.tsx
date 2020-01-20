@@ -8,6 +8,7 @@ import { graphql } from 'react-apollo';
 import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
+  CategoryDetailQueryResponse,
   ProductRemoveMutationResponse,
   ProductsCountQueryResponse,
   ProductsQueryResponse
@@ -21,6 +22,7 @@ type Props = {
 type FinalProps = {
   productsQuery: ProductsQueryResponse;
   productsCountQuery: ProductsCountQueryResponse;
+  productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
   ProductRemoveMutationResponse;
 
@@ -30,7 +32,8 @@ class ProductListContainer extends React.Component<FinalProps> {
       productsQuery,
       productsCountQuery,
       productsRemove,
-      queryParams
+      queryParams,
+      productCategoryDetailQuery
     } = this.props;
 
     const products = productsQuery.products || [];
@@ -55,7 +58,8 @@ class ProductListContainer extends React.Component<FinalProps> {
       products,
       remove,
       loading: productsQuery.loading,
-      productsCount: productsCountQuery.productsTotalCount || 0
+      productsCount: productsCountQuery.productsTotalCount || 0,
+      currentCategory: productCategoryDetailQuery.productCategoryDetail || {}
     };
 
     const productList = props => {
@@ -107,6 +111,17 @@ export default withProps<Props>(
       {
         name: 'productsRemove',
         options
+      }
+    ),
+    graphql<Props, CategoryDetailQueryResponse>(
+      gql(queries.productCategoryDetail),
+      {
+        name: 'productCategoryDetailQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            _id: queryParams.categoryId
+          }
+        })
       }
     )
   )(ProductListContainer)

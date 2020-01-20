@@ -32,6 +32,7 @@ export interface IConversation {
   updatedAt: Date;
   idleTime: number;
   facebookPost?: IFacebookPost;
+  callProAudio?: string;
 }
 
 interface IEngageDataRules {
