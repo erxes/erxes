@@ -1,7 +1,5 @@
 import { IBoardCount } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -20,6 +18,8 @@ type Props = {
 class Home extends React.Component<Props> {
   renderBoards() {
     const { queryParams, boardsWithCount } = this.props;
+
+    console.log(boardsWithCount);
 
     const { id = '', state = '' } = queryParams;
 
@@ -102,13 +102,13 @@ class Home extends React.Component<Props> {
   };
 
   render() {
-    const actionBarRight = (
-      <Link to="/settings/boards/growthHack">
-        <Button btnStyle="success" size="small" icon="diagram">
-          {__('Campaign & Project')}
-        </Button>
-      </Link>
-    );
+    // const actionBarRight = (
+    //   <Link to="/settings/boards/growthHack">
+    //     <Button btnStyle="success" size="small" icon="diagram">
+    //       {__('Campaign & Project')}
+    //     </Button>
+    //   </Link>
+    // );
 
     return (
       <Wrapper
@@ -116,19 +116,6 @@ class Home extends React.Component<Props> {
           <Wrapper.Header
             title={`${'Growth Hacking' || ''}`}
             breadcrumb={[{ title: __('Growth Hacking') }]}
-          />
-        }
-        leftSidebar={<Wrapper.Sidebar>{this.renderSidebar()}</Wrapper.Sidebar>}
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/31.svg"
-                title="Projects"
-                description={`From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.`}
-              />
-            }
-            right={actionBarRight}
           />
         }
         content={this.renderContent()}

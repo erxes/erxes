@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { StagesQueryResponse } from 'modules/boards/types';
+import { BoardsQueryResponse, StagesQueryResponse } from 'modules/boards/types';
 import { IPipeline } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -13,7 +13,7 @@ import { IOption } from '../types';
 
 type Props = {
   pipeline?: IPipeline;
-  boardId: string;
+  boardId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   show: boolean;
@@ -23,21 +23,24 @@ type Props = {
 
 type FinalProps = {
   stagesQuery: StagesQueryResponse;
+  boardsQuery: BoardsQueryResponse;
 } & Props;
 
 class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, boardId, renderButton, options } = this.props;
+    const { stagesQuery, boardsQuery, boardId, renderButton, options } = this.props;
 
-    if (stagesQuery && stagesQuery.loading) {
+    if ((stagesQuery && stagesQuery.loading) || (boardsQuery && boardsQuery.loading)) {
       return <Spinner />;
     }
 
     const stages = stagesQuery ? stagesQuery.stages : [];
+    const boards = boardsQuery.boards || [];
 
     const extendedProps = {
       ...this.props,
       stages,
+      boards,
       boardId,
       renderButton
     };
@@ -59,7 +62,13 @@ export default withProps<Props>(
           variables: { pipelineId: pipeline ? pipeline._id : '' },
           fetchPolicy: 'network-only'
         })
-      }
-    )
+      },
+    ),
+    graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
+      name: 'boardsQuery',
+      options: ({ type }) => ({
+        variables: { type }
+      })
+    }),
   )(PipelineFormContainer)
 );

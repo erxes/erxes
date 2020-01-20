@@ -28,8 +28,9 @@ import { Box, DateItem } from '../styles';
 type Props = {
   type: string;
   show: boolean;
-  boardId: string;
+  boardId?: string;
   pipeline?: IPipeline;
+  boards: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -42,6 +43,7 @@ type State = {
   templates: any[];
   templateId?: string;
   metric?: string;
+  boardId: string;
   startDate?: Date;
   endDate?: Date;
 };
@@ -62,7 +64,8 @@ class PipelineForm extends React.Component<Props, State> {
       templateId: pipeline ? pipeline.templateId : '',
       metric: pipeline ? pipeline.metric : '',
       startDate: pipeline ? pipeline.startDate : undefined,
-      endDate: pipeline ? pipeline.endDate : undefined
+      endDate: pipeline ? pipeline.endDate : undefined,
+      boardId: props.boardId || ''
     };
   }
 
@@ -92,24 +95,8 @@ class PipelineForm extends React.Component<Props, State> {
     });
   };
 
-  onChangeType = (hackScoringType: string) => {
-    this.setState({ hackScoringType });
-  };
-
-  onChangeTemplate = (value: any) => {
-    this.setState({
-      templateId: value ? value.value : ''
-    });
-  };
-
-  onChangeMetric = (value: any) => {
-    this.setState({
-      metric: value ? value.value : ''
-    });
-  };
-
-  onChangeMembers = items => {
-    this.setState({ selectedMemberIds: items });
+  onChangeValue = <T extends keyof State>(key: T, value: State[T]) => {
+    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
   onDateInputChange = (type: string, date) => {
@@ -133,7 +120,7 @@ class PipelineForm extends React.Component<Props, State> {
     name: string;
     visibility: string;
   }) => {
-    const { pipeline, type, boardId } = this.props;
+    const { pipeline, type } = this.props;
     const {
       selectedMemberIds,
       backgroundColor,
@@ -141,7 +128,8 @@ class PipelineForm extends React.Component<Props, State> {
       hackScoringType,
       startDate,
       endDate,
-      metric
+      metric,
+      boardId
     } = this.state;
     const finalValues = values;
 
@@ -199,6 +187,8 @@ class PipelineForm extends React.Component<Props, State> {
       label: template.name
     }));
 
+    const onChange = (item) => this.onChangeValue('templateId', item.value);
+
     return (
       <FormGroup>
         <ControlLabel>Template</ControlLabel>
@@ -207,7 +197,31 @@ class PipelineForm extends React.Component<Props, State> {
           placeholder={__('Choose template')}
           value={templateId}
           options={templateOptions}
-          onChange={this.onChangeTemplate}
+          onChange={onChange}
+          clearable={false}
+        />
+      </FormGroup>
+    );
+  }
+
+  renderBoards() {
+    const { boards } = this.props;
+
+    const boardOptions = boards.map(board => ({
+      value: board._id,
+      label: board.name
+    }));
+
+    const onChange = (item) => this.onChangeValue('boardId', item.value);
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Board</ControlLabel>
+        <Select
+          placeholder={__('Choose a board')}
+          value={this.state.boardId}
+          options={boardOptions}
+          onChange={onChange}
           clearable={false}
         />
       </FormGroup>
@@ -215,7 +229,7 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderBox(type, desc, formula) {
-    const onClick = () => this.onChangeType(type);
+    const onClick = () => this.onChangeValue('hackScoringType', type);
 
     return (
       <Box selected={this.state.hackScoringType === type} onClick={onClick}>
@@ -232,6 +246,8 @@ class PipelineForm extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
     const { startDate, endDate, metric, visibility } = this.state;
+
+    const onChangeMetric = (item) => this.onChangeValue('metric', item.value);
 
     const popoverBottom = (
       <Popover id="color-picker">
@@ -311,16 +327,23 @@ class PipelineForm extends React.Component<Props, State> {
             </FlexContent>
           </FormGroup>
 
-          <FormGroup>
-            <ControlLabel>Metric</ControlLabel>
-            <Select
-              placeholder={__('Choose a metric')}
-              value={metric}
-              options={metricOptions}
-              onChange={this.onChangeMetric}
-              clearable={false}
-            />
-          </FormGroup>
+          <FlexContent>
+            <ExpandWrapper>
+              {this.renderBoards()}
+            </ExpandWrapper>
+            <ExpandWrapper>
+              <FormGroup>
+                <ControlLabel>Metric</ControlLabel>
+                <Select
+                  placeholder={__('Choose a metric')}
+                  value={metric}
+                  options={metricOptions}
+                  onChange={onChangeMetric}
+                  clearable={false}
+                />
+              </FormGroup>
+            </ExpandWrapper>
+          </FlexContent>
 
           <FlexContent>
             <ExpandWrapper>
@@ -386,7 +409,7 @@ class PipelineForm extends React.Component<Props, State> {
 
   render() {
     const { show, closeModal } = this.props;
-
+    
     if (!show) {
       return null;
     }

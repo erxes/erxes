@@ -2,7 +2,7 @@ import { ColorButton } from 'modules/boards/styles/common';
 import { colors, dimensions } from 'modules/common/styles';
 import { FixedContent } from 'modules/deals/components/conversion/style';
 import { BoxItem } from 'modules/settings/growthHacks/styles';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const ScoreWrapper = styled.div``;
@@ -276,35 +276,77 @@ const VotersCount = styled(ColorButton)`
 const PipelineMeta = styled.div`
   font-size: 12px;
   color: ${colors.colorCoreGray};
+  margin-top: 80px;
 
   i {
     margin-right: ${dimensions.unitSpacing / 2}px;
   }
 
   span {
-    color: ${colors.colorCoreDarkGray};
+    margin-bottom: 5px;
   }
 `;
 
-const ProjectItem = styled(BoxItem)`
+const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
   padding: 0;
   overflow: hidden;
+  padding: 30px;
+  flex: 1;
+  border: 1px solid #eee;
+  position: relative;
 
   h5 {
     margin-bottom: ${dimensions.unitSpacing}px;
     color: ${colors.textPrimary};
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    font-size: 30px;
+    line-height: 32px;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
 
     span {
       margin-left: 5px;
     }
   }
-`;
 
-const TopContent = styled.div`
-  padding: ${dimensions.coreSpacing}px;
+  &:before {
+    content: '\\ec35';
+    font-family: 'erxes';
+    position: absolute;
+    color: ${colors.textPrimary};
+    font-size: 196px;
+    transform: rotate(10deg);
+    right: -15%;
+    bottom: -80px;
+    opacity: 0.1;
+  }
+
+  ${props => props.new &&
+    css`
+      display: flex;
+      justify-content: flex-end;
+      border-style: dashed; 
+      border-width: 2px;
+
+      &:before {
+        content: '';
+      }
+
+      &:hover {
+        border-color: ${colors.borderDarker};
+        cursor: pointer;
+
+        h5 {
+          opacity: 0.4;
+        }
+      }
+
+      h5 {
+        opacity: 0.2;
+        font-weight: bold;
+        font-size: 40px;
+        line-height: 44px;
+      }
+    `};
 `;
 
 const BottomAction = styled.div`
@@ -368,5 +410,4 @@ export {
   ContentTitle,
   BottomAction,
   ProjectItem,
-  TopContent
 };

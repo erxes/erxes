@@ -8,6 +8,29 @@ const BoxContainer = styled.div`
   display: flex;
   padding: 20px 0 20px 20px;
   flex-wrap: wrap;
+
+  > a {
+    flex-basis: 20%;
+    display: flex;
+    flex-shrink: 0;
+
+    @media (min-width: 480px) {
+      flex-basis: 50%;
+    }
+
+    @media (min-width: 768px) {
+      flex-basis: 33.3333333%;
+    }
+
+    @media (min-width: 1170px) {
+      flex-basis: 25%;
+    }
+
+    @media (min-width: 1400px) {
+      flex-basis: 20%;
+    }
+    
+  }
 `;
 
 const BoxItem = styled.div`
