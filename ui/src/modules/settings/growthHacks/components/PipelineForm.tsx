@@ -2,7 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { COLORS } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
-import { IPipeline } from 'modules/boards/types';
+import { IBoard, IPipeline } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import DateControl from 'modules/common/components/form/DateControl';
@@ -30,7 +30,7 @@ type Props = {
   show: boolean;
   boardId?: string;
   pipeline?: IPipeline;
-  boards: any;
+  boards: IBoard[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -216,9 +216,9 @@ class PipelineForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel required={true}>Board</ControlLabel>
+        <ControlLabel required={true}>Campaign</ControlLabel>
         <Select
-          placeholder={__('Choose a board')}
+          placeholder={__('Choose a campaign')}
           value={this.state.boardId}
           options={boardOptions}
           onChange={onChange}
@@ -278,6 +278,8 @@ class PipelineForm extends React.Component<Props, State> {
             />
           </FormGroup>
 
+          {this.renderBoards()}
+
           <FormGroup>
             <ControlLabel>Scoring type</ControlLabel>
 
@@ -329,9 +331,6 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FlexContent>
             <ExpandWrapper>
-              {this.renderBoards()}
-            </ExpandWrapper>
-            <ExpandWrapper>
               <FormGroup>
                 <ControlLabel>Metric</ControlLabel>
                 <Select
@@ -343,42 +342,42 @@ class PipelineForm extends React.Component<Props, State> {
                 />
               </FormGroup>
             </ExpandWrapper>
-          </FlexContent>
-
-          <FlexContent>
             <ExpandWrapper>
-              <FormGroup>
-                <ControlLabel required={true}>Visibility</ControlLabel>
-                <FormControl
-                  {...formProps}
-                  name="visibility"
-                  componentClass="select"
-                  value={visibility}
-                  onChange={this.onChangeVisibility}
-                >
-                  <option value="public">{__('Public')}</option>
-                  <option value="private">{__('Private')}</option>
-                </FormControl>
-              </FormGroup>
+              <FlexContent>
+                <ExpandWrapper>
+                  <FormGroup>
+                    <ControlLabel required={true}>Visibility</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="visibility"
+                      componentClass="select"
+                      value={visibility}
+                      onChange={this.onChangeVisibility}
+                    >
+                      <option value="public">{__('Public')}</option>
+                      <option value="private">{__('Private')}</option>
+                    </FormControl>
+                  </FormGroup>
+                </ExpandWrapper>
+                <FormGroup>
+                  <ControlLabel>Background</ControlLabel>
+                  <div>
+                    <OverlayTrigger
+                      trigger="click"
+                      rootClose={true}
+                      placement="bottom"
+                      overlay={popoverBottom}
+                    >
+                      <ColorPick>
+                        <ColorPicker
+                          style={{ backgroundColor: this.state.backgroundColor }}
+                        />
+                      </ColorPick>
+                    </OverlayTrigger>
+                  </div>
+                </FormGroup>
+              </FlexContent>
             </ExpandWrapper>
-
-            <FormGroup>
-              <ControlLabel>Background</ControlLabel>
-              <div>
-                <OverlayTrigger
-                  trigger="click"
-                  rootClose={true}
-                  placement="bottom"
-                  overlay={popoverBottom}
-                >
-                  <ColorPick>
-                    <ColorPicker
-                      style={{ backgroundColor: this.state.backgroundColor }}
-                    />
-                  </ColorPick>
-                </OverlayTrigger>
-              </div>
-            </FormGroup>
           </FlexContent>
 
           {this.renderSelectMembers()}

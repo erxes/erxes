@@ -1,11 +1,9 @@
 import { IPipeline } from 'modules/boards/types';
-import EmptyState from 'modules/common/components/EmptyState';
-import { ProjectItem } from 'modules/growthHacks/styles';
 import PipelineForm from 'modules/settings/boards/containers/PipelineForm';
 import { options } from 'modules/settings/growthHacks/options';
-import { BoxContainer } from 'modules/settings/growthHacks/styles';
 import React, { useState } from 'react';
 import PipelineRow from './PipelineRow';
+import { BoxContainer, ProjectItem } from './styles';
 
 type Props = {
   pipelines: IPipeline[];
@@ -34,15 +32,13 @@ function PipelineList(props: Props) {
 
   const { pipelines } = props;
 
-  if (pipelines.length === 0) {
-    return <EmptyState text="No projects" image="/images/actions/16.svg" />;
-  }
-
   return (
     <BoxContainer>
-      <ProjectItem new={true} onClick={toggleVisibility}>
-        <h5>+<br />Create <br />New <br />Project</h5>
-      </ProjectItem>
+      <div>
+        <ProjectItem new={true} onClick={toggleVisibility}>
+          <h5>+<br />Create <br />New <br />Project</h5>
+        </ProjectItem>  
+      </div>
       {renderAddForm()}
       {pipelines.map(pipeline => (
         <PipelineRow key={pipeline._id} pipeline={pipeline} />

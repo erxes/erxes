@@ -4,10 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  PipelineMeta,
-  ProjectItem,
-} from '../../styles';
+import { PipelineMeta, ProjectItem } from './styles';
 
 type Props = {
   pipeline: IPipeline;
