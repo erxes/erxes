@@ -3,12 +3,7 @@ import { colors, dimensions, typography } from 'modules/common/styles';
 import { BoxRoot } from 'modules/common/styles/main';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import styled from 'styled-components';
-
-const BoxContainer = styled.div`
-  display: flex;
-  padding: 20px 0 20px 20px;
-  flex-wrap: wrap;
-`;
+import { ExpandWrapper } from '../styles';
 
 const BoxItem = styled.div`
   flex-basis: 300px;
@@ -111,10 +106,7 @@ const Actions = styled.div`
   }
 `;
 
-const DateItem = styled.div`
-  flex: 1;
-  margin-right: 20px;
-
+const DateItem = styled(ExpandWrapper)`
   .form-control {
     box-shadow: none;
     border-radius: 0;
@@ -142,7 +134,6 @@ export {
   Bottom,
   PreviewWrapper,
   ContentWrapper,
-  BoxContainer,
   Actions,
   Created,
   DateItem,

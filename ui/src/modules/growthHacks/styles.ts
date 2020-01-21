@@ -1,7 +1,6 @@
 import { ColorButton } from 'modules/boards/styles/common';
 import { colors, dimensions } from 'modules/common/styles';
 import { FixedContent } from 'modules/deals/components/conversion/style';
-import { BoxItem } from 'modules/settings/growthHacks/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -273,40 +272,6 @@ const VotersCount = styled(ColorButton)`
   display: inline-block;
 `;
 
-const PipelineMeta = styled.div`
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
-
-  i {
-    margin-right: ${dimensions.unitSpacing / 2}px;
-  }
-
-  span {
-    color: ${colors.colorCoreDarkGray};
-  }
-`;
-
-const ProjectItem = styled(BoxItem)`
-  padding: 0;
-  overflow: hidden;
-
-  h5 {
-    margin-bottom: ${dimensions.unitSpacing}px;
-    color: ${colors.textPrimary};
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-
-    span {
-      margin-left: 5px;
-    }
-  }
-`;
-
-const TopContent = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-`;
-
 const BottomAction = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
 
@@ -362,11 +327,8 @@ export {
   Vote,
   VotersContent,
   VotersCount,
-  PipelineMeta,
   FilterList,
   FilterListItem,
   ContentTitle,
   BottomAction,
-  ProjectItem,
-  TopContent
 };
