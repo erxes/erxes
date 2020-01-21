@@ -59,7 +59,7 @@ class GroupList extends React.Component<IProps> {
   renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -73,7 +73,7 @@ class GroupList extends React.Component<IProps> {
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
-        <Tip text={__('Remove')}>
+        <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -87,7 +87,7 @@ class GroupList extends React.Component<IProps> {
     
     return (
       <Button btnStyle="link" onClick={onCopy}>
-        <Tip text={tipText}><Icon icon="copy" /></Tip>
+        <Tip text={tipText} placement="bottom"><Icon icon="copy" /></Tip>
       </Button>
     );
   }
