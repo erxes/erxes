@@ -65,6 +65,19 @@ describe('boardQueries', () => {
     }
   `;
 
+  const stateCountQry = `
+    query pipelineStateCount($boardId: String, $type: String) {
+      pipelineStateCount(boardId: $boardId, type: $type)
+    }
+  `;
+
+  const dateBuilder = day =>
+    new Date(
+      moment()
+        .add(day, 'days')
+        .format('YYYY-MM-DD'),
+    );
+
   afterEach(async () => {
     // Clearing test data
     await Boards.deleteMany({});
@@ -422,6 +435,47 @@ describe('boardQueries', () => {
     const response = await graphqlRequest(qry, 'stageDetail', { _id: stage._id });
 
     expect(response._id).toBe(stage._id);
+  });
+
+  test('Pipeline state count', async () => {
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(1), endDate: dateBuilder(2) });
+    await pipelineFactory({ startDate: dateBuilder(2), endDate: dateBuilder(3) });
+
+    //  In progress pipelines
+    await pipelineFactory({ startDate: dateBuilder(-1), endDate: dateBuilder(1) });
+    await pipelineFactory({ startDate: dateBuilder(-2), endDate: dateBuilder(2) });
+
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(-2), endDate: dateBuilder(-1) });
+
+    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', { type: BOARD_TYPES.DEAL });
+
+    expect(response.All).toBe(5);
+    expect(response['Not started']).toBe(2);
+    expect(response['In progress']).toBe(2);
+    expect(response.Completed).toBe(1);
+  });
+
+  test('Pipeline state count with boardId', async () => {
+    const board = await pipelineFactory({});
+
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(3), endDate: dateBuilder(5), boardId: board._id });
+
+    //  In progress pipelines
+    await pipelineFactory({ startDate: dateBuilder(-3), endDate: dateBuilder(3), boardId: board._id });
+
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(-4), endDate: dateBuilder(-3), boardId: board._id });
+    await pipelineFactory({ startDate: dateBuilder(-5), endDate: dateBuilder(-2) });
+
+    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', { boardId: board._id });
+
+    expect(response.All).toBe(3);
+    expect(response['Not started']).toBe(1);
+    expect(response['In progress']).toBe(1);
+    expect(response.Completed).toBe(1);
   });
 
   test('Convert to info', async () => {

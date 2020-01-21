@@ -97,6 +97,53 @@ const boardQueries = {
     return Pipelines.find(query).sort({ order: 1, createdAt: -1 });
   },
 
+  async pipelineStateCount(_root, { boardId, type }: { boardId: string; type: string }) {
+    const query: any = {};
+
+    if (boardId) {
+      query.boardId = boardId;
+    }
+
+    if (type) {
+      query.type = type;
+    }
+
+    const counts: any = {};
+    const now = new Date();
+
+    const notStartedQuery = {
+      ...query,
+      startDate: { $gt: now },
+    };
+
+    const notStartedCount = await Pipelines.find(notStartedQuery).countDocuments();
+
+    counts['Not started'] = notStartedCount;
+
+    const inProgressQuery = {
+      ...query,
+      startDate: { $lt: now },
+      endDate: { $gt: now },
+    };
+
+    const inProgressCount = await Pipelines.find(inProgressQuery).countDocuments();
+
+    counts['In progress'] = inProgressCount;
+
+    const completedQuery = {
+      ...query,
+      endDate: { $lt: now },
+    };
+
+    const completedCounted = await Pipelines.find(completedQuery).countDocuments();
+
+    counts.Completed = completedCounted;
+
+    counts.All = notStartedCount + inProgressCount + completedCounted;
+
+    return counts;
+  },
+
   /**
    *  Pipeline detail
    */

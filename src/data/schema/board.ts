@@ -91,6 +91,7 @@ export const queries = `
   ): [Stage]
   stageDetail(_id: String!, ${stageParams}): Stage
   convertToInfo(conversationId: String!): ConvertTo
+  pipelineStateCount(boardId: String, type: String): JSON
 `;
 
 const commonParams = `
