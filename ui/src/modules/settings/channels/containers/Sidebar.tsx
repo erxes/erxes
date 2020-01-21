@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { mutations, queries } from '../graphql';
 import {
@@ -22,7 +23,7 @@ type Props = {
 type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
-} & Props &
+} & Props & IRouterProps &
   RemoveChannelMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
@@ -31,6 +32,7 @@ const SidebarContainer = (props: FinalProps) => {
     channelsCountQuery,
     removeMutation,
     queryParams,
+    history,
     currentChannelId
   } = props;
 
@@ -45,6 +47,8 @@ const SidebarContainer = (props: FinalProps) => {
       })
         .then(() => {
           Alert.success('You successfully deleted a channel.');
+
+          history.push('/settings/channels');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -137,5 +141,5 @@ export default withProps<Props>(
         refetchQueries: getRefetchQueries(queryParams, currentChannelId)
       })
     })
-  )(SidebarContainer)
+  )(withRouter<FinalProps>(SidebarContainer))
 );

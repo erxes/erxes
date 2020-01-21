@@ -380,6 +380,11 @@ a:hover {
   color: ${colors.colorCoreGray};
   border-radius: 4px 4px 0 0;
   margin: 0;
+
+  > a {
+    color: ${colors.colorCoreGray};
+    float: right;
+  }
 }
 
 .popover-body {

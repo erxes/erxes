@@ -239,3 +239,74 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
       - Select OAuth 2.0 client ID
       - Add following uri in authorized redirect URI `http://localhost:3400/nylas/oauth2/callback`
     - After you create the Google service account download json and replace with `google_cred.json`
+### Yahoo
+2. In order to integrate the Yahoo you will need to generate app password for the Erxes, please follow below steps.
+  - Go to Settings/App Store and click on Add button of the Yahoo section
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-1.png" />
+    </div>
+
+  - You will see a modal, then click on add account
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-2.png"/>
+    </div>
+
+  - Now you need to generate password for erxes, go ahead and click the link.
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-3.png"/>
+    </div>
+
+  - You will be jump into Yahoo, sign in and click on Account Security in Settings as follows. 
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-4.png"/>
+    </div>
+
+  - Scroll to bottom and click on <b>Generate app password</b> link.
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-5.png"/>
+    </div>
+    
+  - Click on the <b>Select an app</b> and select Other app.
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-6.png"/>
+    </div>
+
+  - Then name your app as <b>Erxes</b> and click on the <b>Generate</b> button.
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-7.png"/>
+    </div>
+
+  - Great, you got the password, Now copy password and navigate back to the Erxes Settings/App Store
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-8.png"/>
+    </div>
+
+  - Fill your email address and paste your password, that is it click on the save button and create yahoo integration.
+
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-9.png"/>
+    </div>
+
+### Outlook
+3. Integrating the Outlook is easy peasy lemon squeezy, all we need is email and password no additional steps.
+  - Go to Settings/App Store and click on Add button of the Outlook section
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-1.png"/>
+    </div>
+
+  - Click on the Add account button then you will see form
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-2.png"/>
+    </div>
+    
+  - Enter your outlook email, password and click on save button that's it now you can create your Outlook integration.
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-3.png"/>
+    </div>

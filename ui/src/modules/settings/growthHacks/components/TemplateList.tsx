@@ -6,11 +6,12 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { BoxContainer } from 'modules/growthHacks/components/home/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import List from '../../common/components/List';
 import { ICommonListProps } from '../../common/types';
-import { Actions, Bottom, BoxContainer, BoxItem, Created } from '../styles';
+import { Actions, Bottom, BoxItem, Created } from '../styles';
 import TemplateForm from './TemplateForm';
 
 type Props = {
