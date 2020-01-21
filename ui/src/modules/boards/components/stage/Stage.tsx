@@ -45,14 +45,19 @@ type Props = {
   queryParams: IFilterParams;
   refetchStages: (params: IStageRefetchParams) => Promise<any>;
 };
-export default class Stage extends React.Component<Props, {}> {
+export default class Stage extends React.Component<Props> {
   private bodyRef;
+  private overlayTrigger;
 
   constructor(props: Props) {
     super(props);
 
     this.bodyRef = React.createRef();
   }
+
+  onClosePopover = () => {
+    this.overlayTrigger.hide();
+  };
 
   componentDidMount() {
     // Load items until scroll created
@@ -125,9 +130,7 @@ export default class Stage extends React.Component<Props, {}> {
 
     const trigger = (
       <li>
-        <a href={`#${type}`}>
-          {type}
-        </a>
+        {type}
       </li>
     );
 
@@ -146,6 +149,7 @@ export default class Stage extends React.Component<Props, {}> {
         title={`${action} "${stage.name}"`}
         trigger={trigger}
         content={content}
+        onShow={this.onClosePopover}
       />
     );
   }
@@ -230,6 +234,9 @@ export default class Stage extends React.Component<Props, {}> {
                     <span>{stage.itemsTotalCount}</span>
                   </div>
                   <OverlayTrigger
+                    ref={overlayTrigger => {
+                      this.overlayTrigger = overlayTrigger;
+                    }}
                     trigger="click"
                     placement="bottom-start"
                     rootClose={true}
