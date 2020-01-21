@@ -5,7 +5,6 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import { FormContainer } from '../../styles/common';
 import { IBoard, IPipeline } from '../../types';
 import { selectOptions } from '../../utils';
 
@@ -118,7 +117,7 @@ class PipelineSelect extends React.Component<Props, State> {
   }
 
   render() {
-    return <FormContainer>{this.renderContent()}</FormContainer>;
+    return <>{this.renderContent()}</>;
   }
 }
 
