@@ -10,6 +10,7 @@ type Props = {
   pipelines: IPipeline[];
   renderAddButton: (props: IButtonMutateProps) => JSX.Element;
 };
+
 function PipelineList(props: Props) {
   const [ showPopup, setVisibility ] = useState(false);
   
