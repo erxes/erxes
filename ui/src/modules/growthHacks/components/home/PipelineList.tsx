@@ -8,7 +8,7 @@ import { BoxContainer, ProjectItem } from './styles';
 
 type Props = {
   pipelines: IPipeline[];
-  renderAddButton: (props: IButtonMutateProps) => JSX.Element;;
+  renderAddButton: (props: IButtonMutateProps) => JSX.Element;
 };
 function PipelineList(props: Props) {
   const [ showPopup, setVisibility ] = useState(false);
