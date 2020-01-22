@@ -1,2 +1,2 @@
-ui=https://github.com/batnasan/erxes-buildpack.git
+ui=https://github.com/heroku/heroku-buildpack-nodejs.git
 widgets=https://github.com/heroku/heroku-buildpack-nodejs.git
