@@ -13,6 +13,8 @@
   "logo": "https://raw.githubusercontent.com/erxes/erxes/master/public/images/logo-dark.png",
   "success_url": "/",
   "env": {
+    "ERXES_DIR": "ui",
+    "WIDGETS_DIR": "widgets",
     "PORT": {
       "description": "A port number that erxes will be running on",
       "value": "3000"
