@@ -261,8 +261,8 @@ class CreateMessenger extends React.Component<Props, State> {
     const message = messages[languageCode];
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings/integrations' },
-      { title: __('Integrations') },
+      { title: __('Settings'), link: '/settings' },
+      { title: __('App store'), link: '/settings/integrations' },
       { title: __('Messenger') }
     ];
 

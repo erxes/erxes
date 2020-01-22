@@ -66,10 +66,11 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
         .then(() => {
           const promises: any[] = [];
 
-          for (const field of fields) {
+          for (const [i, field] of fields.entries()) {
             promises.push(
               addFieldsMutation({
                 variables: {
+                  order: i,
                   contentTypeId: formId,
                   ...field
                 }

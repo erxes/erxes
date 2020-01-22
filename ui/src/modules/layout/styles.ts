@@ -186,6 +186,7 @@ const SidebarTitle = styledTS<{ children: any }>(
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0;
   text-transform: uppercase;
+  position: relative;
 `;
 
 const SidebarMainContent = styled.div`

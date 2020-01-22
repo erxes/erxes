@@ -2,7 +2,6 @@ import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { SmallLoader } from '../ButtonMutate';
 import {
   FullStep,
   ShortStep,
@@ -22,53 +21,13 @@ type Props = {
   children?: React.ReactNode;
   next?: (stepNumber: number) => void;
   noButton?: boolean;
-  save?: (name: string, e: React.MouseEvent) => void;
   message?: any;
-  isActionLoading?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 class Step extends React.Component<Props> {
   renderButton() {
-    const { save, next, message, isActionLoading } = this.props;
-
-    if (save && Object.keys(message).length !== 0) {
-      return (
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          size="small"
-          icon={isActionLoading ? undefined : 'checked-1'}
-          onClick={save.bind(this, 'save')}
-        >
-          {isActionLoading && <SmallLoader />}
-          Save
-        </Button>
-      );
-    }
-
-    if (save) {
-      return (
-        <Button.Group>
-          <Button
-            btnStyle="warning"
-            size="small"
-            icon="file-alt"
-            onClick={save.bind(this, 'draft')}
-          >
-            Save & Draft
-          </Button>
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="checked-1"
-            onClick={save.bind(this, 'live')}
-          >
-            Save & Live
-          </Button>
-        </Button.Group>
-      );
-    }
+    const { next } = this.props;
 
     if (next) {
       return (
