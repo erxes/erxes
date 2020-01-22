@@ -41,7 +41,7 @@
   "addons": [],
   "buildpacks": [
     {
-      "url": "https://github.com/batnasan/erxes-buildpack"
+      "url": "https://github.com/batnasan/heroku-buildpack-subdir"
     }
   ]
 }
