@@ -264,6 +264,10 @@ const Description = styled.div`
 const ExpandWrapper = styled.div`
   flex: 1;
   margin-right: 20px;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
 `;
 
 export {

@@ -2,15 +2,9 @@ import dayjs from 'dayjs';
 import { IPipeline } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Label from 'modules/common/components/Label';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  BottomAction,
-  PipelineMeta,
-  ProjectItem,
-  TopContent
-} from '../../styles';
+import { PipelineMeta, ProjectItem } from './styles';
 
 type Props = {
   pipeline: IPipeline;
@@ -56,32 +50,15 @@ class PipelineRow extends React.Component<Props, {}> {
     const { pipeline } = this.props;
 
     return (
-      <ProjectItem key={pipeline._id}>
-        <TopContent>
-          <h5>
-            {pipeline.name}
-            {this.renderState(pipeline.state)}
-          </h5>
+      <Link to={`/growthHack/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`}>
+        <ProjectItem key={pipeline._id}>
+          <h5>{pipeline.name}</h5>
           <PipelineMeta>
+            {this.renderState(pipeline.state)}
             {this.renderDate(pipeline)}
-            <div>
-              <Icon icon="files-landscapes" />
-              {pipeline.itemsTotalCount}
-            </div>
           </PipelineMeta>
-        </TopContent>
-
-        <BottomAction>
-          <Link
-            to={`/growthHack/board?id=${pipeline.boardId}&pipelineId=${
-              pipeline._id
-            }`}
-          >
-            {__(' Go to project')}
-            <Icon icon="angle-double-right" />
-          </Link>
-        </BottomAction>
-      </ProjectItem>
+        </ProjectItem>
+      </Link>
     );
   }
 }
