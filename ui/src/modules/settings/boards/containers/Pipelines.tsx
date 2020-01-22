@@ -74,7 +74,6 @@ class PipelinesContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
-      console.log(values);
       return (
         <ButtonMutate
           mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
