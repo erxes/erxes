@@ -1,20 +1,22 @@
 import { IBoardCount } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { __ } from 'modules/common/utils';
+import { GROWTHHACK_STATES } from 'modules/growthHacks/constants';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import { Link } from 'react-router-dom';
 import PipelineList from '../../containers/home/PipelineList';
-
-const { Section } = Wrapper.Sidebar;
+import { BoxContainer, CountItem, FilterButton, FilterWrapper, HelperButtons } from './styles';
 
 type Props = {
   queryParams: any;
   boardsWithCount: IBoardCount[];
+  counts: object;
 };
 
 class Home extends React.Component<Props> {
@@ -40,95 +42,118 @@ class Home extends React.Component<Props> {
     ));
   }
 
-  renderSidebar() {
+  renderPopover() {
+    return (
+      <Popover id="score-popover">
+        <Popover.Title as="h3">
+          {__('Marketing campaigns')}
+          <Link to="/settings/boards/growthHack">
+            <Icon icon="settings" />
+          </Link>
+        </Popover.Title>
+        <Popover.Content>
+          <SidebarList>
+            {this.renderBoards()}
+          </SidebarList>
+        </Popover.Content>
+      </Popover>
+    );
+  }
+
+  renderFilter = () => {
     const { queryParams } = this.props;
     const { state, id = '' } = queryParams;
 
     return (
-      <>
-        <Section>
-          <Section.Title>{__('Marketing campaign')}</Section.Title>
-          <Section.QuickButtons>
-            <Link to="/settings/boards/growthHack">
-              <Icon icon="settings" />
-            </Link>
-          </Section.QuickButtons>
-          <SidebarList>{this.renderBoards()}</SidebarList>
-        </Section>
-
-        <Section>
-          <Section.Title>{__('Filter by status')}</Section.Title>
-          <SidebarList>
-            <li>
-              <Link
-                className={!state ? 'active' : ''}
-                to={`/growthHack/home?id=${id}`}
-              >
-                All
-              </Link>
-            </li>
-            <li>
-              <Link
-                className={state === 'In progress' ? 'active' : ''}
-                to={`/growthHack/home?id=${id}&state=In progress`}
-              >
-                In progress
-              </Link>
-            </li>
-            <li>
-              <Link
-                className={state === 'Not started' ? 'active' : ''}
-                to={`/growthHack/home?id=${id}&state=Not started`}
-              >
-                Not started
-              </Link>
-            </li>
-            <li>
-              <Link
-                className={state === 'Completed' ? 'active' : ''}
-                to={`/growthHack/home?id=${id}&state=Completed`}
-              >
-                Completed
-              </Link>
-            </li>
-          </SidebarList>
-        </Section>
-      </>
+      <FilterWrapper>
+        <Tabs grayBorder={true}>
+          <Link to={`/growthHack/home?id=${id}`}>
+            <TabTitle className={!state ? 'active' : ''}>
+              All
+            </TabTitle>
+          </Link>
+          <Link to={`/growthHack/home?id=${id}&state=In progress`}>
+            <TabTitle className={state === 'In progress' ? 'active' : ''}>
+              In progress
+            </TabTitle>
+          </Link>
+          <Link to={`/growthHack/home?id=${id}&state=Not started`}>
+            <TabTitle className={state === 'Not started' ? 'active' : ''}>
+              Not started
+            </TabTitle>
+          </Link>
+          <Link to={`/growthHack/home?id=${id}&state=Completed`}>
+            <TabTitle className={state === 'Completed' ? 'active' : ''}>
+              Completed
+            </TabTitle>
+          </Link>
+        </Tabs>
+        <HelperButtons>
+          <OverlayTrigger
+            trigger="click"
+            placement="bottom-end"
+            rootClose={true}
+            overlay={this.renderPopover()}
+          >
+            <FilterButton>
+              {__('Filter by campaign')} <Icon icon="angle-down" />
+            </FilterButton>
+          </OverlayTrigger>
+        </HelperButtons>
+      </FilterWrapper> 
     );
   }
 
+  renderCountItem = (state: string) => {
+    let iconContent = 'e8df';
+
+    switch (state) {
+      case 'In progress':
+        iconContent = 'e8e9';
+        break;
+
+      case 'Not started':
+        iconContent = 'eb46';
+        break;
+
+      case 'Completed':
+        iconContent = 'ecd7';
+        break;
+    }
+
+    return (
+      <CountItem content={iconContent} key={state}>
+        <h5>{state}</h5>
+        <strong>{this.props.counts[state]}</strong>
+      </CountItem>
+    )
+  }
+
+  renderCounts = () => {
+    return GROWTHHACK_STATES.map(state => (
+      this.renderCountItem(state)
+    ));
+  }
+
   renderContent = () => {
-    return <PipelineList queryParams={this.props.queryParams} />;
+    return (
+      <>
+        <BoxContainer>
+          {this.renderCounts()}
+        </BoxContainer>
+        {this.renderFilter()}
+        <PipelineList queryParams={this.props.queryParams} />
+      </>
+    )
   };
 
   render() {
-    const actionBarRight = (
-      <Link to="/settings/boards/growthHack">
-        <Button btnStyle="success" size="small" icon="diagram">
-          {__('Campaign & Project')}
-        </Button>
-      </Link>
-    );
-
     return (
       <Wrapper
         header={
           <Wrapper.Header
             title={`${'Growth Hacking' || ''}`}
             breadcrumb={[{ title: __('Growth Hacking') }]}
-          />
-        }
-        leftSidebar={<Wrapper.Sidebar>{this.renderSidebar()}</Wrapper.Sidebar>}
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/31.svg"
-                title="Projects"
-                description={`From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.`}
-              />
-            }
-            right={actionBarRight}
           />
         }
         content={this.renderContent()}
