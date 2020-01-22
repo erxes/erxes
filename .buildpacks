@@ -1,0 +1,2 @@
+ui=https://github.com/batnasan/erxes-buildpack.git
+widgets=https://github.com/heroku/heroku-buildpack-nodejs.git
