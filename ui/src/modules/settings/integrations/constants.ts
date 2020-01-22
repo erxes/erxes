@@ -77,6 +77,7 @@ export const KIND_CHOICES = {
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
+  WHATSAPP: 'whatsapp',
   ALL_LIST: [
     'messenger',
     'facebook-post',
@@ -89,7 +90,8 @@ export const KIND_CHOICES = {
     'nylas-gmail',
     'nylas-imap',
     'nylas-office365',
-    'nylas-outlook'
+    'nylas-outlook',
+    'whatsapp'
   ]
 };
 
@@ -100,7 +102,8 @@ export const KIND_CHOICES_WITH_TEXT = [
   { text: 'Pop Ups', value: 'lead' },
   { text: 'Callpro', value: 'callpro' },
   { text: 'Chatfuel', value: 'chatfuel' },
-  { text: 'Gmail', value: 'nylas-gmail' }
+  { text: 'Gmail', value: 'nylas-gmail' },
+  { text: 'Whatsapp', value: 'whatsapp' }
 ];
 
 export const FORM_LOAD_TYPES = {
@@ -338,7 +341,7 @@ export const INTEGRATIONS = [
     name: 'WhatsApp',
     description: 'Get a hold of your Whatsapp messages through your Team Inbox',
     inMessenger: false,
-    isAvailable: false,
+    isAvailable: true,
     logo: '/images/integrations/whatsapp.png',
     category: 'All integrations, For support teams, Messaging, Conversation'
   },

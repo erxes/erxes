@@ -117,7 +117,8 @@ export type IntegrationTypes =
   | 'nylas-office365'
   | 'nylas-outlook'
   | 'nylas-yahoo'
-  | 'twitter';
+  | 'twitter'
+  | 'whatsapp';
 
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
