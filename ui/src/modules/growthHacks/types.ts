@@ -53,6 +53,12 @@ export type GrowthHacksPriorityQueryResponse = {
   refetch: () => void;
 };
 
+export type StateCountsQueryResponse = {
+  pipelineStateCount: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type GrowthHacksCountQueryResponse = {
   growthHacksTotalCount: number;
 };

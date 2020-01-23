@@ -2,8 +2,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries } from 'modules/boards/graphql';
 import { PipelinesQueryResponse } from 'modules/boards/types';
-import { IRouterProps } from 'modules/common/types';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
+import mutations from 'modules/settings/boards/graphql/mutations';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -27,7 +29,39 @@ class PipelineListContainer extends React.Component<FinalProps> {
       );
     }
 
-    return <PipelineList pipelines={pipelines} />;
+    const renderAddButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
+      const afterSave = () => {
+        if(callback) {
+          callback();
+        }
+
+        if(pipelinesQuery) {
+          pipelinesQuery.refetch(queryParams.id);
+        }
+      }
+
+      return (
+        <ButtonMutate
+          mutation={mutations.pipelineAdd}
+          variables={values}
+          callback={afterSave}
+          refetchQueries={[]}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
+        />
+      );
+    };
+
+    return <PipelineList renderAddButton={renderAddButton} pipelines={pipelines} />;
   }
 }
 

@@ -51,7 +51,7 @@ class DateControl extends React.Component<Props> {
       name,
       placeholder: placeholder || '',
       required: required || false,
-      autocomplete: 'off'
+      autoComplete: 'off'
     };
 
     const attributes = {
