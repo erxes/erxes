@@ -54,6 +54,7 @@ const sendConversationToIntegrations = (
         integrationId,
         conversationId,
         content: strip(doc.content),
+        attachments: doc.attachments || [],
       }),
     });
   }
