@@ -6,3 +6,10 @@ export const HACKSTAGES = [
   'Revenue',
   'Referrals'
 ];
+
+export const GROWTHHACK_STATES = [
+  'All',
+  'In progress',
+  'Not started',
+  'Completed',
+];

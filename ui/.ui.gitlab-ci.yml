@@ -1,4 +1,4 @@
-ui_test:
+ui:test:
   stage: test
   image: node:10.16-alpine
   before_script:
@@ -24,10 +24,10 @@ ui_test:
     paths:
       - ui/build/
 
-ui_build:
+ui:build:
   stage: build
   needs:
-    - ui_test
+    - ui:test
   before_script:
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
   script:
@@ -35,7 +35,7 @@ ui_build:
     - docker build -t erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME} -f Dockerfile .
     - docker push erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME}
   dependencies:
-    - ui_test
+    - ui:test
   only:
     refs:
       - master

@@ -1,28 +1,23 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
 import { Category, FixedSection, LeftSidebar, SidebarList } from './styles';
 
 type Props = {
-  getFilteredItem: (filteredItem: string) => void;
-  filteredItem: string;
+  currentType: string;
 };
 
 class SideBar extends React.Component<Props> {
-  onFilter = item => {
-    this.props.getFilteredItem(item);
-  };
-
   renderCategory(item) {
-    const { filteredItem } = this.props;
-
     return (
-      <Category
-        key={item}
-        onClick={this.onFilter.bind(this, item)}
-        isActive={filteredItem === item}
-      >
-        {item}
-      </Category>
+      <Link to={`?type=${item}`}>
+        <Category
+          key={item}
+          isActive={(this.props.currentType || 'All integrations') === item}
+        >
+          {item}
+        </Category>
+      </Link>
     );
   }
 

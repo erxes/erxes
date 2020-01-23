@@ -184,10 +184,18 @@ const pipelineDetail = `
   }
 `;
 
+
+const pipelineStateCount = `
+  query pipelineStateCount($boardId: String, $type: String) {
+    pipelineStateCount(boardId: $boardId, type: $type) 
+  }
+`;
+
 export default {
   growthHacks,
   growthHacksPriorityMatrix,
   growthHackDetail,
   growthHacksTotalCount,
-  pipelineDetail
+  pipelineDetail,
+  pipelineStateCount
 };

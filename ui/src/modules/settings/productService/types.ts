@@ -107,6 +107,11 @@ export type DetailQueryResponse = {
   loading: boolean;
 };
 
+export type CategoryDetailQueryResponse = {
+  productCategoryDetail: IProductCategory;
+  loading: boolean;
+};
+
 export type CountByTagsQueryResponse = {
   productCountByTags: { [key: string]: number };
   loading: boolean;

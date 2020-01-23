@@ -1,10 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { mutations, queries } from '../graphql';
 import {
@@ -22,7 +23,7 @@ type Props = {
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   brandsCountQuery: BrandsCountQueryResponse;
-} & Props &
+} & Props & IRouterProps &
   BrandRemoveMutationResponse;
 
 const SidebarContainer = (props: ChildProps<FinalProps>) => {
@@ -31,7 +32,8 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
     brandsCountQuery,
     removeMutation,
     queryParams,
-    currentBrandId
+    currentBrandId,
+    history
   } = props;
 
   const brands = brandsQuery.brands || [];
@@ -45,6 +47,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
       })
         .then(() => {
           Alert.success('You successfully deleted a brand.');
+          history.push('/settings/brands');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -134,5 +137,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(SidebarContainer)
+  )(withRouter<FinalProps>(SidebarContainer))
 );

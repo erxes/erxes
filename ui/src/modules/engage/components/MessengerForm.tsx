@@ -114,7 +114,7 @@ class MessengerForm extends React.Component<Props, State> {
     const onChangeFrom = e =>
       this.changeFromUserId((e.target as HTMLInputElement).value);
     const onChangeContent = e => {
-      Alert.error(
+      Alert.warning(
         'Please carefully select the brand, it will appear in the selected brand messenger.'
       );
       this.changeContent('brandId', (e.target as HTMLInputElement).value);
