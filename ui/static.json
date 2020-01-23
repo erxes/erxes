@@ -9,9 +9,6 @@
     },
     "/widgets/": {
       "origin": "${REACT_APP_CDN_HOST}"
-    },
-    "/widgets-api/": {
-      "origin": "${REACT_APP_CDN_HOST_API}"
     }
   }
 }
