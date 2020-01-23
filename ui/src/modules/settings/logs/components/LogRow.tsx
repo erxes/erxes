@@ -39,7 +39,7 @@ class LogRow extends React.Component<Props> {
 
     return (
       <tr key={log._id}>
-        <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm')}</td>
+        <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
         <td>{log.unicode}</td>
         <td>{log.type ? log.type : ''}</td>
         <td>

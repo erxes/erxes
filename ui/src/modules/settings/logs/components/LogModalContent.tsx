@@ -13,7 +13,9 @@ const DATE_FIELD_NAMES = [
   'createdAt',
   'createdDate',
   'modifiedAt',
-  'lastSeenAt'
+  'lastSeenAt',
+  'closeDate',
+  'modifiedDate'
 ];
 
 type Props = {
