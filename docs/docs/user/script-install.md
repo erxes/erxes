@@ -1592,3 +1592,51 @@ Do not miss to copy the additional source of section “B” of Knowledgebase an
 14. Once you have pasted the code, it will look like this in your web right bottom side (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/25.png" />
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+## Google Tag Manager Troubleshooting guide
+
+If you have any problems with when installing Google Tag Manager script on specified pages, there are a few troubleshooting steps you can take to check things are set up correctly.
+This instruction covers the case that **all web pages contain the messenger and only some specified page contains pop-up script.** Therefore, it is possible to work on other cases, just change the erxes scripts.  Following instruction shows how to arrange the erxes scripts on your web pages. 
+
+In order to install two script codes on your page, you need to set some triggers on Google tag manager html code. 
+
+
+### Configure trigger on Messenger script:
+1.	Add trigger on messenger script code in html which you have already configured in Google tag manager.
+2.	Configure a trigger that messenger does not contains your specified page. In this case, messenger script would be configured on another tag.  It is referred  to next paragraph for Configure trigger on Messenger + Pop-Up script. 
+
++	Trigger Type: **Page View**
++	This trigger fires on: **Some page Views**
++	Fire this trigger condition should be: **Page URL does not contain your specified page such as (index/index/category/printers** (See the following figure)
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/GMT+troubleshooting/1.png" />
+
+3.	Then go to tags and selects the trigger that you configured. (See the following figure)
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/GMT+troubleshooting/2.png" />
+
+
+### Configure trigger on Messenger + Pop-Up script: 
+
+While messenger script does not contain specified page as above case, you need to configure messenger script with Pop-Ups script. Figure out the following steps.
+1.	For google tag manager code, you have to paste scripts of both Messenger and Pop-Ups code. (See the following figure)
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/GMT+troubleshooting/3.png" />
+
+2.	Add trigger on the html code. The code trigger condition contains your specified page. 
++	Trigger Type: **Page View**
++	This trigger fires on: **Some page Views**
++	Fire this trigger condition should be: **Page URL contains your specified page such as (index/index/category/printers)** (See the following figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/GMT+troubleshooting/4.png" />
+
+4.	Then go to tags and selects the trigger that you configured (See the following figure).
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/GMT+troubleshooting/6.png" />
+
+5.	See the figure for Google tag script with trigger configuration. 
+ 
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/GMT+troubleshooting/5.png" />
