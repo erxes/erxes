@@ -1,4 +1,5 @@
 import { ActivityLogs, Checklists, Conformities, Deals } from '../../../db/models';
+import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
@@ -6,10 +7,12 @@ import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 import {
+  copyChecklists,
   copyPipelineLabels,
   createConformity,
   IBoardNotificationParams,
   itemsChange,
+  prepareBoardItemDoc,
   sendNotifications,
 } from '../boardUtils';
 
@@ -29,13 +32,6 @@ const dealMutations = {
       ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
-    });
-
-    await createConformity({
-      mainType: 'deal',
-      mainTypeId: deal._id,
-      customerIds: doc.customerIds,
-      companyIds: doc.companyIds,
     });
 
     await sendNotifications({
@@ -178,6 +174,33 @@ const dealMutations = {
    */
   async dealsWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: IContext) {
     return Deals.watchDeal(_id, isAdd, user._id);
+  },
+
+  async dealsCopy(_root, { _id }: { _id: string }, { user }: IContext) {
+    const deal = await Deals.getDeal(_id);
+
+    const doc = await prepareBoardItemDoc(_id, 'deal', user._id);
+
+    const clone = await Deals.createDeal(doc);
+
+    const companies = await getCompanies('deal', _id);
+    const customers = await getCustomers('deal', _id);
+
+    await createConformity({
+      mainType: 'deal',
+      mainTypeId: clone._id,
+      customerIds: customers.map(c => c._id),
+      companyIds: companies.map(c => c._id),
+    });
+
+    await copyChecklists({
+      contentType: 'deal',
+      contentTypeId: deal._id,
+      targetContentId: clone._id,
+      user,
+    });
+
+    return clone;
   },
 };
 

@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IPermission {
-  module?: string;
+  module: string;
   action: string;
   userId?: string;
   groupId?: string;
@@ -11,12 +11,11 @@ export interface IPermission {
 }
 
 export interface IPermissionParams {
-  module?: string;
-  actions?: string[];
+  module: string;
+  actions: string[];
   userIds?: string[];
   groupIds?: string[];
-  requiredActions?: string[];
-  allowed?: boolean;
+  allowed: boolean;
 }
 
 export interface IPermissionDocument extends IPermission, Document {

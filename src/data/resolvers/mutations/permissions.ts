@@ -166,6 +166,24 @@ const usersGroupMutations = {
 
     return result;
   },
+
+  async usersGroupsCopy(_root, { _id, memberIds }: { _id: string; memberIds: string[] }, { user }: IContext) {
+    const group = await UsersGroups.getGroup(_id);
+
+    const clone = await UsersGroups.copyGroup(group._id, memberIds);
+
+    await putCreateLog(
+      {
+        type: 'userGroup',
+        object: clone,
+        newData: JSON.stringify({ name: clone.name, description: clone.description }),
+        description: `"${group.name}" has been copied`,
+      },
+      user,
+    );
+
+    return clone;
+  },
 };
 
 moduleCheckPermission(permissionMutations, 'managePermissions');

@@ -55,4 +55,5 @@ export const mutations = `
   ticketsUpdateOrder(stageId: String!, orders: [OrderItem]): [Ticket]
   ticketsRemove(_id: String!): Ticket
   ticketsWatch(_id: String, isAdd: Boolean): Ticket
+  ticketsCopy(_id: String!): Ticket
 `;

@@ -957,6 +957,13 @@ interface ITaskFactoryInput {
   sourceConversationId?: string;
 }
 
+const attachmentFactory = () => ({
+  name: faker.random.word(),
+  url: faker.image.imageUrl(),
+  type: faker.system.mimeType(),
+  size: faker.random.number(),
+});
+
 export const taskFactory = async (params: ITaskFactoryInput = {}) => {
   const board = await boardFactory({ type: BOARD_TYPES.TASK });
   const pipeline = await pipelineFactory({ boardId: board._id, type: BOARD_TYPES.TASK });
@@ -973,6 +980,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
     watchedUserIds: params.watchedUserIds,
     labelIds: params.labelIds || [],
     sourceConversationId: params.sourceConversationId,
+    attachments: [attachmentFactory(), attachmentFactory()],
   });
 
   return task.save();

@@ -135,7 +135,7 @@ export const commonItemFieldsSchema = {
   }),
   modifiedBy: field({ type: String, label: 'Modified by' }),
   searchText: field({ type: String, optional: true, index: true }),
-  priority: field({ type: String, optional: true }),
+  priority: field({ type: String, optional: true, label: 'Priority' }),
   sourceConversationId: field({ type: String, optional: true }),
 };
 

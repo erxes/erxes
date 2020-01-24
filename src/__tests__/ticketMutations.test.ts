@@ -1,13 +1,27 @@
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
+  checklistFactory,
+  checklistItemFactory,
+  companyFactory,
+  conformityFactory,
+  customerFactory,
   pipelineFactory,
   pipelineLabelFactory,
   stageFactory,
   ticketFactory,
   userFactory,
 } from '../db/factories';
-import { Boards, PipelineLabels, Pipelines, Stages, Tickets } from '../db/models';
+import {
+  Boards,
+  ChecklistItems,
+  Checklists,
+  Conformities,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Tickets,
+} from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { BOARD_TYPES } from '../db/models/definitions/constants';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
@@ -185,5 +199,66 @@ describe('Test tickets mutations', () => {
     );
 
     expect(watchRemoveTicket.isWatched).toBe(false);
+  });
+
+  test('Test ticketsCopy()', async () => {
+    const mutation = `
+      mutation ticketsCopy($_id: String!) {
+        ticketsCopy(_id: $_id) {
+          _id
+          userId
+          name
+          stageId
+        }
+      }
+    `;
+
+    const checklist = await checklistFactory({
+      contentType: 'ticket',
+      contentTypeId: ticket._id,
+      title: 'ticket-checklist',
+    });
+
+    await checklistItemFactory({
+      checklistId: checklist._id,
+      content: 'Improve ticket mutation test coverage',
+      isChecked: true,
+    });
+
+    const company = await companyFactory();
+    const customer = await customerFactory();
+
+    await conformityFactory({
+      mainType: 'ticket',
+      mainTypeId: ticket._id,
+      relType: 'company',
+      relTypeId: company._id,
+    });
+
+    await conformityFactory({
+      mainType: 'ticket',
+      mainTypeId: ticket._id,
+      relType: 'customer',
+      relTypeId: customer._id,
+    });
+
+    const result = await graphqlRequest(mutation, 'ticketsCopy', { _id: ticket._id }, context);
+
+    const clonedTicketCompanies = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
+    const clonedTicketCustomers = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
+    const clonedTicketChecklist = await Checklists.findOne({ contentTypeId: result._id });
+
+    if (clonedTicketChecklist) {
+      const clonedTicketChecklistItems = await ChecklistItems.find({ checklistId: clonedTicketChecklist._id });
+
+      expect(clonedTicketChecklist.contentTypeId).toBe(result._id);
+      expect(clonedTicketChecklistItems.length).toBe(1);
+    }
+
+    expect(result.name).toBe(`${ticket.name}-copied`);
+    expect(result.stageId).toBe(ticket.stageId);
+
+    expect(clonedTicketCompanies.length).toBe(1);
+    expect(clonedTicketCustomers.length).toBe(1);
   });
 });

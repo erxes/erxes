@@ -82,4 +82,5 @@ export const mutations = `
   dealsUpdateOrder(stageId: String!, orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): Deal
   dealsWatch(_id: String, isAdd: Boolean): Deal
+  dealsCopy(_id: String!): Deal
 `;

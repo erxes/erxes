@@ -1,13 +1,27 @@
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
+  checklistFactory,
+  checklistItemFactory,
+  companyFactory,
+  conformityFactory,
+  customerFactory,
   pipelineFactory,
   pipelineLabelFactory,
   stageFactory,
   taskFactory,
   userFactory,
 } from '../db/factories';
-import { Boards, PipelineLabels, Pipelines, Stages, Tasks } from '../db/models';
+import {
+  Boards,
+  ChecklistItems,
+  Checklists,
+  Conformities,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Tasks,
+} from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { BOARD_TYPES } from '../db/models/definitions/constants';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
@@ -231,5 +245,68 @@ describe('Test tasks mutations', () => {
     const watchRemoveTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: false });
 
     expect(watchRemoveTask.isWatched).toBe(false);
+  });
+
+  test('Test tasksCopy()', async () => {
+    const mutation = `
+      mutation tasksCopy($_id: String!) {
+        tasksCopy(_id: $_id) {
+          _id
+          userId
+          name
+          stageId
+        }
+      }
+    `;
+
+    const checklist = await checklistFactory({
+      contentType: 'task',
+      contentTypeId: task._id,
+      title: 'task-checklist',
+    });
+
+    await checklistItemFactory({
+      checklistId: checklist._id,
+      content: 'Improve task mutation test coverage',
+      isChecked: true,
+    });
+
+    const company = await companyFactory();
+    const customer = await customerFactory();
+    const user = await userFactory();
+
+    await conformityFactory({
+      mainType: 'task',
+      mainTypeId: task._id,
+      relType: 'company',
+      relTypeId: company._id,
+    });
+
+    await conformityFactory({
+      mainType: 'task',
+      mainTypeId: task._id,
+      relType: 'customer',
+      relTypeId: customer._id,
+    });
+
+    const result = await graphqlRequest(mutation, 'tasksCopy', { _id: task._id }, { user });
+
+    const clonedTaskCompanies = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
+    const clonedTaskCustomers = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
+    const clonedTaskChecklist = await Checklists.findOne({ contentTypeId: result._id });
+
+    if (clonedTaskChecklist) {
+      const clonedTaskChecklistItems = await ChecklistItems.find({ checklistId: clonedTaskChecklist._id });
+
+      expect(clonedTaskChecklist.contentTypeId).toBe(result._id);
+      expect(clonedTaskChecklistItems.length).toBe(1);
+    }
+
+    expect(result.userId).toBe(user._id);
+    expect(result.name).toBe(`${task.name}-copied`);
+    expect(result.stageId).toBe(task.stageId);
+
+    expect(clonedTaskCompanies.length).toBe(1);
+    expect(clonedTaskCustomers.length).toBe(1);
   });
 });
