@@ -17,6 +17,7 @@ import { stateToHTML } from 'draft-js-export-html';
 import Editor from 'draft-js-plugins-editor';
 import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
 import 'draft-js-static-toolbar-plugin/lib/plugin.css';
+import { getDraftDecorator } from 'modules/common/components/editor/DraftjsHelpers';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import HeadlinesButton from './HeadlinesButton';
@@ -225,8 +226,7 @@ export const createStateFromHTML = (
 
   const content = ContentState.createFromBlockArray(contentBlocks, entityMap);
 
-  // TODO: Check insert-fragment
-  return EditorState.push(editorState, content, 'insert-fragment');
+  return EditorState.createWithContent(content, getDraftDecorator());
 };
 
 // TODO: Check insert-fragment
