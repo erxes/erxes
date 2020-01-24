@@ -124,7 +124,7 @@ export const uploadFileAWS = async (file: { name: string; path: string; type: st
   const s3 = createAWS();
 
   // generate unique name
-  const fileName = `${AWS_PREFIX}${Math.random()}${file.name}`;
+  const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(/ /g, '')}`;
 
   // read file
   const buffer = await fs.readFileSync(file.path);
