@@ -17,6 +17,7 @@ export interface IOptions {
     changeMutation: string;
     updateOrderMutation: string;
     watchMutation: string;
+    copyMutation: string;
   };
   queries: { itemsQuery: string; detailQuery: string };
   mutations: {
@@ -26,6 +27,7 @@ export interface IOptions {
     changeMutation: string;
     updateOrderMutation: string;
     watchMutation: string;
+    copyMutation: string;
   };
   texts: {
     addText: string;
@@ -237,6 +239,8 @@ export type RemoveVariables = {
 };
 
 export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
+
+export type CopyMutation = ({ variables: RemoveVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
   loading: boolean;

@@ -78,11 +78,20 @@ const tasksWatch = `
   }
 `;
 
+const tasksCopy = `
+  mutation tasksCopy($_id: String!) {
+    tasksCopy(_id: $_id) {
+      ${taskFields}
+    }
+  }
+`;
+
 export default {
   tasksAdd,
   tasksEdit,
   tasksRemove,
   tasksChange,
   tasksUpdateOrder,
-  tasksWatch
+  tasksWatch,
+  tasksCopy,
 };
