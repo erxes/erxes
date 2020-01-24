@@ -1,7 +1,9 @@
-import { Deals, GrowthHacks, Tasks, Tickets } from '.';
+import { Companies, Conformities, Customers, Deals, GrowthHacks, Tasks, Tickets } from '.';
 import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
+import { ICompanyDocument } from './definitions/companies';
 import { BOARD_TYPES } from './definitions/constants';
+import { ICustomerDocument } from './definitions/customers';
 
 export const updateOrder = async (collection: any, orders: IOrderInput[], stageId?: string) => {
   if (orders.length === 0) {
@@ -90,4 +92,20 @@ export const getCollection = (type: string) => {
   }
 
   return collection;
+};
+
+export const getCompanies = async (mainType: string, mainTypeId: string): Promise<ICompanyDocument[]> => {
+  const conformities = await Conformities.find({ mainType, mainTypeId, relType: 'company' });
+
+  const companyIds = conformities.map(c => c.relTypeId);
+
+  return Companies.find({ _id: { $in: companyIds } });
+};
+
+export const getCustomers = async (mainType: string, mainTypeId: string): Promise<ICustomerDocument[]> => {
+  const conformities = await Conformities.find({ mainType, mainTypeId, relType: 'customer' });
+
+  const customerIds = conformities.map(c => c.relTypeId);
+
+  return Customers.find({ _id: { $in: customerIds } });
 };

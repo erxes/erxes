@@ -1,4 +1,14 @@
-import { ActivityLogs, Boards, Conformities, PipelineLabels, Pipelines, Stages } from '../../db/models';
+import {
+  ActivityLogs,
+  Boards,
+  ChecklistItems,
+  Checklists,
+  Conformities,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+} from '../../db/models';
+import { getCollection } from '../../db/models/boardUtils';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
@@ -287,4 +297,72 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
   } // end label loop
 
   await PipelineLabels.labelsLabel(newStage.pipelineId, item._id, updatedLabelIds);
+};
+
+interface IChecklistParams {
+  contentType: string;
+  contentTypeId: string;
+  targetContentId: string;
+  user: IUserDocument;
+}
+
+/**
+ * Copies checklists of board item
+ */
+export const copyChecklists = async (params: IChecklistParams) => {
+  const { contentType, contentTypeId, targetContentId, user } = params;
+
+  const checklists = await Checklists.find({ contentType, contentTypeId });
+
+  for (const list of checklists) {
+    const checklist = await Checklists.createChecklist(
+      {
+        contentType,
+        contentTypeId: targetContentId,
+        title: `${list.title}-copied`,
+      },
+      user,
+    );
+
+    const items = await ChecklistItems.find({ checklistId: list._id });
+
+    for (const item of items) {
+      await ChecklistItems.createChecklistItem(
+        {
+          isChecked: false,
+          checklistId: checklist._id,
+          content: item.content,
+        },
+        user,
+      );
+    }
+  } // end checklist loop
+};
+
+export const prepareBoardItemDoc = async (_id: string, type: string, userId: string) => {
+  const collection = await getCollection(type);
+  const item = await collection.findOne({ _id });
+
+  const doc = {
+    ...item,
+    userId,
+    modifiedBy: userId,
+    watchedUserIds: [userId],
+    assignedUserIds: item.assignedUserIds,
+    name: `${item.name}-copied`,
+    initialStageId: item.initialStageId,
+    stageId: item.stageId,
+    description: item.description,
+    priority: item.priority,
+    attachments: (item.attachments || []).map(a => ({
+      url: a.url,
+      name: a.name,
+      type: a.type,
+      size: a.size,
+    })),
+  };
+
+  delete doc._id;
+
+  return doc;
 };
