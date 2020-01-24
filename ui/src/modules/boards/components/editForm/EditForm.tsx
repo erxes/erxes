@@ -1,6 +1,6 @@
 import Icon from 'modules/common/components/Icon';
 import { CloseModal } from 'modules/common/styles/main';
-import { __, extractAttachment } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
@@ -10,6 +10,7 @@ type Props = {
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
+  copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: () => void;
   amount?: () => React.ReactNode;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
@@ -61,22 +62,9 @@ class EditForm extends React.Component<Props, State> {
   };
 
   copy = () => {
-    const { item, addItem, options } = this.props;
+    const { item, copyItem, options } = this.props;
 
-    const customers = item.customers || [];
-    const companies = item.companies || [];
-
-    // copied doc
-    const doc = {
-      ...item,
-      attachments: item.attachments && extractAttachment(item.attachments),
-      assignedUserIds: item.assignedUsers.map(user => user._id),
-      customerIds: customers.map(customer => customer._id),
-      companyIds: companies.map(company => company._id),
-      labelIds: item.labelIds || []
-    };
-
-    addItem(doc, this.closeModal, options.texts.copySuccessText);
+    copyItem(item._id, this.closeModal, options.texts.copySuccessText);
   };
 
   closeModal = () => {
