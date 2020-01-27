@@ -144,6 +144,6 @@
   ],
   "snyk": true,
   "engines": {
-    "node": "10.16.x"
+    "node": "10.x.x"
   }
 }
