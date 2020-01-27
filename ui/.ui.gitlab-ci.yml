@@ -1,9 +1,31 @@
-ui:test:
-  stage: test
+ui:install_dependencies:
+  stage: install_dependencies
   image: node:10.16-alpine
   before_script:
     - cd ui
-    - yarn install
+  script:
+    - yarn install --ignore-scripts
+  rules:
+    - changes:
+        - ui/package.json
+        # Only creating cache when this file changes.
+        # If cache is deleted somehow run pipelines manually to create cache again.
+        # Otherwise new cache won't build until ui/package.json file changed.
+  cache:
+    key:
+      files:
+        - ui/package.json
+      prefix: ui
+    paths:
+      - ui/node_modules/
+    policy: pull-push
+
+ui:test_and_build:
+  stage: test_and_build
+  image: node:10.16-alpine
+  before_script:
+    - cd ui
+    - yarn install --ignore-scripts # install dependencies again if cache is missing
     - apk add --no-cache --update git
     - git checkout ${CI_COMMIT_REF_NAME}
   script:
@@ -17,6 +39,7 @@ ui:test:
     key:
       files:
         - ui/package.json
+      prefix: ui
     paths:
       - ui/node_modules/
   artifacts:
@@ -24,20 +47,18 @@ ui:test:
     paths:
       - ui/build/
 
-ui:build:
-  stage: build
-  needs:
-    - ui:test
+ui:build_docker_image:
+  stage: build_docker_images
   before_script:
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
   script:
     - cd ui
     - docker build -t erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME} -f Dockerfile .
     - docker push erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME}
-  dependencies:
-    - ui:test
-  only:
-    refs:
-      - master
-      - develop
-      - apm
+  rules:
+    - changes:
+        - ui/**/*
+      if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "apm"'
+  needs:
+    - job: ui:test_and_build
+      artifacts: true
