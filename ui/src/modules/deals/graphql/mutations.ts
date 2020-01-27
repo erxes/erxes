@@ -28,9 +28,12 @@ const commonParams = `
   sourceConversationId: $sourceConversationId,
 `;
 
+const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
+const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;
+
 const dealsAdd = `
-  mutation dealsAdd($name: String!, $companyIds: [String], $customerIds: [String], ${commonVariables}) {
-    dealsAdd(name: $name, companyIds: $companyIds, customerIds: $customerIds, ${commonParams}) {
+  mutation dealsAdd($name: String!, ${copyVariables}, ${commonVariables}) {
+    dealsAdd(name: $name, ${copyParams}, ${commonParams}) {
       ${dealFields}
     }
   }
@@ -77,11 +80,20 @@ const dealsWatch = `
   }
 `;
 
+const dealsCopy = `
+  mutation dealsCopy($_id: String!) {
+    dealsCopy(_id: $_id) {
+      ${dealFields}
+    }
+  }
+`;
+
 export default {
   dealsAdd,
   dealsEdit,
   dealsRemove,
   dealsChange,
   dealsUpdateOrder,
-  dealsWatch
+  dealsWatch,
+  dealsCopy
 };

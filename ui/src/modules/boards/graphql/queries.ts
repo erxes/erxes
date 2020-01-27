@@ -89,6 +89,9 @@ const pipelines = `
       name
       boardId
       state
+      startDate
+      endDate
+      itemsTotalCount
     }
   }
 `;

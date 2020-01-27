@@ -163,7 +163,13 @@ class Form extends React.Component<Props, State> {
   };
 
   onChangeFieldsOrder = fields => {
-    this.setState({ fields });
+    const { onDocChange } = this.props;
+
+    this.setState({ fields }, () => {
+      if (onDocChange) {
+        onDocChange(this.state);
+      }
+    });
   };
 
   render() {

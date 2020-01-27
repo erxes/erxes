@@ -26,9 +26,12 @@ const commonParams = `
   sourceConversationId: $sourceConversationId,
 `;
 
+const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
+const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;
+
 const tasksAdd = `
-  mutation tasksAdd($name: String!, $companyIds: [String], $customerIds: [String], ${commonVariables}) {
-    tasksAdd(name: $name, companyIds: $companyIds, customerIds: $customerIds, ${commonParams}) {
+  mutation tasksAdd($name: String!, ${copyVariables}, ${commonVariables}) {
+    tasksAdd(name: $name, ${copyParams}, ${commonParams}) {
       ${taskFields}
     }
   }
@@ -75,11 +78,20 @@ const tasksWatch = `
   }
 `;
 
+const tasksCopy = `
+  mutation tasksCopy($_id: String!) {
+    tasksCopy(_id: $_id) {
+      ${taskFields}
+    }
+  }
+`;
+
 export default {
   tasksAdd,
   tasksEdit,
   tasksRemove,
   tasksChange,
   tasksUpdateOrder,
-  tasksWatch
+  tasksWatch,
+  tasksCopy,
 };

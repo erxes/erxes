@@ -48,9 +48,20 @@ const stages = `
   }
 `;
 
+const boardDetail = `
+  query boardDetail($_id: String!) {
+    boardDetail(_id: $_id) {
+      _id
+      name
+      type
+    }
+  }
+`;
+
 export default {
   boards,
   pipelines,
   stages,
-  boardGetLast
+  boardGetLast,
+  boardDetail
 };

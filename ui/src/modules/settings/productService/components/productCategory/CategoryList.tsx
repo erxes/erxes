@@ -3,6 +3,7 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
+import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
@@ -65,7 +66,7 @@ class List extends React.Component<IProps> {
   renderEditAction(category: IProductCategory) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -79,7 +80,7 @@ class List extends React.Component<IProps> {
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')}>
+        <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -99,15 +100,13 @@ class List extends React.Component<IProps> {
       let space = '';
 
       if (m) {
-        space = '\u00A0 '.repeat(m.length);
+        space = '\u00a0\u00a0'.repeat(m.length);
       }
 
       const name = category.isRoot ? (
-        <strong>
-          {category.name} ({category.productCount})
-        </strong>
-      ) : (
         `${category.name} (${category.productCount})`
+      ) : (
+        <span>{category.name} ({category.productCount})</span>
       );
 
       result.push(
@@ -132,26 +131,26 @@ class List extends React.Component<IProps> {
 
   renderCategoryHeader() {
     const trigger = (
-      <a href="#add">
-        <Tip text={__('Create group')} placement="bottom">
-          <Icon icon="add" />
-        </Tip>
-      </a>
+      <Button btnStyle="success" uppercase={false} icon="plus-circle" block={true}>
+        Add category
+      </Button>
     );
-
+    
     return (
       <>
-        <Section.Title>{__('Product & Service Category')} </Section.Title>
-        <Section.QuickButtons>
-          {this.renderFormTrigger(trigger)}
-          {router.getParam(this.props.history, 'categoryId') && (
-            <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-              <Tip text={__('Clear filter')} placement="bottom">
-                <Icon icon="cancel-1" />
-              </Tip>
-            </a>
-          )}
-        </Section.QuickButtons>
+        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader> 
+        <Section.Title>
+          {__('Categories')}
+          <Section.QuickButtons>
+            {router.getParam(this.props.history, 'categoryId') && (
+              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
+                <Tip text={__('Clear filter')} placement="bottom">
+                  <Icon icon="cancel-1" />
+                </Tip>
+              </a>
+            )}
+          </Section.QuickButtons>
+        </Section.Title>
       </>
     );
   }
@@ -174,8 +173,10 @@ class List extends React.Component<IProps> {
   }
 
   render() {
+
     return (
       <Sidebar wide={true}>
+        
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}

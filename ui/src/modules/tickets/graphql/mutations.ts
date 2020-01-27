@@ -28,9 +28,12 @@ const commonParams = `
   sourceConversationId: $sourceConversationId,
 `;
 
+const copyVariables = `$customerIds: [String], $companyIds: [String], $labelIds: [String]`;
+const copyParams = `customerIds: $customerIds, companyIds: $companyIds, labelIds: $labelIds`;
+
 const ticketsAdd = `
-  mutation ticketsAdd($name: String!, $customerIds: [String], $companyIds: [String], ${commonVariables}) {
-    ticketsAdd(name: $name, customerIds: $customerIds, companyIds: $companyIds, ${commonParams}) {
+  mutation ticketsAdd($name: String!, ${copyVariables}, ${commonVariables}) {
+    ticketsAdd(name: $name, ${copyParams}, ${commonParams}) {
       ${ticketFields}
     }
   }
@@ -77,11 +80,20 @@ const ticketsWatch = `
   }
 `;
 
+const ticketsCopy = `
+  mutation ticketsCopy($_id: String!) {
+    ticketsCopy(_id: $_id) {
+      ${ticketFields}
+    }
+  }
+`;
+
 export default {
   ticketsAdd,
   ticketsEdit,
   ticketsRemove,
   ticketsChange,
   ticketsUpdateOrder,
-  ticketsWatch
+  ticketsWatch,
+  ticketsCopy,
 };

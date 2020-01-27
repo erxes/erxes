@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { PipelinesQueryResponse } from 'modules/boards/types';
+import { BoardDetailQueryResponse, PipelinesQueryResponse } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -25,6 +25,7 @@ type Props = {
 
 type FinalProps = {
   pipelinesQuery: PipelinesQueryResponse;
+  boardDetailQuery: BoardDetailQueryResponse;
 } & Props &
   RemovePipelineMutationResponse &
   UpdateOrderPipelineMutationResponse;
@@ -35,7 +36,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
       boardId,
       pipelinesQuery,
       removePipelineMutation,
-      pipelinesUpdateOrderMutation
+      pipelinesUpdateOrderMutation,
+      boardDetailQuery
     } = this.props;
 
     if (pipelinesQuery.loading) {
@@ -102,7 +104,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
       loading: pipelinesQuery.loading,
       remove,
       renderButton,
-      updateOrder
+      updateOrder,
+      currentBoard: boardDetailQuery.boardDetail || {},
     };
 
     return <Pipelines {...extendedProps} />;
@@ -123,6 +126,16 @@ export default withProps<Props>(
         name: 'pipelinesQuery',
         options: ({ boardId = '' }: { boardId: string }) => ({
           variables: { boardId },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, BoardDetailQueryResponse>(
+      gql(queries.boardDetail),
+      {
+        name: 'boardDetailQuery',
+        options: ({ boardId }: { boardId?: string }) => ({
+          variables: { _id: boardId },
           fetchPolicy: 'network-only'
         })
       }

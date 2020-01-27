@@ -29,8 +29,8 @@ const commonParams = `
 `;
 
 const growthHacksAdd = `
-  mutation growthHacksAdd($name: String!, ${commonVariables}) {
-    growthHacksAdd(name: $name, ${commonParams}) {
+  mutation growthHacksAdd($name: String!, ${commonVariables}, $labelIds: [String]) {
+    growthHacksAdd(name: $name, ${commonParams}, labelIds: $labelIds) {
       ${growthHackFields}
     }
   }
@@ -85,6 +85,14 @@ const growthHacksVote = `
   }
 `;
 
+const growthHacksCopy = `
+  mutation growthHacksCopy($_id: String!) {
+    growthHacksCopy(_id: $_id) {
+      ${growthHackFields}
+    }
+  }
+`;
+
 export default {
   growthHacksAdd,
   growthHacksEdit,
@@ -92,5 +100,6 @@ export default {
   growthHacksChange,
   growthHacksUpdateOrder,
   growthHacksWatch,
-  growthHacksVote
+  growthHacksVote,
+  growthHacksCopy,
 };
