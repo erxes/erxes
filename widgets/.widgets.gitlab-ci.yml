@@ -4,7 +4,7 @@ widgets:install_dependencies:
   before_script:
     - cd widgets
   script:
-    - yarn install --ignore-scripts
+    - yarn install
   rules:
     - changes:
         - widgets/package.json
@@ -26,7 +26,7 @@ widgets:test_and_build:
   before_script:
     - cd widgets
     - apt-get update && apt-get install -y git
-    - yarn install --ignore-scripts # verifying dependencies
+    - yarn install # verifying dependencies
     - git checkout ${CI_COMMIT_REF_NAME}
   script:
     - yarn lint
