@@ -2,13 +2,5 @@
   "root": "ui/build/",
   "routes": {
     "/**": "index.html"
-  },
-  "proxies": {
-    "/api/": {
-      "origin": "${REACT_APP_API_URL}"
-    },
-    "/widgets/": {
-      "origin": "${REACT_APP_CDN_HOST}"
-    }
   }
 }
