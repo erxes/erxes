@@ -25,6 +25,8 @@ export const types = `
     integrationId: String
     firstName: String
     lastName: String
+    birthDate: Date
+    sex: Int
 
     email: String
     primaryEmail: String
@@ -84,6 +86,8 @@ const queryParams = `
   leadStatus: String
   sortField: String
   sortDirection: Int
+  sex:Int
+  birthDate: Date
   ${conformityQueryFields}
 `;
 
@@ -114,6 +118,8 @@ const fields = `
   links: JSON
   customFieldsData: JSON
   code: String
+  sex: Int
+  birthDate: Date
 `;
 
 export const mutations = `
