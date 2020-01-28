@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
-import { __, router } from 'modules/common/utils';
+import { __, Alert, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { INotification } from 'modules/notifications/types';
 import React from 'react';
@@ -19,7 +19,6 @@ type Props = {
 } & IRouterProps;
 
 type State = {
-  bulk: string[];
   filterByUnread: boolean;
 };
 
@@ -27,7 +26,7 @@ class NotificationList extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { bulk: [], filterByUnread: true };
+    this.state = { filterByUnread: true };
   }
 
   markAllRead = isPageRead => {
@@ -35,17 +34,20 @@ class NotificationList extends React.Component<Props, State> {
       return this.props.markAsRead();
     }
 
-    const { bulk } = this.state;
+    const unreadNotifications: string[] = [];
 
     this.props.notifications.forEach(notification => {
       if (!notification.isRead) {
-        bulk.push(notification._id);
+        unreadNotifications.push(notification._id);
       }
     });
 
-    this.props.markAsRead(this.state.bulk);
+    if (unreadNotifications.length === 0) {
+      Alert.success('This page has no notification');
+      return;
+    }
 
-    this.setState({ bulk: [] });
+    this.props.markAsRead(unreadNotifications);
   };
 
   filterByUnread = () => {
@@ -76,7 +78,7 @@ class NotificationList extends React.Component<Props, State> {
       <FormControl
         id="isFilter"
         componentClass="checkbox"
-        onClick={this.filterByUnread}
+        onClick={this.filterByUnread} 
       >
         {__('Show unread')}
       </FormControl>

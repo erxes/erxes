@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Labels from 'modules/boards/components/label/Labels';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemDate } from 'modules/boards/styles/common';
 import {
@@ -73,6 +74,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
 
     return (
       <>
+        <Labels labels={item.labels} indicator={true} />
         <Content onClick={onClick} type="growthHack">
           <h5>
             {renderPriority(item.priority)}

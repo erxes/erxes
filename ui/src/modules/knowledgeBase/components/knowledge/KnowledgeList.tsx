@@ -1,10 +1,9 @@
+import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { HelperButtons } from 'modules/layout/styles';
 import React from 'react';
 import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
 import { ITopic } from '../../types';
@@ -35,7 +34,7 @@ class KnowledgeList extends React.Component<Props> {
     } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         {topics.map(topic => (
           <KnowledgeRow
             currentCategoryId={currentCategoryId}
@@ -48,19 +47,15 @@ class KnowledgeList extends React.Component<Props> {
             refetchTopics={refetch}
           />
         ))}
-      </React.Fragment>
+      </>
     );
   }
 
   renderSidebarHeader() {
-    const { Header } = Sidebar;
-
     const trigger = (
-      <HelperButtons>
-        <button>
-          <Icon icon="add" />
-        </button>
-      </HelperButtons>
+      <Button btnStyle="success" block={true} uppercase={false} icon="plus-circle">
+        Add Knowledge base
+      </Button>
     );
 
     const content = props => (
@@ -68,15 +63,14 @@ class KnowledgeList extends React.Component<Props> {
     );
 
     return (
-      <Header uppercase={true}>
-        {__('Knowledge base')}
+      <TopHeader>
         <ModalTrigger
           title="Add Knowledge base"
           autoOpenKey="showKBAddModal"
           trigger={trigger}
           content={content}
         />
-      </Header>
+      </TopHeader>
     );
   }
 

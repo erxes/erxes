@@ -82,6 +82,11 @@ class SegmentsList extends React.Component<Props> {
   render() {
     const { contentType } = this.props;
 
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Segments') }
+    ];
+
     const actionBarRight = (
       <Link to={`/segments/new/${contentType}`}>
         <Button btnStyle="success" size="small" icon="add">
@@ -95,10 +100,7 @@ class SegmentsList extends React.Component<Props> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('Segments')}
-            breadcrumb={[{ title: __('Segments') }]}
-          />
+          <Wrapper.Header title={__('Segments')} breadcrumb={breadcrumb} />
         }
         actionBar={actionBar}
         content={this.renderContent()}

@@ -77,10 +77,13 @@
     "xss": "^1.0.3"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx,json,css}": [
-      "prettier --single-quote --write",
-      "git add"
-    ]
+    "gitDir": "../",
+    "linters": {
+      "src/**/*.{ts,tsx,json,css}": [
+        "prettier --single-quote --write",
+        "git add"
+      ]
+    }
   },
   "collective": {
     "type": "opencollective",
@@ -139,5 +142,8 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "snyk": true
+  "snyk": true,
+  "engines": {
+    "node": "10.x.x"
+  }
 }

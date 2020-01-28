@@ -54,23 +54,25 @@ const ButtonStyled = styledTS<{
   hugeness: string;
   btnStyle: string;
   block?: boolean;
+  uppercase?: boolean;
 }>(styled.button)`
   border-radius: 30px;
   position: relative;
   transition: all 0.3s ease;
-  text-transform: uppercase;
   outline: 0;
 
   ${props => css`
     padding: ${sizes[props.hugeness].padding};
     background: ${types[props.btnStyle].background};
-    font-size: ${sizes[props.hugeness].fontSize};
+    font-size: ${props.uppercase ? sizes[props.hugeness].fontSize : `calc(${sizes[props.hugeness].fontSize} + 1px)`};
+    text-transform: ${props.uppercase ? 'uppercase' : 'none' };
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
       : colors.colorWhite};
     border: none;
     display: ${props.block && 'block'};
     width: ${props.block && '100%'};
+    font-weight: ${!props.uppercase && '500'};
 
     &:hover {
       cursor: pointer;
@@ -156,6 +158,7 @@ type ButtonProps = {
   icon?: string;
   style?: any;
   id?: string;
+  uppercase?: boolean
 };
 
 export default class Button extends React.Component<ButtonProps> {
@@ -165,7 +168,8 @@ export default class Button extends React.Component<ButtonProps> {
     btnStyle: 'default',
     size: 'medium',
     block: false,
-    type: 'button'
+    type: 'button',
+    uppercase: true
   };
 
   render() {

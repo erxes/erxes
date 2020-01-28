@@ -16,12 +16,12 @@ type Props = {
 
 const PageHeader = styled.div`
   height: ${dimensions.headerSpacing}px;
-  position: absolute;
+  position: fixed;
   top: 0;
   display: flex;
   align-items: center;
   z-index: 3;
-  padding-left: ${dimensions.unitSpacing}px;
+  padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
 class Header extends React.Component<Props> {

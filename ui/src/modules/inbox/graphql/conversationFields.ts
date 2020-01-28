@@ -56,6 +56,7 @@ export default `
     colorCode
   }
   readUserIds
+  callProAudio
   facebookPost {
     postId
     recipientId

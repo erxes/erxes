@@ -1,10 +1,12 @@
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
 import { FormControl } from 'modules/common/components/form';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
+import { Count, Title } from 'modules/common/styles/main';
 import { IRouterProps } from 'modules/common/types';
 import { __, Alert, confirm } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -14,7 +16,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
-import { IProduct } from '../../types';
+import { IProduct, IProductCategory } from '../../types';
 import Row from './ProductRow';
 
 interface IProps extends IRouterProps {
@@ -29,6 +31,7 @@ interface IProps extends IRouterProps {
   toggleBulk: () => void;
   toggleAll: (targets: IProduct[], containerId: string) => void;
   loading: boolean;
+  currentCategory: IProductCategory;
 }
 
 class List extends React.Component<IProps> {
@@ -61,6 +64,10 @@ class List extends React.Component<IProps> {
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
+  renderCount = (productCount) => {
+    return <Count>{productCount} product{productCount > 1 && 's'}</Count>
+  }
+
   render() {
     const {
       productsCount,
@@ -69,7 +76,8 @@ class List extends React.Component<IProps> {
       isAllSelected,
       history,
       bulk,
-      emptyBulk
+      emptyBulk,
+      currentCategory
     } = this.props;
 
     const breadcrumb = [
@@ -78,7 +86,7 @@ class List extends React.Component<IProps> {
     ];
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add Product / Service
       </Button>
     );
@@ -88,7 +96,7 @@ class List extends React.Component<IProps> {
     let actionBarRight = (
       <BarItems>
         <Link to="/settings/importHistories?type=product">
-          <Button btnStyle="primary" size="small" icon="arrow-from-right">
+          <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
             {__('Go to import')}
           </Button>
         </Link>
@@ -101,28 +109,41 @@ class List extends React.Component<IProps> {
       </BarItems>
     );
 
-    const content = (
-      <Table bordered={true} hover={true}>
-        <thead>
-          <tr>
-            <th>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            <th>{__('Name')}</th>
-            <th>{__('Type')}</th>
-            <th>{__('Category')}</th>
-            <th>{__('Unit Price')}</th>
-            <th>{__('SKU')}</th>
-            <th>{__('Tags')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
+    let content = (
+      <>
+        {this.renderCount(currentCategory.productCount || productsCount)}
+        <Table hover={true}>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
+              <th>{__('Name')}</th>
+              <th>{__('Type')}</th>
+              <th>{__('Category')}</th>
+              <th>{__('Unit Price')}</th>
+              <th>{__('SKU')}</th>
+              <th>{__('Tags')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRow()}</tbody>
+        </Table>
+      </>
     );
+
+    if(currentCategory.productCount === 0) {
+      content = (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
+        />
+      );
+    }
 
     if (bulk.length > 0) {
       const tagButton = (
@@ -161,6 +182,8 @@ class List extends React.Component<IProps> {
       );
     }
 
+    const actionBarLeft = <Title>{currentCategory.name || 'All products'}</Title>;
+
     return (
       <Wrapper
         header={
@@ -169,15 +192,16 @@ class List extends React.Component<IProps> {
             breadcrumb={breadcrumb}
           />
         }
+        mainHead={
+          <HeaderDescription
+            icon="/images/actions/30.svg"
+            title={'Product & Service'}
+            description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+          />
+        }
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/30.svg"
-                title={'Product & Service'}
-                description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
-              />
-            }
+            left={actionBarLeft}
             right={actionBarRight}
           />
         }

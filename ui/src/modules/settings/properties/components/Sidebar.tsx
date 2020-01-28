@@ -43,11 +43,6 @@ class Sidebar extends React.Component<Props> {
       <LeftSidebar header={this.renderSidebarHeader()}>
         <LeftSidebar.Section>
           <List>
-            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.BRAND, 'Brands')}
-            {this.renderListItem(
-              FIELDS_GROUPS_CONTENT_TYPES.CHANNEL,
-              'Channels'
-            )}
             {this.renderListItem(
               FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
               'Customers'
@@ -57,19 +52,8 @@ class Sidebar extends React.Component<Props> {
               'Companies'
             )}
             {this.renderListItem(
-              FIELDS_GROUPS_CONTENT_TYPES.PERMISSION,
-              'Permissions'
-            )}
-            {this.renderListItem(
               FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
               'Product & Service'
-            )}
-            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.DEAL, 'Deals')}
-            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.TASK, 'Tasks')}
-            {this.renderListItem(FIELDS_GROUPS_CONTENT_TYPES.TICKET, 'Tickets')}
-            {this.renderListItem(
-              FIELDS_GROUPS_CONTENT_TYPES.TEAM_MEMBER,
-              'Team members'
             )}
           </List>
         </LeftSidebar.Section>

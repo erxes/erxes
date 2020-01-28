@@ -1,3 +1,5 @@
+import { growthHackFields } from './queries';
+
 const commonVariables = `
   $stageId: String,
   $closeDate: Date,
@@ -26,36 +28,10 @@ const commonParams = `
   ease: $ease
 `;
 
-const commonReturn = `
-  _id
-  name
-  stageId
-  closeDate
-  description
-  assignedUsers {
-    _id
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
-  voteCount
-  priority
-  hackStages
-  reach
-  impact
-  confidence
-  ease
-  scoringType
-  modifiedAt
-  modifiedBy
-`;
-
 const growthHacksAdd = `
-  mutation growthHacksAdd($name: String!, ${commonVariables}) {
-    growthHacksAdd(name: $name, ${commonParams}) {
-      ${commonReturn}
+  mutation growthHacksAdd($name: String!, ${commonVariables}, $labelIds: [String]) {
+    growthHacksAdd(name: $name, ${commonParams}, labelIds: $labelIds) {
+      ${growthHackFields}
     }
   }
 `;
@@ -63,7 +39,7 @@ const growthHacksAdd = `
 const growthHacksEdit = `
   mutation growthHacksEdit($_id: String!, $name: String, ${commonVariables}) {
     growthHacksEdit(name: $name, _id: $_id, ${commonParams}) {
-      ${commonReturn}
+      ${growthHackFields}
     }
   }
 `;
@@ -104,7 +80,15 @@ const growthHacksWatch = `
 const growthHacksVote = `
   mutation growthHacksVote($_id: String!, $isVote: Boolean!) {
     growthHacksVote(_id: $_id, isVote: $isVote) {
-      ${commonReturn}
+      ${growthHackFields}
+    }
+  }
+`;
+
+const growthHacksCopy = `
+  mutation growthHacksCopy($_id: String!) {
+    growthHacksCopy(_id: $_id) {
+      ${growthHackFields}
     }
   }
 `;
@@ -116,5 +100,6 @@ export default {
   growthHacksChange,
   growthHacksUpdateOrder,
   growthHacksWatch,
-  growthHacksVote
+  growthHacksVote,
+  growthHacksCopy,
 };

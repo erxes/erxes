@@ -38,15 +38,13 @@ class ArticleList extends React.Component<Props> {
     const { articles, loading } = this.props;
 
     return (
-      <React.Fragment>
-        <DataWithLoader
-          loading={loading}
-          count={articles.length}
-          emptyText="Articles can address any number of issues your customers encounter. Types of knowledge articles can include solutions to common issues, product or feature documentation, FAQ's and much more."
-          emptyImage="/images/actions/8.svg"
-          data={this.renderArticles()}
-        />
-      </React.Fragment>
+      <DataWithLoader
+        loading={loading}
+        count={articles.length}
+        emptyText="Articles can address any number of issues your customers encounter. Types of knowledge articles can include solutions to common issues, product or feature documentation, FAQ's and much more."
+        emptyImage="/images/actions/8.svg"
+        data={this.renderArticles()}
+      />
     );
   }
 }

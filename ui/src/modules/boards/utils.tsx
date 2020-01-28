@@ -101,7 +101,7 @@ export const getDefaultBoardAndPipelines = () => {
   };
 };
 
-export const renderAmount = amount => {
+export const renderAmount = (amount = {}) => {
   if (Object.keys(amount).length === 0) {
     return null;
   }

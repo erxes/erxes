@@ -36,11 +36,12 @@ const StyledTable = styledTS<{
       th,
       td {
         text-transform: uppercase;
-        color: ${colors.colorCoreLightGray};
+        color: ${colors.colorCoreGray};
         font-size: ${typography.fontSizeUppercase}px;
       }
+
       th {
-        background-color: ${colors.colorWhite};
+        background-color: ${colors.bgLight};
         position: sticky;
         z-index: 1;
         top: 0;
