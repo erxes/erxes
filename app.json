@@ -1,0 +1,39 @@
+{
+  "name": "Erxes on Heroku",
+  "description": "Open source growth marketing platform",
+  "keywords": [
+    "Marketing",
+    "sales",
+    "customer engagement",
+    "customer support",
+    "CRM"
+  ],
+  "website": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes",
+  "logo": "https://raw.githubusercontent.com/erxes/erxes/master/public/images/logo-dark.png",
+  "success_url": "/",
+  "env": {
+    "PORT": {
+      "description": "A port number that erxes will be running on",
+      "value": "3000"
+    },
+    "REACT_APP_CDN_HOST": {
+      "description": "Erxes Widget URL",
+      "value": "https://erxes-widget.herokuapp.com"
+    },
+    "REACT_APP_API_URL": {
+      "description": "Erxes API URL",
+      "value": "https://erxes-api.herokuapp.com"
+    },
+    "REACT_APP_API_SUBSCRIPTION_URL": {
+      "description": "Erxes API Subscriptions URL",
+      "value": "wss://erxes-api.herokuapp.com/subscriptions"
+    }
+  },
+  "addons": [],
+  "buildpacks": [
+    {
+      "url": "https://github.com/batnasan/heroku-buildpack-subdir"
+    }
+  ]
+}
