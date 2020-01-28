@@ -37,7 +37,7 @@ dotenv.config();
 const { NODE_ENV, JWT_TOKEN_SECRET } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
-  throw new Error('Please configure JWT_TOKEN_SECRET environment variable');
+  throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
 
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
