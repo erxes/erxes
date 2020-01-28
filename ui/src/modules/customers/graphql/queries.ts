@@ -8,7 +8,8 @@ const basicFields = `
   firstName
   lastName
   avatar
-
+  sex
+  birthDate
   primaryEmail
   emails
   primaryPhone
