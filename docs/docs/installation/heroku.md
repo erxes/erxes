@@ -114,39 +114,7 @@ Now it's time to grab yourself a cup of coffee and enjoy using **erxes**.
 There is a several apps available for you to install and make erxes even more powerful.  
 The steps of installing them are same as above.
 
-### 1. Install erxes engages email sender
-
-**Config vars:**
-
-```sh
-AWS_SES_CONFIG_SET = erxes
-MAIN_API_URL = https://erxes-api.herokuapp.com
-MONGO_URL = MONGO_URL # we will update it later on
-PORT = 3900
-RABBITMQ_HOST = copy and paste from erxes-api RABBITMQ_HOST config var
-```
-
-[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes engages email sender")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-engages-email-sender/tree/heroku_button)
-
-Once the app is deployed, go to `Settings` and click `Config Vars` button.  
-Copy `MONGODB_URI`'s value and paste it into `MONGO_URL`.
-
-### 2. Install erxes logger
-
-**Config vars:**
-
-```sh
-DEBUG_PREFIX = erxes-logs
-MONGO_URL = MONGO_URL # we will update it later on
-PORT = 3800
-```
-
-[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes engages email sender")](https://heroku.com/deploy?template=https://github.com/batnasan/erxes-logger/tree/heroku_button)
-
-Once the app is deployed, go to `Settings` and click `Config Vars` button.  
-Copy `MONGODB_URI`'s value and paste it into `MONGO_URL`.
-
-### 3. Install erxes integrations
+### 1. Install erxes integrations
 
 **Config vars:**
 
