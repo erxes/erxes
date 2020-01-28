@@ -34,7 +34,7 @@ class CategoryRow extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -64,7 +64,7 @@ class CategoryRow extends React.Component<Props> {
         </Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text={__('Delete')}>
+          <Tip text={__('Delete')} placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

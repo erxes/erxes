@@ -140,7 +140,7 @@ class PipelineForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       type,
-      boardId: pipeline ? pipeline.boardId : boardId,
+      boardId,
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       templateId,

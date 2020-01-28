@@ -47,8 +47,7 @@
       "developer/graphql-api",
       "developer/push-notifications",
       "developer/android-sdk",
-      "developer/ios-sdk",
-      "developer/amazon-ses"
+      "developer/ios-sdk"
     ]
   }
 }

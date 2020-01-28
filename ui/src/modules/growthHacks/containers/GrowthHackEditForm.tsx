@@ -20,6 +20,7 @@ type Props = {
   users: IUser[];
   addItem: (doc: IGrowthHackParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
+  copyItem: (itemId: string, callback: () => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;

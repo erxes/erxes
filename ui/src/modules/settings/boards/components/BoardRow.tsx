@@ -32,7 +32,7 @@ class BoardRow extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
+        <Tip text="Edit" placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -65,7 +65,7 @@ class BoardRow extends React.Component<Props, {}> {
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete">
+          <Tip text="Delete" placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

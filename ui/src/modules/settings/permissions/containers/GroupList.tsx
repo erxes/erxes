@@ -5,6 +5,7 @@ import GroupList from '../components/GroupList';
 import { mutations, queries } from '../graphql';
 import {
   UsersGroupsAddMutation,
+  UsersGroupsCopyMutation,
   UsersGroupsEditMutation,
   UsersGroupsQueryResponse,
   UsersGroupsRemoveMutation,
@@ -24,6 +25,7 @@ export default commonListComposer<Props>({
   text: 'user group',
   stringEditMutation: mutations.usersGroupsEdit,
   stringAddMutation: mutations.usersGroupsAdd,
+  stringCopyMutation: mutations.usersGroupsCopy,
 
   gqlListQuery: graphql<Props, UsersGroupsQueryResponse>(
     gql(queries.usersGroups),
@@ -67,6 +69,13 @@ export default commonListComposer<Props>({
     gql(mutations.usersGroupsRemove),
     {
       name: 'removeMutation',
+      options: commonOptions()
+    }
+  ),
+
+  gqlCopyMutation: graphql<{}, UsersGroupsCopyMutation>(
+    gql(mutations.usersGroupsCopy), {
+      name: 'copyMutation',
       options: commonOptions()
     }
   ),
