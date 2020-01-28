@@ -3,7 +3,7 @@ import { colors, dimensions } from 'modules/common/styles';
 import { BoxRoot, DateContainer } from 'modules/common/styles/main';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import styled from 'styled-components';
-import { ExpandWrapper } from '../styles';
+
 
 const BoxItem = styled.div`
   flex-basis: 300px;

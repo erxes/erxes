@@ -302,7 +302,7 @@ export {
   DateWrapper,
   CloseModal,
   ScrollWrapper,
-  DateContainer
+  DateContainer,
   TabContent,
   ButtonRelated,
   SimpleButton,
