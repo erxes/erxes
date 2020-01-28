@@ -1,3 +1,10 @@
+## [0.12.1](https://github.com/erxes/erxes-api/compare/0.12.0...0.12.1) (2020-01-28)
+
+
+### Bug Fixes
+
+* **user:** jwt token secret issue ([76f2474](https://github.com/erxes/erxes-api/commit/76f2474)), closes [#704](https://github.com/erxes/erxes-api/issues/704)
+
 # [0.12.0](https://github.com/erxes/erxes-api/compare/0.11.2...0.12.0) (2020-01-08)
 
 
