@@ -1,7 +1,7 @@
 import {
+  GENDER_TYPES,
   LEAD_STATUS_TYPES,
-  LIFECYCLE_STATE_TYPES,
-  GENDER_TYPES
+  LIFECYCLE_STATE_TYPES
 } from './constants';
 
 export const hasAnyActivity = log => {

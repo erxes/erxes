@@ -2,25 +2,25 @@ import { IUser, IUserLinks } from 'modules/auth/types';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
+import DateControl from 'modules/common/components/form/DateControl';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModifiableSelect from 'modules/common/components/ModifiableSelect';
-import { Alert } from 'modules/common/utils';
-import DateControl from 'modules/common/components/form/DateControl';
 import {
   ColumnTitle,
+  DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper,
-  DateContainer
+  ScrollWrapper
 } from 'modules/common/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
   IQueryParams
 } from 'modules/common/types';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
