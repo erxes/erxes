@@ -91,5 +91,8 @@
     "tslint-config-standard": "^7.0.0",
     "typescript": "^3.7.2"
   },
-  "snyk": true
+  "snyk": true,
+  "engines": {
+    "node": "10.x.x"
+  }
 }
