@@ -9,6 +9,7 @@ pipeline:
     image: erxes/runner:latest
     environment:
       - TEST_MONGO_URL=mongodb://mongo/test
+      - JWT_TOKEN_SECRET=token
     commands:
       - node -v
       - npm -v
