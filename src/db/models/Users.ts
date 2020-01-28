@@ -126,7 +126,7 @@ export const loadClass = () => {
     }
 
     public static getSecret() {
-      return 'dfjklsafjjekjtejifjidfjsfd';
+      return process.env.JWT_TOKEN_SECRET || '';
     }
 
     /**
