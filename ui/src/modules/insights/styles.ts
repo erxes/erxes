@@ -1,6 +1,6 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import { BoxRoot } from 'modules/common/styles/main';
+import { BoxRoot, DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -65,28 +65,13 @@ const Row = styled(FlexRow)`
   margin-right: -1%;
 `;
 
-const FlexItem = styled.div`
+const FlexItem = styled(DateContainer)`
   flex: 1;
   margin: 0;
   margin-left: ${dimensions.coreSpacing}px;
 
   &:first-child {
     margin-left: 0;
-  }
-
-  .form-control {
-    box-shadow: none;
-    border-radius: 0;
-    border: none;
-    background: none;
-    border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 5px 0;
-    font-size: ${typography.fontSizeBody}px;
-
-    &:focus {
-      box-shadow: none;
-      border-color: ${colors.colorSecondary};
-    }
   }
 `;
 

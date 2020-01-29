@@ -30,6 +30,7 @@ export interface ICustomerDoc {
   firstName: string;
   lastName: string;
   phones?: string[];
+  sex: number;
   primaryPhone?: string;
   primaryEmail?: string;
   emails?: string[];
