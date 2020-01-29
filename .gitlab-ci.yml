@@ -7,9 +7,10 @@ default:
     - docker:19.03-dind
 
 stages:
-  - docs
-  - test
-  - build
+  - build_docs
+  - install_dependencies
+  - test_and_build
+  - build_docker_images
 
 include:
 - local: '/docs/.docs.gitlab-ci.yml'

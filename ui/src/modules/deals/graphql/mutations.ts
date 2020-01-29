@@ -82,11 +82,20 @@ const dealsWatch = `
   }
 `;
 
+const dealsCopy = `
+  mutation dealsCopy($_id: String!) {
+    dealsCopy(_id: $_id) {
+      ${dealFields}
+    }
+  }
+`;
+
 export default {
   dealsAdd,
   dealsEdit,
   dealsRemove,
   dealsChange,
   dealsUpdateOrder,
-  dealsWatch
+  dealsWatch,
+  dealsCopy
 };

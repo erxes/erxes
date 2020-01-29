@@ -17,6 +17,7 @@ type Props = {
   item: IDeal;
   addItem: (doc: IDealParams, callback: () => void) => void;
   saveItem: (doc: IDealParams, callback?: (item) => void) => void;
+  copyItem:(itemId: string, callback: () => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;

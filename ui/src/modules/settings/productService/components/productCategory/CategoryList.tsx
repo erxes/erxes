@@ -66,7 +66,7 @@ class List extends React.Component<IProps> {
   renderEditAction(category: IProductCategory) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -80,7 +80,7 @@ class List extends React.Component<IProps> {
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')}>
+        <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>

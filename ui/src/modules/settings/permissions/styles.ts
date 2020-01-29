@@ -84,6 +84,22 @@ const Divider = styled.span`
   text-transform: uppercase;
 `;
 
+const ActionButtons = styled.div`
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  * {
+    padding: 0;
+    margin-left: ${dimensions.unitSpacing}px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+`;
+
 export {
   FilterWrapper,
   FilterItem,
@@ -92,5 +108,6 @@ export {
   StepItem,
   StepHeader,
   StepBody,
-  Divider
+  Divider,
+  ActionButtons
 };
