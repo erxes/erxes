@@ -1,15 +1,20 @@
 import Button from 'modules/common/components/Button';
+import CollapseContent from 'modules/common/components/CollapseContent';
 import { FormControl } from 'modules/common/components/form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Info from 'modules/common/components/Info';
+import Toggle from 'modules/common/components/Toggle';
+import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
-import ActionBar from 'modules/layout/components/ActionBar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { ContentBox } from '../../styles';
+import { KEY_LABELS } from '../constants';
 import { IConfigsMap } from '../types';
+import Header from './Header';
+import Sidebar from './Sidebar';
+import { ContentDisabler } from './styles';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -18,6 +23,7 @@ type Props = {
 
 type State = {
   configsMap: IConfigsMap,
+  useNativeGmail: boolean
 };
 
 class IntegrationConfigs extends React.Component<Props, State> {
@@ -26,6 +32,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     this.state = {
       configsMap: props.configsMap,
+      useNativeGmail: (props.configsMap.USE_NATIVE_GMAIL === 'true') || false
     };
   }
 
@@ -49,233 +56,133 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  render() {
+  renderItem = (key: string, description?: string) => {
     const { configsMap } = this.state;
 
-    const actionFooter = (
-      <ActionBar
-        right={
-          <Button.Group>
-            <Link to="/settings/">
-              <Button size="small" btnStyle="simple" icon="cancel-1">
-                Cancel
-              </Button>
-            </Link>
+    return (
+      <FormGroup>
+        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          defaultValue={configsMap[key]}
+          onChange={this.onChangeInput.bind(this, key)}
+        />
+      </FormGroup>
+    )
+  }
 
-            <Button
-              size="small"
-              btnStyle="success"
-              onClick={this.save}
-              icon="checked-1"
-            >
-              Save
-            </Button>
-          </Button.Group>
-        }
-      />
-    );
+  onTypeChange = (code: string, e) => {
+    this.setState({ useNativeGmail: e.target.checked }, () => {
+      this.onChangeConfig(code, this.state.useNativeGmail.toString());
+    });
+  };
 
-    const content = (
+  renderContent = () => {
+    const { configsMap, useNativeGmail } = this.state;
+
+    return (
       <ContentBox>
-        <FormGroup>
-          <ControlLabel>FACEBOOK_APP_ID</ControlLabel>
+        <CollapseContent title="Facebook">
+          <Info>
+            <a target="_blank" href="Variables" rel="noopener noreferrer">
+              {__("More: Understanding Facebook Integration Variables")}
+            </a>
+          </Info>
+          {this.renderItem('FACEBOOK_APP_ID')}
+          {this.renderItem('FACEBOOK_APP_SECRET')}
+          {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
+        </CollapseContent>
 
-          <FormControl
-            defaultValue={configsMap.FACEBOOK_APP_ID}
-            onChange={this.onChangeInput.bind(this, 'FACEBOOK_APP_ID')}
-          />
-        </FormGroup>
+        <CollapseContent title="Twitter">
+          <Info>
+            <a target="_blank" href="https://docs.erxes.io/administrator/environment-variables#twitter-settings" rel="noopener noreferrer">
+              {__("More: Understanding Twitter Integration Variables")}
+            </a>
+          </Info>
+          {this.renderItem('TWITTER_CONSUMER_KEY')}
+          {this.renderItem('TWITTER_ACCESS_TOKEN')}
+          {this.renderItem('TWITTER_ACCESS_TOKEN_SECRET')}
+          {this.renderItem('TWITTER_WEBHOOK_ENV')}
+        </CollapseContent>
 
-        <FormGroup>
-          <ControlLabel>FACEBOOK_APP_SECRET</ControlLabel>
+        <CollapseContent title="Nylas">
+          <Info>
+            <a target="_blank" href="https://docs.erxes.io/administrator/integrations#nylas-integration" rel="noopener noreferrer">
+              {__("More: Understanding Nylas Integration")}
+            </a>
+          </Info>
+        
+          {this.renderItem('NYLAS_CLIENT_ID')}
+          {this.renderItem('NYLAS_CLIENT_SECRET')}
+          {this.renderItem('NYLAS_WEBHOOK_CALLBACK_URL')}
+        </CollapseContent>
 
-          <FormControl
-            defaultValue={configsMap.FACEBOOK_APP_SECRET}
-            onChange={this.onChangeInput.bind(this, 'FACEBOOK_APP_SECRET')}
-          />
-        </FormGroup>
+        <CollapseContent title="Microsoft">
+          {this.renderItem('MICROSOFT_CLIENT_ID')}
+          {this.renderItem('MICROSOFT_CLIENT_SECRET')}
+          {this.renderItem('ENCRYPTION_KEY', 'Must be 256 bits (32 characters)')}
+        </CollapseContent>
 
-        <FormGroup>
-          <ControlLabel>FACEBOOK_VERIFY_TOKEN</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.FACEBOOK_VERIFY_TOKEN}
-            onChange={this.onChangeInput.bind(this, 'FACEBOOK_VERIFY_TOKEN')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>TWITTER_CONSUMER_KEY</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.TWITTER_CONSUMER_KEY}
-            onChange={this.onChangeInput.bind(this, 'TWITTER_CONSUMER_KEY')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>TWITTER_ACCESS_TOKEN</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.TWITTER_ACCESS_TOKEN}
-            onChange={this.onChangeInput.bind(this, 'TWITTER_ACCESS_TOKEN')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>TWITTER_ACCESS_TOKEN_SECRET</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.TWITTER_ACCESS_TOKEN_SECRET}
-            onChange={this.onChangeInput.bind(this, 'TWITTER_ACCESS_TOKEN_SECRET')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>TWITTER_WEBHOOK_ENV</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.TWITTER_WEBHOOK_ENV}
-            onChange={this.onChangeInput.bind(this, 'TWITTER_WEBHOOK_ENV')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>NYLAS_CLIENT_ID</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.NYLAS_CLIENT_ID}
-            onChange={this.onChangeInput.bind(this, 'NYLAS_CLIENT_ID')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>NYLAS_CLIENT_SECRET</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.NYLAS_CLIENT_SECRET}
-            onChange={this.onChangeInput.bind(this, 'NYLAS_CLIENT_SECRET')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>NYLAS_WEBHOOK_CALLBACK_URL</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.NYLAS_WEBHOOK_CALLBACK_URL}
-            onChange={this.onChangeInput.bind(this, 'NYLAS_WEBHOOK_CALLBACK_URL')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>MICROSOFT_CLIENT_ID</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.MICROSOFT_CLIENT_ID}
-            onChange={this.onChangeInput.bind(this, 'MICROSOFT_CLIENT_ID')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>MICROSOFT_CLIENT_SECRET</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.MICROSOFT_CLIENT_SECRET}
-            onChange={this.onChangeInput.bind(this, 'MICROSOFT_CLIENT_SECRET')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>ENCRYPTION_KEY: Must be 256 bits (32 characters)</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.ENCRYPTION_KEY}
-            onChange={this.onChangeInput.bind(this, 'ENCRYPTION_KEY')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>USE_NATIVE_GMAIL</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.USE_NATIVE_GMAIL}
-            onChange={this.onChangeInput.bind(this, 'USE_NATIVE_GMAIL')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>GOOGLE_PROJECT_ID</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.GOOGLE_PROJECT_ID}
-            onChange={this.onChangeInput.bind(this, 'GOOGLE_PROJECT_ID')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>GOOGLE_GMAIL_TOPIC</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.GOOGLE_GMAIL_TOPIC}
-            onChange={this.onChangeInput.bind(this, 'GOOGLE_GMAIL_TOPIC')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>GOOGLE_APPLICATION_CREDENTIALS</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.GOOGLE_APPLICATION_CREDENTIALS}
-            onChange={this.onChangeInput.bind(this, 'GOOGLE_APPLICATION_CREDENTIALS')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>GOOGLE_GMAIL_SUBSCRIPTION_NAME</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.GOOGLE_GMAIL_SUBSCRIPTION_NAME}
-            onChange={this.onChangeInput.bind(this, 'GOOGLE_GMAIL_SUBSCRIPTION_NAME')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>GOOGLE_CLIENT_ID</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.GOOGLE_CLIENT_ID}
-            onChange={this.onChangeInput.bind(this, 'GOOGLE_CLIENT_ID')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>GOOGLE_CLIENT_SECRET</ControlLabel>
-
-          <FormControl
-            defaultValue={configsMap.GOOGLE_CLIENT_SECRET}
-            onChange={this.onChangeInput.bind(this, 'GOOGLE_CLIENT_SECRET')}
-          />
-        </FormGroup>
-
+        <CollapseContent title="Gmail">
+          <Info>
+            <a target="_blank" href="https://docs.erxes.io/administrator/integrations#gmail-integration" rel="noopener noreferrer">
+              {__("More: Understanding Gmail Integration Variables")}
+            </a>
+          </Info>
+          <FormGroup horizontal={true}>
+            <Toggle
+              value={configsMap.USE_NATIVE_GMAIL}
+              checked={useNativeGmail}
+              onChange={this.onTypeChange.bind(this, 'USE_NATIVE_GMAIL')}
+              icons={false}
+            />
+            <ControlLabel>{KEY_LABELS.USE_NATIVE_GMAIL}</ControlLabel>
+          </FormGroup>
+          <br />
+          <ContentDisabler disable={!useNativeGmail}>
+            {this.renderItem('GOOGLE_PROJECT_ID')}
+            {this.renderItem('GOOGLE_GMAIL_TOPIC')}
+            {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
+            {this.renderItem('GOOGLE_GMAIL_SUBSCRIPTION_NAME')}
+            {this.renderItem('GOOGLE_CLIENT_ID')}
+            {this.renderItem('GOOGLE_CLIENT_SECRET')}
+          </ContentDisabler>
+        </CollapseContent>
       </ContentBox>
+    )
+  }
+
+  render() {
+    const actionButtons = (
+      <Button
+        btnStyle="primary"
+        onClick={this.save}
+        icon="check-circle"
+        uppercase={false}
+      >
+        Save
+      </Button>
     );
+
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Integrations configs') }
+    ];
 
     return (
       <Wrapper
+        header={
+          <Wrapper.Header title={__('Integrations configs')} breadcrumb={breadcrumb} />
+        }
+        mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <HeaderDescription
-                icon="/images/actions/25.svg"
-                title="General"
-                description="Set up your initial account settings so that things run smoothly in unison."
-              />
-            }
-          />
+            left={<Title>{__('Integrations configs')}</Title>}
+            right={actionButtons}
+          />  
         }
-        content={content}
-        footer={actionFooter}
-        center={true}
+        leftSidebar={<Sidebar />}
+        content={this.renderContent()}
       />
     );
   }

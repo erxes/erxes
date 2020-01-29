@@ -5,7 +5,7 @@ import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../components/List';
+import GeneralSettings from '../components/GeneralSettings';
 import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
 
@@ -14,7 +14,7 @@ type FinalProps = {
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
 }
 
-class ListContainer extends React.Component<FinalProps> {
+class SettingsContainer extends React.Component<FinalProps> {
   render() {
     const { updateConfigs, configsQuery } = this.props;
 
@@ -48,7 +48,7 @@ class ListContainer extends React.Component<FinalProps> {
     return (
       <AppConsumer>
         {({ currentLanguage, changeLanguage }) => (
-          <List
+          <GeneralSettings
             {...this.props}
             configsMap={configsMap}
             save={save}
@@ -75,5 +75,5 @@ export default withProps<{}>(
         name: 'updateConfigs'
       }
     )
-  )(ListContainer)
+  )(SettingsContainer)
 );
