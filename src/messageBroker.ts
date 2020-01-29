@@ -3,6 +3,8 @@ import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
 import { Customers, RobotEntries } from './db/models';
+import { PRODUCT_TYPES } from './db/models/definitions/constants';
+import { ProductCategories, Products } from './db/models/Products';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
 
@@ -140,6 +142,75 @@ const initConsumer = async () => {
 
         const data = JSON.parse(msg.content.toString());
         console.log(data);
+        channel.ack(msg);
+      }
+    });
+
+    await channel.assertQueue('hook-queue:erxes');
+    channel.consume('hook-queue:erxes', async msg => {
+      if (msg !== null) {
+        debugBase(`Received hook ${msg.content.toString()}`);
+
+        const data = JSON.parse(msg.content.toString());
+        const doc = JSON.parse(data.object)[0].fields;
+        const kind = JSON.parse(data.object)[0].model;
+
+        switch (kind) {
+          case 'inventories.inventory':
+            if ((data.action === 'update' && data.old_code) || data.action === 'create') {
+              const product = await Products.findOne({ code: data.old_code });
+              const productCategory = await ProductCategories.findOne({ code: doc.category_code });
+
+              const document = {
+                name: doc.name,
+                type: doc.is_service ? PRODUCT_TYPES.SERVICE : PRODUCT_TYPES.PRODUCT,
+                unitPrice: doc.unit_price,
+                code: doc.code,
+                productId: doc.id,
+                sku: doc.measure_unit_code,
+              };
+
+              if (product) {
+                await Products.updateProduct(product._id, {
+                  ...document,
+                  categoryId: productCategory ? productCategory._id : product.categoryId,
+                  categoryCode: productCategory ? productCategory.code : product.categoryCode,
+                });
+              } else {
+                await Products.createProduct({
+                  ...document,
+                  categoryId: productCategory ? productCategory._id : undefined,
+                  categoryCode: doc.category_code,
+                });
+              }
+            }
+            break;
+          case 'inventories.category':
+            if ((data.action === 'update' && data.old_code) || data.action === 'create') {
+              const productCategory = await ProductCategories.findOne({ code: data.old_code });
+              const parentCategory = await ProductCategories.findOne({ code: doc.parent_code });
+
+              const document = {
+                code: doc.code,
+                name: doc.name,
+                order: doc.order,
+              };
+
+              if (productCategory) {
+                await ProductCategories.updateProductCategory(productCategory._id, {
+                  ...document,
+                  parentId: parentCategory ? parentCategory._id : productCategory.parentId,
+                });
+              } else {
+                await ProductCategories.createProductCategory({
+                  ...document,
+                  parentId: parentCategory ? parentCategory._id : undefined,
+                });
+              }
+            }
+            break;
+        }
+
         channel.ack(msg);
       }
     });
