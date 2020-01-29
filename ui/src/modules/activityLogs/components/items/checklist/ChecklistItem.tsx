@@ -35,8 +35,6 @@ class CheckListItem extends React.Component<Props, { toggleItems: boolean }> {
     const name = contentTypeDetail.title || content.name;
     let contentAction = '';
 
-    console.log(action);
-
     switch (action) {
       case 'delete':
         contentAction = 'deleted';

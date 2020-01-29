@@ -355,7 +355,16 @@ const MergedContacts = styled.div`
   }
 `;
 
+const ShowMore = styled.span`
+  color: #6569df;
+  cursor: pointer;
+  &:hover {
+    color: black;
+  }
+`;
+
 export {
+  ShowMore,
   Timeline,
   ActivityTitle,
   ActivityRow,

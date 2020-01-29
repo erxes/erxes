@@ -42,7 +42,7 @@ export default withProps<Props>(
       name: 'activityLogQuery',
       options: ({ activity }) => ({
         variables: {
-          contentId: activity.contentTypeDetail._id,
+          contentId: activity.contentTypeDetail._id || activity.content._id,
           contentType: 'activity'
         }
       })

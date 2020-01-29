@@ -3,7 +3,8 @@ import {
   ActivityDate,
   FlexBody,
   FlexCenterContent,
-  Header
+  Header,
+  ShowMore
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
@@ -66,7 +67,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
         <>
           <Header>
             <strong>{checklistName}</strong>`s details{' '}
-            <span onClick={this.onCollapse}>hide details</span>
+            <ShowMore onClick={this.onCollapse}>hide</ShowMore>
           </Header>
 
           {this.renderItem()}
@@ -80,10 +81,10 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
           <FlexBody>
             {' '}
             <span>
-              <strong>{userName}</strong> {action}d{' '}
-              <strong>{checklistName}</strong> {contentType}
+              <strong>{userName}</strong> {action}d&nbsp;
+              <strong>{checklistName}</strong> {contentType}&nbsp;
+              <ShowMore onClick={this.onCollapse}>show details</ShowMore>
             </span>
-            <span onClick={this.onCollapse}>see full details</span>
           </FlexBody>
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
