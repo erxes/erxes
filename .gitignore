@@ -1,0 +1,17 @@
+.DS_Store
+node_modules
+/node_modules
+.env
+*.un~
+*.swp
+*.swo
+*.log
+/build
+.env.local
+.env.development.local
+.env.development
+.env.test.local
+.env.production.local
+package-lock.json
+yarn.lock
+dump.rdb

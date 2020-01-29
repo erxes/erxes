@@ -85,6 +85,14 @@ const growthHacksVote = `
   }
 `;
 
+const growthHacksCopy = `
+  mutation growthHacksCopy($_id: String!) {
+    growthHacksCopy(_id: $_id) {
+      ${growthHackFields}
+    }
+  }
+`;
+
 export default {
   growthHacksAdd,
   growthHacksEdit,
@@ -92,5 +100,6 @@ export default {
   growthHacksChange,
   growthHacksUpdateOrder,
   growthHacksWatch,
-  growthHacksVote
+  growthHacksVote,
+  growthHacksCopy,
 };

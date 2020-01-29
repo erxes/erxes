@@ -1,13 +1,10 @@
-import ActionButtons from 'modules/common/components/ActionButtons';
+
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { FormControl } from 'modules/common/components/form';
-import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
-import TextInfo from 'modules/common/components/TextInfo';
-import Tip from 'modules/common/components/Tip';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -15,9 +12,10 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { isObject } from 'util';
 import GroupList from '../containers/GroupList';
-import { Capitalize, FilterItem, FilterWrapper, NotWrappable } from '../styles';
+import { FilterItem, FilterWrapper, NotWrappable } from '../styles';
 import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
 import PermissionForm from './PermissionForm';
+import PermissionRow from './PermissionRow';
 import {
   correctValue,
   filterActions,
@@ -53,38 +51,19 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderObjects() {
-    const { permissions, actions, remove } = this.props;
+    const { groups, modules, permissions, actions, refetchQueries, remove } = this.props;
 
     return permissions.map(object => {
-      const permissionAction = filterActions(actions, object.module).filter(
-        action => action.value === object.action
-      );
-
       return (
-        <tr key={object._id}>
-          <td>
-            <Capitalize>{object.module}</Capitalize>
-          </td>
-          <td>{permissionAction.map(action => action.label)}</td>
-          <td>{object.user ? object.user.email : ''}</td>
-          <td>{object.group ? object.group.name : ''}</td>
-          <td>
-            {object.allowed ? (
-              <TextInfo textStyle="success">{__('Allowed')}</TextInfo>
-            ) : (
-              <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
-            )}
-          </td>
-          <td>
-            <ActionButtons>
-              <Tip text="Delete">
-                <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
-                  <Icon icon="cancel-1" />
-                </Button>
-              </Tip>
-            </ActionButtons>
-          </td>
-        </tr>
+        <PermissionRow
+          key={object._id}
+          actions={actions}
+          groups={groups}
+          modules={modules}
+          removeItem={remove}
+          permission={object}
+          refetchQueries={refetchQueries}
+        />
       );
     });
   }

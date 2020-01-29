@@ -1,0 +1,3 @@
+ui=https://github.com/heroku/heroku-buildpack-nodejs.git
+ui=https://github.com/batnasan/create-react-app-inner-buildpack.git
+ui=https://github.com/batnasan/erxes-heroku-buildpack-static.git
