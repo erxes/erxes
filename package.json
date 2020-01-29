@@ -1,6 +1,6 @@
 {
   "name": "erxes-api",
-  "version": "0.12.0",
+  "version": "0.12.3",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-api",
@@ -88,7 +88,9 @@
     "uuid": "^3.3.3",
     "validator": "^9.0.0",
     "xlsx-populate": "^1.20.1",
-    "xss": "^1.0.6"
+    "xss": "^1.0.6",
+    "faker": "^4.1.0",
+    "ts-node": "8.0.3"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"
@@ -109,7 +111,6 @@
     "@types/redis": "^2.8.13",
     "@types/request": "^2.47.1",
     "@types/underscore": "^1.8.9",
-    "faker": "^4.1.0",
     "husky": "^0.13.4",
     "jest": "^24.9",
     "jest-tobetype": "^1.1.0",
@@ -121,12 +122,14 @@
     "release-it": "^12.4.3",
     "sinon": "^7.2.2",
     "ts-jest": "^22.0.0",
-    "ts-node": "8.0.3",
     "ts-node-dev": "^1.0.0-pre.32",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.1.0",
     "tslint-config-standard": "^7.0.0",
     "typescript": "^3.6.4"
   },
-  "snyk": true
+  "snyk": true,
+  "engines": {
+    "node": "10.x.x"
+  }
 }

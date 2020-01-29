@@ -14,6 +14,7 @@ import {
 export interface IPermissionModel extends Model<IPermissionDocument> {
   createPermission(doc: IPermissionParams): Promise<IPermissionDocument[]>;
   removePermission(ids: string[]): Promise<IPermissionDocument>;
+  getPermission(id: string): Promise<IPermissionDocument>;
 }
 
 export interface IUserGroupModel extends Model<IUserGroupDocument> {
@@ -21,6 +22,7 @@ export interface IUserGroupModel extends Model<IUserGroupDocument> {
   createGroup(doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
   updateGroup(_id: string, doc: IUserGroup, memberIds?: string[]): Promise<IUserGroupDocument>;
   removeGroup(_id: string): Promise<IUserGroupDocument>;
+  copyGroup(sourceGroupId: string, memberIds?: string[]): Promise<IUserGroupDocument>;
 }
 
 export const permissionLoadClass = () => {
@@ -32,10 +34,6 @@ export const permissionLoadClass = () => {
      */
     public static async createPermission(doc: IPermissionParams) {
       const permissions: IPermissionDocument[] = [];
-
-      if (!doc.actions) {
-        throw new Error('Actions not found');
-      }
 
       for (const action of doc.actions) {
         if (!actionsMap[action]) {
@@ -105,6 +103,16 @@ export const permissionLoadClass = () => {
 
       return Permissions.deleteMany({ _id: { $in: ids } });
     }
+
+    public static async getPermission(id: string) {
+      const permission = await Permissions.findOne({ _id: id });
+
+      if (!permission) {
+        throw new Error('Permission not found');
+      }
+
+      return permission;
+    }
   }
 
   permissionSchema.loadClass(Permission);
@@ -164,7 +172,37 @@ export const userGroupLoadClass = () => {
 
       await Users.updateMany({ groupIds: { $in: [_id] } }, { $pull: { groupIds: { $in: [_id] } } });
 
+      await Permissions.remove({ groupId: groupObj._id });
+
       return groupObj.remove();
+    }
+
+    public static async copyGroup(sourceGroupId: string, memberIds?: string[]) {
+      const sourceGroup = await UsersGroups.getGroup(sourceGroupId);
+
+      const nameCount = await UsersGroups.countDocuments({ name: new RegExp(`${sourceGroup.name}`, 'i') });
+
+      const clone = await UsersGroups.createGroup(
+        {
+          name: `${sourceGroup.name}-copied-${nameCount}`,
+          description: `${sourceGroup.description}-copied`,
+        },
+        memberIds,
+      );
+
+      const permissions = await Permissions.find({ groupId: sourceGroupId });
+
+      for (const perm of permissions) {
+        await Permissions.create({
+          groupId: clone._id,
+          action: perm.action,
+          module: perm.module,
+          requiredActions: perm.requiredActions,
+          allowed: perm.allowed,
+        });
+      }
+
+      return clone;
     }
   }
 

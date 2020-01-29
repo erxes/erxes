@@ -6,7 +6,13 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
-import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
+import {
+  copyChecklists,
+  IBoardNotificationParams,
+  itemsChange,
+  prepareBoardItemDoc,
+  sendNotifications,
+} from '../boardUtils';
 
 interface IGrowthHacksEdit extends IGrowthHack {
   _id: string;
@@ -176,6 +182,31 @@ const growthHackMutations = {
    */
   growthHacksVote(_root, { _id, isVote }: { _id: string; isVote: boolean }, { user }: { user: IUserDocument }) {
     return GrowthHacks.voteGrowthHack(_id, isVote, user._id);
+  },
+
+  async growthHacksCopy(_root, { _id }: { _id: string }, { user }: IContext) {
+    const growthHack = await GrowthHacks.getGrowthHack(_id);
+
+    const doc = await prepareBoardItemDoc(_id, 'growthHack', user._id);
+
+    doc.votedUserIds = growthHack.votedUserIds;
+    doc.voteCount = growthHack.voteCount;
+    doc.hackStages = growthHack.hackStages;
+    doc.reach = growthHack.reach;
+    doc.impact = growthHack.impact;
+    doc.confidence = growthHack.confidence;
+    doc.ease = growthHack.ease;
+
+    const clone = await GrowthHacks.createGrowthHack(doc);
+
+    await copyChecklists({
+      contentType: 'growthHack',
+      contentTypeId: growthHack._id,
+      targetContentId: clone._id,
+      user,
+    });
+
+    return clone;
   },
 };
 

@@ -1,4 +1,5 @@
 import { ActivityLogs, Checklists, Conformities, Tickets } from '../../../db/models';
+import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
@@ -6,10 +7,12 @@ import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { checkUserIds, putCreateLog } from '../../utils';
 import {
+  copyChecklists,
   copyPipelineLabels,
   createConformity,
   IBoardNotificationParams,
   itemsChange,
+  prepareBoardItemDoc,
   sendNotifications,
 } from '../boardUtils';
 
@@ -156,6 +159,34 @@ const ticketMutations = {
    */
   async ticketsWatch(_root, { _id, isAdd }: { _id: string; isAdd: boolean }, { user }: IContext) {
     return Tickets.watchTicket(_id, isAdd, user._id);
+  },
+
+  async ticketsCopy(_root, { _id }: { _id: string }, { user }: IContext) {
+    const ticket = await Tickets.getTicket(_id);
+
+    const doc = await prepareBoardItemDoc(_id, 'ticket', user._id);
+
+    doc.source = ticket.source;
+
+    const clone = await Tickets.createTicket(doc);
+
+    const companies = await getCompanies('ticket', _id);
+    const customers = await getCustomers('ticket', _id);
+
+    await createConformity({
+      mainType: 'ticket',
+      mainTypeId: clone._id,
+      customerIds: customers.map(c => c._id),
+      companyIds: companies.map(c => c._id),
+    });
+    await copyChecklists({
+      contentType: 'ticket',
+      contentTypeId: ticket._id,
+      targetContentId: clone._id,
+      user,
+    });
+
+    return clone;
   },
 };
 

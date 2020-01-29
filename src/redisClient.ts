@@ -74,17 +74,46 @@ export const set = (key: string, value: any) => {
 };
 
 /*
- * Get array
+ * Check if value exists in set
  */
-export const getArray = async (key: string): Promise<any> => {
-  const value = await get(key, '[]');
+export const inArray = async (setKey: string, setMember: string): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    client.sismember(setKey, setMember, (error, reply) => {
+      if (error) {
+        return reject(error);
+      }
 
-  return JSON.parse(value);
+      return resolve(reply);
+    });
+  });
 };
 
 /*
- * Set array
+ * Add a value to a set or do nothing if it already exists
  */
-export const setArray = (key: string, value: any[]) => {
-  client.set(key, JSON.stringify(value));
+export const addToArray = (setKey: string, setMember: string) => {
+  return new Promise((resolve, reject) => {
+    client.sadd(setKey, setMember, (error, reply) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(reply);
+    });
+  });
+};
+
+/*
+ * Remove a value from a set or do nothing if it is not present
+ */
+export const removeFromArray = (setKey: string, setMember: string) => {
+  return new Promise((resolve, reject) => {
+    client.srem(setKey, setMember, (error, reply) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(reply);
+    });
+  });
 };

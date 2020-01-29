@@ -45,4 +45,5 @@ export const commonTypes = `
   boardId: String
   priority: String
   attachments: [Attachment]
+  userId: String
 `;

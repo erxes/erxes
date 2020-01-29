@@ -34,7 +34,12 @@ initRedis();
 // load environment variables
 dotenv.config();
 
-const { NODE_ENV } = process.env;
+const { NODE_ENV, JWT_TOKEN_SECRET } = process.env;
+
+if (!JWT_TOKEN_SECRET) {
+  throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
+}
+
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
 const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
 const INTEGRATIONS_API_DOMAIN = getEnv({ name: 'INTEGRATIONS_API_DOMAIN', defaultValue: '' });

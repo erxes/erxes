@@ -23,6 +23,7 @@ interface IUpdateUser extends IEditProfile {
 
 export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
+  checkPassword(password: string): void;
   checkDuplication({
     email,
     idsToExclude,
@@ -93,6 +94,14 @@ export const loadClass = () => {
 
       return user;
     }
+
+    public static checkPassword(password: string) {
+      if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)) {
+        throw new Error(
+          'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
+        );
+      }
+    }
     /**
      * Checking if user has duplicated properties
      */
@@ -117,7 +126,7 @@ export const loadClass = () => {
     }
 
     public static getSecret() {
-      return 'dfjklsafjjekjtejifjidfjsfd';
+      return process.env.JWT_TOKEN_SECRET || '';
     }
 
     /**
@@ -131,6 +140,8 @@ export const loadClass = () => {
 
       // Checking duplicated email
       await Users.checkDuplication({ email });
+
+      this.checkPassword(password);
 
       return Users.create({
         username,
@@ -158,6 +169,8 @@ export const loadClass = () => {
 
       // change password
       if (password) {
+        this.checkPassword(password);
+
         doc.password = await this.generatePassword(password);
 
         // if there is no password specified then leave password field alone
@@ -192,6 +205,8 @@ export const loadClass = () => {
       }
 
       const { token, expires } = await User.generateToken();
+
+      this.checkPassword(password);
 
       await Users.create({
         email,
@@ -267,6 +282,8 @@ export const loadClass = () => {
       if (password !== passwordConfirmation) {
         throw new Error('Password does not match');
       }
+
+      this.checkPassword(password);
 
       await Users.updateOne(
         { _id: user._id },
@@ -379,6 +396,8 @@ export const loadClass = () => {
         throw new Error('Password is required.');
       }
 
+      this.checkPassword(newPassword);
+
       // set new password
       await Users.findByIdAndUpdate(
         { _id: user._id },
@@ -402,6 +421,8 @@ export const loadClass = () => {
         throw new Error('Password is required.');
       }
 
+      this.checkPassword(newPassword);
+
       await Users.updateOne({ _id }, { $set: { password: await this.generatePassword(newPassword) } });
 
       return Users.findOne({ _id: user._id });
@@ -423,6 +444,8 @@ export const loadClass = () => {
       if (newPassword === '') {
         throw new Error('Password can not be empty');
       }
+
+      this.checkPassword(newPassword);
 
       const user = await Users.getUser(_id);
 
