@@ -100,6 +100,13 @@ export const LEAD_STATUS_TYPES = {
   unqualified: 'Unqualified'
 };
 
+export const GENDER_TYPES = {
+  0: 'Not known',
+  1: 'Male',
+  2: 'Female',
+  9: 'Not applicable'
+};
+
 export const LIFECYCLE_STATE_TYPES = {
   subscriber: 'Subscriber',
   lead: 'Pop Ups',
