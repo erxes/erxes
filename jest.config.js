@@ -9,7 +9,13 @@ module.exports = {
   modulePathIgnorePatterns: ['setup.ts', 'coverage/'],
   coverageDirectory: 'src/__tests__/coverage/',
   collectCoverage: true,
-  collectCoverageFrom: ['src/facebook/**', '!src/facebook/utils.ts', '!src/facebook/handleFacebookMessage.ts'],
+  collectCoverageFrom: [
+    'src/facebook/**',
+    'src/twitter/**',
+    '!src/twitter/api.ts',
+    '!src/facebook/utils.ts',
+    '!src/facebook/handleFacebookMessage.ts',
+  ],
   coverageThreshold: {
     global: {
       functions: 100,
