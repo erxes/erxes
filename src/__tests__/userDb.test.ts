@@ -12,6 +12,7 @@ beforeAll(() => {
 
 describe('User db utils', () => {
   let _user;
+  const strongPassword = 'Password123';
 
   beforeEach(async () => {
     // Creating test data
@@ -36,13 +37,11 @@ describe('User db utils', () => {
   });
 
   test('Create user', async () => {
-    const testPassword = 'test';
-
     const userObj = await Users.createUser({
       ..._user._doc,
       details: { ..._user.details.toJSON() },
       links: { ..._user.links.toJSON() },
-      password: testPassword,
+      password: strongPassword,
       email: 'qwerty@qwerty.com',
     });
 
@@ -54,7 +53,7 @@ describe('User db utils', () => {
     expect(userObj._id).toBeDefined();
     expect(userObj.username).toBe(_user.username);
     expect(userObj.email).toBe('qwerty@qwerty.com');
-    expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
+    expect(bcrypt.compare(strongPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(_user.details.position);
     expect(userObj.details.fullName).toBe(_user.details.fullName);
     expect(userObj.details.avatar).toBe(_user.details.avatar);
@@ -100,7 +99,7 @@ describe('User db utils', () => {
       await Users.createUser({
         ..._user._doc,
         details: { ..._user.details.toJSON() },
-        password: '123',
+        password: strongPassword,
         email: user.email,
       });
     } catch (e) {
@@ -130,7 +129,7 @@ describe('User db utils', () => {
 
   test('createUserWithConfirmation', async () => {
     const group = await usersGroupFactory();
-    const token = await Users.invite({ email: '123@gmail.com', password: '123', groupId: group._id });
+    const token = await Users.invite({ email: '123@gmail.com', password: strongPassword, groupId: group._id });
 
     const userObj = await Users.findOne({ registrationToken: token }).lean();
 
@@ -148,7 +147,7 @@ describe('User db utils', () => {
   test('resendInvitation', async () => {
     const email = '123@gmail.com';
     const group = await usersGroupFactory();
-    const token = await Users.invite({ email, password: '123', groupId: group._id });
+    const token = await Users.invite({ email, password: strongPassword, groupId: group._id });
     const newToken = await Users.resendInvitation({ email });
 
     const user = await Users.findOne({ email }).lean();
@@ -164,7 +163,7 @@ describe('User db utils', () => {
 
   test('invite: invalid group', async () => {
     try {
-      await Users.invite({ email: 'email', password: 'password', groupId: 'fakeId' });
+      await Users.invite({ email: 'email', password: strongPassword, groupId: 'fakeId' });
     } catch (e) {
       expect(e.message).toBe('Invalid group');
     }
@@ -204,8 +203,8 @@ describe('User db utils', () => {
 
     await Users.confirmInvitation({
       token,
-      password: '123',
-      passwordConfirmation: '123',
+      password: strongPassword,
+      passwordConfirmation: strongPassword,
       fullName: 'fullname',
       username: 'username',
     });
@@ -286,13 +285,11 @@ describe('User db utils', () => {
   test('Update user', async () => {
     const updateDoc = await userFactory({});
 
-    const testPassword = 'updatedPass';
-
     // try with password ============
     await Users.updateUser(_user._id, {
       email: '123@gmail.com',
       username: updateDoc.username,
-      password: testPassword,
+      password: strongPassword,
       details: updateDoc.details,
       links: updateDoc.links,
     });
@@ -309,7 +306,7 @@ describe('User db utils', () => {
 
     expect(userObj.username).toBe(updateDoc.username);
     expect(userObj.email).toBe('123@gmail.com');
-    expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
+    expect(bcrypt.compare(strongPassword, userObj.password)).toBeTruthy();
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
@@ -328,7 +325,7 @@ describe('User db utils', () => {
     }
 
     // password must stay untouched
-    expect(bcrypt.compare(testPassword, userObj.password)).toBeTruthy();
+    expect(bcrypt.compare(strongPassword, userObj.password)).toBeTruthy();
   });
 
   test('Set user to active', async () => {
@@ -452,12 +449,12 @@ describe('User db utils', () => {
     // valid
     const user = await Users.resetPassword({
       token: 'token',
-      newPassword: 'password',
+      newPassword: strongPassword,
     });
 
     expect(user.resetPasswordToken).toBe(null);
     expect(user.resetPasswordExpires).toBe(null);
-    expect(bcrypt.compare('password', user.password)).toBeTruthy();
+    expect(bcrypt.compare(strongPassword, user.password)).toBeTruthy();
   });
 
   test('Change password: incorrect current password', async () => {
@@ -469,7 +466,7 @@ describe('User db utils', () => {
       await Users.changePassword({
         _id: user._id,
         currentPassword: 'admin',
-        newPassword: '123321',
+        newPassword: strongPassword,
       });
     } catch (e) {
       expect(e.message).toBe('Incorrect current password');
@@ -482,14 +479,14 @@ describe('User db utils', () => {
     const updatedUser = await Users.changePassword({
       _id: user._id,
       currentPassword: 'pass',
-      newPassword: 'Lombo@123',
+      newPassword: strongPassword,
     });
 
     if (!updatedUser || !updatedUser.password) {
       throw new Error('Updated user not found');
     }
 
-    expect(await Users.comparePassword('Lombo@123', updatedUser.password)).toBeTruthy();
+    expect(await Users.comparePassword(strongPassword, updatedUser.password)).toBeTruthy();
   });
 
   test('Forgot password', async () => {
@@ -597,9 +594,22 @@ describe('User db utils', () => {
     // valid
     const updatedUser = await Users.resetMemberPassword({
       _id: _user._id,
-      newPassword: 'newpassword',
+      newPassword: strongPassword,
     });
 
-    expect(await Users.comparePassword('newpassword', updatedUser.password)).toBeTruthy();
+    expect(await Users.comparePassword(strongPassword, updatedUser.password)).toBeTruthy();
+  });
+
+  test('Check password', async () => {
+    expect.assertions(1);
+    const weakPassword = '123456';
+
+    try {
+      await Users.checkPassword(weakPassword);
+    } catch (e) {
+      expect(e.message).toBe(
+        'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
+      );
+    }
   });
 });
