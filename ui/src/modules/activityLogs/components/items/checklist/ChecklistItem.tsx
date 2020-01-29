@@ -48,7 +48,7 @@ class CheckListItem extends React.Component<Props, { toggleItems: boolean }> {
         contentAction = 'checked';
         break;
       case 'unChecked':
-        contentAction = 'uncheked';
+        contentAction = 'unchecked';
         break;
     }
 
