@@ -12,7 +12,8 @@ import { formatText, getIconAndColor } from '../utils';
 import AssigneeLog from './items/boardItems/AssigneeLog';
 import MovementLog from './items/boardItems/MovementLog';
 import ConvertLog from './items/ConvertLog';
-import CreatedLog from './items/CreatedLog';
+import CreatedLog from './items/create/CreatedLog';
+import DeletedLog from './items/delete/DeletedLog';
 import MergedLog from './items/MergedLog';
 import SegmentLog from './items/SegmentLog';
 
@@ -86,6 +87,11 @@ class ActivityItem extends React.Component<Props> {
         return this.renderDetail(
           activity.contentType,
           <CreatedLog activity={activity} />
+        );
+      case 'delete':
+        return this.renderDetail(
+          activity.contentType,
+          <DeletedLog activity={activity} />
         );
       case 'merge':
         return this.renderDetail(

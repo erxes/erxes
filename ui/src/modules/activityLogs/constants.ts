@@ -78,5 +78,9 @@ export const ICON_AND_COLOR_TABLE = {
   assignee: {
     icon: 'user-check',
     color: '#6569df'
+  },
+  checklist: {
+    icon: 'check-square',
+    color: '#6569df'
   }
 };

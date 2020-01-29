@@ -5,49 +5,15 @@ import {
   FlexCenterContent
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
-import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 type Props = {
   activity: IActivityLog;
 };
 
-class CreatedLog extends React.Component<Props> {
-  renderBoardItemLog() {
-    const { activity } = this.props;
-    const { contentTypeDetail, contentType, createdByDetail } = activity;
-
-    let userName = 'Unknown';
-
-    if (createdByDetail && createdByDetail.type === 'user') {
-      const { content } = createdByDetail;
-
-      if (content.details) {
-        userName = createdByDetail.content.details.fullName || 'Unknown';
-      }
-    }
-
-    const body = (
-      <Link
-        to={`/${contentType}/board?_id=${activity._id}&itemId=${
-          contentTypeDetail._id
-        }`}
-        target="_blank"
-      >
-        {contentTypeDetail.name} <Icon icon="arrow-to-right" />
-      </Link>
-    );
-
-    return (
-      <span>
-        <strong>{userName}</strong> created {body} {contentType}
-      </span>
-    );
-  }
-
-  renderCustomerLog = () => {
+class CustomerCreate extends React.Component<Props> {
+  renderContent = () => {
     const { activity } = this.props;
     const { createdByDetail } = activity;
 
@@ -56,8 +22,9 @@ class CreatedLog extends React.Component<Props> {
       let userName = 'Unknown';
 
       if (content.details) {
-        userName = createdByDetail.content.details.fullName || 'Unknown';
+        userName = content.details.fullName || 'Unknown';
       }
+
       return (
         <span>
           <strong>{userName}</strong> created&nbsp; this customer
@@ -83,19 +50,9 @@ class CreatedLog extends React.Component<Props> {
     );
   };
 
-  renderContent = () => {
-    const { activity } = this.props;
-    const { contentType } = activity;
-
-    if (contentType === 'customer') {
-      return this.renderCustomerLog();
-    }
-
-    return this.renderBoardItemLog();
-  };
-
   render() {
-    const { createdAt } = this.props.activity;
+    const { activity } = this.props;
+    const { createdAt } = activity;
 
     return (
       <FlexCenterContent>
@@ -110,4 +67,4 @@ class CreatedLog extends React.Component<Props> {
   }
 }
 
-export default CreatedLog;
+export default CustomerCreate;
