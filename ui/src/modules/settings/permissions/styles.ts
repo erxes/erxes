@@ -1,18 +1,26 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { ActionButtons, SidebarListItem } from '../styles';
 
 const FilterWrapper = styled.div`
-  padding: 5px 0;
+  padding: 10px 20px ;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+
+  strong {
+    margin-right: 10px;
+  }
 `;
 
-const FilterItem = styled.div`
+const FilterItem = styled(DateContainer)`
   position: relative;
   float: left;
   min-width: 200px;
   margin-right: 20px;
+  z-index: 100;
 `;
 
 const NotWrappable = styled.div`
@@ -84,18 +92,10 @@ const Divider = styled.span`
   text-transform: uppercase;
 `;
 
-const ActionButtons = styled.div`
-  display: flex;
-  overflow: hidden;
-  align-items: center;
-  transition: all 0.3s ease;
-
-  * {
-    padding: 0;
-    margin-left: ${dimensions.unitSpacing}px;
-
-    &:first-child {
-      margin-left: 0;
+const SidebarItem = styled(SidebarListItem)`
+  &:hover {
+    ${ActionButtons} {
+      width: 55px;
     }
   }
 `;
@@ -109,5 +109,5 @@ export {
   StepHeader,
   StepBody,
   Divider,
-  ActionButtons
+  SidebarItem
 };

@@ -5,6 +5,7 @@ import { FormControl } from 'modules/common/components/form';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
+import { Title } from 'modules/common/styles/main';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -28,6 +29,7 @@ type Props = {
   queryParams: any;
   isLoading: boolean;
   totalCount: number;
+  currentGroupName?: string;
 } & commonProps;
 
 type commonProps = {
@@ -69,45 +71,7 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderContent() {
-    return (
-      <Table whiteSpace="nowrap" hover={true} bordered={true}>
-        <thead>
-          <tr>
-            <th>Module</th>
-            <th>Action</th>
-            <th>Email</th>
-            <th>Group</th>
-            <th>Allow</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderObjects()}</tbody>
-      </Table>
-    );
-  }
-
-  renderForm = props => {
-    const { modules, actions, groups, refetchQueries } = this.props;
-
-    const extendedProps = {
-      ...props,
-      modules,
-      actions,
-      groups,
-      refetchQueries
-    };
-
-    return <PermissionForm {...extendedProps} />;
-  };
-
-  renderActionBar() {
     const { queryParams, modules, actions } = this.props;
-
-    const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
-        New permission
-      </Button>
-    );
 
     const usersOnChange = users => {
       this.setFilter('userId', users);
@@ -119,19 +83,9 @@ class PermissionList extends React.Component<Props> {
       });
     };
 
-    const actionBarRight = (
-      <NotWrappable>
-        <ModalTrigger
-          title="New permission"
-          size="lg"
-          trigger={trigger}
-          content={this.renderForm}
-        />
-      </NotWrappable>
-    );
-
     const actionBarLeft = (
       <FilterWrapper>
+        <strong>{__('Filters')}:</strong>
         <FilterItem>
           <Select
             placeholder={__('Choose module')}
@@ -158,22 +112,74 @@ class PermissionList extends React.Component<Props> {
             multi={false}
           />
         </FilterItem>
-
-        <FilterItem>
-          <div style={{ marginTop: '5px' }}>
-            <label>Granted: </label>
-            <FormControl
-              componentClass="checkbox"
-              defaultChecked={queryParams.allowed !== 'notAllowed'}
-              id="allowed"
-              onChange={allowedOnChange}
-            />
-          </div>
-        </FilterItem>
+       
+        <div>
+          <strong>{__('Granted')}:</strong>
+          <FormControl
+            componentClass="checkbox"
+            defaultChecked={queryParams.allowed !== 'notAllowed'}
+            id="allowed"
+            onChange={allowedOnChange}
+          />
+        </div>
       </FilterWrapper>
     );
+    return (
+      <>
+        {actionBarLeft}
+        <Table whiteSpace="nowrap" hover={true} bordered={true}>
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Action</th>
+              <th>Email</th>
+              <th>Group</th>
+              <th>Allow</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderObjects()}</tbody>
+        </Table>
+      </>
+    );
+  }
 
-    return <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />;
+  renderForm = props => {
+    const { modules, actions, groups, refetchQueries } = this.props;
+
+    const extendedProps = {
+      ...props,
+      modules,
+      actions,
+      groups,
+      refetchQueries
+    };
+
+    return <PermissionForm {...extendedProps} />;
+  };
+
+  renderActionBar() {
+
+    const trigger = (
+      <Button btnStyle="primary" icon="plus-circle" uppercase={false}>
+        New permission
+      </Button>
+    );
+
+    const leftActionBar = <Title>{this.props.currentGroupName || __("All permissions")}</Title>;
+
+    const actionBarRight = (
+      <NotWrappable>
+        <ModalTrigger
+          title="New permission"
+          size="lg"
+          trigger={trigger}
+          content={this.renderForm}
+        />
+      </NotWrappable>
+    );
+
+    return <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} background="colorWhite" />;
   }
 
   render() {
