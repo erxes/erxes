@@ -1,3 +1,4 @@
+import colors from 'modules/common/styles/colors';
 import { DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
