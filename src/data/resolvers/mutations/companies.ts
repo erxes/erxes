@@ -1,8 +1,9 @@
 import { Companies } from '../../../db/models';
 import { ICompany } from '../../../db/models/definitions/companies';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface ICompaniesEdit extends ICompany {
   _id: string;
@@ -10,17 +11,16 @@ interface ICompaniesEdit extends ICompany {
 
 const companyMutations = {
   /**
-   * Create new company also adds Company registration log
+   * Creates a new company
    */
   async companiesAdd(_root, doc: ICompany, { user, docModifier }: IContext) {
     const company = await Companies.createCompany(docModifier(doc), user);
 
     await putCreateLog(
       {
-        type: 'company',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.COMPANY,
+        newData: doc,
         object: company,
-        description: `${company.primaryName} has been created`,
       },
       user,
     );
@@ -37,10 +37,10 @@ const companyMutations = {
 
     await putUpdateLog(
       {
-        type: 'company',
+        type: MODULE_NAMES.COMPANY,
         object: company,
-        newData: JSON.stringify(doc),
-        description: `${company.primaryName} has been updated`,
+        newData: doc,
+        updatedDocument: updated,
       },
       user,
     );
@@ -49,22 +49,15 @@ const companyMutations = {
   },
 
   /**
-   * Remove companies
+   * Removes companies
    */
   async companiesRemove(_root, { companyIds }: { companyIds: string[] }, { user }: IContext) {
-    const companies = await Companies.find({ _id: { $in: companyIds } }, { primaryName: 1 }).lean();
+    const companies = await Companies.find({ _id: { $in: companyIds } }).lean();
 
     await Companies.removeCompanies(companyIds);
 
     for (const company of companies) {
-      await putDeleteLog(
-        {
-          type: 'company',
-          object: company,
-          description: `${company.primaryName} has been removed`,
-        },
-        user,
-      );
+      await putDeleteLog({ type: MODULE_NAMES.COMPANY, object: company }, user);
     }
 
     return companyIds;

@@ -1,7 +1,9 @@
 import { ImportHistory } from '../../../db/models';
+import { MODULE_NAMES } from '../../constants';
+import { putDeleteLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils, { putDeleteLog } from '../../utils';
+import utils from '../../utils';
 
 const importHistoryMutations = {
   /**
@@ -18,7 +20,7 @@ const importHistoryMutations = {
         path: '/import-remove',
         method: 'POST',
         body: {
-          targetIds: JSON.stringify(importHistory.ids || []),
+          targetIds: JSON.stringify(importHistory.ids),
           contentType: importHistory.contentType,
           importHistoryId: importHistory._id,
         },
@@ -27,14 +29,7 @@ const importHistoryMutations = {
       throw new Error(e);
     }
 
-    await putDeleteLog(
-      {
-        type: 'importHistory',
-        object: importHistory,
-        description: `${importHistory._id}-${importHistory.date} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.IMPORT_HISTORY, object: importHistory }, user);
 
     return ImportHistory.findOne({ _id: importHistory._id });
   },

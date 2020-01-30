@@ -21,6 +21,7 @@ export interface ISegment {
   color: string;
   connector: string;
   conditions: ICondition[];
+  scopeBrandIds?: string[];
 }
 
 export interface ISegmentDocument extends ISegment, Document {
@@ -29,25 +30,28 @@ export interface ISegmentDocument extends ISegment, Document {
 
 // Mongoose schemas =======================
 
-const conditionSchema = new Schema(
+export const conditionSchema = new Schema(
   {
-    field: field({ type: String }),
-    operator: field({ type: String }),
-    type: field({ type: String }),
+    field: field({ type: String, label: 'Field' }),
+    operator: field({ type: String, label: 'Operator' }),
+    type: field({ type: String, label: 'Type' }),
 
     value: field({
       type: String,
       optional: true,
+      label: 'Value',
     }),
 
     dateUnit: field({
       type: String,
       optional: true,
+      label: 'Date unit',
     }),
 
     brandId: field({
       type: String,
       optional: true,
+      label: 'Brand',
     }),
   },
   { _id: false },
@@ -59,12 +63,13 @@ export const segmentSchema = schemaWrapper(
     contentType: field({
       type: String,
       enum: ACTIVITY_CONTENT_TYPES.ALL,
+      label: 'Content type',
     }),
-    name: field({ type: String }),
-    description: field({ type: String, optional: true }),
-    subOf: field({ type: String, optional: true }),
-    color: field({ type: String }),
-    connector: field({ type: String }),
-    conditions: field({ type: [conditionSchema] }),
+    name: field({ type: String, label: 'Name' }),
+    description: field({ type: String, optional: true, label: 'Description' }),
+    subOf: field({ type: String, optional: true, label: 'Parent segment' }),
+    color: field({ type: String, label: 'Color code' }),
+    connector: field({ type: String, label: 'Connector' }),
+    conditions: field({ type: [conditionSchema], label: 'Conditions' }),
   }),
 );

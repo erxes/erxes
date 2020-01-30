@@ -142,7 +142,10 @@ describe('Test tickets mutations', () => {
     const ticketToStage = await ticketFactory({});
 
     const args = {
-      orders: [{ _id: ticket._id, order: 9 }, { _id: ticketToStage._id, order: 3 }],
+      orders: [
+        { _id: ticket._id, order: 9 },
+        { _id: ticketToStage._id, order: 3 },
+      ],
       stageId: stage._id,
     };
 

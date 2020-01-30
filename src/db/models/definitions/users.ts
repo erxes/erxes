@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { linkSchema } from './common';
 import { field } from './utils';
 
 export interface IEmailSignature {
@@ -78,18 +79,6 @@ const detailSchema = new Schema(
     location: field({ type: String, optional: true, label: 'Location' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     operatorPhone: field({ type: String, optional: true, label: 'Company phone' }),
-  },
-  { _id: false },
-);
-
-const linkSchema = new Schema(
-  {
-    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
-    twitter: field({ type: String, optional: true, label: 'Twitter' }),
-    facebook: field({ type: String, optional: true, label: 'Facebook' }),
-    github: field({ type: String, optional: true, label: 'Github' }),
-    youtube: field({ type: String, optional: true, label: 'Youtube' }),
-    website: field({ type: String, optional: true, label: 'Website' }),
   },
   { _id: false },
 );

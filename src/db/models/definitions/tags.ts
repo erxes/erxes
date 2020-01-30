@@ -17,13 +17,14 @@ export interface ITagDocument extends ITag, Document {
 export const tagSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String }),
+    name: field({ type: String, label: 'Name' }),
     type: field({
       type: String,
       enum: TAG_TYPES.ALL,
+      label: 'Type',
     }),
-    colorCode: field({ type: String }),
-    createdAt: field({ type: Date }),
-    objectCount: field({ type: Number }),
+    colorCode: field({ type: String, label: 'Color code' }),
+    createdAt: field({ type: Date, label: 'Created at' }),
+    objectCount: field({ type: Number, label: 'Object count' }),
   }),
 );

@@ -1,14 +1,25 @@
+import * as _ from 'underscore';
 import { EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
-import { MESSAGE_KINDS } from '../../constants';
+import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils, { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import utils from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
 }
+
+/**
+ * These fields contain too much data & it's inappropriate
+ * to save such data in each log row
+ */
+const emptyCustomers = {
+  customerIds: [],
+  messengerReceivedCustomerIds: [],
+};
 
 const engageMutations = {
   /**
@@ -21,10 +32,15 @@ const engageMutations = {
 
     await putCreateLog(
       {
-        type: 'engage',
-        newData: JSON.stringify(doc),
-        object: engageMessage,
-        description: `${engageMessage.title} has been created`,
+        type: MODULE_NAMES.ENGAGE,
+        newData: {
+          ...doc,
+          ...emptyCustomers,
+        },
+        object: {
+          ...engageMessage.toObject(),
+          ...emptyCustomers,
+        },
       },
       user,
     );
@@ -47,10 +63,10 @@ const engageMutations = {
 
     await putUpdateLog(
       {
-        type: 'engage',
-        object: engageMessage,
-        newData: JSON.stringify(updated),
-        description: `${engageMessage.title} has been edited`,
+        type: MODULE_NAMES.ENGAGE,
+        object: { ...engageMessage.toObject(), ...emptyCustomers },
+        newData: { ...updated.toObject(), ...emptyCustomers },
+        updatedDocument: updated,
       },
       user,
     );
@@ -74,9 +90,8 @@ const engageMutations = {
 
     await putDeleteLog(
       {
-        type: 'engage',
-        object: engageMessage,
-        description: `${engageMessage.title} has been removed`,
+        type: MODULE_NAMES.ENGAGE,
+        object: { ...engageMessage.toObject(), ...emptyCustomers },
       },
       user,
     );

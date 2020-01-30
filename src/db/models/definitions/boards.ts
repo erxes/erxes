@@ -85,7 +85,7 @@ export interface IOrderInput {
   order: number;
 }
 
-const attachmentSchema = new Schema(
+export const attachmentSchema = new Schema(
   {
     name: field({ type: String, label: 'Name' }),
     url: field({ type: String, label: 'Url' }),
@@ -101,7 +101,7 @@ const commonFieldsSchema = {
   createdAt: field({
     type: Date,
     default: new Date(),
-    label: 'Created by',
+    label: 'Created at',
   }),
   order: field({ type: Number, label: 'Order' }),
   type: field({
@@ -170,8 +170,8 @@ export const pipelineSchema = new Schema({
     label: 'Hacking scoring type',
   }),
   templateId: field({ type: String, optional: true, label: 'Template' }),
-  isCheckUser: field({ type: Boolean, optional: true }),
-  excludeCheckUserIds: field({ type: [String], optional: true }),
+  isCheckUser: field({ type: Boolean, optional: true, label: 'Show only the users created or assigned cards' }),
+  excludeCheckUserIds: field({ type: [String], optional: true, label: 'Users elligible to see all cards' }),
   ...commonFieldsSchema,
 });
 

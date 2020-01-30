@@ -13,6 +13,7 @@ describe('Segments mutations', () => {
   let _user;
   let _segment;
   let context;
+  let parentSegment;
 
   const commonParamDefs = `
     $name: String!
@@ -34,8 +35,9 @@ describe('Segments mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
+    parentSegment = await segmentFactory();
     _user = await userFactory({});
-    _segment = await segmentFactory({});
+    _segment = await segmentFactory({ subOf: parentSegment._id });
 
     context = { user: _user };
   });
@@ -95,12 +97,13 @@ describe('Segments mutations', () => {
 
   test('segmentsEdit', async () => {
     const { _id, name, description, color, connector } = _segment;
-    const subOf = _segment.subOf || faker.random.word();
+    const secondParent = await segmentFactory();
+
     const args = {
       _id,
       name,
       description,
-      subOf,
+      subOf: secondParent._id,
       color,
       connector,
       conditions: [

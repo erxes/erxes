@@ -1,12 +1,26 @@
-import { Companies, Customers, Deals, InternalNotes, Pipelines, Stages, Tasks, Tickets } from '../../../db/models';
+import {
+  Companies,
+  Customers,
+  Deals,
+  GrowthHacks,
+  InternalNotes,
+  Pipelines,
+  Products,
+  Stages,
+  Tasks,
+  Tickets,
+  Users,
+} from '../../../db/models';
 import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDealDocument } from '../../../db/models/definitions/deals';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
 import { ITaskDocument } from '../../../db/models/definitions/tasks';
 import { ITicketDocument } from '../../../db/models/definitions/tickets';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils, { ISendNotification, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import utils, { ISendNotification } from '../../utils';
 import { notifiedUserIds } from '../boardUtils';
 
 interface IInternalNotesEdit extends IInternalNote {
@@ -43,80 +57,91 @@ const internalNoteMutations = {
       createdUser: user,
       action: `mentioned you in ${contentType}`,
       receivers: mentionedUserIds,
-      content: ``,
-      link: ``,
-      notifType: ``,
-      contentType: ``,
-      contentTypeId: ``,
+      content: '',
+      link: '',
+      notifType: '',
+      contentType: '',
+      contentTypeId: '',
     };
 
-    switch (contentType) {
-      case 'deal': {
-        const deal = await Deals.getDeal(contentTypeId);
-        const stage = await Stages.getStage(deal.stageId);
-        const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    if (contentType === MODULE_NAMES.DEAL) {
+      const deal = await Deals.getDeal(contentTypeId);
+      const stage = await Stages.getStage(deal.stageId);
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-        notifDoc.notifType = NOTIFICATION_TYPES.DEAL_EDIT;
-        notifDoc.content = `"${deal.name}"`;
-        notifDoc.link = `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
-        notifDoc.contentTypeId = deal._id;
-        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.DEAL;
+      notifDoc.notifType = NOTIFICATION_TYPES.DEAL_EDIT;
+      notifDoc.content = `"${deal.name}"`;
+      notifDoc.link = `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
+      notifDoc.contentTypeId = deal._id;
+      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.DEAL;
 
-        await sendNotificationOfItems(deal, notifDoc, contentType, [...mentionedUserIds, user._id]);
-        break;
-      }
+      await sendNotificationOfItems(deal, notifDoc, contentType, [...mentionedUserIds, user._id]);
+    }
 
-      case 'customer': {
-        const customer = await Customers.getCustomer(contentTypeId);
+    if (contentType === MODULE_NAMES.CUSTOMER) {
+      const customer = await Customers.getCustomer(contentTypeId);
 
-        notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
-        notifDoc.content = Customers.getCustomerName(customer);
-        notifDoc.link = `/contacts/customers/details/${customer._id}`;
-        notifDoc.contentTypeId = customer._id;
-        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
-        break;
-      }
+      notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
+      notifDoc.content = Customers.getCustomerName(customer);
+      notifDoc.link = `/contacts/customers/details/${customer._id}`;
+      notifDoc.contentTypeId = customer._id;
+      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
+    }
 
-      case 'company': {
-        const company = await Companies.getCompany(contentTypeId);
+    if (contentType === MODULE_NAMES.COMPANY) {
+      const company = await Companies.getCompany(contentTypeId);
 
-        notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
-        notifDoc.content = Companies.getCompanyName(company);
-        notifDoc.link = `/contacts/companies/details/${company._id}`;
-        notifDoc.contentTypeId = company._id;
-        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
-        break;
-      }
+      notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
+      notifDoc.content = Companies.getCompanyName(company);
+      notifDoc.link = `/contacts/companies/details/${company._id}`;
+      notifDoc.contentTypeId = company._id;
+      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
+    }
 
-      case 'ticket': {
-        const ticket = await Tickets.getTicket(contentTypeId);
-        const stage = await Stages.getStage(ticket.stageId);
-        const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    if (contentType === MODULE_NAMES.TICKET) {
+      const ticket = await Tickets.getTicket(contentTypeId);
+      const stage = await Stages.getStage(ticket.stageId);
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-        notifDoc.notifType = NOTIFICATION_TYPES.TICKET_EDIT;
-        notifDoc.content = `"${ticket.name}"`;
-        notifDoc.link = `/inbox/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
-        notifDoc.contentTypeId = ticket._id;
-        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
+      notifDoc.notifType = NOTIFICATION_TYPES.TICKET_EDIT;
+      notifDoc.content = `"${ticket.name}"`;
+      notifDoc.link = `/inbox/ticket/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
+      notifDoc.contentTypeId = ticket._id;
+      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
 
-        await sendNotificationOfItems(ticket, notifDoc, contentType, [...mentionedUserIds, user._id]);
-        break;
-      }
+      await sendNotificationOfItems(ticket, notifDoc, contentType, [...mentionedUserIds, user._id]);
+    }
 
-      case 'task': {
-        const task = await Tasks.getTask(contentTypeId);
-        const stage = await Stages.getStage(task.stageId);
-        const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+    if (contentType === MODULE_NAMES.TASK) {
+      const task = await Tasks.getTask(contentTypeId);
+      const stage = await Stages.getStage(task.stageId);
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-        notifDoc.notifType = NOTIFICATION_TYPES.TASK_EDIT;
-        notifDoc.content = `"${task.name}"`;
-        notifDoc.link = `/task/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${task._id}`;
-        notifDoc.contentTypeId = task._id;
-        notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TASK;
+      notifDoc.notifType = NOTIFICATION_TYPES.TASK_EDIT;
+      notifDoc.content = `"${task.name}"`;
+      notifDoc.link = `/task/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${task._id}`;
+      notifDoc.contentTypeId = task._id;
+      notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TASK;
 
-        await sendNotificationOfItems(task, notifDoc, contentType, [...mentionedUserIds, user._id]);
-        break;
-      }
+      await sendNotificationOfItems(task, notifDoc, contentType, [...mentionedUserIds, user._id]);
+    }
+
+    if (contentType === MODULE_NAMES.GROWTH_HACK) {
+      const hack = await GrowthHacks.getGrowthHack(contentTypeId);
+
+      notifDoc.content = `${hack.name}`;
+    }
+
+    if (contentType === MODULE_NAMES.USER) {
+      const usr = await Users.getUser(contentTypeId);
+
+      notifDoc.content = `${usr.username || usr.email}`;
+    }
+
+    if (contentType === MODULE_NAMES.PRODUCT) {
+      const product = await Products.getProduct({ _id: contentTypeId });
+
+      notifDoc.content = product.name;
     }
 
     if (notifDoc.contentType) {
@@ -125,17 +150,15 @@ const internalNoteMutations = {
 
     const internalNote = await InternalNotes.createInternalNote(args, user);
 
-    if (internalNote) {
-      await putCreateLog(
-        {
-          type: 'internalNote',
-          newData: JSON.stringify(args),
-          object: internalNote,
-          description: `${internalNote.contentType} has been created`,
-        },
-        user,
-      );
-    }
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.INTERNAL_NOTE,
+        newData: { ...args, createdUserId: user._id, createdAt: internalNote.createdAt },
+        object: internalNote,
+        description: `A note for ${internalNote.contentType} "${notifDoc.content}" has been created`,
+      },
+      user,
+    );
 
     return internalNote;
   },
@@ -149,10 +172,9 @@ const internalNoteMutations = {
 
     await putUpdateLog(
       {
-        type: 'internalNote',
+        type: MODULE_NAMES.INTERNAL_NOTE,
         object: internalNote,
-        newData: JSON.stringify(doc),
-        description: `${internalNote.contentType} written at ${internalNote.createdAt} has been edited`,
+        newData: doc,
       },
       user,
     );
@@ -161,20 +183,13 @@ const internalNoteMutations = {
   },
 
   /**
-   * Remove a channel
+   * Removes an internal note
    */
   async internalNotesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const internalNote = await InternalNotes.getInternalNote(_id);
     const removed = await InternalNotes.removeInternalNote(_id);
 
-    await putDeleteLog(
-      {
-        type: 'internalNote',
-        object: internalNote,
-        description: `${internalNote.contentType} written at ${internalNote.createdAt} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.INTERNAL_NOTE, object: internalNote }, user);
 
     return removed;
   },

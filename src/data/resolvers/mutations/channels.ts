@@ -1,10 +1,13 @@
+import * as _ from 'underscore';
 import { Channels } from '../../../db/models';
 import { IChannel, IChannelDocument } from '../../../db/models/definitions/channels';
 import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils, { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog, registerOnboardHistory } from '../../utils';
+import utils, { checkUserIds, registerOnboardHistory } from '../../utils';
 
 interface IChannelsEdit extends IChannel {
   _id: string;
@@ -51,10 +54,9 @@ const channelMutations = {
 
     await putCreateLog(
       {
-        type: 'channel',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.CHANNEL,
+        newData: { ...doc, userId: user._id },
         object: channel,
-        description: `${doc.name} has been created`,
       },
       user,
     );
@@ -68,9 +70,7 @@ const channelMutations = {
   async channelsEdit(_root, { _id, ...doc }: IChannelsEdit, { user }: IContext) {
     const channel = await Channels.getChannel(_id);
 
-    const { memberIds } = doc;
-
-    const { addedUserIds, removedUserIds } = checkUserIds(channel.memberIds || [], memberIds || []);
+    const { addedUserIds, removedUserIds } = checkUserIds(channel.memberIds || [], doc.memberIds || []);
 
     await sendChannelNotifications(channel, 'invited', user, addedUserIds);
     await sendChannelNotifications(channel, 'removed', user, removedUserIds);
@@ -79,10 +79,10 @@ const channelMutations = {
 
     await putUpdateLog(
       {
-        type: 'channel',
+        type: MODULE_NAMES.CHANNEL,
         object: channel,
-        newData: JSON.stringify(doc),
-        description: `${channel.name} has been updated`,
+        newData: doc,
+        updatedDocument: updated,
       },
       user,
     );
@@ -104,14 +104,7 @@ const channelMutations = {
 
     await Channels.removeChannel(_id);
 
-    await putDeleteLog(
-      {
-        type: 'channel',
-        object: channel,
-        description: `${channel.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.CHANNEL, object: channel }, user);
 
     return true;
   },

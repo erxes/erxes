@@ -1,8 +1,9 @@
 import { ResponseTemplates } from '../../../db/models';
 import { IResponseTemplate } from '../../../db/models/definitions/responseTemplates';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IResponseTemplatesEdit extends IResponseTemplate {
   _id: string;
@@ -10,17 +11,16 @@ interface IResponseTemplatesEdit extends IResponseTemplate {
 
 const responseTemplateMutations = {
   /**
-   * Create new response template
+   * Creates a new response template
    */
   async responseTemplatesAdd(_root, doc: IResponseTemplate, { user, docModifier }: IContext) {
     const template = await ResponseTemplates.create(docModifier(doc));
 
     await putCreateLog(
       {
-        type: 'responseTemplate',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.RESPONSE_TEMPLATE,
+        newData: doc,
         object: template,
-        description: `${template.name} has been created`,
       },
       user,
     );
@@ -29,7 +29,7 @@ const responseTemplateMutations = {
   },
 
   /**
-   * Update response template
+   * Updates a response template
    */
   async responseTemplatesEdit(_root, { _id, ...fields }: IResponseTemplatesEdit, { user }: IContext) {
     const template = await ResponseTemplates.getResponseTemplate(_id);
@@ -37,10 +37,10 @@ const responseTemplateMutations = {
 
     await putUpdateLog(
       {
-        type: 'responseTemplate',
+        type: MODULE_NAMES.RESPONSE_TEMPLATE,
         object: template,
-        newData: JSON.stringify(fields),
-        description: `${template.name} has been edited`,
+        newData: fields,
+        updatedDocument: updated,
       },
       user,
     );
@@ -49,20 +49,13 @@ const responseTemplateMutations = {
   },
 
   /**
-   * Delete response template
+   * Deletes a response template
    */
   async responseTemplatesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const template = await ResponseTemplates.getResponseTemplate(_id);
     const removed = await ResponseTemplates.removeResponseTemplate(_id);
 
-    await putDeleteLog(
-      {
-        type: 'responseTemplate',
-        object: template,
-        description: `${template.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.RESPONSE_TEMPLATE, object: template }, user);
 
     return removed;
   },

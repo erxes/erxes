@@ -10,7 +10,7 @@ import { graphqlPubsub } from './pubsub';
 
 dotenv.config();
 
-const { RABBITMQ_HOST = 'amqp://localhost' } = process.env;
+const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 
 let connection;
 let channel;
@@ -53,6 +53,10 @@ export const sendRPCMessage = async (message): Promise<any> => {
 };
 
 export const sendMessage = async (queueName: string, data?: any) => {
+  if (NODE_ENV === 'test') {
+    return;
+  }
+
   await channel.assertQueue(queueName);
   await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
 };

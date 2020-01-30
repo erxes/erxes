@@ -1,8 +1,9 @@
 import { Segments } from '../../../db/models';
 import { ISegment } from '../../../db/models/definitions/segments';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface ISegmentsEdit extends ISegment {
   _id: string;
@@ -13,14 +14,14 @@ const segmentMutations = {
    * Create new segment
    */
   async segmentsAdd(_root, doc: ISegment, { user, docModifier }: IContext) {
-    const segment = await Segments.createSegment(docModifier(doc));
+    const extendedDoc = docModifier(doc);
+    const segment = await Segments.createSegment(extendedDoc);
 
     await putCreateLog(
       {
-        type: `${doc.contentType}Segment`,
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.SEGMENT,
+        newData: doc,
         object: segment,
-        description: `${segment.name} has been created`,
       },
       user,
     );
@@ -37,10 +38,10 @@ const segmentMutations = {
 
     await putUpdateLog(
       {
-        type: 'segment',
+        type: MODULE_NAMES.SEGMENT,
         object: segment,
-        newData: JSON.stringify(doc),
-        description: `${segment.name} has been edited`,
+        newData: doc,
+        updatedDocument: updated,
       },
       user,
     );
@@ -55,14 +56,7 @@ const segmentMutations = {
     const segment = await Segments.getSegment(_id);
     const removed = await Segments.removeSegment(_id);
 
-    await putDeleteLog(
-      {
-        type: 'segment',
-        object: segment,
-        description: `${segment.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.SEGMENT, object: segment }, user);
 
     return removed;
   },

@@ -3,9 +3,10 @@ import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/def
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
 import { sendRPCMessage } from '../../../messageBroker';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -13,17 +14,16 @@ interface IEditIntegration extends IIntegration {
 
 const integrationMutations = {
   /**
-   * Create a new messenger integration
+   * Creates a new messenger integration
    */
   async integrationsCreateMessengerIntegration(_root, doc: IIntegration, { user }: IContext) {
     const integration = await Integrations.createMessengerIntegration(doc, user._id);
 
     await putCreateLog(
       {
-        type: 'messengerIntegration',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.INTEGRATION,
+        newData: { ...doc, createdUserId: user._id, isActive: true },
         object: integration,
-        description: `${integration.name} has been created`,
       },
       user,
     );
@@ -32,7 +32,7 @@ const integrationMutations = {
   },
 
   /**
-   * Update messenger integration
+   * Updates a messenger integration
    */
   async integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditIntegration, { user }: IContext) {
     const integration = await Integrations.getIntegration(_id);
@@ -40,10 +40,10 @@ const integrationMutations = {
 
     await putUpdateLog(
       {
-        type: 'integration',
+        type: MODULE_NAMES.INTEGRATION,
         object: integration,
-        newData: JSON.stringify(fields),
-        description: `${integration.name} has been edited`,
+        newData: fields,
+        updatedDocument: updated,
       },
       user,
     );
@@ -73,10 +73,9 @@ const integrationMutations = {
 
     await putCreateLog(
       {
-        type: 'leadIntegration',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.INTEGRATION,
+        newData: { ...doc, createdUserId: user._id, isActive: true },
         object: integration,
-        description: `${integration.name} has been created`,
       },
       user,
     );
@@ -125,10 +124,9 @@ const integrationMutations = {
 
       await putCreateLog(
         {
-          type: `${kind}Integration`,
-          newData: JSON.stringify(doc),
+          type: MODULE_NAMES.INTEGRATION,
+          newData: { ...doc, createdUserId: user._id, isActive: true },
           object: integration,
-          description: `${integration.name} has been created`,
         },
         user,
       );
@@ -142,15 +140,14 @@ const integrationMutations = {
 
   async integrationsEditCommonFields(_root, { _id, name, brandId }, { user }) {
     const integration = await Integrations.getIntegration(_id);
-
     const updated = Integrations.updateBasicInfo(_id, { name, brandId });
 
     await putUpdateLog(
       {
-        type: 'integration',
+        type: MODULE_NAMES.INTEGRATION,
         object: { name: integration.name, brandId: integration.brandId },
-        newData: JSON.stringify({ name, brandId }),
-        description: `${integration.name} has been edited`,
+        newData: { name, brandId },
+        updatedDocument: updated,
       },
       user,
     );
@@ -173,7 +170,7 @@ const integrationMutations = {
   },
 
   /**
-   * Delete an integration
+   * Deletes an integration
    */
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
     const integration = await Integrations.getIntegration(_id);
@@ -196,14 +193,7 @@ const integrationMutations = {
       await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
     }
 
-    await putDeleteLog(
-      {
-        type: 'integration',
-        object: integration,
-        description: `${integration.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
 
     return Integrations.removeIntegration(_id);
   },
@@ -256,14 +246,16 @@ const integrationMutations = {
 
   async integrationsArchive(_root, { _id }: { _id: string }, { user }: IContext) {
     const integration = await Integrations.getIntegration(_id);
-    await Integrations.updateOne({ _id }, { $set: { isActive: false } });
+
+    const updated = await Integrations.updateOne({ _id }, { $set: { isActive: false } });
 
     await putUpdateLog(
       {
-        type: 'integration',
+        type: MODULE_NAMES.INTEGRATION,
         object: integration,
-        newData: JSON.stringify({ isActive: false }),
-        description: `Integration "${integration.name}" has been archived.`,
+        newData: { isActive: false },
+        description: `"${integration.name}" has been archived.`,
+        updatedDocument: updated,
       },
       user,
     );

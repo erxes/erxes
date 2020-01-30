@@ -9,6 +9,7 @@ import {
   dealFactory,
   pipelineFactory,
   pipelineLabelFactory,
+  productFactory,
   stageFactory,
   userFactory,
 } from '../db/factories';
@@ -20,11 +21,12 @@ import {
   Deals,
   PipelineLabels,
   Pipelines,
+  Products,
   Stages,
 } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { BOARD_TYPES } from '../db/models/definitions/constants';
-import { IDealDocument } from '../db/models/definitions/deals';
+import { IDealDocument, IProductDocument } from '../db/models/definitions/deals';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { IUserDocument } from '../db/models/definitions/users';
 
@@ -36,18 +38,21 @@ describe('Test deals mutations', () => {
   let stage: IStageDocument;
   let deal: IDealDocument;
   let label: IPipelineLabelDocument;
+  let product: IProductDocument;
   let user: IUserDocument;
 
   const commonDealParamDefs = `
     $name: String!,
     $stageId: String!
     $assignedUserIds: [String]
+    $productsData: JSON
   `;
 
   const commonDealParams = `
     name: $name
     stageId: $stageId
     assignedUserIds: $assignedUserIds
+    productsData: $productsData
   `;
 
   beforeEach(async () => {
@@ -58,7 +63,13 @@ describe('Test deals mutations', () => {
     pipeline = await pipelineFactory({ boardId: board._id, watchedUserIds: [user._id] });
     stage = await stageFactory({ pipelineId: pipeline._id });
     label = await pipelineLabelFactory({ pipelineId: pipeline._id });
-    deal = await dealFactory({ stageId: stage._id, labelIds: [label._id] });
+    product = await productFactory();
+    deal = await dealFactory({
+      initialStageId: stage._id,
+      stageId: stage._id,
+      labelIds: [label._id],
+      productsData: [{ productId: product._id }],
+    });
   });
 
   afterEach(async () => {
@@ -68,6 +79,7 @@ describe('Test deals mutations', () => {
     await Stages.deleteMany({});
     await Deals.deleteMany({});
     await PipelineLabels.deleteMany({});
+    await Products.deleteMany({});
   });
 
   test('Create deal', async () => {
@@ -105,10 +117,13 @@ describe('Test deals mutations', () => {
       }
     `;
 
+    const product2 = await productFactory();
+
     const args: any = {
       _id: deal._id,
       name: deal.name,
       stageId: stage._id,
+      productsData: [{ productId: product2._id }, { productId: product._id }],
     };
 
     let response = await graphqlRequest(mutation, 'dealsEdit', args);
@@ -170,7 +185,10 @@ describe('Test deals mutations', () => {
     const dealToStage = await dealFactory({});
 
     const args = {
-      orders: [{ _id: deal._id, order: 9 }, { _id: dealToStage._id, order: 3 }],
+      orders: [
+        { _id: deal._id, order: 9 },
+        { _id: dealToStage._id, order: 3 },
+      ],
       stageId: stage._id,
     };
 

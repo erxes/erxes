@@ -12,16 +12,17 @@ export interface IScript {
 
 export interface IScriptDocument extends IScript, Document {
   _id: string;
+  scopeBrandIds?: string[];
 }
 
 export const scriptSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String }),
-    messengerId: field({ type: String, optional: true }),
-    messengerBrandCode: field({ type: String, optional: true }),
-    kbTopicId: field({ type: String, optional: true }),
-    leadIds: field({ type: [String], optional: true }),
+    name: field({ type: String, label: 'Name' }),
+    messengerId: field({ type: String, optional: true, label: 'Messenger integration' }),
+    messengerBrandCode: field({ type: String, optional: true, label: 'Messenger brand code' }),
+    kbTopicId: field({ type: String, optional: true, label: 'Knowledgebase topic' }),
+    leadIds: field({ type: [String], optional: true, label: 'Leads' }),
     leadMaps: field({ type: [Object], optional: true }),
   }),
 );

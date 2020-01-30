@@ -3,9 +3,11 @@ import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
   IBoardNotificationParams,
@@ -26,11 +28,13 @@ const growthHackMutations = {
     doc.initialStageId = doc.stageId;
     doc.watchedUserIds = [user._id];
 
-    const growthHack = await GrowthHacks.createGrowthHack({
+    const extendedDoc = {
       ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
-    });
+    };
+
+    const growthHack = await GrowthHacks.createGrowthHack(extendedDoc);
 
     await sendNotifications({
       item: growthHack,
@@ -38,15 +42,19 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_ADD,
       action: 'invited you to the growthHack',
       content: `'${growthHack.name}'.`,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     });
 
     await putCreateLog(
       {
-        type: 'growthHack',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.GROWTH_HACK,
+        newData: {
+          ...extendedDoc,
+          createdAt: growthHack.createdAt,
+          modifiedAt: growthHack.modifiedAt,
+          order: growthHack.order,
+        },
         object: growthHack,
-        description: `${growthHack.name} has been created`,
       },
       user,
     );
@@ -60,11 +68,13 @@ const growthHackMutations = {
   async growthHacksEdit(_root, { _id, ...doc }: IGrowthHacksEdit, { user }) {
     const oldGrowthHack = await GrowthHacks.getGrowthHack(_id);
 
-    const updatedGrowthHack = await GrowthHacks.updateGrowthHack(_id, {
+    const extendedDoc = {
       ...doc,
       modifiedAt: new Date(),
       modifiedBy: user._id,
-    });
+    };
+
+    const updatedGrowthHack = await GrowthHacks.updateGrowthHack(_id, extendedDoc);
 
     const notificationDoc: IBoardNotificationParams = {
       item: updatedGrowthHack,
@@ -72,7 +82,7 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_EDIT,
       action: `has updated a growth hack`,
       content: `${updatedGrowthHack.name}`,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     };
 
     if (doc.assignedUserIds && doc.assignedUserIds.length > 0 && oldGrowthHack.assignedUserIds) {
@@ -89,10 +99,10 @@ const growthHackMutations = {
 
     await putUpdateLog(
       {
-        type: 'growthHack',
-        object: updatedGrowthHack,
-        newData: JSON.stringify(doc),
-        description: `${updatedGrowthHack.name} has been edited`,
+        type: MODULE_NAMES.GROWTH_HACK,
+        object: oldGrowthHack,
+        newData: extendedDoc,
+        updatedDocument: updatedGrowthHack,
       },
       user,
     );
@@ -116,7 +126,7 @@ const growthHackMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(user._id, growthHack, 'growthHack', destinationStageId);
+    const { content, action } = await itemsChange(user._id, growthHack, MODULE_NAMES.GROWTH_HACK, destinationStageId);
 
     await sendNotifications({
       item: growthHack,
@@ -124,7 +134,7 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_CHANGE,
       content,
       action,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     });
 
     return growthHack;
@@ -149,21 +159,14 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_DELETE,
       action: `deleted growth hack:`,
       content: `'${growthHack.name}'`,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     });
 
     await ActivityLogs.removeActivityLog(growthHack._id);
 
     const removed = growthHack.remove();
 
-    await putDeleteLog(
-      {
-        type: 'growthHack',
-        object: growthHack,
-        description: `${growthHack.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.GROWTH_HACK, object: growthHack }, user);
 
     await ActivityLogs.removeActivityLog(growthHack._id);
 

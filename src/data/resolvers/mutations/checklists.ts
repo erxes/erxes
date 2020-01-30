@@ -1,8 +1,9 @@
 import { ChecklistItems, Checklists } from '../../../db/models';
 import { IChecklist, IChecklistItem } from '../../../db/models/definitions/checklists';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IChecklistsEdit extends IChecklist {
   _id: string;
@@ -21,10 +22,9 @@ const checklistMutations = {
 
     await putCreateLog(
       {
-        type: 'checklist',
-        newData: JSON.stringify(args),
+        type: MODULE_NAMES.CHECKLIST,
+        newData: args,
         object: checklist,
-        description: `${checklist.contentType} has been created`,
       },
       user,
     );
@@ -41,10 +41,10 @@ const checklistMutations = {
 
     await putUpdateLog(
       {
-        type: 'checklist',
+        type: MODULE_NAMES.CHECKLIST,
         object: checklist,
-        newData: JSON.stringify(doc),
-        description: `${checklist.contentType} written at ${checklist.createdDate} has been edited`,
+        newData: doc,
+        updatedDocument: updated,
       },
       user,
     );
@@ -53,20 +53,13 @@ const checklistMutations = {
   },
 
   /**
-   * Remove a checklist
+   * Removes a checklist
    */
   async checklistsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const checklist = await Checklists.getChecklist(_id);
     const removed = await Checklists.removeChecklist(_id);
 
-    await putDeleteLog(
-      {
-        type: 'checklist',
-        object: checklist,
-        description: `${checklist.contentType} written at ${checklist.createdDate} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.CHECKLIST, object: checklist }, user);
 
     return removed;
   },
@@ -75,16 +68,13 @@ const checklistMutations = {
    * Adds checklistItems object and also adds an activity log
    */
   async checklistItemsAdd(_root, args: IChecklistItem, { user }: IContext) {
-    const checklist = await Checklists.getChecklist(args.checklistId);
-
     const checklistItem = await ChecklistItems.createChecklistItem(args, user);
 
     await putCreateLog(
       {
-        type: 'checklistItem',
-        newData: JSON.stringify(args),
+        type: MODULE_NAMES.CHECKLIST_ITEM,
+        newData: args,
         object: checklistItem,
-        description: `${checklist.contentType} has been created`,
       },
       user,
     );
@@ -93,19 +83,17 @@ const checklistMutations = {
   },
 
   /**
-   * Updates checklistItem object
+   * Updates a checklist item
    */
   async checklistItemsEdit(_root, { _id, ...doc }: IChecklistItemsEdit, { user }: IContext) {
     const checklistItem = await ChecklistItems.getChecklistItem(_id);
-    const checklist = await Checklists.getChecklist(checklistItem.checklistId);
     const updated = await ChecklistItems.updateChecklistItem(_id, doc);
 
     await putUpdateLog(
       {
-        type: 'checklistItem',
+        type: MODULE_NAMES.CHECKLIST_ITEM,
         object: checklistItem,
-        newData: JSON.stringify(doc),
-        description: `${checklist.contentType} written at ${checklistItem.createdDate} has been edited /checked/`,
+        newData: doc,
       },
       user,
     );
@@ -114,21 +102,13 @@ const checklistMutations = {
   },
 
   /**
-   * Remove a channel
+   * Removes a checklist item
    */
   async checklistItemsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const checklistItem = await ChecklistItems.getChecklistItem(_id);
-    const checklist = await Checklists.getChecklist(checklistItem.checklistId);
     const removed = await ChecklistItems.removeChecklistItem(_id);
 
-    await putDeleteLog(
-      {
-        type: 'checklist',
-        object: checklistItem,
-        description: `${checklist.contentType} written at ${checklistItem.createdDate} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.CHECKLIST_ITEM, object: checklistItem }, user);
 
     return removed;
   },

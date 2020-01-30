@@ -41,46 +41,47 @@ export const fieldSchema = new Schema({
   _id: field({ pkey: true }),
 
   // form, customer, company
-  contentType: field({ type: String }),
+  contentType: field({ type: String, label: 'Content type' }),
 
   // formId when contentType is form
-  contentTypeId: field({ type: String }),
+  contentTypeId: field({ type: String, label: 'Content type item' }),
 
-  type: field({ type: String }),
+  type: field({ type: String, label: 'Type' }),
   validation: field({
     type: String,
     optional: true,
+    label: 'Validation',
   }),
-  text: field({ type: String }),
+  text: field({ type: String, label: 'Text' }),
   description: field({
     type: String,
     optional: true,
+    label: 'Description',
   }),
   options: field({
     type: [String],
     optional: true,
+    label: 'Options',
   }),
-  isRequired: field({ type: Boolean }),
-  isDefinedByErxes: field({ type: Boolean }),
-  order: field({ type: Number }),
-  groupId: field({ type: String }),
-  isVisible: field({ type: Boolean, default: true }),
-  lastUpdatedUserId: field({ type: String }),
+  isRequired: field({ type: Boolean, label: 'Is required' }),
+  isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
+  order: field({ type: Number, label: 'Order' }),
+  groupId: field({ type: String, label: 'Field group' }),
+  isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
+  lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
 });
 
 export const fieldGroupSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String }),
+    name: field({ type: String, label: 'Name' }),
     // customer, company
-    contentType: field({ type: String, enum: FIELDS_GROUPS_CONTENT_TYPES.ALL }),
-    order: field({ type: Number }),
-    isDefinedByErxes: field({ type: Boolean, default: false }),
-    description: field({
-      type: String,
-    }),
+    contentType: field({ type: String, enum: FIELDS_GROUPS_CONTENT_TYPES.ALL, label: 'Content type' }),
+    order: field({ type: Number, label: 'Order' }),
+    isDefinedByErxes: field({ type: Boolean, default: false, label: 'Is defined by erxes' }),
+    description: field({ type: String, label: 'Description' }),
     // Id of user who updated the group
-    lastUpdatedUserId: field({ type: String }),
-    isVisible: field({ type: Boolean, default: true }),
+    lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
+    isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
   }),
 );
