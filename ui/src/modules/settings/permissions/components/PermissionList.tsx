@@ -83,7 +83,7 @@ class PermissionList extends React.Component<Props> {
       });
     };
 
-    const actionBarLeft = (
+    const filters = (
       <FilterWrapper>
         <strong>{__('Filters')}:</strong>
         <FilterItem>
@@ -124,9 +124,10 @@ class PermissionList extends React.Component<Props> {
         </div>
       </FilterWrapper>
     );
+
     return (
       <>
-        {actionBarLeft}
+        {filters}
         <Table whiteSpace="nowrap" hover={true} bordered={true}>
           <thead>
             <tr>
@@ -159,14 +160,13 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderActionBar() {
-
     const trigger = (
       <Button btnStyle="primary" icon="plus-circle" uppercase={false}>
         New permission
       </Button>
     );
 
-    const leftActionBar = <Title>{this.props.currentGroupName || __("All permissions")}</Title>;
+    const title = <Title>{this.props.currentGroupName || __("All permissions")}</Title>;
 
     const actionBarRight = (
       <NotWrappable>
@@ -179,7 +179,7 @@ class PermissionList extends React.Component<Props> {
       </NotWrappable>
     );
 
-    return <Wrapper.ActionBar left={leftActionBar} right={actionBarRight} background="colorWhite" />;
+    return <Wrapper.ActionBar left={title} right={actionBarRight} background="colorWhite" />;
   }
 
   render() {
