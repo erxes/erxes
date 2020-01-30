@@ -36,10 +36,13 @@ mongoose.connection
   });
 
 export const connect = async (URL?: string, options?) => {
-  return mongoose.connect(URL || MONGO_URL, {
-    ...connectionOptions,
-    ...(options || { poolSize: 100 }),
-  });
+  return mongoose.connect(
+    URL || MONGO_URL,
+    {
+      ...connectionOptions,
+      ...(options || { poolSize: 100 }),
+    },
+  );
 };
 
 export function disconnect() {

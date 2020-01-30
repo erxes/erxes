@@ -22,15 +22,10 @@ export const internalNoteSchema = new Schema({
   contentType: field({
     type: String,
     enum: ACTIVITY_CONTENT_TYPES.ALL,
+    label: 'Content type',
   }),
-  contentTypeId: field({ type: String }),
-  content: field({
-    type: String,
-  }),
-  createdUserId: field({
-    type: String,
-  }),
-  createdAt: field({
-    type: Date,
-  }),
+  contentTypeId: field({ type: String, label: 'Content item' }),
+  content: field({ type: String, label: 'Content' }),
+  createdUserId: field({ type: String, label: 'Created by' }),
+  createdAt: field({ type: Date, label: 'Created at' }),
 });

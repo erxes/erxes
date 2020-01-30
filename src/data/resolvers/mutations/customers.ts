@@ -1,8 +1,9 @@
 import { ActivityLogs, Customers } from '../../../db/models';
 import { ICustomer } from '../../../db/models/definitions/customers';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -13,14 +14,14 @@ const customerMutations = {
    * Create new customer also adds Customer registration log
    */
   async customersAdd(_root, doc: ICustomer, { user, docModifier }: IContext) {
-    const customer = await Customers.createCustomer(docModifier(doc), user);
+    const modifiedDoc = docModifier(doc);
+    const customer = await Customers.createCustomer(modifiedDoc, user);
 
     await putCreateLog(
       {
-        type: 'customer',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.CUSTOMER,
+        newData: modifiedDoc,
         object: customer,
-        description: `${customer.firstName} has been created`,
       },
       user,
     );
@@ -29,7 +30,7 @@ const customerMutations = {
   },
 
   /**
-   * Update customer
+   * Updates a customer
    */
   async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: IContext) {
     const customer = await Customers.getCustomer(_id);
@@ -37,10 +38,10 @@ const customerMutations = {
 
     await putUpdateLog(
       {
-        type: 'customer',
+        type: MODULE_NAMES.CUSTOMER,
         object: customer,
-        newData: JSON.stringify(doc),
-        description: `${customer.firstName} has been updated`,
+        newData: doc,
+        updatedDocument: updated,
       },
       user,
     );
@@ -63,21 +64,14 @@ const customerMutations = {
    * Remove customers
    */
   async customersRemove(_root, { customerIds }: { customerIds: string[] }, { user }: IContext) {
-    const customers = await Customers.find({ _id: { $in: customerIds } }, { firstName: 1 }).lean();
+    const customers = await Customers.find({ _id: { $in: customerIds } }).lean();
 
     await Customers.removeCustomers(customerIds);
 
     for (const customer of customers) {
       await ActivityLogs.removeActivityLog(customer._id);
 
-      await putDeleteLog(
-        {
-          type: 'customer',
-          object: customer,
-          description: `${customer.firstName} has been deleted`,
-        },
-        user,
-      );
+      await putDeleteLog({ type: MODULE_NAMES.CUSTOMER, object: customer }, user);
     }
 
     return customerIds;

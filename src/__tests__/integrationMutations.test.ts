@@ -1,6 +1,13 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
+import {
+  brandFactory,
+  customerFactory,
+  formFactory,
+  integrationFactory,
+  tagsFactory,
+  userFactory,
+} from '../db/factories';
 import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
 import * as messageBroker from '../messageBroker';
 
@@ -10,6 +17,8 @@ import './setup.ts';
 describe('mutations', () => {
   let _integration;
   let _brand;
+  let tag;
+  let form;
 
   const commonParamDefs = `
     $name: String!
@@ -41,8 +50,10 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _integration = await integrationFactory({});
     _brand = await brandFactory({});
+    tag = await tagsFactory();
+    form = await formFactory();
+    _integration = await integrationFactory({ brandId: _brand._id, formId: form._id, tagIds: [tag._id] });
   });
 
   afterEach(async () => {
@@ -79,10 +90,12 @@ describe('mutations', () => {
   });
 
   test('Edit messenger integration', async () => {
+    const secondBrand = await brandFactory();
+
     const args = {
       _id: _integration._id,
       name: _integration.name,
-      brandId: _brand._id,
+      brandId: secondBrand._id,
       languageCode: 'en',
     };
 
@@ -520,7 +533,8 @@ describe('mutations', () => {
       }
     `;
 
-    const messengerIntegration = await integrationFactory({ kind: 'messenger' });
+    const messengerIntegration = await integrationFactory({ kind: 'messenger', formId: form._id, tagIds: [tag._id] });
+
     await graphqlRequest(mutation, 'integrationsRemove', {
       _id: messengerIntegration._id,
     });

@@ -1,8 +1,9 @@
 import { Brands } from '../../../db/models';
 import { IBrand, IBrandEmailConfig } from '../../../db/models/definitions/brands';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IBrandsEdit extends IBrand {
   _id: string;
@@ -17,10 +18,9 @@ const brandMutations = {
 
     await putCreateLog(
       {
-        type: 'brand',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.BRAND,
+        newData: { ...doc, userId: user._id },
         object: brand,
-        description: `${doc.name} has been created`,
       },
       user,
     );
@@ -37,10 +37,9 @@ const brandMutations = {
 
     await putUpdateLog(
       {
-        type: 'brand',
+        type: MODULE_NAMES.BRAND,
         object: brand,
-        newData: JSON.stringify(fields),
-        description: `${fields.name} has been edited`,
+        newData: fields,
       },
       user,
     );
@@ -55,14 +54,7 @@ const brandMutations = {
     const brand = await Brands.getBrand(_id);
     const removed = await Brands.removeBrand(_id);
 
-    await putDeleteLog(
-      {
-        type: 'brand',
-        object: brand,
-        description: `${brand.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.BRAND, object: brand }, user);
 
     return removed;
   },
@@ -80,8 +72,9 @@ const brandMutations = {
 
     await putUpdateLog(
       {
-        type: 'brand',
+        type: MODULE_NAMES.BRAND,
         object: brand,
+        newData: { emailConfig },
         description: `${brand.name} email config has been changed`,
       },
       user,

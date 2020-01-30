@@ -88,6 +88,7 @@ describe('engage message mutation tests', () => {
       connector: 'any',
       conditions: [{ field: 'primaryEmail', operator: 'c', value: '@', type: 'string' }],
     });
+
     _message = await engageMessageFactory({
       kind: 'auto',
       userId: _user._id,
@@ -95,7 +96,11 @@ describe('engage message mutation tests', () => {
         content: 'content',
         brandId: _brand.id,
       },
+      segmentIds: [_segment._id],
+      brandIds: [_brand._id],
+      tagIds: [_tag._id],
     });
+
     _customer = await customerFactory({
       hasValidEmail: true,
       status: STATUSES.ACTIVE,
@@ -104,6 +109,7 @@ describe('engage message mutation tests', () => {
       firstName: faker.random.word(),
       lastName: faker.random.word(),
     });
+
     _integration = await integrationFactory({ brandId: 'brandId' });
 
     _doc = {
@@ -488,10 +494,14 @@ describe('engage message mutation tests', () => {
         }
       }
     `;
+
     const fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
     fetchSpy.mockImplementation(() => Promise.resolve('ok'));
 
-    const engageMessage = await graphqlRequest(mutation, 'engageMessageEdit', { ..._doc, _id: _message._id });
+    const editedUser = await userFactory();
+    const args = { ..._doc, _id: _message._id, fromUserId: editedUser._id };
+
+    const engageMessage = await graphqlRequest(mutation, 'engageMessageEdit', args);
 
     fetchSpy.mockRestore();
 
@@ -504,7 +514,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.tagIds).toEqual(_doc.tagIds);
     expect(engageMessage.customerIds).toEqual(_doc.customerIds);
     expect(engageMessage.title).toBe(_doc.title);
-    expect(engageMessage.fromUserId).toBe(_doc.fromUserId);
+    expect(engageMessage.fromUserId).toBe(args.fromUserId);
     expect(engageMessage.messenger.brandId).toBe(_doc.messenger.brandId);
     expect(engageMessage.messenger.kind).toBe(_doc.messenger.kind);
     expect(engageMessage.messenger.sentAs).toBe(_doc.messenger.sentAs);
@@ -519,7 +529,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
     expect(tags).toEqual(_doc.tagIds);
     expect(engageMessage.email.toJSON()).toEqual(_doc.email);
-    expect(engageMessage.fromUser._id).toBe(_doc.fromUserId);
+    expect(engageMessage.fromUser._id).toBe(args.fromUserId);
 
     process.env.CRONS_API_DOMAIN = 'http://fake.erxes.io';
 

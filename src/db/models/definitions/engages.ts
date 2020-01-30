@@ -59,39 +59,41 @@ export interface IEngageMessageDocument extends IEngageMessage, Document {
 }
 
 // Mongoose schemas =======================
-const scheduleDateSchema = new Schema(
+export const scheduleDateSchema = new Schema(
   {
-    type: field({ type: String, optional: true }),
-    month: field({ type: String, optional: true }),
-    day: field({ type: String, optional: true }),
-    time: field({ type: Date, optional: true }),
+    type: field({ type: String, optional: true, label: 'Type' }),
+    month: field({ type: String, optional: true, label: 'Month' }),
+    day: field({ type: String, optional: true, label: 'Day' }),
+    time: field({ type: Date, optional: true, label: 'Time' }),
   },
   { _id: false },
 );
 
-const emailSchema = new Schema(
+export const emailSchema = new Schema(
   {
-    attachments: field({ type: Object, optional: true }),
-    subject: field({ type: String }),
-    content: field({ type: String }),
-    templateId: field({ type: String, optional: true }),
+    attachments: field({ type: Object, optional: true, label: 'Attachments' }),
+    subject: field({ type: String, label: 'Subject' }),
+    content: field({ type: String, label: 'Content' }),
+    templateId: field({ type: String, optional: true, label: 'Template' }),
   },
   { _id: false },
 );
 
-const messengerSchema = new Schema(
+export const messengerSchema = new Schema(
   {
-    brandId: field({ type: String }),
+    brandId: field({ type: String, label: 'Brand' }),
     kind: field({
       type: String,
       enum: MESSENGER_KINDS.ALL,
+      label: 'Kind',
     }),
     sentAs: field({
       type: String,
       enum: SENT_AS_CHOICES.ALL,
+      label: 'Sent as',
     }),
-    content: field({ type: String }),
-    rules: field({ type: [ruleSchema] }),
+    content: field({ type: String, label: 'Content' }),
+    rules: field({ type: [ruleSchema], label: 'Rules' }),
   },
   { _id: false },
 );
@@ -99,32 +101,35 @@ const messengerSchema = new Schema(
 export const engageMessageSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    kind: field({ type: String }),
+    kind: field({ type: String, label: 'Kind' }),
     segmentId: field({ type: String, optional: true }), // TODO Remove
     segmentIds: field({
       type: [String],
       optional: true,
+      label: 'Segments',
     }),
     brandIds: field({
       type: [String],
       optional: true,
+      label: 'Brands',
     }),
-    customerIds: field({ type: [String] }),
-    title: field({ type: String }),
-    fromUserId: field({ type: String }),
+    customerIds: field({ type: [String], label: 'Customers' }),
+    title: field({ type: String, label: 'Title' }),
+    fromUserId: field({ type: String, label: 'From user' }),
     method: field({
       type: String,
       enum: METHODS.ALL,
+      label: 'Method',
     }),
-    isDraft: field({ type: Boolean }),
-    isLive: field({ type: Boolean }),
-    stopDate: field({ type: Date }),
-    createdAt: field({ type: Date, default: Date.now }),
-    tagIds: field({ type: [String], optional: true }),
-    messengerReceivedCustomerIds: field({ type: [String] }),
+    isDraft: field({ type: Boolean, label: 'Is draft' }),
+    isLive: field({ type: Boolean, label: 'Is live' }),
+    stopDate: field({ type: Date, label: 'Stop date' }),
+    createdAt: field({ type: Date, default: Date.now, label: 'Created at' }),
+    tagIds: field({ type: [String], optional: true, label: 'Tags' }),
+    messengerReceivedCustomerIds: field({ type: [String], label: 'Received customers' }),
 
-    email: field({ type: emailSchema }),
-    scheduleDate: field({ type: scheduleDateSchema }),
-    messenger: field({ type: messengerSchema }),
+    email: field({ type: emailSchema, label: 'Email' }),
+    scheduleDate: field({ type: scheduleDateSchema, label: 'Schedule date' }),
+    messenger: field({ type: messengerSchema, label: 'Messenger' }),
   }),
 );

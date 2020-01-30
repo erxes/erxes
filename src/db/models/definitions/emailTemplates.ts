@@ -13,7 +13,7 @@ export interface IEmailTemplateDocument extends IEmailTemplate, Document {
 export const emailTemplateSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String }),
-    content: field({ type: String, optional: true }),
+    name: field({ type: String, label: 'Name' }),
+    content: field({ type: String, optional: true, label: 'Content' }),
   }),
 );

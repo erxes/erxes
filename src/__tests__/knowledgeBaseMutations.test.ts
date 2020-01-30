@@ -7,6 +7,7 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
+  userFactory,
 } from '../db/factories';
 
 import './setup.ts';
@@ -42,9 +43,9 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _knowledgeBaseTopic = await knowledgeBaseTopicFactory({});
-    _knowledgeBaseCategory = await knowledgeBaseCategoryFactory({});
     _knowledgeBaseArticle = await knowledgeBaseArticleFactory({});
+    _knowledgeBaseCategory = await knowledgeBaseCategoryFactory({ articleIds: [_knowledgeBaseArticle._id] });
+    _knowledgeBaseTopic = await knowledgeBaseTopicFactory({ categoryIds: [_knowledgeBaseCategory._id] });
     _brand = await brandFactory({});
   });
 
@@ -300,7 +301,8 @@ describe('mutations', () => {
   });
 
   test('Remove knowledge base article', async () => {
-    const _id = _knowledgeBaseArticle._id;
+    const user = await userFactory();
+    const article = await knowledgeBaseArticleFactory({ modifiedBy: user._id });
 
     const mutation = `
       mutation knowledgeBaseArticlesRemove($_id: String!) {
@@ -308,8 +310,8 @@ describe('mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', { _id });
+    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', { _id: article._id });
 
-    expect(await KnowledgeBaseArticles.findOne({ _id })).toBe(null);
+    expect(await KnowledgeBaseArticles.findOne({ _id: article._id })).toBe(null);
   });
 });

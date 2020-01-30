@@ -1,11 +1,14 @@
+import * as _ from 'underscore';
 import { ActivityLogs, Checklists, Conformities, Deals } from '../../../db/models';
 import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
+import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -22,17 +25,19 @@ interface IDealsEdit extends IDeal {
 
 const dealMutations = {
   /**
-   * Create new deal
+   * Creates a new deal
    */
   async dealsAdd(_root, doc: IDeal, { user, docModifier }: IContext) {
     doc.initialStageId = doc.stageId;
     doc.watchedUserIds = [user._id];
 
-    const deal = await Deals.createDeal({
+    const extendedDoc = {
       ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
-    });
+    };
+
+    const deal = await Deals.createDeal(extendedDoc);
 
     await sendNotifications({
       item: deal,
@@ -40,15 +45,14 @@ const dealMutations = {
       type: NOTIFICATION_TYPES.DEAL_ADD,
       action: 'invited you to the deal',
       content: `'${deal.name}'.`,
-      contentType: 'deal',
+      contentType: MODULE_NAMES.DEAL,
     });
 
     await putCreateLog(
       {
-        type: 'deal',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.DEAL,
+        newData: extendedDoc,
         object: deal,
-        description: `${deal.name} has been created`,
       },
       user,
     );
@@ -57,16 +61,18 @@ const dealMutations = {
   },
 
   /**
-   * Edit deal
+   * Edits a deal
    */
   async dealsEdit(_root, { _id, ...doc }: IDealsEdit, { user }: IContext) {
     const oldDeal = await Deals.getDeal(_id);
 
-    const updatedDeal = await Deals.updateDeal(_id, {
+    const extendedDoc = {
       ...doc,
       modifiedAt: new Date(),
       modifiedBy: user._id,
-    });
+    };
+
+    const updatedDeal = await Deals.updateDeal(_id, extendedDoc);
 
     await copyPipelineLabels({ item: oldDeal, doc, user });
 
@@ -76,7 +82,7 @@ const dealMutations = {
       type: NOTIFICATION_TYPES.DEAL_EDIT,
       action: `has updated deal`,
       content: `${updatedDeal.name}`,
-      contentType: 'deal',
+      contentType: MODULE_NAMES.DEAL,
     };
 
     if (doc.assignedUserIds) {
@@ -90,10 +96,10 @@ const dealMutations = {
 
     await putUpdateLog(
       {
-        type: 'deal',
-        object: updatedDeal,
-        newData: JSON.stringify(doc),
-        description: `${updatedDeal.name} has been edited`,
+        type: MODULE_NAMES.DEAL,
+        object: oldDeal,
+        newData: extendedDoc,
+        updatedDocument: updatedDeal,
       },
       user,
     );
@@ -117,7 +123,7 @@ const dealMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(user._id, deal, 'deal', destinationStageId);
+    const { content, action } = await itemsChange(user._id, deal, MODULE_NAMES.DEAL, destinationStageId);
 
     await sendNotifications({
       item: deal,
@@ -125,7 +131,7 @@ const dealMutations = {
       type: NOTIFICATION_TYPES.DEAL_CHANGE,
       content,
       action,
-      contentType: 'deal',
+      contentType: MODULE_NAMES.DEAL,
     });
 
     return deal;
@@ -150,23 +156,18 @@ const dealMutations = {
       type: NOTIFICATION_TYPES.DEAL_DELETE,
       action: `deleted deal:`,
       content: `'${deal.name}'`,
-      contentType: 'deal',
+      contentType: MODULE_NAMES.DEAL,
     });
 
-    await putDeleteLog(
-      {
-        type: 'deal',
-        object: deal,
-        description: `${deal.name} has been removed`,
-      },
-      user,
-    );
-
-    await Conformities.removeConformity({ mainType: 'deal', mainTypeId: deal._id });
-    await Checklists.removeChecklists('deal', deal._id);
+    await Conformities.removeConformity({ mainType: MODULE_NAMES.DEAL, mainTypeId: deal._id });
+    await Checklists.removeChecklists(MODULE_NAMES.DEAL, deal._id);
     await ActivityLogs.removeActivityLog(deal._id);
 
-    return deal.remove();
+    const removed = await deal.remove();
+
+    await putDeleteLog({ type: MODULE_NAMES.DEAL, object: deal }, user);
+
+    return removed;
   },
 
   /**

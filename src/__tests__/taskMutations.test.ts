@@ -56,7 +56,7 @@ describe('Test tasks mutations', () => {
     stage = await stageFactory({ pipelineId: pipeline._id });
     label = await pipelineLabelFactory({ pipelineId: pipeline._id });
     label2 = await pipelineLabelFactory({ pipelineId: pipeline._id, name: 'new label' });
-    task = await taskFactory({ stageId: stage._id, labelIds: [label._id, label2._id] });
+    task = await taskFactory({ initialStageId: stage._id, stageId: stage._id, labelIds: [label._id, label2._id] });
   });
 
   afterEach(async () => {
@@ -193,7 +193,10 @@ describe('Test tasks mutations', () => {
     const taskToStage = await taskFactory({});
 
     const args = {
-      orders: [{ _id: task._id, order: 9 }, { _id: taskToStage._id, order: 3 }],
+      orders: [
+        { _id: task._id, order: 9 },
+        { _id: taskToStage._id, order: 3 },
+      ],
       stageId: stage._id,
     };
 

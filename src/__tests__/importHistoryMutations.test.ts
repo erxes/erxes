@@ -1,6 +1,6 @@
 import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
-import { customerFactory, importHistoryFactory } from '../db/factories';
+import { companyFactory, customerFactory, importHistoryFactory, productFactory } from '../db/factories';
 import { ImportHistory } from '../db/models';
 import * as workerUtils from '../workers/utils';
 
@@ -19,20 +19,29 @@ describe('Import history mutations', () => {
         importHistoriesRemove(_id: $_id)
       }
     `;
-    const customer = await customerFactory({});
 
-    const importHistory = await importHistoryFactory({ ids: [customer._id] });
+    const customer = await customerFactory({});
+    const company = await companyFactory();
+    const product = await productFactory();
+
+    const history = await importHistoryFactory({ ids: [customer._id], contentType: 'not-supported' });
+    const customerHistory = await importHistoryFactory({ ids: [customer._id], contentType: 'customer' });
+    const companyHistory = await importHistoryFactory({ ids: [company._id], contentType: 'company' });
+    const productHistory = await importHistoryFactory({ ids: [product._id], contentType: 'product' });
 
     const mock = sinon.stub(workerUtils, 'createWorkers').callsFake();
 
     const fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
     fetchSpy.mockImplementation(() => Promise.resolve('ok'));
 
-    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id });
+    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: history._id });
+    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: customerHistory._id });
+    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: companyHistory._id });
+    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: productHistory._id });
 
     fetchSpy.mockRestore();
 
-    const historyObj = await ImportHistory.getImportHistory(importHistory._id);
+    const historyObj = await ImportHistory.getImportHistory(customerHistory._id);
 
     expect(historyObj.status).toBe('Removing');
 

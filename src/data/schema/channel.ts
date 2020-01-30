@@ -22,18 +22,15 @@ export const queries = `
   channelsGetLast: Channel
 `;
 
-export const mutations = `
-  channelsAdd(
-    name: String!,
-    description: String,
-    memberIds: [String],
-    integrationIds: [String]): Channel
+const commonMutationParams = `
+  name: String!,
+  description: String,
+  memberIds: [String],
+  integrationIds: [String]
+`;
 
-  channelsEdit(
-    _id: String!,
-    name: String!,
-    description: String,
-    memberIds: [String],
-    integrationIds: [String]): Channel
-    channelsRemove(_id: String!): JSON
+export const mutations = `
+  channelsAdd(${commonMutationParams}): Channel
+  channelsEdit(_id: String!, ${commonMutationParams}): Channel
+  channelsRemove(_id: String!): JSON
 `;

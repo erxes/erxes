@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
+import { ILink, linkSchema } from './common';
 import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES, STATUSES } from './constants';
 
 import { field, schemaWrapper } from './utils';
@@ -32,15 +33,6 @@ export interface IMessengerData {
 }
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
-
-export interface ILink {
-  linkedIn?: string;
-  twitter?: string;
-  facebook?: string;
-  github?: string;
-  youtube?: string;
-  website?: string;
-}
 
 interface ILinkDocument extends ILink, Document {}
 
@@ -97,7 +89,7 @@ export interface ICustomerDocument extends ICustomer, Document {
 }
 
 /* location schema */
-const locationSchema = new Schema(
+export const locationSchema = new Schema(
   {
     remoteAddress: field({ type: String, label: 'Remote address' }),
     country: field({ type: String, label: 'Country' }),
@@ -111,7 +103,7 @@ const locationSchema = new Schema(
   { _id: false },
 );
 
-const visitorContactSchema = new Schema(
+export const visitorContactSchema = new Schema(
   {
     email: field({ type: String, label: 'Email' }),
     phone: field({ type: String, label: 'Phone' }),
@@ -122,7 +114,7 @@ const visitorContactSchema = new Schema(
 /*
  * messenger schema
  */
-const messengerSchema = new Schema(
+export const messengerSchema = new Schema(
   {
     lastSeenAt: field({
       type: Date,
@@ -145,25 +137,13 @@ const messengerSchema = new Schema(
   { _id: false },
 );
 
-const linkSchema = new Schema(
-  {
-    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
-    twitter: field({ type: String, optional: true, label: 'Twitter' }),
-    facebook: field({ type: String, optional: true, label: 'Facebook' }),
-    github: field({ type: String, optional: true, label: 'Github' }),
-    youtube: field({ type: String, optional: true, label: 'Youtube' }),
-    website: field({ type: String, optional: true, label: 'Website' }),
-  },
-  { _id: false },
-);
-
 export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
-    avatar: field({ type: String, optional: true }),
+    avatar: field({ type: String, optional: true, label: 'Avatar' }),
 
     firstName: field({ type: String, label: 'First name', optional: true }),
     lastName: field({ type: String, label: 'Last name', optional: true }),

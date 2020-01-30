@@ -26,7 +26,7 @@ export const permissionSchema = new Schema({
   _id: field({ pkey: true }),
   module: field({ type: String, label: 'Module' }),
   action: field({ type: String, label: 'Action' }),
-  userId: field({ type: String, label: 'Created by' }),
+  userId: field({ type: String, label: 'User' }),
   groupId: field({ type: String, label: 'User group' }),
   requiredActions: field({ type: [String], default: [], label: 'Required actions' }),
   allowed: field({ type: Boolean, default: false, label: 'Allowed' }),

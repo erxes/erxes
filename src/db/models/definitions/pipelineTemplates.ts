@@ -21,27 +21,27 @@ export interface IPipelineTemplateDocument extends IPipelineTemplate, Document {
   _id: string;
 }
 
-const stageSchema = new Schema(
+export const stageSchema = new Schema(
   {
     _id: field({ type: String }),
-    name: field({ type: String }),
-    formId: field({ type: String, optional: true }),
-    order: field({ type: Number }),
+    name: field({ type: String, label: 'Stage name' }),
+    formId: field({ type: String, optional: true, label: 'Form' }),
+    order: field({ type: Number, label: 'Order' }),
   },
   { _id: false },
 );
 
 export const pipelineTemplateSchema = new Schema({
   _id: field({ pkey: true }),
-
-  name: field({ type: String }),
-  type: field({ type: String }),
-  description: field({ type: String, optional: true }),
-  stages: field({ type: [stageSchema], default: [] }),
-  isDefinedByErxes: field({ type: Boolean, default: false }),
-  createdBy: field({ type: String }),
+  name: field({ type: String, label: 'Name' }),
+  type: field({ type: String, label: 'Type' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  stages: field({ type: [stageSchema], default: [], label: 'Stages' }),
+  isDefinedByErxes: field({ type: Boolean, default: false, label: 'Is defined by erxes' }),
+  createdBy: field({ type: String, label: 'Created by' }),
   createdAt: field({
     type: Date,
     default: new Date(),
+    label: 'Created at',
   }),
 });

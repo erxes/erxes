@@ -1,7 +1,7 @@
 import { Forms, MessengerApps } from '../../../db/models';
+import { putDeleteLog } from '../../logUtils';
 import { requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putDeleteLog } from '../../utils';
 
 const messengerAppMutations = {
   async messengerAppsAddKnowledgebase(_root, params, { docModifier }: IContext) {

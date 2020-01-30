@@ -3,9 +3,11 @@ import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds, putCreateLog } from '../../utils';
+import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -27,14 +29,16 @@ const ticketMutations = {
   async ticketsAdd(_root, doc: ITicket, { user, docModifier }: IContext) {
     doc.watchedUserIds = [user._id];
 
-    const ticket = await Tickets.createTicket({
+    const extendedDoc = {
       ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
-    });
+    };
+
+    const ticket = await Tickets.createTicket(extendedDoc);
 
     await createConformity({
-      mainType: 'ticket',
+      mainType: MODULE_NAMES.TICKET,
       mainTypeId: ticket._id,
       customerIds: doc.customerIds,
       companyIds: doc.companyIds,
@@ -46,15 +50,19 @@ const ticketMutations = {
       type: NOTIFICATION_TYPES.TICKET_ADD,
       action: `invited you to the`,
       content: `'${ticket.name}'.`,
-      contentType: 'ticket',
+      contentType: MODULE_NAMES.TICKET,
     });
 
     await putCreateLog(
       {
-        type: 'ticket',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.TICKET,
+        newData: {
+          ...extendedDoc,
+          order: ticket.order,
+          createdAt: ticket.createdAt,
+          modifiedAt: ticket.modifiedAt,
+        },
         object: ticket,
-        description: `${ticket.name} has been created`,
       },
       user,
     );
@@ -68,11 +76,13 @@ const ticketMutations = {
   async ticketsEdit(_root, { _id, ...doc }: ITicketsEdit, { user }: IContext) {
     const oldTicket = await Tickets.getTicket(_id);
 
-    const updatedTicket = await Tickets.updateTicket(_id, {
+    const extendedDoc = {
       ...doc,
       modifiedAt: new Date(),
       modifiedBy: user._id,
-    });
+    };
+
+    const updatedTicket = await Tickets.updateTicket(_id, extendedDoc);
 
     await copyPipelineLabels({ item: oldTicket, doc, user });
 
@@ -80,7 +90,7 @@ const ticketMutations = {
       item: updatedTicket,
       user,
       type: NOTIFICATION_TYPES.TICKET_EDIT,
-      contentType: 'ticket',
+      contentType: MODULE_NAMES.TICKET,
     };
 
     if (doc.assignedUserIds) {
@@ -91,6 +101,16 @@ const ticketMutations = {
     }
 
     await sendNotifications(notificationDoc);
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.TICKET,
+        object: oldTicket,
+        newData: extendedDoc,
+        updatedDocument: updatedTicket,
+      },
+      user,
+    );
 
     return updatedTicket;
   },
@@ -111,7 +131,7 @@ const ticketMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(user._id, ticket, 'ticket', destinationStageId);
+    const { content, action } = await itemsChange(user._id, ticket, MODULE_NAMES.TICKET, destinationStageId);
 
     await sendNotifications({
       item: ticket,
@@ -119,7 +139,7 @@ const ticketMutations = {
       type: NOTIFICATION_TYPES.TICKET_CHANGE,
       action,
       content,
-      contentType: 'ticket',
+      contentType: MODULE_NAMES.TICKET,
     });
 
     return ticket;
@@ -144,14 +164,18 @@ const ticketMutations = {
       type: NOTIFICATION_TYPES.TICKET_DELETE,
       action: `deleted ticket:`,
       content: `'${ticket.name}'`,
-      contentType: 'ticket',
+      contentType: MODULE_NAMES.TICKET,
     });
 
-    await Conformities.removeConformity({ mainType: 'ticket', mainTypeId: ticket._id });
-    await Checklists.removeChecklists('ticket', ticket._id);
+    await Conformities.removeConformity({ mainType: MODULE_NAMES.TICKET, mainTypeId: ticket._id });
+    await Checklists.removeChecklists(MODULE_NAMES.TICKET, ticket._id);
     await ActivityLogs.removeActivityLog(ticket._id);
 
-    return ticket.remove();
+    const removed = await ticket.remove();
+
+    await putDeleteLog({ type: MODULE_NAMES.TICKET, object: ticket }, user);
+
+    return removed;
   },
 
   /**
