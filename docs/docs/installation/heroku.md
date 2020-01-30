@@ -19,7 +19,7 @@ In this installation guide, we pretend the following app names will be available
 - `erxes API` - **erxes-api** `(https://erxes-api.herokuapp.com)`
 - `erxes Widget` - **erxes-widget** `(https://erxes-widget.herokuapp.com)`
 
-Try the following 4 steps to install all required apps on Heroku.
+Try the following 3 steps to install all required apps on Heroku.
 
 **Note**: When setting up config vars (environment vars), do not change the PORT numbers of all apps.
 

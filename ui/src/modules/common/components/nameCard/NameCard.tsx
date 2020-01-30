@@ -47,6 +47,10 @@ class NameCard extends React.Component<Props> {
   renderFirstLine() {
     const { user } = this.props;
 
+    if (!user) {
+      return null;
+    }
+
     if (user.details) {
       return user.details.fullName;
     }
@@ -60,8 +64,8 @@ class NameCard extends React.Component<Props> {
 
   renderSecondLine() {
     const { user, singleLine, secondLine } = this.props;
-
-    if (singleLine) {
+    
+    if (singleLine || !user) {
       return null;
     }
 

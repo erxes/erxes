@@ -264,11 +264,12 @@ const TopHeader = styled.div`
   padding: 18px 20px;
 `;
 
-const Title = styled.div`
+const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
   font-size: 24px;
   margin: 20px 0;
   display: flex;
-  line-height: 30px;
+  line-height: 30px;  
+  text-transform: ${props => props.capitalize && 'capitalize'};
 
   > span {
     font-size: 75%;

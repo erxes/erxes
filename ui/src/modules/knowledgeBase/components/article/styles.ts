@@ -1,6 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { ActionButtons } from 'modules/settings/styles';
 import styled from 'styled-components';
-import { ActionButtons } from '../../styles';
 
 const RowArticle = styled.div`
   background-color: ${colors.colorWhite};
