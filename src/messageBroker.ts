@@ -184,10 +184,14 @@ const initConsumer = async () => {
                 await Products.createProduct({
                   ...document,
                   categoryId: productCategory ? productCategory._id : undefined,
-                  categoryCode: doc.category_code,
+                  categoryCode: productCategory ? productCategory.code : undefined,
                 });
               }
+            } else if (data.action === 'delete') {
+              const product = await Products.getProduct({ code: doc.code });
+              await Products.removeProducts([product._id]);
             }
+
             break;
           case 'inventories.category':
             if ((data.action === 'update' && data.old_code) || data.action === 'create') {
@@ -211,6 +215,9 @@ const initConsumer = async () => {
                   parentId: parentCategory ? parentCategory._id : undefined,
                 });
               }
+            } else if (data.action === 'delete') {
+              const productCategory = await ProductCategories.getProductCatogery({ code: doc.code });
+              await ProductCategories.removeProductCategory(productCategory._id);
             }
             break;
         }
