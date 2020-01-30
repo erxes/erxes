@@ -9,15 +9,22 @@ interface IRemoveMutationVariables {
   _id: string;
 }
 
+interface ICopyMutationVariables extends IRemoveMutationVariables {
+  [key: string]: any;
+}
+
 function commonListComposer<ComponentProps>(options) {
   const {
     text,
     label,
     stringEditMutation,
     stringAddMutation,
+    stringCopyMutation,
+    copy,
     gqlListQuery,
     gqlTotalCountQuery,
     gqlRemoveMutation,
+    gqlCopyMutation,
     ListComponent,
     gqlConfigsQuery
   } = options;
@@ -33,10 +40,14 @@ function commonListComposer<ComponentProps>(options) {
         variables: { _id }
       }: { variables: IRemoveMutationVariables }
     ) => Promise<any>;
+    copyMutation: ({
+      variables: { _id, memberIds }
+    }: { variables: ICopyMutationVariables }) => Promise<any>;
+    copy: boolean;
   };
 
   const ListContainer = (props: Props) => {
-    const { listQuery, totalCountQuery, removeMutation, history } = props;
+    const { copyMutation, listQuery, totalCountQuery, removeMutation, history } = props;
 
     const totalCount = totalCountQuery[`${label}TotalCount`] || 0;
 
@@ -61,6 +72,19 @@ function commonListComposer<ComponentProps>(options) {
       });
     };
 
+    const copyItem = (id: string, key: string, list: string[]) => {
+      if (copyMutation) {
+        copyMutation({ variables: { _id: id, [key]: list } }).then(() => {
+          listQuery.refetch();
+          totalCountQuery.refetch();
+  
+          Alert.success(`You successfully copied a ${text}`);
+        }).catch(error => {
+          Alert.error(error.message);
+        });
+      }
+    }
+
     const renderButton = ({
       name,
       values,
@@ -77,16 +101,27 @@ function commonListComposer<ComponentProps>(options) {
         }
       };
 
+      let mutation = stringAddMutation;
+      let successAction = 'added';
+
+      if (object) {
+        mutation = stringEditMutation;
+        successAction = 'updated';
+      }
+
+      if (copy === true && stringCopyMutation && gqlCopyMutation) {
+        mutation = stringCopyMutation;
+        successAction = 'copied';
+      }
+
       return (
         <ButtonMutate
-          mutation={object ? stringEditMutation : stringAddMutation}
+          mutation={mutation}
           variables={values}
           callback={afterMutate}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
+          successMessage={`You successfully ${successAction} a ${name}`}
         />
       );
     };
@@ -99,7 +134,8 @@ function commonListComposer<ComponentProps>(options) {
       remove,
       history,
       renderButton,
-      loading: listQuery.loading
+      loading: listQuery.loading,
+      copyItem
     };
 
     return <ListComponent {...updatedProps} />;
@@ -113,6 +149,10 @@ function commonListComposer<ComponentProps>(options) {
 
   if (gqlConfigsQuery) {
     composeAttr.push(gqlConfigsQuery);
+  }
+
+  if (gqlCopyMutation) {
+    composeAttr.push(gqlCopyMutation);
   }
 
   return withProps<ComponentProps>(

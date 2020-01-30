@@ -208,6 +208,23 @@ const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
   padding-right: 10px;
 `;
 
+const DateContainer = styled.div`
+  .form-control {
+    box-shadow: none;
+    border-radius: 0;
+    border: none;
+    background: none;
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    padding: 5px 0;
+    font-size: ${typography.fontSizeBody}px;
+
+    &:focus {
+      box-shadow: none;
+      border-color: ${colors.colorSecondary};
+    }
+  }
+`;
+
 const TabContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
@@ -285,6 +302,7 @@ export {
   DateWrapper,
   CloseModal,
   ScrollWrapper,
+  DateContainer,
   TabContent,
   ButtonRelated,
   SimpleButton,

@@ -80,11 +80,20 @@ const ticketsWatch = `
   }
 `;
 
+const ticketsCopy = `
+  mutation ticketsCopy($_id: String!) {
+    ticketsCopy(_id: $_id) {
+      ${ticketFields}
+    }
+  }
+`;
+
 export default {
   ticketsAdd,
   ticketsEdit,
   ticketsRemove,
   ticketsChange,
   ticketsUpdateOrder,
-  ticketsWatch
+  ticketsWatch,
+  ticketsCopy,
 };

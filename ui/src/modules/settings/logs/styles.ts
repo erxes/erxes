@@ -1,4 +1,4 @@
-import { colors, typography } from 'modules/common/styles';
+import { DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 
 const FilterWrapper = styled.div`
@@ -7,26 +7,11 @@ const FilterWrapper = styled.div`
   flex-wrap: wrap;
 `;
 
-const FilterItem = styled.div`
+const FilterItem = styled(DateContainer)`
   position: relative;
   float: left;
   min-width: 200px;
   margin-right: 20px;
-
-  .form-control {
-    box-shadow: none;
-    border-radius: 0;
-    border: none;
-    background: none;
-    border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 5px 0;
-    font-size: ${typography.fontSizeBody}px;
-
-    &:focus {
-      box-shadow: none;
-      border-color: ${colors.colorSecondary};
-    }
-  }
 `;
 
 export { FilterWrapper, FilterItem };

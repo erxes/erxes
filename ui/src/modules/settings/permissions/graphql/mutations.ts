@@ -13,8 +13,8 @@ const commonUserGroupParams = `
 const commonParamsDef = `
   $module: String!,
   $actions: [String!]!,
-  $userIds: [String!]!,
-  $groupIds: [String!]!,
+  $userIds: [String!],
+  $groupIds: [String!],
   $allowed: Boolean,
 `;
 
@@ -62,10 +62,19 @@ const usersGroupsRemove = `
   }
 `;
 
+const usersGroupsCopy = `
+  mutation usersGroupsCopy($_id: String!, $memberIds: [String]) {
+    usersGroupsCopy(_id: $_id, memberIds: $memberIds) {
+      _id
+    }
+  }
+`;
+
 export default {
   permissionAdd,
   permissionRemove,
   usersGroupsAdd,
   usersGroupsEdit,
-  usersGroupsRemove
+  usersGroupsRemove,
+  usersGroupsCopy
 };

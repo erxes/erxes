@@ -18,7 +18,8 @@ const options = {
     removeMutation: 'dealsRemove',
     changeMutation: 'dealsChange',
     updateOrderMutation: 'dealsUpdateOrder',
-    watchMutation: 'dealsWatch'
+    watchMutation: 'dealsWatch',
+    copyMutation: 'dealsCopy'
   },
   queries: {
     itemsQuery: queries.deals,
@@ -30,7 +31,8 @@ const options = {
     removeMutation: mutations.dealsRemove,
     changeMutation: mutations.dealsChange,
     updateOrderMutation: mutations.dealsUpdateOrder,
-    watchMutation: mutations.dealsWatch
+    watchMutation: mutations.dealsWatch,
+    copyMutation: mutations.dealsCopy
   },
   texts: {
     addText: 'Add a deal',
