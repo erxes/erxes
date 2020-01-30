@@ -11,7 +11,7 @@ To have erxes up and running quickly, you can follow the following steps.
 
 2. Login to your new server as `root` account and run the following command.
 
-   `bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/install_debian/scripts/install/debian10.sh)"`
+   `bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"`
 
    **Note**: you will be asked to provide a domain for nginx server to set up config for erxes
 
