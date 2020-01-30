@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { customerFactory, docModifier, integrationFactory, userFactory } from '../db/factories';
+import { customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Customers, Integrations, Users } from '../db/models';
 
 import './setup.ts';
@@ -102,7 +102,7 @@ describe('Customers mutations', () => {
     _user = await userFactory({});
     _customer = await customerFactory({ integrationId: integration._id });
 
-    context = { user: _user, docModifier };
+    context = { user: _user };
   });
 
   afterEach(async () => {
