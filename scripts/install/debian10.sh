@@ -131,7 +131,7 @@ su $username -c "cd $erxes_integrations_dir && yarn install && yarn build"
 # install pm2 globally
 yarn global add  pm2
 
-JWT_TOKEN_SECRET=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+JWT_TOKEN_SECRET=$(openssl rand -hex 16)
 
 # move ecosystem.json to erxes home directory and change owner and permission
 #mv /tmp/ecosystem.json /home/$username/ecosystem.json
