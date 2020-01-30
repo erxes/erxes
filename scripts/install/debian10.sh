@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# This script will install everything required to run a erxes and its related apps.
+# This should be run on a clean debian 10 server.
+#
+# First, you will be asked to provide a domain name you are going to use for erxes.
+# 
+# Once the installation has completed you will be able to access the erxes.
+# 
+# * we expect you have configured your domain DNS settings already.
+
 set -e
 
 #
@@ -288,39 +297,39 @@ server {
                 error_log /var/log/nginx/erxes.error.log;
 
                 location / {
-                        try_files $uri /index.html;
+                        try_files \$uri /index.html;
                 }
         }
 
         # widgets is running on 3200 port.
         location /widgets/ {
                 proxy_pass http://127.0.0.1:3200/;
-                proxy_set_header Host $http_host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host \$http_host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                 proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection "Upgrade";
         }
 
         # api project is running on 3300 port.
         location /api/ {
                 proxy_pass http://127.0.0.1:3300/;
-                proxy_set_header Host $http_host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host \$http_host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                 proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection "Upgrade";
         }
         # erxes integrations project is running on 3400 port.
         location /integrations/ {
                 proxy_pass http://127.0.0.1:3400/;
-                proxy_set_header Host $http_host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host \$http_host;
+                proxy_set_header X-Real-IP \$remote_addr;
+                proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                 proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection "Upgrade";
         }
 }
