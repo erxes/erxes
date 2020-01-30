@@ -8,7 +8,6 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
-import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
@@ -34,9 +33,7 @@ class TicketItem extends React.PureComponent<Props> {
     }
 
     return (
-      <Tip text={dayjs(date).format(format)}>
-        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
-      </Tip>
+      <ItemDate>{dayjs(date).format('lll')}</ItemDate>
     );
   }
 

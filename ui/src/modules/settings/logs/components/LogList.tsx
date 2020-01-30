@@ -7,10 +7,10 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { FilterItem, FilterWrapper } from 'modules/settings/permissions/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import Select from 'react-select-plus';
-import { FilterItem, FilterWrapper } from '../styles';
 import { ILog } from '../types';
 import LogRow from './LogRow';
 
@@ -171,7 +171,8 @@ class LogList extends React.Component<Props, State> {
     };
 
     const actionBarLeft = (
-      <FilterWrapper>
+      <FilterWrapper style={{padding: '10px 0px'}}>
+        <strong>{__('Filters')}:</strong>
         {this.renderDateFilter('start')}
         {this.renderDateFilter('end')}
         <FilterItem>
@@ -192,8 +193,9 @@ class LogList extends React.Component<Props, State> {
           />
         </FilterItem>
         <Button
-          btnStyle="success"
+          btnStyle="primary"
           icon="filter-1"
+          uppercase={false}
           onClick={this.onClick}
           size="small"
         >
@@ -202,7 +204,7 @@ class LogList extends React.Component<Props, State> {
       </FilterWrapper>
     );
 
-    return <Wrapper.ActionBar left={actionBarLeft} />;
+    return <Wrapper.ActionBar background="colorWhite" left={actionBarLeft} />;
   }
 
   render() {
