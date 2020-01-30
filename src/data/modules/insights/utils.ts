@@ -451,7 +451,7 @@ export const generateResponseData = async (
 
   const teamMembers: any = [];
 
-  const userIds = _.uniq(_.pluck(responseData, 'userId'));
+  const userIds = _.uniq(_.pluck(responseData, 'userId')) as string[];
 
   for (const userId of userIds) {
     const { responseTime, count, summaries } = responseUserData[userId];

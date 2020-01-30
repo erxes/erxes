@@ -329,7 +329,7 @@ if (NODE_ENV === 'production') {
   (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
     process.on(sig, () => {
       // Stops the server from accepting new connections and finishes existing connections.
-      httpServer.close((error: Error) => {
+      httpServer.close((error: Error | undefined) => {
         if (error) {
           console.error(error.message);
           process.exit(1);
