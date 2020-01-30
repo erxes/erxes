@@ -4,6 +4,7 @@ import EmptyState from 'modules/common/components/EmptyState';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
@@ -41,7 +42,7 @@ class Properties extends React.Component<Props> {
     if (fieldsGroups.length === 0) {
       return (
         <EmptyState
-          icon="circular"
+          icon="paragraph"
           text="There arent't any groups and fields"
         />
       );
@@ -92,7 +93,7 @@ class Properties extends React.Component<Props> {
     return (
       <Dropdown alignRight={true}>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
-          <Button btnStyle="success" size="small" icon="add">
+          <Button btnStyle="primary" uppercase={false} icon="plus-circle">
             {__('Add Group & Field ')}
             <Icon icon="angle-down" />
           </Button>
@@ -120,10 +121,12 @@ class Properties extends React.Component<Props> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Properties'), link: '/settings/properties' },
-      { title: __(currentType) }
+      { title: __(`${currentType} properties`)  }
     ];
 
-    const actionBarLeft = (
+    const title = <Title capitalize={true}>{currentType} {__('properties')}</Title>;
+
+    const headerDescription = (
       <HeaderDescription
         icon="/images/actions/26.svg"
         title="Properties"
@@ -135,14 +138,16 @@ class Properties extends React.Component<Props> {
       <Wrapper
         actionBar={
           <Wrapper.ActionBar
-            left={actionBarLeft}
+            background="colorWhite"
+            left={title}
             right={this.renderActionBar()}
           />
         }
         header={
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
-        leftSidebar={<Sidebar title="Properties" currentType={currentType} />}
+        mainHead={headerDescription}
+        leftSidebar={<Sidebar title="Property types" currentType={currentType} />}
         content={this.renderProperties()}
       />
     );

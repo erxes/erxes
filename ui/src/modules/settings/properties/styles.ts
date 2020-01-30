@@ -7,6 +7,8 @@ const coreSpace = `${dimensions.coreSpacing}px`;
 const PropertyList = styled.ul`
   list-style: none;
   padding: 0;
+  margin: 0;
+  margin-top: -1px;
 
   li {
     position: relative;
@@ -49,13 +51,14 @@ const CollapseRow = styled.div`
 
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.i)`
   font-style: normal;
+  line-height: 1;
 
   &:after {
-    content: '\\e827';
+    content: '\\e9a6';
     font-family: 'erxes';
     display: inline-block;
     color: ${colors.colorPrimaryDark};
-    font-size: 16px;
+    font-size: 18px;
     margin-right: ${coreSpace};
     transition: all ease 0.3s;
     transform: ${props => props.isOpen && `rotate(180deg)`};

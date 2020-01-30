@@ -31,7 +31,7 @@ type State = {
 class ResponseTemplate extends React.Component<Props, State> {
   private overlayRef;
 
-  onSelectTemplate = () => {
+  hidePopover = () => {
     this.overlayRef.hide();
   };
 
@@ -52,7 +52,7 @@ class ResponseTemplate extends React.Component<Props, State> {
         <Popover.Content>
           <PopoverContent
             {...this.props}
-            onSelectTemplate={this.onSelectTemplate}
+            onSelectTemplate={this.hidePopover}
           />
         </Popover.Content>
       </Popover>

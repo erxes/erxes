@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Table from 'modules/common/components/table';
+import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -21,7 +22,7 @@ type Props = {
 
 function List({ tags, type, remove, loading, renderButton }: Props) {
   const trigger = (
-    <Button btnStyle="success" size="small" icon="add">
+    <Button btnStyle="primary" uppercase={false} icon="plus-circle">
       Add tag
     </Button>
   );
@@ -40,7 +41,9 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
     />
   );
 
-  const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+  const title = <Title capitalize={true}>{type} {__('tags')}</Title>;
+  const actionBar = <Wrapper.ActionBar background="colorWhite" left={title} right={actionBarRight} />;
+  
   const content = (
     <Table>
       <thead>
