@@ -102,7 +102,7 @@ systemctl start nginx
 yum -qqy install -y nodejs
 
 # Yarn package manager
-curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | cat > yarn.repo
+curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | cat > /etc/yum.repos.d/yarn.repo
 yum -qqy install -y yarn
 
 
