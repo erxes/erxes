@@ -364,15 +364,19 @@ server {
         }
 }
 EOF
-# reload nginx service
-systemctl reload nginx
 
 # add user nginx to erxes group
 gpasswd -a nginx $username
+
+chmod 750 /home/$username
 chmod -R 750 $erxes_dir
 
 # allow nginx to server build dir
 chcon -Rt httpd_sys_content_t $erxes_dir/build/
+# setsebool -P httpd_can_network_connect on
+
+# reload nginx service
+systemctl reload nginx
 
 echo
 echo -e "\e[32mInstallation complete\e[0m"
