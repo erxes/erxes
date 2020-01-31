@@ -281,8 +281,6 @@ cat <<EOF >/home/$username/ecosystem.json
 }
 EOF
 
-chmod -R 750 $erxes_dir
-
 chown $username:$username /home/$username/ecosystem.json
 chmod 644 /home/$username/ecosystem.json
 
@@ -371,6 +369,7 @@ systemctl reload nginx
 
 # add user nginx to erxes group
 gpasswd -a nginx $username
+chmod -R 750 $erxes_dir
 
 # allow nginx to server build dir
 chcon -Rt httpd_sys_content_t $erxes_dir/build/
