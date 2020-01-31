@@ -310,7 +310,7 @@ su $username -c "cd /home/$username && pm2 start ecosystem.json && pm2 save"
 
 
 # Nginx erxes config
-cat <<EOF >/etc/nginx/sites-available/default
+cat <<EOF >/etc/nginx/conf.d/erxes.conf
 server {
         listen 80;
         
