@@ -373,7 +373,7 @@ chmod -R 750 $erxes_dir
 
 # allow nginx to server build dir
 chcon -Rt httpd_sys_content_t $erxes_dir/build/
-# setsebool -P httpd_can_network_connect on
+setsebool -P httpd_can_network_connect on
 
 # reload nginx service
 systemctl reload nginx
