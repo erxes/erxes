@@ -285,7 +285,7 @@ chown $username:$username /home/$username/ecosystem.json
 chmod 700 /home/$username/ecosystem.json
 
 # generate env.js
-cat <<EOF >$erxes_dir/build/js/env.js
+su $username -c "cat <<EOF >$erxes_dir/build/js/env.js
 window.env = {
   PORT: 3000,
   NODE_ENV: "production",
@@ -294,9 +294,9 @@ window.env = {
   REACT_APP_CDN_HOST: "http://$erxes_domain/widgets"
   //REACT_APP_CDN_HOST_API: "http://$erxes_domain/erxes-widgets/"
 };
-EOF
-chown $username:$username $erxes_dir/build/js/env.js
-chmod 700 $erxes_dir/build/js/env.js
+EOF"
+#chown $username:$username $erxes_dir/build/js/env.js
+#chmod 700 $erxes_dir/build/js/env.js
 
 # erxes api load initial data
 su $username -c "cd $erxes_api_dir && yarn loadInitialData && yarn loadPermission"
