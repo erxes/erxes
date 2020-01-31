@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script will install everything required to run a erxes and its related apps.
-# This should be run on a clean debian 10 server.
+# This should be run on a clean CentOS 8 server.
 #
 # First, you will be asked to provide a domain name you are going to use for erxes.
 # 
