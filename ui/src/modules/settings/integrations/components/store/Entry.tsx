@@ -14,7 +14,9 @@ import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import Twitter from '../../containers/twitter/Twitter';
 import Website from '../../containers/website/Form';
+import WhatsappForm from '../../containers/whatsapp/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
+
 
 type Props = {
   integration: any;
@@ -33,6 +35,7 @@ type Props = {
     office365: number;
     outlook: number;
     yahoo: number;
+    whatsapp: number;
   };
 };
 
@@ -226,6 +229,16 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add Yahoo" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.WHATSAPP) {
+      const trigger = <h6>+ {__('Add')}</h6>;
+
+      const content = props => <WhatsappForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Whatsapp" trigger={trigger} content={content} />
       );
     }
 

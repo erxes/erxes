@@ -1,6 +1,6 @@
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import CallPro from 'modules/settings/integrations/components/callpro/Form';
+import Whatsapp from 'modules/settings/integrations/components/whatsapp/Whatsapp';
 import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router';
@@ -12,7 +12,7 @@ type Props = {
 
 type FinalProps = {} & IRouterProps & Props;
 
-class CallProContainer extends React.Component<FinalProps> {
+class WhatsappContainer extends React.Component<FinalProps> {
   renderButton = ({
     name,
     values,
@@ -39,8 +39,8 @@ class CallProContainer extends React.Component<FinalProps> {
       renderButton: this.renderButton
     };
 
-    return <CallPro {...updatedProps} />;
+    return <Whatsapp {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(CallProContainer);
+export default withRouter<FinalProps>(WhatsappContainer);
