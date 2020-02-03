@@ -4,6 +4,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { checkAutomation } from '../../utils';
 
 interface IProductsEdit extends IProduct {
   _id: string;
@@ -55,6 +56,7 @@ const productMutations = {
       },
       user,
     );
+    await checkAutomation('changeListProduct', { action: 'productsEdit', doc }, user);
 
     return updated;
   },
