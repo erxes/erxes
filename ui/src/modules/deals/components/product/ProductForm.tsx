@@ -1,7 +1,7 @@
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import { ModalFooter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
+import { Alert, __ } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import ProductItemForm from '../../containers/product/ProductItemForm';
