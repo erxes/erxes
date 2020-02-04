@@ -17,7 +17,7 @@ const messageFields = `
   contentType
   videoCallData {
     url
-    name
+    status
   }
   engageData {
     content
