@@ -17,6 +17,28 @@ const sendDailyRequest = async (url: string, method: string, body = {}) => {
 };
 
 const init = async app => {
+  // delete all rooms
+  app.delete('/daily/rooms', async (_req, res, next) => {
+    if (DAILY_API_KEY && DAILY_END_POINT) {
+      try {
+        const response = await sendDailyRequest('/api/v1/rooms', 'GET');
+        const rooms = response.data || [];
+
+        for (const room of rooms) {
+          await CallRecords.updateOne({ roomName: room.name }, { $set: { status: 'end' } });
+
+          await sendDailyRequest(`/api/v1/rooms/${room.name}`, 'DELETE');
+        }
+
+        return res.send('Successfully deleted all rooms');
+      } catch (e) {
+        return next(e);
+      }
+    }
+
+    return next(new Error('Please configure DailyAPI'));
+  });
+
   app.delete('/daily/rooms/:roomName', async (req, res, next) => {
     const { roomName } = req.params;
 
