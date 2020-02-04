@@ -10,7 +10,14 @@ import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import ProductChooser from '../../containers/product/ProductChooser';
-import { ContentColumn, ContentRow, ItemText, ProductButton, ProductItem, TotalAmount } from '../../styles';
+import {
+  ContentColumn,
+  ContentRow,
+  ItemText,
+  ProductButton,
+  ProductItem,
+  TotalAmount
+} from '../../styles';
 import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 
@@ -37,14 +44,14 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     // default select first item
     const { uom, currencies, productData } = this.props;
 
-    if(uom.length > 0) {
+    if (uom.length > 0) {
       this.onChangeField('uom', uom[0], productData._id);
     }
 
-    if(currencies.length > 0) {
+    if (currencies.length > 0) {
       this.onChangeField('currency', currencies[0], productData._id);
     }
-  }
+  };
 
   calculateAmount = (type: string, productData: IProductData) => {
     const amount = productData.unitPrice * productData.quantity;
@@ -204,8 +211,6 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
         <span>{option.label}</span>
       </div>
     );
-
-    console.log(productData);
 
     return (
       <ProductItem key={productData._id}>
