@@ -55,7 +55,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   addProductItem = () => {
-    const { productsData, onChangeProductsData } = this.props;
+    const { productsData, onChangeProductsData, currencies } = this.props;
 
     productsData.push({
       _id: Math.random().toString(),
@@ -65,7 +65,9 @@ class ProductForm extends React.Component<Props, State> {
       taxPercent: 0,
       discount: 0,
       discountPercent: 0,
-      amount: 0
+      amount: 0,
+      currency: currencies ? currencies[0] : '',
+      tickUsed: true
     });
 
     onChangeProductsData(productsData);
@@ -89,7 +91,7 @@ class ProductForm extends React.Component<Props, State> {
     const discount = {};
 
     productsData.forEach(p => {
-      if (p.currency) {
+      if (p.currency && p.tickUsed) {
         if (!total[p.currency]) {
           total[p.currency] = 0;
           tax[p.currency] = 0;

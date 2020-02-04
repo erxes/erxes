@@ -57,6 +57,12 @@ const ContentColumn = styled.div`
   }
 `;
 
+const TickUsed = styled.div`
+  text-align: center;
+  margin-top: 35px;
+  padding: 0 15px;
+`;
+
 const TotalAmount = styled.div`
   text-align: right;
   font-size: 20px;
@@ -151,6 +157,7 @@ export {
   ContentRow,
   ContentRowTitle,
   ContentColumn,
+  TickUsed,
   TotalAmount,
   ProductButton,
   Divider,

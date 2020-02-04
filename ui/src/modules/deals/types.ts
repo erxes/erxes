@@ -32,6 +32,7 @@ export interface IProductData {
   discountPercent: number;
   discount: number;
   amount: number;
+  tickUsed: boolean;
 }
 
 export interface IPaymentsData {
