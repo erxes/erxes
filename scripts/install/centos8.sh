@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script will install everything required to run a erxes and its related apps.
-# This should be run on a clean debian 10 server.
+# This should be run on a clean CentOS 8 server.
 #
 # First, you will be asked to provide a domain name you are going to use for erxes.
 # 
@@ -26,58 +26,91 @@ done
 #
 # Dependencies
 #
-apt-get -qqy update
-apt-get -qqy install -y curl wget gnupg apt-transport-https
+yum -qqy update
+yum -qqy install -y wget gnupg
 
 # MongoDB
-wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
-echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-apt-get -qqy update
-apt-get -qqy install -y mongodb-org
+cat <<EOF >/etc/yum.repos.d/mongodb-org-4.2.repo
+[mongodb-org-4.2]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.2/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc
+EOF
+yum -qqy install -y mongodb-org
 systemctl enable mongod
 systemctl start mongod
 
 # Redis server
-apt -qqy install -y redis-server
-systemctl enable redis-server
-systemctl start redis-server
+yum -qqy install -y redis
+systemctl enable redis
+systemctl start redis
 
 # RabbitMQ
-curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | apt-key add -
-tee /etc/apt/sources.list.d/bintray.rabbitmq.list <<EOF
-## Installs the latest Erlang 22.x release.
-## Change component to "erlang-21.x" to install the latest 21.x version.
-## "bionic" as distribution name should work for any later Ubuntu or Debian release.
-## See the release to distribution mapping table in RabbitMQ doc guides to learn more.
-deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang
-deb https://dl.bintray.com/rabbitmq/debian bionic main
+cat <<EOF >/etc/yum.repos.d/rabbitmq_erlang.repo
+# In /etc/yum.repos.d/rabbitmq_erlang.repo
+[rabbitmq_erlang]
+name=rabbitmq_erlang
+baseurl=https://packagecloud.io/rabbitmq/erlang/el/8/\$basearch
+repo_gpgcheck=1
+gpgcheck=1
+enabled=1
+# PackageCloud's repository key and RabbitMQ package signing key
+gpgkey=https://packagecloud.io/rabbitmq/erlang/gpgkey
+       https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
+
+[rabbitmq_erlang-source]
+name=rabbitmq_erlang-source
+baseurl=https://packagecloud.io/rabbitmq/erlang/el/8/SRPMS
+repo_gpgcheck=1
+gpgcheck=0
+enabled=1
+# PackageCloud's repository key and RabbitMQ package signing key
+gpgkey=https://packagecloud.io/rabbitmq/erlang/gpgkey
+       https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
 EOF
-apt-get -qqy update
-apt-get -qqy install rabbitmq-server -y --fix-missing
+yum install erlang -y
+
+rpm --import https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
+cat <<EOF > /etc/yum.repos.d/rabbitmq-3.8.repo
+[bintray-rabbitmq-server]
+name=bintray-rabbitmq-rpm
+baseurl=https://dl.bintray.com/rabbitmq/rpm/rabbitmq-server/v3.8.x/el/8/
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+EOF
+yum -qqy update
+yum -qqy install rabbitmq-server -y
 systemctl enable rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
 systemctl start rabbitmq-server
 
 # Nginx
-apt-get -qqy install -y nginx
+yum -qqy install -y nginx
+systemctl enable nginx
+systemctl start nginx
 
 # nodejs 10
-curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-apt -qqy install -y nodejs build-essential
+yum -qqy install -y nodejs
 
 # Yarn package manager
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-apt-get -qqy update
-apt -qqy install -y yarn
+curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | cat > /etc/yum.repos.d/yarn.repo
+yum -qqy install -y yarn
 
 
 # username that erxes will be installed on
 username=erxes
 
-# create a new user erxes
-useradd -m -s /bin/bash -U -G sudo $username
-# echo erxes:new_password | chpasswd
+# create an user erxes if does not exist
+id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G wheel $username
 
 cd /home/$username
 
@@ -89,8 +122,6 @@ erxes_logger_dir=/home/$username/erxes-logger
 erxes_integrations_dir=/home/$username/erxes-integrations
 
 su $username -c "mkdir -p $erxes_dir $erxes_api_dir $erxes_widgets_dir $erxes_engages_dir $erxes_logger_dir $erxes_integrations_dir"
-
-# wget -qO- https://github.com/erxes/erxes-api/archive/0.12.3.tar.gz | tar --strip-components=1 -xz -C erxes-api
 
 # download erxes
 su $username -c "curl -L https://github.com/erxes/erxes/archive/0.12.0.tar.gz | tar --strip-components=1 -xz -C $erxes_dir"
@@ -133,8 +164,7 @@ yarn global add  pm2
 
 JWT_TOKEN_SECRET=$(openssl rand -hex 16)
 
-# move ecosystem.json to erxes home directory and change owner and permission
-#mv /tmp/ecosystem.json /home/$username/ecosystem.json
+# create ecosystem.json in erxes home directory and change owner and permission
 cat <<EOF >/home/$username/ecosystem.json
 {
   "apps": [
@@ -280,7 +310,7 @@ su $username -c "cd /home/$username && pm2 start ecosystem.json && pm2 save"
 
 
 # Nginx erxes config
-cat <<EOF >/etc/nginx/sites-available/default
+cat <<EOF >/etc/nginx/conf.d/erxes.conf
 server {
         listen 80;
         
@@ -334,6 +364,17 @@ server {
         }
 }
 EOF
+
+# add user nginx to erxes group
+gpasswd -a nginx $username
+
+chmod 750 /home/$username
+chmod -R 750 $erxes_dir
+
+# allow nginx to server build dir
+chcon -Rt httpd_sys_content_t $erxes_dir/build/
+setsebool -P httpd_can_network_connect on
+
 # reload nginx service
 systemctl reload nginx
 
