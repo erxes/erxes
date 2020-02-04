@@ -44,6 +44,3 @@ docs:test_and_build:
     paths:
       - docs/website/node_modules/
     policy: pull
-  needs:
-    - job: docs:install_dependencies
-      artifacts: false
