@@ -9,6 +9,11 @@ export interface ILog {
   objectId: string;
   unicode: string;
   description: string;
+  extraDesc?: string;
+  addedData: string;
+  changedData: string;
+  unchangedData: string;
+  removedData: string;
 }
 
 export interface ILogList {
@@ -16,8 +21,19 @@ export interface ILogList {
   totalCount: number;
 }
 
-export type LogsQueryResponse = {
-  logs: ILogList;
+export interface ILogDesc {
+  [key: string]: any;
+}
+
+type QueryResponse = {
   loading: boolean;
   error: Error;
 };
+
+export type LogsQueryResponse = {
+  logs: ILogList;
+} & QueryResponse;
+
+export type SchemaLabelsQueryResponse = {
+  getDbSchemaLabels: ILogDesc[];
+} & QueryResponse;

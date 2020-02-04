@@ -65,7 +65,7 @@ class CustomerForm extends React.Component<Props, State> {
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
-      birthDate: customer.birthDate || '',
+      birthDate: customer.birthDate,
       avatar: customer.avatar
     };
   }
