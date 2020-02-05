@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
 import { queries as generalQueries } from 'modules/settings/general/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -24,6 +25,10 @@ type FinalProps = {
 class ProductItemFormContainer extends React.Component<FinalProps> {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
+
+    if(getUomQuery.loading || getCurrenciesQuery.loading) {
+      return <Spinner />;
+    }
 
     const uom = getUomQuery.configsDetail
       ? getUomQuery.configsDetail.value
