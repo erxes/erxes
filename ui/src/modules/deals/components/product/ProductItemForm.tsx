@@ -16,6 +16,7 @@ import {
   ItemText,
   ProductButton,
   ProductItem,
+  TickUsed,
   TotalAmount
 } from "../../styles";
 import { IProductData } from "../../types";
@@ -97,7 +98,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
 
   onChangeField = (
     type: string,
-    value: string | IProduct,
+    value: string | boolean | IProduct,
     productId: string
   ) => {
     const { productsData, onChangeProductsData } = this.props;
@@ -109,12 +110,13 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
           const product = value as IProduct;
 
           productData.unitPrice = product.unitPrice;
+          productData.currency = productData.currency || this.props.currencies[0];
         }
 
         productData[type] = value;
       }
 
-      if (type !== "product" && type !== "uom" && productData) {
+      if (type !== 'uom' && productData) {
         this.calculateAmount(type, productData);
       }
 
@@ -203,6 +205,16 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     return removeProductItem && removeProductItem(productData._id);
   };
 
+  onTickUse = e => {
+    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+
+    this.onChangeField(
+      'tickUsed',
+      isChecked,
+      this.props.productData._id
+    );
+  };
+
   render() {
     const { uom, currencies, productData } = this.props;
 
@@ -244,6 +256,19 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 />
               </ContentColumn>
             </ContentRow>
+
+            <TickUsed>
+              <ContentRow>
+                <ControlLabel>tick paid or used</ControlLabel>
+              </ContentRow>
+              <ContentRow>
+                <FormControl
+                  componentClass="checkbox"
+                  checked={productData.tickUsed}
+                  onChange={this.onTickUse}
+                />
+              </ContentRow>
+            </TickUsed>
           </ContentColumn>
 
           <ContentColumn>

@@ -10,7 +10,7 @@ import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
 import React from 'react';
-import { IDeal, IDealParams } from '../types';
+import { IDeal, IDealParams, IPaymentsData } from '../types';
 
 type Props = {
   options: IOptions;
@@ -27,6 +27,8 @@ type State = {
   amount: any;
   products: IProduct[];
   productsData: any;
+  paymentsData: IPaymentsData;
+  changePayData: IPaymentsData;
 };
 
 export default class DealEditForm extends React.Component<Props, State> {
@@ -39,7 +41,9 @@ export default class DealEditForm extends React.Component<Props, State> {
       amount: item.amount || {},
       productsData: item.products ? item.products.map(p => ({ ...p })) : [],
       // collecting data for ItemCounter component
-      products: item.products ? item.products.map(p => p.product) : []
+      products: item.products ? item.products.map(p => p.product) : [],
+      paymentsData: item.paymentsData,
+      changePayData: {}
     };
   }
 
@@ -105,19 +109,43 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
+  savePaymentsData = () => {
+    const { paymentsData } = this.state;
+    const { saveItem } = this.props;
+
+    Object.keys(paymentsData || {}).forEach(key => {
+      const perData = paymentsData[key];
+
+      if (!perData.currency || !perData.amount || perData.amount === 0) {
+        delete paymentsData[key];
+      }
+    });
+
+    this.setState({ paymentsData }, () => {
+      saveItem({ paymentsData: this.state.paymentsData }, updatedItem => {
+        this.props.onUpdate(updatedItem);
+      });
+    });
+  };
+
   renderProductSection = () => {
-    const { products, productsData } = this.state;
+    const { products, productsData, paymentsData } = this.state;
 
     const pDataChange = pData => this.onChangeField('productsData', pData);
     const prsChange = prs => this.onChangeField('products', prs);
+    const payDataChange = payData =>
+      this.onChangeField('paymentsData', payData);
 
     return (
       <ProductSection
         onChangeProductsData={pDataChange}
         onChangeProducts={prsChange}
+        onChangePaymentsData={payDataChange}
         productsData={productsData}
+        paymentsData={paymentsData}
         products={products}
         saveProductsData={this.saveProductsData}
+        savePaymentsData={this.savePaymentsData}
       />
     );
   };
