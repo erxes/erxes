@@ -113,7 +113,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     const { paymentsData } = this.state;
     const { saveItem } = this.props;
 
-    Object.keys(paymentsData).forEach(key => {
+    Object.keys(paymentsData || {}).forEach(key => {
       const perData = paymentsData[key];
 
       if (!perData.currency || !perData.amount || perData.amount === 0) {
