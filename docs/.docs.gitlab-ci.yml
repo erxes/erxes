@@ -1,10 +1,32 @@
-docs:
-  stage: build_docs
+docs:install_dependencies:
+  stage: install_dependencies
+  image: node:10.16-slim
+  before_script:
+    - cd docs/website
+  script:
+    - yarn install
+  rules:
+    - changes:
+        - docs/website/package.json
+      # Only creating cache when this file changes.
+      # If cache is deleted somehow run pipelines manually to create cache again.
+      # Otherwise new cache won't build until docs/website/package.json file changed.
+  cache:
+    key:
+      files:
+        - docs/website/package.json
+      prefix: docs
+    paths:
+      - docs/website/node_modules/
+    policy: pull-push
+
+docs:test_and_build:
+  stage: test_and_build
   image: node:10.16-slim
   before_script:
     - apt-get update && apt-get install -y git
     - cd docs/website
-    - yarn install
+    - yarn install # install dependencies again if cache is missing
   script:
     - git config --global user.email "$GITHUB_USERNAME@users.noreply.github.com"
     - git config --global user.name "Jason-2020"
@@ -14,3 +36,11 @@ docs:
     - changes:
         - docs/**/*
       if: '$CI_COMMIT_BRANCH == "develop"'
+  cache:
+    key:
+      files:
+        - docs/website/package.json
+      prefix: docs
+    paths:
+      - docs/website/node_modules/
+    policy: pull

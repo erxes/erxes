@@ -120,11 +120,7 @@ class ProductForm extends React.Component<Props, State> {
 
     if (productsData.length === 0) {
       return (
-        <tr>
-          <td colSpan={7}>
-            <EmptyState text="No product or services" icon="shoppingcart" />
-          </td>
-        </tr>
+        <EmptyState size="full" text="No product or services" icon="box" />
       );
     }
 
@@ -179,17 +175,17 @@ class ProductForm extends React.Component<Props, State> {
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
-          return Alert.error('Please choose a product');
+          return Alert.error("Please choose a product");
         }
 
         if (!data.unitPrice) {
           return Alert.error(
-            'Please enter an unit price. It should be a number'
+            "Please enter an unit price. It should be a number"
           );
         }
 
         if (!data.currency) {
-          return Alert.error('Please choose a currency');
+          return Alert.error("Please choose a currency");
         }
       }
     }
@@ -244,7 +240,12 @@ class ProductForm extends React.Component<Props, State> {
       <FormContainer>
         {this.renderContent()}
         <Add>
-          <Button btnStyle="success" onClick={this.addProductItem} icon="add">
+          <Button
+            uppercase={false}
+            btnStyle="primary"
+            onClick={this.addProductItem}
+            icon="plus-circle"
+          >
             Add Product / Service
           </Button>
         </Add>
@@ -252,15 +253,15 @@ class ProductForm extends React.Component<Props, State> {
           <table>
             <tbody>
               <tr>
-                <td>{__('Tax')}:</td>
+                <td>{__("Tax")}:</td>
                 <td>{this.renderTotal(tax)}</td>
               </tr>
               <tr>
-                <td>{__('Discount')}:</td>
+                <td>{__("Discount")}:</td>
                 <td>{this.renderTotal(discount)}</td>
               </tr>
               <tr>
-                <td>{__('Total')}:</td>
+                <td>{__("Total")}:</td>
                 <td>{this.renderTotal(total)}</td>
               </tr>
             </tbody>
@@ -303,7 +304,7 @@ class ProductForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="cancel-1"
           >
-            Close
+            Cancel
           </Button>
 
           <Button btnStyle="success" onClick={this.onClick} icon="checked-1">

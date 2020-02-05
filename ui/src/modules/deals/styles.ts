@@ -67,7 +67,7 @@ const TotalAmount = styled.div`
   text-align: right;
   font-size: 20px;
   margin-top: 30px;
-  padding: 0 15px;
+  padding: 2px 15px;
   background: ${rgba(colors.colorCoreTeal, 0.2)};
   border-radius: 15px;
   float: right;
@@ -105,11 +105,13 @@ const ProductButton = styled.div`
   padding: 7px 10px;
   background: ${colors.colorWhite};
   cursor: pointer;
+  border-radius: 4px;
   border-bottom: 1px solid ${colors.borderDarker};
   transition: all 0.3s ease;
+  background: ${colors.bgLight};
 
   &:hover {
-    background: ${colors.bgLight};
+    background: ${colors.bgActive};
   }
 
   i {

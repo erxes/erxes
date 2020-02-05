@@ -29,6 +29,10 @@ class ProductFormContainer extends React.Component<FinalProps> {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
 
+    if (getUomQuery.loading || getCurrenciesQuery.loading) {
+      return <Spinner />;
+    }
+
     const uom = getUomQuery.configsDetail
       ? getUomQuery.configsDetail.value
       : [];
@@ -52,10 +56,10 @@ export default withProps<Props>(
     graphql<Props, ConfigDetailQueryResponse, { code: string }>(
       gql(generalQueries.configsDetail),
       {
-        name: 'getUomQuery',
+        name: "getUomQuery",
         options: {
           variables: {
-            code: 'dealUOM'
+            code: "dealUOM"
           }
         }
       }
@@ -63,10 +67,10 @@ export default withProps<Props>(
     graphql<Props, ConfigDetailQueryResponse, { code: string }>(
       gql(generalQueries.configsDetail),
       {
-        name: 'getCurrenciesQuery',
+        name: "getCurrenciesQuery",
         options: {
           variables: {
-            code: 'dealCurrency'
+            code: "dealCurrency"
           }
         }
       }
