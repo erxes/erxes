@@ -8,6 +8,7 @@ export const types = `
     customers: [Customer]
     products: JSON
     productsData: JSON
+    paymentsData: JSON
     ${commonTypes}
   }
 
@@ -37,6 +38,7 @@ const commonMutationParams = `
   description: String,
   order: Int,
   productsData: JSON,
+  paymentsData: JSON,
   reminderMinute: Int,
   isComplete: Boolean,
   priority: String
