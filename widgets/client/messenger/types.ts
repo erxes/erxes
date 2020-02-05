@@ -10,7 +10,6 @@ export interface IEngageData {
   content: string;
   kind: string;
   sentAs: string;
-  fromUser: IUser;
   messageId: string;
   brandId: string;
 }
