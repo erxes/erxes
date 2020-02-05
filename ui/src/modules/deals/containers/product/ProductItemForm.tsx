@@ -1,13 +1,13 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { queries as generalQueries } from 'modules/settings/general/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import { ConfigDetailQueryResponse } from '../../../settings/general/types';
-import ProductItemForm from '../../components/product/ProductItemForm';
-import { IProductData } from '../../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Spinner from "modules/common/components/Spinner";
+import { queries as generalQueries } from "modules/settings/general/graphql";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../../common/utils";
+import { ConfigDetailQueryResponse } from "../../../settings/general/types";
+import ProductItemForm from "../../components/product/ProductItemForm";
+import { IProductData } from "../../types";
 
 type Props = {
   productData: IProductData;
@@ -26,7 +26,7 @@ class ProductItemFormContainer extends React.Component<FinalProps> {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
 
-    if(getUomQuery.loading || getCurrenciesQuery.loading) {
+    if (getUomQuery.loading || getCurrenciesQuery.loading) {
       return <Spinner />;
     }
 
@@ -53,10 +53,10 @@ export default withProps<Props>(
     graphql<Props, ConfigDetailQueryResponse, { code: string }>(
       gql(generalQueries.configsDetail),
       {
-        name: 'getUomQuery',
+        name: "getUomQuery",
         options: {
           variables: {
-            code: 'dealUOM'
+            code: "dealUOM"
           }
         }
       }
@@ -64,10 +64,10 @@ export default withProps<Props>(
     graphql<Props, ConfigDetailQueryResponse, { code: string }>(
       gql(generalQueries.configsDetail),
       {
-        name: 'getCurrenciesQuery',
+        name: "getCurrenciesQuery",
         options: {
           variables: {
-            code: 'dealCurrency'
+            code: "dealCurrency"
           }
         }
       }

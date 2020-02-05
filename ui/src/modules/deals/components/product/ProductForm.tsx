@@ -1,12 +1,12 @@
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import { ModalFooter } from 'modules/common/styles/main';
-import { Alert, __ } from 'modules/common/utils';
-import { IProduct } from 'modules/settings/productService/types';
-import React from 'react';
-import ProductItemForm from '../../containers/product/ProductItemForm';
-import { Add, FooterInfo, FormContainer } from '../../styles';
-import { IProductData } from '../../types';
+import Button from "modules/common/components/Button";
+import EmptyState from "modules/common/components/EmptyState";
+import { ModalFooter } from "modules/common/styles/main";
+import { __, Alert } from "modules/common/utils";
+import { IProduct } from "modules/settings/productService/types";
+import React from "react";
+import ProductItemForm from "../../containers/product/ProductItemForm";
+import { Add, FooterInfo, FormContainer } from "../../styles";
+import { IProductData } from "../../types";
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -128,17 +128,17 @@ class ProductForm extends React.Component<Props, State> {
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
-          return Alert.error('Please choose a product');
+          return Alert.error("Please choose a product");
         }
 
         if (!data.unitPrice) {
           return Alert.error(
-            'Please enter an unit price. It should be a number'
+            "Please enter an unit price. It should be a number"
           );
         }
 
         if (!data.currency) {
-          return Alert.error('Please choose a currency');
+          return Alert.error("Please choose a currency");
         }
       }
     }
@@ -154,7 +154,12 @@ class ProductForm extends React.Component<Props, State> {
       <FormContainer>
         {this.renderContent()}
         <Add>
-          <Button uppercase={false} btnStyle="primary" onClick={this.addProductItem} icon="plus-circle">
+          <Button
+            uppercase={false}
+            btnStyle="primary"
+            onClick={this.addProductItem}
+            icon="plus-circle"
+          >
             Add Product / Service
           </Button>
         </Add>
@@ -162,15 +167,15 @@ class ProductForm extends React.Component<Props, State> {
           <table>
             <tbody>
               <tr>
-                <td>{__('Tax')}:</td>
+                <td>{__("Tax")}:</td>
                 <td>{this.renderTotal(tax)}</td>
               </tr>
               <tr>
-                <td>{__('Discount')}:</td>
+                <td>{__("Discount")}:</td>
                 <td>{this.renderTotal(discount)}</td>
               </tr>
               <tr>
-                <td>{__('Total')}:</td>
+                <td>{__("Total")}:</td>
                 <td>{this.renderTotal(total)}</td>
               </tr>
             </tbody>
