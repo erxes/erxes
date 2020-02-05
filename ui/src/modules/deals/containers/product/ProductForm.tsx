@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
 import { queries as generalQueries } from 'modules/settings/general/graphql';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';

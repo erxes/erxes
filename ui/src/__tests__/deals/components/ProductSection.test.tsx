@@ -51,7 +51,8 @@ describe('ProductSection component', () => {
       tax: 345,
       discountPercent: 10,
       discount: 20,
-      amount: 5
+      amount: 5,
+      tickUsed: true
     },
     {
       _id: 'pd11',
@@ -61,7 +62,8 @@ describe('ProductSection component', () => {
       tax: 347,
       discountPercent: 11,
       discount: 25,
-      amount: 9
+      amount: 9,
+      tickUsed: true
     }
   ];
 
