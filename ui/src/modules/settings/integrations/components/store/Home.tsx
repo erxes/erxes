@@ -90,7 +90,7 @@ class Home extends React.Component<Props, State> {
       <Content>
         <Sidebar currentType={queryParams.type} />
         <IntegrationWrapper>
-          <h3>{queryParams.type}</h3>
+          <h3>{queryParams.type || "All Integrations"}</h3>
           {this.renderIntegrations()}
         </IntegrationWrapper>
       </Content>
@@ -100,7 +100,7 @@ class Home extends React.Component<Props, State> {
   renderSearch() {
     return (
       <SearchInput>
-        <Icon icon="search" />
+        <Icon icon="search-1" />
         <FormControl
           type="text"
           placeholder={__('Type to search for an integration...')}

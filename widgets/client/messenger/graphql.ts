@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const messageFields = `
   _id
@@ -14,16 +14,15 @@ const messageFields = `
   createdAt
   internal
   fromBot
+  contentType
+  videoCallData {
+    url
+    status
+  }
   engageData {
     content
     kind
     sentAs
-    fromUser {
-      details {
-        fullName
-        avatar
-      }
-    }
     messageId
     brandId
   }

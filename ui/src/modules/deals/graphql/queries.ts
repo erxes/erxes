@@ -61,6 +61,7 @@ export const dealFields = `
   }
   products
   productsData
+  paymentsData
   amount
   closeDate
   description

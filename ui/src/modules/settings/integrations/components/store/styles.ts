@@ -5,19 +5,18 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const collapsibleBackground = '#f8f8f8';
-const storeSpace = dimensions.coreSpacing * 2;
 
 const IntegrationWrapper = styled.div`
-  padding-bottom: ${storeSpace}px;
+  padding-bottom: ${dimensions.coreSpacing * 1.5}px;
   flex: 1;
 
   h3 {
-    margin: 30px 0 0 ${storeSpace}px;
+    margin: 30px 0 0 ${dimensions.coreSpacing}px;
   }
 `;
 
 const IntegrationRow = styled.div`
-  padding-right: ${storeSpace}px;
+  padding-right: ${dimensions.coreSpacing}px;
   display: flex;
   flex-wrap: wrap;
 `;
@@ -96,8 +95,8 @@ const Type = styled.span`
 const IntegrationItem = styled.div`
   width: 25%;
   display: flex;
-  padding-left: ${storeSpace}px;
-  padding-top: ${storeSpace}px;
+  padding-left: ${dimensions.coreSpacing}px;
+  padding-top: ${dimensions.coreSpacing}px;
   position: relative;
 
   img {
@@ -130,7 +129,7 @@ const IntegrationItem = styled.div`
     color: ${colors.linkPrimary};
     position: absolute;
     right: 30px;
-    top: 70px;
+    top: 55px;
     cursor: pointer;
   }
 
@@ -159,8 +158,8 @@ const IntegrationItem = styled.div`
 `;
 
 const CollapsibleContent = styled.div`
-  margin: ${dimensions.coreSpacing}px 40px 0;
-  padding: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
+  padding: 10px 0 20px 10px;
   background: ${collapsibleBackground};
   box-shadow: inset 0px 11px 5px -10px ${colors.colorShadowGray},
     inset 0px -11px 5px -10px ${colors.colorShadowGray};
@@ -214,7 +213,7 @@ const SidebarList = styled.ul`
 const LeftSidebar = styled.div`
   width: 200px;
   position: relative;
-  margin: 10px 10px 10px 0;
+  margin: 10px;
 `;
 
 const FixedSection = styled.div`
@@ -255,8 +254,9 @@ const SearchInput = styled.div`
 
   i {
     position: absolute;
-    top: 11px;
+    top: 10px;
     left: 10px;
+    font-size: 15px;
     color: ${colors.colorCoreGray};
   }
 `;

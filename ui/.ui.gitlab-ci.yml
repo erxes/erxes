@@ -4,10 +4,11 @@ ui:install_dependencies:
   before_script:
     - cd ui
   script:
-    - yarn install --ignore-scripts
+    - yarn install
   rules:
     - changes:
         - ui/package.json
+        - ui/yarn.lock
         # Only creating cache when this file changes.
         # If cache is deleted somehow run pipelines manually to create cache again.
         # Otherwise new cache won't build until ui/package.json file changed.
@@ -15,6 +16,7 @@ ui:install_dependencies:
     key:
       files:
         - ui/package.json
+        - ui/yarn.lock
       prefix: ui
     paths:
       - ui/node_modules/
@@ -25,7 +27,7 @@ ui:test_and_build:
   image: node:10.16-alpine
   before_script:
     - cd ui
-    - yarn install --ignore-scripts # install dependencies again if cache is missing
+    - yarn install # install dependencies again if cache is missing
     - apk add --no-cache --update git
     - git checkout ${CI_COMMIT_REF_NAME}
   script:
