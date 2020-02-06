@@ -10,7 +10,8 @@ const options = {
   title: 'Ticket',
   queriesName: {
     itemsQuery: 'tickets',
-    detailQuery: 'ticketDetail'
+    detailQuery: 'ticketDetail',
+    archivedItemsQuery: 'archivedTickets'
   },
   mutationsName: {
     addMutation: 'ticketsAdd',
@@ -19,11 +20,13 @@ const options = {
     changeMutation: 'ticketsChange',
     updateOrderMutation: 'ticketsUpdateOrder',
     watchMutation: 'ticketsWatch',
+    archiveMutation: 'ticketsArchive',
     copyMutation: 'ticketsCopy'
   },
   queries: {
     itemsQuery: queries.tickets,
-    detailQuery: queries.ticketDetail
+    detailQuery: queries.ticketDetail,
+    archivedItemsQuery: queries.archivedTickets
   },
   mutations: {
     addMutation: mutations.ticketsAdd,
@@ -32,7 +35,8 @@ const options = {
     changeMutation: mutations.ticketsChange,
     updateOrderMutation: mutations.ticketsUpdateOrder,
     watchMutation: mutations.ticketsWatch,
-    copyMutation: mutations.ticketsCopy,
+    archiveMutation: mutations.ticketsArchive,
+    copyMutation: mutations.ticketsCopy
   },
   texts: {
     addText: 'Add a ticket',

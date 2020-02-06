@@ -9,6 +9,7 @@ import ChecklistAdd from 'modules/checklists/components/AddButton';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import { ArchiveBtn } from './ArchiveBtn';
 import PriorityIndicator from './PriorityIndicator';
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   removeItem: (itemId: string) => void;
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
+  sendToBoard?: (item: any) => void;
 };
 
 class Actions extends React.Component<Props> {
@@ -32,9 +34,15 @@ class Actions extends React.Component<Props> {
   };
 
   render() {
-    const { item, saveItem, options, copyItem, removeItem } = this.props;
+    const {
+      item,
+      saveItem,
+      options,
+      copyItem,
+      removeItem,
+      sendToBoard
+    } = this.props;
 
-    const onRemove = () => removeItem(item._id);
     const onLabelChange = labels => saveItem({ labels });
 
     const priorityTrigger = (
@@ -68,10 +76,12 @@ class Actions extends React.Component<Props> {
           {__('Copy')}
         </ColorButton>
 
-        <ColorButton onClick={onRemove}>
-          <Icon icon="times-circle" />
-          {__('Delete')}
-        </ColorButton>
+        <ArchiveBtn
+          item={item}
+          removeItem={removeItem}
+          saveItem={saveItem}
+          sendToBoard={sendToBoard}
+        />
       </ActionContainer>
     );
   }

@@ -23,6 +23,7 @@ type Props = {
   saveItem: (doc: { [key: string]: any }) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
   addItem: (doc: IItemParams, callback: () => void) => void;
+  sendToBoard?: (item: any) => void;
 };
 
 class Left extends React.Component<Props> {
@@ -34,7 +35,8 @@ class Left extends React.Component<Props> {
       copyItem,
       removeItem,
       onUpdate,
-      addItem
+      addItem,
+      sendToBoard
     } = this.props;
 
     const descriptionOnBlur = e => {
@@ -60,6 +62,7 @@ class Left extends React.Component<Props> {
           removeItem={removeItem}
           saveItem={saveItem}
           onUpdate={onUpdate}
+          sendToBoard={sendToBoard}
         />
 
         {item.labels.length > 0 && (
