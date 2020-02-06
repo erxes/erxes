@@ -11,7 +11,7 @@ import {
 } from '../db/factories';
 import { GrowthHacks } from '../db/models';
 
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('growthHackQueries', () => {
@@ -209,5 +209,55 @@ describe('growthHackQueries', () => {
 
     expect(response._id).toBe(growthHack._id);
     expect(response.isVoted).toBe(false);
+  });
+
+  test('Get archived tickets', async () => {
+    const pipeline = await pipelineFactory({ type: BOARD_TYPES.GROWTH_HACK });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await growthHackFactory({ ...args, name: 'james' });
+    await growthHackFactory({ ...args, name: 'jone' });
+    await growthHackFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedGrowthHacks(
+        $pipelineId: String!,
+        $search: String,
+        $page: Int,
+        $perPage: Int
+      ) {
+        archivedGrowthHacks(
+          pipelineId: $pipelineId
+          search: $search
+          page: $page
+          perPage: $perPage
+        ) {
+          _id
+        }
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedGrowthHacks', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedGrowthHacks', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response.length).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedGrowthHacks', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response.length).toBe(0);
   });
 });

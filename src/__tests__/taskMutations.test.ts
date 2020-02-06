@@ -23,7 +23,7 @@ import {
   Tasks,
 } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { ITaskDocument } from '../db/models/definitions/tasks';
 
@@ -311,5 +311,25 @@ describe('Test tasks mutations', () => {
 
     expect(clonedTaskCompanies.length).toBe(1);
     expect(clonedTaskCustomers.length).toBe(1);
+  });
+
+  test('Task archive', async () => {
+    const mutation = `
+      mutation tasksArchive($stageId: String!) {
+        tasksArchive(stageId: $stageId)
+      }
+    `;
+
+    const taskStage = await stageFactory({ type: BOARD_TYPES.TASK });
+
+    await taskFactory({ stageId: taskStage._id });
+    await taskFactory({ stageId: taskStage._id });
+    await taskFactory({ stageId: taskStage._id });
+
+    await graphqlRequest(mutation, 'tasksArchive', { stageId: taskStage._id });
+
+    const tasks = await Tasks.find({ stageId: taskStage._id, status: BOARD_STATUSES.ARCHIVED });
+
+    expect(tasks.length).toBe(3);
   });
 });

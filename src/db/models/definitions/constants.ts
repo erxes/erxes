@@ -345,6 +345,12 @@ export const STATUSES = {
   ALL: ['Active', 'Deleted'],
 };
 
+export const BOARD_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'archived'],
+};
+
 export const BOARD_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',

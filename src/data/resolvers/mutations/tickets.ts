@@ -1,7 +1,7 @@
 import { ActivityLogs, Checklists, Conformities, Tickets } from '../../../db/models';
 import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
-import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -212,6 +212,12 @@ const ticketMutations = {
 
     return clone;
   },
+
+  async ticketsArchive(_root, { stageId }: { stageId: string }) {
+    await Tickets.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    return 'ok';
+  },
 };
 
 checkPermission(ticketMutations, 'ticketsAdd', 'ticketsAdd');
@@ -219,5 +225,6 @@ checkPermission(ticketMutations, 'ticketsEdit', 'ticketsEdit');
 checkPermission(ticketMutations, 'ticketsUpdateOrder', 'ticketsUpdateOrder');
 checkPermission(ticketMutations, 'ticketsRemove', 'ticketsRemove');
 checkPermission(ticketMutations, 'ticketsWatch', 'ticketsWatch');
+checkPermission(ticketMutations, 'ticketsArchive', 'ticketsArchive');
 
 export default ticketMutations;

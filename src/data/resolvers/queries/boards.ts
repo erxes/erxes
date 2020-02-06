@@ -1,8 +1,9 @@
 import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from '../../../db/models';
+import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { IConformityQueryParams } from '../../modules/conformities/types';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
+import { paginate, regexSearchText } from '../../utils';
 
 export interface IDate {
   month: number;
@@ -155,7 +156,7 @@ const boardQueries = {
    *  Stages list
    */
   stages(_root, { pipelineId, isNotLost }: { pipelineId: string; isNotLost: boolean }) {
-    const filter: any = {};
+    const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
 
     filter.pipelineId = pipelineId;
 
@@ -171,6 +172,23 @@ const boardQueries = {
    */
   stageDetail(_root, { _id }: { _id: string }) {
     return Stages.findOne({ _id });
+  },
+
+  /**
+   *  Archived stages
+   */
+
+  archivedStages(
+    _root,
+    { pipelineId, search, ...listArgs }: { pipelineId: string; search?: string; page?: number; perPage?: number },
+  ) {
+    const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
+
+    if (search) {
+      Object.assign(filter, regexSearchText(search, 'name'));
+    }
+
+    return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
   /**

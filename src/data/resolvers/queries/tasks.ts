@@ -2,7 +2,13 @@ import { Tasks } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { checkItemPermByUser, generateSort, generateTaskCommonFilters } from './boardUtils';
+import {
+  archivedItems,
+  checkItemPermByUser,
+  generateSort,
+  generateTaskCommonFilters,
+  IArchiveArgs,
+} from './boardUtils';
 
 const taskQueries = {
   /**
@@ -16,6 +22,13 @@ const taskQueries = {
       .sort(sort)
       .skip(args.skip || 0)
       .limit(10);
+  },
+
+  /**
+   * Archived list
+   */
+  archivedTasks(_root, args: IArchiveArgs) {
+    return archivedItems(args, Tasks);
   },
 
   /**

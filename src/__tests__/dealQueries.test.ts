@@ -15,6 +15,7 @@ import {
 } from '../db/factories';
 import { Boards, Deals, Pipelines, Stages } from '../db/models';
 
+import { BOARD_STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('dealQueries', () => {
@@ -552,5 +553,55 @@ describe('dealQueries', () => {
     });
 
     expect(response.length).toBe(1);
+  });
+
+  test('Get archived deals', async () => {
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await dealFactory({ ...args, name: 'james' });
+    await dealFactory({ ...args, name: 'jone' });
+    await dealFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedDeals(
+        $pipelineId: String!,
+        $search: String,
+        $page: Int,
+        $perPage: Int
+      ) {
+        archivedDeals(
+          pipelineId: $pipelineId
+          search: $search
+          page: $page
+          perPage: $perPage
+        ) {
+          _id
+        }
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedDeals', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedDeals', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response.length).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedDeals', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response.length).toBe(0);
   });
 });

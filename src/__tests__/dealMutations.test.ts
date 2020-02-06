@@ -25,7 +25,7 @@ import {
   Stages,
 } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
 import { IDealDocument, IProductDocument } from '../db/models/definitions/deals';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -302,5 +302,25 @@ describe('Test deals mutations', () => {
 
     expect(clonedDealCompanies.length).toBe(1);
     expect(clonedDealCustomers.length).toBe(1);
+  });
+
+  test('Test archive', async () => {
+    const mutation = `
+      mutation dealsArchive($stageId: String!) {
+        dealsArchive(stageId: $stageId)
+      }
+    `;
+
+    const dealStage = await stageFactory({ type: BOARD_TYPES.DEAL });
+
+    await dealFactory({ stageId: dealStage._id });
+    await dealFactory({ stageId: dealStage._id });
+    await dealFactory({ stageId: dealStage._id });
+
+    await graphqlRequest(mutation, 'dealsArchive', { stageId: dealStage._id });
+
+    const deals = await Deals.find({ stageId: dealStage._id, status: BOARD_STATUSES.ARCHIVED });
+
+    expect(deals.length).toBe(3);
   });
 });

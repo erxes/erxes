@@ -13,7 +13,7 @@ import {
 import { Boards, Pipelines, Stages } from '../db/models';
 
 import moment = require('moment');
-import { BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('boardQueries', () => {
@@ -520,5 +520,34 @@ describe('boardQueries', () => {
     expect(response.dealUrl).toBe('');
     expect(response.ticketUrl).toBe('');
     expect(response.taskUrl).toBe('');
+  });
+
+  test('Archived stages', async () => {
+    const pipeline = await pipelineFactory();
+
+    const params = {
+      pipelineId: pipeline._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    const stage1 = await stageFactory(params);
+    await stageFactory(params);
+    await stageFactory(params);
+
+    const qry = `
+      query archivedStages($pipelineId: String!, $search: String, $page: Int, $perPage: Int) {
+        archivedStages(pipelineId: $pipelineId, search: $search, page: $page, perPage: $perPage) {
+          _id
+        }
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedStages', { pipelineId: pipeline._id });
+
+    expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedStages', { pipelineId: pipeline._id, search: stage1.name });
+
+    expect(response.length).toBe(1);
   });
 });

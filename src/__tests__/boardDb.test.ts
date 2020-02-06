@@ -334,7 +334,8 @@ describe('Test board model', () => {
   });
 
   test('Remove stage', async () => {
-    const isDeleted = await Stages.removeStage(stage._id);
+    const stageNoItem = await stageFactory();
+    const isDeleted = await Stages.removeStage(stageNoItem._id);
 
     expect(isDeleted).toBeTruthy();
   });

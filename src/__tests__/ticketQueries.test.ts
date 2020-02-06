@@ -11,7 +11,7 @@ import {
 } from '../db/factories';
 import { Tickets } from '../db/models';
 
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('ticketQueries', () => {
@@ -179,5 +179,55 @@ describe('ticketQueries', () => {
 
     expect(response._id).toBe(watchedTask._id);
     expect(response.isWatched).toBe(true);
+  });
+
+  test('Get archived tickets', async () => {
+    const pipeline = await pipelineFactory({ type: BOARD_TYPES.TICKET });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await ticketFactory({ ...args, name: 'james' });
+    await ticketFactory({ ...args, name: 'jone' });
+    await ticketFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedTickets(
+        $pipelineId: String!,
+        $search: String,
+        $page: Int,
+        $perPage: Int
+      ) {
+        archivedTickets(
+          pipelineId: $pipelineId
+          search: $search
+          page: $page
+          perPage: $perPage
+        ) {
+          _id
+        }
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedTickets', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedTickets', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response.length).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedTickets', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response.length).toBe(0);
   });
 });
