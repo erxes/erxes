@@ -146,6 +146,11 @@ const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
     margin: 0 10px;
     cursor: pointer;
   }
+
+  > img {
+    box-shadow: 0 1px 1px 0 ${colors.darkShadow};
+    max-width: 100%;
+  }
 `;
 
 const FormTable = styled.div`
