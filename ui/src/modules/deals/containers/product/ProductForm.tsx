@@ -1,20 +1,24 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "modules/common/components/Spinner";
-import { queries as generalQueries } from "modules/settings/general/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../../common/utils";
-import { ConfigDetailQueryResponse } from "../../../settings/general/types";
-import ProductItemForm from "../../components/product/ProductItemForm";
-import { IProductData } from "../../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
+import { queries as generalQueries } from 'modules/settings/general/graphql';
+import { IProduct } from 'modules/settings/productService/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { ConfigDetailQueryResponse } from '../../../settings/general/types';
+import ProductForm from '../../components/product/ProductForm';
+import { IPaymentsData, IProductData } from '../../types';
 
 type Props = {
-  productData: IProductData;
-  removeProductItem?: (productId: string) => void;
-  productsData?: IProductData[];
   onChangeProductsData: (productsData: IProductData[]) => void;
-  updateTotal: () => void;
+  saveProductsData: () => void;
+  savePaymentsData: () => void;
+  onChangePaymentsData: (paymentsData: IPaymentsData) => void;
+  productsData: IProductData[];
+  products: IProduct[];
+  paymentsData?: IPaymentsData;
+  closeModal: () => void;
 };
 
 type FinalProps = {
@@ -22,7 +26,7 @@ type FinalProps = {
   getCurrenciesQuery: ConfigDetailQueryResponse;
 } & Props;
 
-class ProductItemFormContainer extends React.Component<FinalProps> {
+class ProductFormContainer extends React.Component<FinalProps> {
   render() {
     const { getUomQuery, getCurrenciesQuery } = this.props;
 
@@ -44,7 +48,7 @@ class ProductItemFormContainer extends React.Component<FinalProps> {
       currencies
     };
 
-    return <ProductItemForm {...extendedProps} />;
+    return <ProductForm {...extendedProps} />;
   }
 }
 
@@ -72,5 +76,5 @@ export default withProps<Props>(
         }
       }
     )
-  )(ProductItemFormContainer)
+  )(ProductFormContainer)
 );

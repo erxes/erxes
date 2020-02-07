@@ -23,12 +23,6 @@ const messageFields = `
     content
     kind
     sentAs
-    fromUser {
-      details {
-        fullName
-        avatar
-      }
-    }
     messageId
     brandId
   }

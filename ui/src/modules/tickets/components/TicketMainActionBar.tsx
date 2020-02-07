@@ -7,6 +7,7 @@ import SelectCustomers from 'modules/customers/containers/common/SelectCustomers
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
+import options from '../options';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -71,6 +72,7 @@ const TicketMainActionBar = (props: Props) => {
 
   const extendedProps = {
     ...props,
+    options,
     extraFilter,
     link: '/inbox/ticket/board'
   };

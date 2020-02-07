@@ -209,7 +209,28 @@ a:hover {
 .slide-in-small-exit,
 .slide-in-small-exit-active {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(30px);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+
+.slide-in-right-appear,
+.slide-in-right-enter {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.slide-in-right-appear-active,
+.slide-in-right-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
+}
+
+.slide-in-right-exit,
+.slide-in-right-exit-active {
+  opacity: 0;
+  transform: translateX(30px);
   transition: all 300ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 

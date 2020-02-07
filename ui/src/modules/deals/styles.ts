@@ -1,5 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import { darken, rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -42,6 +42,12 @@ const ContentRow = styled.div`
   display: flex;
 `;
 
+const ContentRowTitle = styled.div`
+  display: flex;
+  text-align: center;
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
 const ContentColumn = styled.div`
   flex: 1;
   margin-right: 10px;
@@ -49,6 +55,12 @@ const ContentColumn = styled.div`
   &:last-of-type {
     margin-right: 0;
   }
+`;
+
+const TickUsed = styled.div`
+  text-align: center;
+  margin-top: 35px;
+  padding: 0 15px;
 `;
 
 const TotalAmount = styled.div`
@@ -121,5 +133,35 @@ const ProductName = styled.div`
   cursor: pointer;
 `;
 
-export { ProductName, FormContainer, CategoryContainer, FooterInfo, CustomField, Add, ItemText, ProductItem, ContentRow, ContentColumn, TotalAmount, ProductButton };
+const Divider = styled.div`
+  border-bottom: 1px dotted ${darken(colors.borderDarker, 5)};
+  padding-bottom: ${dimensions.coreSpacing}px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0px;
 
+  @media (max-width: 1170px) {
+    margin-left: ${dimensions.coreSpacing}px;
+  }
+`;
+
+const WrongLess = styled.span`
+  color: red;
+`;
+
+export {
+  ProductName,
+  FormContainer,
+  CategoryContainer,
+  FooterInfo,
+  CustomField,
+  Add,
+  ItemText,
+  ProductItem,
+  ContentRow,
+  ContentRowTitle,
+  ContentColumn,
+  TickUsed,
+  TotalAmount,
+  ProductButton,
+  Divider,
+  WrongLess
+};

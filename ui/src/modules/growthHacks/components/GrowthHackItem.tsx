@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import Labels from 'modules/boards/components/label/Labels';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
-import { ItemDate } from 'modules/boards/styles/common';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import {
   Footer,
   Left,
@@ -26,6 +26,7 @@ type Props = {
   onClick: () => void;
   options: IOptions;
   isFormVisible: boolean;
+  portable?: boolean;
 };
 
 export default class GrowthHackItem extends React.PureComponent<Props> {
@@ -38,13 +39,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
   }
 
   renderForm = () => {
-    const {
-      beforePopupClose,
-      stageId,
-      item,
-      options,
-      isFormVisible
-    } = this.props;
+    const { stageId, item, isFormVisible } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -52,18 +47,17 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
 
     return (
       <EditForm
-        beforePopupClose={beforePopupClose}
-        options={options}
-        stageId={stageId}
+        {...this.props}
+        stageId={stageId || item.stageId}
         itemId={item._id}
-        hideHeader={true}
         isPopupVisible={isFormVisible}
+        hideHeader={true}
       />
     );
   };
 
-  render() {
-    const { item, onClick } = this.props;
+  renderContent() {
+    const { item } = this.props;
     const {
       scoringType,
       reach = 0,
@@ -74,38 +68,58 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
 
     return (
       <>
+        <h5>
+          {renderPriority(item.priority)}
+          {item.name}
+        </h5>
+        <ScoreAmount>
+          <Score.Amount
+            type={scoringType}
+            r={reach}
+            i={impact}
+            c={confidence}
+            e={ease}
+          />
+        </ScoreAmount>
+
+        <PriceContainer>
+          <Left>
+            <Vote>
+              <Icon icon="thumbs-up" />
+              {item.voteCount}
+            </Vote>
+          </Left>
+          <Right>
+            <Participators participatedUsers={item.assignedUsers} limit={3} />
+          </Right>
+        </PriceContainer>
+
+        <Footer>
+          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
+        </Footer>
+      </>
+    );
+  }
+
+  render() {
+    const { item, onClick, portable } = this.props;
+
+    if (portable) {
+      return (
+        <>
+          <ItemContainer onClick={onClick}>
+            <Content>{this.renderContent()}</Content>
+          </ItemContainer>
+          {this.renderForm()}
+        </>
+      );
+    }
+
+    return (
+      <>
         <Labels labels={item.labels} indicator={true} />
         <Content onClick={onClick} type="growthHack">
-          <h5>
-            {renderPriority(item.priority)}
-            {item.name}
-          </h5>
-          <ScoreAmount>
-            <Score.Amount
-              type={scoringType}
-              r={reach}
-              i={impact}
-              c={confidence}
-              e={ease}
-            />
-          </ScoreAmount>
-
-          <PriceContainer>
-            <Left>
-              <Vote>
-                <Icon icon="thumbs-up" />
-                {item.voteCount}
-              </Vote>
-            </Left>
-            <Right>
-              <Participators participatedUsers={item.assignedUsers} limit={3} />
-            </Right>
-          </PriceContainer>
-
-          <Footer>
-            {__('Last updated')}:
-            <Right>{this.renderDate(item.modifiedAt)}</Right>
-          </Footer>
+          {this.renderContent()}
         </Content>
         {this.renderForm()}
       </>
