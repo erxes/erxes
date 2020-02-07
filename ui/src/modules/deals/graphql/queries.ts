@@ -1,7 +1,5 @@
-import {
-  conformityQueryFieldDefs,
-  conformityQueryFields
-} from 'modules/conformity/graphql/queries';
+import { commonFields } from 'modules/boards/graphql/mutations';
+import { conformityQueryFieldDefs, conformityQueryFields } from 'modules/conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
@@ -36,63 +34,10 @@ const commonParamDefs = `
 `;
 
 export const dealFields = `
-  _id
-  name
-  stageId
-  hasNotified
-  pipeline {
-    _id
-    name
-  }
-  boardId
-  priority
-  companies {
-    _id
-    primaryName
-    website
-  }
-  customers {
-    _id
-    firstName
-    lastName
-    primaryEmail
-    primaryPhone
-    visitorContactInfo
-  }
   products
   productsData
+  paymentsData
   amount
-  closeDate
-  description
-  assignedUsers {
-    _id
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
-  labels {
-    _id
-    name
-    colorCode
-  }
-  labelIds
-  stage {
-    probability
-    name
-  }
-  isWatched
-  attachments {
-    name
-    url
-    type
-    size
-  }
-  modifiedAt
-  modifiedBy
-  reminderMinute
-  isComplete
 `;
 
 const dealsTotalAmounts = `
@@ -130,6 +75,26 @@ const deals = `
       ${commonParamDefs}
     ) {
       ${dealFields}
+      ${commonFields}
+    }
+  }
+`;
+
+const archivedDeals = `
+  query archivedDeals(
+    $pipelineId: String!,
+    $search: String,
+    $page: Int,
+    $perPage: Int,
+  ) {
+    archivedDeals(
+      pipelineId: $pipelineId,
+      search: $search,
+      page: $page,
+      perPage: $perPage,
+    ) {
+      ${dealFields}
+      ${commonFields}
     }
   }
 `;
@@ -138,6 +103,7 @@ const dealDetail = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
       ${dealFields}
+      ${commonFields}
     }
   }
 `;
@@ -155,5 +121,6 @@ export default {
   deals,
   dealDetail,
   productDetail,
-  dealsTotalAmounts
+  dealsTotalAmounts,
+  archivedDeals
 };

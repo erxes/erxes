@@ -26,18 +26,16 @@ type Props = {
 };
 
 class TaskItem extends React.PureComponent<Props> {
-  renderDate(date, format = 'YYYY-MM-DD') {
+  renderDate(date) {
     if (!date) {
       return null;
     }
 
-    return (
-      <ItemDate>{dayjs(date).format('lll')}</ItemDate>
-    );
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderForm = () => {
-    const { item, isFormVisible } = this.props;
+    const { item, isFormVisible, stageId } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -46,6 +44,7 @@ class TaskItem extends React.PureComponent<Props> {
     return (
       <EditForm
         {...this.props}
+        stageId={stageId || item.stageId}
         itemId={item._id}
         hideHeader={true}
         isPopupVisible={isFormVisible}

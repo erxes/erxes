@@ -1,48 +1,37 @@
+import {
+  commonFields,
+  commonMutationParams,
+  commonMutationVariables
+} from 'modules/boards/graphql/mutations';
 import { dealFields } from './queries';
 
-const commonVariables = `
-  $stageId: String,
+const dealMutationVariables = `
   $productsData: JSON,
-  $closeDate: Date,
-  $description: String,
-  $assignedUserIds: [String],
-  $order: Int,
-  $attachments: [AttachmentInput],
-  $reminderMinute: Int,
-  $isComplete: Boolean,
-  $priority: String,
-  $sourceConversationId: String,
+  $paymentsData: JSON,
 `;
 
-const commonParams = `
-  stageId: $stageId,
+const dealMutationParams = `
   productsData: $productsData,
-  closeDate: $closeDate,
-  description: $description,
-  assignedUserIds: $assignedUserIds,
-  order: $order,
-  attachments: $attachments,
-  reminderMinute: $reminderMinute,
-  isComplete: $isComplete,
-  priority: $priority,
-  sourceConversationId: $sourceConversationId,
+  paymentsData: $paymentsData,
 `;
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
 const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;
 
 const dealsAdd = `
-  mutation dealsAdd($name: String!, ${copyVariables}, ${commonVariables}) {
-    dealsAdd(name: $name, ${copyParams}, ${commonParams}) {
+  mutation dealsAdd($name: String!, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {
+    dealsAdd(name: $name, ${copyParams}, ${dealMutationParams}, ${commonMutationParams}) {
       ${dealFields}
+      ${commonFields}
     }
   }
 `;
 
 const dealsEdit = `
-  mutation dealsEdit($_id: String!, $name: String, ${commonVariables}) {
-    dealsEdit(_id: $_id, name: $name, ${commonParams}) {
+  mutation dealsEdit($_id: String!, $name: String, ${dealMutationVariables}, ${commonMutationVariables}) {
+    dealsEdit(_id: $_id, name: $name, ${dealMutationParams}, ${commonMutationParams}) {
       ${dealFields}
+      ${commonFields}
     }
   }
 `;
@@ -80,6 +69,12 @@ const dealsWatch = `
   }
 `;
 
+const dealsArchive = `
+  mutation dealsArchive($stageId: String!) {
+    dealsArchive(stageId: $stageId)
+  }
+`;
+
 const dealsCopy = `
   mutation dealsCopy($_id: String!) {
     dealsCopy(_id: $_id) {
@@ -95,5 +90,6 @@ export default {
   dealsChange,
   dealsUpdateOrder,
   dealsWatch,
+  dealsArchive,
   dealsCopy
 };

@@ -3,6 +3,7 @@ import { IBoard, IPipeline } from 'modules/boards/types';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
 import React from 'react';
+import options from '../options';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -27,13 +28,13 @@ const TaskMainActionBar = (props: Props) => {
   const extraFilter = (
     <>
       <SelectCompanies
-        label="Choose companies"
+        label="Filter by companies"
         name="companyIds"
         queryParams={queryParams}
         onSelect={onSelect}
       />
       <SelectCustomers
-        label="Choose customers"
+        label="Filter by customers"
         name="customerIds"
         queryParams={queryParams}
         onSelect={onSelect}
@@ -43,6 +44,7 @@ const TaskMainActionBar = (props: Props) => {
 
   const extendedProps = {
     ...props,
+    options,
     extraFilter,
     link: '/task/board'
   };

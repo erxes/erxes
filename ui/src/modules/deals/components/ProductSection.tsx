@@ -7,31 +7,40 @@ import { __ } from 'modules/common/utils';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
+import ProductForm from '../containers/product/ProductForm';
 import { CustomField, ProductName } from '../styles';
-import { IProductData } from '../types';
-import ProductForm from './product/ProductForm';
+import { IPaymentsData, IProductData } from '../types';
 
 type Props = {
   productsData: IProductData[];
   products: IProduct[];
+  paymentsData: IPaymentsData;
   onChangeProductsData: (productsData: IProductData[]) => void;
+  onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
+  savePaymentsData: () => void;
 };
 
 function ProductSection({
   products,
   productsData,
+  paymentsData,
   onChangeProductsData,
-  saveProductsData
+  onChangePaymentsData,
+  saveProductsData,
+  savePaymentsData
 }: Props) {
   const content = props => (
     <ProductForm
       {...props}
       onChangeProductsData={onChangeProductsData}
+      onChangePaymentsData={onChangePaymentsData}
       productsData={productsData}
       products={products}
+      paymentsData={paymentsData}
       saveProductsData={saveProductsData}
+      savePaymentsData={savePaymentsData}
     />
   );
 

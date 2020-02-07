@@ -913,5 +913,8 @@
   "Email add account description question": "Are you connecting a shared email account?",
   "Email add account description": "When you connect an email to your conversations inbox, you're connecting it as a shared account. Messages sent to shared accounts can be viewed by everyone who has access to your team inbox.",
   "No connected email": "No connected email",
-  "Your email will be sent with Erxes email template": "Your email will be sent with Erxes email template"
+  "Your email will be sent with Erxes email template": "Your email will be sent with Erxes email template",
+  "Join a call": "Join a call",
+  "Invite to video call": "Invite to video call",
+  "Video call invitation sent": "Video call invitation sent"
 }

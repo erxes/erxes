@@ -7,10 +7,10 @@ import React from 'react';
 import history from '../../../../browserHistory';
 
 type Props = {
-  stageId: string;
+  stageId?: string;
   item: IDeal | IItem | ITicket;
-  beforePopupClose: () => void;
-  onClick: () => void;
+  beforePopupClose?: () => void;
+  onClick?: () => void;
   options: IOptions;
 };
 
@@ -61,7 +61,9 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
         routerUtils.removeParams(history, 'itemId');
       }
 
-      beforePopupClose();
+      if (beforePopupClose) {
+        beforePopupClose();
+      }
     });
   };
 
