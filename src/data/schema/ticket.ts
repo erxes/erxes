@@ -1,4 +1,4 @@
-import { commonTypes, conformityQueryFields } from './common';
+import { commonMutationParams, commonTypes, conformityQueryFields, copyParams } from './common';
 
 export const types = `
   type Ticket {
@@ -29,31 +29,20 @@ export const queries = `
     sortDirection: Int
     ${conformityQueryFields}
   ): [Ticket]
+  archivedTickets(pipelineId: String!, search: String, page: Int, perPage: Int): [Ticket]
 `;
 
-const commonParams = `
-  name: String,
-  stageId: String,
-  assignedUserIds: [String],
-  attachments: [AttachmentInput],
-  closeDate: Date,
-  description: String,
-  order: Int,
-  priority: String,
+const ticketMutationParams = `
   source: String,
-  reminderMinute: Int,
-  isComplete: Boolean,
-  sourceConversationId: String,
 `;
-
-const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
 
 export const mutations = `
-  ticketsAdd(name: String!, ${copyParams}, ${commonParams}): Ticket
-  ticketsEdit(_id: String!, name: String, ${commonParams}): Ticket
+  ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
+  ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsChange( _id: String!, destinationStageId: String): Ticket
   ticketsUpdateOrder(stageId: String!, orders: [OrderItem]): [Ticket]
   ticketsRemove(_id: String!): Ticket
   ticketsWatch(_id: String, isAdd: Boolean): Ticket
   ticketsCopy(_id: String!): Ticket
+  ticketsArchive(stageId: String!): String
 `;

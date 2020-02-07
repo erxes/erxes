@@ -50,9 +50,11 @@ import {
 } from './models';
 import {
   ACTIVITY_CONTENT_TYPES,
+  BOARD_STATUSES,
   BOARD_TYPES,
   CONVERSATION_STATUSES,
   FORM_TYPES,
+  MESSAGE_TYPES,
   NOTIFICATION_TYPES,
   PROBABILITY,
   PRODUCT_TYPES,
@@ -597,6 +599,7 @@ interface IConversationMessageFactoryInput {
   engageData?: any;
   formWidgetData?: any;
   kind?: string;
+  contentType?: string;
 }
 
 export const conversationMessageFactory = async (params: IConversationMessageFactoryInput) => {
@@ -614,7 +617,7 @@ export const conversationMessageFactory = async (params: IConversationMessageFac
 
   return ConversationMessages.createMessage({
     content: params.content,
-    attachments: {},
+    attachments: [],
     mentionedUserIds: params.mentionedUserIds || [Random.id()],
     conversationId,
     internal: params.internal === undefined || params.internal === null ? true : params.internal,
@@ -623,6 +626,7 @@ export const conversationMessageFactory = async (params: IConversationMessageFac
     isCustomerRead: params.isCustomerRead,
     engageData: params.engageData || {},
     formWidgetData: params.formWidgetData || {},
+    contentType: params.contentType || MESSAGE_TYPES.TEXT,
   });
 };
 
@@ -894,6 +898,7 @@ interface IStageFactoryInput {
   type?: string;
   probability?: string;
   formId?: string;
+  status?: string;
   order?: number;
 }
 
@@ -910,6 +915,7 @@ export const stageFactory = async (params: IStageFactoryInput = {}) => {
     probability: params.probability || PROBABILITY.TEN,
     formId: params.formId,
     order: params.order,
+    status: params.status || BOARD_STATUSES.ACTIVE,
   });
 
   return stage.save();
@@ -964,6 +970,7 @@ export const dealFactory = async (params: IDealFactoryInput = {}) => {
 };
 
 interface ITaskFactoryInput {
+  name?: string;
   stageId?: string;
   closeDate?: Date;
   noCloseDate?: boolean;
@@ -989,7 +996,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
 
   const task = new Tasks({
     ...params,
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     stageId: params.stageId || stage._id,
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
@@ -1005,6 +1012,7 @@ export const taskFactory = async (params: ITaskFactoryInput = {}) => {
 };
 
 interface ITicketFactoryInput {
+  name?: string;
   stageId?: string;
   closeDate?: Date;
   noCloseDate?: boolean;
@@ -1023,7 +1031,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
 
   const ticket = new Tickets({
     ...params,
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     stageId: params.stageId || stage._id,
     ...(!params.noCloseDate ? { closeDate: params.closeDate || new Date() } : {}),
     description: faker.random.word(),
@@ -1039,6 +1047,7 @@ export const ticketFactory = async (params: ITicketFactoryInput = {}) => {
 };
 
 interface IGrowthHackFactoryInput {
+  name?: string;
   stageId?: string;
   closeDate?: Date;
   customerIds?: string[];
@@ -1062,7 +1071,7 @@ export const growthHackFactory = async (params: IGrowthHackFactoryInput = {}) =>
 
   const growthHack = new GrowthHacks({
     ...params,
-    name: faker.random.word(),
+    name: params.name || faker.random.word(),
     stageId: params.stageId || stage._id,
     companyIds: params.companyIds || [faker.random.word()],
     customerIds: params.customerIds || [faker.random.word()],

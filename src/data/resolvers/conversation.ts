@@ -1,4 +1,5 @@
 import { ConversationMessages, Customers, Integrations, Tags, Users } from '../../db/models';
+import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import { debugExternalApi } from '../../debuggers';
 import { IContext } from '../types';
@@ -91,5 +92,20 @@ export default {
 
   tags(conv: IConversationDocument) {
     return Tags.find({ _id: { $in: conv.tagIds || [] } });
+  },
+
+  async videoCallData(conversation: IConversationDocument, _args, { dataSources }: IContext) {
+    const message = await ConversationMessages.findOne({
+      conversationId: conversation._id,
+      contentType: MESSAGE_TYPES.VIDEO_CALL,
+    });
+
+    if (!message) {
+      return null;
+    }
+
+    return dataSources.IntegrationsAPI.fetchApi('/daily/get-active-room', {
+      erxesApiConversationId: conversation._id,
+    });
   },
 };

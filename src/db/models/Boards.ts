@@ -312,6 +312,9 @@ export const loadStageClass = () => {
 
     public static async removeStage(_id: string) {
       const stage = await Stages.getStage(_id);
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+
+      await hasItem(pipeline.type, pipeline._id);
 
       if (stage.formId) {
         await Forms.removeForm(stage.formId);

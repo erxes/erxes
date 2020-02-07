@@ -2,7 +2,13 @@ import { Tickets } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { checkItemPermByUser, generateSort, generateTicketCommonFilters } from './boardUtils';
+import {
+  archivedItems,
+  checkItemPermByUser,
+  generateSort,
+  generateTicketCommonFilters,
+  IArchiveArgs,
+} from './boardUtils';
 
 const ticketQueries = {
   /**
@@ -16,6 +22,13 @@ const ticketQueries = {
       .sort(sort)
       .skip(args.skip || 0)
       .limit(10);
+  },
+
+  /**
+   * Archived list
+   */
+  archivedTickets(_root, args: IArchiveArgs) {
+    return archivedItems(args, Tickets);
   },
 
   /**

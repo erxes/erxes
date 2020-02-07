@@ -345,12 +345,24 @@ export const STATUSES = {
   ALL: ['Active', 'Deleted'],
 };
 
+export const BOARD_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'archived'],
+};
+
 export const BOARD_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
   ALL: ['deal', 'ticket', 'task', 'growthHack'],
+};
+
+export const MESSAGE_TYPES = {
+  VIDEO_CALL: 'videoCall',
+  TEXT: 'text',
+  ALL: ['videoCall', 'text'],
 };
 
 // module constants

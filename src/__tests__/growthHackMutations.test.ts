@@ -11,7 +11,7 @@ import {
 } from '../db/factories';
 import { Boards, ChecklistItems, Checklists, GrowthHacks, PipelineLabels, Pipelines, Stages } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
 import { IGrowthHackDocument } from '../db/models/definitions/growthHacks';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 
@@ -288,5 +288,25 @@ describe('Test growthHacks mutations', () => {
 
     expect(result.name).toBe(`${growthHack.name}-copied`);
     expect(result.stageId).toBe(growthHack.stageId);
+  });
+
+  test('Growth hack archive', async () => {
+    const mutation = `
+      mutation growthHacksArchive($stageId: String!) {
+        growthHacksArchive(stageId: $stageId)
+      }
+    `;
+
+    const ghStage = await stageFactory({ type: BOARD_TYPES.GROWTH_HACK });
+
+    await growthHackFactory({ stageId: ghStage._id });
+    await growthHackFactory({ stageId: ghStage._id });
+    await growthHackFactory({ stageId: ghStage._id });
+
+    await graphqlRequest(mutation, 'growthHacksArchive', { stageId: ghStage._id });
+
+    const ghs = await GrowthHacks.find({ stageId: ghStage._id, status: BOARD_STATUSES.ARCHIVED });
+
+    expect(ghs.length).toBe(3);
   });
 });

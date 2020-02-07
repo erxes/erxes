@@ -122,8 +122,7 @@ describe('Conversation db', () => {
     expect(updatedConversation.messageCount).toBe(2);
 
     expect(messageObj.content).toBe(_conversationMessage.content);
-    expect(messageObj.attachments.length).toBe(1);
-    expect(messageObj.attachments[0].toJSON()).toEqual(_conversationMessage.attachments[0].toJSON());
+    expect(messageObj.attachments.length).toBe(0);
     expect(messageObj.mentionedUserIds[0]).toBe(_conversationMessage.mentionedUserIds[0]);
 
     expect(messageObj.conversationId).toBe(_conversation._id);

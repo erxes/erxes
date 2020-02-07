@@ -1,4 +1,4 @@
-import { commonTypes, conformityQueryFields } from './common';
+import { commonMutationParams, commonTypes, conformityQueryFields, copyParams } from './common';
 
 export const types = `
   type Deal {
@@ -8,6 +8,7 @@ export const types = `
     customers: [Customer]
     products: JSON
     productsData: JSON
+    paymentsData: JSON
     ${commonTypes}
   }
 
@@ -29,18 +30,9 @@ export const types = `
   }
 `;
 
-const commonMutationParams = `
-  stageId: String,
-  assignedUserIds: [String],
-  attachments: [AttachmentInput],
-  closeDate: Date,
-  description: String,
-  order: Int,
+const dealMutationParams = `
+  paymentsData: JSON,
   productsData: JSON,
-  reminderMinute: Int,
-  isComplete: Boolean,
-  priority: String
-  sourceConversationId: String,
 `;
 
 const commonQueryParams = `
@@ -56,7 +48,7 @@ const commonQueryParams = `
   priority: [String]
   sortField: String
   sortDirection: Int
-`;
+  `;
 
 export const queries = `
   dealDetail(_id: String!): Deal
@@ -66,21 +58,21 @@ export const queries = `
     skip: Int
     ${commonQueryParams}
     ${conformityQueryFields}
-  ): [Deal]
+    ): [Deal]
+  archivedDeals(pipelineId: String!, search: String, page: Int, perPage: Int): [Deal]
   dealsTotalAmounts(
     ${commonQueryParams}
     ${conformityQueryFields}
   ): DealTotalAmounts
 `;
 
-const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;
-
 export const mutations = `
-  dealsAdd(name: String!, ${copyParams}, ${commonMutationParams}): Deal
-  dealsEdit(_id: String!, name: String, ${commonMutationParams}): Deal
+  dealsAdd(name: String!, ${copyParams}, ${dealMutationParams}, ${commonMutationParams}): Deal
+  dealsEdit(_id: String!, name: String, ${dealMutationParams}, ${commonMutationParams}): Deal
   dealsChange( _id: String!, destinationStageId: String): Deal
   dealsUpdateOrder(stageId: String!, orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): Deal
   dealsWatch(_id: String, isAdd: Boolean): Deal
   dealsCopy(_id: String!): Deal
+  dealsArchive(stageId: String!): String
 `;

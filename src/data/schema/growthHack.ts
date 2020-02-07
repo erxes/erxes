@@ -51,6 +51,8 @@ export const queries = `
     assignedUserIds: [String]
     closeDateType: String
   ): JSON
+
+  archivedGrowthHacks(pipelineId: String!, search: String, page: Int, perPage: Int): [GrowthHack]
 `;
 
 const commonParams = `
@@ -59,6 +61,7 @@ const commonParams = `
   assignedUserIds: [String],
   attachments: [AttachmentInput],
   closeDate: Date,
+  status: String,
   description: String,
   hackStages: [String],
   priority: String,
@@ -77,4 +80,5 @@ export const mutations = `
   growthHacksWatch(_id: String, isAdd: Boolean): GrowthHack
   growthHacksVote(_id: String!, isVote: Boolean): GrowthHack
   growthHacksCopy(_id: String!): GrowthHack
+  growthHacksArchive(stageId: String!): String
 `;

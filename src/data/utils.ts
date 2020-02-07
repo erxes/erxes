@@ -819,7 +819,7 @@ const stringToRegex = (value: string) => {
   return '.*' + result.join('').substring(2) + '.*';
 };
 
-export const regexSearchText = (searchValue: string) => {
+export const regexSearchText = (searchValue: string, searchKey = 'searchText') => {
   const result: any[] = [];
 
   searchValue = searchValue.replace(/\s\s+/g, ' ');
@@ -827,7 +827,7 @@ export const regexSearchText = (searchValue: string) => {
   const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ searchText: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
   }
 
   return { $and: result };

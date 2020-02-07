@@ -23,7 +23,7 @@ import {
   Tickets,
 } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { ITicketDocument } from '../db/models/definitions/tickets';
 
@@ -263,5 +263,25 @@ describe('Test tickets mutations', () => {
 
     expect(clonedTicketCompanies.length).toBe(1);
     expect(clonedTicketCustomers.length).toBe(1);
+  });
+
+  test('Ticket archive', async () => {
+    const mutation = `
+      mutation ticketsArchive($stageId: String!) {
+        ticketsArchive(stageId: $stageId)
+      }
+    `;
+
+    const ticketStage = await stageFactory({ type: BOARD_TYPES.TICKET });
+
+    await ticketFactory({ stageId: ticketStage._id });
+    await ticketFactory({ stageId: ticketStage._id });
+    await ticketFactory({ stageId: ticketStage._id });
+
+    await graphqlRequest(mutation, 'ticketsArchive', { stageId: ticketStage._id });
+
+    const tasks = await Tickets.find({ stageId: ticketStage._id, status: BOARD_STATUSES.ARCHIVED });
+
+    expect(tasks.length).toBe(3);
   });
 });

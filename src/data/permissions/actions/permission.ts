@@ -153,6 +153,7 @@ export const moduleObjects = {
           'dealsRemove',
           'dealsUpdateOrder',
           'dealsWatch',
+          'dealsArchive',
           'exportDeals',
         ],
       },
@@ -225,6 +226,10 @@ export const moduleObjects = {
         description: 'Watch deal',
       },
       {
+        name: 'dealsArchive',
+        description: 'Archive all deals in a specific stage',
+      },
+      {
         name: 'exportDeals',
         description: 'Export deals',
       },
@@ -256,6 +261,7 @@ export const moduleObjects = {
           'ticketsRemove',
           'ticketsUpdateOrder',
           'ticketsWatch',
+          'ticketsArchive',
           'exportTickets',
         ],
       },
@@ -328,6 +334,10 @@ export const moduleObjects = {
         description: 'Watch ticket',
       },
       {
+        name: 'ticketsArchive',
+        description: 'Archive all tickets in a specific stage',
+      },
+      {
         name: 'exportTickets',
         description: 'Export tickets',
       },
@@ -359,6 +369,7 @@ export const moduleObjects = {
           'growthHacksRemove',
           'growthHacksUpdateOrder',
           'growthHacksWatch',
+          'growthHacksArchive',
           'growthHackTemplatesAdd',
           'growthHackTemplatesEdit',
           'growthHackTemplatesRemove',
@@ -435,6 +446,10 @@ export const moduleObjects = {
         description: 'Watch growth hacking',
       },
       {
+        name: 'growthHacksArchive',
+        description: 'Archive all growth hacks in a specific stage',
+      },
+      {
         name: 'growthHackTemplatesAdd',
         description: 'Add growth hacking template',
       },
@@ -482,6 +497,7 @@ export const moduleObjects = {
           'tasksRemove',
           'tasksUpdateOrder',
           'tasksWatch',
+          'tasksArchive',
           'exportTasks',
         ],
       },
@@ -552,6 +568,10 @@ export const moduleObjects = {
       {
         name: 'tasksWatch',
         description: 'Watch task',
+      },
+      {
+        name: 'tasksArchive',
+        description: 'Archive all tasks in a specific stage',
       },
       {
         name: 'exportTasks',

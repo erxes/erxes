@@ -2,7 +2,7 @@ import { GrowthHacks } from '../../../db/models';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
-import { checkItemPermByUser, generateGrowthHackCommonFilters } from './boardUtils';
+import { archivedItems, checkItemPermByUser, generateGrowthHackCommonFilters, IArchiveArgs } from './boardUtils';
 
 interface IGrowthHackListParams extends IListParams {
   hackStage?: string;
@@ -30,6 +30,13 @@ const growthHackQueries = {
       .sort(sort)
       .skip(skip)
       .limit(limit);
+  },
+
+  /**
+   * Archived list
+   */
+  archivedGrowthHacks(_root, args: IArchiveArgs) {
+    return archivedItems(args, GrowthHacks);
   },
 
   /**

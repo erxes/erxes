@@ -44,6 +44,23 @@ export const commonTypes = `
   pipeline: Pipeline
   boardId: String
   priority: String
+  status: String
   attachments: [Attachment]
   userId: String
 `;
+
+export const commonMutationParams = `
+  stageId: String,
+  assignedUserIds: [String],
+  attachments: [AttachmentInput],
+  closeDate: Date,
+  description: String,
+  order: Int,
+  reminderMinute: Int,
+  isComplete: Boolean,
+  priority: String,
+  status: String,
+  sourceConversationId: String,
+`;
+
+export const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;

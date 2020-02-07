@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { BOARD_TYPES, HACK_SCORING_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
+import { BOARD_STATUSES, BOARD_TYPES, HACK_SCORING_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
 import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
@@ -31,6 +31,7 @@ export interface IItemCommonFields {
   searchText?: string;
   priority?: string;
   sourceConversationId?: string;
+  status?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -71,6 +72,7 @@ export interface IStage extends ICommonFields {
   probability?: string;
   pipelineId: string;
   formId?: string;
+  status?: string;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -137,6 +139,11 @@ export const commonItemFieldsSchema = {
   searchText: field({ type: String, optional: true, index: true }),
   priority: field({ type: String, optional: true, label: 'Priority' }),
   sourceConversationId: field({ type: String, optional: true }),
+  status: field({
+    type: String,
+    enum: BOARD_STATUSES.ALL,
+    default: BOARD_STATUSES.ACTIVE,
+  }),
 };
 
 export const boardSchema = schemaWrapper(
@@ -185,5 +192,10 @@ export const stageSchema = new Schema({
   }), // Win probability
   pipelineId: field({ type: String, label: 'Pipeline' }),
   formId: field({ type: String, label: 'Form' }),
+  status: field({
+    type: String,
+    enum: BOARD_STATUSES.ALL,
+    default: BOARD_STATUSES.ACTIVE,
+  }),
   ...commonFieldsSchema,
 });

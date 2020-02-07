@@ -22,18 +22,17 @@ describe('channelQueries', () => {
     await channelFactory();
 
     const qry = `
-      query channels($page: Int $perPage: Int $memberIds: [String]) {
-        channels(page: $page perPage: $perPage memberIds: $memberIds) {
+      query channels($memberIds: [String]) {
+        channels(memberIds: $memberIds) {
           _id
         }
       }
     `;
 
     // channels response ==================
-    const args: any = { page: 1, perPage: 3 };
-    let responses = await graphqlRequest(qry, 'channels', args);
+    let responses = await graphqlRequest(qry, 'channels');
 
-    expect(responses.length).toBe(3);
+    expect(responses.length).toBe(6);
 
     // channels response by memberIds =====
     const memberIds = [user._id];

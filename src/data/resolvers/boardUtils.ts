@@ -165,6 +165,7 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'dealPipelinesEdit',
     pipelinesRemove: 'dealPipelinesRemove',
     pipelinesWatch: 'dealPipelinesWatch',
+    stagesEdit: 'dealStagesEdit',
   },
   ticket: {
     boardsAdd: 'ticketBoardsAdd',
@@ -174,6 +175,7 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'ticketPipelinesEdit',
     pipelinesRemove: 'ticketPipelinesRemove',
     pipelinesWatch: 'ticketPipelinesWatch',
+    stagesEdit: 'ticketStagesEdit',
   },
   task: {
     boardsAdd: 'taskBoardsAdd',
@@ -183,6 +185,7 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'taskPipelinesEdit',
     pipelinesRemove: 'taskPipelinesRemove',
     pipelinesWatch: 'taskPipelinesWatch',
+    stagesEdit: 'taskStagesEdit',
   },
   growthHack: {
     boardsAdd: 'growthHackBoardsAdd',
@@ -192,6 +195,7 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'growthHackPipelinesEdit',
     pipelinesRemove: 'growthHackPipelinesRemove',
     pipelinesWatch: 'growthHackPipelinesWatch',
+    stagesEdit: 'growthHackStagesEdit',
     templatesAdd: 'growthHackTemplatesAdd',
     templatesEdit: 'growthHackTemplatesEdit',
     templatesRemove: 'growthHackTemplatesRemove',
