@@ -56,7 +56,7 @@ const productMutations = {
       },
       user,
     );
-    await checkAutomation('changeListProduct', { action: 'productsEdit', doc }, user);
+    await checkAutomation('changeListProduct', { action: 'productsEdit', oldCode: product.code, doc }, user);
 
     return updated;
   },
