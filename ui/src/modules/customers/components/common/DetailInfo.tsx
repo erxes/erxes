@@ -60,7 +60,7 @@ class DetailInfo extends React.PureComponent<Props> {
           LEAD_STATUS_TYPES[customer.leadStatus || '']
         )}
         {this.renderRow('Gender', GENDER_TYPES[customer.sex])}
-        {this.renderRow('Birthday',
+        {this.renderRow('Birthday', customer.birthDate &&
           dayjs(customer.birthDate).format('MMM,DD YYYY'))}
         {this.renderRow('Do not disturb', customer.doNotDisturb)}
         <SidebarFlexRow>
