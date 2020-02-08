@@ -47,6 +47,7 @@ export interface IListArgs extends IConformityQueryParams {
   byFakeSegment?: any;
   integrationType?: string;
   integration?: string;
+  popupData?: string;
 }
 
 interface IIntegrationIds {
