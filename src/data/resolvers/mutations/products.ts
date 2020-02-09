@@ -35,6 +35,8 @@ const productMutations = {
       user,
     );
 
+    await checkAutomation('changeListProduct', { action: 'productAdd', doc }, user);
+
     return product;
   },
 
@@ -56,7 +58,7 @@ const productMutations = {
       },
       user,
     );
-    await checkAutomation('changeListProduct', { action: 'productsEdit', oldCode: product.code, doc }, user);
+    await checkAutomation('changeListProduct', { action: 'productEdit', oldCode: product.code, doc }, user);
 
     return updated;
   },
@@ -72,6 +74,11 @@ const productMutations = {
 
     for (const product of products) {
       await putDeleteLog({ type: MODULE_NAMES.PRODUCT, object: product }, user);
+      await checkAutomation(
+        'changeListProduct',
+        { action: 'productRemove', oldCode: product.code, doc: { ...product } },
+        user,
+      );
     }
 
     return productIds;
