@@ -333,6 +333,7 @@ export const INTEGRATIONS = [
     description: 'Get a hold of your Whatsapp messages through your Team Inbox',
     inMessenger: false,
     isAvailable: true,
+    kind: 'whatsapp',
     logo: '/images/integrations/whatsapp.png',
     createModal: 'whatsapp',
     category: 'All integrations, For support teams, Messaging, Conversation'
