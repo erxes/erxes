@@ -72,25 +72,25 @@ function ProductSection({
     );
   }
 
-  const renderProduct = (product: IProduct) => {
-    if (product.customFieldsData) {
-      return (
-        renderProductFormModal(
-          <Tip text={tipItems(product)} placement="bottom">
-            <ProductName>
-              {product.name}
-              <Icon icon="edit" />
-            </ProductName>
-          </Tip>
-        ));
-    }
-
+  const renderProductName = (productName: string) => {
     return renderProductFormModal(
       <ProductName>
-        {product.name}
+        {productName}
         <Icon icon="edit" />
       </ProductName>
     );
+  };
+
+  const renderProduct = (product: IProduct) => {
+    if (product.customFieldsData) {
+      return (
+        <Tip text={tipItems(product)} placement="bottom">
+          {renderProductName(product.name)}
+        </Tip>
+      );
+    }
+
+    return renderProductName(product.name)
   };
 
   return (
