@@ -1,7 +1,5 @@
-import {
-  conformityQueryFieldDefs,
-  conformityQueryFields
-} from 'modules/conformity/graphql/queries';
+import { commonFields } from 'modules/boards/graphql/mutations';
+import { conformityQueryFieldDefs, conformityQueryFields } from 'modules/conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
@@ -30,60 +28,7 @@ const commonParamDefs = `
 `;
 
 export const ticketFields = `
-  _id
-  name
-  stageId
-  hasNotified
-  pipeline {
-    _id
-    name
-  }
-  boardId
-  companies {
-    _id
-    primaryName
-    website
-  }
-  customers {
-    _id
-    firstName
-    lastName
-    primaryEmail
-    primaryPhone
-    visitorContactInfo
-  }
-  closeDate
-  description
-  priority
   source
-  assignedUsers {
-    _id
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
-  labels {
-    _id
-    name
-    colorCode
-  }
-  labelIds
-  stage {
-    probability
-  }
-  isWatched
-  attachments {
-    name
-    url
-    type
-    size
-  }
-  modifiedAt
-  modifiedBy
-  reminderMinute
-  isComplete
 `;
 
 const tickets = `
@@ -103,7 +48,8 @@ const tickets = `
       search: $search,
       ${commonParamDefs}
     ) {
-      ${ticketFields}
+      source
+      ${commonFields}
     }
   }
 `;
@@ -112,11 +58,32 @@ const ticketDetail = `
   query ticketDetail($_id: String!) {
     ticketDetail(_id: $_id) {
       ${ticketFields}
+      ${commonFields}
+    }
+  }
+`;
+
+const archivedTickets = `
+  query archivedTickets(
+    $pipelineId: String!,
+    $search: String,
+    $page: Int,
+    $perPage: Int,
+  ) {
+    archivedTickets(
+      pipelineId: $pipelineId,
+      search: $search,
+      page: $page,
+      perPage: $perPage,
+    ) {
+      source
+      ${commonFields}
     }
   }
 `;
 
 export default {
   tickets,
-  ticketDetail
+  ticketDetail,
+  archivedTickets
 };

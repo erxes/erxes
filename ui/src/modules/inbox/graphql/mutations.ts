@@ -4,6 +4,7 @@ const conversationMessageAdd = `
   mutation conversationMessageAdd(
     $conversationId: String,
     $content: String,
+    $contentType: String,
     $mentionedUserIds: [String],
     $internal: Boolean,
     $attachments: [AttachmentInput],
@@ -11,6 +12,7 @@ const conversationMessageAdd = `
     conversationMessageAdd(
       conversationId: $conversationId,
       content: $content,
+      contentType: $contentType,
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
       attachments: $attachments,

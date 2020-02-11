@@ -1,46 +1,20 @@
-import SelectLabel from 'modules/boards/components/label/SelectLabel';
-import {
-  ClearDate,
-  ClearFilter,
-  DateFilter,
-  FilterBox,
-  FilterBtn,
-  FilterDetail,
-  FilterItem,
-  RemoveFilter
-} from 'modules/boards/styles/filter';
-import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import EmptyState from 'modules/common/components/EmptyState';
-import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
-import { PopoverHeader } from 'modules/notifications/components/styles';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import Overlay from 'react-bootstrap/Overlay';
-import Popover from 'react-bootstrap/Popover';
 import { Link } from 'react-router-dom';
-import Select from 'react-select-plus';
-import { PRIORITIES } from '../constants';
 import PipelineWatch from '../containers/PipelineWatch';
-import {
-  HeaderButton,
-  HeaderItems,
-  HeaderLabel,
-  HeaderLink,
-  PageHeader
-} from '../styles/header';
-import { IBoard, IPipeline } from '../types';
+import { HeaderButton, HeaderItems, HeaderLabel, HeaderLink, PageHeader } from '../styles/header';
+import { IBoard, IOptions, IPipeline } from '../types';
+import RightMenu from './RightMenu';
 
 type Props = {
   onSearch: (search: string) => void;
   onSelect: (values: string[] | string, name: string) => void;
-  onClear: (name: string, values) => void;
   isFiltered: () => boolean;
   clearFilter: () => void;
   currentBoard?: IBoard;
@@ -49,58 +23,19 @@ type Props = {
   middleContent?: () => React.ReactNode;
   history: any;
   queryParams: any;
-  assignedUserIds?: string[];
-  type: string;
   extraFilter?: React.ReactNode;
   link: string;
   rightContent?: () => React.ReactNode;
   boardText?: string;
   pipelineText?: string;
+  options: IOptions;
 };
 
-type State = {
-  show: boolean;
-  target: any;
-};
-
-const teamMemberCustomOption = {
-  value: '',
-  label: 'Assigned to no one'
-};
-
-class MainActionBar extends React.Component<Props, State> {
+class MainActionBar extends React.Component<Props> {
   static defaultProps = {
     viewType: 'board',
     boardText: 'Board',
     pipelineText: 'Pipeline'
-  };
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      show: false,
-      target: null
-    };
-  }
-
-  showFilter = ({ target }) => {
-    this.setState(s => ({ target, show: !s.show }));
-  };
-
-  onSearch = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
-      const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch(target.value || '');
-    }
-  };
-
-  hideFilter = () => {
-    this.setState({ show: false });
-  };
-
-  onClear = (name: string) => {
-    this.props.onSelect(name, '');
   };
 
   renderBoards() {
@@ -169,142 +104,30 @@ class MainActionBar extends React.Component<Props, State> {
     });
   }
 
-  renderDates() {
-    const { queryParams, link } = this.props;
+  renderFilter() {
+    const isFiltered = this.props.isFiltered();
+    const {
+      onSearch,
+      onSelect,
+      queryParams,
+      link,
+      extraFilter,
+      options,
+      clearFilter
+    } = this.props;
 
-    if (link.includes('calendar')) {
-      return null;
-    }
-
-    const { onSelect, onClear } = this.props;
-
-    const renderLink = (label: string, name: string) => {
-      const selected = queryParams.closeDateType === name;
-
-      return (
-        <FilterItem>
-          <FilterDetail
-            selected={selected}
-            onClick={onSelect.bind(this, name, 'closeDateType')}
-          >
-            {__(label)}
-          </FilterDetail>
-          <ClearDate selected={selected}>
-            <Tip text={__('Remove this filter')}>
-              <Button
-                btnStyle="link"
-                icon="cancel-1"
-                onClick={onClear.bind(this, 'closeDateType')}
-              />
-            </Tip>
-          </ClearDate>
-        </FilterItem>
-      );
+    const rightMenuProps = {
+      onSearch,
+      onSelect,
+      queryParams,
+      link,
+      extraFilter,
+      options,
+      isFiltered,
+      clearFilter
     };
 
-    return (
-      <DateFilter>
-        {renderLink('Due to the next day', 'nextDay')}
-        {renderLink('Due in the next week', 'nextWeek')}
-        {renderLink('Due in the next month', 'nextMonth')}
-        {renderLink('Has no close date', 'noCloseDate')}
-        {renderLink('Overdue', 'overdue')}
-      </DateFilter>
-    );
-  }
-
-  renderFilterOverlay() {
-    const { queryParams, onSelect, extraFilter } = this.props;
-
-    const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
-    const priorities = queryParams ? queryParams.priority : [];
-
-    const onPrioritySelect = (ops: IOption[]) =>
-      onSelect(ops.map(option => option.value), 'priority');
-
-    return (
-      <Overlay
-        show={this.state.show}
-        onHide={this.hideFilter}
-        placement="bottom"
-        rootClose={true}
-        target={this.state.target}
-      >
-        <Popover id="popover-contained">
-          <PopoverHeader>{__('Filter')}</PopoverHeader>
-          <FilterBox>
-            {extraFilter}
-            <Select
-              placeholder="Choose a priority"
-              value={priorities}
-              options={priorityValues}
-              name="priority"
-              onChange={onPrioritySelect}
-              multi={true}
-              loadingPlaceholder={__('Loading...')}
-            />
-            <SelectTeamMembers
-              label="Choose team members"
-              name="assignedUserIds"
-              queryParams={queryParams}
-              onSelect={onSelect}
-              customOption={teamMemberCustomOption}
-            />
-            <SelectLabel
-              queryParams={queryParams}
-              name="labelIds"
-              onSelect={onSelect}
-              filterParams={{ pipelineId: queryParams.pipelineId }}
-              multi={true}
-              customOption={{ value: '', label: 'No label chosen' }}
-            />
-
-            {this.renderDates()}
-          </FilterBox>
-          <ClearFilter>
-            <Button
-              btnStyle="primary"
-              onClick={this.props.clearFilter}
-              block={true}
-              size="small"
-            >
-              {__('Clear filter')}
-            </Button>
-          </ClearFilter>
-        </Popover>
-      </Overlay>
-    );
-  }
-
-  renderFilter() {
-    const hasFilter = this.props.isFiltered();
-
-    return (
-      <HeaderLink>
-        <Tip text={__('Filter')} placement="bottom">
-          <FilterBtn active={hasFilter}>
-            <Button
-              btnStyle={hasFilter ? 'success' : 'link'}
-              className={hasFilter ? 'filter-success' : 'filter-link'}
-              icon="filter-1"
-              onClick={this.showFilter}
-            >
-              {hasFilter && __('Filtering is on')}
-            </Button>
-            {hasFilter && (
-              <RemoveFilter>
-                <Button
-                  btnStyle="link"
-                  icon="cancel-1"
-                  onClick={this.props.clearFilter}
-                />
-              </RemoveFilter>
-            )}
-          </FilterBtn>
-        </Tip>
-        {this.renderFilterOverlay()}
-      </HeaderLink>
-    );
+    return <RightMenu {...rightMenuProps} />;
   }
 
   renderVisibility() {
@@ -339,12 +162,13 @@ class MainActionBar extends React.Component<Props, State> {
       currentBoard,
       currentPipeline,
       middleContent,
-      queryParams,
-      type,
+      options,
       rightContent,
       boardText,
       pipelineText
     } = this.props;
+
+    const type = options.type;
 
     const actionBarLeft = (
       <HeaderItems>
@@ -397,16 +221,9 @@ class MainActionBar extends React.Component<Props, State> {
       <HeaderItems>
         {middleContent && middleContent()}
 
-        <FormControl
-          defaultValue={queryParams.search}
-          placeholder={__('Search ...')}
-          onKeyPress={this.onSearch}
-          autoFocus={true}
-        />
+        {rightContent && rightContent()}
 
         {this.renderFilter()}
-
-        {rightContent && rightContent()}
       </HeaderItems>
     );
 

@@ -55,6 +55,10 @@ export default `
     name
     colorCode
   }
+  videoCallData {
+    url
+    name
+  }
   readUserIds
   callProAudio
   facebookPost {

@@ -1,6 +1,5 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { MainWrapper } from 'modules/layout/styles';
 import { userConfirmation } from 'modules/settings/team/routes';
 import React from 'react';
 import { Route, Router, Switch } from 'react-router-dom';
@@ -16,20 +15,16 @@ import InboxRoutes from './modules/inbox/routes';
 import InsightsRoutes from './modules/insights/routes';
 import KnowledgeBaseRoutes from './modules/knowledgeBase/routes';
 import LeadRoutes from './modules/leads/routes';
-import { NotifProvider } from './modules/notifications/context';
 import NotificationRoutes from './modules/notifications/routes';
 import SegmentsRoutes from './modules/segments/routes';
 import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
 import TaskRoutes from './modules/tasks/routes';
 import TicketRoutes from './modules/tickets/routes';
+import VideoCallRoutes from './modules/videoCall/routes';
 
 const MainLayout = asyncComponent(() =>
   import(/* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout')
-);
-
-const MainBar = asyncComponent(() =>
-  import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
 );
 
 const renderRoutes = currentUser => {
@@ -37,26 +32,22 @@ const renderRoutes = currentUser => {
     return (
       <>
         <MainLayout currentUser={currentUser}>
-          <MainWrapper>
-            <NotifProvider currentUser={currentUser}>
-              <MainBar />
-              <NotificationRoutes />
-            </NotifProvider>
-            <InboxRoutes />
-            <SegmentsRoutes />
-            <CustomersRoutes />
-            <CompaniesRoutes />
-            <InsightsRoutes />
-            <EngageRoutes />
-            <KnowledgeBaseRoutes />
-            <LeadRoutes />
-            <SettingsRoutes />
-            <TagsRoutes />
-            <DealsRoutes />
-            <TicketRoutes />
-            <TaskRoutes />
-            <GrowthHackRoutes />
-          </MainWrapper>
+          <NotificationRoutes />
+          <InboxRoutes />
+          <SegmentsRoutes />
+          <CustomersRoutes />
+          <CompaniesRoutes />
+          <InsightsRoutes />
+          <EngageRoutes />
+          <KnowledgeBaseRoutes />
+          <LeadRoutes />
+          <SettingsRoutes />
+          <TagsRoutes />
+          <DealsRoutes />
+          <TicketRoutes />
+          <TaskRoutes />
+          <GrowthHackRoutes />
+          <VideoCallRoutes />
         </MainLayout>
       </>
     );

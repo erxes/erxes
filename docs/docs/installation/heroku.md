@@ -54,6 +54,9 @@ REDIS_HOST = REDIS_HOST # we will update it later on
 REDIS_PASSWORD = REDIS_PASS # we will update it later on
 REDIS_PORT = 28229 # update it later on
 WIDGETS_DOMAIN = https://erxes-widget.herokuapp.com
+PORT_CRONS: 3600,
+PORT_WORKERS: 3700,
+JWT_TOKEN_SECRET: "replact it with your token"
 ```
 
 [![Deploy erxes API](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes API")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-api/tree/develop)

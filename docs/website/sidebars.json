@@ -10,6 +10,7 @@
     "Installation Guide": [
       "installation/ubuntu",
       "installation/debian10",
+      "installation/centos8",
       "installation/docker",
       "installation/heroku",
       "installation/kubernetes",

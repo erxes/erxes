@@ -9,7 +9,8 @@ const options = {
   title: 'Growth hacking',
   queriesName: {
     itemsQuery: 'growthHacks',
-    detailQuery: 'growthHackDetail'
+    detailQuery: 'growthHackDetail',
+    archivedItemsQuery: 'archivedGrowthHacks'
   },
   mutationsName: {
     addMutation: 'growthHacksAdd',
@@ -18,11 +19,13 @@ const options = {
     changeMutation: 'growthHacksChange',
     updateOrderMutation: 'growthHacksUpdateOrder',
     watchMutation: 'growthHacksWatch',
+    archiveMutation: 'growthHacksArchive',
     copyMutation: 'growthHacksCopy'
   },
   queries: {
     itemsQuery: queries.growthHacks,
-    detailQuery: queries.growthHackDetail
+    detailQuery: queries.growthHackDetail,
+    archivedItemsQuery: queries.archivedGrowthHacks
   },
   mutations: {
     addMutation: mutations.growthHacksAdd,
@@ -31,6 +34,7 @@ const options = {
     changeMutation: mutations.growthHacksChange,
     updateOrderMutation: mutations.growthHacksUpdateOrder,
     watchMutation: mutations.growthHacksWatch,
+    archiveMutation: mutations.growthHacksArchive,
     copyMutation: mutations.growthHacksCopy
   },
   texts: {

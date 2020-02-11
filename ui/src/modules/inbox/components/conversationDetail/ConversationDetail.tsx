@@ -11,6 +11,7 @@ import { IConversation } from '../../types';
 type Props = {
   currentConversation: IConversation;
   loading: boolean;
+  refetchDetail: () => void;
 };
 
 export default class ConversationDetail extends React.Component<Props> {
