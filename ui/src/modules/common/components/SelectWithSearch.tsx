@@ -12,15 +12,22 @@ import Icon from './Icon';
 
 const SelectWrapper = styled.div`
   position: relative;
+
+  .Select-clear-zone {
+    visibility: hidden;
+  }
 `;
 
 const ClearButton = styled.div`
   position: absolute;
-  right: 20px;
+  right: 18px;
   font-size: 16px;
-  top: 4px;
+  top: 50%;
+  width: 18px;
   z-index: 2;
   color: #999;
+  line-height: 24px;
+  margin-top: -14px;
 
   &:hover {
     color: #EA475D;
