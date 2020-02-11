@@ -21,11 +21,7 @@ import {
   IListArgs as ICompanyListArgs,
   sortBuilder as companiesSortBuilder,
 } from '../coc/companies';
-import {
-  Builder as BuildQuery,
-  IListArgs as ICustomerListArgs,
-  sortBuilder as customersSortBuilder,
-} from '../coc/customers';
+import { Builder as BuildQuery, IListArgs as ICustomerListArgs } from '../coc/customers';
 import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
@@ -59,8 +55,6 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
       await qb.buildAllQueries();
 
-      const sort = customersSortBuilder(customerParams);
-
       const mainQuery = qb.mainQuery();
 
       if (customerParams.form && customerParams.popupData) {
@@ -73,7 +67,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
         data = conversationMessages.map(message => message.formWidgetData);
       } else {
-        data = await Customers.find(mainQuery).sort(sort);
+        data = await Customers.find(mainQuery);
       }
 
       break;
