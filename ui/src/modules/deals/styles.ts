@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const FormContainer = styled.div`
+  margin-top: 20px;
+  
   .Select-multi-value-wrapper {
     display: flex;
     min-width: 100px;
@@ -24,7 +26,6 @@ const ProductItem = styled.div`
   margin-bottom: 10px;
   box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
   position: relative;
-  margin-top: 20px;
 
   label {
     font-size: 10px;
