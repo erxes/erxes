@@ -13,6 +13,7 @@ import Accounts from './models/Accounts';
 import initNylas from './nylas/controller';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
+import initDaily from './videoCall/controller';
 
 // load environment variables
 dotenv.config();
@@ -88,6 +89,9 @@ initTwitter(app);
 
 // init chatfuel
 initChatfuel(app);
+
+// init chatfuel
+initDaily(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
