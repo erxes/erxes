@@ -5,10 +5,11 @@ import styledTS from 'styled-components-ts';
 import { ActionButtons, SidebarListItem } from '../styles';
 
 const FilterWrapper = styled.div`
-  padding: 10px 20px ;
+  padding: 10px 20px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  border-bottom: 1px solid ${colors.borderPrimary};
 
   strong {
     margin-right: 10px;
