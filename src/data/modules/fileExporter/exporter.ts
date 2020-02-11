@@ -169,12 +169,9 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
     // Iterating through basic info columns
     for (const column of headers) {
       const item = await data.find(obj => obj.text === column.name);
+      const cellValue = item ? item.value : '';
 
-      if (item) {
-        const cellValue = item.value;
-
-        addCell(column, cellValue, sheet, columnNames, rowIndex);
-      }
+      addCell(column, cellValue, sheet, columnNames, rowIndex);
     }
   }
 };
