@@ -161,16 +161,20 @@ const fillLeadHeaders = async (formId: string) => {
   return headers;
 };
 
-const buildLeadFile = async (data: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
+const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
   const headers: IColumnLabel[] = await fillLeadHeaders(formId);
 
-  for (const item of data) {
+  for (const data of datas) {
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      const cellValue = await item.find(obj => obj.text === column.name).value;
+      const item = await data.find(obj => obj.text === column.name);
 
-      addCell(column, cellValue, sheet, columnNames, rowIndex);
+      if (item) {
+        const cellValue = item.value;
+
+        addCell(column, cellValue, sheet, columnNames, rowIndex);
+      }
     }
   }
 };
