@@ -146,7 +146,7 @@ const productMutations = {
     await putDeleteLog({ type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory }, user);
     await checkAutomation(
       'changeListProduct',
-      { action: 'productCategoryRemove', oldCode: productCategory.code, doc: { ...productCategory } },
+      { action: 'productCategoryRemove', oldCode: productCategory.code, doc: productCategory },
       user,
     );
 
