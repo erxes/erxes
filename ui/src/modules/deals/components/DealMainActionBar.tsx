@@ -9,6 +9,7 @@ import SelectCustomers from 'modules/customers/containers/common/SelectCustomers
 import SelectProducts from 'modules/settings/productService/containers/product/SelectProducts';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import options from '../options';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -84,19 +85,19 @@ const DealMainActionBar = (props: Props) => {
   const extraFilter = (
     <>
       <SelectProducts
-        label="Choose products"
+        label="Filter by products"
         name="productIds"
         queryParams={queryParams}
         onSelect={onSelect}
       />
       <SelectCompanies
-        label="Choose companies"
+        label="Filter by companies"
         name="companyIds"
         queryParams={queryParams}
         onSelect={onSelect}
       />
       <SelectCustomers
-        label="Choose customers"
+        label="Filter by customers"
         name="customerIds"
         queryParams={queryParams}
         onSelect={onSelect}
@@ -106,6 +107,7 @@ const DealMainActionBar = (props: Props) => {
 
   const extendedProps = {
     ...props,
+    options,
     extraFilter,
     link: `/deal/${viewType}`,
     rightContent: viewChooser

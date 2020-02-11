@@ -30,6 +30,7 @@ export interface ICustomerDoc {
   firstName: string;
   lastName: string;
   phones?: string[];
+  sex: number;
   primaryPhone?: string;
   primaryEmail?: string;
   emails?: string[];
@@ -56,6 +57,7 @@ export interface ICustomerDoc {
   customFieldsData?: { [key: string]: any };
   visitorContactInfo?: IVisitorContact;
   code?: string;
+  birthDate?: string;
 }
 
 export interface ICustomer extends ICustomerDoc {

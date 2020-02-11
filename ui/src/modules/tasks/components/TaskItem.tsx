@@ -8,7 +8,6 @@ import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IItem, IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
-import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
@@ -27,20 +26,16 @@ type Props = {
 };
 
 class TaskItem extends React.PureComponent<Props> {
-  renderDate(date, format = 'YYYY-MM-DD') {
+  renderDate(date) {
     if (!date) {
       return null;
     }
 
-    return (
-      <Tip text={dayjs(date).format(format)}>
-        <ItemDate>{dayjs(date).format('lll')}</ItemDate>
-      </Tip>
-    );
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderForm = () => {
-    const { item, isFormVisible } = this.props;
+    const { item, isFormVisible, stageId } = this.props;
 
     if (!isFormVisible) {
       return null;
@@ -49,6 +44,7 @@ class TaskItem extends React.PureComponent<Props> {
     return (
       <EditForm
         {...this.props}
+        stageId={stageId || item.stageId}
         itemId={item._id}
         hideHeader={true}
         isPopupVisible={isFormVisible}

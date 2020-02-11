@@ -10,7 +10,7 @@ type Props = {
 class SideBar extends React.Component<Props> {
   renderCategory(item) {
     return (
-      <Link to={`?type=${item}`}>
+      <Link key={item} to={`?type=${item}`}>
         <Category
           key={item}
           isActive={(this.props.currentType || 'All integrations') === item}

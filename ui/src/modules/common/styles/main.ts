@@ -208,6 +208,23 @@ const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
   padding-right: 10px;
 `;
 
+const DateContainer = styled.div`
+  .form-control {
+    box-shadow: none;
+    border-radius: 0;
+    border: none;
+    background: none;
+    border-bottom: 1px solid ${colors.colorShadowGray};
+    padding: 5px 0;
+    font-size: ${typography.fontSizeBody}px;
+
+    &:focus {
+      box-shadow: none;
+      border-color: ${colors.colorSecondary};
+    }
+  }
+`;
+
 const TabContent = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;
@@ -247,11 +264,12 @@ const TopHeader = styled.div`
   padding: 18px 20px;
 `;
 
-const Title = styled.div`
+const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
   font-size: 24px;
   margin: 20px 0;
   display: flex;
-  line-height: 30px;
+  line-height: 30px;  
+  text-transform: ${props => props.capitalize && 'capitalize'};
 
   > span {
     font-size: 75%;
@@ -285,6 +303,7 @@ export {
   DateWrapper,
   CloseModal,
   ScrollWrapper,
+  DateContainer,
   TabContent,
   ButtonRelated,
   SimpleButton,

@@ -96,22 +96,33 @@ class ConversationDetail extends React.Component<Props, State> {
           onLeftButtonClick={(e: React.FormEvent<HTMLButtonElement>) => {
             e.preventDefault();
             goToConversationList();
+
+            // leave video call if you are in
+            const videIframe = document.getElementById("erxes-video-iframe");
+
+            if (videIframe) {
+              videIframe.remove();
+            }
           }}
         />
 
-        <MessagesList
-          isOnline={isOnline}
-          messages={messages}
-          color={color}
-          inputFocus={this.inputFocus}
-        />
+        <div className="erxes-conversation-content">
+          <div id="page-root" className="erxes-content-wrapper">
+            <MessagesList
+              isOnline={isOnline}
+              messages={messages}
+              color={color}
+              inputFocus={this.inputFocus}
+            />
 
-        <MessageSender
-          placeholder={placeholder ? placeholder.toString() : ""}
-          isParentFocused={this.state.isFocused}
-          onTextInputBlur={this.onTextInputBlur}
-          collapseHead={this.inputFocus}
-        />
+            <MessageSender
+              placeholder={placeholder ? placeholder.toString() : ""}
+              isParentFocused={this.state.isFocused}
+              onTextInputBlur={this.onTextInputBlur}
+              collapseHead={this.inputFocus}
+            />
+          </div>
+        </div>
       </div>
     );
   }
