@@ -1,9 +1,25 @@
 ---
-id: integrations
-title: Integrations
+id: system-config
+title: System Config
 ---
 
 ## Facebook Integration
+
+
+## Facebook from environment variables
+
+```
+FACEBOOK_APP_ID=''
+FACEBOOK_APP_SECRET=''
+FACEBOOK_PERMISSIONS='manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions'
+
+```
+
+- FACEBOOK_APP_ID is your faceboook application's app id
+- FACEBOOK_APP_SECRET is your faceboook application's secret key
+- FACEBOOK_PERMISSIONS you should not have to modify this option. Those are the necessary permissions for facebook integration
+
+================================
 
 Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
 
@@ -86,6 +102,19 @@ Notes:
 
 ### Creating Twitter app.
 
+
+## Twitter Settings from environment variable
+
+```
+TWITTER_CONSUMER_KEY=''
+TWITTER_CONSUMER_SECRET=''
+TWITTER_REDIRECT_URL='https://erxes.domain.com/service/oauth/twitter_callback'
+```
+
+- TWITTER_CONSUMER_KEY Your twitter developer account's Consumer Key (API Key) here
+- TWITTER_CONSUMER_SECRET Your twitter developer account's Consumer Secret (API Secret) here
+- TWITTER_REDIRECT_URL you should only change the domain of this env variables. This is twitter's callback url
+
 1. Go to https://apps.twitter.com/ and create new app.
 2. Fill the form with following example and create your application.
 
@@ -112,6 +141,30 @@ Your .env should look like:
 3. Select your brand and click save.
 
 ## Gmail Integration
+
+
+
+## Gmail from environment variable
+
+```
+GOOGLE_CLIENT_ID=''
+GOOGLE_CLIENT_SECRET=''
+GOOGLE_APPLICATION_CREDENTIALS=''
+GOOGLE_TOPIC=''
+GOOGLE_SUBSCRIPTION_NAME=''
+GOOGLE_PROJECT_ID=''
+GMAIL_REDIRECT_URL = 'http://localhost:3000/service/oauth/gmail_callback'
+```
+
+- GOOGLE_CLIENT_ID your google project's Clint id
+- GOOGLE_CLIENT_SECRET your google project's secret key
+- GOOGLE_APPLICATION_CREDENTIALS Your downloaded google's credentials which is json file
+- GOOGLE_TOPIC Your google cloud project's subscribed topic's name
+- GOOGLE_SUBSCRIPTION_NAME Your google cloud project's subscription name
+- GOOGLE_PROJECT_ID your google project's id
+- GMAIL_REDIRECT_URL this is gmail's callback URL you should only change the domain of it
+  =====================
+
 
 Erxes app can be integrated with Gmail API and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc. There is an active development process going on this subject.
 
@@ -167,8 +220,6 @@ Add integration:
 
 ## AWS S3 Integration
 
-1. Configure AWS account settings in `erxes-api/.env` like below
-
 ```Shell
 AWS_ACCESS_KEY_ID='your aws account access key id'
 AWS_SECRET_ACCESS_KEY='your aws account secret key'
@@ -177,11 +228,43 @@ AWS_BUCKET='aws bucket name'
 AWS_PREFIX=''
 ```
 
+- AWS_ACCESS_KEY_ID your amazon account's access key id
+- AWS_SECRET_ACCESS_KEY your amazon account's secret access key
+- AWS_BUCKET your s3 service's bucket name to use
+- AWS_PREFIX you can use prefix names to specify the names of the files to be uploaded
+1. Configure AWS account settings in `erxes-api/.env` like below
+
+
 - You can get your aws access key id and region from [here](https://console.aws.amazon.com/console/home)
   , You can not get your current aws secret access key, however you can always create new one and claim newly created aws secret access key
 - Make sure your IAM user has proper access to S3 services.
 
 ## AWS SES Integration
+
+## Aws SES from environment variables
+
+Engages are sent by ses service
+
+```
+AWS_SES_ACCESS_KEY_ID=''
+AWS_SES_SECRET_ACCESS_KEY=''
+AWS_SES_CONFIG_SET=''
+AWS_REGION=''
+AWS_ENDPOINT=''
+```
+
+- AWS_SES_ACCESS_KEY_ID your amazon account's access key id
+- AWS_SES_SECRET_ACCESS_KEY your amazon account's secret access key
+- AWS_SES_CONFIG_SET to detect bounce, complaints, click, open events you will need this option. This name can be anything
+- AWS_REGION your amazon account's region
+- AWS_ENDPOINT this is the URL where the amazon events sent to. Basically it is your erxes/erxes-api repository's path or domain
+
+To be able to detect the ses events you should run this command in console
+
+```
+yarn engageSubscriptions
+```
+
 
 Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account. 
 
@@ -274,6 +357,31 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
   When you start erxes-integration repo webhook will automatically created according to `.env`
   #### Now we are ready to config our provider
 ### Gmail
+
+## Email settings from environment variable
+
+```
+COMPANY_EMAIL_FROM=noreply@erxes.io
+DEFAULT_EMAIL_SERVICE=sendgrid
+MAIL_SERVICE=sendgrid
+MAIL_PORT=''
+MAIL_USER=''
+MAIL_PASS=''
+MAIL_HOST=''
+```
+
+- COMPANY_EMAIL_FROM transaction emails will be sent by this email address
+- DEFAULT_EMAIL_SERVICE defines whether transaction emails sent by ses or other email services
+- MAIL_SERVICE defines your email service's name
+- MAIL_PORT your email service's port
+- MAIL_USER defines your email service's login username
+- MAIL_PASS defines your email service's login password
+- MAIL_HOST your email service's host
+
+
+
+
+
 1. Create the Google project and config gmail for the [Nylas guide](https://docs.nylas.com/docs/creating-a-google-project-for-dev)
     - Get the following config from your Google project and config as follows in `erxes-integrations/.env`
     ```Shell
