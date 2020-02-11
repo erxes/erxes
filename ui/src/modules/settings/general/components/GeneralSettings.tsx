@@ -141,10 +141,10 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__("File Upload")}>
+        <CollapseContent title={__("File upload")}>
           <Info>
             <a target="_blank" href="https://docs.erxes.io/administrator/file-upload" rel="noopener noreferrer">
-              {__("More: Understanding File Upload")}
+              {__("More: Understanding File upload")}
             </a>
           </Info>
           {this.renderItem('UPLOAD_FILE_TYPES', 'Comma-separated list of media types. Leave it blank for accepting all media types')}
@@ -198,7 +198,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_SES_CONFIG_SET')}
         </CollapseContent>
 
-        <CollapseContent title={__("Common Mail Config")}>  
+        <CollapseContent title={__("Common mail config")}>  
           <Info>
             <a target="_blank" href="https://docs.erxes.io/administrator/environment-variables#email-settings" rel="noopener noreferrer">
               {__("More: Understanding Email Settings")}
@@ -209,7 +209,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('DEFAULT_EMAIL_SERVICE', 'Write your default email service name. Default email service is SES')}
         </CollapseContent>
 
-        <CollapseContent title={__("Custom Mail Service")}>
+        <CollapseContent title={__("Custom mail service")}>
           <Info>
             {__("Fill up these inputs if you are using custom email service")}
           </Info>
