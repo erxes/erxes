@@ -24,6 +24,7 @@ const ProductItem = styled.div`
   margin-bottom: 10px;
   box-shadow: 0 0 8px 1px rgba(221, 221, 221, 0.7);
   position: relative;
+  margin-top: 20px;
 
   label {
     font-size: 10px;
@@ -59,15 +60,14 @@ const ContentColumn = styled.div`
 
 const TickUsed = styled.div`
   text-align: center;
-  margin-top: 35px;
-  padding: 0 15px;
+  margin-top: 25px;
 `;
 
 const TotalAmount = styled.div`
   text-align: right;
-  font-size: 20px;
-  margin-top: 30px;
-  padding: 2px 15px;
+  font-size: 20px;    
+  margin-top: 25px;
+  padding: 0px 15px;
   background: ${rgba(colors.colorCoreTeal, 0.2)};
   border-radius: 15px;
   float: right;
