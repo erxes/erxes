@@ -887,5 +887,8 @@
   "Email add account description question": "Та хуваалцсан имэйл акаунтыг холбож байна уу?",
   "Email add account description": "Таны имэйл хайрцаг руу имэйлээ холбогдохдоо үүнийг хуваалцсан акаунт гэж холбож байна. Таны ирсэн имэйлд хандалт хийсэн бүх хүн харах боломжтой.",
   "No connected email": "Имэйл холбоогүй байна",
-  "Your email will be sent with Erxes email template": "Бидний бэлдэж өгсөн email загварын дагуу mail явуулах болно"
+  "Your email will be sent with Erxes email template": "Бидний бэлдэж өгсөн email загварын дагуу mail явуулах болно",
+  "Join a call": "Дуудлага руу орох",
+  "Invite to video call": "Видео дуудлагад урих",
+  "Video call invitation sent": "Видео дуудлагын урилга илгээсэн"
 }

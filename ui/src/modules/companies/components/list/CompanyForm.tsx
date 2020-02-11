@@ -169,7 +169,7 @@ class CompanyForm extends React.Component<Props, State> {
           <AvatarUpload
             avatar={company.avatar}
             onAvatarUpload={this.onAvatarUpload}
-            defaultAvatar="/images/company.png"
+            defaultAvatar="/images/integrations/company.png"
           />
           <FormWrapper>
             <FormColumn>

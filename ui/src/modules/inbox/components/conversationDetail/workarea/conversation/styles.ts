@@ -1,6 +1,6 @@
 import { AttachmentWrapper, Meta } from 'modules/common/components/Attachment';
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import { darken, rgba } from 'modules/common/styles/color';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -146,6 +146,11 @@ const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
     margin: 0 10px;
     cursor: pointer;
   }
+
+  > img {
+    box-shadow: 0 1px 1px 0 ${colors.darkShadow};
+    max-width: 100%;
+  }
 `;
 
 const FormTable = styled.div`
@@ -166,14 +171,18 @@ const FormTable = styled.div`
   }
 `;
 
-const AppMessageBox = styled.div`
+const CallBox = styled.div`
   border: 1px solid ${colors.borderPrimary};
   border-radius: 5px;
   background: ${colors.colorWhite};
-  width: 350px;
-  margin-top: ${dimensions.coreSpacing}px;
-  text-align: center;
+  text-align: left;
   float: right;
+  box-shadow: rgba(0, 0, 0, 0.06) 0px 0px 6px 1px;
+`;
+
+const AppMessageBox = styled(CallBox)`
+  width: 320px;
+  text-align: center;
 `;
 
 const CallButton = styled.div`
@@ -185,7 +194,7 @@ const CallButton = styled.div`
     margin-bottom: 15px;
   }
 
-  button {
+  button, a {
     width: 100%;
     border-radius: 5px;
     background: ${colors.colorCoreBlue};
@@ -195,8 +204,13 @@ const CallButton = styled.div`
     box-shadow: none;
   }
 
-  button:hover {
-    box-shadow: 0 2px 22px 0 hsl(216, 89%, 59%);
+  a {
+    display: block;
+    color: ${colors.colorWhite};
+
+    &:hover {
+      background: ${darken(colors.colorCoreBlue, 10)};
+    }
   }
 `;
 
@@ -205,12 +219,20 @@ const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-top: 3px solid ${colors.colorPrimary};
+  border-top: 3px solid ${colors.colorCoreBlue};
   border-radius: 5px;
 
   h4 {
     margin: 20px 0 0 0;
     font-size: 16px;
+  }
+
+  h5 {
+    margin-top: 0;
+  }
+
+  h3 {
+    margin: 0;
   }
 `;
 
@@ -227,5 +249,6 @@ export {
   AppMessageBox,
   CallButton,
   UserInfo,
-  FlexItem
+  FlexItem,
+  CallBox
 };

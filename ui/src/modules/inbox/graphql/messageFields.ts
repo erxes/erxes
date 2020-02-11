@@ -9,8 +9,13 @@ export default `
   }
   mentionedUserIds
   conversationId
+  videoCallData {
+    url
+    status
+  }
   internal
   fromBot
+  contentType
   customerId
   userId
   createdAt

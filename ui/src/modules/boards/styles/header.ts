@@ -116,23 +116,4 @@ export const HeaderLink = styled(HeaderButton)`
       color: ${colors.colorCoreDarkGray};
     }
   }
-
-  .filter-success {
-    padding: 5px 15px;
-    background: #3ccc38;
-    font-size: 10px;
-    text-decoration: underline;
-    box-shadow: none;
-  }
-
-  .filter-link {
-    color: ${colors.colorCoreGray};
-    padding: 0 10px;
-    display: block;
-    line-height: 32px;
-
-    span {
-      margin-left: 0;
-    }
-  }
 `;

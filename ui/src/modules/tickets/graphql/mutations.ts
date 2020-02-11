@@ -1,48 +1,35 @@
+import {
+  commonFields,
+  commonMutationParams,
+  commonMutationVariables
+} from 'modules/boards/graphql/mutations';
 import { ticketFields } from './queries';
 
-const commonVariables = `
-  $stageId: String,
-  $closeDate: Date,
-  $description: String,
-  $assignedUserIds: [String],
-  $order: Int,
-  $attachments: [AttachmentInput],
-  $priority: String,
+const ticketMutationVariables = `
   $source: String,
-  $reminderMinute: Int,
-  $isComplete: Boolean,
-  $sourceConversationId: String,
 `;
 
-const commonParams = `
-  stageId: $stageId,
-  closeDate: $closeDate,
-  description: $description,
-  assignedUserIds: $assignedUserIds,
-  order: $order,
-  priority: $priority,
+const ticketMutationParams = `
   source: $source,
-  attachments: $attachments,
-  reminderMinute: $reminderMinute,
-  isComplete: $isComplete,
-  sourceConversationId: $sourceConversationId,
 `;
 
 const copyVariables = `$customerIds: [String], $companyIds: [String], $labelIds: [String]`;
 const copyParams = `customerIds: $customerIds, companyIds: $companyIds, labelIds: $labelIds`;
 
 const ticketsAdd = `
-  mutation ticketsAdd($name: String!, ${copyVariables}, ${commonVariables}) {
-    ticketsAdd(name: $name, ${copyParams}, ${commonParams}) {
+  mutation ticketsAdd($name: String!, ${copyVariables}, ${ticketMutationVariables}, ${commonMutationVariables}) {
+    ticketsAdd(name: $name, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}) {
       ${ticketFields}
+      ${commonFields}
     }
   }
 `;
 
 const ticketsEdit = `
-  mutation ticketsEdit($_id: String!, $name: String, ${commonVariables}) {
-    ticketsEdit(_id: $_id, name: $name, ${commonParams}) {
+  mutation ticketsEdit($_id: String!, $name: String, ${ticketMutationVariables}, ${commonMutationVariables}) {
+    ticketsEdit(_id: $_id, name: $name, ${ticketMutationParams}, ${commonMutationParams}) {
       ${ticketFields}
+      ${commonFields}
     }
   }
 `;
@@ -80,6 +67,12 @@ const ticketsWatch = `
   }
 `;
 
+const ticketsArchive = `
+  mutation ticketsArchive($stageId: String!) {
+    ticketsArchive(stageId: $stageId)
+  }
+`;
+
 const ticketsCopy = `
   mutation ticketsCopy($_id: String!) {
     ticketsCopy(_id: $_id) {
@@ -95,5 +88,6 @@ export default {
   ticketsChange,
   ticketsUpdateOrder,
   ticketsWatch,
-  ticketsCopy,
+  ticketsArchive,
+  ticketsCopy
 };
