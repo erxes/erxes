@@ -60,35 +60,47 @@ function ProductSection({
     return result;
   };
 
+  const renderProductFormModal = children => {
+    return (
+      <ModalTrigger
+        title="Manage Product & Service"
+        size="lg"
+        dialogClassName="modal-1000w"
+        trigger={children}
+        content={content}
+      />
+    );
+  }
+
+  const renderProductName = (productName: string) => {
+    return renderProductFormModal(
+      <ProductName>
+        {productName}
+        <Icon icon="edit" />
+      </ProductName>
+    );
+  };
+
   const renderProduct = (product: IProduct) => {
     if (product.customFieldsData) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
-          <ProductName>{product.name}</ProductName>
+          {renderProductName(product.name)}
         </Tip>
       );
     }
 
-    return <ProductName>{product.name}</ProductName>;
+    return renderProductName(product.name)
   };
-  const extraButtons = (
-    <ModalTrigger
-      title="New Product & Service"
-      size="lg"
-      dialogClassName="modal-1000w"
-      trigger={
-        <button>
-          <Icon icon="add" />
-        </button>
-      }
-      content={content}
-    />
-  );
 
   return (
     <Box
       title={__('Product & Service')}
-      extraButtons={extraButtons}
+      extraButtons={renderProductFormModal(
+        <button>
+          <Icon icon="settings" />
+        </button>
+      )}
       name="showProductAndService"
     >
       <SectionBody>
