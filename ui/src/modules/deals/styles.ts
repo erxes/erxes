@@ -131,6 +131,12 @@ const CustomField = styled.div`
 
 const ProductName = styled.div`
   cursor: pointer;
+
+  > i { visibility: hidden; }
+
+  &:hover i {
+    visibility: visible;
+  }
 `;
 
 const Divider = styled.div`

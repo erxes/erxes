@@ -94,7 +94,8 @@ const RespondBoxContainer = (props: FinalProps) => {
           formWidgetData: null,
           mailData: null,
           user: null,
-          customer: null
+          customer: null,
+          videoCallData: null
         }
       };
     }
