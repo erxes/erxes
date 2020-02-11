@@ -12,6 +12,7 @@ export const debugEmail = debug('erxes-api:email');
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`
         Receiving ${req.path} request from ${req.headers.origin}
+        header: ${JSON.stringify(req.headers || {})}
         body: ${JSON.stringify(req.body || {})}
         queryParams: ${JSON.stringify(req.query)}
     `);

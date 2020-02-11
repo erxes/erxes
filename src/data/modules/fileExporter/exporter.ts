@@ -21,11 +21,7 @@ import {
   IListArgs as ICompanyListArgs,
   sortBuilder as companiesSortBuilder,
 } from '../coc/companies';
-import {
-  Builder as BuildQuery,
-  IListArgs as ICustomerListArgs,
-  sortBuilder as customersSortBuilder,
-} from '../coc/customers';
+import { Builder as BuildQuery, IListArgs as ICustomerListArgs } from '../coc/customers';
 import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
@@ -59,8 +55,6 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
       await qb.buildAllQueries();
 
-      const sort = customersSortBuilder(customerParams);
-
       const mainQuery = qb.mainQuery();
 
       if (customerParams.form && customerParams.popupData) {
@@ -73,7 +67,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
         data = conversationMessages.map(message => message.formWidgetData);
       } else {
-        data = await Customers.find(mainQuery).sort(sort);
+        data = await Customers.find(mainQuery);
       }
 
       break;
@@ -167,14 +161,15 @@ const fillLeadHeaders = async (formId: string) => {
   return headers;
 };
 
-const buildLeadFile = async (data: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
+const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
   const headers: IColumnLabel[] = await fillLeadHeaders(formId);
 
-  for (const item of data) {
+  for (const data of datas) {
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      const cellValue = await item.find(obj => obj.text === column.name).value;
+      const item = await data.find(obj => obj.text === column.name);
+      const cellValue = item ? item.value : '';
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);
     }

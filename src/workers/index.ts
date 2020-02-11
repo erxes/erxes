@@ -7,6 +7,7 @@ import * as path from 'path';
 import { filterXSS } from 'xss';
 import { checkFile } from '../data/utils';
 import { connect } from '../db/connection';
+import ImportHistories from '../db/models/ImportHistory';
 import { debugRequest, debugResponse, debugWorkers } from '../debuggers';
 import userMiddleware from '../middlewares/userMiddleware';
 import { initRedis } from '../redisClient';
@@ -39,9 +40,11 @@ app.use(userMiddleware);
 app.post('/import-remove', async (req: any, res) => {
   debugRequest(debugWorkers, req);
 
-  const { targetIds, contentType, importHistoryId } = req.body;
+  const { contentType, importHistoryId } = req.body;
 
-  const results = splitToCore(JSON.parse(targetIds));
+  const importHistory = await ImportHistories.getImportHistory(importHistoryId);
+
+  const results = splitToCore(importHistory.ids || []);
 
   const workerFile =
     process.env.NODE_ENV === 'production'
