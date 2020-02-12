@@ -47,8 +47,6 @@ API_PATH=''
 WIDGET_PATH=''
 WIDGET_API_PATH=''
 
-UPLOAD_SERVICE_TYPE=''
-GOOGLE_CLOUD_STORAGE_BUCKET=''
 ```
 
 - HTTPS this is boolean variables, set true if you are using secure ssl
@@ -57,5 +55,4 @@ GOOGLE_CLOUD_STORAGE_BUCKET=''
 - DOMAIN this is your erxes-api application's domain where is erxes/erxes-api repository is running
 - NODE_ENV set to production on live mode, set to development on development mode
 - PORT this option will define which port is your application running, you can change to any port you want
-- UPLOAD_SERVICE_TYPE this is upload service type amazon s3 or gcs. GCS is short for Google Cloud Service
-- GOOGLE_CLOUD_STORAGE_BUCKET defines the bucket of gcs
+

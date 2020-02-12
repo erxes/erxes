@@ -3,10 +3,171 @@ id: system-config
 title: System Config
 ---
 
-## Facebook Integration
+## General System Configuration
+
+### General settings
+
+In the general setting, there are optional variables on following values. Select the variable relied upon your requirement.   
+
+```
+LANGUAGE=''
+CURRENCY=''
+UNIT_OF_MEASUREMENT=''
+
+```
+### File upload
+
+**A media type** (Multipurpose Internet Mail Extensions or MIME type) is a standard that indicates the nature and format of a document, file, or assortment of bytes. The simplest MIME type consists of a type and a subtype **(type/subtype)**. 
+[Here is a list of MIME types, associated by type of documents, ordered by their common extensions.](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types)
+
+Configuration: 
+Login Erxes => Settings => System config => General System Config => File upload. 
+
+```
+UPLOAD_FILE_TYPES=''
+UPLOAD_FILE_TYPES_OF_WIDGET=''
+UPLOAD_SERVICE_TYPE=''
+BUCKET_FILE_SYSTEM_TYPE=''
+```
+
+See the following figure which approves the **png**, **pdf** files and other type of media do not allowed to upload server. If there is nothing configured media type, it accepts all media types. 
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/system-config/1+fileupload.png" />
 
 
-## Facebook from environment variables
+- You can upload the files through **Amazon Web Services** or **Google Cloud Service** on UPLOAD_SERVICE_TYPE. 
+
+- You can select the permission as **public** or **private** on BUCKET_FILE_SYSTEM_TYPE. 
+
+
+
+
+### AWS S3 Configuration
+Amazon Simple Storage Service (Amazon S3) is storage for the internet. You can use Amazon S3 to store and retrieve any amount of data at any time, from anywhere on the web. 
+
+Configuration: 
+Login Erxes => Settings => System config => General System Config => AWS S3. 
+
+```
+AWS_ACCESS_KEY_ID='your aws account access key id'
+AWS_SECRET_ACCESS_KEY='your aws account secret key'
+AWS_BUCKET='aws bucket name'
+AWS_PREFIX='you can use prefix names to specify the names of the files to be uploaded'
+AWS_COMPATIBLE_SERVICE_ENDPOINT=''
+AWS_FORCE_PATH_STYLE=''
+```
+
+- You can get your aws access key id and region from [here](https://console.aws.amazon.com/console/home), You can not get your current aws secret access key, however you can always create new one and claim newly created aws secret access key
+- Make sure your IAM user has proper access to S3 services.
+
+- **AWS_COMPATIBLE_SERVICE_ENDPOINT**, If you need to override an endpoint for a service, you can set the endpoint on a service by passing the endpoint object with the endpoint option key. [Refer to AWS service endpoint.](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Endpoint.html)
+
+- **AWS_FORCE_PATH_STYLE**, Some services have very specific configuration options that are not shared by other services. [Refer to AWS force path style.](https://docs.aws.amazon.com/sdkforruby/api/Aws/Plugins/GlobalConfiguration.html)
+
+
+
+## AWS SES Integration
+
+## Aws SES from environment variables
+
+Engages are sent by ses service
+
+```
+AWS_SES_ACCESS_KEY_ID=''
+AWS_SES_SECRET_ACCESS_KEY=''
+AWS_SES_CONFIG_SET=''
+AWS_REGION=''
+AWS_ENDPOINT=''
+```
+
+- AWS_SES_ACCESS_KEY_ID your amazon account's access key id
+- AWS_SES_SECRET_ACCESS_KEY your amazon account's secret access key
+- AWS_SES_CONFIG_SET to detect bounce, complaints, click, open events you will need this option. This name can be anything
+- AWS_REGION your amazon account's region
+- AWS_ENDPOINT this is the URL where the amazon events sent to. Basically it is your erxes/erxes-api repository's path or domain
+
+To be able to detect the ses events you should run this command in console
+
+```
+yarn engageSubscriptions
+```
+
+
+Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account. 
+
+### Configure Amazon SES and Amazon SNS to track each email responses.
+
+1.	[ Log in to your AWS Management Console. ](https://console.aws.amazon.com)
+2.	Click on your user name at the top right of the page.
+3.	Click on the My Security Credentials link from the drop-down menu.
+4.	Click on the Users menu from left Sidebar.
+5.	Click on the Add user.
+6.	Then create your username and check Programmatic access type and click next.
+7.	Click on the Create group then write group name and check amazonSesFullAccess and amazonSNSFullAccess.
+8.	Then check your created group and click on the Next button.
+9.	Finally click on the create user and copy the Access Key Id and Secret Access Key.
+
+
+### To find your Region.
+
+1.	[ Log in to your AWS Management Console.](https://console.aws.amazon.com)
+2.	Click on services menu at the top left of the page.
+3.	Find Simple Email Service and Copy region code from url.
+
+**If you choose not available region**
+1.	Click on your region at the top right of the menu.
+2.	Select any active region from list.
+3.	Copy the selected Region code.
+_(example: us-east-1, us-west-2, ap-south-1, ap-southeast-2, eu-central-1, eu-west-1)_
+
+
+### To determine if your account is in the sandbox.
+1.	[Open the Amazon SES console at https://console.aws.amazon.com/ses/](https://console.aws.amazon.com/ses/)
+2.	Use the Region selector to choose an AWS Region.
+3.	If your account is in the sandbox in the AWS Region that you selected, you see a banner at the top of the page that resembles the example in the following figure.
+
+<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/amazon.png"/>
+
+4.	If the banner doesn't appear on this page, then your account is no longer in the sandbox in the current Region.
+
+<aside class="notice">
+You can also determine whether your account is in the sandbox by sending email to an address that you haven't verified. If your account is in the sandbox, you receive an error message stating that the destination address isn't verified.
+</aside> 
+
+
+5. **If you move out of the Sandbox,** follow the instructions described [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html) to move out of the Amazon SES Sandbox.
+
+
+### Paste Amazon-Ses Access Keys to Erxes AWS-SES engage.
+
+1.	Login Erxes, go to Settings menu => Appstore.
+2.	Click on the “Appstore” menu 
+3.	Click manage to AWS-SES engage configuration
+
+<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/Amazon+setting+aws.png"/>
+
+4.	Paste the AWS-SES  access key ID, AWS-SES secret access key and AWS-SES region which you have created user in AWS Management console. 
+
+<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon-ses+key.png"/>
+
+### Test configuration.
+
+Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
+
++ You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
+
++ You can only send mail from verified email addresses and domains.
+
+<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
+
+
+
+
+
+## Integrations configuration
+
+
+## Facebook Integration Facebook from environment variables
 
 ```
 FACEBOOK_APP_ID=''
@@ -218,120 +379,6 @@ Add integration:
 
 - Go to erxes settings - App store - add gmail. (Make sure you create new brand beforehand)
 
-## AWS S3 Integration
-
-```Shell
-AWS_ACCESS_KEY_ID='your aws account access key id'
-AWS_SECRET_ACCESS_KEY='your aws account secret key'
-
-AWS_BUCKET='aws bucket name'
-AWS_PREFIX=''
-```
-
-- AWS_ACCESS_KEY_ID your amazon account's access key id
-- AWS_SECRET_ACCESS_KEY your amazon account's secret access key
-- AWS_BUCKET your s3 service's bucket name to use
-- AWS_PREFIX you can use prefix names to specify the names of the files to be uploaded
-1. Configure AWS account settings in `erxes-api/.env` like below
-
-
-- You can get your aws access key id and region from [here](https://console.aws.amazon.com/console/home)
-  , You can not get your current aws secret access key, however you can always create new one and claim newly created aws secret access key
-- Make sure your IAM user has proper access to S3 services.
-
-## AWS SES Integration
-
-## Aws SES from environment variables
-
-Engages are sent by ses service
-
-```
-AWS_SES_ACCESS_KEY_ID=''
-AWS_SES_SECRET_ACCESS_KEY=''
-AWS_SES_CONFIG_SET=''
-AWS_REGION=''
-AWS_ENDPOINT=''
-```
-
-- AWS_SES_ACCESS_KEY_ID your amazon account's access key id
-- AWS_SES_SECRET_ACCESS_KEY your amazon account's secret access key
-- AWS_SES_CONFIG_SET to detect bounce, complaints, click, open events you will need this option. This name can be anything
-- AWS_REGION your amazon account's region
-- AWS_ENDPOINT this is the URL where the amazon events sent to. Basically it is your erxes/erxes-api repository's path or domain
-
-To be able to detect the ses events you should run this command in console
-
-```
-yarn engageSubscriptions
-```
-
-
-Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account. 
-
-### Configure Amazon SES and Amazon SNS to track each email responses.
-
-1.	[ Log in to your AWS Management Console. ](https://console.aws.amazon.com)
-2.	Click on your user name at the top right of the page.
-3.	Click on the My Security Credentials link from the drop-down menu.
-4.	Click on the Users menu from left Sidebar.
-5.	Click on the Add user.
-6.	Then create your username and check Programmatic access type and click next.
-7.	Click on the Create group then write group name and check amazonSesFullAccess and amazonSNSFullAccess.
-8.	Then check your created group and click on the Next button.
-9.	Finally click on the create user and copy the Access Key Id and Secret Access Key.
-
-
-### To find your Region.
-
-1.	[ Log in to your AWS Management Console.](https://console.aws.amazon.com)
-2.	Click on services menu at the top left of the page.
-3.	Find Simple Email Service and Copy region code from url.
-
-**If you choose not available region**
-1.	Click on your region at the top right of the menu.
-2.	Select any active region from list.
-3.	Copy the selected Region code.
-_(example: us-east-1, us-west-2, ap-south-1, ap-southeast-2, eu-central-1, eu-west-1)_
-
-
-### To determine if your account is in the sandbox.
-1.	[Open the Amazon SES console at https://console.aws.amazon.com/ses/](https://console.aws.amazon.com/ses/)
-2.	Use the Region selector to choose an AWS Region.
-3.	If your account is in the sandbox in the AWS Region that you selected, you see a banner at the top of the page that resembles the example in the following figure.
-
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/amazon.png"/>
-
-4.	If the banner doesn't appear on this page, then your account is no longer in the sandbox in the current Region.
-
-<aside class="notice">
-You can also determine whether your account is in the sandbox by sending email to an address that you haven't verified. If your account is in the sandbox, you receive an error message stating that the destination address isn't verified.
-</aside> 
-
-
-5. **If you move out of the Sandbox,** follow the instructions described [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html) to move out of the Amazon SES Sandbox.
-
-
-### Paste Amazon-Ses Access Keys to Erxes AWS-SES engage.
-
-1.	Login Erxes, go to Settings menu => Appstore.
-2.	Click on the “Appstore” menu 
-3.	Click manage to AWS-SES engage configuration
-
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/Amazon+setting+aws.png"/>
-
-4.	Paste the AWS-SES  access key ID, AWS-SES secret access key and AWS-SES region which you have created user in AWS Management console. 
-
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon-ses+key.png"/>
-
-### Test configuration.
-
-Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
-
-+ You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
-
-+ You can only send mail from verified email addresses and domains.
-
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
 
 ## Nylas Integration
 
