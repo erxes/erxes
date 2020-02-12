@@ -38,6 +38,7 @@ export const types = `
 
     customers: [Customer]
     getTags: [Tag]
+    code: String
   }
 
   type CompaniesListResponse {
@@ -105,6 +106,7 @@ const commonFields = `
 
   tagIds: [String]
   customFieldsData: JSON
+  code: String
 `;
 
 export const mutations = `

@@ -43,6 +43,7 @@ export interface ICompany {
   tagIds?: string[];
   customFieldsData?: any;
   website?: string;
+  code?: string;
 }
 
 export interface ICompanyDocument extends ICompany, Document {
@@ -170,5 +171,6 @@ export const companySchema = schemaWrapper(
       label: 'Custom fields',
     }),
     searchText: field({ type: String, optional: true, index: true }),
+    code: field({ type: String, label: 'Code', optional: true }),
   }),
 );

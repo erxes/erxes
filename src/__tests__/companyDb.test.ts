@@ -48,6 +48,7 @@ describe('Companies model tests', () => {
     _company = await companyFactory({
       primaryName: 'companyname',
       names: ['companyname', 'companyname1'],
+      code: 'code',
     });
   });
 
@@ -69,7 +70,7 @@ describe('Companies model tests', () => {
   });
 
   test('Create company', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     // check duplication ==============
     try {
@@ -82,6 +83,12 @@ describe('Companies model tests', () => {
       await Companies.createCompany({ primaryName: 'companyname1' });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
+    }
+
+    try {
+      await Companies.createCompany({ code: 'code' });
+    } catch (e) {
+      expect(e.message).toBe('Duplicated code');
     }
 
     let companyObj = await Companies.createCompany({}, await userFactory());
