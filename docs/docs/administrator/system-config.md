@@ -39,10 +39,15 @@ See the following figure which approves the **png**, **pdf** files and other typ
 
 - You can select the permission as **public** or **private** on BUCKET_FILE_SYSTEM_TYPE. 
 
+<aside class="notice">
+
+You have to ensure that public access to all your S3 buckets and objects is blocked or not. You can configure block public access settings for an individual S3 bucket or for all the buckets in your account. [Learn more](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html)
+
+</aside>
 
 
+### AWS S3
 
-### AWS S3 Configuration
 Amazon Simple Storage Service (Amazon S3) is storage for the internet. You can use Amazon S3 to store and retrieve any amount of data at any time, from anywhere on the web. 
 
 Configuration: 
@@ -57,7 +62,9 @@ AWS_COMPATIBLE_SERVICE_ENDPOINT=''
 AWS_FORCE_PATH_STYLE=''
 ```
 
-- You can get your aws access key id and region from [here](https://console.aws.amazon.com/console/home), You can not get your current aws secret access key, however you can always create new one and claim newly created aws secret access key
+- You can get your aws access key id and region from [here](https://console.aws.amazon.com/console/home).
+- [Create new bucket](https://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html) and insert name in AWS_BUCKET, make sure bucket permission configuration. 
+[Learn more](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html)
 - Make sure your IAM user has proper access to S3 services.
 
 - **AWS_COMPATIBLE_SERVICE_ENDPOINT**, If you need to override an endpoint for a service, you can set the endpoint on a service by passing the endpoint object with the endpoint option key. [Refer to AWS service endpoint.](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Endpoint.html)
@@ -66,36 +73,22 @@ AWS_FORCE_PATH_STYLE=''
 
 
 
-## AWS SES Integration
-
-## Aws SES from environment variables
-
-Engages are sent by ses service
-
-```
-AWS_SES_ACCESS_KEY_ID=''
-AWS_SES_SECRET_ACCESS_KEY=''
-AWS_SES_CONFIG_SET=''
-AWS_REGION=''
-AWS_ENDPOINT=''
-```
-
-- AWS_SES_ACCESS_KEY_ID your amazon account's access key id
-- AWS_SES_SECRET_ACCESS_KEY your amazon account's secret access key
-- AWS_SES_CONFIG_SET to detect bounce, complaints, click, open events you will need this option. This name can be anything
-- AWS_REGION your amazon account's region
-- AWS_ENDPOINT this is the URL where the amazon events sent to. Basically it is your erxes/erxes-api repository's path or domain
-
-To be able to detect the ses events you should run this command in console
-
-```
-yarn engageSubscriptions
-```
-
+### AWS SES 
 
 Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account. 
 
-### Configure Amazon SES and Amazon SNS to track each email responses.
+Configuration: 
+Login Erxes => Settings => System config => General System Config => AWS SES. 
+
+```
+AWS_SES_ACCESS_KEY_ID='your aws account access key id'
+AWS_SES_SECRET_ACCESS_KEY='your aws account secret key'
+AWS_REGION='region of your account'
+AWS_SES_CONFIG_SET=''
+```
+**AWS_ENDPOINT** this is the URL where the amazon events sent to. Other values checkout following reference.
+
+#### Configure Amazon SES and Amazon SNS to track each email responses.
 
 1.	[ Log in to your AWS Management Console. ](https://console.aws.amazon.com)
 2.	Click on your user name at the top right of the page.
@@ -108,7 +101,7 @@ Amazon Simple Email Service enables you to send and receive email using a reliab
 9.	Finally click on the create user and copy the Access Key Id and Secret Access Key.
 
 
-### To find your Region.
+#### To find your Region.
 
 1.	[ Log in to your AWS Management Console.](https://console.aws.amazon.com)
 2.	Click on services menu at the top left of the page.
@@ -121,7 +114,7 @@ Amazon Simple Email Service enables you to send and receive email using a reliab
 _(example: us-east-1, us-west-2, ap-south-1, ap-southeast-2, eu-central-1, eu-west-1)_
 
 
-### To determine if your account is in the sandbox.
+#### To determine if your account is in the sandbox.
 1.	[Open the Amazon SES console at https://console.aws.amazon.com/ses/](https://console.aws.amazon.com/ses/)
 2.	Use the Region selector to choose an AWS Region.
 3.	If your account is in the sandbox in the AWS Region that you selected, you see a banner at the top of the page that resembles the example in the following figure.
@@ -138,17 +131,11 @@ You can also determine whether your account is in the sandbox by sending email t
 5. **If you move out of the Sandbox,** follow the instructions described [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html) to move out of the Amazon SES Sandbox.
 
 
-### Paste Amazon-Ses Access Keys to Erxes AWS-SES engage.
 
-1.	Login Erxes, go to Settings menu => Appstore.
-2.	Click on the “Appstore” menu 
-3.	Click manage to AWS-SES engage configuration
 
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/Amazon+setting+aws.png"/>
+## Integrations configuration
 
-4.	Paste the AWS-SES  access key ID, AWS-SES secret access key and AWS-SES region which you have created user in AWS Management console. 
-
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon-ses+key.png"/>
+## Engage configuration
 
 ### Test configuration.
 
@@ -162,9 +149,6 @@ Amazon places all new accounts in the Amazon SES sandbox. While your account is 
 
 
 
-
-
-## Integrations configuration
 
 
 ## Facebook Integration Facebook from environment variables
