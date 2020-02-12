@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { queries } from 'modules/boards/graphql';
-import { Alert, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Stage from '../components/stage/Stage';
@@ -89,45 +89,63 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   archiveItems = () => {
     const { options, stage, onLoad } = this.props;
 
+    const message = `
+    This will remove all card list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”.
+    Are you sure?
+    `;
+
     const stageId = stage._id;
 
-    client
-      .mutate({
-        mutation: gql(options.mutations.archiveMutation),
-        variables: { stageId },
-        refetchQueries: [
-          {
-            query: gql(queries.stageDetail),
-            variables: { _id: stageId }
-          }
-        ]
-      })
-      .then(() => {
-        onLoad(stageId, []);
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
+    confirm(message).then(() => {
+      client
+        .mutate({
+          mutation: gql(options.mutations.archiveMutation),
+          variables: { stageId },
+          refetchQueries: [
+            {
+              query: gql(queries.stageDetail),
+              variables: { _id: stageId }
+            }
+          ]
+        })
+        .then(() => {
+          Alert.success('Archive Items has been archived.');
+
+          onLoad(stageId, []);
+        })
+        .catch((e: Error) => {
+          Alert.error(e.message);
+        });
+    });
+  }
 
   archiveList = () => {
     const { stage, refetchStages, options } = this.props;
 
-    client
-      .mutate({
-        mutation: gql(mutations.stagesEdit),
-        variables: {
-          _id: stage._id,
-          type: options.type,
-          status: 'archived'
-        }
-      })
-      .then(() => {
-        refetchStages({ pipelineId: stage.pipelineId });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+    const message = `
+    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”. 
+    Are you sure?
+    `;
+
+    confirm(message).then(() => {
+      client
+        .mutate({
+          mutation: gql(mutations.stagesEdit),
+          variables: {
+            _id: stage._id,
+            type: options.type,
+            status: 'archived'
+          }
+        })
+        .then(() => {
+          Alert.success('Archive List has been archived.');
+
+          refetchStages({ pipelineId: stage.pipelineId });
+        })
+        .catch((e: Error) => {
+          Alert.error(e.message);
+        });
+    });
   };
 
   render() {
