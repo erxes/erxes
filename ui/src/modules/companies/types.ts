@@ -43,6 +43,7 @@ export interface ICompanyDoc {
   links: ICompanyLinks;
   tagIds?: string[];
   customFieldsData?: any;
+  code?: string;
 }
 
 export interface IActivityLogYearMonthDoc {

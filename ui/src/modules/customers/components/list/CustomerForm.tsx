@@ -245,13 +245,12 @@ class CustomerForm extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
 
-              
               {this.renderFormGroup('Position', {
                 ...formProps,
                 name: 'position',
                 defaultValue: customer.position || ''
               })}
-  
+
               {this.renderFormGroup('Pop Ups Status', {
                 ...formProps,
                 name: 'leadStatus',

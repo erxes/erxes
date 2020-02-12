@@ -93,6 +93,7 @@ class CompanyForm extends React.Component<Props, State> {
       lifecycleState: finalValues.lifecycleState,
       businessType: finalValues.businessType,
       description: finalValues.description,
+      code: finalValues.code,
       links: {
         linkedIn: finalValues.linkedIn,
         twitter: finalValues.twitter,
@@ -272,6 +273,12 @@ class CompanyForm extends React.Component<Props, State> {
                   checkFormat={isValidPhone}
                 />
               </FormGroup>
+
+              {this.renderFormGroup('Code', {
+                ...formProps,
+                name: 'code',
+                defaultValue: company.code || ''
+              })}
 
               {this.renderFormGroup('Lifecycle State', {
                 ...formProps,
