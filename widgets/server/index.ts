@@ -30,7 +30,6 @@ const getEnv = () => {
   });
 };
 
-// routes
 app.get("/messenger", (req, res) => {
   res.render("widget", { type: "messenger", env: getEnv() });
 });

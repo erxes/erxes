@@ -105,8 +105,8 @@ export const companiesMain = `
 `;
 
 export const companyCounts = `
-  query companyCounts(${listParamsDef}, $byFakeSegment: JSON, $only: String) {
-    companyCounts(${listParamsValue}, byFakeSegment: $byFakeSegment, only: $only)
+  query companyCounts(${listParamsDef}, $only: String) {
+    companyCounts(${listParamsValue}, only: $only)
   }
 `;
 
