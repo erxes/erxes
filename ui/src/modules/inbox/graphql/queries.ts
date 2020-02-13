@@ -131,7 +131,6 @@ const converstationFacebookComments = `
       customer {
         _id
         visitorContactInfo
-        messengerData
         avatar
         firstName
         lastName
@@ -248,7 +247,7 @@ const convertToInfo = `
 const generateCustomerDetailQuery = params => {
   const {
     showDeviceProperties = false,
-    showMessengerData = false,
+    showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false
@@ -262,11 +261,10 @@ const generateCustomerDetailQuery = params => {
     ${customerQueries.basicFields}
   `;
 
-  if (showMessengerData) {
+  if (showTrackedData) {
     fields = `
       ${fields}
-      messengerData
-      getMessengerCustomData
+      getTrackedData
     `;
   }
 

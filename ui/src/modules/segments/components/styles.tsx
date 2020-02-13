@@ -1,6 +1,4 @@
-import { Input, SelectWrapper } from 'modules/common/components/form/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 import { FlexItem } from 'modules/layout/styles';
 import styled from 'styled-components';
 
@@ -8,37 +6,30 @@ const SegmentTitle = styled.h3`
   font-size: 12px;
   text-transform: uppercase;
   margin: 0 0 ${dimensions.coreSpacing}px;
+
+  a {
+    text-transform: none;
+    margin-left: 30px;
+
+    i {
+      margin-right: 5px;
+    }
+  }
 `;
 
 const SegmentWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;
 `;
 
-const ConditionWrapper = styled.div`
-  ${SelectWrapper} {
-    padding-right: 20px;
-    margin-left: ${dimensions.unitSpacing}px;
-  }
-
-  ${SelectWrapper}, ${Input} {
-    display: inline-block;
-    width: auto;
-    vertical-align: middle;
-    margin-right: ${dimensions.unitSpacing}px;
-  }
-`;
-
-const SegmentContainer = styled.div`
-  padding-right: ${dimensions.coreSpacing}px;
-  border-right: 1px solid ${colors.borderPrimary};
-`;
-
 const ConditionItem = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-  background-color: ${colors.bgLight};
   margin-bottom: ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 2px;
+  display: flex;
+  align-items: center;
+
+  button.round {
+    padding: 4px 8px;
+    margin-left: 20px;
+  }
 `;
 
 const SegmentResult = styled(FlexItem)`
@@ -50,7 +41,7 @@ const ResultCount = styled.div`
   font-size: ${typography.fontSizeHeading3}px;
 
   i {
-    color: ${colors.colorShadowGray};
+    color: ${colors.colorLightGray};
     font-size: ${typography.fontSizeHeading2}px;
   }
 
@@ -61,54 +52,44 @@ const ResultCount = styled.div`
   }
 `;
 
-const Field = styled.div`
-  visibility: hidden;
-  position: absolute;
-  left: ${dimensions.headerSpacing + dimensions.headerSpacing}%;
-  top: 0;
-  width: 260px;
-  background: ${colors.colorWhite};
-  box-shadow: 0 0 ${dimensions.coreSpacing}px 3px rgba(0, 0, 0, 0.15);
-  padding: 0;
-  margin: 0;
+const FilterBox = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  background: ${colors.bgLight};
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 4px;
+  margin-bottom: 20px;
 
-  input {
-    transition: inherit;
-    width: 100% !important;
+  img {
+    max-height: 170px;
+    margin: 30px;
   }
 `;
 
-const FieldType = styled.div`
+const FilterRow = styled.div`
+  flex: 1;
   display: flex;
-  justify-content: space-between;
-  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  color: ${rgba(colors.textPrimary, 0.8)};
-
-  &:hover {
-    background: ${colors.bgLight};
-  }
+  align-items: center;
 `;
 
-const PopoverList = styled.div`
-  position: relative;
+const FilterProperty = styled.div`
+  max-width: 30%;
+  min-width: 200px;
+  flex: 1;
+  margin-right: 20px;
+`;
 
-  &:hover {
-    > ${Field} {
-      visibility: visible;
-    }
-  }
+const SubProperties = styled.div`
+  padding-left: 40px;
 `;
 
 export {
   SegmentWrapper,
-  ConditionWrapper,
   SegmentTitle,
-  SegmentContainer,
   ConditionItem,
   SegmentResult,
   ResultCount,
-  PopoverList,
-  FieldType,
-  Field
+  FilterBox,
+  FilterRow,
+  FilterProperty,
+  SubProperties
 };

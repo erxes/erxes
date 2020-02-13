@@ -45,9 +45,7 @@ export default `
       website
     }
 
-    getMessengerCustomData
     customFieldsData
-    messengerData
 
     tagIds
     getTags {
