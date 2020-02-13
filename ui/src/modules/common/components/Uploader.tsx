@@ -1,4 +1,4 @@
-import { __, Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert, confirm, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { rgba } from '../styles/color';
@@ -115,23 +115,31 @@ class Uploader extends React.Component<Props, State> {
   removeAttachment = (index: number) => {
     const attachments = [...this.state.attachments];
 
-    attachments.splice(index, 1);
+    confirm('Are you sure? This cannot be undone.')
+      .then(() => {
+        Alert.success('You successfully deleted a file.');
 
-    this.setState({ attachments });
+        attachments.splice(index, 1);
 
-    this.props.onChange(attachments);
+        this.setState({ attachments });
+
+        this.props.onChange(attachments);
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   renderItem = (item: IAttachment, index: number) => {
-    const removeAttachment = () => this.removeAttachment(index);
-    const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
+    const remove = <Delete onClick={this.removeAttachment.bind(this, index)}>{__('Delete')}</Delete>;
 
     return (
       <Item key={item.url}>
-        <Attachment attachment={item} additionalItem={remove} />
+        <Attachment
+          attachment={item} additionalItem={remove} />
       </Item>
     );
-  };
+  }
 
   renderBtn() {
     const { multiple, limit } = this.props;
@@ -171,5 +179,4 @@ class Uploader extends React.Component<Props, State> {
     );
   }
 }
-
 export default Uploader;
