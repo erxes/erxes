@@ -25,15 +25,6 @@ export interface IVisitorContact {
 
 export interface IVisitorContactDocument extends IVisitorContact, Document {}
 
-export interface IMessengerData {
-  lastSeenAt?: number;
-  sessionCount?: number;
-  isActive?: boolean;
-  customData?: any;
-}
-
-export interface IMessengerDataDocument extends IMessengerData, Document {}
-
 interface ILinkDocument extends ILink, Document {}
 
 export interface ICustomer {
@@ -66,17 +57,19 @@ export interface ICustomer {
   mergedIds?: string[];
   status?: string;
   customFieldsData?: any;
-  messengerData?: IMessengerData;
+  trackedData?: any;
   location?: ILocation;
   visitorContactInfo?: IVisitorContact;
   urlVisits?: any;
   deviceTokens?: string[];
   code?: string;
+  isOnline?: boolean;
+  lastSeenAt?: number;
+  sessionCount?: number;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
-  messengerData?: IMessengerDataDocument;
   location?: ILocationDocument;
   links?: ILinkDocument;
   visitorContactInfo?: IVisitorContactDocument;
@@ -202,8 +195,8 @@ export const customerSchema = schemaWrapper(
     // Merged customer ids
     mergedIds: field({ type: [String], optional: true, label: 'Merged customers' }),
 
-    customFieldsData: field({ type: Object, optional: true, label: 'Custom fields' }),
-    messengerData: field({ type: messengerSchema, optional: true, label: 'Messenger data' }),
+    trackedData: field({ type: Object, optional: true, label: 'Tracked Data' }),
+    customFieldsData: field({ type: Object, optional: true, label: 'Custom fields data' }),
 
     location: field({ type: locationSchema, optional: true, label: 'Location' }),
 
@@ -219,5 +212,9 @@ export const customerSchema = schemaWrapper(
     deviceTokens: field({ type: [String], default: [], label: 'Device tokens' }),
     searchText: field({ type: String, optional: true, index: true }),
     code: field({ type: String, label: 'Code', optional: true }),
+
+    isOnline: field({ type: Boolean, label: 'Is online', optional: true }),
+    lastSeenAt: field({ type: Date, label: 'Last seen at', optional: true }),
+    sessionCount: field({ type: Number, label: 'Session count', optional: true }),
   }),
 );

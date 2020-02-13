@@ -33,9 +33,7 @@
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "repairPermissionData": "ts-node ./src/commands/repairPermissionData.ts",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
-    "release": "release-it",
-    "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect"
+    "release": "release-it"
   },
   "lint-staged": {
     "*.ts": [
@@ -58,6 +56,7 @@
     "cors": "^2.8.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
+    "elasticsearch": "^16.6.0",
     "email-deep-validator": "^3.1.0",
     "express": "^4.15.2",
     "file-type": "^10.4.0",

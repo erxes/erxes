@@ -37,13 +37,15 @@ export default {
       return new Date(value); // value from the client
     },
     serialize: value => {
+      if (value instanceof Date) {
+        return value;
+      }
+
       if (value.toISOString) {
         return value.toISOString();
       }
-      if (value.getTime) {
-        return value.getTime();
-      }
-      return new Date(value).getTime();
+
+      return new Date(value);
     },
 
     parseLiteral(ast) {

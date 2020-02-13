@@ -20,7 +20,6 @@ describe('Segments mutations', () => {
     $description: String
     $subOf: String
     $color: String
-    $connector: String
     $conditions: [SegmentCondition]
   `;
 
@@ -29,7 +28,6 @@ describe('Segments mutations', () => {
     description: $description
     subOf: $subOf
     color: $color
-    connector: $connector
     conditions: $conditions
   `;
 
@@ -49,7 +47,7 @@ describe('Segments mutations', () => {
   });
 
   test('Add segment', async () => {
-    const { contentType, name, description, color, connector } = _segment;
+    const { contentType, name, description, color } = _segment;
     const subOf = _segment.subOf || faker.random.word();
     const args = {
       contentType,
@@ -57,15 +55,12 @@ describe('Segments mutations', () => {
       description,
       subOf,
       color,
-      connector,
       conditions: [
         {
-          field: faker.random.word(),
-          operator: faker.random.word(),
-          value: faker.random.word(),
-          dateUnit: faker.random.word(),
-          type: faker.random.word(),
-          brandId: faker.random.word(),
+          propertyName: faker.random.word(),
+          propertyOperator: faker.random.word(),
+          propertyValue: faker.random.word(),
+          type: 'property',
         },
       ],
     };
@@ -78,7 +73,6 @@ describe('Segments mutations', () => {
           description
           subOf
           color
-          connector
           conditions
         }
       }
@@ -91,12 +85,11 @@ describe('Segments mutations', () => {
     expect(segment.description).toBe(args.description);
     expect(segment.subOf).toBe(args.subOf);
     expect(segment.color).toBe(args.color);
-    expect(segment.connector).toBe(args.connector);
     expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
   });
 
   test('segmentsEdit', async () => {
-    const { _id, name, description, color, connector } = _segment;
+    const { _id, name, description, color } = _segment;
     const secondParent = await segmentFactory();
 
     const args = {
@@ -105,15 +98,12 @@ describe('Segments mutations', () => {
       description,
       subOf: secondParent._id,
       color,
-      connector,
       conditions: [
         {
-          type: faker.random.word(),
-          dateUnit: faker.random.word(),
-          value: faker.random.word(),
-          operator: faker.random.word(),
-          field: faker.random.word(),
-          brandId: faker.random.word(),
+          type: 'property',
+          propertyValue: faker.random.word(),
+          propertyOperator: faker.random.word(),
+          propertyName: faker.random.word(),
         },
       ],
     };
@@ -126,7 +116,6 @@ describe('Segments mutations', () => {
           description
           subOf
           color
-          connector
           conditions
         }
       }
@@ -139,7 +128,6 @@ describe('Segments mutations', () => {
     expect(segment.description).toBe(args.description);
     expect(segment.subOf).toBe(args.subOf);
     expect(segment.color).toBe(args.color);
-    expect(segment.connector).toBe(args.connector);
     expect(toJSON(segment.conditions)).toEqual(toJSON(args.conditions));
   });
 

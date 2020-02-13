@@ -1,11 +1,21 @@
 export const types = `
-  input SegmentCondition {
-    field: String,
+  input EventAttributeFilter {
+    name: String,
     operator: String,
     value: String,
-    dateUnit: String,
+  }
+
+  input SegmentCondition {
     type: String,
-    brandId: String
+
+    propertyName: String,
+    propertyOperator: String,
+    propertyValue: String,
+
+    eventName: String,
+    eventOccurence: String,
+    eventOccurenceValue: Float,
+    eventAttributeFilters: [EventAttributeFilter],
   }
 
   type Segment {
@@ -15,7 +25,6 @@ export const types = `
     description: String
     subOf: String
     color: String
-    connector: String
     conditions: JSON
 
     getSubSegments: [Segment]
@@ -26,6 +35,8 @@ export const queries = `
   segments(contentType: String!): [Segment]
   segmentDetail(_id: String): Segment
   segmentsGetHeads: [Segment]
+  segmentsEvents(contentType: String!): [JSON]
+  segmentsPreviewCount(contentType: String!, conditions: JSON): Int
 `;
 
 const commonFields = `
@@ -33,7 +44,6 @@ const commonFields = `
   description: String,
   subOf: String,
   color: String,
-  connector: String,
   conditions: [SegmentCondition]
 `;
 

@@ -2,13 +2,23 @@ import { Document, Schema } from 'mongoose';
 import { ACTIVITY_CONTENT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
-export interface ICondition {
-  field: string;
+export interface IAttributeFilter {
+  name: string;
   operator: string;
-  type: string;
-  value?: string;
-  brandId?: string;
-  dateUnit?: string;
+  value: string;
+}
+
+export interface ICondition {
+  type: 'property' | 'event';
+
+  propertyName?: string;
+  propertyOperator?: string;
+  propertyValue?: string;
+
+  eventName?: string;
+  eventOccurence?: 'exactly' | 'atleast' | 'atmost';
+  eventOccurenceValue?: number;
+  eventAttributeFilters?: IAttributeFilter[];
 }
 
 export interface IConditionDocument extends ICondition, Document {}
@@ -19,7 +29,6 @@ export interface ISegment {
   description?: string;
   subOf: string;
   color: string;
-  connector: string;
   conditions: ICondition[];
   scopeBrandIds?: string[];
 }
@@ -29,30 +38,51 @@ export interface ISegmentDocument extends ISegment, Document {
 }
 
 // Mongoose schemas =======================
+const eventAttributeSchema = new Schema(
+  {
+    name: field({ type: String }),
+    operator: field({ type: String }),
+    value: field({ type: String }),
+  },
+  { _id: false },
+);
 
 export const conditionSchema = new Schema(
   {
-    field: field({ type: String, label: 'Field' }),
-    operator: field({ type: String, label: 'Operator' }),
-    type: field({ type: String, label: 'Type' }),
+    type: field({ type: String }),
 
-    value: field({
+    propertyName: field({
       type: String,
       optional: true,
       label: 'Value',
     }),
 
-    dateUnit: field({
+    propertyOperator: field({
       type: String,
       optional: true,
       label: 'Date unit',
     }),
 
-    brandId: field({
+    propertyValue: field({
       type: String,
       optional: true,
       label: 'Brand',
     }),
+
+    eventName: field({
+      type: String,
+      optional: true,
+    }),
+    eventOccurence: field({
+      type: String,
+      optional: true,
+    }),
+    eventOccurenceValue: field({
+      type: Number,
+      optional: true,
+    }),
+
+    eventAttributeFilters: field({ type: [eventAttributeSchema] }),
   },
   { _id: false },
 );
@@ -65,11 +95,10 @@ export const segmentSchema = schemaWrapper(
       enum: ACTIVITY_CONTENT_TYPES.ALL,
       label: 'Content type',
     }),
-    name: field({ type: String, label: 'Name' }),
-    description: field({ type: String, optional: true, label: 'Description' }),
-    subOf: field({ type: String, optional: true, label: 'Parent segment' }),
-    color: field({ type: String, label: 'Color code' }),
-    connector: field({ type: String, label: 'Connector' }),
-    conditions: field({ type: [conditionSchema], label: 'Conditions' }),
+    name: field({ type: String }),
+    description: field({ type: String, optional: true }),
+    subOf: field({ type: String, optional: true }),
+    color: field({ type: String }),
+    conditions: field({ type: [conditionSchema] }),
   }),
 );
