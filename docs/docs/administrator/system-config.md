@@ -1,6 +1,6 @@
 ---
 id: system-config
-title: System Config
+title: System config
 ---
 
 ## General System Configuration
@@ -128,16 +128,9 @@ You can also determine whether your account is in the sandbox by sending email t
 </aside> 
 
 
+
 5. **If you move out of the Sandbox,** follow the instructions described [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html) to move out of the Amazon SES Sandbox.
 
-
-
-
-## Integrations configuration
-
-## Engage configuration
-
-### Test configuration.
 
 Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
 
@@ -148,32 +141,46 @@ Amazon places all new accounts in the Amazon SES sandbox. While your account is 
 <img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
 
 
-
-
-
-## Facebook Integration Facebook from environment variables
+### Common mail config
+```
+FROM_EMAIL=''
+DEFAULT_EMAIL_SERVICE=''
 
 ```
-FACEBOOK_APP_ID=''
-FACEBOOK_APP_SECRET=''
+
+
+
+### Custom mail service
+
+```
+MAIL_SERVICE_NAME=''
+PORT=''
+USERNAME=''
+PASSWORD=''
+HOST=''
+```
+
+## Integrations configuration
+
+Erxes app can be integrated with developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
+
+### Facebook 
+
+Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
+
+```
+FACEBOOK_APP_ID="your faceboook application's app id"
+FACEBOOK_APP_SECRET="your faceboook application's secret key"
 FACEBOOK_PERMISSIONS='manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions'
 
 ```
 
-- FACEBOOK_APP_ID is your faceboook application's app id
-- FACEBOOK_APP_SECRET is your faceboook application's secret key
-- FACEBOOK_PERMISSIONS you should not have to modify this option. Those are the necessary permissions for facebook integration
-
-================================
-
-Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
-
-Requirements:
+#### Requirements:
 
 - working sub domain with SSL pointing to your erxes-api server.
 - facebook app's owner also must be an admin of facebook page that's going to connect.
 
-## Creating facebook app.
+#### Creating facebook app.
 
 1. Go to https://developers.facebook.com and create new app.<br />
    ( Your application status must be "Live" )
@@ -189,7 +196,7 @@ Requirements:
    `<your erxes-api domain>/fblogin`
 6. Now we are done on configurations. Go to your `App Store` => `Linked Accounts` to link your facebook accounts
 
-## Getting facebook permissions (*manage_pages*, *publish_pages*)
+#### Getting facebook permissions (*manage_pages*, *publish_pages*)
 
 **manage_pages:**
 
@@ -232,7 +239,7 @@ To take this permission, you must complete the following 3 steps.
 
 3. **Tell facebook how you will use *manage_pages* permission if you haven't taken it yet.**
 
-## Twitter Integration
+### Twitter 
 
 Erxes app can be integrated with twitter developer API and that means we can receive our twitter accounts DMs, Tweets directly into our erxes app's inbox.
 
@@ -245,10 +252,10 @@ Notes:
 - Twitter now allows you to receive DM from anyone. You don't have to follow each other. To enable this option
   go to https://twitter.com/settings/safety and select `Receive Direct Messages from anyone` from `Direct Messages` section.
 
-### Creating Twitter app.
+#### Creating Twitter app.
 
 
-## Twitter Settings from environment variable
+#### Twitter Settings from environment variable
 
 ```
 TWITTER_CONSUMER_KEY=''
@@ -279,17 +286,17 @@ Your .env should look like:
 
 `TWITTER_REDIRECT_URL='https://erxes.domain.com/service/oauth/twitter_callback - Your callback url from app settings.'`
 
-### Erxes twitter integration settings.
+#### Erxes twitter integration settings.
 
 1. Go to your erxes.domain.com - settings - integrations page
 2. Click on **Add Integrations** and select Twitter. Click on Authorize app.
 3. Select your brand and click save.
 
-## Gmail Integration
+### Gmail Integration
 
 
 
-## Gmail from environment variable
+#### Gmail from environment variable
 
 ```
 GOOGLE_CLIENT_ID=''
@@ -364,7 +371,7 @@ Add integration:
 - Go to erxes settings - App store - add gmail. (Make sure you create new brand beforehand)
 
 
-## Nylas Integration
+### Nylas 
 
 1. Create the Nylas account go to [website](https://dashboard.nylas.com/register)
 2. After you created the Nylas account, copy your clientId and clientSecret from [here](https://dashboard.nylas.com/applications/) and config in `erxes-integrations/.env` like below
@@ -389,7 +396,7 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
   #### Now we are ready to config our provider
 ### Gmail
 
-## Email settings from environment variable
+#### Email settings from environment variable
 
 ```
 COMPANY_EMAIL_FROM=noreply@erxes.io
@@ -482,7 +489,7 @@ MAIL_HOST=''
       <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-9.png"/>
     </div>
 
-### Outlook
+### Microsoft
 3. Integrating the Outlook is easy peasy lemon squeezy, all we need is email and password no additional steps.
   - Go to Settings/App Store and click on Add button of the Outlook section
     <div>
@@ -498,3 +505,18 @@ MAIL_HOST=''
     <div>
       <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-3.png"/>
     </div>
+
+
+
+## Engage configuration
+
+### Test configuration.
+
+Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
+
++ You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
+
++ You can only send mail from verified email addresses and domains.
+
+<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
+

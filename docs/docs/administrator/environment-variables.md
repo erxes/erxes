@@ -1,6 +1,6 @@
 ---
 id: environment-variables
-title: Environment Variables
+title: Environment variables
 ---
 
 ## MongoDB
