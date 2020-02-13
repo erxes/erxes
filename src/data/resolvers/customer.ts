@@ -1,40 +1,28 @@
 import { Companies, Conformities, Conversations, Integrations, Tags, Users } from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 
-interface IMessengerCustomData {
-  name: string;
-  value: string;
-}
-
 export default {
   integration(customer: ICustomerDocument) {
     return Integrations.findOne({ _id: customer.integrationId });
   },
 
-  getIntegrationData(customer: ICustomerDocument) {
-    return {
-      messenger: customer.messengerData || {},
-      // TODO: Add other integration data
-    };
+  getTags(customer: ICustomerDocument) {
+    return Tags.find({ _id: { $in: customer.tagIds || [] } });
   },
 
-  getMessengerCustomData(customer: ICustomerDocument) {
-    const results: IMessengerCustomData[] = [];
-    const messengerData: any = customer.messengerData || {};
-    const data = messengerData.customData || {};
+  getTrackedData(customer: ICustomerDocument) {
+    const results: Array<{ name: string; value: string }> = [];
 
-    Object.keys(data).forEach(key => {
+    const trackedData = customer.trackedData || {};
+
+    Object.keys(trackedData).forEach(key => {
       results.push({
         name: key.replace(/_/g, ' '),
-        value: data[key],
+        value: trackedData[key],
       });
     });
 
     return results;
-  },
-
-  getTags(customer: ICustomerDocument) {
-    return Tags.find({ _id: { $in: customer.tagIds || [] } });
   },
 
   conversations(customer: ICustomerDocument) {

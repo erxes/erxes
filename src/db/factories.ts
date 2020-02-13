@@ -301,7 +301,6 @@ interface IConditionsInput {
   field?: string;
   operator?: string;
   value?: any;
-  dateUnit?: string;
   type?: string;
 }
 
@@ -310,7 +309,6 @@ interface ISegmentFactoryInput {
   description?: string;
   subOf?: string;
   color?: string;
-  connector?: string;
   conditions?: IConditionsInput[];
 }
 
@@ -320,7 +318,6 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
       field: 'messengerData.sessionCount',
       operator: 'e',
       value: '10',
-      dateUnit: 'days',
       type: 'string',
     },
   ];
@@ -331,7 +328,6 @@ export const segmentFactory = (params: ISegmentFactoryInput = {}) => {
     description: params.description || faker.random.word(),
     subOf: params.subOf,
     color: params.color || '#809b87',
-    connector: params.connector || 'any',
     conditions: params.conditions || defaultConditions,
   });
 
@@ -463,14 +459,16 @@ interface ICustomerFactoryInput {
   leadStatus?: string;
   status?: string;
   lifecycleState?: string;
-  messengerData?: any;
   customFieldsData?: any;
+  trackedData?: any;
   tagIds?: string[];
   ownerId?: string;
   hasValidEmail?: boolean;
   profileScore?: number;
   code?: string;
-  isActive?: boolean;
+  isOnline?: boolean;
+  lastSeenAt?: number;
+  sessionCount?: number;
   visitorContactInfo?: any;
   urlVisits?: object;
   deviceTokens?: string[];
@@ -494,13 +492,12 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     leadStatus: params.leadStatus || 'open',
     status: params.status || STATUSES.ACTIVE,
     lifecycleState: params.lifecycleState || 'lead',
-    messengerData: params.messengerData || {
-      lastSeenAt: faker.date.between(createdAt, new Date()),
-      isActive: params.isActive || false,
-      sessionCount: faker.random.number(),
-    },
+    lastSeenAt: faker.date.between(createdAt, new Date()),
+    isOnline: params.isOnline || false,
+    sessionCount: faker.random.number(),
     urlVisits: params.urlVisits,
     customFieldsData: params.customFieldsData || {},
+    trackedData: params.trackedData || {},
     tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
     hasValidEmail: params.hasValidEmail || false,

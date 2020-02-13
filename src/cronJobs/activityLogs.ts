@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import QueryBuilder from '../data/modules/segments/queryBuilder';
+import { fetchBySegments } from '../data/modules/segments/queryBuilder';
 import { ActivityLogs, Companies, Customers, Segments } from '../db/models';
 
 /**
@@ -9,9 +9,10 @@ export const createActivityLogsFromSegments = async () => {
   const segments = await Segments.find({});
 
   for (const segment of segments) {
-    const selector = await QueryBuilder.segments(segment);
-    const customers = await Customers.find(selector);
-    const companies = await Companies.find(selector);
+    const ids = await fetchBySegments(segment);
+
+    const customers = await Customers.find({ _id: { $in: ids } });
+    const companies = await Companies.find({ _id: { $in: ids } });
 
     for (const customer of customers) {
       await ActivityLogs.createSegmentLog(segment, customer, 'customer');

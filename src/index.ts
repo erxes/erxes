@@ -23,7 +23,8 @@ import {
   uploadFile,
 } from './data/utils';
 import { connect } from './db/connection';
-import { debugExternalApi, debugInit } from './debuggers';
+import { debugBase, debugExternalApi, debugInit } from './debuggers';
+import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 import './messageBroker';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
@@ -84,6 +85,44 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.get('/script-manager', widgetsMiddleware);
+
+// events
+app.post('/events-receive', async (req, res) => {
+  const { name, customerId, attributes } = req.body;
+
+  try {
+    const response =
+      name === 'pageView'
+        ? await trackViewPageEvent({ customerId, attributes })
+        : trackCustomEvent({ name, customerId, attributes });
+    return res.json(response);
+  } catch (e) {
+    debugBase(e.message);
+    return res.json({});
+  }
+});
+
+app.post('/events-identify-customer', async (req, res) => {
+  const { args } = req.body;
+
+  try {
+    const response = await identifyCustomer(args);
+    return res.json(response);
+  } catch (e) {
+    debugBase(e.message);
+    return res.json({});
+  }
+});
+
+app.post('/events-update-customer-property', async (req, res) => {
+  try {
+    const response = await updateCustomerProperty(req.body);
+    return res.json(response);
+  } catch (e) {
+    debugBase(e.message);
+    return res.json({});
+  }
+});
 
 app.use(userMiddleware);
 

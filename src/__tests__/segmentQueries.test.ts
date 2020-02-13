@@ -1,7 +1,9 @@
 import * as faker from 'faker';
+import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import { segmentFactory } from '../db/factories';
 import { Segments } from '../db/models';
+import * as elk from '../elasticsearch';
 
 import './setup.ts';
 
@@ -54,7 +56,6 @@ describe('segmentQueries', () => {
           description
           subOf
           color
-          connector
           conditions
 
           getSubSegments { _id }
@@ -88,5 +89,49 @@ describe('segmentQueries', () => {
     const responses = await graphqlRequest(qry, 'segmentsGetHeads');
 
     expect(responses.length).toBe(3);
+  });
+
+  test('events', async () => {
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.resolve({
+        aggregations: {
+          names: {
+            buckets: { name: 'pageView' },
+          },
+        },
+        hits: {
+          hits: [
+            {
+              _source: {
+                name: 'pageView',
+                attributes: [],
+              },
+            },
+          ],
+        },
+      });
+    });
+
+    const qry = `
+      query segmentsEvents($contentType: String!) {
+        segmentsEvents(contentType: $contentType)
+      }
+    `;
+
+    const response = await graphqlRequest(qry, 'segmentsEvents', { contentType: 'customer' });
+
+    expect(response.length).toBe(1);
+
+    mock.restore();
+  });
+
+  test('segmentsPreviewCount', async () => {
+    const qry = `
+      query segmentsPreviewCount($contentType: String!, $conditions: JSON) {
+        segmentsPreviewCount(contentType: $contentType, conditions: $conditions)
+      }
+    `;
+
+    await graphqlRequest(qry, 'segmentsPreviewCount', { contentType: 'customer', conditions: [] });
   });
 });

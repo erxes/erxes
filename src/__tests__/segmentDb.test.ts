@@ -1,26 +1,24 @@
 import { segmentFactory } from '../db/factories';
 import { Segments, Users } from '../db/models';
 
+import { ISegment } from '../db/models/definitions/segments';
 import './setup.ts';
 
 /*
  * Generate test data
  */
-const generateData = () => ({
+const generateData = (): ISegment => ({
   contentType: 'customer',
   name: 'New users',
   description: 'New users',
   subOf: 'DFSAFDSAFDFFFD',
   color: '#fdfdfd',
-  connector: 'any',
   conditions: [
     {
-      field: 'messengerData.sessionCount',
-      operator: 'e',
-      value: '10',
-      dateUnit: 'days',
-      type: 'string',
-      brandId: '1231',
+      type: 'property',
+      propertyName: 'messengerData.sessionCount',
+      propertyOperator: 'e',
+      propertyValue: '10',
     },
   ],
 });

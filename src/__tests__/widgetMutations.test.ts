@@ -131,7 +131,7 @@ describe('messenger connect', () => {
     expect((customer.deviceTokens || []).length).toBe(1);
     expect(customer.deviceTokens).toContain('111');
     expect(customer.createdAt >= now).toBeTruthy();
-    expect((customer.messengerData || { sessionCount: 0 }).sessionCount).toBe(1);
+    expect(customer.sessionCount).toBe(1);
   });
 
   test('updates existing customer', async () => {
@@ -144,11 +144,6 @@ describe('messenger connect', () => {
         email: _customer.primaryEmail,
         isUser: true,
         deviceToken: '222',
-        // customData
-        data: {
-          plan: 1,
-          first_name: 'name',
-        },
       },
     );
 
@@ -165,20 +160,10 @@ describe('messenger connect', () => {
     expect(customer.createdAt < now).toBeTruthy();
 
     // must be updated
-    expect(customer.firstName).toBe('name');
     expect(customer.isUser).toBeTruthy();
     expect((customer.deviceTokens || []).length).toBe(2);
     expect(customer.deviceTokens).toContain('111');
     expect(customer.deviceTokens).toContain('222');
-
-    if (!customer.messengerData) {
-      throw new Error('messengerData is null');
-    }
-    if (!customer.messengerData.customData) {
-      throw new Error('customData is null');
-    }
-
-    expect(customer.messengerData.customData.plan).toBe(1);
   });
 });
 
@@ -233,11 +218,8 @@ describe('insertMessage()', () => {
     if (!customer) {
       throw new Error('customer is not found');
     }
-    if (!customer.messengerData) {
-      throw new Error('messengerData is null');
-    }
 
-    expect(customer.messengerData.isActive).toBeTruthy();
+    expect(customer.isOnline).toBeTruthy();
   });
 
   test('with conversationId', async () => {

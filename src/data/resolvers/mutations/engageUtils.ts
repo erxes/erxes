@@ -13,8 +13,7 @@ import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { sendMessage } from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
-import { Builder as CustomerQueryBuilder } from '../../modules/coc/customers';
-import QueryBuilder from '../../modules/segments/queryBuilder';
+import { fetchBySegments } from '../../modules/segments/queryBuilder';
 
 /**
  * Dynamic content tags
@@ -53,7 +52,7 @@ const replaceKeys = ({
 /**
  * Find customers
  */
-const findCustomers = async ({
+export const findCustomers = async ({
   customerIds,
   segmentIds = [],
   tagIds = [],
@@ -71,46 +70,37 @@ const findCustomers = async ({
     customerQuery = { _id: { $in: customerIds } };
   }
 
-  const doNotDisturbQuery = [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }];
-  const customerQb = new CustomerQueryBuilder({});
-  await customerQb.buildAllQueries();
-  const customerFilter = customerQb.mainQuery();
-
   if (tagIds.length > 0) {
-    customerQuery = { $and: [customerFilter, { $or: doNotDisturbQuery, tagIds: { $in: tagIds } }] };
+    customerQuery = { tagIds: { $in: tagIds } };
   }
 
   if (brandIds.length > 0) {
-    const brandQueries: any[] = [];
-
-    customerQuery = { $and: [customerFilter] };
+    let integrationIds: string[] = [];
 
     for (const brandId of brandIds) {
-      const brandQuery = await customerQb.brandFilter(brandId);
+      const integrations = await Integrations.findIntegrations({ brandId });
 
-      brandQueries.push(brandQuery);
+      integrationIds = [...integrationIds, ...integrations.map(i => i._id)];
     }
 
-    customerQuery = { $and: [customerFilter, { $or: brandQueries }] };
+    customerQuery = { integrationId: { $in: integrationIds } };
   }
 
   if (segmentIds.length > 0) {
-    const segmentQueries: any = [];
-
     const segments = await Segments.find({ _id: { $in: segmentIds } });
 
+    let customerIdsBySegments: string[] = [];
+
     for (const segment of segments) {
-      const filter = await QueryBuilder.segments(segment);
+      const cIds = await fetchBySegments(segment);
 
-      filter.$or = doNotDisturbQuery;
-
-      segmentQueries.push(filter);
+      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
 
-    customerQuery = { $and: [customerFilter, { $or: segmentQueries }] };
+    customerQuery = { _id: { $in: customerIdsBySegments } };
   }
 
-  return Customers.find(customerQuery);
+  return Customers.find({ $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }], ...customerQuery });
 };
 
 export const send = async (engageMessage: IEngageMessageDocument) => {

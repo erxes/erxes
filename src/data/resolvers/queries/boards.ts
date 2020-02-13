@@ -1,9 +1,9 @@
 import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from '../../../db/models';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
-import { IConformityQueryParams } from '../../modules/conformities/types';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate, regexSearchText } from '../../utils';
+import { IConformityQueryParams } from './types';
 
 export interface IDate {
   month: number;
