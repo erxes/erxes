@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
 import { Customers, RobotEntries } from './db/models';
-import { PRODUCT_TYPES } from './db/models/definitions/constants';
 import { ProductCategories, Products } from './db/models/Products';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
@@ -42,7 +41,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
         { noAck: true },
       );
 
-      channel.sendToQueue('rpc_queue:erxes-api', Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue('rpc_queue:erxes-automation', Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });
@@ -138,86 +137,22 @@ const initConsumer = async () => {
     }
   });
 
-  await channel.assertQueue('automation-api');
-  channel.consume('automation-api', async msg => {
-    if (msg !== null) {
-      debugBase(`Received automation ${msg.content.toString()}`);
-
-      const data = JSON.parse(msg.content.toString());
-      console.log(data);
-      channel.ack(msg);
-    }
-  });
-
-  await channel.assertQueue('hook-queue:erxes');
-  channel.consume('hook-queue:erxes', async msg => {
+  await channel.assertQueue('from_erkhet:to_erxes-list');
+  channel.consume('from_erkhet:to_erxes-list', async msg => {
     if (msg !== null) {
       debugBase(`Received hook ${msg.content.toString()}`);
 
       const data = JSON.parse(msg.content.toString());
-      const doc = JSON.parse(data.object)[0].fields;
-      const kind = JSON.parse(data.object)[0].model;
+      const method = data.method;
+      const kind = data.kind;
+      const params = data.params;
 
       switch (kind) {
-        case 'inventories.inventory':
-          if ((data.action === 'update' && data.old_code) || data.action === 'create') {
-            const product = await Products.findOne({ code: data.old_code });
-            const productCategory = await ProductCategories.findOne({ code: doc.category_code });
-
-            const document = {
-              name: doc.name,
-              type: doc.is_service ? PRODUCT_TYPES.SERVICE : PRODUCT_TYPES.PRODUCT,
-              unitPrice: doc.unit_price,
-              code: doc.code,
-              productId: doc.id,
-              sku: doc.measure_unit_code,
-            };
-
-            if (product) {
-              await Products.updateProduct(product._id, {
-                ...document,
-                categoryId: productCategory ? productCategory._id : product.categoryId,
-                categoryCode: productCategory ? productCategory.code : product.categoryCode,
-              });
-            } else {
-              await Products.createProduct({
-                ...document,
-                categoryId: productCategory ? productCategory._id : undefined,
-                categoryCode: productCategory ? productCategory.code : undefined,
-              });
-            }
-          } else if (data.action === 'delete') {
-            const product = await Products.getProduct({ code: doc.code });
-            await Products.removeProducts([product._id]);
-          }
-
+        case 'Products':
+          await Products[method](...params);
           break;
-        case 'inventories.category':
-          if ((data.action === 'update' && data.old_code) || data.action === 'create') {
-            const productCategory = await ProductCategories.findOne({ code: data.old_code });
-            const parentCategory = await ProductCategories.findOne({ code: doc.parent_code });
-
-            const document = {
-              code: doc.code,
-              name: doc.name,
-              order: doc.order,
-            };
-
-            if (productCategory) {
-              await ProductCategories.updateProductCategory(productCategory._id, {
-                ...document,
-                parentId: parentCategory ? parentCategory._id : productCategory.parentId,
-              });
-            } else {
-              await ProductCategories.createProductCategory({
-                ...document,
-                parentId: parentCategory ? parentCategory._id : undefined,
-              });
-            }
-          } else if (data.action === 'delete') {
-            const productCategory = await ProductCategories.getProductCatogery({ code: doc.code });
-            await ProductCategories.removeProductCategory(productCategory._id);
-          }
+        case 'ProductCategories':
+          await ProductCategories[method](...params);
           break;
       }
 
