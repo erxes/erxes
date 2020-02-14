@@ -115,14 +115,11 @@ class Uploader extends React.Component<Props, State> {
   removeAttachment = (index: number) => {
     const attachments = [...this.state.attachments];
 
-    confirm('Are you sure? This cannot be undone.')
+    confirm()
       .then(() => {
-        Alert.success('You successfully deleted a file.');
-
         attachments.splice(index, 1);
-
         this.setState({ attachments });
-
+        Alert.success('You successfully deleted a file.');
         this.props.onChange(attachments);
       })
       .catch(error => {
