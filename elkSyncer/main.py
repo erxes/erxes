@@ -136,7 +136,7 @@ put_mappings('customers', customer_mapping)
 put_mappings('companies', company_mapping)
 put_mappings('events', event_mapping)
 
-command = 'mongo-connector -m %s  -c mongo-connector-config.json --target-url %s' % (MONGO_URL, ELASTICSEARCH_URL)
+command = 'mongo-connector -m "%s"  -c mongo-connector-config.json --target-url %s' % (MONGO_URL, ELASTICSEARCH_URL)
 
 print('Starting connector ....', command)
 
