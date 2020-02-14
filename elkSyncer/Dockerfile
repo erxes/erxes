@@ -1,12 +1,11 @@
-FROM python:3
+FROM python:3.7.6-slim
 
-WORKDIR /elkSyncer/
+WORKDIR /app/
 
-RUN pip install mongo-connector \
-    && pip install elasticsearch \
-    && pip install elastic2-doc-manager \
-    && pip install python-dotenv \
-    && pip install elasticsearch
+RUN pip install mongo-connector==3.1.1 \
+    && pip install elasticsearch==7.5.1 \
+    && pip install elastic2-doc-manager==1.0.0 \
+    && pip install python-dotenv==0.11.0
 
 COPY . .
 
