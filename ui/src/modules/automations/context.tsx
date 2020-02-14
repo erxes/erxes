@@ -33,7 +33,7 @@ class Provider extends React.Component {
     // const { loading, data } = useSubscription(subscription, { variables: { userId: 'gQtsd8RuqdR5WmpL3' } });
     const data = { response: ['fsdafsasfaaffas'] };
     const loading = true;
-    console.log(loading, data);
+    console.log('a', loading, data);
 
     // automationResQuery.subscribeToMore({
     //   document: gql(subscriptions.automationSubscription),
@@ -56,7 +56,7 @@ class Provider extends React.Component {
     // console.log(loading, data);
     const data = { response: ['fsdafsasfaaffas'] };
     const loading = true;
-    console.log(loading, data);
+    console.log('xaa', loading, data);
 
     return (
       <AutomationContext.Provider

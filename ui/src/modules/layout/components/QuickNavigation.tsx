@@ -108,32 +108,35 @@ const QuickNavigation = ({
     <nav>
       {brandsCombo}
 
-      <Tip text={__('Task')} placement="bottom">
+      <Tip text={__('Task')} placement='bottom'>
         <NavItem odd={true}>
-          <Link to="/task">
-            <Icon icon="clipboard" size={16} />
+          <Link to='/task'>
+            <Icon icon='clipboard' size={16} />
           </Link>
         </NavItem>
       </Tip>
 
       {/* <Response userId={currentUser._id} /> */}
-      <Response />
+
+      <NavItem>
+        <Response />
+      </NavItem>
 
       <NavItem>
         <Widget />
       </NavItem>
       <NavItem>
-        <Link to="/settings">
-          <Icon icon="settings" size={18} />
+        <Link to='/settings'>
+          <Icon icon='settings' size={18} />
         </Link>
       </NavItem>
       <NavItem>
         <Dropdown alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-user">
+          <Dropdown.Toggle as={DropdownToggle} id='dropdown-user'>
             <UserHelper>
               <UserInfo>
                 <NameCard.Avatar user={currentUser} size={30} />
-                <Icon icon="angle-down" />
+                <Icon icon='angle-down' />
               </UserInfo>
             </UserHelper>
           </Dropdown.Toggle>
@@ -144,34 +147,34 @@ const QuickNavigation = ({
             <Dropdown.Divider />
 
             <li>
-              <Link to="/profile">{__('View Profile')}</Link>
+              <Link to='/profile'>{__('View Profile')}</Link>
             </li>
 
             <ModalTrigger
-              title="Change Password"
+              title='Change Password'
               trigger={
                 <li>
-                  <a href="#change-password">{__('Change Password')}</a>
+                  <a href='#change-password'>{__('Change Password')}</a>
                 </li>
               }
               content={passContent}
             />
 
             <ModalTrigger
-              title="Email signatures"
+              title='Email signatures'
               trigger={
                 <li>
-                  <a href="#email">{__('Email signatures')}</a>
+                  <a href='#email'>{__('Email signatures')}</a>
                 </li>
               }
               content={signatureContent}
             />
 
             <ModalTrigger
-              title="Notification settings"
+              title='Notification settings'
               trigger={
                 <li>
-                  <a href="#notif">{__('Notification settings')}</a>
+                  <a href='#notif'>{__('Notification settings')}</a>
                 </li>
               }
               content={notificationContent}

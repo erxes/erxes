@@ -11,8 +11,11 @@ const SUBSCRIPTION = gql`
 `;
 
 class Test extends Component {
+  componentWillMount() {
+    console.log('jkdjkl');
+  }
   render() {
-    console.log(this.props);
+    console.log('a', this.props);
     return 'Test';
   }
 }
@@ -96,11 +99,6 @@ export default graphql(SUBSCRIPTION)(Test);
 // //   ))(ResponseContainer)
 // // );
 
-
-
-
-
-
 // const ResponseContainer = () => (
 //   <AutomationConsumer>
 //     {({ isLoading, response }) => {
@@ -112,10 +110,6 @@ export default graphql(SUBSCRIPTION)(Test);
 //     }}
 //   </AutomationConsumer>
 // );
-
-
-
-
 
 // // type Props = {
 // //   userId: string,

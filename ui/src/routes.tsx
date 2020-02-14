@@ -1,4 +1,5 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import Erkhet from 'modules/automations/containers/Erkhet';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { userConfirmation } from 'modules/settings/team/routes';
 import React from 'react';
@@ -32,6 +33,7 @@ const renderRoutes = currentUser => {
   if (currentUser) {
     return (
       <>
+        <Erkhet />
         <MainLayout currentUser={currentUser}>
           <NotificationRoutes />
           <AutomationRoutes />
@@ -58,9 +60,9 @@ const renderRoutes = currentUser => {
   return (
     <Switch>
       <Route
-        key="/confirmation"
+        key='/confirmation'
         exact={true}
-        path="/confirmation"
+        path='/confirmation'
         component={userConfirmation}
       />
       <AuthRoutes />

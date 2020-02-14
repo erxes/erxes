@@ -10,7 +10,6 @@ type State = {};
 class Response extends React.Component<Props, State> {
   render() {
     const { isLoading, response } = this.props;
-    console.log('responseeeeeeeeeeee', response);
 
     if (!isLoading) {
       return '';
