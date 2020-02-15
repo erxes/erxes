@@ -8,12 +8,12 @@
         "type": "stream"
     },
     "namespaces": {
-        "erxes.customers": {
-            "rename": "customers._doc",
+        "erxes*.customers": {
+            "rename": "erxes*__customers._doc",
             "excludeFields": ["urlVisits", "messengerData"]
         },
-        "erxes.companies": {
-            "rename": "companies._doc"
+        "erxes*.companies": {
+            "rename": "erxes*__companies._doc"
         }
     },
     "docManagers": [

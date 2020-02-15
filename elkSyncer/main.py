@@ -4,6 +4,7 @@ import os
 import subprocess
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
+import pymongo
 
 load_dotenv()
 
@@ -115,26 +116,32 @@ analysis = {
 }
 
 def put_mappings(index, mapping):
+    """
+    Create mappings
+    """
+
     response = client.indices.exists(index=index)
 
     print('Create index for %s' % index, response)
 
-    if response == False:
-        response = client.indices.create(index=index, body={ 'settings': { 'analysis': analysis } })
+    if not response:
+        response = client.indices.create(index=index, body={'settings': {'analysis': analysis}})
 
         print('Response', response)
 
     try:
-        response = client.indices.put_mapping(index=index, body = { 'properties': mapping })
+        response = client.indices.put_mapping(index=index, body = {'properties': mapping})
 
         print(response)
     except Exception as e:
         print(e)
 
 
-put_mappings('customers', customer_mapping)
-put_mappings('companies', company_mapping)
-put_mappings('events', event_mapping)
+db_name = pymongo.uri_parser.parse_uri(MONGO_URL)['database']
+
+put_mappings('%s__customers' % db_name, customer_mapping)
+put_mappings('%s__companies' % db_name, company_mapping)
+put_mappings('%s__events' % db_name, event_mapping)
 
 command = 'mongo-connector -m "%s"  -c mongo-connector-config.json --target-url %s' % (MONGO_URL, ELASTICSEARCH_URL)
 
