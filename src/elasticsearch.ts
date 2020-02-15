@@ -1,7 +1,8 @@
 import * as elasticsearch from 'elasticsearch';
+import * as mongoUri from 'mongo-uri';
 import { debugBase } from './debuggers';
 
-const { NODE_ENV, ELASTICSEARCH_URL = 'http://localhost:9200' } = process.env;
+const { NODE_ENV, MONGO_URL, ELASTICSEARCH_URL = 'http://localhost:9200' } = process.env;
 
 export const client = new elasticsearch.Client({
   hosts: [ELASTICSEARCH_URL],
@@ -16,9 +17,12 @@ export const fetchElk = async (action, index: string, body: any) => {
     return action === 'search' ? { hits: { total: { value: 0 }, hits: [] } } : 0;
   }
 
+  const uriObject = mongoUri.parse(MONGO_URL);
+  const dbName = uriObject.database;
+
   try {
     const response = await client[action]({
-      index,
+      index: `${dbName}__${index}`,
       body,
     });
 

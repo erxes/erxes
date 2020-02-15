@@ -7555,6 +7555,11 @@ moment-timezone@^0.5.25:
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
   integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
 
+mongo-uri@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/mongo-uri/-/mongo-uri-0.1.2.tgz#173af01403339002e0abd0b4d675987d3cdcf99e"
+  integrity sha1-FzrwFAMzkALgq9C01nWYfTzc+Z4=
+
 mongodb-memory-server-core@6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/mongodb-memory-server-core/-/mongodb-memory-server-core-6.2.1.tgz#85ec8c0a2782fb958bafa3e0f6f92fcdb6e867d0"
