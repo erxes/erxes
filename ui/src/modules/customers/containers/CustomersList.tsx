@@ -108,7 +108,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const exportCustomers = bulk => {
+    const exportData = (bulk: Array<{ _id: string }>, popupData: boolean) => {
       const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
 
@@ -121,10 +121,16 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         queryParams.ids = bulk.map(customer => customer._id);
       }
 
-      const stringified = queryString.stringify({
+      const exportQuery = {
         ...queryParams,
         type: 'customer'
-      });
+      };
+
+      if (popupData) {
+        exportQuery.popupData = true;
+      }
+
+      const stringified = queryString.stringify(exportQuery);
 
       window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
@@ -139,7 +145,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       columnsConfig,
       customers: list,
       totalCount,
-      exportCustomers,
+      exportData,
       integrations: KIND_CHOICES.ALL_LIST,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,

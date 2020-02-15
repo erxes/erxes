@@ -65,7 +65,8 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
       pipeline,
       stageMap,
       options,
-      queryParams
+      queryParams,
+      stagesQuery
     } = this.props;
 
     const stagesCount = this.countStages(stageMap);
@@ -120,6 +121,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
                           items={itemMap[stageId]}
                           queryParams={queryParams}
                           loadingState={stageLoadMap[stageId]}
+                          refetchStages={stagesQuery.refetch}
                         />
                       );
                     })}

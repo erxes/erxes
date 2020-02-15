@@ -28,11 +28,9 @@ const defaultCustomerFields = {
   avatar: null,
   companies: null,
   customFieldsData: null,
-  getMessengerCustomData: null,
   getTags: null,
   isUser: null,
   lastName: null,
-  messengerData: null,
   primaryPhone: null,
   tagIds: null
 };

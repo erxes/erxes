@@ -4,7 +4,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
 import { TargetCount } from 'modules/engage/types';
-import { ISegment, ISegmentDoc, ISegmentField } from 'modules/segments/types';
+import { ISegment, ISegmentDoc } from 'modules/segments/types';
 import React from 'react';
 import Targets from '../Targets';
 
@@ -21,7 +21,7 @@ type Props<Target, OnSubmit> = {
   formProps?: {
     count?: (segment: ISegmentDoc) => void;
     headSegments?: ISegment[];
-    segmentFields?: ISegmentField[];
+    segmentFields?: any[];
   };
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;

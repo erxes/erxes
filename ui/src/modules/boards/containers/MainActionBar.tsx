@@ -11,11 +11,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
-import {
-  BoardDetailQueryResponse,
-  BoardsGetLastQueryResponse,
-  BoardsQueryResponse
-} from '../types';
+import { BoardDetailQueryResponse, BoardsGetLastQueryResponse, BoardsQueryResponse } from '../types';
 
 type Props = {
   type: string;
@@ -29,6 +25,10 @@ type FinalProps = {
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
+const generateQueryParams = ({ location }) => {
+  return queryString.parse(location.search);
+};
+
 export const getBoardId = ({ location }) => {
   const queryParams = generateQueryParams({ location });
   return queryParams.id;
@@ -41,15 +41,21 @@ const defaultParams = ['id', 'pipelineId'];
  */
 class Main extends React.Component<FinalProps> {
   onSearch = (search: string) => {
+    if (!search) {
+      return routerUtils.removeParams(this.props.history, 'search');
+    }
+    
     routerUtils.setParams(this.props.history, { search });
   };
 
   onSelect = (values: string[] | string, name: string) => {
-    routerUtils.setParams(this.props.history, { [name]: values });
-  };
+    const params = generateQueryParams(this.props.history);
 
-  onClear = (name: string) => {
-    routerUtils.removeParams(this.props.history, name);
+    if(params.closeDateType === values) {
+      return routerUtils.removeParams(this.props.history, name);
+    } 
+    
+    return routerUtils.setParams(this.props.history, { [name]: values });
   };
 
   isFiltered = (): boolean => {
@@ -185,7 +191,6 @@ class Main extends React.Component<FinalProps> {
     const extendedProps = {
       ...props,
       type,
-      onClear: this.onClear,
       onSelect: this.onSelect,
       isFiltered: this.isFiltered,
       clearFilter: this.clearFilter
@@ -196,10 +201,6 @@ class Main extends React.Component<FinalProps> {
     return <Component {...extendedProps} />;
   }
 }
-
-const generateQueryParams = ({ location }) => {
-  return queryString.parse(location.search);
-};
 
 const MainActionBarContainer = withProps<Props>(
   compose(

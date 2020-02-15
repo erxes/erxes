@@ -5,7 +5,6 @@ const segmentFields = `
   description
   subOf
   color
-  connector
   conditions
 `;
 
@@ -31,6 +30,11 @@ const segmentDetail = `
     }
   }
 `;
+const segmentsPreviewCount = `
+  query segmentsPreviewCount($contentType: String!, $conditions: JSON) {
+    segmentsPreviewCount(contentType: $contentType, conditions: $conditions)
+  }
+`;
 
 const headSegments = `
   query headSegments {
@@ -45,7 +49,13 @@ const headSegments = `
 
 const combinedFields = `
   query fieldsCombinedByContentType($contentType: String!) {
-    fieldsCombinedByContentType(contentType: $contentType, source: "fromSegments")
+    fieldsCombinedByContentType(contentType: $contentType)
+  }
+`;
+
+const events = `
+  query events($contentType: String!) {
+    segmentsEvents(contentType: $contentType)
   }
 `;
 
@@ -53,5 +63,7 @@ export default {
   segments,
   segmentDetail,
   headSegments,
-  combinedFields
+  events,
+  combinedFields,
+  segmentsPreviewCount
 };

@@ -1,46 +1,24 @@
-import { taskFields } from './queries';
-
-const commonVariables = `
-  $stageId: String,
-  $closeDate: Date,
-  $description: String,
-  $assignedUserIds: [String],
-  $order: Int,
-  $priority: String,
-  $attachments: [AttachmentInput],
-  $reminderMinute: Int,
-  $isComplete: Boolean,
-  $sourceConversationId: String,
-`;
-
-const commonParams = `
-  stageId: $stageId,
-  closeDate: $closeDate,
-  description: $description,
-  assignedUserIds: $assignedUserIds,
-  order: $order,
-  priority: $priority,
-  attachments: $attachments,
-  reminderMinute: $reminderMinute,
-  isComplete: $isComplete,
-  sourceConversationId: $sourceConversationId,
-`;
+import {
+  commonFields,
+  commonMutationParams,
+  commonMutationVariables
+} from 'modules/boards/graphql/mutations';
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
 const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;
 
 const tasksAdd = `
-  mutation tasksAdd($name: String!, ${copyVariables}, ${commonVariables}) {
-    tasksAdd(name: $name, ${copyParams}, ${commonParams}) {
-      ${taskFields}
+  mutation tasksAdd($name: String!, ${copyVariables}, ${commonMutationVariables}) {
+    tasksAdd(name: $name, ${copyParams}, ${commonMutationParams}) {
+      ${commonFields}
     }
   }
 `;
 
 const tasksEdit = `
-  mutation tasksEdit($_id: String!, $name: String, ${commonVariables}) {
-    tasksEdit(_id: $_id, name: $name, ${commonParams}) {
-      ${taskFields}
+  mutation tasksEdit($_id: String!, $name: String, ${commonMutationVariables}) {
+    tasksEdit(_id: $_id, name: $name, ${commonMutationParams}) {
+      ${commonFields}
     }
   }
 `;
@@ -78,10 +56,16 @@ const tasksWatch = `
   }
 `;
 
+const tasksArchive = `
+  mutation tasksArchive($stageId: String!) {
+    tasksArchive(stageId: $stageId)
+  }
+`;
+
 const tasksCopy = `
   mutation tasksCopy($_id: String!) {
     tasksCopy(_id: $_id) {
-      ${taskFields}
+      ${commonFields}
     }
   }
 `;
@@ -93,5 +77,6 @@ export default {
   tasksChange,
   tasksUpdateOrder,
   tasksWatch,
-  tasksCopy,
+  tasksArchive,
+  tasksCopy
 };

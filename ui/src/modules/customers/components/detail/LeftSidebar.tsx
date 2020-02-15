@@ -6,8 +6,8 @@ import React from 'react';
 import { ICustomer } from 'modules/customers/types';
 import {
   DevicePropertiesSection,
-  MessengerSection,
-  TaggerSection
+  TaggerSection,
+  TrackedDataSection
 } from '../common';
 
 type Props = {
@@ -25,7 +25,7 @@ export default class LeftSidebar extends React.Component<Props> {
         <BasicInfoSection customer={customer} />
         <CustomFieldsSection customer={customer} />
         <DevicePropertiesSection customer={customer} />
-        <MessengerSection customer={customer} />
+        <TrackedDataSection customer={customer} />
         <TaggerSection
           data={customer}
           type="customer"

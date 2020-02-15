@@ -1,7 +1,5 @@
-import {
-  conformityQueryFieldDefs,
-  conformityQueryFields
-} from 'modules/conformity/graphql/queries';
+import { commonFields } from 'modules/boards/graphql/mutations';
+import { conformityQueryFieldDefs, conformityQueryFields } from 'modules/conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
@@ -27,70 +25,6 @@ const commonParamDefs = `
   ${conformityQueryFieldDefs}
 `;
 
-export const taskFields = `
-  _id
-  name
-  stageId
-  hasNotified
-  pipeline {
-    _id
-    name
-  }
-  boardId
-  companies {
-    _id
-    primaryName
-    website
-  }
-  customers {
-    _id
-    firstName
-    lastName
-    primaryEmail
-    primaryPhone
-    visitorContactInfo
-  }
-  createdUser {
-    _id
-    email
-    details {
-      fullName
-    }
-  }
-  closeDate
-  description
-  priority
-  assignedUserIds
-  assignedUsers {
-    _id
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
-  labels {
-    _id
-    name
-    colorCode
-  }
-  labelIds
-  stage {
-    probability
-  }
-  isWatched
-  attachments {
-    name
-    url
-    type
-    size
-  }
-  modifiedAt
-  modifiedBy
-  reminderMinute
-  isComplete
-`;
-
 const tasks = `
   query tasks(
     $pipelineId: String,
@@ -108,7 +42,7 @@ const tasks = `
       search: $search,
       ${commonParamDefs}
     ) {
-      ${taskFields}
+      ${commonFields}
     }
   }
 `;
@@ -116,12 +50,31 @@ const tasks = `
 const taskDetail = `
   query taskDetail($_id: String!) {
     taskDetail(_id: $_id) {
-      ${taskFields}
+      ${commonFields}
+    }
+  }
+`;
+
+const archivedTasks = `
+  query archivedTasks(
+    $pipelineId: String!,
+    $search: String,
+    $page: Int,
+    $perPage: Int,
+  ) {
+    archivedTasks(
+      pipelineId: $pipelineId,
+      search: $search,
+      page: $page,
+      perPage: $perPage,
+    ) {
+      ${commonFields}
     }
   }
 `;
 
 export default {
   tasks,
-  taskDetail
+  taskDetail,
+  archivedTasks
 };

@@ -1,4 +1,3 @@
-
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { FormControl } from 'modules/common/components/form';
@@ -53,7 +52,14 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderObjects() {
-    const { groups, modules, permissions, actions, refetchQueries, remove } = this.props;
+    const {
+      groups,
+      modules,
+      permissions,
+      actions,
+      refetchQueries,
+      remove
+    } = this.props;
 
     return permissions.map(object => {
       return (
@@ -70,7 +76,7 @@ class PermissionList extends React.Component<Props> {
     });
   }
 
-  renderContent() {
+  renderFilter() {
     const { queryParams, modules, actions } = this.props;
 
     const usersOnChange = users => {
@@ -83,7 +89,7 @@ class PermissionList extends React.Component<Props> {
       });
     };
 
-    const filters = (
+    return (
       <FilterWrapper>
         <strong>{__('Filters')}:</strong>
         <FilterItem>
@@ -112,7 +118,7 @@ class PermissionList extends React.Component<Props> {
             multi={false}
           />
         </FilterItem>
-       
+
         <div>
           <strong>{__('Granted')}:</strong>
           <FormControl
@@ -124,24 +130,23 @@ class PermissionList extends React.Component<Props> {
         </div>
       </FilterWrapper>
     );
+  }
 
+  renderData() {
     return (
-      <>
-        {filters}
-        <Table whiteSpace="nowrap" hover={true} bordered={true}>
-          <thead>
-            <tr>
-              <th>Module</th>
-              <th>Action</th>
-              <th>Email</th>
-              <th>Group</th>
-              <th>Allow</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderObjects()}</tbody>
-        </Table>
-      </>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
+        <thead>
+          <tr>
+            <th>Module</th>
+            <th>Action</th>
+            <th>Email</th>
+            <th>Group</th>
+            <th>Allow</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderObjects()}</tbody>
+      </Table>
     );
   }
 
@@ -166,7 +171,9 @@ class PermissionList extends React.Component<Props> {
       </Button>
     );
 
-    const title = <Title>{this.props.currentGroupName || __("All permissions")}</Title>;
+    const title = (
+      <Title>{this.props.currentGroupName || __('All permissions')}</Title>
+    );
 
     const actionBarRight = (
       <NotWrappable>
@@ -179,11 +186,34 @@ class PermissionList extends React.Component<Props> {
       </NotWrappable>
     );
 
-    return <Wrapper.ActionBar left={title} right={actionBarRight} background="colorWhite" />;
+    return (
+      <Wrapper.ActionBar
+        left={title}
+        right={actionBarRight}
+        background="colorWhite"
+      />
+    );
+  }
+
+  renderContent() {
+    const { isLoading, totalCount } = this.props;
+
+    return (
+      <>
+        {this.renderFilter()}
+        <DataWithLoader
+          data={this.renderData()}
+          loading={isLoading}
+          count={totalCount}
+          emptyText="There is no permissions in this group"
+          emptyImage="/images/actions/11.svg"
+        />
+      </>
+    );
   }
 
   render() {
-    const { isLoading, totalCount, queryParams } = this.props;
+    const { totalCount, queryParams } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -198,15 +228,7 @@ class PermissionList extends React.Component<Props> {
         actionBar={this.renderActionBar()}
         leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
-        content={
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={isLoading}
-            count={totalCount}
-            emptyText="There is no permissions in this group"
-            emptyImage="/images/actions/11.svg"
-          />
-        }
+        content={this.renderContent()}
       />
     );
   }

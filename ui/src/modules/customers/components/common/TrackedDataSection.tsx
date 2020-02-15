@@ -13,7 +13,7 @@ type Props = {
   collapseCallback?: () => void;
 };
 
-class MessengerSection extends React.Component<Props> {
+class TrackedDataSection extends React.Component<Props> {
   renderCustomValue = (value: string) => {
     if (isValidDate(value) || isTimeStamp(value)) {
       return dayjs(value).format('lll');
@@ -24,20 +24,20 @@ class MessengerSection extends React.Component<Props> {
 
   renderContent() {
     const { customer } = this.props;
-    const { messengerData } = customer;
+    const { isOnline, sessionCount, lastSeenAt } = customer;
 
-    if (!messengerData) {
+    const trackedData = customer.getTrackedData || [];
+
+    if (!trackedData) {
       return <EmptyState icon="chat" text="Empty" size="small" />;
     }
-
-    const customData = customer.getMessengerCustomData || [];
 
     return (
       <SidebarList className="no-link">
         <li>
           <FieldStyle>{__('Status')}</FieldStyle>
           <SidebarCounter>
-            {messengerData.isActive ? (
+            {isOnline ? (
               <Label lblStyle="success">Online</Label>
             ) : (
               <Label>Offline</Label>
@@ -47,14 +47,14 @@ class MessengerSection extends React.Component<Props> {
         <li>
           <FieldStyle>{__('Last online')}</FieldStyle>
           <SidebarCounter>
-            {dayjs(messengerData.lastSeenAt).format('lll')}
+            {dayjs(lastSeenAt).format('lll')}
           </SidebarCounter>
         </li>
         <li>
           <FieldStyle>{__('Session count')}</FieldStyle>
-          <SidebarCounter>{messengerData.sessionCount}</SidebarCounter>
+          <SidebarCounter>{sessionCount}</SidebarCounter>
         </li>
-        {customData.map((data, index) => (
+        {trackedData.map((data, index) => (
           <li key={index}>
             <FieldStyle>{data.name}</FieldStyle>
             <SidebarCounter>
@@ -71,8 +71,8 @@ class MessengerSection extends React.Component<Props> {
 
     return (
       <Box
-        title={__('Messenger data')}
-        name="showMessengerData"
+        title={__('Tracked data')}
+        name="showTrackedData"
         callback={collapseCallback}
       >
         {this.renderContent()}
@@ -81,4 +81,4 @@ class MessengerSection extends React.Component<Props> {
   }
 }
 
-export default MessengerSection;
+export default TrackedDataSection;
