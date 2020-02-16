@@ -2,7 +2,7 @@ import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
-import { Customers, RobotEntries } from './db/models';
+import { Companies, Customers, RobotEntries } from './db/models';
 import { ProductCategories, Products } from './db/models/Products';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
@@ -153,6 +153,14 @@ const initConsumer = async () => {
           break;
         case 'ProductCategories':
           await ProductCategories[method](...params);
+          break;
+
+        case 'Customers':
+          await Customers[method](...params);
+          break;
+
+        case 'Companies':
+          await Companies[method](...params);
           break;
       }
 
