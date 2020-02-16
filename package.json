@@ -59,6 +59,7 @@
     "elasticsearch": "^16.6.0",
     "email-deep-validator": "^3.1.0",
     "express": "^4.15.2",
+    "faker": "^4.1.0",
     "file-type": "^10.4.0",
     "firebase-admin": "^8.6.1",
     "formidable": "^1.1.1",
@@ -71,6 +72,7 @@
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
+    "mongo-uri": "^0.1.2",
     "mongoose": "5.7.5",
     "mongoose-type-email": "^1.0.5",
     "node-schedule": "^1.2.5",
@@ -82,14 +84,13 @@
     "sha256": "^0.2.0",
     "snyk": "^1.277.1",
     "strip": "^3.0.0",
+    "ts-node": "8.0.3",
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
     "uuid": "^3.3.3",
     "validator": "^9.0.0",
     "xlsx-populate": "^1.20.1",
-    "xss": "^1.0.6",
-    "faker": "^4.1.0",
-    "ts-node": "8.0.3"
+    "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"
