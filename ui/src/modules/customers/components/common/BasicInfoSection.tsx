@@ -17,10 +17,7 @@ class BasicInfo extends React.Component<Props> {
 
     return (
       <Section>
-        <InfoSection
-          customer={customer}
-          showUserStatus={true}
-          showUserPosition={true} />
+        <InfoSection customer={customer} />
         <ActionSection customer={customer} />
         <DetailInfo customer={customer} hasPosition={true} />
       </Section>

@@ -204,11 +204,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       return (
         <>
           <BasicInfo>
-            <InfoSection
-              customer={customer}
-              showUserStatus={true}
-              showUserPosition={true}
-            />
+            <InfoSection customer={customer} />
           </BasicInfo>
           {this.renderActions()}
 

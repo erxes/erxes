@@ -11,8 +11,6 @@ import { Name } from '../../styles';
 
 type Props = {
   customer: ICustomer;
-  showUserStatus?: boolean;
-  showUserPosition?: boolean;
 };
 
 class InfoSection extends React.Component<Props> {
@@ -48,18 +46,10 @@ class InfoSection extends React.Component<Props> {
   }
 
   renderPosition() {
-    if (!this.props.showUserPosition) {
-      return null;
-    }
-
     return <p>{this.props.customer.position}</p>;
   }
 
   renderStatus(isUser) {
-    if (!this.props.showUserStatus) {
-      return null;
-    }
-
     return <div>{isUser ? 'User' : 'Visitor'}</div>;
   }
 
