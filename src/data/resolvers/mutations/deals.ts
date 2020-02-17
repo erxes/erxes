@@ -88,6 +88,15 @@ const dealMutations = {
     if (doc.assignedUserIds) {
       const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds, doc.assignedUserIds);
 
+      const activityContent = { addedUserIds, removedUserIds };
+
+      await ActivityLogs.createAssigneLog({
+        contentId: _id,
+        userId: user._id,
+        contentType: 'deal',
+        content: activityContent,
+      });
+
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;
     }

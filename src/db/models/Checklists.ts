@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 
+import ActivityLogs from './ActivityLogs';
 import {
   checklistItemSchema,
   checklistSchema,
@@ -69,6 +70,8 @@ export const loadClass = () => {
         ...fields,
       });
 
+      ActivityLogs.createChecklistLog({ item: checklist, contentType: 'checklist', action: 'create' });
+
       return checklist;
     }
 
@@ -94,6 +97,8 @@ export const loadClass = () => {
       await ChecklistItems.deleteMany({
         checklistId: checklistObj._id,
       });
+
+      ActivityLogs.createChecklistLog({ item: checklistObj, contentType: 'checklist', action: 'delete' });
 
       return checklistObj.remove();
     }
@@ -127,6 +132,12 @@ export const loadItemClass = () => {
         ...fields,
       });
 
+      await ActivityLogs.createChecklistLog({
+        item: checklistItem,
+        contentType: 'checklistItem',
+        action: 'create',
+      });
+
       return checklistItem;
     }
 
@@ -136,7 +147,16 @@ export const loadItemClass = () => {
     public static async updateChecklistItem(_id: string, doc: IChecklistItem) {
       await ChecklistItems.updateOne({ _id }, { $set: doc });
 
-      return ChecklistItems.findOne({ _id });
+      const checklistItem = await ChecklistItems.findOne({ _id });
+      const activityAction = doc.isChecked ? 'checked' : 'unChecked';
+
+      await ActivityLogs.createChecklistLog({
+        item: checklistItem,
+        contentType: 'checklistItem',
+        action: activityAction,
+      });
+
+      return checklistItem;
     }
 
     /*
@@ -148,6 +168,12 @@ export const loadItemClass = () => {
       if (!checklistItem) {
         throw new Error(`Checklist's item not found with id ${_id}`);
       }
+
+      await ActivityLogs.createChecklistLog({
+        item: checklistItem,
+        contentType: 'checklistItem',
+        action: 'delete',
+      });
 
       return checklistItem.remove();
     }
