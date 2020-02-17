@@ -1,4 +1,5 @@
 import activityLogs from './activityLogs';
+import automations from './automations';
 import conversations from './conversations';
 import customers from './customers';
 import importHistory from './importHistory';
@@ -11,6 +12,7 @@ let subscriptions: any = {
   ...activityLogs,
   ...importHistory,
   ...notifications,
+  ...automations,
   ...robot,
 };
 

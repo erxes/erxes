@@ -269,7 +269,7 @@ export const subscriptions = `
     importHistoryChanged(_id: String!): ImportHistory
     notificationInserted(userId: String): Notification
     onboardingChanged(userId: String!): OnboardingNotification
-    automationResponded(userId: String): JSON
+    automationResponded(userId: String): AutomationResponse
   }
 `;
 

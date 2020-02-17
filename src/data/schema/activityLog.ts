@@ -12,6 +12,10 @@ export const types = `
     contentDetail: JSON
     contentTypeDetail: JSON
   }
+
+  type AutomationResponse {
+    response: String
+  }
 `;
 
 export const queries = `
