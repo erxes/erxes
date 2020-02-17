@@ -1,11 +1,10 @@
-# erxes Inc - erxes API
+# erxes
 
 erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
 
-<a href="https://demo.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes-api/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://slack.erxes.io">Join us on Slack</a> <b> | </b> <a href=" https://spectrum.chat/erxes">Join us on Spectrum</a>
+<a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://rocketchat.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join us on RocketChat</a>
 
-## Status  <br>
-
+![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes)
 ![Build Status](https://drone.erxes.io/api/badges/erxes/erxes-api/status.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/erxes/erxes-api/badge.svg?branch=master)](https://coveralls.io/github/erxes/erxes-widgets-api?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes-api/badge.svg)](https://snyk.io/test/github/erxes/erxes-api)
