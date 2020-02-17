@@ -9,7 +9,9 @@ export default {
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('automationResponded'),
       (payload, variables) => {
-        return payload.automationResponded.userId === variables.userId;
+        console.log(payload);
+        console.log(variables);
+        return payload.automationResponded.userId === 'userId';
       },
     ),
   },

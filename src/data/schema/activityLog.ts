@@ -14,7 +14,7 @@ export const types = `
   }
 
   type AutomationResponse {
-    response: String
+    content: [String]
   }
 `;
 
