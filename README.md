@@ -4,7 +4,7 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 
 <a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://rocketchat.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join us on RocketChat</a>
 
-![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes)
+![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes-api)
 ![Build Status](https://drone.erxes.io/api/badges/erxes/erxes-api/status.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/erxes/erxes-api/badge.svg?branch=master)](https://coveralls.io/github/erxes/erxes-widgets-api?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes-api/badge.svg)](https://snyk.io/test/github/erxes/erxes-api)
