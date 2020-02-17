@@ -52,8 +52,8 @@ const DevicePropertiesSection = asyncComponent(() =>
   import(/* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ 'modules/customers/components/common/DevicePropertiesSection')
 );
 
-const MessengerSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-MessengerSection" */ 'modules/customers/components/common/MessengerSection')
+const TrackedDataSection = asyncComponent(() =>
+  import(/* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ 'modules/customers/components/common/TrackedDataSection')
 );
 
 const TaggerSection = asyncComponent(
@@ -110,13 +110,9 @@ class Index extends React.Component<IndexProps, IndexState> {
     this.setState({ currentSubTab });
   };
 
-  renderMessengerData = ({ customer, kind, toggleSection }: IRenderData) => {
-    if (kind !== 'messenger') {
-      return null;
-    }
-
+  renderTrackedData = ({ customer, kind, toggleSection }: IRenderData) => {
     return (
-      <MessengerSection customer={customer} collapseCallback={toggleSection} />
+      <TrackedDataSection customer={customer} collapseCallback={toggleSection} />
     );
   };
 
@@ -175,7 +171,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           >
             <CustomFieldsSection loading={loading} customer={customer} />
           </Box>
-          {this.renderMessengerData({ customer, kind, toggleSection })}
+          {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({ customer, kind, toggleSection })}
         </TabContent>
       );

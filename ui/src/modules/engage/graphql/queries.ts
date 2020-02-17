@@ -188,7 +188,6 @@ const segmentFields = `
   description
   subOf
   color
-  connector
   conditions
 `;
 
@@ -250,7 +249,7 @@ const headSegments = `
 
 const combinedFields = `
   query fieldsCombinedByContentType {
-    fieldsCombinedByContentType(contentType: "customer", source: "fromSegments")
+    fieldsCombinedByContentType(contentType: "customer")
   }
 `;
 

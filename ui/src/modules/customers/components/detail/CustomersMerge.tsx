@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
 import { SmallLoader } from 'modules/common/components/ButtonMutate';
 import Icon from 'modules/common/components/Icon';
@@ -17,7 +16,6 @@ import {
   ICustomer,
   ICustomerDoc,
   ICustomerLinks,
-  IMessengerData,
   IVisitorContact
 } from '../../types';
 
@@ -136,8 +134,6 @@ class CustomersMerge extends React.Component<Props, State> {
 
   renderValue(field: string, value: any) {
     switch (field) {
-      case 'messengerData':
-        return this.renderMessengerData(value);
       case 'visitorContactInfo':
         return this.renderVisitorContactInfo(value);
       case 'owner':
@@ -150,16 +146,6 @@ class CustomersMerge extends React.Component<Props, State> {
     }
   }
 
-  renderMessengerData(data: IMessengerData) {
-    return (
-      <Info>
-        <InfoTitle>{__('Last seen at')}:</InfoTitle>
-        <InfoDetail>{dayjs(data.lastSeenAt).format('lll')}</InfoDetail>
-        <InfoTitle>{__('Session count')}:</InfoTitle>
-        <InfoDetail>{data.sessionCount}</InfoDetail>
-      </Info>
-    );
-  }
 
   renderVisitorContactInfo(data: IVisitorContact) {
     return (

@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import Label from 'modules/common/components/Label';
 import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
+import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
@@ -87,15 +88,17 @@ class SegmentsList extends React.Component<Props> {
       { title: __('Segments') }
     ];
 
+    const title = <Title capitalize={true}>{contentType} {__('segments')}</Title>;
+
     const actionBarRight = (
       <Link to={`/segments/new/${contentType}`}>
-        <Button btnStyle="success" size="small" icon="add">
+        <Button btnStyle="primary" uppercase={false} icon="plus-circle">
           New segment
         </Button>
       </Link>
     );
 
-    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+    const actionBar = <Wrapper.ActionBar left={title} right={actionBarRight} />;
 
     return (
       <Wrapper
