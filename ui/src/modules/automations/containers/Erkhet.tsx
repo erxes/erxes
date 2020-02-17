@@ -1,20 +1,21 @@
+import { useSubscription } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 // import { subscriptions } from 'modules/automations/graphql';
 import React from 'react';
-import { useSubscription } from 'react-apollo';
-
 const SUBSCRIPTION = gql`
   subscription automationResponded {
     automationResponded {
-      response
+      content
     }
   }
 `;
 
 function Erkhet() {
-  const { data: pushData } = useSubscription(SUBSCRIPTION);
+  const { data: automationResponded } = useSubscription(SUBSCRIPTION, {
+    variables: { userId: 'userId' }
+  });
 
-  console.log('aa', pushData);
+  console.log('aa', automationResponded);
   console.log('sdjakdjaklsdjaksljkl');
 
   return <p>sdadjka</p>;
