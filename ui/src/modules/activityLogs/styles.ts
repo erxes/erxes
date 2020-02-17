@@ -119,7 +119,7 @@ const Row = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
-const AvatarWrapper = styledTS<{ isOnline?: boolean }>(styled.div)`
+const AvatarWrapper = styledTS<{ isOnline?: boolean, hideIndicator?: boolean }>(styled.div)`
   margin-right: ${dimensions.unitSpacing}px;
   position: relative;
 
@@ -127,18 +127,20 @@ const AvatarWrapper = styledTS<{ isOnline?: boolean }>(styled.div)`
     float: none;
   }
 
-  > i {
+  &:before {
+    content: '';
     position: absolute;
     right: -3px;
     top: 32px;
     background: ${props =>
-    props.isOnline ? colors.colorCoreGreen : colors.colorCoreGray};
+    props.isOnline ? colors.colorCoreGreen : colors.colorCoreLightGray};
     width: 14px;
     height: 14px;
-    text-align: center;
     border-radius: ${dimensions.unitSpacing}px;
     font-size: ${dimensions.unitSpacing}px;
     border: 1px solid ${colors.colorWhite};
+    z-index: 2;
+    display: ${props => props.hideIndicator && 'none'};
   }
 
   > div {

@@ -75,7 +75,6 @@ class InfoSection extends React.Component<Props> {
       <InfoWrapper>
         <AvatarWrapper isOnline={isOnline}>
           <NameCard.Avatar customer={customer} size={50} />
-          {isOnline ? <i /> : <i />}
           {this.renderStatus(isUser)}
         </AvatarWrapper>
 
