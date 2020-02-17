@@ -65,7 +65,7 @@ class InfoSection extends React.Component<Props> {
 
   render() {
     const { customer } = this.props;
-    const { links = {}, isUser } = customer;
+    const { links = {}, isOnline, isUser } = customer;
 
     const customerForm = props => {
       return <CustomerForm {...props} size="lg" customer={customer} />;
@@ -73,9 +73,9 @@ class InfoSection extends React.Component<Props> {
 
     return (
       <InfoWrapper>
-        <AvatarWrapper isUser={isUser}>
+        <AvatarWrapper isOnline={isOnline}>
           <NameCard.Avatar customer={customer} size={50} />
-          {isUser ? <Icon icon="check-1" /> : <Icon icon="minus-1" />}
+          {isOnline ? <i /> : <i />}
           {this.renderStatus(isUser)}
         </AvatarWrapper>
 
