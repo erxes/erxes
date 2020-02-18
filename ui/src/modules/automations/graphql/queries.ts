@@ -44,17 +44,7 @@ const automationDetail = `
   }
 `;
 
-const automationRespondeds = `
-  query automationRespondeds($userId: String!) {
-    automationRespondeds(userId: $userId) {
-      _id
-      response
-    }
-  }
-`;
-
 export default {
   automations,
-  automationDetail,
-  automationRespondeds
+  automationDetail
 };
