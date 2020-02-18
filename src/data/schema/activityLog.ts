@@ -12,10 +12,6 @@ export const types = `
     contentDetail: JSON
     contentTypeDetail: JSON
   }
-
-  type AutomationResponse {
-    content: [String]
-  }
 `;
 
 export const queries = `

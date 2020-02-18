@@ -886,7 +886,7 @@ export const checkAutomation = async (kind: string, body: any, user: IUserDocume
   try {
     graphqlPubsub.publish('automationResponded', {
       automationResponded: {
-        userId: 'userId',
+        userId: user._id,
         content: apiAutomationResponse.response,
       },
     });

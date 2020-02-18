@@ -126,11 +126,13 @@ import {
   types as PipelineLabelTypes,
 } from './pipelineLabel';
 
+import { types as AutomationTypes } from './automation';
 import { mutations as WidgetMutations, queries as WidgetQueries, types as WidgetTypes } from './widget';
 
 export const types = `
   scalar JSON
   scalar Date
+  ${AutomationTypes}
   ${CommonTypes}
   ${UserTypes}
   ${InternalNoteTypes}
