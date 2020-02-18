@@ -47,7 +47,7 @@ const customerMutations = {
       },
       user,
     );
-    await checkAutomation('changeListCustomer', { action: 'customerEdit', doc }, user);
+    await checkAutomation('changeListCustomer', { action: 'customerEdit', oldCode: customer.code, doc }, user);
     return updated;
   },
 

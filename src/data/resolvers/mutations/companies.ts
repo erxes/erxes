@@ -48,7 +48,7 @@ const companyMutations = {
       user,
     );
 
-    await checkAutomation('changeListCompany', { action: 'companyEdit', oldCode: company.code, doc }, user);
+    await checkAutomation('changeListCompany', { action: 'companyEdit', oldCode: company.code, doc: updated }, user);
 
     return updated;
   },

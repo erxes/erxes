@@ -2,6 +2,7 @@ import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
+import { sendNotification } from './data/utils';
 import { Companies, Customers, RobotEntries } from './db/models';
 import { ProductCategories, Products } from './db/models/Products';
 import { debugBase } from './debuggers';
@@ -162,6 +163,9 @@ const initConsumer = async () => {
         case 'Companies':
           await Companies[method](...params);
           break;
+
+        case 'Notifications':
+          sendNotification(params);
       }
 
       channel.ack(msg);
