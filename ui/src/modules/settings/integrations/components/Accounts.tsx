@@ -49,7 +49,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     if (!accountId || accountId === '') {
       if (!renderForm) {
         return (
-          <a href="#" onClick={onAdd}>
+          <a href="#name" onClick={onAdd}>
             <img src='/images/btn_google_signin_dark_pressed_web@2x.png' width='125px' height='31px' alt='google button' />
           </a>
         );
