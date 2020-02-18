@@ -49,9 +49,9 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     if (!accountId || accountId === '') {
       if (!renderForm) {
         return (
-          <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
-            Add Account
-          </Button>
+          <a href="#" onClick={onAdd}>
+            <img src='/images/btn_google_signin_dark_pressed_web@2x.png' width='125px' height='31px' alt='google button' />
+          </a>
         );
       }
 
@@ -92,7 +92,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
               </option>
             ))}
           </FormControl>
-
+          &nbsp;
           {this.renderAccountAction()}
         </Row>
       </FormGroup>
