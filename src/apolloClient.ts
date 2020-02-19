@@ -80,7 +80,7 @@ const apolloServer = new ApolloServer({
         scopeBrandIds = brandIds;
       }
 
-      if (user.isOwner) {
+      if (!user.isOwner) {
         brandIdSelector = { _id: { $in: scopeBrandIds } };
         commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
         commonQuerySelectorElk = { terms: { scopeBrandIds } };
