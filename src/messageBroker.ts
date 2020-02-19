@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 import { debugBase, debugGmail } from './debuggers';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { watchPushNotification } from './gmail/watch';
-import { removeAccount } from './helpers';
+import { removeAccount, removeCustomers } from './helpers';
 import { Integrations } from './models';
 
 dotenv.config();
@@ -122,6 +122,8 @@ const initConsumer = async () => {
             await handleFacebookMessage(content);
           case 'cronjob':
             await handleRunCronMessage();
+          case 'removeCustomers':
+            await removeCustomers(content);
         }
 
         channel.ack(msg);

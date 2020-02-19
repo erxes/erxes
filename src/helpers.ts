@@ -251,3 +251,22 @@ export const removeAccount = async (_id: string): Promise<{ erxesApiIds: string 
 
   return { erxesApiIds };
 };
+
+/**
+ * Remove customer from api
+ */
+
+export const removeCustomers = async msg => {
+  const { customerIds } = msg;
+  const selector = { erxesApiId: { $in: customerIds } };
+
+  await FacebookCustomers.deleteMany(selector);
+  await NylasGmailCustomers.deleteMany(selector);
+  await NylasOutlookCustomers.deleteMany(selector);
+  await NylasOffice365Customers.deleteMany(selector);
+  await NylasYahooCustomers.deleteMany(selector);
+  await NylasImapCustomers.deleteMany(selector);
+  await ChatfuelCustomers.deleteMany(selector);
+  await CallProCustomers.deleteMany(selector);
+  await TwitterCustomers.deleteMany(selector);
+};
