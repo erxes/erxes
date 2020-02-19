@@ -100,6 +100,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
             </a>
           </Info>
           {this.renderItem('TWITTER_CONSUMER_KEY')}
+          {this.renderItem('TWITTER_CONSUMER_SECRET')}
           {this.renderItem('TWITTER_ACCESS_TOKEN')}
           {this.renderItem('TWITTER_ACCESS_TOKEN_SECRET')}
           {this.renderItem('TWITTER_WEBHOOK_ENV')}

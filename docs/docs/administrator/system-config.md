@@ -9,6 +9,9 @@ title: System config
 
 In the general setting, there are optional variables on following values. Select the variable relied upon your requirement.   
 
+**Configuration:** 
+- Go to Erxes Settings => System config => General System Config => General settings.
+
 ```
 LANGUAGE=''
 CURRENCY=''
@@ -20,8 +23,8 @@ UNIT_OF_MEASUREMENT=''
 **A media type** (Multipurpose Internet Mail Extensions or MIME type) is a standard that indicates the nature and format of a document, file, or assortment of bytes. The simplest MIME type consists of a type and a subtype **(type/subtype)**. 
 [Here is a list of MIME types, associated by type of documents, ordered by their common extensions.](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types)
 
-Configuration: 
-Login Erxes => Settings => System config => General System Config => File upload. 
+**Configuration:** 
+- Go to Erxes Settings => System config => General System Config => File upload. 
 
 ```
 UPLOAD_FILE_TYPES=''
@@ -50,8 +53,8 @@ You have to ensure that public access to all your S3 buckets and objects is bloc
 
 Amazon Simple Storage Service (Amazon S3) is storage for the internet. You can use Amazon S3 to store and retrieve any amount of data at any time, from anywhere on the web. 
 
-Configuration: 
-Login Erxes => Settings => System config => General System Config => AWS S3. 
+**Configuration:** 
+- Go to Erxes Settings => System config => General System Config => AWS S3.
 
 ```
 AWS_ACCESS_KEY_ID='your aws account access key id'
@@ -77,8 +80,8 @@ AWS_FORCE_PATH_STYLE=''
 
 Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account. 
 
-Configuration: 
-Login Erxes => Settings => System config => General System Config => AWS SES. 
+**Configuration:** 
+- Go to Erxes Settings => System config => General System Config => AWS SES.  
 
 ```
 AWS_SES_ACCESS_KEY_ID='your aws account access key id'
@@ -142,6 +145,10 @@ Amazon places all new accounts in the Amazon SES sandbox. While your account is 
 
 
 ### Common mail config
+
+**Configuration:** 
+- Go to Erxes Settings => System config => General System Config => Common mail config. 
+
 ```
 FROM_EMAIL=''
 DEFAULT_EMAIL_SERVICE=''
@@ -152,6 +159,9 @@ DEFAULT_EMAIL_SERVICE=''
 
 ### Custom mail service
 
+**Configuration:** 
+- Go to Erxes Settings => System config => General System Config => Custom mail service. 
+
 ```
 MAIL_SERVICE_NAME=''
 PORT=''
@@ -161,12 +171,17 @@ HOST=''
 ```
 
 ## Integrations configuration
-
+Learn how to integrate the Erxes platform into your applications. 
 Erxes app can be integrated with developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
 
 ### Facebook 
 
+Learn How to Integrate Facebook Accounts With Erxes.
 Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
+
+**Configuration:** 
+- Go to Erxes Settings => System config => Integrations config => Facebook. 
+
 
 ```
 FACEBOOK_APP_ID="your faceboook application's app id"
@@ -240,7 +255,7 @@ To take this permission, you must complete the following 3 steps.
 3. **Tell facebook how you will use *manage_pages* permission if you haven't taken it yet.**
 
 ### Twitter 
-
+Learn How to Integrate Twitter Accounts With Erxes
 Erxes app can be integrated with twitter developer API and that means we can receive our twitter accounts DMs, Tweets directly into our erxes app's inbox.
 
 Requirements:
@@ -252,20 +267,21 @@ Notes:
 - Twitter now allows you to receive DM from anyone. You don't have to follow each other. To enable this option
   go to https://twitter.com/settings/safety and select `Receive Direct Messages from anyone` from `Direct Messages` section.
 
-#### Creating Twitter app.
+**Configuration:** 
+- Go to Erxes Settings => System config => Integrations config => Twitter. 
 
-
-#### Twitter Settings from environment variable
 
 ```
 TWITTER_CONSUMER_KEY=''
-TWITTER_CONSUMER_SECRET=''
-TWITTER_REDIRECT_URL='https://erxes.domain.com/service/oauth/twitter_callback'
+TWITTER_ACCESS_TOKEN=''
+TWITTER_ACCESS_TOKEN_SECRET=''
+TWITTER_WEBHOOK_ENV=''
 ```
 
 - TWITTER_CONSUMER_KEY Your twitter developer account's Consumer Key (API Key) here
 - TWITTER_CONSUMER_SECRET Your twitter developer account's Consumer Secret (API Secret) here
 - TWITTER_REDIRECT_URL you should only change the domain of this env variables. This is twitter's callback url
+- TWITTER_REDIRECT_URL='https://erxes.domain.com/service/oauth/twitter_callback'
 
 1. Go to https://apps.twitter.com/ and create new app.
 2. Fill the form with following example and create your application.
@@ -292,33 +308,96 @@ Your .env should look like:
 2. Click on **Add Integrations** and select Twitter. Click on Authorize app.
 3. Select your brand and click save.
 
-### Gmail Integration
 
 
 
-#### Gmail from environment variable
+### Nylas 
+Learn how to integrate Nylas Accounts With Erxes
+**Configuration:** 
+- Go to Erxes Settings => System config => Integrations config => Nylas. 
 
 ```
-GOOGLE_CLIENT_ID=''
-GOOGLE_CLIENT_SECRET=''
-GOOGLE_APPLICATION_CREDENTIALS=''
-GOOGLE_TOPIC=''
-GOOGLE_SUBSCRIPTION_NAME=''
-GOOGLE_PROJECT_ID=''
-GMAIL_REDIRECT_URL = 'http://localhost:3000/service/oauth/gmail_callback'
+NYLAS_CLIENT_ID='nylas account client id'
+NYLAS_CLIENT_SECRET='nylas account client secret'
+NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
 ```
 
-- GOOGLE_CLIENT_ID your google project's Clint id
-- GOOGLE_CLIENT_SECRET your google project's secret key
-- GOOGLE_APPLICATION_CREDENTIALS Your downloaded google's credentials which is json file
-- GOOGLE_TOPIC Your google cloud project's subscribed topic's name
-- GOOGLE_SUBSCRIPTION_NAME Your google cloud project's subscription name
-- GOOGLE_PROJECT_ID your google project's id
-- GMAIL_REDIRECT_URL this is gmail's callback URL you should only change the domain of it
-  =====================
+
+1. Create the Nylas account go to [website](https://dashboard.nylas.com/register)
+2. After you created the Nylas account, copy your clientId and clientSecret from [here](https://dashboard.nylas.com/applications/) and config in `erxes-integrations/.env` like below
+```Shel
+# Nylas
+NYLAS_CLIENT_ID='nylas account CLIENT ID'
+NYLAS_CLIENT_SECRET='nylas account CLIENT_SECRET'
+NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
+```
+3. In order to receive email and updates, we need to have endpoint for our webhook.
+  - Use ngrok service for erxes-integration repo as follows:
+  ```Shell
+  cd /path/to/erxes-integrations
+  ngrok http 3400
+  ```
+  - Copy the IP address with https and replace `erxes-integrations/.env` as follows:
+  ```Shell
+  NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
+  NYLAS_WEBHOOK_CALLBACK_URL=https://NGROK_IP/nylas/webhook
+  ```
+  When you start erxes-integration repo webhook will automatically created according to `.env`
+  #### Now we are ready to config our provider
 
 
+
+### Microsoft
+Learn how to integrate Microsoft Accounts With Erxes. 
+Integrating the Outlook is easy peasy lemon squeezy, all we need is email and password no additional steps.
+
+**Configuration:** 
+- Go to Erxes Settings => System config => Integrations config => Microsoft. 
+
+```
+MICROSOFT_CLIENT_ID=''
+MICROSOFT_CLIENT_SECRET=''
+ENCRYPTION_KEY=''
+```
+
+  - Go to Settings/App Store and click on Add button of the Outlook section
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-1.png"/>
+    </div>
+
+  - Click on the Add account button then you will see form
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-2.png"/>
+    </div>
+    
+  - Enter your outlook email, password and click on save button that's it now you can create your Outlook integration.
+    <div>
+      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-3.png"/>
+    </div>
+
+
+
+### Gmail 
+
+Learn how to integrate Gmail Accounts With Erxes. 
 Erxes app can be integrated with Gmail API and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc. There is an active development process going on this subject.
+
+**If your app uses Google APIs to access Google users’ data, you might have to complete a verification process before you make your app publicly available for the first time**
+
+**Configuration:** 
+- Go to Erxes Settings => System config => Integrations config => Gmail. 
+
+
+#### Gmail variable configurations
+
+```
+GOOGLE_PROJECT_ID="your google project's id"
+GOOGLE_GMAIL_TOPIC="your google created gmail topic"
+GOOGLE_APPLICATION_CREDENTIALS="your downloaded google's credentials which is json file"
+GOOGLE_GMAIL_SUBSCRIPTION_NAME="your google cloud project's subscription name"
+GOOGLE_CLIENT_ID="your google project's client id"
+GOOGLE_CLIENT_SECRET="your google project's secret key"
+```
 
 Requirements:
 
@@ -342,6 +421,11 @@ GOOGLE_CLIENT_ID = '234373437285-11asa2131kjk231231.apps.googleusercontent.com'
 GOOGLE_CLIENT_SECRET = 'kE9K8W8A9KJSADQPWE'
 GMAIL_REDIRECT_URL = 'http://localhost:3000/service/oauth/gmail_callback'
 ```
+
+
+
+
+
 
 Configure google cloud pub/sub:
 
@@ -370,70 +454,6 @@ Add integration:
 
 - Go to erxes settings - App store - add gmail. (Make sure you create new brand beforehand)
 
-
-### Nylas 
-
-1. Create the Nylas account go to [website](https://dashboard.nylas.com/register)
-2. After you created the Nylas account, copy your clientId and clientSecret from [here](https://dashboard.nylas.com/applications/) and config in `erxes-integrations/.env` like below
-```Shel
-# Nylas
-NYLAS_CLIENT_ID='nylas account CLIENT ID'
-NYLAS_CLIENT_SECRET='nylas account CLIENT_SECRET'
-NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
-```
-3. In order to receive email and updates, we need to have endpoint for our webhook.
-  - Use ngrok service for erxes-integration repo as follows:
-  ```Shell
-  cd /path/to/erxes-integrations
-  ngrok http 3400
-  ```
-  - Copy the IP address with https and replace `erxes-integrations/.env` as follows:
-  ```Shell
-  NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
-  NYLAS_WEBHOOK_CALLBACK_URL=https://NGROK_IP/nylas/webhook
-  ```
-  When you start erxes-integration repo webhook will automatically created according to `.env`
-  #### Now we are ready to config our provider
-### Gmail
-
-#### Email settings from environment variable
-
-```
-COMPANY_EMAIL_FROM=noreply@erxes.io
-DEFAULT_EMAIL_SERVICE=sendgrid
-MAIL_SERVICE=sendgrid
-MAIL_PORT=''
-MAIL_USER=''
-MAIL_PASS=''
-MAIL_HOST=''
-```
-
-- COMPANY_EMAIL_FROM transaction emails will be sent by this email address
-- DEFAULT_EMAIL_SERVICE defines whether transaction emails sent by ses or other email services
-- MAIL_SERVICE defines your email service's name
-- MAIL_PORT your email service's port
-- MAIL_USER defines your email service's login username
-- MAIL_PASS defines your email service's login password
-- MAIL_HOST your email service's host
-
-
-
-
-
-1. Create the Google project and config gmail for the [Nylas guide](https://docs.nylas.com/docs/creating-a-google-project-for-dev)
-    - Get the following config from your Google project and config as follows in `erxes-integrations/.env`
-    ```Shell
-    GOOGLE_PROJECT_ID='google project id'
-    GOOGLE_CLIENT_ID='google client id'
-    GOOGLE_CLIENT_SECRET='google client secret'
-    GOOGLE_APPLICATION_CREDENTIALS=./google_cred.json
-    ```
-    - In order to have Google OAuth token, add authorized redirect URIs to your google credentials
-      - Select Google project
-      - Go to credentials from left side menu
-      - Select OAuth 2.0 client ID
-      - Add following uri in authorized redirect URI `http://localhost:3400/nylas/oauth2/callback`
-    - After you create the Google service account download json and replace with `google_cred.json`
 ### Yahoo
 2. In order to integrate the Yahoo you will need to generate app password for the Erxes, please follow below steps.
   - Go to Settings/App Store and click on Add button of the Yahoo section
@@ -489,28 +509,11 @@ MAIL_HOST=''
       <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-9.png"/>
     </div>
 
-### Microsoft
-3. Integrating the Outlook is easy peasy lemon squeezy, all we need is email and password no additional steps.
-  - Go to Settings/App Store and click on Add button of the Outlook section
-    <div>
-      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-1.png"/>
-    </div>
-
-  - Click on the Add account button then you will see form
-    <div>
-      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-2.png"/>
-    </div>
-    
-  - Enter your outlook email, password and click on save button that's it now you can create your Outlook integration.
-    <div>
-      <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-outlook-3.png"/>
-    </div>
-
 
 
 ## Engage configuration
 
-### Test configuration.
+### AWS SES
 
 Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
 
@@ -520,3 +523,6 @@ Amazon places all new accounts in the Amazon SES sandbox. While your account is 
 
 <img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
 
+### Verify email
+
+### Send test email

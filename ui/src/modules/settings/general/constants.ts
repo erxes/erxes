@@ -92,6 +92,7 @@ export const KEY_LABELS = {
   FACEBOOK_APP_SECRET: 'Facebook App Secret',
   FACEBOOK_VERIFY_TOKEN: 'Facebook Verify Token',
   TWITTER_CONSUMER_KEY: 'Twitter Consumer Key',
+  TWITTER_CONSUMER_SECRET: 'Twitter Consumer Secret',
   TWITTER_ACCESS_TOKEN: 'Twitter Access Token',
   TWITTER_ACCESS_TOKEN_SECRET: 'Twitter Access Token Secret',
   TWITTER_WEBHOOK_ENV: 'Twitter Webhook Env',

@@ -39,7 +39,6 @@
     "Administrator's guide": [
       "administrator/creating-first-user",
       "administrator/environment-variables",
-      "administrator/file-upload",
       "administrator/system-config",
       "administrator/migration"
     ],
