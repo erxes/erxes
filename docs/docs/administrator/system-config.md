@@ -3,48 +3,54 @@ id: system-config
 title: System config
 ---
 
-## General System Configuration
+In this tutorials enable you to set up administration system configurations. Which allows you work on sysadmin without require coding skills. 
+
+---
+
+
+## General system configuration
 
 ### General settings
 
-In the general setting, there are optional variables on following values. Select the variable relied upon your requirement.   
+In the general setting, you can configure the system language, currency and the unit of measurement. Select the variables relied upon your requirement.   
 
 **Configuration:** 
 - Go to Erxes Settings => System config => General System Config => General settings.
 
 ```
-LANGUAGE=''
-CURRENCY=''
-UNIT_OF_MEASUREMENT=''
+LANGUAGE='English'
+CURRENCY='United Stated Dollar'
+UNIT_OF_MEASUREMENT='Pieces PCS'
 
 ```
 ### File upload
 
 **A media type** (Multipurpose Internet Mail Extensions or MIME type) is a standard that indicates the nature and format of a document, file, or assortment of bytes. The simplest MIME type consists of a type and a subtype **(type/subtype)**. 
-[Here is a list of MIME types, associated by type of documents, ordered by their common extensions.](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types)
+
 
 **Configuration:** 
 - Go to Erxes Settings => System config => General System Config => File upload. 
 
 ```
-UPLOAD_FILE_TYPES=''
-UPLOAD_FILE_TYPES_OF_WIDGET=''
-UPLOAD_SERVICE_TYPE=''
-BUCKET_FILE_SYSTEM_TYPE=''
+UPLOAD_FILE_TYPES='image/png, application/pdf'
+UPLOAD_FILE_TYPES_OF_WIDGET='image/png, application/pdf'
+UPLOAD_SERVICE_TYPE='Amazon Web Services'
+BUCKET_FILE_SYSTEM_TYPE='Public'
 ```
 
-See the following figure which approves the **png**, **pdf** files and other type of media do not allowed to upload server. If there is nothing configured media type, it accepts all media types. 
+See the following figure which approves the **png**, **pdf** files and other type of media do not allowed to upload the server. If there is nothing configured media type, it accepts all media types. 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/system-config/1+fileupload.png" />
 
 
-- You can upload the files through **Amazon Web Services** or **Google Cloud Service** on UPLOAD_SERVICE_TYPE. 
+- `UPLOAD_FILE_TYPES`, `UPLOAD_FILE_TYPES_OF_WIDGET` have to set same file type. [Here is a list of MIME types, associated by type of documents, ordered by their common extensions.](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types)
+- You can upload the files through **Amazon Web Services** or **Google Cloud Service** on `UPLOAD_SERVICE_TYPE`. 
 
-- You can select the permission as **public** or **private** on BUCKET_FILE_SYSTEM_TYPE. 
+- You can select the permission as **public** or **private** on `BUCKET_FILE_SYSTEM_TYPE`. 
 
 <aside class="notice">
 
-You have to ensure that public access to all your S3 buckets and objects is blocked or not. You can configure block public access settings for an individual S3 bucket or for all the buckets in your account. [Learn more](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html)
+You have to ensure that public access to all your S3 buckets and objects is blocked or not. You can configure block public access settings for an individual S3 bucket or for all the buckets in your account. [Learn more about access permission.](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html)
 
 </aside>
 
@@ -64,15 +70,15 @@ AWS_PREFIX='you can use prefix names to specify the names of the files to be upl
 AWS_COMPATIBLE_SERVICE_ENDPOINT=''
 AWS_FORCE_PATH_STYLE=''
 ```
+- [ Log in to your AWS Management Console. ](https://console.aws.amazon.com)
+- You can get your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` from AWS My Security Credentials=> Access keys (access key ID and secret access key). 
+- [Create new bucket](https://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html) and insert name in `AWS_BUCKET`, make sure bucket permission configuration. 
 
-- You can get your aws access key id and region from [here](https://console.aws.amazon.com/console/home).
-- [Create new bucket](https://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html) and insert name in AWS_BUCKET, make sure bucket permission configuration. 
-[Learn more](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html)
-- Make sure your IAM user has proper access to S3 services.
+- Make sure your IAM user has proper access to S3 services. [Learn more about public access.](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html)
 
-- **AWS_COMPATIBLE_SERVICE_ENDPOINT**, If you need to override an endpoint for a service, you can set the endpoint on a service by passing the endpoint object with the endpoint option key. [Refer to AWS service endpoint.](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Endpoint.html)
+- `AWS_COMPATIBLE_SERVICE_ENDPOINT`, if you need to override an endpoint for a service, you can set the endpoint on a service by passing the endpoint object with the endpoint option key. [Refer to AWS service endpoint.](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Endpoint.html)
 
-- **AWS_FORCE_PATH_STYLE**, Some services have very specific configuration options that are not shared by other services. [Refer to AWS force path style.](https://docs.aws.amazon.com/sdkforruby/api/Aws/Plugins/GlobalConfiguration.html)
+- `AWS_FORCE_PATH_STYLE`, some services have very specific configuration options that are not shared by other services. [Refer to AWS force path style.](https://docs.aws.amazon.com/sdkforruby/api/Aws/Plugins/GlobalConfiguration.html)
 
 
 
@@ -89,7 +95,7 @@ AWS_SES_SECRET_ACCESS_KEY='your aws account secret key'
 AWS_REGION='region of your account'
 AWS_SES_CONFIG_SET=''
 ```
-**AWS_ENDPOINT** this is the URL where the amazon events sent to. Other values checkout following reference.
+`AWS_SES_CONFIG_SET` is detect bounce, complaints, click and open events which you can be use this option. This name can be anything.
 
 #### Configure Amazon SES and Amazon SNS to track each email responses.
 
@@ -101,10 +107,10 @@ AWS_SES_CONFIG_SET=''
 6.	Then create your username and check Programmatic access type and click next.
 7.	Click on the Create group then write group name and check amazonSesFullAccess and amazonSNSFullAccess.
 8.	Then check your created group and click on the Next button.
-9.	Finally click on the create user and copy the Access Key Id and Secret Access Key.
+9.	Finally click on the create user and copy the `AWS_SES_ACCESS_KEY_ID` and `AWS_SES_SECRET_ACCESS_KEY`.
 
 
-#### To find your Region.
+#### To find your `AWS_REGION`.
 
 1.	[ Log in to your AWS Management Console.](https://console.aws.amazon.com)
 2.	Click on services menu at the top left of the page.
@@ -117,7 +123,15 @@ AWS_SES_CONFIG_SET=''
 _(example: us-east-1, us-west-2, ap-south-1, ap-southeast-2, eu-central-1, eu-west-1)_
 
 
-#### To determine if your account is in the sandbox.
+#### Determine whether your account is in the sandbox or not.
+
+Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
+
++ You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
+
++ You can only send mail from verified email addresses and domains.
+
+**Verify it for following steps:** 
 1.	[Open the Amazon SES console at https://console.aws.amazon.com/ses/](https://console.aws.amazon.com/ses/)
 2.	Use the Region selector to choose an AWS Region.
 3.	If your account is in the sandbox in the AWS Region that you selected, you see a banner at the top of the page that resembles the example in the following figure.
@@ -135,48 +149,42 @@ You can also determine whether your account is in the sandbox by sending email t
 5. **If you move out of the Sandbox,** follow the instructions described [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html) to move out of the Amazon SES Sandbox.
 
 
-Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
-
-+ You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
-
-+ You can only send mail from verified email addresses and domains.
-
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
-
 
 ### Common mail config
+Common mail config enables you to your transaction emails will be sent by the specified email address(`FROM_EMAIL`). You can define whether transaction emails sent by AWS SES or other email services which is configured in custom mail service (`DEFAULT_EMAIL_SERVICE`).
 
 **Configuration:** 
 - Go to Erxes Settings => System config => General System Config => Common mail config. 
 
 ```
-FROM_EMAIL=''
-DEFAULT_EMAIL_SERVICE=''
+FROM_EMAIL='your email address'
+DEFAULT_EMAIL_SERVICE='your configured email service name'
 
 ```
 
 
 
 ### Custom mail service
+Mail service enables you to delivering your transactional and marketing emails through the cloud-based email delivery platform. You can set any custom mail service in this fields. For example, Sendgrid custom mail service. Create your account in Sendgrid and fill it into the fields. 
 
 **Configuration:** 
 - Go to Erxes Settings => System config => General System Config => Custom mail service. 
 
 ```
-MAIL_SERVICE_NAME=''
-PORT=''
-USERNAME=''
-PASSWORD=''
-HOST=''
+MAIL_SERVICE_NAME='Sendgrid'
+PORT='Sendgrid port id'
+USERNAME='your account user name'
+PASSWORD='your account password'
+HOST='smtp.sendgrid.net'
 ```
 
 ## Integrations configuration
-Learn how to integrate the Erxes platform into your applications. 
-Erxes app can be integrated with developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
+ 
+Erxes app enables you to integrate with developer API and that means we can receive our integrated applications inbox messages directly to our erxes app's inbox. With the developer API, we have many more possibilities, like receiving notifications about page comment, page post feed etc. Learn how to integrate the Erxes platform into your applications as stated follows.
 
 ### Facebook 
 
-Learn How to Integrate Facebook Accounts With Erxes.
+
 Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
 
 **Configuration:** 
@@ -186,40 +194,47 @@ Erxes app can be integrated with facebook developer API and that means we can re
 ```
 FACEBOOK_APP_ID="your faceboook application's app id"
 FACEBOOK_APP_SECRET="your faceboook application's secret key"
-FACEBOOK_PERMISSIONS='manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions'
+FACEBOOK_VERIFY_TOKEN="insert facebook application verify token"
 
 ```
 
 #### Requirements:
 
-- working sub domain with SSL pointing to your erxes-api server.
-- facebook app's owner also must be an admin of facebook page that's going to connect.
+- Working sub domain with SSL pointing to your erxes-api server.
+- [Create a Facebook App](https://developers.facebook.com/docs/apps/)
+- [Create a Facebook Page](https://www.facebook.com/pages/creation/)
 
 #### Creating facebook app.
 
-1. Go to https://developers.facebook.com and create new app.<br />
+1. Create new app.<br />
    ( Your application status must be "Live" )
 2. Your application must have these permissions: <br />
-   `manage_pages, pages_show_list, pages_messaging, publish_pages` <br />
+   `manage_pages, pages_show_list, pages_messaging, publish_pages, pages_messaging_phone_number, pages_messaging_subscriptions` <br />
    (You can get these permissions through your App Review)
-3. Go to you `erxes-api` directory and edit `.env` file like below: <br />
-   `FACEBOOK_APP_ID='Your Facebook application's ID'` <br />
-   `FACEBOOK_APP_SECRET='Your Facebook application's Secret code'` <br />
-   You can get these informations from `settings` => `basic` from right side menu.
+3. Go to developer application setting=> basic=> get variables<br />
+   `FACEBOOK_APP_ID`, your Facebook application's ID <br />
+   `FACEBOOK_APP_SECRET`, your Facebook application's Secret code<br />
+  
 4. You must have `Facebook Login` product set up.
 5. Go to `Facebook Login` => `Settings` fill the field names `Valid OAuth Redirect URIs` like below: <br />
    `<your erxes-api domain>/fblogin`
-6. Now we are done on configurations. Go to your `App Store` => `Linked Accounts` to link your facebook accounts
+6. Now we are done on configurations. 
+
+#### Erxes facebook integration settings.
+
+1. Go to Erxes settings => App store
+2. Click on **Add Facebook messenger**.  Click on Authorize app.
+3. Select your brand and click save.
+4. Go to Setting=> Channel=> Add new channel=> Connect facebook integration.
+
 
 #### Getting facebook permissions (*manage_pages*, *publish_pages*)
 
 **manage_pages:**
 
-Grants an app permission to retrieve Page Access Tokens for the Pages and Apps that the app user administers. Apps that allow users to publish as a Page must also have the ***publish_pages*** permission.
+Grants an app permission to retrieve Page Access Tokens for the Pages and Apps that the app user administers. Apps that allow users to publish as a Page must also have the ***publish_pages*** permission. To take this permission, you must complete the following 2 steps.
 
-To take this permission, you must complete the following 2 steps.
-
-1. **Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features.** To do so,
+1. Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features. To do so,
     - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
     - Then you provide each steps required to test your integration. For example:
         1. Navigate to <www.example.com>
@@ -227,9 +242,9 @@ To take this permission, you must complete the following 2 steps.
         3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
         4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <publish_pages> permission will give our users to reply back to their posts and comments.
 
-2. **Tell facebook how you will use this permission.** In this step, you must provide
+2. You need to send request to facebook and explain that how you will use this permission. In this step, you must provide
     - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
-    - b. a step-by-step video walkthrough of above.
+    - b. a step-by-step video walkthrough of below.
     - c. [Here](https://bit.ly/2J6j5Oi) is a sample video.
 
 **publish_pages:**
@@ -238,7 +253,7 @@ Grants your app permission to publish posts, comments, and like Pages managed by
 
 To take this permission, you must complete the following 3 steps.
 
-1. **Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features.** To do so,
+1. Provide verification details. In this step, you must provide detailed step-by-step instructions on how a reviewer can test your integration and how you are using the requested permissions or features. To do so,
     - You provide the testing account & password. (Note: Do not provide your personal Facebook account credentials.)
     - Then you provide each steps required to test your integration. For example:
         1. Navigate to <www.example.com>
@@ -246,21 +261,21 @@ To take this permission, you must complete the following 3 steps.
         3. Once you've accessed the website, click the <App store> button to connect their managed Facebook pages
         4. Then click the <Channels> button navigated in <Settings> to sort their pages. After completing these steps, our users can receive their managed FB page messenger messages, post comments, and likes. <publish_pages> permission will give our users to reply back to their posts and comments.
 
-2. **Tell facebook how you will use this permission.** In this step, you must provide
+2. Tell facebook how you will use this permission. In this step, you must provide
     - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
     - b. a step-by-step video walkthrough of above.
     - c. your subbmission must include ***manage_pages*** permission
     - d. [Here](https://bit.ly/2J6j5Oi) is a sample video.
 
-3. **Tell facebook how you will use *manage_pages* permission if you haven't taken it yet.**
+3. Tell facebook how you will use *manage_pages* permission if you haven't taken it yet.
 
 ### Twitter 
-Learn How to Integrate Twitter Accounts With Erxes
+
 Erxes app can be integrated with twitter developer API and that means we can receive our twitter accounts DMs, Tweets directly into our erxes app's inbox.
 
 Requirements:
 
-- To create twitter app, profile must be phone verified.
+- [Create twitter app,](https://developer.twitter.com/en/docs/basics/apps/overview) profile must be phone verified.
 
 Notes:
 
@@ -272,18 +287,18 @@ Notes:
 
 
 ```
-TWITTER_CONSUMER_KEY=''
-TWITTER_ACCESS_TOKEN=''
+TWITTER_CONSUMER_KEY="your app consumer Key"
+TWITTER_ACCESS_TOKEN="your app consumer Secret"
 TWITTER_ACCESS_TOKEN_SECRET=''
 TWITTER_WEBHOOK_ENV=''
 ```
 
-- TWITTER_CONSUMER_KEY Your twitter developer account's Consumer Key (API Key) here
-- TWITTER_CONSUMER_SECRET Your twitter developer account's Consumer Secret (API Secret) here
-- TWITTER_REDIRECT_URL you should only change the domain of this env variables. This is twitter's callback url
-- TWITTER_REDIRECT_URL='https://erxes.domain.com/service/oauth/twitter_callback'
+- `TWITTER_CONSUMER_KEY`, your twitter developer account's Consumer Key (API Key) here
+- `TWITTER_CONSUMER_SECRET` your twitter developer account's Consumer Secret (API Secret) here
+- `TWITTER_ACCESS_TOKEN_SECRET` you should only change the domain of this env variables. This is twitter's callback url
+- `TWITTER_WEBHOOK_ENV`='https://erxes.domain.com/service/oauth/twitter_callback'
 
-1. Go to https://apps.twitter.com/ and create new app.
+1. [Create twitter app,](https://developer.twitter.com/en/docs/basics/apps/overview)
 2. Fill the form with following example and create your application.
 
 - Name: erxes.domain.com
@@ -294,25 +309,18 @@ TWITTER_WEBHOOK_ENV=''
 4. Go to Keys and Access Tokens tab and copy:
    Consumer Key (API Key), Consumer Secret (API Secret) values to `erxes-api/.env` file.
 
-Your .env should look like:
-
-`TWITTER_CONSUMER_KEY='Consumer Key (API Key) here'`
-
-`TWITTER_CONSUMER_SECRET='Consumer Secret (API Secret) here'`
-
-`TWITTER_REDIRECT_URL='https://erxes.domain.com/service/oauth/twitter_callback - Your callback url from app settings.'`
 
 #### Erxes twitter integration settings.
 
-1. Go to your erxes.domain.com - settings - integrations page
-2. Click on **Add Integrations** and select Twitter. Click on Authorize app.
+1. Go to Erxes settings => App store
+2. Click on **Add Twitter direct message**.  Click on Authorize app.
 3. Select your brand and click save.
-
-
+4. Go to Setting=> Channel=> Add new channel=> Connect Twitter integration. 
 
 
 ### Nylas 
-Learn how to integrate Nylas Accounts With Erxes
+Learn how to integrate Nylas Accounts With Erxes.
+
 **Configuration:** 
 - Go to Erxes Settings => System config => Integrations config => Nylas. 
 
@@ -324,13 +332,12 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
 
 
 1. Create the Nylas account go to [website](https://dashboard.nylas.com/register)
-2. After you created the Nylas account, copy your clientId and clientSecret from [here](https://dashboard.nylas.com/applications/) and config in `erxes-integrations/.env` like below
-```Shel
-# Nylas
-NYLAS_CLIENT_ID='nylas account CLIENT ID'
-NYLAS_CLIENT_SECRET='nylas account CLIENT_SECRET'
-NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
-```
+2. After you created the Nylas account [here](https://dashboard.nylas.com/applications/), copy the variables as following.
+
+`NYLAS_CLIENT_ID`, nylas account client id
+`NYLAS_CLIENT_SECRET`, nylas account client secret
+`NYLAS_WEBHOOK_CALLBACK_URL`, insert nylas webhook call back URL
+
 3. In order to receive email and updates, we need to have endpoint for our webhook.
   - Use ngrok service for erxes-integration repo as follows:
   ```Shell
@@ -415,12 +422,7 @@ Enable gmail api:
 - Go to the APIs & Services/credentials & create new `OAuth client ID` credentials. If you see warning about `product name` follow the instruction, make it disappear. Afterwards select `Web application` & add `http://localhost:3000/service/oauth/gmail_callback` in `Authorized redirect URIs` & create.
 - Copy `Client ID` & `Client secret` paste in your erxes-api/.env file. It looks like following example:
 
-```shell
-#.env
-GOOGLE_CLIENT_ID = '234373437285-11asa2131kjk231231.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = 'kE9K8W8A9KJSADQPWE'
-GMAIL_REDIRECT_URL = 'http://localhost:3000/service/oauth/gmail_callback'
-```
+
 
 
 
@@ -515,14 +517,20 @@ Add integration:
 
 ### AWS SES
 
+Amazon SES service enables on Erxes Engage system. Another custom mail service is not allowed on Engage system.  
+AWS SES configuration is similar with Integration AWS SES. [Go to settings here](https://docs.erxes.io/docs/administrator/system-config#aws-ses)
+
+### Verify email
+
 Amazon places all new accounts in the Amazon SES sandbox. While your account is in the sandbox, you can use all of the features of Amazon SES. However, when your account is in the sandbox, Amazon have applied the following restrictions to your account:
 
 + You can only send mail to verified email addresses and domains, or to the Amazon SES mailbox simulator.
 
 + You can only send mail from verified email addresses and domains.
 
-<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
+Insert emails and verify it. 
 
-### Verify email
 
 ### Send test email
+
+<img  src="https://erxes-docs.s3-us-west-2.amazonaws.com/Amazon-ses/amazon+test+conf.png"/>
