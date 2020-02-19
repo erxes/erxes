@@ -32,7 +32,7 @@ class Twitter extends React.Component<Props, { loading: boolean }> {
 
     return {
       ...values,
-      kind: 'twitter-dm',
+      kind: 'twitter',
       accountId,
       data: { twitterAccountId }
     };
