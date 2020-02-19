@@ -25,7 +25,7 @@ function AutomationRespone({ currentUser }: Props) {
     window.open('', '_blank', 'width=800,height=800') || ({} as any);
 
   if (myWindow) {
-    myWindow.document.write(content);
+    myWindow.document.write(content[0]);
   }
 
   window.location.reload();
