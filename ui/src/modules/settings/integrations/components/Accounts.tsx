@@ -43,23 +43,26 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
   }
 
   renderAccountAction() {
-    const { onAdd, kind } = this.props;
+    const { renderForm, onAdd, kind } = this.props;
     const { accountId } = this.state;
 
     if (!accountId || accountId === '') {
-      if (kind === 'gmail' || kind === 'nylas-gmail') {
+      if (!renderForm) {
+        if (kind === 'gmail' || kind === 'nylas-gmail') {
+          return (
+            <a href="#name" onClick={onAdd}>
+              <img src='/images/btn_google_signin_dark_pressed_web@2x.png' width='125px' height='30px' alt='google button' />
+            </a>
+          );
+        }
         return (
-          <a href="#name" onClick={onAdd}>
-            <img src='/images/btn_google_signin_dark_pressed_web@2x.png' width='125px' height='30px' alt='google button' />
-          </a>
+          <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
+            Add Account
+          </Button>
         );
       }
 
-      return (
-        <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
-          Add Account
-        </Button>
-      );
+      return renderForm();
     }
 
     return (
