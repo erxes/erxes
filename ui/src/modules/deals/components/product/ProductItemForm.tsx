@@ -281,7 +281,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
             </TickUsed>
 
             <AssignUser>
-            <ContentRow>
+              <ContentRow>
                 <ControlLabel>Assigned to</ControlLabel>
               </ContentRow>
               <ContentRow>
