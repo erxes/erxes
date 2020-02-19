@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import { ActivityLogs, Customers, Deals, Segments } from '../db/models';
 
-import { activityLogFactory, customerFactory, dealFactory, segmentFactory } from '../db/factories';
+import { activityLogFactory, checklistFactory, customerFactory, dealFactory, segmentFactory } from '../db/factories';
 import './setup.ts';
 
 describe('Test activity model', () => {
@@ -44,7 +44,7 @@ describe('Test activity model', () => {
   });
 
   test('Activity create board item log', async () => {
-    const deal = await dealFactory({});
+    const deal = await dealFactory({ sourceConversationId: '123' });
 
     const activity = await ActivityLogs.createBoardItemLog({ item: deal, contentType: 'deal' });
 
@@ -100,5 +100,27 @@ describe('Test activity model', () => {
 
     expect(activity1._id).toEqual(foundedActivity._id);
     expect(activity2._id).toEqual(activity2._id);
+  });
+
+  test('Activity create assignee log', async () => {
+    const activity = await ActivityLogs.createAssigneLog({
+      contentId: '123',
+      contentType: 'task',
+      userId: '123',
+      content: {},
+    });
+
+    expect(activity.contentId).toEqual('123');
+  });
+
+  test('Activity create checklist log', async () => {
+    const deal = await checklistFactory({ contentTypeId: '123' });
+    const activity = await ActivityLogs.createChecklistLog({
+      item: deal,
+      contentType: 'deal',
+      action: 'delete',
+    });
+
+    expect(activity.contentId).toEqual('123');
   });
 });

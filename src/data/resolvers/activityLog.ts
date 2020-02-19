@@ -1,5 +1,7 @@
 import {
   Brands,
+  ChecklistItems,
+  Checklists,
   Companies,
   Customers,
   Deals,
@@ -32,7 +34,7 @@ export default {
   },
 
   async contentTypeDetail(activityLog: IActivityLog) {
-    const { contentType, contentId } = activityLog;
+    const { contentType, contentId, content } = activityLog;
 
     let item = {};
 
@@ -48,6 +50,12 @@ export default {
         break;
       case 'ticket':
         item = await Tickets.getTicket(contentId);
+        break;
+      case 'checklist':
+        item = (await Checklists.findOne({ _id: content._id })) || {};
+        break;
+      case 'checklistitem':
+        item = (await ChecklistItems.findOne({ _id: content._id })) || {};
         break;
     }
 
@@ -106,6 +114,13 @@ export default {
       }
 
       return result;
+    }
+
+    if (action === ACTIVITY_ACTIONS.ASSIGNE) {
+      const addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
+      const removedUsers = await Users.find({ _id: { $in: content.removedUserIds } });
+
+      return { addedUsers, removedUsers };
     }
   },
 };
