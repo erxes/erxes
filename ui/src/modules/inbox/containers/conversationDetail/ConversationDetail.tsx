@@ -121,6 +121,7 @@ class DetailContainer extends React.Component<FinalProps> {
       ...this.props,
       currentConversationId: currentId,
       currentConversation: conversation,
+      refetchDetail: detailQuery.refetch,
       loading
     };
 

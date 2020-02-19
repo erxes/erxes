@@ -1,7 +1,7 @@
-import * as React from "react";
-import { defaultAvatar } from "../../../icons/Icons";
-import { IUser } from "../../../types";
-import { readFile } from "../../../utils";
+import * as React from 'react';
+import { defaultAvatar } from '../../../icons/Icons';
+import { IUser } from '../../../types';
+import { readFile } from '../../../utils';
 
 function User({ user }: { user?: IUser }) {
   const avatar = user && user.details && user.details.avatar;

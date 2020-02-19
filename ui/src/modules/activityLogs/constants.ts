@@ -74,5 +74,13 @@ export const ICON_AND_COLOR_TABLE = {
   twitter: {
     icon: 'twitter',
     color: '#1da1f2'
+  },
+  assignee: {
+    icon: 'user-check',
+    color: '#6569df'
+  },
+  checklist: {
+    icon: 'check-square',
+    color: '#6569df'
   }
 };

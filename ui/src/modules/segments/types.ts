@@ -1,26 +1,34 @@
-export interface ISegmentField {
-  _id: string;
+export interface IEvent {
+  name: string;
+  attributeNames: string[];
 }
 
-export interface ISegmentConditionDoc {
-  field: string;
-  value: string;
+export interface IConditionFilter {
+  key?: string;
+  name: string;
   operator: string;
-  dateUnit: string;
-  type: string;
-  brandId?: string;
+  value: string;
 }
-export interface ISegmentCondition extends ISegmentConditionDoc {
-  _id: string;
-}
+export interface ISegmentCondition {
+  key?: string;
 
+  type: string;
+
+  propertyName?: string;
+  propertyOperator?: string;
+  propertyValue?: string;
+
+  eventName?: string;
+  eventOccurence?: string;
+  eventOccurenceValue?: number;
+  eventAttributeFilters?: IConditionFilter[]
+}
 export interface ISegmentWithConditionDoc {
   name: string;
   description: string;
   subOf: string;
   color: string;
-  connector: string;
-  conditions: ISegmentConditionDoc[];
+  conditions: ISegmentCondition[];
 }
 
 export interface ISegmentDoc {
@@ -28,7 +36,6 @@ export interface ISegmentDoc {
   contentType?: string;
   description: string;
   color: string;
-  connector: string;
   conditions: ISegmentCondition[];
   subOf: string;
 }
@@ -57,6 +64,11 @@ export type HeadSegmentsQueryResponse = {
   loading: boolean;
 };
 
+export type EventsQueryResponse = {
+  segmentsEvents: Array<{ name: string, attributeNames: string[] }>;
+  loading: boolean;
+};
+
 export type SegmentDetailQueryResponse = {
   segmentDetail: ISegment;
   loading: boolean;
@@ -70,8 +82,12 @@ export type AddMutationVariables = {
   description: string;
   subOf: string;
   color: string;
-  connector: string;
   conditions: ISegmentCondition[];
+};
+
+export type IField = {
+  value: string;
+  label: string;
 };
 
 export type AddMutationResponse = {

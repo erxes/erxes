@@ -1,6 +1,5 @@
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
-import LoadMore from 'modules/common/components/LoadMore';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Spinner from 'modules/common/components/Spinner';
 import { TopHeader } from 'modules/common/styles/main';
@@ -41,7 +40,12 @@ class Sidebar extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const addChannel = (
-      <Button btnStyle="success" block={true} uppercase={false} icon="plus-circle">
+      <Button
+        btnStyle="success"
+        block={true}
+        uppercase={false}
+        icon="plus-circle"
+      >
         Add New Channel
       </Button>
     );
@@ -67,10 +71,7 @@ class Sidebar extends React.Component<Props, {}> {
 
     return (
       <LeftSidebar wide={true} full={true} header={this.renderSidebarHeader()}>
-        <SidebarList>
-          {this.renderItems()}
-          <LoadMore all={channelsTotalCount} loading={loading} />
-        </SidebarList>
+        <SidebarList>{this.renderItems()}</SidebarList>
         {loading && <Spinner />}
         {!loading && channelsTotalCount === 0 && (
           <EmptyState

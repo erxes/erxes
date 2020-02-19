@@ -25,6 +25,7 @@ type Props = {
   mutation: string;
   variables: any;
   btnSize?: string;
+  uppercase?: boolean;
   successMessage?: string;
   btnStyle?: string;
   icon?: string;
@@ -120,12 +121,15 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       type,
       btnStyle = 'success',
       disabled,
-      block
+      block,
+      uppercase
     } = this.props;
+
     const { isLoading } = this.state;
 
     return (
       <Button
+        uppercase={uppercase}
         disabled={disabled || isLoading}
         btnStyle={btnStyle}
         size={btnSize}

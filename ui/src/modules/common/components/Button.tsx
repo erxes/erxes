@@ -86,8 +86,8 @@ const ButtonStyled = styledTS<{
     &:active,
     &:focus {
       box-shadow: ${types[props.btnStyle].border
-        ? `0 0 0 2px ${lighten(types[props.btnStyle].border, 65)}`
-        : `0 0 0 2px ${lighten(types[props.btnStyle].background, 65)}`};
+        ? `0 0 0 0.2rem ${lighten(types[props.btnStyle].border, 65)}`
+        : `0 0 0 0.2rem ${lighten(types[props.btnStyle].background, 65)}`};
       box-shadow: ${props.btnStyle === 'link' && 'none'};
     }
 
@@ -132,15 +132,33 @@ const ButtonLink = styledTS<{ disabled?: boolean }>(
     `};
 `;
 
-const ButtonGroup = styled.div`
+const ButtonGroup = styledTS<{ hasGap: boolean }>(styled.div)`
   position: relative;
-  display: inline-block;
-  vertical-align: middle;
 
   button + a,
   a + button {
-    margin-left: 10px;
+    margin-left: ${props => props.hasGap && '10px'};
   }
+
+  ${props => !props.hasGap &&
+    css`
+      button, a {
+        margin: 0;
+      }
+
+      > button:not(:last-child),
+      > a:not(:last-child) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: 1px solid rgba(0,0,0,0.13);
+      }
+
+      > button:not(:first-child),
+      > a:not(:first-child) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+    `};
 `;
 
 type ButtonProps = {
@@ -198,6 +216,6 @@ export default class Button extends React.Component<ButtonProps> {
   }
 }
 
-function Group({ children }: { children: React.ReactNode }) {
-  return <ButtonGroup>{children}</ButtonGroup>;
+function Group({ children, hasGap = true }: { children: React.ReactNode, hasGap?: boolean }) {
+  return <ButtonGroup hasGap={hasGap}>{children}</ButtonGroup>;
 }

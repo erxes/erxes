@@ -54,7 +54,7 @@ interface IProps extends IRouterProps {
     }
   ) => Promise<void>;
   queryParams: any;
-  exportCustomers: (bulk: string[]) => void;
+  exportData: (bulk: Array<{ _id: string }>, popupData: boolean) => void;
   responseId: string;
 }
 
@@ -170,7 +170,7 @@ class CustomersList extends React.Component<IProps, State> {
       location,
       history,
       queryParams,
-      exportCustomers,
+      exportData,
       mergeCustomerLoading
     } = this.props;
 
@@ -245,10 +245,17 @@ class CustomersList extends React.Component<IProps, State> {
               </Link>
             </li>
             <li>
-              <a href="#export" onClick={exportCustomers.bind(this, bulk)}>
+              <a href="#export" onClick={exportData.bind(this, bulk, false)}>
                 {__('Export customers')}
               </a>
             </li>
+            {queryParams.form && (
+              <li>
+                <a href="#export" onClick={exportData.bind(this, bulk, true)}>
+                  {__('Export Pop-Ups data')}
+                </a>
+              </li>
+            )}
           </Dropdown.Menu>
         </Dropdown>
         <Link to="/settings/importHistories?type=customer">

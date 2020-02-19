@@ -2,7 +2,6 @@ import { ITag } from 'modules/tags/types';
 import { IActivityLog, IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
 import { ICustomer } from '../customers/types';
-import { ISegmentDoc } from '../segments/types';
 
 export interface ICompanyLinks {
   linkedIn?: string;
@@ -149,7 +148,6 @@ type Count = {
 
 type CompanyCounts = {
   bySegment: Count;
-  byFakeSegment: number;
   byTag: Count;
   byBrand: Count;
   byLeadStatus: Count;
@@ -159,5 +157,5 @@ type CompanyCounts = {
 export type CountQueryResponse = {
   companyCounts: CompanyCounts;
   loading: boolean;
-  refetch: (variables?: { byFakeSegment?: ISegmentDoc }) => void;
+  refetch: () => void;
 };
