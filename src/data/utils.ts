@@ -879,7 +879,7 @@ export const checkAutomation = async (kind: string, body: any, user: IUserDocume
     data,
   });
 
-  if (!apiAutomationResponse.response) {
+  if (apiAutomationResponse.response.length === 0) {
     return;
   }
 
