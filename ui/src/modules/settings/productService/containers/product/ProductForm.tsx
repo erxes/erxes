@@ -4,7 +4,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import From from '../../components/product/ProductForm';
+import ProductFrom from '../../components/product/ProductForm';
 import { mutations, queries } from '../../graphql';
 
 import ButtonMutate from 'modules/common/components/ButtonMutate';
@@ -46,7 +46,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
           type="submit"
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
-          } a ${name}`}
+            } a ${name}`}
         />
       );
     };
@@ -59,7 +59,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
       productCategories
     };
 
-    return <From {...updatedProps} />;
+    return <ProductFrom {...updatedProps} />;
   }
 }
 

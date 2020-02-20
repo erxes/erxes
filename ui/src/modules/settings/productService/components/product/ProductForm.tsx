@@ -3,21 +3,53 @@ import FormControl from 'modules/common/components/form/Control';
 import CommonForm from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { Row } from 'modules/settings/integrations/styles';
 import React from 'react';
 import { TYPES } from '../../constants';
 import { IProduct, IProductCategory } from '../../types';
 import { generateCategoryOptions } from '../../utils';
+import CategoryForm from '../productCategory/CategoryForm';
 
 type Props = {
   product?: IProduct;
   productCategories: IProductCategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  refetch?: any;
 };
 
-class Form extends React.Component<Props> {
+class ProductForm extends React.Component<Props> {
+  renderFormTrigger = (category?: IProductCategory) => {
+    const content = props => this.renderForm({ ...props, category });
+
+    const trigger = (
+      <Button btnStyle="primary" size="small" icon="add">
+        Add category
+      </Button>
+    );
+
+    return (
+      <ModalTrigger title='Add category' trigger={trigger} content={content} />
+    );
+  }
+
+  renderForm = props => {
+    const { renderButton, productCategories, refetch } = this.props;
+
+    const extendedProps = { ...props, refetch };
+
+    return (
+      <CategoryForm
+        {...extendedProps}
+        renderButton={renderButton}
+        categories={productCategories}
+      />
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, product, productCategories } = this.props;
     const { values, isSubmitted } = formProps;
@@ -71,15 +103,18 @@ class Form extends React.Component<Props> {
 
         <FormGroup>
           <ControlLabel required={true}>Category</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="categoryId"
-            componentClass="select"
-            defaultValue={object.categoryId}
-            required={true}
-          >
-            {generateCategoryOptions(productCategories)}
-          </FormControl>
+          <Row>
+            <FormControl
+              {...formProps}
+              name="categoryId"
+              componentClass="select"
+              defaultValue={object.categoryId}
+              required={true}
+            >
+              {generateCategoryOptions(productCategories)}
+            </FormControl>
+            {this.renderFormTrigger()}
+          </Row>
         </FormGroup>
 
         <FormGroup>
@@ -131,4 +166,4 @@ class Form extends React.Component<Props> {
   }
 }
 
-export default Form;
+export default ProductForm;

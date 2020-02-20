@@ -14,7 +14,7 @@ import { BarItems } from 'modules/layout/styles';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Form from '../../containers/product/ProductForm';
+import ProcustForm from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IProduct, IProductCategory } from '../../types';
 import Row from './ProductRow';
@@ -133,7 +133,7 @@ class List extends React.Component<IProps, State> {
       </Button>
     );
 
-    const modalContent = props => <Form {...props} />;
+    const modalContent = props => <ProcustForm {...props} />;
 
     let actionBarRight = (
       <BarItems>

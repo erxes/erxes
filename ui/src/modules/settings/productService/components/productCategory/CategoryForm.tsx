@@ -16,17 +16,34 @@ type Props = {
   closeModal: () => void;
 };
 
-class Form extends React.Component<Props> {
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, category, categories } = this.props;
+class CategoryForm extends React.Component<Props> {
+  renderFooter = (formProps: IFormProps) => {
+    const { renderButton, closeModal, category } = this.props;
     const { values, isSubmitted } = formProps;
-
-    const object = category || ({} as IProductCategory);
 
     if (category) {
       values._id = category._id;
     }
+    return (
+      <ModalFooter>
+        <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          Close
+          </Button>
 
+        {renderButton({
+          name: 'product & service category',
+          values,
+          isSubmitted,
+          callback: closeModal,
+          object: category
+        })}
+      </ModalFooter>
+    )
+  }
+
+  renderContent = (formProps: IFormProps) => {
+    const { category, categories } = this.props;
+    const object = category || ({} as IProductCategory);
     return (
       <>
         <FormGroup>
@@ -75,19 +92,7 @@ class Form extends React.Component<Props> {
           </FormControl>
         </FormGroup>
 
-        <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            Close
-          </Button>
-
-          {renderButton({
-            name: 'product & service category',
-            values,
-            isSubmitted,
-            callback: closeModal,
-            object: category
-          })}
-        </ModalFooter>
+        {this.renderFooter({ ...formProps })}
       </>
     );
   };
@@ -97,4 +102,4 @@ class Form extends React.Component<Props> {
   }
 }
 
-export default Form;
+export default CategoryForm;
