@@ -1,9 +1,9 @@
 ---
 id: centos8
-title: centos8
+title: CentOS 8
 ---
 
-## Installing erxes on CentOS 10
+## Installing erxes on CentOS 8
 
 To have erxes up and running quickly, you can follow the following steps.
 
