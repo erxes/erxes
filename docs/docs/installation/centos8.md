@@ -1,6 +1,6 @@
 ---
 id: centos8
-title: centos8
+title: CentOS 8
 ---
 
 ## Installing erxes on CentOS 10
