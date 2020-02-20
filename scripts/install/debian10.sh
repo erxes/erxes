@@ -252,7 +252,7 @@ cat <<EOF >/home/$username/ecosystem.json
 EOF
 
 chown $username:$username /home/$username/ecosystem.json
-chown 700 /home/$username/ecosystem.json
+chmod 644 /home/$username/ecosystem.json
 
 # generate env.js
 cat <<EOF >$erxes_dir/build/js/env.js
@@ -266,7 +266,7 @@ window.env = {
 };
 EOF
 chown $username:$username $erxes_dir/build/js/env.js
-chown 700 $erxes_dir/build/js/env.js
+chmod 664 $erxes_dir/build/js/env.js
 
 # erxes api load initial data
 su $username -c "cd $erxes_api_dir && yarn loadInitialData && yarn loadPermission"

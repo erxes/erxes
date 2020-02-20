@@ -22,6 +22,7 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from 'modules/inbox/styles';
+import ManageVideoRoom from 'modules/videoCall/containers/ManageRoom';
 import React from 'react';
 import { IUser } from '../../../../auth/types';
 import { IIntegration } from '../../../../settings/integrations/types';
@@ -49,6 +50,8 @@ type Props = {
   setAttachmentPreview?: (data: IAttachmentPreview) => void;
   responseTemplates: IResponseTemplate[];
   teamMembers: IUser[];
+  refetchMessages: () => void;
+  refetchDetail: () => void;
 };
 
 type State = {
@@ -148,12 +151,7 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   checkIsActive(conversation: IConversation) {
-    return (
-      conversation.integration.kind !== 'messenger' ||
-      (conversation.customer &&
-        conversation.customer.messengerData &&
-        conversation.customer.messengerData.isActive)
-    );
+    return conversation.customer && conversation.customer.isOnline;
   }
 
   hideMask = () => {
@@ -264,9 +262,11 @@ class RespondBox extends React.Component<Props, State> {
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
     const { isInternal, attachments, content, mentionedUserIds } = this.state;
+
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
+      contentType: 'text',
       internal: isInternal,
       attachments,
       mentionedUserIds
@@ -403,6 +403,24 @@ class RespondBox extends React.Component<Props, State> {
     );
   }
 
+  renderVideoRoom() {
+    const { conversation, refetchMessages, refetchDetail } = this.props;
+    const integration = conversation.integration || ({} as IIntegration);
+
+    if (this.state.isInternal || integration.kind !== 'messenger') {
+      return null;
+    }
+
+    return (
+      <ManageVideoRoom
+        refetchMessages={refetchMessages}
+        refetchDetail={refetchDetail}
+        conversationId={conversation._id}
+        activeVideo={conversation.videoCallData}
+      />
+    );
+  }
+
   renderButtons() {
     const { conversation } = this.props;
     const integration = conversation.integration || ({} as IIntegration);
@@ -412,6 +430,8 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
+
+        {this.renderVideoRoom()}
 
         <Tip text={__('Attach file')}>
           <label>

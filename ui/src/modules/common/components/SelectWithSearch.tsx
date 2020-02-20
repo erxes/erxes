@@ -5,8 +5,35 @@ import { Avatar, SelectOption, SelectValue } from 'modules/boards/styles/item';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Select from 'react-select-plus';
+import styled from 'styled-components';
 import { IOption } from '../types';
-import { __, withProps } from '../utils';
+import { __, confirm, withProps } from '../utils';
+import Icon from './Icon';
+
+const SelectWrapper = styled.div`
+  position: relative;
+
+  .Select-clear-zone {
+    visibility: hidden;
+  }
+`;
+
+const ClearButton = styled.div`
+  position: absolute;
+  right: 18px;
+  font-size: 16px;
+  top: 50%;
+  width: 18px;
+  z-index: 2;
+  color: #999;
+  line-height: 24px;
+  margin-top: -14px;
+
+  &:hover {
+    color: #EA475D;
+    cursor: pointer;
+  }
+`;
 
 type Props = {
   searchValue: string;
@@ -59,6 +86,26 @@ class SelectWithSearch extends React.Component<
         )
       });
     }
+  }
+
+  renderClearButton = () => {
+    if (!this.props.multi) {
+      return null;
+    }
+
+    const { values = [] } = this.props;
+    if(values.length > 0) {
+      return <ClearButton onClick={this.onClear}><Icon icon="times" /></ClearButton>;
+    }
+
+    return null;
+  }
+
+  onClear = (e) => {
+    confirm().then(() => {
+      this.props.onSelect([], this.props.name);
+      this.setState({ selectedOptions: [] });
+    }); 
   }
 
   render() {
@@ -123,19 +170,22 @@ class SelectWithSearch extends React.Component<
     }
 
     return (
-      <Select
-        placeholder={__(label)}
-        value={values}
-        loadingPlaceholder={__('Loading...')}
-        isLoading={customQuery.loading}
-        onOpen={onOpen}
-        onChange={onChange}
-        optionRenderer={optionRenderer}
-        valueRenderer={valueRenderer}
-        onInputChange={onSearch}
-        options={selectOptions}
-        multi={multi}
-      />
+      <SelectWrapper>
+        <Select
+          placeholder={__(label)}
+          value={values}
+          loadingPlaceholder={__('Loading...')}
+          isLoading={customQuery.loading}
+          onOpen={onOpen}
+          onChange={onChange}
+          optionRenderer={optionRenderer}
+          valueRenderer={valueRenderer}
+          onInputChange={onSearch}
+          options={selectOptions}
+          multi={multi}
+        />
+        {this.renderClearButton()}
+      </SelectWrapper>
     );
   }
 }

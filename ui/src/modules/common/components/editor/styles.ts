@@ -9,6 +9,10 @@ const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
   border: ${props => props.bordered && `1px solid ${colors.borderDarker}`};
   margin-top: ${props => props.bordered && '10px'};
 
+  img {
+    max-width: 100%;
+  }
+
   .RichEditor-editor {
     border-top: 1px solid ${colors.borderPrimary};
     cursor: text;
@@ -35,6 +39,8 @@ const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
       font-size: 13px;
       min-height: ${props => (props.bordered ? '180px' : '100px')};
       padding: 15px 20px;
+      overflow-y: auto;
+      max-height: 60vh;
 
       a {
         text-decoration: underline;
@@ -120,3 +126,4 @@ const RichEditorControlsRoot = styledTS<{ isTopPopup: boolean }>(styled.div)`
 `;
 
 export { RichEditorRoot, RichEditorControlsRoot };
+

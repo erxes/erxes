@@ -26,6 +26,7 @@ type Props = {
   // may not be provided - and might be null
   ignoreContainerClipping?: boolean;
   options: IOptions;
+  onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
 type DraggableContainerProps = {
@@ -33,6 +34,7 @@ type DraggableContainerProps = {
   item: IItem;
   index: number;
   options: IOptions;
+  onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
 class DraggableContainer extends React.Component<
@@ -69,6 +71,12 @@ class DraggableContainer extends React.Component<
   };
 
   beforePopupClose = () => {
+    const { item, onRemoveItem } = this.props;
+
+    if (item.status === 'archived') {
+      onRemoveItem(item._id, item.stageId);
+    }
+
     this.setState({ isDragDisabled: false, hasNotified: true });
   };
 
@@ -122,9 +130,10 @@ class InnerItemList extends React.PureComponent<{
   stageId: string;
   items: IItem[];
   options: IOptions;
+  onRemoveItem: (itemId: string, stageId: string) => void;
 }> {
   render() {
-    const { stageId, items, options } = this.props;
+    const { stageId, items, options, onRemoveItem } = this.props;
 
     return items.map((item, index: number) => (
       <DraggableContainer
@@ -133,6 +142,7 @@ class InnerItemList extends React.PureComponent<{
         item={item}
         index={index}
         options={options}
+        onRemoveItem={onRemoveItem}
       />
     ));
   }
@@ -143,11 +153,12 @@ type InnerListProps = {
   stageId: string;
   items: IItem[];
   options: IOptions;
+  onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const { stageId, items, dropProvided, options } = this.props;
+    const { stageId, items, dropProvided, options, onRemoveItem } = this.props;
 
     if (items.length === 0) {
       return (
@@ -159,7 +170,12 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
     return (
       <DropZone innerRef={dropProvided.innerRef}>
-        <InnerItemList stageId={stageId} items={items} options={options} />
+        <InnerItemList
+          onRemoveItem={onRemoveItem}
+          stageId={stageId}
+          items={items}
+          options={options}
+        />
         {dropProvided.placeholder}
       </DropZone>
     );
@@ -178,7 +194,8 @@ export default class ItemList extends React.Component<Props> {
       style,
       stageId,
       items,
-      options
+      options,
+      onRemoveItem
     } = this.props;
 
     return (
@@ -193,6 +210,7 @@ export default class ItemList extends React.Component<Props> {
             {...dropProvided.droppableProps}
           >
             <InnerList
+              onRemoveItem={onRemoveItem}
               stageId={stageId}
               items={items}
               dropProvided={dropProvided}

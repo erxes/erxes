@@ -1,4 +1,6 @@
 import {
+  ActionButton,
+  ActionList,
   AddNew,
   Body,
   Container,
@@ -8,7 +10,8 @@ import {
   IndicatorItem,
   LoadingContent,
   StageFooter,
-  StageRoot
+  StageRoot,
+  StageTitle
 } from 'modules/boards/styles/stage';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
@@ -16,6 +19,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { AddForm } from '../../containers/portable';
 import { IItem, IOptions, IStage } from '../../types';
 import { renderAmount } from '../../utils';
@@ -28,11 +32,15 @@ type Props = {
   length: number;
   items: IItem[];
   onAddItem: (stageId: string, item: IItem) => void;
+  onRemoveItem: (itemId: string, stageId: string) => void;
   loadMore: () => void;
   options: IOptions;
+  archiveItems: () => void;
+  archiveList: () => void;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
+  private overlayTrigger;
 
   constructor(props: Props) {
     super(props);
@@ -129,8 +137,12 @@ export default class Stage extends React.Component<Props, {}> {
     return false;
   }
 
+  onClosePopover = () => {
+    this.overlayTrigger.hide();
+  };
+
   renderItemList() {
-    const { stage, items, loadingItems, options } = this.props;
+    const { stage, items, loadingItems, options, onRemoveItem } = this.props;
 
     if (loadingItems) {
       return (
@@ -146,7 +158,52 @@ export default class Stage extends React.Component<Props, {}> {
         stageId={stage._id}
         items={items}
         options={options}
+        onRemoveItem={onRemoveItem}
       />
+    );
+  }
+
+  renderPopover() {
+    const archiveList = () => {
+      this.props.archiveList();
+      this.onClosePopover();
+    };
+
+    const archiveItems = () => {
+      this.props.archiveItems();
+      this.onClosePopover();
+    };
+
+    return (
+      <Popover id="stage-popover">
+        <ActionList>
+          <li onClick={archiveItems} key="archive-items">
+            Archive All Cards in This List
+          </li>
+          <li onClick={archiveList} key="archive-list">
+            Archive This List
+          </li>
+        </ActionList>
+      </Popover>
+    );
+  }
+
+  renderCtrl() {
+    return (
+      <OverlayTrigger
+        ref={overlayTrigger => {
+          this.overlayTrigger = overlayTrigger;
+        }}
+        trigger="click"
+        placement="bottom-start"
+        rootClose={true}
+        container={this}
+        overlay={this.renderPopover()}
+      >
+        <ActionButton>
+          <Icon icon="ellipsis-h" />
+        </ActionButton>
+      </OverlayTrigger>
     );
   }
 
@@ -163,10 +220,13 @@ export default class Stage extends React.Component<Props, {}> {
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
             <StageRoot isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
-                <h4>
-                  {stage.name}
-                  <span>{stage.itemsTotalCount}</span>
-                </h4>
+                <StageTitle>
+                  <div>
+                    {stage.name}
+                    <span>{stage.itemsTotalCount}</span>
+                  </div>
+                  {this.renderCtrl()}
+                </StageTitle>
                 <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
                 <Indicator>{this.renderIndicator()}</Indicator>
               </Header>

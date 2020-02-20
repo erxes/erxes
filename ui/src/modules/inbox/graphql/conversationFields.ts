@@ -31,7 +31,8 @@ export default `
   customer {
     _id
     visitorContactInfo
-    messengerData
+    trackedData
+    isOnline
     avatar
     firstName
     lastName
@@ -54,6 +55,10 @@ export default `
     _id
     name
     colorCode
+  }
+  videoCallData {
+    url
+    name
   }
   readUserIds
   callProAudio

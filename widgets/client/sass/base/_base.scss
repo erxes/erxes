@@ -42,6 +42,10 @@ body {
   }
 }
 
+a {
+  color: $link-blue;
+}
+
 .loader {
   @include animation(0, 1s, animationSpin, linear, infinite);
   border: 2px solid rgba($black, .3);

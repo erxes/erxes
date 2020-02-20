@@ -32,6 +32,14 @@ export interface IProductData {
   discountPercent: number;
   discount: number;
   amount: number;
+  tickUsed: boolean;
+}
+
+export interface IPaymentsData {
+  [key: string]: {
+    currency?: string;
+    amount?: number;
+  };
 }
 
 export type DealsTotalAmountsQueryResponse = {
@@ -56,10 +64,12 @@ export type ProductAddMutationResponse = {
 
 export interface IDeal extends IItem {
   products?: any;
+  payments?: IPaymentsData;
 }
 
 export interface IDealParams extends IItemParams {
   productsData?: IProductData[];
+  paymentsData?: IPaymentsData;
 }
 
 export type DealsQueryResponse = {

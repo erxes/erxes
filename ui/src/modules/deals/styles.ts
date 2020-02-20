@@ -1,9 +1,11 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import { darken, rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const FormContainer = styled.div`
+  margin-top: 20px;
+  
   .Select-multi-value-wrapper {
     display: flex;
     min-width: 100px;
@@ -42,6 +44,12 @@ const ContentRow = styled.div`
   display: flex;
 `;
 
+const ContentRowTitle = styled.div`
+  display: flex;
+  text-align: center;
+  margin-top: ${dimensions.coreSpacing}px;
+`;
+
 const ContentColumn = styled.div`
   flex: 1;
   margin-right: 10px;
@@ -51,11 +59,16 @@ const ContentColumn = styled.div`
   }
 `;
 
+const TickUsed = styled.div`
+  text-align: center;
+  margin-top: 25px;
+`;
+
 const TotalAmount = styled.div`
   text-align: right;
-  font-size: 20px;
-  margin-top: 30px;
-  padding: 0 15px;
+  font-size: 20px;    
+  margin-top: 25px;
+  padding: 0px 15px;
   background: ${rgba(colors.colorCoreTeal, 0.2)};
   border-radius: 15px;
   float: right;
@@ -93,11 +106,13 @@ const ProductButton = styled.div`
   padding: 7px 10px;
   background: ${colors.colorWhite};
   cursor: pointer;
+  border-radius: 4px;
   border-bottom: 1px solid ${colors.borderDarker};
   transition: all 0.3s ease;
+  background: ${colors.bgLight};
 
   &:hover {
-    background: ${colors.bgLight};
+    background: ${colors.bgActive};
   }
 
   i {
@@ -117,6 +132,26 @@ const CustomField = styled.div`
 
 const ProductName = styled.div`
   cursor: pointer;
+
+  > i { visibility: hidden; }
+
+  &:hover i {
+    visibility: visible;
+  }
+`;
+
+const Divider = styled.div`
+  border-bottom: 1px dotted ${darken(colors.borderDarker, 5)};
+  padding-bottom: ${dimensions.coreSpacing}px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0px;
+
+  @media (max-width: 1170px) {
+    margin-left: ${dimensions.coreSpacing}px;
+  }
+`;
+
+const WrongLess = styled.span`
+  color: red;
 `;
 
 export {
@@ -129,7 +164,11 @@ export {
   ItemText,
   ProductItem,
   ContentRow,
+  ContentRowTitle,
   ContentColumn,
+  TickUsed,
   TotalAmount,
-  ProductButton
+  ProductButton,
+  Divider,
+  WrongLess
 };
