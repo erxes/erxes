@@ -69,7 +69,7 @@ class ProductListContainer extends React.Component<FinalProps> {
           type="submit"
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
-          } a ${name}`}
+            } a ${name}`}
         />
       );
     };
@@ -84,7 +84,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       productCategories,
       loading: productCategoriesQuery.loading,
       productCategoriesCount:
-      productCategoriesCountQuery.productCategoriesTotalCount || 0
+        productCategoriesCountQuery.productCategoriesTotalCount || 0
     };
 
     return <List {...updatedProps} />;

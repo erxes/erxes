@@ -9,9 +9,9 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { Row } from 'modules/settings/integrations/styles';
 import React from 'react';
 import { TYPES } from '../../constants';
+import CategoryForm from '../../containers/productCategory/CategoryForm';
 import { IProduct, IProductCategory } from '../../types';
 import { generateCategoryOptions } from '../../utils';
-import CategoryForm from '../productCategory/CategoryForm';
 
 type Props = {
   product?: IProduct;
