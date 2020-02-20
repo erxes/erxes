@@ -68,9 +68,7 @@ const SegmentStepContainer = (props: FinalProps) => {
     : [];
 
   const count = segment => {
-    customerCountsQuery.refetch({
-      byFakeSegment: segment
-    });
+    customerCountsQuery.refetch();
   };
 
   const renderButton = ({

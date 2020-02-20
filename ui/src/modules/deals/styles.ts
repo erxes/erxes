@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const FormContainer = styled.div`
+  margin-top: 20px;
+  
   .Select-multi-value-wrapper {
     display: flex;
     min-width: 100px;
@@ -59,15 +61,14 @@ const ContentColumn = styled.div`
 
 const TickUsed = styled.div`
   text-align: center;
-  margin-top: 35px;
-  padding: 0 15px;
+  margin-top: 25px;
 `;
 
 const TotalAmount = styled.div`
   text-align: right;
-  font-size: 20px;
-  margin-top: 30px;
-  padding: 2px 15px;
+  font-size: 20px;    
+  margin-top: 25px;
+  padding: 0px 15px;
   background: ${rgba(colors.colorCoreTeal, 0.2)};
   border-radius: 15px;
   float: right;

@@ -3,50 +3,18 @@ export const connectors = {
   all: 'all'
 };
 
-export const types = {
-  string: 'String',
-  number: 'Number',
-  boolean: 'Boolean',
-  date: 'Date'
-};
-
-export const operators = {
-  string: [
-    { name: 'equals', value: 'e' },
-    { name: 'does not equal', value: 'dne' },
-    { name: 'contains', value: 'c' },
-    { name: 'does not contain', value: 'dnc' },
-    { name: 'is set', value: 'is', noInput: true },
-    { name: 'is not set', value: 'ins', noInput: true }
-  ],
-  number: [
-    { name: 'is greater than', value: 'igt' },
-    { name: 'equals to', value: 'et' },
-    { name: 'is less than', value: 'ilt' },
-    { name: 'is set', value: 'is', noInput: true },
-    { name: 'is not set', value: 'ins', noInput: true }
-  ],
-  boolean: [
-    { name: 'is true', value: 'it', noInput: true },
-    { name: 'is false', value: 'if', noInput: true },
-    { name: 'is set', value: 'is', noInput: true },
-    { name: 'is not set', value: 'ins', noInput: true }
-  ],
-  date: [
-    { name: 'was less than', value: 'wlt' },
-    { name: 'was more than', value: 'wmt' },
-    { name: 'will occur within', value: 'wow' },
-    { name: 'will occur after', value: 'woa' },
-    { name: 'is set', value: 'is', noInput: true },
-    { name: 'is not set', value: 'ins', noInput: true }
-  ]
-};
-
-export const dateUnits = {
-  days: 'days',
-  weeks: 'weeks',
-  months: 'months'
-};
+export const operators = [
+  { name: 'equals', value: 'e' },
+  { name: 'does not equal', value: 'dne' },
+  { name: 'contains', value: 'c' },
+  { name: 'does not contain', value: 'dnc' },
+  { name: 'is set', value: 'is', noInput: true },
+  { name: 'is not set', value: 'ins', noInput: true },
+  { name: 'is greater than', value: 'igt' },
+  { name: 'is less than', value: 'ilt' },
+  { name: 'is true', value: 'it', noInput: true },
+  { name: 'is false', value: 'if', noInput: true }
+];
 
 export const CUSTOMER_BASIC_INFO = {
   avatar: 'Avatar',
@@ -79,13 +47,11 @@ export const CUSTOMER_BASIC_INFO = {
 };
 
 export const CUSTOMER_DATAS = {
-  messengerData: 'Messenger Data',
   visitorContactInfo: 'Visitor contact info',
   owner: 'Owner',
   links: 'Links',
 
   ALL: [
-    { field: 'messengerData', label: 'Messenger Data' },
     { field: 'visitorContactInfo', label: 'Visitor contact info' },
     { field: 'owner', label: 'Owner' },
     { field: 'links', label: 'Links' }

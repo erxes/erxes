@@ -52,12 +52,15 @@ class ProductListContainer extends React.Component<FinalProps> {
         });
     };
 
+    const searchValue = this.props.queryParams.searchValue || '';
+
     const updatedProps = {
       ...this.props,
       queryParams,
       products,
       remove,
       loading: productsQuery.loading,
+      searchValue,
       productsCount: productsCountQuery.productsTotalCount || 0,
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {}
     };
@@ -98,6 +101,8 @@ export default withProps<Props>(
           variables: {
             categoryId: queryParams.categoryId,
             tag: queryParams.tag,
+            searchValue: queryParams.searchValue,
+            type: queryParams.type,
             ...generatePaginationParams(queryParams)
           }
         })

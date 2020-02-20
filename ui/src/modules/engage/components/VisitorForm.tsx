@@ -145,7 +145,6 @@ class VisitorForm extends React.Component<Props, State> {
     return (
       <Button.Group>
         {cancelButton}
-
         {saveButton()}
       </Button.Group>
     );
