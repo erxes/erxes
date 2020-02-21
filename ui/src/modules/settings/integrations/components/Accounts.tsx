@@ -5,7 +5,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
 import { __, confirm } from 'modules/common/utils';
 import React from 'react';
-import { Row } from '../styles';
+import { GoogleButton, Row } from '../styles';
 import { IAccount, IntegrationTypes } from '../types';
 
 type Props = {
@@ -42,33 +42,33 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     });
   }
 
-  actionButton() {
-    const { renderForm, onAdd, kind } = this.props;
+  renderButton() {
+    const { onAdd, kind } = this.props;
 
-    if (!renderForm) {
-      if (kind === 'gmail' || kind === 'nylas-gmail') {
-        return (
-          <a href="#name" onClick={onAdd}>
-            <img src='/images/btn_google_signin_dark_pressed_web@2x.png' width='130px' height='30px' alt='google button' />
-          </a>
-        );
-      }
-
+    if (kind === 'gmail' || kind === 'nylas-gmail') {
       return (
-        <Button btnStyle="primary" size="small" icon="add" onClick={onAdd}>
-          Add Account
-        </Button>
+        <GoogleButton href="#add" onClick={onAdd} />
       );
     }
 
-    return renderForm();
+    return (
+      <Button uppercase={false} btnStyle="primary" icon="plus-circle" onClick={onAdd}>
+        Add Account
+      </Button>
+    );
+    
   }
 
   renderAccountAction() {
     const { accountId } = this.state;
+    const { renderForm } = this.props;
 
     if (!accountId) {
-      return this.actionButton();
+      if (renderForm) {
+        return renderForm();
+      }
+      
+      return this.renderButton();
     }
 
     return (
@@ -105,7 +105,6 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
               </option>
             ))}
           </FormControl>
-          &nbsp;
           {this.renderAccountAction()}
         </Row>
       </FormGroup>

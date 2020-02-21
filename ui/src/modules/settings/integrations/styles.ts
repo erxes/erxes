@@ -124,6 +124,25 @@ const RefreshPermission = styled.div`
   }
 `;
 
+const GoogleButton = styled.a`
+  height: 36px;
+  width: 150px;
+  padding: 3px;
+  background: url('/images/googleButton/btn_normal.png') left center no-repeat;
+  background-size: contain;
+  background-position: 100%;
+  margin-left: 10px;
+  transition: background 0.3s ease;
+
+  &:hover, &:focus {
+    background-image: url('/images/googleButton/btn_focus.png');
+  }
+
+  &:active {
+    background-image: url('/images/googleButton/btn_active.png');
+  }
+`;
+
 export {
   FlexRow,
   Row,
@@ -134,5 +153,6 @@ export {
   Description,
   Script,
   Verify,
-  RefreshPermission
+  RefreshPermission,
+  GoogleButton
 };

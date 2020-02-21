@@ -49,7 +49,7 @@ class Form extends React.Component<Props, { loading: boolean }> {
     const { kind } = this.props;
 
     const trigger = (
-      <Button btnStyle="primary" size="small" icon="add">
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add Account
       </Button>
     );
