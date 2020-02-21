@@ -65,6 +65,40 @@ const dealMutations = {
    */
   async dealsEdit(_root, { _id, ...doc }: IDealsEdit, { user }: IContext) {
     const oldDeal = await Deals.getDeal(_id);
+    let checkedAssignUserIds: { addedUserIds?: string[]; removedUserIds?: string[] } = {};
+
+    if (doc.assignedUserIds) {
+      const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds, doc.assignedUserIds);
+      const oldAssignedUserPdata = (oldDeal.productsData || [])
+        .filter(pdata => pdata.assignUserId)
+        .map(pdata => pdata.assignUserId || '');
+      const cantRemoveUserIds = removedUserIds.filter(userId => oldAssignedUserPdata.includes(userId));
+
+      if (cantRemoveUserIds.length > 0) {
+        throw new Error('Cannot remove the team member, it is assigned in the product / service section');
+      }
+
+      checkedAssignUserIds = { addedUserIds, removedUserIds };
+    }
+
+    if (doc.productsData) {
+      const assignedUsersPdata = doc.productsData
+        .filter(pdata => pdata.assignUserId)
+        .map(pdata => pdata.assignUserId || '');
+      const oldAssignedUserPdata = (oldDeal.productsData || [])
+        .filter(pdata => pdata.assignUserId)
+        .map(pdata => pdata.assignUserId || '');
+      const { addedUserIds, removedUserIds } = checkUserIds(oldAssignedUserPdata, assignedUsersPdata);
+
+      if (addedUserIds.length > 0 || removedUserIds.length > 0) {
+        let assignedUserIds = doc.assignedUserIds || oldDeal.assignedUserIds || [];
+        assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
+        assignedUserIds = assignedUserIds.filter(userId => !removedUserIds.includes(userId));
+        doc.assignedUserIds = assignedUserIds;
+
+        checkedAssignUserIds = checkUserIds(oldDeal.assignedUserIds, assignedUserIds);
+      }
+    }
 
     const extendedDoc = {
       ...doc,
@@ -85,8 +119,8 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     };
 
-    if (doc.assignedUserIds) {
-      const { addedUserIds, removedUserIds } = checkUserIds(oldDeal.assignedUserIds, doc.assignedUserIds);
+    if (checkedAssignUserIds) {
+      const { addedUserIds, removedUserIds } = checkedAssignUserIds;
 
       const activityContent = { addedUserIds, removedUserIds };
 
