@@ -289,6 +289,10 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 label="Choose assigned user"
                 name="assignedUserId"
                 multi={false}
+                customOption={{
+                  value: '',
+                  label: '-----------'
+                }}
                 value={productData.assignUserId || ''}
                 onSelect={this.assignUserOnChange}
               />
