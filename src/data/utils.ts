@@ -400,7 +400,7 @@ export const sendEmail = async ({
   let transporter;
 
   try {
-    transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
+    transporter = await createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
   } catch (e) {
     return debugEmail(e.message);
   }
