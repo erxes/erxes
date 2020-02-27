@@ -39,7 +39,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
             username={`${customer.firstName} ${customer.lastName || ''}`}
             userId={post.senderId}
           />
-          <Date timestamp={post.timestamp} />
+          <Date type='post' timestamp={post.timestamp} />
         </User>
 
         <FacebookContent
