@@ -287,21 +287,27 @@ app.post('/import-file', async (req: any, res, next) => {
 
   debugExternalApi(`Pipeing request to ${WORKERS_API_DOMAIN}`);
 
-  return req.pipe(
-    request
-      .post(`${WORKERS_API_DOMAIN}/import-file`)
-      .on('response', response => {
-        if (response.statusCode !== 200) {
-          return next(response.statusMessage);
-        }
+  try {
+    const result = await req.pipe(
+      request
+        .post(`${WORKERS_API_DOMAIN}/import-file`)
+        .on('response', response => {
+          if (response.statusCode !== 200) {
+            return next(response.statusMessage);
+          }
 
-        return response.pipe(res);
-      })
-      .on('error', e => {
-        debugExternalApi(`Error from pipe ${e.message}`);
-        next(e);
-      }),
-  );
+          return response.pipe(res);
+        })
+        .on('error', e => {
+          debugExternalApi(`Error from pipe ${e.message}`);
+          next(e);
+        }),
+    );
+
+    return result;
+  } catch (e) {
+    return res.json({ status: 'error', message: e.message });
+  }
 });
 
 // engage unsubscribe
