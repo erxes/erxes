@@ -32,6 +32,7 @@ export default `
     _id
     visitorContactInfo
     trackedData
+    isOnline
     avatar
     firstName
     lastName

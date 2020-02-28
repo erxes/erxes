@@ -8,7 +8,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { KIND_CHOICES } from '../../constants';
 import Chatfuel from '../../containers/chatfuel/Form';
-import Settings from '../../containers/engages/Settings';
 import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
@@ -101,25 +100,6 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} />
-      );
-    }
-
-    if (createModal === 'sesconfig') {
-      const trigger = (
-        <h6>
-          <Icon icon="link-1" /> {__('Manage')}
-        </h6>
-      );
-
-      const content = props => <Settings {...props} />;
-
-      return (
-        <ModalTrigger
-          title="Manage engage config"
-          size="lg"
-          trigger={trigger}
-          content={content}
-        />
       );
     }
 
