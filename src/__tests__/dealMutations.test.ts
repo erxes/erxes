@@ -137,6 +137,29 @@ describe('Test deals mutations', () => {
     response = await graphqlRequest(mutation, 'dealsEdit', args);
 
     expect(response.assignedUserIds).toContain(user1._id);
+
+    // if assigned productsData
+    const user2 = await userFactory();
+    args.productsData.push({ productId: product2._id, assignUserId: user2._id });
+
+    response = await graphqlRequest(mutation, 'dealsEdit', args);
+
+    expect(response.assignedUserIds).toContain(user2._id);
+
+    // if assigned productsData unassign assignedUserIds
+    delete args.productsData;
+    try {
+      response = await graphqlRequest(mutation, 'dealsEdit', args);
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    // not products data and assigneduserIDs
+    args.productsData = [];
+    delete args.assignedUserIds;
+    response = await graphqlRequest(mutation, 'dealsEdit', args);
+
+    expect(response.assignedUserIds).toEqual([user1._id]);
   });
 
   test('Change deal', async () => {

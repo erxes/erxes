@@ -324,21 +324,21 @@ describe('boardQueries', () => {
   test('Stages', async () => {
     const pipeline = await pipelineFactory();
 
-    const args = { pipelineId: pipeline._id, probability: PROBABILITY.LOST };
+    const args = { pipelineId: pipeline._id, probability: PROBABILITY.LOST, status: BOARD_STATUSES.ACTIVE };
 
     await stageFactory(args);
     await stageFactory(args);
     await stageFactory(args);
 
     const qry = `
-      query stages($pipelineId: String!, $isNotLost: Boolean) {
-        stages(pipelineId: $pipelineId, isNotLost: $isNotLost) {
+      query stages($pipelineId: String!, $isNotLost: Boolean, $isAll: Boolean) {
+        stages(pipelineId: $pipelineId, isNotLost: $isNotLost, isAll: $isAll) {
           ${commonStageTypes}
         }
       }
     `;
 
-    const filter = { pipelineId: pipeline._id, isNotLost: false };
+    const filter = { pipelineId: pipeline._id, isNotLost: false, isAll: false };
 
     let response = await graphqlRequest(qry, 'stages', filter);
 
@@ -353,6 +353,15 @@ describe('boardQueries', () => {
     response = await graphqlRequest(qry, 'stages', filter);
 
     expect(response.length).toBe(2);
+
+    args.status = BOARD_STATUSES.ARCHIVED;
+
+    await stageFactory(args);
+
+    filter.isAll = true;
+    response = await graphqlRequest(qry, 'stages', filter);
+
+    expect(response.length).toBe(3);
   });
 
   test('Stage detail', async () => {

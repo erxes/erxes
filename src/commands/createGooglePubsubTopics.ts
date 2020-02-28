@@ -8,7 +8,7 @@ import * as path from 'path';
 dotenv.config();
 
 const {
-  PUBSUB_TYPE,
+  PUBSUB_TYPE = 'REDIS',
   GOOGLE_APPLICATION_CREDENTIALS,
 }: {
   PUBSUB_TYPE?: string;

@@ -65,6 +65,7 @@ export const types = `
     brands: [Brand]
     isOwner: Boolean
     permissionActions: JSON
+    configs: JSON
   }
 
   type UserConversationListResponse {

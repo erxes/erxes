@@ -1,28 +1,38 @@
 import { Configs } from '../../../db/models';
-import { IConfig } from '../../../db/models/definitions/configs';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory } from '../../utils';
+import { registerOnboardHistory, resetConfigsCache } from '../../utils';
 
 const configMutations = {
   /**
    * Create or update config object
    */
-  async configsInsert(_root, doc: IConfig, { user }: IContext) {
-    const prevConfig = (await Configs.findOne({ code: doc.code })) || { value: [] };
+  async configsUpdate(_root, { configsMap }, { user }: IContext) {
+    const codes = Object.keys(configsMap);
 
-    const config = await Configs.createOrUpdateConfig(doc);
+    for (const code of codes) {
+      if (!code) {
+        continue;
+      }
 
-    const updatedConfig = await Configs.getConfig(doc.code);
+      const prevConfig = (await Configs.findOne({ code })) || { value: [] };
 
-    if (
-      ['dealUOM', 'dealCurrency'].includes(doc.code) &&
-      prevConfig.value.toString() !== updatedConfig.value.toString()
-    ) {
-      registerOnboardHistory({ type: `configure.${doc.code}`, user });
+      const value = configsMap[code];
+      const doc = { code, value };
+
+      await Configs.createOrUpdateConfig(doc);
+
+      resetConfigsCache();
+
+      const updatedConfig = await Configs.getConfig(code);
+
+      if (
+        ['dealUOM', 'dealCurrency'].includes(code) &&
+        prevConfig.value.toString() !== updatedConfig.value.toString()
+      ) {
+        registerOnboardHistory({ type: `configure.${code}`, user });
+      }
     }
-
-    return config;
   },
 };
 

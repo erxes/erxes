@@ -1,6 +1,7 @@
 import { Brands } from '../../db/models';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
+import { getConfigs } from '../utils';
 
 export default {
   status(user: IUserDocument) {
@@ -21,5 +22,9 @@ export default {
 
   async permissionActions(user: IUserDocument) {
     return getUserActionsMap(user);
+  },
+
+  async configs() {
+    return getConfigs();
   },
 };

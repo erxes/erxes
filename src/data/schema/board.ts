@@ -39,6 +39,7 @@ export const types = `
     name: String!
     pipelineId: String!
     probability: String
+    status: String
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
@@ -86,6 +87,7 @@ export const queries = `
   pipelineDetail(_id: String!): Pipeline
   stages(
     isNotLost: Boolean,
+    isAll: Boolean,
     pipelineId: String!,
     ${stageParams}
   ): [Stage]

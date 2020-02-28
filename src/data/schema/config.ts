@@ -2,7 +2,7 @@ export const types = `
   type Config {
     _id: String!
     code: String!
-    value: [String]!
+    value: JSON
   }
 
   type GitInfos {
@@ -24,11 +24,11 @@ export const types = `
 `;
 
 export const queries = `
-  configsDetail(code: String!): Config
+  configs: [Config]
   configsVersions: ProjectInfos
   configsGetEnv: ENV
 `;
 
 export const mutations = `
-  configsInsert(code: String!, value: [String]!): Config
+  configsUpdate(configsMap: JSON!): JSON
 `;

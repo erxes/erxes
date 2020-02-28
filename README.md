@@ -43,7 +43,6 @@ REDIS_HOST=localhost                        (Redis server url)
 REDIS_PORT=6379                             (Redis server port)
 
 MAIN_APP_DOMAIN=http://localhost:3000       (erxes project url)
-DOMAIN='http://localhost:3300'              (erxes-api project url)
 ```
 
 #### 4. Start the server.

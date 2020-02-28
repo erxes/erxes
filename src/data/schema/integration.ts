@@ -187,4 +187,6 @@ export const mutations = `
     password: String!
     kind: String!
   ): JSON
+
+  integrationsUpdateConfigs(configsMap: JSON!): JSON
 `;
