@@ -23,6 +23,10 @@ module.exports.up = async () => {
       });
     }
 
-    await Segments.updateOne({ _id: segment._id }, { $set: { conditions: newConditions } });
+    try {
+      await Segments.updateOne({ _id: segment._id }, { $set: { conditions: newConditions } });
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 };
