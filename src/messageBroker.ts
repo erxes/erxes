@@ -102,7 +102,7 @@ export const sendMessage = async (data?: any) => {
   await channel.sendToQueue('integrationsNotification', Buffer.from(JSON.stringify(data || {})));
 };
 
-const initConsumer = async () => {
+export const initConsumer = async () => {
   // Consumer
   try {
     conn = await amqplib.connect(RABBITMQ_HOST);
@@ -161,5 +161,3 @@ const initConsumer = async () => {
     debugBase(e.message);
   }
 };
-
-initConsumer();

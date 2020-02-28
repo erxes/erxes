@@ -2,6 +2,7 @@ import * as Nylas from 'nylas';
 import * as sinon from 'sinon';
 import {
   accountFactory,
+  configFactory,
   integrationFactory,
   nylasGmailConversationFactory,
   nylasGmailConversationMessageFactory,
@@ -10,6 +11,7 @@ import {
 import { buildEmail } from '../gmail/util';
 import * as messageBroker from '../messageBroker';
 import { Accounts, Integrations } from '../models';
+import Configs from '../models/Configs';
 import * as api from '../nylas/api';
 import * as auth from '../nylas/auth';
 import { GOOGLE_OAUTH_ACCESS_TOKEN_URL, GOOGLE_OAUTH_AUTH_URL, GOOGLE_SCOPES } from '../nylas/constants';
@@ -40,17 +42,19 @@ describe('Nylas gmail test', () => {
   };
 
   beforeEach(async () => {
-    process.env.GOOGLE_CLIENT_ID = 'GOOGLE_CLIENT_ID';
-    process.env.GOOGLE_CLIENT_SECRET = 'GOOGLE_CLIENT_SECRET';
-    process.env.ENCRYPTION_KEY = 'aksljdklwjdaklsjdkwljaslkdjwkljd';
+    await configFactory({ code: 'GOOGLE_CLIENT_ID', value: 'GOOGLE_CLIENT_ID' });
+    await configFactory({ code: 'GOOGLE_CLIENT_SECRET', value: 'GOOGLE_CLIENT_SECRET' });
+    await configFactory({ code: 'ENCRYPTION_KEY', value: 'aksljdklwjdaklsjdkwljaslkdjwkljd' });
+    await configFactory({ code: 'ALGORITHM', value: 'aes-256-cbc' });
 
     const doc = { kind: 'gmail', email: 'user@mail.com' };
 
     const account = await accountFactory({
       ...doc,
       nylasToken: 'askldjaslkjdlak',
-      password: nylasUtils.encryptPassword('password'),
+      password: await nylasUtils.encryptPassword('password'),
     });
+
     const integration = await integrationFactory({
       ...doc,
       accountId: account._id,
@@ -63,12 +67,9 @@ describe('Nylas gmail test', () => {
   });
 
   afterEach(async () => {
-    delete process.env.GOOGLE_CLIENT_ID;
-    delete process.env.GOOGLE_CLIENT_SECRET;
-    delete process.env.ENCRYPTION_KEY;
-
     await Integrations.remove({});
     await Accounts.remove({});
+    await Configs.remove({});
 
     // Remove entries
     await NylasGmailConversationMessages.remove({});
@@ -117,7 +118,7 @@ describe('Nylas gmail test', () => {
       smtpHost: 'smtp',
       smtpPort: 132,
       imapPort: 231,
-      password: nylasUtils.encryptPassword('ajsdlk'),
+      password: await nylasUtils.encryptPassword('ajsdlk'),
     });
 
     const mock = sinon.stub(utils, 'sendRequest');
@@ -129,7 +130,7 @@ describe('Nylas gmail test', () => {
 
     const updatedAccount = await Accounts.findOne({ _id: account._id });
 
-    const password = nylasUtils.decryptPassword(account.password);
+    const password = await nylasUtils.decryptPassword(account.password);
 
     expect(updatedAccount.nylasToken).toEqual('ajdalsj');
     expect(updatedAccount.uid).toEqual('account_id');
@@ -150,7 +151,7 @@ describe('Nylas gmail test', () => {
 
     const updatedAccount = await Accounts.findOne({ _id: accountId });
 
-    const password = nylasUtils.decryptPassword(account.password);
+    const password = await nylasUtils.decryptPassword(account.password);
 
     expect(updatedAccount.nylasToken).toEqual('access_token123');
     expect(updatedAccount.uid).toEqual('account_id');
@@ -268,6 +269,10 @@ describe('Nylas gmail test', () => {
   test('Connect provider to nylas', async () => {
     const account = await Accounts.findOne({ _id: accountId });
 
+    const sendRPCMessageMock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
+      return Promise.resolve({ configs: {} });
+    });
+
     const mock = sinon.stub(utils, 'sendRequest');
 
     mock.onCall(0).returns('code');
@@ -281,6 +286,7 @@ describe('Nylas gmail test', () => {
     expect(updatedAccount.uid).toEqual('account_id');
 
     mock.restore();
+    sendRPCMessageMock.restore();
   });
 
   test('Enable or disable account', async () => {
@@ -317,18 +323,18 @@ describe('Nylas gmail test', () => {
   });
 
   test('Create a webhook', async () => {
-    const mock1 = sinon.stub(nylasUtils, 'checkCredentials').callsFake(() => Promise.resolve(true));
-
+    const mock1 = sinon.stub(nylasUtils, 'checkCredentials').callsFake(() => true);
     const mock2 = sinon.stub(nylasUtils, 'nylasInstance').callsFake(() => Promise.resolve({ id: 'webhookid' }));
 
-    expect(await tracker.createWebhook()).toEqual('webhookid');
+    const response = await tracker.createNylasWebhook();
+    expect(response).toEqual('webhookid');
 
     mock2.restore();
 
-    const mock3 = sinon.stub(nylasUtils, 'nylasInstance').returns(Promise.reject({ message: 'error' }));
+    const mock3 = sinon.stub(nylasUtils, 'nylasInstance').callsFake(() => Promise.reject({ message: 'error' }));
 
     try {
-      await tracker.createWebhook();
+      await tracker.createNylasWebhook();
     } catch (e) {
       expect(e.message).toEqual('error');
     }
@@ -354,16 +360,30 @@ describe('Nylas gmail test', () => {
     );
   });
 
-  test('Get client config', () => {
-    const config = nylasUtils.getClientConfig('gmail');
+  test('Get client config', async () => {
+    const sendRPCMessageMock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
+      return Promise.resolve({
+        configs: { GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' },
+      });
+    });
+
+    const config = await nylasUtils.getClientConfig('gmail');
     const [clientId, clientSecret] = config;
 
     expect(clientId).toEqual('GOOGLE_CLIENT_ID');
     expect(clientSecret).toEqual('GOOGLE_CLIENT_SECRET');
+
+    sendRPCMessageMock.restore();
   });
 
-  test('Get provider settings', () => {
-    const settings = nylasUtils.getProviderSettings('gmail', 'refreshToken');
+  test('Get provider settings', async () => {
+    const sendRPCMessageMock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
+      return Promise.resolve({
+        configs: { GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' },
+      });
+    });
+
+    const settings = await nylasUtils.getProviderSettings('gmail', 'refreshToken');
 
     expect(JSON.stringify(settings)).toEqual(
       JSON.stringify({
@@ -372,14 +392,16 @@ describe('Nylas gmail test', () => {
         google_refresh_token: 'refreshToken',
       }),
     );
+
+    sendRPCMessageMock.restore();
   });
 
-  test('Encrypt and Decrypt password', () => {
-    const pass1 = nylasUtils.encryptPassword('Hello World');
-    const pass2 = nylasUtils.encryptPassword('World Hello');
+  test('Encrypt and Decrypt password', async () => {
+    const pass1 = await nylasUtils.encryptPassword('Hello World');
+    const pass2 = await nylasUtils.encryptPassword('World Hello');
 
-    const decryptPass1 = nylasUtils.decryptPassword(pass1);
-    const decryptPass2 = nylasUtils.decryptPassword(pass2);
+    const decryptPass1 = await nylasUtils.decryptPassword(pass1);
+    const decryptPass2 = await nylasUtils.decryptPassword(pass2);
 
     expect(decryptPass1).toEqual('Hello World');
     expect(decryptPass2).toEqual('World Hello');

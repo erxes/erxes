@@ -12,7 +12,7 @@ const loginMiddleware = async (req, res) => {
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
   if (!req.query.code) {
-    const authUrl = getAuthorizeUrl();
+    const authUrl = await getAuthorizeUrl();
 
     if (!req.query.error) {
       debugResponse(debugGmail, req, authUrl);

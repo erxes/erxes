@@ -4,14 +4,15 @@ import { Accounts } from '../models';
 import { getEnv } from '../utils';
 import { SCOPES_GMAIL } from './constant';
 import { ICredentials } from './types';
+import { getGoogleConfigs } from './util';
 
 const gmail: any = google.gmail('v1');
 
 export const gmailClient = gmail.users;
 
-const getOauthClient = () => {
-  const GOOGLE_CLIENT_ID = getEnv({ name: 'GOOGLE_CLIENT_ID' });
-  const GOOGLE_CLIENT_SECRET = getEnv({ name: 'GOOGLE_CLIENT_SECRET' });
+const getOauthClient = async () => {
+  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = await getGoogleConfigs();
+
   const GMAIL_REDIRECT_URL = `${getEnv({ name: 'DOMAIN' })}/gmaillogin`;
 
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
@@ -38,13 +39,13 @@ const getOauthClient = () => {
   return response;
 };
 
-// Google OAuthClient ================
-const oauth2Client = getOauthClient();
-
 /**
  * Get OAuth client with given credentials
  */
-export const getAuth = (credentials: ICredentials, accountId?: string) => {
+export const getAuth = async (credentials: ICredentials, accountId?: string) => {
+  // Google OAuthClient ================
+  const oauth2Client = await getOauthClient();
+
   oauth2Client.on('tokens', async tokens => {
     await refreshAccessToken(accountId, credentials);
 
@@ -59,7 +60,10 @@ export const getAuth = (credentials: ICredentials, accountId?: string) => {
 /**
  * Get auth url depends on google services such us gmail, calendar
  */
-export const getAuthorizeUrl = (): string => {
+export const getAuthorizeUrl = async (): Promise<string> => {
+  // Google OAuthClient ================
+  const oauth2Client = await getOauthClient();
+
   const options = { access_type: 'offline', scope: SCOPES_GMAIL };
 
   let authUrl;
@@ -85,6 +89,9 @@ export const getAccessToken = async (code: string) => {
   let accessToken;
 
   debugGmail(`Google OAuthClient request to get token with ${code}`);
+
+  // Google OAuthClient ================
+  const oauth2Client = await getOauthClient();
 
   try {
     accessToken = await new Promise((resolve, reject) =>
