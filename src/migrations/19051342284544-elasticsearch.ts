@@ -1,10 +1,13 @@
 import * as dotenv from 'dotenv';
+import { connect } from '../db/connection';
 import { Segments } from '../db/models';
 import { ICondition } from '../db/models/definitions/segments';
 
 dotenv.config();
 
 module.exports.up = async () => {
+  await connect();
+
   const segments = await Segments.find();
 
   for (const segment of segments) {
