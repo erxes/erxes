@@ -1,19 +1,20 @@
 import Button from 'modules/common/components/Button';
+import CollapseContent from 'modules/common/components/CollapseContent';
 import { FormControl } from 'modules/common/components/form';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
 import Info from 'modules/common/components/Info';
-import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import { ModalFooter, TabContent } from 'modules/common/styles/main';
+import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { Recipient, Recipients } from 'modules/engage/styles';
 import { IEngageConfig } from 'modules/engage/types';
+import { ContentBox } from 'modules/settings/styles';
 import React from 'react';
-import { Verify } from '../../styles';
-import Description from './Description';
+import { Verify } from './styles';
+
 
 type Props = {
   engagesConfigDetail: IEngageConfig;
@@ -21,7 +22,6 @@ type Props = {
   verifyEmail: (email: string) => void;
   removeVerifiedEmail: (email: string) => void;
   sendTestEmail: (from: string, to: string, content: string) => void;
-  closeModal: () => void;
   verifiedEmails: string[];
 };
 
@@ -33,10 +33,9 @@ type State = {
   testFrom?: string;
   testTo?: string;
   testContent?: string;
-  currentTab?: string;
 };
 
-class List extends React.Component<Props, State> {
+class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -46,7 +45,6 @@ class List extends React.Component<Props, State> {
       secretAccessKey: engagesConfigDetail.secretAccessKey || '',
       accessKeyId: engagesConfigDetail.accessKeyId || '',
       region: engagesConfigDetail.region || '',
-      currentTab: 'config'
     };
   }
 
@@ -81,18 +79,6 @@ class List extends React.Component<Props, State> {
     this.props.removeVerifiedEmail(email);
   };
 
-  onTabClick = currentTab => {
-    this.setState({ currentTab });
-  };
-
-  renderTabContent = () => {
-    if (this.state.currentTab === 'config') {
-      return <Form renderContent={this.renderContent} />;
-    }
-
-    return this.renderTestContent();
-  };
-
   renderVerifiedEmails = () => {
     const { verifiedEmails } = this.props;
 
@@ -102,7 +88,7 @@ class List extends React.Component<Props, State> {
 
     return (
       <>
-        <h4>Verified emails:</h4>
+        <h4>{__("Verified emails")}:</h4>
 
         <Recipients>
           {verifiedEmails.map((email, index) => (
@@ -118,80 +104,21 @@ class List extends React.Component<Props, State> {
     );
   };
 
-  renderTestContent = () => {
-    return (
-      <>
-        <Info bordered={false}>
-          {this.renderVerifiedEmails()}
-
-          <Verify>
-            <Icon icon="shield-check" size={36} />
-            <ControlLabel required={true}>Email:</ControlLabel>
-            <FormControl
-              type="email"
-              onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
-            />
-
-            <Button
-              size="small"
-              onClick={this.onVerifyEmail}
-              btnStyle="success"
-              icon="check-1"
-            >
-              Verify
-            </Button>
-          </Verify>
-        </Info>
-
-        <Info bordered={false}>
-          <h4>Send test email:</h4>
-
-          <FormGroup>
-            <ControlLabel>From:</ControlLabel>
-            <FormControl
-              placeholder="from@email.com"
-              onChange={this.onChangeCommon.bind(this, 'testFrom')}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>To:</ControlLabel>
-            <FormControl
-              placeholder="to@email.com"
-              onChange={this.onChangeCommon.bind(this, 'testTo')}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <ControlLabel>Content:</ControlLabel>
-            <FormControl
-              placeholder="Write your content..."
-              componentClass="textarea"
-              onChange={this.onChangeCommon.bind(this, 'testContent')}
-            />
-          </FormGroup>
-
-          <Button
-            size="small"
-            btnStyle="primary"
-            icon="message"
-            onClick={this.onSendTestEmail}
-          >
-            Send test email
-          </Button>
-        </Info>
-      </>
-    );
-  };
-
   renderContent = (formProps: IFormProps) => {
-    const { engagesConfigDetail, renderButton, closeModal } = this.props;
+    const { engagesConfigDetail, renderButton } = this.props;
 
     const { values, isSubmitted } = formProps;
 
     return (
       <>
-        <Description />
+        <Info>
+          <p>
+            {__("Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account")} 
+          </p>
+          <a target="_blank" href="https://docs.erxes.io/administrator/integrations#aws-ses-integration" rel="noopener noreferrer">
+            {__("More: Understanding Amazon SES")}
+          </a>
+        </Info>
         <FormGroup>
           <ControlLabel>AWS-SES Access key ID</ControlLabel>
           <FormControl
@@ -223,15 +150,6 @@ class List extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button
-            btnStyle="simple"
-            type="button"
-            onClick={closeModal}
-            icon="cancel-1"
-          >
-            Cancel
-          </Button>
-
           {renderButton({
             name: 'engagesConfigDetail',
             values: this.generateDoc(values),
@@ -244,28 +162,74 @@ class List extends React.Component<Props, State> {
   };
 
   render() {
-    const { currentTab } = this.state;
 
     return (
-      <>
-        <Tabs full={true}>
-          <TabTitle
-            className={currentTab === 'config' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'config')}
-          >
-            {__('Configure')}
-          </TabTitle>
-          <TabTitle
-            className={currentTab === 'test' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'test')}
-          >
-            {__('Test configuration')}
-          </TabTitle>
-        </Tabs>
-        <TabContent>{this.renderTabContent()}</TabContent>
-      </>
+      <ContentBox>
+        <CollapseContent title="AWS SES" >
+          <Form renderContent={this.renderContent} />
+        </CollapseContent>
+
+        <CollapseContent title="Verify Email" >
+          {this.renderVerifiedEmails()}
+
+          <Verify>
+            <Icon icon="shield-check" size={36} />
+            <ControlLabel required={true}>Email</ControlLabel>
+            <FormControl
+              type="email"
+              onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+            />
+
+            <Button
+              onClick={this.onVerifyEmail}
+              btnStyle="primary"
+              icon="check-circle"
+              uppercase={false}
+            >
+              Verify
+            </Button>
+          </Verify>
+        </CollapseContent>
+        <CollapseContent title="Send test email">
+          <FormGroup>
+            <ControlLabel>From</ControlLabel>
+            <FormControl
+              placeholder="from@email.com"
+              onChange={this.onChangeCommon.bind(this, 'testFrom')}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>To</ControlLabel>
+            <FormControl
+              placeholder="to@email.com"
+              onChange={this.onChangeCommon.bind(this, 'testTo')}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Content</ControlLabel>
+            <FormControl
+              placeholder="Write your content..."
+              componentClass="textarea"
+              onChange={this.onChangeCommon.bind(this, 'testContent')}
+            />
+          </FormGroup>
+
+          <ModalFooter>
+            <Button
+              btnStyle="primary"
+              icon="message"
+              onClick={this.onSendTestEmail}
+              uppercase={false}
+            >
+              Send test email
+            </Button>
+          </ModalFooter>
+        </CollapseContent>
+      </ContentBox>
     );
   }
 }
 
-export default List;
+export default EngageSettingsContent;
