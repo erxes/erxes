@@ -62,4 +62,8 @@ export default class IntegrationsAPI extends RESTDataSource {
   public async replyTwitterDm(params) {
     return this.post('/twitter/reply', params);
   }
+
+  public async updateConfigs(configsMap) {
+    return this.post('/update-configs', { configsMap });
+  }
 }

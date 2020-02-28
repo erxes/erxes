@@ -432,6 +432,29 @@ describe('mutations', () => {
     }
   });
 
+  test('Update config', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    const mutation = `
+      mutation integrationsUpdateConfigs($configsMap: JSON!) {
+        integrationsUpdateConfigs(configsMap: $configsMap)
+      }
+    `;
+
+    try {
+      await graphqlRequest(
+        mutation,
+        'integrationsUpdateConfigs',
+        { configsMap: { FACEBOOK_TOKEN: 'token' } },
+        { dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
   test('Remove account', async () => {
     process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
 

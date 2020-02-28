@@ -127,7 +127,7 @@ app.use(userMiddleware);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
-app.get('/download-template', (req: any, res) => {
+app.get('/download-template', async (req: any, res) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
   const name = req.query.name;
 

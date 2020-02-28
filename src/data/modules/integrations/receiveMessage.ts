@@ -1,6 +1,7 @@
 import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
+import { getConfigs } from '../../utils';
 
 const sendError = message => ({
   status: 'error',
@@ -111,6 +112,11 @@ export const receiveRpcMessage = async msg => {
     });
 
     return sendSuccess({ _id: message._id });
+  }
+
+  if (action === 'get-configs') {
+    const configs = await getConfigs();
+    return sendSuccess({ configs });
   }
 };
 
