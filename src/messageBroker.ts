@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
 import { sendNotification } from './data/utils';
-import { Companies, Customers, RobotEntries } from './db/models';
+import { Companies, Customers, RobotEntries, Users } from './db/models';
 import { ProductCategories, Products } from './db/models/Products';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
@@ -166,6 +166,11 @@ const initConsumer = async () => {
 
         case 'Notifications':
           sendNotification(params);
+          break;
+
+        case 'Users':
+          await Users[method](...params);
+          break;
       }
 
       channel.ack(msg);
