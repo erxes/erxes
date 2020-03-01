@@ -1,26 +1,14 @@
-export interface ICurrencies {
+export type IConfigsMap = {[key: string]: any };
+
+export type IConfig = {
   _id: string;
   code: string;
-  value: string[];
+  value: any;
 }
 
 // query types
-export type ConfigDetailQueryResponse = {
-  configsDetail: ICurrencies;
+export type ConfigsQueryResponse = {
+  configs: IConfig[];
   loading: boolean;
   refetch: () => void;
-};
-
-// mutations
-export type ConfigsInsertMutationVariables = {
-  code: string;
-  value: string[];
-};
-
-export type ConfigsInsertMutationResponse = {
-  insertConfig: (
-    params: {
-      variables: ConfigsInsertMutationVariables;
-    }
-  ) => Promise<void>;
 };

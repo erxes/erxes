@@ -116,6 +116,7 @@ export interface IStage {
   compareNextStage: IStageComparisonInfo;
   formId: string;
   pipelineId: string;
+  status: string;
 }
 
 export interface IPipelineLabel {
