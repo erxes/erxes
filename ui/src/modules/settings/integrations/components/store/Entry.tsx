@@ -12,6 +12,7 @@ import Settings from '../../containers/engages/Settings';
 import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
+import TelegramForm from '../../containers/telegram/Form';
 import Twitter from '../../containers/twitter/Twitter';
 import Website from '../../containers/website/Form';
 import WhatsappForm from '../../containers/whatsapp/Form';
@@ -239,6 +240,16 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add Whatsapp" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.SMOOCH_TELEGRAM) {
+      const trigger = <h6>+ {__('Add')}</h6>;
+
+      const content = props => <TelegramForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Telegram" trigger={trigger} content={content} />
       );
     }
 

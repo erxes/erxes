@@ -26,6 +26,7 @@ type Props = {
     outlook: number;
     yahoo: number;
     whatsapp: number;
+    telegram: number;
   };
 };
 

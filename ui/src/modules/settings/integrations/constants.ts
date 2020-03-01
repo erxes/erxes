@@ -78,6 +78,7 @@ export const KIND_CHOICES = {
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
   WHATSAPP: 'whatsapp',
+  SMOOCH_TELEGRAM: 'smooch-telegram',
   ALL_LIST: [
     'messenger',
     'facebook-post',
@@ -91,7 +92,8 @@ export const KIND_CHOICES = {
     'nylas-imap',
     'nylas-office365',
     'nylas-outlook',
-    'whatsapp'
+    'whatsapp',
+    'smooch-telegram'
   ]
 };
 
@@ -103,7 +105,8 @@ export const KIND_CHOICES_WITH_TEXT = [
   { text: 'Callpro', value: 'callpro' },
   { text: 'Chatfuel', value: 'chatfuel' },
   { text: 'Gmail', value: 'nylas-gmail' },
-  { text: 'Whatsapp', value: 'whatsapp' }
+  { text: 'Whatsapp', value: 'whatsapp' },
+  { text: 'Telegram',value:'smooch-telegram'}
 ];
 
 export const FORM_LOAD_TYPES = {
@@ -336,6 +339,16 @@ export const INTEGRATIONS = [
     kind: 'whatsapp',
     logo: '/images/integrations/whatsapp.png',
     createModal: 'whatsapp',
+    category: 'All integrations, For support teams, Messaging, Conversation'
+  },
+  {
+    name: 'Telegram by Smooch',
+    description: 'Cloud-based mobile and desktop messaging app with a focus on speed and security',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'smooch-telegram',
+    logo: '/images/integrations/telegram.png',
+    createModal: 'smooch-telegram',
     category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {

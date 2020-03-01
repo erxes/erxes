@@ -118,7 +118,8 @@ export type IntegrationTypes =
   | 'nylas-outlook'
   | 'nylas-yahoo'
   | 'twitter'
-  | 'whatsapp';
+  | 'whatsapp'
+  | 'smooch-telegram';
 
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
@@ -146,6 +147,7 @@ export type ByKindTotalCount = {
   outlook: number;
   yahoo: number;
   whatsapp: number;
+  telegram: number;
 };
 
 type IntegrationsCount = {
