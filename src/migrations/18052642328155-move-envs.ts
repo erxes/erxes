@@ -1,12 +1,5 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
-
-dotenv.config();
-
-const options = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-};
+import { connect } from '../connection';
+import Configs from '../models/Configs';
 
 const ENVS = [
   'FACEBOOK_APP_ID',
@@ -37,21 +30,18 @@ const ENVS = [
 ];
 
 module.exports.up = async () => {
-  const MONGO_URL = process.env.MONGO_URL || '';
-  const mongoClient = await mongoose.createConnection(MONGO_URL, options);
-
-  const configsCollection = mongoClient.db.collection('configs');
+  await connect();
 
   for (const env of ENVS) {
     try {
-      await configsCollection.insert({ code: env, value: process.env[env] });
+      await Configs.create({ code: env, value: process.env[env] });
     } catch (e) {
       console.log(e.message);
     }
   }
 
   try {
-    await configsCollection.insert({ code: 'ALGORITHM', value: 'aes-256-cbc' });
+    await Configs.create({ code: 'ALGORITHM', value: 'aes-256-cbc' });
   } catch (e) {
     console.log(e.message);
   }
