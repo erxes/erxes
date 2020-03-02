@@ -115,6 +115,13 @@ const growthHackDetailFields = `
   isVoted
   modifiedAt
   modifiedBy
+  createdUser {
+    _id
+    details {
+      fullName
+      avatar
+    }
+  }
 `;
 
 const growthHacks = `
