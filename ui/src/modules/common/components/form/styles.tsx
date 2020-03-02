@@ -29,11 +29,11 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
     props.horizontal &&
     css`
       display: flex;
-      justify-content: center;
+      align-items: center;
 
       label {
         margin-bottom: 0;
-        align-self: center;
+        margin-left: 10px;
       }
     `};
 
