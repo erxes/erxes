@@ -1,4 +1,3 @@
-import debug = require('debug');
 import { Conversations as CallProConversations, Customers as CallProCustomers } from './callpro/models';
 import {
   ConversationMessages as ChatfuelConversationMessages,
