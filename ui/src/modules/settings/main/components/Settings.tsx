@@ -32,7 +32,7 @@ class Settings extends React.PureComponent {
           <RowTitle>{__('General Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Account default',
+              'System config',
               '/images/icons/erxes-16.svg',
               '/settings/general'
             )}
