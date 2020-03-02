@@ -52,6 +52,9 @@ type Props = {
   onChange: (attachments: IAttachment[]) => void;
   limit?: number;
   multiple?: boolean;
+  index?: number;
+  switchItem?: (index: number) => string;
+  imagesLength: number;
 };
 
 type State = {
@@ -122,13 +125,29 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
+  switchItem = index => {
+    const item = this.state.attachments[index];
+
+    return item.url;
+  };
+
   renderItem = (item: IAttachment, index: number) => {
     const removeAttachment = () => this.removeAttachment(index);
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
+    let imagesLength;
+    if (this.state.attachments.length > 0) {
+      imagesLength = this.state.attachments.length;
+    }
 
     return (
       <Item key={item.url}>
-        <Attachment attachment={item} additionalItem={remove} />
+        <Attachment
+          attachment={item}
+          additionalItem={remove}
+          index={index}
+          switchItem={this.switchItem}
+          imagesLength={imagesLength}
+        />
       </Item>
     );
   };

@@ -67,7 +67,7 @@ type Props = {
   full?: boolean;
   index?: number;
   switchItem?: (index: number) => string;
-  imagesLength?: number;
+  imagesLength?: any;
 };
 
 type State = {
@@ -151,20 +151,51 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   handleKeydown = e => {
-    const { src } = this.props;
-    const { visible } = this.state;
+    const { num, visible } = this.state;
 
     if (e.keyCode === KEYCODES.ESCAPE && visible) {
-      return this.setState({ visible: false, srcUrl: src || '' });
-    }
-
-    if (visible) {
-      if (e.keyCode === 39) {
-        return this.arrowClick('right', e);
+      if (e.keyCode === KEYCODES.ESCAPE && visible) {
+        this.setState({ visible: false }); this.setState({ visible: false, srcUrl: this.props.src || '' });
       }
+      if ((e.keyCode === 37 || e.keyCode === 39) && visible) {
+        if (e.keyCode === 39) {
+          if (this.props.switchItem) {
+            if (this.props.imagesLength > this.state.num + 1) {
+              this.setState({ num: this.state.num + 1 });
+              const switchedUrl = this.props.switchItem(this.state.num) || '';
 
-      if (e.keyCode === 37) {
-        return this.arrowClick('left', e);
+              this.setState({
+                srcUrl: switchedUrl
+              });
+            } else {
+              this.setState({ num: 0 });
+              const switchedUrl = this.props.switchItem(0);
+
+              this.setState({
+                srcUrl: switchedUrl
+              });
+            }
+          }
+        }
+        if (e.keyCode === 37) {
+          if (this.props.switchItem) {
+            if (0 <= this.state.num - 1) {
+              this.setState({ num: this.state.num - 1 });
+              const switchedUrl = this.props.switchItem(num);
+
+              this.setState({
+                srcUrl: switchedUrl
+              });
+            } else {
+              this.setState({ num: this.props.imagesLength - 1 });
+              const switchedUrl = this.props.switchItem(this.props.imagesLength - 1);
+
+              this.setState({
+                srcUrl: switchedUrl
+              });
+            }
+          }
+        }
       }
     }
   };

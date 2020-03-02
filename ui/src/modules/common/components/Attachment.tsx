@@ -82,6 +82,9 @@ type Props = {
   scrollBottom?: () => void;
   additionalItem?: React.ReactNode;
   simple?: boolean;
+  index?: number;
+  switchItem?: (index: number) => string;
+  imagesLength?: any;
 };
 
 class Attachment extends React.Component<Props> {
@@ -148,6 +151,9 @@ class Attachment extends React.Component<Props> {
         onLoad={this.onLoadImage}
         alt={attachment.url}
         src={attachment.url}
+        index={this.props.index}
+        switchItem={this.props.switchItem}
+        imagesLength={this.props.imagesLength || 1}
       />
     );
   }
