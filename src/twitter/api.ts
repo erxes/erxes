@@ -36,7 +36,6 @@ export const getTwitterAuthUrl = async (): Promise<{
   twitterAuthUrl: string;
 }> => {
   const twitterConfig = await getTwitterConfig();
-
   // construct request to retrieve authorization token
   const requestOptions = {
     url: 'https://api.twitter.com/oauth/request_token',

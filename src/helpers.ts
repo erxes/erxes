@@ -1,3 +1,4 @@
+import debug = require('debug');
 import { Conversations as CallProConversations, Customers as CallProCustomers } from './callpro/models';
 import {
   ConversationMessages as ChatfuelConversationMessages,
@@ -42,7 +43,8 @@ import {
   NylasYahooCustomers,
 } from './nylas/models';
 import { createNylasWebhook } from './nylas/tracker';
-import { unsubscribe } from './twitter/api';
+import { getTwitterConfig, unsubscribe } from './twitter/api';
+import * as twitterApi from './twitter/api';
 import {
   ConversationMessages as TwitterConversationMessages,
   Conversations as TwitterConversations,
@@ -270,7 +272,11 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
     const prevNylasClientSecret = await Configs.getConfig('NYLAS_CLIENT_SECRET');
     const prevNylasWebhook = await Configs.getConfig('NYLAS_WEBHOOK_CALLBACK_URL');
 
+    const prevTwitterConfig = await getTwitterConfig();
+
     await Configs.updateConfigs(configsMap);
+
+    const updatedTwitterConfig = await getTwitterConfig();
 
     resetConfigsCache();
 
@@ -292,7 +298,21 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await removeExistingNylasWebhook();
       await createNylasWebhook();
     }
+
+    if (
+      prevTwitterConfig.oauth.consumer_key !== updatedTwitterConfig.oauth.consumer_key ||
+      prevTwitterConfig.oauth.consumer_secret !== updatedTwitterConfig.oauth.consumer_secret
+    ) {
+      await twitterApi.registerWebhook();
+    }
+    if (
+      prevTwitterConfig.oauth.token !== updatedTwitterConfig.oauth.token ||
+      prevTwitterConfig.oauth.token_secret !== prevTwitterConfig.oauth.token_secret ||
+      prevTwitterConfig.twitterWebhookEnvironment !== updatedTwitterConfig.twitterWebhookEnvironment
+    ) {
+      await twitterApi.registerWebhook();
+    }
   } catch (e) {
-    throw e;
+    debug(e);
   }
 };

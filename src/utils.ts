@@ -4,7 +4,7 @@ import { debugBase, debugExternalRequests } from './debuggers';
 import { sendRPCMessage } from './messageBroker';
 import Configs from './models/Configs';
 import { IProviderSettings } from './nylas/types';
-import { get, set } from './redisClient';
+import { set } from './redisClient';
 
 interface IRequestParams {
   url?: string;
@@ -148,11 +148,11 @@ export const downloadAttachment = urlOrName => {
 };
 
 export const getConfigs = async () => {
-  const configsCache = await get('configs');
+  // const configsCache = await get('configs');
 
-  if (configsCache && configsCache !== '{}') {
-    return JSON.parse(configsCache);
-  }
+  // if (configsCache && configsCache !== '{}') {
+  //   return JSON.parse(configsCache);
+  // }
 
   const configsMap = {};
   const configs = await Configs.find({});

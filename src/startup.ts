@@ -7,7 +7,7 @@ import { getConfig } from './utils';
 
 export const init = async () => {
   const USE_NATIVE_GMAIL = await getConfig('USE_NATIVE_GMAIL');
-  const TWITTER_CONSUMER_KEY = await getConfig({ name: 'TWITTER_CONSUMER_KEY' });
+  const TWITTER_CONSUMER_KEY = await getConfig('TWITTER_CONSUMER_KEY');
 
   if (USE_NATIVE_GMAIL === 'true') {
     try {
