@@ -1,4 +1,3 @@
-import debug = require('debug');
 import { Conversations as CallProConversations, Customers as CallProCustomers } from './callpro/models';
 import {
   ConversationMessages as ChatfuelConversationMessages,
@@ -267,34 +266,41 @@ export const removeCustomers = async params => {
 };
 
 export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
+  const getValueAsString = async name => {
+    const entry = await Configs.getConfig(name);
+
+    if (entry.value) {
+      return entry.value.toString();
+    }
+
+    return entry.value;
+  };
+
+  const prevNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
+  const prevNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
+  const prevNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
+
+  const prevTwitterConfig = await getTwitterConfig();
+
+  await Configs.updateConfigs(configsMap);
+
+  const updatedTwitterConfig = await getTwitterConfig();
+
+  resetConfigsCache();
+
+  const updatedNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
+  const updatedNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
+  const updatedNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
+
   try {
-    const prevNylasClientId = await Configs.getConfig('NYLAS_CLIENT_ID');
-    const prevNylasClientSecret = await Configs.getConfig('NYLAS_CLIENT_SECRET');
-    const prevNylasWebhook = await Configs.getConfig('NYLAS_WEBHOOK_CALLBACK_URL');
-
-    const prevTwitterConfig = await getTwitterConfig();
-
-    await Configs.updateConfigs(configsMap);
-
-    const updatedTwitterConfig = await getTwitterConfig();
-
-    resetConfigsCache();
-
-    const updatedNylasClientId = await Configs.getConfig('NYLAS_CLIENT_ID');
-    const updatedNylasClientSecret = await Configs.getConfig('NYLAS_CLIENT_SECRET');
-    const updatedNylasWebhook = await Configs.getConfig('NYLAS_WEBHOOK_CALLBACK_URL');
-
-    if (
-      prevNylasClientId.value.toString() !== updatedNylasClientId.value.toString() ||
-      prevNylasClientSecret.value.toString() !== updatedNylasClientSecret.value.toString()
-    ) {
+    if (prevNylasClientId !== updatedNylasClientId || prevNylasClientSecret !== updatedNylasClientSecret) {
       await setupNylas();
 
       await removeExistingNylasWebhook();
       await createNylasWebhook();
     }
 
-    if (prevNylasWebhook.value.toString() !== updatedNylasWebhook.value.toString()) {
+    if (prevNylasWebhook !== updatedNylasWebhook) {
       await removeExistingNylasWebhook();
       await createNylasWebhook();
     }
@@ -313,6 +319,24 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await twitterApi.registerWebhook();
     }
   } catch (e) {
-    debug(e);
+    debugNylas(e);
+  }
+
+  try {
+    if (
+      prevTwitterConfig.oauth.consumer_key !== updatedTwitterConfig.oauth.consumer_key ||
+      prevTwitterConfig.oauth.consumer_secret !== updatedTwitterConfig.oauth.consumer_secret
+    ) {
+      await twitterApi.registerWebhook();
+    }
+    if (
+      prevTwitterConfig.oauth.token !== updatedTwitterConfig.oauth.token ||
+      prevTwitterConfig.oauth.token_secret !== prevTwitterConfig.oauth.token_secret ||
+      prevTwitterConfig.twitterWebhookEnvironment !== updatedTwitterConfig.twitterWebhookEnvironment
+    ) {
+      await twitterApi.registerWebhook();
+    }
+  } catch (e) {
+    debugTwitter(e);
   }
 };

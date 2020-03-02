@@ -1,3 +1,10 @@
+## [0.12.1](https://github.com/erxes/erxes-integrations/compare/0.12.0...0.12.1) (2020-03-02)
+
+
+### Bug Fixes
+
+* load dotenv in order to get process.env values ([2ec0463](https://github.com/erxes/erxes-integrations/commit/2ec046356668ba433f45f8d0e4faadd735b915b6))
+
 # [0.12.0](https://github.com/erxes/erxes-integrations/compare/0.11.2...0.12.0) (2020-01-08)
 
 
