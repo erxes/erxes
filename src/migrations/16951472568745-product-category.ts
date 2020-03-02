@@ -4,9 +4,9 @@ import { ProductCategories, Products } from '../db/models';
 module.exports.up = async () => {
   await connect();
 
-  const prevEntry = await ProductCategories.findOne({ name: 'General' });
+  const count = await ProductCategories.find({}).count();
 
-  if (prevEntry) {
+  if (count > 0) {
     return;
   }
 
