@@ -1,7 +1,10 @@
+import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
 import { IProviderSettings } from './nylas/types';
+
+dotenv.config();
 
 interface IRequestParams {
   url?: string;
