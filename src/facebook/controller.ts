@@ -2,7 +2,7 @@ import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 import { debugBase, debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
-import { getEnv, sendRequest } from '../utils';
+import { getConfig, getEnv, sendRequest } from '../utils';
 import loginMiddleware from './loginMiddleware';
 import { Comments, Customers, Posts } from './models';
 import receiveComment from './receiveComment';
@@ -235,24 +235,29 @@ const init = async app => {
     return res.json(result.reverse());
   });
 
-  const { FACEBOOK_VERIFY_TOKEN, FACEBOOK_APP_SECRET } = process.env;
-
-  if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
-    return debugBase('Invalid facebook config');
-  }
-
   const accessTokensByPageId = {};
 
-  const adapter = new FacebookAdapter({
-    verify_token: FACEBOOK_VERIFY_TOKEN,
-    app_secret: FACEBOOK_APP_SECRET,
-    getAccessTokenForPage: async (pageId: string) => {
-      return accessTokensByPageId[pageId];
-    },
-  });
+  const getAdapter = async (): Promise<any> => {
+    const FACEBOOK_VERIFY_TOKEN = await getConfig('FACEBOOK_VERIFY_TOKEN');
+    const FACEBOOK_APP_SECRET = await getConfig('FACEBOOK_APP_SECRET');
+
+    if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
+      return debugBase('Invalid facebook config');
+    }
+
+    return new FacebookAdapter({
+      verify_token: FACEBOOK_VERIFY_TOKEN,
+      app_secret: FACEBOOK_APP_SECRET,
+      getAccessTokenForPage: async (pageId: string) => {
+        return accessTokensByPageId[pageId];
+      },
+    });
+  };
 
   // Facebook endpoint verifier
-  app.get('/facebook/receive', (req, res) => {
+  app.get('/facebook/receive', async (req, res) => {
+    const FACEBOOK_VERIFY_TOKEN = await getConfig('FACEBOOK_VERIFY_TOKEN');
+
     // when the endpoint is registered as a webhook, it must echo back
     // the 'hub.challenge' value it receives in the query arguments
     if (req.query['hub.mode'] === 'subscribe') {
@@ -272,6 +277,8 @@ const init = async app => {
     }
 
     debugFacebook(`Received webhook data ${JSON.stringify(data)}`);
+
+    const adapter = await getAdapter();
 
     for (const entry of data.entry) {
       // receive chat

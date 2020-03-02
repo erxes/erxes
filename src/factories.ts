@@ -1,7 +1,17 @@
 import { Comments, ConversationMessages, Conversations, Customers, Posts } from './facebook/models';
 import { Accounts } from './models';
+import Configs from './models/Configs';
 import Integrations from './models/Integrations';
 import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from './nylas/models';
+
+export const configFactory = (params: { code?: string; value?: string }) => {
+  const config = new Configs({
+    code: params.code || '',
+    value: params.value || '',
+  });
+
+  return config.save();
+};
 
 export const accountFactory = (params: {
   kind?: string;

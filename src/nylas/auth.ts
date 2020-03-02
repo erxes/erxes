@@ -1,16 +1,14 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
 import Accounts, { IAccount } from '../models/Accounts';
-import { sendRequest } from '../utils';
-import { CONNECT_AUTHORIZE_URL, CONNECT_TOKEN_URL } from './constants';
+import { getConfig, sendRequest } from '../utils';
+import { CONNECT_AUTHORIZE_URL, CONNECT_TOKEN_URL, NYLAS_API_URL } from './constants';
 import { updateAccount } from './store';
 import { IIntegrateProvider } from './types';
-import { decryptPassword, getProviderSettings, nylasInstance } from './utils';
+import { decryptPassword, getNylasConfig, getProviderSettings, nylasInstance } from './utils';
 
 // loading config
 dotenv.config();
-
-const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
 
 /**
  * Connect provider to nylas
@@ -20,7 +18,7 @@ const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
 const connectProviderToNylas = async (kind: string, account: IAccount & { _id: string }) => {
   const { email, tokenSecret } = account;
 
-  const settings = getProviderSettings(kind, tokenSecret);
+  const settings = await getProviderSettings(kind, tokenSecret);
 
   const { access_token, account_id, billing_state } = await integrateProviderToNylas({
     email,
@@ -44,7 +42,7 @@ const connectYahooAndOutlookToNylas = async (kind: string, account: IAccount & {
     email,
     kind,
     scopes: 'email',
-    settings: { username: email, password: decryptPassword(password) },
+    settings: { username: email, password: await decryptPassword(password) },
   });
 
   await updateAccount(account._id, account_id, access_token, billing_state);
@@ -64,7 +62,7 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
 
   const { email, password } = account;
 
-  const decryptedPassword = decryptPassword(password);
+  const decryptedPassword = await decryptPassword(password);
 
   const { access_token, account_id, billing_state } = await integrateProviderToNylas({
     email,
@@ -97,6 +95,8 @@ const integrateProviderToNylas = async (args: IIntegrateProvider) => {
   const { email, kind, settings, scopes } = args;
 
   let code;
+
+  const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = await getNylasConfig();
 
   try {
     const codeResponse = await sendRequest({
@@ -157,7 +157,45 @@ const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
   return Accounts.updateOne({ uid: accountId }, { $set: { billingState: enable ? 'paid' : 'cancelled' } });
 };
 
+const removeExistingNylasWebhook = async (): Promise<void> => {
+  const NYLAS_CLIENT_ID = await getConfig('NYLAS_CLIENT_ID');
+  const NYLAS_CLIENT_SECRET = await getConfig('NYLAS_CLIENT_SECRET');
+
+  debugNylas('Getting existing Nylas webhook');
+
+  try {
+    const existingWebhooks = await sendRequest({
+      url: `${NYLAS_API_URL}/a/${NYLAS_CLIENT_ID}/webhooks`,
+      method: 'get',
+      headerParams: {
+        Authorization: `Basic ${Buffer.from(`${NYLAS_CLIENT_SECRET}:`).toString('base64')}`,
+      },
+    });
+
+    if (!existingWebhooks || existingWebhooks.length === 0) {
+      return debugNylas(`No existing Nylas webhook found with NYLAS_CLIENT_ID: ${NYLAS_CLIENT_ID}`);
+    }
+
+    debugNylas(`Found: ${existingWebhooks.length} Nylas webhooks`);
+
+    for (const webhook of existingWebhooks) {
+      await sendRequest({
+        url: `${NYLAS_API_URL}/a/${NYLAS_CLIENT_ID}/webhooks/${webhook.id}`,
+        method: 'delete',
+        headerParams: {
+          Authorization: `Basic ${Buffer.from(`${NYLAS_CLIENT_SECRET}:`).toString('base64')}`,
+        },
+      });
+    }
+
+    debugNylas(`Successfully removed existing Nylas webhooks`);
+  } catch (e) {
+    debugNylas(e.message);
+  }
+};
+
 export {
+  removeExistingNylasWebhook,
   enableOrDisableAccount,
   integrateProviderToNylas,
   connectProviderToNylas,
