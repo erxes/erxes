@@ -60,13 +60,20 @@ const ContentColumn = styled.div`
 `;
 
 const TickUsed = styled.div`
+  float: left;
   text-align: center;
+  margin-top: 25px;
+`;
+
+const AssignUser = styled.div`
+  float: left;
+  padding-left: 20px;
   margin-top: 25px;
 `;
 
 const TotalAmount = styled.div`
   text-align: right;
-  font-size: 20px;    
+  font-size: 20px;
   margin-top: 25px;
   padding: 0px 15px;
   background: ${rgba(colors.colorCoreTeal, 0.2)};
@@ -167,6 +174,7 @@ export {
   ContentRowTitle,
   ContentColumn,
   TickUsed,
+  AssignUser,
   TotalAmount,
   ProductButton,
   Divider,
