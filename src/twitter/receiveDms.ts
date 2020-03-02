@@ -66,6 +66,7 @@ const receiveDms = async requestBody => {
         integration._id,
         content,
         customerErxesApiId,
+        integration.erxesApiId,
       );
 
       await createConverstaionMessage(event, content, attachments, customerErxesApiId, conversation);

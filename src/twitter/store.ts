@@ -63,6 +63,7 @@ export const getOrCreateConversation = async (
   integrationId: string,
   content: string,
   customerErxesApiId: string,
+  integrationErxesApiId: string,
 ) => {
   let conversation = await Conversations.findOne({
     senderId,
@@ -93,7 +94,7 @@ export const getOrCreateConversation = async (
       action: 'create-or-update-conversation',
       payload: JSON.stringify({
         customerId: customerErxesApiId,
-        integrationId,
+        integrationId: integrationErxesApiId,
         content,
       }),
     });

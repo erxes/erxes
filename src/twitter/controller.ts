@@ -38,7 +38,7 @@ const init = async app => {
     const crc_token = req.query.crc_token;
 
     if (crc_token) {
-      const hash = twitterUtils.getChallengeResponse(crc_token);
+      const hash = await twitterUtils.getChallengeResponse(crc_token);
 
       res.status(200);
       return res.json({
