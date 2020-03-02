@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
@@ -5,6 +6,8 @@ import { sendRPCMessage } from './messageBroker';
 import Configs from './models/Configs';
 import { IProviderSettings } from './nylas/types';
 import { get, set } from './redisClient';
+
+dotenv.config();
 
 interface IRequestParams {
   url?: string;
