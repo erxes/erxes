@@ -132,6 +132,12 @@ export default class RightMenu extends React.Component<Props, State> {
           onKeyPress={this.onSearch}
           autoFocus={true}
         />
+        <SelectTeamMembers
+          label="Filter by created members"
+          name="userIds"
+          queryParams={queryParams}
+          onSelect={onSelect}
+        />
         <Select
           placeholder="Filter by priority"
           value={priorities}
