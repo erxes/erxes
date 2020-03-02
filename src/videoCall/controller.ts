@@ -82,7 +82,7 @@ const init = async app => {
         return res.json(response);
       }
 
-      return { url: '', status: 'end' };
+      return res.json({ url: '', status: 'end' });
     } catch (e) {
       return next(e);
     }
