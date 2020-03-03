@@ -54,7 +54,7 @@ type Props = {
   multiple?: boolean;
   index?: number;
   switchItem?: (index: number) => string;
-  imagesLength: number;
+  imagesLength?: any;
 };
 
 type State = {

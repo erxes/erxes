@@ -1,10 +1,11 @@
-import colorShadowGray from 'modules/common/styles/colors';
 import { fadeIn, slideDown } from 'modules/common/utils/animations';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
+import colors from '../styles/colors';
 import { readFile } from '../utils';
+import Icon from './Icon';
 
 const PreviewWrapper = styled.div`
   position: fixed;
@@ -38,12 +39,23 @@ const PreviewWrapper = styled.div`
 `;
 
 const ButtonDirection = styledTS<{ arrow?: string }>(styled.button)`
-    position: fixed;
-    ${props => (props.arrow === 'right' ? `right: 0` : `left: 0`)}
-    background: ${colorShadowGray};
+    position: absolute;
+    ${props => (props.arrow === 'right' ? `right: 20px` : `left: 20px`)}
+    background: ${colors.colorLightGray};
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 20px;
+    opacity: 0.8;
+
+    > i {
+      font-weight: 600;
+      font-size: 18px;
+    }
 
     &:hover {
-      background: #aaa;
+      background: ${colors.colorCoreDarkGray};
+      color: ${colors.colorWhite};
     }
 `;
 
@@ -151,50 +163,23 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   handleKeydown = e => {
-    const { num, visible } = this.state;
+    const { src } = this.props;
+    const { visible } = this.state;
 
     if (e.keyCode === KEYCODES.ESCAPE && visible) {
-      if (e.keyCode === KEYCODES.ESCAPE && visible) {
-        this.setState({ visible: false }); this.setState({ visible: false, srcUrl: this.props.src || '' });
-      }
-      if ((e.keyCode === 37 || e.keyCode === 39) && visible) {
+      this.setState({ visible: false }); this.setState({ visible: false, srcUrl: src || '' });
+    }
+
+    if ((e.keyCode === 37 || e.keyCode === 39) && visible) {
+      if (visible) {
         if (e.keyCode === 39) {
-          if (this.props.switchItem) {
-            if (this.props.imagesLength > this.state.num + 1) {
-              this.setState({ num: this.state.num + 1 });
-              const switchedUrl = this.props.switchItem(this.state.num) || '';
-
-              this.setState({
-                srcUrl: switchedUrl
-              });
-            } else {
-              this.setState({ num: 0 });
-              const switchedUrl = this.props.switchItem(0);
-
-              this.setState({
-                srcUrl: switchedUrl
-              });
-            }
-          }
+          this.arrowClick('right', e);
+          return this.arrowClick('right', e);
         }
+
         if (e.keyCode === 37) {
-          if (this.props.switchItem) {
-            if (0 <= this.state.num - 1) {
-              this.setState({ num: this.state.num - 1 });
-              const switchedUrl = this.props.switchItem(num);
-
-              this.setState({
-                srcUrl: switchedUrl
-              });
-            } else {
-              this.setState({ num: this.props.imagesLength - 1 });
-              const switchedUrl = this.props.switchItem(this.props.imagesLength - 1);
-
-              this.setState({
-                srcUrl: switchedUrl
-              });
-            }
-          }
+          this.arrowClick('left', e);
+          return this.arrowClick('left', e);
         }
       }
     }
@@ -207,7 +192,7 @@ class ImageWithPreview extends React.Component<Props, State> {
           arrow={direction}
           onClick={this.arrowClick.bind(this, direction)}
         >
-          &#8592;
+          <Icon icon='leftarrow-3' />
         </ButtonDirection>
       );
     }
@@ -217,7 +202,7 @@ class ImageWithPreview extends React.Component<Props, State> {
         arrow={direction}
         onClick={this.arrowClick.bind(this, direction)}
       >
-        &#8594;
+        <Icon icon='chevron' />
       </ButtonDirection>
     );
   };
