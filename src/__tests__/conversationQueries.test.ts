@@ -91,7 +91,7 @@ describe('conversationQueries', () => {
         videoCallData {
           url
           name
-           status
+          status
         }
         messages {
           _id
@@ -164,7 +164,7 @@ describe('conversationQueries', () => {
           videoCallData {
             url
             name
-             status
+            status
           }
         }
       }
@@ -279,6 +279,21 @@ describe('conversationQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() => Promise.resolve());
+
+    responses = await graphqlRequest(
+      qryConversationMessage,
+      'conversationMessages',
+      {
+        conversationId: conversation._id,
+      },
+      { dataSources },
+    );
+
+    expect(responses[0].videoCallData).toBeNull();
   });
 
   test('Conversation messages (messenger kind)', async () => {
@@ -975,7 +990,7 @@ describe('conversationQueries', () => {
 
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
-    const response = await graphqlRequest(
+    let response = await graphqlRequest(
       qryConversationDetail,
       'conversationDetail',
       { _id: messengerConversation._id },
@@ -999,6 +1014,19 @@ describe('conversationQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() => Promise.resolve());
+
+    response = await graphqlRequest(
+      qryConversationDetail,
+      'conversationDetail',
+      { _id: messengerConversation._id },
+      { user, dataSources },
+    );
+
+    expect(response.videoCallData).toBeNull();
   });
 
   test('Conversation detail callpro audio', async () => {

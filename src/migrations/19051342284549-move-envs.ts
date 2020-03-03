@@ -1,12 +1,5 @@
-import * as dotenv from 'dotenv';
-import * as mongoose from 'mongoose';
-
-dotenv.config();
-
-const options = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-};
+import { connect } from '../db/connection';
+import { Configs } from '../db/models';
 
 const ENVS = [
   'PUBSUB_TYPE',
@@ -44,14 +37,11 @@ const ENVS = [
 ];
 
 module.exports.up = async () => {
-  const MONGO_URL = process.env.MONGO_URL || '';
-  const mongoClient = await mongoose.createConnection(MONGO_URL || '', options);
-
-  const configsCollection = mongoClient.db.collection('configs');
+  await connect();
 
   for (const env of ENVS) {
     try {
-      await configsCollection.insert({ code: env, value: process.env[env] });
+      await Configs.create({ code: env, value: process.env[env] });
     } catch (e) {
       console.log(e.message);
     }

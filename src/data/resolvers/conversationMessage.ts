@@ -1,6 +1,7 @@
 import { Conversations, Customers, Integrations, Users } from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IMessageDocument } from '../../db/models/definitions/conversationMessages';
+import { debugExternalApi } from '../../debuggers';
 import { IContext } from '../types';
 
 export default {
@@ -51,6 +52,13 @@ export default {
       return null;
     }
 
-    return dataSources.IntegrationsAPI.fetchApi('/daily/room', { erxesApiMessageId: message._id });
+    try {
+      const response = await dataSources.IntegrationsAPI.fetchApi('/daily/room', { erxesApiMessageId: message._id });
+
+      return response;
+    } catch (e) {
+      debugExternalApi(e);
+      return null;
+    }
   },
 };
