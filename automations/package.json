@@ -3,11 +3,8 @@
   "version": "0.11.2",
   "description": "erxes automations",
   "homepage": "https://erxes.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erxes/erxes-automations"
-  },
-  "bugs": "https://github.com/erxes/erxes-automations/issues",
+  "repository": "https://github.com/erxes/erxes-api",
+  "bugs": "https://github.com/erxes/erxes-api/issues",
   "keywords": [
     "node",
     "express",
@@ -30,6 +27,7 @@
     "release": "release-it"
   },
   "lint-staged": {
+    "gitDir": "../",
     "*.ts": [
       "prettier --write",
       "git add"
@@ -59,10 +57,7 @@
     "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
     "sinon": "^7.5.0",
-    "uuid": "^3.3.3",
-    "apollo-server-express": "^2.9.7",
-    "cors": "^2.8.1",
-    "redis": "^2.8.0"
+    "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"

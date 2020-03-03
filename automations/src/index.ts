@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Once the bot has booted up its internal services, you can use them to do stuff.
 
-const PORT = process.env;
+const { PORT } = process.env;
 
 app.listen(PORT, () => {
   console.log(`Automations server is running on port ${PORT}`);
