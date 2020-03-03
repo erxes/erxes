@@ -37,7 +37,6 @@ export const TRIGGER_KIND = {
 };
 
 export const ACTION_KIND = {
-  DELAY: 'delay',
   SEND_NOTIFICATION: 'sendNotification',
   ERKHET_POST_DATA: 'erkhetPostData',
   PRODUCT_TO_ERKHET: 'productToErkhet',
@@ -48,7 +47,6 @@ export const ACTION_KIND = {
   WORKER_TO_ERXES: 'workerToErxes',
 
   ALL: [
-    'delay',
     'sendNotification',
     'erkhetPostData',
     'productToErkhet',
