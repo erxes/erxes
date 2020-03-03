@@ -17,12 +17,12 @@ export const LANGUAGES = [
 
 export const SERVICE_TYPES = [
   { label: 'Amazon Web Service', value: 'AWS' },
-  { label: 'Google Cloud Service', value: 'GCS' },
+  { label: 'Google Cloud Service', value: 'GCS' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
   { label: 'Public', value: 'true' },
-  { label: 'Private', value: 'false' },
+  { label: 'Private', value: 'false' }
 ];
 
 export const MEASUREMENTS = [
@@ -92,6 +92,7 @@ export const KEY_LABELS = {
   FACEBOOK_APP_SECRET: 'Facebook App Secret',
   FACEBOOK_VERIFY_TOKEN: 'Facebook Verify Token',
   TWITTER_CONSUMER_KEY: 'Twitter Consumer Key',
+  TWITTER_CONSUMER_SECRET: 'Twitter Consumer secret',
   TWITTER_ACCESS_TOKEN: 'Twitter Access Token',
   TWITTER_ACCESS_TOKEN_SECRET: 'Twitter Access Token Secret',
   TWITTER_WEBHOOK_ENV: 'Twitter Webhook Env',
