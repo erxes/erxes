@@ -151,7 +151,7 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   checkIsActive(conversation: IConversation) {
-    return conversation.customer && conversation.customer.isOnline;
+    return conversation.integration.kind !== 'messenger' || (conversation.customer && conversation.customer.isOnline);
   }
 
   hideMask = () => {

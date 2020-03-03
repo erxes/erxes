@@ -80,7 +80,7 @@
   "lint-staged": {
     "gitDir": "../",
     "linters": {
-      "src/**/*.{ts,tsx,json,css}": [
+      "ui/src/**/*.{ts,tsx,json,css}": [
         "prettier --single-quote --write",
         "git add"
       ]
