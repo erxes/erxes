@@ -151,7 +151,7 @@ export const downloadAttachment = urlOrName => {
 };
 
 export const getConfigs = async () => {
-  const configsCache = await get('configs');
+  const configsCache = await get('configs_erxes_integrations');
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -164,7 +164,7 @@ export const getConfigs = async () => {
     configsMap[config.code] = config.value;
   }
 
-  set('configs', JSON.stringify(configsMap));
+  set('configs_erxes_integrations', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -193,5 +193,5 @@ export const getCommonGoogleConfigs = async () => {
 };
 
 export const resetConfigsCache = () => {
-  set('configs', '');
+  set('configs_erxes_integrations', '');
 };
