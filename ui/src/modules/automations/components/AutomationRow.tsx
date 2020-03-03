@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import * as React from 'react';
 import { IAutomation } from '../types';
 
@@ -12,9 +11,9 @@ class AutomationRow extends React.Component<Props> {
 
     return (
       <tr key={automation._id}>
-        <td>{dayjs(automation.createdAt).format('YYYY-MM-DD HH:mm')}</td>
         <td>{automation.name}</td>
         <td>{automation.description}</td>
+        <td>{automation.status}</td>
         <td>.</td>
       </tr>
     );

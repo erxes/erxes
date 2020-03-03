@@ -213,7 +213,7 @@ class Navigation extends React.Component<{
           {this.renderNavItem(
             'showKnowledgeBase',
             __('Automation'),
-            '/automation',
+            '/automations',
             'icon-key-skeleton-alt'
           )}
         </Nav>

@@ -9,11 +9,13 @@ import List from '../components/List';
 import { queries } from '../graphql';
 import { AutomationsQueryResponse } from '../types';
 
-type IProps = {};
+type Props = {
+  apiPath: string
+};
 
 type FinalProps = {
   automationsQuery: AutomationsQueryResponse;
-} & IProps &
+} & Props &
   IRouterProps;
 
 const AutomationsContainer = (props: FinalProps) => {
@@ -34,11 +36,17 @@ const AutomationsContainer = (props: FinalProps) => {
   return <List {...updatedProps} />;
 };
 
-export default withProps<{}>(
+export default withProps<Props>(
   compose(
-    graphql<{}, AutomationsQueryResponse, {}>(gql(queries.automations), {
-      name: 'automationsQuery'
-    })
-    // )(withRouter<IRouterProps>(AutomationsContainer))
+    graphql<Props, AutomationsQueryResponse, {}>(
+      gql(queries.automations), {
+        name: 'automationsQuery',
+        options: ({ apiPath }) => ({
+          variables: {
+            path: { apiPath },
+          }
+        })
+      }
+    )
   )(AutomationsContainer)
 );

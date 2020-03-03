@@ -6,10 +6,11 @@ export interface IAutomation extends IAutomationDoc {
   _id: string;
   name: string;
   description: string;
-  userId: string;
-  createdAt: Date;
-  modifiedAt: Date;
+  status: string;
   shapes: IShape[];
+  // userId: string;
+  // createdAt: Date;
+  // modifiedAt: Date;
 }
 
 export type AutomationsQueryResponse = {

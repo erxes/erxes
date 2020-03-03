@@ -1,15 +1,14 @@
-const commonParams = ``;
+// const commonParams = ``;
 
-const commonParamDefs = ``;
+// const commonParamDefs = ``;
 
 const automations = `
-  query automations(
-    ${commonParams}
-  ) {
-    automations(
-      ${commonParamDefs}
-    ) {
+  query automations {
+    automations {
       _id
+      name
+      description
+      status
     }
   }
 `;

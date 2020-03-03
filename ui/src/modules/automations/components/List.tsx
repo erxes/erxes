@@ -33,10 +33,10 @@ class List extends React.Component<Props, {}> {
       <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
         <thead>
           <tr>
-            <th>{__('Date')}</th>
             <th>{__('Name')}</th>
             <th>{__('Description')}</th>
-            <th>{__('Changes')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Methods')}</th>
           </tr>
         </thead>
         <tbody>{this.renderObjects()}</tbody>
