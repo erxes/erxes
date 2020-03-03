@@ -1,12 +1,6 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { queries as generalQueries } from 'modules/settings/general/graphql';
+import { AppConsumer } from 'appContext';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import { ConfigDetailQueryResponse } from '../../../settings/general/types';
 import ProductForm from '../../components/product/ProductForm';
 import { IPaymentsData, IProductData } from '../../types';
 
@@ -21,60 +15,27 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  getUomQuery: ConfigDetailQueryResponse;
-  getCurrenciesQuery: ConfigDetailQueryResponse;
-} & Props;
-
-class ProductFormContainer extends React.Component<FinalProps> {
+export default class ProductFormContainer extends React.Component<Props> {
   render() {
-    const { getUomQuery, getCurrenciesQuery } = this.props;
+    return (
+      <AppConsumer>
+        {({ currentUser }) => {
 
-    if (getUomQuery.loading || getCurrenciesQuery.loading) {
-      return <Spinner />;
-    }
+          if (!currentUser) {
+            return;
+          }
 
-    const uom = getUomQuery.configsDetail
-      ? getUomQuery.configsDetail.value
-      : [];
+          const configs = currentUser.configs || {};
 
-    const currencies = getCurrenciesQuery.configsDetail
-      ? getCurrenciesQuery.configsDetail.value
-      : [];
+          const extendedProps = {
+            ...this.props,
+            uom: configs.dealUOM || [],
+            currencies: configs.dealCurrency || []
+          };
 
-    const extendedProps = {
-      ...this.props,
-      uom,
-      currencies
-    };
-
-    return <ProductForm {...extendedProps} />;
+          return <ProductForm {...extendedProps} />
+        }}
+      </AppConsumer>
+    )
   }
 }
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, ConfigDetailQueryResponse, { code: string }>(
-      gql(generalQueries.configsDetail),
-      {
-        name: "getUomQuery",
-        options: {
-          variables: {
-            code: "dealUOM"
-          }
-        }
-      }
-    ),
-    graphql<Props, ConfigDetailQueryResponse, { code: string }>(
-      gql(generalQueries.configsDetail),
-      {
-        name: "getCurrenciesQuery",
-        options: {
-          variables: {
-            code: "dealCurrency"
-          }
-        }
-      }
-    )
-  )(ProductFormContainer)
-);
