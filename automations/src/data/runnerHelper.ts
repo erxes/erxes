@@ -6,7 +6,6 @@ import {
   companyToErxes,
   customerToErkhet,
   customerToErxes,
-  delay,
   erkhetPostData,
   inventoryToErxes,
   productToErkhet,
@@ -18,10 +17,6 @@ import { checkCustomerIsEbarimtCompany } from './conditions/checkCustomerIsEbari
 
 const actionRun = async (shape: IShapeDocument, data: any, parentId: string, result: object) => {
   switch (shape.kind) {
-    case ACTION_KIND.DELAY:
-      result = delay(shape, data, result);
-      break;
-
     case ACTION_KIND.ERKHET_POST_DATA:
       result = await erkhetPostData(shape, data, result);
       break;
@@ -112,6 +107,7 @@ export const asyncAutomationRunner = async (trigger: IShapeDocument, data: any) 
     const nextShape = await Shapes.getShape(nextShapeId);
     result = await sequencing(nextShape, data, queue._id, result);
   }
+
   return result;
 };
 
