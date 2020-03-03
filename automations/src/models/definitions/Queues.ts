@@ -8,6 +8,7 @@ export interface IQueue {
   nextAt?: Date;
   shapeId: string;
   postData: any;
+  result?: any;
   status: string;
   parentId?: string;
 }
@@ -23,6 +24,7 @@ export const queueSchema = new Schema({
   nextAt: field({ type: Date, label: 'Next at' }),
   shapeId: field({ type: String, label: 'Shape', index: true }),
   postData: field({ type: Object, optional: true }),
+  result: field({ type: Object, optional: true }),
   status: field({
     type: String,
     enum: QUEUE_STATUS.ALL,

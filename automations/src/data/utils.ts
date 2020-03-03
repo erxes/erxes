@@ -29,7 +29,7 @@ export const checkTrigger = async (postData: any): Promise<any> => {
     }
 
     default:
-      return {};
+      configFilter = {};
   }
 
   const asyncTriggers = await Shapes.find({

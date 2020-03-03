@@ -50,8 +50,8 @@ const actionRun = async (shape: IShapeDocument, data: any, parentId: string, res
       break;
   }
 
-  if (!shape.toArrow) {
-    await Queues.createQueue({ shapeId: shape._id, postData: data, status: QUEUE_STATUS.COMPLETE, parentId });
+  if (shape.toArrow.length === 0) {
+    await Queues.createQueue({ shapeId: shape._id, postData: data, result, status: QUEUE_STATUS.COMPLETE, parentId });
     return result;
   }
 
@@ -85,7 +85,7 @@ const conditionRun = async (shape: IShapeDocument, data: any, parentId: string, 
 };
 
 const sequencing = async (shape: IShapeDocument, data: any, parentId: string, result: object) => {
-  await Queues.createQueue({ shapeId: shape._id, postData: data, status: QUEUE_STATUS.WORKING, parentId });
+  await Queues.createQueue({ shapeId: shape._id, postData: data, result, status: QUEUE_STATUS.WORKING, parentId });
 
   if (shape.type === 'action') {
     result = await actionRun(shape, data, parentId, result);
