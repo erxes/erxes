@@ -220,7 +220,7 @@ export type IEmailFormProps = {
 };
 
 export type EngageConfigQueryResponse = {
-  engagesConfigDetail: any[];
+  engagesConfigDetail: Array<{ code: string; value: string }>;
   loading: boolean;
   refetch: () => void;
 };
