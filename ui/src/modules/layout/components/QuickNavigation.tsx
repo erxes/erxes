@@ -115,8 +115,6 @@ const QuickNavigation = ({
         </NavItem>
       </Tip>
 
-      {/* <Response userId={currentUser._id} /> */}
-
       <NavItem>
         <Widget />
       </NavItem>

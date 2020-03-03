@@ -7,7 +7,6 @@ import { Route, Router, Switch } from 'react-router-dom';
 import history from './browserHistory';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
-import AutomationRoutes from './modules/automations/routes';
 import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
 import DealsRoutes from './modules/deals/routes';
@@ -36,7 +35,6 @@ const renderRoutes = currentUser => {
         <AutomationResponse currentUser={currentUser} />
         <MainLayout currentUser={currentUser}>
           <NotificationRoutes />
-          <AutomationRoutes />
           <InboxRoutes />
           <SegmentsRoutes />
           <CustomersRoutes />
