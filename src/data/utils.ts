@@ -862,7 +862,7 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
 };
 
 export const getConfigs = async () => {
-  const configsCache = await get('configs');
+  const configsCache = await get('configs_erxes_api');
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -875,7 +875,7 @@ export const getConfigs = async () => {
     configsMap[config.code] = config.value;
   }
 
-  set('configs', JSON.stringify(configsMap));
+  set('configs_erxes_api', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -891,5 +891,5 @@ export const getConfig = async (code, defaultValue?) => {
 };
 
 export const resetConfigsCache = () => {
-  set('configs', '');
+  set('configs_erxes_api', '');
 };
