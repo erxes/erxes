@@ -34,7 +34,6 @@ export interface IShapeDocument extends IShape, Document {
 }
 
 export const automationSchema = new Schema({
-  _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   status: field({
@@ -56,7 +55,6 @@ export const automationSchema = new Schema({
 });
 
 export const shapeSchema = new Schema({
-  _id: field({ pkey: true }),
   automationId: field({ type: String, label: 'Automation', index: true }),
   type: field({
     type: String,

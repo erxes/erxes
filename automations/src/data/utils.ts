@@ -6,7 +6,7 @@ import { changeDeal } from './triggers/changeDeal';
 const getMainSelector = async kind => {
   const publishedAutomationIds = await Automations.find({ status: AUTOMATION_STATUS.PUBLISH }, { _id: 1 });
   return {
-    automationId: { $in: publishedAutomationIds },
+    automationId: { $in: publishedAutomationIds.map(item => item._id) },
     kind,
     type: AUTOMATION_TYPE.TRIGGER,
   };

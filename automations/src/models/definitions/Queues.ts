@@ -18,7 +18,6 @@ export interface IQueueDocument extends IQueue, Document {
 }
 
 export const queueSchema = new Schema({
-  _id: field({ pkey: true }),
   createdAt: field({ type: Date, label: 'Created at' }),
   createdBy: field({ type: String, label: 'Created by' }),
   nextAt: field({ type: Date, label: 'Next at' }),
