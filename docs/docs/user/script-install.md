@@ -7,6 +7,7 @@ sidebar_label: Script installation
 <!--Content-->
 
 In the case of web messenger, knowledgebase, popups, you have to install some scripts on your website's code.
+
 In this section, we will demonstrate all the use-cases related to this topic.
 
 ---
@@ -121,9 +122,9 @@ Basic steps to install scripts.
 ## Google tag manager
 Basic steps to install scripts.
 
-###  Install google tag manager 
+###  Install Google tag manager 
 
-1. Log in your google tag manager account.
+1. Log in your Google tag manager account.
 2. Click on the **Admin** from the dropdown menu, then choose the "Install Google Tag Manager" from the right sidebar (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/1.png" />
@@ -157,9 +158,9 @@ Basic steps to install scripts.
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/6.png" />
 
 
-#### Step 2:  Paste the code in google tag manager
+#### Step 2:  Paste the code in Google tag manager
 
-5. Log in your google tag manager account.
+5. Log in your Google tag manager account.
 6. Click the button “Add a new tag” (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/7.png" />
@@ -199,9 +200,9 @@ Basic steps to install scripts.
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/13.png" />
 
 
-#### Step 2: Paste the code in google tag manager 
+#### Step 2: Paste the code in Google tag manager 
 
-5. Log in your google tag manager account.
+5. Log in your Google tag manager account.
 6. Click the button “Add a new tag” (see the below figure). 
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/14.png" />
@@ -283,7 +284,7 @@ If you have encountered some mistakes, please make sure following steps:
 
 #### Step 2: Paste the code in google tag manager 
 
-5. Log in to your google tag manager account.
+5. Log in to your Google tag manager account.
 6. Click the button “Add a new tag” (see the below figure).
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/google-tag-manager/25.png" />
