@@ -12,14 +12,14 @@ Real-time & two-way help center
 Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
 
 
----
+
 
 ## Knowledge base
 
 Knowledge Base is a part of your widget section where you address common concerns, questions or objections that customers have.
 + Please follow the steps for setup: Knowledge Base
 
----
+
 
 <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image1.png"/>
 
@@ -27,7 +27,7 @@ Knowledge Base is a part of your widget section where you address common concern
 
 ## Add knowledge base
 
-+ Please follow the steps for setup: Knowledge Base-> Add Knowledge Base
++ Please follow the next steps for setup: Knowledge Base-> Add Knowledge Base
 
 1. Click Add button 
 2. Insert Title for knowledge base
@@ -40,12 +40,12 @@ Knowledge Base is a part of your widget section where you address common concern
 <img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image2.png"/>
 <img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image3.png"/>
 </div>
----
+
 
 ## Manage knowledge base
 
 
-+ Please follow the steps for setup: Knowledge Base-> Add Knowledge base-> Manage Knowledge Base
++ Please follow the next steps for setup: Knowledge Base-> Add Knowledge base-> Manage Knowledge Base
 
 <div >
 <img style="width:49%" src="https://s3.us-west-2.amazonaws.com/erxes-docs/knowledgebase/image4.png"/>
@@ -56,11 +56,11 @@ Knowledge Base is a part of your widget section where you address common concern
 *Manage Created Knowledge Base
 </aside>
 
----
+
 
 ## Add category
 
-+ Please follow the steps for setup: Knowledge Base-> Add Knowledge Base->Add Category
++ Please follow the next steps for setup: Knowledge Base-> Add Knowledge Base->Add Category
 
 1. Add Category to created Knowledge base
 2. Insert Name for category
@@ -75,10 +75,10 @@ Knowledge Base is a part of your widget section where you address common concern
 </div>
 
 
----
+
 ## Add article in category
 
-+ Please follow the steps for setup: Knowledge Base-> Add Knowledge Base->Add Category->Add Article
++ Please follow the next steps for setup: Knowledge Base-> Add Knowledge Base->Add Category->Add Article
 
 1. Insert Frequently Asked Question
 2. Brief summary of content answer
@@ -94,4 +94,3 @@ You can use Knowledgebase script to install on your webpage or inside the messen
 
 </aside>
 
----
