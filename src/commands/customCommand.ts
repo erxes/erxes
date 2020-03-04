@@ -2754,8 +2754,78 @@ const command = async () => {
 
     if (category) {
       await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: category._id } });
+    } else if (value.categoryCode === '0029c') {
+      const cat = await categories.findOne({ code: '0029a' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0039c') {
+      const cat = await categories.findOne({ code: '0039a' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0019c') {
+      const cat = await categories.findOne({ code: '0019a' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0101') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0102') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0103') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0104') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0105') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0106') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0107') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0108') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0109') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0110') {
+      const cat = await categories.findOne({ code: '0100' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0071') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0072') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0073') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0074') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0075') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0076') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0077') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0078') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '0079') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
+    } else if (value.categoryCode === '007901') {
+      const cat = await categories.findOne({ code: '0070' });
+      await products.updateOne({ code: value.inventoryCode }, { $set: { categoryId: cat._id } });
     }
   }
+
   process.exit();
 };
 
