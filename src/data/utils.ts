@@ -863,12 +863,6 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
 };
 
 export const checkAutomation = async (kind: string, body: any, user: IUserDocument) => {
-  const AUTOMATION_DOMAIN = getEnv({ name: 'AUTOMATIONS_API_DOMAIN' });
-
-  if (!AUTOMATION_DOMAIN) {
-    return;
-  }
-
   const data = {
     ...body,
     userId: user._id,

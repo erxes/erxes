@@ -1,32 +1,25 @@
-import * as mongoose from 'mongoose';
-import { sendMessage } from '../../messageBroker';
-import { IShapeDocument } from '../../models/definitions/Automations';
+import { sendRPCMessage } from '../../messageBroker';
 
-const inventoryToErxes = async (shape: IShapeDocument, data: any, result: object) => {
-  // tslint:disable-next-line: no-unused-expression
-  shape;
-
+const inventoryToErxes = async (data: any) => {
   let sendData = {};
   const objectData = JSON.parse(data.object)[0];
   const doc = objectData.fields;
   const kind = objectData.model;
 
-  const { API_MONGO_URL = '' } = process.env;
-  const options = {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  };
-  const apiMongoClient = await mongoose.createConnection(API_MONGO_URL, options);
-  const apiProductCategories = apiMongoClient.db.collection('product_categories');
-  const apiProducts = apiMongoClient.db.collection('products');
   let productCategory = null;
 
   switch (kind) {
     case 'inventories.inventory':
-      const product = await apiProducts.findOne({ code: data.old_code });
+      const product = await sendRPCMessage({
+        action: 'get-or-error-product',
+        payload: JSON.stringify({ code: data.old_code }),
+      });
 
       if ((data.action === 'update' && data.old_code) || data.action === 'create') {
-        productCategory = await apiProductCategories.findOne({ code: doc.category_code });
+        productCategory = await sendRPCMessage({
+          action: 'get-or-error-product-category',
+          payload: JSON.stringify({ code: doc.category_code }),
+        });
 
         const document = {
           name: doc.name,
@@ -73,10 +66,16 @@ const inventoryToErxes = async (shape: IShapeDocument, data: any, result: object
 
       break;
     case 'inventories.category':
-      productCategory = await apiProductCategories.findOne({ code: data.old_code });
+      productCategory = await sendRPCMessage({
+        action: 'get-or-error-product-category',
+        payload: JSON.stringify({ code: data.old_code }),
+      });
 
       if ((data.action === 'update' && data.old_code) || data.action === 'create') {
-        const parentCategory = await apiProductCategories.findOne({ code: doc.parent_code });
+        const parentCategory = await sendRPCMessage({
+          action: 'get-or-error-product-category',
+          payload: JSON.stringify({ code: doc.parent_code }),
+        });
 
         const document = {
           code: doc.code,
@@ -120,9 +119,7 @@ const inventoryToErxes = async (shape: IShapeDocument, data: any, result: object
       sendData = {};
   }
 
-  await sendMessage('from_erkhet:to_erxes-list', sendData);
-
-  return result;
+  return sendRPCMessage({ action: 'method-from-kind', payload: JSON.stringify(sendData) });
 };
 
 export default inventoryToErxes;

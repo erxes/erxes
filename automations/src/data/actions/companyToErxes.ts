@@ -1,24 +1,14 @@
-import * as mongoose from 'mongoose';
-import { sendMessage } from '../../messageBroker';
-import { IShapeDocument } from '../../models/definitions/Automations';
+import { sendRPCMessage } from '../../messageBroker';
 
-const companyToErxes = async (shape: IShapeDocument, data: any, result: object) => {
-  // tslint:disable-next-line: no-unused-expression
-  shape;
-
+const companyToErxes = async (data: any) => {
   let sendData = {};
   const objectData = JSON.parse(data.object)[0];
   const doc = objectData.fields;
 
-  const { API_MONGO_URL = '' } = process.env;
-  const options = {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  };
-  const apiMongoClient = await mongoose.createConnection(API_MONGO_URL, options);
-  const apiCompanies = apiMongoClient.db.collection('companies');
-
-  const company = await apiCompanies.findOne({ code: data.old_code });
+  const company = await sendRPCMessage({
+    action: 'get-or-error-company',
+    payload: JSON.stringify({ code: data.old_code }),
+  });
 
   if ((data.action === 'update' && data.old_code) || data.action === 'create') {
     const document = {
@@ -57,9 +47,7 @@ const companyToErxes = async (shape: IShapeDocument, data: any, result: object) 
     };
   }
 
-  await sendMessage('from_erkhet:to_erxes-list', sendData);
-
-  return result;
+  return sendRPCMessage({ action: 'method-from-kind', payload: JSON.stringify(sendData) });
 };
 
 export default companyToErxes;

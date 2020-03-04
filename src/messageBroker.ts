@@ -1,10 +1,9 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
+import { receiveRpcMessage as automationsRecRpcMsg } from './data/modules/automations/receiveMessage';
 import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
-import { sendNotification } from './data/utils';
-import { Companies, Customers, RobotEntries, Users } from './db/models';
-import { ProductCategories, Products } from './db/models/Products';
+import { Customers, RobotEntries } from './db/models';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
 
@@ -42,7 +41,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
         { noAck: true },
       );
 
-      channel.sendToQueue('rpc_queue:erxes-automation', Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue('rpc_queue:erxes-api', Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });
@@ -138,40 +137,16 @@ const initConsumer = async () => {
     }
   });
 
-  await channel.assertQueue('from_erkhet:to_erxes-list');
-  channel.consume('from_erkhet:to_erxes-list', async msg => {
+  await channel.assertQueue('rpc_queue:erxes-automations');
+  channel.consume('rpc_queue:erxes-automations', async msg => {
     if (msg !== null) {
-      debugBase(`Received hook ${msg.content.toString()}`);
+      debugBase(`Received rpc queue message ${msg.content.toString()}`);
 
-      const data = JSON.parse(msg.content.toString());
-      const method = data.method;
-      const kind = data.kind;
-      const params = data.params;
+      const response = await automationsRecRpcMsg(JSON.parse(msg.content.toString()));
 
-      switch (kind) {
-        case 'Products':
-          await Products[method](...params);
-          break;
-        case 'ProductCategories':
-          await ProductCategories[method](...params);
-          break;
-
-        case 'Customers':
-          await Customers[method](...params);
-          break;
-
-        case 'Companies':
-          await Companies[method](...params);
-          break;
-
-        case 'Notifications':
-          sendNotification(params);
-          break;
-
-        case 'Users':
-          await Users[method](...params);
-          break;
-      }
+      channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
+        correlationId: msg.properties.correlationId,
+      });
 
       channel.ack(msg);
     }

@@ -1,7 +1,7 @@
-import { sendMessage } from '../../messageBroker';
+import { sendRPCMessage } from '../../messageBroker';
 import { IShapeDocument } from '../../models/definitions/Automations';
 
-const customerToErkhet = async (shape: IShapeDocument, data: any, result: object) => {
+const customerToErkhet = async (shape: IShapeDocument, data: any) => {
   const objectData = data.doc;
   let sendData = {};
 
@@ -37,12 +37,10 @@ const customerToErkhet = async (shape: IShapeDocument, data: any, result: object
     orderInfos: JSON.stringify(sendData),
   };
 
-  sendMessage('send_message:erxes-automation', {
-    action: 'customer-change',
-    data: postData,
-  });
-
-  return result;
+  return sendRPCMessage(
+    { action: 'customer-change', payload: JSON.stringify(postData) },
+    'rpc_queue:erxes-automation-erkhet',
+  );
 };
 
 export default customerToErkhet;

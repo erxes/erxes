@@ -18,35 +18,35 @@ import { checkCustomerIsEbarimtCompany } from './conditions/checkCustomerIsEbari
 const actionRun = async (shape: IShapeDocument, data: any, parentId: string, result: object) => {
   switch (shape.kind) {
     case ACTION_KIND.ERKHET_POST_DATA:
-      result = await erkhetPostData(shape, data, result);
+      result = await erkhetPostData(shape, data);
       break;
 
     case ACTION_KIND.PRODUCT_TO_ERKHET:
-      await productToErkhet(shape, data, result);
+      result = await productToErkhet(shape, data);
       break;
 
     case ACTION_KIND.INVENTORY_TO_ERXES:
-      await inventoryToErxes(shape, data, result);
+      result = await inventoryToErxes(data);
       break;
 
     case ACTION_KIND.COMPANY_TO_ERXES:
-      await companyToErxes(shape, data, result);
+      result = await companyToErxes(data);
       break;
 
     case ACTION_KIND.CUSTOMER_TO_ERXES:
-      await customerToErxes(shape, data, result);
+      result = await customerToErxes(data);
       break;
 
     case ACTION_KIND.CUSTOMER_TO_ERKHET:
-      await customerToErkhet(shape, data, result);
+      result = await customerToErkhet(shape, data);
       break;
 
     case ACTION_KIND.SEND_NOTIFICATION:
-      await sendNotification(shape, data, result);
+      result = await sendNotification(shape, data, result);
       break;
 
     case ACTION_KIND.WORKER_TO_ERXES:
-      await workerToErxes(shape, data, result);
+      result = await workerToErxes(shape, data);
       break;
   }
 

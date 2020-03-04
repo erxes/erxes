@@ -1,21 +1,15 @@
-import * as mongoose from 'mongoose';
-import { sendMessage } from '../../messageBroker';
+import { sendRPCMessage } from '../../messageBroker';
 import { IShapeDocument } from '../../models/definitions/Automations';
 
-const productToErkhet = async (shape: IShapeDocument, data: any, result: object) => {
+const productToErkhet = async (shape: IShapeDocument, data: any) => {
   const objectData = data.doc;
   let sendData = {};
 
-  const { API_MONGO_URL = '' } = process.env;
-  const options = {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  };
-  const apiMongoClient = await mongoose.createConnection(API_MONGO_URL, options);
-
   if (data.action.includes('productCategory')) {
-    const apiProductCategories = apiMongoClient.db.collection('product_categories');
-    const productCategories = await apiProductCategories.find({ _id: objectData.parentId }).toArray();
+    const productCategory = await sendRPCMessage({
+      action: 'get-or-error-product-category',
+      payload: JSON.stringify({ _id: objectData.parentId }),
+    });
 
     sendData = {
       action: data.action,
@@ -23,12 +17,14 @@ const productToErkhet = async (shape: IShapeDocument, data: any, result: object)
       object: {
         code: objectData.code || '',
         name: objectData.name || '',
-        parentCode: productCategories ? productCategories[0].code : '',
+        parentCode: productCategory ? productCategory.code : '',
       },
     };
   } else {
-    const apiProductCategories = apiMongoClient.db.collection('product_categories');
-    const productCategories = await apiProductCategories.find({ _id: objectData.categoryId }).toArray();
+    const productCategory = await sendRPCMessage({
+      action: 'get-or-error-product-category',
+      payload: JSON.stringify({ _id: objectData.categoryId }),
+    });
 
     sendData = {
       action: data.action,
@@ -40,7 +36,7 @@ const productToErkhet = async (shape: IShapeDocument, data: any, result: object)
         unitPrice: objectData.unitPrice || 0,
         costAccount: shape.config.costAccount,
         saleAccount: shape.config.saleAccount,
-        categoryCode: productCategories ? productCategories[0].code : '',
+        categoryCode: productCategory ? productCategory.code : '',
         defaultCategory: shape.config.categoryCode,
       },
     };
@@ -54,12 +50,10 @@ const productToErkhet = async (shape: IShapeDocument, data: any, result: object)
     orderInfos: JSON.stringify(sendData),
   };
 
-  sendMessage('send_message:erxes-automation', {
-    action: 'product-change',
-    data: postData,
-  });
-
-  return result;
+  return sendRPCMessage(
+    { action: 'product-change', payload: JSON.stringify(postData) },
+    'rpc_queue:erxes-automation-erkhet',
+  );
 };
 
 export default productToErkhet;
