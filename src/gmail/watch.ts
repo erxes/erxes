@@ -112,6 +112,7 @@ export const trackGmail = async () => {
       });
     } catch (e) {
       debugGmail(`Failed to create subscription: ${e}`);
+      throw new Error(e);
     }
 
     return;
@@ -154,12 +155,10 @@ export const watchPushNotification = async (accountId: string, credentials: ICre
   const { GOOGLE_PROJECT_ID, GOOGLE_GMAIL_TOPIC } = await getGoogleConfigs();
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC) {
-    debugGmail(
-      `GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID || 'Not defined'}`,
-      `GOOGLE_GMAIL_TOPIC: ${GOOGLE_GMAIL_TOPIC || 'Not defined'}`,
-    );
-
-    return;
+    throw new Error(`
+      GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID || 'Not defined'}
+      GOOGLE_GMAIL_TOPIC: ${GOOGLE_GMAIL_TOPIC || 'Not defined'}
+    `);
   }
 
   const auth = getAuth(credentials, accountId);
@@ -180,6 +179,7 @@ export const watchPushNotification = async (accountId: string, credentials: ICre
     });
   } catch (e) {
     debugGmail(`Google OAuthClient request to watch push notification failed ${e}`);
+    throw new Error(e);
   }
 
   return response;
@@ -198,5 +198,6 @@ export const stopPushNotification = async (email: string, credentials: ICredenti
     await gmailClient.stop({ auth, userId: email });
   } catch (e) {
     debugGmail(`Google OAuthClient failed to stop push notification for the given user mailbox ${e}`);
+    throw new Error(e);
   }
 };

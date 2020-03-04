@@ -1,3 +1,10 @@
+## [0.12.2](https://github.com/erxes/erxes-integrations/compare/0.12.1...0.12.2) (2020-03-04)
+
+
+### Bug Fixes
+
+* **gmail:** add error handle in watchPushNotification ([#89](https://github.com/erxes/erxes-integrations/issues/89)) ([087d423](https://github.com/erxes/erxes-integrations/commit/087d4235600c4a5cbc1beaaccd266771ab3b1b9a))
+
 ## [0.12.1](https://github.com/erxes/erxes-integrations/compare/0.12.0...0.12.1) (2020-03-02)
 
 

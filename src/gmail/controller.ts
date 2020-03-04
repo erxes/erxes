@@ -29,8 +29,7 @@ const init = async app => {
     const dumpIntegration = await Integrations.findOne({ kind: 'gmail', accountId, email }).lean();
 
     if (dumpIntegration) {
-      debugGmail(`Integration already exist with this email: ${email}`);
-      return next();
+      return next(new Error(`Integration already exist with this email: ${email}`));
     }
 
     const integration = await Integrations.create({
@@ -54,7 +53,7 @@ const init = async app => {
       expiration = response.data.expiration;
     } catch (e) {
       debugGmail(`Error Google: Could not subscribe user ${email} to topic`);
-      next(e);
+      return next(e);
     }
 
     integration.gmailHistoryId = historyId;
@@ -96,7 +95,7 @@ const init = async app => {
     const account = await Accounts.findOne({ _id: integration.accountId });
 
     if (!account) {
-      throw new Error('Account not found');
+      next(new Error('Account not found'));
     }
 
     try {
@@ -118,23 +117,20 @@ const init = async app => {
     debugGmail(`Request to get gmailData with: ${erxesApiMessageId}`);
 
     if (!erxesApiMessageId) {
-      debugGmail('Conversation message id not defined');
-      return next();
+      return next(new Error('Conversation message id not defined'));
     }
 
     const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
 
     if (!integration) {
-      debugGmail('Integration not found');
-      return next();
+      return next(new Error('Integration not found'));
     }
 
     const account = await Accounts.findOne({ _id: integration.accountId }).lean();
     const conversationMessage = await ConversationMessages.findOne({ erxesApiMessageId }).lean();
 
     if (!conversationMessage) {
-      debugGmail('Conversation message not found');
-      return next();
+      return next(new Error('Conversation message not found'));
     }
 
     // attach account email for dinstinguish sender
@@ -149,15 +145,13 @@ const init = async app => {
     const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
 
     if (!integration) {
-      debugGmail('Integration not found!');
-      return next();
+      return next(new Error('Integration not found!'));
     }
 
     const account = await Accounts.findOne({ _id: integration.accountId }).lean();
 
     if (!account) {
-      debugGmail('Account not found!');
-      return next();
+      return next(new Error('Account not found!'));
     }
 
     const credentials = getCredentials(account);
@@ -167,8 +161,7 @@ const init = async app => {
     attachment.filename = filename;
 
     if (!attachment) {
-      debugGmail('Attachment not found!');
-      return next();
+      return next(new Error('Attachment not found!'));
     }
 
     res.attachment(attachment.filename);
