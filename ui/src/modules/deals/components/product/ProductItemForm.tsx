@@ -1,16 +1,16 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import ControlLabel from "modules/common/components/form/Label";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import CURRENCIES from "modules/common/constants/currencies";
-import { __ } from "modules/common/utils";
-import { MEASUREMENTS } from "modules/settings/general/constants";
-import { IProduct } from "modules/settings/productService/types";
-import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
-import React from "react";
-import Select from "react-select-plus";
-import ProductChooser from "../../containers/product/ProductChooser";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import CURRENCIES from 'modules/common/constants/currencies';
+import { __ } from 'modules/common/utils';
+import { MEASUREMENTS } from 'modules/settings/general/constants';
+import { IProduct } from 'modules/settings/productService/types';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React from 'react';
+import Select from 'react-select-plus';
+import ProductChooser from '../../containers/product/ProductChooser';
 import {
   AssignUser,
   ContentColumn,
@@ -20,9 +20,9 @@ import {
   ProductItem,
   TickUsed,
   TotalAmount
-} from "../../styles";
-import { IProductData } from "../../types";
-import { selectConfigOptions } from "../../utils";
+} from '../../styles';
+import { IProductData } from '../../types';
+import { selectConfigOptions } from '../../utils';
 
 type Props = {
   uom: string[];
@@ -39,7 +39,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     super(props);
 
     this.state = {
-      categoryId: ""
+      categoryId: ''
     };
   }
 
@@ -48,11 +48,11 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     const { uom, currencies, productData } = this.props;
 
     if (uom.length > 0 && !productData.uom) {
-      this.onChangeField("uom", uom[0], productData._id);
+      this.onChangeField('uom', uom[0], productData._id);
     }
 
     if (currencies.length > 0 && !productData.currency) {
-      this.onChangeField("currency", currencies[0], productData._id);
+      this.onChangeField('currency', currencies[0], productData._id);
     }
   };
 
@@ -61,11 +61,11 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
 
     if (amount > 0) {
       switch (type) {
-        case "discount": {
+        case 'discount': {
           productData.discountPercent = (productData.discount * 100) / amount;
           break;
         }
-        case "discountPercent": {
+        case 'discountPercent': {
           productData.discount = (amount * productData.discountPercent) / 100;
           break;
         }
@@ -108,11 +108,12 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     if (productsData) {
       const productData = productsData.find(p => p._id === productId);
       if (productData) {
-        if (type === "product") {
+        if (type === 'product') {
           const product = value as IProduct;
 
           productData.unitPrice = product.unitPrice;
-          productData.currency = productData.currency || this.props.currencies[0];
+          productData.currency =
+            productData.currency || this.props.currencies[0];
         }
 
         productData[type] = value;
@@ -131,7 +132,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
   renderProductServiceTrigger(product?: IProduct) {
     let content = (
       <div>
-        {__("Choose Product & Service")} <Icon icon="plus-circle" />
+        {__('Choose Product & Service')} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -152,7 +153,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
       const product = products && products.length === 1 ? products[0] : null;
 
       if (product) {
-        this.onChangeField("product", product, productData._id);
+        this.onChangeField('product', product, productData._id);
       }
     };
 
@@ -163,7 +164,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
         onChangeCategory={this.onChangeCategory}
         categoryId={this.state.categoryId}
         data={{
-          name: "Product",
+          name: 'Product',
           products: productData.product ? [productData.product] : []
         }}
         limit={1}
@@ -182,15 +183,15 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
 
   uomOnChange = (option: HTMLOptionElement) =>
     this.onChangeField(
-      "uom",
-      option ? option.value : "",
+      'uom',
+      option ? option.value : '',
       this.props.productData._id
     );
 
   currencyOnChange = (currency: HTMLOptionElement) =>
     this.onChangeField(
-      "currency",
-      currency ? currency.value : "",
+      'currency',
+      currency ? currency.value : '',
       this.props.productData._id
     );
 
@@ -210,20 +211,12 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
   onTickUse = e => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
 
-    this.onChangeField(
-      'tickUsed',
-      isChecked,
-      this.props.productData._id
-    );
+    this.onChangeField('tickUsed', isChecked, this.props.productData._id);
   };
 
   assignUserOnChange = userId => {
-    this.onChangeField(
-      'assignUserId',
-      userId,
-      this.props.productData._id
-    )
-  }
+    this.onChangeField('assignUserId', userId, this.props.productData._id);
+  };
 
   render() {
     const { uom, currencies, productData } = this.props;
@@ -246,7 +239,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 <ControlLabel>UOM</ControlLabel>
                 <Select
                   name="uom"
-                  placeholder={__("Choose")}
+                  placeholder={__('Choose')}
                   value={productData.uom}
                   onChange={this.uomOnChange}
                   optionRenderer={selectOption}
@@ -258,7 +251,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 <ControlLabel>Currency</ControlLabel>
                 <Select
                   name="currency"
-                  placeholder={__("Choose")}
+                  placeholder={__('Choose')}
                   value={productData.currency}
                   onChange={this.currencyOnChange}
                   optionRenderer={selectOption}
@@ -285,17 +278,17 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 <ControlLabel>Assigned to</ControlLabel>
               </ContentRow>
               <ContentRow>
-              <SelectTeamMembers
-                label="Choose assigned user"
-                name="assignedUserId"
-                multi={false}
-                customOption={{
-                  value: '',
-                  label: '-----------'
-                }}
-                value={productData.assignUserId || ''}
-                onSelect={this.assignUserOnChange}
-              />
+                <SelectTeamMembers
+                  label="Choose assigned user"
+                  name="assignedUserId"
+                  multi={false}
+                  customOption={{
+                    value: '',
+                    label: '-----------'
+                  }}
+                  value={productData.assignUserId || ''}
+                  onSelect={this.assignUserOnChange}
+                />
               </ContentRow>
             </AssignUser>
           </ContentColumn>
@@ -317,7 +310,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
               <ContentColumn>
                 <ControlLabel>Unit price</ControlLabel>
                 <FormControl
-                  value={productData.unitPrice || ""}
+                  value={productData.unitPrice}
                   type="number"
                   placeholder="0"
                   name="unitPrice"
@@ -330,7 +323,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 <ItemText>
                   {(
                     productData.quantity * productData.unitPrice
-                  ).toLocaleString()}{" "}
+                  ).toLocaleString()}{' '}
                   <b>{productData.currency}</b>
                 </ItemText>
               </ContentColumn>
@@ -339,14 +332,14 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
             <ContentRow>
               <ContentColumn>
                 <ItemText align="right">
-                  <b>{__("Discount")} </b>
+                  <b>{__('Discount')} </b>
                   <span>%</span>
                 </ItemText>
               </ContentColumn>
 
               <ContentColumn>
                 <FormControl
-                  value={productData.discountPercent || ""}
+                  value={productData.discountPercent || ''}
                   type="number"
                   min={0}
                   max={100}
@@ -358,7 +351,7 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
 
               <ContentColumn>
                 <FormControl
-                  value={productData.discount || ""}
+                  value={productData.discount || ''}
                   type="number"
                   placeholder="0"
                   name="discount"
@@ -370,14 +363,14 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
             <ContentRow>
               <ContentColumn>
                 <ItemText align="right">
-                  <b>{__("Tax")} </b>
+                  <b>{__('Tax')} </b>
                   <span>%</span>
                 </ItemText>
               </ContentColumn>
 
               <ContentColumn>
                 <FormControl
-                  defaultValue={productData.taxPercent || ""}
+                  defaultValue={productData.taxPercent || ''}
                   type="number"
                   min={0}
                   max={100}
@@ -389,14 +382,14 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
 
               <ContentColumn>
                 <ItemText>
-                  {(productData.tax || 0).toLocaleString()}{" "}
+                  {(productData.tax || 0).toLocaleString()}{' '}
                   <b>{productData.currency}</b>
                 </ItemText>
               </ContentColumn>
             </ContentRow>
 
             <TotalAmount>
-              {productData.amount.toLocaleString()}{" "}
+              {productData.amount.toLocaleString()}{' '}
               <b>{productData.currency}</b>
             </TotalAmount>
           </ContentColumn>
