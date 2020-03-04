@@ -144,6 +144,67 @@ Amazon places all new accounts in the Amazon SES sandbox. While your account is 
 You can also determine whether your account is in the sandbox by sending email to an address that you haven't verified. If your account is in the sandbox, you receive an error message stating that the destination address isn't verified.
 </aside> 
 
+### Google
+
+```
+GOOGLE_PROJECT_ID="your google project's id"
+GOOGLE_GMAIL_TOPIC="your google created gmail topic"
+GOOGLE_APPLICATION_CREDENTIALS="your downloaded google's credentials which is json file"
+GOOGLE_GMAIL_SUBSCRIPTION_NAME="your google cloud project's subscription name"
+GOOGLE_CLIENT_ID="your google project's client id"
+GOOGLE_CLIENT_SECRET="your google project's secret key"
+```
+
+Requirements:
+
+- To create google project.
+- Enable gmail api.
+- Configure google cloud pub/sub.
+
+Creating google project:
+
+- Go to https://console.cloud.google.com/cloud-resource-manager and create new project.
+
+Enable gmail api:
+
+- Go to the APIs & Services/library & enable gmail api.
+- Go to the APIs & Services/credentials & create new `OAuth client ID` credentials. If you see warning about `product name` follow the instruction, make it disappear. Afterwards select `Web application` & add `http://localhost:3000/service/oauth/gmail_callback` in `Authorized redirect URIs` & create.
+- Copy `Client ID` & `Client secret` paste in your erxes-api/.env file. It looks like following example:
+
+
+
+
+
+
+
+
+Configure google cloud pub/sub:
+
+- Go to https://console.cloud.google.com/cloudpubsub/enableApi & select your project.
+- Enable api & create topic.
+- On the topic we must create subscription which is shown on the right of the topic as 3 dots. Select `New subscrition` & create.
+- Now grant publish rights on your topic. To do this, select `permissions` from the menu shown as a 3 dots & add member `serviceAccount:gmail-api-push@system.gserviceaccount.com` role as a pub/sub publisher.
+- Then copy the topic & subscrition put it in erxes-api/.env file. It should looks like following example:
+
+```shell
+#.env
+GOOGLE_TOPIC = "projects/myproject/topics/erxes-topic"
+GOOGLE_SUPSCRIPTION_NAME = "projects/myproject/subscriptions/erxes-subscription"
+```
+
+- Go to https://console.cloud.google.com/apis/credentials/serviceaccountkey
+- Select your project & create new service account with role as project owner.
+- Download json file, put file path in erxes/.env file. It should looks like following example:
+
+```shell
+#.env
+GOOGLE_APPLICATION_CREDENTIALS = "/Users/user/Downloads/9bb5b70c121c.json"
+```
+
+Add integration:
+
+- Go to erxes settings - App store - add gmail. (Make sure you create new brand beforehand)
+
 
 
 5. **If you move out of the Sandbox,** follow the instructions described [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html) to move out of the Amazon SES Sandbox.
