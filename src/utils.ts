@@ -5,7 +5,7 @@ import { debugBase, debugExternalRequests } from './debuggers';
 import { sendRPCMessage } from './messageBroker';
 import Configs from './models/Configs';
 import { IProviderSettings } from './nylas/types';
-import { set } from './redisClient';
+import { get, set } from './redisClient';
 
 dotenv.config();
 
@@ -151,11 +151,11 @@ export const downloadAttachment = urlOrName => {
 };
 
 export const getConfigs = async () => {
-  // const configsCache = await get('configs');
+  const configsCache = await get('configs_erxes_integrations');
 
-  // if (configsCache && configsCache !== '{}') {
-  //   return JSON.parse(configsCache);
-  // }
+  if (configsCache && configsCache !== '{}') {
+    return JSON.parse(configsCache);
+  }
 
   const configsMap = {};
   const configs = await Configs.find({});
@@ -164,7 +164,7 @@ export const getConfigs = async () => {
     configsMap[config.code] = config.value;
   }
 
-  set('configs', JSON.stringify(configsMap));
+  set('configs_erxes_integrations', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -193,5 +193,5 @@ export const getCommonGoogleConfigs = async () => {
 };
 
 export const resetConfigsCache = () => {
-  set('configs', '');
+  set('configs_erxes_integrations', '');
 };

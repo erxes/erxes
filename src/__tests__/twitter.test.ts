@@ -153,10 +153,10 @@ describe('Twitter test test', () => {
     });
 
     await Conversations.create({ senderId: '123', receiverId: '123' });
-    await getOrCreateConversation('123', '123', 'integrationId', 'content', 'erxesApiId');
+    await getOrCreateConversation('123', '123', 'integrationId', 'content', 'erxesApiId', 'integrationErxesApiId');
 
     try {
-      await getOrCreateConversation('456', '456', 'integrationId', 'content', 'erxesApiId');
+      await getOrCreateConversation('456', '456', 'integrationId', 'content', 'erxesApiId', 'integrationErxesApiId');
     } catch (e) {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
     }
@@ -171,9 +171,30 @@ describe('Twitter test test', () => {
 
     try {
       await Promise.all([
-        getOrCreateConversation('senderId', 'receiverId', 'integrationId', 'content', 'erxesApiId'),
-        getOrCreateConversation('senderId', 'receiverId', 'integrationId', 'content', 'erxesApiId'),
-        getOrCreateConversation('senderId', 'receiverId', 'integrationId', 'content', 'erxesApiId'),
+        getOrCreateConversation(
+          'senderId',
+          'receiverId',
+          'integrationId',
+          'content',
+          'erxesApiId',
+          'integrationErxesApiId',
+        ),
+        getOrCreateConversation(
+          'senderId',
+          'receiverId',
+          'integrationId',
+          'content',
+          'erxesApiId',
+          'integrationErxesApiId',
+        ),
+        getOrCreateConversation(
+          'senderId',
+          'receiverId',
+          'integrationId',
+          'content',
+          'erxesApiId',
+          'integrationErxesApiId',
+        ),
       ]);
     } catch (e) {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
