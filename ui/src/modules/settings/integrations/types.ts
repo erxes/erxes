@@ -1,7 +1,7 @@
-import { IForm } from 'modules/forms/types';
-import { ILeadData, ILeadIntegration } from 'modules/leads/types';
-import { IBrand } from '../brands/types';
-import { IChannel } from '../channels/types';
+import { IForm } from "modules/forms/types";
+import { ILeadData, ILeadIntegration } from "modules/leads/types";
+import { IBrand } from "../brands/types";
+import { IChannel } from "../channels/types";
 
 export interface IMessengerApp {
   _id: string;
@@ -110,16 +110,17 @@ export type QueryVariables = {
 };
 
 export type IntegrationTypes =
-  | 'facebook'
-  | 'gmail'
-  | 'nylas-gmail'
-  | 'nylas-imap'
-  | 'nylas-office365'
-  | 'nylas-outlook'
-  | 'nylas-yahoo'
-  | 'twitter'
-  | 'whatsapp'
-  | 'smooch-telegram';
+  | "facebook"
+  | "gmail"
+  | "nylas-gmail"
+  | "nylas-imap"
+  | "nylas-office365"
+  | "nylas-outlook"
+  | "nylas-yahoo"
+  | "twitter"
+  | "whatsapp"
+  | "smooch-telegram"
+  | "smooch-viber";
 
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
@@ -148,6 +149,7 @@ export type ByKindTotalCount = {
   yahoo: number;
   whatsapp: number;
   telegram: number;
+  viber: number;
 };
 
 type IntegrationsCount = {

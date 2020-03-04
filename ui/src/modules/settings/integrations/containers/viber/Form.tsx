@@ -1,6 +1,6 @@
 import ButtonMutate from "modules/common/components/ButtonMutate";
 import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import Telegram from "modules/settings/integrations/components/telegram/Telegram";
+import Viber from "modules/settings/integrations/components/viber/Viber";
 import { mutations } from "modules/settings/integrations/graphql";
 import React from "react";
 import { withRouter } from "react-router";
@@ -12,7 +12,7 @@ type Props = {
 
 type FinalProps = {} & IRouterProps & Props;
 
-class TelegramContainer extends React.Component<FinalProps> {
+class ViberContainer extends React.Component<FinalProps> {
   renderButton = ({
     name,
     values,
@@ -39,8 +39,8 @@ class TelegramContainer extends React.Component<FinalProps> {
       renderButton: this.renderButton
     };
 
-    return <Telegram {...updatedProps} />;
+    return <Viber {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(TelegramContainer);
+export default withRouter<FinalProps>(ViberContainer);
