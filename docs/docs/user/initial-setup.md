@@ -9,9 +9,9 @@ Brands, Channels and Integrations are the key components of erxes platform
 
 ## Brands
 
-A type of products or a particular company under a particular name.By creating a brand and channels, it enables you to analyze customers basic needs and the most unresolved questions asked through the certain brands and channels. Created Brands will be used in the following features: Team Inbox, Customers, Companies, and Leads
+A type of products or a particular company under a particular name. By creating a brand and channels, it enables you to analyze customers basic needs and the most unsolved questions asked through the certain brands and channels. Created Brands will be used in the following features: Team Inbox, Customers, Companies, and Leads
 
-- Please follow the steps for setup: General Settings-> Brands > Create Brand
+- Please follow the next steps for setup: General Settings-> Brands > Create Brand
 
 1. Click Add button to create a brand
 2. Insert a Brand name
@@ -47,9 +47,9 @@ Channel consists of typical brands specifically categorized by its type and acti
 </div>
 
 ## Integrations
-Integration is a way of communicating with customers who are emerging into the organizations' website, Facebook, Twitter through erxes.io platform. Integration can be created on every brands' social media page. Thence, we would be able to track the percentage of customers who are emerging into the organizations' Facebook page and website form. In this section, We will only demonstrate how to add web messenger integration for the sake of simplicity. But you can learn more about how to connect each integration from related sections.
+Integration is a way of communicating with customers who are emerging into the organization website, Facebook, Twitter through erxes.io platform. Integration can be created on every brands' social media page. Thence, we would be able to track the percentage of customers who are emerging into the organizations Facebook page and website form. In this section, We will only demonstrate how to add web messenger integration for the sake of simplicity. But you can learn more about how to connect each integration from related sections.
 
-+ Please follow the steps for setup: General Settings->App Store > Add Messenger
++ Please follow the next steps for setup: General Settings->App Store > Add Messenger
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-7.png" style="width:370px;height:250px;" />
@@ -92,7 +92,7 @@ Analyze how many percentage of your customers engage through messenger, form, an
     <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general15.png"/>
   </div>
 
-- Please follow the steps for setup: General Settings-> Brands > Create Brand->Integration settings
+- Please follow the next steps for setup: General Settings-> Brands > Create Brand->Integration settings
 
 1. Add Integration for the created Brand
 2. Added Integration for the Brand
@@ -122,7 +122,7 @@ Analyze how many percentage of your customers engage through messenger, form, an
 
 ### Step 1
 
-- Please follow the steps for setup: General Settings-> Channels> Create Channels-> Manage Integration
+- Please follow the next steps for setup: General Settings-> Channels> Create Channels-> Manage Integration
 
 1. Create New Channel
 2. Click Manage Integration
@@ -134,7 +134,7 @@ Analyze how many percentage of your customers engage through messenger, form, an
     <img src="https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/general23.png"/>
 </div>
 
-- Please follow the steps for setup: General Settings-> Channels> Create Channels-> Manage Integration
+- Please follow the next steps for setup: General Settings-> Channels> Create Channels-> Manage Integration
 
 1. Add Integration for the created channel
 2. Added Integrations

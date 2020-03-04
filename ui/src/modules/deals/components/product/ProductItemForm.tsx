@@ -7,10 +7,12 @@ import CURRENCIES from "modules/common/constants/currencies";
 import { __ } from "modules/common/utils";
 import { MEASUREMENTS } from "modules/settings/general/constants";
 import { IProduct } from "modules/settings/productService/types";
+import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
 import React from "react";
 import Select from "react-select-plus";
 import ProductChooser from "../../containers/product/ProductChooser";
 import {
+  AssignUser,
   ContentColumn,
   ContentRow,
   ItemText,
@@ -45,11 +47,11 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     // default select first item
     const { uom, currencies, productData } = this.props;
 
-    if (uom.length > 0) {
+    if (uom.length > 0 && !productData.uom) {
       this.onChangeField("uom", uom[0], productData._id);
     }
 
-    if (currencies.length > 0) {
+    if (currencies.length > 0 && !productData.currency) {
       this.onChangeField("currency", currencies[0], productData._id);
     }
   };
@@ -215,6 +217,14 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     );
   };
 
+  assignUserOnChange = userId => {
+    this.onChangeField(
+      'assignUserId',
+      userId,
+      this.props.productData._id
+    )
+  }
+
   render() {
     const { uom, currencies, productData } = this.props;
 
@@ -269,6 +279,25 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
                 />
               </ContentRow>
             </TickUsed>
+
+            <AssignUser>
+              <ContentRow>
+                <ControlLabel>Assigned to</ControlLabel>
+              </ContentRow>
+              <ContentRow>
+              <SelectTeamMembers
+                label="Choose assigned user"
+                name="assignedUserId"
+                multi={false}
+                customOption={{
+                  value: '',
+                  label: '-----------'
+                }}
+                value={productData.assignUserId || ''}
+                onSelect={this.assignUserOnChange}
+              />
+              </ContentRow>
+            </AssignUser>
           </ContentColumn>
 
           <ContentColumn>

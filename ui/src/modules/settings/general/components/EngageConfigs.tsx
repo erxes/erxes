@@ -9,18 +9,18 @@ import Sidebar from './Sidebar';
 function EngageConfigs() {
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('Engage configs') }
+    { title: __('Engage config') }
   ];
 
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Engage configs')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Engage config')} breadcrumb={breadcrumb} />
       }
       mainHead={<Header />}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{__('Engage configs')}</Title>}
+          left={<Title>{__('Engage config')}</Title>}
         />  
       }
       leftSidebar={<Sidebar />}
