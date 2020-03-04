@@ -1,3 +1,4 @@
+import { debugFacebook } from '../debuggers';
 import { Comments, Conversations, Posts } from './models';
 import { generateAttachmentMessages, sendReply } from './utils';
 
@@ -73,7 +74,11 @@ export const handleFacebookMessage = async msg => {
       }
 
       for (const message of generateAttachmentMessages(attachments)) {
-        await sendReply('me/messages', { recipient: { id: senderId }, message }, recipientId, integrationId);
+        try {
+          await sendReply('me/messages', { recipient: { id: senderId }, message }, recipientId, integrationId);
+        } catch (e) {
+          debugFacebook(`Error while sending attachments: ${e.message}`);
+        }
       }
 
       return sendSuccess({});
