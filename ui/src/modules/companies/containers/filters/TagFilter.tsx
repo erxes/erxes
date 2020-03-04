@@ -24,7 +24,7 @@ const TagFilterContainer = (props: {
     <CountsByTag
       tags={(tagsQuery ? tagsQuery.tags : null) || []}
       counts={counts.byTag || {}}
-      manageUrl="tags/company"
+      manageUrl="/tags/company"
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
     />
   );
