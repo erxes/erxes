@@ -4,15 +4,11 @@ import styled from 'styled-components';
 import { rgba } from '../styles/color';
 import colors from '../styles/colors';
 import { IAttachment } from '../types';
-import Attachment from './Attachment';
+import Attachments from './Attachments';
 import Spinner from './Spinner';
 
 const List = styled.div`
   margin: 10px 0;
-`;
-
-const Item = styled.div`
-  margin-bottom: 10px;
 `;
 
 const Delete = styled.span`
@@ -125,33 +121,6 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
-  switchItem = index => {
-    const item = this.state.attachments[index];
-
-    return item.url;
-  };
-
-  renderItem = (item: IAttachment, index: number) => {
-    const removeAttachment = () => this.removeAttachment(index);
-    const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
-    let imagesLength;
-    if (this.state.attachments.length > 0) {
-      imagesLength = this.state.attachments.length;
-    }
-
-    return (
-      <Item key={item.url}>
-        <Attachment
-          attachment={item}
-          additionalItem={remove}
-          index={index}
-          switchItem={this.switchItem}
-          imagesLength={imagesLength}
-        />
-      </Item>
-    );
-  };
-
   renderBtn() {
     const { multiple, limit } = this.props;
     const { attachments, loading } = this.state;
@@ -178,12 +147,17 @@ class Uploader extends React.Component<Props, State> {
   }
 
   render() {
+    const removeAttachment = (index: number) => this.removeAttachment(index);
+    const remove = (index: number) => <Delete onClick={removeAttachment.bind(this, index)}>{__('Delete')}</Delete>;
+
     return (
       <>
         <List>
-          {this.state.attachments.map((item, index) =>
-            this.renderItem(item, index)
-          )}
+          <Attachments
+            attachments={this.state.attachments}
+            additionalItem={remove}
+            marginBottom={10}
+          />
         </List>
         {this.renderBtn()}
       </>

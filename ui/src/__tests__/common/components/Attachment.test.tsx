@@ -1,6 +1,6 @@
 import { shallow } from 'enzyme';
 import React from 'react';
-import Attachment from '../../../modules/common/components/Attachment';
+import Attachment from '../../../modules/common/components/Attachments';
 
 describe('Attachment component', () => {
   const defaultProps = {

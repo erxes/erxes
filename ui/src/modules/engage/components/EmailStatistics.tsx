@@ -1,4 +1,4 @@
-import Attachment from 'modules/common/components/Attachment';
+import Attachments from 'modules/common/components/Attachments';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -53,10 +53,7 @@ class EmailStatistics extends React.Component<Props> {
       <Subject noBorder={true}>
         <FlexRow>
           <label>Attachments:</label>
-
-          {(email.attachments || []).map((attachment, index) => (
-            <Attachment key={index} attachment={attachment} />
-          ))}
+          <Attachments attachments={email.attachments || []} />
         </FlexRow>
       </Subject>
     );

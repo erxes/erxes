@@ -1,11 +1,11 @@
 import Icon from 'modules/common/components/Icon';
-import ImageWithPreview from 'modules/common/components/ImageWithPreview';
 import React from 'react';
 import styled from 'styled-components';
 import { rgba } from '../styles/color';
 import colors from '../styles/colors';
 import { IAttachment } from '../types';
 import { readFile } from '../utils';
+import ImageWithPreview from './ImageWithPreview';
 
 export const AttachmentWrapper = styled.div`
   border-radius: 4px;
@@ -78,16 +78,22 @@ const AttachmentName = styled.span`
 `;
 
 type Props = {
-  attachment: IAttachment;
+  attachments: IAttachment[];
   scrollBottom?: () => void;
   additionalItem?: React.ReactNode;
   simple?: boolean;
-  index?: number;
-  switchItem?: (index: number) => string;
-  imagesLength?: any;
+  marginBottom?: number;
 };
 
-class Attachment extends React.Component<Props> {
+class Attachments extends React.Component<Props> {
+  onLoadImage = () => {
+    const { scrollBottom } = this.props;
+
+    if (scrollBottom) {
+      scrollBottom();
+    }
+  };
+
   renderOtherInfo = attachment => {
     const name = attachment.name || attachment.url || '';
 
@@ -137,28 +143,35 @@ class Attachment extends React.Component<Props> {
     );
   };
 
-  onLoadImage = () => {
-    const { scrollBottom } = this.props;
+  switchItem = index => {
+    const item = this.props.attachments[index];
 
-    if (scrollBottom) {
-      scrollBottom();
-    }
+    return item.url;
   };
 
-  renderImagePreview(attachment) {
+  getImages = () => {
+    const images: IAttachment[] = [];
+
+    this.props.attachments.forEach(attachment => {
+      if (attachment.type.startsWith("image")) {
+        images.push(attachment);
+      }
+    });
+
+    return images;
+  }
+
+  renderImagePreview(image: IAttachment) {
     return (
       <ImageWithPreview
+        images={this.getImages()}
+        defaultImage={image}
         onLoad={this.onLoadImage}
-        alt={attachment.url}
-        src={attachment.url}
-        index={this.props.index}
-        switchItem={this.props.switchItem}
-        imagesLength={this.props.imagesLength || 1}
       />
     );
   }
 
-  renderAtachment = ({ attachment }) => {
+  renderAttachment = (attachment) => {
     if (!attachment.type) {
       return null;
     }
@@ -216,8 +229,15 @@ class Attachment extends React.Component<Props> {
   };
 
   render() {
-    return this.renderAtachment(this.props);
+    const { attachments, marginBottom } = this.props;
+
+    return attachments.map((item, index) =>
+      (<div key={index} style={{ marginBottom: marginBottom || 0 }}>
+        {this.renderAttachment(item)}
+      </div>
+      )
+    );
   }
 }
 
-export default Attachment;
+export default Attachments;

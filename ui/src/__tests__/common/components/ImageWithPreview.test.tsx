@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import ImageWithPreview from '../../../modules/common/components/ImageWithPreview';
+import ImageWithPreview from '../../../modules/common/components/ImageGallery';
 
 describe('ImageWithPreview component', () => {
   const defaultProps = {

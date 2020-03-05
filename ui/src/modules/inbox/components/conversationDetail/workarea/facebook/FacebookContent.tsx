@@ -1,4 +1,5 @@
-import ImageWithPreview from 'modules/common/components/ImageWithPreview';
+import ImageGallery from 'modules/common/components/ImageGallery';
+import { IAttachment } from 'modules/common/types';
 import * as React from 'react';
 import xss from 'xss';
 import { ContentContainer } from './styles';
@@ -50,11 +51,12 @@ export default class FacebookContent extends React.Component<Props, {}> {
         );
       }
       if (link.includes('fna.fbcdn.net')) {
+        const currentImage: IAttachment = { name: 'Facebook', type: 'image/jpeg', url: link };
+        const images = [currentImage];
+
         return (
-          <ImageWithPreview
-            alt={link}
-            src={link}
-            key={index}
+          <ImageGallery
+            images={images}
             onLoad={scrollBottom}
           />
         );

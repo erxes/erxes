@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import Attachment from 'modules/common/components/Attachment';
+import Attachments from 'modules/common/components/Attachments';
 import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import TextDivider from 'modules/common/components/TextDivider';
@@ -50,9 +50,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       return null;
     }
 
-    return attachments.map((attachment, index) => (
-      <Attachment key={index} attachment={attachment} simple={true} />
-    ));
+    return <Attachments attachments={attachments} simple={true} />;
   }
 
   renderVideoCall() {

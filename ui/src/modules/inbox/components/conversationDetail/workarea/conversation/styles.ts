@@ -1,4 +1,4 @@
-import { AttachmentWrapper, Meta } from 'modules/common/components/Attachment';
+import { AttachmentWrapper, Meta } from 'modules/common/components/Attachments';
 import { colors, dimensions } from 'modules/common/styles';
 import { darken, rgba } from 'modules/common/styles/color';
 import styled, { css } from 'styled-components';
@@ -31,7 +31,7 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
 
   a {
     color: ${props =>
-      props.staff && !props.internal ? colors.colorWhite : colors.linkPrimary};
+    props.staff && !props.internal ? colors.colorWhite : colors.linkPrimary};
     text-decoration: underline;
   }
 
