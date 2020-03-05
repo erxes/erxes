@@ -12,7 +12,8 @@ type Props = {
 
 function AutomationRespone({ currentUser }: Props) {
   const { data: automationResponded } = useSubscription(SUBSCRIPTION, {
-    variables: { userId: currentUser._id }
+    variables: { userId: currentUser._id },
+    shouldResubscribe: false
   });
 
   if (!automationResponded) {
@@ -20,15 +21,23 @@ function AutomationRespone({ currentUser }: Props) {
   }
 
   const content = automationResponded.automationResponded.content;
+  const responseId = automationResponded.automationResponded.responseId;
+
+  if (
+    localStorage.getItem('automationResponseId') &&
+    localStorage.getItem('automationResponseId') === responseId
+  ) {
+    return <></>;
+  }
 
   const myWindow =
     window.open('', '_blank', 'width=800,height=800') || ({} as any);
 
-  if (myWindow) {
+  localStorage.setItem('automationResponseId', responseId);
+
+  if (myWindow && content) {
     myWindow.document.write(content[0]);
   }
-
-  window.location.reload();
 
   return <></>;
 }
