@@ -42,7 +42,7 @@ const actionRun = async (shape: IShapeDocument, data: any, parentId: string, res
       break;
 
     case ACTION_KIND.SEND_NOTIFICATION:
-      result = await sendNotification(shape, data, result);
+      result = await sendNotification(shape, data);
       break;
 
     case ACTION_KIND.WORKER_TO_ERXES:
