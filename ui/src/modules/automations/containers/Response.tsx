@@ -11,17 +11,17 @@ type Props = {
 };
 
 function AutomationRespone({ currentUser }: Props) {
-  const { data: automationResponded } = useSubscription(SUBSCRIPTION, {
+  const { data: response, loading } = useSubscription(SUBSCRIPTION, {
     variables: { userId: currentUser._id },
     shouldResubscribe: false
   });
 
-  if (!automationResponded) {
+  if (!response || loading) {
     return <></>;
   }
 
-  const content = automationResponded.automationResponded.content;
-  const responseId = automationResponded.automationResponded.responseId;
+  const content = response.automationResponded.content;
+  const responseId = response.automationResponded.responseId;
 
   if (
     localStorage.getItem('automationResponseId') &&
