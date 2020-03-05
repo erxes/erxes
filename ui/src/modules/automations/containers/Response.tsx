@@ -20,8 +20,9 @@ function AutomationRespone({ currentUser }: Props) {
     return <></>;
   }
 
-  const content = automationResponded.automationResponded.content;
-  const responseId = automationResponded.automationResponded.responseId;
+  const response = automationResponded.automationResponded;
+  const content = response.content;
+  const responseId = response.responseId;
 
   if (
     localStorage.getItem('automationResponseId') &&
