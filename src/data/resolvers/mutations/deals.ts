@@ -147,6 +147,14 @@ const dealMutations = {
       user,
     );
 
+    if (doc.stageId && doc.stageId !== oldDeal.stageId) {
+      await checkAutomation(
+        'changeDeal',
+        { deal: updatedDeal, sourceStageId: oldDeal.stageId, destinationStageId: updatedDeal.stageId },
+        user,
+      );
+    }
+
     return updatedDeal;
   },
 
