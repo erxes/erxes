@@ -10,19 +10,18 @@ type Props = {
   currentUser: IUser;
 };
 
-function AutomationRespone({ currentUser }: Props) {
-  const { data: automationResponded } = useSubscription(SUBSCRIPTION, {
+function AutomationResponse({ currentUser }: Props) {
+  const { data: response, loading } = useSubscription(SUBSCRIPTION, {
     variables: { userId: currentUser._id },
     shouldResubscribe: false
   });
 
-  if (!automationResponded) {
+  if (!response || loading) {
     return <></>;
   }
 
-  const response = automationResponded.automationResponded;
-  const content = response.content;
-  const responseId = response.responseId;
+  const content = response.automationResponded.content;
+  const responseId = response.automationResponded.responseId;
 
   if (
     localStorage.getItem('automationResponseId') &&
@@ -43,4 +42,4 @@ function AutomationRespone({ currentUser }: Props) {
   return <></>;
 }
 
-export default AutomationRespone;
+export default AutomationResponse;
