@@ -22,8 +22,8 @@ type Props = {
 };
 
 type State = {
-  configsMap: IConfigsMap,
-  useNativeGmail: boolean
+  configsMap: IConfigsMap;
+  useNativeGmail: boolean;
 };
 
 class IntegrationConfigs extends React.Component<Props, State> {
@@ -32,7 +32,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     this.state = {
       configsMap: props.configsMap,
-      useNativeGmail: (props.configsMap.USE_NATIVE_GMAIL === 'true') || false
+      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === 'true' || false
     };
   }
 
@@ -68,8 +68,8 @@ class IntegrationConfigs extends React.Component<Props, State> {
           onChange={this.onChangeInput.bind(this, key)}
         />
       </FormGroup>
-    )
-  }
+    );
+  };
 
   onTypeChange = (code: string, e) => {
     this.setState({ useNativeGmail: e.target.checked }, () => {
@@ -82,10 +82,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     return (
       <ContentBox>
-        <CollapseContent title="Facebook">
+        <CollapseContent title='Facebook'>
           <Info>
-            <a target="_blank" href="Variables" rel="noopener noreferrer">
-              {__("More: Understanding Facebook Integration Variables")}
+            <a target='_blank' href='Variables' rel='noopener noreferrer'>
+              {__('More: Understanding Facebook Integration Variables')}
             </a>
           </Info>
           {this.renderItem('FACEBOOK_APP_ID')}
@@ -93,43 +93,62 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
         </CollapseContent>
 
-        <CollapseContent title="Twitter">
+        <CollapseContent title='Twitter'>
           <Info>
-            <a target="_blank" href="https://docs.erxes.io/administrator/environment-variables#twitter-settings" rel="noopener noreferrer">
-              {__("More: Understanding Twitter Integration Variables")}
+            <a
+              target='_blank'
+              href='https://docs.erxes.io/administrator/environment-variables#twitter-settings'
+              rel='noopener noreferrer'
+            >
+              {__('More: Understanding Twitter Integration Variables')}
             </a>
           </Info>
           {this.renderItem('TWITTER_CONSUMER_KEY')}
+          {this.renderItem('TWITTER_CONSUMER_SECRET')}
           {this.renderItem('TWITTER_ACCESS_TOKEN')}
           {this.renderItem('TWITTER_ACCESS_TOKEN_SECRET')}
           {this.renderItem('TWITTER_WEBHOOK_ENV')}
         </CollapseContent>
 
-        <CollapseContent title="Nylas">
+        <CollapseContent title='Nylas'>
           <Info>
-            <a target="_blank" href="https://docs.erxes.io/administrator/integrations#nylas-integration" rel="noopener noreferrer">
-              {__("More: Understanding Nylas Integration")}
+            <a
+              target='_blank'
+              href='https://docs.erxes.io/administrator/integrations#nylas-integration'
+              rel='noopener noreferrer'
+            >
+              {__('More: Understanding Nylas Integration')}
             </a>
           </Info>
-        
+
           {this.renderItem('NYLAS_CLIENT_ID')}
           {this.renderItem('NYLAS_CLIENT_SECRET')}
-          {this.renderItem('NYLAS_WEBHOOK_CALLBACK_URL', 'https://yourdomain/nylas/webhook')}
+          {this.renderItem(
+            'NYLAS_WEBHOOK_CALLBACK_URL',
+            'https://yourdomain/nylas/webhook'
+          )}
           {this.renderItem('MICROSOFT_CLIENT_ID')}
           {this.renderItem('MICROSOFT_CLIENT_SECRET')}
-          {this.renderItem('ENCRYPTION_KEY', 'Must be 256 bits (32 characters)')}
+          {this.renderItem(
+            'ENCRYPTION_KEY',
+            'Must be 256 bits (32 characters)'
+          )}
           {this.renderItem('ALGORITHM', 'aes-256-cbc')}
         </CollapseContent>
 
-        <CollapseContent title="Daily">
+        <CollapseContent title='Daily'>
           {this.renderItem('DAILY_API_KEY')}
           {this.renderItem('DAILY_END_POINT')}
         </CollapseContent>
 
-        <CollapseContent title="Gmail">
+        <CollapseContent title='Gmail'>
           <Info>
-            <a target="_blank" href="https://docs.erxes.io/administrator/integrations#gmail-integration" rel="noopener noreferrer">
-              {__("More: Understanding Gmail Integration Variables")}
+            <a
+              target='_blank'
+              href='https://docs.erxes.io/administrator/integrations#gmail-integration'
+              rel='noopener noreferrer'
+            >
+              {__('More: Understanding Gmail Integration Variables')}
             </a>
           </Info>
           <FormGroup horizontal={true}>
@@ -148,15 +167,15 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </ContentDisabler>
         </CollapseContent>
       </ContentBox>
-    )
-  }
+    );
+  };
 
   render() {
     const actionButtons = (
       <Button
-        btnStyle="primary"
+        btnStyle='primary'
         onClick={this.save}
-        icon="check-circle"
+        icon='check-circle'
         uppercase={false}
       >
         Save
@@ -171,14 +190,17 @@ class IntegrationConfigs extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Integrations config')} breadcrumb={breadcrumb} />
+          <Wrapper.Header
+            title={__('Integrations config')}
+            breadcrumb={breadcrumb}
+          />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Integrations config')}</Title>}
             right={actionButtons}
-          />  
+          />
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}

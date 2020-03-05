@@ -47,11 +47,11 @@ class ProductItemForm extends React.Component<Props, { categoryId: string }> {
     // default select first item
     const { uom, currencies, productData } = this.props;
 
-    if (uom.length > 0) {
+    if (uom.length > 0 && !productData.uom) {
       this.onChangeField("uom", uom[0], productData._id);
     }
 
-    if (currencies.length > 0) {
+    if (currencies.length > 0 && !productData.currency) {
       this.onChangeField("currency", currencies[0], productData._id);
     }
   };
