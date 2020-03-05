@@ -5,7 +5,6 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkAutomation } from '../../utils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -27,7 +26,6 @@ const customerMutations = {
       },
       user,
     );
-    await checkAutomation('changeListCustomer', { action: 'customerAdd', doc }, user);
 
     return customer;
   },
@@ -48,7 +46,7 @@ const customerMutations = {
       },
       user,
     );
-    await checkAutomation('changeListCustomer', { action: 'customerEdit', oldCode: customer.code, doc }, user);
+
     return updated;
   },
 
@@ -87,12 +85,6 @@ const customerMutations = {
           customerIds: customer.mergedIds,
         });
       }
-
-      await checkAutomation(
-        'changeListCustomer',
-        { action: 'customerRemove', oldCode: customer.code, doc: { ...customer } },
-        user,
-      );
     }
 
     return customerIds;

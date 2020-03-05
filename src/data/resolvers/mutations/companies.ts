@@ -4,7 +4,6 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkAutomation } from '../../utils';
 
 interface ICompaniesEdit extends ICompany {
   _id: string;
@@ -26,8 +25,6 @@ const companyMutations = {
       user,
     );
 
-    await checkAutomation('changeListCompany', { action: 'companyAdd', doc }, user);
-
     return company;
   },
 
@@ -48,8 +45,6 @@ const companyMutations = {
       user,
     );
 
-    await checkAutomation('changeListCompany', { action: 'companyEdit', oldCode: company.code, doc: updated }, user);
-
     return updated;
   },
 
@@ -63,12 +58,6 @@ const companyMutations = {
 
     for (const company of companies) {
       await putDeleteLog({ type: MODULE_NAMES.COMPANY, object: company }, user);
-
-      await checkAutomation(
-        'changeListCompany',
-        { action: 'companyRemove', oldCode: company.code, doc: { ...company } },
-        user,
-      );
     }
 
     return companyIds;

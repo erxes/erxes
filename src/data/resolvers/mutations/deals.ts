@@ -8,7 +8,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkAutomation, checkUserIds } from '../../utils';
+import { checkUserIds } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -147,14 +147,6 @@ const dealMutations = {
       user,
     );
 
-    if (doc.stageId && doc.stageId !== oldDeal.stageId) {
-      await checkAutomation(
-        'changeDeal',
-        { deal: updatedDeal, sourceStageId: oldDeal.stageId, destinationStageId: updatedDeal.stageId },
-        user,
-      );
-    }
-
     return updatedDeal;
   },
 
@@ -167,9 +159,8 @@ const dealMutations = {
     { user }: IContext,
   ) {
     const deal = await Deals.getDeal(_id);
-    const sourceStageId = deal.stageId;
 
-    await Deals.updateDeal(_id, {
+    const updatedDeal = await Deals.updateDeal(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
@@ -186,7 +177,22 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     });
 
-    await checkAutomation('changeDeal', { deal, sourceStageId, destinationStageId }, user);
+    const extendedDoc = {
+      ...{ destinationStageId },
+      modifiedAt: new Date(),
+      modifiedBy: user._id,
+    };
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.DEAL,
+        object: deal,
+        newData: extendedDoc,
+        updatedDocument: updatedDeal,
+      },
+      user,
+    );
+
     return deal;
   },
 

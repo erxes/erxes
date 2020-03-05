@@ -4,7 +4,6 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkAutomation } from '../../utils';
 
 interface IProductsEdit extends IProduct {
   _id: string;
@@ -35,8 +34,6 @@ const productMutations = {
       user,
     );
 
-    await checkAutomation('changeListProduct', { action: 'productAdd', doc }, user);
-
     return product;
   },
 
@@ -58,7 +55,6 @@ const productMutations = {
       },
       user,
     );
-    await checkAutomation('changeListProduct', { action: 'productEdit', oldCode: product.code, doc }, user);
 
     return updated;
   },
@@ -74,11 +70,6 @@ const productMutations = {
 
     for (const product of products) {
       await putDeleteLog({ type: MODULE_NAMES.PRODUCT, object: product }, user);
-      await checkAutomation(
-        'changeListProduct',
-        { action: 'productRemove', oldCode: product.code, doc: { ...product } },
-        user,
-      );
     }
 
     return productIds;
@@ -97,11 +88,6 @@ const productMutations = {
         newData: { ...doc, order: productCategory.order },
         object: productCategory,
       },
-      user,
-    );
-    await checkAutomation(
-      'changeListProduct',
-      { action: 'productCategoryAdd', oldCode: productCategory.code, doc },
       user,
     );
 
@@ -126,11 +112,6 @@ const productMutations = {
       },
       user,
     );
-    await checkAutomation(
-      'changeListProduct',
-      { action: 'productCategoryEdit', oldCode: productCategory.code, doc },
-      user,
-    );
 
     return updated;
   },
@@ -144,11 +125,6 @@ const productMutations = {
     const removed = await ProductCategories.removeProductCategory(_id);
 
     await putDeleteLog({ type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory }, user);
-    await checkAutomation(
-      'changeListProduct',
-      { action: 'productCategoryRemove', oldCode: productCategory.code, doc: productCategory },
-      user,
-    );
 
     return removed;
   },

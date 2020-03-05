@@ -12,7 +12,6 @@ import { Configs, Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { OnboardingHistories } from '../db/models/Robot';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
-import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { get, set } from '../redisClient';
 
@@ -860,38 +859,6 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
   }
 
   return true;
-};
-
-export const checkAutomation = async (kind: string, body: any, user: IUserDocument) => {
-  const data = {
-    ...body,
-    userId: user._id,
-    kind,
-  };
-
-  const apiAutomationResponse = await sendRPCMessage({
-    action: 'get-response-check-automation',
-    data,
-  });
-
-  if (apiAutomationResponse.response.length === 0) {
-    return;
-  }
-
-  try {
-    graphqlPubsub.publish('automationResponded', {
-      automationResponded: {
-        userId: user._id,
-        responseId: Math.random(),
-        content: apiAutomationResponse.response,
-      },
-    });
-  } catch (e) {
-    // Any other error is serious
-    if (e.message !== 'Configuration does not exist') {
-      throw e;
-    }
-  }
 };
 
 export const getConfigs = async () => {

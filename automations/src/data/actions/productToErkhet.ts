@@ -5,7 +5,7 @@ const productToErkhet = async (shape: IShapeDocument, data: any) => {
   const objectData = data.doc;
   let sendData = {};
 
-  if (data.action.includes('productCategory')) {
+  if (data.action.includes('Category')) {
     const productCategory = await sendRPCMessage({
       action: 'get-or-error-product-category',
       payload: JSON.stringify({ _id: objectData.parentId }),
