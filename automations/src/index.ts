@@ -12,16 +12,6 @@ connect();
 
 const app = express();
 
-app.use((req: any, _res, next) => {
-  req.rawBody = '';
-
-  req.on('data', chunk => {
-    req.rawBody += chunk;
-  });
-
-  next();
-});
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
