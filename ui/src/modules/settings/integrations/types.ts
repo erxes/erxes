@@ -120,7 +120,8 @@ export type IntegrationTypes =
   | "twitter"
   | "whatsapp"
   | "smooch-telegram"
-  | "smooch-viber";
+  | "smooch-viber"
+  | "smooch-line";
 
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];
@@ -150,6 +151,7 @@ export type ByKindTotalCount = {
   whatsapp: number;
   telegram: number;
   viber: number;
+  line: number;
 };
 
 type IntegrationsCount = {

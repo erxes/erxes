@@ -11,6 +11,7 @@ import Chatfuel from "../../containers/chatfuel/Form";
 import Facebook from "../../containers/facebook/Form";
 import KnowledgeBase from "../../containers/knowledgebase/Form";
 import Lead from "../../containers/lead/Form";
+import LineForm from "../../containers/line/Form";
 import TelegramForm from "../../containers/telegram/Form";
 import Twitter from "../../containers/twitter/Twitter";
 import ViberForm from "../../containers/viber/Form";
@@ -37,6 +38,7 @@ type Props = {
     yahoo: number;
     whatsapp: number;
     viber: number;
+    line: number;
   };
 };
 
@@ -249,6 +251,16 @@ class Entry extends React.Component<Props> {
 
       return (
         <ModalTrigger title="Add Viber" trigger={trigger} content={content} />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.SMOOCH_LINE) {
+      const trigger = <h6>+ {__("Add")}</h6>;
+
+      const content = props => <LineForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Line" trigger={trigger} content={content} />
       );
     }
 

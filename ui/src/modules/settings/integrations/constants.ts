@@ -80,6 +80,7 @@ export const KIND_CHOICES = {
   WHATSAPP: "whatsapp",
   SMOOCH_TELEGRAM: "smooch-telegram",
   SMOOCH_VIBER: "smooch-viber",
+  SMOOCH_LINE: "smooch-line",
   ALL_LIST: [
     "messenger",
     "facebook-post",
@@ -95,7 +96,8 @@ export const KIND_CHOICES = {
     "nylas-outlook",
     "whatsapp",
     "smooch-telegram",
-    "smooch-viber"
+    "smooch-viber",
+    "smooch-line"
   ]
 };
 
@@ -109,7 +111,8 @@ export const KIND_CHOICES_WITH_TEXT = [
   { text: "Gmail", value: "nylas-gmail" },
   { text: "Whatsapp", value: "whatsapp" },
   { text: "Telegram", value: "smooch-telegram" },
-  { text: "Viber", value: "smooch-viber" }
+  { text: "Viber", value: "smooch-viber" },
+  { text: "Line", value: "smooch-line" }
 ];
 
 export const FORM_LOAD_TYPES = {
@@ -357,6 +360,17 @@ export const INTEGRATIONS = [
       "All integrations, For support teams, Marketing automation, Messaging, Conversation"
   },
   {
+    name: "Line by Smooch",
+    description: "See and reply to Line messages in your Team Inbox",
+    inMessenger: false,
+    isAvailable: true,
+    kind: "smooch-line",
+    logo: "/images/integrations/line.png",
+    createModal: "smooch-line",
+    category:
+      "All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation"
+  },
+  {
     name: "Wechat",
     description:
       "Connect with Wechat and start messaging right from your Team Inbox",
@@ -365,15 +379,6 @@ export const INTEGRATIONS = [
     logo: "/images/integrations/wechat.png",
     category:
       "All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation"
-  },
-  {
-    name: "Line",
-    description: "See and reply to Line messages in your Team Inbox",
-    inMessenger: false,
-    isAvailable: false,
-    logo: "/images/integrations/line.png",
-    category:
-      "All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation"
   },
   {
     name: "Twitter post",
