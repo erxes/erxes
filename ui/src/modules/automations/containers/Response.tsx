@@ -21,10 +21,11 @@ function AutomationRespone({ currentUser }: Props) {
   }
 
   const content = automationResponded.automationResponded.content;
+  const responseId = automationResponded.automationResponded.responseId;
 
   if (
-    localStorage.getItem('automationResponse') &&
-    localStorage.getItem('automationResponse') === content[0]
+    localStorage.getItem('automationResponseId') &&
+    localStorage.getItem('automationResponseId') === responseId.toString()
   ) {
     return <></>;
   }
@@ -32,7 +33,7 @@ function AutomationRespone({ currentUser }: Props) {
   const myWindow =
     window.open('', '_blank', 'width=800,height=800') || ({} as any);
 
-  localStorage.setItem('automationResponse', content[0]);
+  localStorage.setItem('automationResponseId', responseId);
 
   if (myWindow && content) {
     myWindow.document.write(content[0]);
