@@ -25,7 +25,7 @@ function AutomationRespone({ currentUser }: Props) {
 
   if (
     localStorage.getItem('automationResponseId') &&
-    localStorage.getItem('automationResponseId') === responseId.toString()
+    localStorage.getItem('automationResponseId') === responseId
   ) {
     return <></>;
   }
