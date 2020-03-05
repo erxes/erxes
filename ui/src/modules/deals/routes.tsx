@@ -54,24 +54,24 @@ const conversion = ({ location }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route key="deals" exact={true} path="/deal" render={deals} />
+      <Route key='deals' exact={true} path='/deal' render={deals} />
 
       <Route
-        key="deals/board"
+        key='deals/board'
         exact={true}
-        path="/deal/board"
+        path='/deal/board'
         component={boards}
       />
       <Route
-        key="deals/calendar"
+        key='deals/calendar'
         exact={true}
-        path="/deal/calendar"
+        path='/deal/calendar'
         component={calendar}
       />
       <Route
-        key="deals/conversion"
+        key='deals/conversion'
         exact={true}
-        path="/deal/conversion"
+        path='/deal/conversion'
         component={conversion}
       />
     </React.Fragment>
