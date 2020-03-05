@@ -350,6 +350,7 @@ export const INTEGRATIONS = [
     description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
     inMessenger: false,
     isAvailable: true,
+    kind: "smooch-viber",
     logo: "/images/integrations/viber.png",
     createModal: "smooch-viber",
     category:

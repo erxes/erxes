@@ -1,22 +1,22 @@
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
-import CallPro from 'modules/settings/integrations/containers/callpro/Form';
-import Gmail from 'modules/settings/integrations/containers/gmail/Form';
-import NylasForm from 'modules/settings/integrations/containers/mail/Form';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { KIND_CHOICES } from '../../constants';
-import Chatfuel from '../../containers/chatfuel/Form';
-import Facebook from '../../containers/facebook/Form';
-import KnowledgeBase from '../../containers/knowledgebase/Form';
-import Lead from '../../containers/lead/Form';
-import TelegramForm from '../../containers/telegram/Form';
-import Twitter from '../../containers/twitter/Twitter';
-import Website from '../../containers/website/Form';
-import WhatsappForm from '../../containers/whatsapp/Form';
-import { Box, IntegrationItem, Ribbon, Type } from './styles';
-
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { __ } from "modules/common/utils";
+import CallPro from "modules/settings/integrations/containers/callpro/Form";
+import Gmail from "modules/settings/integrations/containers/gmail/Form";
+import NylasForm from "modules/settings/integrations/containers/mail/Form";
+import React from "react";
+import { Link } from "react-router-dom";
+import { KIND_CHOICES } from "../../constants";
+import Chatfuel from "../../containers/chatfuel/Form";
+import Facebook from "../../containers/facebook/Form";
+import KnowledgeBase from "../../containers/knowledgebase/Form";
+import Lead from "../../containers/lead/Form";
+import TelegramForm from "../../containers/telegram/Form";
+import Twitter from "../../containers/twitter/Twitter";
+import ViberForm from "../../containers/viber/Form";
+import Website from "../../containers/website/Form";
+import WhatsappForm from "../../containers/whatsapp/Form";
+import { Box, IntegrationItem, Ribbon, Type } from "./styles";
 
 type Props = {
   integration: any;
@@ -36,6 +36,7 @@ type Props = {
     outlook: number;
     yahoo: number;
     whatsapp: number;
+    viber: number;
   };
 };
 
@@ -44,11 +45,11 @@ class Entry extends React.Component<Props> {
     const { totalCount, messengerAppsCount } = this.props;
     const countByKind = totalCount[kind];
 
-    if (typeof messengerAppsCount === 'number') {
+    if (typeof messengerAppsCount === "number") {
       return <span>({messengerAppsCount})</span>;
     }
 
-    if (typeof countByKind === 'undefined') {
+    if (typeof countByKind === "undefined") {
       return null;
     }
 
@@ -61,7 +62,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.FACEBOOK_MESSENGER) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => (
         <Facebook kind={KIND_CHOICES.FACEBOOK_MESSENGER} {...props} />
@@ -78,7 +79,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.FACEBOOK_POST) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => (
         <Facebook kind={KIND_CHOICES.FACEBOOK_POST} {...props} />
@@ -97,8 +98,8 @@ class Entry extends React.Component<Props> {
       return null;
     }
 
-    if (createModal === 'lead') {
-      const trigger = <h6>+ {__('Add')}</h6>;
+    if (createModal === "lead") {
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <Lead {...props} />;
 
@@ -107,8 +108,8 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (createModal === 'knowledgeBase') {
-      const trigger = <h6>+ {__('Add')}</h6>;
+    if (createModal === "knowledgeBase") {
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <KnowledgeBase {...props} />;
 
@@ -121,8 +122,8 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (createModal === 'website') {
-      const trigger = <h6>+ {__('Add')}</h6>;
+    if (createModal === "website") {
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <Website {...props} />;
 
@@ -131,8 +132,8 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (createModal === 'callpro') {
-      const trigger = <h6>+ {'Add'}</h6>;
+    if (createModal === "callpro") {
+      const trigger = <h6>+ {"Add"}</h6>;
 
       const content = props => <CallPro {...props} />;
 
@@ -145,8 +146,8 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (createModal === 'chatfuel') {
-      const trigger = <h6>+ {'Add'}</h6>;
+    if (createModal === "chatfuel") {
+      const trigger = <h6>+ {"Add"}</h6>;
 
       const content = props => <Chatfuel {...props} />;
 
@@ -160,7 +161,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_OFFICE365) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -174,7 +175,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_IMAP) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -184,7 +185,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_GMAIL) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -194,7 +195,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_OUTLOOK) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -204,7 +205,7 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.NYLAS_YAHOO) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <NylasForm kind={createModal} {...props} />;
 
@@ -214,27 +215,45 @@ class Entry extends React.Component<Props> {
     }
 
     if (createModal === KIND_CHOICES.WHATSAPP) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <WhatsappForm kind={createModal} {...props} />;
 
       return (
-        <ModalTrigger title="Add Whatsapp" trigger={trigger} content={content} />
+        <ModalTrigger
+          title="Add Whatsapp"
+          trigger={trigger}
+          content={content}
+        />
       );
     }
 
     if (createModal === KIND_CHOICES.SMOOCH_TELEGRAM) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <TelegramForm kind={createModal} {...props} />;
 
       return (
-        <ModalTrigger title="Add Telegram" trigger={trigger} content={content} />
+        <ModalTrigger
+          title="Add Telegram"
+          trigger={trigger}
+          content={content}
+        />
+      );
+    }
+
+    if (createModal === KIND_CHOICES.SMOOCH_VIBER) {
+      const trigger = <h6>+ {__("Add")}</h6>;
+
+      const content = props => <ViberForm kind={createModal} {...props} />;
+
+      return (
+        <ModalTrigger title="Add Viber" trigger={trigger} content={content} />
       );
     }
 
     if (createModal === KIND_CHOICES.GMAIL) {
-      const trigger = <h6>+ {__('Add')}</h6>;
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <Gmail {...props} />;
 
@@ -243,8 +262,8 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    if (createModal === 'twitter') {
-      const trigger = <h6>+ {__('Add')}</h6>;
+    if (createModal === "twitter") {
+      const trigger = <h6>+ {__("Add")}</h6>;
 
       const content = props => <Twitter {...props} />;
 
@@ -253,7 +272,7 @@ class Entry extends React.Component<Props> {
       );
     }
 
-    return <Link to={createUrl}>+ {__('Add')}</Link>;
+    return <Link to={createUrl}>+ {__("Add")}</Link>;
   }
 
   renderType = type => {
@@ -263,7 +282,7 @@ class Entry extends React.Component<Props> {
 
     return (
       <Type>
-        <Icon icon="chat" /> {__('Works with messenger')}
+        <Icon icon="chat" /> {__("Works with messenger")}
       </Type>
     );
   };

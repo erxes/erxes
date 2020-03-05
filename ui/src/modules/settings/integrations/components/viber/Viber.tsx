@@ -47,7 +47,7 @@ class Viber extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Viber Bot Token</ControlLabel>
+          <ControlLabel>Viber Token</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
