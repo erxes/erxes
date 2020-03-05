@@ -86,14 +86,6 @@ type Props = {
 };
 
 class Attachments extends React.Component<Props> {
-  onLoadImage = () => {
-    const { scrollBottom } = this.props;
-
-    if (scrollBottom) {
-      scrollBottom();
-    }
-  };
-
   renderOtherInfo = attachment => {
     const name = attachment.name || attachment.url || '';
 
@@ -149,29 +141,37 @@ class Attachments extends React.Component<Props> {
     return item.url;
   };
 
-  getImages = () => {
-    const images: IAttachment[] = [];
-
-    this.props.attachments.forEach(attachment => {
-      if (attachment.type.startsWith("image")) {
-        images.push(attachment);
-      }
-    });
-
-    return images;
-  }
-
   renderImagePreview(image: IAttachment) {
+    const getImages = () => {
+      const images: IAttachment[] = [];
+
+      this.props.attachments.forEach(attachment => {
+        if (attachment.type.startsWith('image')) {
+          images.push(attachment);
+        }
+      });
+
+      return images;
+    };
+
+    const onLoadImage = () => {
+      const { scrollBottom } = this.props;
+
+      if (scrollBottom) {
+        scrollBottom();
+      }
+    };
+
     return (
       <ImageWithPreview
-        images={this.getImages()}
+        images={getImages()}
         defaultImage={image}
-        onLoad={this.onLoadImage}
+        onLoad={onLoadImage}
       />
     );
   }
 
-  renderAttachment = (attachment) => {
+  renderAttachment = attachment => {
     if (!attachment.type) {
       return null;
     }
@@ -231,12 +231,11 @@ class Attachments extends React.Component<Props> {
   render() {
     const { attachments, marginBottom } = this.props;
 
-    return attachments.map((item, index) =>
-      (<div key={index} style={{ marginBottom: marginBottom || 0 }}>
+    return attachments.map((item, index) => (
+      <div key={index} style={{ marginBottom: marginBottom || 0 }}>
         {this.renderAttachment(item)}
       </div>
-      )
-    );
+    ));
   }
 }
 

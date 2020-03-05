@@ -67,8 +67,7 @@ const KEYCODES = {
 type Props = {
   visible: boolean;
   images: IAttachment[];
-  defaultImage?: IAttachment;
-  defaultIndex?: number;
+  defaultImage: IAttachment;
   toggleImage: () => void;
 };
 
@@ -82,7 +81,7 @@ class ImageGallery extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentIndex: props.defaultIndex,
+      currentIndex: this.getDefaultIndex(),
       currentImage: props.defaultImage
     };
   }
@@ -95,9 +94,19 @@ class ImageGallery extends React.Component<Props, State> {
     document.removeEventListener('keydown', this.handleKeydown);
   }
 
+  getDefaultIndex = () => {
+    const index = this.props.images.indexOf(this.props.defaultImage);
+
+    if (index === -1) {
+      return 0;
+    }
+
+    return index;
+  };
+
   getItem = (index: number) => {
     return this.props.images[index];
-  }
+  };
 
   arrowClick = (direction, e) => {
     e.stopPropagation();
@@ -133,7 +142,7 @@ class ImageGallery extends React.Component<Props, State> {
       this.props.toggleImage();
     }
 
-    if ((e.keyCode === 37 || e.keyCode === 39)) {
+    if (e.keyCode === 37 || e.keyCode === 39) {
       if (e.keyCode === 39) {
         this.arrowClick('right', e);
       }
@@ -151,7 +160,7 @@ class ImageGallery extends React.Component<Props, State> {
           arrow={direction}
           onClick={this.arrowClick.bind(this, direction)}
         >
-          <Icon icon='leftarrow-3' />
+          <Icon icon="leftarrow-3" />
         </ButtonDirection>
       );
     }
@@ -161,7 +170,7 @@ class ImageGallery extends React.Component<Props, State> {
         arrow={direction}
         onClick={this.arrowClick.bind(this, direction)}
       >
-        <Icon icon='chevron' />
+        <Icon icon="chevron" />
       </ButtonDirection>
     );
   };

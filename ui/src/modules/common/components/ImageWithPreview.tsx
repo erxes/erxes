@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-import { IAttachment } from "../types";
-import { readFile } from "../utils";
-import ImageGallery from "./ImageGallery";
+import React from 'react';
+import styled from 'styled-components';
+import { IAttachment } from '../types';
+import { readFile } from '../utils';
+import ImageGallery from './ImageGallery';
 
 const Image = styled.img`
   cursor: zoom-in;
@@ -28,7 +28,7 @@ export default class ImageWithPreview extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      visible: false,
+      visible: false
     };
   }
 
@@ -44,17 +44,7 @@ export default class ImageWithPreview extends React.Component<Props, State> {
     }
 
     return images.length > 0 ? images[0] : { name: '', url: '', type: '' };
-  }
-
-  getDefaultIndex = () => {
-    const index = this.props.images.indexOf(this.getDefaultImage());
-
-    if (index === -1) {
-      return 0;
-    }
-
-    return index;
-  }
+  };
 
   render() {
     const { images, onLoad } = this.props;
@@ -70,10 +60,10 @@ export default class ImageWithPreview extends React.Component<Props, State> {
 
         <ImageGallery
           toggleImage={this.toggleImage}
-          defaultIndex={this.getDefaultIndex()}
           defaultImage={this.getDefaultImage()}
           images={images}
-          visible={this.state.visible} />
+          visible={this.state.visible}
+        />
       </>
     );
   }
