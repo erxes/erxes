@@ -1,14 +1,12 @@
 import { shallow } from 'enzyme';
 import React from 'react';
 
-import ImageWithPreview from '../../../modules/common/components/ImageGallery';
+import ImageWithPreview from '../../../modules/common/components/ImageWithPreview';
 
 describe('ImageWithPreview component', () => {
   const defaultProps = {
-    src: 'bb',
-    alt: 'bb',
-    onLoad: () => null,
-    full: false
+    images: [{ name: '', url: '', type: '' }],
+    onLoad: () => null
   };
 
   test('renders ImageWithPreview successfully', () => {
