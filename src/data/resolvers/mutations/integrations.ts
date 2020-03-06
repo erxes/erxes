@@ -202,13 +202,18 @@ const integrationMutations = {
    * Delete an account
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
-    const { erxesApiIds } = await sendRPCMessage({ action: 'remove-account', data: { _id } });
+    try {
+      const { erxesApiIds } = await sendRPCMessage({ action: 'remove-account', data: { _id } });
 
-    for (const id of erxesApiIds) {
-      await Integrations.removeIntegration(id);
+      for (const id of erxesApiIds) {
+        await Integrations.removeIntegration(id);
+      }
+
+      return 'success';
+    } catch (e) {
+      debugExternalApi(e);
+      throw e;
     }
-
-    return 'success';
   },
 
   /**
@@ -230,7 +235,7 @@ const integrationMutations = {
       });
     } catch (e) {
       debugExternalApi(e);
-      throw new Error(e);
+      throw e;
     }
 
     const customerIds = await Customers.find({ primaryEmail: { $in: doc.to } }).distinct('_id');

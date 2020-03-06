@@ -244,7 +244,7 @@ const deleteFileGCS = async (fileName: string) => {
  * Read file from GCS, AWS
  */
 export const readFileRequest = async (key: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_T`YPE', 'AWS');
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
     const GCS_BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');

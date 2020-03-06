@@ -465,25 +465,20 @@ describe('mutations', () => {
     `;
 
     const integration1 = await integrationFactory();
-    const integration2 = await integrationFactory();
-
-    const spy1 = jest.spyOn(messageBroker, 'sendRPCMessage');
-    spy1.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
-
-    const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
-
-    expect(response).toBe('success');
-
-    spy1.mockRestore();
 
     const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
-    spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration2._id] }));
+
+    spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
+
+    const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
 
     try {
       await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
     } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
+      expect(e[0].message).toBeDefined();
     }
+
+    expect(response).toBe('success');
 
     spy.mockRestore();
   });
