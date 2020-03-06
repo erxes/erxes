@@ -4,6 +4,7 @@ const commonParams = `
   $closeDateType: String,
   $search: String,
   $labelIds: [String],
+  $userIds: [String],
 `;
 
 const commonParamDefs = `
@@ -12,6 +13,7 @@ const commonParamDefs = `
   closeDateType: $closeDateType,
   search: $search,
   labelIds: $labelIds,
+  userIds: $userIds,
 `;
 
 export const growthHackFields = `
@@ -113,6 +115,13 @@ const growthHackDetailFields = `
   isVoted
   modifiedAt
   modifiedBy
+  createdUser {
+    _id
+    details {
+      fullName
+      avatar
+    }
+  }
 `;
 
 const growthHacks = `

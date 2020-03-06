@@ -8,6 +8,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
+import NameCard from 'modules/common/components/nameCard/NameCard';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
@@ -80,6 +81,18 @@ class Left extends React.Component<Props> {
             <Labels labels={item.labels} />
           </FormGroup>
         )}
+
+        {item.createdUser ? (
+          <FormGroup>
+            <TitleRow>
+              <ControlLabel>
+                <Icon icon="user-check" />
+                Created by
+            </ControlLabel>
+            </TitleRow>
+            <NameCard user={item.createdUser} avatarSize={20} />
+          </FormGroup>
+        ) : null}
 
         <FormGroup>
           <TitleRow>
