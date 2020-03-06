@@ -6,8 +6,7 @@ import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { readFile } from "../../utils";
 import { Attachment, User } from "../components/common";
-import { IAttachment, IMessengerAppData, IVideoCallData } from "../types";
-import VideoChatMessage from "./VideoChatMessage";
+import { IAttachment, IMessengerAppData } from "../types";
 
 type Props = {
   content: string;
@@ -16,8 +15,6 @@ type Props = {
   attachments: IAttachment[];
   user?: IUser;
   color?: string;
-  contentType?: string;
-  videoCallData?: IVideoCallData;
 };
 
 class Message extends React.Component<Props> {
@@ -42,32 +39,33 @@ class Message extends React.Component<Props> {
     );
   }
 
+  renderAttachments() {
+    const { attachments } = this.props;
+    const hasAttachment = attachments && attachments.length > 0;
+
+    if (hasAttachment) {
+      const result: React.ReactNode[] = [];
+
+      attachments.map(att => {
+        result.push(<Attachment attachment={att} />);
+      });
+
+      return result;
+    }
+
+    return;
+  }
+
   renderContent() {
-    const {
-      messengerAppData,
-      attachments,
-      color,
-      user,
-      content,
-      contentType,
-      videoCallData
-    } = this.props;
+    const { messengerAppData, attachments, color, user, content } = this.props;
     const messageClasses = classNames("erxes-message", {
       attachment: attachments && attachments.length > 0,
       "from-customer": !user
     });
-    const hasAttachment = attachments && attachments.length > 0;
+
     const messageBackground = {
       backgroundColor: !user ? color : ""
     };
-
-    if (contentType === "videoCall") {
-      return (
-        <VideoChatMessage
-          videoCallData={videoCallData || { status: "end", url: "" }}
-        />
-      );
-    }
 
     if (messengerAppData) {
       return this.renderMessengerAppMessage();
@@ -75,7 +73,7 @@ class Message extends React.Component<Props> {
 
     return (
       <div style={messageBackground} className={messageClasses}>
-        {hasAttachment ? <Attachment attachment={attachments[0]} /> : null}
+        {this.renderAttachments()}
         <span dangerouslySetInnerHTML={{ __html: xss(content) }} />
       </div>
     );
