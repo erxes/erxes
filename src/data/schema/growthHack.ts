@@ -31,6 +31,7 @@ const commonQueryFields = `
   hackStage: [String]
   priority: [String]
   labelIds: [String]
+  userIds: [String]
 `;
 
 export const queries = `

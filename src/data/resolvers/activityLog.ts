@@ -14,6 +14,7 @@ import {
 } from '../../db/models';
 import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
+import { IUserDocument } from '../../db/models/definitions/users';
 
 export default {
   async createdByDetail(activityLog: IActivityLog) {
@@ -116,9 +117,14 @@ export default {
       return result;
     }
 
-    if (action === ACTIVITY_ACTIONS.ASSIGNE) {
-      const addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
-      const removedUsers = await Users.find({ _id: { $in: content.removedUserIds } });
+    if (action === ACTIVITY_ACTIONS.ASSIGNEE) {
+      let addedUsers: IUserDocument[] = [];
+      let removedUsers: IUserDocument[] = [];
+
+      if (content) {
+        addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
+        removedUsers = await Users.find({ _id: { $in: content.removedUserIds } });
+      }
 
       return { addedUsers, removedUsers };
     }

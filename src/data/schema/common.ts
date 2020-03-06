@@ -29,9 +29,7 @@ export const commonTypes = `
   createdAt: Date
   hasNotified: Boolean
   assignedUserIds: [String]
-  assignedUsers: [User]
   labelIds: [String]
-  labels: [PipelineLabel]
   closeDate: Date
   description: String
   modifiedAt: Date
@@ -40,13 +38,17 @@ export const commonTypes = `
   isComplete: Boolean,
   isWatched: Boolean,
   stageId: String
-  stage: Stage
-  pipeline: Pipeline
   boardId: String
   priority: String
   status: String
   attachments: [Attachment]
   userId: String
+
+  assignedUsers: [User]
+  stage: Stage
+  labels: [PipelineLabel]
+  pipeline: Pipeline
+  createdUser: User
 `;
 
 export const commonMutationParams = `

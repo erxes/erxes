@@ -59,11 +59,11 @@
     },
     "PORT_CRONS": {
       "description": "cron port",
-      "value": 3600
+      "value": "3600"
     },
     "PORT_WORKERS": {
       "description": "worker port",
-      "value": 3700
+      "value": "3700"
     },
     "JWT_TOKEN_SECRET": {
       "description": "JWT TOKEN SECRET",

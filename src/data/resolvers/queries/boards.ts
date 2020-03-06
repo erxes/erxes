@@ -16,12 +16,13 @@ export interface IListParams extends IConformityQueryParams {
   skip?: number;
   date?: IDate;
   search?: string;
-  customerIds?: [string];
-  companyIds?: [string];
-  assignedUserIds?: [string];
+  customerIds?: string[];
+  companyIds?: string[];
+  assignedUserIds?: string[];
   sortField?: string;
   sortDirection?: number;
-  labelIds?: [string];
+  labelIds?: string[];
+  userIds?: string[];
 }
 
 const boardQueries = {

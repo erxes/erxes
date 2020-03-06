@@ -163,7 +163,7 @@ export const ACTIVITY_ACTIONS = {
   SEND: 'send',
   MOVED: 'moved',
   CONVERT: 'convert',
-  ASSIGNE: 'assignee',
+  ASSIGNEE: 'assignee',
 
   ALL: ['create', 'update', 'delete', 'merge', 'send', 'moved', 'convert', 'assignee'],
 };
