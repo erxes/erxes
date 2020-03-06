@@ -2,6 +2,7 @@ import { IUserDocument } from '../db/models/definitions/users';
 import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { IFinalLogParams } from './logUtils';
+import { getEnv } from './utils';
 
 const checkAutomation = async (kind: string, body: any, user: IUserDocument) => {
   const data = {
@@ -9,6 +10,11 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     userId: user._id,
     kind,
   };
+
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  if (NODE_ENV === 'test') {
+    return;
+  }
 
   const apiAutomationResponse = await sendRPCMessage({
     action: 'get-response-check-automation',
