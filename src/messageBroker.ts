@@ -31,7 +31,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
             if (res.status === 'success') {
               resolve(res.data);
             } else {
-              reject(res.errorMessage);
+              reject(new Error(res.errorMessage));
             }
 
             channel.deleteQueue(q.queue);
