@@ -18,7 +18,7 @@ Sales Team settings include following features:
 
 ## Setup Board & Pipeline
 
-Manage your boards and pipelines so that it's easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.
+Administrate your boards and pipelines so that it's easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.
 
 - Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board -> Add Pipeline**
 
