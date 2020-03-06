@@ -1,6 +1,5 @@
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import NameCard from 'modules/common/components/nameCard/NameCard';
 import CompanySection from 'modules/companies/components/common/CompanySection';
 import CustomerSection from 'modules/customers/components/common/CustomerSection';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -27,22 +26,8 @@ class Sidebar extends React.Component<Props> {
     const cmrsChange = cmrs => saveItem({ customers: cmrs });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
 
-    const renderCreatedUser = (user) => {
-      if (user && user.details) {
-        return (
-          <FormGroup>
-            <ControlLabel>Created by</ControlLabel>
-            <NameCard user={user} avatarSize={20} />
-          </FormGroup>
-        );
-      }
-
-      return null;
-    }
-
     return (
       <RightContent>
-        {renderCreatedUser(item.createdUser)}
         <FormGroup>
           <ControlLabel>Assigned to</ControlLabel>
           <SelectTeamMembers
