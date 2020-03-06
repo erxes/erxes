@@ -33,6 +33,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     type,
     labelIds,
     priority,
+    userIds,
   } = args;
 
   const isListEmpty = value => {
@@ -169,6 +170,12 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     if (pipeline.isCheckUser && !(pipeline.excludeCheckUserIds || []).includes(currentUserId)) {
       Object.assign(filter, { $or: [{ assignedUserIds: { $in: [currentUserId] } }, { userId: currentUserId }] });
     }
+  }
+
+  if (userIds) {
+    const isEmpty = isListEmpty(userIds);
+
+    filter.userId = isEmpty ? { $in: [null, []] } : { $in: userIds };
   }
 
   return filter;

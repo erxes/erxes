@@ -93,4 +93,8 @@ export default {
   labels(growthHack: IGrowthHackDocument) {
     return PipelineLabels.find({ _id: { $in: growthHack.labelIds || [] } });
   },
+
+  createdUser(growthHack: IGrowthHackDocument) {
+    return Users.findOne({ _id: growthHack.userId });
+  },
 };

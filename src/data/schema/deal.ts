@@ -48,6 +48,7 @@ const commonQueryParams = `
   priority: [String]
   sortField: String
   sortDirection: Int
+  userIds: [String]
   `;
 
 export const queries = `

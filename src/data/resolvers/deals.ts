@@ -131,4 +131,8 @@ export default {
   labels(deal: IDealDocument) {
     return PipelineLabels.find({ _id: { $in: deal.labelIds } });
   },
+
+  createdUser(deal: IDealDocument) {
+    return Users.findOne({ _id: deal.userId });
+  },
 };

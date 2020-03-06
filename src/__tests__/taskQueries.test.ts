@@ -37,9 +37,7 @@ describe('taskQueries', () => {
     pipeline { _id }
     boardId
     stage { _id }
-    createdUser {
-      _id
-    }
+    createdUser { _id }
   `;
 
   const qryTaskFilter = `

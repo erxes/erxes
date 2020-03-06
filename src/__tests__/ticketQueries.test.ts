@@ -31,6 +31,7 @@ describe('ticketQueries', () => {
     isWatched
     hasNotified
     labels { _id }
+    createdUser { _id }
   `;
 
   const qryTicketFilter = `

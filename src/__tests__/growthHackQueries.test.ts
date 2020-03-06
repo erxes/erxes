@@ -26,7 +26,7 @@ describe('growthHackQueries', () => {
     assignedUsers { _id }
     impact
     labels { _id }
-    assignedUsers { _id }
+    createdUser { _id }
     votedUsers { _id }
     stage { _id }
     isVoted
