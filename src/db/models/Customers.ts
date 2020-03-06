@@ -9,6 +9,7 @@ interface IGetCustomerParams {
   email?: string;
   phone?: string;
   code?: string;
+  integrationId?: string;
   cachedCustomerId?: string;
 }
 
@@ -19,21 +20,25 @@ interface ICustomerFieldsInput {
 }
 
 interface ICreateMessengerCustomerParams {
-  integrationId?: string;
-  email?: string;
-  hasValidEmail?: boolean;
-  phone?: string;
-  code?: string;
-  isUser?: boolean;
-  firstName?: string;
-  lastName?: string;
-  description?: string;
-  deviceToken?: string;
+  doc: {
+    integrationId: string;
+    email?: string;
+    hasValidEmail?: boolean;
+    phone?: string;
+    code?: string;
+    isUser?: boolean;
+    firstName?: string;
+    lastName?: string;
+    description?: string;
+    deviceToken?: string;
+  };
+  customData?: any;
 }
 
 export interface IUpdateMessengerCustomerParams {
   _id: string;
   doc: {
+    integrationId: string;
     email?: string;
     phone?: string;
     code?: string;
@@ -72,7 +77,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
 
   // widgets ===
   getWidgetCustomer(doc: IGetCustomerParams): Promise<ICustomerDocument | null>;
-  createMessengerCustomer(doc: ICreateMessengerCustomerParams): Promise<ICustomerDocument>;
+  createMessengerCustomer(param: ICreateMessengerCustomerParams): Promise<ICustomerDocument>;
   updateMessengerCustomer(param: IUpdateMessengerCustomerParams): Promise<ICustomerDocument>;
   updateSession(_id: string): Promise<ICustomerDocument>;
   updateLocation(_id: string, browserInfo: IBrowserInfo): Promise<ICustomerDocument>;
@@ -220,6 +225,10 @@ export const loadClass = () => {
 
       if (doc.primaryEmail && isValid) {
         doc.hasValidEmail = true;
+      }
+
+      if (doc.integrationId) {
+        doc.relatedIntegrationIds = [doc.integrationId];
       }
 
       const customer = await Customers.create({
@@ -444,9 +453,7 @@ export const loadClass = () => {
     /*
      * Get widget customer
      */
-    public static async getWidgetCustomer(params: IGetCustomerParams) {
-      const { email, phone, code, cachedCustomerId } = params;
-
+    public static async getWidgetCustomer({ integrationId, email, phone, code, cachedCustomerId }: IGetCustomerParams) {
       let customer: ICustomerDocument | null = null;
 
       if (email) {
@@ -467,6 +474,16 @@ export const loadClass = () => {
 
       if (!customer && cachedCustomerId) {
         customer = await Customers.findOne({ _id: cachedCustomerId });
+      }
+
+      if (customer) {
+        const ids = customer.relatedIntegrationIds;
+
+        if (integrationId && ids && !ids.includes(integrationId)) {
+          ids.push(integrationId);
+          await Customers.updateOne({ _id: customer._id }, { $set: { relatedIntegrationIds: ids } });
+          customer = await Customers.findOne({ _id: customer._id });
+        }
       }
 
       return customer;
@@ -521,9 +538,10 @@ export const loadClass = () => {
     /*
      * Create a new messenger customer
      */
-    public static async createMessengerCustomer(doc: ICreateMessengerCustomerParams) {
+    public static async createMessengerCustomer({ doc, customData }: ICreateMessengerCustomerParams) {
       return this.createCustomer({
         ...this.fixListFields(doc),
+        trackedData: customData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -533,9 +551,7 @@ export const loadClass = () => {
     /*
      * Update messenger customer
      */
-    public static async updateMessengerCustomer(param: IUpdateMessengerCustomerParams) {
-      const { _id, doc } = param;
-
+    public static async updateMessengerCustomer({ _id, doc, customData }: IUpdateMessengerCustomerParams) {
       const customer = await Customers.findOne({ _id });
 
       if (!customer) {
@@ -548,6 +564,7 @@ export const loadClass = () => {
 
       const modifier = {
         ...this.fixListFields(doc, customer),
+        trackedData: { ...(customer.trackedData || {}), ...(customData || {}) },
         modifiedAt: new Date(),
       };
 

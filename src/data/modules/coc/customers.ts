@@ -52,7 +52,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        integrationId: integrations.map(i => i._id),
+        relatedIntegrationIds: integrations.map(i => i._id),
       },
     });
   }
@@ -60,13 +60,14 @@ export class Builder extends CommonBuilder<IListArgs> {
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
     const integrations = await Integrations.findIntegrations({ kind: integration });
+
     /**
      * Since both of brand and integration filters use a same integrationId field
      * we need to intersect two arrays of integration ids.
      */
     this.positiveList.push({
       terms: {
-        integrationId: integrations.map(i => i._id),
+        relatedIntegrationIds: integrations.map(i => i._id),
       },
     });
   }
@@ -77,7 +78,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        integrationId: integrations.map(i => i._id),
+        relatedIntegrationIds: integrations.map(i => i._id),
       },
     });
   }

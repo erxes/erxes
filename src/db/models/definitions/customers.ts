@@ -50,6 +50,7 @@ export interface ICustomer {
   hasValidEmail?: boolean;
   links?: ILink;
   isUser?: boolean;
+  relatedIntegrationIds?: string[];
   integrationId?: string;
   tagIds?: string[];
   // TODO migrate after remove 1row
@@ -189,6 +190,7 @@ export const customerSchema = schemaWrapper(
 
     isUser: field({ type: Boolean, label: 'Is user', optional: true }),
 
+    relatedIntegrationIds: field({ type: [String], optional: true }),
     integrationId: field({ type: String, optional: true, label: 'Integration' }),
     tagIds: field({ type: [String], optional: true, index: true, label: 'Tags' }),
 

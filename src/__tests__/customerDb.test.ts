@@ -516,10 +516,12 @@ describe('Customers model tests', () => {
     const phone = '422999';
 
     const customer = await Customers.createMessengerCustomer({
-      integrationId: _customer.integrationId,
-      email,
-      phone,
-      isUser: _customer.isUser,
+      doc: {
+        integrationId: _customer.integrationId,
+        email,
+        phone,
+        isUser: _customer.isUser,
+      },
     });
 
     expect(customer).toBeDefined();
@@ -543,8 +545,10 @@ describe('Customers model tests', () => {
   });
 
   test('updateMessengerCustomer()', async () => {
+    const integration = await integrationFactory();
+
     try {
-      await Customers.updateMessengerCustomer({ _id: '_id', doc: {}, customData: {} });
+      await Customers.updateMessengerCustomer({ _id: '_id', doc: { integrationId: integration._id }, customData: {} });
     } catch (e) {
       expect(e.message).toBe('Customer not found');
     }
@@ -559,6 +563,7 @@ describe('Customers model tests', () => {
     const customer = await Customers.updateMessengerCustomer({
       _id: _customer._id,
       doc: {
+        integrationId: integration._id,
         email,
         phone,
         isUser: true,
