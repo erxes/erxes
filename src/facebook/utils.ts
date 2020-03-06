@@ -61,7 +61,10 @@ export const unsubscribePage = async (pageId, pageToken): Promise<{ success: tru
   return graphRequest
     .delete(`${pageId}/subscribed_apps`, pageToken)
     .then(res => res)
-    .catch(e => debugFacebook(e));
+    .catch(e => {
+      debugFacebook(e);
+      throw e;
+    });
 };
 
 export const getFacebookUser = async (pageId: string, pageTokens: { [key: string]: string }, fbUserId: string) => {

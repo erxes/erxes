@@ -103,26 +103,23 @@ export const composeEmail = async ({
   accountId: string;
   threadId?: string;
 }) => {
-  const auth = getAuth(credentials, accountId);
-
-  let response;
-
-  const params = {
-    auth,
-    userId: 'me',
-    response: { threadId },
-    uploadType: 'multipart',
-    media: {
-      mimeType: 'message/rfc822',
-      body: message,
-    },
-  };
-
   try {
-    response = await gmailClient.messages.send(params);
-  } catch (e) {
-    return debugGmail(`Error Google: Could not send email ${e}`);
-  }
+    const auth = await getAuth(credentials, accountId);
 
-  return response;
+    const params = {
+      auth,
+      userId: 'me',
+      response: { threadId },
+      uploadType: 'multipart',
+      media: {
+        mimeType: 'message/rfc822',
+        body: message,
+      },
+    };
+
+    return gmailClient.messages.send(params);
+  } catch (e) {
+    debugGmail(`Error Google: Could not send email ${e}`);
+    throw e;
+  }
 };

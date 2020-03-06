@@ -4,7 +4,7 @@ import { Integrations } from '../models';
 import { IIntegrationDocument } from '../models/Integrations';
 import { getAuth, gmailClient } from './auth';
 import { createOrGetConversation, createOrGetConversationMessage, createOrGetCustomer } from './store';
-import { ICredentials, IGmailAttachment, IMessage, IMessageAdded } from './types';
+import { ICredentials, IMessage, IMessageAdded } from './types';
 import { extractEmailFromString, parseBatchResponse, parseMessage } from './util';
 
 /**
@@ -69,7 +69,13 @@ export const syncPartially = async (receivedEmail: string, credentials: ICredent
 
   debugGmail(`Sync partially gmail messages with ${gmailHistoryId}`);
 
-  const auth = getAuth(credentials, accountId);
+  let auth;
+
+  try {
+    auth = await getAuth(credentials, accountId);
+  } catch (e) {
+    throw e;
+  }
 
   // Get batched multiple messages or single message
   const syncResponse = await syncByHistoryId(auth, gmailHistoryId);
@@ -235,20 +241,18 @@ const sendSingleRequest = async (auth: ICredentials, messages: IMessageAdded[]) 
 export const getAttachment = async (messageId: string, attachmentId: string, credentials: ICredentials) => {
   debugGmail('Request to get an attachment');
 
-  const auth = getAuth(credentials);
-
-  let response: IGmailAttachment;
-
   try {
-    response = await gmailClient.messages.attachments.get({
+    const auth = await getAuth(credentials);
+    const response = await gmailClient.messages.attachments.get({
       auth,
       id: attachmentId,
       userId: 'me',
       messageId,
     });
+
+    return response.data || '';
   } catch (e) {
     debugGmail(`Failed to get attachment: ${e}`);
+    throw e;
   }
-
-  return response.data || '';
 };
