@@ -12,6 +12,7 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
   };
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
   if (NODE_ENV === 'test') {
     return;
   }
