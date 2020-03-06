@@ -53,7 +53,7 @@ title: Getting  Started
 - <a href="../developer/graphql-api">GraphQL API</a>
 - <a href="../developer/coding-standards">Coding standards</a>
 - <a href="../developer/contributing">Contributing</a>
-- <a href="../developer/push-notification">Push Notification</a>
+- <a href="../developer/push-notifications">Push Notification</a>
 - <a href="../developer/android-sdk">Android SDK</a>
 - <a href="../developer/ios-sdk">iOS SDK</a>
 - <a href="../developer/extend">Extend</a>
