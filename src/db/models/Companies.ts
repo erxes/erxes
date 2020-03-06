@@ -11,6 +11,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
   checkDuplication(
     companyFields: {
       primaryName?: string;
+      code?: string;
     },
     idsToExclude?: string[] | string,
   ): never;
@@ -38,10 +39,12 @@ export const loadClass = () => {
     public static async checkDuplication(
       companyFields: {
         primaryName?: string;
+        code?: string;
       },
       idsToExclude?: string[] | string,
     ) {
       const query: { status: {}; [key: string]: any } = { status: { $ne: STATUSES.DELETED } };
+      let previousEntry;
 
       // Adding exclude operator to the query
       if (idsToExclude) {
@@ -50,7 +53,7 @@ export const loadClass = () => {
 
       if (companyFields.primaryName) {
         // check duplication from primaryName
-        let previousEntry = await Companies.find({
+        previousEntry = await Companies.find({
           ...query,
           primaryName: companyFields.primaryName,
         });
@@ -67,6 +70,17 @@ export const loadClass = () => {
 
         if (previousEntry.length > 0) {
           throw new Error('Duplicated name');
+        }
+      }
+      if (companyFields.code) {
+        // check duplication from code
+        previousEntry = await Companies.find({
+          ...query,
+          code: companyFields.code,
+        });
+
+        if (previousEntry.length > 0) {
+          throw new Error('Duplicated code');
         }
       }
     }

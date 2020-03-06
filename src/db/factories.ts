@@ -408,6 +408,7 @@ interface ICompanyFactoryInput {
   parentCompanyId?: string;
   ownerId?: string;
   mergedIds?: string[];
+  code?: string;
 }
 
 export const companyFactory = (params: ICompanyFactoryInput = {}) => {
@@ -430,6 +431,7 @@ export const companyFactory = (params: ICompanyFactoryInput = {}) => {
     parentCompanyId: params.parentCompanyId || faker.random.uuid().toString(),
     ownerId: params.ownerId || faker.random.uuid().toString(),
     mergedIds: params.mergedIds || [],
+    code: params.code || '',
   };
 
   const searchText = Companies.fillSearchText({ ...companyDoc });
