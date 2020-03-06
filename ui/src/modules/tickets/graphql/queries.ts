@@ -11,6 +11,7 @@ const commonParams = `
   $labelIds: [String],
   $sortField: String,
   $sortDirection: Int,
+  $userIds: [String],
   ${conformityQueryFields}
 `;
 
@@ -24,6 +25,7 @@ const commonParamDefs = `
   labelIds: $labelIds,
   sortField: $sortField,
   sortDirection: $sortDirection,
+  userIds: $userIds,
   ${conformityQueryFieldDefs}
 `;
 
