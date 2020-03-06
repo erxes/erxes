@@ -26,7 +26,7 @@ export const trackGmail = async () => {
   }
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC || !GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_GMAIL_SUBSCRIPTION_NAME) {
-    return debugGmail(`
+    return new Error(`
       Error Google: Failed to create google pubsub topic following config missing
       GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID || 'Not defined'}
       GOOGLE_GMAIL_TOPIC: ${GOOGLE_GMAIL_TOPIC || 'Not defined'}
@@ -54,7 +54,7 @@ export const trackGmail = async () => {
     topic = await pubsubClient.topic(GOOGLE_GMAIL_TOPIC);
   } catch (e) {
     debugGmail(`Pubsub: Failed to create topic: ${e.message}`);
-    return e;
+    throw e;
   }
 
   let topicExists;
@@ -64,7 +64,7 @@ export const trackGmail = async () => {
   } catch (e) {
     debugGmail(`Pubsub: Failed to check topic exists: ${e.message}`);
 
-    return e;
+    throw e;
   }
 
   if (!topicExists) {
@@ -75,7 +75,8 @@ export const trackGmail = async () => {
     try {
       [topicResponse] = await pubsubClient.createTopic(GOOGLE_GMAIL_TOPIC);
     } catch (e) {
-      return debugGmail(`Failed to create gmail topic: ${e}`);
+      debugGmail(`Failed to create gmail topic: ${e.message}`);
+      throw e;
     }
 
     topic = topicResponse;
@@ -119,7 +120,7 @@ export const trackGmail = async () => {
       });
     } catch (e) {
       debugGmail(`Failed to create subscription: ${e}`);
-      throw new Error(e);
+      throw e;
     }
 
     return;
@@ -166,14 +167,12 @@ export const watchPushNotification = async (accountId: string, credentials: ICre
     `);
   }
 
-  const auth = getAuth(credentials, accountId);
-
-  let response;
-
   debugGmail(`Google OAuthClient request to watch push notification for the given user mailbox`);
 
   try {
-    response = await gmailClient.watch({
+    const auth = await getAuth(credentials, accountId);
+
+    return gmailClient.watch({
       auth,
       userId: 'me',
       requestBody: {
@@ -184,10 +183,8 @@ export const watchPushNotification = async (accountId: string, credentials: ICre
     });
   } catch (e) {
     debugGmail(`Google OAuthClient request to watch push notification failed ${e}`);
-    throw new Error(e);
+    throw e;
   }
-
-  return response;
 };
 
 /**
@@ -195,14 +192,15 @@ export const watchPushNotification = async (accountId: string, credentials: ICre
  */
 export const stopPushNotification = async (email: string, credentials: ICredentials) => {
   const { _id } = await Accounts.findOne({ uid: email });
-  const auth = getAuth(credentials, _id);
 
   debugGmail(`Google OAuthClient request to stop push notification for the given user mailbox`);
 
   try {
+    const auth = getAuth(credentials, _id);
+
     await gmailClient.stop({ auth, userId: email });
   } catch (e) {
     debugGmail(`Google OAuthClient failed to stop push notification for the given user mailbox ${e}`);
-    throw new Error(e);
+    throw e;
   }
 };

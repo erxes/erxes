@@ -7,22 +7,19 @@ import { ICredentials } from './types';
  * Gets the current user's Gmail profile
  */
 export const getProfile = async (credentials: ICredentials, email?: string) => {
-  const auth = getAuth(credentials);
-
   debugGmail(`Gmail get an user profile`);
 
-  let userProfile;
-
   try {
-    userProfile = await gmailClient.getProfile({
+    const auth = await getAuth(credentials);
+
+    return gmailClient.getProfile({
       auth,
       userId: email || 'me',
     });
   } catch (e) {
     debugGmail(`Error Google: Gmail failed to get user profile ${e}`);
+    throw e;
   }
-
-  return userProfile;
 };
 
 export const getCredentialsByEmailAccountId = async ({
@@ -58,7 +55,7 @@ export const getCredentialsByEmailAccountId = async ({
 export const getCredentials = (credentials: IAccount): ICredentials => ({
   access_token: credentials.token,
   refresh_token: credentials.tokenSecret,
-  expiry_date: credentials.expireDate,
+  expiry_date: parseInt(credentials.expireDate, 10),
   scope: credentials.scope,
 });
 

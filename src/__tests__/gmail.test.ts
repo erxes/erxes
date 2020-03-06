@@ -20,7 +20,7 @@ describe('Gmail test', () => {
   const credential = {
     access_token: 'jalsjdklasjd',
     refresh_token: 'kdsjd',
-    expiry_date: 'lksjd',
+    expiry_date: 123,
     scope: 'alksjdaklsdj',
     historyId: 'historyId',
   };
@@ -350,6 +350,6 @@ describe('Gmail test', () => {
 
     expect(account.token).toEqual(credential.access_token);
     expect(account.tokenSecret).toEqual(credential.refresh_token);
-    expect(account.expireDate).toEqual(credential.expiry_date);
+    expect(account.expireDate).toEqual(credential.expiry_date.toString());
   });
 });

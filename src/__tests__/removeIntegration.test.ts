@@ -71,7 +71,7 @@ describe('Facebook remove integration test', async () => {
     const erxesApiIds = await removeAccount(accountId);
 
     // Remove integration
-    expect(erxesApiIds).toEqual({ erxesApiIds: ['jaskjda', 'asljkdas'] });
+    expect(erxesApiIds).toEqual({ erxesApiIds: [erxesApiId1, erxesApiId2] });
 
     expect(await Integrations.find({ kind: 'facebook' })).toEqual([]);
 
