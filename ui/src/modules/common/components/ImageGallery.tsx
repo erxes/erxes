@@ -42,21 +42,19 @@ const PreviewWrapper = styled.div`
 const ButtonDirection = styledTS<{ arrow?: string }>(styled.button)`
     position: absolute;
     ${props => (props.arrow === 'right' ? `right: 20px` : `left: 20px`)}
-    background: ${colors.colorLightGray};
+    background: ${colors.colorWhite};
     cursor: pointer;
     width: 36px;
     height: 36px;
     border-radius: 20px;
-    opacity: 0.8;
+    opacity: .5;
 
     > i {
-      font-weight: 600;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     &:hover {
-      background: ${colors.colorCoreDarkGray};
-      color: ${colors.colorWhite};
+      background: ${colors.colorCoreLightGray};
     }
 `;
 
@@ -160,7 +158,7 @@ class ImageGallery extends React.Component<Props, State> {
           arrow={direction}
           onClick={this.arrowClick.bind(this, direction)}
         >
-          <Icon icon="leftarrow-3" />
+          <Icon icon="leftarrow" />
         </ButtonDirection>
       );
     }
@@ -170,7 +168,7 @@ class ImageGallery extends React.Component<Props, State> {
         arrow={direction}
         onClick={this.arrowClick.bind(this, direction)}
       >
-        <Icon icon="chevron" />
+        <Icon icon="rightarrow" />
       </ButtonDirection>
     );
   };

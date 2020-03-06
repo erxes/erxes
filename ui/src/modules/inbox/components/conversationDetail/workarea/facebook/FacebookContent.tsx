@@ -1,4 +1,4 @@
-import ImageGallery from 'modules/common/components/ImageGallery';
+import ImageWithPreview from 'modules/common/components/ImageWithPreview';
 import { IAttachment } from 'modules/common/types';
 import * as React from 'react';
 import xss from 'xss';
@@ -36,6 +36,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           />
         );
       }
+
       if (link.includes('xx.fbcdn.net')) {
         return (
           <iframe
@@ -50,16 +51,16 @@ export default class FacebookContent extends React.Component<Props, {}> {
           />
         );
       }
+
       if (link.includes('fna.fbcdn.net')) {
-        const currentImage: IAttachment = { name: 'Facebook', type: 'image/jpeg', url: link };
+        const currentImage: IAttachment = {
+          name: 'Facebook',
+          type: 'image/jpeg',
+          url: link
+        };
         const images = [currentImage];
 
-        return (
-          <ImageGallery
-            images={images}
-            onLoad={scrollBottom}
-          />
-        );
+        return <ImageWithPreview images={images} onLoad={scrollBottom} />;
       } else {
         return (
           <a

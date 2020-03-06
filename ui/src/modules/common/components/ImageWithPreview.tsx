@@ -23,7 +23,7 @@ type State = {
   visible: boolean;
 };
 
-export default class ImageWithPreview extends React.Component<Props, State> {
+class ImageWithPreview extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -68,3 +68,5 @@ export default class ImageWithPreview extends React.Component<Props, State> {
     );
   }
 }
+
+export default ImageWithPreview;
