@@ -1,7 +1,12 @@
 import { Document, Schema } from 'mongoose';
 
 import { ILink, linkSchema } from './common';
-import { CUSTOMER_LEAD_STATUS_TYPES, CUSTOMER_LIFECYCLE_STATE_TYPES, STATUSES } from './constants';
+import {
+  CUSTOMER_LEAD_STATUS_TYPES,
+  CUSTOMER_LIFECYCLE_STATE_TYPES,
+  EMAIL_VALIDATION_STATUSES,
+  STATUSES,
+} from './constants';
 
 import { field, schemaWrapper } from './utils';
 
@@ -47,7 +52,7 @@ export interface ICustomer {
   hasAuthority?: string;
   description?: string;
   doNotDisturb?: string;
-  hasValidEmail?: boolean;
+  emailValidationStatus?: string;
   links?: ILink;
   isUser?: boolean;
   relatedIntegrationIds?: string[];
@@ -146,7 +151,12 @@ export const customerSchema = schemaWrapper(
 
     primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
     emails: field({ type: [String], optional: true, label: 'Emails' }),
-    hasValidEmail: field({ type: Boolean, optional: true, label: 'Has valid email' }),
+    emailValidationStatus: field({
+      type: String,
+      enum: EMAIL_VALIDATION_STATUSES.ALL,
+      default: EMAIL_VALIDATION_STATUSES.UNKNOWN,
+      label: 'Email validation status',
+    }),
 
     primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),

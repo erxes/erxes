@@ -328,9 +328,7 @@ describe('engageQueries', () => {
 
     const qry = `
       query engagesConfigDetail {
-        engagesConfigDetail {
-          accessKeyId
-        }
+        engagesConfigDetail
       }
     `;
 

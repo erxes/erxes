@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { validateEmail, validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
-import { STATUSES } from './definitions/constants';
+import { EMAIL_VALIDATION_STATUSES, STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
@@ -23,7 +23,7 @@ interface ICreateMessengerCustomerParams {
   doc: {
     integrationId: string;
     email?: string;
-    hasValidEmail?: boolean;
+    emailValidationStatus?: string;
     phone?: string;
     code?: string;
     isUser?: boolean;
@@ -221,11 +221,6 @@ export const loadClass = () => {
 
       // clean custom field values
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
-      const isValid = await validateEmail(doc.primaryEmail);
-
-      if (doc.primaryEmail && isValid) {
-        doc.hasValidEmail = true;
-      }
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -236,6 +231,10 @@ export const loadClass = () => {
         modifiedAt: new Date(),
         ...doc,
       });
+
+      if (doc.primaryEmail) {
+        validateEmail(doc.primaryEmail);
+      }
 
       // calculateProfileScore
       await Customers.updateProfileScore(customer._id, true);
@@ -256,8 +255,13 @@ export const loadClass = () => {
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
       if (doc.primaryEmail) {
-        const isValid = await validateEmail(doc.primaryEmail);
-        doc.hasValidEmail = isValid;
+        const oldCustomer = await Customers.getCustomer(_id);
+
+        if (doc.primaryEmail !== oldCustomer.primaryEmail) {
+          doc.emailValidationStatus = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+
+          validateEmail(doc.primaryEmail);
+        }
       }
 
       await Customers.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
