@@ -113,10 +113,12 @@ export const saveLead = (params: {
       if (data) {
         saveCallback(data.widgetsSaveLead);
 
-        postMessage({
-          message: "formSuccess",
-          variables
-        });
+        if (data.widgetsSaveLead && data.widgetsSaveLead.status === "ok") {
+          postMessage({
+            message: "formSuccess",
+            variables
+          });
+        }
       }
     })
 
