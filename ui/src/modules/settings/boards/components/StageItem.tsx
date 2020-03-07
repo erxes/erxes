@@ -22,6 +22,8 @@ class StageItem extends React.Component<Props, {}> {
       onChange(stageId, e.target.name, e.target.value);
     const onChangeProbability = (stageId, e) =>
       onChange(stageId, e.target.name, e.target.value);
+    const onChangeStatus = (stageId, e) =>
+      onChange(stageId, e.target.name, e.target.value);
 
     return (
       <StageItemContainer key={stage._id}>
@@ -46,6 +48,20 @@ class StageItem extends React.Component<Props, {}> {
               {p}
             </option>
           ))}
+        </FormControl>
+
+        <FormControl
+          defaultValue={stage.status}
+          componentClass="select"
+          name="status"
+          onChange={onChangeStatus.bind(this, stage._id)}
+        >
+          <option key="active" value="active">
+            Active
+          </option>
+          <option key="archived" value="archived">
+            Archived
+          </option>
         </FormControl>
 
         <Button

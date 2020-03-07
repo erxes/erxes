@@ -66,7 +66,8 @@ export default withProps<Props>(
           companyIds: queryParams.companyIds,
           assignedUserIds: queryParams.assignedUserIds,
           productIds: queryParams.productIds,
-          closeDateType: queryParams.closeDateType
+          closeDateType: queryParams.closeDateType,
+          userIds: queryParams.userIds
         }
       })
     })

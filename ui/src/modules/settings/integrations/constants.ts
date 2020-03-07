@@ -272,16 +272,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, For marketing teams, Surveys and Feedback'
   },
   {
-    name: 'Engage config',
-    description: 'Set up your custome amazon simple email service account here',
-    inMessenger: false,
-    isAvailable: true,
-    kind: 'amazon-ses',
-    logo: '/images/integrations/aws-ses.png',
-    createModal: 'sesconfig',
-    category: 'All integrations, For marketing teams, Email marketing, Engage'
-  },
-  {
     name: 'Call Pro',
     description: 'Connect your call pro phone number',
     inMessenger: false,

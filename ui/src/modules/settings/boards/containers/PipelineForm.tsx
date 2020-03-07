@@ -28,9 +28,18 @@ type FinalProps = {
 
 class PipelineFormContainer extends React.Component<FinalProps> {
   render() {
-    const { stagesQuery, boardsQuery, boardId, renderButton, options } = this.props;
+    const {
+      stagesQuery,
+      boardsQuery,
+      boardId,
+      renderButton,
+      options
+    } = this.props;
 
-    if ((stagesQuery && stagesQuery.loading) || (boardsQuery && boardsQuery.loading)) {
+    if (
+      (stagesQuery && stagesQuery.loading) ||
+      (boardsQuery && boardsQuery.loading)
+    ) {
       return <Spinner />;
     }
 
@@ -59,16 +68,16 @@ export default withProps<Props>(
         name: 'stagesQuery',
         skip: props => !props.pipeline,
         options: ({ pipeline }: { pipeline?: IPipeline }) => ({
-          variables: { pipelineId: pipeline ? pipeline._id : '' },
+          variables: { pipelineId: pipeline ? pipeline._id : '', isAll: true },
           fetchPolicy: 'network-only'
         })
-      },
+      }
     ),
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',
       options: ({ type }) => ({
         variables: { type }
       })
-    }),
+    })
   )(PipelineFormContainer)
 );
