@@ -14,6 +14,7 @@ type Props = {
   showPopup: () => void;
   setHeight: () => void;
   setCallSubmit: (state: boolean) => void;
+  setExtraContent: (content: string) => void;
 };
 
 class App extends React.Component<Props> {
@@ -21,7 +22,7 @@ class App extends React.Component<Props> {
     saveBrowserInfo();
 
     window.addEventListener("message", event => {
-      const { fromPublisher, message, action, formId } = event.data;
+      const { fromPublisher, message, action, formId, html } = event.data;
 
       if (fromPublisher) {
         // receive sendingBrowserInfo command from publisher
@@ -34,9 +35,15 @@ class App extends React.Component<Props> {
           this.props.showPopup();
         }
 
-        // receive call submit command
-        if (action === "callSubmit" && formId === connection.setting.form_id) {
-          this.props.setCallSubmit(true);
+        if (formId === connection.setting.form_id) {
+          // receive call submit command
+          if (action === "callSubmit") {
+            this.props.setCallSubmit(true);
+          }
+
+          if (action === "extraFormContent") {
+            this.props.setExtraContent(html);
+          }
         }
       }
     });
@@ -127,7 +134,8 @@ const WithContext = () => (
           isCalloutVisible,
           setHeight,
           getIntegrationConfigs,
-          setCallSubmit
+          setCallSubmit,
+          setExtraContent
         } = value;
 
         return (
@@ -138,6 +146,7 @@ const WithContext = () => (
             isCalloutVisible={isCalloutVisible}
             init={init}
             setCallSubmit={setCallSubmit}
+            setExtraContent={setExtraContent}
             setHeight={setHeight}
             closePopup={closePopup}
             showPopup={showPopup}

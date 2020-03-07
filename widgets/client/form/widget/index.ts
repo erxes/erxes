@@ -85,6 +85,18 @@ const createIframe = (setting: Setting) => {
       );
     });
 
+    setErxesProperty("sendExtraFormContent", (id: string, html: string) => {
+      contentWindow.postMessage(
+        {
+          fromPublisher: true,
+          action: "extraFormContent",
+          formId: id,
+          html
+        },
+        "*"
+      );
+    });
+
     contentWindow.postMessage(
       {
         fromPublisher: true,

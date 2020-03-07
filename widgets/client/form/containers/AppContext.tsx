@@ -11,6 +11,7 @@ interface IState {
   isCalloutVisible: boolean;
   currentStatus: ICurrentStatus;
   isSubmitting?: boolean;
+  extraContent?: string;
   callSubmit: boolean;
 }
 
@@ -25,6 +26,7 @@ interface IStore extends IState {
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
   setCallSubmit: (state: boolean) => void;
+  setExtraContent: (content: string) => void;
   getIntegration: () => IIntegration;
   getForm: () => IForm;
   getIntegrationConfigs: () => IIntegrationLeadData;
@@ -43,6 +45,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isFormVisible: false,
       isCalloutVisible: false,
       currentStatus: { status: "INITIAL" },
+      extraContent: "",
       callSubmit: false
     };
   }
@@ -178,6 +181,10 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  setExtraContent = (content: string) => {
+    this.setState({ extraContent: content });
+  };
+
   setCallSubmit = (state: boolean) => {
     this.setState({ callSubmit: state });
   };
@@ -231,6 +238,7 @@ export class AppProvider extends React.Component<{}, IState> {
           sendEmail,
           setHeight: this.setHeight,
           setCallSubmit: this.setCallSubmit,
+          setExtraContent: this.setExtraContent,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
           getIntegrationConfigs: this.getIntegrationConfigs
