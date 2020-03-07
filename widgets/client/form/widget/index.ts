@@ -74,6 +74,17 @@ const createIframe = (setting: Setting) => {
       return;
     }
 
+    setErxesProperty("showPopup", (id: string) => {
+      contentWindow.postMessage(
+        {
+          fromPublisher: true,
+          action: "showPopup",
+          formId: id
+        },
+        "*"
+      );
+    });
+
     setErxesProperty("callFormSubmit", (id: string) => {
       contentWindow.postMessage(
         {

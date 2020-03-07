@@ -30,12 +30,12 @@ class App extends React.Component<Props> {
           this.props.init();
         }
 
-        // receive show popup command from publisher
-        if (action === "showPopup") {
-          this.props.showPopup();
-        }
-
         if (formId === connection.setting.form_id) {
+          // receive show popup command from publisher
+          if (action === "showPopup") {
+            this.props.showPopup();
+          }
+
           // receive call submit command
           if (action === "callSubmit") {
             this.props.setCallSubmit(true);
